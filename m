@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E774C7296
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:26:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C11544C74BA
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235176AbiB1R1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:27:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44636 "EHLO
+        id S238553AbiB1RqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:46:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234358AbiB1R1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5FDC85944;
-        Mon, 28 Feb 2022 09:26:15 -0800 (PST)
+        with ESMTP id S240031AbiB1RpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:45:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3812DAB9;
+        Mon, 28 Feb 2022 09:37:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C63DF612FA;
-        Mon, 28 Feb 2022 17:26:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF1F8C340E7;
-        Mon, 28 Feb 2022 17:26:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1AD86135F;
+        Mon, 28 Feb 2022 17:37:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF5C9C340E7;
+        Mon, 28 Feb 2022 17:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069174;
-        bh=2dY4FaV3w1LznUAzAZ1N3zjyDTZAnC9WJ/7XnFq2k7E=;
+        s=korg; t=1646069853;
+        bh=pRsXDIZaX6/B6+4vcBJG6GbnQNuzWJ76G+Fce0QPDKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRyyDxf+/QXo6icIP0uaJ9/utwKTjUYrc/Z3LjiYDor4T4Z96nEgjoXBbNMEE4Asc
-         4SRNnD0EfB9yD/9rjjX3ZqKe6apYfXXikRyCNqarZZ8nO5GitdO9662NZgizwg4FtC
-         XcXehC/G3V+v2YZwMQm4NIla6kwtzDDU/OtrZsf4=
+        b=HQ38uZItqMpFXogzBnV/deiDMadG8itTQGiHx3APW3LF15eLoJzDfKOYng8SGCPC5
+         eoJXV3KWmP7b4jWafbYFiZuK+sAt1+sS1Z2OA+1aoZQJ7ER+aPSTkhiFDYWuE+gS+r
+         4dB5CLKeMS88pzDlQlvulGEP8cuHrlS1qxSuWkSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 02/29] vhost/vsock: dont check owner in vhost_vsock_stop() while releasing
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        alexander.shishkin@intel.com, Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 035/139] perf evlist: Fix failed to use cpu list for uncore events
 Date:   Mon, 28 Feb 2022 18:23:29 +0100
-Message-Id: <20220228172141.981731348@linuxfoundation.org>
+Message-Id: <20220228172351.462238127@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,85 +60,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-commit a58da53ffd70294ebea8ecd0eb45fd0d74add9f9 upstream.
+commit 8a3d2ee0de3828e0d01f9682d35ee53704659bd0 upstream.
 
-vhost_vsock_stop() calls vhost_dev_check_owner() to check the device
-ownership. It expects current->mm to be valid.
+The 'perf record' and 'perf stat' commands have supported the option
+'-C/--cpus' to count or collect only on the list of CPUs provided.
 
-vhost_vsock_stop() is also called by vhost_vsock_dev_release() when
-the user has not done close(), so when we are in do_exit(). In this
-case current->mm is invalid and we're releasing the device, so we
-should clean it anyway.
+Commit 1d3351e631fc34d7 ("perf tools: Enable on a list of CPUs for
+hybrid") add it to be supported for hybrid. For hybrid support, it
+checks the cpu list are available on hybrid PMU. But when we test only
+uncore events(or events not in cpu_core and cpu_atom), there is a bug:
 
-Let's check the owner only when vhost_vsock_stop() is called
-by an ioctl.
+Before:
 
-When invoked from release we can not fail so we don't check return
-code of vhost_vsock_stop(). We need to stop vsock even if it's not
-the owner.
+ # perf stat -C0  -e uncore_clock/clockticks/ sleep 1
+   failed to use cpu list 0
 
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In this case, for uncore event, its pmu_name is not cpu_core or
+cpu_atom, so in evlist__fix_hybrid_cpus, perf_pmu__find_hybrid_pmu
+should return NULL,both events_nr and unmatched_count should be 0 ,then
+the cpu list check function evlist__fix_hybrid_cpus return -1 and the
+error "failed to use cpu list 0" will happen. Bypass "events_nr=0" case
+then the issue is fixed.
+
+After:
+
+ # perf stat -C0  -e uncore_clock/clockticks/ sleep 1
+
+ Performance counter stats for 'CPU(s) 0':
+
+       195,476,873      uncore_clock/clockticks/
+
+       1.004518677 seconds time elapsed
+
+When testing with at least one core event and uncore events, it has no
+issue.
+
+ # perf stat -C0  -e cpu_core/cpu-cycles/,uncore_clock/clockticks/ sleep 1
+
+ Performance counter stats for 'CPU(s) 0':
+
+         5,993,774      cpu_core/cpu-cycles/
+       301,025,912      uncore_clock/clockticks/
+
+       1.003964934 seconds time elapsed
+
+Fixes: 1d3351e631fc34d7 ("perf tools: Enable on a list of CPUs for hybrid")
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: alexander.shishkin@intel.com
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20220218093127.1844241-1-zhengjun.xing@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vsock.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ tools/perf/util/evlist-hybrid.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -484,16 +484,18 @@ err:
+--- a/tools/perf/util/evlist-hybrid.c
++++ b/tools/perf/util/evlist-hybrid.c
+@@ -153,8 +153,8 @@ int evlist__fix_hybrid_cpus(struct evlis
+ 		perf_cpu_map__put(matched_cpus);
+ 		perf_cpu_map__put(unmatched_cpus);
+ 	}
+-
+-	ret = (unmatched_count == events_nr) ? -1 : 0;
++	if (events_nr)
++		ret = (unmatched_count == events_nr) ? -1 : 0;
+ out:
+ 	perf_cpu_map__put(cpus);
  	return ret;
- }
- 
--static int vhost_vsock_stop(struct vhost_vsock *vsock)
-+static int vhost_vsock_stop(struct vhost_vsock *vsock, bool check_owner)
- {
- 	size_t i;
--	int ret;
-+	int ret = 0;
- 
- 	mutex_lock(&vsock->dev.mutex);
- 
--	ret = vhost_dev_check_owner(&vsock->dev);
--	if (ret)
--		goto err;
-+	if (check_owner) {
-+		ret = vhost_dev_check_owner(&vsock->dev);
-+		if (ret)
-+			goto err;
-+	}
- 
- 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
- 		struct vhost_virtqueue *vq = &vsock->vqs[i];
-@@ -611,7 +613,12 @@ static int vhost_vsock_dev_release(struc
- 	 * inefficient.  Room for improvement here. */
- 	vsock_for_each_connected_socket(vhost_vsock_reset_orphans);
- 
--	vhost_vsock_stop(vsock);
-+	/* Don't check the owner, because we are in the release path, so we
-+	 * need to stop the vsock device in any case.
-+	 * vhost_vsock_stop() can not fail in this case, so we don't need to
-+	 * check the return code.
-+	 */
-+	vhost_vsock_stop(vsock, false);
- 	vhost_vsock_flush(vsock);
- 	vhost_dev_stop(&vsock->dev);
- 
-@@ -709,7 +716,7 @@ static long vhost_vsock_dev_ioctl(struct
- 		if (start)
- 			return vhost_vsock_start(vsock);
- 		else
--			return vhost_vsock_stop(vsock);
-+			return vhost_vsock_stop(vsock, true);
- 	case VHOST_GET_FEATURES:
- 		features = VHOST_VSOCK_FEATURES;
- 		if (copy_to_user(argp, &features, sizeof(features)))
 
 
