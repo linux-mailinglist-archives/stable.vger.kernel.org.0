@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B835A4C746E
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59AE14C76E0
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236424AbiB1RpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:45:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37324 "EHLO
+        id S236999AbiB1SHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:07:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238800AbiB1RnD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF909A4D7;
-        Mon, 28 Feb 2022 09:35:13 -0800 (PST)
+        with ESMTP id S239853AbiB1SF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:05:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8689A5B897;
+        Mon, 28 Feb 2022 09:48:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C6B72CE17C8;
-        Mon, 28 Feb 2022 17:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9365C340E7;
-        Mon, 28 Feb 2022 17:35:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF60EB815C3;
+        Mon, 28 Feb 2022 17:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41668C36AE5;
+        Mon, 28 Feb 2022 17:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069710;
-        bh=bdeZ2090sDqU+izv81ASqcBTYUENGg4bAPv8rFcJ7GI=;
+        s=korg; t=1646070480;
+        bh=p8i4Tq1JhKBA4elh4tr7Rvc8i93blPcxJzdKjp36pJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J40PupWfLXIhC5rz7DccAz/yRzPv7RDX/Q/uHf5WzcuQpQFFge218lmX1r5gs+22l
-         6jQXBJ89nHhWghgiCDcuWj9B/EbdVEvKntftX6/4IMnP1iZZ1La7Ew2I6YuJVJ1W7k
-         B0WZPqxFH1p35ZsK4grRvUF+1Brxj5/Qo/D52pag=
+        b=vy0OY0HZSpWNczQxsaOBFkHNXYdUm8RWkB19G8Fs7qys4Jf3T452X6muIdsZCybx2
+         gjgKSXZoo4LoUZhlZxHHVS0sdpDw7tCDWj0JOBqlmnqtvtKYhiSZAkhzC8PI8NTktA
+         ESjU1cA+Wcz12CZ0HpNsdQQcvgaIg/kHFBXSV0wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Subject: [PATCH 5.10 65/80] usb: dwc2: drd: fix soft connect when gadget is unconfigured
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Daehwan Jung <dh10.jung@samsung.com>
+Subject: [PATCH 5.16 124/164] usb: gadget: rndis: add spinlock for rndis response list
 Date:   Mon, 28 Feb 2022 18:24:46 +0100
-Message-Id: <20220228172319.625573384@linuxfoundation.org>
+Message-Id: <20220228172411.438110089@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Daehwan Jung <dh10.jung@samsung.com>
 
-commit 32fde84362c40961726a5c91f35ad37355ccc0c6 upstream.
+commit aaaba1c86d04dac8e49bf508b492f81506257da3 upstream.
 
-When the gadget driver hasn't been (yet) configured, and the cable is
-connected to a HOST, the SFTDISCON gets cleared unconditionally, so the
-HOST tries to enumerate it.
-At the host side, this can result in a stuck USB port or worse. When
-getting lucky, some dmesg can be observed at the host side:
- new high-speed USB device number ...
- device descriptor read/64, error -110
+There's no lock for rndis response list. It could cause list corruption
+if there're two different list_add at the same time like below.
+It's better to add in rndis_add_response / rndis_free_response
+/ rndis_get_next_response to prevent any race condition on response list.
 
-Fix it in drd, by checking the enabled flag before calling
-dwc2_hsotg_core_connect(). It will be called later, once configured,
-by the normal flow:
-- udc_bind_to_driver
- - usb_gadget_connect
-   - dwc2_hsotg_pullup
-     - dwc2_hsotg_core_connect
+[  361.894299] [1:   irq/191-dwc3:16979] list_add corruption.
+next->prev should be prev (ffffff80651764d0),
+but was ffffff883dc36f80. (next=ffffff80651764d0).
 
-Fixes: 17f934024e84 ("usb: dwc2: override PHY input signals with usb role switch support")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/1644999135-13478-1-git-send-email-fabrice.gasnier@foss.st.com
+[  361.904380] [1:   irq/191-dwc3:16979] Call trace:
+[  361.904391] [1:   irq/191-dwc3:16979]  __list_add_valid+0x74/0x90
+[  361.904401] [1:   irq/191-dwc3:16979]  rndis_msg_parser+0x168/0x8c0
+[  361.904409] [1:   irq/191-dwc3:16979]  rndis_command_complete+0x24/0x84
+[  361.904417] [1:   irq/191-dwc3:16979]  usb_gadget_giveback_request+0x20/0xe4
+[  361.904426] [1:   irq/191-dwc3:16979]  dwc3_gadget_giveback+0x44/0x60
+[  361.904434] [1:   irq/191-dwc3:16979]  dwc3_ep0_complete_data+0x1e8/0x3a0
+[  361.904442] [1:   irq/191-dwc3:16979]  dwc3_ep0_interrupt+0x29c/0x3dc
+[  361.904450] [1:   irq/191-dwc3:16979]  dwc3_process_event_entry+0x78/0x6cc
+[  361.904457] [1:   irq/191-dwc3:16979]  dwc3_process_event_buf+0xa0/0x1ec
+[  361.904465] [1:   irq/191-dwc3:16979]  dwc3_thread_interrupt+0x34/0x5c
+
+Fixes: f6281af9d62e ("usb: gadget: rndis: use list_for_each_entry_safe")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Daehwan Jung <dh10.jung@samsung.com>
+Link: https://lore.kernel.org/r/1645507768-77687-1-git-send-email-dh10.jung@samsung.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/core.h |    2 ++
- drivers/usb/dwc2/drd.c  |    6 ++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/rndis.c |    8 ++++++++
+ drivers/usb/gadget/function/rndis.h |    1 +
+ 2 files changed, 9 insertions(+)
 
---- a/drivers/usb/dwc2/core.h
-+++ b/drivers/usb/dwc2/core.h
-@@ -1406,6 +1406,7 @@ void dwc2_hsotg_core_connect(struct dwc2
- void dwc2_hsotg_disconnect(struct dwc2_hsotg *dwc2);
- int dwc2_hsotg_set_test_mode(struct dwc2_hsotg *hsotg, int testmode);
- #define dwc2_is_device_connected(hsotg) (hsotg->connected)
-+#define dwc2_is_device_enabled(hsotg) (hsotg->enabled)
- int dwc2_backup_device_registers(struct dwc2_hsotg *hsotg);
- int dwc2_restore_device_registers(struct dwc2_hsotg *hsotg, int remote_wakeup);
- int dwc2_gadget_enter_hibernation(struct dwc2_hsotg *hsotg);
-@@ -1434,6 +1435,7 @@ static inline int dwc2_hsotg_set_test_mo
- 					   int testmode)
- { return 0; }
- #define dwc2_is_device_connected(hsotg) (0)
-+#define dwc2_is_device_enabled(hsotg) (0)
- static inline int dwc2_backup_device_registers(struct dwc2_hsotg *hsotg)
- { return 0; }
- static inline int dwc2_restore_device_registers(struct dwc2_hsotg *hsotg,
---- a/drivers/usb/dwc2/drd.c
-+++ b/drivers/usb/dwc2/drd.c
-@@ -109,8 +109,10 @@ static int dwc2_drd_role_sw_set(struct u
- 		already = dwc2_ovr_avalid(hsotg, true);
- 	} else if (role == USB_ROLE_DEVICE) {
- 		already = dwc2_ovr_bvalid(hsotg, true);
--		/* This clear DCTL.SFTDISCON bit */
--		dwc2_hsotg_core_connect(hsotg);
-+		if (dwc2_is_device_enabled(hsotg)) {
-+			/* This clear DCTL.SFTDISCON bit */
-+			dwc2_hsotg_core_connect(hsotg);
-+		}
- 	} else {
- 		if (dwc2_is_device_mode(hsotg)) {
- 			if (!dwc2_ovr_bvalid(hsotg, false))
+--- a/drivers/usb/gadget/function/rndis.c
++++ b/drivers/usb/gadget/function/rndis.c
+@@ -922,6 +922,7 @@ struct rndis_params *rndis_register(void
+ 	params->resp_avail = resp_avail;
+ 	params->v = v;
+ 	INIT_LIST_HEAD(&params->resp_queue);
++	spin_lock_init(&params->resp_lock);
+ 	pr_debug("%s: configNr = %d\n", __func__, i);
+ 
+ 	return params;
+@@ -1015,12 +1016,14 @@ void rndis_free_response(struct rndis_pa
+ {
+ 	rndis_resp_t *r, *n;
+ 
++	spin_lock(&params->resp_lock);
+ 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
+ 		if (r->buf == buf) {
+ 			list_del(&r->list);
+ 			kfree(r);
+ 		}
+ 	}
++	spin_unlock(&params->resp_lock);
+ }
+ EXPORT_SYMBOL_GPL(rndis_free_response);
+ 
+@@ -1030,14 +1033,17 @@ u8 *rndis_get_next_response(struct rndis
+ 
+ 	if (!length) return NULL;
+ 
++	spin_lock(&params->resp_lock);
+ 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
+ 		if (!r->send) {
+ 			r->send = 1;
+ 			*length = r->length;
++			spin_unlock(&params->resp_lock);
+ 			return r->buf;
+ 		}
+ 	}
+ 
++	spin_unlock(&params->resp_lock);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(rndis_get_next_response);
+@@ -1054,7 +1060,9 @@ static rndis_resp_t *rndis_add_response(
+ 	r->length = length;
+ 	r->send = 0;
+ 
++	spin_lock(&params->resp_lock);
+ 	list_add_tail(&r->list, &params->resp_queue);
++	spin_unlock(&params->resp_lock);
+ 	return r;
+ }
+ 
+--- a/drivers/usb/gadget/function/rndis.h
++++ b/drivers/usb/gadget/function/rndis.h
+@@ -174,6 +174,7 @@ typedef struct rndis_params {
+ 	void			(*resp_avail)(void *v);
+ 	void			*v;
+ 	struct list_head	resp_queue;
++	spinlock_t		resp_lock;
+ } rndis_params;
+ 
+ /* RNDIS Message parser and other useless functions */
 
 
