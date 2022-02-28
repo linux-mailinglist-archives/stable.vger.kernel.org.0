@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D93C04C74B2
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B444C75C5
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238691AbiB1RqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:46:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33494 "EHLO
+        id S234775AbiB1R4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239965AbiB1Ro4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:44:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68B1BDF30;
-        Mon, 28 Feb 2022 09:37:25 -0800 (PST)
+        with ESMTP id S238720AbiB1Ryq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A886C65B5;
+        Mon, 28 Feb 2022 09:44:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA98EB815BA;
-        Mon, 28 Feb 2022 17:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C93C340F3;
-        Mon, 28 Feb 2022 17:37:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 420F360909;
+        Mon, 28 Feb 2022 17:44:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56728C340E7;
+        Mon, 28 Feb 2022 17:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069839;
-        bh=dBtYkSvhfP/MKC7GzCnKXVVASZczZWYeyfLous7eP6w=;
+        s=korg; t=1646070256;
+        bh=Lx0IS8Gmlt0ON9JS9/mUQFsYYSB2G4HV4Wd3sTPvW9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XUWCsMMOdTCllvXq9sc9uSQH3QuZJ7zL9FNfEvilsfZg9CLNRbx2cpkc7uE91UzS6
-         9yE6OhMpis2GZJU2tI54abgSbi8A/JU9Am2FBxiqLBJGl7Utvs+Xvy/85sTH66lT/Z
-         0G1HIenEnRyeO3LJBhWH59yIAWmaxaS+/OBBzd3M=
+        b=PWIwinXCptXdDWraazRL5Hx3WmM5wzHFkU2sHW41YKrmVyul+3SihxOROzDOZgZjB
+         q1nf/yHbdpab/7AewD6mAPSEOY4qLTOo6MHt3BsuUom5mBa97AG2z7RJJxf5RLYSMQ
+         LWB9a2EGyUZQDJ8fiG38xT0+gPWlts1FRjyspE0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.15 030/139] tee: export teedev_open() and teedev_close_context()
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Alok Prasad <palok@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 042/164] bnx2x: fix driver load from initrd
 Date:   Mon, 28 Feb 2022 18:23:24 +0100
-Message-Id: <20220228172350.933076501@linuxfoundation.org>
+Message-Id: <20220228172404.089422826@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Manish Chopra <manishc@marvell.com>
 
-commit 1e2c3ef0496e72ba9001da5fd1b7ed56ccb30597 upstream.
+commit e13ad1443684f7afaff24cf207e85e97885256bd upstream.
 
-Exports the two functions teedev_open() and teedev_close_context() in
-order to make it easier to create a driver internal struct tee_context.
+Commit b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0") added
+new firmware support in the driver with maintaining older firmware
+compatibility. However, older firmware was not added in MODULE_FIRMWARE()
+which caused missing firmware files in initrd image leading to driver load
+failure from initrd. This patch adds MODULE_FIRMWARE() for older firmware
+version to have firmware files included in initrd.
 
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Fixes: b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215627
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Alok Prasad <palok@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Link: https://lore.kernel.org/r/20220223085720.12021-1-manishc@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_core.c  |    6 ++++--
- include/linux/tee_drv.h |   14 ++++++++++++++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/tee/tee_core.c
-+++ b/drivers/tee/tee_core.c
-@@ -43,7 +43,7 @@ static DEFINE_SPINLOCK(driver_lock);
- static struct class *tee_class;
- static dev_t tee_devt;
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+@@ -100,6 +100,9 @@ MODULE_LICENSE("GPL");
+ MODULE_FIRMWARE(FW_FILE_NAME_E1);
+ MODULE_FIRMWARE(FW_FILE_NAME_E1H);
+ MODULE_FIRMWARE(FW_FILE_NAME_E2);
++MODULE_FIRMWARE(FW_FILE_NAME_E1_V15);
++MODULE_FIRMWARE(FW_FILE_NAME_E1H_V15);
++MODULE_FIRMWARE(FW_FILE_NAME_E2_V15);
  
--static struct tee_context *teedev_open(struct tee_device *teedev)
-+struct tee_context *teedev_open(struct tee_device *teedev)
- {
- 	int rc;
- 	struct tee_context *ctx;
-@@ -70,6 +70,7 @@ err:
- 	return ERR_PTR(rc);
- 
- }
-+EXPORT_SYMBOL_GPL(teedev_open);
- 
- void teedev_ctx_get(struct tee_context *ctx)
- {
-@@ -96,13 +97,14 @@ void teedev_ctx_put(struct tee_context *
- 	kref_put(&ctx->refcount, teedev_ctx_release);
- }
- 
--static void teedev_close_context(struct tee_context *ctx)
-+void teedev_close_context(struct tee_context *ctx)
- {
- 	struct tee_device *teedev = ctx->teedev;
- 
- 	teedev_ctx_put(ctx);
- 	tee_device_put(teedev);
- }
-+EXPORT_SYMBOL_GPL(teedev_close_context);
- 
- static int tee_open(struct inode *inode, struct file *filp)
- {
---- a/include/linux/tee_drv.h
-+++ b/include/linux/tee_drv.h
-@@ -582,4 +582,18 @@ struct tee_client_driver {
- #define to_tee_client_driver(d) \
- 		container_of(d, struct tee_client_driver, driver)
- 
-+/**
-+ * teedev_open() - Open a struct tee_device
-+ * @teedev:	Device to open
-+ *
-+ * @return a pointer to struct tee_context on success or an ERR_PTR on failure.
-+ */
-+struct tee_context *teedev_open(struct tee_device *teedev);
-+
-+/**
-+ * teedev_close_context() - closes a struct tee_context
-+ * @ctx:	The struct tee_context to close
-+ */
-+void teedev_close_context(struct tee_context *ctx);
-+
- #endif /*__TEE_DRV_H*/
+ int bnx2x_num_queues;
+ module_param_named(num_queues, bnx2x_num_queues, int, 0444);
 
 
