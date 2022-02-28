@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CEEA4C7368
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F944C7594
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238135AbiB1RfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:35:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
+        id S239156AbiB1Rzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237773AbiB1Reg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:34:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9969399C;
-        Mon, 28 Feb 2022 09:31:04 -0800 (PST)
+        with ESMTP id S240237AbiB1RyH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3399DB12D9;
+        Mon, 28 Feb 2022 09:41:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B2AF61365;
-        Mon, 28 Feb 2022 17:30:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2960C36AE7;
-        Mon, 28 Feb 2022 17:30:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A144B815BA;
+        Mon, 28 Feb 2022 17:41:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A5A1C340F1;
+        Mon, 28 Feb 2022 17:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069454;
-        bh=MLtCPOzQia29se3vECjDQjwtcWHGH9cE0eyTMbvnry8=;
+        s=korg; t=1646070107;
+        bh=S8J+aiyOcgabjctDUgCUvtmL825UWRiMZ0r3ZLPkzCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XrSdotJG68OBZMJvaGpl1JZ4SgF3ZQkSRbVVfS9Jb5xZsh9ncMgk8MLBKjPDO6q0/
-         wwC8wRuNrgukEHKo2KEm+BV8ze1Jw9LXJxCPO9aN5lRI5e6QfACVC3HTueWjm7AJqB
-         CXJme86T+JLVZYuGS7DzE29upaZbMpZw5Yl2aNFs=
+        b=N7cb9nddZIYkXLXUz73gKwiVmFdRrUr0V277vCBHFgu2OL8lF8xwgsxkTfyaE44jM
+         S/WidmhS5CE4wE+p5FPHQo5RVquEskQi6j3omJJxQLpEgyTLx4NI4lzihjCzQlIAQR
+         3GmxUCHywqlkT41vHiCJHaCfbKnrQFpY/jNAyvYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 25/53] nfp: flower: Fix a potential leak in nfp_tunnel_add_shared_mac()
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Md Haris Iqbal <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 089/139] RDMA/rtrs-clt: Fix possible double free in error case
 Date:   Mon, 28 Feb 2022 18:24:23 +0100
-Message-Id: <20220228172250.117600264@linuxfoundation.org>
+Message-Id: <20220228172357.000407449@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Md Haris Iqbal <haris.iqbal@ionos.com>
 
-commit 3a14d0888eb4b0045884126acc69abfb7b87814d upstream.
+[ Upstream commit 8700af2cc18c919b2a83e74e0479038fd113c15d ]
 
-ida_simple_get() returns an id between min (0) and max (NFP_MAX_MAC_INDEX)
-inclusive.
-So NFP_MAX_MAC_INDEX (0xff) is a valid id.
+Callback function rtrs_clt_dev_release() for put_device() calls kfree(clt)
+to free memory. We shouldn't call kfree(clt) again, and we can't use the
+clt after kfree too.
 
-In order for the error handling path to work correctly, the 'invalid'
-value for 'ida_idx' should not be in the 0..NFP_MAX_MAC_INDEX range,
-inclusive.
+Replace device_register() with device_initialize() and device_add() so that
+dev_set_name can() be used appropriately.
 
-So set it to -1.
+Move mutex_destroy() to the release function so it can be called in
+the alloc_clt err path.
 
-Fixes: 20cce8865098 ("nfp: flower: enable MAC address sharing for offloadable devs")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20220218131535.100258-1-simon.horman@corigine.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eab098246625 ("RDMA/rtrs-clt: Refactor the failure cases in alloc_clt")
+Link: https://lore.kernel.org/r/20220217030929.323849-1-haris.iqbal@ionos.com
+Reported-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c | 37 ++++++++++++++------------
+ 1 file changed, 20 insertions(+), 17 deletions(-)
 
---- a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
-@@ -588,8 +588,8 @@ nfp_tunnel_add_shared_mac(struct nfp_app
- 			  int port, bool mod)
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index 55ebe01ec9951..3272514f05405 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -2664,6 +2664,8 @@ static void rtrs_clt_dev_release(struct device *dev)
  {
- 	struct nfp_flower_priv *priv = app->priv;
--	int ida_idx = NFP_MAX_MAC_INDEX, err;
- 	struct nfp_tun_offloaded_mac *entry;
-+	int ida_idx = -1, err;
- 	u16 nfp_mac_idx = 0;
+ 	struct rtrs_clt *clt = container_of(dev, struct rtrs_clt, dev);
  
- 	entry = nfp_tunnel_lookup_offloaded_macs(app, netdev->dev_addr);
-@@ -663,7 +663,7 @@ err_remove_hash:
- err_free_entry:
- 	kfree(entry);
- err_free_ida:
--	if (ida_idx != NFP_MAX_MAC_INDEX)
-+	if (ida_idx != -1)
- 		ida_simple_remove(&priv->tun.mac_off_ids, ida_idx);
++	mutex_destroy(&clt->paths_ev_mutex);
++	mutex_destroy(&clt->paths_mutex);
+ 	kfree(clt);
+ }
  
- 	return err;
+@@ -2693,6 +2695,8 @@ static struct rtrs_clt *alloc_clt(const char *sessname, size_t paths_num,
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
++	clt->dev.class = rtrs_clt_dev_class;
++	clt->dev.release = rtrs_clt_dev_release;
+ 	uuid_gen(&clt->paths_uuid);
+ 	INIT_LIST_HEAD_RCU(&clt->paths_list);
+ 	clt->paths_num = paths_num;
+@@ -2709,43 +2713,41 @@ static struct rtrs_clt *alloc_clt(const char *sessname, size_t paths_num,
+ 	init_waitqueue_head(&clt->permits_wait);
+ 	mutex_init(&clt->paths_ev_mutex);
+ 	mutex_init(&clt->paths_mutex);
++	device_initialize(&clt->dev);
+ 
+-	clt->dev.class = rtrs_clt_dev_class;
+-	clt->dev.release = rtrs_clt_dev_release;
+ 	err = dev_set_name(&clt->dev, "%s", sessname);
+ 	if (err)
+-		goto err;
++		goto err_put;
++
+ 	/*
+ 	 * Suppress user space notification until
+ 	 * sysfs files are created
+ 	 */
+ 	dev_set_uevent_suppress(&clt->dev, true);
+-	err = device_register(&clt->dev);
+-	if (err) {
+-		put_device(&clt->dev);
+-		goto err;
+-	}
++	err = device_add(&clt->dev);
++	if (err)
++		goto err_put;
+ 
+ 	clt->kobj_paths = kobject_create_and_add("paths", &clt->dev.kobj);
+ 	if (!clt->kobj_paths) {
+ 		err = -ENOMEM;
+-		goto err_dev;
++		goto err_del;
+ 	}
+ 	err = rtrs_clt_create_sysfs_root_files(clt);
+ 	if (err) {
+ 		kobject_del(clt->kobj_paths);
+ 		kobject_put(clt->kobj_paths);
+-		goto err_dev;
++		goto err_del;
+ 	}
+ 	dev_set_uevent_suppress(&clt->dev, false);
+ 	kobject_uevent(&clt->dev.kobj, KOBJ_ADD);
+ 
+ 	return clt;
+-err_dev:
+-	device_unregister(&clt->dev);
+-err:
++err_del:
++	device_del(&clt->dev);
++err_put:
+ 	free_percpu(clt->pcpu_path);
+-	kfree(clt);
++	put_device(&clt->dev);
+ 	return ERR_PTR(err);
+ }
+ 
+@@ -2753,9 +2755,10 @@ static void free_clt(struct rtrs_clt *clt)
+ {
+ 	free_permits(clt);
+ 	free_percpu(clt->pcpu_path);
+-	mutex_destroy(&clt->paths_ev_mutex);
+-	mutex_destroy(&clt->paths_mutex);
+-	/* release callback will free clt in last put */
++
++	/*
++	 * release callback will free clt and destroy mutexes in last put
++	 */
+ 	device_unregister(&clt->dev);
+ }
+ 
+-- 
+2.34.1
+
 
 
