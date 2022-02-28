@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB654C7394
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:36:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD5A4C748C
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238112AbiB1Rgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:36:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42264 "EHLO
+        id S236778AbiB1Rpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238140AbiB1Rg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:36:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1704F88B14;
-        Mon, 28 Feb 2022 09:31:46 -0800 (PST)
+        with ESMTP id S239298AbiB1Rn4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A58C9D0CA;
+        Mon, 28 Feb 2022 09:36:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EEAE6135F;
-        Mon, 28 Feb 2022 17:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270B4C340E7;
-        Mon, 28 Feb 2022 17:31:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 890D0B815BA;
+        Mon, 28 Feb 2022 17:36:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81F1C340E7;
+        Mon, 28 Feb 2022 17:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069503;
-        bh=3B6U30DnZLogicG+t+CFTLySNfmtFdpaMTdhUnrn9t0=;
+        s=korg; t=1646069765;
+        bh=uCerF8BX4XGwIHz+tAyMMigidC2NZyRMn7ck9WmU0ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/PI8FiRc1M0Yt0lISyxJToTZDYMWpbjIP+YDFmatYp9jzBQjnIj7kSHsJwzIDxfc
-         3y7zpF+CfF6XG3XzJ1t57129G003yoSwR3jd60533fiZN5zZEVPn980RYesL7pbB7i
-         7JGaIyTvgrxIfma7GvztmHa5AjQjiZY52XvQhCgs=
+        b=EzbyMZ23fHmVGgVETgrGMRCveXNSwpgbVRWxL7dubO5MK8veJZqzy3X+RO8eRq/N7
+         srqp+mPz8C8mxjrwlzAL9hTV+vCqiLeMUBW0pIfJ6Hck3moL6a7YYJvld6yqABf9+/
+         sf0+aO7eCcxeTbU9fNwaolYqoE5Qa7Dgxvcqxg5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 5.4 44/53] usb: dwc3: gadget: Let the interrupt handler disable bottom halves.
+        stable@vger.kernel.org,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.10 61/80] USB: gadget: validate endpoint index for xilinx udc
 Date:   Mon, 28 Feb 2022 18:24:42 +0100
-Message-Id: <20220228172251.492857297@linuxfoundation.org>
+Message-Id: <20220228172319.145029646@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-commit 84918a89d6efaff075de570b55642b6f4ceeac6d upstream.
+commit 7f14c7227f342d9932f9b918893c8814f86d2a0d upstream.
 
-The interrupt service routine registered for the gadget is a primary
-handler which mask the interrupt source and a threaded handler which
-handles the source of the interrupt. Since the threaded handler is
-voluntary threaded, the IRQ-core does not disable bottom halves before
-invoke the handler like it does for the forced-threaded handler.
+Assure that host may not manipulate the index to point
+past endpoint array.
 
-Due to changes in networking it became visible that a network gadget's
-completions handler may schedule a softirq which remains unprocessed.
-The gadget's completion handler is usually invoked either in hard-IRQ or
-soft-IRQ context. In this context it is enough to just raise the softirq
-because the softirq itself will be handled once that context is left.
-In the case of the voluntary threaded handler, there is nothing that
-will process pending softirqs. Which means it remain queued until
-another random interrupt (on this CPU) fires and handles it on its exit
-path or another thread locks and unlocks a lock with the bh suffix.
-Worst case is that the CPU goes idle and the NOHZ complains about
-unhandled softirqs.
-
-Disable bottom halves before acquiring the lock (and disabling
-interrupts) and enable them after dropping the lock. This ensures that
-any pending softirqs will handled right away.
-
-Link: https://lkml.kernel.org/r/c2a64979-73d1-2c22-e048-c275c9f81558@samsung.com
-Fixes: e5f68b4a3e7b0 ("Revert "usb: dwc3: gadget: remove unnecessary _irqsave()"")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Cc: stable <stable@kernel.org>
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lore.kernel.org/r/Yg/YPejVQH3KkRVd@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/gadget/udc/udc-xilinx.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3529,9 +3529,11 @@ static irqreturn_t dwc3_thread_interrupt
- 	unsigned long flags;
- 	irqreturn_t ret = IRQ_NONE;
- 
-+	local_bh_disable();
- 	spin_lock_irqsave(&dwc->lock, flags);
- 	ret = dwc3_process_event_buf(evt);
- 	spin_unlock_irqrestore(&dwc->lock, flags);
-+	local_bh_enable();
- 
- 	return ret;
- }
+--- a/drivers/usb/gadget/udc/udc-xilinx.c
++++ b/drivers/usb/gadget/udc/udc-xilinx.c
+@@ -1612,6 +1612,8 @@ static void xudc_getstatus(struct xusb_u
+ 		break;
+ 	case USB_RECIP_ENDPOINT:
+ 		epnum = udc->setup.wIndex & USB_ENDPOINT_NUMBER_MASK;
++		if (epnum >= XUSB_MAX_ENDPOINTS)
++			goto stall;
+ 		target_ep = &udc->ep[epnum];
+ 		epcfgreg = udc->read_fn(udc->addr + target_ep->offset);
+ 		halt = epcfgreg & XUSB_EP_CFG_STALL_MASK;
+@@ -1679,6 +1681,10 @@ static void xudc_set_clear_feature(struc
+ 	case USB_RECIP_ENDPOINT:
+ 		if (!udc->setup.wValue) {
+ 			endpoint = udc->setup.wIndex & USB_ENDPOINT_NUMBER_MASK;
++			if (endpoint >= XUSB_MAX_ENDPOINTS) {
++				xudc_ep0_stall(udc);
++				return;
++			}
+ 			target_ep = &udc->ep[endpoint];
+ 			outinbit = udc->setup.wIndex & USB_ENDPOINT_DIR_MASK;
+ 			outinbit = outinbit >> 7;
 
 
