@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 818D04C7610
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB4004C72C4
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233333AbiB1R7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:59:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
+        id S237247AbiB1R2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:28:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235414AbiB1R5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:57:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C45A2DD50;
-        Mon, 28 Feb 2022 09:44:54 -0800 (PST)
+        with ESMTP id S235090AbiB1R11 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3C3185658;
+        Mon, 28 Feb 2022 09:26:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EF43B81187;
-        Mon, 28 Feb 2022 17:44:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A64C340E7;
-        Mon, 28 Feb 2022 17:44:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BF67B815B0;
+        Mon, 28 Feb 2022 17:26:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA05C340E7;
+        Mon, 28 Feb 2022 17:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070291;
-        bh=+3NWXV/ij98gyzbua8DxAV20vrwUsHuHwyrxkfxw58Q=;
+        s=korg; t=1646069196;
+        bh=usIFlN/FEikYYvUp7TbxxzRds9hM5Or9jnjcluoau0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yqa+MX/1X5PWrsFf0tHp6cGyzRTDhPgC47JlZpleaM6N304VMq2QIZ1v38Vb0kF24
-         Kf662XIb/mqleDdYO0ScJ9f2sTMbqAS7QWxOay06Za4sXcn+vb2isDeQG06ezggthM
-         6yYmyAgrZIGBz80x3aVR6u4yKet56Kcmdg77xPsk=
+        b=eczhViAfmNaTZKteWJzdNFsXTvHT5XASG2L3KcYG/qO8s/NgxPGRsIcpitMA9RB+d
+         5jWFvQZH4AF1BPRTpiRRkzyL4jEi9u0t3Pn+nbNWMP3fzXLme0tgdUlG0Ml0IBRePA
+         5CYfOf17o++x6M4944cGiacxTdmrgxwJeuUEqZPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 5.16 054/164] ice: initialize local variable tlv
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 09/29] net: __pskb_pull_tail() & pskb_carve_frag_list() drop_monitor friends
 Date:   Mon, 28 Feb 2022 18:23:36 +0100
-Message-Id: <20220228172405.047717439@linuxfoundation.org>
+Message-Id: <20220228172142.423342346@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
+References: <20220228172141.744228435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 5950bdc88dd1d158f2845fdff8fb1de86476806c upstream.
+commit ef527f968ae05c6717c39f49c8709a7e2c19183a upstream.
 
-Clang static analysis reports this issues
-ice_common.c:5008:21: warning: The left expression of the compound
-  assignment is an uninitialized value. The computed value will
-  also be garbage
-  ldo->phy_type_low |= ((u64)buf << (i * 16));
-  ~~~~~~~~~~~~~~~~~ ^
+Whenever one of these functions pull all data from an skb in a frag_list,
+use consume_skb() instead of kfree_skb() to avoid polluting drop
+monitoring.
 
-When called from ice_cfg_phy_fec() ldo is the uninitialized local
-variable tlv.  So initialize.
-
-Fixes: ea78ce4dab05 ("ice: add link lenient and default override support")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 6fa01ccd8830 ("skbuff: Add pskb_extract() helper function")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220220154052.1308469-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_common.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/skbuff.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_common.c
-+++ b/drivers/net/ethernet/intel/ice/ice_common.c
-@@ -3319,7 +3319,7 @@ ice_cfg_phy_fec(struct ice_port_info *pi
- 
- 	if (fec == ICE_FEC_AUTO && ice_fw_supports_link_override(hw) &&
- 	    !ice_fw_supports_report_dflt_cfg(hw)) {
--		struct ice_link_default_override_tlv tlv;
-+		struct ice_link_default_override_tlv tlv = { 0 };
- 
- 		status = ice_get_link_default_override(&tlv, pi);
- 		if (status)
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1716,7 +1716,7 @@ unsigned char *__pskb_pull_tail(struct s
+ 		/* Free pulled out fragments. */
+ 		while ((list = skb_shinfo(skb)->frag_list) != insp) {
+ 			skb_shinfo(skb)->frag_list = list->next;
+-			kfree_skb(list);
++			consume_skb(list);
+ 		}
+ 		/* And insert new clone at head. */
+ 		if (clone) {
+@@ -4951,7 +4951,7 @@ static int pskb_carve_frag_list(struct s
+ 	/* Free pulled out fragments. */
+ 	while ((list = shinfo->frag_list) != insp) {
+ 		shinfo->frag_list = list->next;
+-		kfree_skb(list);
++		consume_skb(list);
+ 	}
+ 	/* And insert new clone at head. */
+ 	if (clone) {
 
 
