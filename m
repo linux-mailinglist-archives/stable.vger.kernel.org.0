@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 046D44C7315
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5314C735E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:34:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236749AbiB1RcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:32:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47086 "EHLO
+        id S237439AbiB1Rel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237353AbiB1RbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:31:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F6185BCB;
-        Mon, 28 Feb 2022 09:28:44 -0800 (PST)
+        with ESMTP id S237542AbiB1ReE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:34:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4366A939BA;
+        Mon, 28 Feb 2022 09:30:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E01A61358;
-        Mon, 28 Feb 2022 17:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55A66C340E7;
-        Mon, 28 Feb 2022 17:28:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46921B815AC;
+        Mon, 28 Feb 2022 17:30:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B9DEC340E7;
+        Mon, 28 Feb 2022 17:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069323;
-        bh=9M6Px821qfwCZDkVLxy/lqoCbgvn2LIoWJkQWnFZa1Q=;
+        s=korg; t=1646069446;
+        bh=kyKWOYt+j8NdpzKA9EZ5lJe6018rgYKEaDnb7/Q3m2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dtk5S+CncPTD7i/wpHK1d7ctmoJ4gR3g7u23y0AuE2M+wZrY6rh9+XIMnpdnsMOMr
-         AP5un8IprmEpRQUmTMbNPaUslkbdXLaAZFtqx+t9hUEt0yhDn2OKLOyVhxR9jl75at
-         rtPDcQmi0+/Lqkpu2lI7JIz0evIjp4B6Qc6Yt9x0=
+        b=LwEKSpik9A3sl4hCUOVAVkQ0O7tS/rM6ahtM+3SZS52PJA3vhm2GaIiOSGQk1Yr1D
+         dK0Tq7H5NkICFvMY62Wp5FZxsGAAWltBz8tV5HvtHXwemJDC058AAcUahu500a/se2
+         LBDCWGRwHj1Am00eArzb0nJwxOLc2/mPLQqFKCC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
         Tariq Toukan <tariqt@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 4.19 13/34] net/mlx5e: Fix wrong return value on ioctl EEPROM query failure
-Date:   Mon, 28 Feb 2022 18:24:19 +0100
-Message-Id: <20220228172209.516463410@linuxfoundation.org>
+Subject: [PATCH 5.4 22/53] net/mlx5e: Fix wrong return value on ioctl EEPROM query failure
+Date:   Mon, 28 Feb 2022 18:24:20 +0100
+Message-Id: <20220228172249.931709849@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -1357,7 +1357,7 @@ static int mlx5e_get_module_eeprom(struc
+@@ -1683,7 +1683,7 @@ static int mlx5e_get_module_eeprom(struc
  		if (size_read < 0) {
  			netdev_err(priv->netdev, "%s: mlx5_query_eeprom failed:0x%x\n",
  				   __func__, size_read);
