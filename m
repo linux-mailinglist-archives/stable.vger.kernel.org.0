@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9604C768A
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB0D4C7528
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:51:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235043AbiB1SFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42988 "EHLO
+        id S239145AbiB1Rvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:51:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240439AbiB1SDd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7B771CB6;
-        Mon, 28 Feb 2022 09:47:14 -0800 (PST)
+        with ESMTP id S239072AbiB1RvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:51:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA4EA2F2F;
+        Mon, 28 Feb 2022 09:39:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 89BCA60748;
-        Mon, 28 Feb 2022 17:47:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 929E5C340E7;
-        Mon, 28 Feb 2022 17:47:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B69661540;
+        Mon, 28 Feb 2022 17:39:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0A0DC340E7;
+        Mon, 28 Feb 2022 17:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070432;
-        bh=XSLKRkij1uXAIPZeU+vR3idzKH3jAVHBKW7vVMbPZpQ=;
+        s=korg; t=1646069957;
+        bh=/k8eIg1NAH1SmFReaKQmxUVMuexZO0RUQC9sV/M3azk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1xg9TOl1Tl7mJyggkxEta+WOt7NX3jMyxIZbXHpCFGgH8ExN4fSEQZLy1n1ntBnV
-         BFgPvQPMv1Bey7+6s16TNwljAjJ3JagjXo0o1bX4AsnTgOAzQVo7V31r308rlOsJBX
-         FJgw8nPdHkBmVVt+KW7LpctBKs8DPhjXQpb3L6Zs=
+        b=tnh8paZRUQ+vU0NmtSW6hldxaw1tyylScjMbxh0HJwooyog1UVkg6hTIcCrefDvlb
+         GrTJDFyjKnKkAZIBPS6+0xDnZDGWNX5GoIDSxF6c1kx3gyqALIxDDbaab/edF7pJoH
+         zZRR0ljyJxKycpz+t7AMQ9ekVm8iKGH6ZWUtivPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.16 057/164] bpf: Do not try bpf_msg_push_data with len 0
-Date:   Mon, 28 Feb 2022 18:23:39 +0100
-Message-Id: <20220228172405.333864395@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Mi <cmi@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.15 046/139] net/mlx5: Fix tc max supported prio for nic mode
+Date:   Mon, 28 Feb 2022 18:23:40 +0100
+Message-Id: <20220228172352.534990702@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Chris Mi <cmi@nvidia.com>
 
-commit 4a11678f683814df82fca9018d964771e02d7e6d upstream.
+commit be7f4b0ab149afd19514929fad824b2117d238c9 upstream.
 
-If bpf_msg_push_data() is called with len 0 (as it happens during
-selftests/bpf/test_sockmap), we do not need to do anything and can
-return early.
+Only prio 1 is supported if firmware doesn't support ignore flow
+level for nic mode. The offending commit removed the check wrongly.
+Add it back.
 
-Calling bpf_msg_push_data() with len 0 previously lead to a wrong ENOMEM
-error: we later called get_order(copy + len); if len was 0, copy + len
-was also often 0 and get_order() returned some undefined value (at the
-moment 52). alloc_pages() caught that and failed, but then bpf_msg_push_data()
-returned ENOMEM. This was wrong because we are most probably not out of
-memory and actually do not need any additional memory.
-
-Fixes: 6fff607e2f14b ("bpf: sk_msg program helper bpf_msg_push_data")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/df69012695c7094ccb1943ca02b4920db3537466.1644421921.git.fmaurer@redhat.com
+Fixes: 9a99c8f1253a ("net/mlx5e: E-Switch, Offload all chain 0 priorities when modify header and forward action is not supported")
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |    3 +++
+ drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -2711,6 +2711,9 @@ BPF_CALL_4(bpf_msg_push_data, struct sk_
- 	if (unlikely(flags))
- 		return -EINVAL;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
+@@ -121,6 +121,9 @@ u32 mlx5_chains_get_nf_ft_chain(struct m
  
-+	if (unlikely(len == 0))
-+		return 0;
+ u32 mlx5_chains_get_prio_range(struct mlx5_fs_chains *chains)
+ {
++	if (!mlx5_chains_prios_supported(chains))
++		return 1;
 +
- 	/* First find the starting scatterlist element */
- 	i = msg->sg.start;
- 	do {
+ 	if (mlx5_chains_ignore_flow_level_supported(chains))
+ 		return UINT_MAX;
+ 
 
 
