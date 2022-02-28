@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 417C44C7537
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:51:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C184C73B3
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239202AbiB1Rwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:52:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
+        id S232173AbiB1Rid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238961AbiB1Rvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:51:45 -0500
+        with ESMTP id S238677AbiB1RiM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B1A9025F;
-        Mon, 28 Feb 2022 09:39:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABE558396;
+        Mon, 28 Feb 2022 09:33:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45FDD6153D;
-        Mon, 28 Feb 2022 17:39:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AEF6C340F0;
-        Mon, 28 Feb 2022 17:39:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26F0961365;
+        Mon, 28 Feb 2022 17:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD56C340E7;
+        Mon, 28 Feb 2022 17:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069967;
-        bh=WG4M8uByYE/W8oH65uK27LmFurDpKuZphLt/hTbcEr8=;
+        s=korg; t=1646069611;
+        bh=qK+VQoyk07Wrq8YomqxayQN8UuSK0Eki19yVr7Lbo+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyMEtMJA7bi3j83wyeO0I9nBKD94MmkoprafrobRKMMz7xleI8fKRn647+kpdZL8K
-         Eu5OMpQFArJGXXKCmxVUpRc1snA9dDPDwIZ593XLTpS1f5DglGxYO2Jgu8sNchan3g
-         OylaZvmEmqXSmZ+vc9hZUAI+0E17qtr1j1ezgcsY=
+        b=HNFuLAFzsqLcmjiBg618j2sq0m7uLgpa3M1WIlKkJ5HNKMxTqGSLURYueNToZw4DS
+         JG4IHVXyM4ofXEHSz6U1tLIMuF1DfJvkI3aaLt3SFX1899bkqt5m5BsqPunJsR7K6h
+         55QjMP7+29nkIIXB0MLx/mS+biAqvynii2TQuHgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Vesker <valex@nvidia.com>,
-        Yevgeny Kliteynik <kliteyn@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 076/139] net/mlx5: DR, Cache STE shadow memory
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 29/80] tipc: Fix end of loop tests for list_for_each_entry()
 Date:   Mon, 28 Feb 2022 18:24:10 +0100
-Message-Id: <20220228172355.723263697@linuxfoundation.org>
+Message-Id: <20220228172315.013367868@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,214 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yevgeny Kliteynik <kliteyn@nvidia.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e5b2bc30c21139ae10f0e56989389d0bc7b7b1d6 upstream.
+commit a1f8fec4dac8bc7b172b2bdbd881e015261a6322 upstream.
 
-During rule insertion on each ICM memory chunk we also allocate shadow memory
-used for management. This includes the hw_ste, dr_ste and miss list per entry.
-Since the scale of these allocations is large we noticed a performance hiccup
-that happens once malloc and free are stressed.
-In extreme usecases when ~1M chunks are freed at once, it might take up to 40
-seconds to complete this, up to the point the kernel sees this as self-detected
-stall on CPU:
+These tests are supposed to check if the loop exited via a break or not.
+However the tests are wrong because if we did not exit via a break then
+"p" is not a valid pointer.  In that case, it's the equivalent of
+"if (*(u32 *)sr == *last_key) {".  That's going to work most of the time,
+but there is a potential for those to be equal.
 
- rcu: INFO: rcu_sched self-detected stall on CPU
-
-To resolve this we will increase the reuse of shadow memory.
-Doing this we see that a time in the aforementioned usecase dropped from ~40
-seconds to ~8-10 seconds.
-
-Fixes: 29cf8febd185 ("net/mlx5: DR, ICM pool memory allocator")
-Signed-off-by: Alex Vesker <valex@nvidia.com>
-Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 1593123a6a49 ("tipc: add name table dump to new netlink api")
+Fixes: 1a1a143daf84 ("tipc: add publication dump to new netlink api")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c |  109 ++++++----
- drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h      |    5 
- 2 files changed, 79 insertions(+), 35 deletions(-)
+ net/tipc/name_table.c |    2 +-
+ net/tipc/socket.c     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
-@@ -136,37 +136,35 @@ static void dr_icm_pool_mr_destroy(struc
- 	kvfree(icm_mr);
- }
- 
--static int dr_icm_chunk_ste_init(struct mlx5dr_icm_chunk *chunk)
-+static int dr_icm_buddy_get_ste_size(struct mlx5dr_icm_buddy_mem *buddy)
- {
--	chunk->ste_arr = kvzalloc(chunk->num_of_entries *
--				  sizeof(chunk->ste_arr[0]), GFP_KERNEL);
--	if (!chunk->ste_arr)
--		return -ENOMEM;
--
--	chunk->hw_ste_arr = kvzalloc(chunk->num_of_entries *
--				     DR_STE_SIZE_REDUCED, GFP_KERNEL);
--	if (!chunk->hw_ste_arr)
--		goto out_free_ste_arr;
--
--	chunk->miss_list = kvmalloc(chunk->num_of_entries *
--				    sizeof(chunk->miss_list[0]), GFP_KERNEL);
--	if (!chunk->miss_list)
--		goto out_free_hw_ste_arr;
-+	/* We support only one type of STE size, both for ConnectX-5 and later
-+	 * devices. Once the support for match STE which has a larger tag is
-+	 * added (32B instead of 16B), the STE size for devices later than
-+	 * ConnectX-5 needs to account for that.
-+	 */
-+	return DR_STE_SIZE_REDUCED;
-+}
- 
--	return 0;
-+static void dr_icm_chunk_ste_init(struct mlx5dr_icm_chunk *chunk, int offset)
-+{
-+	struct mlx5dr_icm_buddy_mem *buddy = chunk->buddy_mem;
-+	int index = offset / DR_STE_SIZE;
- 
--out_free_hw_ste_arr:
--	kvfree(chunk->hw_ste_arr);
--out_free_ste_arr:
--	kvfree(chunk->ste_arr);
--	return -ENOMEM;
-+	chunk->ste_arr = &buddy->ste_arr[index];
-+	chunk->miss_list = &buddy->miss_list[index];
-+	chunk->hw_ste_arr = buddy->hw_ste_arr +
-+			    index * dr_icm_buddy_get_ste_size(buddy);
- }
- 
- static void dr_icm_chunk_ste_cleanup(struct mlx5dr_icm_chunk *chunk)
- {
--	kvfree(chunk->miss_list);
--	kvfree(chunk->hw_ste_arr);
--	kvfree(chunk->ste_arr);
-+	struct mlx5dr_icm_buddy_mem *buddy = chunk->buddy_mem;
-+
-+	memset(chunk->hw_ste_arr, 0,
-+	       chunk->num_of_entries * dr_icm_buddy_get_ste_size(buddy));
-+	memset(chunk->ste_arr, 0,
-+	       chunk->num_of_entries * sizeof(chunk->ste_arr[0]));
- }
- 
- static enum mlx5dr_icm_type
-@@ -189,6 +187,44 @@ static void dr_icm_chunk_destroy(struct
- 	kvfree(chunk);
- }
- 
-+static int dr_icm_buddy_init_ste_cache(struct mlx5dr_icm_buddy_mem *buddy)
-+{
-+	int num_of_entries =
-+		mlx5dr_icm_pool_chunk_size_to_entries(buddy->pool->max_log_chunk_sz);
-+
-+	buddy->ste_arr = kvcalloc(num_of_entries,
-+				  sizeof(struct mlx5dr_ste), GFP_KERNEL);
-+	if (!buddy->ste_arr)
-+		return -ENOMEM;
-+
-+	/* Preallocate full STE size on non-ConnectX-5 devices since
-+	 * we need to support both full and reduced with the same cache.
-+	 */
-+	buddy->hw_ste_arr = kvcalloc(num_of_entries,
-+				     dr_icm_buddy_get_ste_size(buddy), GFP_KERNEL);
-+	if (!buddy->hw_ste_arr)
-+		goto free_ste_arr;
-+
-+	buddy->miss_list = kvmalloc(num_of_entries * sizeof(struct list_head), GFP_KERNEL);
-+	if (!buddy->miss_list)
-+		goto free_hw_ste_arr;
-+
-+	return 0;
-+
-+free_hw_ste_arr:
-+	kvfree(buddy->hw_ste_arr);
-+free_ste_arr:
-+	kvfree(buddy->ste_arr);
-+	return -ENOMEM;
-+}
-+
-+static void dr_icm_buddy_cleanup_ste_cache(struct mlx5dr_icm_buddy_mem *buddy)
-+{
-+	kvfree(buddy->ste_arr);
-+	kvfree(buddy->hw_ste_arr);
-+	kvfree(buddy->miss_list);
-+}
-+
- static int dr_icm_buddy_create(struct mlx5dr_icm_pool *pool)
- {
- 	struct mlx5dr_icm_buddy_mem *buddy;
-@@ -208,11 +244,19 @@ static int dr_icm_buddy_create(struct ml
- 	buddy->icm_mr = icm_mr;
- 	buddy->pool = pool;
- 
-+	if (pool->icm_type == DR_ICM_TYPE_STE) {
-+		/* Reduce allocations by preallocating and reusing the STE structures */
-+		if (dr_icm_buddy_init_ste_cache(buddy))
-+			goto err_cleanup_buddy;
-+	}
-+
- 	/* add it to the -start- of the list in order to search in it first */
- 	list_add(&buddy->list_node, &pool->buddy_mem_list);
- 
- 	return 0;
- 
-+err_cleanup_buddy:
-+	mlx5dr_buddy_cleanup(buddy);
- err_free_buddy:
- 	kvfree(buddy);
- free_mr:
-@@ -234,6 +278,9 @@ static void dr_icm_buddy_destroy(struct
- 
- 	mlx5dr_buddy_cleanup(buddy);
- 
-+	if (buddy->pool->icm_type == DR_ICM_TYPE_STE)
-+		dr_icm_buddy_cleanup_ste_cache(buddy);
-+
- 	kvfree(buddy);
- }
- 
-@@ -261,26 +308,18 @@ dr_icm_chunk_create(struct mlx5dr_icm_po
- 	chunk->byte_size =
- 		mlx5dr_icm_pool_chunk_size_to_byte(chunk_size, pool->icm_type);
- 	chunk->seg = seg;
-+	chunk->buddy_mem = buddy_mem_pool;
- 
--	if (pool->icm_type == DR_ICM_TYPE_STE && dr_icm_chunk_ste_init(chunk)) {
--		mlx5dr_err(pool->dmn,
--			   "Failed to init ste arrays (order: %d)\n",
--			   chunk_size);
--		goto out_free_chunk;
--	}
-+	if (pool->icm_type == DR_ICM_TYPE_STE)
-+		dr_icm_chunk_ste_init(chunk, offset);
- 
- 	buddy_mem_pool->used_memory += chunk->byte_size;
--	chunk->buddy_mem = buddy_mem_pool;
- 	INIT_LIST_HEAD(&chunk->chunk_list);
- 
- 	/* chunk now is part of the used_list */
- 	list_add_tail(&chunk->chunk_list, &buddy_mem_pool->used_list);
- 
- 	return chunk;
--
--out_free_chunk:
--	kvfree(chunk);
--	return NULL;
- }
- 
- static bool dr_icm_pool_is_sync_required(struct mlx5dr_icm_pool *pool)
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-@@ -160,6 +160,11 @@ struct mlx5dr_icm_buddy_mem {
- 	 * sync_ste command sets them free.
- 	 */
- 	struct list_head	hot_list;
-+
-+	/* Memory optimisation */
-+	struct mlx5dr_ste	*ste_arr;
-+	struct list_head	*miss_list;
-+	u8			*hw_ste_arr;
- };
- 
- int mlx5dr_buddy_init(struct mlx5dr_icm_buddy_mem *buddy,
+--- a/net/tipc/name_table.c
++++ b/net/tipc/name_table.c
+@@ -931,7 +931,7 @@ static int __tipc_nl_add_nametable_publ(
+ 		list_for_each_entry(p, &sr->all_publ, all_publ)
+ 			if (p->key == *last_key)
+ 				break;
+-		if (p->key != *last_key)
++		if (list_entry_is_head(p, &sr->all_publ, all_publ))
+ 			return -EPIPE;
+ 	} else {
+ 		p = list_first_entry(&sr->all_publ,
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -3743,7 +3743,7 @@ static int __tipc_nl_list_sk_publ(struct
+ 			if (p->key == *last_publ)
+ 				break;
+ 		}
+-		if (p->key != *last_publ) {
++		if (list_entry_is_head(p, &tsk->publications, binding_sock)) {
+ 			/* We never set seq or call nl_dump_check_consistent()
+ 			 * this means that setting prev_seq here will cause the
+ 			 * consistence check to fail in the netlink callback
 
 
