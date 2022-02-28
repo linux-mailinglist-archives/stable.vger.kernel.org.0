@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECF654C6306
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:35:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 146DD4C6307
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:35:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231479AbiB1GgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 01:36:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57924 "EHLO
+        id S231546AbiB1GgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 01:36:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231546AbiB1Gf7 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 28 Feb 2022 01:35:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FED66C8C
-        for <Stable@vger.kernel.org>; Sun, 27 Feb 2022 22:35:21 -0800 (PST)
+        with ESMTP id S231497AbiB1GgL (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 28 Feb 2022 01:36:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953FA66C8A
+        for <Stable@vger.kernel.org>; Sun, 27 Feb 2022 22:35:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3669260FD3
-        for <Stable@vger.kernel.org>; Mon, 28 Feb 2022 06:35:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A383C340E7;
-        Mon, 28 Feb 2022 06:35:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49DB4B80E1C
+        for <Stable@vger.kernel.org>; Mon, 28 Feb 2022 06:35:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 673B0C340E7;
+        Mon, 28 Feb 2022 06:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646030120;
-        bh=Y77DzzqupthNOMP463L1rrIlNrrD+PPQatkLk3E/wEE=;
+        s=korg; t=1646030130;
+        bh=g9AyQXQjv79PPyAZ4Yl3/5hqGt8HiLVWCc9y7EWy4bI=;
         h=Subject:To:Cc:From:Date:From;
-        b=vma7yG8zKtKN6jOXS6rPw5Plep7vIsoEPJq8KgfLoAhn90ctiK1Ch1+5upf7omYGY
-         U+vpcUvhPIduxHyvvdXqPN/d3P7FYczN94LZ6ngHlzLJsuqkdmghnEyaG4r1u0DXOm
-         nnhbfuOf+Ll+Ge31EFQaRNEmopGKNxkcMd5e8cHo=
-Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: wait for settling time in" failed to apply to 5.4-stable tree
+        b=qJlM2AIU+mao8YK1EDq/ezHDTj6+p9aDzibitWTwc+WQTQxEBlL9UvD+0cYvrI+ST
+         gQT3PrQtBxEHbGoKd5CbxKnLlief76z8rFEH3ST8f/6JSuhei5M8Bl6XXQe5hob+Cu
+         XqICpYkowxPZj5wvfAVgiPp0+JyGxWeokcSN8xS4=
+Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: wait for settling time in" failed to apply to 4.19-stable tree
 To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, mario.tesi@st.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Feb 2022 07:35:15 +0100
-Message-ID: <164603011559195@kroah.com>
+Date:   Mon, 28 Feb 2022 07:35:16 +0100
+Message-ID: <1646030116253241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
