@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 804F94C729D
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:27:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 019114C75F5
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234800AbiB1R1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:27:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44276 "EHLO
+        id S235458AbiB1R5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:57:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235069AbiB1R1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:16 -0500
+        with ESMTP id S239036AbiB1Rzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:55:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21DE1888FC;
-        Mon, 28 Feb 2022 09:26:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DD8541AD;
+        Mon, 28 Feb 2022 09:44:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B046461372;
-        Mon, 28 Feb 2022 17:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6E09C340E7;
-        Mon, 28 Feb 2022 17:26:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D1246090B;
+        Mon, 28 Feb 2022 17:44:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A80DDC340F1;
+        Mon, 28 Feb 2022 17:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069185;
-        bh=OKLCEiZwuHmP1wazrd3ezQTU2hh10JgNSBjwTRVn3u4=;
+        s=korg; t=1646070281;
+        bh=/k8eIg1NAH1SmFReaKQmxUVMuexZO0RUQC9sV/M3azk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTEF6DVNLRB0YlU5OyCZOG061doqyEXo5A8lbVRXc9IaEj5C9mmlPyuqUHQWU3do+
-         l7dNQvi5cvQOP9WecKuEXRrVnHf7ncD8ddxZk4UJ9uKXltrQLeNyJaLe/LlA6+e26c
-         mtD9zkO2UE377a7G3DCllduWVFynNQ6YB2gCVTmc=
+        b=ItjAzw0sYs0den4N8MlW8I3lZHsn9e5MMQBSdygYJQpSs92a1fm/UcbDV2s1g2zze
+         qnorPfeZQGAj+LN9ZmqQqkY/I1mecEhNn6OALzK3YqSr8PuzXC/S9HzWyLE8uYa7Eb
+         kafPsz/HeaDo9xg7WWgRlOY9AjrUMaY1Q2Aa6Ues=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Grant Grundler <grundler@chromium.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 05/29] sr9700: sanity check for packet length
+        stable@vger.kernel.org, Chris Mi <cmi@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.16 050/164] net/mlx5: Fix tc max supported prio for nic mode
 Date:   Mon, 28 Feb 2022 18:23:32 +0100
-Message-Id: <20220228172142.178460748@linuxfoundation.org>
+Message-Id: <20220228172404.743113854@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Chris Mi <cmi@nvidia.com>
 
-commit e9da0b56fe27206b49f39805f7dcda8a89379062 upstream.
+commit be7f4b0ab149afd19514929fad824b2117d238c9 upstream.
 
-A malicious device can leak heap data to user space
-providing bogus frame lengths. Introduce a sanity check.
+Only prio 1 is supported if firmware doesn't support ignore flow
+level for nic mode. The offending commit removed the check wrongly.
+Add it back.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9a99c8f1253a ("net/mlx5e: E-Switch, Offload all chain 0 priorities when modify header and forward action is not supported")
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/sr9700.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/usb/sr9700.c
-+++ b/drivers/net/usb/sr9700.c
-@@ -409,7 +409,7 @@ static int sr9700_rx_fixup(struct usbnet
- 		/* ignore the CRC length */
- 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
+@@ -121,6 +121,9 @@ u32 mlx5_chains_get_nf_ft_chain(struct m
  
--		if (len > ETH_FRAME_LEN)
-+		if (len > ETH_FRAME_LEN || len > skb->len)
- 			return 0;
+ u32 mlx5_chains_get_prio_range(struct mlx5_fs_chains *chains)
+ {
++	if (!mlx5_chains_prios_supported(chains))
++		return 1;
++
+ 	if (mlx5_chains_ignore_flow_level_supported(chains))
+ 		return UINT_MAX;
  
- 		/* the last packet of current skb */
 
 
