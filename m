@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 286164C6260
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 06:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B204C62FA
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:33:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbiB1FOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 00:14:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35438 "EHLO
+        id S231330AbiB1Gdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 01:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229643AbiB1FOQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 00:14:16 -0500
+        with ESMTP id S230426AbiB1Gdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 01:33:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36C61A3BC;
-        Sun, 27 Feb 2022 21:13:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB9FE1B796
+        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 22:33:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DD6660F81;
-        Mon, 28 Feb 2022 05:13:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF7F1C340E7;
-        Mon, 28 Feb 2022 05:13:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1646025217;
-        bh=8JBukGUnbi+19Lt5v7H8/Ov6ZrQ1Lh87gM/rAzX6+Yk=;
-        h=Date:To:From:Subject:From;
-        b=Bp61TDsYxPN6Y44PbZzsrn2YPETlqmDKXpyGAp3wAsrh7P1886JCrYwP8H+RXKxk6
-         SM8Z3I5Rals2Hui3w45SiRShtcaqXiml7rITfcpJXkF4fmU9+fkFKtmAn+qIwCy8b7
-         ZLFaB1VJCHeeE5UHmIafMK1BPDUod+Otjaz+FeAI=
-Date:   Sun, 27 Feb 2022 21:13:37 -0800
-To:     mm-commits@vger.kernel.org, zealci@zte.com.cn,
-        yang.yang29@zte.com.cn, willy@infradead.org,
-        wang.yong12@zte.com.cn, stable@vger.kernel.org,
-        songliubraving@fb.com, mike.kravetz@oracle.com,
-        kirill@shutemov.name, cgel.zte@gmail.com, hughd@google.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + memfd-fix-f_seal_write-after-shmem-huge-page-allocated.patch added to -mm tree
-Message-Id: <20220228051337.AF7F1C340E7@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 706FA60FDA
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 06:33:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 366DFC340E7;
+        Mon, 28 Feb 2022 06:33:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646029983;
+        bh=ApRIwQE57ak5PIurqKQZ4jSqftHRoVOfMLGIqygsegs=;
+        h=Subject:To:Cc:From:Date:From;
+        b=a5n51QA0u10k7edi4cM/xamHDdSBsBW6vUi37c10vtYAfo7lQFDzIn9gt1sa9BzT7
+         62A8DfdvBQyLvsvsHjBHIwAfTM/XcGfvwT2mcq+FArsua7W3YjZ3qpt+EpQaEEpuhL
+         2yOIUoR8dEnM1BY89dP4SAbLpMgt0Q5iADWOfOTw=
+Subject: FAILED: patch "[PATCH] tracing: Have traceon and traceoff trigger honor the instance" failed to apply to 4.14-stable tree
+To:     rostedt@goodmis.org, bristot@kernel.org, zanussi@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 28 Feb 2022 07:32:57 +0100
+Message-ID: <1646029977161194@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -49,156 +48,130 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: memfd: fix F_SEAL_WRITE after shmem huge page allocated
-has been added to the -mm tree.  Its filename is
-     memfd-fix-f_seal_write-after-shmem-huge-page-allocated.patch
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/memfd-fix-f_seal_write-after-shmem-huge-page-allocated.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/memfd-fix-f_seal_write-after-shmem-huge-page-allocated.patch
+thanks,
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+greg k-h
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+------------------ original commit in Linus's tree ------------------
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+From 302e9edd54985f584cfc180098f3554774126969 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Wed, 23 Feb 2022 22:38:37 -0500
+Subject: [PATCH] tracing: Have traceon and traceoff trigger honor the instance
 
-------------------------------------------------------
-From: Hugh Dickins <hughd@google.com>
-Subject: memfd: fix F_SEAL_WRITE after shmem huge page allocated
+If a trigger is set on an event to disable or enable tracing within an
+instance, then tracing should be disabled or enabled in the instance and
+not at the top level, which is confusing to users.
 
-Wangyong reports: after enabling tmpfs filesystem to support transparent
-hugepage with the following command:
+Link: https://lkml.kernel.org/r/20220223223837.14f94ec3@rorschach.local.home
 
- echo always > /sys/kernel/mm/transparent_hugepage/shmem_enabled
+Cc: stable@vger.kernel.org
+Fixes: ae63b31e4d0e2 ("tracing: Separate out trace events from global variables")
+Tested-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-the docker program tries to add F_SEAL_WRITE through the following
-command, but it fails unexpectedly with errno EBUSY:
-
- fcntl(5, F_ADD_SEALS, F_SEAL_WRITE) = -1.
-
-That is because memfd_tag_pins() and memfd_wait_for_pins() were never
-updated for shmem huge pages: checking page_mapcount() against
-page_count() is hopeless on THP subpages - they need to check
-total_mapcount() against page_count() on THP heads only.
-
-Make memfd_tag_pins() (compared > 1) as strict as memfd_wait_for_pins()
-(compared != 1): either can be justified, but given the non-atomic
-total_mapcount() calculation, it is better now to be strict.  Bear in mind
-that total_mapcount() itself scans all of the THP subpages, when choosing
-to take an XA_CHECK_SCHED latency break.
-
-Also fix the unlikely xa_is_value() case in memfd_wait_for_pins(): if a
-page has been swapped out since memfd_tag_pins(), then its refcount must
-have fallen, and so it can safely be untagged.
-
-Link: https://lkml.kernel.org/r/a4f79248-df75-2c8c-3df-ba3317ccb5da@google.com
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Reported-by: wangyong <wang.yong12@zte.com.cn>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: CGEL ZTE <cgel.zte@gmail.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yang Yang <yang.yang29@zte.com.cn>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memfd.c |   40 ++++++++++++++++++++++++++++------------
- 1 file changed, 28 insertions(+), 12 deletions(-)
-
---- a/mm/memfd.c~memfd-fix-f_seal_write-after-shmem-huge-page-allocated
-+++ a/mm/memfd.c
-@@ -31,20 +31,28 @@
- static void memfd_tag_pins(struct xa_state *xas)
+diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
+index e0d50c9577f3..efe563140f27 100644
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -1295,6 +1295,16 @@ traceon_trigger(struct event_trigger_data *data,
+ 		struct trace_buffer *buffer, void *rec,
+ 		struct ring_buffer_event *event)
  {
- 	struct page *page;
--	unsigned int tagged = 0;
-+	int latency = 0;
-+	int cache_count;
- 
- 	lru_add_drain();
- 
- 	xas_lock_irq(xas);
- 	xas_for_each(xas, page, ULONG_MAX) {
--		if (xa_is_value(page))
--			continue;
--		page = find_subpage(page, xas->xa_index);
--		if (page_count(page) - page_mapcount(page) > 1)
-+		cache_count = 1;
-+		if (!xa_is_value(page) &&
-+		    PageTransHuge(page) && !PageHuge(page))
-+			cache_count = HPAGE_PMD_NR;
++	struct trace_event_file *file = data->private_data;
 +
-+		if (!xa_is_value(page) &&
-+		    page_count(page) - total_mapcount(page) != cache_count)
- 			xas_set_mark(xas, MEMFD_TAG_PINNED);
-+		if (cache_count != 1)
-+			xas_set(xas, page->index + cache_count);
- 
--		if (++tagged % XA_CHECK_SCHED)
-+		latency += cache_count;
-+		if (latency < XA_CHECK_SCHED)
- 			continue;
-+		latency = 0;
- 
- 		xas_pause(xas);
- 		xas_unlock_irq(xas);
-@@ -73,7 +81,8 @@ static int memfd_wait_for_pins(struct ad
- 
- 	error = 0;
- 	for (scan = 0; scan <= LAST_SCAN; scan++) {
--		unsigned int tagged = 0;
-+		int latency = 0;
-+		int cache_count;
- 
- 		if (!xas_marked(&xas, MEMFD_TAG_PINNED))
- 			break;
-@@ -87,10 +96,14 @@ static int memfd_wait_for_pins(struct ad
- 		xas_lock_irq(&xas);
- 		xas_for_each_marked(&xas, page, ULONG_MAX, MEMFD_TAG_PINNED) {
- 			bool clear = true;
--			if (xa_is_value(page))
--				continue;
--			page = find_subpage(page, xas.xa_index);
--			if (page_count(page) - page_mapcount(page) != 1) {
++	if (file) {
++		if (tracer_tracing_is_on(file->tr))
++			return;
 +
-+			cache_count = 1;
-+			if (!xa_is_value(page) &&
-+			    PageTransHuge(page) && !PageHuge(page))
-+				cache_count = HPAGE_PMD_NR;
++		tracer_tracing_on(file->tr);
++		return;
++	}
 +
-+			if (!xa_is_value(page) && cache_count !=
-+			    page_count(page) - total_mapcount(page)) {
- 				/*
- 				 * On the last scan, we clean up all those tags
- 				 * we inserted; but make a note that we still
-@@ -103,8 +116,11 @@ static int memfd_wait_for_pins(struct ad
- 			}
- 			if (clear)
- 				xas_clear_mark(&xas, MEMFD_TAG_PINNED);
--			if (++tagged % XA_CHECK_SCHED)
-+
-+			latency += cache_count;
-+			if (latency < XA_CHECK_SCHED)
- 				continue;
-+			latency = 0;
+ 	if (tracing_is_on())
+ 		return;
  
- 			xas_pause(&xas);
- 			xas_unlock_irq(&xas);
-_
-
-Patches currently in -mm which might be from hughd@google.com are
-
-memfd-fix-f_seal_write-after-shmem-huge-page-allocated.patch
-tmpfs-support-for-file-creation-time-fix.patch
+@@ -1306,8 +1316,15 @@ traceon_count_trigger(struct event_trigger_data *data,
+ 		      struct trace_buffer *buffer, void *rec,
+ 		      struct ring_buffer_event *event)
+ {
+-	if (tracing_is_on())
+-		return;
++	struct trace_event_file *file = data->private_data;
++
++	if (file) {
++		if (tracer_tracing_is_on(file->tr))
++			return;
++	} else {
++		if (tracing_is_on())
++			return;
++	}
+ 
+ 	if (!data->count)
+ 		return;
+@@ -1315,7 +1332,10 @@ traceon_count_trigger(struct event_trigger_data *data,
+ 	if (data->count != -1)
+ 		(data->count)--;
+ 
+-	tracing_on();
++	if (file)
++		tracer_tracing_on(file->tr);
++	else
++		tracing_on();
+ }
+ 
+ static void
+@@ -1323,6 +1343,16 @@ traceoff_trigger(struct event_trigger_data *data,
+ 		 struct trace_buffer *buffer, void *rec,
+ 		 struct ring_buffer_event *event)
+ {
++	struct trace_event_file *file = data->private_data;
++
++	if (file) {
++		if (!tracer_tracing_is_on(file->tr))
++			return;
++
++		tracer_tracing_off(file->tr);
++		return;
++	}
++
+ 	if (!tracing_is_on())
+ 		return;
+ 
+@@ -1334,8 +1364,15 @@ traceoff_count_trigger(struct event_trigger_data *data,
+ 		       struct trace_buffer *buffer, void *rec,
+ 		       struct ring_buffer_event *event)
+ {
+-	if (!tracing_is_on())
+-		return;
++	struct trace_event_file *file = data->private_data;
++
++	if (file) {
++		if (!tracer_tracing_is_on(file->tr))
++			return;
++	} else {
++		if (!tracing_is_on())
++			return;
++	}
+ 
+ 	if (!data->count)
+ 		return;
+@@ -1343,7 +1380,10 @@ traceoff_count_trigger(struct event_trigger_data *data,
+ 	if (data->count != -1)
+ 		(data->count)--;
+ 
+-	tracing_off();
++	if (file)
++		tracer_tracing_off(file->tr);
++	else
++		tracing_off();
+ }
+ 
+ static int
 
