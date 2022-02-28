@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 603C14C64DD
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 09:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD27D4C64E4
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 09:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbiB1Icc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 03:32:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40642 "EHLO
+        id S233963AbiB1Igy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 03:36:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229751AbiB1Icc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 03:32:32 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C5C6580B
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 00:31:51 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id w37so10767731pga.7
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 00:31:51 -0800 (PST)
+        with ESMTP id S233946AbiB1Igx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 03:36:53 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5252C65D3B
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 00:36:14 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id p17so10067635plo.9
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 00:36:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=xSwo3C0na3VWKVq0e4wBkXmcRdKGIZMSt4iw818JrL0=;
-        b=Tyfxc3YK0w/hQAe5RhOeGU6z2PNU0X2JFWcUKqafFS8Xlk240xLIOp3OJhseIPj5Px
-         tus19QmdlpDW8kZgpHB7YgwcD+xK9NCHrGNYGdDl4vZF4mSc59ioc1YRpZULi6IxqauG
-         cntCXYRet7P9gFXC9DFhlWiDsNFukOFjJvop6hUpFcvQZMXjIFoN5DSGiER9KGT7Bxu0
-         BiY/ELA3755okBi7Tgjf+2zSarTtMk1TG9Bog4nROfuufqJj10b2MrpIGswa2Cx/H3ZY
-         M0jK1vXbl5shWP6m5SO7XSWXA7F7wAiRxUEBVUDoSaWcV5N1dLmqCbo0JcdVi1Ky4/JE
-         ZbwA==
+        bh=cTamwJuUWzYE5TKRG8SB3UHTWlAVoto+JHRhfKDTcsM=;
+        b=73gHzvq/o7UvXPu7Q5MQNwnH22jwade2ji0fbuPD6XF2EQfO+9wX/pzMp9sprK/lE8
+         1NjogJ5zKRvatO0wOEZGJXpary/5mr79NDoA8dzN5tkv4Pe0iqcebKafBhMTFtFHTnCn
+         jaNVdm9Z9mQRtgTWi3VR6raPS5ed9yNcrUglGdz4YAV2zkfuhQ0R7pfuaQgdqVJeoD/9
+         hf0h/4MNIkLYyxVo5P4NWYWy49XEfVg6VXk76FO4ONBXMdJesSNM+4enxRdSzM7GahnM
+         ukncYTZ/OGZcEgAUAxFK0hjydB04faQOCmvbrdqoHf6l1DvEIp+oL9jPGnZqsnzaLvuw
+         AmKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=xSwo3C0na3VWKVq0e4wBkXmcRdKGIZMSt4iw818JrL0=;
-        b=KC078py541mElcan8READvSpFS42U/l/3BwYiUfgYhFUO6/z4R4v+Coc7+2XJaeeGC
-         FGHNzJNUJl2eZEFKA+JOBwKAoHEmEAnGx8NxD0BzgB/aKDizze0YkAcfCGwgH1sLdifS
-         37q0iBHgppumO0Pe2Ey1FHWPgZTY/4RjZ29WKNE4x2FG6uXcXFQ4OTa9msjHnFxa0r9m
-         ocwlWNpcZlr3YhJ3ZqioBz2cZsqKsmVII+r/F/hC7Ld4LdW+1kxIeTDIMHLqvfUlDvJK
-         cpMYpBJJJcNV9phWLqTfd+7onQuOj//eyq+oFQ3fGEpIdTy2wIQAlOtpLtNrDj6ilejP
-         S5zQ==
-X-Gm-Message-State: AOAM530RS429B+AXtf02ehu1Q5FVJXD8EdvC5lB3YiTXhgF1o6cCSiK3
-        S5briEDE8ShCLbNgYIcbkajldtDjULF8eO5/qPI=
-X-Google-Smtp-Source: ABdhPJyBWBWJQdyep+dW9wqRZ/eXROzLFoctoXvTaZYh/5BV8zjMBq6E/VawsJqxJK6LFYAKoeDl9A==
-X-Received: by 2002:a63:1b5e:0:b0:36f:e756:c118 with SMTP id b30-20020a631b5e000000b0036fe756c118mr16166602pgm.562.1646037110171;
-        Mon, 28 Feb 2022 00:31:50 -0800 (PST)
+        bh=cTamwJuUWzYE5TKRG8SB3UHTWlAVoto+JHRhfKDTcsM=;
+        b=FpSnKdMmnuyLslJ6dnnYOxMOilPxJaQ4rQFc5Y/QMrcNTotbxumeZ8yxfxlQuk+AKF
+         qqWuSxSSh7hnBZz0Iu2g2zjQSW6XkkJgO8Cq2TVwowt/z9KOqC7jS67HZNYYEsooGIXH
+         NK8HMDjYcScMwivMpPWsWK0PUfrVxe1+A+cDaNmRh7kPwlEe13OabV4mnwJQH9petfs7
+         PiPIgd4oA2fImMrb6EC67mIOVY70fHOT5XpHjPxDeOS23pHk25xSc5firS239C+fJ3Qo
+         zHWSEvANXcTwvGdfi02ZZ4gC6jnvsFh+qv1kq4R/OGdEnSh1P6nDiXDTGVWVA3xwrbKG
+         r0rw==
+X-Gm-Message-State: AOAM530ymgOrsiTF4ySnGAlXOcyIsiF+0cAWpPfemuLL0Xq7PHn1MzrQ
+        QnF/hD5qsaFMfBTbze9goMHexNeZFJT/48cYY/4=
+X-Google-Smtp-Source: ABdhPJywn001lsOPFe5BX3Fj3xIDT2J32zSxFNpWrFNXXMpuiNTA/V2lsvRwkcVRy4B2OqBguf0VpQ==
+X-Received: by 2002:a17:903:2ce:b0:150:4197:7cf4 with SMTP id s14-20020a17090302ce00b0015041977cf4mr15398419plk.132.1646037372889;
+        Mon, 28 Feb 2022 00:36:12 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d6-20020a056a0024c600b004ecc812de56sm12358366pfv.199.2022.02.28.00.31.49
+        by smtp.gmail.com with ESMTPSA id d4-20020a17090a8d8400b001bc386dc44bsm16633656pjo.23.2022.02.28.00.36.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Feb 2022 00:31:49 -0800 (PST)
-Message-ID: <621c8875.1c69fb81.2e735.f1d0@mx.google.com>
-Date:   Mon, 28 Feb 2022 00:31:49 -0800 (PST)
+        Mon, 28 Feb 2022 00:36:12 -0800 (PST)
+Message-ID: <621c897c.1c69fb81.ca7d5.9503@mx.google.com>
+Date:   Mon, 28 Feb 2022 00:36:12 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.268-27-gc1b654f96f41
-Subject: stable-rc/queue/4.14 build: 197 builds: 30 failed, 167 passed,
- 56 errors, 49 warnings (v4.14.268-27-gc1b654f96f41)
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Kernel: v4.9.303-26-g784647715eff
+Subject: stable-rc/queue/4.9 build: 167 builds: 16 failed, 151 passed,
+ 28 errors, 40 warnings (v4.9.303-26-g784647715eff)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 build: 197 builds: 30 failed, 167 passed, 56 errors, 4=
-9 warnings (v4.14.268-27-gc1b654f96f41)
+stable-rc/queue/4.9 build: 167 builds: 16 failed, 151 passed, 28 errors, 40=
+ warnings (v4.9.303-26-g784647715eff)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-4/kernel/v4.14.268-27-gc1b654f96f41/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.303-26-g784647715eff/
 
 Tree: stable-rc
-Branch: queue/4.14
-Git Describe: v4.14.268-27-gc1b654f96f41
-Git Commit: c1b654f96f41caa183d16346b852610a94b879e7
+Branch: queue/4.9
+Git Describe: v4.9.303-26-g784647715eff
+Git Commit: 784647715eff44e07bc8f832c7722a09786ec82f
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -88,35 +88,19 @@ Build Failures Detected:
 
 arm:
     bcm2835_defconfig: (gcc-10) FAIL
-    imx_v4_v5_defconfig: (gcc-10) FAIL
     keystone_defconfig: (gcc-10) FAIL
-    multi_v7_defconfig: (gcc-10) FAIL
     mv78xx0_defconfig: (gcc-10) FAIL
-    mvebu_v7_defconfig: (gcc-10) FAIL
     mxs_defconfig: (gcc-10) FAIL
-    omap1_defconfig: (gcc-10) FAIL
     omap2plus_defconfig: (gcc-10) FAIL
     pxa_defconfig: (gcc-10) FAIL
     qcom_defconfig: (gcc-10) FAIL
     rpc_defconfig: (gcc-10) FAIL
-    shmobile_defconfig: (gcc-10) FAIL
     socfpga_defconfig: (gcc-10) FAIL
-    tegra_defconfig: (gcc-10) FAIL
-    vexpress_defconfig: (gcc-10) FAIL
-
-i386:
-    i386_defconfig: (gcc-10) FAIL
 
 mips:
-    fuloong2e_defconfig: (gcc-10) FAIL
-    gpr_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
-    ip32_defconfig: (gcc-10) FAIL
-    lemote2f_defconfig: (gcc-10) FAIL
     malta_kvm_defconfig: (gcc-10) FAIL
-    mtx1_defconfig: (gcc-10) FAIL
-    nlm_xlp_defconfig: (gcc-10) FAIL
     nlm_xlr_defconfig: (gcc-10) FAIL
     pistachio_defconfig: (gcc-10) FAIL
 
@@ -132,52 +116,39 @@ arm64:
 
 arm:
     bcm2835_defconfig (gcc-10): 2 errors, 1 warning
-    imx_v4_v5_defconfig (gcc-10): 2 errors, 1 warning
     keystone_defconfig (gcc-10): 2 errors, 1 warning
     mini2440_defconfig (gcc-10): 1 warning
-    multi_v7_defconfig (gcc-10): 2 errors, 1 warning
     mv78xx0_defconfig (gcc-10): 2 errors, 1 warning
-    mvebu_v7_defconfig (gcc-10): 2 errors, 1 warning
     mxs_defconfig (gcc-10): 2 errors, 1 warning
-    omap1_defconfig (gcc-10): 2 errors, 1 warning
+    omap1_defconfig (gcc-10): 1 warning
     omap2plus_defconfig (gcc-10): 2 errors, 1 warning
     pxa_defconfig (gcc-10): 2 errors, 1 warning
     qcom_defconfig (gcc-10): 2 errors, 1 warning
     rpc_defconfig (gcc-10): 2 errors
     s3c2410_defconfig (gcc-10): 1 warning
-    shmobile_defconfig (gcc-10): 2 errors, 1 warning
     socfpga_defconfig (gcc-10): 2 errors, 1 warning
-    tegra_defconfig (gcc-10): 2 errors, 1 warning
-    vexpress_defconfig (gcc-10): 2 errors, 1 warning
 
 i386:
     allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 2 errors, 2 warnings
     tinyconfig (gcc-10): 3 warnings
 
 mips:
-    fuloong2e_defconfig (gcc-10): 2 errors, 1 warning
-    gpr_defconfig (gcc-10): 2 errors, 1 warning
-    ip32_defconfig (gcc-10): 2 errors, 1 warning
-    lemote2f_defconfig (gcc-10): 2 errors, 1 warning
     malta_kvm_defconfig (gcc-10): 2 errors, 1 warning
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
-    mtx1_defconfig (gcc-10): 2 errors, 1 warning
-    nlm_xlp_defconfig (gcc-10): 2 errors, 1 warning
+    mtx1_defconfig (gcc-10): 3 warnings
     nlm_xlr_defconfig (gcc-10): 2 errors, 1 warning
     pistachio_defconfig (gcc-10): 2 errors, 1 warning
 
 x86_64:
-    allnoconfig (gcc-10): 4 warnings
+    allnoconfig (gcc-10): 5 warnings
     tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 2 errors, 3 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 2 errors, 3 warnings
+    x86_64_defconfig (gcc-10): 2 errors, 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 2 errors, 4 warnings
 
 Errors summary:
 
-    27   kernel/trace/trace_events_trigger.c:1162:3: error: too few argumen=
+    13   kernel/trace/trace_events_trigger.c:1155:3: error: too few argumen=
 ts to function =E2=80=98__trace_stack=E2=80=99
-    27   kernel/trace/trace_events_trigger.c:1162:27: error: implicit decla=
+    13   kernel/trace/trace_events_trigger.c:1155:27: error: implicit decla=
 ration of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=
 =98tracing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
     1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
@@ -186,22 +157,30 @@ h=3D=E2=80=99
 
 Warnings summary:
 
-    27   cc1: some warnings being treated as errors
-    4    ld: warning: creating DT_TEXTREL in a PIE
-    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
-    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
-' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
-    3    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
+    13   cc1: some warnings being treated as errors
+    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
 ffix given and no register operands; using default for `btr'
+    4    ld: warning: creating DT_TEXTREL in a PIE
+    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
     2    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
     2    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
-    2    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c2=
+    2    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c2=
 4xx_uart_dt_match=E2=80=99 assumed to have one element
-    1    {standard input}:30: Warning: macro instruction expanded into mult=
-iple instructions
+    2    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
+
+Section mismatches summary:
+
+    2    WARNING: modpost: Found 1 section mismatch(es).
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -209,11 +188,6 @@ iple instructions
 =3D=3D=3D=3D=3D
 
 Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -227,6 +201,34 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -237,42 +239,6 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
-mismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
 aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
@@ -280,11 +246,6 @@ ection mismatches
 -----
 aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -327,10 +288,10 @@ bcm2835_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -356,20 +317,21 @@ tion mismatches
 bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
 ---------------------------------------------------------------------------=
 -----
 capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -398,11 +360,6 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
 colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
 
@@ -415,11 +372,6 @@ ion mismatches
 -----
 corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -493,38 +445,13 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -543,60 +470,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
 hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 secti=
-on mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
 imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -640,23 +520,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -679,19 +544,14 @@ keystone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
     cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -705,23 +565,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -765,19 +610,14 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 malta_kvm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -790,12 +630,8 @@ gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    {standard input}:30: Warning: macro instruction expanded into multiple =
-instructions
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -806,16 +642,6 @@ section mismatches
 -----
 maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -833,7 +659,7 @@ mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
 Warnings:
-    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c24xx_u=
+    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
 art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
@@ -845,11 +671,6 @@ mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 -----
 mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -868,18 +689,16 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
 
 Warnings:
-    cc1: some warnings being treated as errors
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 ---------------------------------------------------------------------------=
 -----
@@ -888,23 +707,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -912,10 +716,10 @@ mv78xx0_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -928,18 +732,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -947,10 +741,10 @@ mxs_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -978,29 +772,14 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
 nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -1043,18 +822,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
 Warnings:
-    cc1: some warnings being treated as errors
+    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
@@ -1062,19 +835,14 @@ omap2plus_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
     cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1102,10 +870,10 @@ pistachio_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -1143,19 +911,14 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -1167,10 +930,10 @@ qcom_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -1179,11 +942,6 @@ Warnings:
 ---------------------------------------------------------------------------=
 -----
 qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 ---------------------------------------------------------------------------=
@@ -1227,7 +985,7 @@ s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c24xx_u=
+    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
 art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
@@ -1257,23 +1015,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-shmobile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1281,10 +1024,10 @@ socfpga_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
@@ -1317,16 +1060,6 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -1347,49 +1080,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tegra_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
- mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1398,13 +1090,39 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1423,33 +1141,18 @@ vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vexpress_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
-n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
-ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
- function =E2=80=98__trace_stack=E2=80=99
-
-Warnings:
-    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
 viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1463,40 +1166,44 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 FAIL, 2 errors, 3 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 FAIL, 2 errors, 4 warnings, 0 s=
 ection mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 FAIL, 2 errors, =
-3 warnings, 0 section mismatches
+4 warnings, 0 section mismatches
 
 Errors:
-    kernel/trace/trace_events_trigger.c:1162:27: error: implicit declaratio=
+    kernel/trace/trace_events_trigger.c:1155:27: error: implicit declaratio=
 n of function =E2=80=98tracing_gen_ctx=E2=80=99; did you mean =E2=80=98trac=
 ing_reset=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/trace/trace_events_trigger.c:1162:3: error: too few arguments to=
+    kernel/trace/trace_events_trigger.c:1155:3: error: too few arguments to=
  function =E2=80=98__trace_stack=E2=80=99
 
 Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -1511,13 +1218,18 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---
 For more info write to <info@kernelci.org>
