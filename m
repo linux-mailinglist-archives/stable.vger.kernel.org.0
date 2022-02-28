@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C184C73B3
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4AD4C72BC
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232173AbiB1Rid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:38:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
+        id S234279AbiB1R2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:28:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238677AbiB1RiM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABE558396;
-        Mon, 28 Feb 2022 09:33:32 -0800 (PST)
+        with ESMTP id S237225AbiB1R2G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F0B62E9;
+        Mon, 28 Feb 2022 09:27:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26F0961365;
-        Mon, 28 Feb 2022 17:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD56C340E7;
-        Mon, 28 Feb 2022 17:33:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91B7E6135F;
+        Mon, 28 Feb 2022 17:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BDC7C340E7;
+        Mon, 28 Feb 2022 17:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069611;
-        bh=qK+VQoyk07Wrq8YomqxayQN8UuSK0Eki19yVr7Lbo+4=;
+        s=korg; t=1646069242;
+        bh=syfSvU/7y2CmgSCUm/TKqAHV3WuNmsFV4FablvfBExk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNFuLAFzsqLcmjiBg618j2sq0m7uLgpa3M1WIlKkJ5HNKMxTqGSLURYueNToZw4DS
-         JG4IHVXyM4ofXEHSz6U1tLIMuF1DfJvkI3aaLt3SFX1899bkqt5m5BsqPunJsR7K6h
-         55QjMP7+29nkIIXB0MLx/mS+biAqvynii2TQuHgY=
+        b=VSIlNTZB+2ujE6Se1Ije/s5oSdfa6uW/PS7kx6ZUs8oRbSeLv4M2OCKbvZDW3qtGq
+         6i20XRJ6LkfjK072luOHMsxqTyNaBy+9oiQa6YKpbnW5HG66QEvbSssA1V2DmMqYHl
+         ZslvR02ly1AwOj90W5l50281mCvE0bT5avUut/k4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 29/80] tipc: Fix end of loop tests for list_for_each_entry()
-Date:   Mon, 28 Feb 2022 18:24:10 +0100
-Message-Id: <20220228172315.013367868@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+831661966588c802aae9@syzkaller.appspotmail.com,
+        Bart Van Assche <bvanassche@acm.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/31] RDMA/ib_srp: Fix a deadlock
+Date:   Mon, 28 Feb 2022 18:24:11 +0100
+Message-Id: <20220228172201.340337725@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit a1f8fec4dac8bc7b172b2bdbd881e015261a6322 upstream.
+[ Upstream commit 081bdc9fe05bb23248f5effb6f811da3da4b8252 ]
 
-These tests are supposed to check if the loop exited via a break or not.
-However the tests are wrong because if we did not exit via a break then
-"p" is not a valid pointer.  In that case, it's the equivalent of
-"if (*(u32 *)sr == *last_key) {".  That's going to work most of the time,
-but there is a potential for those to be equal.
+Remove the flush_workqueue(system_long_wq) call since flushing
+system_long_wq is deadlock-prone and since that call is redundant with a
+preceding cancel_work_sync()
 
-Fixes: 1593123a6a49 ("tipc: add name table dump to new netlink api")
-Fixes: 1a1a143daf84 ("tipc: add publication dump to new netlink api")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220215210511.28303-3-bvanassche@acm.org
+Fixes: ef6c49d87c34 ("IB/srp: Eliminate state SRP_TARGET_DEAD")
+Reported-by: syzbot+831661966588c802aae9@syzkaller.appspotmail.com
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/name_table.c |    2 +-
- net/tipc/socket.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/tipc/name_table.c
-+++ b/net/tipc/name_table.c
-@@ -931,7 +931,7 @@ static int __tipc_nl_add_nametable_publ(
- 		list_for_each_entry(p, &sr->all_publ, all_publ)
- 			if (p->key == *last_key)
- 				break;
--		if (p->key != *last_key)
-+		if (list_entry_is_head(p, &sr->all_publ, all_publ))
- 			return -EPIPE;
- 	} else {
- 		p = list_first_entry(&sr->all_publ,
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -3743,7 +3743,7 @@ static int __tipc_nl_list_sk_publ(struct
- 			if (p->key == *last_publ)
- 				break;
- 		}
--		if (p->key != *last_publ) {
-+		if (list_entry_is_head(p, &tsk->publications, binding_sock)) {
- 			/* We never set seq or call nl_dump_check_consistent()
- 			 * this means that setting prev_seq here will cause the
- 			 * consistence check to fail in the netlink callback
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index 9f7287f45d06f..63358c4c8e57c 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -3683,9 +3683,11 @@ static void srp_remove_one(struct ib_device *device, void *client_data)
+ 		spin_unlock(&host->target_lock);
+ 
+ 		/*
+-		 * Wait for tl_err and target port removal tasks.
++		 * srp_queue_remove_work() queues a call to
++		 * srp_remove_target(). The latter function cancels
++		 * target->tl_err_work so waiting for the remove works to
++		 * finish is sufficient.
+ 		 */
+-		flush_workqueue(system_long_wq);
+ 		flush_workqueue(srp_remove_wq);
+ 
+ 		kfree(host);
+-- 
+2.34.1
+
 
 
