@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 476E14C75EC
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9753E4C7286
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:26:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239232AbiB1R5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:57:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
+        id S233862AbiB1R0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:26:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239363AbiB1Rwz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:55 -0500
+        with ESMTP id S233854AbiB1R0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:26:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA16A94D7;
-        Mon, 28 Feb 2022 09:40:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9C87EB0D;
+        Mon, 28 Feb 2022 09:25:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 455056156B;
-        Mon, 28 Feb 2022 17:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55268C340E7;
-        Mon, 28 Feb 2022 17:40:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A65E61365;
+        Mon, 28 Feb 2022 17:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C4F1C340E7;
+        Mon, 28 Feb 2022 17:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070005;
-        bh=nxXKOafHAT91L+KEcpG5Ig/Ag6ujqpSqA5C2JyOG9ak=;
+        s=korg; t=1646069149;
+        bh=S8+WJVaVRlGGAe9E/IVQCsR4pqsJuyXLbwC/EvQkn5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K19yfwFzkvTU55nNV32pmjG40BrNUpYv20IKLvt9diOL2WmM8f62vHWcVDhFiX0lW
-         R91/aBtG+KqVf+IF3Kn0UJgpdb15ENSHkw7hBmcvs1G0H4wnhyf+pOjpMlCg0/YT2k
-         2zaJ9pgOoJf+sZ88Zfq6gW10CfQE4k7YfLK7ajtE=
+        b=fYuChwK0z2LORJghxFq5exrJ6F+jPZt+JtDAVpNSkQXDO8Tq2AI/FJvCyXD+K/MQJ
+         szEy8ysV5T9AxiW5eqqPL4/b2p0Dzm/FkPvvadXwcTqnH2G5kqmTKqm7UxT7K9p8kp
+         C6brKXwzvuTvwNYfKt52hIEt0ixSJ0SAPVlTqdrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Ben Li <ben.li@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 043/139] bnxt_en: Fix offline ethtool selftest with RDMA enabled
-Date:   Mon, 28 Feb 2022 18:23:37 +0100
-Message-Id: <20220228172352.247071663@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 11/29] openvswitch: Fix setting ipv6 fields causing hw csum failure
+Date:   Mon, 28 Feb 2022 18:23:38 +0100
+Message-Id: <20220228172142.549697891@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
+References: <20220228172141.744228435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +53,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Paul Blakey <paulb@nvidia.com>
 
-commit 6758f937669dba14c6aac7ca004edda42ec1b18d upstream.
+commit d9b5ae5c1b241b91480aa30408be12fe91af834a upstream.
 
-For offline (destructive) self tests, we need to stop the RDMA driver
-first.  Otherwise, the RDMA driver will run into unrecoverable errors
-when destructive firmware tests are being performed.
+Ipv6 ttl, label and tos fields are modified without first
+pulling/pushing the ipv6 header, which would have updated
+the hw csum (if available). This might cause csum validation
+when sending the packet to the stack, as can be seen in
+the trace below.
 
-The irq_re_init parameter used in the half close and half open
-sequence when preparing the NIC for offline tests should be set to
-true because the RDMA driver will free all IRQs before the offline
-tests begin.
+Fix this by updating skb->csum if available.
 
-Fixes: 55fd0cf320c3 ("bnxt_en: Add external loopback test to ethtool selftest.")
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Reviewed-by: Ben Li <ben.li@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Trace resulted by ipv6 ttl dec and then sending packet
+to conntrack [actions: set(ipv6(hlimit=63)),ct(zone=99)]:
+[295241.900063] s_pf0vf2: hw csum failure
+[295241.923191] Call Trace:
+[295241.925728]  <IRQ>
+[295241.927836]  dump_stack+0x5c/0x80
+[295241.931240]  __skb_checksum_complete+0xac/0xc0
+[295241.935778]  nf_conntrack_tcp_packet+0x398/0xba0 [nf_conntrack]
+[295241.953030]  nf_conntrack_in+0x498/0x5e0 [nf_conntrack]
+[295241.958344]  __ovs_ct_lookup+0xac/0x860 [openvswitch]
+[295241.968532]  ovs_ct_execute+0x4a7/0x7c0 [openvswitch]
+[295241.979167]  do_execute_actions+0x54a/0xaa0 [openvswitch]
+[295242.001482]  ovs_execute_actions+0x48/0x100 [openvswitch]
+[295242.006966]  ovs_dp_process_packet+0x96/0x1d0 [openvswitch]
+[295242.012626]  ovs_vport_receive+0x6c/0xc0 [openvswitch]
+[295242.028763]  netdev_frame_hook+0xc0/0x180 [openvswitch]
+[295242.034074]  __netif_receive_skb_core+0x2ca/0xcb0
+[295242.047498]  netif_receive_skb_internal+0x3e/0xc0
+[295242.052291]  napi_gro_receive+0xba/0xe0
+[295242.056231]  mlx5e_handle_rx_cqe_mpwrq_rep+0x12b/0x250 [mlx5_core]
+[295242.062513]  mlx5e_poll_rx_cq+0xa0f/0xa30 [mlx5_core]
+[295242.067669]  mlx5e_napi_poll+0xe1/0x6b0 [mlx5_core]
+[295242.077958]  net_rx_action+0x149/0x3b0
+[295242.086762]  __do_softirq+0xd7/0x2d6
+[295242.090427]  irq_exit+0xf7/0x100
+[295242.093748]  do_IRQ+0x7f/0xd0
+[295242.096806]  common_interrupt+0xf/0xf
+[295242.100559]  </IRQ>
+[295242.102750] RIP: 0033:0x7f9022e88cbd
+[295242.125246] RSP: 002b:00007f9022282b20 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffda
+[295242.132900] RAX: 0000000000000005 RBX: 0000000000000010 RCX: 0000000000000000
+[295242.140120] RDX: 00007f9022282ba8 RSI: 00007f9022282a30 RDI: 00007f9014005c30
+[295242.147337] RBP: 00007f9014014d60 R08: 0000000000000020 R09: 00007f90254a8340
+[295242.154557] R10: 00007f9022282a28 R11: 0000000000000246 R12: 0000000000000000
+[295242.161775] R13: 00007f902308c000 R14: 000000000000002b R15: 00007f9022b71f40
+
+Fixes: 3fdbd1ce11e5 ("openvswitch: add ipv6 'set' action")
+Signed-off-by: Paul Blakey <paulb@nvidia.com>
+Link: https://lore.kernel.org/r/20220223163416.24096-1-paulb@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c         |   10 +++++-----
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   12 +++++++++---
- 2 files changed, 14 insertions(+), 8 deletions(-)
+ include/net/checksum.h    |    5 +++++
+ net/openvswitch/actions.c |   46 ++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 43 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -10295,12 +10295,12 @@ int bnxt_half_open_nic(struct bnxt *bp)
- 		goto half_open_err;
- 	}
- 
--	rc = bnxt_alloc_mem(bp, false);
-+	rc = bnxt_alloc_mem(bp, true);
- 	if (rc) {
- 		netdev_err(bp->dev, "bnxt_alloc_mem err: %x\n", rc);
- 		goto half_open_err;
- 	}
--	rc = bnxt_init_nic(bp, false);
-+	rc = bnxt_init_nic(bp, true);
- 	if (rc) {
- 		netdev_err(bp->dev, "bnxt_init_nic err: %x\n", rc);
- 		goto half_open_err;
-@@ -10309,7 +10309,7 @@ int bnxt_half_open_nic(struct bnxt *bp)
- 
- half_open_err:
- 	bnxt_free_skbs(bp);
--	bnxt_free_mem(bp, false);
-+	bnxt_free_mem(bp, true);
- 	dev_close(bp->dev);
- 	return rc;
+--- a/include/net/checksum.h
++++ b/include/net/checksum.h
+@@ -143,6 +143,11 @@ static inline void csum_replace2(__sum16
+ 	*sum = ~csum16_add(csum16_sub(~(*sum), old), new);
  }
-@@ -10319,9 +10319,9 @@ half_open_err:
-  */
- void bnxt_half_close_nic(struct bnxt *bp)
+ 
++static inline void csum_replace(__wsum *csum, __wsum old, __wsum new)
++{
++	*csum = csum_add(csum_sub(*csum, old), new);
++}
++
+ struct sk_buff;
+ void inet_proto_csum_replace4(__sum16 *sum, struct sk_buff *skb,
+ 			      __be32 from, __be32 to, bool pseudohdr);
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -391,12 +391,43 @@ static void set_ipv6_addr(struct sk_buff
+ 	memcpy(addr, new_addr, sizeof(__be32[4]));
+ }
+ 
+-static void set_ipv6_fl(struct ipv6hdr *nh, u32 fl, u32 mask)
++static void set_ipv6_dsfield(struct sk_buff *skb, struct ipv6hdr *nh, u8 ipv6_tclass, u8 mask)
  {
--	bnxt_hwrm_resource_free(bp, false, false);
-+	bnxt_hwrm_resource_free(bp, false, true);
- 	bnxt_free_skbs(bp);
--	bnxt_free_mem(bp, false);
-+	bnxt_free_mem(bp, true);
++	u8 old_ipv6_tclass = ipv6_get_dsfield(nh);
++
++	ipv6_tclass = OVS_MASKED(old_ipv6_tclass, ipv6_tclass, mask);
++
++	if (skb->ip_summed == CHECKSUM_COMPLETE)
++		csum_replace(&skb->csum, (__force __wsum)(old_ipv6_tclass << 12),
++			     (__force __wsum)(ipv6_tclass << 12));
++
++	ipv6_change_dsfield(nh, ~mask, ipv6_tclass);
++}
++
++static void set_ipv6_fl(struct sk_buff *skb, struct ipv6hdr *nh, u32 fl, u32 mask)
++{
++	u32 ofl;
++
++	ofl = nh->flow_lbl[0] << 16 |  nh->flow_lbl[1] << 8 |  nh->flow_lbl[2];
++	fl = OVS_MASKED(ofl, fl, mask);
++
+ 	/* Bits 21-24 are always unmasked, so this retains their values. */
+-	OVS_SET_MASKED(nh->flow_lbl[0], (u8)(fl >> 16), (u8)(mask >> 16));
+-	OVS_SET_MASKED(nh->flow_lbl[1], (u8)(fl >> 8), (u8)(mask >> 8));
+-	OVS_SET_MASKED(nh->flow_lbl[2], (u8)fl, (u8)mask);
++	nh->flow_lbl[0] = (u8)(fl >> 16);
++	nh->flow_lbl[1] = (u8)(fl >> 8);
++	nh->flow_lbl[2] = (u8)fl;
++
++	if (skb->ip_summed == CHECKSUM_COMPLETE)
++		csum_replace(&skb->csum, (__force __wsum)htonl(ofl), (__force __wsum)htonl(fl));
++}
++
++static void set_ipv6_ttl(struct sk_buff *skb, struct ipv6hdr *nh, u8 new_ttl, u8 mask)
++{
++	new_ttl = OVS_MASKED(nh->hop_limit, new_ttl, mask);
++
++	if (skb->ip_summed == CHECKSUM_COMPLETE)
++		csum_replace(&skb->csum, (__force __wsum)(nh->hop_limit << 8),
++			     (__force __wsum)(new_ttl << 8));
++	nh->hop_limit = new_ttl;
  }
  
- static void bnxt_reenable_sriov(struct bnxt *bp)
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -25,6 +25,7 @@
- #include "bnxt_hsi.h"
- #include "bnxt.h"
- #include "bnxt_hwrm.h"
-+#include "bnxt_ulp.h"
- #include "bnxt_xdp.h"
- #include "bnxt_ptp.h"
- #include "bnxt_ethtool.h"
-@@ -3502,9 +3503,12 @@ static void bnxt_self_test(struct net_de
- 	if (!offline) {
- 		bnxt_run_fw_tests(bp, test_mask, &test_results);
- 	} else {
--		rc = bnxt_close_nic(bp, false, false);
--		if (rc)
-+		bnxt_ulp_stop(bp);
-+		rc = bnxt_close_nic(bp, true, false);
-+		if (rc) {
-+			bnxt_ulp_start(bp, rc);
- 			return;
-+		}
- 		bnxt_run_fw_tests(bp, test_mask, &test_results);
- 
- 		buf[BNXT_MACLPBK_TEST_IDX] = 1;
-@@ -3514,6 +3518,7 @@ static void bnxt_self_test(struct net_de
- 		if (rc) {
- 			bnxt_hwrm_mac_loopback(bp, false);
- 			etest->flags |= ETH_TEST_FL_FAILED;
-+			bnxt_ulp_start(bp, rc);
- 			return;
+ static void set_ip_ttl(struct sk_buff *skb, struct iphdr *nh, u8 new_ttl,
+@@ -514,18 +545,17 @@ static int set_ipv6(struct sk_buff *skb,
  		}
- 		if (bnxt_run_loopback(bp))
-@@ -3539,7 +3544,8 @@ static void bnxt_self_test(struct net_de
- 		}
- 		bnxt_hwrm_phy_loopback(bp, false, false);
- 		bnxt_half_close_nic(bp);
--		rc = bnxt_open_nic(bp, false, true);
-+		rc = bnxt_open_nic(bp, true, true);
-+		bnxt_ulp_start(bp, rc);
  	}
- 	if (rc || bnxt_test_irq(bp)) {
- 		buf[BNXT_IRQ_TEST_IDX] = 1;
+ 	if (mask->ipv6_tclass) {
+-		ipv6_change_dsfield(nh, ~mask->ipv6_tclass, key->ipv6_tclass);
++		set_ipv6_dsfield(skb, nh, key->ipv6_tclass, mask->ipv6_tclass);
+ 		flow_key->ip.tos = ipv6_get_dsfield(nh);
+ 	}
+ 	if (mask->ipv6_label) {
+-		set_ipv6_fl(nh, ntohl(key->ipv6_label),
++		set_ipv6_fl(skb, nh, ntohl(key->ipv6_label),
+ 			    ntohl(mask->ipv6_label));
+ 		flow_key->ipv6.label =
+ 		    *(__be32 *)nh & htonl(IPV6_FLOWINFO_FLOWLABEL);
+ 	}
+ 	if (mask->ipv6_hlimit) {
+-		OVS_SET_MASKED(nh->hop_limit, key->ipv6_hlimit,
+-			       mask->ipv6_hlimit);
++		set_ipv6_ttl(skb, nh, key->ipv6_hlimit, mask->ipv6_hlimit);
+ 		flow_key->ip.ttl = nh->hop_limit;
+ 	}
+ 	return 0;
 
 
