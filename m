@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9226F4C7722
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:11:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A016F4C771E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:11:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233594AbiB1SLn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:11:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33642 "EHLO
+        id S236203AbiB1SLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:11:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241612AbiB1SKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:10:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E5D0BA743;
-        Mon, 28 Feb 2022 09:50:19 -0800 (PST)
+        with ESMTP id S241316AbiB1SJr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36981B12EB;
+        Mon, 28 Feb 2022 09:49:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BE7860F7C;
-        Mon, 28 Feb 2022 17:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 647ECC340F0;
-        Mon, 28 Feb 2022 17:49:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29C2860F92;
+        Mon, 28 Feb 2022 17:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD88C340F0;
+        Mon, 28 Feb 2022 17:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070584;
-        bh=MO36n/M99U6IL4V75gmdNp4IhLFS2AB+rBq5TnOYexA=;
+        s=korg; t=1646070587;
+        bh=coSH3zK0zvw8QF9d1MK6j4sU0v+KwwPOV4PVpwVavYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q04n2jpMb4x5B/pQF2xKxTdyUtam07Qgj0HPrQ5HfS9ZT8dmwB/HDUkLNqfGsCcaZ
-         +mM9nf8M4ZBwU0hFb8Zyp1xARkSQmjaiWKpKOyxpjOsieDkBevK59CtVlsbIsgRn3z
-         bfushqTegvnJ8RpdMDDYNKyIvZnJHngl1ofCQ5eo=
+        b=epjMBBF5QnpkU7bz0atG9OfH/yrFUNgleZTdreddfh1DdH9lcjlGPBJWTFr6Rd2CN
+         uMddLy+SAXebnrRiYnb8I30j6ZRd4VMJZBUguzMlp/1g+GiY/tEku+Eg698BeYsw1P
+         xdFJ6u4i1mhiVbJyH+IuSePkirkgUKSy0i/QmieE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Anderson <seanga2@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.16 162/164] pinctrl: k210: Fix bias-pull-up
-Date:   Mon, 28 Feb 2022 18:25:24 +0100
-Message-Id: <20220228172414.326174338@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Thierry Reding <treding@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.16 163/164] gpio: tegra186: Fix chip_data type confusion
+Date:   Mon, 28 Feb 2022 18:25:25 +0100
+Message-Id: <20220228172414.400242140@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -54,33 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <seanga2@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit e9f7b9228a94778edb7a63fde3c0a3c5bb793064 upstream.
+commit d1e972ace42390de739cde87d96043dcbe502286 upstream.
 
-Using bias-pull-up would actually cause the pin to have its pull-down
-enabled. Fix this.
+The tegra186 GPIO driver makes the assumption that the pointer
+returned by irq_data_get_irq_chip_data() is a pointer to a
+tegra_gpio structure. Unfortunately, it is actually a pointer
+to the inner gpio_chip structure, as mandated by the gpiolib
+infrastructure. Nice try.
 
-Signed-off-by: Sean Anderson <seanga2@gmail.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Fixes: d4c34d09ab03 ("pinctrl: Add RISC-V Canaan Kendryte K210 FPIOA driver")
-Link: https://lore.kernel.org/r/20220209182822.640905-1-seanga2@gmail.com
+The saving grace is that the gpio_chip is the first member of
+tegra_gpio, so the bug has gone undetected since... forever.
+
+Fix it by performing a container_of() on the pointer. This results
+in no additional code, and makes it possible to understand how
+the whole thing works.
+
+Fixes: 5b2b135a87fc ("gpio: Add Tegra186 support")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Link: https://lore.kernel.org/r/20220211093904.1112679-1-maz@kernel.org
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-k210.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-tegra186.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-k210.c
-+++ b/drivers/pinctrl/pinctrl-k210.c
-@@ -527,7 +527,7 @@ static int k210_pinconf_set_param(struct
- 	case PIN_CONFIG_BIAS_PULL_UP:
- 		if (!arg)
- 			return -EINVAL;
--		val |= K210_PC_PD;
-+		val |= K210_PC_PU;
- 		break;
- 	case PIN_CONFIG_DRIVE_STRENGTH:
- 		arg *= 1000;
+--- a/drivers/gpio/gpio-tegra186.c
++++ b/drivers/gpio/gpio-tegra186.c
+@@ -341,9 +341,12 @@ static int tegra186_gpio_of_xlate(struct
+ 	return offset + pin;
+ }
+ 
++#define to_tegra_gpio(x) container_of((x), struct tegra_gpio, gpio)
++
+ static void tegra186_irq_ack(struct irq_data *data)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 
+ 	base = tegra186_gpio_get_base(gpio, data->hwirq);
+@@ -355,7 +358,8 @@ static void tegra186_irq_ack(struct irq_
+ 
+ static void tegra186_irq_mask(struct irq_data *data)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 	u32 value;
+ 
+@@ -370,7 +374,8 @@ static void tegra186_irq_mask(struct irq
+ 
+ static void tegra186_irq_unmask(struct irq_data *data)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 	u32 value;
+ 
+@@ -385,7 +390,8 @@ static void tegra186_irq_unmask(struct i
+ 
+ static int tegra186_irq_set_type(struct irq_data *data, unsigned int type)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 	u32 value;
+ 
 
 
