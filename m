@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA9D4C76F2
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAAB14C73A1
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233567AbiB1SKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:10:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41320 "EHLO
+        id S233437AbiB1RhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:37:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239920AbiB1SG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:06:29 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 858E95AECD;
-        Mon, 28 Feb 2022 09:48:01 -0800 (PST)
+        with ESMTP id S238227AbiB1Rgw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:36:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C87985B4;
+        Mon, 28 Feb 2022 09:31:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7A818CE1795;
-        Mon, 28 Feb 2022 17:47:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F7C4C340F0;
-        Mon, 28 Feb 2022 17:47:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAB1061365;
+        Mon, 28 Feb 2022 17:31:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C2B3C340F0;
+        Mon, 28 Feb 2022 17:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070477;
-        bh=rzjIv3Y6uxvOnI6bDTKnF+WA7ReFM5LSD1pxUEbn0uM=;
+        s=korg; t=1646069514;
+        bh=vEPAZ3lTc+fwgGKdNcNvLHd+Ln7uEJIIVY59/b1a6eI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/D0EV3+PiiLtVQvKlfEwlQp4F5Pk4Pg0wsLo0S5MeFSOkzEdNlF0Mt8zYpv8A9AM
-         yMuuLcztBD230fwqRQ72A+E/a/xTZDLymXpQEK4nDAUjwO4i7SmDJuKjW3cDBr9alh
-         6OgDu234uZpJghSpqVtRwQputnFlmKyl8BXzHakM=
+        b=sFxfHYtP1FaBxzz0FWPSLrv/YILh+AJlA4frdq02CfVh3sbT/mq8Z4eQ4BXvF34ZS
+         +R16UOZ4TblkUWhhZHYIn0aCnLnRZXOJlUZ0210L7W6HIemPnk0IPtuRKvzpKQVuAu
+         1dbakx0ExormJbBC/doCWYAdqLugIKV6SuYLLPwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Bagrii <dimich.dmb@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.16 123/164] Revert "USB: serial: ch341: add new Product ID for CH341A"
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.4 47/53] tty: n_gsm: fix encoding of control signal octet bit DV
 Date:   Mon, 28 Feb 2022 18:24:45 +0100
-Message-Id: <20220228172411.363922942@linuxfoundation.org>
+Message-Id: <20220228172251.681315920@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Bagrii <dimich.dmb@gmail.com>
+From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit 198a7ebd5fa17b4d0be8cb70240ee1be885175c0 upstream.
+commit 737b0ef3be6b319d6c1fd64193d1603311969326 upstream.
 
-This reverts commit 46ee4abb10a07bd8f8ce910ee6b4ae6a947d7f63.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.6.3.7 describes the encoding of the
+control signal octet used by the MSC (modem status command). The same
+encoding is also used in convergence layer type 2 as described in chapter
+5.5.2. Table 7 and 24 both require the DV (data valid) bit to be set 1 for
+outgoing control signal octets sent by the DTE (data terminal equipment),
+i.e. for the initiator side.
+Currently, the DV bit is only set if CD (carrier detect) is on, regardless
+of the side.
 
-CH341 has Product ID 0x5512 in EPP/MEM mode which is used for
-I2C/SPI/GPIO interfaces. In asynchronous serial interface mode
-CH341 has PID 0x5523 which is already in the table.
+This patch fixes this behavior by setting the DV bit on the initiator side
+unconditionally.
 
-Mode is selected by corresponding jumper setting.
-
-Signed-off-by: Dmytro Bagrii <dimich.dmb@gmail.com>
-Link: https://lore.kernel.org/r/20220210164137.4376-1-dimich.dmb@gmail.com
-Link: https://lore.kernel.org/r/YJ0OCS/sh+1ifD/q@hovoldconsulting.com
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220218073123.2121-1-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/tty/n_gsm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -81,7 +81,6 @@
- #define CH341_QUIRK_SIMULATE_BREAK	BIT(1)
- 
- static const struct usb_device_id id_table[] = {
--	{ USB_DEVICE(0x1a86, 0x5512) },
- 	{ USB_DEVICE(0x1a86, 0x5523) },
- 	{ USB_DEVICE(0x1a86, 0x7522) },
- 	{ USB_DEVICE(0x1a86, 0x7523) },
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -428,7 +428,7 @@ static u8 gsm_encode_modem(const struct
+ 		modembits |= MDM_RTR;
+ 	if (dlci->modem_tx & TIOCM_RI)
+ 		modembits |= MDM_IC;
+-	if (dlci->modem_tx & TIOCM_CD)
++	if (dlci->modem_tx & TIOCM_CD || dlci->gsm->initiator)
+ 		modembits |= MDM_DV;
+ 	return modembits;
+ }
 
 
