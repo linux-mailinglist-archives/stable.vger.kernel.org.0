@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E60C34C72E5
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:29:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CEEA4C7368
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236282AbiB1R36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:29:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47558 "EHLO
+        id S238135AbiB1RfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:35:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236348AbiB1R2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C042593B9;
-        Mon, 28 Feb 2022 09:28:00 -0800 (PST)
+        with ESMTP id S237773AbiB1Reg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:34:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9969399C;
+        Mon, 28 Feb 2022 09:31:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11687B815AE;
-        Mon, 28 Feb 2022 17:27:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517EAC36AE5;
-        Mon, 28 Feb 2022 17:27:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B2AF61365;
+        Mon, 28 Feb 2022 17:30:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2960C36AE7;
+        Mon, 28 Feb 2022 17:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069277;
-        bh=ebZXHn0cBjBj0kf7TP3kfC1+nxhdZ5w+V5WC5x1m6NI=;
+        s=korg; t=1646069454;
+        bh=MLtCPOzQia29se3vECjDQjwtcWHGH9cE0eyTMbvnry8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0FUuE7JSGWKHwJkutKdWmTKcB7IligZkGSsQiThPvVvls1pj77A42Vr3KUHDaWQ8
-         kieiWFpNXV3NFifJTsjLygQ2S0sJVgu8fpI/Cr6BTgonhEpLn1ioPNPKAsvG8ZRPdx
-         JevVU7aDFHa46Y1toRuzfReCTvBZIZ20jqrSTzLk=
+        b=XrSdotJG68OBZMJvaGpl1JZ4SgF3ZQkSRbVVfS9Jb5xZsh9ncMgk8MLBKjPDO6q0/
+         wwC8wRuNrgukEHKo2KEm+BV8ze1Jw9LXJxCPO9aN5lRI5e6QfACVC3HTueWjm7AJqB
+         CXJme86T+JLVZYuGS7DzE29upaZbMpZw5Yl2aNFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.14 27/31] tty: n_gsm: fix encoding of control signal octet bit DV
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 25/53] nfp: flower: Fix a potential leak in nfp_tunnel_add_shared_mac()
 Date:   Mon, 28 Feb 2022 18:24:23 +0100
-Message-Id: <20220228172202.428698258@linuxfoundation.org>
+Message-Id: <20220228172250.117600264@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
-References: <20220228172159.515152296@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: daniel.starke@siemens.com <daniel.starke@siemens.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 737b0ef3be6b319d6c1fd64193d1603311969326 upstream.
+commit 3a14d0888eb4b0045884126acc69abfb7b87814d upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.6.3.7 describes the encoding of the
-control signal octet used by the MSC (modem status command). The same
-encoding is also used in convergence layer type 2 as described in chapter
-5.5.2. Table 7 and 24 both require the DV (data valid) bit to be set 1 for
-outgoing control signal octets sent by the DTE (data terminal equipment),
-i.e. for the initiator side.
-Currently, the DV bit is only set if CD (carrier detect) is on, regardless
-of the side.
+ida_simple_get() returns an id between min (0) and max (NFP_MAX_MAC_INDEX)
+inclusive.
+So NFP_MAX_MAC_INDEX (0xff) is a valid id.
 
-This patch fixes this behavior by setting the DV bit on the initiator side
-unconditionally.
+In order for the error handling path to work correctly, the 'invalid'
+value for 'ida_idx' should not be in the 0..NFP_MAX_MAC_INDEX range,
+inclusive.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220218073123.2121-1-daniel.starke@siemens.com
+So set it to -1.
+
+Fixes: 20cce8865098 ("nfp: flower: enable MAC address sharing for offloadable devs")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20220218131535.100258-1-simon.horman@corigine.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -440,7 +440,7 @@ static u8 gsm_encode_modem(const struct
- 		modembits |= MDM_RTR;
- 	if (dlci->modem_tx & TIOCM_RI)
- 		modembits |= MDM_IC;
--	if (dlci->modem_tx & TIOCM_CD)
-+	if (dlci->modem_tx & TIOCM_CD || dlci->gsm->initiator)
- 		modembits |= MDM_DV;
- 	return modembits;
- }
+--- a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
+@@ -588,8 +588,8 @@ nfp_tunnel_add_shared_mac(struct nfp_app
+ 			  int port, bool mod)
+ {
+ 	struct nfp_flower_priv *priv = app->priv;
+-	int ida_idx = NFP_MAX_MAC_INDEX, err;
+ 	struct nfp_tun_offloaded_mac *entry;
++	int ida_idx = -1, err;
+ 	u16 nfp_mac_idx = 0;
+ 
+ 	entry = nfp_tunnel_lookup_offloaded_macs(app, netdev->dev_addr);
+@@ -663,7 +663,7 @@ err_remove_hash:
+ err_free_entry:
+ 	kfree(entry);
+ err_free_ida:
+-	if (ida_idx != NFP_MAX_MAC_INDEX)
++	if (ida_idx != -1)
+ 		ida_simple_remove(&priv->tun.mac_off_ids, ida_idx);
+ 
+ 	return err;
 
 
