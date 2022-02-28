@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21AE4C75DE
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C38644C73AA
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239274AbiB1R4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:56:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47458 "EHLO
+        id S234804AbiB1Rhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:37:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239864AbiB1Rxg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0211BAD125;
-        Mon, 28 Feb 2022 09:41:04 -0800 (PST)
+        with ESMTP id S238316AbiB1RhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F4D8A6CE;
+        Mon, 28 Feb 2022 09:32:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A197F61540;
-        Mon, 28 Feb 2022 17:41:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA557C340E7;
-        Mon, 28 Feb 2022 17:41:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70C26B815AC;
+        Mon, 28 Feb 2022 17:31:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B601DC340E7;
+        Mon, 28 Feb 2022 17:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070064;
-        bh=E6574w75kqATyqu0nXYHqLTZcMPRkRFDJ7mSeoReHQw=;
+        s=korg; t=1646069517;
+        bh=DOUNBwYA9JP+Lq4UjXFlsFmonEHF0xINmyozSDtOuas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p08fgbR42osb8HT1UboHmXbtmdjNiCUHULG+r+xyijKCoclSil+eboGv0VdTZk+vL
-         EmIeKH3vhmPkKOVMTVJylN++MKIb1rfhV+ql5QUyWXqYWUBomBEDx2Y8PSxLD8Bo/5
-         KAp0Vsbmk62LNOCR857aYg8MqLSgLQbhmlOfk0IA=
+        b=Yfi03rQYY0Sr8BYFX2AS5gYwvr8QnRkJTiHigYO0TlfTp5DFqg23QZw/rn773DquS
+         +xYctaiizD+DB4FIBQqbeM6zHwMpWdvk9nc7nB+26+OU5xHDre1UQY1mNe9N+TbKVf
+         BkQMEu7oUoM8WDuHQCJnCvLx31ZK4icLeKKvO7k8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.15 112/139] usb: dwc3: pci: Add "snps,dis_u2_susphy_quirk" for Intel Bay Trail
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.4 48/53] tty: n_gsm: fix proper link termination after failed open
 Date:   Mon, 28 Feb 2022 18:24:46 +0100
-Message-Id: <20220228172359.409814981@linuxfoundation.org>
+Message-Id: <20220228172251.762472170@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit d7c93a903f33ff35aa0e6b5a8032eb9755b00826 upstream.
+commit e3b7468f082d106459e86e8dc6fb9bdd65553433 upstream.
 
-Commit e0082698b689 ("usb: dwc3: ulpi: conditionally resume ULPI PHY")
-fixed an issue where ULPI transfers would timeout if any requests where
-send to the phy sometime after init, giving it enough time to auto-suspend.
+Trying to open a DLCI by sending a SABM frame may fail with a timeout.
+The link is closed on the initiator side without informing the responder
+about this event. The responder assumes the link is open after sending a
+UA frame to answer the SABM frame. The link gets stuck in a half open
+state.
 
-Commit e5f4ca3fce90 ("usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend
-regression") changed the behavior to instead of clearing the
-DWC3_GUSB2PHYCFG_SUSPHY bit, add an extra sleep when it is set.
+This patch fixes this by initiating the proper link termination procedure
+after link setup timeout instead of silently closing it down.
 
-But on Bay Trail devices, when phy_set_mode() gets called during init,
-this leads to errors like these:
-[   28.451522] tusb1210 dwc3.ulpi: error -110 writing val 0x01 to reg 0x0a
-[   28.464089] tusb1210 dwc3.ulpi: error -110 writing val 0x01 to reg 0x0a
-
-Add "snps,dis_u2_susphy_quirk" to the settings for Bay Trail devices to
-fix this. This restores the old behavior for Bay Trail devices, since
-previously the DWC3_GUSB2PHYCFG_SUSPHY bit would get cleared on the first
-ulpi_read/_write() and then was never set again.
-
-Fixes: e5f4ca3fce90 ("usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend regression")
-Cc: stable@kernel.org
-Cc: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220213130524.18748-2-hdegoede@redhat.com
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220218073123.2121-3-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/tty/n_gsm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -119,6 +119,13 @@ static const struct property_entry dwc3_
- 	{}
- };
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1490,7 +1490,7 @@ static void gsm_dlci_t1(struct timer_lis
+ 			dlci->mode = DLCI_MODE_ADM;
+ 			gsm_dlci_open(dlci);
+ 		} else {
+-			gsm_dlci_close(dlci);
++			gsm_dlci_begin_close(dlci); /* prevent half open link */
+ 		}
  
-+static const struct property_entry dwc3_pci_intel_byt_properties[] = {
-+	PROPERTY_ENTRY_STRING("dr_mode", "peripheral"),
-+	PROPERTY_ENTRY_BOOL("snps,dis_u2_susphy_quirk"),
-+	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
-+	{}
-+};
-+
- static const struct property_entry dwc3_pci_mrfld_properties[] = {
- 	PROPERTY_ENTRY_STRING("dr_mode", "otg"),
- 	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
-@@ -161,6 +168,10 @@ static const struct software_node dwc3_p
- 	.properties = dwc3_pci_intel_properties,
- };
- 
-+static const struct software_node dwc3_pci_intel_byt_swnode = {
-+	.properties = dwc3_pci_intel_byt_properties,
-+};
-+
- static const struct software_node dwc3_pci_intel_mrfld_swnode = {
- 	.properties = dwc3_pci_mrfld_properties,
- };
-@@ -344,7 +355,7 @@ static const struct pci_device_id dwc3_p
- 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
- 
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_BYT),
--	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
-+	  (kernel_ulong_t) &dwc3_pci_intel_byt_swnode, },
- 
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MRFLD),
- 	  (kernel_ulong_t) &dwc3_pci_intel_mrfld_swnode, },
+ 		break;
 
 
