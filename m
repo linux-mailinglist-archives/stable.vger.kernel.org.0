@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DD44C6308
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:35:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD914C630E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:36:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231497AbiB1GgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 01:36:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58744 "EHLO
+        id S233262AbiB1Ggw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 01:36:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232830AbiB1GgP (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 28 Feb 2022 01:36:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6513566C8B
-        for <Stable@vger.kernel.org>; Sun, 27 Feb 2022 22:35:37 -0800 (PST)
+        with ESMTP id S233267AbiB1Ggt (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 28 Feb 2022 01:36:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 185F666CBA
+        for <Stable@vger.kernel.org>; Sun, 27 Feb 2022 22:36:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A621B80E3F
-        for <Stable@vger.kernel.org>; Mon, 28 Feb 2022 06:35:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EDE6C340E7;
-        Mon, 28 Feb 2022 06:35:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA50AB80E1C
+        for <Stable@vger.kernel.org>; Mon, 28 Feb 2022 06:36:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8B0C340F1;
+        Mon, 28 Feb 2022 06:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646030134;
-        bh=hmaxVGl5I5NQBND69u/Vj4/nWp9l/i//h1czXhAT03M=;
+        s=korg; t=1646030165;
+        bh=TolcGNp+XOvIT9kEBbyDU36GDOSei3a9KV3dIEnQoQw=;
         h=Subject:To:Cc:From:Date:From;
-        b=nO5+ryRb3UQWtz1dkDfTgach2hWtkKnQVS3zmrDZM/jjDBqJgyQSmCu8Zp/yTPkJ5
-         bbYM9fw0nj9Y/3y4O/WE5BIg5HU8S2Mf+iTMhoGPGjtxpxxxuZF7j3VT3MbQjIC+4N
-         T2yXfZ+m+J7Lnl/RyruhbL26vnXUkY5BoPI58qQg=
-Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: wait for settling time in" failed to apply to 4.14-stable tree
-To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, mario.tesi@st.com
+        b=G4i334KjbQf47+nlmQMSDuVrjSyFNBRUQy2C7kAAAGwIVL8um3I3xpq8SFhjkznxQ
+         FSkqlNsPyy+JMAxL2EoL+uG6J8pELE0mcHSGp5VENJ4SC7yMGKW/d30RFEowNAhe+G
+         AE5YEGUijatsabujwaqhYp8Xu0UOs7r4sb2qMnvM=
+Subject: FAILED: patch "[PATCH] iio: Fix error handling for PM" failed to apply to 4.19-stable tree
+To:     linmq006@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, andriy.shevchenko@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Feb 2022 07:35:18 +0100
-Message-ID: <164603011812057@kroah.com>
+Date:   Mon, 28 Feb 2022 07:36:00 +0100
+Message-ID: <1646030160127239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,39 +60,172 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ea85bf906466191b58532bb19f4fbb4591f0a77e Mon Sep 17 00:00:00 2001
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-Date: Sat, 5 Feb 2022 22:57:42 +0100
-Subject: [PATCH] iio: imu: st_lsm6dsx: wait for settling time in
- st_lsm6dsx_read_oneshot
+From 632fe0bb8c5b9c06ec961f575ee42a6fff5eceeb Mon Sep 17 00:00:00 2001
+From: Miaoqian Lin <linmq006@gmail.com>
+Date: Thu, 6 Jan 2022 11:23:09 +0000
+Subject: [PATCH] iio: Fix error handling for PM
 
-We need to wait for sensor settling time (~ 3/ODR) before reading data
-in st_lsm6dsx_read_oneshot routine in order to avoid corrupted samples.
+The pm_runtime_enable will increase power disable depth.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable(). In the PM Runtime docs:
+    Drivers in ->remove() callback should undo the runtime PM changes done
+    in ->probe(). Usually this means calling pm_runtime_disable(),
+    pm_runtime_dont_use_autosuspend() etc.
+We should do this in error handling.
 
-Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
-Reported-by: Mario Tesi <mario.tesi@st.com>
-Tested-by: Mario Tesi <mario.tesi@st.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Link: https://lore.kernel.org/r/b41ebda5535895298716c76d939f9f165fcd2d13.1644098120.git.lorenzo@kernel.org
+Fix this problem for the following drivers: bmc150, bmg160, kmx61,
+kxcj-1013, mma9551, mma9553.
+
+Fixes: 7d0ead5c3f00 ("iio: Reconcile operation order between iio_register/unregister and pm functions")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220106112309.16879-1-linmq006@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index 727b4b6ac696..93f0c6bce502 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -1374,8 +1374,12 @@ static int st_lsm6dsx_read_oneshot(struct st_lsm6dsx_sensor *sensor,
- 	if (err < 0)
- 		return err;
+diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
+index e6081dd0a880..d11f668016a6 100644
+--- a/drivers/iio/accel/bmc150-accel-core.c
++++ b/drivers/iio/accel/bmc150-accel-core.c
+@@ -1783,11 +1783,14 @@ int bmc150_accel_core_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Unable to register iio device\n");
+-		goto err_trigger_unregister;
++		goto err_pm_cleanup;
+ 	}
  
-+	/*
-+	 * we need to wait for sensor settling time before
-+	 * reading data in order to avoid corrupted samples
-+	 */
- 	delay = 1000000000 / sensor->odr;
--	usleep_range(delay, 2 * delay);
-+	usleep_range(3 * delay, 4 * delay);
+ 	return 0;
  
- 	err = st_lsm6dsx_read_locked(hw, addr, &data, sizeof(data));
- 	if (err < 0)
++err_pm_cleanup:
++	pm_runtime_dont_use_autosuspend(dev);
++	pm_runtime_disable(dev);
+ err_trigger_unregister:
+ 	bmc150_accel_unregister_triggers(data, BMC150_ACCEL_TRIGGERS - 1);
+ err_buffer_cleanup:
+diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
+index 0fe570316848..ac74cdcd2bc8 100644
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -1590,11 +1590,14 @@ static int kxcjk1013_probe(struct i2c_client *client,
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev, "unable to register iio device\n");
+-		goto err_buffer_cleanup;
++		goto err_pm_cleanup;
+ 	}
+ 
+ 	return 0;
+ 
++err_pm_cleanup:
++	pm_runtime_dont_use_autosuspend(&client->dev);
++	pm_runtime_disable(&client->dev);
+ err_buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ err_trigger_unregister:
+diff --git a/drivers/iio/accel/mma9551.c b/drivers/iio/accel/mma9551.c
+index 4c359fb05480..c53a3398b14c 100644
+--- a/drivers/iio/accel/mma9551.c
++++ b/drivers/iio/accel/mma9551.c
+@@ -495,11 +495,14 @@ static int mma9551_probe(struct i2c_client *client,
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev, "unable to register iio device\n");
+-		goto out_poweroff;
++		goto err_pm_cleanup;
+ 	}
+ 
+ 	return 0;
+ 
++err_pm_cleanup:
++	pm_runtime_dont_use_autosuspend(&client->dev);
++	pm_runtime_disable(&client->dev);
+ out_poweroff:
+ 	mma9551_set_device_state(client, false);
+ 
+diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
+index 0570ab1cc064..5ff6bc70708b 100644
+--- a/drivers/iio/accel/mma9553.c
++++ b/drivers/iio/accel/mma9553.c
+@@ -1134,12 +1134,15 @@ static int mma9553_probe(struct i2c_client *client,
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev, "unable to register iio device\n");
+-		goto out_poweroff;
++		goto err_pm_cleanup;
+ 	}
+ 
+ 	dev_dbg(&indio_dev->dev, "Registered device %s\n", name);
+ 	return 0;
+ 
++err_pm_cleanup:
++	pm_runtime_dont_use_autosuspend(&client->dev);
++	pm_runtime_disable(&client->dev);
+ out_poweroff:
+ 	mma9551_set_device_state(client, false);
+ 	return ret;
+diff --git a/drivers/iio/gyro/bmg160_core.c b/drivers/iio/gyro/bmg160_core.c
+index 17b939a367ad..81a6d09788bd 100644
+--- a/drivers/iio/gyro/bmg160_core.c
++++ b/drivers/iio/gyro/bmg160_core.c
+@@ -1188,11 +1188,14 @@ int bmg160_core_probe(struct device *dev, struct regmap *regmap, int irq,
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "unable to register iio device\n");
+-		goto err_buffer_cleanup;
++		goto err_pm_cleanup;
+ 	}
+ 
+ 	return 0;
+ 
++err_pm_cleanup:
++	pm_runtime_dont_use_autosuspend(dev);
++	pm_runtime_disable(dev);
+ err_buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ err_trigger_unregister:
+diff --git a/drivers/iio/imu/kmx61.c b/drivers/iio/imu/kmx61.c
+index 1dabfd615dab..f89724481df9 100644
+--- a/drivers/iio/imu/kmx61.c
++++ b/drivers/iio/imu/kmx61.c
+@@ -1385,7 +1385,7 @@ static int kmx61_probe(struct i2c_client *client,
+ 	ret = iio_device_register(data->acc_indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev, "Failed to register acc iio device\n");
+-		goto err_buffer_cleanup_mag;
++		goto err_pm_cleanup;
+ 	}
+ 
+ 	ret = iio_device_register(data->mag_indio_dev);
+@@ -1398,6 +1398,9 @@ static int kmx61_probe(struct i2c_client *client,
+ 
+ err_iio_unregister_acc:
+ 	iio_device_unregister(data->acc_indio_dev);
++err_pm_cleanup:
++	pm_runtime_dont_use_autosuspend(&client->dev);
++	pm_runtime_disable(&client->dev);
+ err_buffer_cleanup_mag:
+ 	if (client->irq > 0)
+ 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
+diff --git a/drivers/iio/magnetometer/bmc150_magn.c b/drivers/iio/magnetometer/bmc150_magn.c
+index f96f53175349..3d4d21f979fa 100644
+--- a/drivers/iio/magnetometer/bmc150_magn.c
++++ b/drivers/iio/magnetometer/bmc150_magn.c
+@@ -962,13 +962,14 @@ int bmc150_magn_probe(struct device *dev, struct regmap *regmap,
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "unable to register iio device\n");
+-		goto err_disable_runtime_pm;
++		goto err_pm_cleanup;
+ 	}
+ 
+ 	dev_dbg(dev, "Registered device %s\n", name);
+ 	return 0;
+ 
+-err_disable_runtime_pm:
++err_pm_cleanup:
++	pm_runtime_dont_use_autosuspend(dev);
+ 	pm_runtime_disable(dev);
+ err_buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
 
