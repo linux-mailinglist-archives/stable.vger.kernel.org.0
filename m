@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63FB74C74A9
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A1844C75B7
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238660AbiB1RqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:46:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58790 "EHLO
+        id S239207AbiB1R4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239623AbiB1RoZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:44:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1819E9F6;
-        Mon, 28 Feb 2022 09:36:45 -0800 (PST)
+        with ESMTP id S240793AbiB1Ryp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C469532E5;
+        Mon, 28 Feb 2022 09:43:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 490DFB815A6;
-        Mon, 28 Feb 2022 17:36:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69B6C340E7;
-        Mon, 28 Feb 2022 17:36:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E700AB815C2;
+        Mon, 28 Feb 2022 17:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45DEDC340F0;
+        Mon, 28 Feb 2022 17:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069801;
-        bh=RLhiiZjzOzAtMK5b8A41Jkm+nudW8wUnzW1+qCkFNYY=;
+        s=korg; t=1646070218;
+        bh=+zsh4JHBhetjfG7IBa6o0QjEsdeBYt/J3qrEtqfa0Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5rSc13A2/rzJK64L1VFQujSxJvWIQy3DnD8gOZA/ikm1pTINyQTp9UViiKzEQLj2
-         v5tOhGBgcSCrKAmgCrfpXhrcjl6rxmNvyuc0+shXUWOGZTkiZFjYbVPTiHdSD5IGcq
-         +z9Vh+Zz1rXy1IJ6uAKdUMMadnlVOZPeFi/QpEQs=
+        b=RtsKyLiWtzohGtcNZGwyury4NIg0aCLMjoThm29vVyXdU9utfxcYPLjepDRvFeyGI
+         atx/IImvkpWRDoP3VWsWTI2pFEjcd9kImKBPd9Nyr5TG+jyf1Sdx3w/BZi0tyGO7XL
+         4S/DuUaaKfcfXAg75Emqcov/uT0NTdQ46eeuWnC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, koba.ko@canonical.com,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 5.15 017/139] drm/amd: Check if ASPM is enabled from PCIe subsystem
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 029/164] CDC-NCM: avoid overflow in sanity checking
 Date:   Mon, 28 Feb 2022 18:23:11 +0100
-Message-Id: <20220228172349.509660439@linuxfoundation.org>
+Message-Id: <20220228172402.810769410@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 7294863a6f01248d72b61d38478978d638641bee upstream.
+commit 8d2b1a1ec9f559d30b724877da4ce592edc41fdc upstream.
 
-commit 0064b0ce85bb ("drm/amd/pm: enable ASPM by default") enabled ASPM
-by default but a variety of hardware configurations it turns out that this
-caused a regression.
+A broken device may give an extreme offset like 0xFFF0
+and a reasonable length for a fragment. In the sanity
+check as formulated now, this will create an integer
+overflow, defeating the sanity check. Both offset
+and offset + len need to be checked in such a manner
+that no overflow can occur.
+And those quantities should be unsigned.
 
-* PPC64LE hardware does not support ASPM at a hardware level.
-  CONFIG_PCIEASPM is often disabled on these architectures.
-* Some dGPUs on ALD platforms don't work with ASPM enabled and PCIe subsystem
-  disables it
-
-Check with the PCIe subsystem to see that ASPM has been enabled
-or not.
-
-Fixes: 0064b0ce85bb ("drm/amd/pm: enable ASPM by default")
-Link: https://wiki.raptorcs.com/w/images/a/ad/P9_PHB_version1.0_27July2018_pub.pdf
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1723
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1739
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1885
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1907
-Tested-by: koba.ko@canonical.com
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/cdc_ncm.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1278,6 +1278,9 @@ static int amdgpu_pci_probe(struct pci_d
- 	bool is_fw_fb;
- 	resource_size_t base, size;
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1715,10 +1715,10 @@ int cdc_ncm_rx_fixup(struct usbnet *dev,
+ {
+ 	struct sk_buff *skb;
+ 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
+-	int len;
++	unsigned int len;
+ 	int nframes;
+ 	int x;
+-	int offset;
++	unsigned int offset;
+ 	union {
+ 		struct usb_cdc_ncm_ndp16 *ndp16;
+ 		struct usb_cdc_ncm_ndp32 *ndp32;
+@@ -1790,8 +1790,8 @@ next_ndp:
+ 			break;
+ 		}
  
-+	if (amdgpu_aspm == -1 && !pcie_aspm_enabled(pdev))
-+		amdgpu_aspm = 0;
-+
- 	if (amdgpu_virtual_display ||
- 	    amdgpu_device_asic_has_dc_support(flags & AMD_ASIC_MASK))
- 		supports_atomic = true;
+-		/* sanity checking */
+-		if (((offset + len) > skb_in->len) ||
++		/* sanity checking - watch out for integer wrap*/
++		if ((offset > skb_in->len) || (len > skb_in->len - offset) ||
+ 				(len > ctx->rx_max) || (len < ETH_HLEN)) {
+ 			netif_dbg(dev, rx_err, dev->net,
+ 				  "invalid frame detected (ignored) offset[%u]=%u, length=%u, skb=%p\n",
 
 
