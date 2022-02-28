@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3EEB4C73C1
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B48B4C76F8
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238252AbiB1RjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:39:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42232 "EHLO
+        id S233049AbiB1SKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:10:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238350AbiB1RhO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890FC8A6FB;
-        Mon, 28 Feb 2022 09:32:11 -0800 (PST)
+        with ESMTP id S240158AbiB1SH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:07:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FE55D64D;
+        Mon, 28 Feb 2022 09:48:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63AF4609EE;
-        Mon, 28 Feb 2022 17:32:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A94BC340E7;
-        Mon, 28 Feb 2022 17:32:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E44DB810DB;
+        Mon, 28 Feb 2022 17:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CFBCC340E7;
+        Mon, 28 Feb 2022 17:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069530;
-        bh=enr+3JE+jfp/tXmWjfUXVHUy5lAWuiRIWpJLIBM2HW0=;
+        s=korg; t=1646070499;
+        bh=E6574w75kqATyqu0nXYHqLTZcMPRkRFDJ7mSeoReHQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7PGMgeWay6LT8pOCFZPON6DBehY/4+B5RcgJZXDIo2hcYNDbt4y18bSgSwr6l4Lb
-         0fUBbajxcQwgPynsWC3HR8s5FLsE1fTizdOq9k7qEBai5bINCxwXSiaqdVBhdtQrnu
-         tfDeo7nPo4Zui4qlG8lA4hAYVzRxpyoj5VzE47yg=
+        b=WX8q+6y/tsZMd+q58+AvtwIXgBpahy89seoavjQbnBy/L5spJWuw5VmJg9m0JSU8s
+         pyPcmzbIqqfrNnmZp2nWIfRfVP8qGG9KMnetelHiK8OLh0Z1YebfgJz6nd9nUnT5Xh
+         VP9sS+jmk2QyU2D9zxOKOpjAm+asyCBI9LiSbNuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Carel Si <beibei.si@intel.com>, Jann Horn <jannh@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Baokun Li <libaokun1@huawei.com>
-Subject: [PATCH 5.4 53/53] fget: clarify and improve __fget_files() implementation
-Date:   Mon, 28 Feb 2022 18:24:51 +0100
-Message-Id: <20220228172252.371692386@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.16 130/164] usb: dwc3: pci: Add "snps,dis_u2_susphy_quirk" for Intel Bay Trail
+Date:   Mon, 28 Feb 2022 18:24:52 +0100
+Message-Id: <20220228172411.881459435@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,138 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit e386dfc56f837da66d00a078e5314bc8382fab83 upstream.
+commit d7c93a903f33ff35aa0e6b5a8032eb9755b00826 upstream.
 
-Commit 054aa8d439b9 ("fget: check that the fd still exists after getting
-a ref to it") fixed a race with getting a reference to a file just as it
-was being closed.  It was a fairly minimal patch, and I didn't think
-re-checking the file pointer lookup would be a measurable overhead,
-since it was all right there and cached.
+Commit e0082698b689 ("usb: dwc3: ulpi: conditionally resume ULPI PHY")
+fixed an issue where ULPI transfers would timeout if any requests where
+send to the phy sometime after init, giving it enough time to auto-suspend.
 
-But I was wrong, as pointed out by the kernel test robot.
+Commit e5f4ca3fce90 ("usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend
+regression") changed the behavior to instead of clearing the
+DWC3_GUSB2PHYCFG_SUSPHY bit, add an extra sleep when it is set.
 
-The 'poll2' case of the will-it-scale.per_thread_ops benchmark regressed
-quite noticeably.  Admittedly it seems to be a very artificial test:
-doing "poll()" system calls on regular files in a very tight loop in
-multiple threads.
+But on Bay Trail devices, when phy_set_mode() gets called during init,
+this leads to errors like these:
+[   28.451522] tusb1210 dwc3.ulpi: error -110 writing val 0x01 to reg 0x0a
+[   28.464089] tusb1210 dwc3.ulpi: error -110 writing val 0x01 to reg 0x0a
 
-That means that basically all the time is spent just looking up file
-descriptors without ever doing anything useful with them (not that doing
-'poll()' on a regular file is useful to begin with).  And as a result it
-shows the extra "re-check fd" cost as a sore thumb.
+Add "snps,dis_u2_susphy_quirk" to the settings for Bay Trail devices to
+fix this. This restores the old behavior for Bay Trail devices, since
+previously the DWC3_GUSB2PHYCFG_SUSPHY bit would get cleared on the first
+ulpi_read/_write() and then was never set again.
 
-Happily, the regression is fixable by just writing the code to loook up
-the fd to be better and clearer.  There's still a cost to verify the
-file pointer, but now it's basically in the noise even for that
-benchmark that does nothing else - and the code is more understandable
-and has better comments too.
-
-[ Side note: this patch is also a classic case of one that looks very
-  messy with the default greedy Myers diff - it's much more legible with
-  either the patience of histogram diff algorithm ]
-
-Link: https://lore.kernel.org/lkml/20211210053743.GA36420@xsang-OptiPlex-9020/
-Link: https://lore.kernel.org/lkml/20211213083154.GA20853@linux.intel.com/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Carel Si <beibei.si@intel.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Fixes: e5f4ca3fce90 ("usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend regression")
+Cc: stable@kernel.org
+Cc: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220213130524.18748-2-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/file.c |   73 ++++++++++++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 57 insertions(+), 16 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -706,28 +706,69 @@ void do_close_on_exec(struct files_struc
- 	spin_unlock(&files->file_lock);
- }
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -119,6 +119,13 @@ static const struct property_entry dwc3_
+ 	{}
+ };
  
--static struct file *__fget(unsigned int fd, fmode_t mask, unsigned int refs)
-+static inline struct file *__fget_files_rcu(struct files_struct *files,
-+		unsigned int fd, fmode_t mask, unsigned int refs)
- {
--	struct files_struct *files = current->files;
--	struct file *file;
-+	for (;;) {
-+		struct file *file;
-+		struct fdtable *fdt = rcu_dereference_raw(files->fdt);
-+		struct file __rcu **fdentry;
++static const struct property_entry dwc3_pci_intel_byt_properties[] = {
++	PROPERTY_ENTRY_STRING("dr_mode", "peripheral"),
++	PROPERTY_ENTRY_BOOL("snps,dis_u2_susphy_quirk"),
++	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
++	{}
++};
++
+ static const struct property_entry dwc3_pci_mrfld_properties[] = {
+ 	PROPERTY_ENTRY_STRING("dr_mode", "otg"),
+ 	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
+@@ -161,6 +168,10 @@ static const struct software_node dwc3_p
+ 	.properties = dwc3_pci_intel_properties,
+ };
  
--	rcu_read_lock();
--loop:
--	file = fcheck_files(files, fd);
--	if (file) {
--		/* File object ref couldn't be taken.
--		 * dup2() atomicity guarantee is the reason
--		 * we loop to catch the new file (or NULL pointer)
-+		if (unlikely(fd >= fdt->max_fds))
-+			return NULL;
++static const struct software_node dwc3_pci_intel_byt_swnode = {
++	.properties = dwc3_pci_intel_byt_properties,
++};
 +
-+		fdentry = fdt->fd + array_index_nospec(fd, fdt->max_fds);
-+		file = rcu_dereference_raw(*fdentry);
-+		if (unlikely(!file))
-+			return NULL;
-+
-+		if (unlikely(file->f_mode & mask))
-+			return NULL;
-+
-+		/*
-+		 * Ok, we have a file pointer. However, because we do
-+		 * this all locklessly under RCU, we may be racing with
-+		 * that file being closed.
-+		 *
-+		 * Such a race can take two forms:
-+		 *
-+		 *  (a) the file ref already went down to zero,
-+		 *      and get_file_rcu_many() fails. Just try
-+		 *      again:
- 		 */
--		if (file->f_mode & mask)
--			file = NULL;
--		else if (!get_file_rcu_many(file, refs))
--			goto loop;
--		else if (__fcheck_files(files, fd) != file) {
-+		if (unlikely(!get_file_rcu_many(file, refs)))
-+			continue;
-+
-+		/*
-+		 *  (b) the file table entry has changed under us.
-+		 *       Note that we don't need to re-check the 'fdt->fd'
-+		 *       pointer having changed, because it always goes
-+		 *       hand-in-hand with 'fdt'.
-+		 *
-+		 * If so, we need to put our refs and try again.
-+		 */
-+		if (unlikely(rcu_dereference_raw(files->fdt) != fdt) ||
-+		    unlikely(rcu_dereference_raw(*fdentry) != file)) {
- 			fput_many(file, refs);
--			goto loop;
-+			continue;
- 		}
-+
-+		/*
-+		 * Ok, we have a ref to the file, and checked that it
-+		 * still exists.
-+		 */
-+		return file;
- 	}
-+}
-+
-+
-+static struct file *__fget(unsigned int fd, fmode_t mask, unsigned int refs)
-+{
-+	struct files_struct *files = current->files;
-+	struct file *file;
-+
-+	rcu_read_lock();
-+	file = __fget_files_rcu(files, fd, mask, refs);
- 	rcu_read_unlock();
+ static const struct software_node dwc3_pci_intel_mrfld_swnode = {
+ 	.properties = dwc3_pci_mrfld_properties,
+ };
+@@ -344,7 +355,7 @@ static const struct pci_device_id dwc3_p
+ 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
  
- 	return file;
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_BYT),
+-	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
++	  (kernel_ulong_t) &dwc3_pci_intel_byt_swnode, },
+ 
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MRFLD),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_mrfld_swnode, },
 
 
