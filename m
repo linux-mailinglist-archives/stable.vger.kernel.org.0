@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 685614C72CD
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D4784C7687
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235033AbiB1R27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:28:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45494 "EHLO
+        id S232965AbiB1SFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:05:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235964AbiB1R2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACB71178;
-        Mon, 28 Feb 2022 09:27:49 -0800 (PST)
+        with ESMTP id S240546AbiB1SDj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54794111;
+        Mon, 28 Feb 2022 09:47:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29A90B815AE;
-        Mon, 28 Feb 2022 17:27:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83698C340E7;
-        Mon, 28 Feb 2022 17:27:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7506760BFB;
+        Mon, 28 Feb 2022 17:46:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D9AC340E7;
+        Mon, 28 Feb 2022 17:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069266;
-        bh=2+Cm03NTYhFQYeji16bdohSY4T37ypFHgrm8LqX1P5c=;
+        s=korg; t=1646070412;
+        bh=5hvlb5yPepNK+KcRoK2PHjEsLVxj1za/XygrWEYMfRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6P9I7w+LP1hLfJcaIOEoi1sYAG6vXOExtIuSwvNdV44OXqtB6xGQlJI6B9lUGSyZ
-         VT68yNI25AYoJ57pBxHtZNeoWDyanvwY1Vzdxp3FBbkV8zs8eCpHHqcoIgZpyd6NiE
-         2UnJ9VXkinISD6RsiM7OCO1iUy1HLRi1IZE0icDQ=
+        b=hjOBL9+pITBQRDXCkuFRWLR+tYsg7yUtwO9b7oUiKX0U5EnY8UW60iQ+7MsiJ6jrv
+         lLg/KHKUU5Om/uPPaCX1TIX0fqt9eX+ypmdkaZsLgSvoWVqS7UdDIbA9DfFwWFHqfp
+         gAvY0MJQmId2IeWdnqiGCtfPUdpmu4pwRdgQvxN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 23/31] USB: serial: option: add Telit LE910R1 compositions
+        stable@vger.kernel.org, Maher Sanalla <msanalla@nvidia.com>,
+        Avihai Horon <avihaih@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.16 097/164] net/mlx5: Update log_max_qp value to be 17 at most
 Date:   Mon, 28 Feb 2022 18:24:19 +0100
-Message-Id: <20220228172202.039985433@linuxfoundation.org>
+Message-Id: <20220228172408.571546631@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
-References: <20220228172159.515152296@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-commit cfc4442c642d568014474b6718ccf65dc7ca6099 upstream.
+commit 7f839965b2d77e1926ad08b23c51d60988f10a99 upstream.
 
-Add support for the following Telit LE910R1 compositions:
+Currently, log_max_qp value is dependent on what FW reports as its max capability.
+In reality, due to a bug, some FWs report a value greater than 17, even though they
+don't support log_max_qp > 17.
 
-0x701a: rndis, tty, tty, tty
-0x701b: ecm, tty, tty, tty
-0x9201: tty
+This FW issue led the driver to exhaust memory on startup.
+Thus, log_max_qp value is set to be no more than 17 regardless
+of what FW reports, as it was before the cited commit.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20220218134552.4051-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: f79a609ea6bf ("net/mlx5: Update log_max_qp value to FW max capability")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Avihai Horon <avihaih@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1282,10 +1282,16 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x7011, 0xff),	/* Telit LE910-S1 (ECM) */
- 	  .driver_info = NCTRL(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x701a, 0xff),	/* Telit LE910R1 (RNDIS) */
-+	  .driver_info = NCTRL(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x701b, 0xff),	/* Telit LE910R1 (ECM) */
-+	  .driver_info = NCTRL(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
- 	  .driver_info = NCTRL(0) | ZLP },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9200),				/* Telit LE910S1 flashing device */
- 	  .driver_info = NCTRL(0) | ZLP },
-+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9201),				/* Telit LE910R1 flashing device */
-+	  .driver_info = NCTRL(0) | ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) },
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -510,7 +510,7 @@ static int handle_hca_cap(struct mlx5_co
+ 
+ 	/* Check log_max_qp from HCA caps to set in current profile */
+ 	if (prof->log_max_qp == LOG_MAX_SUPPORTED_QPS) {
+-		prof->log_max_qp = MLX5_CAP_GEN_MAX(dev, log_max_qp);
++		prof->log_max_qp = min_t(u8, 17, MLX5_CAP_GEN_MAX(dev, log_max_qp));
+ 	} else if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < prof->log_max_qp) {
+ 		mlx5_core_warn(dev, "log_max_qp value in current profile is %d, changing it to HCA capability limit (%d)\n",
+ 			       prof->log_max_qp,
 
 
