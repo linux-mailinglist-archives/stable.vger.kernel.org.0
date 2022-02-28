@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 146DD4C6307
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DD44C6308
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:35:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231546AbiB1GgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 01:36:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58712 "EHLO
+        id S231497AbiB1GgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 01:36:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231497AbiB1GgL (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 28 Feb 2022 01:36:11 -0500
+        with ESMTP id S232830AbiB1GgP (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 28 Feb 2022 01:36:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953FA66C8A
-        for <Stable@vger.kernel.org>; Sun, 27 Feb 2022 22:35:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6513566C8B
+        for <Stable@vger.kernel.org>; Sun, 27 Feb 2022 22:35:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49DB4B80E1C
-        for <Stable@vger.kernel.org>; Mon, 28 Feb 2022 06:35:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 673B0C340E7;
-        Mon, 28 Feb 2022 06:35:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A621B80E3F
+        for <Stable@vger.kernel.org>; Mon, 28 Feb 2022 06:35:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EDE6C340E7;
+        Mon, 28 Feb 2022 06:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646030130;
-        bh=g9AyQXQjv79PPyAZ4Yl3/5hqGt8HiLVWCc9y7EWy4bI=;
+        s=korg; t=1646030134;
+        bh=hmaxVGl5I5NQBND69u/Vj4/nWp9l/i//h1czXhAT03M=;
         h=Subject:To:Cc:From:Date:From;
-        b=qJlM2AIU+mao8YK1EDq/ezHDTj6+p9aDzibitWTwc+WQTQxEBlL9UvD+0cYvrI+ST
-         gQT3PrQtBxEHbGoKd5CbxKnLlief76z8rFEH3ST8f/6JSuhei5M8Bl6XXQe5hob+Cu
-         XqICpYkowxPZj5wvfAVgiPp0+JyGxWeokcSN8xS4=
-Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: wait for settling time in" failed to apply to 4.19-stable tree
+        b=nO5+ryRb3UQWtz1dkDfTgach2hWtkKnQVS3zmrDZM/jjDBqJgyQSmCu8Zp/yTPkJ5
+         bbYM9fw0nj9Y/3y4O/WE5BIg5HU8S2Mf+iTMhoGPGjtxpxxxuZF7j3VT3MbQjIC+4N
+         T2yXfZ+m+J7Lnl/RyruhbL26vnXUkY5BoPI58qQg=
+Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: wait for settling time in" failed to apply to 4.14-stable tree
 To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, mario.tesi@st.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Feb 2022 07:35:16 +0100
-Message-ID: <1646030116253241@kroah.com>
+Date:   Mon, 28 Feb 2022 07:35:18 +0100
+Message-ID: <164603011812057@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
