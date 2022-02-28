@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B46D4C7336
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E60C34C72E5
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237648AbiB1ReI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39896 "EHLO
+        id S236282AbiB1R36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:29:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238308AbiB1RdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1F078F983;
-        Mon, 28 Feb 2022 09:29:47 -0800 (PST)
+        with ESMTP id S236348AbiB1R2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C042593B9;
+        Mon, 28 Feb 2022 09:28:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEFB76145C;
-        Mon, 28 Feb 2022 17:29:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97CBC340F0;
-        Mon, 28 Feb 2022 17:29:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11687B815AE;
+        Mon, 28 Feb 2022 17:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517EAC36AE5;
+        Mon, 28 Feb 2022 17:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069386;
-        bh=vU/qhmC0dR0bSizI4ccziVaAU5ZeYpReprMKNESwoZQ=;
+        s=korg; t=1646069277;
+        bh=ebZXHn0cBjBj0kf7TP3kfC1+nxhdZ5w+V5WC5x1m6NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpeIn1x9h1mQqQtoXTTRc/EAZvQEn+zHsSLmV9+B7SypScJGkN9nZs6W3XyQPtibr
-         NfunRS+Ulol95mr61Rz1yjYZtcoavTmQG305IkmPoUEODeqx9AAB1ggk75dcrzQvin
-         0Li4u2q/4gNPnQqzMh65oatp9cTXS4fCFxKMfjhQ=
+        b=G0FUuE7JSGWKHwJkutKdWmTKcB7IligZkGSsQiThPvVvls1pj77A42Vr3KUHDaWQ8
+         kieiWFpNXV3NFifJTsjLygQ2S0sJVgu8fpI/Cr6BTgonhEpLn1ioPNPKAsvG8ZRPdx
+         JevVU7aDFHa46Y1toRuzfReCTvBZIZ20jqrSTzLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4.19 17/34] gpio: tegra186: Fix chip_data type confusion
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.14 27/31] tty: n_gsm: fix encoding of control signal octet bit DV
 Date:   Mon, 28 Feb 2022 18:24:23 +0100
-Message-Id: <20220228172209.845156606@linuxfoundation.org>
+Message-Id: <20220228172202.428698258@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit d1e972ace42390de739cde87d96043dcbe502286 upstream.
+commit 737b0ef3be6b319d6c1fd64193d1603311969326 upstream.
 
-The tegra186 GPIO driver makes the assumption that the pointer
-returned by irq_data_get_irq_chip_data() is a pointer to a
-tegra_gpio structure. Unfortunately, it is actually a pointer
-to the inner gpio_chip structure, as mandated by the gpiolib
-infrastructure. Nice try.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.6.3.7 describes the encoding of the
+control signal octet used by the MSC (modem status command). The same
+encoding is also used in convergence layer type 2 as described in chapter
+5.5.2. Table 7 and 24 both require the DV (data valid) bit to be set 1 for
+outgoing control signal octets sent by the DTE (data terminal equipment),
+i.e. for the initiator side.
+Currently, the DV bit is only set if CD (carrier detect) is on, regardless
+of the side.
 
-The saving grace is that the gpio_chip is the first member of
-tegra_gpio, so the bug has gone undetected since... forever.
+This patch fixes this behavior by setting the DV bit on the initiator side
+unconditionally.
 
-Fix it by performing a container_of() on the pointer. This results
-in no additional code, and makes it possible to understand how
-the whole thing works.
-
-Fixes: 5b2b135a87fc ("gpio: Add Tegra186 support")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: Thierry Reding <treding@nvidia.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Link: https://lore.kernel.org/r/20220211093904.1112679-1-maz@kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220218073123.2121-1-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-tegra186.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/tty/n_gsm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-tegra186.c
-+++ b/drivers/gpio/gpio-tegra186.c
-@@ -237,9 +237,12 @@ static int tegra186_gpio_of_xlate(struct
- 	return offset + pin;
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -440,7 +440,7 @@ static u8 gsm_encode_modem(const struct
+ 		modembits |= MDM_RTR;
+ 	if (dlci->modem_tx & TIOCM_RI)
+ 		modembits |= MDM_IC;
+-	if (dlci->modem_tx & TIOCM_CD)
++	if (dlci->modem_tx & TIOCM_CD || dlci->gsm->initiator)
+ 		modembits |= MDM_DV;
+ 	return modembits;
  }
- 
-+#define to_tegra_gpio(x) container_of((x), struct tegra_gpio, gpio)
-+
- static void tegra186_irq_ack(struct irq_data *data)
- {
--	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
-+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
- 	void __iomem *base;
- 
- 	base = tegra186_gpio_get_base(gpio, data->hwirq);
-@@ -251,7 +254,8 @@ static void tegra186_irq_ack(struct irq_
- 
- static void tegra186_irq_mask(struct irq_data *data)
- {
--	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
-+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
- 	void __iomem *base;
- 	u32 value;
- 
-@@ -266,7 +270,8 @@ static void tegra186_irq_mask(struct irq
- 
- static void tegra186_irq_unmask(struct irq_data *data)
- {
--	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
-+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
- 	void __iomem *base;
- 	u32 value;
- 
-@@ -281,7 +286,8 @@ static void tegra186_irq_unmask(struct i
- 
- static int tegra186_irq_set_type(struct irq_data *data, unsigned int flow)
- {
--	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
-+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
- 	void __iomem *base;
- 	u32 value;
- 
 
 
