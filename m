@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650284C73C0
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CD74C76FF
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237256AbiB1Rhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:37:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42040 "EHLO
+        id S235773AbiB1SK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:10:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238331AbiB1RhZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D956369;
-        Mon, 28 Feb 2022 09:32:22 -0800 (PST)
+        with ESMTP id S240768AbiB1SJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EDCD5F257;
+        Mon, 28 Feb 2022 09:49:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77418B815AE;
-        Mon, 28 Feb 2022 17:32:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7179C340E7;
-        Mon, 28 Feb 2022 17:32:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 682EC6091F;
+        Mon, 28 Feb 2022 17:49:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867DBC340E7;
+        Mon, 28 Feb 2022 17:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069539;
-        bh=9Q2zckVU2MjYx6EoLKZDAOT6Znqr42HIt8j8+BfBou4=;
+        s=korg; t=1646070543;
+        bh=5KaqpvvluzjEctSnCemTvMxDjNe7IYUy995fPKndeGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g17zj+6ClA/PVEKXfQaQISI7Lou15MCQT8IFwJ2xvnnM9bqyo5vjWJpTc2qRUybcy
-         r7GW9zHYxj4kWAFrBeaoePTjqBItQR8LJXZTL1sf/mkCrn5eIKNmVLtOC5WaLg3e6Y
-         lWvCxJlo6mTK918r9/Gn57LUmDAts+XAvQ29dCv8=
+        b=a/uv84mWjaoI9/FRiW4Pw4Ufotzy/1578GgOnyz5vCfFH++RiJdjYjhrxxuNG/WDI
+         fckO0ezkxDqk1fEhPM0N1dyf1lJx2EdmzXzjUY/0+YgWW84CW0Ma3u12bKJ0gyledq
+         mOHthER7wYHlbOKuDTyZMgwLSGQJ8E39TsSVbHQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+831661966588c802aae9@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/53] RDMA/ib_srp: Fix a deadlock
+Subject: [PATCH 5.16 107/164] bnxt_en: Increase firmware message response DMA wait time
 Date:   Mon, 28 Feb 2022 18:24:29 +0100
-Message-Id: <20220228172250.528772715@linuxfoundation.org>
+Message-Id: <20220228172409.528909226@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 081bdc9fe05bb23248f5effb6f811da3da4b8252 ]
+[ Upstream commit b891106da52b2c12dbaf73400f6d225b06a38d80 ]
 
-Remove the flush_workqueue(system_long_wq) call since flushing
-system_long_wq is deadlock-prone and since that call is redundant with a
-preceding cancel_work_sync()
+When polling for the firmware message response, we first poll for the
+response message header.  Once the valid length is detected in the
+header, we poll for the valid bit at the end of the message which
+signals DMA completion.  Normally, this poll time for DMA completion
+is extremely short (0 to a few usec).  But on some devices under some
+rare conditions, it can be up to about 20 msec.
 
-Link: https://lore.kernel.org/r/20220215210511.28303-3-bvanassche@acm.org
-Fixes: ef6c49d87c34 ("IB/srp: Eliminate state SRP_TARGET_DEAD")
-Reported-by: syzbot+831661966588c802aae9@syzkaller.appspotmail.com
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Increase this delay to 50 msec and use udelay() for the first 10 usec
+for the common case, and usleep_range() beyond that.
+
+Also, change the error message to include the above delay time when
+printing the timeout value.
+
+Fixes: 3c8c20db769c ("bnxt_en: move HWRM API implementation into separate file")
+Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c | 12 +++++++++---
+ drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h |  2 +-
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 8708ed5477e99..dac806b715afa 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -4222,9 +4222,11 @@ static void srp_remove_one(struct ib_device *device, void *client_data)
- 		spin_unlock(&host->target_lock);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
+index 8171f4912fa01..3a0eeb3737767 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
+@@ -595,18 +595,24 @@ static int __hwrm_send(struct bnxt *bp, struct bnxt_hwrm_ctx *ctx)
  
- 		/*
--		 * Wait for tl_err and target port removal tasks.
-+		 * srp_queue_remove_work() queues a call to
-+		 * srp_remove_target(). The latter function cancels
-+		 * target->tl_err_work so waiting for the remove works to
-+		 * finish is sufficient.
- 		 */
--		flush_workqueue(system_long_wq);
- 		flush_workqueue(srp_remove_wq);
+ 		/* Last byte of resp contains valid bit */
+ 		valid = ((u8 *)ctx->resp) + len - 1;
+-		for (j = 0; j < HWRM_VALID_BIT_DELAY_USEC; j++) {
++		for (j = 0; j < HWRM_VALID_BIT_DELAY_USEC; ) {
+ 			/* make sure we read from updated DMA memory */
+ 			dma_rmb();
+ 			if (*valid)
+ 				break;
+-			usleep_range(1, 5);
++			if (j < 10) {
++				udelay(1);
++				j++;
++			} else {
++				usleep_range(20, 30);
++				j += 20;
++			}
+ 		}
  
- 		kfree(host);
+ 		if (j >= HWRM_VALID_BIT_DELAY_USEC) {
+ 			if (!(ctx->flags & BNXT_HWRM_CTX_SILENT))
+ 				netdev_err(bp->dev, "Error (timeout: %u) msg {0x%x 0x%x} len:%d v:%d\n",
+-					   hwrm_total_timeout(i),
++					   hwrm_total_timeout(i) + j,
+ 					   le16_to_cpu(ctx->req->req_type),
+ 					   le16_to_cpu(ctx->req->seq_id), len,
+ 					   *valid);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
+index 9a9fc4e8041b6..380ef69afb51b 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
+@@ -94,7 +94,7 @@ static inline unsigned int hwrm_total_timeout(unsigned int n)
+ }
+ 
+ 
+-#define HWRM_VALID_BIT_DELAY_USEC	150
++#define HWRM_VALID_BIT_DELAY_USEC	50000
+ 
+ static inline bool bnxt_cfa_hwrm_message(u16 req_type)
+ {
 -- 
 2.34.1
 
