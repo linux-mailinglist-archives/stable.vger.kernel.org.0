@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 075744C7497
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF86D4C7676
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236221AbiB1Rpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:45:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37812 "EHLO
+        id S236523AbiB1SEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:04:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238668AbiB1Rmy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:42:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89A1996B1;
-        Mon, 28 Feb 2022 09:34:59 -0800 (PST)
+        with ESMTP id S240156AbiB1SDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 861FD554A8;
+        Mon, 28 Feb 2022 09:46:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C12E614AB;
-        Mon, 28 Feb 2022 17:34:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84168C340E7;
-        Mon, 28 Feb 2022 17:34:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 706C160BC5;
+        Mon, 28 Feb 2022 17:46:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8867BC340E7;
+        Mon, 28 Feb 2022 17:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069698;
-        bh=FeXWa6P1qRtmPfj0mdtYpxdTQB265wDqpUFzlISXYoI=;
+        s=korg; t=1646070371;
+        bh=W7CMdv5uDv19IYXVsY7pf+BDkj7Ul3n+XTxUNsLiY04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmMgkFqcfXWAqOnd3J1zems8l5b/RiMWtgCWT+GSQsCLC8gPhcnYYbaLAw3hkvcUL
-         BjqYYCUQdgLECMxFhX7ZaK3mYA5tmaUJDzFYnWoakZyng2IhVuYE8nKSk6RN1friGM
-         IavfzTXoiardSnFOXgcIeJJtOaTXc2ckoWBjLX2E=
+        b=OigHslmvej1DfZ4HXN6NM01O63LAVTLM3D1jYyE9m1uqcunW7UzyXpSCx5WyayDG1
+         0kRRQTgWEXMeD/qJbra+D1O/QwMC0eUUatLbPiIAEjWZsd7FoWW80BCKGYnIbG055b
+         E2B26G+ywR7VEDJ/UqT4UhYwcJvB0/LWAiJmDJRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.10 25/80] selftests: bpf: Check bpf_msg_push_data return value
+        stable@vger.kernel.org,
+        Fernando Fernandez Mancera <ffmancera@riseup.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.16 084/164] netfilter: nf_tables: fix memory leak during stateful obj update
 Date:   Mon, 28 Feb 2022 18:24:06 +0100
-Message-Id: <20220228172314.611913643@linuxfoundation.org>
+Message-Id: <20220228172407.548992758@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,97 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 61d06f01f9710b327a53492e5add9f972eb909b3 upstream.
+commit dad3bdeef45f81a6e90204bcc85360bb76eccec7 upstream.
 
-bpf_msg_push_data may return a non-zero value to indicate an error. The
-return value should be checked to prevent undetected errors.
+stateful objects can be updated from the control plane.
+The transaction logic allocates a temporary object for this purpose.
 
-To indicate an error, the BPF programs now perform a different action
-than their intended one to make the userspace test program notice the
-error, i.e., the programs supposed to pass/redirect drop, the program
-supposed to drop passes.
+The ->init function was called for this object, so plain kfree() leaks
+resources. We must call ->destroy function of the object.
 
-Fixes: 84fbfe026acaa ("bpf: test_sockmap add options to use msg_push_data")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/89f767bb44005d6b4dd1f42038c438f76b3ebfad.1644601294.git.fmaurer@redhat.com
+nft_obj_destroy does this, but it also decrements the module refcount,
+but the update path doesn't increment it.
+
+To avoid special-casing the update object release, do module_get for
+the update case too and release it via nft_obj_destroy().
+
+Fixes: d62d0ba97b58 ("netfilter: nf_tables: Introduce stateful object update operation")
+Cc: Fernando Fernandez Mancera <ffmancera@riseup.net>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/test_sockmap_kern.h |   26 ++++++++++++------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ net/netfilter/nf_tables_api.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/bpf/progs/test_sockmap_kern.h
-+++ b/tools/testing/selftests/bpf/progs/test_sockmap_kern.h
-@@ -235,7 +235,7 @@ SEC("sk_msg1")
- int bpf_prog4(struct sk_msg_md *msg)
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -6535,12 +6535,15 @@ static int nf_tables_updobj(const struct
  {
- 	int *bytes, zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5;
--	int *start, *end, *start_push, *end_push, *start_pop, *pop;
-+	int *start, *end, *start_push, *end_push, *start_pop, *pop, err = 0;
+ 	struct nft_object *newobj;
+ 	struct nft_trans *trans;
+-	int err;
++	int err = -ENOMEM;
++
++	if (!try_module_get(type->owner))
++		return -ENOENT;
  
- 	bytes = bpf_map_lookup_elem(&sock_apply_bytes, &zero);
- 	if (bytes)
-@@ -249,8 +249,11 @@ int bpf_prog4(struct sk_msg_md *msg)
- 		bpf_msg_pull_data(msg, *start, *end, 0);
- 	start_push = bpf_map_lookup_elem(&sock_bytes, &two);
- 	end_push = bpf_map_lookup_elem(&sock_bytes, &three);
--	if (start_push && end_push)
--		bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+	if (start_push && end_push) {
-+		err = bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+		if (err)
-+			return SK_DROP;
-+	}
- 	start_pop = bpf_map_lookup_elem(&sock_bytes, &four);
- 	pop = bpf_map_lookup_elem(&sock_bytes, &five);
- 	if (start_pop && pop)
-@@ -263,6 +266,7 @@ int bpf_prog6(struct sk_msg_md *msg)
- {
- 	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, key = 0;
- 	int *bytes, *start, *end, *start_push, *end_push, *start_pop, *pop, *f;
-+	int err = 0;
- 	__u64 flags = 0;
+ 	trans = nft_trans_alloc(ctx, NFT_MSG_NEWOBJ,
+ 				sizeof(struct nft_trans_obj));
+ 	if (!trans)
+-		return -ENOMEM;
++		goto err_trans;
  
- 	bytes = bpf_map_lookup_elem(&sock_apply_bytes, &zero);
-@@ -279,8 +283,11 @@ int bpf_prog6(struct sk_msg_md *msg)
+ 	newobj = nft_obj_init(ctx, type, attr);
+ 	if (IS_ERR(newobj)) {
+@@ -6557,6 +6560,8 @@ static int nf_tables_updobj(const struct
  
- 	start_push = bpf_map_lookup_elem(&sock_bytes, &two);
- 	end_push = bpf_map_lookup_elem(&sock_bytes, &three);
--	if (start_push && end_push)
--		bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+	if (start_push && end_push) {
-+		err = bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+		if (err)
-+			return SK_DROP;
-+	}
+ err_free_trans:
+ 	kfree(trans);
++err_trans:
++	module_put(type->owner);
+ 	return err;
+ }
  
- 	start_pop = bpf_map_lookup_elem(&sock_bytes, &four);
- 	pop = bpf_map_lookup_elem(&sock_bytes, &five);
-@@ -338,7 +345,7 @@ SEC("sk_msg5")
- int bpf_prog10(struct sk_msg_md *msg)
- {
- 	int *bytes, *start, *end, *start_push, *end_push, *start_pop, *pop;
--	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5;
-+	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, err = 0;
+@@ -8169,7 +8174,7 @@ static void nft_obj_commit_update(struct
+ 	if (obj->ops->update)
+ 		obj->ops->update(obj, newobj);
  
- 	bytes = bpf_map_lookup_elem(&sock_apply_bytes, &zero);
- 	if (bytes)
-@@ -352,8 +359,11 @@ int bpf_prog10(struct sk_msg_md *msg)
- 		bpf_msg_pull_data(msg, *start, *end, 0);
- 	start_push = bpf_map_lookup_elem(&sock_bytes, &two);
- 	end_push = bpf_map_lookup_elem(&sock_bytes, &three);
--	if (start_push && end_push)
--		bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+	if (start_push && end_push) {
-+		err = bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+		if (err)
-+			return SK_PASS;
-+	}
- 	start_pop = bpf_map_lookup_elem(&sock_bytes, &four);
- 	pop = bpf_map_lookup_elem(&sock_bytes, &five);
- 	if (start_pop && pop)
+-	kfree(newobj);
++	nft_obj_destroy(&trans->ctx, newobj);
+ }
+ 
+ static void nft_commit_release(struct nft_trans *trans)
+@@ -8914,7 +8919,7 @@ static int __nf_tables_abort(struct net
+ 			break;
+ 		case NFT_MSG_NEWOBJ:
+ 			if (nft_trans_obj_update(trans)) {
+-				kfree(nft_trans_obj_newobj(trans));
++				nft_obj_destroy(&trans->ctx, nft_trans_obj_newobj(trans));
+ 				nft_trans_destroy(trans);
+ 			} else {
+ 				trans->ctx.table->use--;
 
 
