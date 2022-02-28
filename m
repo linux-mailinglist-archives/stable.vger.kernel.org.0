@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 705534C7700
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07AFF4C73E4
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235800AbiB1SK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:10:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40346 "EHLO
+        id S232009AbiB1RiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240787AbiB1SJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B8BA5E779;
-        Mon, 28 Feb 2022 09:49:08 -0800 (PST)
+        with ESMTP id S238394AbiB1Rhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA99E014;
+        Mon, 28 Feb 2022 09:32:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38E1560748;
-        Mon, 28 Feb 2022 17:49:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF74C340E7;
-        Mon, 28 Feb 2022 17:49:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7295161357;
+        Mon, 28 Feb 2022 17:32:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D5F1C340E7;
+        Mon, 28 Feb 2022 17:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070546;
-        bh=6tDy2ua6iB4fOAElIvkDCYv79PsnJOR5zcUKUqVEqz8=;
+        s=korg; t=1646069541;
+        bh=HNlEnn31gDfp78Stg/+wfklDNtibWpDYzDPpIk7TOvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=COH+jKbXL7ncIoKdVUVkkqbfz8jTcG6mvDoCUH19tT9zTt1lWXbzHvSOBVN3Z6J7V
-         2cyQMh/l3UZZceSMzSnpt8zYNQe9qD2W31of5eyxDyoNyBAoxWvkTEo4deQpTAl/U5
-         eknoJSREcwXaYdrtxSvBNc4anJ9TupBrQg6h0D4U=
+        b=VgD0YcyFbFhJmEUoUVMRTJp8WwdUOEVaxw493/ersiOVqEZkudqmeXEzT+z56sU8X
+         kKiQzwJerhIYoUYrzp6pIMXjRLl2+TY3dmrZ5FOZg/ZI3XqZMTBhKYMxvZ6MgLt9kJ
+         WZr47ivlBx/ZOPrwo0+CZpd3RcaY2sbhfnoSXezI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Laibin Qiu <qiulaibin@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 108/164] configfs: fix a race in configfs_{,un}register_subsystem()
+        stable@vger.kernel.org,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 32/53] tracing: Have traceon and traceoff trigger honor the instance
 Date:   Mon, 28 Feb 2022 18:24:30 +0100
-Message-Id: <20220228172409.627517504@linuxfoundation.org>
+Message-Id: <20220228172250.593515553@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +55,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 84ec758fb2daa236026506868c8796b0500c047d ]
+commit 302e9edd54985f584cfc180098f3554774126969 upstream.
 
-When configfs_register_subsystem() or configfs_unregister_subsystem()
-is executing link_group() or unlink_group(),
-it is possible that two processes add or delete list concurrently.
-Some unfortunate interleavings of them can cause kernel panic.
+If a trigger is set on an event to disable or enable tracing within an
+instance, then tracing should be disabled or enabled in the instance and
+not at the top level, which is confusing to users.
 
-One of cases is:
-A --> B --> C --> D
-A <-- B <-- C <-- D
+Link: https://lkml.kernel.org/r/20220223223837.14f94ec3@rorschach.local.home
 
-     delete list_head *B        |      delete list_head *C
---------------------------------|-----------------------------------
-configfs_unregister_subsystem   |   configfs_unregister_subsystem
-  unlink_group                  |     unlink_group
-    unlink_obj                  |       unlink_obj
-      list_del_init             |         list_del_init
-        __list_del_entry        |           __list_del_entry
-          __list_del            |             __list_del
-            // next == C        |
-            next->prev = prev   |
-                                |               next->prev = prev
-            prev->next = next   |
-                                |                 // prev == B
-                                |                 prev->next = next
-
-Fix this by adding mutex when calling link_group() or unlink_group(),
-but parent configfs_subsystem is NULL when config_item is root.
-So I create a mutex configfs_subsystem_mutex.
-
-Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: ae63b31e4d0e2 ("tracing: Separate out trace events from global variables")
+Tested-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/configfs/dir.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ kernel/trace/trace_events_trigger.c |   52 +++++++++++++++++++++++++++++++-----
+ 1 file changed, 46 insertions(+), 6 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index d3cd2a94d1e8c..d1f9d26322027 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -34,6 +34,14 @@
-  */
- DEFINE_SPINLOCK(configfs_dirent_lock);
- 
-+/*
-+ * All of link_obj/unlink_obj/link_group/unlink_group require that
-+ * subsys->su_mutex is held.
-+ * But parent configfs_subsystem is NULL when config_item is root.
-+ * Use this mutex when config_item is root.
-+ */
-+static DEFINE_MUTEX(configfs_subsystem_mutex);
-+
- static void configfs_d_iput(struct dentry * dentry,
- 			    struct inode * inode)
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -940,6 +940,16 @@ static void
+ traceon_trigger(struct event_trigger_data *data, void *rec,
+ 		struct ring_buffer_event *event)
  {
-@@ -1859,7 +1867,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
- 		group->cg_item.ci_name = group->cg_item.ci_namebuf;
++	struct trace_event_file *file = data->private_data;
++
++	if (file) {
++		if (tracer_tracing_is_on(file->tr))
++			return;
++
++		tracer_tracing_on(file->tr);
++		return;
++	}
++
+ 	if (tracing_is_on())
+ 		return;
  
- 	sd = root->d_fsdata;
-+	mutex_lock(&configfs_subsystem_mutex);
- 	link_group(to_config_group(sd->s_element), group);
-+	mutex_unlock(&configfs_subsystem_mutex);
+@@ -950,8 +960,15 @@ static void
+ traceon_count_trigger(struct event_trigger_data *data, void *rec,
+ 		      struct ring_buffer_event *event)
+ {
+-	if (tracing_is_on())
+-		return;
++	struct trace_event_file *file = data->private_data;
++
++	if (file) {
++		if (tracer_tracing_is_on(file->tr))
++			return;
++	} else {
++		if (tracing_is_on())
++			return;
++	}
  
- 	inode_lock_nested(d_inode(root), I_MUTEX_PARENT);
+ 	if (!data->count)
+ 		return;
+@@ -959,13 +976,26 @@ traceon_count_trigger(struct event_trigg
+ 	if (data->count != -1)
+ 		(data->count)--;
  
-@@ -1884,7 +1894,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
- 	inode_unlock(d_inode(root));
- 
- 	if (err) {
-+		mutex_lock(&configfs_subsystem_mutex);
- 		unlink_group(group);
-+		mutex_unlock(&configfs_subsystem_mutex);
- 		configfs_release_fs();
- 	}
- 	put_fragment(frag);
-@@ -1931,7 +1943,9 @@ void configfs_unregister_subsystem(struct configfs_subsystem *subsys)
- 
- 	dput(dentry);
- 
-+	mutex_lock(&configfs_subsystem_mutex);
- 	unlink_group(group);
-+	mutex_unlock(&configfs_subsystem_mutex);
- 	configfs_release_fs();
+-	tracing_on();
++	if (file)
++		tracer_tracing_on(file->tr);
++	else
++		tracing_on();
  }
  
--- 
-2.34.1
-
+ static void
+ traceoff_trigger(struct event_trigger_data *data, void *rec,
+ 		 struct ring_buffer_event *event)
+ {
++	struct trace_event_file *file = data->private_data;
++
++	if (file) {
++		if (!tracer_tracing_is_on(file->tr))
++			return;
++
++		tracer_tracing_off(file->tr);
++		return;
++	}
++
+ 	if (!tracing_is_on())
+ 		return;
+ 
+@@ -976,8 +1006,15 @@ static void
+ traceoff_count_trigger(struct event_trigger_data *data, void *rec,
+ 		       struct ring_buffer_event *event)
+ {
+-	if (!tracing_is_on())
+-		return;
++	struct trace_event_file *file = data->private_data;
++
++	if (file) {
++		if (!tracer_tracing_is_on(file->tr))
++			return;
++	} else {
++		if (!tracing_is_on())
++			return;
++	}
+ 
+ 	if (!data->count)
+ 		return;
+@@ -985,7 +1022,10 @@ traceoff_count_trigger(struct event_trig
+ 	if (data->count != -1)
+ 		(data->count)--;
+ 
+-	tracing_off();
++	if (file)
++		tracer_tracing_off(file->tr);
++	else
++		tracing_off();
+ }
+ 
+ static int
 
 
