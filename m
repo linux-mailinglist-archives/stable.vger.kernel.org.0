@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA6E4C7698
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BF94C7562
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235400AbiB1SFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41098 "EHLO
+        id S233040AbiB1Ryu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:54:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240259AbiB1SDU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E0CB18B3;
-        Mon, 28 Feb 2022 09:46:47 -0800 (PST)
+        with ESMTP id S239186AbiB1Rwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9629FA88AF;
+        Mon, 28 Feb 2022 09:39:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5611B6091F;
-        Mon, 28 Feb 2022 17:46:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D0AC340E7;
-        Mon, 28 Feb 2022 17:46:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7897B815A6;
+        Mon, 28 Feb 2022 17:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2399BC340E7;
+        Mon, 28 Feb 2022 17:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070401;
-        bh=qbmjpcWNVj53TVhbOFEs/inJ8zdkb3L0ffvYVAtsvbo=;
+        s=korg; t=1646069989;
+        bh=FROV+zPqYpPQOdFvQIVrfIS9k5Y0q6tyv8NMkTAUAbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMpbli+lpey/sJSbwIazSbW0RiEIPcmABD7csSfu38o7TgvSVAPXTL4aUuP2wCOtP
-         dmGXCNtQKVImhp78Ceq4juxCNO+b3dmMRFBGfO8ozsOn1T5efryt/bxLpXBl2kJ9OS
-         6PHDPnlh+X+T6yjxmZhw2zB77jEKx9yN5co8BO3M=
+        b=NQP4Z+XlfNqPOTiqs19pTZlTZOOiniXclGL75yKuJwO0fHi+PDPL2jCeO2us2ftcR
+         HSXXqoiu/nJ2P2De6RsPelx3CHq6vDONMLq1t3LNAVlxSR+XT5mMVHMXV8qsqFqq2D
+         XM4pff59VXPujU767IJErHNKOp1aloQBXKsaJ39w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 094/164] net/mlx5e: MPLSoUDP decap, fix check for unsupported matches
-Date:   Mon, 28 Feb 2022 18:24:16 +0100
-Message-Id: <20220228172408.318773563@linuxfoundation.org>
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.15 083/139] net/mlx5e: kTLS, Use CHECKSUM_UNNECESSARY for device-offloaded packets
+Date:   Mon, 28 Feb 2022 18:24:17 +0100
+Message-Id: <20220228172356.403347463@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,76 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-commit fdc18e4e4bded2a08638cdcd22dc087a64b9ddad upstream.
+commit 7eaf1f37b8817c608c4e959d69986ef459d345cd upstream.
 
-Currently offload of rule on bareudp device require tunnel key
-in order to match on mpls fields and without it the mpls fields
-are ignored, this is incorrect due to the fact udp tunnel doesn't
-have key to match on.
+For RX TLS device-offloaded packets, the HW spec guarantees checksum
+validation for the offloaded packets, but does not define whether the
+CQE.checksum field matches the original packet (ciphertext) or
+the decrypted one (plaintext). This latitude allows architetctural
+improvements between generations of chips, resulting in different decisions
+regarding the value type of CQE.checksum.
 
-Fix by returning error in case flow is matching on tunnel key.
+Hence, for these packets, the device driver should not make use of this CQE
+field. Here we block CHECKSUM_COMPLETE usage for RX TLS device-offloaded
+packets, and use CHECKSUM_UNNECESSARY instead.
 
-Fixes: 72046a91d134 ("net/mlx5e: Allow to match on mpls parameters")
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
+Value of the packet's tcp_hdr.csum is not modified by the HW, and it always
+matches the original ciphertext.
+
+Fixes: 1182f3659357 ("net/mlx5e: kTLS, Add kTLS RX HW offload support")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_mplsoudp.c |   28 ++++-------
- 1 file changed, 11 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_mplsoudp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_mplsoudp.c
-@@ -60,37 +60,31 @@ static int parse_tunnel(struct mlx5e_pri
- 			void *headers_v)
- {
- 	struct flow_rule *rule = flow_cls_offload_flow_rule(f);
--	struct flow_match_enc_keyid enc_keyid;
- 	struct flow_match_mpls match;
- 	void *misc2_c;
- 	void *misc2_v;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+@@ -987,7 +987,8 @@ static inline void mlx5e_handle_csum(str
+ 	}
  
--	misc2_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria,
--			       misc_parameters_2);
--	misc2_v = MLX5_ADDR_OF(fte_match_param, spec->match_value,
--			       misc_parameters_2);
--
--	if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_MPLS))
--		return 0;
--
--	if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_KEYID))
--		return 0;
--
--	flow_rule_match_enc_keyid(rule, &enc_keyid);
--
--	if (!enc_keyid.mask->keyid)
--		return 0;
--
- 	if (!MLX5_CAP_ETH(priv->mdev, tunnel_stateless_mpls_over_udp) &&
- 	    !(MLX5_CAP_GEN(priv->mdev, flex_parser_protocols) & MLX5_FLEX_PROTO_CW_MPLS_UDP))
- 		return -EOPNOTSUPP;
+ 	/* True when explicitly set via priv flag, or XDP prog is loaded */
+-	if (test_bit(MLX5E_RQ_STATE_NO_CSUM_COMPLETE, &rq->state))
++	if (test_bit(MLX5E_RQ_STATE_NO_CSUM_COMPLETE, &rq->state) ||
++	    get_cqe_tls_offload(cqe))
+ 		goto csum_unnecessary;
  
-+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_KEYID))
-+		return -EOPNOTSUPP;
-+
-+	if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_MPLS))
-+		return 0;
-+
- 	flow_rule_match_mpls(rule, &match);
- 
- 	/* Only support matching the first LSE */
- 	if (match.mask->used_lses != 1)
- 		return -EOPNOTSUPP;
- 
-+	misc2_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria,
-+			       misc_parameters_2);
-+	misc2_v = MLX5_ADDR_OF(fte_match_param, spec->match_value,
-+			       misc_parameters_2);
-+
- 	MLX5_SET(fte_match_set_misc2, misc2_c,
- 		 outer_first_mpls_over_udp.mpls_label,
- 		 match.mask->ls[0].mpls_label);
+ 	/* CQE csum doesn't cover padding octets in short ethernet
 
 
