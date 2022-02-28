@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1380B4C74F5
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 562D54C73CB
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238724AbiB1RtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:49:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55432 "EHLO
+        id S235672AbiB1RjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:39:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238709AbiB1Rs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:48:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB10DA1BFE;
-        Mon, 28 Feb 2022 09:38:50 -0800 (PST)
+        with ESMTP id S238558AbiB1Rh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7186E53B5C;
+        Mon, 28 Feb 2022 09:32:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C22F614C9;
-        Mon, 28 Feb 2022 17:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B573C340E7;
-        Mon, 28 Feb 2022 17:38:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DD4E609EE;
+        Mon, 28 Feb 2022 17:32:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C6BC340E7;
+        Mon, 28 Feb 2022 17:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069929;
-        bh=WelrOcjhKJZUVYoCTXO2VZocUzNAmGqaCDG+LtKnRe0=;
+        s=korg; t=1646069574;
+        bh=6SylHDLmOv0JwBhMhYAiI6qLnfRWw42Ro4CXXV9oZEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKH9YQuUSmsQB9OH2YP3jqArizWha2ccF6G1xNUy3KWq63/TSajShgy1qfRKQTave
-         7F5drD5eduiFBLkVh300A+oOnQpZlVc0fFMFbuQAUI0pqQnK/kD+1W/rOsvXKW5zD+
-         7B1yk0H8zbNUGak6VbX5I/iXZQGGRoCTriUAORHQ=
+        b=tb/pcXxpS9vyO0cbG5j7CLBUdyH8DnKNRN3Wx6YwpTbP9TlTTs+QzDANoKDHbnQSC
+         Im/L7ZfE+BrUR/Fxb8OBqZtK6540eE2i/PAIFtDaohNWRUb2Rxx1o28b/ZCc0dhkcA
+         wZJAfxLAtAw4homyK9tr4DmlI+b9m+63jI/1Zv2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 063/139] net/mlx5e: Fix wrong return value on ioctl EEPROM query failure
+        stable@vger.kernel.org, Brian Geffon <bgeffon@google.com>,
+        Willis Kung <williskung@google.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 5.10 16/80] x86/fpu: Correct pkru/xstate inconsistency
 Date:   Mon, 28 Feb 2022 18:23:57 +0100
-Message-Id: <20220228172354.323181852@linuxfoundation.org>
+Message-Id: <20220228172313.553949149@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +54,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <gal@nvidia.com>
+From: Brian Geffon <bgeffon@google.com>
 
-commit 0b89429722353d112f8b8b29ca397e95fa994d27 upstream.
+When eagerly switching PKRU in switch_fpu_finish() it checks that
+current is not a kernel thread as kernel threads will never use PKRU.
+It's possible that this_cpu_read_stable() on current_task
+(ie. get_current()) is returning an old cached value. To resolve this
+reference next_p directly rather than relying on current.
 
-The ioctl EEPROM query wrongly returns success on read failures, fix
-that by returning the appropriate error code.
+As written it's possible when switching from a kernel thread to a
+userspace thread to observe a cached PF_KTHREAD flag and never restore
+the PKRU. And as a result this issue only occurs when switching
+from a kernel thread to a userspace thread, switching from a non kernel
+thread works perfectly fine because all that is considered in that
+situation are the flags from some other non kernel task and the next fpu
+is passed in to switch_fpu_finish().
 
-Fixes: bb64143eee8c ("net/mlx5e: Add ethtool support for dump module EEPROM")
-Signed-off-by: Gal Pressman <gal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+This behavior only exists between 5.2 and 5.13 when it was fixed by a
+rewrite decoupling PKRU from xstate, in:
+  commit 954436989cc5 ("x86/fpu: Remove PKRU handling from switch_fpu_finish()")
+
+Unfortunately backporting the fix from 5.13 is probably not realistic as
+it's part of a 60+ patch series which rewrites most of the PKRU handling.
+
+Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
+Signed-off-by: Brian Geffon <bgeffon@google.com>
+Signed-off-by: Willis Kung <williskung@google.com>
+Tested-by: Willis Kung <williskung@google.com>
+Cc: <stable@vger.kernel.org> # v5.4.x
+Cc: <stable@vger.kernel.org> # v5.10.x
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/fpu/internal.h |   13 ++++++++-----
+ arch/x86/kernel/process_32.c        |    6 ++----
+ arch/x86/kernel/process_64.c        |    6 ++----
+ 3 files changed, 12 insertions(+), 13 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -1754,7 +1754,7 @@ static int mlx5e_get_module_eeprom(struc
- 		if (size_read < 0) {
- 			netdev_err(priv->netdev, "%s: mlx5_query_eeprom failed:0x%x\n",
- 				   __func__, size_read);
--			return 0;
-+			return size_read;
- 		}
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -531,9 +531,11 @@ static inline void __fpregs_load_activat
+  * The FPU context is only stored/restored for a user task and
+  * PF_KTHREAD is used to distinguish between kernel and user threads.
+  */
+-static inline void switch_fpu_prepare(struct fpu *old_fpu, int cpu)
++static inline void switch_fpu_prepare(struct task_struct *prev, int cpu)
+ {
+-	if (static_cpu_has(X86_FEATURE_FPU) && !(current->flags & PF_KTHREAD)) {
++	struct fpu *old_fpu = &prev->thread.fpu;
++
++	if (static_cpu_has(X86_FEATURE_FPU) && !(prev->flags & PF_KTHREAD)) {
+ 		if (!copy_fpregs_to_fpstate(old_fpu))
+ 			old_fpu->last_cpu = -1;
+ 		else
+@@ -552,10 +554,11 @@ static inline void switch_fpu_prepare(st
+  * Load PKRU from the FPU context if available. Delay loading of the
+  * complete FPU state until the return to userland.
+  */
+-static inline void switch_fpu_finish(struct fpu *new_fpu)
++static inline void switch_fpu_finish(struct task_struct *next)
+ {
+ 	u32 pkru_val = init_pkru_value;
+ 	struct pkru_state *pk;
++	struct fpu *next_fpu = &next->thread.fpu;
  
- 		i += size_read;
+ 	if (!static_cpu_has(X86_FEATURE_FPU))
+ 		return;
+@@ -569,7 +572,7 @@ static inline void switch_fpu_finish(str
+ 	 * PKRU state is switched eagerly because it needs to be valid before we
+ 	 * return to userland e.g. for a copy_to_user() operation.
+ 	 */
+-	if (!(current->flags & PF_KTHREAD)) {
++	if (!(next->flags & PF_KTHREAD)) {
+ 		/*
+ 		 * If the PKRU bit in xsave.header.xfeatures is not set,
+ 		 * then the PKRU component was in init state, which means
+@@ -578,7 +581,7 @@ static inline void switch_fpu_finish(str
+ 		 * in memory is not valid. This means pkru_val has to be
+ 		 * set to 0 and not to init_pkru_value.
+ 		 */
+-		pk = get_xsave_addr(&new_fpu->state.xsave, XFEATURE_PKRU);
++		pk = get_xsave_addr(&next_fpu->state.xsave, XFEATURE_PKRU);
+ 		pkru_val = pk ? pk->pkru : 0;
+ 	}
+ 	__write_pkru(pkru_val);
+--- a/arch/x86/kernel/process_32.c
++++ b/arch/x86/kernel/process_32.c
+@@ -159,14 +159,12 @@ __switch_to(struct task_struct *prev_p,
+ {
+ 	struct thread_struct *prev = &prev_p->thread,
+ 			     *next = &next_p->thread;
+-	struct fpu *prev_fpu = &prev->fpu;
+-	struct fpu *next_fpu = &next->fpu;
+ 	int cpu = smp_processor_id();
+ 
+ 	/* never put a printk in __switch_to... printk() calls wake_up*() indirectly */
+ 
+ 	if (!test_thread_flag(TIF_NEED_FPU_LOAD))
+-		switch_fpu_prepare(prev_fpu, cpu);
++		switch_fpu_prepare(prev_p, cpu);
+ 
+ 	/*
+ 	 * Save away %gs. No need to save %fs, as it was saved on the
+@@ -213,7 +211,7 @@ __switch_to(struct task_struct *prev_p,
+ 
+ 	this_cpu_write(current_task, next_p);
+ 
+-	switch_fpu_finish(next_fpu);
++	switch_fpu_finish(next_p);
+ 
+ 	/* Load the Intel cache allocation PQR MSR. */
+ 	resctrl_sched_in();
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -535,15 +535,13 @@ __switch_to(struct task_struct *prev_p,
+ {
+ 	struct thread_struct *prev = &prev_p->thread;
+ 	struct thread_struct *next = &next_p->thread;
+-	struct fpu *prev_fpu = &prev->fpu;
+-	struct fpu *next_fpu = &next->fpu;
+ 	int cpu = smp_processor_id();
+ 
+ 	WARN_ON_ONCE(IS_ENABLED(CONFIG_DEBUG_ENTRY) &&
+ 		     this_cpu_read(irq_count) != -1);
+ 
+ 	if (!test_thread_flag(TIF_NEED_FPU_LOAD))
+-		switch_fpu_prepare(prev_fpu, cpu);
++		switch_fpu_prepare(prev_p, cpu);
+ 
+ 	/* We must save %fs and %gs before load_TLS() because
+ 	 * %fs and %gs may be cleared by load_TLS().
+@@ -595,7 +593,7 @@ __switch_to(struct task_struct *prev_p,
+ 	this_cpu_write(current_task, next_p);
+ 	this_cpu_write(cpu_current_top_of_stack, task_top_of_stack(next_p));
+ 
+-	switch_fpu_finish(next_fpu);
++	switch_fpu_finish(next_p);
+ 
+ 	/* Reload sp0. */
+ 	update_task_stack(next_p);
 
 
