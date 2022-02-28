@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C104C727F
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:25:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EFC94C75C8
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233624AbiB1R01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42886 "EHLO
+        id S239481AbiB1R4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233602AbiB1R0Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:26:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FFF75E6B;
-        Mon, 28 Feb 2022 09:25:46 -0800 (PST)
+        with ESMTP id S238994AbiB1Ryq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D17BDEE2;
+        Mon, 28 Feb 2022 09:44:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD25DB815A5;
-        Mon, 28 Feb 2022 17:25:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11042C340F4;
-        Mon, 28 Feb 2022 17:25:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E66B60909;
+        Mon, 28 Feb 2022 17:44:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27572C340F0;
+        Mon, 28 Feb 2022 17:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069143;
-        bh=Vv7wFnUGlLa3rURQC2K9jde3PYf5CPhS7IZInxX0iB0=;
+        s=korg; t=1646070267;
+        bh=ic4faoE/L3WKRHns01+UmgIhVyqu/G6ojlYU9A9fePg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYck5cBhKsgarVNK0pTvm2l+/iT7xQl5uEjfKIuvR/78zCOOtEcL+TzMQKdGCFHhF
-         nkScTEPDTtu0uT66ddNWeQq6DQ+4DstVN0DCmnYDj1d0g+HlT7lZ0LW5Dl+fjm6SbJ
-         SyE1aW8qd48oMSJopETavQkRTC34SyR/OMgtCxok=
+        b=b6yGXFdRRDq4JdQ0fMne1NzK84XDVXyX1CFbBE8O6xiwyqvbR7XGUD82q3XXDJMo4
+         TdWZ/u7vy4eTjgMoblv6D5tXEz8UgPar8wTjpLEUHhmJtnE7btkv1FC+O1OCTWzoL6
+         SOexpIzyagY/2W+dMQmG9KV7u6EZcaORZVws4RYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, david regan <dregan@mail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.9 01/29] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
+        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 046/164] bnxt_en: Fix occasional ethtool -t loopback test failures
 Date:   Mon, 28 Feb 2022 18:23:28 +0100
-Message-Id: <20220228172141.922269337@linuxfoundation.org>
+Message-Id: <20220228172404.426336064@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,45 +56,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: david regan <dregan@mail.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 36415a7964711822e63695ea67fede63979054d9 upstream.
+commit cfcab3b3b61584a02bb523ffa99564eafa761dfe upstream.
 
-The brcmnand driver contains a bug in which if a page (example 2k byte)
-is read from the parallel/ONFI NAND and within that page a subpage (512
-byte) has correctable errors which is followed by a subpage with
-uncorrectable errors, the page read will return the wrong status of
-correctable (as opposed to the actual status of uncorrectable.)
+In the current code, we setup the port to PHY or MAC loopback mode
+and then transmit a test broadcast packet for the loopback test.  This
+scheme fails sometime if the port is shared with management firmware
+that can also send packets.  The driver may receive the management
+firmware's packet and the test will fail when the contents don't
+match the test packet.
 
-The bug is in function brcmnand_read_by_pio where there is a check for
-uncorrectable bits which will be preempted if a previous status for
-correctable bits is detected.
+Change the test packet to use it's own MAC address as the destination
+and setup the port to only receive it's own MAC address.  This should
+filter out other packets sent by management firmware.
 
-The fix is to stop checking for bad bits only if we already have a bad
-bits status.
-
-Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
-Signed-off-by: david regan <dregan@mail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
-[florian: make patch apply to 4.14, file was renamed]
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 91725d89b97a ("bnxt_en: Add PHY loopback to ethtool self-test.")
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/brcmnand/brcmnand.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |    7 +++++++
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h         |    1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    2 +-
+ 3 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/brcmnand/brcmnand.c
-@@ -1637,7 +1637,7 @@ static int brcmnand_read_by_pio(struct m
- 					mtd->oobsize / trans,
- 					host->hwcfg.sector_size_1k);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8623,6 +8623,9 @@ static int bnxt_init_chip(struct bnxt *b
+ 	vnic->uc_filter_count = 1;
  
--		if (!ret) {
-+		if (ret != -EBADMSG) {
- 			*err_addr = brcmnand_read_reg(ctrl,
- 					BRCMNAND_UNCORR_ADDR) |
- 				((u64)(brcmnand_read_reg(ctrl,
+ 	vnic->rx_mask = 0;
++	if (test_bit(BNXT_STATE_HALF_OPEN, &bp->state))
++		goto skip_rx_mask;
++
+ 	if (bp->dev->flags & IFF_BROADCAST)
+ 		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_BCAST;
+ 
+@@ -8643,6 +8646,7 @@ static int bnxt_init_chip(struct bnxt *b
+ 	if (rc)
+ 		goto err_out;
+ 
++skip_rx_mask:
+ 	rc = bnxt_hwrm_set_coal(bp);
+ 	if (rc)
+ 		netdev_warn(bp->dev, "HWRM set coalescing failure rc: %x\n",
+@@ -10315,8 +10319,10 @@ int bnxt_half_open_nic(struct bnxt *bp)
+ 		netdev_err(bp->dev, "bnxt_alloc_mem err: %x\n", rc);
+ 		goto half_open_err;
+ 	}
++	set_bit(BNXT_STATE_HALF_OPEN, &bp->state);
+ 	rc = bnxt_init_nic(bp, true);
+ 	if (rc) {
++		clear_bit(BNXT_STATE_HALF_OPEN, &bp->state);
+ 		netdev_err(bp->dev, "bnxt_init_nic err: %x\n", rc);
+ 		goto half_open_err;
+ 	}
+@@ -10337,6 +10343,7 @@ void bnxt_half_close_nic(struct bnxt *bp
+ 	bnxt_hwrm_resource_free(bp, false, true);
+ 	bnxt_free_skbs(bp);
+ 	bnxt_free_mem(bp, true);
++	clear_bit(BNXT_STATE_HALF_OPEN, &bp->state);
+ }
+ 
+ void bnxt_reenable_sriov(struct bnxt *bp)
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1919,6 +1919,7 @@ struct bnxt {
+ #define BNXT_STATE_RECOVER		12
+ #define BNXT_STATE_FW_NON_FATAL_COND	13
+ #define BNXT_STATE_FW_ACTIVATE_RESET	14
++#define BNXT_STATE_HALF_OPEN		15	/* For offline ethtool tests */
+ 
+ #define BNXT_NO_FW_ACCESS(bp)					\
+ 	(test_bit(BNXT_STATE_FW_FATAL_COND, &(bp)->state) ||	\
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -3433,7 +3433,7 @@ static int bnxt_run_loopback(struct bnxt
+ 	if (!skb)
+ 		return -ENOMEM;
+ 	data = skb_put(skb, pkt_size);
+-	eth_broadcast_addr(data);
++	ether_addr_copy(&data[i], bp->dev->dev_addr);
+ 	i += ETH_ALEN;
+ 	ether_addr_copy(&data[i], bp->dev->dev_addr);
+ 	i += ETH_ALEN;
 
 
