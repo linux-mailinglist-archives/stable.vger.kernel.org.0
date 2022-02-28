@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 899384C76F5
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3CA84C7477
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234014AbiB1SKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:10:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39752 "EHLO
+        id S236405AbiB1RpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240039AbiB1SHv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:07:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067A7B8B;
-        Mon, 28 Feb 2022 09:48:17 -0800 (PST)
+        with ESMTP id S238962AbiB1Rnh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EDCB954B2;
+        Mon, 28 Feb 2022 09:35:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A094860909;
-        Mon, 28 Feb 2022 17:48:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F7FC340F0;
-        Mon, 28 Feb 2022 17:48:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 95D3DCE17C5;
+        Mon, 28 Feb 2022 17:35:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 708A1C340E7;
+        Mon, 28 Feb 2022 17:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070497;
-        bh=2wWi9eM3qMqzJvLDsBqg8Qs3ojl5pW+KP4DJxb7mM6s=;
+        s=korg; t=1646069724;
+        bh=75MWno/6iwHpcgT6nktESUZAi0xeKcfnKzoYK9SOqBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WyVnLZ4GR5VnUTy793IOtOSL0fLCDeto9LBsZIh178Rt0MCoQU/aIBCoh3yP2mg9P
-         Fd3iL+tLdjqWgHO3vpcrB8mBz+TbbCuVn3BLRTH7FDwnAp+6sgh2cBUaIL2X62+JoO
-         l+kT4oU8FAlQEaCxeAEDb2bamhSZenkHpHdNbHPA=
+        b=cCe8JC2ODNt86LPWDueHWVnyGulgUj8rcrEIS+K/VOXXiZ6IxBL1LAK3dzR0WHvMj
+         aGZ4I3FbDsvlMUghZj8Pk00+aVKF4C4uV5n9IORdgNFPyq0sSriQg96rJSzhHkwO+q
+         ZVqbr8lTHeB6brTDElwAkl17geb+B+OBBGD2ksqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Subject: [PATCH 5.16 129/164] usb: dwc2: drd: fix soft connect when gadget is unconfigured
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        =?UTF-8?q?M=C3=A5rten=20Lindahl?= <marten.lindahl@axis.com>
+Subject: [PATCH 5.10 70/80] driver core: Free DMA range map when device is released
 Date:   Mon, 28 Feb 2022 18:24:51 +0100
-Message-Id: <20220228172411.807031028@linuxfoundation.org>
+Message-Id: <20220228172320.196970358@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Mårten Lindahl <marten.lindahl@axis.com>
 
-commit 32fde84362c40961726a5c91f35ad37355ccc0c6 upstream.
+commit d8f7a5484f2188e9af2d9e4e587587d724501b12 upstream.
 
-When the gadget driver hasn't been (yet) configured, and the cable is
-connected to a HOST, the SFTDISCON gets cleared unconditionally, so the
-HOST tries to enumerate it.
-At the host side, this can result in a stuck USB port or worse. When
-getting lucky, some dmesg can be observed at the host side:
- new high-speed USB device number ...
- device descriptor read/64, error -110
+When unbinding/binding a driver with DMA mapped memory, the DMA map is
+not freed before the driver is reloaded. This leads to a memory leak
+when the DMA map is overwritten when reprobing the driver.
 
-Fix it in drd, by checking the enabled flag before calling
-dwc2_hsotg_core_connect(). It will be called later, once configured,
-by the normal flow:
-- udc_bind_to_driver
- - usb_gadget_connect
-   - dwc2_hsotg_pullup
-     - dwc2_hsotg_core_connect
+This can be reproduced with a platform driver having a dma-range:
 
-Fixes: 17f934024e84 ("usb: dwc2: override PHY input signals with usb role switch support")
+dummy {
+	...
+	#address-cells = <0x2>;
+	#size-cells = <0x2>;
+	ranges;
+	dma-ranges = <...>;
+	...
+};
+
+and then unbinding/binding it:
+
+~# echo soc:dummy >/sys/bus/platform/drivers/<driver>/unbind
+
+DMA map object 0xffffff800b0ae540 still being held by &pdev->dev
+
+~# echo soc:dummy >/sys/bus/platform/drivers/<driver>/bind
+~# echo scan > /sys/kernel/debug/kmemleak
+~# cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffffff800b0ae540 (size 64):
+  comm "sh", pid 833, jiffies 4295174550 (age 2535.352s)
+  hex dump (first 32 bytes):
+    00 00 00 80 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 80 00 00 00 00 00 00 00 80 00 00 00 00  ................
+  backtrace:
+    [<ffffffefd1694708>] create_object.isra.0+0x108/0x344
+    [<ffffffefd1d1a850>] kmemleak_alloc+0x8c/0xd0
+    [<ffffffefd167e2d0>] __kmalloc+0x440/0x6f0
+    [<ffffffefd1a960a4>] of_dma_get_range+0x124/0x220
+    [<ffffffefd1a8ce90>] of_dma_configure_id+0x40/0x2d0
+    [<ffffffefd198b68c>] platform_dma_configure+0x5c/0xa4
+    [<ffffffefd198846c>] really_probe+0x8c/0x514
+    [<ffffffefd1988990>] __driver_probe_device+0x9c/0x19c
+    [<ffffffefd1988cd8>] device_driver_attach+0x54/0xbc
+    [<ffffffefd1986634>] bind_store+0xc4/0x120
+    [<ffffffefd19856e0>] drv_attr_store+0x30/0x44
+    [<ffffffefd173c9b0>] sysfs_kf_write+0x50/0x60
+    [<ffffffefd173c1c4>] kernfs_fop_write_iter+0x124/0x1b4
+    [<ffffffefd16a013c>] new_sync_write+0xdc/0x160
+    [<ffffffefd16a256c>] vfs_write+0x23c/0x2a0
+    [<ffffffefd16a2758>] ksys_write+0x64/0xec
+
+To prevent this we should free the dma_range_map when the device is
+released.
+
+Fixes: e0d072782c73 ("dma-mapping: introduce DMA range map, supplanting dma_pfn_offset")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/1644999135-13478-1-git-send-email-fabrice.gasnier@foss.st.com
+Suggested-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Mårten Lindahl <marten.lindahl@axis.com>
+Link: https://lore.kernel.org/r/20220216094128.4025861-1-marten.lindahl@axis.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/core.h |    2 ++
- drivers/usb/dwc2/drd.c  |    6 ++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/base/dd.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/dwc2/core.h
-+++ b/drivers/usb/dwc2/core.h
-@@ -1416,6 +1416,7 @@ void dwc2_hsotg_core_connect(struct dwc2
- void dwc2_hsotg_disconnect(struct dwc2_hsotg *dwc2);
- int dwc2_hsotg_set_test_mode(struct dwc2_hsotg *hsotg, int testmode);
- #define dwc2_is_device_connected(hsotg) (hsotg->connected)
-+#define dwc2_is_device_enabled(hsotg) (hsotg->enabled)
- int dwc2_backup_device_registers(struct dwc2_hsotg *hsotg);
- int dwc2_restore_device_registers(struct dwc2_hsotg *hsotg, int remote_wakeup);
- int dwc2_gadget_enter_hibernation(struct dwc2_hsotg *hsotg);
-@@ -1452,6 +1453,7 @@ static inline int dwc2_hsotg_set_test_mo
- 					   int testmode)
- { return 0; }
- #define dwc2_is_device_connected(hsotg) (0)
-+#define dwc2_is_device_enabled(hsotg) (0)
- static inline int dwc2_backup_device_registers(struct dwc2_hsotg *hsotg)
- { return 0; }
- static inline int dwc2_restore_device_registers(struct dwc2_hsotg *hsotg,
---- a/drivers/usb/dwc2/drd.c
-+++ b/drivers/usb/dwc2/drd.c
-@@ -109,8 +109,10 @@ static int dwc2_drd_role_sw_set(struct u
- 		already = dwc2_ovr_avalid(hsotg, true);
- 	} else if (role == USB_ROLE_DEVICE) {
- 		already = dwc2_ovr_bvalid(hsotg, true);
--		/* This clear DCTL.SFTDISCON bit */
--		dwc2_hsotg_core_connect(hsotg);
-+		if (dwc2_is_device_enabled(hsotg)) {
-+			/* This clear DCTL.SFTDISCON bit */
-+			dwc2_hsotg_core_connect(hsotg);
-+		}
- 	} else {
- 		if (dwc2_is_device_mode(hsotg)) {
- 			if (!dwc2_ovr_bvalid(hsotg, false))
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -592,6 +592,9 @@ re_probe:
+ 			drv->remove(dev);
+ 
+ 		devres_release_all(dev);
++		arch_teardown_dma_ops(dev);
++		kfree(dev->dma_range_map);
++		dev->dma_range_map = NULL;
+ 		driver_sysfs_remove(dev);
+ 		dev->driver = NULL;
+ 		dev_set_drvdata(dev, NULL);
+@@ -1168,6 +1171,8 @@ static void __device_release_driver(stru
+ 
+ 		devres_release_all(dev);
+ 		arch_teardown_dma_ops(dev);
++		kfree(dev->dma_range_map);
++		dev->dma_range_map = NULL;
+ 		dev->driver = NULL;
+ 		dev_set_drvdata(dev, NULL);
+ 		if (dev->pm_domain && dev->pm_domain->dismiss)
 
 
