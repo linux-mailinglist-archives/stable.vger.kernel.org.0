@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E90B4C730F
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2004C7597
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232263AbiB1Rbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:31:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47572 "EHLO
+        id S239385AbiB1Rzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237077AbiB1RbJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:31:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8687D03C;
-        Mon, 28 Feb 2022 09:28:38 -0800 (PST)
+        with ESMTP id S239192AbiB1Rwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:39 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A11A8882;
+        Mon, 28 Feb 2022 09:39:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2458B815B1;
-        Mon, 28 Feb 2022 17:28:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 203AFC36AE3;
-        Mon, 28 Feb 2022 17:28:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B035BCE17AC;
+        Mon, 28 Feb 2022 17:39:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4939C340E7;
+        Mon, 28 Feb 2022 17:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069315;
-        bh=wp/CNINPmG/IfckvUO3BjhqwBozPIZZmmCvQx9pBxIc=;
+        s=korg; t=1646069984;
+        bh=qbmjpcWNVj53TVhbOFEs/inJ8zdkb3L0ffvYVAtsvbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMq2u1iHjBsOht0Zqt5iMyRS2OVr/h+VRAJNgEVEFLWNScpk2RkyZNBVJQfCuSYT4
-         BtEx7P4ag3DkLW1SL+1v+cqH0ZMWkfXny1H7uw9CY+96hr8Yp93zKhBNd95g+WaE59
-         coE/pPyQ3Gn9BAVJKno9Q1xHbtj0+YInLeEJo3P0=
+        b=QwuaPvBaCdnMd/03xLmSwmtjGtTgyPtc4NcO76Go6WXzegF8UI7di2mktWzakANQZ
+         patyfiru463yLzAd3GXOL2orMKCyWUi2mxVX6i+0BM0gCuVyvez4dLWnhHZuMlpSLI
+         E496wM7uutskLWC1nUovpDQEIn8nhF9Px7EoWIso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Liu <thomas.liu@ucloud.cn>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 10/34] gso: do not skip outer ip header in case of ipip and net_failover
+        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.15 082/139] net/mlx5e: MPLSoUDP decap, fix check for unsupported matches
 Date:   Mon, 28 Feb 2022 18:24:16 +0100
-Message-Id: <20220228172209.324456311@linuxfoundation.org>
+Message-Id: <20220228172356.309767261@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Liu <thomas.liu@ucloud.cn>
+From: Maor Dickman <maord@nvidia.com>
 
-commit cc20cced0598d9a5ff91ae4ab147b3b5e99ee819 upstream.
+commit fdc18e4e4bded2a08638cdcd22dc087a64b9ddad upstream.
 
-We encounter a tcp drop issue in our cloud environment. Packet GROed in
-host forwards to a VM virtio_net nic with net_failover enabled. VM acts
-as a IPVS LB with ipip encapsulation. The full path like:
-host gro -> vm virtio_net rx -> net_failover rx -> ipvs fullnat
- -> ipip encap -> net_failover tx -> virtio_net tx
+Currently offload of rule on bareudp device require tunnel key
+in order to match on mpls fields and without it the mpls fields
+are ignored, this is incorrect due to the fact udp tunnel doesn't
+have key to match on.
 
-When net_failover transmits a ipip pkt (gso_type = 0x0103, which means
-SKB_GSO_TCPV4, SKB_GSO_DODGY and SKB_GSO_IPXIP4), there is no gso
-did because it supports TSO and GSO_IPXIP4. But network_header points to
-inner ip header.
+Fix by returning error in case flow is matching on tunnel key.
 
-Call Trace:
- tcp4_gso_segment        ------> return NULL
- inet_gso_segment        ------> inner iph, network_header points to
- ipip_gso_segment
- inet_gso_segment        ------> outer iph
- skb_mac_gso_segment
-
-Afterwards virtio_net transmits the pkt, only inner ip header is modified.
-And the outer one just keeps unchanged. The pkt will be dropped in remote
-host.
-
-Call Trace:
- inet_gso_segment        ------> inner iph, outer iph is skipped
- skb_mac_gso_segment
- __skb_gso_segment
- validate_xmit_skb
- validate_xmit_skb_list
- sch_direct_xmit
- __qdisc_run
- __dev_queue_xmit        ------> virtio_net
- dev_hard_start_xmit
- __dev_queue_xmit        ------> net_failover
- ip_finish_output2
- ip_output
- iptunnel_xmit
- ip_tunnel_xmit
- ipip_tunnel_xmit        ------> ipip
- dev_hard_start_xmit
- __dev_queue_xmit
- ip_finish_output2
- ip_output
- ip_forward
- ip_rcv
- __netif_receive_skb_one_core
- netif_receive_skb_internal
- napi_gro_receive
- receive_buf
- virtnet_poll
- net_rx_action
-
-The root cause of this issue is specific with the rare combination of
-SKB_GSO_DODGY and a tunnel device that adds an SKB_GSO_ tunnel option.
-SKB_GSO_DODGY is set from external virtio_net. We need to reset network
-header when callbacks.gso_segment() returns NULL.
-
-This patch also includes ipv6_gso_segment(), considering SIT, etc.
-
-Fixes: cb32f511a70b ("ipip: add GSO/TSO support")
-Signed-off-by: Tao Liu <thomas.liu@ucloud.cn>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 72046a91d134 ("net/mlx5e: Allow to match on mpls parameters")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/af_inet.c     |    5 ++++-
- net/ipv6/ip6_offload.c |    2 ++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_mplsoudp.c |   28 ++++-------
+ 1 file changed, 11 insertions(+), 17 deletions(-)
 
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -1338,8 +1338,11 @@ struct sk_buff *inet_gso_segment(struct
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_mplsoudp.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_mplsoudp.c
+@@ -60,37 +60,31 @@ static int parse_tunnel(struct mlx5e_pri
+ 			void *headers_v)
+ {
+ 	struct flow_rule *rule = flow_cls_offload_flow_rule(f);
+-	struct flow_match_enc_keyid enc_keyid;
+ 	struct flow_match_mpls match;
+ 	void *misc2_c;
+ 	void *misc2_v;
  
- 	ops = rcu_dereference(inet_offloads[proto]);
--	if (likely(ops && ops->callbacks.gso_segment))
-+	if (likely(ops && ops->callbacks.gso_segment)) {
- 		segs = ops->callbacks.gso_segment(skb, features);
-+		if (!segs)
-+			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
-+	}
+-	misc2_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria,
+-			       misc_parameters_2);
+-	misc2_v = MLX5_ADDR_OF(fte_match_param, spec->match_value,
+-			       misc_parameters_2);
+-
+-	if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_MPLS))
+-		return 0;
+-
+-	if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_KEYID))
+-		return 0;
+-
+-	flow_rule_match_enc_keyid(rule, &enc_keyid);
+-
+-	if (!enc_keyid.mask->keyid)
+-		return 0;
+-
+ 	if (!MLX5_CAP_ETH(priv->mdev, tunnel_stateless_mpls_over_udp) &&
+ 	    !(MLX5_CAP_GEN(priv->mdev, flex_parser_protocols) & MLX5_FLEX_PROTO_CW_MPLS_UDP))
+ 		return -EOPNOTSUPP;
  
- 	if (IS_ERR_OR_NULL(segs))
- 		goto out;
---- a/net/ipv6/ip6_offload.c
-+++ b/net/ipv6/ip6_offload.c
-@@ -98,6 +98,8 @@ static struct sk_buff *ipv6_gso_segment(
- 	if (likely(ops && ops->callbacks.gso_segment)) {
- 		skb_reset_transport_header(skb);
- 		segs = ops->callbacks.gso_segment(skb, features);
-+		if (!segs)
-+			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
- 	}
++	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_KEYID))
++		return -EOPNOTSUPP;
++
++	if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_MPLS))
++		return 0;
++
+ 	flow_rule_match_mpls(rule, &match);
  
- 	if (IS_ERR_OR_NULL(segs))
+ 	/* Only support matching the first LSE */
+ 	if (match.mask->used_lses != 1)
+ 		return -EOPNOTSUPP;
+ 
++	misc2_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria,
++			       misc_parameters_2);
++	misc2_v = MLX5_ADDR_OF(fte_match_param, spec->match_value,
++			       misc_parameters_2);
++
+ 	MLX5_SET(fte_match_set_misc2, misc2_c,
+ 		 outer_first_mpls_over_udp.mpls_label,
+ 		 match.mask->ls[0].mpls_label);
 
 
