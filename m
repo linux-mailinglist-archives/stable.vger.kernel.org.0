@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F7B4C637E
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 08:01:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 593944C637F
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 08:01:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231596AbiB1HCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 02:02:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46626 "EHLO
+        id S232140AbiB1HC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 02:02:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbiB1HCW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 02:02:22 -0500
+        with ESMTP id S230022AbiB1HC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 02:02:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B440B5715C
-        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 23:01:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6523F673D7
+        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 23:01:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DA3161001
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 07:01:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4522AC340E7;
-        Mon, 28 Feb 2022 07:01:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1A5261011
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 07:01:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E97F9C340E7;
+        Mon, 28 Feb 2022 07:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646031703;
-        bh=6E8pZ0sNuYcZVyHvOCxontPWeSKX+j49Bs35cs9yyBY=;
+        s=korg; t=1646031707;
+        bh=wC3RkLJW9F94OMn0rTjNRdo6r6PU+459Lvzs8vfqz5A=;
         h=Subject:To:Cc:From:Date:From;
-        b=Rwyr4bynguHndgAwh+opQuO8i6xGKmNrU8tL2oyX2EUObOy1hENxuU1J2yuiwQ+U6
-         4j8ZVdxM3VsO7OaYnaoa6vies4S8j2FT4FCZM6XCmU/E4Qw7SoEF0UuirjINlPVREd
-         X/Ar9fHt7huA5mP2Row6cVK+p5Sm3rSLl342rTq0=
-Subject: FAILED: patch "[PATCH] thermal: int340x: fix memory leak in int3400_notify()" failed to apply to 5.4-stable tree
+        b=jhagNynQDWapM24ABcdQ2I0OFKyiNbmxHj/iaL+7SD/cxIeTvHL4VSpjJk76Y/qsG
+         jgacZ1BJ+CsDe5En8uxLB1modgoxjX6UdbzUOu/+a60UMQwbfdejluZM9GWMuSVe6y
+         /2F9CE7ncFJ4Anhl0muonzMvAXAMzlVw8Mjkls1E=
+Subject: FAILED: patch "[PATCH] thermal: int340x: fix memory leak in int3400_notify()" failed to apply to 4.14-stable tree
 To:     chuansheng.liu@intel.com, rafael.j.wysocki@intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Feb 2022 08:01:40 +0100
-Message-ID: <1646031700191178@kroah.com>
+Date:   Mon, 28 Feb 2022 08:01:44 +0100
+Message-ID: <16460317043746@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
