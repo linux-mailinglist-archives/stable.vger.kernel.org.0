@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FD24C757F
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BDF34C749D
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239242AbiB1RzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:55:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
+        id S234323AbiB1Rp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240064AbiB1Rxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49CEB0C7C;
-        Mon, 28 Feb 2022 09:41:29 -0800 (PST)
+        with ESMTP id S239031AbiB1Rnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1201B9AD8E;
+        Mon, 28 Feb 2022 09:35:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9280161590;
-        Mon, 28 Feb 2022 17:41:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E2AC340F0;
-        Mon, 28 Feb 2022 17:41:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0C3961359;
+        Mon, 28 Feb 2022 17:35:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B62F2C340E7;
+        Mon, 28 Feb 2022 17:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070089;
-        bh=7lSeKmtAk7TmkQrY5ZdGX1u07q8whDThD0ZzKg+6csA=;
+        s=korg; t=1646069732;
+        bh=gr45w1REbf3yzOWTxHlcU8BXdSX+zSG8eQlbz3GOI5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQc6bnvIhBSzhgjmvGEexWZAsFoBnL80UgRKp8tEfzb54JFO/gn25qBFJ2d0KQF1x
-         vsWG661i0Vn3scrxmg5yuGgqsK9G9yHxx6zL/neYdbgUr/kJj6auPRKr7XBD/C8poa
-         spmH6BCYLViznw+rqDte7TCBq02lLKBjeEiVPDN4=
+        b=xKfBNajcsa/MXqWrSroeBYytAYSRNEjEqd94KtVS7TCeGgjw4NdltEM4WuuBtB9D1
+         7vHVfXwmLmDVD2Gsy8eblF2r5CMskXwYyquEeYe6mGvZnVAZdSEBUWhyZN2jVdI2iI
+         +p0hGCkYcdi2ytuFxnMZNORM40dWIm0Ht/8oUxkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 120/139] btrfs: prevent copying too big compressed lzo segment
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.10 73/80] riscv: fix oops caused by irqsoff latency tracer
 Date:   Mon, 28 Feb 2022 18:24:54 +0100
-Message-Id: <20220228172400.226471387@linuxfoundation.org>
+Message-Id: <20220228172320.535642879@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +53,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dāvis Mosāns <davispuh@gmail.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-commit 741b23a970a79d5d3a1db2d64fa2c7b375a4febb upstream.
+commit 22e2100b1b07d6f5acc71cc1acb53f680c677d77 upstream.
 
-Compressed length can be corrupted to be a lot larger than memory
-we have allocated for buffer.
-This will cause memcpy in copy_compressed_segment to write outside
-of allocated memory.
+The trace_hardirqs_{on,off}() require the caller to setup frame pointer
+properly. This because these two functions use macro 'CALLER_ADDR1' (aka.
+__builtin_return_address(1)) to acquire caller info. If the $fp is used
+for other purpose, the code generated this macro (as below) could trigger
+memory access fault.
 
-This mostly results in stuck read syscall but sometimes when using
-btrfs send can get #GP
+   0xffffffff8011510e <+80>:    ld      a1,-16(s0)
+   0xffffffff80115112 <+84>:    ld      s2,-8(a1)  # <-- paging fault here
 
-  kernel: general protection fault, probably for non-canonical address 0x841551d5c1000: 0000 [#1] PREEMPT SMP NOPTI
-  kernel: CPU: 17 PID: 264 Comm: kworker/u256:7 Tainted: P           OE     5.17.0-rc2-1 #12
-  kernel: Workqueue: btrfs-endio btrfs_work_helper [btrfs]
-  kernel: RIP: 0010:lzo_decompress_bio (./include/linux/fortify-string.h:225 fs/btrfs/lzo.c:322 fs/btrfs/lzo.c:394) btrfs
-  Code starting with the faulting instruction
-  ===========================================
-     0:*  48 8b 06                mov    (%rsi),%rax              <-- trapping instruction
-     3:   48 8d 79 08             lea    0x8(%rcx),%rdi
-     7:   48 83 e7 f8             and    $0xfffffffffffffff8,%rdi
-     b:   48 89 01                mov    %rax,(%rcx)
-     e:   44 89 f0                mov    %r14d,%eax
-    11:   48 8b 54 06 f8          mov    -0x8(%rsi,%rax,1),%rdx
-  kernel: RSP: 0018:ffffb110812efd50 EFLAGS: 00010212
-  kernel: RAX: 0000000000001000 RBX: 000000009ca264c8 RCX: ffff98996e6d8ff8
-  kernel: RDX: 0000000000000064 RSI: 000841551d5c1000 RDI: ffffffff9500435d
-  kernel: RBP: ffff989a3be856c0 R08: 0000000000000000 R09: 0000000000000000
-  kernel: R10: 0000000000000000 R11: 0000000000001000 R12: ffff98996e6d8000
-  kernel: R13: 0000000000000008 R14: 0000000000001000 R15: 000841551d5c1000
-  kernel: FS:  0000000000000000(0000) GS:ffff98a09d640000(0000) knlGS:0000000000000000
-  kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  kernel: CR2: 00001e9f984d9ea8 CR3: 000000014971a000 CR4: 00000000003506e0
-  kernel: Call Trace:
-  kernel:  <TASK>
-  kernel: end_compressed_bio_read (fs/btrfs/compression.c:104 fs/btrfs/compression.c:1363 fs/btrfs/compression.c:323) btrfs
-  kernel: end_workqueue_fn (fs/btrfs/disk-io.c:1923) btrfs
-  kernel: btrfs_work_helper (fs/btrfs/async-thread.c:326) btrfs
-  kernel: process_one_work (./arch/x86/include/asm/jump_label.h:27 ./include/linux/jump_label.h:212 ./include/trace/events/workqueue.h:108 kernel/workqueue.c:2312)
-  kernel: worker_thread (./include/linux/list.h:292 kernel/workqueue.c:2455)
-  kernel: ? process_one_work (kernel/workqueue.c:2397)
-  kernel: kthread (kernel/kthread.c:377)
-  kernel: ? kthread_complete_and_exit (kernel/kthread.c:332)
-  kernel: ret_from_fork (arch/x86/entry/entry_64.S:301)
-  kernel:  </TASK>
+The oops message during booting if compiled with 'irqoff' tracer enabled:
+[    0.039615][    T0] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000f8
+[    0.041925][    T0] Oops [#1]
+[    0.042063][    T0] Modules linked in:
+[    0.042864][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-rc1-00233-g9a20c48d1ed2 #29
+[    0.043568][    T0] Hardware name: riscv-virtio,qemu (DT)
+[    0.044343][    T0] epc : trace_hardirqs_on+0x56/0xe2
+[    0.044601][    T0]  ra : restore_all+0x12/0x6e
+[    0.044721][    T0] epc : ffffffff80126a5c ra : ffffffff80003b94 sp : ffffffff81403db0
+[    0.044801][    T0]  gp : ffffffff8163acd8 tp : ffffffff81414880 t0 : 0000000000000020
+[    0.044882][    T0]  t1 : 0098968000000000 t2 : 0000000000000000 s0 : ffffffff81403de0
+[    0.044967][    T0]  s1 : 0000000000000000 a0 : 0000000000000001 a1 : 0000000000000100
+[    0.045046][    T0]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+[    0.045124][    T0]  a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000054494d45
+[    0.045210][    T0]  s2 : ffffffff80003b94 s3 : ffffffff81a8f1b0 s4 : ffffffff80e27b50
+[    0.045289][    T0]  s5 : ffffffff81414880 s6 : ffffffff8160fa00 s7 : 00000000800120e8
+[    0.045389][    T0]  s8 : 0000000080013100 s9 : 000000000000007f s10: 0000000000000000
+[    0.045474][    T0]  s11: 0000000000000000 t3 : 7fffffffffffffff t4 : 0000000000000000
+[    0.045548][    T0]  t5 : 0000000000000000 t6 : ffffffff814aa368
+[    0.045620][    T0] status: 0000000200000100 badaddr: 00000000000000f8 cause: 000000000000000d
+[    0.046402][    T0] [<ffffffff80003b94>] restore_all+0x12/0x6e
 
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This because the $fp(aka. $s0) register is not used as frame pointer in the
+assembly entry code.
+
+	resume_kernel:
+		REG_L s0, TASK_TI_PREEMPT_COUNT(tp)
+		bnez s0, restore_all
+		REG_L s0, TASK_TI_FLAGS(tp)
+                andi s0, s0, _TIF_NEED_RESCHED
+                beqz s0, restore_all
+                call preempt_schedule_irq
+                j restore_all
+
+To fix above issue, here we add one extra level wrapper for function
+trace_hardirqs_{on,off}() so they can be safely called by low level entry
+code.
+
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Fixes: 3c4697982982 ("riscv: Enable LOCKDEP_SUPPORT & fixup TRACE_IRQFLAGS_SUPPORT")
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/lzo.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/riscv/kernel/Makefile    |    2 ++
+ arch/riscv/kernel/entry.S     |   10 +++++-----
+ arch/riscv/kernel/trace_irq.c |   27 +++++++++++++++++++++++++++
+ arch/riscv/kernel/trace_irq.h |   11 +++++++++++
+ 4 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 arch/riscv/kernel/trace_irq.c
+ create mode 100644 arch/riscv/kernel/trace_irq.h
 
---- a/fs/btrfs/lzo.c
-+++ b/fs/btrfs/lzo.c
-@@ -363,6 +363,17 @@ int lzo_decompress_bio(struct list_head
- 		kunmap(cur_page);
- 		cur_in += LZO_LEN;
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -44,6 +44,8 @@ obj-$(CONFIG_MODULE_SECTIONS)	+= module-
+ obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o ftrace.o
+ obj-$(CONFIG_DYNAMIC_FTRACE)	+= mcount-dyn.o
  
-+		if (seg_len > lzo1x_worst_compress(PAGE_SIZE)) {
-+			/*
-+			 * seg_len shouldn't be larger than we have allocated
-+			 * for workspace->cbuf
-+			 */
-+			btrfs_err(fs_info, "unexpectedly large lzo segment len %u",
-+					seg_len);
-+			ret = -EIO;
-+			goto out;
-+		}
++obj-$(CONFIG_TRACE_IRQFLAGS)	+= trace_irq.o
 +
- 		/* Copy the compressed segment payload into workspace */
- 		copy_compressed_segment(cb, workspace->cbuf, seg_len, &cur_in);
+ obj-$(CONFIG_RISCV_BASE_PMU)	+= perf_event.o
+ obj-$(CONFIG_PERF_EVENTS)	+= perf_callchain.o
+ obj-$(CONFIG_HAVE_PERF_REGS)	+= perf_regs.o
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -98,7 +98,7 @@ _save_context:
+ .option pop
  
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ #endif
+ 
+ #ifdef CONFIG_CONTEXT_TRACKING
+@@ -131,7 +131,7 @@ skip_context_tracking:
+ 	andi t0, s1, SR_PIE
+ 	beqz t0, 1f
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_on
++	call __trace_hardirqs_on
+ #endif
+ 	csrs CSR_STATUS, SR_IE
+ 
+@@ -222,7 +222,7 @@ ret_from_exception:
+ 	REG_L s0, PT_STATUS(sp)
+ 	csrc CSR_STATUS, SR_IE
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ #endif
+ #ifdef CONFIG_RISCV_M_MODE
+ 	/* the MPP value is too large to be used as an immediate arg for addi */
+@@ -258,10 +258,10 @@ restore_all:
+ 	REG_L s1, PT_STATUS(sp)
+ 	andi t0, s1, SR_PIE
+ 	beqz t0, 1f
+-	call trace_hardirqs_on
++	call __trace_hardirqs_on
+ 	j 2f
+ 1:
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ 2:
+ #endif
+ 	REG_L a0, PT_STATUS(sp)
+--- /dev/null
++++ b/arch/riscv/kernel/trace_irq.c
+@@ -0,0 +1,27 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
++ */
++
++#include <linux/irqflags.h>
++#include <linux/kprobes.h>
++#include "trace_irq.h"
++
++/*
++ * trace_hardirqs_on/off require the caller to setup frame pointer properly.
++ * Otherwise, CALLER_ADDR1 might trigger an pagging exception in kernel.
++ * Here we add one extra level so they can be safely called by low
++ * level entry code which $fp is used for other purpose.
++ */
++
++void __trace_hardirqs_on(void)
++{
++	trace_hardirqs_on();
++}
++NOKPROBE_SYMBOL(__trace_hardirqs_on);
++
++void __trace_hardirqs_off(void)
++{
++	trace_hardirqs_off();
++}
++NOKPROBE_SYMBOL(__trace_hardirqs_off);
+--- /dev/null
++++ b/arch/riscv/kernel/trace_irq.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
++ */
++#ifndef __TRACE_IRQ_H
++#define __TRACE_IRQ_H
++
++void __trace_hardirqs_on(void);
++void __trace_hardirqs_off(void);
++
++#endif /* __TRACE_IRQ_H */
 
 
