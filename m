@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9AC4C7327
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E037B4C755E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236630AbiB1Rcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:32:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45404 "EHLO
+        id S239200AbiB1Rwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:52:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237739AbiB1RcM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:32:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F37689CFF;
-        Mon, 28 Feb 2022 09:29:08 -0800 (PST)
+        with ESMTP id S239068AbiB1Rwb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89883A6441;
+        Mon, 28 Feb 2022 09:39:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B82F6B815AB;
-        Mon, 28 Feb 2022 17:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AFBFC340E7;
-        Mon, 28 Feb 2022 17:29:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA9C36153C;
+        Mon, 28 Feb 2022 17:39:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4CDCC340F0;
+        Mon, 28 Feb 2022 17:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069345;
-        bh=gVFD3kpnaFfz5ca/wuIyX6gbfMiPN9ph5/aOY2bpIQY=;
+        s=korg; t=1646069981;
+        bh=/hFzPLZdxNyr7sNhIlWRmhRcp4xlGHvWKKPXk1bmKxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chDBqbYSE7mJ75wDlj+iKp7dXQndWKFk7HNMSMVClOiSvELInxw9FD187P+wJNoTu
-         sf0wk6RU4ArKYe7jxvF+HaO2rNVIsgt5uIL5ZBaw3hEyWjELocvNrvj1FogFoNfj1n
-         uzpSHpF44eFL5SYReivTcEVzk2/LWb63puu8vEtU=
+        b=bwXkKCTOUsCUt7HyZhQWfGawH3Lj8TdtkXBThFg5PJ3FOQi9IqofpM4sFsKW8uX5H
+         FPUDHusgxuRHtMd5tor2ErCsBK4OKjMj5leH/Ok0Jw+kzmdf0c+j6BuGYePCo89593
+         YN26rztYdzC2HvTP0gL4KMDCci/jW9LeHEAIbJBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 09/34] tipc: Fix end of loop tests for list_for_each_entry()
+        stable@vger.kernel.org, Yevgeny Kliteynik <kliteyn@nvidia.com>,
+        Alex Vesker <valex@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.15 081/139] net/mlx5: DR, Fix the threshold that defines when pool sync is initiated
 Date:   Mon, 28 Feb 2022 18:24:15 +0100
-Message-Id: <20220228172209.239877746@linuxfoundation.org>
+Message-Id: <20220228172356.212832521@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yevgeny Kliteynik <kliteyn@nvidia.com>
 
-commit a1f8fec4dac8bc7b172b2bdbd881e015261a6322 upstream.
+commit ecd9c5cd46e013659e2fad433057bad1ba66888e upstream.
 
-These tests are supposed to check if the loop exited via a break or not.
-However the tests are wrong because if we did not exit via a break then
-"p" is not a valid pointer.  In that case, it's the equivalent of
-"if (*(u32 *)sr == *last_key) {".  That's going to work most of the time,
-but there is a potential for those to be equal.
+When deciding whether to start syncing and actually free all the "hot"
+ICM chunks, we need to consider the type of the ICM chunks that we're
+dealing with. For instance, the amount of available ICM for MODIFY_ACTION
+is significantly lower than the usual STE ICM, so the threshold should
+account for that - otherwise we can deplete MODIFY_ACTION memory just by
+creating and deleting the same modify header action in a continuous loop.
 
-Fixes: 1593123a6a49 ("tipc: add name table dump to new netlink api")
-Fixes: 1a1a143daf84 ("tipc: add publication dump to new netlink api")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch replaces the hard-coded threshold with a dynamic value.
+
+Fixes: 1c58651412bb ("net/mlx5: DR, ICM memory pools sync optimization")
+Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
+Reviewed-by: Alex Vesker <valex@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/name_table.c |    2 +-
- net/tipc/socket.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c |   11 ++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/net/tipc/name_table.c
-+++ b/net/tipc/name_table.c
-@@ -812,7 +812,7 @@ static int __tipc_nl_add_nametable_publ(
- 		list_for_each_entry(p, &sr->all_publ, all_publ)
- 			if (p->key == *last_key)
- 				break;
--		if (p->key != *last_key)
-+		if (list_entry_is_head(p, &sr->all_publ, all_publ))
- 			return -EPIPE;
- 	} else {
- 		p = list_first_entry(&sr->all_publ,
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -3487,7 +3487,7 @@ static int __tipc_nl_list_sk_publ(struct
- 			if (p->key == *last_publ)
- 				break;
- 		}
--		if (p->key != *last_publ) {
-+		if (list_entry_is_head(p, &tsk->publications, binding_sock)) {
- 			/* We never set seq or call nl_dump_check_consistent()
- 			 * this means that setting prev_seq here will cause the
- 			 * consistence check to fail in the netlink callback
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
+@@ -4,7 +4,6 @@
+ #include "dr_types.h"
+ 
+ #define DR_ICM_MODIFY_HDR_ALIGN_BASE 64
+-#define DR_ICM_SYNC_THRESHOLD_POOL (64 * 1024 * 1024)
+ 
+ struct mlx5dr_icm_pool {
+ 	enum mlx5dr_icm_type icm_type;
+@@ -324,10 +323,14 @@ dr_icm_chunk_create(struct mlx5dr_icm_po
+ 
+ static bool dr_icm_pool_is_sync_required(struct mlx5dr_icm_pool *pool)
+ {
+-	if (pool->hot_memory_size > DR_ICM_SYNC_THRESHOLD_POOL)
+-		return true;
++	int allow_hot_size;
+ 
+-	return false;
++	/* sync when hot memory reaches half of the pool size */
++	allow_hot_size =
++		mlx5dr_icm_pool_chunk_size_to_byte(pool->max_log_chunk_sz,
++						   pool->icm_type) / 2;
++
++	return pool->hot_memory_size > allow_hot_size;
+ }
+ 
+ static int dr_icm_pool_sync_all_buddy_pools(struct mlx5dr_icm_pool *pool)
 
 
