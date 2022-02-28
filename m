@@ -2,97 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD7E4C7DB0
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 23:46:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 758694C7DCE
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 23:53:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230321AbiB1Wrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 17:47:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47856 "EHLO
+        id S231319AbiB1WyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 17:54:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231313AbiB1Wrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 17:47:35 -0500
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F171F1405E1
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 14:46:55 -0800 (PST)
-Received: by mail-pl1-x632.google.com with SMTP id c9so11999285pll.0
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 14:46:55 -0800 (PST)
+        with ESMTP id S229963AbiB1WyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 17:54:06 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B823E1B6
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 14:53:26 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id 139so12855939pge.1
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 14:53:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=LglAJFBfW0192A+zdtC6aPQEwQomXk3iQX8CrMvwboE=;
-        b=Q1mmID59L3r+ZQjhjmMSnqIrxTddfLL+dg5Yncv+WGGQrW3mSeBNuaKUkiOgbD16ON
-         Y0LTiD+wKPqFjsANDBpDGbLewVglEMBb+vPQ7iNIWROAxQKLDwNXCF+WYl02BWzhGLrM
-         RHRxrBI1VRXCO9gQotZhnjXQoYxNZA/2S1cnEpTKfFZzBzDcEjjcpQ4O2PnBazcDncIs
-         +nVGzkVgPfD0o3Bbl0Qfx8P6RFMUgV/vo7Bq5I8obRVLwbq2yKktjX+2sOG0qerdAjJ8
-         I9L84JOIAHkzoTTOeBLgd7XNiy6mErmdRwXno8BokmhWTsT2XfcKd6xPZPwgfGwfXHJW
-         UKJQ==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=zibmIXYjhxaupOk9s0xWr7duCuTjugvyvgKLHyYpgFE=;
+        b=iCpxXt6G0aThtvRUcLNU8SriL190rIC2M+2t85Gz/EPinufDECNpaCnslsRSQAk3ep
+         MPSStIzbBpIxl3lRd+df6HbZ3lim+gftRnXLHB8sidpRHKV2QhZoSgXk99khZDcvuzcT
+         Spee0qr8TUPt+3I4rqnlZ4mG/KhdXvQrBaZQM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=LglAJFBfW0192A+zdtC6aPQEwQomXk3iQX8CrMvwboE=;
-        b=3BXa680hOvYXrYagfvkgW49xNeQtE1eyR0sHIqBfuD7VAsNAVtcN3XBUyl3SdUzneH
-         nTSTcQ7QgloYWZ8DKNC91OhU1lCCtJwjUQa6rMQXLX569u79FtkD6nVFGtp5PQ9YmWG1
-         x/+qadC8AXqhoTLAiFUueBdJPiQNigZmr0C2SRziUdJf9jGsMm4BFrKLqVY6EC50tZgf
-         Xt4qyeOwAVZTHv+25QPuOGpz0uEHB1c0StVFckSggFmb9nwMw4FtrsBSRytCEACVH6cW
-         jtcCRWiU1zKxU8cRJ+iq8InaN+MOkAuwSObZ3+jR4ECXpGGAzYtebvzIVyZUzMdUzK4C
-         Ap0g==
-X-Gm-Message-State: AOAM532r9hhpFn5oQaQpAeUILXTKLxGuETtHhkguR8Q66CfRYKPb4vWj
-        3PtlHMFIZT6itEmltqudeKNGskkGuDELawkzZWBRFw==
-X-Google-Smtp-Source: ABdhPJzsghlkq6BU0I6LPAO56Tv+4suMMu6V1k1d4Uy6Z43D+GNTocRNhUW9x/uRixnOWsMjqGp30B9Php1ZVuXO+Kg=
-X-Received: by 2002:a17:90a:db15:b0:1bd:71f:8123 with SMTP id
- g21-20020a17090adb1500b001bd071f8123mr15955979pjv.126.1646088415342; Mon, 28
- Feb 2022 14:46:55 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=zibmIXYjhxaupOk9s0xWr7duCuTjugvyvgKLHyYpgFE=;
+        b=F6XBxGgxUcI0EyyDPg4l39YeeJDO0jK0HY2ndIog6OZ6Y5lUcImPvuUm/GyQmXqrq6
+         HeS3zyGJFrrrgYpz5lmdaT1CVNwmHDfv5K/FlZ/b1T6Ah8yWze+7BalzgBczmcu67k3/
+         e4jZ05Iy7rrP+9FGbhe9UBf1IS9eDxAjXyqTwiZtngG+Yczae5A74LczBCU6+aaKxweg
+         4WZ2CM+I9pdh3hpiEH+KvOSRPoX079Pm9l2I1xv2NfutAuvlXjU3PLkinjj2rf6QZFK2
+         KuVyldG+aiTgr5wRzVY40HNhR1PjqYqpUQScGq4WchiKa2cR6cbP8TOT8JTB68TOeyhu
+         zhmQ==
+X-Gm-Message-State: AOAM53287PRHycVuulN3lDrvW2zcHf59fc9eiAgwN1STaOOxZTf08PG+
+        tbwPdYLlFve3SZ5/KyO2gDhXTA==
+X-Google-Smtp-Source: ABdhPJzHZGv/HnLcdSxWcXgVP/q5WimYbT2Car4mVv68atOJnIPOjOQrAQTFGQxx45g0YLdkIV/MsA==
+X-Received: by 2002:a65:6210:0:b0:374:ba5:aacc with SMTP id d16-20020a656210000000b003740ba5aaccmr18921903pgv.8.1646088806198;
+        Mon, 28 Feb 2022 14:53:26 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id f9-20020a056a00228900b004f3ba7d177csm14943547pfe.54.2022.02.28.14.53.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Feb 2022 14:53:25 -0800 (PST)
+Date:   Mon, 28 Feb 2022 14:53:25 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     matoro <matoro_mailinglist_kernel@matoro.tk>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Biederman <ebiederm@xmission.com>,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        stable@vger.kernel.org,
+        Magnus =?iso-8859-1?Q?Gro=DF?= <magnus.gross@rwth-aachen.de>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Anthony Yznaga <anthony.yznaga@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        regressions@lists.linux.dev, linux-ia64@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 5.16 v2] binfmt_elf: Avoid total_mapping_size for ET_EXEC
+Message-ID: <202202281452.93E321A39@keescook>
+References: <20220228205518.1265798-1-keescook@chromium.org>
+ <ce8af9c13bcea9230c7689f3c1e0e2cd@matoro.tk>
 MIME-Version: 1.0
-References: <20220226002412.113819-1-shakeelb@google.com> <20220225165842.561d3a475310aeab86a2d653@linux-foundation.org>
- <CALvZod7SA17vounKnq1KX23172rztNN_Oo0K1XaeEuS4JVEhMw@mail.gmail.com> <20220228184653.GA1812@blackbody.suse.cz>
-In-Reply-To: <20220228184653.GA1812@blackbody.suse.cz>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Mon, 28 Feb 2022 14:46:44 -0800
-Message-ID: <CALvZod61XyMJzrvU0Wvp8iWV878rZQYsa407RhoZYeiJV5j5SQ@mail.gmail.com>
-Subject: Re: [PATCH] memcg: async flush memcg stats from perf sensitive codepaths
-To:     =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Ivan Babrou <ivan@cloudflare.com>,
-        Cgroups <cgroups@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Daniel Dao <dqminh@cloudflare.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-18.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ce8af9c13bcea9230c7689f3c1e0e2cd@matoro.tk>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 28, 2022 at 10:46 AM Michal Koutn=C3=BD <mkoutny@suse.com> wrot=
-e:
->
-> On Fri, Feb 25, 2022 at 05:42:57PM -0800, Shakeel Butt <shakeelb@google.c=
-om> wrote:
-> > Yes, the right fix would be to optimize the flushing code (but that
-> > would require more work/time). However I still think letting
-> > performance critical code paths to skip the sync flush would be good
-> > in general. So, if the current patch is not to your liking we can
-> > remove mem_cgroup_flush_stats() from workingset_refault().
->
-> What about flushing just the subtree of the memcg where the refault
-> happens?
-> It doesn't reduce the overall work and there's still full-tree
-> cgroup_rstat_lock but it should make the chunks of work smaller
-> durations more regular.
->
+On Mon, Feb 28, 2022 at 05:14:26PM -0500, matoro wrote:
+> On 2022-02-28 15:55, Kees Cook wrote:
+> > Partially revert commit 5f501d555653 ("binfmt_elf: reintroduce using
+> > MAP_FIXED_NOREPLACE").
+> > 
+> > At least ia64 has ET_EXEC PT_LOAD segments that are not virtual-address
+> > contiguous (but _are_ file-offset contiguous). This would result in
+> > giant mapping attempts to cover the entire span, including the virtual
+> > address range hole. Disable total_mapping_size for ET_EXEC, which
+> > reduces the MAP_FIXED_NOREPLACE coverage to only the first PT_LOAD:
+> > 
+> > $ readelf -lW /usr/bin/gcc
+> > ...
+> > Program Headers:
+> >   Type Offset   VirtAddr           PhysAddr           FileSiz  MemSiz
+> > ...
+> > ...
+> >   LOAD 0x000000 0x4000000000000000 0x4000000000000000 0x00b5a0 0x00b5a0
+> > ...
+> >   LOAD 0x00b5a0 0x600000000000b5a0 0x600000000000b5a0 0x0005ac 0x000710
+> > ...
+> > ...
+> >        ^^^^^^^^ ^^^^^^^^^^^^^^^^^^                    ^^^^^^^^ ^^^^^^^^
+> > 
+> > File offset range     : 0x000000-0x00bb4c
+> > 			0x00bb4c bytes
+> > 
+> > Virtual address range : 0x4000000000000000-0x600000000000bcb0
+> > 			0x200000000000bcb0 bytes
+> > 
+> > Ironically, this is the reverse of the problem that originally caused
+> > problems with ET_EXEC and MAP_FIXED_NOREPLACE: overlaps. This problem is
+> > with holes. Future work could restore full coverage if load_elf_binary()
+> > were to perform mappings in a separate phase from the loading (where
+> > it could resolve both overlaps and holes).
+> > 
+> > Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> > Cc: Eric Biederman <ebiederm@xmission.com>
+> > Cc: linux-fsdevel@vger.kernel.org
+> > Cc: linux-mm@kvack.org
+> > Reported-by: matoro <matoro_mailinglist_kernel@matoro.tk>
+> > Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> > Fixes: 5f501d555653 ("binfmt_elf: reintroduce using
+> > MAP_FIXED_NOREPLACE")
+> > Link:
+> > https://lore.kernel.org/r/a3edd529-c42d-3b09-135c-7e98a15b150f@leemhuis.info
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Kees Cook <keescook@chromium.org>
+> > ---
+> > Here's the v5.16 backport.
+> > ---
+> >  fs/binfmt_elf.c | 25 ++++++++++++++++++-------
+> >  1 file changed, 18 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+> > index f8c7f26f1fbb..911a9e7044f4 100644
+> > --- a/fs/binfmt_elf.c
+> > +++ b/fs/binfmt_elf.c
+> > @@ -1135,14 +1135,25 @@ static int load_elf_binary(struct linux_binprm
+> > *bprm)
+> >  			 * is then page aligned.
+> >  			 */
+> >  			load_bias = ELF_PAGESTART(load_bias - vaddr);
+> > -		}
+> > 
+> > -		/*
+> > -		 * Calculate the entire size of the ELF mapping (total_size).
+> > -		 * (Note that load_addr_set is set to true later once the
+> > -		 * initial mapping is performed.)
+> > -		 */
+> > -		if (!load_addr_set) {
+> > +			/*
+> > +			 * Calculate the entire size of the ELF mapping
+> > +			 * (total_size), used for the initial mapping,
+> > +			 * due to first_pt_load which is set to false later
+> > +			 * once the initial mapping is performed.
+> > +			 *
+> > +			 * Note that this is only sensible when the LOAD
+> > +			 * segments are contiguous (or overlapping). If
+> > +			 * used for LOADs that are far apart, this would
+> > +			 * cause the holes between LOADs to be mapped,
+> > +			 * running the risk of having the mapping fail,
+> > +			 * as it would be larger than the ELF file itself.
+> > +			 *
+> > +			 * As a result, only ET_DYN does this, since
+> > +			 * some ET_EXEC (e.g. ia64) may have virtual
+> > +			 * memory holes between LOADs.
+> > +			 *
+> > +			 */
+> >  			total_size = total_mapping_size(elf_phdata,
+> >  							elf_ex->e_phnum);
+> >  			if (!total_size) {
+> 
+> This does the trick!  Thank you so much!!
 
-We can try that and I will send a patch to Ivan and Daniel to try on
-their workload to see the real impact of targeted memcg flushing.
-However I am not very optimistic about it.
+Excellent; thank you for testing! I'll send this to Linus shortly.
+
+-- 
+Kees Cook
