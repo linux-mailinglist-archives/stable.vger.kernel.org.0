@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26BF94C7562
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B08884C735A
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:34:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233040AbiB1Ryu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:54:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51728 "EHLO
+        id S237434AbiB1Reg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239186AbiB1Rwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9629FA88AF;
-        Mon, 28 Feb 2022 09:39:52 -0800 (PST)
+        with ESMTP id S238830AbiB1Rdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD27677A93;
+        Mon, 28 Feb 2022 09:30:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7897B815A6;
-        Mon, 28 Feb 2022 17:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2399BC340E7;
-        Mon, 28 Feb 2022 17:39:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E84DB815AB;
+        Mon, 28 Feb 2022 17:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B61EFC340F4;
+        Mon, 28 Feb 2022 17:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069989;
-        bh=FROV+zPqYpPQOdFvQIVrfIS9k5Y0q6tyv8NMkTAUAbQ=;
+        s=korg; t=1646069435;
+        bh=SvDQLbu5beE3Sm6Z67NDVZ7DhnI92oBSclkppH4UUcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQP4Z+XlfNqPOTiqs19pTZlTZOOiniXclGL75yKuJwO0fHi+PDPL2jCeO2us2ftcR
-         HSXXqoiu/nJ2P2De6RsPelx3CHq6vDONMLq1t3LNAVlxSR+XT5mMVHMXV8qsqFqq2D
-         XM4pff59VXPujU767IJErHNKOp1aloQBXKsaJ39w=
+        b=XJSqc94YLfeE1u02Zg50p9SWGd25Vq+3XyQqqJbOwQrB/0+D6Dgn2BbEXI6/lOMpa
+         zZjJMXsOhzarB+nRrgBN73gsyWASbVlmt1MacCUJGJf80O9pu5aYqHZK+lUjhkZauX
+         avvp0TP2V4f+EcJkoxR8v21r+uQ0XC1ku1XIes9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 083/139] net/mlx5e: kTLS, Use CHECKSUM_UNNECESSARY for device-offloaded packets
+        stable@vger.kernel.org, Tao Liu <thomas.liu@ucloud.cn>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 19/53] gso: do not skip outer ip header in case of ipip and net_failover
 Date:   Mon, 28 Feb 2022 18:24:17 +0100
-Message-Id: <20220228172356.403347463@linuxfoundation.org>
+Message-Id: <20220228172249.730686703@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@nvidia.com>
+From: Tao Liu <thomas.liu@ucloud.cn>
 
-commit 7eaf1f37b8817c608c4e959d69986ef459d345cd upstream.
+commit cc20cced0598d9a5ff91ae4ab147b3b5e99ee819 upstream.
 
-For RX TLS device-offloaded packets, the HW spec guarantees checksum
-validation for the offloaded packets, but does not define whether the
-CQE.checksum field matches the original packet (ciphertext) or
-the decrypted one (plaintext). This latitude allows architetctural
-improvements between generations of chips, resulting in different decisions
-regarding the value type of CQE.checksum.
+We encounter a tcp drop issue in our cloud environment. Packet GROed in
+host forwards to a VM virtio_net nic with net_failover enabled. VM acts
+as a IPVS LB with ipip encapsulation. The full path like:
+host gro -> vm virtio_net rx -> net_failover rx -> ipvs fullnat
+ -> ipip encap -> net_failover tx -> virtio_net tx
 
-Hence, for these packets, the device driver should not make use of this CQE
-field. Here we block CHECKSUM_COMPLETE usage for RX TLS device-offloaded
-packets, and use CHECKSUM_UNNECESSARY instead.
+When net_failover transmits a ipip pkt (gso_type = 0x0103, which means
+SKB_GSO_TCPV4, SKB_GSO_DODGY and SKB_GSO_IPXIP4), there is no gso
+did because it supports TSO and GSO_IPXIP4. But network_header points to
+inner ip header.
 
-Value of the packet's tcp_hdr.csum is not modified by the HW, and it always
-matches the original ciphertext.
+Call Trace:
+ tcp4_gso_segment        ------> return NULL
+ inet_gso_segment        ------> inner iph, network_header points to
+ ipip_gso_segment
+ inet_gso_segment        ------> outer iph
+ skb_mac_gso_segment
 
-Fixes: 1182f3659357 ("net/mlx5e: kTLS, Add kTLS RX HW offload support")
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Afterwards virtio_net transmits the pkt, only inner ip header is modified.
+And the outer one just keeps unchanged. The pkt will be dropped in remote
+host.
+
+Call Trace:
+ inet_gso_segment        ------> inner iph, outer iph is skipped
+ skb_mac_gso_segment
+ __skb_gso_segment
+ validate_xmit_skb
+ validate_xmit_skb_list
+ sch_direct_xmit
+ __qdisc_run
+ __dev_queue_xmit        ------> virtio_net
+ dev_hard_start_xmit
+ __dev_queue_xmit        ------> net_failover
+ ip_finish_output2
+ ip_output
+ iptunnel_xmit
+ ip_tunnel_xmit
+ ipip_tunnel_xmit        ------> ipip
+ dev_hard_start_xmit
+ __dev_queue_xmit
+ ip_finish_output2
+ ip_output
+ ip_forward
+ ip_rcv
+ __netif_receive_skb_one_core
+ netif_receive_skb_internal
+ napi_gro_receive
+ receive_buf
+ virtnet_poll
+ net_rx_action
+
+The root cause of this issue is specific with the rare combination of
+SKB_GSO_DODGY and a tunnel device that adds an SKB_GSO_ tunnel option.
+SKB_GSO_DODGY is set from external virtio_net. We need to reset network
+header when callbacks.gso_segment() returns NULL.
+
+This patch also includes ipv6_gso_segment(), considering SIT, etc.
+
+Fixes: cb32f511a70b ("ipip: add GSO/TSO support")
+Signed-off-by: Tao Liu <thomas.liu@ucloud.cn>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/af_inet.c     |    5 ++++-
+ net/ipv6/ip6_offload.c |    2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-@@ -987,7 +987,8 @@ static inline void mlx5e_handle_csum(str
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1344,8 +1344,11 @@ struct sk_buff *inet_gso_segment(struct
  	}
  
- 	/* True when explicitly set via priv flag, or XDP prog is loaded */
--	if (test_bit(MLX5E_RQ_STATE_NO_CSUM_COMPLETE, &rq->state))
-+	if (test_bit(MLX5E_RQ_STATE_NO_CSUM_COMPLETE, &rq->state) ||
-+	    get_cqe_tls_offload(cqe))
- 		goto csum_unnecessary;
+ 	ops = rcu_dereference(inet_offloads[proto]);
+-	if (likely(ops && ops->callbacks.gso_segment))
++	if (likely(ops && ops->callbacks.gso_segment)) {
+ 		segs = ops->callbacks.gso_segment(skb, features);
++		if (!segs)
++			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
++	}
  
- 	/* CQE csum doesn't cover padding octets in short ethernet
+ 	if (IS_ERR_OR_NULL(segs))
+ 		goto out;
+--- a/net/ipv6/ip6_offload.c
++++ b/net/ipv6/ip6_offload.c
+@@ -111,6 +111,8 @@ static struct sk_buff *ipv6_gso_segment(
+ 	if (likely(ops && ops->callbacks.gso_segment)) {
+ 		skb_reset_transport_header(skb);
+ 		segs = ops->callbacks.gso_segment(skb, features);
++		if (!segs)
++			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
+ 	}
+ 
+ 	if (IS_ERR_OR_NULL(segs))
 
 
