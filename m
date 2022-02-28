@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B32D4C7651
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:02:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B53E44C73DE
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239745AbiB1SCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:02:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38796 "EHLO
+        id S234072AbiB1Ri0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233048AbiB1SBO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:01:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95089A4DB;
-        Mon, 28 Feb 2022 09:45:43 -0800 (PST)
+        with ESMTP id S238490AbiB1Rhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D507543AEE;
+        Mon, 28 Feb 2022 09:32:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D961B815A2;
-        Mon, 28 Feb 2022 17:45:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A2FC36AEB;
-        Mon, 28 Feb 2022 17:45:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 470FCB815AC;
+        Mon, 28 Feb 2022 17:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BB6EC340E7;
+        Mon, 28 Feb 2022 17:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070330;
-        bh=F2vCmGtfB9sTj5ir4yOVL3TWXdmdCoMtLfGqbooFxpI=;
+        s=korg; t=1646069561;
+        bh=KwnSvAIvypkgAY4He7R23xQE0ck3L9g5jFxUpjd0lPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PV9OzBF4tyGjWW6bZSuDFcE7obMbjko7RhXlqiAQVplMHLKRTZR9dybPcc/zbd/P+
-         wH4Quf7IqgZpdmbhjmOi2MmoWAXQtEPn/FTi/MG5876ipZZaWXKe1zQjtIzoDtHs4R
-         gr57gY8s2Z3vuZUglaKGHyOwF+4lVyE8K4sFkJ3c=
+        b=LHjTpN5nJsuPnfL/fxAhcvhJ6Z4xw5l9+X5klu/LMt8oZhXB6BYjwDUS5vgeePR81
+         BCyTcDRVfp//p62PkkqHdn2RCoh3k2G9e2FDbnZnyPlQ9jcHif761S4sRB/qwlNY4O
+         5w5PrLc2cl7kNMTjQQvH+mDlRg1G0IGvUogW7Es8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 070/164] net/mlx5e: Fix wrong return value on ioctl EEPROM query failure
+        stable@vger.kernel.org,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.10 11/80] drm/i915: Correctly populate use_sagv_wm for all pipes
 Date:   Mon, 28 Feb 2022 18:23:52 +0100
-Message-Id: <20220228172406.456959105@linuxfoundation.org>
+Message-Id: <20220228172312.814623524@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <gal@nvidia.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 0b89429722353d112f8b8b29ca397e95fa994d27 upstream.
+commit afc189df6bcc6be65961deb54e15ec60e7f85337 upstream.
 
-The ioctl EEPROM query wrongly returns success on read failures, fix
-that by returning the appropriate error code.
+When changing between SAGV vs. no SAGV on tgl+ we have to
+update the use_sagv_wm flag for all the crtcs or else
+an active pipe not already in the state will end up using
+the wrong watermarks. That is especially bad when we end up
+with the tighter non-SAGV watermarks with SAGV enabled.
+Usually ends up in underruns.
 
-Fixes: bb64143eee8c ("net/mlx5e: Add ethtool support for dump module EEPROM")
-Signed-off-by: Gal Pressman <gal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Fixes: 7241c57d3140 ("drm/i915: Add TGL+ SAGV support")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220218064039.12834-2-ville.syrjala@linux.intel.com
+(cherry picked from commit 8dd8ffb824ca7b897ce9f2082ffa7e64831c22dc)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_pm.c |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -1752,7 +1752,7 @@ static int mlx5e_get_module_eeprom(struc
- 		if (size_read < 0) {
- 			netdev_err(priv->netdev, "%s: mlx5_query_eeprom failed:0x%x\n",
- 				   __func__, size_read);
--			return 0;
-+			return size_read;
- 		}
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -3996,6 +3996,17 @@ static int intel_compute_sagv_mask(struc
+ 			return ret;
+ 	}
  
- 		i += size_read;
++	if (intel_can_enable_sagv(dev_priv, new_bw_state) !=
++	    intel_can_enable_sagv(dev_priv, old_bw_state)) {
++		ret = intel_atomic_serialize_global_state(&new_bw_state->base);
++		if (ret)
++			return ret;
++	} else if (new_bw_state->pipe_sagv_reject != old_bw_state->pipe_sagv_reject) {
++		ret = intel_atomic_lock_global_state(&new_bw_state->base);
++		if (ret)
++			return ret;
++	}
++
+ 	for_each_new_intel_crtc_in_state(state, crtc,
+ 					 new_crtc_state, i) {
+ 		struct skl_pipe_wm *pipe_wm = &new_crtc_state->wm.skl.optimal;
+@@ -4010,17 +4021,6 @@ static int intel_compute_sagv_mask(struc
+ 				       intel_can_enable_sagv(dev_priv, new_bw_state);
+ 	}
+ 
+-	if (intel_can_enable_sagv(dev_priv, new_bw_state) !=
+-	    intel_can_enable_sagv(dev_priv, old_bw_state)) {
+-		ret = intel_atomic_serialize_global_state(&new_bw_state->base);
+-		if (ret)
+-			return ret;
+-	} else if (new_bw_state->pipe_sagv_reject != old_bw_state->pipe_sagv_reject) {
+-		ret = intel_atomic_lock_global_state(&new_bw_state->base);
+-		if (ret)
+-			return ret;
+-	}
+-
+ 	return 0;
+ }
+ 
 
 
