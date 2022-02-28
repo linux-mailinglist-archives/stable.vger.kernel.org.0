@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD4D74C7373
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:35:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C5F54C73C6
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232984AbiB1Rfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:35:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39994 "EHLO
+        id S235095AbiB1Rir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238196AbiB1RfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:35:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD3686E36;
-        Mon, 28 Feb 2022 09:31:16 -0800 (PST)
+        with ESMTP id S238623AbiB1RiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78C8574B7;
+        Mon, 28 Feb 2022 09:33:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 852A461359;
-        Mon, 28 Feb 2022 17:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CC3FC340F5;
-        Mon, 28 Feb 2022 17:31:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51251B815B8;
+        Mon, 28 Feb 2022 17:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57CFC340E7;
+        Mon, 28 Feb 2022 17:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069473;
-        bh=E7Nksd3jl9+VASg76mwSXa4BXe5fGV8PjlgQ+VkJpGo=;
+        s=korg; t=1646069606;
+        bh=4kI2/S/n0O9DmlesOVz381oQ0Q7ZzS08IRJIbGGKo1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIEkD6EvBRB07jo2sfwwz/lp8TkOu78jNnqf8xBrXjOz7+6KxumbaR1JF8hnpgZdJ
-         JsEdwxULajLlXFQvdLAXalEzMRt3Fp22Y3/HLIuwMIiZTAsl+C9ua9KIv273TrdLaP
-         eTI4tKYfGh+7PwPG6fVtPmn5Go7ERMUcXaqaPHg4=
+        b=UGn1aFEV3USaW6G7q0KBh2UJ3EycY6RtwJgkQV+6O0NzCCLIB7UKwH9oi/qbo75uU
+         y18DmsAzHeKPmt7qNBlFnFxJ4BgYOP7ByT6oeixR9zq572f22ACrQNG5tRyFyNrbOa
+         /f2bV46G7ZiV10jN+Ty9Fpa+YAusJ5y+6HFerRhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Nick Gregory <Nick.Gregory@Sophos.com>
-Subject: [PATCH 5.4 09/53] netfilter: nf_tables_offload: incorrect flow offload action array size
-Date:   Mon, 28 Feb 2022 18:24:07 +0100
-Message-Id: <20220228172248.987579826@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        io-uring <io-uring@vger.kernel.org>,
+        syzbot <syzkaller@googlegroups.com>
+Subject: [PATCH 5.10 27/80] io_uring: add a schedule point in io_add_buffers()
+Date:   Mon, 28 Feb 2022 18:24:08 +0100
+Message-Id: <20220228172314.816217341@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,136 +56,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit b1a5983f56e371046dcf164f90bfaf704d2b89f6 upstream.
+commit f240762f88b4b1b58561939ffd44837759756477 upstream.
 
-immediate verdict expression needs to allocate one slot in the flow offload
-action array, however, immediate data expression does not need to do so.
+Looping ~65535 times doing kmalloc() calls can trigger soft lockups,
+especially with DEBUG features (like KASAN).
 
-fwd and dup expression need to allocate one slot, this is missing.
+[  253.536212] watchdog: BUG: soft lockup - CPU#64 stuck for 26s! [b219417889:12575]
+[  253.544433] Modules linked in: vfat fat i2c_mux_pca954x i2c_mux spidev cdc_acm xhci_pci xhci_hcd sha3_generic gq(O)
+[  253.544451] CPU: 64 PID: 12575 Comm: b219417889 Tainted: G S         O      5.17.0-smp-DEV #801
+[  253.544457] RIP: 0010:kernel_text_address (./include/asm-generic/sections.h:192 ./include/linux/kallsyms.h:29 kernel/extable.c:67 kernel/extable.c:98)
+[  253.544464] Code: 0f 93 c0 48 c7 c1 e0 63 d7 a4 48 39 cb 0f 92 c1 20 c1 0f b6 c1 5b 5d c3 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 53 48 89 fb <48> c7 c0 00 00 80 a0 41 be 01 00 00 00 48 39 c7 72 0c 48 c7 c0 40
+[  253.544468] RSP: 0018:ffff8882d8baf4c0 EFLAGS: 00000246
+[  253.544471] RAX: 1ffff1105b175e00 RBX: ffffffffa13ef09a RCX: 00000000a13ef001
+[  253.544474] RDX: ffffffffa13ef09a RSI: ffff8882d8baf558 RDI: ffffffffa13ef09a
+[  253.544476] RBP: ffff8882d8baf4d8 R08: ffff8882d8baf5e0 R09: 0000000000000004
+[  253.544479] R10: ffff8882d8baf5e8 R11: ffffffffa0d59a50 R12: ffff8882eab20380
+[  253.544481] R13: ffffffffa0d59a50 R14: dffffc0000000000 R15: 1ffff1105b175eb0
+[  253.544483] FS:  00000000016d3380(0000) GS:ffff88af48c00000(0000) knlGS:0000000000000000
+[  253.544486] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  253.544488] CR2: 00000000004af0f0 CR3: 00000002eabfa004 CR4: 00000000003706e0
+[  253.544491] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  253.544492] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  253.544494] Call Trace:
+[  253.544496]  <TASK>
+[  253.544498] ? io_queue_sqe (fs/io_uring.c:7143)
+[  253.544505] __kernel_text_address (kernel/extable.c:78)
+[  253.544508] unwind_get_return_address (arch/x86/kernel/unwind_frame.c:19)
+[  253.544514] arch_stack_walk (arch/x86/kernel/stacktrace.c:27)
+[  253.544517] ? io_queue_sqe (fs/io_uring.c:7143)
+[  253.544521] stack_trace_save (kernel/stacktrace.c:123)
+[  253.544527] ____kasan_kmalloc (mm/kasan/common.c:39 mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:515)
+[  253.544531] ? ____kasan_kmalloc (mm/kasan/common.c:39 mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:515)
+[  253.544533] ? __kasan_kmalloc (mm/kasan/common.c:524)
+[  253.544535] ? kmem_cache_alloc_trace (./include/linux/kasan.h:270 mm/slab.c:3567)
+[  253.544541] ? io_issue_sqe (fs/io_uring.c:4556 fs/io_uring.c:4589 fs/io_uring.c:6828)
+[  253.544544] ? __io_queue_sqe (fs/io_uring.c:?)
+[  253.544551] __kasan_kmalloc (mm/kasan/common.c:524)
+[  253.544553] kmem_cache_alloc_trace (./include/linux/kasan.h:270 mm/slab.c:3567)
+[  253.544556] ? io_issue_sqe (fs/io_uring.c:4556 fs/io_uring.c:4589 fs/io_uring.c:6828)
+[  253.544560] io_issue_sqe (fs/io_uring.c:4556 fs/io_uring.c:4589 fs/io_uring.c:6828)
+[  253.544564] ? __kasan_slab_alloc (mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
+[  253.544567] ? __kasan_slab_alloc (mm/kasan/common.c:39 mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
+[  253.544569] ? kmem_cache_alloc_bulk (mm/slab.h:732 mm/slab.c:3546)
+[  253.544573] ? __io_alloc_req_refill (fs/io_uring.c:2078)
+[  253.544578] ? io_submit_sqes (fs/io_uring.c:7441)
+[  253.544581] ? __se_sys_io_uring_enter (fs/io_uring.c:10154 fs/io_uring.c:10096)
+[  253.544584] ? __x64_sys_io_uring_enter (fs/io_uring.c:10096)
+[  253.544587] ? do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+[  253.544590] ? entry_SYSCALL_64_after_hwframe (??:?)
+[  253.544596] __io_queue_sqe (fs/io_uring.c:?)
+[  253.544600] io_queue_sqe (fs/io_uring.c:7143)
+[  253.544603] io_submit_sqe (fs/io_uring.c:?)
+[  253.544608] io_submit_sqes (fs/io_uring.c:?)
+[  253.544612] __se_sys_io_uring_enter (fs/io_uring.c:10154 fs/io_uring.c:10096)
+[  253.544616] __x64_sys_io_uring_enter (fs/io_uring.c:10096)
+[  253.544619] do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+[  253.544623] entry_SYSCALL_64_after_hwframe (??:?)
 
-Add a new offload_action interface to report if this expression needs to
-allocate one slot in the flow offload action array.
-
-Fixes: be2861dc36d7 ("netfilter: nft_{fwd,dup}_netdev: add offload support")
-Reported-and-tested-by: Nick Gregory <Nick.Gregory@Sophos.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: ddf0322db79c ("io_uring: add IORING_OP_PROVIDE_BUFFERS")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Cc: io-uring <io-uring@vger.kernel.org>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220215041003.2394784-1-eric.dumazet@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_tables.h         |    2 +-
- include/net/netfilter/nf_tables_offload.h |    2 --
- net/netfilter/nf_tables_offload.c         |    3 ++-
- net/netfilter/nft_dup_netdev.c            |    6 ++++++
- net/netfilter/nft_fwd_netdev.c            |    6 ++++++
- net/netfilter/nft_immediate.c             |   12 +++++++++++-
- 6 files changed, 26 insertions(+), 5 deletions(-)
+ fs/io_uring.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -805,7 +805,7 @@ struct nft_expr_ops {
- 	int				(*offload)(struct nft_offload_ctx *ctx,
- 						   struct nft_flow_rule *flow,
- 						   const struct nft_expr *expr);
--	u32				offload_flags;
-+	bool				(*offload_action)(const struct nft_expr *expr);
- 	const struct nft_expr_type	*type;
- 	void				*data;
- };
---- a/include/net/netfilter/nf_tables_offload.h
-+++ b/include/net/netfilter/nf_tables_offload.h
-@@ -60,8 +60,6 @@ struct nft_flow_rule {
- 	struct flow_rule	*rule;
- };
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4058,6 +4058,7 @@ static int io_add_buffers(struct io_prov
+ 		} else {
+ 			list_add_tail(&buf->list, &(*head)->list);
+ 		}
++		cond_resched();
+ 	}
  
--#define NFT_OFFLOAD_F_ACTION	(1 << 0)
--
- void nft_flow_rule_set_addr_type(struct nft_flow_rule *flow,
- 				 enum flow_dissector_key_id addr_type);
- 
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -55,7 +55,8 @@ struct nft_flow_rule *nft_flow_rule_crea
- 
- 	expr = nft_expr_first(rule);
- 	while (nft_expr_more(rule, expr)) {
--		if (expr->ops->offload_flags & NFT_OFFLOAD_F_ACTION)
-+		if (expr->ops->offload_action &&
-+		    expr->ops->offload_action(expr))
- 			num_actions++;
- 
- 		expr = nft_expr_next(expr);
---- a/net/netfilter/nft_dup_netdev.c
-+++ b/net/netfilter/nft_dup_netdev.c
-@@ -67,6 +67,11 @@ static int nft_dup_netdev_offload(struct
- 	return nft_fwd_dup_netdev_offload(ctx, flow, FLOW_ACTION_MIRRED, oif);
- }
- 
-+static bool nft_dup_netdev_offload_action(const struct nft_expr *expr)
-+{
-+	return true;
-+}
-+
- static struct nft_expr_type nft_dup_netdev_type;
- static const struct nft_expr_ops nft_dup_netdev_ops = {
- 	.type		= &nft_dup_netdev_type,
-@@ -75,6 +80,7 @@ static const struct nft_expr_ops nft_dup
- 	.init		= nft_dup_netdev_init,
- 	.dump		= nft_dup_netdev_dump,
- 	.offload	= nft_dup_netdev_offload,
-+	.offload_action	= nft_dup_netdev_offload_action,
- };
- 
- static struct nft_expr_type nft_dup_netdev_type __read_mostly = {
---- a/net/netfilter/nft_fwd_netdev.c
-+++ b/net/netfilter/nft_fwd_netdev.c
-@@ -77,6 +77,11 @@ static int nft_fwd_netdev_offload(struct
- 	return nft_fwd_dup_netdev_offload(ctx, flow, FLOW_ACTION_REDIRECT, oif);
- }
- 
-+static bool nft_fwd_netdev_offload_action(const struct nft_expr *expr)
-+{
-+	return true;
-+}
-+
- struct nft_fwd_neigh {
- 	enum nft_registers	sreg_dev:8;
- 	enum nft_registers	sreg_addr:8;
-@@ -219,6 +224,7 @@ static const struct nft_expr_ops nft_fwd
- 	.dump		= nft_fwd_netdev_dump,
- 	.validate	= nft_fwd_validate,
- 	.offload	= nft_fwd_netdev_offload,
-+	.offload_action	= nft_fwd_netdev_offload_action,
- };
- 
- static const struct nft_expr_ops *
---- a/net/netfilter/nft_immediate.c
-+++ b/net/netfilter/nft_immediate.c
-@@ -163,6 +163,16 @@ static int nft_immediate_offload(struct
- 	return 0;
- }
- 
-+static bool nft_immediate_offload_action(const struct nft_expr *expr)
-+{
-+	const struct nft_immediate_expr *priv = nft_expr_priv(expr);
-+
-+	if (priv->dreg == NFT_REG_VERDICT)
-+		return true;
-+
-+	return false;
-+}
-+
- static const struct nft_expr_ops nft_imm_ops = {
- 	.type		= &nft_imm_type,
- 	.size		= NFT_EXPR_SIZE(sizeof(struct nft_immediate_expr)),
-@@ -173,7 +183,7 @@ static const struct nft_expr_ops nft_imm
- 	.dump		= nft_immediate_dump,
- 	.validate	= nft_immediate_validate,
- 	.offload	= nft_immediate_offload,
--	.offload_flags	= NFT_OFFLOAD_F_ACTION,
-+	.offload_action	= nft_immediate_offload_action,
- };
- 
- struct nft_expr_type nft_imm_type __read_mostly = {
+ 	return i ? i : -ENOMEM;
 
 
