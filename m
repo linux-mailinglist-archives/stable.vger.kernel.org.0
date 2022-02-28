@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A528E4C6380
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 08:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5924C6381
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 08:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233378AbiB1HCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 02:02:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46702 "EHLO
+        id S233386AbiB1HDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 02:03:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbiB1HCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 02:02:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA42F673D7
-        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 23:01:53 -0800 (PST)
+        with ESMTP id S230022AbiB1HDB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 02:03:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74BABFD0
+        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 23:02:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61F53B80E45
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 07:01:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF0DC340F2;
-        Mon, 28 Feb 2022 07:01:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29556B80E46
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 07:02:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 248F5C340E7;
+        Mon, 28 Feb 2022 07:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646031711;
-        bh=nyvL3O9hJo87Of610vPCVDa9BLHrRWAehLDiY+YD+4o=;
+        s=korg; t=1646031739;
+        bh=1kbVhmpleX4a5pQ1uVoIYsDjAxn/6Nq2nGiokN91X4s=;
         h=Subject:To:Cc:From:Date:From;
-        b=nRoDgcoVaxPlz2BL6puB+ud7g0JeMKmKukJZhNpdiaZGrCj92jdbcb/tbLBlClk+w
-         mSxjACXdYgbjiBd4wmp3Q3sCr+b7S/c7rrWj3BtdfzNcfjWR8jkRwB+9t3U2LRfanz
-         2khOOj5nm4LOk17ut9KiB1yifaoq1JkQscNVOAaE=
-Subject: FAILED: patch "[PATCH] thermal: int340x: fix memory leak in int3400_notify()" failed to apply to 4.19-stable tree
-To:     chuansheng.liu@intel.com, rafael.j.wysocki@intel.com,
-        stable@vger.kernel.org
+        b=JvVF2ISPQcosU7flxi4Zt2a/Gb6yVEpJMUjauNk1aK94aO92cV07m9N37bCMvSRLt
+         0zGs8Mvt3wNhGM4QyJ4hzcwFfuq+uIuGQQKfoAQPbkxBEWgC2duPcwhZJc+5e9z0cW
+         JzYRBXw05WeUU0YdlY2VeqXnDKDYlO1+z9StXjRE=
+Subject: FAILED: patch "[PATCH] staging: fbtft: fb_st7789v: reset display before" failed to apply to 4.9-stable tree
+To:     oliver.graute@kococonnector.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Feb 2022 08:01:47 +0100
-Message-ID: <1646031707247250@kroah.com>
+Date:   Mon, 28 Feb 2022 08:02:16 +0100
+Message-ID: <16460317361073@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,50 +59,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3abea10e6a8f0e7804ed4c124bea2d15aca977c8 Mon Sep 17 00:00:00 2001
-From: Chuansheng Liu <chuansheng.liu@intel.com>
-Date: Wed, 23 Feb 2022 08:20:24 +0800
-Subject: [PATCH] thermal: int340x: fix memory leak in int3400_notify()
+From b6821b0d9b56386d2bf14806f90ec401468c799f Mon Sep 17 00:00:00 2001
+From: Oliver Graute <oliver.graute@kococonnector.com>
+Date: Thu, 10 Feb 2022 09:53:22 +0100
+Subject: [PATCH] staging: fbtft: fb_st7789v: reset display before
+ initialization
 
-It is easy to hit the below memory leaks in my TigerLake platform:
+In rare cases the display is flipped or mirrored. This was observed more
+often in a low temperature environment. A clean reset on init_display()
+should help to get registers in a sane state.
 
-unreferenced object 0xffff927c8b91dbc0 (size 32):
-  comm "kworker/0:2", pid 112, jiffies 4294893323 (age 83.604s)
-  hex dump (first 32 bytes):
-    4e 41 4d 45 3d 49 4e 54 33 34 30 30 20 54 68 65  NAME=INT3400 The
-    72 6d 61 6c 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5  rmal.kkkkkkkkkk.
-  backtrace:
-    [<ffffffff9c502c3e>] __kmalloc_track_caller+0x2fe/0x4a0
-    [<ffffffff9c7b7c15>] kvasprintf+0x65/0xd0
-    [<ffffffff9c7b7d6e>] kasprintf+0x4e/0x70
-    [<ffffffffc04cb662>] int3400_notify+0x82/0x120 [int3400_thermal]
-    [<ffffffff9c8b7358>] acpi_ev_notify_dispatch+0x54/0x71
-    [<ffffffff9c88f1a7>] acpi_os_execute_deferred+0x17/0x30
-    [<ffffffff9c2c2c0a>] process_one_work+0x21a/0x3f0
-    [<ffffffff9c2c2e2a>] worker_thread+0x4a/0x3b0
-    [<ffffffff9c2cb4dd>] kthread+0xfd/0x130
-    [<ffffffff9c201c1f>] ret_from_fork+0x1f/0x30
+Fixes: ef8f317795da (staging: fbtft: use init function instead of init sequence)
+Cc: stable@vger.kernel.org
+Signed-off-by: Oliver Graute <oliver.graute@kococonnector.com>
+Link: https://lore.kernel.org/r/20220210085322.15676-1-oliver.graute@kococonnector.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix it by calling kfree() accordingly.
-
-Fixes: 38e44da59130 ("thermal: int3400_thermal: process "thermal table changed" event")
-Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-diff --git a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
-index 72acb1f61849..4f478812cb51 100644
---- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
-+++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
-@@ -404,6 +404,10 @@ static void int3400_notify(acpi_handle handle,
- 	thermal_prop[3] = kasprintf(GFP_KERNEL, "EVENT=%d", therm_event);
- 	thermal_prop[4] = NULL;
- 	kobject_uevent_env(&priv->thermal->device.kobj, KOBJ_CHANGE, thermal_prop);
-+	kfree(thermal_prop[0]);
-+	kfree(thermal_prop[1]);
-+	kfree(thermal_prop[2]);
-+	kfree(thermal_prop[3]);
- }
+diff --git a/drivers/staging/fbtft/fb_st7789v.c b/drivers/staging/fbtft/fb_st7789v.c
+index abe9395a0aef..861a154144e6 100644
+--- a/drivers/staging/fbtft/fb_st7789v.c
++++ b/drivers/staging/fbtft/fb_st7789v.c
+@@ -144,6 +144,8 @@ static int init_display(struct fbtft_par *par)
+ {
+ 	int rc;
  
- static int int3400_thermal_get_temp(struct thermal_zone_device *thermal,
++	par->fbtftops.reset(par);
++
+ 	rc = init_tearing_effect_line(par);
+ 	if (rc)
+ 		return rc;
 
