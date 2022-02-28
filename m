@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC3B4C7354
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D90D4C72C6
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238102AbiB1Ree (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38180 "EHLO
+        id S234782AbiB1R2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:28:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238660AbiB1Rdn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:43 -0500
+        with ESMTP id S234712AbiB1R2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C33292851;
-        Mon, 28 Feb 2022 09:30:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA08033A1F;
+        Mon, 28 Feb 2022 09:27:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFD36B815B8;
-        Mon, 28 Feb 2022 17:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B24AC340E7;
-        Mon, 28 Feb 2022 17:30:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BFCEB815AC;
+        Mon, 28 Feb 2022 17:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3304C340E7;
+        Mon, 28 Feb 2022 17:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069426;
-        bh=ACLnAZQIR5psZ8uhJCL76WGjXIdm6NzshqJBZPCBeCU=;
+        s=korg; t=1646069250;
+        bh=CMrmlL+gyFj9hMOb6F8u5KG/jT0iR4HgF7Y+v01zTQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUA5lYkLWFOE6AtZc7OXFmSDOig08O9wBLKP/0O0tQyZ8jBws5/A9/Pwc//yPts72
-         cpzw+hssUqv9vVv0w5lhtrCUrujbnueoHSog1mzVaR0gwCxoU3YbbX2EqwGBiWEFKf
-         SdG5M6jqYM6VFWmRwCNW7CtnQB3fxGOZrTspKir4=
+        b=rQ7HbVTrXCVofQC34E8mrPEST+oSG4EM2O9lDmFVmYHIYeFZmZemSBqey03pPZpPX
+         Hfns56WUS/BNBIFD89PKAex1oIV0fV8l7s3Lh/oWFnTamUiWCU6ZEZjJNl8chV7pje
+         SSOinFsae1pFE1wmBRLG1N7ribl44O/1FvQ08qpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.4 16/53] bpf: Do not try bpf_msg_push_data with len 0
+        stable@vger.kernel.org, Dmytro Bagrii <dimich.dmb@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 18/31] Revert "USB: serial: ch341: add new Product ID for CH341A"
 Date:   Mon, 28 Feb 2022 18:24:14 +0100
-Message-Id: <20220228172249.525088925@linuxfoundation.org>
+Message-Id: <20220228172201.589142165@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Dmytro Bagrii <dimich.dmb@gmail.com>
 
-commit 4a11678f683814df82fca9018d964771e02d7e6d upstream.
+commit 198a7ebd5fa17b4d0be8cb70240ee1be885175c0 upstream.
 
-If bpf_msg_push_data() is called with len 0 (as it happens during
-selftests/bpf/test_sockmap), we do not need to do anything and can
-return early.
+This reverts commit 46ee4abb10a07bd8f8ce910ee6b4ae6a947d7f63.
 
-Calling bpf_msg_push_data() with len 0 previously lead to a wrong ENOMEM
-error: we later called get_order(copy + len); if len was 0, copy + len
-was also often 0 and get_order() returned some undefined value (at the
-moment 52). alloc_pages() caught that and failed, but then bpf_msg_push_data()
-returned ENOMEM. This was wrong because we are most probably not out of
-memory and actually do not need any additional memory.
+CH341 has Product ID 0x5512 in EPP/MEM mode which is used for
+I2C/SPI/GPIO interfaces. In asynchronous serial interface mode
+CH341 has PID 0x5523 which is already in the table.
 
-Fixes: 6fff607e2f14b ("bpf: sk_msg program helper bpf_msg_push_data")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/df69012695c7094ccb1943ca02b4920db3537466.1644421921.git.fmaurer@redhat.com
+Mode is selected by corresponding jumper setting.
+
+Signed-off-by: Dmytro Bagrii <dimich.dmb@gmail.com>
+Link: https://lore.kernel.org/r/20220210164137.4376-1-dimich.dmb@gmail.com
+Link: https://lore.kernel.org/r/YJ0OCS/sh+1ifD/q@hovoldconsulting.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/serial/ch341.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -2516,6 +2516,9 @@ BPF_CALL_4(bpf_msg_pop_data, struct sk_m
- 	if (unlikely(flags))
- 		return -EINVAL;
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -83,7 +83,6 @@
+ #define CH341_LCR_CS5          0x00
  
-+	if (unlikely(len == 0))
-+		return 0;
-+
- 	/* First find the starting scatterlist element */
- 	i = msg->sg.start;
- 	do {
+ static const struct usb_device_id id_table[] = {
+-	{ USB_DEVICE(0x1a86, 0x5512) },
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
 
 
