@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A174C736F
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:35:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056FD4C7463
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:44:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235186AbiB1RfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:35:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42228 "EHLO
+        id S237296AbiB1RpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237524AbiB1Reo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:34:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C39939A8;
-        Mon, 28 Feb 2022 09:31:09 -0800 (PST)
+        with ESMTP id S238634AbiB1Rmx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:42:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E8299969B;
+        Mon, 28 Feb 2022 09:34:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAB3CB815AE;
-        Mon, 28 Feb 2022 17:31:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E319C340E7;
-        Mon, 28 Feb 2022 17:31:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAB10614B9;
+        Mon, 28 Feb 2022 17:34:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD159C340F1;
+        Mon, 28 Feb 2022 17:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069467;
-        bh=NVZ/13wV06YZ+xr1T2jgfLSQQ++PaVN1I5onuZqPhSI=;
+        s=korg; t=1646069696;
+        bh=etOvP7NoP4v2nHmtWiP7+UhZSaqYO7n/CO0EwG2H8EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMWs2yZg0W2t5l2TX+HZqmu6dIKAMXZvIAr1lu8NeQFxaD+EYU7xlErVQ3Yr8ceKk
-         xMriP8FcXHeBcpvhwhR73jHcrinMWhflBkmpWbZGwRL9/pNEgFR62cg4bhziUaWCR2
-         lZjSKXkdzS+3WjwdYwjT4ccT17ySbBfVc3mYjcQQ=
+        b=i/rR29b7bGbZU4wLq8N1ECywapktFuQpEI4r/fJIJgU1n9zjyhs0Y2nLGgVz33CnO
+         NHvWg46JPId2m3rMq2/hcb5a+OpNHnf/hkc/yIZIZqa9FvYYRrmu3UY9zmlMf2eYb8
+         JoFi4Les7x89jxdKXMYbRMAcdgN6bX2sUIgvvk2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Grant Grundler <grundler@chromium.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 07/53] sr9700: sanity check for packet length
+        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 5.10 24/80] bpf: Do not try bpf_msg_push_data with len 0
 Date:   Mon, 28 Feb 2022 18:24:05 +0100
-Message-Id: <20220228172248.850170902@linuxfoundation.org>
+Message-Id: <20220228172314.510618848@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Felix Maurer <fmaurer@redhat.com>
 
-commit e9da0b56fe27206b49f39805f7dcda8a89379062 upstream.
+commit 4a11678f683814df82fca9018d964771e02d7e6d upstream.
 
-A malicious device can leak heap data to user space
-providing bogus frame lengths. Introduce a sanity check.
+If bpf_msg_push_data() is called with len 0 (as it happens during
+selftests/bpf/test_sockmap), we do not need to do anything and can
+return early.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Calling bpf_msg_push_data() with len 0 previously lead to a wrong ENOMEM
+error: we later called get_order(copy + len); if len was 0, copy + len
+was also often 0 and get_order() returned some undefined value (at the
+moment 52). alloc_pages() caught that and failed, but then bpf_msg_push_data()
+returned ENOMEM. This was wrong because we are most probably not out of
+memory and actually do not need any additional memory.
+
+Fixes: 6fff607e2f14b ("bpf: sk_msg program helper bpf_msg_push_data")
+Signed-off-by: Felix Maurer <fmaurer@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/df69012695c7094ccb1943ca02b4920db3537466.1644421921.git.fmaurer@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/sr9700.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/filter.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/usb/sr9700.c
-+++ b/drivers/net/usb/sr9700.c
-@@ -410,7 +410,7 @@ static int sr9700_rx_fixup(struct usbnet
- 		/* ignore the CRC length */
- 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2730,6 +2730,9 @@ BPF_CALL_4(bpf_msg_push_data, struct sk_
+ 	if (unlikely(flags))
+ 		return -EINVAL;
  
--		if (len > ETH_FRAME_LEN)
-+		if (len > ETH_FRAME_LEN || len > skb->len)
- 			return 0;
- 
- 		/* the last packet of current skb */
++	if (unlikely(len == 0))
++		return 0;
++
+ 	/* First find the starting scatterlist element */
+ 	i = msg->sg.start;
+ 	do {
 
 
