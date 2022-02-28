@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B19CA4C74F2
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C924F4C73F9
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238617AbiB1RtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:49:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
+        id S238314AbiB1Rjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:39:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239092AbiB1RsE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:48:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 639C8A1447;
-        Mon, 28 Feb 2022 09:38:34 -0800 (PST)
+        with ESMTP id S238491AbiB1Rhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899CF36B77;
+        Mon, 28 Feb 2022 09:32:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3BDF6153C;
-        Mon, 28 Feb 2022 17:38:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0526CC340F0;
-        Mon, 28 Feb 2022 17:38:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2651661357;
+        Mon, 28 Feb 2022 17:32:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C15C340E7;
+        Mon, 28 Feb 2022 17:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069913;
-        bh=vz++OT2NpQLcJoIMtjCiXJNuGLiWgx78RUDEY0UqYyc=;
+        s=korg; t=1646069563;
+        bh=NVZ/13wV06YZ+xr1T2jgfLSQQ++PaVN1I5onuZqPhSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dG0+xQWCCQEUEWo+wlhC+50RH6/ff3KCgqB7i6/+QcZ/ak/QpaxZnfWu1Wf2Ex9dc
-         j2M61OeC3sBa/E7i6fdEauLHJCJ9rLGj/CpgaJywC2LBDIwigqehs2JHsscsQiAjUb
-         1SQBPE6Q1HtscKtSaJJSa9HdmGMCP4nwasC8A8IE=
+        b=t/sI5IH1FZeexemT6JOHm2JL3RGvK2TRsPn9XCtzAMx/xF85rz5ydMdxtbwVsdfPk
+         EaBbmGk2EzINjSKgSEGNi14WWqdzBpVkiji30PLgVCdYE7BTxCdEuH6ZtdifwvofOK
+         cnwns0pbxIKAj3pJNZTzsV003nTcyJnF6fOowvu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Grant Grundler <grundler@chromium.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 058/139] tipc: Fix end of loop tests for list_for_each_entry()
-Date:   Mon, 28 Feb 2022 18:23:52 +0100
-Message-Id: <20220228172353.805227174@linuxfoundation.org>
+Subject: [PATCH 5.10 12/80] sr9700: sanity check for packet length
+Date:   Mon, 28 Feb 2022 18:23:53 +0100
+Message-Id: <20220228172313.117161674@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit a1f8fec4dac8bc7b172b2bdbd881e015261a6322 upstream.
+commit e9da0b56fe27206b49f39805f7dcda8a89379062 upstream.
 
-These tests are supposed to check if the loop exited via a break or not.
-However the tests are wrong because if we did not exit via a break then
-"p" is not a valid pointer.  In that case, it's the equivalent of
-"if (*(u32 *)sr == *last_key) {".  That's going to work most of the time,
-but there is a potential for those to be equal.
+A malicious device can leak heap data to user space
+providing bogus frame lengths. Introduce a sanity check.
 
-Fixes: 1593123a6a49 ("tipc: add name table dump to new netlink api")
-Fixes: 1a1a143daf84 ("tipc: add publication dump to new netlink api")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/name_table.c |    2 +-
- net/tipc/socket.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/sr9700.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/tipc/name_table.c
-+++ b/net/tipc/name_table.c
-@@ -967,7 +967,7 @@ static int __tipc_nl_add_nametable_publ(
- 		list_for_each_entry(p, &sr->all_publ, all_publ)
- 			if (p->key == *last_key)
- 				break;
--		if (p->key != *last_key)
-+		if (list_entry_is_head(p, &sr->all_publ, all_publ))
- 			return -EPIPE;
- 	} else {
- 		p = list_first_entry(&sr->all_publ,
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -3749,7 +3749,7 @@ static int __tipc_nl_list_sk_publ(struct
- 			if (p->key == *last_publ)
- 				break;
- 		}
--		if (p->key != *last_publ) {
-+		if (list_entry_is_head(p, &tsk->publications, binding_sock)) {
- 			/* We never set seq or call nl_dump_check_consistent()
- 			 * this means that setting prev_seq here will cause the
- 			 * consistence check to fail in the netlink callback
+--- a/drivers/net/usb/sr9700.c
++++ b/drivers/net/usb/sr9700.c
+@@ -410,7 +410,7 @@ static int sr9700_rx_fixup(struct usbnet
+ 		/* ignore the CRC length */
+ 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
+ 
+-		if (len > ETH_FRAME_LEN)
++		if (len > ETH_FRAME_LEN || len > skb->len)
+ 			return 0;
+ 
+ 		/* the last packet of current skb */
 
 
