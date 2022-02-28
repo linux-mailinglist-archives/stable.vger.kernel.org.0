@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25CD74C76FF
+	by mail.lfdr.de (Postfix) with ESMTP id 705534C7700
 	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235773AbiB1SK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:10:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60076 "EHLO
+        id S235800AbiB1SK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:10:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240768AbiB1SJL (ORCPT
+        with ESMTP id S240787AbiB1SJL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EDCD5F257;
-        Mon, 28 Feb 2022 09:49:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B8BA5E779;
+        Mon, 28 Feb 2022 09:49:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 682EC6091F;
-        Mon, 28 Feb 2022 17:49:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867DBC340E7;
-        Mon, 28 Feb 2022 17:49:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38E1560748;
+        Mon, 28 Feb 2022 17:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF74C340E7;
+        Mon, 28 Feb 2022 17:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070543;
-        bh=5KaqpvvluzjEctSnCemTvMxDjNe7IYUy995fPKndeGE=;
+        s=korg; t=1646070546;
+        bh=6tDy2ua6iB4fOAElIvkDCYv79PsnJOR5zcUKUqVEqz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/uv84mWjaoI9/FRiW4Pw4Ufotzy/1578GgOnyz5vCfFH++RiJdjYjhrxxuNG/WDI
-         fckO0ezkxDqk1fEhPM0N1dyf1lJx2EdmzXzjUY/0+YgWW84CW0Ma3u12bKJ0gyledq
-         mOHthER7wYHlbOKuDTyZMgwLSGQJ8E39TsSVbHQw=
+        b=COH+jKbXL7ncIoKdVUVkkqbfz8jTcG6mvDoCUH19tT9zTt1lWXbzHvSOBVN3Z6J7V
+         2cyQMh/l3UZZceSMzSnpt8zYNQe9qD2W31of5eyxDyoNyBAoxWvkTEo4deQpTAl/U5
+         eknoJSREcwXaYdrtxSvBNc4anJ9TupBrQg6h0D4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 107/164] bnxt_en: Increase firmware message response DMA wait time
-Date:   Mon, 28 Feb 2022 18:24:29 +0100
-Message-Id: <20220228172409.528909226@linuxfoundation.org>
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Laibin Qiu <qiulaibin@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 108/164] configfs: fix a race in configfs_{,un}register_subsystem()
+Date:   Mon, 28 Feb 2022 18:24:30 +0100
+Message-Id: <20220228172409.627517504@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -56,78 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-[ Upstream commit b891106da52b2c12dbaf73400f6d225b06a38d80 ]
+[ Upstream commit 84ec758fb2daa236026506868c8796b0500c047d ]
 
-When polling for the firmware message response, we first poll for the
-response message header.  Once the valid length is detected in the
-header, we poll for the valid bit at the end of the message which
-signals DMA completion.  Normally, this poll time for DMA completion
-is extremely short (0 to a few usec).  But on some devices under some
-rare conditions, it can be up to about 20 msec.
+When configfs_register_subsystem() or configfs_unregister_subsystem()
+is executing link_group() or unlink_group(),
+it is possible that two processes add or delete list concurrently.
+Some unfortunate interleavings of them can cause kernel panic.
 
-Increase this delay to 50 msec and use udelay() for the first 10 usec
-for the common case, and usleep_range() beyond that.
+One of cases is:
+A --> B --> C --> D
+A <-- B <-- C <-- D
 
-Also, change the error message to include the above delay time when
-printing the timeout value.
+     delete list_head *B        |      delete list_head *C
+--------------------------------|-----------------------------------
+configfs_unregister_subsystem   |   configfs_unregister_subsystem
+  unlink_group                  |     unlink_group
+    unlink_obj                  |       unlink_obj
+      list_del_init             |         list_del_init
+        __list_del_entry        |           __list_del_entry
+          __list_del            |             __list_del
+            // next == C        |
+            next->prev = prev   |
+                                |               next->prev = prev
+            prev->next = next   |
+                                |                 // prev == B
+                                |                 prev->next = next
 
-Fixes: 3c8c20db769c ("bnxt_en: move HWRM API implementation into separate file")
-Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by adding mutex when calling link_group() or unlink_group(),
+but parent configfs_subsystem is NULL when config_item is root.
+So I create a mutex configfs_subsystem_mutex.
+
+Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c | 12 +++++++++---
- drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h |  2 +-
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ fs/configfs/dir.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
-index 8171f4912fa01..3a0eeb3737767 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
-@@ -595,18 +595,24 @@ static int __hwrm_send(struct bnxt *bp, struct bnxt_hwrm_ctx *ctx)
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index d3cd2a94d1e8c..d1f9d26322027 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -34,6 +34,14 @@
+  */
+ DEFINE_SPINLOCK(configfs_dirent_lock);
  
- 		/* Last byte of resp contains valid bit */
- 		valid = ((u8 *)ctx->resp) + len - 1;
--		for (j = 0; j < HWRM_VALID_BIT_DELAY_USEC; j++) {
-+		for (j = 0; j < HWRM_VALID_BIT_DELAY_USEC; ) {
- 			/* make sure we read from updated DMA memory */
- 			dma_rmb();
- 			if (*valid)
- 				break;
--			usleep_range(1, 5);
-+			if (j < 10) {
-+				udelay(1);
-+				j++;
-+			} else {
-+				usleep_range(20, 30);
-+				j += 20;
-+			}
- 		}
++/*
++ * All of link_obj/unlink_obj/link_group/unlink_group require that
++ * subsys->su_mutex is held.
++ * But parent configfs_subsystem is NULL when config_item is root.
++ * Use this mutex when config_item is root.
++ */
++static DEFINE_MUTEX(configfs_subsystem_mutex);
++
+ static void configfs_d_iput(struct dentry * dentry,
+ 			    struct inode * inode)
+ {
+@@ -1859,7 +1867,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
+ 		group->cg_item.ci_name = group->cg_item.ci_namebuf;
  
- 		if (j >= HWRM_VALID_BIT_DELAY_USEC) {
- 			if (!(ctx->flags & BNXT_HWRM_CTX_SILENT))
- 				netdev_err(bp->dev, "Error (timeout: %u) msg {0x%x 0x%x} len:%d v:%d\n",
--					   hwrm_total_timeout(i),
-+					   hwrm_total_timeout(i) + j,
- 					   le16_to_cpu(ctx->req->req_type),
- 					   le16_to_cpu(ctx->req->seq_id), len,
- 					   *valid);
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
-index 9a9fc4e8041b6..380ef69afb51b 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
-@@ -94,7 +94,7 @@ static inline unsigned int hwrm_total_timeout(unsigned int n)
+ 	sd = root->d_fsdata;
++	mutex_lock(&configfs_subsystem_mutex);
+ 	link_group(to_config_group(sd->s_element), group);
++	mutex_unlock(&configfs_subsystem_mutex);
+ 
+ 	inode_lock_nested(d_inode(root), I_MUTEX_PARENT);
+ 
+@@ -1884,7 +1894,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
+ 	inode_unlock(d_inode(root));
+ 
+ 	if (err) {
++		mutex_lock(&configfs_subsystem_mutex);
+ 		unlink_group(group);
++		mutex_unlock(&configfs_subsystem_mutex);
+ 		configfs_release_fs();
+ 	}
+ 	put_fragment(frag);
+@@ -1931,7 +1943,9 @@ void configfs_unregister_subsystem(struct configfs_subsystem *subsys)
+ 
+ 	dput(dentry);
+ 
++	mutex_lock(&configfs_subsystem_mutex);
+ 	unlink_group(group);
++	mutex_unlock(&configfs_subsystem_mutex);
+ 	configfs_release_fs();
  }
  
- 
--#define HWRM_VALID_BIT_DELAY_USEC	150
-+#define HWRM_VALID_BIT_DELAY_USEC	50000
- 
- static inline bool bnxt_cfa_hwrm_message(u16 req_type)
- {
 -- 
 2.34.1
 
