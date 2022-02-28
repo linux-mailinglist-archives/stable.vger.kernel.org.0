@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 524BD4C7498
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E812E4C733C
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232144AbiB1Rpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:45:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57316 "EHLO
+        id S237757AbiB1ReQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235865AbiB1RmR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:42:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59B0498F43;
-        Mon, 28 Feb 2022 09:34:46 -0800 (PST)
+        with ESMTP id S238143AbiB1Rcy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:32:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB1F8CDAA;
+        Mon, 28 Feb 2022 09:29:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5C06614D8;
-        Mon, 28 Feb 2022 17:34:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 097ACC340F0;
-        Mon, 28 Feb 2022 17:34:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E9DC61470;
+        Mon, 28 Feb 2022 17:29:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6298C340F3;
+        Mon, 28 Feb 2022 17:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069685;
-        bh=x8gsEUFvD/6HJ5lGf/pH1UHKiTAOjFi55OMQrV1AT0s=;
+        s=korg; t=1646069370;
+        bh=QOqcPDqMJiZwOET4fuO8rrBwT6X0IUu77NGtO1Z5LdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UD7/wdkjzye8m3VMlB9y9SY8P7TvcBG7Np5AKQfUvnRxjafVAvA4GwBaRSEFOVtM2
-         RQOfYSgRYm3RxhHFtC3QjuhHio3Yf8VlzzrI2GzHaXZHfz7UonX900vkwx5JVnZS1v
-         3LJbNGJsjDadHG+9SITl0xkicBFdHc/UbqlHTfqI=
+        b=ovu4Q3z4el2eFp4SknDKdU640rmc/F4CSSuRwq2SPXOijTVRMKo5JZduFm80NUrW2
+         bFN2pPnhGuvuH0jFRiXBRhPDF0tnCSLmm+hsZuv97Ve1pZd06L2wW4nD7oKEGidkgF
+         nbyE9XygGBkEYjAe229lN+LvbY6rvv8ytSu7wTrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cosmin Tanislav <cosmin.tanislav@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 54/80] iio: adc: ad7124: fix mask used for setting AIN_BUFP & AIN_BUFM bits
-Date:   Mon, 28 Feb 2022 18:24:35 +0100
-Message-Id: <20220228172318.205347914@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.19 30/34] usb: dwc3: pci: Fix Bay Trail phy GPIO mappings
+Date:   Mon, 28 Feb 2022 18:24:36 +0100
+Message-Id: <20220228172210.911001035@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cosmin Tanislav <demonsingur@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 0e33d15f1dce9e3a80a970ea7f0b27837168aeca upstream.
+commit 62e3f0afe246720f7646eb1b034a6897dac34405 upstream.
 
-According to page 90 of the datasheet [1], AIN_BUFP is bit 6 and
-AIN_BUFM is bit 5 of the CONFIG_0 -> CONFIG_7 registers.
+When the Bay Trail phy GPIO mappings where added cs and reset were swapped,
+this did not cause any issues sofar, because sofar they were always driven
+high/low at the same time.
 
-Fix the mask used for setting these bits.
+Note the new mapping has been verified both in /sys/kernel/debug/gpio
+output on Android factory images on multiple devices, as well as in
+the schematics for some devices.
 
-[1]: https://www.analog.com/media/en/technical-documentation/data-sheets/ad7124-8.pdf
-
-Fixes: 0eaecea6e487 ("iio: adc: ad7124: Add buffered input support")
-Signed-off-by: Cosmin Tanislav <cosmin.tanislav@analog.com>
-Link: https://lore.kernel.org/r/20220112200036.694490-1-cosmin.tanislav@analog.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 5741022cbdf3 ("usb: dwc3: pci: Add GPIO lookup table on platforms without ACPI GPIO resources")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220213130524.18748-3-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7124.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/dwc3-pci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/adc/ad7124.c
-+++ b/drivers/iio/adc/ad7124.c
-@@ -74,7 +74,7 @@
- #define AD7124_CONFIG_REF_SEL(x)	FIELD_PREP(AD7124_CONFIG_REF_SEL_MSK, x)
- #define AD7124_CONFIG_PGA_MSK		GENMASK(2, 0)
- #define AD7124_CONFIG_PGA(x)		FIELD_PREP(AD7124_CONFIG_PGA_MSK, x)
--#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(7, 6)
-+#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(6, 5)
- #define AD7124_CONFIG_IN_BUFF(x)	FIELD_PREP(AD7124_CONFIG_IN_BUFF_MSK, x)
- 
- /* AD7124_FILTER_X */
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -76,8 +76,8 @@ static const struct acpi_gpio_mapping ac
+ static struct gpiod_lookup_table platform_bytcr_gpios = {
+ 	.dev_id		= "0000:00:16.0",
+ 	.table		= {
+-		GPIO_LOOKUP("INT33FC:00", 54, "reset", GPIO_ACTIVE_HIGH),
+-		GPIO_LOOKUP("INT33FC:02", 14, "cs", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("INT33FC:00", 54, "cs", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("INT33FC:02", 14, "reset", GPIO_ACTIVE_HIGH),
+ 		{}
+ 	},
+ };
 
 
