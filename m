@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8507D4C6C19
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 13:22:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DF34C6C41
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 13:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233969AbiB1MW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 07:22:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43322 "EHLO
+        id S236350AbiB1MYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 07:24:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236243AbiB1MWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 07:22:55 -0500
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3279E70861
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 04:22:17 -0800 (PST)
-Received: from [192.168.1.214] (dynamic-089-014-115-047.89.14.pool.telefonica.de [89.14.115.47])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 77F8D20B7188
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 04:22:16 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 77F8D20B7188
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1646050936;
-        bh=F2pA+MGBxLbhTll3QXUVgCB7sHXU0aNGiUcp1TC7KAM=;
-        h=From:Subject:To:Date:From;
-        b=EONyYDK8EHZfKh1xnzRE2Tgf0Thn9NTmI6NJCN5FE5DZBtT/iPvTBDfdGMBgx11ao
-         l3zsYLwQf3urB15R6cxc+t/yjYxfUo+RoaXI+l80Ynde56GS7kbGQdxu1CKtIKgKv9
-         Tn27N0XQLE1XOVkEeRizKI/n2xabuskaKwwXUqxY=
-From:   =?UTF-8?B?S2FpIEzDvGtl?= <kailueke@linux.microsoft.com>
-Subject: xfrm regression in 5.10.94
-To:     stable@vger.kernel.org
-Message-ID: <e2e9e487-1efb-783f-ca5b-7d0c88f8de7b@linux.microsoft.com>
-Date:   Mon, 28 Feb 2022 13:22:09 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        with ESMTP id S236315AbiB1MXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 07:23:46 -0500
+Received: from out2.migadu.com (out2.migadu.com [IPv6:2001:41d0:2:aacc::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E10470336;
+        Mon, 28 Feb 2022 04:23:06 -0800 (PST)
+Date:   Mon, 28 Feb 2022 13:23:02 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1646050984;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=a/Gjv/OGZldokMkNnypLm+ugx/pyxGjoMpJLTQ9iw6A=;
+        b=MQcsEhVZsLP/sJSz3T/JzOXlqqQyKENsAVUsisZbwcnTaOQFwh6lybBhbnAWdtiWor19mv
+        DrtcF62iWDP5chPiqZoV3KQ6thA+dPOfGUcwEcnNZsI70IQLM/9rneH0HT5zDTWZoWS+v7
+        0r+tHJAKMTBtm4w44Cp4S3vBPiZ60kE=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Richard Leitner <richard.leitner@linux.dev>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Tommaso Merciai <tomm.merciai@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        richard.leitner@skidata.com, linux-usb@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.10 04/23] usb: usb251xb: add boost-up property
+ support
+Message-ID: <Yhy+pvprwSx4zdCG@ltleri2>
+References: <20220215152957.581303-1-sashal@kernel.org>
+ <20220215152957.581303-4-sashal@kernel.org>
+ <20220220101256.GC7321@amd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,
-        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220220101256.GC7321@amd>
+X-Migadu-Flow: FLOW_OUT
+X-Migadu-Auth-User: linux.dev
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,21 +57,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi,
 
-in 5.10.94 these two xfrm changes cause userspace programs like Cilium to
-suddenly fail (https://github.com/cilium/cilium/pull/18789):
-- xfrm: interface with if_id 0 should return error
-  8dce43919566f06e865f7e8949f5c10d8c2493f5
-- xfrm: state and policy should fail if XFRMA_IF_ID 0
-  68ac0f3810e76a853b5f7b90601a05c3048b8b54
+On Sun, Feb 20, 2022 at 11:12:57AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Tommaso Merciai <tomm.merciai@gmail.com>
+> > 
+> > [ Upstream commit 5c2b9c61ae5d8ad0a196d33b66ce44543be22281 ]
+> > 
+> > Add support for boost-up register of usb251xb hub.
+> > boost-up property control USB electrical drive strength
+> > This register can be set:
+> > 
+> >  - Normal mode -> 0x00
+> >  - Low         -> 0x01
+> >  - Medium      -> 0x10
+> >  - High        -> 0x11
+> > 
+> > (Normal Default)
+> > 
+> > References:
+> >  - http://www.mouser.com/catalog/specsheets/2514.pdf p29
+> 
+> Should the boost-up property be documented somewhere in the kernel
+> tree? We normally do that for device tree properties. And we normally
+> have properties used somewhere in the device tree. What is going on here?
 
-I see that these changes are a reaction to
-- xfrm: fix disable_xfrm sysctl when used on xfrm interfaces
-  9f8550e4bd9d
-but even if the "wrong" usage caused weird behavior I still wonder if it
-was the right decision to do the changes as part of a bugfix update for an
-LTS kernel.
-What do you think about reverting the changes at least for 5.10?
+AFAIK this patch was dropped for all stable releases, so this specific
+AUTOSEL message/thread is obsolete.
 
-Regards,
-Kai
+Nonetheless the DT documentation is also missing on master. Therefore
+I guess it should be provided asap 😉
 
+Tommaso, can you provide a patch?
+
+regards;rl
+
+> 
+> Best regards,
+> 							Pavel
