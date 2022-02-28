@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCAE64C75DC
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BCD14C74C0
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236199AbiB1R4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:56:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
+        id S238569AbiB1Rqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:46:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239204AbiB1Ryr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49BC05FC6;
-        Mon, 28 Feb 2022 09:44:33 -0800 (PST)
+        with ESMTP id S240032AbiB1RpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:45:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E04F73205B;
+        Mon, 28 Feb 2022 09:37:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B62E7CE17E9;
-        Mon, 28 Feb 2022 17:44:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFD9CC340FB;
-        Mon, 28 Feb 2022 17:44:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 808B8B815BA;
+        Mon, 28 Feb 2022 17:37:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AADC8C340E7;
+        Mon, 28 Feb 2022 17:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070270;
-        bh=fztsZQE20ylFt2BY88p8IK/HVJS33e0NcUsKZ+xpejw=;
+        s=korg; t=1646069856;
+        bh=P9+8LyoE7wfKYtVa8BQKxcGYP08SrbQhU1GkxwKfPiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XJbY5cipYMu4pmS/BEY6DIBNd3kVBw4QkIC7OXJ9DBy4+w4WBdJqQwA7xmRRQ8pjm
-         VJlcvONljiJFTg8CFDTxqxhCwJx5KF3jWCb9JOSQ+HQ2dVbWKNpvju5zOT2CSVSCQn
-         u64zd7EiTISr7ieJK6QcTDkdsOsjI1xFVPvO8pFE=
+        b=ouqpCh6Ax4pSSRx1sdaeBbj1DzDBTQEw1XQgrEMD1ykP20g68CeC+hrVYRO0T+o+u
+         bKJ7cJ71FT7oh3sdORXxRpsBOi44tjBrQ4cmGHOzWIispPwKOpR3AUZkjaCo8FlydM
+         5CCF2rSN8Rj5hlwwgxujj42o2qcs83jEw3ETKFzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 047/164] bnxt_en: Fix incorrect multicast rx mask setting when not requested
-Date:   Mon, 28 Feb 2022 18:23:29 +0100
-Message-Id: <20220228172404.502173640@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Antonov <alexander.antonov@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexei Budankov <abudankov@huawei.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 036/139] perf data: Fix double free in perf_session__delete()
+Date:   Mon, 28 Feb 2022 18:23:30 +0100
+Message-Id: <20220228172351.564181974@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +63,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
+From: Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>
 
-commit 8cdb15924252e27af16c4a8fe0fc606ce5fd04dc upstream.
+commit 69560e366fc4d5fca7bebb0e44edbfafc8bcaf05 upstream.
 
-We should setup multicast only when net_device flags explicitly
-has IFF_MULTICAST set. Otherwise we will incorrectly turn it on
-even when not asked.  Fix it by only passing the multicast table
-to the firmware if IFF_MULTICAST is set.
+When perf_data__create_dir() fails, it calls close_dir(), but
+perf_session__delete() also calls close_dir() and since dir.version and
+dir.nr were initialized by perf_data__create_dir(), a double free occurs.
 
-Fixes: 7d2837dd7a32 ("bnxt_en: Setup multicast properly after resetting device.")
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch moves the initialization of dir.version and dir.nr after
+successful initialization of dir.files, that prevents double freeing.
+This behavior is already implemented in perf_data__open_dir().
+
+Fixes: 145520631130bd64 ("perf data: Add perf_data__(create_dir|close_dir) functions")
+Signed-off-by: Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Antonov <alexander.antonov@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Budankov <abudankov@huawei.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220218152341.5197-2-alexey.v.bayduraev@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ tools/perf/util/data.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -4719,8 +4719,10 @@ static int bnxt_hwrm_cfa_l2_set_rx_mask(
- 		return rc;
+--- a/tools/perf/util/data.c
++++ b/tools/perf/util/data.c
+@@ -44,10 +44,6 @@ int perf_data__create_dir(struct perf_da
+ 	if (!files)
+ 		return -ENOMEM;
  
- 	req->vnic_id = cpu_to_le32(vnic->fw_vnic_id);
--	req->num_mc_entries = cpu_to_le32(vnic->mc_list_count);
--	req->mc_tbl_addr = cpu_to_le64(vnic->mc_list_mapping);
-+	if (vnic->rx_mask & CFA_L2_SET_RX_MASK_REQ_MASK_MCAST) {
-+		req->num_mc_entries = cpu_to_le32(vnic->mc_list_count);
-+		req->mc_tbl_addr = cpu_to_le64(vnic->mc_list_mapping);
-+	}
- 	req->mask = cpu_to_le32(vnic->rx_mask);
- 	return hwrm_req_send_silent(bp, req);
- }
-@@ -8635,7 +8637,7 @@ static int bnxt_init_chip(struct bnxt *b
- 	if (bp->dev->flags & IFF_ALLMULTI) {
- 		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
--	} else {
-+	} else if (bp->dev->flags & IFF_MULTICAST) {
- 		u32 mask = 0;
+-	data->dir.version = PERF_DIR_VERSION;
+-	data->dir.files   = files;
+-	data->dir.nr      = nr;
+-
+ 	for (i = 0; i < nr; i++) {
+ 		struct perf_data_file *file = &files[i];
  
- 		bnxt_mc_list_updated(bp, &mask);
-@@ -10759,7 +10761,7 @@ static void bnxt_set_rx_mode(struct net_
- 	if (dev->flags & IFF_ALLMULTI) {
- 		mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
--	} else {
-+	} else if (dev->flags & IFF_MULTICAST) {
- 		mc_update = bnxt_mc_list_updated(bp, &mask);
+@@ -62,6 +58,9 @@ int perf_data__create_dir(struct perf_da
+ 		file->fd = ret;
  	}
  
-@@ -10827,9 +10829,10 @@ skip_uc:
- 	    !bnxt_promisc_ok(bp))
- 		vnic->rx_mask &= ~CFA_L2_SET_RX_MASK_REQ_MASK_PROMISCUOUS;
- 	rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
--	if (rc && vnic->mc_list_count) {
-+	if (rc && (vnic->rx_mask & CFA_L2_SET_RX_MASK_REQ_MASK_MCAST)) {
- 		netdev_info(bp->dev, "Failed setting MC filters rc: %d, turning on ALL_MCAST mode\n",
- 			    rc);
-+		vnic->rx_mask &= ~CFA_L2_SET_RX_MASK_REQ_MASK_MCAST;
- 		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
- 		rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
++	data->dir.version = PERF_DIR_VERSION;
++	data->dir.files   = files;
++	data->dir.nr      = nr;
+ 	return 0;
+ 
+ out_err:
 
 
