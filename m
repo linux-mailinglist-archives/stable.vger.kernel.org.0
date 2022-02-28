@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D997E4C7346
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DFC4C73EC
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237897AbiB1ReV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42270 "EHLO
+        id S231366AbiB1Rj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:39:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238746AbiB1Rdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BFF791ACE;
-        Mon, 28 Feb 2022 09:30:39 -0800 (PST)
+        with ESMTP id S238203AbiB1Ri3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C958C7D4;
+        Mon, 28 Feb 2022 09:33:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ACA061358;
-        Mon, 28 Feb 2022 17:30:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762B0C340E7;
-        Mon, 28 Feb 2022 17:30:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9439B815B4;
+        Mon, 28 Feb 2022 17:33:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093DEC340E7;
+        Mon, 28 Feb 2022 17:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069437;
-        bh=ey1A6y5rc1rRDoDJyi4At2XilDpp2JjtriUZZziNA9g=;
+        s=korg; t=1646069633;
+        bh=6dmsWtF2WF6CEy7yiT59gPr76gbVM+Z8NfW08yZAGbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMqfWipm8auMuQ4k1JNd/myqe/ec2K/5JGWTb42kEUCNOLtRTjwK8SbmZq15MRGAx
-         SnG2TkmR728CSju0EIAcRJpEX+8uULNcKrhbg7OWnwDlIE8WdryRMPaEiYizMUu1R2
-         n/eyYO8kyTkz1wxQe6EDUAl0aK4VYCmZDA51dhdE=
+        b=qTKFgpSxNPkCY9ajyp3ocfMu1ipQPPAlMIXw4jxW5UaNdkBDJ7Uj7kHovNEvPLgUR
+         UmIVQtU+MrAPvCkCLrozCB52rPBN8M5qDwaE3+DO/PeSvuesRa15ap+ijtE894xsmB
+         xrIxyg0ZpUiKj77SdBvbKBgOfFMHBSyc4ZywCKEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Siarhei Volkau <lis8215@gmail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 02/53] clk: jz4725b: fix mmc0 clock gating
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Xin Long <lucien.xin@gmail.com>
+Subject: [PATCH 5.10 19/80] ping: remove pr_err from ping_lookup
 Date:   Mon, 28 Feb 2022 18:24:00 +0100
-Message-Id: <20220228172248.425951543@linuxfoundation.org>
+Message-Id: <20220228172313.907429531@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 2f0754f27a230fee6e6d753f07585cee03bedfe3 upstream.
+commit cd33bdcbead882c2e58fdb4a54a7bd75b610a452 upstream.
 
-The mmc0 clock gate bit was mistakenly assigned to "i2s" clock.
-You can find that the same bit is assigned to "mmc0" too.
-It leads to mmc0 hang for a long time after any sound activity
-also it  prevented PM_SLEEP to work properly.
-I guess it was introduced by copy-paste from jz4740 driver
-where it is really controls I2S clock gate.
+As Jakub noticed, prints should be avoided on the datapath.
+Also, as packets would never come to the else branch in
+ping_lookup(), remove pr_err() from ping_lookup().
 
-Fixes: 226dfa4726eb ("clk: Add Ingenic jz4725b CGU driver")
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Tested-by: Siarhei Volkau <lis8215@gmail.com>
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220205171849.687805-2-lis8215@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 35a79e64de29 ("ping: fix the dif and sdif check in ping_lookup")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/1ef3f2fcd31bd681a193b1fcf235eee1603819bd.1645674068.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/ingenic/jz4725b-cgu.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/ipv4/ping.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/clk/ingenic/jz4725b-cgu.c
-+++ b/drivers/clk/ingenic/jz4725b-cgu.c
-@@ -135,11 +135,10 @@ static const struct ingenic_cgu_clk_info
- 	},
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -187,7 +187,6 @@ static struct sock *ping_lookup(struct n
+ 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
+ #endif
+ 	} else {
+-		pr_err("ping: protocol(%x) is not supported\n", ntohs(skb->protocol));
+ 		return NULL;
+ 	}
  
- 	[JZ4725B_CLK_I2S] = {
--		"i2s", CGU_CLK_MUX | CGU_CLK_DIV | CGU_CLK_GATE,
-+		"i2s", CGU_CLK_MUX | CGU_CLK_DIV,
- 		.parents = { JZ4725B_CLK_EXT, JZ4725B_CLK_PLL_HALF, -1, -1 },
- 		.mux = { CGU_REG_CPCCR, 31, 1 },
- 		.div = { CGU_REG_I2SCDR, 0, 1, 9, -1, -1, -1 },
--		.gate = { CGU_REG_CLKGR, 6 },
- 	},
- 
- 	[JZ4725B_CLK_SPI] = {
 
 
