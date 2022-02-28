@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6747B4C7283
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:26:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9604C768A
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234024AbiB1R0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:26:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43354 "EHLO
+        id S235043AbiB1SFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:05:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234066AbiB1R0g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:26:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94A488878E;
-        Mon, 28 Feb 2022 09:25:54 -0800 (PST)
+        with ESMTP id S240439AbiB1SDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7B771CB6;
+        Mon, 28 Feb 2022 09:47:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42369B815AC;
-        Mon, 28 Feb 2022 17:25:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA5EC340F0;
-        Mon, 28 Feb 2022 17:25:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89BCA60748;
+        Mon, 28 Feb 2022 17:47:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 929E5C340E7;
+        Mon, 28 Feb 2022 17:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069151;
-        bh=couz8vFTOoH03JXBjYn+wWqTeJnS7cwShdSZT0kmgTQ=;
+        s=korg; t=1646070432;
+        bh=XSLKRkij1uXAIPZeU+vR3idzKH3jAVHBKW7vVMbPZpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKUSkvLvwq9Z4cs+mmPy7rrrVGTdlEIzjmh76CET32orriJEjZ1BBoE7cQdmd8/Mf
-         CuGmp/Tjh+e3YjoPjMJ1vn8W4i47c668r1jO4Vr/FvrBeWQxTFICzOL5BU0Sth6I1d
-         ZeTFWQU1X7dbjce69Vc5taKXJUdOORKegDXt5Hpk=
+        b=Z1xg9TOl1Tl7mJyggkxEta+WOt7NX3jMyxIZbXHpCFGgH8ExN4fSEQZLy1n1ntBnV
+         BFgPvQPMv1Bey7+6s16TNwljAjJ3JagjXo0o1bX4AsnTgOAzQVo7V31r308rlOsJBX
+         FJgw8nPdHkBmVVt+KW7LpctBKs8DPhjXQpb3L6Zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Matthias Reichl <hias@horus.com>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 4.9 12/29] drm/edid: Always set RGB444
+        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 5.16 057/164] bpf: Do not try bpf_msg_push_data with len 0
 Date:   Mon, 28 Feb 2022 18:23:39 +0100
-Message-Id: <20220228172142.755023232@linuxfoundation.org>
+Message-Id: <20220228172405.333864395@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Felix Maurer <fmaurer@redhat.com>
 
-commit ecbd4912a693b862e25cba0a6990a8c95b00721e upstream.
+commit 4a11678f683814df82fca9018d964771e02d7e6d upstream.
 
-In order to fill the drm_display_info structure each time an EDID is
-read, the code currently will call drm_add_display_info with the parsed
-EDID.
+If bpf_msg_push_data() is called with len 0 (as it happens during
+selftests/bpf/test_sockmap), we do not need to do anything and can
+return early.
 
-drm_add_display_info will then call drm_reset_display_info to reset all
-the fields to 0, and then set them to the proper value depending on the
-EDID.
+Calling bpf_msg_push_data() with len 0 previously lead to a wrong ENOMEM
+error: we later called get_order(copy + len); if len was 0, copy + len
+was also often 0 and get_order() returned some undefined value (at the
+moment 52). alloc_pages() caught that and failed, but then bpf_msg_push_data()
+returned ENOMEM. This was wrong because we are most probably not out of
+memory and actually do not need any additional memory.
 
-In the color_formats case, we will thus report that we don't support any
-color format, and then fill it back with RGB444 plus the additional
-formats described in the EDID Feature Support byte.
-
-However, since that byte only contains format-related bits since the 1.4
-specification, this doesn't happen if the EDID is following an earlier
-specification. In turn, it means that for one of these EDID, we end up
-with color_formats set to 0.
-
-The EDID 1.3 specification never really specifies what it means by RGB
-exactly, but since both HDMI and DVI will use RGB444, it's fairly safe
-to assume it's supposed to be RGB444.
-
-Let's move the addition of RGB444 to color_formats earlier in
-drm_add_display_info() so that it's always set for a digital display.
-
-Fixes: da05a5a71ad8 ("drm: parse color format support for digital displays")
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reported-by: Matthias Reichl <hias@horus.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220203115416.1137308-1-maxime@cerno.tech
+Fixes: 6fff607e2f14b ("bpf: sk_msg program helper bpf_msg_push_data")
+Signed-off-by: Felix Maurer <fmaurer@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/df69012695c7094ccb1943ca02b4920db3537466.1644421921.git.fmaurer@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_edid.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/filter.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -3886,6 +3886,7 @@ static void drm_add_display_info(struct
- 	if (!(edid->input & DRM_EDID_INPUT_DIGITAL))
- 		return;
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2711,6 +2711,9 @@ BPF_CALL_4(bpf_msg_push_data, struct sk_
+ 	if (unlikely(flags))
+ 		return -EINVAL;
  
-+	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
- 	drm_parse_cea_ext(connector, edid);
- 
- 	/*
-@@ -3934,7 +3935,6 @@ static void drm_add_display_info(struct
- 	DRM_DEBUG("%s: Assigning EDID-1.4 digital sink color depth as %d bpc.\n",
- 			  connector->name, info->bpc);
- 
--	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
- 	if (edid->features & DRM_EDID_FEATURE_RGB_YCRCB444)
- 		info->color_formats |= DRM_COLOR_FORMAT_YCRCB444;
- 	if (edid->features & DRM_EDID_FEATURE_RGB_YCRCB422)
++	if (unlikely(len == 0))
++		return 0;
++
+ 	/* First find the starting scatterlist element */
+ 	i = msg->sg.start;
+ 	do {
 
 
