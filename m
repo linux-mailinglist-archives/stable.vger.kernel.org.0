@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2048A4C7689
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D354C73D6
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236491AbiB1SFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42428 "EHLO
+        id S231452AbiB1Ria (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240568AbiB1SDk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A7E2E91;
-        Mon, 28 Feb 2022 09:47:28 -0800 (PST)
+        with ESMTP id S238557AbiB1Rh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62646532D5;
+        Mon, 28 Feb 2022 09:33:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BA90DCE17C5;
-        Mon, 28 Feb 2022 17:47:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA47AC340F0;
-        Mon, 28 Feb 2022 17:47:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2AB861357;
+        Mon, 28 Feb 2022 17:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13347C340E7;
+        Mon, 28 Feb 2022 17:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070421;
-        bh=khOm+X9hpc0wLWcS9Gw7/RGcNpaafm0XrXj87EHoR2g=;
+        s=korg; t=1646069582;
+        bh=tZIKfWR+H3BlXKJ0ATaZf8/I7giSuWW2xGUyyzNSUi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KcMBLepVT1PGfaoFBWPOouL5b+9zkvbV/ZInuia/ds/xwgY+zZpRq7ZCKE9yFcBpJ
-         Q2G3rjuxgDDkX2CPCcf8GEq9vOHbHxOIDxSbIfRHRgsSqxL6zzYhGBsNgTXC7LJrf2
-         eTN2sDzevaB0t2eeYK1UqX6qUX/VPUg96778pbuE=
+        b=g7mYw/Hvvfl54+g1oM0honJewVBlwWMl0CqT5EIUSBezp8pefuHQ+/M15YgUyJhxN
+         MmbzcKQSbjualafAMOYOSqlMAiNaBfKXlRKWRTMXChTLIRgtaHhQr5BHx/R1ljy2hX
+         rR2hCjg1drI48AygvVAaB/6RifMT2YQnZSSInsuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kanchan Joshi <joshi.k@samsung.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Daniel Wagner <dwagner@suse.de>
-Subject: [PATCH 5.16 063/164] nvme: also mark passthrough-only namespaces ready in nvme_update_ns_info
+        stable@vger.kernel.org, Siarhei Volkau <lis8215@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.10 04/80] clk: jz4725b: fix mmc0 clock gating
 Date:   Mon, 28 Feb 2022 18:23:45 +0100
-Message-Id: <20220228172405.905509293@linuxfoundation.org>
+Message-Id: <20220228172312.187959801@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-commit 602e57c9799c19f27e440639deed3ec45cfe1651 upstream.
+commit 2f0754f27a230fee6e6d753f07585cee03bedfe3 upstream.
 
-Commit e7d65803e2bb ("nvme-multipath: revalidate paths during rescan")
-introduced the NVME_NS_READY flag, which nvme_path_is_disabled() uses
-to check if a path can be used or not.  We also need to set this flag
-for devices that fail the ZNS feature validation and which are available
-through passthrough devices only to that they can be used in multipathing
-setups.
+The mmc0 clock gate bit was mistakenly assigned to "i2s" clock.
+You can find that the same bit is assigned to "mmc0" too.
+It leads to mmc0 hang for a long time after any sound activity
+also it  prevented PM_SLEEP to work properly.
+I guess it was introduced by copy-paste from jz4740 driver
+where it is really controls I2S clock gate.
 
-Fixes: e7d65803e2bb ("nvme-multipath: revalidate paths during rescan")
-Reported-by: Kanchan Joshi <joshi.k@samsung.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Tested-by: Kanchan Joshi <joshi.k@samsung.com>
+Fixes: 226dfa4726eb ("clk: Add Ingenic jz4725b CGU driver")
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Tested-by: Siarhei Volkau <lis8215@gmail.com>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220205171849.687805-2-lis8215@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/core.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/ingenic/jz4725b-cgu.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1936,7 +1936,7 @@ static int nvme_update_ns_info(struct nv
- 	if (blk_queue_is_zoned(ns->queue)) {
- 		ret = nvme_revalidate_zones(ns);
- 		if (ret && !nvme_first_scan(ns->disk))
--			goto out;
-+			return ret;
- 	}
+--- a/drivers/clk/ingenic/jz4725b-cgu.c
++++ b/drivers/clk/ingenic/jz4725b-cgu.c
+@@ -139,11 +139,10 @@ static const struct ingenic_cgu_clk_info
+ 	},
  
- 	if (nvme_ns_head_multipath(ns->head)) {
-@@ -1951,16 +1951,16 @@ static int nvme_update_ns_info(struct nv
- 	return 0;
+ 	[JZ4725B_CLK_I2S] = {
+-		"i2s", CGU_CLK_MUX | CGU_CLK_DIV | CGU_CLK_GATE,
++		"i2s", CGU_CLK_MUX | CGU_CLK_DIV,
+ 		.parents = { JZ4725B_CLK_EXT, JZ4725B_CLK_PLL_HALF, -1, -1 },
+ 		.mux = { CGU_REG_CPCCR, 31, 1 },
+ 		.div = { CGU_REG_I2SCDR, 0, 1, 9, -1, -1, -1 },
+-		.gate = { CGU_REG_CLKGR, 6 },
+ 	},
  
- out_unfreeze:
--	blk_mq_unfreeze_queue(ns->disk->queue);
--out:
- 	/*
- 	 * If probing fails due an unsupported feature, hide the block device,
- 	 * but still allow other access.
- 	 */
- 	if (ret == -ENODEV) {
- 		ns->disk->flags |= GENHD_FL_HIDDEN;
-+		set_bit(NVME_NS_READY, &ns->flags);
- 		ret = 0;
- 	}
-+	blk_mq_unfreeze_queue(ns->disk->queue);
- 	return ret;
- }
- 
+ 	[JZ4725B_CLK_SPI] = {
 
 
