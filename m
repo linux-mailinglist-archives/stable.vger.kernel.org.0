@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8DF44C72FA
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D774C750E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235413AbiB1Rau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:30:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45404 "EHLO
+        id S238770AbiB1Ruk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:50:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236828AbiB1RaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:30:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8881277A;
-        Mon, 28 Feb 2022 09:28:19 -0800 (PST)
+        with ESMTP id S238939AbiB1Rtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:49:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9C40A27A4;
+        Mon, 28 Feb 2022 09:39:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5D34B815B1;
-        Mon, 28 Feb 2022 17:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2448FC340E7;
-        Mon, 28 Feb 2022 17:28:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E3FE6153C;
+        Mon, 28 Feb 2022 17:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C58C340E7;
+        Mon, 28 Feb 2022 17:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069296;
-        bh=NVZ/13wV06YZ+xr1T2jgfLSQQ++PaVN1I5onuZqPhSI=;
+        s=korg; t=1646069940;
+        bh=lVHnA//5woBoMJ5L8fgPW5iSU8JhzmkqiRQTv0NQwlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHpC5RuSAS9ACzGhJ7a7po6JVzYGM5Bhw6yvlgFhEmsxKhHIjo6x2IXvydJtq55xw
-         23JLdomHb/BjRKmU+B4RRl/V/X77SCJGIcJMFQGHbha8c4QNKTUn3/MHg9dQ0JfrNm
-         fgGLhO/M07gXI6IE1dUfepiOpg0i0xS2pK7JxQfI=
+        b=IlPGv5T9ZmRJO3U2yX1LWgyX6ePHtUPO/mqfkVcCgenRHqbapXhV8U+qtIaDLznhk
+         I3sjUUazJ1jr9ePMcfPNPTVaZK3w48msR2iP7+dcIFjm0BckO7oKESprV+4zXk+pRV
+         TT1FTpMz5U5qJn+akqRwYVPYbR74vo1ZbNn7HyRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Grant Grundler <grundler@chromium.org>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 05/31] sr9700: sanity check for packet length
+Subject: [PATCH 5.15 067/139] net: ll_temac: check the return value of devm_kmalloc()
 Date:   Mon, 28 Feb 2022 18:24:01 +0100
-Message-Id: <20220228172200.336099744@linuxfoundation.org>
+Message-Id: <20220228172354.744362737@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
-References: <20220228172159.515152296@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-commit e9da0b56fe27206b49f39805f7dcda8a89379062 upstream.
+commit b352c3465bb808ab700d03f5bac2f7a6f37c5350 upstream.
 
-A malicious device can leak heap data to user space
-providing bogus frame lengths. Introduce a sanity check.
+devm_kmalloc() returns a pointer to allocated memory on success, NULL
+on failure. While lp->indirect_lock is allocated by devm_kmalloc()
+without proper check. It is better to check the value of it to
+prevent potential wrong memory access.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
+Fixes: f14f5c11f051 ("net: ll_temac: Support indirect_mutex share within TEMAC IP")
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/sr9700.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/usb/sr9700.c
-+++ b/drivers/net/usb/sr9700.c
-@@ -410,7 +410,7 @@ static int sr9700_rx_fixup(struct usbnet
- 		/* ignore the CRC length */
- 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -1427,6 +1427,8 @@ static int temac_probe(struct platform_d
+ 		lp->indirect_lock = devm_kmalloc(&pdev->dev,
+ 						 sizeof(*lp->indirect_lock),
+ 						 GFP_KERNEL);
++		if (!lp->indirect_lock)
++			return -ENOMEM;
+ 		spin_lock_init(lp->indirect_lock);
+ 	}
  
--		if (len > ETH_FRAME_LEN)
-+		if (len > ETH_FRAME_LEN || len > skb->len)
- 			return 0;
- 
- 		/* the last packet of current skb */
 
 
