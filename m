@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4A564C72AE
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A71924C73CF
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbiB1R2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:28:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45166 "EHLO
+        id S235546AbiB1RiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234633AbiB1R1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21C21888F1;
-        Mon, 28 Feb 2022 09:26:45 -0800 (PST)
+        with ESMTP id S238454AbiB1Rhx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED942DD53;
+        Mon, 28 Feb 2022 09:32:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0A3461366;
-        Mon, 28 Feb 2022 17:26:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C60B1C340E7;
-        Mon, 28 Feb 2022 17:26:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C042961365;
+        Mon, 28 Feb 2022 17:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C97C340E7;
+        Mon, 28 Feb 2022 17:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069204;
-        bh=OmiwR0cP9/UDpGSq71on02f3Ni28EWSDD1wgMRG9K/M=;
+        s=korg; t=1646069558;
+        bh=BrSgRq3SdVWbYi1p7gAqEbYKLkAs4kDps2u2XRj4XnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cuived22+1m08CaZkVtGWc8sAXH/xHzVHzcgcR6UcCvu8kruBOWx6r5ZLWnpvys6o
-         c1nfYMtxEZiL8/diVeBMxQno/bd/GnviCrxwBC27BdCkI1QuNpRRY+QjzMN25mIC80
-         Cw/5qlUJ16/sgAXifWwLUDc56DJEVdAbw0GLBrAA=
+        b=QZ19c7kxxJMHC1ZYELX1tR343hCnG5fdR0Rtj/V0JYYp2AUKNIumFYBMlJd/dcBrN
+         aEN7dM0lNh6BpqXUIEOiFWd++ftPkGnBzn0udlA4OWoNDsc78b4+WxxVc807YA3EF2
+         uUjOr1uzt+HBxwA/lFvVrqLd3ivSLTHlLifxn+Ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 23/29] USB: serial: option: add Telit LE910R1 compositions
-Date:   Mon, 28 Feb 2022 18:23:50 +0100
-Message-Id: <20220228172144.125876469@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Qiang Yu <qiang.yu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 10/80] drm/amdgpu: check vm ready by amdgpu_vm->evicting flag
+Date:   Mon, 28 Feb 2022 18:23:51 +0100
+Message-Id: <20220228172312.712322810@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Qiang Yu <qiang.yu@amd.com>
 
-commit cfc4442c642d568014474b6718ccf65dc7ca6099 upstream.
+commit c1a66c3bc425ff93774fb2f6eefa67b83170dd7e upstream.
 
-Add support for the following Telit LE910R1 compositions:
+Workstation application ANSA/META v21.1.4 get this error dmesg when
+running CI test suite provided by ANSA/META:
+[drm:amdgpu_gem_va_ioctl [amdgpu]] *ERROR* Couldn't update BO_VA (-16)
 
-0x701a: rndis, tty, tty, tty
-0x701b: ecm, tty, tty, tty
-0x9201: tty
+This is caused by:
+1. create a 256MB buffer in invisible VRAM
+2. CPU map the buffer and access it causes vm_fault and try to move
+   it to visible VRAM
+3. force visible VRAM space and traverse all VRAM bos to check if
+   evicting this bo is valuable
+4. when checking a VM bo (in invisible VRAM), amdgpu_vm_evictable()
+   will set amdgpu_vm->evicting, but latter due to not in visible
+   VRAM, won't really evict it so not add it to amdgpu_vm->evicted
+5. before next CS to clear the amdgpu_vm->evicting, user VM ops
+   ioctl will pass amdgpu_vm_ready() (check amdgpu_vm->evicted)
+   but fail in amdgpu_vm_bo_update_mapping() (check
+   amdgpu_vm->evicting) and get this error log
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20220218134552.4051-1-dnlplm@gmail.com
+This error won't affect functionality as next CS will finish the
+waiting VM ops. But we'd better clear the error log by checking
+the amdgpu_vm->evicting flag in amdgpu_vm_ready() to stop calling
+amdgpu_vm_bo_update_mapping() later.
+
+Another reason is amdgpu_vm->evicted list holds all BOs (both
+user buffer and page table), but only page table BOs' eviction
+prevent VM ops. amdgpu_vm->evicting flag is set only for page
+table BOs, so we should use evicting flag instead of evicted list
+in amdgpu_vm_ready().
+
+The side effect of this change is: previously blocked VM op (user
+buffer in "evicted" list but no page table in it) gets done
+immediately.
+
+v2: update commit comments.
+
+Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Qiang Yu <qiang.yu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1255,10 +1255,16 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x7011, 0xff),	/* Telit LE910-S1 (ECM) */
- 	  .driver_info = NCTRL(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x701a, 0xff),	/* Telit LE910R1 (RNDIS) */
-+	  .driver_info = NCTRL(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x701b, 0xff),	/* Telit LE910R1 (ECM) */
-+	  .driver_info = NCTRL(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
- 	  .driver_info = NCTRL(0) | ZLP },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9200),				/* Telit LE910S1 flashing device */
- 	  .driver_info = NCTRL(0) | ZLP },
-+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9201),				/* Telit LE910R1 flashing device */
-+	  .driver_info = NCTRL(0) | ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) },
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -715,11 +715,16 @@ int amdgpu_vm_validate_pt_bos(struct amd
+  * Check if all VM PDs/PTs are ready for updates
+  *
+  * Returns:
+- * True if eviction list is empty.
++ * True if VM is not evicting.
+  */
+ bool amdgpu_vm_ready(struct amdgpu_vm *vm)
+ {
+-	return list_empty(&vm->evicted);
++	bool ret;
++
++	amdgpu_vm_eviction_lock(vm);
++	ret = !vm->evicting;
++	amdgpu_vm_eviction_unlock(vm);
++	return ret;
+ }
+ 
+ /**
 
 
