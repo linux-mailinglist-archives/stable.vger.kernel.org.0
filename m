@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B05404C7375
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14764C7669
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238205AbiB1Rfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:35:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38020 "EHLO
+        id S235173AbiB1SEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:04:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238203AbiB1RfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:35:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D4C488793;
-        Mon, 28 Feb 2022 09:31:17 -0800 (PST)
+        with ESMTP id S240018AbiB1SC5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:02:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F409C9D0D9;
+        Mon, 28 Feb 2022 09:46:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF84DB815B4;
-        Mon, 28 Feb 2022 17:31:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 567FAC340F0;
-        Mon, 28 Feb 2022 17:31:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF5C9B815A2;
+        Mon, 28 Feb 2022 17:46:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264F8C340E7;
+        Mon, 28 Feb 2022 17:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069464;
-        bh=YZuggJDY3P6J7A+3vXvf6+XrhLmtPaUAkcNgWg3zZdI=;
+        s=korg; t=1646070366;
+        bh=Bpsb1rp0neLYVsyJi0rU++lKp9fmwiwEbLY+ew+FR2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1mQhl8nLOqU1haIwBzjLloEdTqrDClpLNt9R4vr37ffKmGC8b/jhm1ib0m+wsir10
-         KLHEtVtCN2N7CeFjsvveJYH1lsxKftzsoaPSmWVnwJFoa5x5ENtGC1w/Dw7tv7y/k0
-         JQ3lvSqcI+5EjezKYMENtOqwTS2wFeMVr8Oqn8D4=
+        b=WhycuOR0WnqKYKdvmQgJzJOCb6/hZng8haLqHgk4zLTlW/9Z5B863a/CMi8iTXlFC
+         4y3xIcjDhovln/YUSYfqGCaDR5PoA/e0aRH8yqZZ54IUM2egHFylBsCuunmxwku2Cz
+         Jzy2R72LC4u7VawqbD/YfkEpRyjV64iNg28xYLDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 06/53] drm/amdgpu: disable MMHUB PG for Picasso
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 082/164] nfp: flower: Fix a potential leak in nfp_tunnel_add_shared_mac()
 Date:   Mon, 28 Feb 2022 18:24:04 +0100
-Message-Id: <20220228172248.781814311@linuxfoundation.org>
+Message-Id: <20220228172407.398113380@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,35 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit f626dd0ff05043e5a7154770cc7cda66acee33a3 upstream.
+commit 3a14d0888eb4b0045884126acc69abfb7b87814d upstream.
 
-MMHUB PG needs to be disabled for Picasso for stability reasons.
+ida_simple_get() returns an id between min (0) and max (NFP_MAX_MAC_INDEX)
+inclusive.
+So NFP_MAX_MAC_INDEX (0xff) is a valid id.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+In order for the error handling path to work correctly, the 'invalid'
+value for 'ida_idx' should not be in the 0..NFP_MAX_MAC_INDEX range,
+inclusive.
+
+So set it to -1.
+
+Fixes: 20cce8865098 ("nfp: flower: enable MAC address sharing for offloadable devs")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20220218131535.100258-1-simon.horman@corigine.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc15.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -1143,8 +1143,11 @@ static int soc15_common_early_init(void
- 				AMD_CG_SUPPORT_SDMA_MGCG |
- 				AMD_CG_SUPPORT_SDMA_LS;
+--- a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
+@@ -922,8 +922,8 @@ nfp_tunnel_add_shared_mac(struct nfp_app
+ 			  int port, bool mod)
+ {
+ 	struct nfp_flower_priv *priv = app->priv;
+-	int ida_idx = NFP_MAX_MAC_INDEX, err;
+ 	struct nfp_tun_offloaded_mac *entry;
++	int ida_idx = -1, err;
+ 	u16 nfp_mac_idx = 0;
  
-+			/*
-+			 * MMHUB PG needs to be disabled for Picasso for
-+			 * stability reasons.
-+			 */
- 			adev->pg_flags = AMD_PG_SUPPORT_SDMA |
--				AMD_PG_SUPPORT_MMHUB |
- 				AMD_PG_SUPPORT_VCN;
- 		} else {
- 			adev->cg_flags = AMD_CG_SUPPORT_GFX_MGCG |
+ 	entry = nfp_tunnel_lookup_offloaded_macs(app, netdev->dev_addr);
+@@ -997,7 +997,7 @@ err_remove_hash:
+ err_free_entry:
+ 	kfree(entry);
+ err_free_ida:
+-	if (ida_idx != NFP_MAX_MAC_INDEX)
++	if (ida_idx != -1)
+ 		ida_simple_remove(&priv->tun.mac_off_ids, ida_idx);
+ 
+ 	return err;
 
 
