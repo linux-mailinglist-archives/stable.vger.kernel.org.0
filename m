@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE87C4C7650
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4EB4C7484
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235455AbiB1SCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:02:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42432 "EHLO
+        id S238458AbiB1Rp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239453AbiB1SB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:01:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFDF9BAD5;
-        Mon, 28 Feb 2022 09:45:50 -0800 (PST)
+        with ESMTP id S238753AbiB1RnC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DCE99EE9;
+        Mon, 28 Feb 2022 09:35:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 859CFB81085;
-        Mon, 28 Feb 2022 17:45:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA73DC340E7;
-        Mon, 28 Feb 2022 17:45:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAAACB815B3;
+        Mon, 28 Feb 2022 17:35:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49771C340F0;
+        Mon, 28 Feb 2022 17:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070347;
-        bh=uW5lP9Jlu1qgQDuB/8Sam5qo0Jjx9pzRygNq0AAbrZQ=;
+        s=korg; t=1646069704;
+        bh=dBtYkSvhfP/MKC7GzCnKXVVASZczZWYeyfLous7eP6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6+2wbufnX6eyk9EwLnUUJAKfOC4jPqw/9goBY9pBMY/H1MHzEdLQF6Qz0iPAdwe5
-         roFVmMm/7RlXXTdJIA2zLs/LAH8n5bpxHesXOw1a2pC87IfwTQuVinXnDWxLs4rUt9
-         RA8jlboUMcfGeZ36WgoCwGPtxK4p+ff0gI+aumxg=
+        b=j4/DU0AH/Ouu/cYb/Lg8IhDvX2yb7qqm20Wr4/fuusL59kXAUVUXMjptmxAHsoKD/
+         3SsuBwTXHTlHNgXW72DfRhM7OgQ1WxHNKaLF82Q36BTZrpF5Z+kQvFih4S9rFgj2kS
+         9FLv+QqpF+BHtQHNQBncLpyPAp0u+mFwzhMQOTd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.16 076/164] drm/amd/display: For vblank_disable_immediate, check PSR is really used
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>
+Subject: [PATCH 5.10 17/80] tee: export teedev_open() and teedev_close_context()
 Date:   Mon, 28 Feb 2022 18:23:58 +0100
-Message-Id: <20220228172406.930512356@linuxfoundation.org>
+Message-Id: <20220228172313.674843211@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michel Dänzer <mdaenzer@redhat.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-commit 4d22336f903930eb94588b939c310743a3640276 upstream.
+commit 1e2c3ef0496e72ba9001da5fd1b7ed56ccb30597 upstream.
 
-Even if PSR is allowed for a present GPU, there might be no eDP link
-which supports PSR.
+Exports the two functions teedev_open() and teedev_close_context() in
+order to make it easier to create a driver internal struct tee_context.
 
-Fixes: 708978487304 ("drm/amdgpu/display: Only set vblank_disable_immediate when PSR is not enabled")
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/tee/tee_core.c  |    6 ++++--
+ include/linux/tee_drv.h |   14 ++++++++++++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4232,6 +4232,9 @@ static int amdgpu_dm_initialize_drm_devi
- 	}
- #endif
+--- a/drivers/tee/tee_core.c
++++ b/drivers/tee/tee_core.c
+@@ -43,7 +43,7 @@ static DEFINE_SPINLOCK(driver_lock);
+ static struct class *tee_class;
+ static dev_t tee_devt;
  
-+	/* Disable vblank IRQs aggressively for power-saving. */
-+	adev_to_drm(adev)->vblank_disable_immediate = true;
+-static struct tee_context *teedev_open(struct tee_device *teedev)
++struct tee_context *teedev_open(struct tee_device *teedev)
+ {
+ 	int rc;
+ 	struct tee_context *ctx;
+@@ -70,6 +70,7 @@ err:
+ 	return ERR_PTR(rc);
+ 
+ }
++EXPORT_SYMBOL_GPL(teedev_open);
+ 
+ void teedev_ctx_get(struct tee_context *ctx)
+ {
+@@ -96,13 +97,14 @@ void teedev_ctx_put(struct tee_context *
+ 	kref_put(&ctx->refcount, teedev_ctx_release);
+ }
+ 
+-static void teedev_close_context(struct tee_context *ctx)
++void teedev_close_context(struct tee_context *ctx)
+ {
+ 	struct tee_device *teedev = ctx->teedev;
+ 
+ 	teedev_ctx_put(ctx);
+ 	tee_device_put(teedev);
+ }
++EXPORT_SYMBOL_GPL(teedev_close_context);
+ 
+ static int tee_open(struct inode *inode, struct file *filp)
+ {
+--- a/include/linux/tee_drv.h
++++ b/include/linux/tee_drv.h
+@@ -582,4 +582,18 @@ struct tee_client_driver {
+ #define to_tee_client_driver(d) \
+ 		container_of(d, struct tee_client_driver, driver)
+ 
++/**
++ * teedev_open() - Open a struct tee_device
++ * @teedev:	Device to open
++ *
++ * @return a pointer to struct tee_context on success or an ERR_PTR on failure.
++ */
++struct tee_context *teedev_open(struct tee_device *teedev);
 +
- 	/* loops over all connectors on the board */
- 	for (i = 0; i < link_cnt; i++) {
- 		struct dc_link *link = NULL;
-@@ -4277,19 +4280,17 @@ static int amdgpu_dm_initialize_drm_devi
- 				update_connector_ext_caps(aconnector);
- 			if (psr_feature_enabled)
- 				amdgpu_dm_set_psr_caps(link);
++/**
++ * teedev_close_context() - closes a struct tee_context
++ * @ctx:	The struct tee_context to close
++ */
++void teedev_close_context(struct tee_context *ctx);
 +
-+			/* TODO: Fix vblank control helpers to delay PSR entry to allow this when
-+			 * PSR is also supported.
-+			 */
-+			if (link->psr_settings.psr_feature_enabled)
-+				adev_to_drm(adev)->vblank_disable_immediate = false;
- 		}
- 
- 
- 	}
- 
--	/*
--	 * Disable vblank IRQs aggressively for power-saving.
--	 *
--	 * TODO: Fix vblank control helpers to delay PSR entry to allow this when PSR
--	 * is also supported.
--	 */
--	adev_to_drm(adev)->vblank_disable_immediate = !psr_feature_enabled;
--
- 	/* Software is initialized. Now we can register interrupt handlers. */
- 	switch (adev->asic_type) {
- #if defined(CONFIG_DRM_AMD_DC_SI)
+ #endif /*__TEE_DRV_H*/
 
 
