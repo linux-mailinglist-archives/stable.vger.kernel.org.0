@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B9604C7561
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E62584C731D
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238499AbiB1Ryt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:54:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51774 "EHLO
+        id S235039AbiB1RcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:32:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239156AbiB1RwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:01 -0500
+        with ESMTP id S237276AbiB1Rb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:31:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F99291341;
-        Mon, 28 Feb 2022 09:39:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA0A88B33;
+        Mon, 28 Feb 2022 09:28:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0CD1B815BB;
-        Mon, 28 Feb 2022 17:39:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1193EC340F0;
-        Mon, 28 Feb 2022 17:39:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D33B7B815A6;
+        Mon, 28 Feb 2022 17:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350BBC340E7;
+        Mon, 28 Feb 2022 17:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069970;
-        bh=CddVVUFIMUYm1CX/7EsfuhiY7pLEr+i9IuKyrRICjow=;
+        s=korg; t=1646069334;
+        bh=NVZ/13wV06YZ+xr1T2jgfLSQQ++PaVN1I5onuZqPhSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ysxo7U4FQCGGD0Pt29KwH8CikcfINepXVdsoY1HXCLvfLYmpU2EksXLLhmU29nRri
-         gEiVOdPQLLQ+30mTfcQBIj9yopSwp/uLF+YfEgYfzTNF+M88ZAbzgCg0WUZv8axagu
-         phdwlvYhOTGoyyOMlyqfFg/e56Rj5qdZYkq3s/eg=
+        b=dddO4QJzB2tvysv3oKL2nTLNr+6hhLHPpQ3SuTx0Ypw0XlMXj4WzmqKrRrJiuV89U
+         IK2bL9nbSRNnkeNY895arFgHIQwSHV1hlzzLTBzeW1OAInJz8aHglGocuiavLzyLxz
+         dezg6FsvoYGdFp2OSbVl8Uyghg/c3Zn0IygVESOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cris Forno <cforno12@outlook.com>,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 077/139] ibmvnic: schedule failover only if vioctl fails
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Grant Grundler <grundler@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 05/34] sr9700: sanity check for packet length
 Date:   Mon, 28 Feb 2022 18:24:11 +0100
-Message-Id: <20220228172355.825625607@linuxfoundation.org>
+Message-Id: <20220228172208.942887061@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 277f2bb14361790a70e4b3c649e794b75a91a597 upstream.
+commit e9da0b56fe27206b49f39805f7dcda8a89379062 upstream.
 
-If client is unable to initiate a failover reset via H_VIOCTL hcall, then
-it should schedule a failover reset as a last resort. Otherwise, there is
-no need to do a last resort.
+A malicious device can leak heap data to user space
+providing bogus frame lengths. Introduce a sanity check.
 
-Fixes: 334c42414729 ("ibmvnic: improve failover sysfs entry")
-Reported-by: Cris Forno <cforno12@outlook.com>
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Signed-off-by: Dany Madden <drt@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220221210545.115283-1-drt@linux.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/usb/sr9700.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -5733,10 +5733,14 @@ static ssize_t failover_store(struct dev
- 		   be64_to_cpu(session_token));
- 	rc = plpar_hcall_norets(H_VIOCTL, adapter->vdev->unit_address,
- 				H_SESSION_ERR_DETECTED, session_token, 0, 0);
--	if (rc)
-+	if (rc) {
- 		netdev_err(netdev,
- 			   "H_VIOCTL initiated failover failed, rc %ld\n",
- 			   rc);
-+		goto last_resort;
-+	}
-+
-+	return count;
+--- a/drivers/net/usb/sr9700.c
++++ b/drivers/net/usb/sr9700.c
+@@ -410,7 +410,7 @@ static int sr9700_rx_fixup(struct usbnet
+ 		/* ignore the CRC length */
+ 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
  
- last_resort:
- 	netdev_dbg(netdev, "Trying to send CRQ_CMD, the last resort\n");
+-		if (len > ETH_FRAME_LEN)
++		if (len > ETH_FRAME_LEN || len > skb->len)
+ 			return 0;
+ 
+ 		/* the last packet of current skb */
 
 
