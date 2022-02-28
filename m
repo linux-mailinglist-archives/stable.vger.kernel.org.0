@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D3F74C7351
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 155014C7666
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234070AbiB1Reb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41694 "EHLO
+        id S235613AbiB1SEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:04:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238558AbiB1Rdg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA08891349;
-        Mon, 28 Feb 2022 09:30:16 -0800 (PST)
+        with ESMTP id S240629AbiB1SDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3492CDBF;
+        Mon, 28 Feb 2022 09:47:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93D9961359;
-        Mon, 28 Feb 2022 17:30:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A605CC340E7;
-        Mon, 28 Feb 2022 17:30:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0719B81085;
+        Mon, 28 Feb 2022 17:46:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D03C340E7;
+        Mon, 28 Feb 2022 17:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069405;
-        bh=Kwqwa0spbtutmTtZrFv1L75lDRULltN9+2J0izZBtww=;
+        s=korg; t=1646070415;
+        bh=mnkt+5Ak8JOKgSSwk+d2Lz2WiQE6cY/xo0S7CuH+MwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0PwtDMS3SchX11Kc+0D4GZUxlPGH9CcgSbdR4wMH9vCEzqylEZmRGkKHdE3BDe6vU
-         aBDztpUED3Aa+W8/06pSdAVTSKHfaErKNu2rOonrTa2fUTZROhYbpXOrpV+lKhd8yN
-         p1NdyBKuHhyvJLyp8Flqw2TPkBvkcxngM9jDGEdk=
+        b=VXUufLwK2aRIi3Pkqh0riTz1TxZGc/5V9qdzPVBT63gKbhodZJ9+aXcRGFX+79Yy0
+         9Lyi4U8DDUbgi9+jkQfY7lbTMC8MolC3B4TGIrW6V2OzCt03lD+HIH36Q3xyHTUqnH
+         ZTvzWh3BjS5Mzn8JzRaki4vyF3Kwk9uCN4thORPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Laibin Qiu <qiulaibin@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/34] configfs: fix a race in configfs_{,un}register_subsystem()
+        stable@vger.kernel.org, Lama Kayal <lkayal@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.16 098/164] net/mlx5e: Add missing increment of count
 Date:   Mon, 28 Feb 2022 18:24:20 +0100
-Message-Id: <20220228172209.596557623@linuxfoundation.org>
+Message-Id: <20220228172408.662393867@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Lama Kayal <lkayal@nvidia.com>
 
-[ Upstream commit 84ec758fb2daa236026506868c8796b0500c047d ]
+commit 5ee02b7a800654ff9549807bcf0b4c9fd5cf25f9 upstream.
 
-When configfs_register_subsystem() or configfs_unregister_subsystem()
-is executing link_group() or unlink_group(),
-it is possible that two processes add or delete list concurrently.
-Some unfortunate interleavings of them can cause kernel panic.
+Add mistakenly missing increment of count variable when looping over
+output buffer in mlx5e_self_test().
 
-One of cases is:
-A --> B --> C --> D
-A <-- B <-- C <-- D
+This resolves the issue of garbage values output when querying with self
+test via ethtool.
 
-     delete list_head *B        |      delete list_head *C
---------------------------------|-----------------------------------
-configfs_unregister_subsystem   |   configfs_unregister_subsystem
-  unlink_group                  |     unlink_group
-    unlink_obj                  |       unlink_obj
-      list_del_init             |         list_del_init
-        __list_del_entry        |           __list_del_entry
-          __list_del            |             __list_del
-            // next == C        |
-            next->prev = prev   |
-                                |               next->prev = prev
-            prev->next = next   |
-                                |                 // prev == B
-                                |                 prev->next = next
+before:
+$ ethtool -t eth2
+The test result is PASS
+The test extra info:
+Link Test        0
+Speed Test       1768697188
+Health Test      758528120
+Loopback Test    3288687
 
-Fix this by adding mutex when calling link_group() or unlink_group(),
-but parent configfs_subsystem is NULL when config_item is root.
-So I create a mutex configfs_subsystem_mutex.
+after:
+$ ethtool -t eth2
+The test result is PASS
+The test extra info:
+Link Test        0
+Speed Test       0
+Health Test      0
+Loopback Test    0
 
-Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7990b1b5e8bd ("net/mlx5e: loopback test is not supported in switchdev mode")
+Signed-off-by: Lama Kayal <lkayal@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/configfs/dir.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_selftest.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index f9628fc20fec0..796a6cd5f302f 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -50,6 +50,14 @@ DECLARE_RWSEM(configfs_rename_sem);
-  */
- DEFINE_SPINLOCK(configfs_dirent_lock);
- 
-+/*
-+ * All of link_obj/unlink_obj/link_group/unlink_group require that
-+ * subsys->su_mutex is held.
-+ * But parent configfs_subsystem is NULL when config_item is root.
-+ * Use this mutex when config_item is root.
-+ */
-+static DEFINE_MUTEX(configfs_subsystem_mutex);
-+
- static void configfs_d_iput(struct dentry * dentry,
- 			    struct inode * inode)
- {
-@@ -1937,7 +1945,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
- 		group->cg_item.ci_name = group->cg_item.ci_namebuf;
- 
- 	sd = root->d_fsdata;
-+	mutex_lock(&configfs_subsystem_mutex);
- 	link_group(to_config_group(sd->s_element), group);
-+	mutex_unlock(&configfs_subsystem_mutex);
- 
- 	inode_lock_nested(d_inode(root), I_MUTEX_PARENT);
- 
-@@ -1962,7 +1972,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
- 	inode_unlock(d_inode(root));
- 
- 	if (err) {
-+		mutex_lock(&configfs_subsystem_mutex);
- 		unlink_group(group);
-+		mutex_unlock(&configfs_subsystem_mutex);
- 		configfs_release_fs();
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_selftest.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_selftest.c
+@@ -334,6 +334,7 @@ void mlx5e_self_test(struct net_device *
+ 		netdev_info(ndev, "\t[%d] %s start..\n", i, st.name);
+ 		buf[count] = st.st_func(priv);
+ 		netdev_info(ndev, "\t[%d] %s end: result(%lld)\n", i, st.name, buf[count]);
++		count++;
  	}
- 	put_fragment(frag);
-@@ -2008,7 +2020,9 @@ void configfs_unregister_subsystem(struct configfs_subsystem *subsys)
  
- 	dput(dentry);
- 
-+	mutex_lock(&configfs_subsystem_mutex);
- 	unlink_group(group);
-+	mutex_unlock(&configfs_subsystem_mutex);
- 	configfs_release_fs();
- }
- 
--- 
-2.34.1
-
+ 	mutex_unlock(&priv->state_lock);
 
 
