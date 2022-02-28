@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 025474C72D3
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9CCA4C733F
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbiB1R3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:29:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
+        id S237778AbiB1ReS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236211AbiB1R2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:55 -0500
+        with ESMTP id S238274AbiB1RdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3C117E3D;
-        Mon, 28 Feb 2022 09:27:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81CD48F61A;
+        Mon, 28 Feb 2022 09:29:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84CA061362;
-        Mon, 28 Feb 2022 17:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF1DC340E7;
-        Mon, 28 Feb 2022 17:27:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7169061358;
+        Mon, 28 Feb 2022 17:29:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 797E8C340E7;
+        Mon, 28 Feb 2022 17:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069274;
-        bh=/qxJZRIDq9NYVZooC34vVb1sF2Rt52/aik8Fo/ZPXsY=;
+        s=korg; t=1646069380;
+        bh=DOUNBwYA9JP+Lq4UjXFlsFmonEHF0xINmyozSDtOuas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aln1y1hLYDY2kxCVQtydNSLYWA8IVIaReYq4b4kERDqid1og3wRswdCgnWt4jjDol
-         +xLdbIW6uJWbd0kRLBdAlsMTk45I9a8k1tHY37ApMoFrT2MQ0CM+qJCd9MzGUPHa6o
-         975tjmfbGyChWkEzt5VJOuoD6g+K8+DpG18a9XgQ=
+        b=DvkF4GV+5+Nk77TmIaopvQ+0LkBzZ4Ef3Yjt5Dq/C1+CZdcylssbDjEFadh2BlqpA
+         5TJbfZnjCAwQBwNm0r5Cc2cCb3r33yVP0ldOVnkEibX+110BzYYkb5KXRDjdBjFa8T
+         uQYlr0mU0C3J+4y/7787Fz9AGk5Q8QxC+pgXsaHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongyu Xie <xiehongyu1@kylinos.cn>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 26/31] xhci: Prevent futile URB re-submissions due to incorrect return value.
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.19 16/34] tty: n_gsm: fix proper link termination after failed open
 Date:   Mon, 28 Feb 2022 18:24:22 +0100
-Message-Id: <20220228172202.357336349@linuxfoundation.org>
+Message-Id: <20220228172209.760893208@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
-References: <20220228172159.515152296@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongyu Xie <xiehongyu1@kylinos.cn>
+From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit 243a1dd7ba48c120986dd9e66fee74bcb7751034 upstream.
+commit e3b7468f082d106459e86e8dc6fb9bdd65553433 upstream.
 
-The -ENODEV return value from xhci_check_args() is incorrectly changed
-to -EINVAL in a couple places before propagated further.
+Trying to open a DLCI by sending a SABM frame may fail with a timeout.
+The link is closed on the initiator side without informing the responder
+about this event. The responder assumes the link is open after sending a
+UA frame to answer the SABM frame. The link gets stuck in a half open
+state.
 
-xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
-xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
-the return value of xhci_check_args <= 0.
-This causes problems for example r8152_submit_rx, calling usb_submit_urb
-in drivers/net/usb/r8152.c.
-r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
-is halted because xhci_urb_enqueue returns -EINVAL in the very beginning.
+This patch fixes this by initiating the proper link termination procedure
+after link setup timeout instead of silently closing it down.
 
-[commit message and header edit -Mathias]
-
-Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
-Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220215123320.1253947-3-mathias.nyman@linux.intel.com
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220218073123.2121-3-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/n_gsm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1397,9 +1397,12 @@ static int xhci_urb_enqueue(struct usb_h
- 	struct urb_priv	*urb_priv;
- 	int num_tds;
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1490,7 +1490,7 @@ static void gsm_dlci_t1(struct timer_lis
+ 			dlci->mode = DLCI_MODE_ADM;
+ 			gsm_dlci_open(dlci);
+ 		} else {
+-			gsm_dlci_close(dlci);
++			gsm_dlci_begin_close(dlci); /* prevent half open link */
+ 		}
  
--	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
--					true, true, __func__) <= 0)
-+	if (!urb)
- 		return -EINVAL;
-+	ret = xhci_check_args(hcd, urb->dev, urb->ep,
-+					true, true, __func__);
-+	if (ret <= 0)
-+		return ret ? ret : -EINVAL;
- 
- 	slot_id = urb->dev->slot_id;
- 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
-@@ -3026,7 +3029,7 @@ static int xhci_check_streams_endpoint(s
- 		return -EINVAL;
- 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
- 	if (ret <= 0)
--		return -EINVAL;
-+		return ret ? ret : -EINVAL;
- 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
- 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
- 				" descriptor for ep 0x%x does not support streams\n",
+ 		break;
 
 
