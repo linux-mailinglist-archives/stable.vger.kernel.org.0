@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFEC4C74D1
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BF1F4C7620
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbiB1Rsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:48:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33510 "EHLO
+        id S235564AbiB1R75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:59:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238806AbiB1Rrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:47:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EA7888F1;
-        Mon, 28 Feb 2022 09:38:08 -0800 (PST)
+        with ESMTP id S239977AbiB1R7I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:59:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5111F5B3CE;
+        Mon, 28 Feb 2022 09:45:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33B58B815A6;
-        Mon, 28 Feb 2022 17:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 893E3C340E7;
-        Mon, 28 Feb 2022 17:38:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3AF06066C;
+        Mon, 28 Feb 2022 17:45:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4CDCC340E7;
+        Mon, 28 Feb 2022 17:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069885;
-        bh=Om8+rVBysDWELT0kes9emjuIoy4hLxF5bRKgmKIMhJ0=;
+        s=korg; t=1646070314;
+        bh=0jBTXm7jJGIgq2dhGi+7MvjNoeTBRhMcKZrOltVxSe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yv2YexqFLVayHLCtlPky01pb38tzwHe9ZxWy+ZXpu6PPwwyijIpXzwQ7jmZ+zuZwx
-         UPLG0rq4W/nODMYDyN199KbqvlbeUViI2pS20C1VMTrVCbitvci195n9ztDn00DDJV
-         9N2gKaLn8PkpoB2leLJJ9seSuef/ea/o9ZfC+0gA=
+        b=AD8Vc2aaidREoId2KNiYMDCB9YWpPC+ZEmPmnyOIS1/ur4DD6zmlAvDMMVLzaWN0M
+         JaW0BSy7Hw00KJIvfLMUCzMHzfrbQ3me0r0V78hotWlmQNV9/ORHJRuoHUdP7YOsVA
+         Z5rRTI3CCZ8WS1sGolR0NClhH+QajSTey+FZu25c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang Zhang <zhangliang5@huawei.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 014/139] KVM: x86/mmu: make apf token non-zero to fix bug
-Date:   Mon, 28 Feb 2022 18:23:08 +0100
-Message-Id: <20220228172349.184013379@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Grant Grundler <grundler@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 027/164] sr9700: sanity check for packet length
+Date:   Mon, 28 Feb 2022 18:23:09 +0100
+Message-Id: <20220228172402.604694515@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang Zhang <zhangliang5@huawei.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 6f3c1fc53d86d580d8d6d749c4af23705e4f6f79 upstream.
+commit e9da0b56fe27206b49f39805f7dcda8a89379062 upstream.
 
-In current async pagefault logic, when a page is ready, KVM relies on
-kvm_arch_can_dequeue_async_page_present() to determine whether to deliver
-a READY event to the Guest. This function test token value of struct
-kvm_vcpu_pv_apf_data, which must be reset to zero by Guest kernel when a
-READY event is finished by Guest. If value is zero meaning that a READY
-event is done, so the KVM can deliver another.
-But the kvm_arch_setup_async_pf() may produce a valid token with zero
-value, which is confused with previous mention and may lead the loss of
-this READY event.
+A malicious device can leak heap data to user space
+providing bogus frame lengths. Introduce a sanity check.
 
-This bug may cause task blocked forever in Guest:
- INFO: task stress:7532 blocked for more than 1254 seconds.
-       Not tainted 5.10.0 #16
- "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
- task:stress          state:D stack:    0 pid: 7532 ppid:  1409
- flags:0x00000080
- Call Trace:
-  __schedule+0x1e7/0x650
-  schedule+0x46/0xb0
-  kvm_async_pf_task_wait_schedule+0xad/0xe0
-  ? exit_to_user_mode_prepare+0x60/0x70
-  __kvm_handle_async_pf+0x4f/0xb0
-  ? asm_exc_page_fault+0x8/0x30
-  exc_page_fault+0x6f/0x110
-  ? asm_exc_page_fault+0x8/0x30
-  asm_exc_page_fault+0x1e/0x30
- RIP: 0033:0x402d00
- RSP: 002b:00007ffd31912500 EFLAGS: 00010206
- RAX: 0000000000071000 RBX: ffffffffffffffff RCX: 00000000021a32b0
- RDX: 000000000007d011 RSI: 000000000007d000 RDI: 00000000021262b0
- RBP: 00000000021262b0 R08: 0000000000000003 R09: 0000000000000086
- R10: 00000000000000eb R11: 00007fefbdf2baa0 R12: 0000000000000000
- R13: 0000000000000002 R14: 000000000007d000 R15: 0000000000001000
-
-Signed-off-by: Liang Zhang <zhangliang5@huawei.com>
-Message-Id: <20220222031239.1076682-1-zhangliang5@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/usb/sr9700.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -3889,12 +3889,23 @@ static void shadow_page_table_clear_floo
- 	walk_shadow_page_lockless_end(vcpu);
- }
+--- a/drivers/net/usb/sr9700.c
++++ b/drivers/net/usb/sr9700.c
+@@ -413,7 +413,7 @@ static int sr9700_rx_fixup(struct usbnet
+ 		/* ignore the CRC length */
+ 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
  
-+static u32 alloc_apf_token(struct kvm_vcpu *vcpu)
-+{
-+	/* make sure the token value is not 0 */
-+	u32 id = vcpu->arch.apf.id;
-+
-+	if (id << 12 == 0)
-+		vcpu->arch.apf.id = 1;
-+
-+	return (vcpu->arch.apf.id++ << 12) | vcpu->vcpu_id;
-+}
-+
- static bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
- 				    gfn_t gfn)
- {
- 	struct kvm_arch_async_pf arch;
+-		if (len > ETH_FRAME_LEN)
++		if (len > ETH_FRAME_LEN || len > skb->len)
+ 			return 0;
  
--	arch.token = (vcpu->arch.apf.id++ << 12) | vcpu->vcpu_id;
-+	arch.token = alloc_apf_token(vcpu);
- 	arch.gfn = gfn;
- 	arch.direct_map = vcpu->arch.mmu->direct_map;
- 	arch.cr3 = vcpu->arch.mmu->get_guest_pgd(vcpu);
+ 		/* the last packet of current skb */
 
 
