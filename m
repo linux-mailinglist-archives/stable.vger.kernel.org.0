@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B115A4C72B1
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA394C7644
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234572AbiB1R2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:28:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44662 "EHLO
+        id S239441AbiB1SBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:01:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235433AbiB1R1d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 782CF887B7;
-        Mon, 28 Feb 2022 09:26:42 -0800 (PST)
+        with ESMTP id S239466AbiB1R7x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:59:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD33E96839;
+        Mon, 28 Feb 2022 09:45:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A6FC61368;
-        Mon, 28 Feb 2022 17:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B451C340E7;
-        Mon, 28 Feb 2022 17:26:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7388B815CC;
+        Mon, 28 Feb 2022 17:45:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BE0C340E7;
+        Mon, 28 Feb 2022 17:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069201;
-        bh=o2ESmCgyPHSQwaUceGzJDCD9pF7SYBayw3oBqz0aP5g=;
+        s=korg; t=1646070322;
+        bh=e9qSJssGN+HZrIwdyr6Y6yzckhlwCSUpu93cFoY6+y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWS5m8q/2jdSwKpj8ayP4b1MC1Ha50x94W79PZ4K13+N128h4BgQLrfiNm9Y6rjC2
-         xi9L0FIBAY8DA5l/F1yc2C5iAc/vPt/T4C5HBRPYFyueGJ0TJpFpNr2s3R1PuayWq8
-         gz1tIyVZCqmpV0FpUgIp+Sp4qy2bNgmPPpURZIqM=
+        b=Uyzdydi/07K4ljM9xeFR9UDMs0Aepk0EKmxY5i/kS+JoIG/oa8UlhZMG5jIzr8lx8
+         +r4PhzYRJBRE9S0BBQy3lP0NkSxKy0YRe1HQ2TI/Leq4muaLgBuuRr0ryyF31w58+u
+         JGMckzsdxGAs4T0zq+w31SU1UIU75+znzBbIY9NA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 22/29] USB: serial: option: add support for DW5829e
+        stable@vger.kernel.org, Mauri Sandberg <maukka@ext.kapsi.fi>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 067/164] net: mv643xx_eth: process retval from of_get_mac_address
 Date:   Mon, 28 Feb 2022 18:23:49 +0100
-Message-Id: <20220228172144.034526375@linuxfoundation.org>
+Message-Id: <20220228172406.228283840@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,114 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Mauri Sandberg <maukka@ext.kapsi.fi>
 
-commit 6ecb3f0b18b320320460a42e40d6fb603f6ded96 upstream.
+commit 42404d8f1c01861b22ccfa1d70f950242720ae57 upstream.
 
-Dell DW5829e same as DW5821e except CAT level.
-DW5821e supports CAT16 but DW5829e supports CAT9.
-There are 2 types product of DW5829e: normal and eSIM.
-So we will add 2 PID for DW5829e.
-And for each PID, it support MBIM or RMNET.
-Let's see test evidence as below:
+Obtaining a MAC address may be deferred in cases when the MAC is stored
+in an NVMEM block, for example, and it may not be ready upon the first
+retrieval attempt and return EPROBE_DEFER.
 
-DW5829e MBIM mode:
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  4 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  2
-P:  Vendor=413c ProdID=81e6 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+It is also possible that a port that does not rely on NVMEM has been
+already created when getting the defer request. Thus, also the resources
+allocated previously must be freed when doing a roll-back.
 
-DW5829e RMNET mode:
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  5 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=413c ProdID=81e6 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-
-DW5829e-eSIM MBIM mode:
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  6 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  2
-P:  Vendor=413c ProdID=81e4 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-
-DW5829e-eSIM RMNET mode:
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  7 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=413c ProdID=81e4 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-
-BTW, the interface 0x6 of MBIM mode is GNSS port, which not same as NMEA
-port. So it's banned from serial option driver.
-The remaining interfaces 0x2-0x5 are: MODEM, MODEM, NMEA, DIAG.
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20220214021401.6264-1-slark_xiao@163.com
-[ johan: drop unnecessary reservation of interface 1 ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 76723bca2802 ("net: mv643xx_eth: add DT parsing support")
+Signed-off-by: Mauri Sandberg <maukka@ext.kapsi.fi>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220223142337.41757-1-maukka@ext.kapsi.fi
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/marvell/mv643xx_eth.c |   24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -201,6 +201,8 @@ static void option_instat_callback(struc
+--- a/drivers/net/ethernet/marvell/mv643xx_eth.c
++++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
+@@ -2700,6 +2700,16 @@ MODULE_DEVICE_TABLE(of, mv643xx_eth_shar
  
- #define DELL_PRODUCT_5821E			0x81d7
- #define DELL_PRODUCT_5821E_ESIM			0x81e0
-+#define DELL_PRODUCT_5829E_ESIM			0x81e4
-+#define DELL_PRODUCT_5829E			0x81e6
+ static struct platform_device *port_platdev[3];
  
- #define KYOCERA_VENDOR_ID			0x0c88
- #define KYOCERA_PRODUCT_KPC650			0x17da
-@@ -1058,6 +1060,10 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
- 	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E_ESIM),
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-+	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5829E),
-+	  .driver_info = RSVD(0) | RSVD(6) },
-+	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5829E_ESIM),
-+	  .driver_info = RSVD(0) | RSVD(6) },
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_E100A) },	/* ADU-E100, ADU-310 */
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_500A) },
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_620UW) },
++static void mv643xx_eth_shared_of_remove(void)
++{
++	int n;
++
++	for (n = 0; n < 3; n++) {
++		platform_device_del(port_platdev[n]);
++		port_platdev[n] = NULL;
++	}
++}
++
+ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
+ 					  struct device_node *pnp)
+ {
+@@ -2736,7 +2746,9 @@ static int mv643xx_eth_shared_of_add_por
+ 		return -EINVAL;
+ 	}
+ 
+-	of_get_mac_address(pnp, ppd.mac_addr);
++	ret = of_get_mac_address(pnp, ppd.mac_addr);
++	if (ret)
++		return ret;
+ 
+ 	mv643xx_eth_property(pnp, "tx-queue-size", ppd.tx_queue_size);
+ 	mv643xx_eth_property(pnp, "tx-sram-addr", ppd.tx_sram_addr);
+@@ -2800,21 +2812,13 @@ static int mv643xx_eth_shared_of_probe(s
+ 		ret = mv643xx_eth_shared_of_add_port(pdev, pnp);
+ 		if (ret) {
+ 			of_node_put(pnp);
++			mv643xx_eth_shared_of_remove();
+ 			return ret;
+ 		}
+ 	}
+ 	return 0;
+ }
+ 
+-static void mv643xx_eth_shared_of_remove(void)
+-{
+-	int n;
+-
+-	for (n = 0; n < 3; n++) {
+-		platform_device_del(port_platdev[n]);
+-		port_platdev[n] = NULL;
+-	}
+-}
+ #else
+ static inline int mv643xx_eth_shared_of_probe(struct platform_device *pdev)
+ {
 
 
