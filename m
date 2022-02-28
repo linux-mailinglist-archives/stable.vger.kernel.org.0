@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 056FD4C7463
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:44:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91A174C7372
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:35:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237296AbiB1RpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:45:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
+        id S237451AbiB1Rfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:35:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238634AbiB1Rmx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:42:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E8299969B;
-        Mon, 28 Feb 2022 09:34:57 -0800 (PST)
+        with ESMTP id S232930AbiB1Rex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:34:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A0F7DE3E;
+        Mon, 28 Feb 2022 09:31:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAB10614B9;
-        Mon, 28 Feb 2022 17:34:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD159C340F1;
-        Mon, 28 Feb 2022 17:34:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89590B815A6;
+        Mon, 28 Feb 2022 17:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4F43C340E7;
+        Mon, 28 Feb 2022 17:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069696;
-        bh=etOvP7NoP4v2nHmtWiP7+UhZSaqYO7n/CO0EwG2H8EM=;
+        s=korg; t=1646069470;
+        bh=hlaVVHROS+1+1hqghdgDQ6aqQYuXHJ1E37LvManwwR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/rR29b7bGbZU4wLq8N1ECywapktFuQpEI4r/fJIJgU1n9zjyhs0Y2nLGgVz33CnO
-         NHvWg46JPId2m3rMq2/hcb5a+OpNHnf/hkc/yIZIZqa9FvYYRrmu3UY9zmlMf2eYb8
-         JoFi4Les7x89jxdKXMYbRMAcdgN6bX2sUIgvvk2I=
+        b=fHWh6dg6Qu6o2FfaoTOdarJ6bBie16xcWg3UpESXTNODOysJOYfh2A3q2w++oFhWM
+         xSiYQvbIIEHOYQUE2B2rLkKDmgpBKGdqxpJLzLg/OBDiYQ9BZ3O1ZklYjp4204Cd9A
+         tCXyxoXVCcj8yU0qHs/54reO4iOxjMyp3Wd6o1jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.10 24/80] bpf: Do not try bpf_msg_push_data with len 0
-Date:   Mon, 28 Feb 2022 18:24:05 +0100
-Message-Id: <20220228172314.510618848@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Ross Maynard <bids.7405@bigpond.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 08/53] USB: zaurus: support another broken Zaurus
+Date:   Mon, 28 Feb 2022 18:24:06 +0100
+Message-Id: <20220228172248.917252022@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 4a11678f683814df82fca9018d964771e02d7e6d upstream.
+commit 6605cc67ca18b9d583eb96e18a20f5f4e726103c upstream.
 
-If bpf_msg_push_data() is called with len 0 (as it happens during
-selftests/bpf/test_sockmap), we do not need to do anything and can
-return early.
+This SL-6000 says Direct Line, not Ethernet
 
-Calling bpf_msg_push_data() with len 0 previously lead to a wrong ENOMEM
-error: we later called get_order(copy + len); if len was 0, copy + len
-was also often 0 and get_order() returned some undefined value (at the
-moment 52). alloc_pages() caught that and failed, but then bpf_msg_push_data()
-returned ENOMEM. This was wrong because we are most probably not out of
-memory and actually do not need any additional memory.
+v2: added Reporter and Link
 
-Fixes: 6fff607e2f14b ("bpf: sk_msg program helper bpf_msg_push_data")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/df69012695c7094ccb1943ca02b4920db3537466.1644421921.git.fmaurer@redhat.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: Ross Maynard <bids.7405@bigpond.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215361
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/cdc_ether.c |   12 ++++++++++++
+ drivers/net/usb/zaurus.c    |   12 ++++++++++++
+ 2 files changed, 24 insertions(+)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -2730,6 +2730,9 @@ BPF_CALL_4(bpf_msg_push_data, struct sk_
- 	if (unlikely(flags))
- 		return -EINVAL;
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -571,6 +571,11 @@ static const struct usb_device_id	produc
+ 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
+ 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
  
-+	if (unlikely(len == 0))
-+		return 0;
++#define ZAURUS_FAKE_INTERFACE \
++	.bInterfaceClass	= USB_CLASS_COMM, \
++	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
++	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
 +
- 	/* First find the starting scatterlist element */
- 	i = msg->sg.start;
- 	do {
+ /* SA-1100 based Sharp Zaurus ("collie"), or compatible;
+  * wire-incompatible with true CDC Ethernet implementations.
+  * (And, it seems, needlessly so...)
+@@ -626,6 +631,13 @@ static const struct usb_device_id	produc
+ 	.driver_info		= 0,
+ }, {
+ 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
++		 | USB_DEVICE_ID_MATCH_DEVICE,
++	.idVendor               = 0x04DD,
++	.idProduct              = 0x9032,	/* SL-6000 */
++	ZAURUS_FAKE_INTERFACE,
++	.driver_info		= 0,
++}, {
++	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
+ 		 | USB_DEVICE_ID_MATCH_DEVICE,
+ 	.idVendor               = 0x04DD,
+ 	/* reported with some C860 units */
+--- a/drivers/net/usb/zaurus.c
++++ b/drivers/net/usb/zaurus.c
+@@ -256,6 +256,11 @@ static const struct usb_device_id	produc
+ 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
+ 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
+ 
++#define ZAURUS_FAKE_INTERFACE \
++	.bInterfaceClass	= USB_CLASS_COMM, \
++	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
++	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
++
+ /* SA-1100 based Sharp Zaurus ("collie"), or compatible. */
+ {
+ 	.match_flags	=   USB_DEVICE_ID_MATCH_INT_INFO
+@@ -315,6 +320,13 @@ static const struct usb_device_id	produc
+ 	.driver_info = ZAURUS_PXA_INFO,
+ }, {
+ 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
++			    | USB_DEVICE_ID_MATCH_DEVICE,
++	.idVendor		= 0x04DD,
++	.idProduct		= 0x9032,	/* SL-6000 */
++	ZAURUS_FAKE_INTERFACE,
++	.driver_info = (unsigned long)&bogus_mdlm_info,
++}, {
++	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
+ 		 | USB_DEVICE_ID_MATCH_DEVICE,
+ 	.idVendor               = 0x04DD,
+ 	/* reported with some C860 units */
 
 
