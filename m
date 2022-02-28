@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA31C4C73E9
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA58A4C72D2
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236151AbiB1RjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:39:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34744 "EHLO
+        id S233959AbiB1R3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:29:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237387AbiB1Ri2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D538A6C9;
-        Mon, 28 Feb 2022 09:33:53 -0800 (PST)
+        with ESMTP id S234856AbiB1R2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15170BC0A;
+        Mon, 28 Feb 2022 09:27:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 012AAB815BA;
-        Mon, 28 Feb 2022 17:33:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D2C8C340E7;
-        Mon, 28 Feb 2022 17:33:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B743CB815B1;
+        Mon, 28 Feb 2022 17:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2151CC340E7;
+        Mon, 28 Feb 2022 17:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069630;
-        bh=31R7M9ttApfrfSsmOywRvC7exLj0JmDK2xRcnkyqv7A=;
+        s=korg; t=1646069261;
+        bh=917T7g5NADCLUB+jfAC4t5c2Tgf/uZE24UZy1cRKwXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1V03lX4sJKkXPqAZ5kQWJLmtRdGbYxiAe3K3E1xMaJ5LjTVnNnDFJkXA+JtiQFC25
-         0vI2MaoDAXctZkffjtLBEm4XdsZ8O8R9s1VwsEvvHP7UlvM57vKae929L1D3mMlAg5
-         7OBlXUxIWC8VG1GBVACZ1e/qqfmaAx7Xl+BDoOqo=
+        b=kmbvwY00k3UnKt3VypvttQblpINafLUjc4hggCD38JXjLhl/+bLxpKj5kyGiFh9of
+         7PFWZxdoPQvb8AY8Tmi1GiFsiPNNaEr02vTWHIScXqnOD2Ttv0C3QfBGvskCbB4oGU
+         v7coOtsmS+wvD1pPzTAJcO6eDtG/ePXKBHSDdoQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 36/80] net: Force inlining of checksum functions in net/checksum.h
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 21/31] tracefs: Set the group ownership in apply_options() not parse_options()
 Date:   Mon, 28 Feb 2022 18:24:17 +0100
-Message-Id: <20220228172315.795212309@linuxfoundation.org>
+Message-Id: <20220228172201.786955916@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,241 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 5486f5bf790b5c664913076c3194b8f916a5c7ad upstream.
+commit 851e99ebeec3f4a672bb5010cf1ece095acee447 upstream.
 
-All functions defined as static inline in net/checksum.h are
-meant to be inlined for performance reason.
+Al Viro brought it to my attention that the dentries may not be filled
+when the parse_options() is called, causing the call to set_gid() to
+possibly crash. It should only be called if parse_options() succeeds
+totally anyway.
 
-But since commit ac7c3e4ff401 ("compiler: enable
-CONFIG_OPTIMIZE_INLINING forcibly") the compiler is allowed to
-uninline functions when it wants.
+He suggested the logical place to do the update is in apply_options().
 
-Fair enough in the general case, but for tiny performance critical
-checksum helpers that's counter-productive.
+Link: https://lore.kernel.org/all/20220225165219.737025658@goodmis.org/
+Link: https://lkml.kernel.org/r/20220225153426.1c4cab6b@gandalf.local.home
 
-The problem mainly arises when selecting CONFIG_CC_OPTIMISE_FOR_SIZE,
-Those helpers being 'static inline' in header files you suddenly find
-them duplicated many times in the resulting vmlinux.
-
-Here is a typical exemple when building powerpc pmac32_defconfig
-with CONFIG_CC_OPTIMISE_FOR_SIZE. csum_sub() appears 4 times:
-
-	c04a23cc <csum_sub>:
-	c04a23cc:	7c 84 20 f8 	not     r4,r4
-	c04a23d0:	7c 63 20 14 	addc    r3,r3,r4
-	c04a23d4:	7c 63 01 94 	addze   r3,r3
-	c04a23d8:	4e 80 00 20 	blr
-		...
-	c04a2ce8:	4b ff f6 e5 	bl      c04a23cc <csum_sub>
-		...
-	c04a2d2c:	4b ff f6 a1 	bl      c04a23cc <csum_sub>
-		...
-	c04a2d54:	4b ff f6 79 	bl      c04a23cc <csum_sub>
-		...
-	c04a754c <csum_sub>:
-	c04a754c:	7c 84 20 f8 	not     r4,r4
-	c04a7550:	7c 63 20 14 	addc    r3,r3,r4
-	c04a7554:	7c 63 01 94 	addze   r3,r3
-	c04a7558:	4e 80 00 20 	blr
-		...
-	c04ac930:	4b ff ac 1d 	bl      c04a754c <csum_sub>
-		...
-	c04ad264:	4b ff a2 e9 	bl      c04a754c <csum_sub>
-		...
-	c04e3b08 <csum_sub>:
-	c04e3b08:	7c 84 20 f8 	not     r4,r4
-	c04e3b0c:	7c 63 20 14 	addc    r3,r3,r4
-	c04e3b10:	7c 63 01 94 	addze   r3,r3
-	c04e3b14:	4e 80 00 20 	blr
-		...
-	c04e5788:	4b ff e3 81 	bl      c04e3b08 <csum_sub>
-		...
-	c04e65c8:	4b ff d5 41 	bl      c04e3b08 <csum_sub>
-		...
-	c0512d34 <csum_sub>:
-	c0512d34:	7c 84 20 f8 	not     r4,r4
-	c0512d38:	7c 63 20 14 	addc    r3,r3,r4
-	c0512d3c:	7c 63 01 94 	addze   r3,r3
-	c0512d40:	4e 80 00 20 	blr
-		...
-	c0512dfc:	4b ff ff 39 	bl      c0512d34 <csum_sub>
-		...
-	c05138bc:	4b ff f4 79 	bl      c0512d34 <csum_sub>
-		...
-
-Restore the expected behaviour by using __always_inline for all
-functions defined in net/checksum.h
-
-vmlinux size is even reduced by 256 bytes with this patch:
-
-	   text	   data	    bss	    dec	    hex	filename
-	6980022	2515362	 194384	9689768	 93daa8	vmlinux.before
-	6979862	2515266	 194384	9689512	 93d9a8	vmlinux.now
-
-Fixes: ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING forcibly")
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: 48b27b6b5191 ("tracefs: Set all files to the same group ownership as the mount option")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/checksum.h |   43 ++++++++++++++++++++++---------------------
- 1 file changed, 22 insertions(+), 21 deletions(-)
+ fs/tracefs/inode.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/include/net/checksum.h
-+++ b/include/net/checksum.h
-@@ -22,7 +22,7 @@
- #include <asm/checksum.h>
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -265,7 +265,6 @@ static int tracefs_parse_options(char *d
+ 			if (!gid_valid(gid))
+ 				return -EINVAL;
+ 			opts->gid = gid;
+-			set_gid(tracefs_mount->mnt_root, gid);
+ 			break;
+ 		case Opt_mode:
+ 			if (match_octal(&args[0], &option))
+@@ -292,7 +291,9 @@ static int tracefs_apply_options(struct
+ 	inode->i_mode |= opts->mode;
  
- #ifndef _HAVE_ARCH_COPY_AND_CSUM_FROM_USER
--static inline
-+static __always_inline
- __wsum csum_and_copy_from_user (const void __user *src, void *dst,
- 				      int len)
- {
-@@ -33,7 +33,7 @@ __wsum csum_and_copy_from_user (const vo
- #endif
+ 	inode->i_uid = opts->uid;
+-	inode->i_gid = opts->gid;
++
++	/* Set all the group ids to the mount option */
++	set_gid(sb->s_root, opts->gid);
  
- #ifndef HAVE_CSUM_COPY_USER
--static __inline__ __wsum csum_and_copy_to_user
-+static __always_inline __wsum csum_and_copy_to_user
- (const void *src, void __user *dst, int len)
- {
- 	__wsum sum = csum_partial(src, len, ~0U);
-@@ -45,7 +45,7 @@ static __inline__ __wsum csum_and_copy_t
- #endif
- 
- #ifndef _HAVE_ARCH_CSUM_AND_COPY
--static inline __wsum
-+static __always_inline __wsum
- csum_partial_copy_nocheck(const void *src, void *dst, int len)
- {
- 	memcpy(dst, src, len);
-@@ -54,7 +54,7 @@ csum_partial_copy_nocheck(const void *sr
- #endif
- 
- #ifndef HAVE_ARCH_CSUM_ADD
--static inline __wsum csum_add(__wsum csum, __wsum addend)
-+static __always_inline __wsum csum_add(__wsum csum, __wsum addend)
- {
- 	u32 res = (__force u32)csum;
- 	res += (__force u32)addend;
-@@ -62,12 +62,12 @@ static inline __wsum csum_add(__wsum csu
- }
- #endif
- 
--static inline __wsum csum_sub(__wsum csum, __wsum addend)
-+static __always_inline __wsum csum_sub(__wsum csum, __wsum addend)
- {
- 	return csum_add(csum, ~addend);
- }
- 
--static inline __sum16 csum16_add(__sum16 csum, __be16 addend)
-+static __always_inline __sum16 csum16_add(__sum16 csum, __be16 addend)
- {
- 	u16 res = (__force u16)csum;
- 
-@@ -75,12 +75,12 @@ static inline __sum16 csum16_add(__sum16
- 	return (__force __sum16)(res + (res < (__force u16)addend));
- }
- 
--static inline __sum16 csum16_sub(__sum16 csum, __be16 addend)
-+static __always_inline __sum16 csum16_sub(__sum16 csum, __be16 addend)
- {
- 	return csum16_add(csum, ~addend);
- }
- 
--static inline __wsum
-+static __always_inline __wsum
- csum_block_add(__wsum csum, __wsum csum2, int offset)
- {
- 	u32 sum = (__force u32)csum2;
-@@ -92,36 +92,37 @@ csum_block_add(__wsum csum, __wsum csum2
- 	return csum_add(csum, (__force __wsum)sum);
- }
- 
--static inline __wsum
-+static __always_inline __wsum
- csum_block_add_ext(__wsum csum, __wsum csum2, int offset, int len)
- {
- 	return csum_block_add(csum, csum2, offset);
- }
- 
--static inline __wsum
-+static __always_inline __wsum
- csum_block_sub(__wsum csum, __wsum csum2, int offset)
- {
- 	return csum_block_add(csum, ~csum2, offset);
- }
- 
--static inline __wsum csum_unfold(__sum16 n)
-+static __always_inline __wsum csum_unfold(__sum16 n)
- {
- 	return (__force __wsum)n;
- }
- 
--static inline __wsum csum_partial_ext(const void *buff, int len, __wsum sum)
-+static __always_inline
-+__wsum csum_partial_ext(const void *buff, int len, __wsum sum)
- {
- 	return csum_partial(buff, len, sum);
- }
- 
- #define CSUM_MANGLED_0 ((__force __sum16)0xffff)
- 
--static inline void csum_replace_by_diff(__sum16 *sum, __wsum diff)
-+static __always_inline void csum_replace_by_diff(__sum16 *sum, __wsum diff)
- {
- 	*sum = csum_fold(csum_add(diff, ~csum_unfold(*sum)));
- }
- 
--static inline void csum_replace4(__sum16 *sum, __be32 from, __be32 to)
-+static __always_inline void csum_replace4(__sum16 *sum, __be32 from, __be32 to)
- {
- 	__wsum tmp = csum_sub(~csum_unfold(*sum), (__force __wsum)from);
- 
-@@ -134,7 +135,7 @@ static inline void csum_replace4(__sum16
-  *  m : old value of a 16bit field
-  *  m' : new value of a 16bit field
-  */
--static inline void csum_replace2(__sum16 *sum, __be16 old, __be16 new)
-+static __always_inline void csum_replace2(__sum16 *sum, __be16 old, __be16 new)
- {
- 	*sum = ~csum16_add(csum16_sub(~(*sum), old), new);
- }
-@@ -153,16 +154,16 @@ void inet_proto_csum_replace16(__sum16 *
- void inet_proto_csum_replace_by_diff(__sum16 *sum, struct sk_buff *skb,
- 				     __wsum diff, bool pseudohdr);
- 
--static inline void inet_proto_csum_replace2(__sum16 *sum, struct sk_buff *skb,
--					    __be16 from, __be16 to,
--					    bool pseudohdr)
-+static __always_inline
-+void inet_proto_csum_replace2(__sum16 *sum, struct sk_buff *skb,
-+			      __be16 from, __be16 to, bool pseudohdr)
- {
- 	inet_proto_csum_replace4(sum, skb, (__force __be32)from,
- 				 (__force __be32)to, pseudohdr);
- }
- 
--static inline __wsum remcsum_adjust(void *ptr, __wsum csum,
--				    int start, int offset)
-+static __always_inline __wsum remcsum_adjust(void *ptr, __wsum csum,
-+					     int start, int offset)
- {
- 	__sum16 *psum = (__sum16 *)(ptr + offset);
- 	__wsum delta;
-@@ -178,7 +179,7 @@ static inline __wsum remcsum_adjust(void
- 	return delta;
- }
- 
--static inline void remcsum_unadjust(__sum16 *psum, __wsum delta)
-+static __always_inline void remcsum_unadjust(__sum16 *psum, __wsum delta)
- {
- 	*psum = csum_fold(csum_sub(delta, (__force __wsum)*psum));
+ 	return 0;
  }
 
 
