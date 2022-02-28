@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE564C7570
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D205B4C7348
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234340AbiB1RzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:55:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
+        id S237954AbiB1ReY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239611AbiB1RxO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:14 -0500
+        with ESMTP id S238191AbiB1RdB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED6DAA012;
-        Mon, 28 Feb 2022 09:40:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513B08E1AF;
+        Mon, 28 Feb 2022 09:29:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 411BBB815BA;
-        Mon, 28 Feb 2022 17:40:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CC9DC340E7;
-        Mon, 28 Feb 2022 17:40:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3C4DB815AE;
+        Mon, 28 Feb 2022 17:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ACF4C340E7;
+        Mon, 28 Feb 2022 17:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070036;
-        bh=5uF6y4pkw02E5d5b+6ZDIAcWCGP3fx5/Fm1OO0TLlEc=;
+        s=korg; t=1646069372;
+        bh=N00vm0L4ilung4QJcP5OHC6ymM1vxVbrdIB7XLVIid8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LITZ/A7vTYp45O5NF4E5SixxUsumwBvJ6/4DmyDWpxspTrDq+/D7kbYNfzmAx2i6n
-         zUPO+kKBzUcNUQInDuCfNJ1e0MQ71U2MvRjpwESlCP5SruYFb6NzfsG0AhYQE1YHxd
-         1XNO35fRfDyHW+rpXyImPR9tERj/q50+A+Ul5c0I=
+        b=Wu1ctiUw7GEOyI7C7Y6wPWRRxBD370g+qWvTQz4jEZx7D6QTvVzhRpy7SlB5EpvtL
+         eWeFpJ5D0ApCb5xF5gQDvaYm/+dV7J8txA8xfyEYwg3FEAiZpqD/cGDsMdTTaDmfhp
+         03EE1CCOKDtFp1aJSSa2YcjYwXJfr81pnD24D9SM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>
-Subject: [PATCH 5.15 103/139] sc16is7xx: Fix for incorrect data being transmitted
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 4.19 31/34] usb: dwc3: gadget: Let the interrupt handler disable bottom halves.
 Date:   Mon, 28 Feb 2022 18:24:37 +0100
-Message-Id: <20220228172358.504935085@linuxfoundation.org>
+Message-Id: <20220228172211.007858832@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit eebb0f4e894f1e9577a56b337693d1051dd6ebfd upstream.
+commit 84918a89d6efaff075de570b55642b6f4ceeac6d upstream.
 
-UART drivers are meant to use the port spinlock within certain
-methods, to protect against reentrancy. The sc16is7xx driver does
-very little locking, presumably because when added it triggers
-"scheduling while atomic" errors. This is due to the use of mutexes
-within the regmap abstraction layer, and the mutex implementation's
-habit of sleeping the current thread while waiting for access.
-Unfortunately this lack of interlocking can lead to corruption of
-outbound data, which occurs when the buffer used for I2C transmission
-is used simultaneously by two threads - a work queue thread running
-sc16is7xx_tx_proc, and an IRQ thread in sc16is7xx_port_irq, both
-of which can call sc16is7xx_handle_tx.
+The interrupt service routine registered for the gadget is a primary
+handler which mask the interrupt source and a threaded handler which
+handles the source of the interrupt. Since the threaded handler is
+voluntary threaded, the IRQ-core does not disable bottom halves before
+invoke the handler like it does for the forced-threaded handler.
 
-An earlier patch added efr_lock, a mutex that controls access to the
-EFR register. This mutex is already claimed in the IRQ handler, and
-all that is required is to claim the same mutex in sc16is7xx_tx_proc.
+Due to changes in networking it became visible that a network gadget's
+completions handler may schedule a softirq which remains unprocessed.
+The gadget's completion handler is usually invoked either in hard-IRQ or
+soft-IRQ context. In this context it is enough to just raise the softirq
+because the softirq itself will be handled once that context is left.
+In the case of the voluntary threaded handler, there is nothing that
+will process pending softirqs. Which means it remain queued until
+another random interrupt (on this CPU) fires and handles it on its exit
+path or another thread locks and unlocks a lock with the bh suffix.
+Worst case is that the CPU goes idle and the NOHZ complains about
+unhandled softirqs.
 
-See: https://github.com/raspberrypi/linux/issues/4885
+Disable bottom halves before acquiring the lock (and disabling
+interrupts) and enable them after dropping the lock. This ensures that
+any pending softirqs will handled right away.
 
-Fixes: 6393ff1c4435 ("sc16is7xx: Use threaded IRQ")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Link: https://lore.kernel.org/r/20220216160802.1026013-1-phil@raspberrypi.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/c2a64979-73d1-2c22-e048-c275c9f81558@samsung.com
+Fixes: e5f68b4a3e7b0 ("Revert "usb: dwc3: gadget: remove unnecessary _irqsave()"")
+Cc: stable <stable@kernel.org>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lore.kernel.org/r/Yg/YPejVQH3KkRVd@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/sc16is7xx.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/gadget.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -734,12 +734,15 @@ static irqreturn_t sc16is7xx_irq(int irq
- static void sc16is7xx_tx_proc(struct kthread_work *ws)
- {
- 	struct uart_port *port = &(to_sc16is7xx_one(ws, tx_work)->port);
-+	struct sc16is7xx_port *s = dev_get_drvdata(port->dev);
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3181,9 +3181,11 @@ static irqreturn_t dwc3_thread_interrupt
+ 	unsigned long flags;
+ 	irqreturn_t ret = IRQ_NONE;
  
- 	if ((port->rs485.flags & SER_RS485_ENABLED) &&
- 	    (port->rs485.delay_rts_before_send > 0))
- 		msleep(port->rs485.delay_rts_before_send);
++	local_bh_disable();
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 	ret = dwc3_process_event_buf(evt);
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
++	local_bh_enable();
  
-+	mutex_lock(&s->efr_lock);
- 	sc16is7xx_handle_tx(port);
-+	mutex_unlock(&s->efr_lock);
+ 	return ret;
  }
- 
- static void sc16is7xx_reconf_rs485(struct uart_port *port)
 
 
