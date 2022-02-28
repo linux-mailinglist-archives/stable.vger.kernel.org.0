@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEECA4C72BA
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 818D04C7610
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234128AbiB1R1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:27:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
+        id S233333AbiB1R7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234782AbiB1R1Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:24 -0500
+        with ESMTP id S235414AbiB1R5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:57:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51B48933A;
-        Mon, 28 Feb 2022 09:26:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C45A2DD50;
+        Mon, 28 Feb 2022 09:44:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78BC7B815A5;
-        Mon, 28 Feb 2022 17:26:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA748C340E7;
-        Mon, 28 Feb 2022 17:26:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EF43B81187;
+        Mon, 28 Feb 2022 17:44:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A64C340E7;
+        Mon, 28 Feb 2022 17:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069193;
-        bh=K+PT6vm5/bQVw4GG+yLjuM2W6nNLSsFbiAZp3tkB0Fo=;
+        s=korg; t=1646070291;
+        bh=+3NWXV/ij98gyzbua8DxAV20vrwUsHuHwyrxkfxw58Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lT6ikH5yX12EKeJEJyIf4dExuv3BRr3Ler5e6ZIAmtVsy/7Szt+CrFaN3k3akPWz2
-         QFGhR22BVJfWDuzfazL+PZlfLV84TUnJrBNiU+eyVincXkwcXxi7fH8o28Fh8ESbsw
-         u13qEuml04NVIGkio4MxEIaIbLRPHK/dSVEyxJBQ=
+        b=Yqa+MX/1X5PWrsFf0tHp6cGyzRTDhPgC47JlZpleaM6N304VMq2QIZ1v38Vb0kF24
+         Kf662XIb/mqleDdYO0ScJ9f2sTMbqAS7QWxOay06Za4sXcn+vb2isDeQG06ezggthM
+         6yYmyAgrZIGBz80x3aVR6u4yKet56Kcmdg77xPsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 08/29] serial: 8250: of: Fix mapped region size when using reg-offset property
-Date:   Mon, 28 Feb 2022 18:23:35 +0100
-Message-Id: <20220228172142.363909142@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 5.16 054/164] ice: initialize local variable tlv
+Date:   Mon, 28 Feb 2022 18:23:36 +0100
+Message-Id: <20220228172405.047717439@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Tom Rix <trix@redhat.com>
 
-commit d06b1cf28297e27127d3da54753a3a01a2fa2f28 upstream.
+commit 5950bdc88dd1d158f2845fdff8fb1de86476806c upstream.
 
-8250_of supports a reg-offset property which is intended to handle
-cases where the device registers start at an offset inside the region
-of memory allocated to the device. The Xilinx 16550 UART, for which this
-support was initially added, requires this. However, the code did not
-adjust the overall size of the mapped region accordingly, causing the
-driver to request an area of memory past the end of the device's
-allocation. For example, if the UART was allocated an address of
-0xb0130000, size of 0x10000 and reg-offset of 0x1000 in the device
-tree, the region of memory reserved was b0131000-b0140fff, which caused
-the driver for the region starting at b0140000 to fail to probe.
+Clang static analysis reports this issues
+ice_common.c:5008:21: warning: The left expression of the compound
+  assignment is an uninitialized value. The computed value will
+  also be garbage
+  ldo->phy_type_low |= ((u64)buf << (i * 16));
+  ~~~~~~~~~~~~~~~~~ ^
 
-Fix this by subtracting reg-offset from the mapped region size.
+When called from ice_cfg_phy_fec() ldo is the uninitialized local
+variable tlv.  So initialize.
 
-Fixes: b912b5e2cfb3 ([POWERPC] Xilinx: of_serial support for Xilinx uart 16550.)
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220112194214.881844-1-robert.hancock@calian.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: ea78ce4dab05 ("ice: add link lenient and default override support")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_of.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -94,8 +94,17 @@ static int of_platform_serial_setup(stru
- 	port->mapsize = resource_size(&resource);
+--- a/drivers/net/ethernet/intel/ice/ice_common.c
++++ b/drivers/net/ethernet/intel/ice/ice_common.c
+@@ -3319,7 +3319,7 @@ ice_cfg_phy_fec(struct ice_port_info *pi
  
- 	/* Check for shifted address mapping */
--	if (of_property_read_u32(np, "reg-offset", &prop) == 0)
-+	if (of_property_read_u32(np, "reg-offset", &prop) == 0) {
-+		if (prop >= port->mapsize) {
-+			dev_warn(&ofdev->dev, "reg-offset %u exceeds region size %pa\n",
-+				 prop, &port->mapsize);
-+			ret = -EINVAL;
-+			goto err_unprepare;
-+		}
-+
- 		port->mapbase += prop;
-+		port->mapsize -= prop;
-+	}
+ 	if (fec == ICE_FEC_AUTO && ice_fw_supports_link_override(hw) &&
+ 	    !ice_fw_supports_report_dflt_cfg(hw)) {
+-		struct ice_link_default_override_tlv tlv;
++		struct ice_link_default_override_tlv tlv = { 0 };
  
- 	/* Compatibility with the deprecated pxa driver and 8250_pxa drivers. */
- 	if (of_device_is_compatible(np, "mrvl,mmp-uart"))
+ 		status = ice_get_link_default_override(&tlv, pi);
+ 		if (status)
 
 
