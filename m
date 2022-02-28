@@ -2,146 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 190BD4C7A55
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 426094C7AE5
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:48:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbiB1U0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 15:26:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40250 "EHLO
+        id S229899AbiB1UsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 15:48:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229611AbiB1U0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:26:38 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B37580DE
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:25:59 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id y11so12065492pfa.6
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:25:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=JYJS0+baIpj8rNk1gxFjQtSNQLz0w5fW/GZ4P6Cva34=;
-        b=NtBj2377xC9UwhgXdBGz78ZGGbAgv+utx1c/2FxM08P9KP+6cQCgHNSCuUa6K2g/ot
-         wLF0mQ2Tzf0O/FdNrPPV8s8rvp7/x0FZBKLgJVqg2mi3PjsAQP1PqggPaJun9dTCOqau
-         Tz+PbS0+pVtyzDyGcZHoOtWHeUVJzr9f3TuDE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=JYJS0+baIpj8rNk1gxFjQtSNQLz0w5fW/GZ4P6Cva34=;
-        b=7o1D8x7K6vuR8LE/SkRLab/D08J3TaCqgB4WNyYqMDiSxhqHuCjz1rxJPVLDG4uFGN
-         f1/MOw4e3BQTUXgi7mEyzCUNn0npdkuBFS7xauMqoR7MH2aim1Qv2g66g2dn7AL4nGD+
-         81W+J5Bif4R4LusQXZgGf6ErE6Wl2Ny9Un9OhEUXno4XlvkvVAUpqPa/M5EQKUH4ntRg
-         sp1qZWJrDH2IBZRFpKRU4b3j35T/aRym36lepNYrlTu3M5+NFIC0Tw+aAxaLkbwfPItY
-         dSnVRXefSKIQh0NUz+AEj+SaO9wWfG7BHtZ4yI8b/DgyQunl2a6J9kWH3x5m40E+HJBv
-         lfBA==
-X-Gm-Message-State: AOAM531l8WO3sKmdgrYUSYlQ/WycjRuAbobYcG43XsKHTk/UrsyEPsKh
-        +bp51Qm3GvyYvhZw5YfG76ukb5d9JuCaVQ==
-X-Google-Smtp-Source: ABdhPJzA2n4xckiPWFfvi2ErCa67YVQqABCW741BDbD621t4ro8ENXSJcL3UE0iJi9/RyWEl4pHfeA==
-X-Received: by 2002:a63:1003:0:b0:378:7d70:2ec5 with SMTP id f3-20020a631003000000b003787d702ec5mr8779623pgl.351.1646079958576;
-        Mon, 28 Feb 2022 12:25:58 -0800 (PST)
-Received: from localhost ([2620:15c:202:201:ba66:7507:a6af:82f1])
-        by smtp.gmail.com with UTF8SMTPSA id p10-20020a056a000b4a00b004e12fd48035sm14633629pfo.96.2022.02.28.12.25.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 28 Feb 2022 12:25:58 -0800 (PST)
-From:   Brian Norris <briannorris@chromium.org>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     dri-devel@lists.freedesktop.org, Sean Paul <seanpaul@chromium.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Sean Paul <sean@poorly.run>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Heiko Stuebner <heiko@sntech.de>, linux-kernel@vger.kernel.org,
-        Brian Norris <briannorris@chromium.org>,
-        Liu Ying <victor.liu@oss.nxp.com>, stable@vger.kernel.org
-Subject: [PATCH v2 2/2] drm/atomic: Force bridge self-refresh-exit on CRTC switch
-Date:   Mon, 28 Feb 2022 12:25:32 -0800
-Message-Id: <20220228122522.v2.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid>
-X-Mailer: git-send-email 2.35.1.574.g5d30c73bfb-goog
-In-Reply-To: <20220228202532.869740-1-briannorris@chromium.org>
-References: <20220228202532.869740-1-briannorris@chromium.org>
+        with ESMTP id S229756AbiB1UsI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:48:08 -0500
+X-Greylist: delayed 949 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 28 Feb 2022 12:47:28 PST
+Received: from matoro.tk (unknown [IPv6:2600:1700:4b10:9d80::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7480F5F7B;
+        Mon, 28 Feb 2022 12:47:28 -0800 (PST)
+DKIM-Signature: a=rsa-sha256; bh=3Z50+tLC8/CEOc9W5FMuZ/YfLz0LpCHJGNIb1bHqn70=;
+ c=relaxed/relaxed; d=matoro.tk;
+ h=Subject:Subject:Sender:To:To:Cc:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:In-Reply-To:Message-Id:Message-Id:References:References:Autocrypt:Openpgp;
+ i=@matoro.tk; s=20220111215046; t=1646080260; v=1; x=1646512260;
+ b=crJzFMOR6tc9squcx92hLTuFtuCfhgO+BgNnioUeH7k69a4pSO7joK45Wfxj0yH7NEIwX6uZ
+ ovLhBNmzxYd5GCzchaGc5QbNkiNzNti5/PIEBt0QyXPX2BToy9B41BFvKbxTGv5xjhVv6kKb/oN
+ OVkZTwV0VQF/Nh/w2UdBttHf7cNJH02zmF8O3u9kFIu3JIdWVoXI6KSpQYEr2yd92EMtlkBySjK
+ VOka02DgQS/aFvpvPOaq3GW48LdBEpQclkOgPyVi61JJq9bq0ylXW5ZtUxY/5ix8dkvcSA0wnHK
+ hZIf4rgSu0P5LiEbYccNCW91mbHc6sUp8HfDA43bsiNAQ9+GWbtWDncUnxcuu2PkY3etBd2b/9G
+ zdLjv5VqebunO676QNsGrJRRkEHk7kWB9gid1XivUpxHo3AY+X+T79AbzN/MnHDtxFJuvGoQILr
+ LZE/kxHolAH+o3gf/wpTQC5IMskejWDD2C2ITZi4ryHpV/NAEiuQRV1F03SdJI9r5ngOfcA4QqP
+ BXYRWYXIYIWbrFE3aw7SFY2xkXoyStoakRiewxY3x02/MgRjFkWvAgznd0fbt0DqESFJ7M35xec
+ OEU6V3m+Q53l8JgSfk6YfDSdMAftMhfkYyPj9J1iZNlN4YHvvi7OXXQBftKtjSF8jHYEKGmPGIb
+ 3Al+HFYYAy8=
+Received: by matoro.tk (envelope-sender
+ <matoro_mailinglist_kernel@matoro.tk>) with ESMTPS id 51b43b45; Mon, 28 Feb
+ 2022 15:31:00 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Date:   Mon, 28 Feb 2022 15:31:00 -0500
+From:   matoro <matoro_mailinglist_kernel@matoro.tk>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Biederman <ebiederm@xmission.com>,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        stable@vger.kernel.org,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Anthony Yznaga <anthony.yznaga@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        regressions@lists.linux.dev, linux-ia64@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] binfmt_elf: Avoid total_mapping_size for ET_EXEC
+In-Reply-To: <20220228194613.1149432-1-keescook@chromium.org>
+References: <20220228194613.1149432-1-keescook@chromium.org>
+Message-ID: <5d44f028b2d739395c92e4b3036e2bbf@matoro.tk>
+X-Sender: matoro_mailinglist_kernel@matoro.tk
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RDNS_NONE,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It's possible to change which CRTC is in use for a given
-connector/encoder/bridge while we're in self-refresh without fully
-disabling the connector/encoder/bridge along the way. This can confuse
-the bridge encoder/bridge, because
-(a) it needs to track the SR state (trying to perform "active"
-    operations while the panel is still in SR can be Bad(TM)); and
-(b) it tracks the SR state via the CRTC state (and after the switch, the
-    previous SR state is lost).
+On 2022-02-28 14:46, Kees Cook wrote:
+> Partially revert commit 5f501d555653 ("binfmt_elf: reintroduce using
+> MAP_FIXED_NOREPLACE").
+> 
+> At least ia64 has ET_EXEC PT_LOAD segments that are not virtual-address
+> contiguous (but _are_ file-offset contiguous). This would result in
+> giant mapping attempts to cover the entire span, including the virtual
+> address range hole. Disable total_mapping_size for ET_EXEC, which
+> reduces the MAP_FIXED_NOREPLACE coverage to only the first PT_LOAD:
+> 
+> $ readelf -lW /usr/bin/gcc
+> ...
+> Program Headers:
+>   Type Offset   VirtAddr           PhysAddr           FileSiz  MemSiz   
+> ...
+> ...
+>   LOAD 0x000000 0x4000000000000000 0x4000000000000000 0x00b5a0 0x00b5a0 
+> ...
+>   LOAD 0x00b5a0 0x600000000000b5a0 0x600000000000b5a0 0x0005ac 0x000710 
+> ...
+> ...
+>        ^^^^^^^^ ^^^^^^^^^^^^^^^^^^                    ^^^^^^^^ ^^^^^^^^
+> 
+> File offset range     : 0x000000-0x00bb4c
+> 			0x00bb4c bytes
+> 
+> Virtual address range : 0x4000000000000000-0x600000000000bcb0
+> 			0x200000000000bcb0 bytes
+> 
+> Ironically, this is the reverse of the problem that originally caused
+> problems with ET_EXEC and MAP_FIXED_NOREPLACE: overlaps. This problem 
+> is
+> with holes. Future work could restore full coverage if 
+> load_elf_binary()
+> were to perform mappings in a separate phase from the loading (where
+> it could resolve both overlaps and holes).
+> 
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Eric Biederman <ebiederm@xmission.com>
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-mm@kvack.org
+> Reported-by: matoro <matoro_mailinglist_kernel@matoro.tk>
+> Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> Fixes: 5f501d555653 ("binfmt_elf: reintroduce using 
+> MAP_FIXED_NOREPLACE")
+> Link:
+> https://lore.kernel.org/r/a3edd529-c42d-3b09-135c-7e98a15b150f@leemhuis.info
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+> matoro (or anyone else) can you please test this?
+> ---
+>  fs/binfmt_elf.c | 25 ++++++++++++++++++-------
+>  1 file changed, 18 insertions(+), 7 deletions(-)
+> 
+> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+> index 9bea703ed1c2..474b44032c65 100644
+> --- a/fs/binfmt_elf.c
+> +++ b/fs/binfmt_elf.c
+> @@ -1136,14 +1136,25 @@ static int load_elf_binary(struct linux_binprm 
+> *bprm)
+>  			 * is then page aligned.
+>  			 */
+>  			load_bias = ELF_PAGESTART(load_bias - vaddr);
+> -		}
+> 
+> -		/*
+> -		 * Calculate the entire size of the ELF mapping (total_size).
+> -		 * (Note that first_pt_load is set to false later once the
+> -		 * initial mapping is performed.)
+> -		 */
+> -		if (first_pt_load) {
+> +			/*
+> +			 * Calculate the entire size of the ELF mapping
+> +			 * (total_size), used for the initial mapping,
+> +			 * due to first_pt_load which is set to false later
+> +			 * once the initial mapping is performed.
+> +			 *
+> +			 * Note that this is only sensible when the LOAD
+> +			 * segments are contiguous (or overlapping). If
+> +			 * used for LOADs that are far apart, this would
+> +			 * cause the holes between LOADs to be mapped,
+> +			 * running the risk of having the mapping fail,
+> +			 * as it would be larger than the ELF file itself.
+> +			 *
+> +			 * As a result, only ET_DYN does this, since
+> +			 * some ET_EXEC (e.g. ia64) may have virtual
+> +			 * memory holes between LOADs.
+> +			 *
+> +			 */
+>  			total_size = total_mapping_size(elf_phdata,
+>  							elf_ex->e_phnum);
+>  			if (!total_size) {
 
-Thus, we need to either somehow carry the self-refresh state over to the
-new CRTC, or else force an encoder/bridge self-refresh transition during
-such a switch.
-
-I choose the latter, so we disable the encoder (and exit PSR) before
-attaching it to the new CRTC (where we can continue to assume a clean
-(non-self-refresh) state).
-
-This fixes PSR issues seen on Rockchip RK3399 systems with
-drivers/gpu/drm/bridge/analogix/analogix_dp_core.c.
-
-Change in v2:
-
-- Drop "->enable" condition; this could possibly be "->active" to
-  reflect the intended hardware state, but it also is a little
-  over-specific. We want to make a transition through "disabled" any
-  time we're exiting PSR at the same time as a CRTC switch.
-  (Thanks Liu Ying)
-
-Cc: Liu Ying <victor.liu@oss.nxp.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
----
- drivers/gpu/drm/drm_atomic_helper.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index 9603193d2fa1..987e4b212e9f 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -1011,9 +1011,19 @@ crtc_needs_disable(struct drm_crtc_state *old_state,
- 		return drm_atomic_crtc_effectively_active(old_state);
- 
- 	/*
--	 * We need to run through the crtc_funcs->disable() function if the CRTC
--	 * is currently on, if it's transitioning to self refresh mode, or if
--	 * it's in self refresh mode and needs to be fully disabled.
-+	 * We need to disable bridge(s) and CRTC if we're transitioning out of
-+	 * self-refresh and changing CRTCs at the same time, because the
-+	 * bridge tracks self-refresh status via CRTC state.
-+	 */
-+	if (old_state->self_refresh_active &&
-+	    old_state->crtc != new_state->crtc)
-+		return true;
-+
-+	/*
-+	 * We also need to run through the crtc_funcs->disable() function if
-+	 * the CRTC is currently on, if it's transitioning to self refresh
-+	 * mode, or if it's in self refresh mode and needs to be fully
-+	 * disabled.
- 	 */
- 	return old_state->active ||
- 	       (old_state->self_refresh_active && !new_state->active) ||
--- 
-2.35.1.574.g5d30c73bfb-goog
-
+This does not apply for me, I'm looking around and can't find any 
+reference to the first_pt_load variable you're removing there?  What 
+commit/tag are you applying this on top of?
