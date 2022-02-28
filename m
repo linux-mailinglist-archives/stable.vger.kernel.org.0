@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 374604C74A0
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C35A84C7496
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238493AbiB1RqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:46:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33790 "EHLO
+        id S238488AbiB1Rp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239073AbiB1Rnm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:42 -0500
+        with ESMTP id S239095AbiB1Rnn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B629AE62;
-        Mon, 28 Feb 2022 09:35:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59279BAE7;
+        Mon, 28 Feb 2022 09:35:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58852614B9;
-        Mon, 28 Feb 2022 17:35:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E3AFC340E7;
-        Mon, 28 Feb 2022 17:35:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5888614C9;
+        Mon, 28 Feb 2022 17:35:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8349C340E7;
+        Mon, 28 Feb 2022 17:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069734;
-        bh=v5QaB1hFhjLaOCClqrmwreuVmYnWVQQ3HcouUHL0f/E=;
+        s=korg; t=1646069740;
+        bh=ZiqWtC7lTeskoDYpo8BmFDZ0NEqc4zUEXVUcbwg7D5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QR4Uv8UgwKGBO4Xwy6U4hUW4SO4zZFgmG3ngkAYtUdW9u3qpmSlvQT4YJZd+ko8BE
-         v32CIfPOxYW9PO9v6c+05JoBSl3jgzT5XOs5FX4rGBGRH5vLQkTVjoQgsBk1Gi5k/p
-         bbQCaocqa0fI3cmeqMeuwlPleWNxEpY4ntlKqcTk=
+        b=sHOlbHomJvs22oxNK0fWL0TQe0RifXHnF+YJ4nYpVars/UIxdxYB8f2mJVMWRgISC
+         8pn//+AM1Zz6Y72Lw4NczWMyMBRYia3iPCHQHsXl36+Nr007qH3VIC3GtCQ4mtdx3s
+         snzBbqi1iU9wf0UN1RzuIfG09To6gDZBleq50OM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 74/80] tty: n_gsm: fix encoding of control signal octet bit DV
-Date:   Mon, 28 Feb 2022 18:24:55 +0100
-Message-Id: <20220228172320.674874690@linuxfoundation.org>
+Subject: [PATCH 5.10 75/80] tty: n_gsm: fix proper link termination after failed open
+Date:   Mon, 28 Feb 2022 18:24:56 +0100
+Message-Id: <20220228172320.800541582@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
 References: <20220228172311.789892158@linuxfoundation.org>
@@ -54,27 +54,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit 737b0ef3be6b319d6c1fd64193d1603311969326 upstream.
+commit e3b7468f082d106459e86e8dc6fb9bdd65553433 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.6.3.7 describes the encoding of the
-control signal octet used by the MSC (modem status command). The same
-encoding is also used in convergence layer type 2 as described in chapter
-5.5.2. Table 7 and 24 both require the DV (data valid) bit to be set 1 for
-outgoing control signal octets sent by the DTE (data terminal equipment),
-i.e. for the initiator side.
-Currently, the DV bit is only set if CD (carrier detect) is on, regardless
-of the side.
+Trying to open a DLCI by sending a SABM frame may fail with a timeout.
+The link is closed on the initiator side without informing the responder
+about this event. The responder assumes the link is open after sending a
+UA frame to answer the SABM frame. The link gets stuck in a half open
+state.
 
-This patch fixes this behavior by setting the DV bit on the initiator side
-unconditionally.
+This patch fixes this by initiating the proper link termination procedure
+after link setup timeout instead of silently closing it down.
 
 Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220218073123.2121-1-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220218073123.2121-3-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/tty/n_gsm.c |    2 +-
@@ -82,14 +76,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -434,7 +434,7 @@ static u8 gsm_encode_modem(const struct
- 		modembits |= MDM_RTR;
- 	if (dlci->modem_tx & TIOCM_RI)
- 		modembits |= MDM_IC;
--	if (dlci->modem_tx & TIOCM_CD)
-+	if (dlci->modem_tx & TIOCM_CD || dlci->gsm->initiator)
- 		modembits |= MDM_DV;
- 	return modembits;
- }
+@@ -1485,7 +1485,7 @@ static void gsm_dlci_t1(struct timer_lis
+ 			dlci->mode = DLCI_MODE_ADM;
+ 			gsm_dlci_open(dlci);
+ 		} else {
+-			gsm_dlci_close(dlci);
++			gsm_dlci_begin_close(dlci); /* prevent half open link */
+ 		}
+ 
+ 		break;
 
 
