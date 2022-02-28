@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53DC94C7507
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:49:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE87C4C7650
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238527AbiB1RuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:50:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51452 "EHLO
+        id S235455AbiB1SCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:02:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238848AbiB1RtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:49:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D8BC8E1BC;
-        Mon, 28 Feb 2022 09:38:55 -0800 (PST)
+        with ESMTP id S239453AbiB1SB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:01:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFDF9BAD5;
+        Mon, 28 Feb 2022 09:45:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1B78B815A6;
-        Mon, 28 Feb 2022 17:38:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42CE5C340E7;
-        Mon, 28 Feb 2022 17:38:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 859CFB81085;
+        Mon, 28 Feb 2022 17:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA73DC340E7;
+        Mon, 28 Feb 2022 17:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069932;
-        bh=VyUfbnGaAd3kqjHNxWN381qVv/0zLvBAVIYkwePJkDA=;
+        s=korg; t=1646070347;
+        bh=uW5lP9Jlu1qgQDuB/8Sam5qo0Jjx9pzRygNq0AAbrZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OPIArMzJ0klpiT7Eay/yR2sTvy3jtA3uY4swsk5V2tyoKqVsm6WkQxei2cKYt+2Sp
-         n1Bl06UdxS/zMoykqSVbovbS90kgZAtJhfCuSUQ6hlM5rzaWrkoKkCuhXCEdxuGW9v
-         IXMbNChULBcL+Xr42EcF1VmhC5VO+81rfbRtK7nE=
+        b=Z6+2wbufnX6eyk9EwLnUUJAKfOC4jPqw/9goBY9pBMY/H1MHzEdLQF6Qz0iPAdwe5
+         roFVmMm/7RlXXTdJIA2zLs/LAH8n5bpxHesXOw1a2pC87IfwTQuVinXnDWxLs4rUt9
+         RA8jlboUMcfGeZ36WgoCwGPtxK4p+ff0gI+aumxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Javier Martinez Canillas <javierm@redhat.com>
-Subject: [PATCH 5.15 064/139] drm/vc4: crtc: Fix runtime_pm reference counting
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 076/164] drm/amd/display: For vblank_disable_immediate, check PSR is really used
 Date:   Mon, 28 Feb 2022 18:23:58 +0100
-Message-Id: <20220228172354.427176066@linuxfoundation.org>
+Message-Id: <20220228172406.930512356@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Michel Dänzer <mdaenzer@redhat.com>
 
-commit 6764eb690e77ecded48587d6d4e346ba2e196546 upstream.
+commit 4d22336f903930eb94588b939c310743a3640276 upstream.
 
-At boot on the BCM2711, if the HDMI controllers are running, the CRTC
-driver will disable itself and its associated HDMI controller to work
-around a hardware bug that would leave some pixels stuck in a FIFO.
+Even if PSR is allowed for a present GPU, there might be no eDP link
+which supports PSR.
 
-In order to avoid that issue, we need to run some operations in lockstep
-between the CRTC and HDMI controller, and we need to make sure the HDMI
-controller will be powered properly.
-
-However, since we haven't enabled it through KMS, the runtime_pm state
-is off at this point so we need to make sure the device is powered
-through pm_runtime_resume_and_get, and once the operations are complete,
-we call pm_runtime_put.
-
-However, the HDMI controller will do that itself in its
-post_crtc_powerdown, which means we'll end up calling pm_runtime_put for
-a single pm_runtime_get, throwing the reference counting off. Let's
-remove the pm_runtime_put call in the CRTC code in order to have the
-proper counting.
-
-Fixes: bca10db67bda ("drm/vc4: crtc: Make sure the HDMI controller is powered when disabling")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220203102003.1114673-1-maxime@cerno.tech
+Fixes: 708978487304 ("drm/amdgpu/display: Only set vblank_disable_immediate when PSR is not enabled")
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -538,9 +538,11 @@ int vc4_crtc_disable_at_boot(struct drm_
- 	if (ret)
- 		return ret;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4232,6 +4232,9 @@ static int amdgpu_dm_initialize_drm_devi
+ 	}
+ #endif
  
--	ret = pm_runtime_put(&vc4_hdmi->pdev->dev);
--	if (ret)
--		return ret;
-+	/*
-+	 * post_crtc_powerdown will have called pm_runtime_put, so we
-+	 * don't need it here otherwise we'll get the reference counting
-+	 * wrong.
-+	 */
++	/* Disable vblank IRQs aggressively for power-saving. */
++	adev_to_drm(adev)->vblank_disable_immediate = true;
++
+ 	/* loops over all connectors on the board */
+ 	for (i = 0; i < link_cnt; i++) {
+ 		struct dc_link *link = NULL;
+@@ -4277,19 +4280,17 @@ static int amdgpu_dm_initialize_drm_devi
+ 				update_connector_ext_caps(aconnector);
+ 			if (psr_feature_enabled)
+ 				amdgpu_dm_set_psr_caps(link);
++
++			/* TODO: Fix vblank control helpers to delay PSR entry to allow this when
++			 * PSR is also supported.
++			 */
++			if (link->psr_settings.psr_feature_enabled)
++				adev_to_drm(adev)->vblank_disable_immediate = false;
+ 		}
  
- 	return 0;
- }
+ 
+ 	}
+ 
+-	/*
+-	 * Disable vblank IRQs aggressively for power-saving.
+-	 *
+-	 * TODO: Fix vblank control helpers to delay PSR entry to allow this when PSR
+-	 * is also supported.
+-	 */
+-	adev_to_drm(adev)->vblank_disable_immediate = !psr_feature_enabled;
+-
+ 	/* Software is initialized. Now we can register interrupt handlers. */
+ 	switch (adev->asic_type) {
+ #if defined(CONFIG_DRM_AMD_DC_SI)
 
 
