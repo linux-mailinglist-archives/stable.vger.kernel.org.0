@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A71924C73CF
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F8E4C74E8
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235546AbiB1RiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:38:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
+        id S238479AbiB1Rsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:48:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238454AbiB1Rhx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED942DD53;
-        Mon, 28 Feb 2022 09:32:39 -0800 (PST)
+        with ESMTP id S239070AbiB1RsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:48:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAA3EA0BFB;
+        Mon, 28 Feb 2022 09:38:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C042961365;
-        Mon, 28 Feb 2022 17:32:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C97C340E7;
-        Mon, 28 Feb 2022 17:32:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30229614CC;
+        Mon, 28 Feb 2022 17:38:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3991EC340F1;
+        Mon, 28 Feb 2022 17:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069558;
-        bh=BrSgRq3SdVWbYi1p7gAqEbYKLkAs4kDps2u2XRj4XnE=;
+        s=korg; t=1646069910;
+        bh=0G/Ws/alzh86P7Z9GzSFEwyIbKhatD+PgBcy3MZ24Sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZ19c7kxxJMHC1ZYELX1tR343hCnG5fdR0Rtj/V0JYYp2AUKNIumFYBMlJd/dcBrN
-         aEN7dM0lNh6BpqXUIEOiFWd++ftPkGnBzn0udlA4OWoNDsc78b4+WxxVc807YA3EF2
-         uUjOr1uzt+HBxwA/lFvVrqLd3ivSLTHlLifxn+Ak=
+        b=hB/sBnX7z++4vTOCRysEqw5w6y1sd8OPCLd3Lt9SeCsv93ImFx4W5KmoSpN2t8jMr
+         k2Y30q1Xht4ePiUI+oHTYALq/NUaZvza+Wg5I+u1rRPhcvGCnYykBnHkwtzVIIGNlp
+         IY5tq/YtdhfQ6nHlwzGUkzMtBOcYy0+QSNdtTceI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Qiang Yu <qiang.yu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 10/80] drm/amdgpu: check vm ready by amdgpu_vm->evicting flag
+        stable@vger.kernel.org, Kanchan Joshi <joshi.k@samsung.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Daniel Wagner <dwagner@suse.de>
+Subject: [PATCH 5.15 057/139] nvme: also mark passthrough-only namespaces ready in nvme_update_ns_info
 Date:   Mon, 28 Feb 2022 18:23:51 +0100
-Message-Id: <20220228172312.712322810@linuxfoundation.org>
+Message-Id: <20220228172353.699891192@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <qiang.yu@amd.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit c1a66c3bc425ff93774fb2f6eefa67b83170dd7e upstream.
+commit 602e57c9799c19f27e440639deed3ec45cfe1651 upstream.
 
-Workstation application ANSA/META v21.1.4 get this error dmesg when
-running CI test suite provided by ANSA/META:
-[drm:amdgpu_gem_va_ioctl [amdgpu]] *ERROR* Couldn't update BO_VA (-16)
+Commit e7d65803e2bb ("nvme-multipath: revalidate paths during rescan")
+introduced the NVME_NS_READY flag, which nvme_path_is_disabled() uses
+to check if a path can be used or not.  We also need to set this flag
+for devices that fail the ZNS feature validation and which are available
+through passthrough devices only to that they can be used in multipathing
+setups.
 
-This is caused by:
-1. create a 256MB buffer in invisible VRAM
-2. CPU map the buffer and access it causes vm_fault and try to move
-   it to visible VRAM
-3. force visible VRAM space and traverse all VRAM bos to check if
-   evicting this bo is valuable
-4. when checking a VM bo (in invisible VRAM), amdgpu_vm_evictable()
-   will set amdgpu_vm->evicting, but latter due to not in visible
-   VRAM, won't really evict it so not add it to amdgpu_vm->evicted
-5. before next CS to clear the amdgpu_vm->evicting, user VM ops
-   ioctl will pass amdgpu_vm_ready() (check amdgpu_vm->evicted)
-   but fail in amdgpu_vm_bo_update_mapping() (check
-   amdgpu_vm->evicting) and get this error log
-
-This error won't affect functionality as next CS will finish the
-waiting VM ops. But we'd better clear the error log by checking
-the amdgpu_vm->evicting flag in amdgpu_vm_ready() to stop calling
-amdgpu_vm_bo_update_mapping() later.
-
-Another reason is amdgpu_vm->evicted list holds all BOs (both
-user buffer and page table), but only page table BOs' eviction
-prevent VM ops. amdgpu_vm->evicting flag is set only for page
-table BOs, so we should use evicting flag instead of evicted list
-in amdgpu_vm_ready().
-
-The side effect of this change is: previously blocked VM op (user
-buffer in "evicted" list but no page table in it) gets done
-immediately.
-
-v2: update commit comments.
-
-Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Qiang Yu <qiang.yu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: e7d65803e2bb ("nvme-multipath: revalidate paths during rescan")
+Reported-by: Kanchan Joshi <joshi.k@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Tested-by: Kanchan Joshi <joshi.k@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -715,11 +715,16 @@ int amdgpu_vm_validate_pt_bos(struct amd
-  * Check if all VM PDs/PTs are ready for updates
-  *
-  * Returns:
-- * True if eviction list is empty.
-+ * True if VM is not evicting.
-  */
- bool amdgpu_vm_ready(struct amdgpu_vm *vm)
- {
--	return list_empty(&vm->evicted);
-+	bool ret;
-+
-+	amdgpu_vm_eviction_lock(vm);
-+	ret = !vm->evicting;
-+	amdgpu_vm_eviction_unlock(vm);
-+	return ret;
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1914,7 +1914,7 @@ static int nvme_update_ns_info(struct nv
+ 	if (blk_queue_is_zoned(ns->queue)) {
+ 		ret = nvme_revalidate_zones(ns);
+ 		if (ret && !nvme_first_scan(ns->disk))
+-			goto out;
++			return ret;
+ 	}
+ 
+ 	if (nvme_ns_head_multipath(ns->head)) {
+@@ -1929,16 +1929,16 @@ static int nvme_update_ns_info(struct nv
+ 	return 0;
+ 
+ out_unfreeze:
+-	blk_mq_unfreeze_queue(ns->disk->queue);
+-out:
+ 	/*
+ 	 * If probing fails due an unsupported feature, hide the block device,
+ 	 * but still allow other access.
+ 	 */
+ 	if (ret == -ENODEV) {
+ 		ns->disk->flags |= GENHD_FL_HIDDEN;
++		set_bit(NVME_NS_READY, &ns->flags);
+ 		ret = 0;
+ 	}
++	blk_mq_unfreeze_queue(ns->disk->queue);
+ 	return ret;
  }
  
- /**
 
 
