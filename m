@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3414C733E
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9524C7599
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237768AbiB1ReR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39898 "EHLO
+        id S232600AbiB1Rzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237975AbiB1Rci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:32:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4C38AE7E;
-        Mon, 28 Feb 2022 09:29:16 -0800 (PST)
+        with ESMTP id S239466AbiB1RxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399D4A9967;
+        Mon, 28 Feb 2022 09:40:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FCC061440;
-        Mon, 28 Feb 2022 17:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73406C340E7;
-        Mon, 28 Feb 2022 17:29:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AEDFB815C6;
+        Mon, 28 Feb 2022 17:40:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DE15C340E7;
+        Mon, 28 Feb 2022 17:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069353;
-        bh=heffnUpLO99jdcWfJkamhIedC6tI/ruh+8NmK74Kg00=;
+        s=korg; t=1646070019;
+        bh=b15eEKyFsvxhv7wzv4TWKHP+1e+cw/Eu+//k6NfN7gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2BOtlesnKVbyPlA9wbZC26Ix3fr35hoVpXRsxHU7NkisnT4jzAJ73X7ndrIc1oJw
-         /M/rh/o0zrfvYWSp9hMzR1AE5O0bxNkeYTe9WdWUWeu6Cb12kSnXg3xc2eHgJQAW71
-         NJeW0DqR/SE6qrETI2O8wROSbuyCL42ULyxmohcM=
+        b=CHT0w71+FwAHq9BCLDFr64Oq0kL1ZZIzAcwIw8GR4FFdQqpZ9vrbRxc2rt5guFCu/
+         rJ2XwoPCk+SD0oQT++f8th48uTepHois5nFBZjL/PjNxmSyU9P8IlrTGC9J6H7olxs
+         ao6KimFVkopMHJp/w9rVqqIl0/r7ALRZ+wJDHvoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Bagrii <dimich.dmb@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 24/34] Revert "USB: serial: ch341: add new Product ID for CH341A"
-Date:   Mon, 28 Feb 2022 18:24:30 +0100
-Message-Id: <20220228172210.402335912@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 097/139] iio: adc: men_z188_adc: Fix a resource leak in an error handling path
+Date:   Mon, 28 Feb 2022 18:24:31 +0100
+Message-Id: <20220228172357.817243246@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,37 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Bagrii <dimich.dmb@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 198a7ebd5fa17b4d0be8cb70240ee1be885175c0 upstream.
+commit e0a2e37f303828d030a83f33ffe14b36cb88d563 upstream.
 
-This reverts commit 46ee4abb10a07bd8f8ce910ee6b4ae6a947d7f63.
+If iio_device_register() fails, a previous ioremap() is left unbalanced.
 
-CH341 has Product ID 0x5512 in EPP/MEM mode which is used for
-I2C/SPI/GPIO interfaces. In asynchronous serial interface mode
-CH341 has PID 0x5523 which is already in the table.
+Update the error handling path and add the missing iounmap() call, as
+already done in the remove function.
 
-Mode is selected by corresponding jumper setting.
-
-Signed-off-by: Dmytro Bagrii <dimich.dmb@gmail.com>
-Link: https://lore.kernel.org/r/20220210164137.4376-1-dimich.dmb@gmail.com
-Link: https://lore.kernel.org/r/YJ0OCS/sh+1ifD/q@hovoldconsulting.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 74aeac4da66f ("iio: adc: Add MEN 16z188 ADC driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/320fc777863880247c2aff4a9d1a54ba69abf080.1643445149.git.christophe.jaillet@wanadoo.fr
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/adc/men_z188_adc.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -80,7 +80,6 @@
- #define CH341_LCR_CS5          0x00
+--- a/drivers/iio/adc/men_z188_adc.c
++++ b/drivers/iio/adc/men_z188_adc.c
+@@ -103,6 +103,7 @@ static int men_z188_probe(struct mcb_dev
+ 	struct z188_adc *adc;
+ 	struct iio_dev *indio_dev;
+ 	struct resource *mem;
++	int ret;
  
- static const struct usb_device_id id_table[] = {
--	{ USB_DEVICE(0x1a86, 0x5512) },
- 	{ USB_DEVICE(0x1a86, 0x5523) },
- 	{ USB_DEVICE(0x1a86, 0x7522) },
- 	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	indio_dev = devm_iio_device_alloc(&dev->dev, sizeof(struct z188_adc));
+ 	if (!indio_dev)
+@@ -128,8 +129,14 @@ static int men_z188_probe(struct mcb_dev
+ 	adc->mem = mem;
+ 	mcb_set_drvdata(dev, indio_dev);
+ 
+-	return iio_device_register(indio_dev);
++	ret = iio_device_register(indio_dev);
++	if (ret)
++		goto err_unmap;
+ 
++	return 0;
++
++err_unmap:
++	iounmap(adc->base);
+ err:
+ 	mcb_release_mem(mem);
+ 	return -ENXIO;
 
 
