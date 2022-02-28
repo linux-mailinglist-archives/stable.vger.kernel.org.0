@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E4E4C7572
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5FAF4C732D
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231588AbiB1RzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:55:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55118 "EHLO
+        id S237184AbiB1ReC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239578AbiB1RxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:12 -0500
+        with ESMTP id S238137AbiB1Rcy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:32:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AFB2A9E33;
-        Mon, 28 Feb 2022 09:40:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 087B48CD8E;
+        Mon, 28 Feb 2022 09:29:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D50B61540;
-        Mon, 28 Feb 2022 17:40:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56567C340E7;
-        Mon, 28 Feb 2022 17:40:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A1FD61464;
+        Mon, 28 Feb 2022 17:29:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BF39C340E7;
+        Mon, 28 Feb 2022 17:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070025;
-        bh=0fw9T+tZAvMBuO779pLSBg40CJqtPfcQQrG7q6rLaZE=;
+        s=korg; t=1646069361;
+        bh=917T7g5NADCLUB+jfAC4t5c2Tgf/uZE24UZy1cRKwXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sY2R920us4u1icyWrJMY2GeuAy0kY63MbA2HZs6NLptwewN4zLpITf5YSZCa/n3u5
-         tfolpw/Sznyto55UJ+8sJOaOj7VKH0KXWB5FTOTBk1mGDZ6fQ/bUZU+5iBOwFp1UEy
-         of5xboglOBaaslhIfmZAq20oUf/uo7RbXPouHx5E=
+        b=SDOIvfw9I+TKnJKiHY0zBYpjsihrlWaqFTZrk+a5pQLV8DhbEV/nwqTyxnNHnyLMe
+         AQ9uDuQYO3YfnyqOgGpzGBQZ2K883DkXqFZkzvdELRlT6q7jZ9nV2n1nFfpRup2Frg
+         4xeystAAwqfQeGkvAYkzl/mI6bSSfTJL7Fmd2zJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cosmin Tanislav <cosmin.tanislav@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 099/139] iio: adc: ad7124: fix mask used for setting AIN_BUFP & AIN_BUFM bits
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 27/34] tracefs: Set the group ownership in apply_options() not parse_options()
 Date:   Mon, 28 Feb 2022 18:24:33 +0100
-Message-Id: <20220228172358.063554283@linuxfoundation.org>
+Message-Id: <20220228172210.660509352@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cosmin Tanislav <demonsingur@gmail.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 0e33d15f1dce9e3a80a970ea7f0b27837168aeca upstream.
+commit 851e99ebeec3f4a672bb5010cf1ece095acee447 upstream.
 
-According to page 90 of the datasheet [1], AIN_BUFP is bit 6 and
-AIN_BUFM is bit 5 of the CONFIG_0 -> CONFIG_7 registers.
+Al Viro brought it to my attention that the dentries may not be filled
+when the parse_options() is called, causing the call to set_gid() to
+possibly crash. It should only be called if parse_options() succeeds
+totally anyway.
 
-Fix the mask used for setting these bits.
+He suggested the logical place to do the update is in apply_options().
 
-[1]: https://www.analog.com/media/en/technical-documentation/data-sheets/ad7124-8.pdf
+Link: https://lore.kernel.org/all/20220225165219.737025658@goodmis.org/
+Link: https://lkml.kernel.org/r/20220225153426.1c4cab6b@gandalf.local.home
 
-Fixes: 0eaecea6e487 ("iio: adc: ad7124: Add buffered input support")
-Signed-off-by: Cosmin Tanislav <cosmin.tanislav@analog.com>
-Link: https://lore.kernel.org/r/20220112200036.694490-1-cosmin.tanislav@analog.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: 48b27b6b5191 ("tracefs: Set all files to the same group ownership as the mount option")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7124.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/tracefs/inode.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/adc/ad7124.c
-+++ b/drivers/iio/adc/ad7124.c
-@@ -76,7 +76,7 @@
- #define AD7124_CONFIG_REF_SEL(x)	FIELD_PREP(AD7124_CONFIG_REF_SEL_MSK, x)
- #define AD7124_CONFIG_PGA_MSK		GENMASK(2, 0)
- #define AD7124_CONFIG_PGA(x)		FIELD_PREP(AD7124_CONFIG_PGA_MSK, x)
--#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(7, 6)
-+#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(6, 5)
- #define AD7124_CONFIG_IN_BUFF(x)	FIELD_PREP(AD7124_CONFIG_IN_BUFF_MSK, x)
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -265,7 +265,6 @@ static int tracefs_parse_options(char *d
+ 			if (!gid_valid(gid))
+ 				return -EINVAL;
+ 			opts->gid = gid;
+-			set_gid(tracefs_mount->mnt_root, gid);
+ 			break;
+ 		case Opt_mode:
+ 			if (match_octal(&args[0], &option))
+@@ -292,7 +291,9 @@ static int tracefs_apply_options(struct
+ 	inode->i_mode |= opts->mode;
  
- /* AD7124_FILTER_X */
+ 	inode->i_uid = opts->uid;
+-	inode->i_gid = opts->gid;
++
++	/* Set all the group ids to the mount option */
++	set_gid(sb->s_root, opts->gid);
+ 
+ 	return 0;
+ }
 
 
