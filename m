@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D54EF4C7624
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7184C7285
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:26:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237934AbiB1R76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:59:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42428 "EHLO
+        id S233653AbiB1R0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:26:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239286AbiB1R70 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:59:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DD8C88B18;
-        Mon, 28 Feb 2022 09:45:21 -0800 (PST)
+        with ESMTP id S234227AbiB1R0h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:26:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C60576E04;
+        Mon, 28 Feb 2022 09:25:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F9EB6090B;
-        Mon, 28 Feb 2022 17:45:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A5CAC340F0;
-        Mon, 28 Feb 2022 17:45:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD86FB815A5;
+        Mon, 28 Feb 2022 17:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35788C340E7;
+        Mon, 28 Feb 2022 17:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070319;
-        bh=FeXWa6P1qRtmPfj0mdtYpxdTQB265wDqpUFzlISXYoI=;
+        s=korg; t=1646069154;
+        bh=w8pGtcHZO6owIM3oPeS+BA5XE3faq42KlBhU1/HkMwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0swlm84EcX+OLTLmihWlMGIbj7hmFVxxeC9Zj+2AifmqPg1u42h5V4Tn3j/VV41BD
-         O54n9wv2WY+G8U0FfAKcK6rom4SjJmD1c1pLwjeTxPZpq+DOuUQCLmyNyJXa51XMRc
-         ZwifHfLXRCF80ABLX+Z/y4SUO0dVeW8sXET/KW6U=
+        b=uAfGLQ/SFZ2ckzLb7JrKXzi8iE889U8+5RKoufyyOJqsxjbmiEzCUsMzSlXChNZ9C
+         kADSk1mCrUvIq6Sy//k+sZdWP9uQ697yiGPPCRcAsUU3HwS0rdkrUMf2gKMl8kgg62
+         D4s3ogF3DIS5G9nQopn0426ewrUiv2ZsKu9VuCGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.16 058/164] selftests: bpf: Check bpf_msg_push_data return value
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 4.9 13/29] net/mlx5e: Fix wrong return value on ioctl EEPROM query failure
 Date:   Mon, 28 Feb 2022 18:23:40 +0100
-Message-Id: <20220228172405.416279934@linuxfoundation.org>
+Message-Id: <20220228172143.141526295@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
+References: <20220228172141.744228435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Gal Pressman <gal@nvidia.com>
 
-commit 61d06f01f9710b327a53492e5add9f972eb909b3 upstream.
+commit 0b89429722353d112f8b8b29ca397e95fa994d27 upstream.
 
-bpf_msg_push_data may return a non-zero value to indicate an error. The
-return value should be checked to prevent undetected errors.
+The ioctl EEPROM query wrongly returns success on read failures, fix
+that by returning the appropriate error code.
 
-To indicate an error, the BPF programs now perform a different action
-than their intended one to make the userspace test program notice the
-error, i.e., the programs supposed to pass/redirect drop, the program
-supposed to drop passes.
-
-Fixes: 84fbfe026acaa ("bpf: test_sockmap add options to use msg_push_data")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/89f767bb44005d6b4dd1f42038c438f76b3ebfad.1644601294.git.fmaurer@redhat.com
+Fixes: bb64143eee8c ("net/mlx5e: Add ethtool support for dump module EEPROM")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/test_sockmap_kern.h |   26 ++++++++++++------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/progs/test_sockmap_kern.h
-+++ b/tools/testing/selftests/bpf/progs/test_sockmap_kern.h
-@@ -235,7 +235,7 @@ SEC("sk_msg1")
- int bpf_prog4(struct sk_msg_md *msg)
- {
- 	int *bytes, zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5;
--	int *start, *end, *start_push, *end_push, *start_pop, *pop;
-+	int *start, *end, *start_push, *end_push, *start_pop, *pop, err = 0;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -1405,7 +1405,7 @@ static int mlx5e_get_module_eeprom(struc
+ 		if (size_read < 0) {
+ 			netdev_err(priv->netdev, "%s: mlx5_query_eeprom failed:0x%x\n",
+ 				   __func__, size_read);
+-			return 0;
++			return size_read;
+ 		}
  
- 	bytes = bpf_map_lookup_elem(&sock_apply_bytes, &zero);
- 	if (bytes)
-@@ -249,8 +249,11 @@ int bpf_prog4(struct sk_msg_md *msg)
- 		bpf_msg_pull_data(msg, *start, *end, 0);
- 	start_push = bpf_map_lookup_elem(&sock_bytes, &two);
- 	end_push = bpf_map_lookup_elem(&sock_bytes, &three);
--	if (start_push && end_push)
--		bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+	if (start_push && end_push) {
-+		err = bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+		if (err)
-+			return SK_DROP;
-+	}
- 	start_pop = bpf_map_lookup_elem(&sock_bytes, &four);
- 	pop = bpf_map_lookup_elem(&sock_bytes, &five);
- 	if (start_pop && pop)
-@@ -263,6 +266,7 @@ int bpf_prog6(struct sk_msg_md *msg)
- {
- 	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, key = 0;
- 	int *bytes, *start, *end, *start_push, *end_push, *start_pop, *pop, *f;
-+	int err = 0;
- 	__u64 flags = 0;
- 
- 	bytes = bpf_map_lookup_elem(&sock_apply_bytes, &zero);
-@@ -279,8 +283,11 @@ int bpf_prog6(struct sk_msg_md *msg)
- 
- 	start_push = bpf_map_lookup_elem(&sock_bytes, &two);
- 	end_push = bpf_map_lookup_elem(&sock_bytes, &three);
--	if (start_push && end_push)
--		bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+	if (start_push && end_push) {
-+		err = bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+		if (err)
-+			return SK_DROP;
-+	}
- 
- 	start_pop = bpf_map_lookup_elem(&sock_bytes, &four);
- 	pop = bpf_map_lookup_elem(&sock_bytes, &five);
-@@ -338,7 +345,7 @@ SEC("sk_msg5")
- int bpf_prog10(struct sk_msg_md *msg)
- {
- 	int *bytes, *start, *end, *start_push, *end_push, *start_pop, *pop;
--	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5;
-+	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, err = 0;
- 
- 	bytes = bpf_map_lookup_elem(&sock_apply_bytes, &zero);
- 	if (bytes)
-@@ -352,8 +359,11 @@ int bpf_prog10(struct sk_msg_md *msg)
- 		bpf_msg_pull_data(msg, *start, *end, 0);
- 	start_push = bpf_map_lookup_elem(&sock_bytes, &two);
- 	end_push = bpf_map_lookup_elem(&sock_bytes, &three);
--	if (start_push && end_push)
--		bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+	if (start_push && end_push) {
-+		err = bpf_msg_push_data(msg, *start_push, *end_push, 0);
-+		if (err)
-+			return SK_PASS;
-+	}
- 	start_pop = bpf_map_lookup_elem(&sock_bytes, &four);
- 	pop = bpf_map_lookup_elem(&sock_bytes, &five);
- 	if (start_pop && pop)
+ 		i += size_read;
 
 
