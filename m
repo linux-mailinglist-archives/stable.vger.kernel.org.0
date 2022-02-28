@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 817124C74D5
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D8B4C760F
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232560AbiB1Rs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:48:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51452 "EHLO
+        id S234861AbiB1R7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:59:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238966AbiB1Rr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:47:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD61E9F6E5;
-        Mon, 28 Feb 2022 09:38:17 -0800 (PST)
+        with ESMTP id S239824AbiB1R65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:58:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B5B580C5;
+        Mon, 28 Feb 2022 09:45:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55C7C61357;
-        Mon, 28 Feb 2022 17:38:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A9B8C340E7;
-        Mon, 28 Feb 2022 17:38:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48D3D6090B;
+        Mon, 28 Feb 2022 17:44:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33FC0C340E7;
+        Mon, 28 Feb 2022 17:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069896;
-        bh=upPMdnElNNd20feAsnlnwpyu/K9IrRCwpUr5wKx0yfk=;
+        s=korg; t=1646070297;
+        bh=8qBI7gZERXpRyiJ/Rc32j/N4WaHgIoGnhInB+ZudHF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xq2lCxksGLNrZ+pYlSorC7P1l2WlytK9qpzHOVUX8lgnbBCP22eFdIh+TMFsBZ3O+
-         r3rg5VJaF6oF2tsyprfYrF9r4Iqn2moQ6BTeawpwAkAxa0woM4m2UFx29YwBvwZf1t
-         U/jitsWZox2//Qr/qFzjPMUNJKiCvyJxgHw+Pqqs=
+        b=O4PR413/aOAUav7mxv9jCrzh9sIsZ2TBLcTGl4bWxGZ2Td3LJpbOZaJ+2o61UinDD
+         /Tq3GntHYjKd3nVUpYUx8DqYl3b6TxtHJOVMckbwQMedtwA3LAugvREaP0L0gBFEms
+         P/NEVHhmUogkN3ByZ668ZCYzkwhcc3BuYwoDLSSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 044/139] bnxt_en: Fix incorrect multicast rx mask setting when not requested
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.16 056/164] bpf: Fix crash due to incorrect copy_map_value
 Date:   Mon, 28 Feb 2022 18:23:38 +0100
-Message-Id: <20220228172352.343435696@linuxfoundation.org>
+Message-Id: <20220228172405.253762544@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit 8cdb15924252e27af16c4a8fe0fc606ce5fd04dc upstream.
+commit a8abb0c3dc1e28454851a00f8b7333d9695d566c upstream.
 
-We should setup multicast only when net_device flags explicitly
-has IFF_MULTICAST set. Otherwise we will incorrectly turn it on
-even when not asked.  Fix it by only passing the multicast table
-to the firmware if IFF_MULTICAST is set.
+When both bpf_spin_lock and bpf_timer are present in a BPF map value,
+copy_map_value needs to skirt both objects when copying a value into and
+out of the map. However, the current code does not set both s_off and
+t_off in copy_map_value, which leads to a crash when e.g. bpf_spin_lock
+is placed in map value with bpf_timer, as bpf_map_update_elem call will
+be able to overwrite the other timer object.
 
-Fixes: 7d2837dd7a32 ("bnxt_en: Setup multicast properly after resetting device.")
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When the issue is not fixed, an overwriting can produce the following
+splat:
+
+[root@(none) bpf]# ./test_progs -t timer_crash
+[   15.930339] bpf_testmod: loading out-of-tree module taints kernel.
+[   16.037849] ==================================================================
+[   16.038458] BUG: KASAN: user-memory-access in __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.038944] Write of size 8 at addr 0000000000043ec0 by task test_progs/325
+[   16.039399]
+[   16.039514] CPU: 0 PID: 325 Comm: test_progs Tainted: G           OE     5.16.0+ #278
+[   16.039983] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.15.0-1 04/01/2014
+[   16.040485] Call Trace:
+[   16.040645]  <TASK>
+[   16.040805]  dump_stack_lvl+0x59/0x73
+[   16.041069]  ? __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.041427]  kasan_report.cold+0x116/0x11b
+[   16.041673]  ? __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.042040]  __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.042328]  ? memcpy+0x39/0x60
+[   16.042552]  ? pv_hash+0xd0/0xd0
+[   16.042785]  ? lockdep_hardirqs_off+0x95/0xd0
+[   16.043079]  __bpf_spin_lock_irqsave+0xdf/0xf0
+[   16.043366]  ? bpf_get_current_comm+0x50/0x50
+[   16.043608]  ? jhash+0x11a/0x270
+[   16.043848]  bpf_timer_cancel+0x34/0xe0
+[   16.044119]  bpf_prog_c4ea1c0f7449940d_sys_enter+0x7c/0x81
+[   16.044500]  bpf_trampoline_6442477838_0+0x36/0x1000
+[   16.044836]  __x64_sys_nanosleep+0x5/0x140
+[   16.045119]  do_syscall_64+0x59/0x80
+[   16.045377]  ? lock_is_held_type+0xe4/0x140
+[   16.045670]  ? irqentry_exit_to_user_mode+0xa/0x40
+[   16.046001]  ? mark_held_locks+0x24/0x90
+[   16.046287]  ? asm_exc_page_fault+0x1e/0x30
+[   16.046569]  ? asm_exc_page_fault+0x8/0x30
+[   16.046851]  ? lockdep_hardirqs_on+0x7e/0x100
+[   16.047137]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   16.047405] RIP: 0033:0x7f9e4831718d
+[   16.047602] Code: b4 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d b3 6c 0c 00 f7 d8 64 89 01 48
+[   16.048764] RSP: 002b:00007fff488086b8 EFLAGS: 00000206 ORIG_RAX: 0000000000000023
+[   16.049275] RAX: ffffffffffffffda RBX: 00007f9e48683740 RCX: 00007f9e4831718d
+[   16.049747] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00007fff488086d0
+[   16.050225] RBP: 00007fff488086f0 R08: 00007fff488085d7 R09: 00007f9e4cb594a0
+[   16.050648] R10: 0000000000000000 R11: 0000000000000206 R12: 00007f9e484cde30
+[   16.051124] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[   16.051608]  </TASK>
+[   16.051762] ==================================================================
+
+Fixes: 68134668c17f ("bpf: Add map side support for bpf timers.")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209070324.1093182-2-memxor@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ include/linux/bpf.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -4757,8 +4757,10 @@ static int bnxt_hwrm_cfa_l2_set_rx_mask(
- 		return rc;
- 
- 	req->vnic_id = cpu_to_le32(vnic->fw_vnic_id);
--	req->num_mc_entries = cpu_to_le32(vnic->mc_list_count);
--	req->mc_tbl_addr = cpu_to_le64(vnic->mc_list_mapping);
-+	if (vnic->rx_mask & CFA_L2_SET_RX_MASK_REQ_MASK_MCAST) {
-+		req->num_mc_entries = cpu_to_le32(vnic->mc_list_count);
-+		req->mc_tbl_addr = cpu_to_le64(vnic->mc_list_mapping);
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -224,7 +224,8 @@ static inline void copy_map_value(struct
+ 	if (unlikely(map_value_has_spin_lock(map))) {
+ 		s_off = map->spin_lock_off;
+ 		s_sz = sizeof(struct bpf_spin_lock);
+-	} else if (unlikely(map_value_has_timer(map))) {
 +	}
- 	req->mask = cpu_to_le32(vnic->rx_mask);
- 	return hwrm_req_send_silent(bp, req);
- }
-@@ -8624,7 +8626,7 @@ static int bnxt_init_chip(struct bnxt *b
- 	if (bp->dev->flags & IFF_ALLMULTI) {
- 		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
--	} else {
-+	} else if (bp->dev->flags & IFF_MULTICAST) {
- 		u32 mask = 0;
- 
- 		bnxt_mc_list_updated(bp, &mask);
-@@ -10737,7 +10739,7 @@ static void bnxt_set_rx_mode(struct net_
- 	if (dev->flags & IFF_ALLMULTI) {
- 		mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
--	} else {
-+	} else if (dev->flags & IFF_MULTICAST) {
- 		mc_update = bnxt_mc_list_updated(bp, &mask);
++	if (unlikely(map_value_has_timer(map))) {
+ 		t_off = map->timer_off;
+ 		t_sz = sizeof(struct bpf_timer);
  	}
- 
-@@ -10805,9 +10807,10 @@ skip_uc:
- 	    !bnxt_promisc_ok(bp))
- 		vnic->rx_mask &= ~CFA_L2_SET_RX_MASK_REQ_MASK_PROMISCUOUS;
- 	rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
--	if (rc && vnic->mc_list_count) {
-+	if (rc && (vnic->rx_mask & CFA_L2_SET_RX_MASK_REQ_MASK_MCAST)) {
- 		netdev_info(bp->dev, "Failed setting MC filters rc: %d, turning on ALL_MCAST mode\n",
- 			    rc);
-+		vnic->rx_mask &= ~CFA_L2_SET_RX_MASK_REQ_MASK_MCAST;
- 		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
- 		rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
 
 
