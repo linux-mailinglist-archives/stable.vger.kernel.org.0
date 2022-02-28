@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 985574C730E
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA31C4C73E9
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235116AbiB1Rbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:31:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47670 "EHLO
+        id S236151AbiB1RjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:39:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235832AbiB1RbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:31:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067817DAA7;
-        Mon, 28 Feb 2022 09:28:39 -0800 (PST)
+        with ESMTP id S237387AbiB1Ri2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D538A6C9;
+        Mon, 28 Feb 2022 09:33:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC8C661357;
-        Mon, 28 Feb 2022 17:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8976C340E7;
-        Mon, 28 Feb 2022 17:28:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 012AAB815BA;
+        Mon, 28 Feb 2022 17:33:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D2C8C340E7;
+        Mon, 28 Feb 2022 17:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069318;
-        bh=h5149FWo7kuGPAsX8CQkJGC8nWgy6PYR+S4ELLwgXHc=;
+        s=korg; t=1646069630;
+        bh=31R7M9ttApfrfSsmOywRvC7exLj0JmDK2xRcnkyqv7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKFP4VH7z6QwTYHYAA/ltwuogaadX+AmuNGsePOyxi6cU5S6zUeJ6E0UfLWwmiwbB
-         aD0//nupiYpkYGSvCLVGGJpheHv1X+T7KTrlCLZivRn93CrTelvRgpqtm0lJsUcFnI
-         VKSBV7PQ60IwoDoW0ZLJJ7Hl+lQw5by05W+cuMrI=
+        b=1V03lX4sJKkXPqAZ5kQWJLmtRdGbYxiAe3K3E1xMaJ5LjTVnNnDFJkXA+JtiQFC25
+         0vI2MaoDAXctZkffjtLBEm4XdsZ8O8R9s1VwsEvvHP7UlvM57vKae929L1D3mMlAg5
+         7OBlXUxIWC8VG1GBVACZ1e/qqfmaAx7Xl+BDoOqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 11/34] openvswitch: Fix setting ipv6 fields causing hw csum failure
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 36/80] net: Force inlining of checksum functions in net/checksum.h
 Date:   Mon, 28 Feb 2022 18:24:17 +0100
-Message-Id: <20220228172209.384061092@linuxfoundation.org>
+Message-Id: <20220228172315.795212309@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,149 +57,241 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Blakey <paulb@nvidia.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit d9b5ae5c1b241b91480aa30408be12fe91af834a upstream.
+commit 5486f5bf790b5c664913076c3194b8f916a5c7ad upstream.
 
-Ipv6 ttl, label and tos fields are modified without first
-pulling/pushing the ipv6 header, which would have updated
-the hw csum (if available). This might cause csum validation
-when sending the packet to the stack, as can be seen in
-the trace below.
+All functions defined as static inline in net/checksum.h are
+meant to be inlined for performance reason.
 
-Fix this by updating skb->csum if available.
+But since commit ac7c3e4ff401 ("compiler: enable
+CONFIG_OPTIMIZE_INLINING forcibly") the compiler is allowed to
+uninline functions when it wants.
 
-Trace resulted by ipv6 ttl dec and then sending packet
-to conntrack [actions: set(ipv6(hlimit=63)),ct(zone=99)]:
-[295241.900063] s_pf0vf2: hw csum failure
-[295241.923191] Call Trace:
-[295241.925728]  <IRQ>
-[295241.927836]  dump_stack+0x5c/0x80
-[295241.931240]  __skb_checksum_complete+0xac/0xc0
-[295241.935778]  nf_conntrack_tcp_packet+0x398/0xba0 [nf_conntrack]
-[295241.953030]  nf_conntrack_in+0x498/0x5e0 [nf_conntrack]
-[295241.958344]  __ovs_ct_lookup+0xac/0x860 [openvswitch]
-[295241.968532]  ovs_ct_execute+0x4a7/0x7c0 [openvswitch]
-[295241.979167]  do_execute_actions+0x54a/0xaa0 [openvswitch]
-[295242.001482]  ovs_execute_actions+0x48/0x100 [openvswitch]
-[295242.006966]  ovs_dp_process_packet+0x96/0x1d0 [openvswitch]
-[295242.012626]  ovs_vport_receive+0x6c/0xc0 [openvswitch]
-[295242.028763]  netdev_frame_hook+0xc0/0x180 [openvswitch]
-[295242.034074]  __netif_receive_skb_core+0x2ca/0xcb0
-[295242.047498]  netif_receive_skb_internal+0x3e/0xc0
-[295242.052291]  napi_gro_receive+0xba/0xe0
-[295242.056231]  mlx5e_handle_rx_cqe_mpwrq_rep+0x12b/0x250 [mlx5_core]
-[295242.062513]  mlx5e_poll_rx_cq+0xa0f/0xa30 [mlx5_core]
-[295242.067669]  mlx5e_napi_poll+0xe1/0x6b0 [mlx5_core]
-[295242.077958]  net_rx_action+0x149/0x3b0
-[295242.086762]  __do_softirq+0xd7/0x2d6
-[295242.090427]  irq_exit+0xf7/0x100
-[295242.093748]  do_IRQ+0x7f/0xd0
-[295242.096806]  common_interrupt+0xf/0xf
-[295242.100559]  </IRQ>
-[295242.102750] RIP: 0033:0x7f9022e88cbd
-[295242.125246] RSP: 002b:00007f9022282b20 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffda
-[295242.132900] RAX: 0000000000000005 RBX: 0000000000000010 RCX: 0000000000000000
-[295242.140120] RDX: 00007f9022282ba8 RSI: 00007f9022282a30 RDI: 00007f9014005c30
-[295242.147337] RBP: 00007f9014014d60 R08: 0000000000000020 R09: 00007f90254a8340
-[295242.154557] R10: 00007f9022282a28 R11: 0000000000000246 R12: 0000000000000000
-[295242.161775] R13: 00007f902308c000 R14: 000000000000002b R15: 00007f9022b71f40
+Fair enough in the general case, but for tiny performance critical
+checksum helpers that's counter-productive.
 
-Fixes: 3fdbd1ce11e5 ("openvswitch: add ipv6 'set' action")
-Signed-off-by: Paul Blakey <paulb@nvidia.com>
-Link: https://lore.kernel.org/r/20220223163416.24096-1-paulb@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The problem mainly arises when selecting CONFIG_CC_OPTIMISE_FOR_SIZE,
+Those helpers being 'static inline' in header files you suddenly find
+them duplicated many times in the resulting vmlinux.
+
+Here is a typical exemple when building powerpc pmac32_defconfig
+with CONFIG_CC_OPTIMISE_FOR_SIZE. csum_sub() appears 4 times:
+
+	c04a23cc <csum_sub>:
+	c04a23cc:	7c 84 20 f8 	not     r4,r4
+	c04a23d0:	7c 63 20 14 	addc    r3,r3,r4
+	c04a23d4:	7c 63 01 94 	addze   r3,r3
+	c04a23d8:	4e 80 00 20 	blr
+		...
+	c04a2ce8:	4b ff f6 e5 	bl      c04a23cc <csum_sub>
+		...
+	c04a2d2c:	4b ff f6 a1 	bl      c04a23cc <csum_sub>
+		...
+	c04a2d54:	4b ff f6 79 	bl      c04a23cc <csum_sub>
+		...
+	c04a754c <csum_sub>:
+	c04a754c:	7c 84 20 f8 	not     r4,r4
+	c04a7550:	7c 63 20 14 	addc    r3,r3,r4
+	c04a7554:	7c 63 01 94 	addze   r3,r3
+	c04a7558:	4e 80 00 20 	blr
+		...
+	c04ac930:	4b ff ac 1d 	bl      c04a754c <csum_sub>
+		...
+	c04ad264:	4b ff a2 e9 	bl      c04a754c <csum_sub>
+		...
+	c04e3b08 <csum_sub>:
+	c04e3b08:	7c 84 20 f8 	not     r4,r4
+	c04e3b0c:	7c 63 20 14 	addc    r3,r3,r4
+	c04e3b10:	7c 63 01 94 	addze   r3,r3
+	c04e3b14:	4e 80 00 20 	blr
+		...
+	c04e5788:	4b ff e3 81 	bl      c04e3b08 <csum_sub>
+		...
+	c04e65c8:	4b ff d5 41 	bl      c04e3b08 <csum_sub>
+		...
+	c0512d34 <csum_sub>:
+	c0512d34:	7c 84 20 f8 	not     r4,r4
+	c0512d38:	7c 63 20 14 	addc    r3,r3,r4
+	c0512d3c:	7c 63 01 94 	addze   r3,r3
+	c0512d40:	4e 80 00 20 	blr
+		...
+	c0512dfc:	4b ff ff 39 	bl      c0512d34 <csum_sub>
+		...
+	c05138bc:	4b ff f4 79 	bl      c0512d34 <csum_sub>
+		...
+
+Restore the expected behaviour by using __always_inline for all
+functions defined in net/checksum.h
+
+vmlinux size is even reduced by 256 bytes with this patch:
+
+	   text	   data	    bss	    dec	    hex	filename
+	6980022	2515362	 194384	9689768	 93daa8	vmlinux.before
+	6979862	2515266	 194384	9689512	 93d9a8	vmlinux.now
+
+Fixes: ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING forcibly")
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/checksum.h    |    5 +++++
- net/openvswitch/actions.c |   46 ++++++++++++++++++++++++++++++++++++++--------
- 2 files changed, 43 insertions(+), 8 deletions(-)
+ include/net/checksum.h |   43 ++++++++++++++++++++++---------------------
+ 1 file changed, 22 insertions(+), 21 deletions(-)
 
 --- a/include/net/checksum.h
 +++ b/include/net/checksum.h
-@@ -143,6 +143,11 @@ static inline void csum_replace2(__sum16
+@@ -22,7 +22,7 @@
+ #include <asm/checksum.h>
+ 
+ #ifndef _HAVE_ARCH_COPY_AND_CSUM_FROM_USER
+-static inline
++static __always_inline
+ __wsum csum_and_copy_from_user (const void __user *src, void *dst,
+ 				      int len)
+ {
+@@ -33,7 +33,7 @@ __wsum csum_and_copy_from_user (const vo
+ #endif
+ 
+ #ifndef HAVE_CSUM_COPY_USER
+-static __inline__ __wsum csum_and_copy_to_user
++static __always_inline __wsum csum_and_copy_to_user
+ (const void *src, void __user *dst, int len)
+ {
+ 	__wsum sum = csum_partial(src, len, ~0U);
+@@ -45,7 +45,7 @@ static __inline__ __wsum csum_and_copy_t
+ #endif
+ 
+ #ifndef _HAVE_ARCH_CSUM_AND_COPY
+-static inline __wsum
++static __always_inline __wsum
+ csum_partial_copy_nocheck(const void *src, void *dst, int len)
+ {
+ 	memcpy(dst, src, len);
+@@ -54,7 +54,7 @@ csum_partial_copy_nocheck(const void *sr
+ #endif
+ 
+ #ifndef HAVE_ARCH_CSUM_ADD
+-static inline __wsum csum_add(__wsum csum, __wsum addend)
++static __always_inline __wsum csum_add(__wsum csum, __wsum addend)
+ {
+ 	u32 res = (__force u32)csum;
+ 	res += (__force u32)addend;
+@@ -62,12 +62,12 @@ static inline __wsum csum_add(__wsum csu
+ }
+ #endif
+ 
+-static inline __wsum csum_sub(__wsum csum, __wsum addend)
++static __always_inline __wsum csum_sub(__wsum csum, __wsum addend)
+ {
+ 	return csum_add(csum, ~addend);
+ }
+ 
+-static inline __sum16 csum16_add(__sum16 csum, __be16 addend)
++static __always_inline __sum16 csum16_add(__sum16 csum, __be16 addend)
+ {
+ 	u16 res = (__force u16)csum;
+ 
+@@ -75,12 +75,12 @@ static inline __sum16 csum16_add(__sum16
+ 	return (__force __sum16)(res + (res < (__force u16)addend));
+ }
+ 
+-static inline __sum16 csum16_sub(__sum16 csum, __be16 addend)
++static __always_inline __sum16 csum16_sub(__sum16 csum, __be16 addend)
+ {
+ 	return csum16_add(csum, ~addend);
+ }
+ 
+-static inline __wsum
++static __always_inline __wsum
+ csum_block_add(__wsum csum, __wsum csum2, int offset)
+ {
+ 	u32 sum = (__force u32)csum2;
+@@ -92,36 +92,37 @@ csum_block_add(__wsum csum, __wsum csum2
+ 	return csum_add(csum, (__force __wsum)sum);
+ }
+ 
+-static inline __wsum
++static __always_inline __wsum
+ csum_block_add_ext(__wsum csum, __wsum csum2, int offset, int len)
+ {
+ 	return csum_block_add(csum, csum2, offset);
+ }
+ 
+-static inline __wsum
++static __always_inline __wsum
+ csum_block_sub(__wsum csum, __wsum csum2, int offset)
+ {
+ 	return csum_block_add(csum, ~csum2, offset);
+ }
+ 
+-static inline __wsum csum_unfold(__sum16 n)
++static __always_inline __wsum csum_unfold(__sum16 n)
+ {
+ 	return (__force __wsum)n;
+ }
+ 
+-static inline __wsum csum_partial_ext(const void *buff, int len, __wsum sum)
++static __always_inline
++__wsum csum_partial_ext(const void *buff, int len, __wsum sum)
+ {
+ 	return csum_partial(buff, len, sum);
+ }
+ 
+ #define CSUM_MANGLED_0 ((__force __sum16)0xffff)
+ 
+-static inline void csum_replace_by_diff(__sum16 *sum, __wsum diff)
++static __always_inline void csum_replace_by_diff(__sum16 *sum, __wsum diff)
+ {
+ 	*sum = csum_fold(csum_add(diff, ~csum_unfold(*sum)));
+ }
+ 
+-static inline void csum_replace4(__sum16 *sum, __be32 from, __be32 to)
++static __always_inline void csum_replace4(__sum16 *sum, __be32 from, __be32 to)
+ {
+ 	__wsum tmp = csum_sub(~csum_unfold(*sum), (__force __wsum)from);
+ 
+@@ -134,7 +135,7 @@ static inline void csum_replace4(__sum16
+  *  m : old value of a 16bit field
+  *  m' : new value of a 16bit field
+  */
+-static inline void csum_replace2(__sum16 *sum, __be16 old, __be16 new)
++static __always_inline void csum_replace2(__sum16 *sum, __be16 old, __be16 new)
+ {
  	*sum = ~csum16_add(csum16_sub(~(*sum), old), new);
  }
+@@ -153,16 +154,16 @@ void inet_proto_csum_replace16(__sum16 *
+ void inet_proto_csum_replace_by_diff(__sum16 *sum, struct sk_buff *skb,
+ 				     __wsum diff, bool pseudohdr);
  
-+static inline void csum_replace(__wsum *csum, __wsum old, __wsum new)
-+{
-+	*csum = csum_add(csum_sub(*csum, old), new);
-+}
-+
- struct sk_buff;
- void inet_proto_csum_replace4(__sum16 *sum, struct sk_buff *skb,
- 			      __be32 from, __be32 to, bool pseudohdr);
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -493,12 +493,43 @@ static void set_ipv6_addr(struct sk_buff
- 	memcpy(addr, new_addr, sizeof(__be32[4]));
- }
- 
--static void set_ipv6_fl(struct ipv6hdr *nh, u32 fl, u32 mask)
-+static void set_ipv6_dsfield(struct sk_buff *skb, struct ipv6hdr *nh, u8 ipv6_tclass, u8 mask)
+-static inline void inet_proto_csum_replace2(__sum16 *sum, struct sk_buff *skb,
+-					    __be16 from, __be16 to,
+-					    bool pseudohdr)
++static __always_inline
++void inet_proto_csum_replace2(__sum16 *sum, struct sk_buff *skb,
++			      __be16 from, __be16 to, bool pseudohdr)
  {
-+	u8 old_ipv6_tclass = ipv6_get_dsfield(nh);
-+
-+	ipv6_tclass = OVS_MASKED(old_ipv6_tclass, ipv6_tclass, mask);
-+
-+	if (skb->ip_summed == CHECKSUM_COMPLETE)
-+		csum_replace(&skb->csum, (__force __wsum)(old_ipv6_tclass << 12),
-+			     (__force __wsum)(ipv6_tclass << 12));
-+
-+	ipv6_change_dsfield(nh, ~mask, ipv6_tclass);
-+}
-+
-+static void set_ipv6_fl(struct sk_buff *skb, struct ipv6hdr *nh, u32 fl, u32 mask)
-+{
-+	u32 ofl;
-+
-+	ofl = nh->flow_lbl[0] << 16 |  nh->flow_lbl[1] << 8 |  nh->flow_lbl[2];
-+	fl = OVS_MASKED(ofl, fl, mask);
-+
- 	/* Bits 21-24 are always unmasked, so this retains their values. */
--	OVS_SET_MASKED(nh->flow_lbl[0], (u8)(fl >> 16), (u8)(mask >> 16));
--	OVS_SET_MASKED(nh->flow_lbl[1], (u8)(fl >> 8), (u8)(mask >> 8));
--	OVS_SET_MASKED(nh->flow_lbl[2], (u8)fl, (u8)mask);
-+	nh->flow_lbl[0] = (u8)(fl >> 16);
-+	nh->flow_lbl[1] = (u8)(fl >> 8);
-+	nh->flow_lbl[2] = (u8)fl;
-+
-+	if (skb->ip_summed == CHECKSUM_COMPLETE)
-+		csum_replace(&skb->csum, (__force __wsum)htonl(ofl), (__force __wsum)htonl(fl));
-+}
-+
-+static void set_ipv6_ttl(struct sk_buff *skb, struct ipv6hdr *nh, u8 new_ttl, u8 mask)
-+{
-+	new_ttl = OVS_MASKED(nh->hop_limit, new_ttl, mask);
-+
-+	if (skb->ip_summed == CHECKSUM_COMPLETE)
-+		csum_replace(&skb->csum, (__force __wsum)(nh->hop_limit << 8),
-+			     (__force __wsum)(new_ttl << 8));
-+	nh->hop_limit = new_ttl;
+ 	inet_proto_csum_replace4(sum, skb, (__force __be32)from,
+ 				 (__force __be32)to, pseudohdr);
  }
  
- static void set_ip_ttl(struct sk_buff *skb, struct iphdr *nh, u8 new_ttl,
-@@ -616,18 +647,17 @@ static int set_ipv6(struct sk_buff *skb,
- 		}
- 	}
- 	if (mask->ipv6_tclass) {
--		ipv6_change_dsfield(nh, ~mask->ipv6_tclass, key->ipv6_tclass);
-+		set_ipv6_dsfield(skb, nh, key->ipv6_tclass, mask->ipv6_tclass);
- 		flow_key->ip.tos = ipv6_get_dsfield(nh);
- 	}
- 	if (mask->ipv6_label) {
--		set_ipv6_fl(nh, ntohl(key->ipv6_label),
-+		set_ipv6_fl(skb, nh, ntohl(key->ipv6_label),
- 			    ntohl(mask->ipv6_label));
- 		flow_key->ipv6.label =
- 		    *(__be32 *)nh & htonl(IPV6_FLOWINFO_FLOWLABEL);
- 	}
- 	if (mask->ipv6_hlimit) {
--		OVS_SET_MASKED(nh->hop_limit, key->ipv6_hlimit,
--			       mask->ipv6_hlimit);
-+		set_ipv6_ttl(skb, nh, key->ipv6_hlimit, mask->ipv6_hlimit);
- 		flow_key->ip.ttl = nh->hop_limit;
- 	}
- 	return 0;
+-static inline __wsum remcsum_adjust(void *ptr, __wsum csum,
+-				    int start, int offset)
++static __always_inline __wsum remcsum_adjust(void *ptr, __wsum csum,
++					     int start, int offset)
+ {
+ 	__sum16 *psum = (__sum16 *)(ptr + offset);
+ 	__wsum delta;
+@@ -178,7 +179,7 @@ static inline __wsum remcsum_adjust(void
+ 	return delta;
+ }
+ 
+-static inline void remcsum_unadjust(__sum16 *psum, __wsum delta)
++static __always_inline void remcsum_unadjust(__sum16 *psum, __wsum delta)
+ {
+ 	*psum = csum_fold(csum_sub(delta, (__force __wsum)*psum));
+ }
 
 
