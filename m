@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 748E24C73B4
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 960A04C74CB
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234391AbiB1Ri5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:38:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33622 "EHLO
+        id S235921AbiB1Rsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:48:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238571AbiB1RiA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590E54F9FC;
-        Mon, 28 Feb 2022 09:33:15 -0800 (PST)
+        with ESMTP id S239034AbiB1RsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:48:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7F9A0BD4;
+        Mon, 28 Feb 2022 09:38:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C2A1B815A2;
-        Mon, 28 Feb 2022 17:33:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DAA3C340E7;
-        Mon, 28 Feb 2022 17:33:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D74FB815A6;
+        Mon, 28 Feb 2022 17:38:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3203C340E7;
+        Mon, 28 Feb 2022 17:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069592;
-        bh=InIoslegLjVX1Yt8uC/7lVQLPHklSm5DBQNu2ZKpfd0=;
+        s=korg; t=1646069902;
+        bh=DPJAuAPFM8K/Q36q1OmOYafTxEDA+plBeNeaVns3Bl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPY0Nrf3kxdPatZLPerEaPwu5oUkOgv1X8hUZM8j7coN4gl1cS/DU/n55tWAlwnmS
-         uB+X2NaHd6ljLV3Lnrnz74aKGECHBmp8L3Ul3YtWb+jiMGwY4dGgiUgj4LMUoVyJg4
-         xCcXITDEFc2vhwKyjehHcim29Z4YVerTq/2QfxIo=
+        b=arzL1d9ETt2yC1WOmAqpUc6taXuPuTLo/+2sx1ZCLJTBptqSZf4BaUQ/e/mEFNtDZ
+         m14+PiI+ouPsqJvuyzyoHzzpKTye1CtK0j9hnIpTwfY3Nm1nYVFhnifyYQStz28qV5
+         pgkAsCA+FiM3EwRjtEzDoYFaUylHDcfQH7k12PgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 07/80] parisc/unaligned: Fix ldw() and stw() unalignment handlers
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Brian Vazquez <brianvv@google.com>
+Subject: [PATCH 5.15 054/139] bpf: Add schedule points in batch ops
 Date:   Mon, 28 Feb 2022 18:23:48 +0100
-Message-Id: <20220228172312.491283200@linuxfoundation.org>
+Message-Id: <20220228172353.386435815@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,49 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit a97279836867b1cb50a3d4f0b1bf60e0abe6d46c upstream.
+commit 75134f16e7dd0007aa474b281935c5f42e79f2c8 upstream.
 
-Fix 3 bugs:
+syzbot reported various soft lockups caused by bpf batch operations.
 
-a) emulate_stw() doesn't return the error code value, so faulting
-instructions are not reported and aborted.
+ INFO: task kworker/1:1:27 blocked for more than 140 seconds.
+ INFO: task hung in rcu_barrier
 
-b) Tell emulate_ldw() to handle fldw_l as floating point instruction
+Nothing prevents batch ops to process huge amount of data,
+we need to add schedule points in them.
 
-c) Tell emulate_ldw() to handle ldw_m as integer instruction
+Note that maybe_wait_bpf_programs(map) calls from
+generic_map_delete_batch() can be factorized by moving
+the call after the loop.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org
+This will be done later in -next tree once we get this fix merged,
+unless there is strong opinion doing this optimization sooner.
+
+Fixes: aa2e93b8e58e ("bpf: Add generic support for update and delete batch ops")
+Fixes: cb4d03ab499d ("bpf: Add generic support for lookup batch op")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Stanislav Fomichev <sdf@google.com>
+Acked-by: Brian Vazquez <brianvv@google.com>
+Link: https://lore.kernel.org/bpf/20220217181902.808742-1-eric.dumazet@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/unaligned.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/bpf/syscall.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/parisc/kernel/unaligned.c
-+++ b/arch/parisc/kernel/unaligned.c
-@@ -340,7 +340,7 @@ static int emulate_stw(struct pt_regs *r
- 	: "r" (val), "r" (regs->ior), "r" (regs->isr)
- 	: "r19", "r20", "r21", "r22", "r1", FIXUP_BRANCH_CLOBBER );
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -1337,6 +1337,7 @@ int generic_map_delete_batch(struct bpf_
+ 		maybe_wait_bpf_programs(map);
+ 		if (err)
+ 			break;
++		cond_resched();
+ 	}
+ 	if (copy_to_user(&uattr->batch.count, &cp, sizeof(cp)))
+ 		err = -EFAULT;
+@@ -1394,6 +1395,7 @@ int generic_map_update_batch(struct bpf_
  
--	return 0;
-+	return ret;
- }
- static int emulate_std(struct pt_regs *regs, int frreg, int flop)
- {
-@@ -619,10 +619,10 @@ void handle_unaligned(struct pt_regs *re
- 	{
- 	case OPCODE_FLDW_L:
- 		flop=1;
--		ret = emulate_ldw(regs, R2(regs->iir),0);
-+		ret = emulate_ldw(regs, R2(regs->iir), 1);
- 		break;
- 	case OPCODE_LDW_M:
--		ret = emulate_ldw(regs, R2(regs->iir),1);
-+		ret = emulate_ldw(regs, R2(regs->iir), 0);
- 		break;
+ 		if (err)
+ 			break;
++		cond_resched();
+ 	}
  
- 	case OPCODE_FSTW_L:
+ 	if (copy_to_user(&uattr->batch.count, &cp, sizeof(cp)))
+@@ -1491,6 +1493,7 @@ int generic_map_lookup_batch(struct bpf_
+ 		swap(prev_key, key);
+ 		retry = MAP_LOOKUP_RETRIES;
+ 		cp++;
++		cond_resched();
+ 	}
+ 
+ 	if (err == -EFAULT)
 
 
