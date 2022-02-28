@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F2D4C7616
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F39A44C761D
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237191AbiB1R7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:59:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
+        id S235305AbiB1R7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:59:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239819AbiB1R65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:58:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3377057B27;
-        Mon, 28 Feb 2022 09:45:01 -0800 (PST)
+        with ESMTP id S239965AbiB1R7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:59:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66855AECA;
+        Mon, 28 Feb 2022 09:45:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14C4860916;
-        Mon, 28 Feb 2022 17:45:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D424C340E7;
-        Mon, 28 Feb 2022 17:44:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9AA57B815C6;
+        Mon, 28 Feb 2022 17:45:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF1BC36AE5;
+        Mon, 28 Feb 2022 17:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070300;
-        bh=B7FyR6OsbPh4DxAfAuyYQOG/G0gHPy9kl+NpBW031cA=;
+        s=korg; t=1646070303;
+        bh=eHN+QxCJDsMYcD1W3M1wJxnaC7XsIYiU4h+rIJhtuLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PU5s900m1qFMKAY9wmCd1sh5GSAioKHlxKdDYAOgbklqE2TW0OaEluDosJNOQ/Et/
-         fKWY7Qe9c8/tPzhZvOm9+kfBVhy++D/GbB7uuMuoX8coOX+Cn7sVIlvcrChUDPhQ/z
-         PS0ooa+pWsNTVUHJ302zIk6sck7ljnzlV10UliNQ=
+        b=PRNxOOFzQZzd1Q+SjiydPqobqF+TMPf2fso0Gns8zGrIeNud3p1sZH9Xk1pTllsLi
+         HpUSlMD4tJ6a84OumMoITQvHDBK4ZxV4Z3y30+Fmb8YpB6WR0Up1h8qvcmUbBMMtFU
+         1HMX/wJCeIzGhBMFuI/H6BOlSNgceva7i9vDXfaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Qiang Yu <qiang.yu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.16 022/164] drm/amdgpu: check vm ready by amdgpu_vm->evicting flag
-Date:   Mon, 28 Feb 2022 18:23:04 +0100
-Message-Id: <20220228172402.072667800@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.16 023/164] drm/i915: Widen the QGV point mask
+Date:   Mon, 28 Feb 2022 18:23:05 +0100
+Message-Id: <20220228172402.189168558@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -55,75 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <qiang.yu@amd.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit c1a66c3bc425ff93774fb2f6eefa67b83170dd7e upstream.
+commit 3f33364836aacc28cd430d22cf22379e3b5ecd77 upstream.
 
-Workstation application ANSA/META v21.1.4 get this error dmesg when
-running CI test suite provided by ANSA/META:
-[drm:amdgpu_gem_va_ioctl [amdgpu]] *ERROR* Couldn't update BO_VA (-16)
+adlp+ adds some extra bits to the QGV point mask. The code attempts
+to handle that but forgot to actually make sure we can store those
+bits in the bw state. Fix it.
 
-This is caused by:
-1. create a 256MB buffer in invisible VRAM
-2. CPU map the buffer and access it causes vm_fault and try to move
-   it to visible VRAM
-3. force visible VRAM space and traverse all VRAM bos to check if
-   evicting this bo is valuable
-4. when checking a VM bo (in invisible VRAM), amdgpu_vm_evictable()
-   will set amdgpu_vm->evicting, but latter due to not in visible
-   VRAM, won't really evict it so not add it to amdgpu_vm->evicted
-5. before next CS to clear the amdgpu_vm->evicting, user VM ops
-   ioctl will pass amdgpu_vm_ready() (check amdgpu_vm->evicted)
-   but fail in amdgpu_vm_bo_update_mapping() (check
-   amdgpu_vm->evicting) and get this error log
-
-This error won't affect functionality as next CS will finish the
-waiting VM ops. But we'd better clear the error log by checking
-the amdgpu_vm->evicting flag in amdgpu_vm_ready() to stop calling
-amdgpu_vm_bo_update_mapping() later.
-
-Another reason is amdgpu_vm->evicted list holds all BOs (both
-user buffer and page table), but only page table BOs' eviction
-prevent VM ops. amdgpu_vm->evicting flag is set only for page
-table BOs, so we should use evicting flag instead of evicted list
-in amdgpu_vm_ready().
-
-The side effect of this change is: previously blocked VM op (user
-buffer in "evicted" list but no page table in it) gets done
-immediately.
-
-v2: update commit comments.
-
-Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Qiang Yu <qiang.yu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
+Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Fixes: 192fbfb76744 ("drm/i915: Implement PSF GV point support")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220214091811.13725-4-ville.syrjala@linux.intel.com
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+(cherry picked from commit c0299cc9840b3805205173cc77782f317b78ea0e)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_bw.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -768,11 +768,16 @@ int amdgpu_vm_validate_pt_bos(struct amd
-  * Check if all VM PDs/PTs are ready for updates
-  *
-  * Returns:
-- * True if eviction list is empty.
-+ * True if VM is not evicting.
-  */
- bool amdgpu_vm_ready(struct amdgpu_vm *vm)
- {
--	return list_empty(&vm->evicted);
-+	bool ret;
-+
-+	amdgpu_vm_eviction_lock(vm);
-+	ret = !vm->evicting;
-+	amdgpu_vm_eviction_unlock(vm);
-+	return ret;
- }
+--- a/drivers/gpu/drm/i915/display/intel_bw.h
++++ b/drivers/gpu/drm/i915/display/intel_bw.h
+@@ -30,19 +30,19 @@ struct intel_bw_state {
+ 	 */
+ 	u8 pipe_sagv_reject;
  
- /**
++	/* bitmask of active pipes */
++	u8 active_pipes;
++
+ 	/*
+ 	 * Current QGV points mask, which restricts
+ 	 * some particular SAGV states, not to confuse
+ 	 * with pipe_sagv_mask.
+ 	 */
+-	u8 qgv_points_mask;
++	u16 qgv_points_mask;
+ 
+ 	unsigned int data_rate[I915_MAX_PIPES];
+ 	u8 num_active_planes[I915_MAX_PIPES];
+ 
+-	/* bitmask of active pipes */
+-	u8 active_pipes;
+-
+ 	int min_cdclk;
+ };
+ 
 
 
