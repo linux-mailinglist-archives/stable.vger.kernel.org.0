@@ -2,220 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA734C9115
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:06:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D584C9123
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:09:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236084AbiCARHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 12:07:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42680 "EHLO
+        id S236321AbiCARKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 12:10:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235293AbiCARHS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:07:18 -0500
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7ADEBD
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 09:06:36 -0800 (PST)
-Received: by mail-yb1-xb32.google.com with SMTP id x200so3224101ybe.6
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 09:06:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=XkVlnu9AtNC2+SicDtIG4fxqcqjgfAv/ZB91VRirVw0=;
-        b=XRTnXzc/bFS2NiCeBH+VzaXBII9PowNBaJw1k92sgK3ewkBotbS27s2bmuYryZYvsE
-         7TMEpf/enRtwzdTQiqLm5OR/RoV9MmWWSCtQR8bEYas8vGe6dwnZq3JQibb4bTmxSG72
-         ct85mN2DcajDL0ZtdoLL/H95LxYbKH4ro6z3tn/oeKWQaBmo+pfuYkQx1tfoK08Y7KfL
-         mOx1k4imIiTVCCl+TI2kIecEc9LdUXDRGQHZ7aw0tmU9xR+n/NilNriXqU5720mqT9tJ
-         D8KNIZkpX9lnE3ZNOYc8iA4p0/QiENfP4ypJ5+ChDtr1ZZlfUbdoPQC3sFFsdmbKpXq0
-         kcpQ==
+        with ESMTP id S236351AbiCARKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:10:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8FF3D40A06
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 09:09:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646154595;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=NZUMnyvqR6wCb4IOQc4AjR2UMdvh6J4gOvtFiHLptac=;
+        b=QPhcRtoY/sg0oI+C8xrzlQRLsFkRMSGRRGUBFXNrlNRPrpntdVB6PClZd1wXRSfQltlKgz
+        UKXUapZGUIROMfGOwhJnjeJ9QD3OcCanVgWX4LImF33YXSGHCAHqU2R84788LBtrU9pjRH
+        VoiOWYj9qTd3y2FGx9hThxUpumpZWAQ=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-468-YJ9GE92iNguR5kJCrSIvhg-1; Tue, 01 Mar 2022 12:09:54 -0500
+X-MC-Unique: YJ9GE92iNguR5kJCrSIvhg-1
+Received: by mail-wm1-f70.google.com with SMTP id ay7-20020a05600c1e0700b003813d7a7d03so1509765wmb.1
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 09:09:54 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=XkVlnu9AtNC2+SicDtIG4fxqcqjgfAv/ZB91VRirVw0=;
-        b=3bEj2muD2FQfo1Vidc59jpSxzQQnyE5IFUCFBp+5LRioKlLll6NBtnSpHobKydLTbM
-         7NXq/t5esSbaviku4JtGtJCQImNqG2di5O+TSSNBlPRWuVMmIj+9SNlF4grpkWB+vWvh
-         FXW/HmLSqNTtAZM0Eu12dbXG3ALkYdGbnqqr7t+hCdfHoqI6SM1avumz6td5uzzOc8Vr
-         BIuew1STt2XS5KZGYvwdgotCfjj3ZKD0h5o0Yr4vUmJg/YXHVkLVVySKUdXCvbJlTRpa
-         jzGMFVTrCrGiUwX3oUGj1bpjacmL+WPqBW6gGp0JYtqvH4zcabtblRNZU3ZPUtEsnw8r
-         V+aw==
-X-Gm-Message-State: AOAM53364S0fKT1XaSSx9mxWzOYMaaacEOgXh82/3t31tYNIYFvfnCUh
-        NaWstcDENPiSBNKWU9L8VO5eAleanYZ+U/9YSHEGbA==
-X-Google-Smtp-Source: ABdhPJxEizutKQdV7q7qn1WzkF3e07qHyb7EKzhgajAZ8SDK394GGVIfury2LPL//VGhSYk8qYbWqbCjbsjfCUq9+bg=
-X-Received: by 2002:a25:d0c5:0:b0:621:c44b:b219 with SMTP id
- h188-20020a25d0c5000000b00621c44bb219mr24085216ybg.88.1646154395818; Tue, 01
- Mar 2022 09:06:35 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=NZUMnyvqR6wCb4IOQc4AjR2UMdvh6J4gOvtFiHLptac=;
+        b=TWnyXC5R/BWzaFx4NyfD29Sg2EYycNbLcyhfo22HmWPx/IhVMqGYbebVE9DQZjhk+P
+         xe+R1J6IC9N/IoFkJYFpdTDHwXuhCRXeZAr7aZBa51Y6wWyKrBG5vv26b/ZHWWDtyq4L
+         FJ43KBtHiOiSJgmRK7PmTwwr1AnnW2c6SG2yxvbAuJniROOomEJNaZgCdicWq3d8ENZm
+         kQIGECHdAXBRRcPGPiq61NLYJc6JRGAGrKF6ftO8LaP39e4dyl1JsN5IXhN/Xv78lnU2
+         jaNGX1Z0sJLakoSwC4iPvvU06nejGs6BxpCHMfPvqeUVOkX5DUtfr7Mdf6dDIBAYq7rk
+         c1vg==
+X-Gm-Message-State: AOAM5332N5GtqQyjXSUdGiJfoG6A48ne5/o10z2792gw/NBonfycQI0W
+        6EGzhyU5UIYOid0s5Cu0sdnUGg/DUvzL06/eBeCUJ/z2676+ZpUGYhFzUliXV1ICeNPKgOczULH
+        EJ4gntNtwmGkhYlO+
+X-Received: by 2002:a05:6000:18a1:b0:1ef:8e17:e82c with SMTP id b1-20020a05600018a100b001ef8e17e82cmr11966001wri.254.1646154593038;
+        Tue, 01 Mar 2022 09:09:53 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJylMCDoPBFWrk9UBp13BlbJntex79zo8tb9uzzaaTzQ9nZhnDGchYhtkFScJKPXwMhtlbDtpQ==
+X-Received: by 2002:a05:6000:18a1:b0:1ef:8e17:e82c with SMTP id b1-20020a05600018a100b001ef8e17e82cmr11965991wri.254.1646154592831;
+        Tue, 01 Mar 2022 09:09:52 -0800 (PST)
+Received: from ?IPV6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
+        by smtp.googlemail.com with ESMTPSA id r1-20020a5d4941000000b001ed89dcacbbsm14008863wrs.23.2022.03.01.09.09.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Mar 2022 09:09:52 -0800 (PST)
+Message-ID: <51a6e2a5-57d4-5f6d-79fa-13daa544266d@redhat.com>
+Date:   Tue, 1 Mar 2022 18:09:51 +0100
 MIME-Version: 1.0
-References: <20220228172141.744228435@linuxfoundation.org>
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Mar 2022 22:36:24 +0530
-Message-ID: <CA+G9fYskrxEoW1c=4pCiJxAM5KYvAY91LpovxRpYvp60fMxw3Q@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/29] 4.9.304-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH MANUALSEL 5.16 1/2] KVM: x86: lapic: don't touch
+ irr_pending in kvm_apic_update_apicv when inhibiting it
+Content-Language: en-US
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Maxim Levitsky <mlevitsk@redhat.com>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
+References: <20220222140522.211548-1-sashal@kernel.org>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220222140522.211548-1-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Feb 2022 at 22:56, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.304 release.
-> There are 29 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.304-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 2/22/22 15:05, Sasha Levin wrote:
+> From: Maxim Levitsky <mlevitsk@redhat.com>
+> 
+> [ Upstream commit 755c2bf878607dbddb1423df9abf16b82205896f ]
+> 
+> kvm_apic_update_apicv is called when AVIC is still active, thus IRR bits
+> can be set by the CPU after it is called, and don't cause the irr_pending
+> to be set to true.
+> 
+> Also logic in avic_kick_target_vcpu doesn't expect a race with this
+> function so to make it simple, just keep irr_pending set to true and
+> let the next interrupt injection to the guest clear it.
+> 
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> Message-Id: <20220207155447.840194-9-mlevitsk@redhat.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   arch/x86/kvm/lapic.c | 7 ++++++-
+>   1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+> index e8e383fbe8868..bfac6d0933c39 100644
+> --- a/arch/x86/kvm/lapic.c
+> +++ b/arch/x86/kvm/lapic.c
+> @@ -2306,7 +2306,12 @@ void kvm_apic_update_apicv(struct kvm_vcpu *vcpu)
+>   		apic->irr_pending = true;
+>   		apic->isr_count = 1;
+>   	} else {
+> -		apic->irr_pending = (apic_search_irr(apic) != -1);
+> +		/*
+> +		 * Don't clear irr_pending, searching the IRR can race with
+> +		 * updates from the CPU as APICv is still active from hardware's
+> +		 * perspective.  The flag will be cleared as appropriate when
+> +		 * KVM injects the interrupt.
+> +		 */
+>   		apic->isr_count = count_vectors(apic->regs + APIC_ISR);
+>   	}
+>   }
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Paolo
 
-## Build
-* kernel: 4.9.304-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.9.y
-* git commit: 796b7c82bdd7bb76761023d7077dc83ebc321efd
-* git describe: v4.9.303-30-g796b7c82bdd7
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
-03-30-g796b7c82bdd7
-
-## Test Regressions (compared to v4.9.302-34-g6686f147d38f)
-No test regressions found.
-
-## Metric Regressions (compared to v4.9.302-34-g6686f147d38f)
-No metric regressions found.
-
-## Test Fixes (compared to v4.9.302-34-g6686f147d38f)
-No test fixes found.
-
-## Metric Fixes (compared to v4.9.302-34-g6686f147d38f)
-No metric fixes found.
-
-## Test result summary
-total: 77979, pass: 64313, fail: 294, skip: 11828, xfail: 1544
-
-## Build Summary
-* arm: 254 total, 238 passed, 16 failed
-* arm64: 32 total, 32 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 31 total, 31 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
