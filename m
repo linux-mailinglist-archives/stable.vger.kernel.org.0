@@ -2,185 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CDC54C919A
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 441294C922A
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236498AbiCARfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 12:35:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34332 "EHLO
+        id S236072AbiCARs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 12:48:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231289AbiCARfT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:35:19 -0500
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AA49240A9;
-        Tue,  1 Mar 2022 09:34:38 -0800 (PST)
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-2dc0364d2ceso4001087b3.7;
-        Tue, 01 Mar 2022 09:34:38 -0800 (PST)
+        with ESMTP id S231362AbiCARsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:48:25 -0500
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F789FC3;
+        Tue,  1 Mar 2022 09:47:43 -0800 (PST)
+Received: by mail-pg1-x533.google.com with SMTP id e6so13537643pgn.2;
+        Tue, 01 Mar 2022 09:47:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=oKchhrdSs+HOTM0TpPvYJrRlEALmZ0/xkNKtFwagNaI=;
+        b=I75myOC/Y6BsAULekR+kdFzgkvZtLsTB0l3EW9hTrpJElC+Cn56pF7jeHYQSUxP8gI
+         Msx6fLeggCPUOzjqRcLJ6x8KQ9uLHRuyVbN3SDmKdzyfHpPlTnla+TMlR9ox/XVBjSz/
+         Ft3b2dN7mrgIXxvnsLuSfEJWqamY3lFYriZtgAM8tDWHGJxFCOcLcD9DdVIFrKmE4UGd
+         LHPjxqV8v6RuJ5W9kDJwbLm90ZbORiHDFpOq1mpdYbVsXZYYVvO+G26MzfXrO2+ruA5C
+         7CyTkHoxZgBi6tx46EIUmnhL4MCB29Xrr/1XCAMI9FLRUn4UxpjXPeIaaTNXAl5126vY
+         fgeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=iTyi2ipcTulwwvig7Nzi763q6AMtAMu2xsXlP+4t6rA=;
-        b=F+PnaY2uwMEB4IqC1E8WFbMNooJpo97CyjYjf7YXzEHR5uFDFm2gVtN3otDwF2kgT+
-         LR/3O4xCf+8ipCQU/5AX04huvGs+jp+qPKNBPNI4FnQFXMZ9++YgqjsovCYEsQPNAZDW
-         +BT2yzyrmLxxteZTzzJtF04T6CG1UD+x+UlOs4Z76HR+Jo5dx9L2CFGWlbWLZy5dmEYG
-         QexULn81CEGyVjvfxeksLLxBq2I7QSsLfOCMBp4rI1cKJtx5APqmQt2CONNe/LR824ve
-         qSeGiaOge5cTWQYIgnuuthxwyDmsa5Y+1z3zN8UzJhB+s327SUYrkLGFTgXrBtyQEh1a
-         5Zlg==
-X-Gm-Message-State: AOAM531qFBnBjalvjbP6cB8pANvlXjpb6h2cSx0HkEGaf+6oCtfzdocU
-        pOI9IwuWvvnC35/j5pbRt/oFMUi0vVKy4cGYQVk=
-X-Google-Smtp-Source: ABdhPJxCTgyRMYkeAxcgNcOsSkwBodHdEDKrvezog5o9YvcneaD8XSAb1hgouGncJwJIMhUEeoxEH9iPmucx0PuYAwE=
-X-Received: by 2002:a81:b65f:0:b0:2d6:d29c:63fd with SMTP id
- h31-20020a81b65f000000b002d6d29c63fdmr26629207ywk.196.1646156077485; Tue, 01
- Mar 2022 09:34:37 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=oKchhrdSs+HOTM0TpPvYJrRlEALmZ0/xkNKtFwagNaI=;
+        b=LxGHbCaxHH3a+5R1bDMOAfpBd0NLd6xf8LPLnvcyrf2+Ki39HGxjqBlpp8wV+sCAIG
+         19iTeso2+MpXaCY23m8QpXmychTJMpwWR5iJuSF2Bh+DNRhsWOi5lqMigRTg3Gn50hVD
+         +I8lybpFMfiEJbZl/WvhH/esWulGTZiGMEUdFx7GDWWx6D2Xi+mCiOR4VYck2D18yfuc
+         HjkAHcLRDyEC3jXb5fLxE6Pl3n+iKZOH8fYxynYBIY5DBAeJZ36IM09DVvG6zQmQKeNk
+         x7rf9wuFhExDgZXy+LDETPGx+l9wa4hXzHliGhi4DlEpUoxK9nXUtbiE7rXhiOuW4NNp
+         sBZQ==
+X-Gm-Message-State: AOAM530Dt5O4gpRtfKjIrQk6xkkoThGd2IMbUTABKnWAPKsOmPAxAvhL
+        RxlSaEE8OjhRY9rzdDkzECheRTdlVZA=
+X-Google-Smtp-Source: ABdhPJzMO54zZO188yUxs0ufr/PhATftO5opHZ3E3l+aLoj4N2iiSi/Ljny8WEER0t8uTIoql9EwmQ==
+X-Received: by 2002:a05:6a00:1d8a:b0:4e1:559d:2f62 with SMTP id z10-20020a056a001d8a00b004e1559d2f62mr28953139pfw.26.1646156862368;
+        Tue, 01 Mar 2022 09:47:42 -0800 (PST)
+Received: from mail-lvn-it-01.broadcom.com (ip174-67-196-173.oc.oc.cox.net. [174.67.196.173])
+        by smtp.gmail.com with ESMTPSA id y13-20020aa79e0d000000b004f3cc59f884sm16956167pfq.132.2022.03.01.09.47.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Mar 2022 09:47:41 -0800 (PST)
+From:   James Smart <jsmart2021@gmail.com>
+To:     linux-scsi@vger.kernel.org
+Cc:     James Smart <jsmart2021@gmail.com>, stable@vger.kernel.org,
+        Shyam Sundar <ssundar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>
+Subject: [PATCH] scsi_transport_fc: Fix FPIN Link Integrity statistics counters
+Date:   Tue,  1 Mar 2022 09:47:33 -0800
+Message-Id: <20220301174733.59993-1-jsmart2021@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
- <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
- <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
- <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
-In-Reply-To: <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 1 Mar 2022 18:34:26 +0100
-Message-ID: <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
-Subject: Re: CPU excessively long times between frequency scaling driver calls
- - bisected
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Feng Tang <feng.tang@intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 1, 2022 at 6:18 PM Doug Smythies <dsmythies@telus.net> wrote:
->
-> On Tue, Mar 1, 2022 at 3:58 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
-> > On Tue, Mar 1, 2022 at 6:53 AM Feng Tang <feng.tang@intel.com> wrote:
-> > > On Mon, Feb 28, 2022 at 08:36:03PM +0100, Rafael J. Wysocki wrote:
-> ...
-> > > >
-> > > > However, it was a bit racy, so maybe it's good that it was not complete.
-> > > >
-> > > > Below is a new version.
-> > >
-> > > Thanks for the new version. I just gave it a try,  and the occasional
-> > > long delay of cpufreq auto-adjusting I have seen can not be reproduced
-> > > after applying it.
-> >
-> > OK, thanks!
-> >
-> > I'll wait for feedback from Dough, though.
->
-> Hi Rafael,
->
-> Thank you for your version 2 patch.
-> I screwed up an overnight test and will have to re-do it.
-> However, I do have some results.
+In the original FPIN commit, stats were incremented by the event_count.
+Event_count is the minimum # of events that must occur before an FPIN is
+sent. Thus, its not the actual number of events, and could be
+significantly off (too low) as it doesn't reflect anything not reported.
+Rather than attempt to count events, have the statistic count how many
+FPINS cross the threshold and were reported.
 
-Thanks for testing it!
+This issue was originally reported in this thread, with no comments.
+https://lore.kernel.org/linux-scsi/b472606d-e67c-66f1-06d1-ecc5fbb2071a@broadcom.com/
 
-> From reading the patch code, one worry was the
-> potential to drive down the desired/required CPU
-> frequency for the main periodic workflow, causing
-> overruns, or inability of the task to complete its
-> work before the next period.
+Fixes: 3dcfe0de5a97 ("scsi: fc: Parse FPIN packets and update statistics")
+Cc: <stable@vger.kernel.org> # v5.11+
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Cc: Shyam Sundar <ssundar@marvell.com>
+Cc: Nilesh Javali <njavali@marvell.com>
+---
+ drivers/scsi/scsi_transport_fc.c | 39 +++++++++++++-------------------
+ 1 file changed, 16 insertions(+), 23 deletions(-)
 
-It is not clear to me why you worried about that just from reading the
-patch?  Can you explain, please?
+diff --git a/drivers/scsi/scsi_transport_fc.c b/drivers/scsi/scsi_transport_fc.c
+index 60e406bcf42a..a2524106206d 100644
+--- a/drivers/scsi/scsi_transport_fc.c
++++ b/drivers/scsi/scsi_transport_fc.c
+@@ -34,7 +34,7 @@ static int fc_bsg_hostadd(struct Scsi_Host *, struct fc_host_attrs *);
+ static int fc_bsg_rportadd(struct Scsi_Host *, struct fc_rport *);
+ static void fc_bsg_remove(struct request_queue *);
+ static void fc_bsg_goose_queue(struct fc_rport *);
+-static void fc_li_stats_update(struct fc_fn_li_desc *li_desc,
++static void fc_li_stats_update(u16 event_type,
+ 			       struct fc_fpin_stats *stats);
+ static void fc_delivery_stats_update(u32 reason_code,
+ 				     struct fc_fpin_stats *stats);
+@@ -670,42 +670,34 @@ fc_find_rport_by_wwpn(struct Scsi_Host *shost, u64 wwpn)
+ EXPORT_SYMBOL(fc_find_rport_by_wwpn);
+ 
+ static void
+-fc_li_stats_update(struct fc_fn_li_desc *li_desc,
++fc_li_stats_update(u16 event_type,
+ 		   struct fc_fpin_stats *stats)
+ {
+-	stats->li += be32_to_cpu(li_desc->event_count);
+-	switch (be16_to_cpu(li_desc->event_type)) {
++	stats->li++;
++	switch (event_type) {
+ 	case FPIN_LI_UNKNOWN:
+-		stats->li_failure_unknown +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_failure_unknown++;
+ 		break;
+ 	case FPIN_LI_LINK_FAILURE:
+-		stats->li_link_failure_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_link_failure_count++;
+ 		break;
+ 	case FPIN_LI_LOSS_OF_SYNC:
+-		stats->li_loss_of_sync_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_loss_of_sync_count++;
+ 		break;
+ 	case FPIN_LI_LOSS_OF_SIG:
+-		stats->li_loss_of_signals_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_loss_of_signals_count++;
+ 		break;
+ 	case FPIN_LI_PRIM_SEQ_ERR:
+-		stats->li_prim_seq_err_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_prim_seq_err_count++;
+ 		break;
+ 	case FPIN_LI_INVALID_TX_WD:
+-		stats->li_invalid_tx_word_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_invalid_tx_word_count++;
+ 		break;
+ 	case FPIN_LI_INVALID_CRC:
+-		stats->li_invalid_crc_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_invalid_crc_count++;
+ 		break;
+ 	case FPIN_LI_DEVICE_SPEC:
+-		stats->li_device_specific +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_device_specific++;
+ 		break;
+ 	}
+ }
+@@ -767,6 +759,7 @@ fc_fpin_li_stats_update(struct Scsi_Host *shost, struct fc_tlv_desc *tlv)
+ 	struct fc_rport *attach_rport = NULL;
+ 	struct fc_host_attrs *fc_host = shost_to_fc_host(shost);
+ 	struct fc_fn_li_desc *li_desc = (struct fc_fn_li_desc *)tlv;
++	u16 event_type = be16_to_cpu(li_desc->event_type);
+ 	u64 wwpn;
+ 
+ 	rport = fc_find_rport_by_wwpn(shost,
+@@ -775,7 +768,7 @@ fc_fpin_li_stats_update(struct Scsi_Host *shost, struct fc_tlv_desc *tlv)
+ 	    (rport->roles & FC_PORT_ROLE_FCP_TARGET ||
+ 	     rport->roles & FC_PORT_ROLE_NVME_TARGET)) {
+ 		attach_rport = rport;
+-		fc_li_stats_update(li_desc, &attach_rport->fpin_stats);
++		fc_li_stats_update(event_type, &attach_rport->fpin_stats);
+ 	}
+ 
+ 	if (be32_to_cpu(li_desc->pname_count) > 0) {
+@@ -789,14 +782,14 @@ fc_fpin_li_stats_update(struct Scsi_Host *shost, struct fc_tlv_desc *tlv)
+ 			    rport->roles & FC_PORT_ROLE_NVME_TARGET)) {
+ 				if (rport == attach_rport)
+ 					continue;
+-				fc_li_stats_update(li_desc,
++				fc_li_stats_update(event_type,
+ 						   &rport->fpin_stats);
+ 			}
+ 		}
+ 	}
+ 
+ 	if (fc_host->port_name == be64_to_cpu(li_desc->attached_wwpn))
+-		fc_li_stats_update(li_desc, &fc_host->fpin_stats);
++		fc_li_stats_update(event_type, &fc_host->fpin_stats);
+ }
+ 
+ /*
+-- 
+2.26.2
 
-> I have always had overrun
-> information, but it has never been relevant before.
->
-> The other worry was if the threshold of
-> turbo/not turbo frequency is enough.
-
-Agreed.
-
-> I do not know how to test any final solution
-> thoroughly, as so far I have simply found a
-> good enough problematic example.
-> We have so many years of experience with
-> the convenient multi second NMI forcing
-> lingering high pstate clean up. I'd keep it
-> deciding within it if the TSC stuff needs to be
-> executed or not.
->
-> Anyway...
->
-> Base Kernel 5.17-rc3.
-> "stock" : unmodified.
-> "revert" : with commit b50db7095fe reverted
-> "rjw-2" : with this version2 patch added.
->
-> Test 1 (as before. There is no test 2, yet.):
-> 347 Hertz work/sleep frequency on one CPU while others do
-> virtually no load but enough to increase the requested pstate,
-> but at around 0.02 hertz aggregate.
->
-> It is important to note the main load is approximately
-> 38.6% @ 2.422 GHz, or 100% at 0.935 GHz.
-> and almost exclusively uses idle state 2 (of
-> 4 total idle states)
->
-> /sys/devices/system/cpu/cpu7/cpuidle/state0/name:POLL
-> /sys/devices/system/cpu/cpu7/cpuidle/state1/name:C1_ACPI
-> /sys/devices/system/cpu/cpu7/cpuidle/state2/name:C2_ACPI
-> /sys/devices/system/cpu/cpu7/cpuidle/state3/name:C3_ACPI
->
-> Turbostat was used. ~10 samples at 300 seconds per.
-> Processor package power (Watts):
->
-> Workflow was run for 1 hour each time or 1249201 loops.
->
-> revert:
-> ave: 3.00
-> min: 2.89
-> max: 3.08
-
-I'm not sure what the above three numbers are.
-
-> ave freq: 2.422 GHz.
-> overruns: 1.
-> max overrun time: 113 uSec.
->
-> stock:
-> ave: 3.63 (+21%)
-> min: 3.28
-> max: 3.99
-> ave freq: 2.791 GHz.
-> overruns: 2.
-> max overrun time: 677 uSec.
->
-> rjw-2:
-> ave: 3.14 (+5%)
-> min: 2.97
-> max: 3.28
-> ave freq: 2.635 GHz
-
-I guess the numbers above could be reduced still by using a P-state
-below the max non-turbo one as a limit.
-
-> overruns: 1042.
-> max overrun time: 9,769 uSec.
-
-This would probably get worse then, though.
-
-ATM I'm not quite sure why this happens, but you seem to have some
-insight into it, so it would help if you shared it.
-
-Thanks!
