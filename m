@@ -2,112 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD64E4C97DB
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 22:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E12C4C97DC
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 22:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234864AbiCAVkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 16:40:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52932 "EHLO
+        id S232772AbiCAVn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 16:43:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230285AbiCAVko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 16:40:44 -0500
-X-Greylist: delayed 1017 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Mar 2022 13:40:03 PST
-Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ECA897BA0
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 13:40:03 -0800 (PST)
-Received: from sslproxy02.your-server.de ([78.47.166.47])
-        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1nP9xY-000ES7-FM; Tue, 01 Mar 2022 22:23:04 +0100
-Received: from [85.1.206.226] (helo=linux.home)
-        by sslproxy02.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1nP9xY-00058o-6y; Tue, 01 Mar 2022 22:23:04 +0100
-Subject: Re: FAILED: patch "[PATCH] bpf: Fix toctou on read-only map's
- constant scalar tracking" failed to apply to 5.4-stable tree
-To:     Lee Jones <lee.jones@linaro.org>,
-        Rafael David Tinoco <rafaeldtinoco@gmail.com>
-Cc:     andrii@kernel.org, ast@kernel.org, stable@vger.kernel.org,
-        Greg KH <gregkh@linuxfoundation.org>
-References: <163757721744154@kroah.com> <Yg5wY5FKj0ikiq+A@google.com>
- <Yg51IuzfMnU8Uo6v@kroah.com> <Yg6AbfbFgDqbhq0e@google.com>
- <YhNg4uM1gIN89B7U@google.com> <YhNoZy415MYPH+GR@kroah.com>
- <YhNtE/sIdv5OkBQT@google.com>
-From:   Daniel Borkmann <daniel@iogearbox.net>
-Message-ID: <f01b6557-ed8f-1385-c5f6-95f73b940b7f@iogearbox.net>
-Date:   Tue, 1 Mar 2022 22:23:03 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        with ESMTP id S230285AbiCAVnZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 16:43:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EDF214096
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 13:42:44 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4CBD612B7
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 21:42:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B07E7C340EE;
+        Tue,  1 Mar 2022 21:42:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646170963;
+        bh=pnfjf3nYp1iN4Ft51p9x5DkuodmJo9kvJlwxsr4Cl/g=;
+        h=Subject:To:From:Date:From;
+        b=MoxZfSXh8hWw1u1RHQDOrqQkzVdp92tXVkkWjAN2irK/vSy2uHNyFSvNEmV0ENzvN
+         fxYNQmQZ3gEjh+Db/mLDkdQ855iluvqCc5pz1H7cc0sYJGmzoIIMqllAx3jZzmmMke
+         upcl6AbV4kljAHdaXC/byU3pTuaqZpnFSwz56ASI=
+Subject: patch "staging: gdm724x: fix use after free in gdm_lte_rx()" added to staging-linus
+To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
+        lkp@intel.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 01 Mar 2022 22:42:40 +0100
+Message-ID: <164617096019938@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <YhNtE/sIdv5OkBQT@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: daniel@iogearbox.net
-X-Virus-Scanned: Clear (ClamAV 0.103.5/26468/Tue Mar  1 10:31:38 2022)
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Lee, [ also Cc'ing Rafael, ]
 
-On 2/21/22 11:44 AM, Lee Jones wrote:
-> On Mon, 21 Feb 2022, Greg KH wrote:
->> On Mon, Feb 21, 2022 at 09:52:34AM +0000, Lee Jones wrote:
->>> On Thu, 17 Feb 2022, Lee Jones wrote:
->>>> On Thu, 17 Feb 2022, Greg KH wrote:
->>>>> On Thu, Feb 17, 2022 at 03:57:23PM +0000, Lee Jones wrote:
->>>>>> On Mon, 22 Nov 2021, gregkh@linuxfoundation.org wrote:
->>>>>>>
->>>>>>> The patch below does not apply to the 5.4-stable tree.
->>>>>>> If someone wants it applied there, or to any other stable or longterm
->>>>>>> tree, then please email the backport, including the original git commit
->>>>>>> id to <stable@vger.kernel.org>.
->>>>>>
->>>>>> We are in receipt of a bug report which cites this patch as the fix.
->>>>>
->>>>> Does the bug report really say that this issue is present in the 5.4
->>>>> kernel tree?  Anything older?
->>>>
->>>> Not specifically, but the commit referenced in the Fixes tag landed in
->>>> v5.5. and was successfully back-ported to v5.4.144.
->>>
->>> Another potential avenue might to be revert the back-ported commit
->>> which caused the issue from v5.4.y.
->>
->> Unless that was fixing a different issue?  I have no idea at this point
->> what commit you are talking about, sorry :(
-> 
-> The bad-commit mentioned in "the Fixes tag":
-> 
-> Fixes: a23740ec43ba ("bpf: Track contents of read-only maps as scalars")
-> 
-> Which as you say, could well have been fixing another issue.
-> 
-> In fact, yes it was:
-> 
-> https://lore.kernel.org/stable/20210821203108.215937-2-rafaeldtinoco@gmail.com/
-> 
-> Daniel, what do you suggest please?
+This is a note to let you know that I've just added the patch titled
 
-Hm, okay, so a23740ec43ba ("bpf: Track contents of read-only maps as scalars") was
-backported to 5.4.144 given Rafael needed it to fix a failing regression test [0].
+    staging: gdm724x: fix use after free in gdm_lte_rx()
 
-Normally, I would have said that we should just revert a23740ec43ba given it was
-not a 'fix' in the first place, but then we are getting into a situation where it
-would break Rafael's now functioning test case again on 5.4.144+ released kernels.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
-Rafael, given you need this, do you have some cycles to help out Lee on this backport
-for 5.4 stable?
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Thanks guys,
-Daniel
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-  [0] https://lore.kernel.org/stable/20210821203108.215937-1-rafaeldtinoco@gmail.com/
+If you have any questions about this process, please let me know.
+
+
+From fc7f750dc9d102c1ed7bbe4591f991e770c99033 Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Mon, 28 Feb 2022 10:43:31 +0300
+Subject: staging: gdm724x: fix use after free in gdm_lte_rx()
+
+The netif_rx_ni() function frees the skb so we can't dereference it to
+save the skb->len.
+
+Fixes: 61e121047645 ("staging: gdm7240: adding LTE USB driver")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220228074331.GA13685@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/gdm724x/gdm_lte.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
+index 493ed4821515..0d8d8fed283d 100644
+--- a/drivers/staging/gdm724x/gdm_lte.c
++++ b/drivers/staging/gdm724x/gdm_lte.c
+@@ -76,14 +76,15 @@ static void tx_complete(void *arg)
+ 
+ static int gdm_lte_rx(struct sk_buff *skb, struct nic *nic, int nic_type)
+ {
+-	int ret;
++	int ret, len;
+ 
++	len = skb->len + ETH_HLEN;
+ 	ret = netif_rx_ni(skb);
+ 	if (ret == NET_RX_DROP) {
+ 		nic->stats.rx_dropped++;
+ 	} else {
+ 		nic->stats.rx_packets++;
+-		nic->stats.rx_bytes += skb->len + ETH_HLEN;
++		nic->stats.rx_bytes += len;
+ 	}
+ 
+ 	return 0;
+-- 
+2.35.1
+
+
