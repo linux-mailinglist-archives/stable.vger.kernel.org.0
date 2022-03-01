@@ -2,117 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A474C915F
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBF94C917F
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232025AbiCARWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 12:22:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55092 "EHLO
+        id S236259AbiCAR3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 12:29:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236455AbiCARWG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:22:06 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08554255B2
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 09:21:25 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id e13so14009529plh.3
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 09:21:25 -0800 (PST)
+        with ESMTP id S234411AbiCAR3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:29:09 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA14BF6D
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 09:28:27 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id y5so7931839wmi.0
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 09:28:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bDu+y+f8JQYU3RGpZYFrasVkU7NMBDyxJALCa/zmka4=;
-        b=fZDK1hgTtMcHNo/1P6qNEVs6yPXFW/deYvEker6YOPN/13zmSjk1YYcJXGviYMEHVE
-         8E5wYMvxqyk9r+yvmbYSX6r1jorlcBKFdppXneLtzmArqDVTPbn4BjCzfdnEoQYkvwpC
-         +1KPBbrEQXutzxvFKYDHODHzf6BNyzYGQyini1yAIT1q5rKocES28Miw5n8nRC4DsrUW
-         95jHg8JdltfmO7jbciMVzAMSOll3yN75VkTePIEZC/jJNJdH+LM5DcXvo1Lu0SyJaJgb
-         LvnaHbrHPb/kASBRMt331ZL1U+jq0zO09UlbhoWsibz9JmgWc/nM7dCtnLg2Pfsa+8HM
-         kCQA==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=Y86hBfPWj9E4aTo+XMBrAu6Y5p4SQMawkPD4Q/SuKPY=;
+        b=ifR445Ptk0kZIwyK/iR5LauUeexT4h+Xm5fWIS9UfHsJTwIXI+TBUH0b1B1nklV58Q
+         e3posB9tDmWAuXNqOByYa8OEIeuEgFpyIkDoWKkxe1RAiCnFE6ZEzQVCpMvS62fGzNFV
+         nWcw5JV2lmoD9jxvmDMFuNVsgy/NwYWUQ6a0I1zB2e5jSr3/JFEIp9xW/NRIDhtT+/y6
+         uvAB7/5ZICC2qcmaHb2EAlpVYU+L8My5syB7aELi6iajmzjea09g2vNncJq3GY6hv/nP
+         g2d17hu4ZYUIRYCXpyuRUhAY/Kr9r3k7MyrtDEVfLOZZZFWPJ239r6w7DpTzLNolCHHw
+         A62A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bDu+y+f8JQYU3RGpZYFrasVkU7NMBDyxJALCa/zmka4=;
-        b=y62WAHKPpntj0E5zxHFhp+cMCoZIIfKdkkXK/4doL1Z6lRxmbNCf+NG6MWNGOLLFwE
-         PdFBi6Hn0hE5WEY1bqnhgkZ8c2uFqfzoFO+pBpG5lb4cSboRDuTkMOjqNBpT8u3eq/Pu
-         WfEn73gWjcCBaJliSQM14kE+er2p6BKklLwG5GzXwVzxBcOTzPSkqADlrbZ5ZW7OUYbD
-         Ko/Ev+vKNXJZ7VryqSet7z6TmhHdWTe9z4UjbHzbKQirxc4Fyt2q+2KvPucY4UCMqv3l
-         X3kKMQSwtUNt6kQr/ukoyljIk0TGj9s9j0zqluiWM7l3NizWS3vFq5hbrJqOD93HhuMX
-         9MBA==
-X-Gm-Message-State: AOAM530N7lBDlvGfDstx0GqM4vm1XKS56QkM9NnY3IKeF9/ttYQo3RbF
-        0sVJG8J3FuaKQDMMSogvGXPMXjAUqV7uXiADtl+lNw==
-X-Google-Smtp-Source: ABdhPJyt2R86MfvJOKl18sRXeH5vqN/UgE3OOP6++3snjuxTLntHdzYRzxuBoBm6IARu9orWbMDqL72UVWnlthx7f2w=
-X-Received: by 2002:a17:90a:eb0b:b0:1be:ddea:29ef with SMTP id
- j11-20020a17090aeb0b00b001beddea29efmr3604540pjz.126.1646155284124; Tue, 01
- Mar 2022 09:21:24 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Y86hBfPWj9E4aTo+XMBrAu6Y5p4SQMawkPD4Q/SuKPY=;
+        b=zqpRKSR68jGC2BeqoaUgAhYO2AdwxxJdzYkFU5AcolP8S7wPXwpOWtbTQHE02nyVGL
+         AxmOl4fBSu2fFa8Zs4dZSmU0uFcHunRmiPJqByOpMTr3swO/9JBU4Blxk7dNSvr4HHgk
+         pE5Tjf5N8t1mTZrJ7FA1m440GKsfGUql2Yc/ZObWZtuWse6196lQ88UHFyqHhNaAfo4Z
+         DjJN+FJ9tOOkJ8oQ1XDv5gnSVncKbm/OIsPNR1N2WFgOZgjnenz0JsS0ehj50kHq34H3
+         UDKCeBr68hUIGECXYa83JZUZgmm//GraUX3WN/paqWpZ5USCKK133H3iLw+Y+IAy9kOP
+         7IAw==
+X-Gm-Message-State: AOAM530i2/cWPsl631L7eGoytNPhXw4jImH7tPl1kKMgBjmPqNnAseWc
+        CtflCTepZaQWxWQrXvwTZs4Kkg==
+X-Google-Smtp-Source: ABdhPJyP4zzjkBPeDrhk1IU4HHA4Z4mVRSeyWw7DiZ4BmjKx+FbF6/CkwhxttMvqrC0XO+mqNoqKvQ==
+X-Received: by 2002:a05:600c:a4b:b0:37b:ea2b:5583 with SMTP id c11-20020a05600c0a4b00b0037bea2b5583mr18173339wmq.139.1646155705687;
+        Tue, 01 Mar 2022 09:28:25 -0800 (PST)
+Received: from [192.168.86.34] (cpc90716-aztw32-2-0-cust825.18-1.cable.virginm.net. [86.26.103.58])
+        by smtp.googlemail.com with ESMTPSA id c4-20020adfed84000000b001e5b8d5b8dasm20457807wro.36.2022.03.01.09.28.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Mar 2022 09:28:24 -0800 (PST)
+Message-ID: <5f481315-021c-39d6-8c6c-91918851ab13@linaro.org>
+Date:   Tue, 1 Mar 2022 17:28:22 +0000
 MIME-Version: 1.0
-References: <20220226002412.113819-1-shakeelb@google.com> <Yh3h33W45+YaMo92@dhcp22.suse.cz>
-In-Reply-To: <Yh3h33W45+YaMo92@dhcp22.suse.cz>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Tue, 1 Mar 2022 09:21:12 -0800
-Message-ID: <CALvZod7aF9xRc+XvY7GPN7OnDyPitt1H6Q4yrwzAXTFzv1LzWQ@mail.gmail.com>
-Subject: Re: [PATCH] memcg: async flush memcg stats from perf sensitive codepaths
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Ivan Babrou <ivan@cloudflare.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Cgroups <cgroups@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Daniel Dao <dqminh@cloudflare.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-18.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v3 10/11] slimbus: qcom-ngd: Fix kfree() of static memory
+ on setting driver_override
+Content-Language: en-US
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>, stable@vger.kernel.org
+References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
+ <20220227135329.145862-4-krzysztof.kozlowski@canonical.com>
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+In-Reply-To: <20220227135329.145862-4-krzysztof.kozlowski@canonical.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 1, 2022 at 1:05 AM Michal Hocko <mhocko@suse.com> wrote:
->
-> On Fri 25-02-22 16:24:12, Shakeel Butt wrote:
-> > Daniel Dao has reported [1] a regression on workloads that may trigger
-> > a lot of refaults (anon and file). The underlying issue is that flushing
-> > rstat is expensive. Although rstat flush are batched with (nr_cpus *
-> > MEMCG_BATCH) stat updates, it seems like there are workloads which
-> > genuinely do stat updates larger than batch value within short amount of
-> > time. Since the rstat flush can happen in the performance critical
-> > codepaths like page faults, such workload can suffer greatly.
-> >
-> > The easiest fix for now is for performance critical codepaths trigger
-> > the rstat flush asynchronously. This patch converts the refault codepath
-> > to use async rstat flush. In addition, this patch has premptively
-> > converted mem_cgroup_wb_stats and shrink_node to also use the async
-> > rstat flush as they may also similar performance regressions.
->
-> Why do we need to trigger flushing in the first place from those paths.
-> Later in the thread you are saying there is a regular flushing done
-> every 2 seconds. What would happen if these paths didn't flush at all?
-> Also please note that WQ context can be overwhelmed by other work so
-> these flushes can happen much much later.
->
-> So in other words why does async work (that can happen at any time
-> without any control) make more sense than no flushing?
-> --
 
-Without flushing the worst that can happen in the refault path is
-false (or missed) activations of the refaulted page. For reclaim code,
-some heuristics (like deactivating active LRU or cache-trim) may act
-on old information.
 
-However I don't think these are too much concerning as the kernel can
-already missed or do false activations on refault. For the reclaim
-code, the kernel does force deactivation if it has skipped it in the
-initial iterations, so, not much to worry.
+On 27/02/2022 13:53, Krzysztof Kozlowski wrote:
+> The driver_override field from platform driver should not be initialized
+> from static memory (string literal) because the core later kfree() it,
+> for example when driver_override is set via sysfs.
+> 
+> Use dedicated helper to set driver_override properly.
+> 
+> Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-Now, coming to your question, yes, we can remove the flushing from
-these performance critical codepaths as the stats at most will be 2
-second old due to periodic flush. Now for the worst case scenario
-where that periodic flush (WQ) is not getting CPU, I think it is
-reasonable to put a sync flush if periodic flush has not happened for,
-let's say, 10 seconds.
+LGTM,
+
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+
+> ---
+>   drivers/slimbus/qcom-ngd-ctrl.c | 13 ++++++++++++-
+>   1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+> index 7040293c2ee8..e5d9fdb81eb0 100644
+> --- a/drivers/slimbus/qcom-ngd-ctrl.c
+> +++ b/drivers/slimbus/qcom-ngd-ctrl.c
+> @@ -1434,6 +1434,7 @@ static int of_qcom_slim_ngd_register(struct device *parent,
+>   	const struct of_device_id *match;
+>   	struct device_node *node;
+>   	u32 id;
+> +	int ret;
+>   
+>   	match = of_match_node(qcom_slim_ngd_dt_match, parent->of_node);
+>   	data = match->data;
+> @@ -1455,7 +1456,17 @@ static int of_qcom_slim_ngd_register(struct device *parent,
+>   		}
+>   		ngd->id = id;
+>   		ngd->pdev->dev.parent = parent;
+> -		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
+> +
+> +		ret = driver_set_override(&ngd->pdev->dev,
+> +					  &ngd->pdev->driver_override,
+> +					  QCOM_SLIM_NGD_DRV_NAME,
+> +					  strlen(QCOM_SLIM_NGD_DRV_NAME));
+> +		if (ret) {
+> +			platform_device_put(ngd->pdev);
+> +			kfree(ngd);
+> +			of_node_put(node);
+> +			return ret;
+> +		}
+>   		ngd->pdev->dev.of_node = node;
+>   		ctrl->ngd = ngd;
+>   
