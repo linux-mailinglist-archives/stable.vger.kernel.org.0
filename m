@@ -2,52 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0CD4C96AF
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED9D54C96A4
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238160AbiCAUZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:25:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46962 "EHLO
+        id S238303AbiCAUZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:25:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239251AbiCAUYh (ORCPT
+        with ESMTP id S239256AbiCAUYh (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:24:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27765B02;
-        Tue,  1 Mar 2022 12:22:37 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222344249C;
+        Tue,  1 Mar 2022 12:22:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B593A60B5B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFC9FB81D4E;
+        Tue,  1 Mar 2022 20:22:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE04C340EE;
         Tue,  1 Mar 2022 20:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2111DC340EF;
-        Tue,  1 Mar 2022 20:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646166156;
-        bh=aPLnTDcN5Cogu7sSosopTtKGWxetddHlbwS/+ePDwqU=;
+        s=k20201202; t=1646166159;
+        bh=BDnBhaYylqMWjGosUmpheFv+jQ3QbOsW+wySpY/V6y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+UeU/zpRmHfhaCMfuhxF+u1Vz65yCguVXd6YqWMqQ9EwnBIAdimJOSMbh1mAA2Ms
-         84ZxX16WllwqYrGoHC6mgt0OLiTn4sqHEj8N0+1nlzOhG/c3wqsRz1iZN43zEJNX6C
-         fOf4Cb2jJVVdUET9zwIB+H3zmJA7Caz4tE2pUgkXtzGXRkSGea/bqMf+C+8c3pO6ic
-         URTUFe4V1gScGuoQ3D0Ekcj6AqUmhMRCtUvNeQ2y1vxYvRG7Kh5ET4Xm1PesL/gEUo
-         3Q0KWJJ2kRi0inmOpZ6BpBCsXbyHVleS9ScuehEAQi26couDLVPeTg2unOF1F5DL2M
-         wOb7icT5FLxrA==
+        b=XzYtY5Gh6ZeDqaKALEB5zcd8MGDxP32CuXLR8sPN5J1XFfh20Pm4+7pmvf+54Lqeq
+         5MSF3yjtF1p2dK0DhWNt19SgNjSX7aSyB9b3EUwBY54jzQ83g2vKIYDRxB8znyVEc+
+         V9XH2BR613o3lSy4A9IBi/yqi49tFlnhT5AyfjeiaFmusxXGcdf+4IOhZ52i40A8TV
+         K1dANVk6mdLdm5I2DDHu9Qsc6cxWZ2RO9XB5ksAl/+TZYiheVh4nSN41QIz+PT5Xd4
+         9A44WUulMzErQ7hz0LeYSryc6ziigbAFjafUfRBw9b78azfKhBdDu6bp4GbTm/huR0
+         pV94LINrvFjaA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Paul Durrant <paul@xen.org>,
-        Michael Brown <mbrown@fensystems.co.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, wei.liu@kernel.org,
-        davem@davemloft.net, xen-devel@lists.xenproject.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 4/6] Revert "xen-netback: Check for hotplug-status existence before watching"
-Date:   Tue,  1 Mar 2022 15:22:08 -0500
-Message-Id: <20220301202212.19419-4-sashal@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
+Subject: [PATCH AUTOSEL 4.9 5/6] tracing: Ensure trace buffer is at least 4096 bytes large
+Date:   Tue,  1 Mar 2022 15:22:09 -0500
+Message-Id: <20220301202212.19419-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220301202212.19419-1-sashal@kernel.org>
 References: <20220301202212.19419-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,62 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit e8240addd0a3919e0fd7436416afe9aa6429c484 ]
+[ Upstream commit 7acf3a127bb7c65ff39099afd78960e77b2ca5de ]
 
-This reverts commit 2afeec08ab5c86ae21952151f726bfe184f6b23d.
+Booting the kernel with 'trace_buf_size=1' give a warning at
+boot during the ftrace selftests:
 
-The reasoning in the commit was wrong - the code expected to setup the
-watch even if 'hotplug-status' didn't exist. In fact, it relied on the
-watch being fired the first time - to check if maybe 'hotplug-status' is
-already set to 'connected'. Not registering a watch for non-existing
-path (which is the case if hotplug script hasn't been executed yet),
-made the backend not waiting for the hotplug script to execute. This in
-turns, made the netfront think the interface is fully operational, while
-in fact it was not (the vif interface on xen-netback side might not be
-configured yet).
+[    0.892809] Running postponed tracer tests:
+[    0.892893] Testing tracer function:
+[    0.901899] Callback from call_rcu_tasks_trace() invoked.
+[    0.983829] Callback from call_rcu_tasks_rude() invoked.
+[    1.072003] .. bad ring buffer .. corrupted trace buffer ..
+[    1.091944] Callback from call_rcu_tasks() invoked.
+[    1.097695] PASSED
+[    1.097701] Testing dynamic ftrace: .. filter failed count=0 ..FAILED!
+[    1.353474] ------------[ cut here ]------------
+[    1.353478] WARNING: CPU: 0 PID: 1 at kernel/trace/trace.c:1951 run_tracer_selftest+0x13c/0x1b0
 
-This was a workaround for 'hotplug-status' erroneously being removed.
-But since that is reverted now, the workaround is not necessary either.
+Therefore enforce a minimum of 4096 bytes to make the selftest pass.
 
-More discussion at
-https://lore.kernel.org/xen-devel/afedd7cb-a291-e773-8b0d-4db9b291fa98@ipxe.org/T/#u
+Link: https://lkml.kernel.org/r/20220214134456.1751749-1-svens@linux.ibm.com
 
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Reviewed-by: Michael Brown <mbrown@fensystems.co.uk>
-Link: https://lore.kernel.org/r/20220222001817.2264967-2-marmarek@invisiblethingslab.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/xenbus.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ kernel/trace/trace.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
-index e6646c8a7bdbb..78788402edd8b 100644
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -1040,15 +1040,11 @@ static void connect(struct backend_info *be)
- 	xenvif_carrier_on(be->vif);
- 
- 	unregister_hotplug_status_watch(be);
--	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
--		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
--					   NULL, hotplug_status_changed,
--					   "%s/%s", dev->nodename,
--					   "hotplug-status");
--		if (err)
--			goto err;
-+	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
-+				   hotplug_status_changed,
-+				   "%s/%s", dev->nodename, "hotplug-status");
-+	if (!err)
- 		be->have_hotplug_status_watch = 1;
--	}
- 
- 	netif_tx_wake_all_queues(be->vif->dev);
- 
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 12bee7043be6f..90e0fd5621da9 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1077,10 +1077,12 @@ static int __init set_buf_size(char *str)
+ 	if (!str)
+ 		return 0;
+ 	buf_size = memparse(str, &str);
+-	/* nr_entries can not be zero */
+-	if (buf_size == 0)
+-		return 0;
+-	trace_buf_size = buf_size;
++	/*
++	 * nr_entries can not be zero and the startup
++	 * tests require some buffer space. Therefore
++	 * ensure we have at least 4096 bytes of buffer.
++	 */
++	trace_buf_size = max(4096UL, buf_size);
+ 	return 1;
+ }
+ __setup("trace_buf_size=", set_buf_size);
 -- 
 2.34.1
 
