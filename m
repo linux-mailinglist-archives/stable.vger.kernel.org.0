@@ -2,112 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 453A74C8A3E
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 12:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 232DD4C8AD2
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 12:32:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233502AbiCALDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 06:03:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58734 "EHLO
+        id S231152AbiCALc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 06:32:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232550AbiCALDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 06:03:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A48AD63BDA;
-        Tue,  1 Mar 2022 03:03:06 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46EC3B817A9;
-        Tue,  1 Mar 2022 11:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A7B9C340EE;
-        Tue,  1 Mar 2022 11:03:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646132583;
-        bh=s3AyX5haQ6VBA5pNSp/kFJK06ZJoccCHONGNMZ47+Z0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M93Z3h3QCJ/5SN+x4+sQ9dePM6ZeoZDUgHPeVlBkD4FLd6EpLvivvZqJZ70IN7+uc
-         5r2wLM6NaxCZM1dpLU8mf2PCT+3kdG1K7varUEyeRX1YPI2jtktWEAnmkiHhorl1eO
-         VRqD/lJEGEIM0e5ZsvbTH0zWhzetbdxgzsu9I4y4Ykv0QJZXy+z6ad1lvdYKQvC18G
-         bSlFbx9FXmgJa1OuHo8PR7LqrGfbt01MBzvrOu1001MdgT+KLSbcCYWv5a4g2NqdL9
-         VxxgQLcm/SH8Ux5h4j5KBoCFq3trI5zL4akmFibJsv5BXBaWXAIkiAz0Vy4oO0Mau2
-         1ASioE9qDjc9A==
-Date:   Tue, 1 Mar 2022 12:03:46 +0100
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Dave Hansen <dave.hansen@intel.com>
-Cc:     linux-sgx@vger.kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "open list:X86 ARCHITECTURE (32-BIT AND 64-BIT)" 
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4] x86/sgx: Free backing memory after faulting the
- enclave page
-Message-ID: <Yh39kuf8kuZJ0pRJ@iki.fi>
-References: <20220222120342.5277-1-jarkko@kernel.org>
- <33646f1e-da44-503a-c454-02658d512926@intel.com>
- <YhzGS+x0eNoc3gyN@iki.fi>
- <0e06910b-9313-94ae-11e3-10a2b14645f2@intel.com>
+        with ESMTP id S234603AbiCALcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 06:32:53 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A0874831F;
+        Tue,  1 Mar 2022 03:32:10 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id b5so20062652wrr.2;
+        Tue, 01 Mar 2022 03:32:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=4GIe3uUVxEnTlUQjwjwrGN0rH/SNQXEEB09+dyoNVP4=;
+        b=keJn8RUOdYY/YAmC6qOnds0+QFnRFcaFVSyiRHwcAHvA1YtDjj+OhmcMHyu+VyXAa3
+         V9YyfNjywGc9KDbBab++i4eGWefKvals62lS2XMgjIbYInKJk6tKFzPQEJgvBsvWr5TK
+         rTsDa9Zg9M+u7w6QQ7w/T4CF/dWLEHKPlc296WmRaR/2HPNUnpAIaA0AUi/qzWZJ59JZ
+         Mn8t0jecFT7HYS2frRD2qsuqV2amj5Jgnn8Q8rPh1O6OVk3uDxKJWVL/PNJ4z22mnanO
+         Q3wxuIEOnuN3JcdX+anza4TdK/b2nYvSrVyaR62plJ0q/AHvLCdJQ36v8jOeh8IStHrR
+         vtmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=4GIe3uUVxEnTlUQjwjwrGN0rH/SNQXEEB09+dyoNVP4=;
+        b=HXGIU3tddLidrPZvRnlIVNIToUu/hLFfTMn9oPXhlIh8Fdsr8xyz9yxrLq9fqxHc03
+         Zu5+v0Kir+KgcCFfNlWyhqfDtd70OKyNjls9cvffjBJ33ZfRuYpI1WSLpoor8uTZMMOH
+         P1uXx+RDlyq44wzRw1CzwbqarFK2w5rJqKZAEh83q2CgtGsrjMuG7RBZqIL8RjpTPpPK
+         /LH9Vwo7qx7N6U0+LcyORqeCEEKeDvX+7IBBTE0qk63k7p2FeiBHLFUwqWIYcoalrseV
+         LTFafIpBxnXS8gBAhVC7fCtyGqxjeMWmgLcasf+s58cTwcuGXtSQELPBXi3b4Ir8sJUE
+         ZJwA==
+X-Gm-Message-State: AOAM530Ngr+11GQQLq9oUvlCcD0bolRlwdhBLO2LBavjxt631vQ73xFk
+        69Ib5lgoPgcUBx0DKsBuc0M=
+X-Google-Smtp-Source: ABdhPJy9YNrTjW1aIvoot9dCqpltZ7XbRqQFZ9a026M96U2B/L0KdUl69wfhjvj6OLMd2p4w+0Xdzw==
+X-Received: by 2002:adf:f611:0:b0:1ed:e11a:67a4 with SMTP id t17-20020adff611000000b001ede11a67a4mr19226342wrp.215.1646134328837;
+        Tue, 01 Mar 2022 03:32:08 -0800 (PST)
+Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
+        by smtp.gmail.com with ESMTPSA id c4-20020adfed84000000b001e5b8d5b8dasm19151972wro.36.2022.03.01.03.32.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Mar 2022 03:32:08 -0800 (PST)
+Date:   Tue, 1 Mar 2022 11:32:06 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 4.19 00/34] 4.19.232-rc1 review
+Message-ID: <Yh4ENsU3fjdf2Sdy@debian>
+References: <20220228172207.090703467@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0e06910b-9313-94ae-11e3-10a2b14645f2@intel.com>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 28, 2022 at 07:32:02AM -0800, Dave Hansen wrote:
-> On 2/28/22 04:55, Jarkko Sakkinen wrote:
-> > I thought that the formula is so simple that it does not matter if it is
-> > just in two sites open coded but I can wrap it too, if required, e.g.
-> > 
-> > /* 
-> >  * Calculate byte offset of a PCMD struct associated to an enclave page.
-> >  * PCMD's follow right after the EPC data in the backing storage. In
-> >  * addition to the visible enclave pages, there's one extra page slot
-> >  * for SECS, before PCMD data.
-> >  */
-> > static pgoff_t *sgx_encl_page_index_to_pcmd_offset(struct sgx_encl *encl, unsigned long page_index)
-> > {
-> >         return encl->size + PAGE_SIZE + page_index * sizeof(struct sgx_pcmd);
-> > }
+Hi Greg,
+
+On Mon, Feb 28, 2022 at 06:24:06PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.232 release.
+> There are 34 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Yes, it's required.  Please wrap it.
-> 
-> There's also nothing wrong with spreading that calculation across
-> several lines.  It may be arithmetically simple, but it's combining
-> three or four logical steps.  There's no shame in separating and
-> commenting some of those separately.
+> Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
+> Anything received after that time might be too late.
 
-I can do that but one thing that would make this more documentative would
-be to describe the formula as "encl->size + sizeof(struct sgx_secs) +
-sizeof(struct sgx_pcmd)", i.e. PAGE_SIZE is a magic number so the
-end result would be:
+Build test:
+mips (gcc version 11.2.1 20220213): 63 configs -> no failure
+arm (gcc version 11.2.1 20220213): 116 configs -> no new failure
+arm64 (gcc version 11.2.1 20220213): 2 configs -> no failure
+x86_64 (gcc version 11.2.1 20220213): 4 configs -> no failure
 
-/* 
- * Calculate byte offset of a PCMD struct associated to an enclave page. PCMD's
- * follow right after the EPC data in the backing storage. In addition to the
- * visible enclave pages, there's one extra page slot for SECS, before PCMD
- * structs.
- */
-static inline pgoff_t sgx_encl_page_index_to_pcmd_offset(struct sgx_encl *encl, unsigned long page_index)
-{
-        pgoff_t epc_end_off = encl->size + sizeof(struct sgx_secs);
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
-        return epc_end_off + page_index * sizeof(struct sgx_pcmd);
-}
+[1]. https://openqa.qa.codethink.co.uk/tests/819
 
-Now it is hard to get this wrong and also the file offset has the nice quality
-of packing the page index for PCMD page, and offset within that page. IMHO,
-this will nice and clean long-term way to sort this out.
 
-/Jarkko
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
+
