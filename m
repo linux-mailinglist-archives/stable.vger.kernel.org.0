@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A36DA4C95CC
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D8F4C95D1
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:16:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237826AbiCAUQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:16:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51278 "EHLO
+        id S237856AbiCAUQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:16:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237837AbiCAUQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:16:10 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA34475E76;
-        Tue,  1 Mar 2022 12:15:18 -0800 (PST)
+        with ESMTP id S231981AbiCAUQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:16:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F3679C48;
+        Tue,  1 Mar 2022 12:15:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C7BD5CE1A6D;
-        Tue,  1 Mar 2022 20:15:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D32C340F2;
-        Tue,  1 Mar 2022 20:15:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6BDBB81D17;
+        Tue,  1 Mar 2022 20:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2D59C340F1;
+        Tue,  1 Mar 2022 20:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646165715;
-        bh=VO1C+e/5L5lf/6EQ/5yySf3EkTEEUGy03TlZvu8CiEk=;
+        s=k20201202; t=1646165726;
+        bh=f8CaatFsI32+3T89lm3gzamkH66//Ji/Aflwp1AAQzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+oqGcW45T2qhIKQaBroTOAiXIFU6ynm/atZEb7ApuJRAKAtiAuAgRZ/cR1D3wgoA
-         xBNkXBDBtlDKK+3CAdBNvxRyeqpqCpvMgO3S9lr9olYBYw43t8ai6AcGc5YBYrjfin
-         6zkAY8fdzOtfASgqpFss8VHLWJvq4p16+UZNAxKx/IxasDAG4FbXDaywl2AMyts22I
-         arxl0whkupXlRwWwe7ALjlCICXrv4Yz4SWCRkubpFguOmXlr3YuOjnpiZlIV5g1ifS
-         jjUeRq2hdOTLr9cXtYIwnhQdqA2x9D/ZNmVCztHYxNH3TMvaXmpmpqVxJNnLjpBe1y
-         s4lXtIa2xO2fQ==
+        b=ajuaUMsGyw8gFghCsdXhsUit2WWgz5sHSmDOBD+plymBuCUzpE4y7DQhNGEAQA2ry
+         XXjoM9YBISxGMRE+KwoBCY58Uk1tKrkKr3E4GNYLCfP9BKG6WMfDQeU1Kzy4qF0iVL
+         vTYptnlkAKDaqcnlvB3vB198Mxyd8bFZjLfmxcF3lcRFPhcoywJkCCcc5UZMYrrlPR
+         Ef7t4/froguOZsxnLcWRloh6SX/JxV2+P9YWi53UTwb0FfgMFSVz9luICJQeqyclYT
+         y4L1moONFKs9p284yI+tbJyTS8+WKqzrQ/GqUVu2iLxBGzts95J26BGXN4OzZIiOXt
+         /i8ePVJTq3Vew==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vikash Chandola <vikash.chandola@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 16/28] hwmon: (pmbus) Clear pmbus fault/warning bits after read
-Date:   Tue,  1 Mar 2022 15:13:21 -0500
-Message-Id: <20220301201344.18191-16-sashal@kernel.org>
+Cc:     Varun Prakash <varun@chelsio.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 17/28] nvme-tcp: send H2CData PDUs based on MAXH2CDATA
+Date:   Tue,  1 Mar 2022 15:13:22 -0500
+Message-Id: <20220301201344.18191-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220301201344.18191-1-sashal@kernel.org>
 References: <20220301201344.18191-1-sashal@kernel.org>
@@ -57,40 +58,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikash Chandola <vikash.chandola@linux.intel.com>
+From: Varun Prakash <varun@chelsio.com>
 
-[ Upstream commit 35f165f08950a876f1b95a61d79c93678fba2fd6 ]
+[ Upstream commit c2700d2886a87f83f31e0a301de1d2350b52c79b ]
 
-Almost all fault/warning bits in pmbus status registers remain set even
-after fault/warning condition are removed. As per pmbus specification
-these faults must be cleared by user.
-Modify hwmon behavior to clear fault/warning bit after fetching data if
-fault/warning bit was set. This allows to get fresh data in next read.
+As per NVMe/TCP specification (revision 1.0a, section 3.6.2.3)
+Maximum Host to Controller Data length (MAXH2CDATA): Specifies the
+maximum number of PDU-Data bytes per H2CData PDU in bytes. This value
+is a multiple of dwords and should be no less than 4,096.
 
-Signed-off-by: Vikash Chandola <vikash.chandola@linux.intel.com>
-Link: https://lore.kernel.org/r/20220222131253.2426834-1-vikash.chandola@linux.intel.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Current code sets H2CData PDU data_length to r2t_length,
+it does not check MAXH2CDATA value. Fix this by setting H2CData PDU
+data_length to min(req->h2cdata_left, queue->maxh2cdata).
+
+Also validate MAXH2CDATA value returned by target in ICResp PDU,
+if it is not a multiple of dword or if it is less than 4096 return
+-EINVAL from nvme_tcp_init_connection().
+
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/pmbus_core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/nvme/host/tcp.c  | 63 +++++++++++++++++++++++++++++++---------
+ include/linux/nvme-tcp.h |  1 +
+ 2 files changed, 50 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index 776ee2237be20..ac2fbee1ba9c0 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -911,6 +911,11 @@ static int pmbus_get_boolean(struct i2c_client *client, struct pmbus_boolean *b,
- 		pmbus_update_sensor_data(client, s2);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 891a36d02e7c7..65e00c64a588b 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -44,6 +44,8 @@ struct nvme_tcp_request {
+ 	u32			data_len;
+ 	u32			pdu_len;
+ 	u32			pdu_sent;
++	u32			h2cdata_left;
++	u32			h2cdata_offset;
+ 	u16			ttag;
+ 	__le16			status;
+ 	struct list_head	entry;
+@@ -95,6 +97,7 @@ struct nvme_tcp_queue {
+ 	struct nvme_tcp_request *request;
  
- 	regval = status & mask;
-+	if (regval) {
-+		ret = pmbus_write_byte_data(client, page, reg, regval);
-+		if (ret)
-+			goto unlock;
+ 	int			queue_size;
++	u32			maxh2cdata;
+ 	size_t			cmnd_capsule_len;
+ 	struct nvme_tcp_ctrl	*ctrl;
+ 	unsigned long		flags;
+@@ -572,23 +575,26 @@ static int nvme_tcp_handle_comp(struct nvme_tcp_queue *queue,
+ 	return ret;
+ }
+ 
+-static void nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
+-		struct nvme_tcp_r2t_pdu *pdu)
++static void nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req)
+ {
+ 	struct nvme_tcp_data_pdu *data = req->pdu;
+ 	struct nvme_tcp_queue *queue = req->queue;
+ 	struct request *rq = blk_mq_rq_from_pdu(req);
++	u32 h2cdata_sent = req->pdu_len;
+ 	u8 hdgst = nvme_tcp_hdgst_len(queue);
+ 	u8 ddgst = nvme_tcp_ddgst_len(queue);
+ 
+ 	req->state = NVME_TCP_SEND_H2C_PDU;
+ 	req->offset = 0;
+-	req->pdu_len = le32_to_cpu(pdu->r2t_length);
++	req->pdu_len = min(req->h2cdata_left, queue->maxh2cdata);
+ 	req->pdu_sent = 0;
++	req->h2cdata_left -= req->pdu_len;
++	req->h2cdata_offset += h2cdata_sent;
+ 
+ 	memset(data, 0, sizeof(*data));
+ 	data->hdr.type = nvme_tcp_h2c_data;
+-	data->hdr.flags = NVME_TCP_F_DATA_LAST;
++	if (!req->h2cdata_left)
++		data->hdr.flags = NVME_TCP_F_DATA_LAST;
+ 	if (queue->hdr_digest)
+ 		data->hdr.flags |= NVME_TCP_F_HDGST;
+ 	if (queue->data_digest)
+@@ -597,9 +603,9 @@ static void nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
+ 	data->hdr.pdo = data->hdr.hlen + hdgst;
+ 	data->hdr.plen =
+ 		cpu_to_le32(data->hdr.hlen + hdgst + req->pdu_len + ddgst);
+-	data->ttag = pdu->ttag;
++	data->ttag = req->ttag;
+ 	data->command_id = nvme_cid(rq);
+-	data->data_offset = pdu->r2t_offset;
++	data->data_offset = cpu_to_le32(req->h2cdata_offset);
+ 	data->data_length = cpu_to_le32(req->pdu_len);
+ }
+ 
+@@ -609,6 +615,7 @@ static int nvme_tcp_handle_r2t(struct nvme_tcp_queue *queue,
+ 	struct nvme_tcp_request *req;
+ 	struct request *rq;
+ 	u32 r2t_length = le32_to_cpu(pdu->r2t_length);
++	u32 r2t_offset = le32_to_cpu(pdu->r2t_offset);
+ 
+ 	rq = nvme_find_rq(nvme_tcp_tagset(queue), pdu->command_id);
+ 	if (!rq) {
+@@ -633,14 +640,19 @@ static int nvme_tcp_handle_r2t(struct nvme_tcp_queue *queue,
+ 		return -EPROTO;
+ 	}
+ 
+-	if (unlikely(le32_to_cpu(pdu->r2t_offset) < req->data_sent)) {
++	if (unlikely(r2t_offset < req->data_sent)) {
+ 		dev_err(queue->ctrl->ctrl.device,
+ 			"req %d unexpected r2t offset %u (expected %zu)\n",
+-			rq->tag, le32_to_cpu(pdu->r2t_offset), req->data_sent);
++			rq->tag, r2t_offset, req->data_sent);
+ 		return -EPROTO;
+ 	}
+ 
+-	nvme_tcp_setup_h2c_data_pdu(req, pdu);
++	req->pdu_len = 0;
++	req->h2cdata_left = r2t_length;
++	req->h2cdata_offset = r2t_offset;
++	req->ttag = pdu->ttag;
++
++	nvme_tcp_setup_h2c_data_pdu(req);
+ 	nvme_tcp_queue_request(req, false, true);
+ 
+ 	return 0;
+@@ -928,6 +940,7 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
+ {
+ 	struct nvme_tcp_queue *queue = req->queue;
+ 	int req_data_len = req->data_len;
++	u32 h2cdata_left = req->h2cdata_left;
+ 
+ 	while (true) {
+ 		struct page *page = nvme_tcp_req_cur_page(req);
+@@ -972,7 +985,10 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
+ 				req->state = NVME_TCP_SEND_DDGST;
+ 				req->offset = 0;
+ 			} else {
+-				nvme_tcp_done_send_req(queue);
++				if (h2cdata_left)
++					nvme_tcp_setup_h2c_data_pdu(req);
++				else
++					nvme_tcp_done_send_req(queue);
+ 			}
+ 			return 1;
+ 		}
+@@ -1030,9 +1046,14 @@ static int nvme_tcp_try_send_data_pdu(struct nvme_tcp_request *req)
+ 	if (queue->hdr_digest && !req->offset)
+ 		nvme_tcp_hdgst(queue->snd_hash, pdu, sizeof(*pdu));
+ 
+-	ret = kernel_sendpage(queue->sock, virt_to_page(pdu),
+-			offset_in_page(pdu) + req->offset, len,
+-			MSG_DONTWAIT | MSG_MORE | MSG_SENDPAGE_NOTLAST);
++	if (!req->h2cdata_left)
++		ret = kernel_sendpage(queue->sock, virt_to_page(pdu),
++				offset_in_page(pdu) + req->offset, len,
++				MSG_DONTWAIT | MSG_MORE | MSG_SENDPAGE_NOTLAST);
++	else
++		ret = sock_no_sendpage(queue->sock, virt_to_page(pdu),
++				offset_in_page(pdu) + req->offset, len,
++				MSG_DONTWAIT | MSG_MORE);
+ 	if (unlikely(ret <= 0))
+ 		return ret;
+ 
+@@ -1052,6 +1073,7 @@ static int nvme_tcp_try_send_ddgst(struct nvme_tcp_request *req)
+ {
+ 	struct nvme_tcp_queue *queue = req->queue;
+ 	size_t offset = req->offset;
++	u32 h2cdata_left = req->h2cdata_left;
+ 	int ret;
+ 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT };
+ 	struct kvec iov = {
+@@ -1069,7 +1091,10 @@ static int nvme_tcp_try_send_ddgst(struct nvme_tcp_request *req)
+ 		return ret;
+ 
+ 	if (offset + ret == NVME_TCP_DIGEST_LENGTH) {
+-		nvme_tcp_done_send_req(queue);
++		if (h2cdata_left)
++			nvme_tcp_setup_h2c_data_pdu(req);
++		else
++			nvme_tcp_done_send_req(queue);
+ 		return 1;
+ 	}
+ 
+@@ -1261,6 +1286,7 @@ static int nvme_tcp_init_connection(struct nvme_tcp_queue *queue)
+ 	struct msghdr msg = {};
+ 	struct kvec iov;
+ 	bool ctrl_hdgst, ctrl_ddgst;
++	u32 maxh2cdata;
+ 	int ret;
+ 
+ 	icreq = kzalloc(sizeof(*icreq), GFP_KERNEL);
+@@ -1344,6 +1370,14 @@ static int nvme_tcp_init_connection(struct nvme_tcp_queue *queue)
+ 		goto free_icresp;
+ 	}
+ 
++	maxh2cdata = le32_to_cpu(icresp->maxdata);
++	if ((maxh2cdata % 4) || (maxh2cdata < NVME_TCP_MIN_MAXH2CDATA)) {
++		pr_err("queue %d: invalid maxh2cdata returned %u\n",
++		       nvme_tcp_queue_id(queue), maxh2cdata);
++		goto free_icresp;
 +	}
- 	if (s1 && s2) {
- 		s64 v1, v2;
++	queue->maxh2cdata = maxh2cdata;
++
+ 	ret = 0;
+ free_icresp:
+ 	kfree(icresp);
+@@ -2329,6 +2363,7 @@ static blk_status_t nvme_tcp_setup_cmd_pdu(struct nvme_ns *ns,
+ 	req->data_sent = 0;
+ 	req->pdu_len = 0;
+ 	req->pdu_sent = 0;
++	req->h2cdata_left = 0;
+ 	req->data_len = blk_rq_nr_phys_segments(rq) ?
+ 				blk_rq_payload_bytes(rq) : 0;
+ 	req->curr_bio = rq->bio;
+diff --git a/include/linux/nvme-tcp.h b/include/linux/nvme-tcp.h
+index 959e0bd9a913e..75470159a194d 100644
+--- a/include/linux/nvme-tcp.h
++++ b/include/linux/nvme-tcp.h
+@@ -12,6 +12,7 @@
+ #define NVME_TCP_DISC_PORT	8009
+ #define NVME_TCP_ADMIN_CCSZ	SZ_8K
+ #define NVME_TCP_DIGEST_LENGTH	4
++#define NVME_TCP_MIN_MAXH2CDATA 4096
  
+ enum nvme_tcp_pfv {
+ 	NVME_TCP_PFV_1_0 = 0x0,
 -- 
 2.34.1
 
