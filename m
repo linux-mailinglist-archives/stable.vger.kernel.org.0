@@ -2,112 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD314C80BA
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 03:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEBFA4C80BC
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 03:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231474AbiCACGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 21:06:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47916 "EHLO
+        id S230392AbiCACHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 21:07:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230378AbiCACGK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 21:06:10 -0500
-Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D6B265;
-        Mon, 28 Feb 2022 18:05:24 -0800 (PST)
-X-UUID: a86095ea6c7f416fbb5dcb9564fb2e7c-20220301
-X-UUID: a86095ea6c7f416fbb5dcb9564fb2e7c-20220301
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw02.mediatek.com
-        (envelope-from <yf.wang@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 741999193; Tue, 01 Mar 2022 10:05:21 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Tue, 1 Mar 2022 10:05:19 +0800
-Received: from mbjsdccf07.mediatek.inc (10.15.20.246) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 1 Mar 2022 10:05:19 +0800
-From:   <yf.wang@mediatek.com>
-To:     <yf.wang@mediatek.com>
-CC:     <Libo.Kang@mediatek.com>, <Ning.Li@mediatek.com>,
-        <Yong.Wu@mediatek.com>, <iommu@lists.linux-foundation.org>,
-        <joro@8bytes.org>, <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <matthias.bgg@gmail.com>,
-        <will@kernel.org>, <wsd_upstream@mediatek.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] iommu/iova: Reset max32_alloc_size after cleaning rcache in the fail path
-Date:   Tue, 1 Mar 2022 09:59:19 +0800
-Message-ID: <20220301015919.5116-1-yf.wang@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220301014246.5011-1-yf.wang@mediatek.com>
-References: <20220301014246.5011-1-yf.wang@mediatek.com>
+        with ESMTP id S230273AbiCACHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 21:07:49 -0500
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3909265;
+        Mon, 28 Feb 2022 18:07:09 -0800 (PST)
+Received: by mail-io1-xd2c.google.com with SMTP id 195so17024202iou.0;
+        Mon, 28 Feb 2022 18:07:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=l2KeC3dPcvSnqfOGtSJ6PTl3rXghVvrXOECFwNaRwPk=;
+        b=URIn1AIiPNy9XLaaw4GWCDPP7qgAf+N+7am6NvzO1wgIL/YaVo3T/BUDf2XUGy5wCr
+         H8eU7QNNieStYksb6bJRr+CsJStvfeZemHduSyIjOKDv0lxVkV7RBwNOjPQIozE/g/mn
+         94MvEXWpzopvZcny31wk5b8Gxxq/onSqVqw9a3nHRmav1usA0gSyEz3MBs7JEpE934sx
+         Ij1NgbMG1318AQfGOfclKKJjAhuccwQ/oP1EUQ7LPQVpEbiMHQVwhFBWKOER1hb0uliV
+         L6WbwAB23R/TNk0mkSes5JsZOlv3Ucn84iEX41ZiSaRrdFqiG48j2SWV+4JVdmN0Of7g
+         pZTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=l2KeC3dPcvSnqfOGtSJ6PTl3rXghVvrXOECFwNaRwPk=;
+        b=KpSw9sPuxVClXG07Wxn/Jn5U7a5ZFKAREyKvdwAwlKo/S1DEfrRtza/fLlijYiWiw+
+         in7acrKGgQHBVF4Ktx50FBLpTAjw9Ofw4P1LADWz2AwzV8PhzR28S+3Dy91Gldcv4iih
+         ep/c1ZRgQYJM6Zilu6z+FW0NejLQT1V6vnpumBwimbKn2ZpGYkmbOGxEA1WxphCZHmjl
+         ZvpgZQeERvYiErhKr1sf47CObgOAPJDNzAVNC4/ZLqacSAe9afQO8qY8AuXXg/PLCoKE
+         ZqBtaddpVTa05J9pB5/PRCX+tiQrH9EzxDHxvnm7CARGqP8z/KrFCqBT82+4fEbNm5bI
+         Zjhw==
+X-Gm-Message-State: AOAM533B/xkkyUxM3608tsuO3+ifN8ED8a7zQb+OPasapSHbSOi3DdtA
+        ya7cUAkXAPwzbMvuHp+y/NxuplZ47TDMO0U8hIU5/u+BzoM=
+X-Google-Smtp-Source: ABdhPJxoQF5Pmp8NsbIbh59REDAg7MpqlSYZJrwcgKhRYSOURFDYR8cWDnC3SNfGfvEY4E4Oldit4ZEJzORqyF2h7ug=
+X-Received: by 2002:a05:6638:268c:b0:306:7cbc:b536 with SMTP id
+ o12-20020a056638268c00b003067cbcb536mr18658604jat.196.1646100428650; Mon, 28
+ Feb 2022 18:07:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR,UNPARSEABLE_RELAY autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+From:   Zan Aziz <zanaziz313@gmail.com>
+Date:   Mon, 28 Feb 2022 19:06:58 -0700
+Message-ID: <CAFU3qoaMvo25QMatDkn6cQLd0=s13=T=MH++GQTJmjxOOTUhYg@mail.gmail.com>
+Subject: Re: [PATCH 5.16 000/164] 5.16.12-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Wang <yf.wang@mediatek.com>
+On Mon, Feb 28, 2022 at 10:47 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.16.12 release.
+> There are 164 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.12-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-In alloc_iova_fast function, if __alloc_and_insert_iova_range fail,
-alloc_iova_fast will try flushing rcache and retry alloc iova, but
-this has an issue:
+Hi Greg,
 
-Since __alloc_and_insert_iova_range fail will set the current alloc
-iova size to max32_alloc_size (iovad->max32_alloc_size = size),
-when the retry is executed into the __alloc_and_insert_iova_range
-function, the retry action will be blocked by the check condition
-(size >= iovad->max32_alloc_size) and goto iova32_full directly,
-causes the action of retry regular alloc iova in
-__alloc_and_insert_iova_range to not actually be executed.
+Compiled and booted on my test system Lenovo P50s: Intel Core i7
+No emergency and critical messages in the dmesg
 
-Based on the above, so need reset max32_alloc_size before retry alloc
-iova when alloc iova fail, that is set the initial dma_32bit_pfn value
-of iovad to max32_alloc_size, so that the action of retry alloc iova
-in __alloc_and_insert_iova_range can be executed.
+./perf bench sched all
+# Running sched/messaging benchmark...
+# 20 sender and receiver processes per group
+# 10 groups == 400 processes run
 
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.10.*
----
-v2: Cc stable@vger.kernel.org
-    1. This patch needs to be merged stable branch, add stable@vger.kernel.org
-       in mail list.
+     Total time: 0.440 [sec]
 
----
- drivers/iommu/iova.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+# Running sched/pipe benchmark...
+# Executed 1000000 pipe operations between two processes
 
-diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index b28c9435b898..0c085ae8293f 100644
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -453,6 +453,7 @@ alloc_iova_fast(struct iova_domain *iovad, unsigned long size,
- retry:
- 	new_iova = alloc_iova(iovad, size, limit_pfn, true);
- 	if (!new_iova) {
-+		unsigned long flags;
- 		unsigned int cpu;
- 
- 		if (!flush_rcache)
-@@ -463,6 +464,12 @@ alloc_iova_fast(struct iova_domain *iovad, unsigned long size,
- 		for_each_online_cpu(cpu)
- 			free_cpu_cached_iovas(cpu, iovad);
- 		free_global_cached_iovas(iovad);
-+
-+		/* Reset max32_alloc_size after flushing rcache for retry */
-+		spin_lock_irqsave(&iovad->iova_rbtree_lock, flags);
-+		iovad->max32_alloc_size = iovad->dma_32bit_pfn;
-+		spin_unlock_irqrestore(&iovad->iova_rbtree_lock, flags);
-+
- 		goto retry;
- 	}
- 
--- 
-2.18.0
+     Total time: 6.990 [sec]
 
+       6.990131 usecs/op
+         143058 ops/sec
+
+Tested-by: Zan Aziz <zanaziz313@gmail.com>
+
+Thanks
+-Zan
