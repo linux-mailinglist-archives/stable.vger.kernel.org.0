@@ -2,113 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 194214C8B08
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 12:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA044C8ADC
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 12:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234617AbiCALoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 06:44:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49892 "EHLO
+        id S234587AbiCALe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 06:34:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234616AbiCALoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 06:44:23 -0500
-X-Greylist: delayed 574 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Mar 2022 03:43:42 PST
-Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9A9B55BD1;
-        Tue,  1 Mar 2022 03:43:42 -0800 (PST)
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
-        by gnuweeb.org (Postfix) with ESMTPSA id 342487EDA6;
-        Tue,  1 Mar 2022 11:34:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1646134448;
-        bh=wMwH0Esa7+9XDQnRseGQt8XVBoPkgTDDTk0Y4Mory9w=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=ozNH5t1JqCXZkK+2cROun6P2rSOAmspGKECltAFEdVniA8sbDxBzMgW9oPNrpGbh1
-         NzNz/TGh51LiBjUbwxMk2BAGleNmweGzvJtzI5rjcyW9hJNzJtnuI9g4+MDq2FZ5Vo
-         rgTlebg9O99wGVDzAEBeeeAo+j5Rz07B5wdCfpk+Oa6zAAgpGx8mNgxkV/YhPicZaM
-         cn/02HjPudmVAufa15GpcnRKYf4oERNNDAA9eUpyKIO+ePrWCAPMNgSXq7MefOFk9m
-         jk+NmDVNv+zkyYKXul9xoMT5pad3v5vz3wDl5qSaQb16gkihZtgm00mJboSlrR0kcJ
-         iu+wAfbinm4qw==
-Received: by mail-lf1-f42.google.com with SMTP id j7so26338916lfu.6;
-        Tue, 01 Mar 2022 03:34:08 -0800 (PST)
-X-Gm-Message-State: AOAM533FqFQyYydoYGquVgR9KCPMq3HBLnKQDjWeIBGvsXLDIWrbb1sR
-        8MonECnOBtNR92BRkVfdQg7q1YouKo8fXPcFd/4=
-X-Google-Smtp-Source: ABdhPJx/og7d59BUuP9SzoT81fyxcdFHHXnA6Zmocol8wG52eI7x4l9kVQJ+3a3dLhPtZKivoBAxuF+VBA9iz/o4cMQ=
-X-Received: by 2002:a05:6512:1190:b0:443:ff19:e685 with SMTP id
- g16-20020a056512119000b00443ff19e685mr14888853lfr.70.1646134446046; Tue, 01
- Mar 2022 03:34:06 -0800 (PST)
+        with ESMTP id S234581AbiCALe5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 06:34:57 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DA656431;
+        Tue,  1 Mar 2022 03:34:17 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id j17so20078106wrc.0;
+        Tue, 01 Mar 2022 03:34:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ZBTs8yQhzLScDXe6Y9uQleIUE1hgR0UMQ4RTciTM/j0=;
+        b=C11BDtdmnhmm9/VHuB+LFTMpzAougHLBXBVXKkwdxHQ6RNgP0GhzsLV+CDQXzqFUlJ
+         +1ERhP6GEUWLReDCPREtS0qTFbM7eWNBCYF/VVzw+qkrbdMJS8+QLa/VZgPQSuX6V5/k
+         XrqT1M/tPc/Qt50w5mB24VIrXJQQJFlc6tKIMCIw5C8jl+JjYnXreI8zAavUO8LtDjJW
+         H87v9EGmkEM1QQNBjw6/8Yop0SXKvv5gNz+LF7S+eRGNs65TRQf2SgZspT4LbfSTNZqb
+         A6swKuvnbs/vhDOINu7MfIdH8LkE6H1N6PvkvMsThUJjkO/iiLWJMK5+n7zZXi0E8swU
+         v7BQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ZBTs8yQhzLScDXe6Y9uQleIUE1hgR0UMQ4RTciTM/j0=;
+        b=KUBw2IxGCKEUqUT3oI2aXlXdekgpWyXNy7AHOsNm1LgockkFF1oNjboyIbXMg9QCaJ
+         rFJrunaIpSN1mRhSmvxrH5Ce6JSCugou3pwUp/hTU7vRYkfT5ocvd4hix7Grs27GPX7G
+         BqFhyaB9hFNBAj47GeHxkml/AoaGVsYRbBGZ+jrlM1PXAtG33uVytKTfkRTROVjUzG3E
+         4ptc1C8abas0v+FeORMA8HONSFRuyfvYZQs3AMeL9WtusiM+FaLftB52TvHJsTPs4+PI
+         Otf3V+TniW/q5JtUFbHOy7cwj9m6SPCwtbMnGWnkUoZk1+TwOGeHG2I42wXGRL6t73IP
+         gS1g==
+X-Gm-Message-State: AOAM531kRKLZSZAPlOUyh7gBsjigv1KAz7NwT3MkE+8bpHI3zKfXL7LO
+        SneGhX7j7nZahbdwPslh/g0=
+X-Google-Smtp-Source: ABdhPJyP9/J9Wpjm1LwIAToYAbwmnedt6uZ7kF62yvSai93v/cUylF/Zsbw4xgJ8VFnIvocJakV7pQ==
+X-Received: by 2002:adf:e3d0:0:b0:1ea:9be0:3162 with SMTP id k16-20020adfe3d0000000b001ea9be03162mr19636641wrm.205.1646134455657;
+        Tue, 01 Mar 2022 03:34:15 -0800 (PST)
+Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
+        by smtp.gmail.com with ESMTPSA id s16-20020adfecd0000000b001e7be443a17sm19364302wro.27.2022.03.01.03.34.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Mar 2022 03:34:15 -0800 (PST)
+Date:   Tue, 1 Mar 2022 11:34:13 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.4 00/53] 5.4.182-rc1 review
+Message-ID: <Yh4EtQtg2GfHI3BN@debian>
+References: <20220228172248.232273337@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20220301094608.118879-1-ammarfaizi2@gnuweeb.org> <20220301094608.118879-2-ammarfaizi2@gnuweeb.org>
-In-Reply-To: <20220301094608.118879-2-ammarfaizi2@gnuweeb.org>
-From:   Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
-Date:   Tue, 1 Mar 2022 18:33:54 +0700
-X-Gmail-Original-Message-ID: <CAOG64qPgTv5tQNknuG9d-=oL2EPQQ1ys7xu2FoBpNLyzv1qYzA@mail.gmail.com>
-Message-ID: <CAOG64qPgTv5tQNknuG9d-=oL2EPQQ1ys7xu2FoBpNLyzv1qYzA@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] x86/delay: Fix the wrong asm constraint in `delay_loop()`
-To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Cc:     Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, linux-edac@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "GNU/Weeb Mailing List" <gwml@vger.gnuweeb.org>, x86@kernel.org,
-        stable@vger.kernel.org, Jiri Hladky <hladky.jiri@googlemail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 1, 2022 at 4:46 PM Ammar Faizi wrote:
-> Fortunately, the constraint violation that's fixed by patch 1 doesn't
-> yield any bug due to the nature of System V ABI. Should we backport
-> this?
+Hi Greg,
 
-hi sir, it might also be interesting to know that even if it never be
-inlined, it's still potential to break.
+On Mon, Feb 28, 2022 at 06:23:58PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.182 release.
+> There are 53 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
+> Anything received after that time might be too late.
 
-for example this code (https://godbolt.org/z/xWMTxhTET)
+Build test:
+mips (gcc version 11.2.1 20220213): 65 configs -> no failure
+arm (gcc version 11.2.1 20220213): 107 configs -> no new failure
+arm64 (gcc version 11.2.1 20220213): 2 configs -> no failure
+x86_64 (gcc version 11.2.1 20220213): 4 configs -> no failure
 
-  __attribute__((__noinline__)) static void x(int a)
-  {
-      asm("xorl\t%%r8d, %%r8d"::"a"(a));
-  }
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
-  extern int p(void);
+[1]. https://openqa.qa.codethink.co.uk/tests/820
 
-  int f(void)
-  {
-      int ret = p();
-      x(ret);
-      return ret;
-  }
 
-translates to this asm
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-  x:
-          movl    %edi, %eax
-          xorl    %r8d, %r8d
-          ret
-  f:
-          subq    $8, %rsp
-          call    p
-          movl    %eax, %r8d
-          movl    %eax, %edi
-          call    x
-          movl    %r8d, %eax
-          addq    $8, %rsp
-          ret
+--
+Regards
+Sudip
 
-See the %r8d? It should be clobbered by a function call too. But since
-no one tells the compiler that we clobber %r8d, it assumes %r8d never
-changes after that call. The compiler thinks x() is static and will
-not clobber %r8d, even the ABI says %r8d will be clobbered by a
-function call. So i think it should be backported to the stable
-kernel, it's still a fix
-
--- Viro
