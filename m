@@ -2,159 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EBF94C917F
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CDC54C919A
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236259AbiCAR3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 12:29:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44440 "EHLO
+        id S236498AbiCARfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 12:35:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234411AbiCAR3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:29:09 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA14BF6D
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 09:28:27 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id y5so7931839wmi.0
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 09:28:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=Y86hBfPWj9E4aTo+XMBrAu6Y5p4SQMawkPD4Q/SuKPY=;
-        b=ifR445Ptk0kZIwyK/iR5LauUeexT4h+Xm5fWIS9UfHsJTwIXI+TBUH0b1B1nklV58Q
-         e3posB9tDmWAuXNqOByYa8OEIeuEgFpyIkDoWKkxe1RAiCnFE6ZEzQVCpMvS62fGzNFV
-         nWcw5JV2lmoD9jxvmDMFuNVsgy/NwYWUQ6a0I1zB2e5jSr3/JFEIp9xW/NRIDhtT+/y6
-         uvAB7/5ZICC2qcmaHb2EAlpVYU+L8My5syB7aELi6iajmzjea09g2vNncJq3GY6hv/nP
-         g2d17hu4ZYUIRYCXpyuRUhAY/Kr9r3k7MyrtDEVfLOZZZFWPJ239r6w7DpTzLNolCHHw
-         A62A==
+        with ESMTP id S231289AbiCARfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:35:19 -0500
+Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AA49240A9;
+        Tue,  1 Mar 2022 09:34:38 -0800 (PST)
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-2dc0364d2ceso4001087b3.7;
+        Tue, 01 Mar 2022 09:34:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Y86hBfPWj9E4aTo+XMBrAu6Y5p4SQMawkPD4Q/SuKPY=;
-        b=zqpRKSR68jGC2BeqoaUgAhYO2AdwxxJdzYkFU5AcolP8S7wPXwpOWtbTQHE02nyVGL
-         AxmOl4fBSu2fFa8Zs4dZSmU0uFcHunRmiPJqByOpMTr3swO/9JBU4Blxk7dNSvr4HHgk
-         pE5Tjf5N8t1mTZrJ7FA1m440GKsfGUql2Yc/ZObWZtuWse6196lQ88UHFyqHhNaAfo4Z
-         DjJN+FJ9tOOkJ8oQ1XDv5gnSVncKbm/OIsPNR1N2WFgOZgjnenz0JsS0ehj50kHq34H3
-         UDKCeBr68hUIGECXYa83JZUZgmm//GraUX3WN/paqWpZ5USCKK133H3iLw+Y+IAy9kOP
-         7IAw==
-X-Gm-Message-State: AOAM530i2/cWPsl631L7eGoytNPhXw4jImH7tPl1kKMgBjmPqNnAseWc
-        CtflCTepZaQWxWQrXvwTZs4Kkg==
-X-Google-Smtp-Source: ABdhPJyP4zzjkBPeDrhk1IU4HHA4Z4mVRSeyWw7DiZ4BmjKx+FbF6/CkwhxttMvqrC0XO+mqNoqKvQ==
-X-Received: by 2002:a05:600c:a4b:b0:37b:ea2b:5583 with SMTP id c11-20020a05600c0a4b00b0037bea2b5583mr18173339wmq.139.1646155705687;
-        Tue, 01 Mar 2022 09:28:25 -0800 (PST)
-Received: from [192.168.86.34] (cpc90716-aztw32-2-0-cust825.18-1.cable.virginm.net. [86.26.103.58])
-        by smtp.googlemail.com with ESMTPSA id c4-20020adfed84000000b001e5b8d5b8dasm20457807wro.36.2022.03.01.09.28.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Mar 2022 09:28:24 -0800 (PST)
-Message-ID: <5f481315-021c-39d6-8c6c-91918851ab13@linaro.org>
-Date:   Tue, 1 Mar 2022 17:28:22 +0000
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iTyi2ipcTulwwvig7Nzi763q6AMtAMu2xsXlP+4t6rA=;
+        b=F+PnaY2uwMEB4IqC1E8WFbMNooJpo97CyjYjf7YXzEHR5uFDFm2gVtN3otDwF2kgT+
+         LR/3O4xCf+8ipCQU/5AX04huvGs+jp+qPKNBPNI4FnQFXMZ9++YgqjsovCYEsQPNAZDW
+         +BT2yzyrmLxxteZTzzJtF04T6CG1UD+x+UlOs4Z76HR+Jo5dx9L2CFGWlbWLZy5dmEYG
+         QexULn81CEGyVjvfxeksLLxBq2I7QSsLfOCMBp4rI1cKJtx5APqmQt2CONNe/LR824ve
+         qSeGiaOge5cTWQYIgnuuthxwyDmsa5Y+1z3zN8UzJhB+s327SUYrkLGFTgXrBtyQEh1a
+         5Zlg==
+X-Gm-Message-State: AOAM531qFBnBjalvjbP6cB8pANvlXjpb6h2cSx0HkEGaf+6oCtfzdocU
+        pOI9IwuWvvnC35/j5pbRt/oFMUi0vVKy4cGYQVk=
+X-Google-Smtp-Source: ABdhPJxCTgyRMYkeAxcgNcOsSkwBodHdEDKrvezog5o9YvcneaD8XSAb1hgouGncJwJIMhUEeoxEH9iPmucx0PuYAwE=
+X-Received: by 2002:a81:b65f:0:b0:2d6:d29c:63fd with SMTP id
+ h31-20020a81b65f000000b002d6d29c63fdmr26629207ywk.196.1646156077485; Tue, 01
+ Mar 2022 09:34:37 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v3 10/11] slimbus: qcom-ngd: Fix kfree() of static memory
- on setting driver_override
-Content-Language: en-US
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>, stable@vger.kernel.org
-References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
- <20220227135329.145862-4-krzysztof.kozlowski@canonical.com>
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-In-Reply-To: <20220227135329.145862-4-krzysztof.kozlowski@canonical.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
+ <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
+ <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
+ <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
+ <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
+In-Reply-To: <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 1 Mar 2022 18:34:26 +0100
+Message-ID: <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
+Subject: Re: CPU excessively long times between frequency scaling driver calls
+ - bisected
+To:     Doug Smythies <dsmythies@telus.net>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Feng Tang <feng.tang@intel.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 1, 2022 at 6:18 PM Doug Smythies <dsmythies@telus.net> wrote:
+>
+> On Tue, Mar 1, 2022 at 3:58 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > On Tue, Mar 1, 2022 at 6:53 AM Feng Tang <feng.tang@intel.com> wrote:
+> > > On Mon, Feb 28, 2022 at 08:36:03PM +0100, Rafael J. Wysocki wrote:
+> ...
+> > > >
+> > > > However, it was a bit racy, so maybe it's good that it was not complete.
+> > > >
+> > > > Below is a new version.
+> > >
+> > > Thanks for the new version. I just gave it a try,  and the occasional
+> > > long delay of cpufreq auto-adjusting I have seen can not be reproduced
+> > > after applying it.
+> >
+> > OK, thanks!
+> >
+> > I'll wait for feedback from Dough, though.
+>
+> Hi Rafael,
+>
+> Thank you for your version 2 patch.
+> I screwed up an overnight test and will have to re-do it.
+> However, I do have some results.
 
+Thanks for testing it!
 
-On 27/02/2022 13:53, Krzysztof Kozlowski wrote:
-> The driver_override field from platform driver should not be initialized
-> from static memory (string literal) because the core later kfree() it,
-> for example when driver_override is set via sysfs.
-> 
-> Use dedicated helper to set driver_override properly.
-> 
-> Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> From reading the patch code, one worry was the
+> potential to drive down the desired/required CPU
+> frequency for the main periodic workflow, causing
+> overruns, or inability of the task to complete its
+> work before the next period.
 
-LGTM,
+It is not clear to me why you worried about that just from reading the
+patch?  Can you explain, please?
 
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+> I have always had overrun
+> information, but it has never been relevant before.
+>
+> The other worry was if the threshold of
+> turbo/not turbo frequency is enough.
 
-> ---
->   drivers/slimbus/qcom-ngd-ctrl.c | 13 ++++++++++++-
->   1 file changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-> index 7040293c2ee8..e5d9fdb81eb0 100644
-> --- a/drivers/slimbus/qcom-ngd-ctrl.c
-> +++ b/drivers/slimbus/qcom-ngd-ctrl.c
-> @@ -1434,6 +1434,7 @@ static int of_qcom_slim_ngd_register(struct device *parent,
->   	const struct of_device_id *match;
->   	struct device_node *node;
->   	u32 id;
-> +	int ret;
->   
->   	match = of_match_node(qcom_slim_ngd_dt_match, parent->of_node);
->   	data = match->data;
-> @@ -1455,7 +1456,17 @@ static int of_qcom_slim_ngd_register(struct device *parent,
->   		}
->   		ngd->id = id;
->   		ngd->pdev->dev.parent = parent;
-> -		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
-> +
-> +		ret = driver_set_override(&ngd->pdev->dev,
-> +					  &ngd->pdev->driver_override,
-> +					  QCOM_SLIM_NGD_DRV_NAME,
-> +					  strlen(QCOM_SLIM_NGD_DRV_NAME));
-> +		if (ret) {
-> +			platform_device_put(ngd->pdev);
-> +			kfree(ngd);
-> +			of_node_put(node);
-> +			return ret;
-> +		}
->   		ngd->pdev->dev.of_node = node;
->   		ctrl->ngd = ngd;
->   
+Agreed.
+
+> I do not know how to test any final solution
+> thoroughly, as so far I have simply found a
+> good enough problematic example.
+> We have so many years of experience with
+> the convenient multi second NMI forcing
+> lingering high pstate clean up. I'd keep it
+> deciding within it if the TSC stuff needs to be
+> executed or not.
+>
+> Anyway...
+>
+> Base Kernel 5.17-rc3.
+> "stock" : unmodified.
+> "revert" : with commit b50db7095fe reverted
+> "rjw-2" : with this version2 patch added.
+>
+> Test 1 (as before. There is no test 2, yet.):
+> 347 Hertz work/sleep frequency on one CPU while others do
+> virtually no load but enough to increase the requested pstate,
+> but at around 0.02 hertz aggregate.
+>
+> It is important to note the main load is approximately
+> 38.6% @ 2.422 GHz, or 100% at 0.935 GHz.
+> and almost exclusively uses idle state 2 (of
+> 4 total idle states)
+>
+> /sys/devices/system/cpu/cpu7/cpuidle/state0/name:POLL
+> /sys/devices/system/cpu/cpu7/cpuidle/state1/name:C1_ACPI
+> /sys/devices/system/cpu/cpu7/cpuidle/state2/name:C2_ACPI
+> /sys/devices/system/cpu/cpu7/cpuidle/state3/name:C3_ACPI
+>
+> Turbostat was used. ~10 samples at 300 seconds per.
+> Processor package power (Watts):
+>
+> Workflow was run for 1 hour each time or 1249201 loops.
+>
+> revert:
+> ave: 3.00
+> min: 2.89
+> max: 3.08
+
+I'm not sure what the above three numbers are.
+
+> ave freq: 2.422 GHz.
+> overruns: 1.
+> max overrun time: 113 uSec.
+>
+> stock:
+> ave: 3.63 (+21%)
+> min: 3.28
+> max: 3.99
+> ave freq: 2.791 GHz.
+> overruns: 2.
+> max overrun time: 677 uSec.
+>
+> rjw-2:
+> ave: 3.14 (+5%)
+> min: 2.97
+> max: 3.28
+> ave freq: 2.635 GHz
+
+I guess the numbers above could be reduced still by using a P-state
+below the max non-turbo one as a limit.
+
+> overruns: 1042.
+> max overrun time: 9,769 uSec.
+
+This would probably get worse then, though.
+
+ATM I'm not quite sure why this happens, but you seem to have some
+insight into it, so it would help if you shared it.
+
+Thanks!
