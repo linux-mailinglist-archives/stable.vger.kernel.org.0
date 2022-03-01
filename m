@@ -2,50 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE5C4C8FA8
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 17:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C95554C8FAC
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 17:06:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233259AbiCAQHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 11:07:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S235918AbiCAQHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 11:07:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233039AbiCAQHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 11:07:00 -0500
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A7B45AF0
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 08:06:19 -0800 (PST)
-Received: by mail-ot1-x329.google.com with SMTP id g6-20020a9d6486000000b005acf9a0b644so12551215otl.12
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 08:06:19 -0800 (PST)
+        with ESMTP id S235974AbiCAQH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 11:07:28 -0500
+Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78AC46B02
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 08:06:47 -0800 (PST)
+Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-2dc0364d2ceso1023427b3.7
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 08:06:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=FjIe1KKKDE0QpJR+EX/tD4Xgs8J58UrfwdgzXopAHx0=;
-        b=DxhqBPY2ZJvFRPNcfFL12VwJZ/aXUFAV2V8IB44VwjzZJ6VevVFo0Xd5JwZv5/3tyP
-         fiSjMi+f+BCyxcQbVWAl2TLMWtuRkKljuEta7uAgDXQyKqq3mBFyZtCjVkmQJratgzq3
-         P86SkEpvse89SsTdUbTkEG5k/HLRzN6MAxggc=
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=5ZXATWH1idWVljLBSYFysoYYRfP4q7oy1uj7Xp77Wes=;
+        b=sqLTHgZG89xSvZiHTJav7yC0zJw3cK+2YWORei7/4iHXDFR2odGC8va9Yuxvz5H37Y
+         zeDY/0/3v8xNJpi26vp4lEdl5D4wb1AYx8g8gYBFL10Pc21eRcvqMhaIhU7v9gQqKuYH
+         Od3oq4FUViEVT16rLrAfoKNn4JFq24+brSLtXf3W/XuzyynirrGfmaFB8Z6++Pe5WMXU
+         VScxzul81KIiGteUH4JKXTvOTzMUYkHYOvfUUUA0UMpYaQV/hV5sU4aUZKczZelIlOrn
+         Cqj/XiLCbEi0f2pHm4bQbJJnuK8ny1q+BBcZ1nUYOPgVH/3Dcnq0G0DoPNsYxprmDsCj
+         mraA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=FjIe1KKKDE0QpJR+EX/tD4Xgs8J58UrfwdgzXopAHx0=;
-        b=P2B/KOkuIe4AJi4wZk66aTdn1PiFfoMHzKMdQ0J/v64KK4LWYS+Vwyjei20yAXsyMF
-         04q2an56C+ArM9XDdvuDuKf5pq0SF7yREzy1IVdxZ5VjkfrdL+m/r5Z0BlPXQLcY3Ick
-         CrWnE0rm8CNWgfSN5flnpFrXCXFr3oQIh4FVPDH4xLHdjzMUTjZaqyV3Jpns+w5ZI+t4
-         FYbOZh+Ya7JLjlTtEJI0rTV2wD6SNMvk2Cbtd9qBvNUlqtPNqAfFd0hTHwWQC+gaJn6b
-         oqYAqqQb49WNpmRQM+ehiJ42kakFbYj6vpCbjAQ3N88neLrq3QELpHAXex+FDEjDQsLf
-         +9vw==
-X-Gm-Message-State: AOAM531ZKxKu1Fc9qrhA5cIActj6WIX4HOvqcvtMyKWLSFEChooYg0KG
-        G5S4KPVqBwH7LXuAYe++pabjDg==
-X-Google-Smtp-Source: ABdhPJwLe78NTYJKm38V5AVOnQMIUbVYK7mL7wvNoTuFdjZv0B5QM9fTBqOf5UQpU6Dgwlrjswfzlw==
-X-Received: by 2002:a05:6830:5:b0:5af:7ed5:8f64 with SMTP id c5-20020a056830000500b005af7ed58f64mr12743319otp.257.1646150778490;
-        Tue, 01 Mar 2022 08:06:18 -0800 (PST)
-Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
-        by smtp.gmail.com with ESMTPSA id bf39-20020a056808192700b002d51f615f1csm8435165oib.34.2022.03.01.08.06.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Mar 2022 08:06:17 -0800 (PST)
-Date:   Tue, 1 Mar 2022 10:06:16 -0600
-From:   Justin Forbes <jmforbes@linuxtx.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=5ZXATWH1idWVljLBSYFysoYYRfP4q7oy1uj7Xp77Wes=;
+        b=g17AuCMZ5CNZc2yTZzbFHSbwXkOp6FhMmCY7Sc+ayh9SVOIHGK+7H0qS7HeQuXws1p
+         /8A9sH7EvcwITJ+TsKyaGwNgCoL+YakcYy7mhYHMuJI8xcKeaiW0nm3NwBnzLMCn+3w6
+         uHGylKfOcvECyjnnge1JDWz3VN052+LHhspH3VA8dwCQHc8Yhyv9kIqrAztv5tRChmux
+         1C7kMSV4tW1jn2uGnSazQ9H9vtBTdAeSP+xu3nJSENlaHnSTLsXCc6u5aZmsQk8iasPR
+         KsRnZ8OtsKZLw9IKCsoclpttI/jz9JTJ7UCSYKDemJK9CegHpioTm+Rw7rGWodwawLfH
+         TZrw==
+X-Gm-Message-State: AOAM5306ku42TBZLvPQAmRCiP+SHea0BO0eLlI44H6Tv6c8lKouZr4hb
+        6fnqFRTTzP5y/mB0GGbUmO83zc/iGRDfOEJlMSYVQg==
+X-Google-Smtp-Source: ABdhPJwL8lH0SOVvzS1cm5/oug45cK/I3RxyU9yOfG0VFgIdbrjKcgq5WTdct81ihM+voEShGwhsvz74D/Q93VtuO4E=
+X-Received: by 2002:a81:e90c:0:b0:2db:d63e:56ff with SMTP id
+ d12-20020a81e90c000000b002dbd63e56ffmr5126928ywm.60.1646150806723; Tue, 01
+ Mar 2022 08:06:46 -0800 (PST)
+MIME-Version: 1.0
+References: <20220228172159.515152296@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 1 Mar 2022 21:36:35 +0530
+Message-ID: <CA+G9fYsuzZVa+LT0stskODz5nrgsWhXgU7qPTXSBN2gbFfjC2g@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/31] 4.14.269-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -53,13 +58,8 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         slade@sladewatkins.com
-Subject: Re: [PATCH 5.16 000/164] 5.16.12-rc1 review
-Message-ID: <Yh5EeJ/psXZrrJSk@fedora64.linuxtx.org>
-References: <20220228172359.567256961@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
@@ -70,26 +70,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 28, 2022 at 06:22:42PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.12 release.
-> There are 164 patches in this series, all will be posted as a response
+On Mon, 28 Feb 2022 at 22:58, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.269 release.
+> There are 31 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
 > Anything received after that time might be too late.
-> 
+>
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.12-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.269-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
 > and the diffstat can be found below.
-> 
+>
 > thanks,
-> 
+>
 > greg k-h
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 4.14.269-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.14.y
+* git commit: 43ab82ea0bf0a7b6afb31831af7cefaa3e21c9d6
+* git describe: v4.14.268-32-g43ab82ea0bf0
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
+.268-32-g43ab82ea0bf0
+
+## Test Regressions (compared to v4.14.268)
+No test regressions found.
+
+## Metric Regressions (compared to v4.14.268)
+No metric regressions found.
+
+## Test Fixes (compared to v4.14.268)
+No test fixes found.
+
+## Metric Fixes (compared to v4.14.268)
+No metric fixes found.
+
+## Test result summary
+total: 79045, pass: 65997, fail: 354, skip: 11390, xfail: 1304
+
+## Build Summary
+* arm: 280 total, 270 passed, 10 failed
+* arm64: 35 total, 35 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 22 total, 22 passed, 0 failed
+* powerpc: 60 total, 12 passed, 48 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 34 total, 34 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
