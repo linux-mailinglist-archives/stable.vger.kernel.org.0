@@ -2,172 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F684C9153
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A474C915F
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 18:21:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236434AbiCARTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 12:19:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45704 "EHLO
+        id S232025AbiCARWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 12:22:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235300AbiCARTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:19:08 -0500
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465792DA96
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 09:18:26 -0800 (PST)
-Received: by mail-lj1-x22c.google.com with SMTP id o6so22770257ljp.3
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 09:18:26 -0800 (PST)
+        with ESMTP id S236455AbiCARWG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 12:22:06 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08554255B2
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 09:21:25 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id e13so14009529plh.3
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 09:21:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=telus.net; s=google;
+        d=google.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=zOGmojwA30pg/gshCHQVR3nc13CD5CENWNrHNgWB7LQ=;
-        b=Y3HPP7zy6Wdu6joJdXVJnjRHMexOCUgomZx2WMTBB3MkV5OpVazBJmVD3lb8JSHfYW
-         vggaKe/i8uWZjhGkJSU1cJy4UtQmNN4P0WUQVLN+TnVZBIPcbaNBc7KD/LhsberKXCoA
-         eUe9CbdkjXUguz0HaxgOIqVM8QFOoBq2fY2xSYeHFQSH1sXCN6fIEq8jCwOnGCEB2xGV
-         etADwH6L5Zxh8usb3Dl9pUHHwHaNb9e7FF30/jcMmlQ1filTZcKARX0eMYvXzekF6L82
-         6Hw8IJig2WvPpghYhbaaH7uluQJ7xQL9UeYrvTlDH2qnOke1brcJJ4MgOh2Vw0iNhLOU
-         IX8Q==
+        bh=bDu+y+f8JQYU3RGpZYFrasVkU7NMBDyxJALCa/zmka4=;
+        b=fZDK1hgTtMcHNo/1P6qNEVs6yPXFW/deYvEker6YOPN/13zmSjk1YYcJXGviYMEHVE
+         8E5wYMvxqyk9r+yvmbYSX6r1jorlcBKFdppXneLtzmArqDVTPbn4BjCzfdnEoQYkvwpC
+         +1KPBbrEQXutzxvFKYDHODHzf6BNyzYGQyini1yAIT1q5rKocES28Miw5n8nRC4DsrUW
+         95jHg8JdltfmO7jbciMVzAMSOll3yN75VkTePIEZC/jJNJdH+LM5DcXvo1Lu0SyJaJgb
+         LvnaHbrHPb/kASBRMt331ZL1U+jq0zO09UlbhoWsibz9JmgWc/nM7dCtnLg2Pfsa+8HM
+         kCQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=zOGmojwA30pg/gshCHQVR3nc13CD5CENWNrHNgWB7LQ=;
-        b=vE5jfcRnx06wm2kSqtMZLNP/FqBRpBPlX/CDTl2W9AvTFeT/1/LAd2nizTtomy29A4
-         DbTalSwL9Wfv8lDlhE2zdgmA9aQnbc6e6FvXy7TI15ljAdHxW+xj5GCQ5AymBwEDtarl
-         XZ0J3J6LQ0sHT/6lg7IfkPfF8GZrPP06oFuUG3fyXM1U5cYaK5hdOnuarNt8LzlGnxvW
-         Zv1Mvw4sY30yXe9PPsCWMMEgQoXExOYWXZk+keGm+3lAmru+CjhGzVJMTPqIefdajCEP
-         w4p8T+a4azorJZd1EEgdHxVv9G1JUZY2/Xa+6SbaBYrqBUFnQ9efcjpT4AVRf/+0I7KU
-         LMOw==
-X-Gm-Message-State: AOAM532rZi50PRv3qBlUCFUef3on+wwHkgNRLVciIY3KG+MZZZ1bCH+o
-        Ck5XYWQbKx76Xm4iOAVUVbVB60+sXlAXltNj66zn0w==
-X-Google-Smtp-Source: ABdhPJxVpgzlZUjaEeDxXtwpjgMRDodY1U9aAK87DPuyBXcvVZmF6hFZhl3lFXcRrD3JfP7/Cnj/vIJttwvo8WPTQTo=
-X-Received: by 2002:a05:651c:1542:b0:233:8ff5:eb80 with SMTP id
- y2-20020a05651c154200b002338ff5eb80mr17596891ljp.352.1646155103364; Tue, 01
- Mar 2022 09:18:23 -0800 (PST)
+        bh=bDu+y+f8JQYU3RGpZYFrasVkU7NMBDyxJALCa/zmka4=;
+        b=y62WAHKPpntj0E5zxHFhp+cMCoZIIfKdkkXK/4doL1Z6lRxmbNCf+NG6MWNGOLLFwE
+         PdFBi6Hn0hE5WEY1bqnhgkZ8c2uFqfzoFO+pBpG5lb4cSboRDuTkMOjqNBpT8u3eq/Pu
+         WfEn73gWjcCBaJliSQM14kE+er2p6BKklLwG5GzXwVzxBcOTzPSkqADlrbZ5ZW7OUYbD
+         Ko/Ev+vKNXJZ7VryqSet7z6TmhHdWTe9z4UjbHzbKQirxc4Fyt2q+2KvPucY4UCMqv3l
+         X3kKMQSwtUNt6kQr/ukoyljIk0TGj9s9j0zqluiWM7l3NizWS3vFq5hbrJqOD93HhuMX
+         9MBA==
+X-Gm-Message-State: AOAM530N7lBDlvGfDstx0GqM4vm1XKS56QkM9NnY3IKeF9/ttYQo3RbF
+        0sVJG8J3FuaKQDMMSogvGXPMXjAUqV7uXiADtl+lNw==
+X-Google-Smtp-Source: ABdhPJyt2R86MfvJOKl18sRXeH5vqN/UgE3OOP6++3snjuxTLntHdzYRzxuBoBm6IARu9orWbMDqL72UVWnlthx7f2w=
+X-Received: by 2002:a17:90a:eb0b:b0:1be:ddea:29ef with SMTP id
+ j11-20020a17090aeb0b00b001beddea29efmr3604540pjz.126.1646155284124; Tue, 01
+ Mar 2022 09:21:24 -0800 (PST)
 MIME-Version: 1.0
-References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
- <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
- <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
-In-Reply-To: <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
-From:   Doug Smythies <dsmythies@telus.net>
-Date:   Tue, 1 Mar 2022 09:18:12 -0800
-Message-ID: <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
-Subject: Re: CPU excessively long times between frequency scaling driver calls
- - bisected
-To:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Feng Tang <feng.tang@intel.com>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        dsmythies <dsmythies@telus.net>
+References: <20220226002412.113819-1-shakeelb@google.com> <Yh3h33W45+YaMo92@dhcp22.suse.cz>
+In-Reply-To: <Yh3h33W45+YaMo92@dhcp22.suse.cz>
+From:   Shakeel Butt <shakeelb@google.com>
+Date:   Tue, 1 Mar 2022 09:21:12 -0800
+Message-ID: <CALvZod7aF9xRc+XvY7GPN7OnDyPitt1H6Q4yrwzAXTFzv1LzWQ@mail.gmail.com>
+Subject: Re: [PATCH] memcg: async flush memcg stats from perf sensitive codepaths
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Ivan Babrou <ivan@cloudflare.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Cgroups <cgroups@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Daniel Dao <dqminh@cloudflare.com>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-18.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 1, 2022 at 3:58 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
-> On Tue, Mar 1, 2022 at 6:53 AM Feng Tang <feng.tang@intel.com> wrote:
-> > On Mon, Feb 28, 2022 at 08:36:03PM +0100, Rafael J. Wysocki wrote:
-...
-> > >
-> > > However, it was a bit racy, so maybe it's good that it was not complete.
-> > >
-> > > Below is a new version.
+On Tue, Mar 1, 2022 at 1:05 AM Michal Hocko <mhocko@suse.com> wrote:
+>
+> On Fri 25-02-22 16:24:12, Shakeel Butt wrote:
+> > Daniel Dao has reported [1] a regression on workloads that may trigger
+> > a lot of refaults (anon and file). The underlying issue is that flushing
+> > rstat is expensive. Although rstat flush are batched with (nr_cpus *
+> > MEMCG_BATCH) stat updates, it seems like there are workloads which
+> > genuinely do stat updates larger than batch value within short amount of
+> > time. Since the rstat flush can happen in the performance critical
+> > codepaths like page faults, such workload can suffer greatly.
 > >
-> > Thanks for the new version. I just gave it a try,  and the occasional
-> > long delay of cpufreq auto-adjusting I have seen can not be reproduced
-> > after applying it.
+> > The easiest fix for now is for performance critical codepaths trigger
+> > the rstat flush asynchronously. This patch converts the refault codepath
+> > to use async rstat flush. In addition, this patch has premptively
+> > converted mem_cgroup_wb_stats and shrink_node to also use the async
+> > rstat flush as they may also similar performance regressions.
 >
-> OK, thanks!
+> Why do we need to trigger flushing in the first place from those paths.
+> Later in the thread you are saying there is a regular flushing done
+> every 2 seconds. What would happen if these paths didn't flush at all?
+> Also please note that WQ context can be overwhelmed by other work so
+> these flushes can happen much much later.
 >
-> I'll wait for feedback from Dough, though.
+> So in other words why does async work (that can happen at any time
+> without any control) make more sense than no flushing?
+> --
 
-Hi Rafael,
+Without flushing the worst that can happen in the refault path is
+false (or missed) activations of the refaulted page. For reclaim code,
+some heuristics (like deactivating active LRU or cache-trim) may act
+on old information.
 
-Thank you for your version 2 patch.
-I screwed up an overnight test and will have to re-do it.
-However, I do have some results.
+However I don't think these are too much concerning as the kernel can
+already missed or do false activations on refault. For the reclaim
+code, the kernel does force deactivation if it has skipped it in the
+initial iterations, so, not much to worry.
 
-From reading the patch code, one worry was the
-potential to drive down the desired/required CPU
-frequency for the main periodic workflow, causing
-overruns, or inability of the task to complete its
-work before the next period. I have always had overrun
-information, but it has never been relevant before.
-
-The other worry was if the threshold of
-turbo/not turbo frequency is enough.
-
-I do not know how to test any final solution
-thoroughly, as so far I have simply found a
-good enough problematic example.
-We have so many years of experience with
-the convenient multi second NMI forcing
-lingering high pstate clean up. I'd keep it
-deciding within it if the TSC stuff needs to be
-executed or not.
-
-Anyway...
-
-Base Kernel 5.17-rc3.
-"stock" : unmodified.
-"revert" : with commit b50db7095fe reverted
-"rjw-2" : with this version2 patch added.
-
-Test 1 (as before. There is no test 2, yet.):
-347 Hertz work/sleep frequency on one CPU while others do
-virtually no load but enough to increase the requested pstate,
-but at around 0.02 hertz aggregate.
-
-It is important to note the main load is approximately
-38.6% @ 2.422 GHz, or 100% at 0.935 GHz.
-and almost exclusively uses idle state 2 (of
-4 total idle states)
-
-/sys/devices/system/cpu/cpu7/cpuidle/state0/name:POLL
-/sys/devices/system/cpu/cpu7/cpuidle/state1/name:C1_ACPI
-/sys/devices/system/cpu/cpu7/cpuidle/state2/name:C2_ACPI
-/sys/devices/system/cpu/cpu7/cpuidle/state3/name:C3_ACPI
-
-Turbostat was used. ~10 samples at 300 seconds per.
-Processor package power (Watts):
-
-Workflow was run for 1 hour each time or 1249201 loops.
-
-revert:
-ave: 3.00
-min: 2.89
-max: 3.08
-ave freq: 2.422 GHz.
-overruns: 1.
-max overrun time: 113 uSec.
-
-stock:
-ave: 3.63 (+21%)
-min: 3.28
-max: 3.99
-ave freq: 2.791 GHz.
-overruns: 2.
-max overrun time: 677 uSec.
-
-rjw-2:
-ave: 3.14 (+5%)
-min: 2.97
-max: 3.28
-ave freq: 2.635 GHz
-overruns: 1042.
-max overrun time: 9,769 uSec.
-
-... Doug
+Now, coming to your question, yes, we can remove the flushing from
+these performance critical codepaths as the stats at most will be 2
+second old due to periodic flush. Now for the worst case scenario
+where that periodic flush (WQ) is not getting CPU, I think it is
+reasonable to put a sync flush if periodic flush has not happened for,
+let's say, 10 seconds.
