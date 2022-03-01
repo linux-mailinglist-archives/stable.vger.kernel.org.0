@@ -2,168 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5FA4C8B2E
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 12:58:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E44544C8BC0
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 13:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234109AbiCAL7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 06:59:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33574 "EHLO
+        id S233350AbiCAMhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 07:37:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231856AbiCAL7O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 06:59:14 -0500
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFE319C05;
-        Tue,  1 Mar 2022 03:58:33 -0800 (PST)
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-2dbd8777564so26716257b3.0;
-        Tue, 01 Mar 2022 03:58:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=A/qyIuOQFc+5Oiw6APjOzNbn2V6KNSLGl7+wUhPGEhg=;
-        b=KibNUAutmkI9lRylfk2wdD2rVkD/LeXnAwT+TMYaElpANUPK952R9be6UJPgG+7RO4
-         L2CECX155t8/RuBeHrIKGt+okFaF3jgFEOEWXIFHq90D1XBAxiP3lDqpxBlEM8SXYGYP
-         rBOFWtIUXGIX3SOFvGiqA9NHRFdA65JtkLZIyGFI05HhN2G14dhT/WSXm0L+ipG5Td2p
-         0whlICjHGeNwa5pbQ8+FoYM9p4mHunPT7W0Aa8OMr8e1LW9WrLqXjazN9mHaT1IW+87G
-         WhCxcc+TNaU9xxpTAkCW5o02ap1aKBXyXk3T76n2fgSQbqCC9Un7cbNHYYLNlM1NJqVN
-         wU2w==
-X-Gm-Message-State: AOAM53376Y44B5h7aki9yvIH6IFUReLk26tmA2Wwe1lTQ/KYp24ro/c6
-        pzBPv9wSK2oVnpSvt2K1po0XPUp1Z02D4I97RXY=
-X-Google-Smtp-Source: ABdhPJxfwWc5XOlIAl4ikhr+R/swVp/xFdJpL13TXoVN+ulkbXule/Hw8MPWANRbl5US2vaaZMLHkgESDlWFyjTE1ps=
-X-Received: by 2002:a81:1611:0:b0:2d6:3290:9bd3 with SMTP id
- 17-20020a811611000000b002d632909bd3mr24746769yww.19.1646135912425; Tue, 01
- Mar 2022 03:58:32 -0800 (PST)
+        with ESMTP id S232437AbiCAMhR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 07:37:17 -0500
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983B697BBF;
+        Tue,  1 Mar 2022 04:36:36 -0800 (PST)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.94)
+          with esmtps (TLS1.2)
+          tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1nP1jk-003IcG-9v; Tue, 01 Mar 2022 13:36:16 +0100
+Received: from suse-laptop.physik.fu-berlin.de ([160.45.32.140])
+          by inpost2.zedat.fu-berlin.de (Exim 4.94)
+          with esmtpsa (TLS1.2)
+          tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1nP1jk-001HI7-3q; Tue, 01 Mar 2022 13:36:16 +0100
+Message-ID: <49182d0d-708b-4029-da5f-bc18603440a6@physik.fu-berlin.de>
+Date:   Tue, 1 Mar 2022 13:36:15 +0100
 MIME-Version: 1.0
-References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
- <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
- <20220301055255.GI4548@shbuild999.sh.intel.com>
-In-Reply-To: <20220301055255.GI4548@shbuild999.sh.intel.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 1 Mar 2022 12:58:19 +0100
-Message-ID: <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
-Subject: Re: CPU excessively long times between frequency scaling driver calls
- - bisected
-To:     Feng Tang <feng.tang@intel.com>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Doug Smythies <dsmythies@telus.net>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH 5.16 v2] binfmt_elf: Avoid total_mapping_size for ET_EXEC
+Content-Language: en-US
+To:     Kees Cook <keescook@chromium.org>,
+        matoro <matoro_mailinglist_kernel@matoro.tk>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Biederman <ebiederm@xmission.com>,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org,
+        =?UTF-8?Q?Magnus_Gro=c3=9f?= <magnus.gross@rwth-aachen.de>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Anthony Yznaga <anthony.yznaga@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        regressions@lists.linux.dev, linux-ia64@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20220228205518.1265798-1-keescook@chromium.org>
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+In-Reply-To: <20220228205518.1265798-1-keescook@chromium.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 160.45.32.140
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 1, 2022 at 6:53 AM Feng Tang <feng.tang@intel.com> wrote:
->
-> On Mon, Feb 28, 2022 at 08:36:03PM +0100, Rafael J. Wysocki wrote:
-> > On Monday, February 28, 2022 5:12:28 AM CET Feng Tang wrote:
-> > > On Fri, Feb 25, 2022 at 04:36:53PM -0800, Doug Smythies wrote:
-> > > > On Fri, Feb 25, 2022 at 9:46 AM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> > > > >
-> > > > > On Thursday, February 24, 2022 9:08:30 AM CET Feng Tang wrote:
-> > > > ...
-> > > > > > > So it looks like a new mechanism is needed for that.
-> > > > > >
-> > > > > > If you think idle class is not the right place to solve it, I can
-> > > > > > also help testing new patches.
-> > > > >
-> > > > > So I have the appended experimental patch to address this issue that's not
-> > > > > been tested at all.  Caveat emptor.
-> > > >
-> > > > Hi Rafael,
-> > > >
-> > > > O.K., you gave fair warning.
-> > > >
-> > > > The patch applied fine.
-> > > > It does not compile for me.
-> > > > The function cpuidle_update_retain_tick does not exist.
-> > > > Shouldn't it be somewhere in cpuidle.c?
-> > > > I used the function cpuidle_disable_device as a template
-> > > > for searching and comparing.
-> > > >
-> > > > Because all of my baseline results are with kernel 5.17-rc3,
-> > > > that is what I am still using.
-> > > >
-> > > > Error:
-> > > > ld: drivers/cpufreq/intel_pstate.o: in function `intel_pstate_update_perf_ctl':
-> > > > intel_pstate.c:(.text+0x2520): undefined reference to
-> > > > `cpuidle_update_retain_tick'
-> > >
-> > > Same here, seems the cpuidle_update_retain_tick()'s implementation
-> > > is missing.
-> >
-> > That's a patch generation issue on my part, sorry.
-> >
-> > However, it was a bit racy, so maybe it's good that it was not complete.
-> >
-> > Below is a new version.
->
-> Thanks for the new version. I just gave it a try,  and the occasional
-> long delay of cpufreq auto-adjusting I have seen can not be reproduced
-> after applying it.
+Hello!
 
-OK, thanks!
+On 2/28/22 21:55, Kees Cook wrote:
+> Partially revert commit 5f501d555653 ("binfmt_elf: reintroduce using
+> MAP_FIXED_NOREPLACE").
+> 
+> At least ia64 has ET_EXEC PT_LOAD segments that are not virtual-address
+> contiguous (but _are_ file-offset contiguous). This would result in
+> giant mapping attempts to cover the entire span, including the virtual
+> address range hole. Disable total_mapping_size for ET_EXEC, which
+> reduces the MAP_FIXED_NOREPLACE coverage to only the first PT_LOAD:
+> 
+> $ readelf -lW /usr/bin/gcc
+> ...
+> Program Headers:
+>   Type Offset   VirtAddr           PhysAddr           FileSiz  MemSiz   ...
+> ...
+>   LOAD 0x000000 0x4000000000000000 0x4000000000000000 0x00b5a0 0x00b5a0 ...
+>   LOAD 0x00b5a0 0x600000000000b5a0 0x600000000000b5a0 0x0005ac 0x000710 ...
+> ...
+>        ^^^^^^^^ ^^^^^^^^^^^^^^^^^^                    ^^^^^^^^ ^^^^^^^^
+> 
+> File offset range     : 0x000000-0x00bb4c
+> 			0x00bb4c bytes
+> 
+> Virtual address range : 0x4000000000000000-0x600000000000bcb0
+> 			0x200000000000bcb0 bytes
+> 
+> Ironically, this is the reverse of the problem that originally caused
+> problems with ET_EXEC and MAP_FIXED_NOREPLACE: overlaps. This problem is
+> with holes. Future work could restore full coverage if load_elf_binary()
+> were to perform mappings in a separate phase from the loading (where
+> it could resolve both overlaps and holes).
+> 
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Eric Biederman <ebiederm@xmission.com>
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-mm@kvack.org
+> Reported-by: matoro <matoro_mailinglist_kernel@matoro.tk>
+> Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> Fixes: 5f501d555653 ("binfmt_elf: reintroduce using MAP_FIXED_NOREPLACE")
+> Link: https://lore.kernel.org/r/a3edd529-c42d-3b09-135c-7e98a15b150f@leemhuis.info
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+> Here's the v5.16 backport.
+> ---
+>  fs/binfmt_elf.c | 25 ++++++++++++++++++-------
+>  1 file changed, 18 insertions(+), 7 deletions(-)
+> 
+> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+> index f8c7f26f1fbb..911a9e7044f4 100644
+> --- a/fs/binfmt_elf.c
+> +++ b/fs/binfmt_elf.c
+> @@ -1135,14 +1135,25 @@ static int load_elf_binary(struct linux_binprm *bprm)
+>  			 * is then page aligned.
+>  			 */
+>  			load_bias = ELF_PAGESTART(load_bias - vaddr);
+> -		}
+>  
+> -		/*
+> -		 * Calculate the entire size of the ELF mapping (total_size).
+> -		 * (Note that load_addr_set is set to true later once the
+> -		 * initial mapping is performed.)
+> -		 */
+> -		if (!load_addr_set) {
+> +			/*
+> +			 * Calculate the entire size of the ELF mapping
+> +			 * (total_size), used for the initial mapping,
+> +			 * due to first_pt_load which is set to false later
+> +			 * once the initial mapping is performed.
+> +			 *
+> +			 * Note that this is only sensible when the LOAD
+> +			 * segments are contiguous (or overlapping). If
+> +			 * used for LOADs that are far apart, this would
+> +			 * cause the holes between LOADs to be mapped,
+> +			 * running the risk of having the mapping fail,
+> +			 * as it would be larger than the ELF file itself.
+> +			 *
+> +			 * As a result, only ET_DYN does this, since
+> +			 * some ET_EXEC (e.g. ia64) may have virtual
+> +			 * memory holes between LOADs.
+> +			 *
+> +			 */
+>  			total_size = total_mapping_size(elf_phdata,
+>  							elf_ex->e_phnum);
+>  			if (!total_size) {
 
-I'll wait for feedback from Dough, though.
+I can confirm that this patch fixes the issue for me.
 
-> As my test is a rough one which can't reproduce what Doug has seen
-> (including the power meter data), it's better to wait for his test result.
->
-> And one minor question for the code.
->
-> > ---
-> >  drivers/cpufreq/intel_pstate.c     |   40 ++++++++++++++++++++++++++++---------
-> >  drivers/cpuidle/governor.c         |   23 +++++++++++++++++++++
-> >  drivers/cpuidle/governors/ladder.c |    6 +++--
-> >  drivers/cpuidle/governors/menu.c   |    2 +
-> >  drivers/cpuidle/governors/teo.c    |    3 ++
-> >  include/linux/cpuidle.h            |    4 +++
-> >  6 files changed, 67 insertions(+), 11 deletions(-)
-> >
-> [SNIP]
->
-> > Index: linux-pm/drivers/cpufreq/intel_pstate.c
-> > ===================================================================
-> > --- linux-pm.orig/drivers/cpufreq/intel_pstate.c
-> > +++ linux-pm/drivers/cpufreq/intel_pstate.c
-> > @@ -19,6 +19,7 @@
-> >  #include <linux/list.h>
-> >  #include <linux/cpu.h>
-> >  #include <linux/cpufreq.h>
-> > +#include <linux/cpuidle.h>
-> >  #include <linux/sysfs.h>
-> >  #include <linux/types.h>
-> >  #include <linux/fs.h>
-> > @@ -1970,6 +1971,30 @@ static inline void intel_pstate_cppc_set
-> >  }
-> >  #endif /* CONFIG_ACPI_CPPC_LIB */
-> >
-> > +static void intel_pstate_update_perf_ctl(struct cpudata *cpu)
-> > +{
-> > +     int pstate = cpu->pstate.current_pstate;
-> > +
-> > +     /*
-> > +      * Avoid stopping the scheduler tick from cpuidle on CPUs in turbo
-> > +      * P-states to prevent them from getting back to the high frequency
-> > +      * right away after getting out of deep idle.
-> > +      */
-> > +     cpuidle_update_retain_tick(pstate > cpu->pstate.max_pstate);
->
-> In our test, the workload will make CPU go to highest frequency before
-> going to idle, but should we also consider that the case that the
-> high but not highest cupfreq?
+Tested-By: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-This covers the entire turbo range (max_pstate is the highest non-turbo one).
+Thanks,
+Adrian
+
+-- 
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer - glaubitz@debian.org
+`. `'   Freie Universitaet Berlin - glaubitz@physik.fu-berlin.de
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+
