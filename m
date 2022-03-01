@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A03934C906F
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 17:34:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 909DD4C9076
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 17:35:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbiCAQeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 11:34:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45110 "EHLO
+        id S235901AbiCAQfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 11:35:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234154AbiCAQep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 11:34:45 -0500
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C0F962CCB3
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 08:34:03 -0800 (PST)
-Received: from [192.168.1.214] (dynamic-089-012-174-087.89.12.pool.telefonica.de [89.12.174.87])
-        by linux.microsoft.com (Postfix) with ESMTPSA id EBE0220B7178;
-        Tue,  1 Mar 2022 08:34:02 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com EBE0220B7178
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1646152443;
-        bh=9gVVHom3+DRfhrHetgZ/KWjL7lsVEuxXuJ+zve1LxjI=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=IRnTd3LGHdl+tvcHTtBMUoqkz0o2vMFURBMDnZ3TD/Z155TXRxGX+XPqWgl4yRY5H
-         hKDPsYVPK3HRlhhwGFS62Fbwql8g6BS6i7/1lp2yxYjhRJSYs8ZtAUMmdY+aOmVEQQ
-         oiBhbYoUzKb2FcEWhUkcFJO6I5tEZcssN+tkNycQ=
-Subject: Re: xfrm regression in 5.10.94
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <e2e9e487-1efb-783f-ca5b-7d0c88f8de7b@linux.microsoft.com>
- <Yh0Db4AJA0QBZ3iN@kroah.com>
-From:   Kai Lueke <kailueke@linux.microsoft.com>
-Message-ID: <e8d57c20-56f8-f457-1db5-e6d5ed9618b6@linux.microsoft.com>
-Date:   Tue, 1 Mar 2022 17:34:00 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        with ESMTP id S236162AbiCAQfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 11:35:39 -0500
+Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9615C6007D;
+        Tue,  1 Mar 2022 08:34:56 -0800 (PST)
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1nP5SV-0006n6-02; Tue, 01 Mar 2022 17:34:43 +0100
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id E24A9C28F1; Tue,  1 Mar 2022 17:34:11 +0100 (CET)
+Date:   Tue, 1 Mar 2022 17:34:11 +0100
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Alexander Lobakin <alobakin@pm.me>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Liam Howlett <liam.howlett@oracle.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        linux-mips@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH mips-fixes] MIPS: fix fortify panic when copying asm
+ exception handlers
+Message-ID: <20220301163411.GC13091@alpha.franken.de>
+References: <20220223012338.262041-1-alobakin@pm.me>
 MIME-Version: 1.0
-In-Reply-To: <Yh0Db4AJA0QBZ3iN@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220223012338.262041-1-alobakin@pm.me>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE,T_SPF_HELO_PERMERROR autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,34 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-> Why is 5.10 special and newer kernels are not?  This change shows up for
-> them, right?  Either this is a regression for all kernel releases and
-> needs to be resolved, or it is ok for any kernel release.
->
-> Please work with the networking developers to either resolve the
-> regression of determine what needs to be done here for userspace to work
-> properly.
+On Wed, Feb 23, 2022 at 01:30:23AM +0000, Alexander Lobakin wrote:
+> With KCFLAGS="-O3", I was able to trigger a fortify-source
+> memcpy() overflow panic on set_vi_srs_handler().
+> Although O3 level is not supported in the mainline, under some
+> conditions that may've happened with any optimization settings,
+> it's just a matter of inlining luck. The panic itself is correct,
+> more precisely, 50/50 false-positive and not at the same time.
+> >From the one side, no real overflow happens. Exception handler
+> defined in asm just gets copied to some reserved places in the
+> memory.
+> But the reason behind is that C code refers to that exception
+> handler declares it as `char`, i.e. something of 1 byte length.
+> It's obvious that the asm function itself is way more than 1 byte,
+> so fortify logics thought we are going to past the symbol declared.
+> The standard way to refer to asm symbols from C code which is not
+> supposed to be called from C is to declare them as
+> `extern const u8[]`. This is fully correct from any point of view,
+> as any code itself is just a bunch of bytes (including 0 as it is
+> for syms like _stext/_etext/etc.), and the exact size is not known
+> at the moment of compilation.
+> Adjust the type of the except_vec_vi_*() and related variables.
+> Make set_handler() take `const` as a second argument to avoid
+> cast-away warnings and give a little more room for optimization.
+> 
+> Fixes: e01402b115cc ("More AP / SP bits for the 34K, the Malta bits and things. Still wants")
+> Fixes: c65a5480ff29 ("[MIPS] Fix potential latency problem due to non-atomic cpu_wait.")
+> Cc: stable@vger.kernel.org # 3.10+
 
-I agree, thanks. I tried it
-(https://marc.info/?t=164607426900002&r=1&w=2) and got this response
-from Steffen Klassert now:
+I like your patch, but I have a problem with these tags. If I understand
+your description correctly there is no bug, but because of the way the
+code is written fortify-source gets confused. So if it doesn't fix
+anything, there shouldn't be Fixes tags, IMHO. If you agree, I'll
+apply this patch to mips-next and remove the tags.
 
-> In general I agree that the userspace ABI has to be stable, but
-> this never worked. We changed the behaviour from silently broken to
-> notify userspace about a misconfiguration.
->
-> It is the question what is more annoying for the users. A bug that
-> we can never fix, or changing a broken behaviour to something that
-> tells you at least why it is not working.
->
-> In such a case we should gauge what's the better solution. Here
-> I tend to keep it as it is.
-(https://marc.info/?l=linux-netdev&m=164615098503579&w=2)
+Thomas.
 
-Given it's unlikely to have this reverted in general I personally think
-that reverting for the LTS kernels makes sense at least...
-
-Regards,
-Kai
-
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
