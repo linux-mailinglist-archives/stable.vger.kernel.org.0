@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FE6F4C96B7
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:25:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E53E14C9671
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238305AbiCAUZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:25:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45072 "EHLO
+        id S237543AbiCAUYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:24:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239142AbiCAUYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:24:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAFF891AC5;
-        Tue,  1 Mar 2022 12:22:07 -0800 (PST)
+        with ESMTP id S239163AbiCAUYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:24:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 960AC90CEA;
+        Tue,  1 Mar 2022 12:22:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F43CB81D49;
-        Tue,  1 Mar 2022 20:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABFF1C340F1;
-        Tue,  1 Mar 2022 20:22:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AEE43B81D4B;
+        Tue,  1 Mar 2022 20:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 592C5C340EE;
+        Tue,  1 Mar 2022 20:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646166123;
-        bh=czIOEoKI3YDaTofUh64cEFyUJvIvKecZ7GlIRIms37w=;
+        s=k20201202; t=1646166129;
+        bh=mw2xiBHC6MTelNrcFcAoX333abKycd68WsMm6emhTSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKZcYYRUifWWTQmh/TNOgb7rfA3VR5t02IqeO0y515+bij8taOn+2xm8luV6fEiko
-         r5keQBAE0LpmL23t+FMNJ0d8m7IfgTtmTlYftDFpO3yRrlnqUF4MJEK9vTRU9mvN9i
-         mrb5c6+B35k8BIoDSITxfkBwak5vfZUSCcEM0P7D4k2dpLL4SgRb7Jwt61J0qZHNAF
-         Scwu6rwJ3F2ktvLO3Nwduex9sOKI/+Vfz8DH8Zwrr9+a3xWzgD+Lx7Yx+sbA6HTtLb
-         KHK7Sjih2oraTbdTLd3uOuTBW73ZodR0NALXvl+jmFTcFLssTQMVpeO5B0BHPDcQcN
-         L5xHq659EbIag==
+        b=Ys1bTT3ab15acqy7rN7bU97aq1Mc8rOdxcl/Px1jpZ1m/BFPCcH907KZ/AsCskVG0
+         IXyWw5HjogNXDCfhKR7VYL2uy4CMnR6HXHnJe18f5h9if0+jMSiwzvDiyeYIWNy1Ry
+         CMNTdnf2F6mQm33M79bRNuUVO9JH4zG4j8zuc2+CwjWUy8FZL3c2c1FBEJ+7/Z9Hve
+         FCjlkK3sFsOHi0H6tMZXXyF+fMD0oNxcWxB3jtidE3SPaXRVDmLLOJFA+Pd0dMpdoM
+         7FihWypeTMLB9I25Wuyf0TC7JJYXnVBYETOXn2LBV5hBNNQJ77jKPEQ50fRiGbNPlu
+         8nc24AYO0o2JQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
-Subject: [PATCH AUTOSEL 4.14 6/7] tracing: Ensure trace buffer is at least 4096 bytes large
-Date:   Tue,  1 Mar 2022 15:21:27 -0500
-Message-Id: <20220301202131.19318-6-sashal@kernel.org>
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, gthelen@google.com,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 7/7] selftests/memfd: clean up mapping in mfd_fail_write
+Date:   Tue,  1 Mar 2022 15:21:28 -0500
+Message-Id: <20220301202131.19318-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220301202131.19318-1-sashal@kernel.org>
 References: <20220301202131.19318-1-sashal@kernel.org>
@@ -56,56 +60,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit 7acf3a127bb7c65ff39099afd78960e77b2ca5de ]
+[ Upstream commit fda153c89af344d21df281009a9d046cf587ea0f ]
 
-Booting the kernel with 'trace_buf_size=1' give a warning at
-boot during the ftrace selftests:
+Running the memfd script ./run_hugetlbfs_test.sh will often end in error
+as follows:
 
-[    0.892809] Running postponed tracer tests:
-[    0.892893] Testing tracer function:
-[    0.901899] Callback from call_rcu_tasks_trace() invoked.
-[    0.983829] Callback from call_rcu_tasks_rude() invoked.
-[    1.072003] .. bad ring buffer .. corrupted trace buffer ..
-[    1.091944] Callback from call_rcu_tasks() invoked.
-[    1.097695] PASSED
-[    1.097701] Testing dynamic ftrace: .. filter failed count=0 ..FAILED!
-[    1.353474] ------------[ cut here ]------------
-[    1.353478] WARNING: CPU: 0 PID: 1 at kernel/trace/trace.c:1951 run_tracer_selftest+0x13c/0x1b0
+    memfd-hugetlb: CREATE
+    memfd-hugetlb: BASIC
+    memfd-hugetlb: SEAL-WRITE
+    memfd-hugetlb: SEAL-FUTURE-WRITE
+    memfd-hugetlb: SEAL-SHRINK
+    fallocate(ALLOC) failed: No space left on device
+    ./run_hugetlbfs_test.sh: line 60: 166855 Aborted                 (core dumped) ./memfd_test hugetlbfs
+    opening: ./mnt/memfd
+    fuse: DONE
 
-Therefore enforce a minimum of 4096 bytes to make the selftest pass.
+If no hugetlb pages have been preallocated, run_hugetlbfs_test.sh will
+allocate 'just enough' pages to run the test.  In the SEAL-FUTURE-WRITE
+test the mfd_fail_write routine maps the file, but does not unmap.  As a
+result, two hugetlb pages remain reserved for the mapping.  When the
+fallocate call in the SEAL-SHRINK test attempts allocate all hugetlb
+pages, it is short by the two reserved pages.
 
-Link: https://lkml.kernel.org/r/20220214134456.1751749-1-svens@linux.ibm.com
+Fix by making sure to unmap in mfd_fail_write.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Link: https://lkml.kernel.org/r/20220219004340.56478-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/testing/selftests/memfd/memfd_test.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index c1da2a4a629a1..c728acb6b14ca 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1118,10 +1118,12 @@ static int __init set_buf_size(char *str)
- 	if (!str)
- 		return 0;
- 	buf_size = memparse(str, &str);
--	/* nr_entries can not be zero */
--	if (buf_size == 0)
--		return 0;
--	trace_buf_size = buf_size;
-+	/*
-+	 * nr_entries can not be zero and the startup
-+	 * tests require some buffer space. Therefore
-+	 * ensure we have at least 4096 bytes of buffer.
-+	 */
-+	trace_buf_size = max(4096UL, buf_size);
- 	return 1;
- }
- __setup("trace_buf_size=", set_buf_size);
+diff --git a/tools/testing/selftests/memfd/memfd_test.c b/tools/testing/selftests/memfd/memfd_test.c
+index 845e5f67b6f02..cf4c5276eb06a 100644
+--- a/tools/testing/selftests/memfd/memfd_test.c
++++ b/tools/testing/selftests/memfd/memfd_test.c
+@@ -416,6 +416,7 @@ static void mfd_fail_write(int fd)
+ 			printf("mmap()+mprotect() didn't fail as expected\n");
+ 			abort();
+ 		}
++		munmap(p, mfd_def_size);
+ 	}
+ 
+ 	/* verify PUNCH_HOLE fails */
 -- 
 2.34.1
 
