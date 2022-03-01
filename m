@@ -2,80 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3504C96AC
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF6C4C9680
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237723AbiCAUZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:25:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33066 "EHLO
+        id S236671AbiCAUZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:25:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238610AbiCAUXl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:23:41 -0500
+        with ESMTP id S238591AbiCAUXk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:23:40 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C2084A2F03
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 12:20:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 47590A27A6
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 12:20:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646165970;
+        s=mimecast20190719; t=1646165975;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=1x6QUK4FLEy8ROUzJyVZ/cWy4d8A2hzSu/J8ehfsP+g=;
-        b=Xuzs1Tok81E2oNm2MdB1zv2pbp0rlGDwOrzGMvRkPIW1O02TeeSSDWXEW4SkgWpg5Zf4yT
-        FTzsnpi/LeEmcvJQjDUOZbTtiOk7Z6DGafqVIUflaFofVHeqiuiIMfd3T+7tYlTpzZXiUm
-        Kqyu4V8rca4qMKMv9RuwMjqMJz0ueys=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=o1zmZFRJ9OdQdfdwAgs/BlX0aZlb5VfZ7KW5288RJgM=;
+        b=XDKCKYj6B/aRb1mdpwmBwsH04T5FRmUYESw6jU0DC7Ea8jPKYoked5IAQ7vLrbH/nhYuGh
+        B3Uf/aSte3mz6ymcqB2v1gPno21J4Wsa/8Ua6QQPYrfttURWl7mQLYgUbpRSBksBqZeQ+s
+        HePN/oBv3093H7t8bwpteb5xdtXZsjg=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-533-qF1N7NFrNLm3HJW7Pvh5Ag-1; Tue, 01 Mar 2022 15:19:29 -0500
-X-MC-Unique: qF1N7NFrNLm3HJW7Pvh5Ag-1
-Received: by mail-wr1-f70.google.com with SMTP id p9-20020adf9589000000b001e333885ac1so3743174wrp.10
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 12:19:28 -0800 (PST)
+ us-mta-637-buhWx65qNkezX9bpjGYPWg-1; Tue, 01 Mar 2022 15:19:34 -0500
+X-MC-Unique: buhWx65qNkezX9bpjGYPWg-1
+Received: by mail-wr1-f71.google.com with SMTP id o1-20020adfe801000000b001f023455317so673661wrm.3
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 12:19:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=1x6QUK4FLEy8ROUzJyVZ/cWy4d8A2hzSu/J8ehfsP+g=;
-        b=BSa+/ySHuzwy+gdqVZ8Kd/vmv6sJ7YU0JUJ+xwaSdRzQB+R6XsdAU6ho8eHObtwO1I
-         zPdH6BsDX1tOrti3JuSYGsSdVMb+Q1z9YlksDlGevnfXMGr2f2XI4ZKi0BFNGiecWLJx
-         /3lGeu6CKNzlLUO1nfC5rdAwqNzbGCF1CJ8THKPkXa/RDXuu6n6Acs2+Rn3lj2dww0Ik
-         EadYvT2iP+g9k7xzAu9L79sVm8ew06Iqc8y7/KfyPObGNArkauqcSghUUVCNGxHW9N87
-         +E9/h11vbi7QDsmwzfKQGixzgahzmy383otuvwJTZgPq3F09a64SIBRQqhw4C//Vpciz
-         Cj6w==
-X-Gm-Message-State: AOAM5339JSFciWb3jzRomdDu1dJvEsnGn4p/O0VHU3XaK2fvQLcL+r3j
-        PHdqMiaCVPAkqDcYjhNJoEu2ZCbJX376G+P4l5JODgeAFF5CHyppAEdKcGGtRf6P1Q2U1ZOcLjW
-        V22ZqOohN0Ig916uU
-X-Received: by 2002:a05:600c:2f8f:b0:381:2009:f5bb with SMTP id t15-20020a05600c2f8f00b003812009f5bbmr18448302wmn.163.1646165967846;
-        Tue, 01 Mar 2022 12:19:27 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy+d4NI+GBVH5ewxls8mvm7BLZHAMn8s6kj98Mu7E4d1X/x3eFx3aILtaWlsRQEjJTRxazgDg==
-X-Received: by 2002:a05:600c:2f8f:b0:381:2009:f5bb with SMTP id t15-20020a05600c2f8f00b003812009f5bbmr18448286wmn.163.1646165967602;
-        Tue, 01 Mar 2022 12:19:27 -0800 (PST)
+        bh=o1zmZFRJ9OdQdfdwAgs/BlX0aZlb5VfZ7KW5288RJgM=;
+        b=pOWOTApuJ3dLTZI/cpHth8jYIXaLJC+FbghA3z3XvK7ouvmz92l23gWgLk4W93pVUK
+         pWsk2jk+c+FIhJ6QFQ3LYQa158k9KABtg7M0pbMxfUuf7s/xXz7jlcloDzS0HszCJqVG
+         IGuNmvEz84CHGyAAD9UErhIagDnj6/CLJdkT2IUAdbZZ3YXVdjv0XqRH6ODXny1e9dj6
+         RmNfsFELTQUdtl2xvEOay7FN4tw5FRk23r5D66hXKWgsgX51S74dMcFzwDQ8nypJwzwi
+         ttpCDvo43GWdWoLF/kW+zCFeqpzMSeC6N5QQZbgcJHlwJIcV6IUxHEtXHsJgAEoKEIRH
+         7OTg==
+X-Gm-Message-State: AOAM531GQlt4nC6HclN7cJJQqc92JorH6jGAGSjMcgpkI+YBZC6KJApr
+        zh+EWpoS1R7F1ivYbYounZvLpqw0P1HDUyZ3Vry7TEnseYJ8ivYPLdmAUOOGlFUJHtAeGRoc1yD
+        U46Lu/1E3qoDly+TJ
+X-Received: by 2002:a5d:55cd:0:b0:1ef:6e69:9c78 with SMTP id i13-20020a5d55cd000000b001ef6e699c78mr16887047wrw.626.1646165973551;
+        Tue, 01 Mar 2022 12:19:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzRLZQEeitRS41cQmrq1zwFWmk9PeKXhCoOD1q3lUcKFS2IAVUJNtFHgSyS25+0oSD7oFs06A==
+X-Received: by 2002:a5d:55cd:0:b0:1ef:6e69:9c78 with SMTP id i13-20020a5d55cd000000b001ef6e699c78mr16887032wrw.626.1646165973345;
+        Tue, 01 Mar 2022 12:19:33 -0800 (PST)
 Received: from ?IPV6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
-        by smtp.googlemail.com with ESMTPSA id v20-20020a7bcb54000000b0037fa63db8aasm3539049wmj.5.2022.03.01.12.19.26
+        by smtp.googlemail.com with ESMTPSA id n10-20020a5d598a000000b001efab095615sm9930224wri.29.2022.03.01.12.19.32
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Mar 2022 12:19:27 -0800 (PST)
-Message-ID: <38116323-b990-9bf6-18a4-71f6ff66f32f@redhat.com>
-Date:   Tue, 1 Mar 2022 21:19:26 +0100
+        Tue, 01 Mar 2022 12:19:32 -0800 (PST)
+Message-ID: <fa245ee1-8b87-5a41-3045-9a4d30211029@redhat.com>
+Date:   Tue, 1 Mar 2022 21:19:31 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: [PATCH AUTOSEL 5.16 05/28] KVM: Fix lockdep false negative during
- host resume
+Subject: Re: [PATCH AUTOSEL 5.16 06/28] kvm: x86: Disable KVM_HC_CLOCK_PAIRING
+ if tsc is in always catchup mode
 Content-Language: en-US
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Wanpeng Li <wanpengli@tencent.com>, kvm@vger.kernel.org
+Cc:     Anton Romanov <romanton@google.com>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
 References: <20220301201344.18191-1-sashal@kernel.org>
- <20220301201344.18191-5-sashal@kernel.org>
+ <20220301201344.18191-6-sashal@kernel.org>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220301201344.18191-5-sashal@kernel.org>
+In-Reply-To: <20220301201344.18191-6-sashal@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,56 +86,47 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 3/1/22 21:13, Sasha Levin wrote:
-> From: Wanpeng Li <wanpengli@tencent.com>
+> From: Anton Romanov <romanton@google.com>
 > 
-> [ Upstream commit 4cb9a998b1ce25fad74a82f5a5c45a4ef40de337 ]
+> [ Upstream commit 3a55f729240a686aa8af00af436306c0cd532522 ]
 > 
-> I saw the below splatting after the host suspended and resumed.
+> If vcpu has tsc_always_catchup set each request updates pvclock data.
+> KVM_HC_CLOCK_PAIRING consumers such as ptp_kvm_x86 rely on tsc read on
+> host's side and do hypercall inside pvclock_read_retry loop leading to
+> infinite loop in such situation.
 > 
->     WARNING: CPU: 0 PID: 2943 at kvm/arch/x86/kvm/../../../virt/kvm/kvm_main.c:5531 kvm_resume+0x2c/0x30 [kvm]
->     CPU: 0 PID: 2943 Comm: step_after_susp Tainted: G        W IOE     5.17.0-rc3+ #4
->     RIP: 0010:kvm_resume+0x2c/0x30 [kvm]
->     Call Trace:
->      <TASK>
->      syscore_resume+0x90/0x340
->      suspend_devices_and_enter+0xaee/0xe90
->      pm_suspend.cold+0x36b/0x3c2
->      state_store+0x82/0xf0
->      kernfs_fop_write_iter+0x1b6/0x260
->      new_sync_write+0x258/0x370
->      vfs_write+0x33f/0x510
->      ksys_write+0xc9/0x160
->      do_syscall_64+0x3b/0xc0
->      entry_SYSCALL_64_after_hwframe+0x44/0xae
+> v3:
+>      Removed warn
+>      Changed return code to KVM_EFAULT
+> v2:
+>      Added warn
 > 
-> lockdep_is_held() can return -1 when lockdep is disabled which triggers
-> this warning. Let's use lockdep_assert_not_held() which can detect
-> incorrect calls while holding a lock and it also avoids false negatives
-> when lockdep is disabled.
-> 
-> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-> Message-Id: <1644920142-81249-1-git-send-email-wanpengli@tencent.com>
+> Signed-off-by: Anton Romanov <romanton@google.com>
+> Message-Id: <20220216182653.506850-1-romanton@google.com>
 > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->   virt/kvm/kvm_main.c | 4 +---
->   1 file changed, 1 insertion(+), 3 deletions(-)
+>   arch/x86/kvm/x86.c | 7 +++++++
+>   1 file changed, 7 insertions(+)
 > 
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 71ddc7a8bc302..6ae9e04d0585e 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -5347,9 +5347,7 @@ static int kvm_suspend(void)
->   static void kvm_resume(void)
->   {
->   	if (kvm_usage_count) {
-> -#ifdef CONFIG_LOCKDEP
-> -		WARN_ON(lockdep_is_held(&kvm_count_lock));
-> -#endif
-> +		lockdep_assert_not_held(&kvm_count_lock);
->   		hardware_enable_nolock(NULL);
->   	}
->   }
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 0714fa0e7ede0..18fc0367ef21a 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -8769,6 +8769,13 @@ static int kvm_pv_clock_pairing(struct kvm_vcpu *vcpu, gpa_t paddr,
+>   	if (clock_type != KVM_CLOCK_PAIRING_WALLCLOCK)
+>   		return -KVM_EOPNOTSUPP;
+>   
+> +	/*
+> +	 * When tsc is in permanent catchup mode guests won't be able to use
+> +	 * pvclock_read_retry loop to get consistent view of pvclock
+> +	 */
+> +	if (vcpu->arch.tsc_always_catchup)
+> +		return -KVM_EOPNOTSUPP;
+> +
+>   	if (!kvm_get_walltime_and_clockread(&ts, &cycle))
+>   		return -KVM_EOPNOTSUPP;
+>   
 
 Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
