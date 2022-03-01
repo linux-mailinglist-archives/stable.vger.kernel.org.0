@@ -2,364 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B0E4C8BD4
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 13:42:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2564C8C10
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 13:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231470AbiCAMmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 07:42:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45270 "EHLO
+        id S234866AbiCAM6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 07:58:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231229AbiCAMmj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 07:42:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E322983B;
-        Tue,  1 Mar 2022 04:41:58 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2219icfl019215;
-        Tue, 1 Mar 2022 12:36:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=KuocmOSmhNu5ZyWz0bHoPnTEDpzN9+zPIobxaoBh7RY=;
- b=oq45qrNcTaIIVoGOJDhR/mQv9dr0YY+MCMGPkiUGb3Vpm94HMqOud8tHMHM/+pA+BmZ5
- KPBBSaO8prAhxxb6oTUN9cfMJ14a/T/n2pYoFiii+ePYTitGfIJdbqnoxgIATK5hCwCI
- 7i2OgN77EFUNvD8vo0DxtimALR8tjM3anZGlVj1aFbelSSyAm+JiWcfhZGpi+mcjMVNn
- eLwOaHZroDcB2iGfHBwpOEf7PdVQH8DE8Do5EWhtS6kPCZyE3zmMv0LF3SIKD4fTZdQt
- tCsgxSbkKhAKEVn8lYgsWbMbAFr6R3j8mNeQOhPYNmbBDwv7mgPpvZ7mNaXF8DUVstA3 LA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehh4h3t9r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 12:36:38 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 221CIDhx010331;
-        Tue, 1 Mar 2022 12:36:37 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehh4h3t9d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 12:36:37 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 221CXRAP028187;
-        Tue, 1 Mar 2022 12:36:36 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma03wdc.us.ibm.com with ESMTP id 3efbu9vj9p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 12:36:36 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 221CaZCH30212456
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 1 Mar 2022 12:36:35 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3DC5F112064;
-        Tue,  1 Mar 2022 12:36:35 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F3E85112063;
-        Tue,  1 Mar 2022 12:36:34 +0000 (GMT)
-Received: from [9.47.158.152] (unknown [9.47.158.152])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  1 Mar 2022 12:36:34 +0000 (GMT)
-Message-ID: <99eff469-3faf-1e9a-9ad9-e087aeafc301@linux.ibm.com>
-Date:   Tue, 1 Mar 2022 07:36:34 -0500
+        with ESMTP id S230415AbiCAM6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 07:58:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0629F13DF1;
+        Tue,  1 Mar 2022 04:58:00 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF166B818D4;
+        Tue,  1 Mar 2022 12:57:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80B30C340EE;
+        Tue,  1 Mar 2022 12:57:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646139477;
+        bh=r75Uzu8npn39r4huc5vp0QUopdOSRjOWjwUwuLTzzJI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XIT+/WNf0MDXISpteczFZnD/f5tbZVR5uIq6Fzan3pquU0MfcU2IlMQBIKrq5m3DH
+         s05RAN2ZmV4eeHhA7iRpGps69DTryLghWkCd2obVPwOitVKTfoGzx5brGkwcc4V5ac
+         lIaJdrBkf43/9lTEBqmsHa5gOW0p8Q5M5Yn4bWeeoBSTzxp5ayhA42Ksn4NbsWpy8w
+         21I+89A7bmhKxJeMPoDrYSlw/iI8KsqwK7sTypVXXgn43DZPQ8k5qFnemRPsArJLVE
+         bLEAPzJUvirns5poA7Ssfq07ww27IK9aGNYzBqkIsUquTCorTUbZTuMCwg4b/+95JG
+         S+ZyQocZGKwRA==
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     linux-sgx@vger.kernel.org
+Cc:     Jarkko Sakkinen <jarkko@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
+        64-BIT))
+Subject: [PATCH v5] x86/sgx: Free backing memory after faulting the enclave page
+Date:   Tue,  1 Mar 2022 13:58:36 +0100
+Message-Id: <20220301125836.3430-1-jarkko@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v8 1/1] tpm: fix reference counting for struct tpm_chip
-Content-Language: en-US
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>, peterhuewe@gmx.de,
-        jarkko@kernel.org, jgg@ziepe.ca
-Cc:     stefanb@linux.vnet.ibm.com, James.Bottomley@hansenpartnership.com,
-        David.Laight@ACULAB.COM, linux-integrity@vger.kernel.org,
-        linux-kernel@vger.kernel.org, p.rosenberger@kunbus.com,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
-        stable@vger.kernel.org
-References: <20220301022108.30310-1-LinoSanfilippo@gmx.de>
- <20220301022108.30310-2-LinoSanfilippo@gmx.de>
-From:   Stefan Berger <stefanb@linux.ibm.com>
-In-Reply-To: <20220301022108.30310-2-LinoSanfilippo@gmx.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: X4Nu4BnQu-ZgguosY15w4kDayIH12KqR
-X-Proofpoint-ORIG-GUID: Uypyva6UHZ5BIbPlcoP4z6YZMQ3G47pB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-01_07,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- adultscore=0 clxscore=1011 spamscore=0 bulkscore=0 lowpriorityscore=0
- mlxlogscore=999 suspectscore=0 impostorscore=0 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2203010068
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H5,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+There is a limited amount of SGX memory (EPC) on each system.  When that
+memory is used up, SGX has its own swapping mechanism which is similar
+in concept but totally separate from the core mm/* code.  Instead of
+swapping to disk, SGX swaps from EPC to normal RAM.  That normal RAM
+comes from a shared memory pseudo-file and can itself be swapped by the
+core mm code.  There is a hierarchy like this:
 
-On 2/28/22 21:21, Lino Sanfilippo wrote:
-> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
->
-> The following sequence of operations results in a refcount warning:
->
-> 1. Open device /dev/tpmrm.
-> 2. Remove module tpm_tis_spi.
-> 3. Write a TPM command to the file descriptor opened at step 1.
->
-> ------------[ cut here ]------------
-> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
-> refcount_t: addition on 0; use-after-free.
-> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
-> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
-> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
-> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
-> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
-> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
-> Hardware name: BCM2711
-> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
-> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
-> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
-> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
-> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
-> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
-> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
-> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
-> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
-> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
-> Exception stack(0xc226bfa8 to 0xc226bff0)
-> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
-> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
-> bfe0: 0000006c beafe648 0001056c b6eb6944
-> ---[ end trace d4b8409def9b8b1f ]---
->
-> The reason for this warning is the attempt to get the chip->dev reference
-> in tpm_common_write() although the reference counter is already zero.
->
-> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
-> extra reference used to prevent a premature zero counter is never taken,
-> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
->
-> Fix this by moving the TPM 2 character device handling from
-> tpm_chip_alloc() to tpm_add_char_device() which is called at a later point
-> in time when the flag has been set in case of TPM2.
->
-> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> already introduced function tpm_devs_release() to release the extra
-> reference but did not implement the required put on chip->devs that results
-> in the call of this function.
->
-> Fix this by putting chip->devs in tpm_chip_unregister().
->
-> Finally move the new implementation for the TPM 2 handling into a new
-> function to avoid multiple checks for the TPM_CHIP_FLAG_TPM2 flag in the
-> good case and error cases.
->
-> Cc: stable@vger.kernel.org
-> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
-> Co-developed-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Lino Sanfilippo <l.sanfilippo@kunbus.com>
+	EPC <-> shmem <-> disk
 
-Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+After data is swapped back in from shmem to EPC, the shmem backing
+storage needs to be freed.  Currently, the backing shmem is not freed.
+This effectively wastes the shmem while the enclave is running.  The
+memory is recovered when the enclave is destroyed and the backing
+storage freed.
 
+Sort this out by freeing memory with shmem_truncate_range(), as soon as
+a page is faulted back to the EPC.  In addition, free the memory for
+PCMD pages as soon as all PCMD's in a page have been marked as unused
+by zeroing its contents.
 
-> ---
->   drivers/char/tpm/tpm-chip.c   | 48 +++++++-----------------------
->   drivers/char/tpm/tpm.h        |  1 +
->   drivers/char/tpm/tpm2-space.c | 55 +++++++++++++++++++++++++++++++++++
->   3 files changed, 66 insertions(+), 38 deletions(-)
->
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index b009e7479b70..06beee4da808 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -274,14 +274,6 @@ static void tpm_dev_release(struct device *dev)
->   	kfree(chip);
->   }
->   
-> -static void tpm_devs_release(struct device *dev)
-> -{
-> -	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
-> -
-> -	/* release the master device reference */
-> -	put_device(&chip->dev);
-> -}
-> -
->   /**
->    * tpm_class_shutdown() - prepare the TPM device for loss of power.
->    * @dev: device to which the chip is associated.
-> @@ -344,7 +336,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->   	chip->dev_num = rc;
->   
->   	device_initialize(&chip->dev);
-> -	device_initialize(&chip->devs);
->   
->   	chip->dev.class = tpm_class;
->   	chip->dev.class->shutdown_pre = tpm_class_shutdown;
-> @@ -352,29 +343,12 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->   	chip->dev.parent = pdev;
->   	chip->dev.groups = chip->groups;
->   
-> -	chip->devs.parent = pdev;
-> -	chip->devs.class = tpmrm_class;
-> -	chip->devs.release = tpm_devs_release;
-> -	/* get extra reference on main device to hold on
-> -	 * behalf of devs.  This holds the chip structure
-> -	 * while cdevs is in use.  The corresponding put
-> -	 * is in the tpm_devs_release (TPM2 only)
-> -	 */
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> -		get_device(&chip->dev);
-> -
->   	if (chip->dev_num == 0)
->   		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
->   	else
->   		chip->dev.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num);
->   
-> -	chip->devs.devt =
-> -		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-> -
->   	rc = dev_set_name(&chip->dev, "tpm%d", chip->dev_num);
-> -	if (rc)
-> -		goto out;
-> -	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
->   	if (rc)
->   		goto out;
->   
-> @@ -382,9 +356,7 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->   		chip->flags |= TPM_CHIP_FLAG_VIRTUAL;
->   
->   	cdev_init(&chip->cdev, &tpm_fops);
-> -	cdev_init(&chip->cdevs, &tpmrm_fops);
->   	chip->cdev.owner = THIS_MODULE;
-> -	chip->cdevs.owner = THIS_MODULE;
->   
->   	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
->   	if (rc) {
-> @@ -396,7 +368,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->   	return chip;
->   
->   out:
-> -	put_device(&chip->devs);
->   	put_device(&chip->dev);
->   	return ERR_PTR(rc);
->   }
-> @@ -445,14 +416,9 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->   	}
->   
->   	if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip)) {
-> -		rc = cdev_device_add(&chip->cdevs, &chip->devs);
-> -		if (rc) {
-> -			dev_err(&chip->devs,
-> -				"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-> -				dev_name(&chip->devs), MAJOR(chip->devs.devt),
-> -				MINOR(chip->devs.devt), rc);
-> -			return rc;
-> -		}
-> +		rc = tpm_devs_add(chip);
-> +		if (rc)
-> +			goto err_del_cdev;
->   	}
->   
->   	/* Make the chip available. */
-> @@ -460,6 +426,10 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->   	idr_replace(&dev_nums_idr, chip, chip->dev_num);
->   	mutex_unlock(&idr_lock);
->   
-> +	return 0;
-> +
-> +err_del_cdev:
-> +	cdev_device_del(&chip->cdev, &chip->dev);
->   	return rc;
->   }
->   
-> @@ -653,8 +623,10 @@ void tpm_chip_unregister(struct tpm_chip *chip)
->   	if (IS_ENABLED(CONFIG_HW_RANDOM_TPM) && !tpm_is_firmware_upgrade(chip))
->   		hwrng_unregister(&chip->hwrng);
->   	tpm_bios_log_teardown(chip);
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip))
-> +	if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip)) {
->   		cdev_device_del(&chip->cdevs, &chip->devs);
-> +		put_device(&chip->devs);
-> +	}
->   	tpm_del_char_device(chip);
->   }
->   EXPORT_SYMBOL_GPL(tpm_chip_unregister);
-> diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-> index 283f78211c3a..b7070ea9212a 100644
-> --- a/drivers/char/tpm/tpm.h
-> +++ b/drivers/char/tpm/tpm.h
-> @@ -234,6 +234,7 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
->   		       size_t cmdsiz);
->   int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space, void *buf,
->   		      size_t *bufsiz);
-> +int tpm_devs_add(struct tpm_chip *chip);
->   
->   void tpm_bios_log_setup(struct tpm_chip *chip);
->   void tpm_bios_log_teardown(struct tpm_chip *chip);
-> diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
-> index 97e916856cf3..bd9fbd32bc01 100644
-> --- a/drivers/char/tpm/tpm2-space.c
-> +++ b/drivers/char/tpm/tpm2-space.c
-> @@ -574,3 +574,58 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
->   	dev_err(&chip->dev, "%s: error %d\n", __func__, rc);
->   	return rc;
->   }
-> +
-> +/*
-> + * Put the reference to the main device.
-> + */
-> +static void tpm_devs_release(struct device *dev)
-> +{
-> +	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
-> +
-> +	/* release the master device reference */
-> +	put_device(&chip->dev);
-> +}
-> +
-> +/*
-> + * Add a device file to expose TPM spaces. Also take a reference to the
-> + * main device.
-> + */
-> +int tpm_devs_add(struct tpm_chip *chip)
-> +{
-> +	int rc;
-> +
-> +	device_initialize(&chip->devs);
-> +	chip->devs.parent = chip->dev.parent;
-> +	chip->devs.class = tpmrm_class;
-> +
-> +	/*
-> +	 * Get extra reference on main device to hold on behalf of devs.
-> +	 * This holds the chip structure while cdevs is in use. The
-> +	 * corresponding put is in the tpm_devs_release.
-> +	 */
-> +	get_device(&chip->dev);
-> +	chip->devs.release = tpm_devs_release;
-> +	chip->devs.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-> +	cdev_init(&chip->cdevs, &tpmrm_fops);
-> +	chip->cdevs.owner = THIS_MODULE;
-> +
-> +	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
-> +	if (rc)
-> +		goto err_put_devs;
-> +
-> +	rc = cdev_device_add(&chip->cdevs, &chip->devs);
-> +	if (rc) {
-> +		dev_err(&chip->devs,
-> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-> +			dev_name(&chip->devs), MAJOR(chip->devs.devt),
-> +			MINOR(chip->devs.devt), rc);
-> +		goto err_put_devs;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_put_devs:
-> +	put_device(&chip->devs);
-> +
-> +	return rc;
-> +}
+Reported-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+v5:
+* Encapsulated file offset calculation for PCMD struct.
+* Replaced "magic number" PAGE_SIZE with sizeof(struct sgx_secs) to make
+  the offset calculation more self-documentative.
+v4:
+* Sanitized the offset calculations.
+v3:
+* Resend.
+v2:
+* Rewrite commit message as proposed by Dave.
+* Truncate PCMD pages (Dave).
+---
+ arch/x86/kernel/cpu/sgx/encl.c | 57 ++++++++++++++++++++++++++++------
+ 1 file changed, 48 insertions(+), 9 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
+index 8be6f0592bdc..3d2ed8d27747 100644
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -12,6 +12,30 @@
+ #include "encls.h"
+ #include "sgx.h"
+ 
++/*
++ * Calculate byte offset of a PCMD struct associated with an enclave page. PCMD's
++ * follow right after the EPC data in the backing storage. In addition to the
++ * visible enclave pages, there's one extra page slot for SECS, before PCMD
++ * structs.
++ */
++static inline pgoff_t sgx_encl_get_backing_page_pcmd_offset(struct sgx_encl *encl,
++							    unsigned long page_index)
++{
++	pgoff_t epc_end_off = encl->size + sizeof(struct sgx_secs);
++
++	return epc_end_off + page_index * sizeof(struct sgx_pcmd);
++}
++
++/*
++ * Free a page from the backing storage in the given page index.
++ */
++static inline void sgx_encl_truncate_backing_page(struct sgx_encl *encl, unsigned long page_index)
++{
++	struct inode *inode = file_inode(encl->backing);
++
++	shmem_truncate_range(inode, PFN_PHYS(page_index), PFN_PHYS(page_index) + PAGE_SIZE - 1);
++}
++
+ /*
+  * ELDU: Load an EPC page as unblocked. For more info, see "OS Management of EPC
+  * Pages" in the SDM.
+@@ -22,9 +46,11 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+ {
+ 	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
+ 	struct sgx_encl *encl = encl_page->encl;
++	pgoff_t page_index, page_pcmd_off;
+ 	struct sgx_pageinfo pginfo;
+ 	struct sgx_backing b;
+-	pgoff_t page_index;
++	bool pcmd_page_empty;
++	u8 *pcmd_page;
+ 	int ret;
+ 
+ 	if (secs_page)
+@@ -32,14 +58,16 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+ 	else
+ 		page_index = PFN_DOWN(encl->size);
+ 
++	page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
++
+ 	ret = sgx_encl_lookup_backing(encl, page_index, &b);
+ 	if (ret)
+ 		return ret;
+ 
+ 	pginfo.addr = encl_page->desc & PAGE_MASK;
+ 	pginfo.contents = (unsigned long)kmap_atomic(b.contents);
+-	pginfo.metadata = (unsigned long)kmap_atomic(b.pcmd) +
+-			  b.pcmd_offset;
++	pcmd_page = kmap_atomic(b.pcmd);
++	pginfo.metadata = (unsigned long)pcmd_page + b.pcmd_offset;
+ 
+ 	if (secs_page)
+ 		pginfo.secs = (u64)sgx_get_epc_virt_addr(secs_page);
+@@ -55,11 +83,24 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+ 		ret = -EFAULT;
+ 	}
+ 
+-	kunmap_atomic((void *)(unsigned long)(pginfo.metadata - b.pcmd_offset));
++	memset(pcmd_page + b.pcmd_offset, 0, sizeof(struct sgx_pcmd));
++
++	/*
++	 * The area for the PCMD in the page was zeroed above.  Check if the
++	 * whole page is now empty meaning that all PCMD's have been zeroed:
++	 */
++	pcmd_page_empty = !memchr_inv(pcmd_page, 0, PAGE_SIZE);
++
++	kunmap_atomic(pcmd_page);
+ 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
+ 
+ 	sgx_encl_put_backing(&b, false);
+ 
++	sgx_encl_truncate_backing_page(encl, page_index);
++
++	if (pcmd_page_empty)
++		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
++
+ 	return ret;
+ }
+ 
+@@ -583,7 +624,7 @@ static struct page *sgx_encl_get_backing_page(struct sgx_encl *encl,
+ static int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
+ 				struct sgx_backing *backing)
+ {
+-	pgoff_t pcmd_index = PFN_DOWN(encl->size) + 1 + (page_index >> 5);
++	pgoff_t page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
+ 	struct page *contents;
+ 	struct page *pcmd;
+ 
+@@ -591,7 +632,7 @@ static int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
+ 	if (IS_ERR(contents))
+ 		return PTR_ERR(contents);
+ 
+-	pcmd = sgx_encl_get_backing_page(encl, pcmd_index);
++	pcmd = sgx_encl_get_backing_page(encl, PFN_DOWN(page_pcmd_off));
+ 	if (IS_ERR(pcmd)) {
+ 		put_page(contents);
+ 		return PTR_ERR(pcmd);
+@@ -600,9 +641,7 @@ static int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
+ 	backing->page_index = page_index;
+ 	backing->contents = contents;
+ 	backing->pcmd = pcmd;
+-	backing->pcmd_offset =
+-		(page_index & (PAGE_SIZE / sizeof(struct sgx_pcmd) - 1)) *
+-		sizeof(struct sgx_pcmd);
++	backing->pcmd_offset = page_pcmd_off & (PAGE_SIZE - 1);
+ 
+ 	return 0;
+ }
+-- 
+2.35.1
+
