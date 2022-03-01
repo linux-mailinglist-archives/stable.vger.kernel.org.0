@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3929C4C8700
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 09:47:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6F34C8756
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 10:05:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233552AbiCAIrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 03:47:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32964 "EHLO
+        id S233034AbiCAJGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 04:06:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233505AbiCAIrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 03:47:05 -0500
-Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC0B889304;
-        Tue,  1 Mar 2022 00:46:23 -0800 (PST)
-Received: from [192.168.43.69] (unknown [182.2.70.248])
-        by gnuweeb.org (Postfix) with ESMTPSA id 135F67E2A9;
-        Tue,  1 Mar 2022 08:46:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1646124383;
-        bh=CMMDcbsPaEADI+qn5JKnOaKuzR+twxl3El7gTc2i7TQ=;
-        h=Date:To:Cc:References:From:Subject:In-Reply-To:From;
-        b=Sl1qn6uNMKVysoMOQjUXxjvCufiwurgxU5tlYLN0ctSdsSIyPdm9EiflfUH19z3be
-         a3cTJJ/rMZujDK+GPhFWThQCzMqnaI7dIeRnWIARJoClpUKeGIMkFWwyoswIhf+el8
-         oINyj7FFdQ9NjdB60uvLyoyhhSY2G2Rp+fxmasmIG1CBIzPek1t6Tt7OdY1gC+gGxo
-         kfywx86pZZMqSYF7CGHV1m6sJPbekWE3sg1JHZfJ1RGcvogJFFU0PSEQ0Mm6pb1UV7
-         GsHjQNzUZAKd9POjvllX8roUIJ3wO1izXQ1ZvH0ItSiKYqZMLKtrTBXHu0c195n/tS
-         oXJkgRmzX877g==
-Message-ID: <0f22489a-7b93-1ed8-aa44-3fd731cf34a5@gnuweeb.org>
-Date:   Tue, 1 Mar 2022 15:46:15 +0700
+        with ESMTP id S229776AbiCAJGT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 04:06:19 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290C289319;
+        Tue,  1 Mar 2022 01:05:38 -0800 (PST)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id B84BD21637;
+        Tue,  1 Mar 2022 09:05:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1646125536; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wGg057MYVvEAycP3sfZdyFUbrSVStkSu0yUPk3uN7Bk=;
+        b=PJoZmxdWQDxzOd6JDIbAkU3p3tENb3df9iSpKNeHZYe93Q99vfTMJarHj+aETJi22OlE5Q
+        efK+c6N9PbE136rXo1pky4rH41gSHXh2m7J9RwIyMmRpO8MczpWn87pP2o6nC4Fl5P54lt
+        Me2wF3cUpDucfbZcglIKYCU5DXTsEoQ=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 76159A3B88;
+        Tue,  1 Mar 2022 09:05:36 +0000 (UTC)
+Date:   Tue, 1 Mar 2022 10:05:35 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Shakeel Butt <shakeelb@google.com>
+Cc:     Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Ivan Babrou <ivan@cloudflare.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Daniel Dao <dqminh@cloudflare.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] memcg: async flush memcg stats from perf sensitive
+ codepaths
+Message-ID: <Yh3h33W45+YaMo92@dhcp22.suse.cz>
+References: <20220226002412.113819-1-shakeelb@google.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, linux-edac@vger.kernel.org,
-        linux-kernel@vger.kernel.org, gwml@vger.gnuweeb.org,
-        x86@kernel.org, stable@vger.kernel.org
-References: <20220301073223.98236-1-ammarfaizi2@gnuweeb.org>
- <20220301073223.98236-2-ammarfaizi2@gnuweeb.org> <Yh3YyU2VVK/iaLcA@kroah.com>
-From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Subject: Re: [PATCH v2 1/2] x86/delay: Fix the wrong asm constraint in
- `delay_loop()`
-In-Reply-To: <Yh3YyU2VVK/iaLcA@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220226002412.113819-1-shakeelb@google.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,56 +59,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On 3/1/22 3:26 PM, Greg KH wrote:
-> On Tue, Mar 01, 2022 at 02:32:22PM +0700, Ammar Faizi wrote:
->> The asm constraint does not reflect that the asm statement can modify
->> the value of @loops. But the asm statement in delay_loop() does change
->> the @loops.
->>
->> If by any chance the compiler inlines this function, it may clobber
->> random stuff (e.g. local variable, important temporary value in reg,
->> etc.).
->>
->> Fortunately, delay_loop() is only called indirectly (so it can't
->> inline), and then the register it clobbers is %rax (which is by the
->> nature of the calling convention, it's a caller saved register), so it
->> didn't yield any bug.
->>
->> ^ That shouldn't be an excuse for using the wrong constraint anyway.
->>
->> This changes "a" (as an input) to "+a" (as an input and output).
->>
->> Cc: Thomas Gleixner <tglx@linutronix.de>
->> Cc: Ingo Molnar <mingo@redhat.com>
->> Cc: Borislav Petkov <bp@alien8.de>
->> Cc: Dave Hansen <dave.hansen@linux.intel.com>
->> Cc: "H. Peter Anvin" <hpa@zytor.com>
->> Fixes: e01b70ef3eb3080fecc35e15f68cd274c0a48163 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
+On Fri 25-02-22 16:24:12, Shakeel Butt wrote:
+> Daniel Dao has reported [1] a regression on workloads that may trigger
+> a lot of refaults (anon and file). The underlying issue is that flushing
+> rstat is expensive. Although rstat flush are batched with (nr_cpus *
+> MEMCG_BATCH) stat updates, it seems like there are workloads which
+> genuinely do stat updates larger than batch value within short amount of
+> time. Since the rstat flush can happen in the performance critical
+> codepaths like page faults, such workload can suffer greatly.
 > 
-> You only need 12 characters here :)
+> The easiest fix for now is for performance critical codepaths trigger
+> the rstat flush asynchronously. This patch converts the refault codepath
+> to use async rstat flush. In addition, this patch has premptively
+> converted mem_cgroup_wb_stats and shrink_node to also use the async
+> rstat flush as they may also similar performance regressions.
 
-Ah well, that's too verbose. Will fix it in the v4.
+Why do we need to trigger flushing in the first place from those paths.
+Later in the thread you are saying there is a regular flushing done
+every 2 seconds. What would happen if these paths didn't flush at all?
+Also please note that WQ context can be overwhelmed by other work so
+these flushes can happen much much later.
 
->> Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
->> ---
-> 
-> Why is this one not tagged for stable?
-
-As far as I can tell, the compiler will never inline that function,
-because despite the function is static, it's assigned to a global
-variable and it's called indirectly via a function pointer variable,
-so it can't be inline. Therefore, it will always be a function call.
-
-Note that %eax is a call clobbered register w.r.t. System V ABI. As
-such, *by luck*, this wrong constraint doesn't yield any bug.
-
-The compiler will not assume the %eax value is the same as before the
-function call is done. So the compiler isn't aware that constraint
-violation. Not sure if it's worth it for backport.
-
-x86 maintainers, any comment on this?
-
+So in other words why does async work (that can happen at any time
+without any control) make more sense than no flushing?
 -- 
-Ammar Faizi
+Michal Hocko
+SUSE Labs
