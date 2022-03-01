@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6686E4C9619
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A27624C95E2
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:18:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237107AbiCAUSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:18:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50114 "EHLO
+        id S237972AbiCAUSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:18:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237831AbiCAURh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:17:37 -0500
+        with ESMTP id S237997AbiCAURw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:17:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711BB74DF9;
-        Tue,  1 Mar 2022 12:16:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F23E89317;
+        Tue,  1 Mar 2022 12:16:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1819BB81D19;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24BC2B81D17;
+        Tue,  1 Mar 2022 20:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4C46C340EE;
         Tue,  1 Mar 2022 20:16:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E3D4C340EE;
-        Tue,  1 Mar 2022 20:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646165798;
-        bh=IKX32sWHzfqA+GXof/lcAj87x4fva3TL+Bqv6/XCzIk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=prwOEn72IzSKCb9n1RIPz5XQUe/UrW6yIg8Wn6v3/hmfxlibq1EZPsLBeq77g+n8L
-         vVrYdKsDAvVzLy1oBW93jN79Fnvou7LP9ZzvFva70QRNNhREP9j0KbXUyYNdwl/WUB
-         3EKZ4rQ08C4Ipu0Ny6o4MtbbeEWXDDkb37SCn35vB9VHm6zAqXgaWOR/+AmzIa7DZ5
-         Yk1CCLTq/+GxySoV3SyDpb5Frm06M5FQolZ/I+vxd0sAqUQ4mLXQInALQmNqApTvoQ
-         qnRoMznvizO70TFO5SzRbZEnT1s3AQky+/mzP21Yf+vP7Y7k7DjXslwCkxFXb8OuIA
-         EcqoWKYCT3HsA==
+        s=k20201202; t=1646165804;
+        bh=s5v3aJ4Hatm+c5hU9aGN5lqd1epV2EFt5fKUeQ2bViM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=f8L55RLwv2lVHQjW50iDaUDGKNnGVjVupe88rjQv8xIDAmfu0iRIzm6En2DIUFgXw
+         BLqybHT9CpxMwdgzRu9me9QYZtwsZ+U9Y4YjjGy3kuDk3DTHEJJO4xNbqyc74LDjGY
+         3dZuCB1re1zfB4TpS8NdzHi8uwx8hrSV+5tSVdOztKqFFoy01Z3iFm4NZivUsk1d5a
+         oeybn2pe/1Cr05FIRnCIkuDs0FHDBzxSvfTDJ+ZpyIV/TKGPxhNvdJpu9n4PyUBWga
+         Yw+llytXCa/9LRd4EbHxTkIiXM9MCrH5ASeaxE950hYJTbRe5jMabo4d/xm89jWslp
+         fXepy/OWHbFZw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/23] selftests/bpf: Add test for bpf_timer overwriting crash
-Date:   Tue,  1 Mar 2022 15:16:00 -0500
-Message-Id: <20220301201629.18547-1-sashal@kernel.org>
+Cc:     Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, corbet@lwn.net,
+        m.szyprowski@samsung.com, linux-doc@vger.kernel.org,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.15 02/23] swiotlb: fix info leak with DMA_FROM_DEVICE
+Date:   Tue,  1 Mar 2022 15:16:01 -0500
+Message-Id: <20220301201629.18547-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220301201629.18547-1-sashal@kernel.org>
+References: <20220301201629.18547-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,123 +57,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit a7e75016a0753c24d6c995bc02501ae35368e333 ]
+[ Upstream commit ddbd89deb7d32b1fbb879f48d68fda1a8ac58e8e ]
 
-Add a test that validates that timer value is not overwritten when doing
-a copy_map_value call in the kernel. Without the prior fix, this test
-triggers a crash.
+The problem I'm addressing was discovered by the LTP test covering
+cve-2018-1000204.
 
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
+A short description of what happens follows:
+1) The test case issues a command code 00 (TEST UNIT READY) via the SG_IO
+   interface with: dxfer_len == 524288, dxdfer_dir == SG_DXFER_FROM_DEV
+   and a corresponding dxferp. The peculiar thing about this is that TUR
+   is not reading from the device.
+2) In sg_start_req() the invocation of blk_rq_map_user() effectively
+   bounces the user-space buffer. As if the device was to transfer into
+   it. Since commit a45b599ad808 ("scsi: sg: allocate with __GFP_ZERO in
+   sg_build_indirect()") we make sure this first bounce buffer is
+   allocated with GFP_ZERO.
+3) For the rest of the story we keep ignoring that we have a TUR, so the
+   device won't touch the buffer we prepare as if the we had a
+   DMA_FROM_DEVICE type of situation. My setup uses a virtio-scsi device
+   and the  buffer allocated by SG is mapped by the function
+   virtqueue_add_split() which uses DMA_FROM_DEVICE for the "in" sgs (here
+   scatter-gather and not scsi generics). This mapping involves bouncing
+   via the swiotlb (we need swiotlb to do virtio in protected guest like
+   s390 Secure Execution, or AMD SEV).
+4) When the SCSI TUR is done, we first copy back the content of the second
+   (that is swiotlb) bounce buffer (which most likely contains some
+   previous IO data), to the first bounce buffer, which contains all
+   zeros.  Then we copy back the content of the first bounce buffer to
+   the user-space buffer.
+5) The test case detects that the buffer, which it zero-initialized,
+  ain't all zeros and fails.
+
+One can argue that this is an swiotlb problem, because without swiotlb
+we leak all zeros, and the swiotlb should be transparent in a sense that
+it does not affect the outcome (if all other participants are well
+behaved).
+
+Copying the content of the original buffer into the swiotlb buffer is
+the only way I can think of to make swiotlb transparent in such
+scenarios. So let's do just that if in doubt, but allow the driver
+to tell us that the whole mapped buffer is going to be overwritten,
+in which case we can preserve the old behavior and avoid the performance
+impact of the extra bounce.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/timer_crash.c    | 32 +++++++++++
- .../testing/selftests/bpf/progs/timer_crash.c | 54 +++++++++++++++++++
- 2 files changed, 86 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
- create mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
+ Documentation/core-api/dma-attributes.rst | 8 ++++++++
+ include/linux/dma-mapping.h               | 8 ++++++++
+ kernel/dma/swiotlb.c                      | 3 ++-
+ 3 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-new file mode 100644
-index 0000000000000..f74b82305da8c
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <test_progs.h>
-+#include "timer_crash.skel.h"
+diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
+index 1887d92e8e926..17706dc91ec9f 100644
+--- a/Documentation/core-api/dma-attributes.rst
++++ b/Documentation/core-api/dma-attributes.rst
+@@ -130,3 +130,11 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
+ subsystem that the buffer is fully accessible at the elevated privilege
+ level (and ideally inaccessible or at least read-only at the
+ lesser-privileged levels).
 +
-+enum {
-+	MODE_ARRAY,
-+	MODE_HASH,
-+};
++DMA_ATTR_OVERWRITE
++------------------
 +
-+static void test_timer_crash_mode(int mode)
-+{
-+	struct timer_crash *skel;
++This is a hint to the DMA-mapping subsystem that the device is expected to
++overwrite the entire mapped size, thus the caller does not require any of the
++previous buffer contents to be preserved. This allows bounce-buffering
++implementations to optimise DMA_FROM_DEVICE transfers.
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index dca2b1355bb13..6150d11a607e1 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -61,6 +61,14 @@
+  */
+ #define DMA_ATTR_PRIVILEGED		(1UL << 9)
+ 
++/*
++ * This is a hint to the DMA-mapping subsystem that the device is expected
++ * to overwrite the entire mapped size, thus the caller does not require any
++ * of the previous buffer contents to be preserved. This allows
++ * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
++ */
++#define DMA_ATTR_OVERWRITE		(1UL << 10)
 +
-+	skel = timer_crash__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
-+		return;
-+	skel->bss->pid = getpid();
-+	skel->bss->crash_map = mode;
-+	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
-+		goto end;
-+	usleep(1);
-+end:
-+	timer_crash__destroy(skel);
-+}
-+
-+void test_timer_crash(void)
-+{
-+	if (test__start_subtest("array"))
-+		test_timer_crash_mode(MODE_ARRAY);
-+	if (test__start_subtest("hash"))
-+		test_timer_crash_mode(MODE_HASH);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
-new file mode 100644
-index 0000000000000..f8f7944e70dae
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/timer_crash.c
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <vmlinux.h>
-+#include <bpf/bpf_tracing.h>
-+#include <bpf/bpf_helpers.h>
-+
-+struct map_elem {
-+	struct bpf_timer timer;
-+	struct bpf_spin_lock lock;
-+};
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_ARRAY);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} amap SEC(".maps");
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} hmap SEC(".maps");
-+
-+int pid = 0;
-+int crash_map = 0; /* 0 for amap, 1 for hmap */
-+
-+SEC("fentry/do_nanosleep")
-+int sys_enter(void *ctx)
-+{
-+	struct map_elem *e, value = {};
-+	void *map = crash_map ? (void *)&hmap : (void *)&amap;
-+
-+	if (bpf_get_current_task_btf()->tgid != pid)
-+		return 0;
-+
-+	*(void **)&value = (void *)0xdeadcaf3;
-+
-+	bpf_map_update_elem(map, &(int){0}, &value, 0);
-+	/* For array map, doing bpf_map_update_elem will do a
-+	 * check_and_free_timer_in_array, which will trigger the crash if timer
-+	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
-+	 */
-+	if (crash_map == 1) {
-+		e = bpf_map_lookup_elem(map, &(int){0});
-+		if (!e)
-+			return 0;
-+		bpf_timer_cancel(&e->timer);
-+	}
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
+ /*
+  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
+  * be given to a device to use as a DMA source or target.  It is specific to a
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 87c40517e8227..aca0690550e2f 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -579,7 +579,8 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
+ 		mem->slots[index + i].orig_addr = slot_addr(orig_addr, i);
+ 	tlb_addr = slot_addr(mem->start, index) + offset;
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+-	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
++	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
++	    dir == DMA_BIDIRECTIONAL))
+ 		swiotlb_bounce(dev, tlb_addr, mapping_size, DMA_TO_DEVICE);
+ 	return tlb_addr;
+ }
 -- 
 2.34.1
 
