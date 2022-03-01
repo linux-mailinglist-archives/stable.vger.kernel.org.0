@@ -2,55 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE164C84B0
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 08:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECAE4C84E3
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 08:24:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232574AbiCAHMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 02:12:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
+        id S232438AbiCAHZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 02:25:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231542AbiCAHMN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 02:12:13 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F1CD7A996;
-        Mon, 28 Feb 2022 23:11:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646118693; x=1677654693;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=4V2cHjGMTWIff+0LFt6tojJMgcLMmFxrlr9mQKzw2QY=;
-  b=FXXVqjjIRHDAB1cH3tlq17FRavg9WCnvsVLS9+iIsx3by8X2l/COzR2Y
-   n50AAXGW41vRE4s6Quzs0kB4mk/tLxRT9Iyd1UJitow7y/iW22o1aqtG9
-   OhrL9GbSOVlkRwCdOUAvMVnONtFyZZJPVpwkHgh3H+BYKDwKECqd2eFm6
-   UAB1QqW7doTNHR3G3FHHn6uwSqkFeuEvS4S38S+runWtKWkFnzmG0uM5/
-   hFCT/7XVHgSCd+gQD74ILN6vd3FUPOyPzTUaZ7RM1vOUsh2bQfnD86wIk
-   P3ZUWGpqzqgs6O48tIBtbjLfN0YQBszH6Ex8R9TeONE4ixSSQbcg6OVCz
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10272"; a="252807220"
-X-IronPort-AV: E=Sophos;i="5.90,145,1643702400"; 
-   d="scan'208";a="252807220"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 23:11:32 -0800
-X-IronPort-AV: E=Sophos;i="5.90,145,1643702400"; 
-   d="scan'208";a="510406873"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.43])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 23:11:30 -0800
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        Vitaly Lubart <vitaly.lubart@intel.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc] mei: me: add Alder Lake N device id.
-Date:   Tue,  1 Mar 2022 09:11:15 +0200
-Message-Id: <20220301071115.96145-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S230286AbiCAHZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 02:25:07 -0500
+Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE0F16542B;
+        Mon, 28 Feb 2022 23:24:25 -0800 (PST)
+Received: from integral2.. (unknown [182.2.70.248])
+        by gnuweeb.org (Postfix) with ESMTPSA id D746E7EC80;
+        Tue,  1 Mar 2022 07:24:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
+        s=default; t=1646119464;
+        bh=1DueruguqzudzU4GLjRyxswwEsV4p5hsQfPer9dQXT8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=G5gwpQCdmlm5t/p/wxxAzp/RXTiXr1Y04KnGzgMFFhBW+7FaNJG04kAgnKqRlrpS/
+         il6amVuOoRF2OQ+gAmgCfAtyLs6EwTPV7n6mTAa9ruwT4LeYy1DiS8fl1iY1f2JxTa
+         VCMQyTFtF3hh3TQjprQyI34ykBVajgjz9BPwfwan7TiPPeBqzI8C7Au45iBtd0D9z9
+         sV+iNxiEqlVn0WZ84I08nOjY4fBN6pZy64VHoGQ1EqNy9seM9DTAqU75XlAxF8p6gd
+         tg04GfphsxQ1vqM/qTN0ydZjrEi7zthDCYmGpVYyYQtrfUUexHOwZ6kVUYcqo9vcgA
+         jnC+Pn80t8SgQ==
+From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>, linux-edac@vger.kernel.org,
+        linux-kernel@vger.kernel.org, gwml@vger.gnuweeb.org,
+        x86@kernel.org, stable@vger.kernel.org,
+        Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Subject: [PATCH 0/2] Two x86 fixes
+Date:   Tue,  1 Mar 2022 14:23:51 +0700
+Message-Id: <20220301072353.95749-1-ammarfaizi2@gnuweeb.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,42 +51,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+Hi,
 
-Add Alder Lake N device ID.
+Two fixes for x86 arch.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+[PATCH 1/2] x86/delay: Fix the wrong asm constraint in `delay_loop()`
+
+@bp is a local variable, calling mce_threshold_remove_device() when
+threshold_create_bank() fails will not free the @bp. Note that
+mce_threshold_remove_device() frees the @bp only if it's already
+stored in the @threshold_banks per-CPU variable.
+
+At that point, the @threshold_banks per-CPU variable is still NULL,
+so the mce_threshold_remove_device() will just be a no-op and the
+@bp is leaked.
+
+Fix this by calling kfree() and early returning when we fail.
+
+This bug is introduced by commit 6458de97fc15530b544 ("x86/mce/amd:
+Straighten CPU hotplug path") [1].
+
+Link: https://lore.kernel.org/all/20200403161943.1458-6-bp@alien8.de [1]
+
+[PATCH 2/2] x86/mce/amd: Fix memory leak when `threshold_create_bank()` fails.
+
+@bp is a local variable, calling mce_threshold_remove_device() when
+threshold_create_bank() fails will not free the @bp. Note that
+mce_threshold_remove_device() frees the @bp only if it's already
+stored in the @threshold_banks per-CPU variable.
+
+At that point, the @threshold_banks per-CPU variable is still NULL,
+so the mce_threshold_remove_device() will just be a no-op and the
+@bp is leaked.
+
+Fix this by calling kfree() and early returning when we fail.
+
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 ---
- drivers/misc/mei/hw-me-regs.h | 1 +
- drivers/misc/mei/pci-me.c     | 1 +
- 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index 888c27bc3f1a..64ce3f830262 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -107,6 +107,7 @@
- #define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
- #define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
- #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
-+#define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
- 
- /*
-  * MEI HW Section
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index a05cdb25d0c4..33e58821e478 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -114,6 +114,7 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_LP, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
- 
- 	/* required last entry */
- 	{0, }
+Ammar Faizi (2):
+  x86/delay: Fix the wrong asm constraint in `delay_loop()`
+  x86/mce/amd: Fix memory leak when `threshold_create_bank()` fails
+
+ arch/x86/kernel/cpu/mce/amd.c | 9 ++++-----
+ arch/x86/lib/delay.c          | 4 ++--
+ 2 files changed, 6 insertions(+), 7 deletions(-)
+
+
+base-commit: 7e57714cd0ad2d5bb90e50b5096a0e671dec1ef3
 -- 
-2.34.1
+2.32.0
 
