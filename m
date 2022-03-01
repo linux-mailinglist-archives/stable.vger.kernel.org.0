@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 294BB4C80FC
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 03:26:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34EB84C80FF
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 03:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbiCAC1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 21:27:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
+        id S230330AbiCAC1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 21:27:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbiCAC1A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 21:27:00 -0500
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36956E61;
-        Mon, 28 Feb 2022 18:26:21 -0800 (PST)
-Received: by mail-pg1-x542.google.com with SMTP id c1so13182567pgk.11;
-        Mon, 28 Feb 2022 18:26:21 -0800 (PST)
+        with ESMTP id S230197AbiCAC1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 21:27:05 -0500
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E409DF3E;
+        Mon, 28 Feb 2022 18:26:25 -0800 (PST)
+Received: by mail-pj1-x1044.google.com with SMTP id b8so12827025pjb.4;
+        Mon, 28 Feb 2022 18:26:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OtZ5H7gA1nSjwvB7F5W5LwR11EAeV37D2iVoWG7YcAY=;
-        b=FZ+gm0fxtX+9o0fF2tU+nI93N6K9TxuDpYBUwENsyMSzxchlUX8/k7xstDT+34K1V6
-         ZMvLnV3fCcQWlK56C7L78zjN8CIdXoTt4E6ZIvdEBYahiVmNQmyoEvx99woMGG8AQlcu
-         m+q60wjSyV0wlYRmzXiCUYyczSE29lFOjZr5WJnhe/oAfI+9ihJrfC2YPtmXOc4BlQKV
-         8Cmf8YxQd1ScqdSb/5vLF2qfJehglQsQUqYx2anzwNmHCJ7bLpR4KZHp5cKkSPngtjMM
-         VSCIBBZC1vXu4+NJebqhrj5PTganTuyhcPNafebGsnZuwdh9u6eyQs/QnSUi00Cf3AB4
-         8DVQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=zsGUyzPwyU2D48eLQi5oVaEc8GeAsTJmPIqyMWCKDVc=;
+        b=PBxoH++E61U8SoMAfdf8/lkKMP2fB3X7XjKhEiQJwTXYEiWzxFauDPV6rB2idA6+E6
+         ZbQNd0++9tHFXa55fAWuDA3wymOjt9Ib3UXZGDdzkFM+UIsHBveZHlHspRiACA8owpQm
+         /m3M5qZOWRHrpAlDF3uFM8yyxqZhxFe2DyXw2ym+tB5/hTloKomS/fyu/zxE5/llwRr3
+         cujV9zrDiubh+GgccgRVqxHn3LLkFh9P0zQ2sVh/Ty2UFRLQHQx+rQ+068dxKaHC3Lt9
+         k7mDmcyElbqoG4Sobd0U+u776NAdhAhwHW3zevKxK/I+Yc7VV/xV860E0Xw+PJDM3Gz5
+         lsiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OtZ5H7gA1nSjwvB7F5W5LwR11EAeV37D2iVoWG7YcAY=;
-        b=1DGC90xfunqJxu9dWXcLlzgd6kPPcBndCp3oCDnoh9SCmEj7xXEQFgIC82efhca+/P
-         mkTJTWXKo+B5wVk74Kg+pj6+pPYZYcTW9v53+eoqjBRQUL46rT2b16gvtwPCWq53qiXK
-         7maKMArLvImtRVGrN3dx/vpD0/2uctlGzXFmhQJKejs5iKZxbCKD7D3dXHsNdCcTdGD4
-         CuNEABI+c26rbPAHFSkLT4WONWdyWvzILEYOG6cEp45BpFU9FfknfSFznZTfYucyaF2R
-         1wHoVm30wUmHffqB6s9ExLypAcadXlL7sYuDCMYy3P+2xXpF6nNMbJxPAr9pxnRX3M02
-         ZWdA==
-X-Gm-Message-State: AOAM5319veVh5g3V03/FVPpJv1QtcmNyQY+lOYlsmCgI0p8tV5ZmVMZ2
-        bBDgTBJrsb2cjUeo06Th5/EDyNIhEvSF0zZ6
-X-Google-Smtp-Source: ABdhPJz4+H7zDIIym143qeqOVXJYAsXj+T2OTzoBFeksx+ZzaXhDx8ZjHa/YI0ezPGO0MgcERj/0Tg==
-X-Received: by 2002:a63:7742:0:b0:374:7607:afa with SMTP id s63-20020a637742000000b0037476070afamr19957026pgc.391.1646101580753;
-        Mon, 28 Feb 2022 18:26:20 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=zsGUyzPwyU2D48eLQi5oVaEc8GeAsTJmPIqyMWCKDVc=;
+        b=LFSqma8Po9zmgqxBLb0ozTURDo4Lcb7ydyyJE0tACU/hxeN7XZNEWEyV4eT/qon7bD
+         RajKu53O1mVAH0wOdPMDkVSa6u+Rgacr8Qr8B5Ru2FiG/YN0NFo4KaGOs8yL5XZhQueY
+         iPmuhD9/Bfs9IKji0EGxqJa4zaHLU6vetNawU7vLf/hetX+0UG4gQnEP/JTsuRPdviUc
+         vUOYtF49zpkfzB+EFHumbkgsntO5TbKkB9byF8xezJ9N4BRFhX2NY3PEnfxdHZylh84c
+         CbVnIvLGQl7Zc+ZYRC+WKL1SJyuz3iNNEm36rb275bovowAO7qH9+/GxR/xhRQtPp01t
+         6Ujw==
+X-Gm-Message-State: AOAM533a1zellqKVTZ50J/7FjVKAFSho3BYOeFuTRTm+9MP15IeVezLm
+        xN16mxFuqnr2Q+BUg5Sxb/k=
+X-Google-Smtp-Source: ABdhPJzK9da69Q5Nc3yJLe9jqoEypr+doI5u3C17/fA7kZSfn3RwQaXxpS0P5tQj/d9793VQWNzPNQ==
+X-Received: by 2002:a17:902:a404:b0:14b:1100:aebc with SMTP id p4-20020a170902a40400b0014b1100aebcmr22765667plq.133.1646101585158;
+        Mon, 28 Feb 2022 18:26:25 -0800 (PST)
 Received: from slim.das-security.cn ([103.84.139.53])
-        by smtp.gmail.com with ESMTPSA id 142-20020a621894000000b004dfc714b076sm15417821pfy.11.2022.02.28.18.26.16
+        by smtp.gmail.com with ESMTPSA id 142-20020a621894000000b004dfc714b076sm15417821pfy.11.2022.02.28.18.26.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Feb 2022 18:26:20 -0800 (PST)
+        Mon, 28 Feb 2022 18:26:24 -0800 (PST)
 From:   Hangyu Hua <hbh25y@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     stable@vger.kernel.org, linux-usb@vger.kernel.org,
@@ -54,10 +54,12 @@ Cc:     stable@vger.kernel.org, linux-usb@vger.kernel.org,
         balbi@kernel.org, axboe@kernel.dk, mingo@kernel.org,
         jj251510319013@gmail.com, zsm@chromium.org,
         stern@rowland.harvard.edu, Hangyu Hua <hbh25y@gmail.com>
-Subject: [PATCH 4.14 0/2] usb: gadget: use after free in dev_config
-Date:   Tue,  1 Mar 2022 10:26:06 +0800
-Message-Id: <20220301022608.10950-1-hbh25y@gmail.com>
+Subject: [PATCH 4.14 1/2] usb: gadget: don't release an existing dev->buf
+Date:   Tue,  1 Mar 2022 10:26:07 +0800
+Message-Id: <20220301022608.10950-2-hbh25y@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220301022608.10950-1-hbh25y@gmail.com>
+References: <20220301022608.10950-1-hbh25y@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -70,27 +72,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Author: Hangyu Hua <hbh25y@gmail.com>
-commit 89f3594d0de5 ("usb: gadget: don't release an existing dev->buf")
-
-Author: Hangyu Hua <hbh25y@gmail.com>
-commit 501e38a5531e ("usb: gadget: clear related members when goto fail")
-
-Add two commits to all stable branches.
-
-There are two bugs:
 dev->buf does not need to be released if it already exists before
 executing dev_config.
-dev->config and dev->hs_config and dev->dev need to be cleaned if
-dev_config fails to avoid UAF.
 
-Hangyu Hua (2):
-  usb: gadget: don't release an existing dev->buf
-  usb: gadget: clear related members when goto fail
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20211231172138.7993-2-hbh25y@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org #4.4+
+---
+ drivers/usb/gadget/legacy/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- drivers/usb/gadget/legacy/inode.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
+index 3b58f4fc0a80..eaad03c0252f 100644
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -1826,8 +1826,9 @@ dev_config (struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
+ 	spin_lock_irq (&dev->lock);
+ 	value = -EINVAL;
+ 	if (dev->buf) {
++		spin_unlock_irq(&dev->lock);
+ 		kfree(kbuf);
+-		goto fail;
++		return value;
+ 	}
+ 	dev->buf = kbuf;
+ 
 -- 
 2.25.1
 
