@@ -2,131 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF6C4C9680
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:24:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A354C96A8
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236671AbiCAUZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:25:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58344 "EHLO
+        id S238283AbiCAUZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:25:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238591AbiCAUXk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:23:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 47590A27A6
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 12:20:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646165975;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=o1zmZFRJ9OdQdfdwAgs/BlX0aZlb5VfZ7KW5288RJgM=;
-        b=XDKCKYj6B/aRb1mdpwmBwsH04T5FRmUYESw6jU0DC7Ea8jPKYoked5IAQ7vLrbH/nhYuGh
-        B3Uf/aSte3mz6ymcqB2v1gPno21J4Wsa/8Ua6QQPYrfttURWl7mQLYgUbpRSBksBqZeQ+s
-        HePN/oBv3093H7t8bwpteb5xdtXZsjg=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-637-buhWx65qNkezX9bpjGYPWg-1; Tue, 01 Mar 2022 15:19:34 -0500
-X-MC-Unique: buhWx65qNkezX9bpjGYPWg-1
-Received: by mail-wr1-f71.google.com with SMTP id o1-20020adfe801000000b001f023455317so673661wrm.3
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 12:19:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=o1zmZFRJ9OdQdfdwAgs/BlX0aZlb5VfZ7KW5288RJgM=;
-        b=pOWOTApuJ3dLTZI/cpHth8jYIXaLJC+FbghA3z3XvK7ouvmz92l23gWgLk4W93pVUK
-         pWsk2jk+c+FIhJ6QFQ3LYQa158k9KABtg7M0pbMxfUuf7s/xXz7jlcloDzS0HszCJqVG
-         IGuNmvEz84CHGyAAD9UErhIagDnj6/CLJdkT2IUAdbZZ3YXVdjv0XqRH6ODXny1e9dj6
-         RmNfsFELTQUdtl2xvEOay7FN4tw5FRk23r5D66hXKWgsgX51S74dMcFzwDQ8nypJwzwi
-         ttpCDvo43GWdWoLF/kW+zCFeqpzMSeC6N5QQZbgcJHlwJIcV6IUxHEtXHsJgAEoKEIRH
-         7OTg==
-X-Gm-Message-State: AOAM531GQlt4nC6HclN7cJJQqc92JorH6jGAGSjMcgpkI+YBZC6KJApr
-        zh+EWpoS1R7F1ivYbYounZvLpqw0P1HDUyZ3Vry7TEnseYJ8ivYPLdmAUOOGlFUJHtAeGRoc1yD
-        U46Lu/1E3qoDly+TJ
-X-Received: by 2002:a5d:55cd:0:b0:1ef:6e69:9c78 with SMTP id i13-20020a5d55cd000000b001ef6e699c78mr16887047wrw.626.1646165973551;
-        Tue, 01 Mar 2022 12:19:33 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzRLZQEeitRS41cQmrq1zwFWmk9PeKXhCoOD1q3lUcKFS2IAVUJNtFHgSyS25+0oSD7oFs06A==
-X-Received: by 2002:a5d:55cd:0:b0:1ef:6e69:9c78 with SMTP id i13-20020a5d55cd000000b001ef6e699c78mr16887032wrw.626.1646165973345;
-        Tue, 01 Mar 2022 12:19:33 -0800 (PST)
-Received: from ?IPV6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
-        by smtp.googlemail.com with ESMTPSA id n10-20020a5d598a000000b001efab095615sm9930224wri.29.2022.03.01.12.19.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Mar 2022 12:19:32 -0800 (PST)
-Message-ID: <fa245ee1-8b87-5a41-3045-9a4d30211029@redhat.com>
-Date:   Tue, 1 Mar 2022 21:19:31 +0100
+        with ESMTP id S238536AbiCAUXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:23:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F559A0BE4;
+        Tue,  1 Mar 2022 12:20:38 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D9A860906;
+        Tue,  1 Mar 2022 20:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E67EC340EE;
+        Tue,  1 Mar 2022 20:19:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646165999;
+        bh=IKX32sWHzfqA+GXof/lcAj87x4fva3TL+Bqv6/XCzIk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=a7Rye6vaTY+PyD7fSEy5eB4anrOX5khfhRojhN328y4SVhUnT8zEXa9aVZ5jvMMs0
+         RMx7oHdOFp8ImDo55ILKzV3VeYrCYeIXyj7XT5n2OA4M2nS8DhIVNooeW+0keRy+oZ
+         5jUH2gUzXnJC9POEZBVdsWnm76sBrxIRqLPkKmFn0qkUi7qhYRU4Th/9bk6rnuKOS6
+         nyuvdV8diZknKJefk4Nh9gdEsjjSPq9YCetcxpr83KqhYSOXT88zIXj7EiMc9z3qjd
+         8AruQVaSwDii0evf0dhoHrqRccFYJs+tuBPMmY9cPFM5QTJMqSCDEl9u28VHkyKElA
+         wF+FoIAtlHTIg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/11] selftests/bpf: Add test for bpf_timer overwriting crash
+Date:   Tue,  1 Mar 2022 15:19:34 -0500
+Message-Id: <20220301201951.19066-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH AUTOSEL 5.16 06/28] kvm: x86: Disable KVM_HC_CLOCK_PAIRING
- if tsc is in always catchup mode
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Anton Romanov <romanton@google.com>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, kvm@vger.kernel.org
-References: <20220301201344.18191-1-sashal@kernel.org>
- <20220301201344.18191-6-sashal@kernel.org>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220301201344.18191-6-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/1/22 21:13, Sasha Levin wrote:
-> From: Anton Romanov <romanton@google.com>
-> 
-> [ Upstream commit 3a55f729240a686aa8af00af436306c0cd532522 ]
-> 
-> If vcpu has tsc_always_catchup set each request updates pvclock data.
-> KVM_HC_CLOCK_PAIRING consumers such as ptp_kvm_x86 rely on tsc read on
-> host's side and do hypercall inside pvclock_read_retry loop leading to
-> infinite loop in such situation.
-> 
-> v3:
->      Removed warn
->      Changed return code to KVM_EFAULT
-> v2:
->      Added warn
-> 
-> Signed-off-by: Anton Romanov <romanton@google.com>
-> Message-Id: <20220216182653.506850-1-romanton@google.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   arch/x86/kvm/x86.c | 7 +++++++
->   1 file changed, 7 insertions(+)
-> 
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 0714fa0e7ede0..18fc0367ef21a 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -8769,6 +8769,13 @@ static int kvm_pv_clock_pairing(struct kvm_vcpu *vcpu, gpa_t paddr,
->   	if (clock_type != KVM_CLOCK_PAIRING_WALLCLOCK)
->   		return -KVM_EOPNOTSUPP;
->   
-> +	/*
-> +	 * When tsc is in permanent catchup mode guests won't be able to use
-> +	 * pvclock_read_retry loop to get consistent view of pvclock
-> +	 */
-> +	if (vcpu->arch.tsc_always_catchup)
-> +		return -KVM_EOPNOTSUPP;
-> +
->   	if (!kvm_get_walltime_and_clockread(&ts, &cycle))
->   		return -KVM_EOPNOTSUPP;
->   
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+[ Upstream commit a7e75016a0753c24d6c995bc02501ae35368e333 ]
+
+Add a test that validates that timer value is not overwritten when doing
+a copy_map_value call in the kernel. Without the prior fix, this test
+triggers a crash.
+
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ .../selftests/bpf/prog_tests/timer_crash.c    | 32 +++++++++++
+ .../testing/selftests/bpf/progs/timer_crash.c | 54 +++++++++++++++++++
+ 2 files changed, 86 insertions(+)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
+ create mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
+
+diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
+new file mode 100644
+index 0000000000000..f74b82305da8c
+--- /dev/null
++++ b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
+@@ -0,0 +1,32 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <test_progs.h>
++#include "timer_crash.skel.h"
++
++enum {
++	MODE_ARRAY,
++	MODE_HASH,
++};
++
++static void test_timer_crash_mode(int mode)
++{
++	struct timer_crash *skel;
++
++	skel = timer_crash__open_and_load();
++	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
++		return;
++	skel->bss->pid = getpid();
++	skel->bss->crash_map = mode;
++	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
++		goto end;
++	usleep(1);
++end:
++	timer_crash__destroy(skel);
++}
++
++void test_timer_crash(void)
++{
++	if (test__start_subtest("array"))
++		test_timer_crash_mode(MODE_ARRAY);
++	if (test__start_subtest("hash"))
++		test_timer_crash_mode(MODE_HASH);
++}
+diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
+new file mode 100644
+index 0000000000000..f8f7944e70dae
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/timer_crash.c
+@@ -0,0 +1,54 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <vmlinux.h>
++#include <bpf/bpf_tracing.h>
++#include <bpf/bpf_helpers.h>
++
++struct map_elem {
++	struct bpf_timer timer;
++	struct bpf_spin_lock lock;
++};
++
++struct {
++	__uint(type, BPF_MAP_TYPE_ARRAY);
++	__uint(max_entries, 1);
++	__type(key, int);
++	__type(value, struct map_elem);
++} amap SEC(".maps");
++
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__uint(max_entries, 1);
++	__type(key, int);
++	__type(value, struct map_elem);
++} hmap SEC(".maps");
++
++int pid = 0;
++int crash_map = 0; /* 0 for amap, 1 for hmap */
++
++SEC("fentry/do_nanosleep")
++int sys_enter(void *ctx)
++{
++	struct map_elem *e, value = {};
++	void *map = crash_map ? (void *)&hmap : (void *)&amap;
++
++	if (bpf_get_current_task_btf()->tgid != pid)
++		return 0;
++
++	*(void **)&value = (void *)0xdeadcaf3;
++
++	bpf_map_update_elem(map, &(int){0}, &value, 0);
++	/* For array map, doing bpf_map_update_elem will do a
++	 * check_and_free_timer_in_array, which will trigger the crash if timer
++	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
++	 */
++	if (crash_map == 1) {
++		e = bpf_map_lookup_elem(map, &(int){0});
++		if (!e)
++			return 0;
++		bpf_timer_cancel(&e->timer);
++	}
++	return 0;
++}
++
++char _license[] SEC("license") = "GPL";
+-- 
+2.34.1
 
