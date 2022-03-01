@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10DDA4C964C
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 123764C965A
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234597AbiCAUVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:21:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
+        id S238105AbiCAUWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:22:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235063AbiCAUVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:21:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647638879C;
-        Tue,  1 Mar 2022 12:18:44 -0800 (PST)
+        with ESMTP id S237521AbiCAUVn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:21:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9CFE8E1A8;
+        Tue,  1 Mar 2022 12:18:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D2656174F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5126661660;
+        Tue,  1 Mar 2022 20:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C2D6C340F6;
         Tue,  1 Mar 2022 20:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8447C340EE;
-        Tue,  1 Mar 2022 20:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646165922;
-        bh=IKX32sWHzfqA+GXof/lcAj87x4fva3TL+Bqv6/XCzIk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=g7rwUkugg74znr3zEVjBea87mWwApo3FoN8qiQiPmkKeq9l2jqzTduC3SjQYUuZsV
-         vsDaWO9OIVJ/tkSQBkhsoNrBVOShoE4rz3imxyjufKx6kkI+8NiKFI2Gza6kf5gbfS
-         yNkJ+VSpJpnPgz+MR6HQm+b3L+fEplDGl8aEJ9HNkUSxi2m8yQ48s/uKhHHsNkxWfZ
-         5loTLZVefqJDLj3UK485BwF9K/RJCRvC2OHYR+AEwZXyJTtNJ2VYZHTenPnWwmyxEN
-         euSBU75P5Sb+A0RhOZ/rPww9WcufchQAy1b4RnMhdrcYOSDYXI+aTvCnljpWfAmLxm
-         n2Ib+PYmdtbtQ==
+        s=k20201202; t=1646165925;
+        bh=phYclIuu2+t3jpCD9N91naAXyfW9XBKmnlJRgv7QZEk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ElQaZoMiCsgqtlA8btfShDlp8KQWz68I1Sa0jZg0S1zhmg4tnvnJ73J+OV0ug0GNK
+         MF8ftZr6PNOdHTAEXJx3xr6nZHbUKQUtu3Qj++It6NCIb3JU00v8iJaV3jrDET11CU
+         v7GmB5KGKQC0XqN/SKYlUDDAKv9MgAk+K79uOJ5FJJZkhOvyRDRm2Ae2lJNiqdZRmD
+         vzhS4kVzeB6kNMXYgg8v1KeNSzFBSVN+/Siei36WFkJ/xioFXfwF8xa0epfGhnnfzk
+         z41tmiysdPuU3//X/fINmXSc0Gage+YtWEjhsKjtDmWMmyCX2g9mjU7FjoR57aOA9w
+         pXNhev1Ezx7Ug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/14] selftests/bpf: Add test for bpf_timer overwriting crash
-Date:   Tue,  1 Mar 2022 15:18:13 -0500
-Message-Id: <20220301201833.18841-1-sashal@kernel.org>
+Cc:     Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 02/14] KVM: Fix lockdep false negative during host resume
+Date:   Tue,  1 Mar 2022 15:18:14 -0500
+Message-Id: <20220301201833.18841-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220301201833.18841-1-sashal@kernel.org>
+References: <20220301201833.18841-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,123 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit a7e75016a0753c24d6c995bc02501ae35368e333 ]
+[ Upstream commit 4cb9a998b1ce25fad74a82f5a5c45a4ef40de337 ]
 
-Add a test that validates that timer value is not overwritten when doing
-a copy_map_value call in the kernel. Without the prior fix, this test
-triggers a crash.
+I saw the below splatting after the host suspended and resumed.
 
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
+   WARNING: CPU: 0 PID: 2943 at kvm/arch/x86/kvm/../../../virt/kvm/kvm_main.c:5531 kvm_resume+0x2c/0x30 [kvm]
+   CPU: 0 PID: 2943 Comm: step_after_susp Tainted: G        W IOE     5.17.0-rc3+ #4
+   RIP: 0010:kvm_resume+0x2c/0x30 [kvm]
+   Call Trace:
+    <TASK>
+    syscore_resume+0x90/0x340
+    suspend_devices_and_enter+0xaee/0xe90
+    pm_suspend.cold+0x36b/0x3c2
+    state_store+0x82/0xf0
+    kernfs_fop_write_iter+0x1b6/0x260
+    new_sync_write+0x258/0x370
+    vfs_write+0x33f/0x510
+    ksys_write+0xc9/0x160
+    do_syscall_64+0x3b/0xc0
+    entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+lockdep_is_held() can return -1 when lockdep is disabled which triggers
+this warning. Let's use lockdep_assert_not_held() which can detect
+incorrect calls while holding a lock and it also avoids false negatives
+when lockdep is disabled.
+
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1644920142-81249-1-git-send-email-wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/timer_crash.c    | 32 +++++++++++
- .../testing/selftests/bpf/progs/timer_crash.c | 54 +++++++++++++++++++
- 2 files changed, 86 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
- create mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
+ virt/kvm/kvm_main.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-new file mode 100644
-index 0000000000000..f74b82305da8c
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <test_progs.h>
-+#include "timer_crash.skel.h"
-+
-+enum {
-+	MODE_ARRAY,
-+	MODE_HASH,
-+};
-+
-+static void test_timer_crash_mode(int mode)
-+{
-+	struct timer_crash *skel;
-+
-+	skel = timer_crash__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
-+		return;
-+	skel->bss->pid = getpid();
-+	skel->bss->crash_map = mode;
-+	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
-+		goto end;
-+	usleep(1);
-+end:
-+	timer_crash__destroy(skel);
-+}
-+
-+void test_timer_crash(void)
-+{
-+	if (test__start_subtest("array"))
-+		test_timer_crash_mode(MODE_ARRAY);
-+	if (test__start_subtest("hash"))
-+		test_timer_crash_mode(MODE_HASH);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
-new file mode 100644
-index 0000000000000..f8f7944e70dae
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/timer_crash.c
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <vmlinux.h>
-+#include <bpf/bpf_tracing.h>
-+#include <bpf/bpf_helpers.h>
-+
-+struct map_elem {
-+	struct bpf_timer timer;
-+	struct bpf_spin_lock lock;
-+};
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_ARRAY);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} amap SEC(".maps");
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} hmap SEC(".maps");
-+
-+int pid = 0;
-+int crash_map = 0; /* 0 for amap, 1 for hmap */
-+
-+SEC("fentry/do_nanosleep")
-+int sys_enter(void *ctx)
-+{
-+	struct map_elem *e, value = {};
-+	void *map = crash_map ? (void *)&hmap : (void *)&amap;
-+
-+	if (bpf_get_current_task_btf()->tgid != pid)
-+		return 0;
-+
-+	*(void **)&value = (void *)0xdeadcaf3;
-+
-+	bpf_map_update_elem(map, &(int){0}, &value, 0);
-+	/* For array map, doing bpf_map_update_elem will do a
-+	 * check_and_free_timer_in_array, which will trigger the crash if timer
-+	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
-+	 */
-+	if (crash_map == 1) {
-+		e = bpf_map_lookup_elem(map, &(int){0});
-+		if (!e)
-+			return 0;
-+		bpf_timer_cancel(&e->timer);
-+	}
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index d22de43925076..06367f2d55000 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4758,9 +4758,7 @@ static int kvm_suspend(void)
+ static void kvm_resume(void)
+ {
+ 	if (kvm_usage_count) {
+-#ifdef CONFIG_LOCKDEP
+-		WARN_ON(lockdep_is_held(&kvm_count_lock));
+-#endif
++		lockdep_assert_not_held(&kvm_count_lock);
+ 		hardware_enable_nolock(NULL);
+ 	}
+ }
 -- 
 2.34.1
 
