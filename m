@@ -2,66 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6B94C8896
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 10:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 453A74C8A3E
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 12:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231742AbiCAJ6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 04:58:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53494 "EHLO
+        id S233502AbiCALDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 06:03:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233216AbiCAJ6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 04:58:33 -0500
-Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC611DA6A
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 01:57:52 -0800 (PST)
-Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-2dbd97f9bfcso20419467b3.9
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 01:57:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Qee/3ouJ9DM4ILqUhdVC3wPnlUxhQ79bmhKE0E3lC+E=;
-        b=kmm0zokZtwPnaJC25cBoWna+2xXHOg5cJOmIF5g7nM7SWhRyVmGu9QVjLtZASCmGMu
-         PTB//f5VTwuU+u2wba6qTm5tdm12g7VsktrC5t8+lZCv8mQAxp2FQRdgNR7UjvTClg0/
-         w0+8o2piKHXotEBLss8NEz+7SvbL9h6kE/95fiRFDaaWfHpJbACTBOt+cicR7s/4Q4jd
-         8uzVVz2i0c+e7Y5BfrcaT/My4XfUQr28JWnoiiGbRT2PfUxodEXIkHQQsw86991hdLBS
-         zdvtR3VdndofP5UBeib5BhDmYUxx5Ab/E/7Ya9C7lroFPYKWW24XpjmG6Z7LgohuBMbz
-         P27g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Qee/3ouJ9DM4ILqUhdVC3wPnlUxhQ79bmhKE0E3lC+E=;
-        b=ruT3OqDrfkLz+pj1DYUPFUoLgyChVQPDorQ2+tTJCz/4GwxcbIU0tNA+71mxnplRJb
-         wQYJq+ZQqq1aobw06m/4t5DF0iUD4kC3MjYjoObtEKP/oIW/1BOhqxAPkQ7Z0riOwMEw
-         UMQG7G0kZxwK8c2U3Kx64kgLNHzIHjEU9rlAtwdlH5y2tv0BaEUWNLaZYHHkRN6WF66b
-         fkAugTrq3Qlns0+8oiBtOAn1tHxLtn//RCii27LyCHSb5BxZGRoYAf+WQMD0vq+VYwR5
-         qkY7U1flsdAiL5ReKy/XecXXWroyPH2KNBn1gd2uiyJx79PvumxvFPwuV6SBeUOATGRv
-         336g==
-X-Gm-Message-State: AOAM5315U/DVseNcYI48ISkVTX/hAjZvhuFEpSqg/1HkDtPCLVWtxRkr
-        dEaav9S0p2u/CfKr37+nLdoQI9l4e+zH1AZK8y8Oog==
-X-Google-Smtp-Source: ABdhPJyrIJssRcdkYlbUMZS+1C716nMO9jZFhr4Nr3oJZzh/jhmwZdVZCrmm1B0x8jZcM+3+pNXODlucAQcEdFIkoO4=
-X-Received: by 2002:a81:642:0:b0:2d6:baf8:ee52 with SMTP id
- 63-20020a810642000000b002d6baf8ee52mr23809916ywg.36.1646128671619; Tue, 01
- Mar 2022 01:57:51 -0800 (PST)
+        with ESMTP id S232550AbiCALDr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 06:03:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A48AD63BDA;
+        Tue,  1 Mar 2022 03:03:06 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46EC3B817A9;
+        Tue,  1 Mar 2022 11:03:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A7B9C340EE;
+        Tue,  1 Mar 2022 11:03:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646132583;
+        bh=s3AyX5haQ6VBA5pNSp/kFJK06ZJoccCHONGNMZ47+Z0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=M93Z3h3QCJ/5SN+x4+sQ9dePM6ZeoZDUgHPeVlBkD4FLd6EpLvivvZqJZ70IN7+uc
+         5r2wLM6NaxCZM1dpLU8mf2PCT+3kdG1K7varUEyeRX1YPI2jtktWEAnmkiHhorl1eO
+         VRqD/lJEGEIM0e5ZsvbTH0zWhzetbdxgzsu9I4y4Ykv0QJZXy+z6ad1lvdYKQvC18G
+         bSlFbx9FXmgJa1OuHo8PR7LqrGfbt01MBzvrOu1001MdgT+KLSbcCYWv5a4g2NqdL9
+         VxxgQLcm/SH8Ux5h4j5KBoCFq3trI5zL4akmFibJsv5BXBaWXAIkiAz0Vy4oO0Mau2
+         1ASioE9qDjc9A==
+Date:   Tue, 1 Mar 2022 12:03:46 +0100
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     linux-sgx@vger.kernel.org,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "open list:X86 ARCHITECTURE (32-BIT AND 64-BIT)" 
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4] x86/sgx: Free backing memory after faulting the
+ enclave page
+Message-ID: <Yh39kuf8kuZJ0pRJ@iki.fi>
+References: <20220222120342.5277-1-jarkko@kernel.org>
+ <33646f1e-da44-503a-c454-02658d512926@intel.com>
+ <YhzGS+x0eNoc3gyN@iki.fi>
+ <0e06910b-9313-94ae-11e3-10a2b14645f2@intel.com>
 MIME-Version: 1.0
-References: <20220228172311.789892158@linuxfoundation.org>
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Mar 2022 15:27:40 +0530
-Message-ID: <CA+G9fYtXWn-U=rojccfrb9jK=eK8d8-+Qrk7j-KGahefa5e+Pw@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/80] 5.10.103-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0e06910b-9313-94ae-11e3-10a2b14645f2@intel.com>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,176 +65,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Feb 2022 at 23:03, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.103 release.
-> There are 80 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.103-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, Feb 28, 2022 at 07:32:02AM -0800, Dave Hansen wrote:
+> On 2/28/22 04:55, Jarkko Sakkinen wrote:
+> > I thought that the formula is so simple that it does not matter if it is
+> > just in two sites open coded but I can wrap it too, if required, e.g.
+> > 
+> > /* 
+> >  * Calculate byte offset of a PCMD struct associated to an enclave page.
+> >  * PCMD's follow right after the EPC data in the backing storage. In
+> >  * addition to the visible enclave pages, there's one extra page slot
+> >  * for SECS, before PCMD data.
+> >  */
+> > static pgoff_t *sgx_encl_page_index_to_pcmd_offset(struct sgx_encl *encl, unsigned long page_index)
+> > {
+> >         return encl->size + PAGE_SIZE + page_index * sizeof(struct sgx_pcmd);
+> > }
+> 
+> Yes, it's required.  Please wrap it.
+> 
+> There's also nothing wrong with spreading that calculation across
+> several lines.  It may be arithmetically simple, but it's combining
+> three or four logical steps.  There's no shame in separating and
+> commenting some of those separately.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I can do that but one thing that would make this more documentative would
+be to describe the formula as "encl->size + sizeof(struct sgx_secs) +
+sizeof(struct sgx_pcmd)", i.e. PAGE_SIZE is a magic number so the
+end result would be:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+/* 
+ * Calculate byte offset of a PCMD struct associated to an enclave page. PCMD's
+ * follow right after the EPC data in the backing storage. In addition to the
+ * visible enclave pages, there's one extra page slot for SECS, before PCMD
+ * structs.
+ */
+static inline pgoff_t sgx_encl_page_index_to_pcmd_offset(struct sgx_encl *encl, unsigned long page_index)
+{
+        pgoff_t epc_end_off = encl->size + sizeof(struct sgx_secs);
 
-## Build
-* kernel: 5.10.103-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: 3a000049e6a1d04d2e57cd3de7783075811d62e8
-* git describe: v5.10.102-81-g3a000049e6a1
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.102-81-g3a000049e6a1
+        return epc_end_off + page_index * sizeof(struct sgx_pcmd);
+}
 
-## Test Regressions (compared to v5.10.101-122-g6c935cea31db)
-No test regressions found.
+Now it is hard to get this wrong and also the file offset has the nice quality
+of packing the page index for PCMD page, and offset within that page. IMHO,
+this will nice and clean long-term way to sort this out.
 
-## Metric Regressions (compared to v5.10.101-122-g6c935cea31db)
-No metric regressions found.
-
-## Test Fixes (compared to v5.10.101-122-g6c935cea31db)
-No test fixes found.
-
-## Metric Fixes (compared to v5.10.101-122-g6c935cea31db)
-No metric fixes found.
-
-## Test result summary
-total: 97503, pass: 84163, fail: 521, skip: 12008, xfail: 811
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 291 total, 291 passed, 0 failed
-* arm64: 41 total, 39 passed, 2 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 40 total, 40 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 24 total, 15 passed, 9 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 41 total, 41 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+/Jarkko
