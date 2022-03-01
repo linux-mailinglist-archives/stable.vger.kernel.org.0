@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5894C8605
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 09:12:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F144C860A
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 09:12:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233288AbiCAIMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 03:12:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
+        id S233317AbiCAIMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 03:12:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233282AbiCAIMk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 03:12:40 -0500
+        with ESMTP id S233316AbiCAIMu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 03:12:50 -0500
 Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 517B88567E;
-        Tue,  1 Mar 2022 00:11:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9D08567B;
+        Tue,  1 Mar 2022 00:12:03 -0800 (PST)
 Received: from integral2.. (unknown [182.2.70.248])
-        by gnuweeb.org (Postfix) with ESMTPSA id B53897EDA1;
-        Tue,  1 Mar 2022 08:11:53 +0000 (UTC)
+        by gnuweeb.org (Postfix) with ESMTPSA id 305917ED9F;
+        Tue,  1 Mar 2022 08:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1646122318;
-        bh=8R4MhWSJNcQ8evBE1421lIDo5eU1fFu91hoE2oHOvBg=;
+        s=default; t=1646122323;
+        bh=m7lM/oRoy6wNhgiuPB2yy1cKlJcybobcuJ0ThXM9UlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7mfpRoL4IFPI4IwnFbCWGgXQ9KCcggX8P3NzGZvxcvHpJGK46dVQ74wW32wS/TL6
-         aBKNGo9YEMk0ukcYMpiH6ZImAdu9SjZDsPGHkLZTp+2VwdH5xZSOrvEYpgeck6qrD9
-         EaQS9Zi/JZy7RB5rfUO84sL29zklzfAhHWOz3wHYK5z7tCYQU+PsnihJE9l8yIsB4/
-         +i2fAOwsn80mJTrREmAbSO7TuJnO7dzZIahex7JLE+4Hi0p5WoVo7+6Jz+xtLOYrpi
-         szpfPJJa6eKM0UKx53Xc9OpeY6O/nd1omi5Mu+RqJzHrzX2X3YM/7AZx+mEoXXuidE
-         nuGty+hYy7stw==
+        b=dbncNmzKMXtjF0oRYgY5kgoiSwbXPhPpARvXHmTIAQiq83pLlSTNFGY2vdsEGYisp
+         V4bH4XVU5o8ufja8NDzETP4BXoZQ/FABgdhui2pmcyBTzwPiSx64YdLTLpT2iXxflh
+         RH77yIhNeEjmXH1ywXbWApmzqATxLfCmssizDzbQxyxYHRxTUnGDlT90D/QMOXuwNu
+         IYlSCY7x5ly9Rca5M2tSdUwZvFl+b3XfoSI3jdl4yPl8AW7jaI23hK1zzOdYfPh7aR
+         K/aPgwnF1d1oDlr8LhaXmovC8d8C8Q5SPGMfMxIKQmK/0gMlqraazCQrPPDmFaE7Oh
+         eWzMMacM0VOFQ==
 From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
 To:     Borislav Petkov <bp@alien8.de>
 Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
@@ -37,9 +37,9 @@ Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
         x86@kernel.org, stable@vger.kernel.org,
         Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
         Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Subject: [PATCH v3 1/2] x86/delay: Fix the wrong asm constraint in `delay_loop()`
-Date:   Tue,  1 Mar 2022 15:11:32 +0700
-Message-Id: <20220301081133.106875-2-ammarfaizi2@gnuweeb.org>
+Subject: [PATCH v3 2/2] x86/mce/amd: Fix memory leak when `threshold_create_bank()` fails
+Date:   Tue,  1 Mar 2022 15:11:33 +0700
+Message-Id: <20220301081133.106875-3-ammarfaizi2@gnuweeb.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220301081133.106875-1-ammarfaizi2@gnuweeb.org>
 References: <20220301081133.106875-1-ammarfaizi2@gnuweeb.org>
@@ -54,49 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The asm constraint does not reflect that the asm statement can modify
-the value of @loops. But the asm statement in delay_loop() does change
-the @loops.
+@bp is a local variable, calling mce_threshold_remove_device() when
+threshold_create_bank() fails will not free the @bp. Note that
+mce_threshold_remove_device() frees the @bp only if it's already
+stored in the @threshold_banks per-CPU variable.
 
-If by any chance the compiler inlines this function, it may clobber
-random stuff (e.g. local variable, important temporary value in reg,
-etc.).
+At that point, the @threshold_banks per-CPU variable is still NULL,
+so the mce_threshold_remove_device() will just be a no-op and the
+@bp is leaked.
 
-Fortunately, delay_loop() is only called indirectly (so it can't
-inline), and then the register it clobbers is %rax (which is by the
-nature of the calling convention, it's a caller saved register), so it
-didn't yield any bug.
+Fix this by storing @bp to @threshold_banks before the loop, so in
+case we fail, mce_threshold_remove_device() will free the @bp.
 
-^ That shouldn't be an excuse for using the wrong constraint anyway.
+This bug is introduced by commit 6458de97fc15530b544 ("x86/mce/amd:
+Straighten CPU hotplug path") [1].
 
-This changes "a" (as an input) to "+a" (as an input and output).
+Link: https://lore.kernel.org/all/20200403161943.1458-6-bp@alien8.de [1]
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
+v3:
+  - Fold in changes from Alviro, the previous version is still
+    leaking @bank[n].
+
+v2:
+  - No changes.
+
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: "H. Peter Anvin" <hpa@zytor.com>
-Fixes: e01b70ef3eb3080fecc35e15f68cd274c0a48163 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Fixes: 6458de97fc15530b54477c4e2b70af653e8ac3d9 ("x86/mce/amd: Straighten CPU hotplug path")
+Cc: stable@vger.kernel.org # v5.8+
+Co-authored-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
+Signed-off-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
 Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 ---
- arch/x86/lib/delay.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mce/amd.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
-index 65d15df6212d..0e65d00e2339 100644
---- a/arch/x86/lib/delay.c
-+++ b/arch/x86/lib/delay.c
-@@ -54,8 +54,8 @@ static void delay_loop(u64 __loops)
- 		"	jnz 2b		\n"
- 		"3:	dec %0		\n"
+diff --git a/arch/x86/kernel/cpu/mce/amd.c b/arch/x86/kernel/cpu/mce/amd.c
+index 9f4b508886dd..a5ef161facd9 100644
+--- a/arch/x86/kernel/cpu/mce/amd.c
++++ b/arch/x86/kernel/cpu/mce/amd.c
+@@ -1346,19 +1346,23 @@ int mce_threshold_create_device(unsigned int cpu)
+ 	if (!bp)
+ 		return -ENOMEM;
  
--		: /* we don't need output */
--		:"a" (loops)
-+		: "+a" (loops)
-+		:
- 	);
++	/*
++	 * If we fail, mce_threshold_remove_device() will free the @bp
++	 * via @threshold_banks.
++	 */
++	this_cpu_write(threshold_banks, bp);
++
+ 	for (bank = 0; bank < numbanks; ++bank) {
+ 		if (!(this_cpu_read(bank_map) & (1 << bank)))
+ 			continue;
+ 		err = threshold_create_bank(bp, cpu, bank);
+-		if (err)
+-			goto out_err;
++		if (err) {
++			mce_threshold_remove_device(cpu);
++			return err;
++		}
+ 	}
+-	this_cpu_write(threshold_banks, bp);
+ 
+ 	if (thresholding_irq_en)
+ 		mce_threshold_vector = amd_threshold_interrupt;
+ 	return 0;
+-out_err:
+-	mce_threshold_remove_device(cpu);
+-	return err;
  }
- 
 -- 
 2.32.0
 
