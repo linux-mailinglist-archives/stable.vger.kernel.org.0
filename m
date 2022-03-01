@@ -2,243 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7924C9090
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 17:45:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 576194C9093
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 17:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236162AbiCAQqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 11:46:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51606 "EHLO
+        id S235802AbiCAQrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 11:47:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232692AbiCAQqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 11:46:32 -0500
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596F73FBFC
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 08:45:51 -0800 (PST)
-Received: by mail-yb1-xb29.google.com with SMTP id f5so4580005ybg.9
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 08:45:51 -0800 (PST)
+        with ESMTP id S234469AbiCAQrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 11:47:31 -0500
+Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A49ECDF9B;
+        Tue,  1 Mar 2022 08:46:50 -0800 (PST)
+Received: by mail-il1-x129.google.com with SMTP id i1so6378516ilu.6;
+        Tue, 01 Mar 2022 08:46:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5wLbSz00Zs3F7EeJLFQDe8FIgTXEIryvRGYUMeIMSPM=;
-        b=MPh7lShqRR0cdAgt2zAunAzN6CGZ2B+zREDomF/U1WLNIEfUskM4m7lzwPXO2re1+h
-         z9hcn2QjJbHZdUxk0QTaILOhtklICBO8dO7u+weMxNlkvavbUNXl1yg/MuAB3V5VZd8U
-         Kq5DCtULJH20gADjuzC6NOH6zfIoUcPZLHCdQRoxlPqE7IdE65i1To8w8QsqJL2dCXE+
-         kNYDrVJn4DvQ+1qPWMD1FTkeh5eU+b1anoHin3rioOUzIJz7jMePpR1o6GEPWTsRQr68
-         nqanbDlNyMCAEIS9NKVEWd23v4lGbV8a3ngOsHehRANBsPt9aLG79PmYef7ENfOxOczd
-         OcTQ==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=WgWVdTddSK1VIvJpihEOxrT4Mi3SIzAJw8C0VgfJ1+E=;
+        b=ZyIqslhYvDH+znU49RDNGGBtdf2Hx25EKBLYyLNACYFixw48LAxXuDhuXdvN2vYeV0
+         XtVH31Chbhr2WBzD6kuN2Lz7Aq+1wtlZukZS0en4xgMbIdXnVLKXVxq/s8o5v54hvmbr
+         +v/3ebOGaZG+QRjCOwG4LGK73r4S2U8Ik1iea312xRwkjMKD5XcO0+V3Zr5uaVlkFpZ6
+         hZJZ8yZ5Rh0tqRdJg4cL4zVkFORCWrFm1fmiKLAeBYsrqNKwmLTjrWspHnjSm+tRlfKv
+         iW1YRmjCT7tc86d4IU91fXGtrPZWxgYvQhvUdvUCycWPlc8fa3md+RIZKr5NCtx0XegN
+         W6+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5wLbSz00Zs3F7EeJLFQDe8FIgTXEIryvRGYUMeIMSPM=;
-        b=ZuD3nq+uPTnuLSKcCzsYnJIsE3arzDt10Biz1BrqmQKS2OmPdorH94vskexoG+CCQ8
-         1ixPLDQTrKeHp1KddFYMlYayTyUiW5ATgv8cn/puUBTN0MIS2Mk1GtbNBERjg/GlPjEa
-         mv18xWtZp4tYcPAJpjwpysvZ8Vd6Uus69k1fk5vEZWBrloy4s5zag0G5/+VBkTly/gYm
-         pVZYb8LOGuYpThDnmVeY4ImPRntZC4KSHD0RO9URXpAzzl8/P8Uix+om0udq2zi+eDiS
-         Wax3GlybSL75SgWlBUIyrvxhbY06rTXbKNTc6Aik8mBahre+BkWhywjWlJfM7Anbknr5
-         mSZQ==
-X-Gm-Message-State: AOAM533ELPbhQhkmJxzYAvpWDIucW8YV1JOKCkoGl6u980MebmBlz53m
-        O1cy0kMm2TaPvyDsf/VlxCYUBNj/sq6kNRZlH0lxaA==
-X-Google-Smtp-Source: ABdhPJxg+1RbDPSzUc4zkl04ldH2EcQ/Y0kvklzXyMRlsFoCGSM6bxxpk9S4hXO/fIErTDzz352OrwI4G635LxVExbc=
-X-Received: by 2002:a25:d0c5:0:b0:621:c44b:b219 with SMTP id
- h188-20020a25d0c5000000b00621c44bb219mr23986911ybg.88.1646153150413; Tue, 01
- Mar 2022 08:45:50 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=WgWVdTddSK1VIvJpihEOxrT4Mi3SIzAJw8C0VgfJ1+E=;
+        b=zSj/hd/fcrYNj1xHMorLpVgBdVXVjtWKDDUOrSBx++E0rxYFa1G8o2Qj0NmqW29tBg
+         viClcwLicV9RspMq2At6f7CwbRN3pbQxXMWqqfhgWLpFO76Pdm7EGrVNCvbadJdMWCsD
+         oERUg6kcFtGL4Laxh0HKhb+UyS6coln/3Z1K/wdOgt2NN2L7FCYLUeLr+Z7q7Euzcbae
+         ACHqnZcxvWvEU8jJx3YYt//nD9nW2JUahvlyAp5noAQHQgX7fkovon0HtBLQwWkPuRMG
+         i7yFDpFaTxlPuqiq+dCfICbCsg/EFVyvtEQQe3qAnbvHEMs+VEdpeTPTIE1u3Z2UTbnG
+         x1sQ==
+X-Gm-Message-State: AOAM532iELnAqsQv4PmcBm5gAweUoevM/WYBsJIvOEzTWSpk3+69k3wM
+        rzIMAnb0podQWVKVHsmQxHw=
+X-Google-Smtp-Source: ABdhPJy2WosYoNk36kwc3YDo4CJeoXCvRi+g+pvs1KuGqtjA+5zI4UvsFnn0cAKS/KsQmhNn9fQ6aw==
+X-Received: by 2002:a05:6e02:1986:b0:2c4:804:2e6a with SMTP id g6-20020a056e02198600b002c408042e6amr2063617ilf.130.1646153210047;
+        Tue, 01 Mar 2022 08:46:50 -0800 (PST)
+Received: from frodo.hsd1.co.comcast.net ([2601:284:8204:2010::f10e])
+        by smtp.googlemail.com with ESMTPSA id o3-20020a6b5a03000000b00640a33c5b0dsm7272411iob.17.2022.03.01.08.46.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Mar 2022 08:46:49 -0800 (PST)
+From:   Jim Cromie <jim.cromie@gmail.com>
+To:     jbaron@akamai.com, gregkh@linuxfoundation.org,
+        daniel.vetter@ffwll.ch, seanpaul@chromium.org, robdclark@gmail.com,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        amd-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org
+Cc:     Jim Cromie <jim.cromie@gmail.com>, vincent.whitchurch@axis.com,
+        stable@vger.kernel.org
+Subject: [PATCH 01/13] dyndbg: fix static_branch manipulation
+Date:   Tue,  1 Mar 2022 09:46:17 -0700
+Message-Id: <20220301164629.3814634-2-jim.cromie@gmail.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220301164629.3814634-1-jim.cromie@gmail.com>
+References: <20220301164629.3814634-1-jim.cromie@gmail.com>
 MIME-Version: 1.0
-References: <20220228172248.232273337@linuxfoundation.org>
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Mar 2022 22:15:39 +0530
-Message-ID: <CA+G9fYtxrrxtbNtA_u4Ro5BBaOJvXVzA7EbhphpZLkLLJK6T7w@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/53] 5.4.182-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Feb 2022 at 23:01, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.182 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.182-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+In https://lore.kernel.org/lkml/20211209150910.GA23668@axis.com/
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Vincent's patch commented on, and worked around, a bug toggling
+static_branch's, when a 2nd PRINTK-ish flag was added.  The bug
+results in a premature static_branch_disable when the 1st of 2 flags
+was disabled.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The cited commit computed newflags, but then in the JUMP_LABEL block,
+did not use that result, but used just one of the terms in it.  Using
+newflags instead made the code work properly.
 
-## Build
-* kernel: 5.4.182-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: aa9d24e3c1088399a4cd2b031c4c6abee5d58a60
-* git describe: v5.4.181-54-gaa9d24e3c108
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-81-54-gaa9d24e3c108
+This is Vincents test-case, reduced.  It needs the 2nd flag to work
+properly, but it's explanatory here.
 
-## Test Regressions (compared to v5.4.181)
-No test regressions found.
+pt_test() {
+    echo 5 > /sys/module/dynamic_debug/verbose
 
-## Metric Regressions (compared to v5.4.181)
-No metric regressions found.
+    site="module tcp" # just one callsite
+    echo " $site =_ " > /proc/dynamic_debug/control # clear it
 
-## Test Fixes (compared to v5.4.181)
-No test fixes found.
+    # A B ~A ~B
+    for flg in +T +p "-T #broke here" -p; do
+	echo " $site $flg " > /proc/dynamic_debug/control
+    done;
 
-## Metric Fixes (compared to v5.4.181)
-No metric fixes found.
+    # A B ~B ~A
+    for flg in +T +p "-p #broke here" -T; do
+	echo " $site $flg " > /proc/dynamic_debug/control
+    done
+}
+pt_test
 
-## Test result summary
-total: 94463, pass: 80146, fail: 534, skip: 12639, xfail: 1144
+Fixes: 84da83a6ffc0 dyndbg: combine flags & mask into a struct, simplify with it
+CC: vincent.whitchurch@axis.com
+CC: stable@vger.kernel.org
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+---
+ lib/dynamic_debug.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 290 total, 290 passed, 0 failed
-* arm64: 41 total, 32 passed, 9 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 20 total, 20 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 49 passed, 11 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 40 total, 40 passed, 0 failed
+diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+index dd7f56af9aed..a56c1286ffa4 100644
+--- a/lib/dynamic_debug.c
++++ b/lib/dynamic_debug.c
+@@ -211,10 +211,11 @@ static int ddebug_change(const struct ddebug_query *query,
+ 				continue;
+ #ifdef CONFIG_JUMP_LABEL
+ 			if (dp->flags & _DPRINTK_FLAGS_PRINT) {
+-				if (!(modifiers->flags & _DPRINTK_FLAGS_PRINT))
++				if (!(newflags & _DPRINTK_FLAGS_PRINT))
+ 					static_branch_disable(&dp->key.dd_key_true);
+-			} else if (modifiers->flags & _DPRINTK_FLAGS_PRINT)
++			} else if (newflags & _DPRINTK_FLAGS_PRINT) {
+ 				static_branch_enable(&dp->key.dd_key_true);
++			}
+ #endif
+ 			dp->flags = newflags;
+ 			v4pr_info("changed %s:%d [%s]%s =%s\n",
+-- 
+2.35.1
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
