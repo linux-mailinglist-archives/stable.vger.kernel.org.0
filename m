@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 645304C96A3
-	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 176EA4C96A7
+	for <lists+stable@lfdr.de>; Tue,  1 Mar 2022 21:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238288AbiCAUZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 15:25:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
+        id S238313AbiCAUZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 15:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238736AbiCAUXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:23:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643BD8BE34;
-        Tue,  1 Mar 2022 12:21:06 -0800 (PST)
+        with ESMTP id S238762AbiCAUXu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 15:23:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF29F41335;
+        Tue,  1 Mar 2022 12:21:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2FB8B81D53;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BF93609ED;
+        Tue,  1 Mar 2022 20:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75004C340EF;
         Tue,  1 Mar 2022 20:21:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DC9BC340EE;
-        Tue,  1 Mar 2022 20:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646166063;
-        bh=l84C/QPffxfY0WxGerFLUs5saCj88EYUETS/LDTx0Xo=;
+        s=k20201202; t=1646166067;
+        bh=LdBoeu9mj9shzPDjHJYW6XKN8aDkUhRaD9CdjahmhBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4IFbvvutnGZIgh4kJzQQqZaPPKikq0TZp6fO4IGXW9463q9WZEntl/bqwpMo8jFP
-         KcHzHlUhWhd/dz3LF2q+PVlfUWHc+5LkFulKcTpG5N+YIC9H0fJsO0z6BfSyvCGS9M
-         83+5Q+15lzvRwlWZBX7vneL2xkKhBg/nwdyFyPWM8wEbEJ3dSk4OI2Qoo3aOiyed8E
-         CtZVMxS285uQ8/itUo4OLNGX/NJMvZp2MrzIG//tOpB6cffXDTNcF7fQ54ShE/nFOG
-         2q34xWfAZ1Xn7rlOoTBh6UH7zYYFc0fwSYWWO2QnGdQBtFYRoMCC3Le4p36XHgCVtj
-         CEHmd34HCxD3g==
+        b=T6KYSBOirt6sHywNyAPeaGF/29m5UiY1KamQze1BH7ChfTfgsBKo4NrmY10ch9UnJ
+         oRg6IQfti+dxmOFdrpbev/yXD92fwOwDk1jLoeAtzfkYVsZgDhkuk+vdM6Jna9RZ00
+         ZzGbyxrP91w+nhyP88+6vgEa9iPXGJPAW6upu81BRjKOAMxRcHTzP+9TVXX+ZOT7jr
+         vk48APQafbgnLlSweIyAaZ7aTglMIBERhTlHqndRzuH36ULCQEULz1SPc9/AcM9IGG
+         IS4vfMG4C7W2TSMdVYsWjG9mqs4CMqQhuz4Yx410rROrTVXKYvD5e37bay0ZCKYPK5
+         foHWYFBmh7TPA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        Grant Grundler <grundler@chromium.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        andrew@lunn.ch, arnd@arndb.de, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 2/7] sr9700: sanity check for packet length
-Date:   Tue,  1 Mar 2022 15:20:40 -0500
-Message-Id: <20220301202046.19220-2-sashal@kernel.org>
+Cc:     Shreeya Patel <shreeya.patel@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 3/7] gpio: Return EPROBE_DEFER if gc->to_irq is NULL
+Date:   Tue,  1 Mar 2022 15:20:41 -0500
+Message-Id: <20220301202046.19220-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220301202046.19220-1-sashal@kernel.org>
 References: <20220301202046.19220-1-sashal@kernel.org>
@@ -59,34 +59,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Shreeya Patel <shreeya.patel@collabora.com>
 
-[ Upstream commit e9da0b56fe27206b49f39805f7dcda8a89379062 ]
+[ Upstream commit ae42f9288846353982e2eab181fb41e7fd8bf60f ]
 
-A malicious device can leak heap data to user space
-providing bogus frame lengths. Introduce a sanity check.
+We are racing the registering of .to_irq when probing the
+i2c driver. This results in random failure of touchscreen
+devices.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Following explains the race condition better.
+
+[gpio driver] gpio driver registers gpio chip
+[gpio consumer] gpio is acquired
+[gpio consumer] gpiod_to_irq() fails with -ENXIO
+[gpio driver] gpio driver registers irqchip
+gpiod_to_irq works at this point, but -ENXIO is fatal
+
+We could see the following errors in dmesg logs when gc->to_irq is NULL
+
+[2.101857] i2c_hid i2c-FTS3528:00: HID over i2c has not been provided an Int IRQ
+[2.101953] i2c_hid: probe of i2c-FTS3528:00 failed with error -22
+
+To avoid this situation, defer probing until to_irq is registered.
+Returning -EPROBE_DEFER would be the first step towards avoiding
+the failure of devices due to the race in registration of .to_irq.
+Final solution to this issue would be to avoid using gc irq members
+until they are fully initialized.
+
+This issue has been reported many times in past and people have been
+using workarounds like changing the pinctrl_amd to built-in instead
+of loading it as a module or by adding a softdep for pinctrl_amd into
+the config file.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209413
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/sr9700.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpiolib.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/usb/sr9700.c b/drivers/net/usb/sr9700.c
-index 6ac232e52bf7c..83640628c47dd 100644
---- a/drivers/net/usb/sr9700.c
-+++ b/drivers/net/usb/sr9700.c
-@@ -410,7 +410,7 @@ static int sr9700_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		/* ignore the CRC length */
- 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 12472b84a71ca..b66e3f2ca1b1e 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -3327,6 +3327,16 @@ int gpiod_to_irq(const struct gpio_desc *desc)
  
--		if (len > ETH_FRAME_LEN)
-+		if (len > ETH_FRAME_LEN || len > skb->len)
- 			return 0;
- 
- 		/* the last packet of current skb */
+ 		return retirq;
+ 	}
++#ifdef CONFIG_GPIOLIB_IRQCHIP
++	if (gc->irq.chip) {
++		/*
++		 * Avoid race condition with other code, which tries to lookup
++		 * an IRQ before the irqchip has been properly registered,
++		 * i.e. while gpiochip is still being brought up.
++		 */
++		return -EPROBE_DEFER;
++	}
++#endif
+ 	return -ENXIO;
+ }
+ EXPORT_SYMBOL_GPL(gpiod_to_irq);
 -- 
 2.34.1
 
