@@ -2,111 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFBAC4CA9FC
-	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 17:19:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD4D4CAA22
+	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 17:28:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240266AbiCBQTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Mar 2022 11:19:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39982 "EHLO
+        id S240466AbiCBQ30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Mar 2022 11:29:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238228AbiCBQTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 11:19:42 -0500
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB79C2E0AB;
-        Wed,  2 Mar 2022 08:18:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1646237939; x=1677773939;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=iJZ4w2BNAIhvjzcRUQCBu6P8PtdF5bDSwthjMcne50s=;
-  b=fbwjA2G0jNFpJ8xrUz7MKCEgQBrHZy1gXPLZsSR81XYgmWQ4wqbF+++J
-   LeJIsvF+6E2FlWqQ6qWNdwmf7qjsgK+Fjwd0iDYLI9vtW3+9M4ZJpCTE6
-   YDNgUJ9fAOXPG7whlEwaQjnD/dP9KthtlpLcsiRKeO9WjMoVHkOr0gOmR
-   PnFg55HVqRTyFUWm8vpQ2S0XGKnIFnpg+lTN6WEfR7Q3TNsbTFThdr3O2
-   cq4xtuzn1DglVHg59pigePVuPkaL2/wrQZyfBNvujaSla/rey832C/I6P
-   GLK+5fI3N+rFkJdelWdqnuum8IwSwIQLFPCD2OwxVk7VntKZeCllup1Z4
-   w==;
-X-IronPort-AV: E=Sophos;i="5.90,149,1643698800"; 
-   d="scan'208";a="155442920"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 02 Mar 2022 09:18:59 -0700
-Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Wed, 2 Mar 2022 09:18:59 -0700
-Received: from ROB-ULT-M18064N.mchp-main.com (10.10.115.15) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
- 15.1.2375.17 via Frontend Transport; Wed, 2 Mar 2022 09:18:56 -0700
-From:   Tudor Ambarus <tudor.ambarus@microchip.com>
-To:     <nicolas.ferre@microchip.com>, <claudiu.beznea@microchip.com>,
-        <alexandre.belloni@bootlin.com>
-CC:     <robh+dt@kernel.org>, <eugen.hristev@microchip.com>,
-        <codrin.ciubotariu@microchip.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <sergiu.moga@microchip.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] ARM: dts: at91: sama7g5: Remove unused properties in i2c nodes
-Date:   Wed, 2 Mar 2022 18:18:54 +0200
-Message-ID: <20220302161854.32177-1-tudor.ambarus@microchip.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S237318AbiCBQ3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 11:29:25 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 312BD2DAA5
+        for <stable@vger.kernel.org>; Wed,  2 Mar 2022 08:28:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646238520;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=7eEfPBvyCQz7KlzEw024f3+wwx9DN1COWUQbQ4CRIAA=;
+        b=OjLkUrpYUcqG+mvNZzXA9HpFix1dfyST+VSksZlg5IuUOwZPJ+2M1cl2w3FT64rau617YF
+        dD321knhxABbIb6GUYZnNdaxspbd2Rrf88fLMp1mkjHJ+nCFpo0pVOKjX0bGKOR6Z/mJMt
+        gm1SzRoPdvtL+BhQ/NW6bNafVnjo1BM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-344-XoiJUo00N2mwExeTCaEMsw-1; Wed, 02 Mar 2022 11:28:39 -0500
+X-MC-Unique: XoiJUo00N2mwExeTCaEMsw-1
+Received: by mail-wr1-f72.google.com with SMTP id t15-20020adfdc0f000000b001ef93643476so831868wri.2
+        for <stable@vger.kernel.org>; Wed, 02 Mar 2022 08:28:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=7eEfPBvyCQz7KlzEw024f3+wwx9DN1COWUQbQ4CRIAA=;
+        b=13HRSsgXz4CtkzzqdNy2tCMBeAeq6jMIPs+l98iOAb+881RW8K8JHBnLbVEDvK5/0b
+         ZyiodGVm8ht0l0RJkp8fcCoXTabDbzeDThG2ylOVAGcJKJjrw5NVxeya/jpy8TuEX2hk
+         uDv+mjXbSci74QJ2lx/SDFUWBlHuLM3C5Ye/8qhrZ7bJ9G5O9e0tp2VtPo9I0xofn/E5
+         M7o09UZbiX5+f2PbO5bZSnutT/GhVSngWwn5kgFspHPs2P3Oec03om9Lqs+qsUXtA6vE
+         l2WvKTJ7/vphCG+iToqDBA2tm5fsxT8RIUgQLUsbtvajfLObde9aev4n//zB1IR2mwhl
+         FQjw==
+X-Gm-Message-State: AOAM531DEH3KqkoC9ORxyQxaDuaUQ/Lj10se0ICsokpxyx32wp/+IEYC
+        7IXxpnuc9tEdGsQYrGkgQ3iYF1lZnm4xXikf4Ed23Bhdi4Z+0ug7B0I6TenG0+4ByC8MbidYBVW
+        5WHbGSPP2ab7z3ZBV
+X-Received: by 2002:a05:6000:1a52:b0:1f0:2d62:2bbb with SMTP id t18-20020a0560001a5200b001f02d622bbbmr3097905wry.614.1646238517708;
+        Wed, 02 Mar 2022 08:28:37 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyul2MSo2n7QpL85LxwCnbq2CCgtDPP6CoPZDNaTpNW2WppDgvCCshQp5K2HZYQsvSsIG9RAQ==
+X-Received: by 2002:a05:6000:1a52:b0:1f0:2d62:2bbb with SMTP id t18-20020a0560001a5200b001f02d622bbbmr3097869wry.614.1646238516965;
+        Wed, 02 Mar 2022 08:28:36 -0800 (PST)
+Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it. [95.248.229.156])
+        by smtp.gmail.com with ESMTPSA id o18-20020a05600c511200b00352ec3b4c5asm8910926wms.7.2022.03.02.08.28.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Mar 2022 08:28:36 -0800 (PST)
+Date:   Wed, 2 Mar 2022 17:28:31 +0100
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        kvm <kvm@vger.kernel.org>,
+        Linux Virtualization <virtualization@lists.linux-foundation.org>,
+        netdev <netdev@vger.kernel.org>, stable@vger.kernel.org,
+        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
+ whilst still in use
+Message-ID: <CAGxU2F4cUDrMzoHH1NT5_ivxBPgEE8HOzP5s_Bt5JURRaSsLdQ@mail.gmail.com>
+References: <20220302075421.2131221-1-lee.jones@linaro.org>
+ <20220302082021-mutt-send-email-mst@kernel.org>
+ <Yh93k2ZKJBIYQJjp@google.com>
+ <20220302095045-mutt-send-email-mst@kernel.org>
+ <Yh+F1gkCGoYF2lMV@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,T_SCC_BODY_TEXT_LINE,
-        T_SPF_PERMERROR autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yh+F1gkCGoYF2lMV@google.com>
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The "atmel,use-dma-rx", "atmel,use-dma-rx" dt properties are not used by
-the i2c-at91 driver, nor they are defined in the bindings file, thus remove
-them.
+On Wed, Mar 2, 2022 at 3:57 PM Lee Jones <lee.jones@linaro.org> wrote:
+>
+> On Wed, 02 Mar 2022, Michael S. Tsirkin wrote:
+>
+> > On Wed, Mar 02, 2022 at 01:56:35PM +0000, Lee Jones wrote:
+> > > On Wed, 02 Mar 2022, Michael S. Tsirkin wrote:
+> > >
+> > > > On Wed, Mar 02, 2022 at 07:54:21AM +0000, Lee Jones wrote:
+> > > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
+> > > > > to vhost_get_vq_desc().  All we have to do is take the same lock
+> > > > > during virtqueue clean-up and we mitigate the reported issues.
+> > > > >
+> > > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
+> > > > >
+> > > > > Cc: <stable@vger.kernel.org>
+> > > > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+> > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > > > ---
+> > > > >  drivers/vhost/vhost.c | 2 ++
+> > > > >  1 file changed, 2 insertions(+)
+> > > > >
+> > > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > > > index 59edb5a1ffe28..bbaff6a5e21b8 100644
+> > > > > --- a/drivers/vhost/vhost.c
+> > > > > +++ b/drivers/vhost/vhost.c
+> > > > > @@ -693,6 +693,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > > > >         int i;
+> > > > >
+> > > > >         for (i = 0; i < dev->nvqs; ++i) {
+> > > > > +               mutex_lock(&dev->vqs[i]->mutex);
+> > > > >                 if (dev->vqs[i]->error_ctx)
+> > > > >                         eventfd_ctx_put(dev->vqs[i]->error_ctx);
+> > > > >                 if (dev->vqs[i]->kick)
+> > > > > @@ -700,6 +701,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > > > >                 if (dev->vqs[i]->call_ctx.ctx)
+> > > > >                         eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
+> > > > >                 vhost_vq_reset(dev, dev->vqs[i]);
+> > > > > +               mutex_unlock(&dev->vqs[i]->mutex);
+> > > > >         }
+> > > >
+> > > > So this is a mitigation plan but the bug is still there though
+> > > > we don't know exactly what it is.  I would prefer adding something like
+> > > > WARN_ON(mutex_is_locked(vqs[i]->mutex) here - does this make sense?
+> > >
+> > > As a rework to this, or as a subsequent patch?
+> >
+> > Can be a separate patch.
+> >
+> > > Just before the first lock I assume?
+> >
+> > I guess so, yes.
+>
+> No problem.  Patch to follow.
+>
+> I'm also going to attempt to debug the root cause, but I'm new to this
+> subsystem to it might take a while for me to get my head around.
 
-Cc: stable@vger.kernel.org
-Fixes: 7540629e2fc7 ("ARM: dts: at91: add sama7g5 SoC DT and sama7g5-ek")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
----
- arch/arm/boot/dts/sama7g5.dtsi | 6 ------
- 1 file changed, 6 deletions(-)
+IIUC the root cause should be the same as the one we solved here:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a58da53ffd70294ebea8ecd0eb45fd0d74add9f9
 
-diff --git a/arch/arm/boot/dts/sama7g5.dtsi b/arch/arm/boot/dts/sama7g5.dtsi
-index 1dc0631e9fd4..e626f6bd920a 100644
---- a/arch/arm/boot/dts/sama7g5.dtsi
-+++ b/arch/arm/boot/dts/sama7g5.dtsi
-@@ -591,8 +591,6 @@ i2c1: i2c@600 {
- 				dmas = <&dma0 AT91_XDMAC_DT_PERID(7)>,
- 					<&dma0 AT91_XDMAC_DT_PERID(8)>;
- 				dma-names = "rx", "tx";
--				atmel,use-dma-rx;
--				atmel,use-dma-tx;
- 				status = "disabled";
- 			};
- 		};
-@@ -778,8 +776,6 @@ i2c8: i2c@600 {
- 				dmas = <&dma0 AT91_XDMAC_DT_PERID(21)>,
- 					<&dma0 AT91_XDMAC_DT_PERID(22)>;
- 				dma-names = "rx", "tx";
--				atmel,use-dma-rx;
--				atmel,use-dma-tx;
- 				status = "disabled";
- 			};
- 		};
-@@ -804,8 +800,6 @@ i2c9: i2c@600 {
- 				dmas = <&dma0 AT91_XDMAC_DT_PERID(23)>,
- 					<&dma0 AT91_XDMAC_DT_PERID(24)>;
- 				dma-names = "rx", "tx";
--				atmel,use-dma-rx;
--				atmel,use-dma-tx;
- 				status = "disabled";
- 			};
- 		};
--- 
-2.25.1
+The worker was not stopped before calling vhost_dev_cleanup(). So while 
+the worker was still running we were going to free memory or initialize 
+fields while it was still using virtqueue.
+
+Cheers,
+Stefano
 
