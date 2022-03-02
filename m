@@ -2,115 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B1D4CA395
-	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 12:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D9E4CA521
+	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 13:46:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240304AbiCBL1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Mar 2022 06:27:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57940 "EHLO
+        id S241895AbiCBMr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Mar 2022 07:47:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238986AbiCBL1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 06:27:13 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C7CA9606E0;
-        Wed,  2 Mar 2022 03:26:30 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 925091424;
-        Wed,  2 Mar 2022 03:26:30 -0800 (PST)
-Received: from [10.57.39.47] (unknown [10.57.39.47])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AC3ED3F70D;
-        Wed,  2 Mar 2022 03:26:28 -0800 (PST)
-Message-ID: <ca208635-449b-2c94-7317-09ed8eb86a2c@arm.com>
-Date:   Wed, 2 Mar 2022 11:26:24 +0000
+        with ESMTP id S241892AbiCBMr1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 07:47:27 -0500
+Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D3ADC1C96;
+        Wed,  2 Mar 2022 04:46:44 -0800 (PST)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4K7v4t5npwz4xZ5;
+        Wed,  2 Mar 2022 23:46:38 +1100 (AEDT)
+From:   Michael Ellerman <patch-notifications@ellerman.id.au>
+To:     Anders Roxell <anders.roxell@linaro.org>, mpe@ellerman.id.au
+Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
+In-Reply-To: <20220224162215.3406642-1-anders.roxell@linaro.org>
+References: <20220224162215.3406642-1-anders.roxell@linaro.org>
+Subject: Re: [PATCHv2 1/3] powerpc: lib: sstep: fix 'sthcx' instruction
+Message-Id: <164622491295.2052779.4708365470490989992.b4-ty@ellerman.id.au>
+Date:   Wed, 02 Mar 2022 23:41:52 +1100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH v2] iommu/iova: Reset max32_alloc_size after cleaning
-Content-Language: en-GB
-To:     Miles Chen <miles.chen@mediatek.com>
-Cc:     wsd_upstream@mediatek.com, linux-kernel@vger.kernel.org,
-        Libo.Kang@mediatek.com, yf.wang@mediatek.com,
-        iommu@lists.linux-foundation.org,
-        linux-mediatek@lists.infradead.org, Ning.Li@mediatek.com,
-        matthias.bgg@gmail.com, stable@vger.kernel.org, will@kernel.org,
-        linux-arm-kernel@lists.infradead.org
-References: <b10031aa-8e49-70b3-b498-8aa6b7021fbb@arm.com>
- <20220301232953.17331-1-miles.chen@mediatek.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <20220301232953.17331-1-miles.chen@mediatek.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-03-01 23:29, Miles Chen via iommu wrote:
-> Hi Yunfei,
+On Thu, 24 Feb 2022 17:22:13 +0100, Anders Roxell wrote:
+> Looks like there been a copy paste mistake when added the instruction
+> 'stbcx' twice and one was probably meant to be 'sthcx'.
+> Changing to 'sthcx' from 'stbcx'.
 > 
->>> Since __alloc_and_insert_iova_range fail will set the current alloc
->>> iova size to max32_alloc_size (iovad->max32_alloc_size = size),
->>> when the retry is executed into the __alloc_and_insert_iova_range
->>> function, the retry action will be blocked by the check condition
->>> (size >= iovad->max32_alloc_size) and goto iova32_full directly,
->>> causes the action of retry regular alloc iova in
->>> __alloc_and_insert_iova_range to not actually be executed.
->>>
->>> Based on the above, so need reset max32_alloc_size before retry alloc
->>> iova when alloc iova fail, that is set the initial dma_32bit_pfn value
->>> of iovad to max32_alloc_size, so that the action of retry alloc iova
->>> in __alloc_and_insert_iova_range can be executed.
->>
->> Have you observed this making any difference in practice?
->>
->> Given that both free_cpu_cached_iovas() and free_global_cached_iovas()
->> call iova_magazine_free_pfns(), which calls remove_iova(), which calls
->> __cached_rbnode_delete_update(), I'm thinking no...
->>
->> Robin.
->>
 > 
-> Like Robin pointed out, if some cached iovas are freed by
-> free_global_cached_iovas()/free_cpu_cached_iovas(),
-> the max32_alloc_size should be reset to iovad->dma_32bit_pfn.
-> 
-> If no cached iova is freed, resetting max32_alloc_size before
-> the retry allocation only give us a retry. Is it possible that
-> other users free their iovas during the additional retry?
 
-No, it's not possible, since everyone's serialised by iova_rbtree_lock. 
-If the caches were already empty and the retry gets the lock first, it 
-will still fail again - forcing a reset of max32_alloc_size only means 
-it has to take the slow path to that failure. If another caller *did* 
-manage to get in and free something between free_global_cached_iovas() 
-dropping the lock and alloc_iova() re-taking it, then that would have 
-legitimately reset max32_alloc_size anyway.
+Applied to powerpc/next.
 
-Thanks,
-Robin.
+[1/3] powerpc: lib: sstep: fix 'sthcx' instruction
+      https://git.kernel.org/powerpc/c/a633cb1edddaa643fadc70abc88f89a408fa834a
+[2/3] powerpc: fix build errors
+      https://git.kernel.org/powerpc/c/8667d0d64dd1f84fd41b5897fd87fa9113ae05e3
+[3/3] powerpc: lib: sstep: fix build errors
+      https://git.kernel.org/powerpc/c/8219d31effa7be5dbc7ff915d7970672e028c701
 
-> alloc_iova_fast()
->    retry:
->      alloc_iova() // failed, iovad->max32_alloc_size = size
->      free_cpu_cached_iovas()
->        iova_magazine_free_pfns()
->          remove_iova()
-> 	  __cached_rbnode_delete_update()
-> 	    iovad->max32_alloc_size = iovad->dma_32bit_pfn // reset
->      free_global_cached_iovas()
->        iova_magazine_free_pfns()
->          remove_iova()
-> 	  __cached_rbnode_delete_update()
-> 	    iovad->max32_alloc_size = iovad->dma_32bit_pfn // reset
->      goto retry;
-> 
-> thanks,
-> Miles
-> _______________________________________________
-> iommu mailing list
-> iommu@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/iommu
+cheers
