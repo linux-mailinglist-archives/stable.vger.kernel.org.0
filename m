@@ -2,44 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1930A4CA942
-	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 16:38:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7003F4CA9AC
+	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 16:52:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234746AbiCBPjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Mar 2022 10:39:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
+        id S241366AbiCBPxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Mar 2022 10:53:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232582AbiCBPjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 10:39:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21BFD6E4D9
-        for <stable@vger.kernel.org>; Wed,  2 Mar 2022 07:38:47 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4C174CE21DD
-        for <stable@vger.kernel.org>; Wed,  2 Mar 2022 15:38:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA8BC004E1;
-        Wed,  2 Mar 2022 15:38:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646235523;
-        bh=m5CU6pKhn42Z192/PA1KWu/FxZ5WrsfNWyUrEsDPEMs=;
-        h=Subject:To:From:Date:From;
-        b=Ug6DJ+naDtUU2mWeGUODo06np1FYhMdaoL3+MVLCMPlfLy3X8vbSN+SdYw0Fg5DlR
-         8O9KGVNR2+fLM2Tc+QmqA7ty+T5POQMS2Mm1Y8fcL6OOQEofQmyj5E+LLVqhbEwhxU
-         ZMUZPEgeqovffTEBbMVybzUxkZs7Qk7eNPYJV33M=
-Subject: patch "staging: rtl8723bs: Fix access-point mode deadlock" added to staging-linus
-To:     hdegoede@redhat.com, fabioaiuto83@gmail.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 02 Mar 2022 16:38:40 +0100
-Message-ID: <164623552047109@kroah.com>
+        with ESMTP id S241651AbiCBPxe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 10:53:34 -0500
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4957FD24;
+        Wed,  2 Mar 2022 07:52:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1646236368; x=1677772368;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=sX1VBvACN4mQ5RfIruEVLq7Mp1w1ZXQBvcv1c657wmo=;
+  b=Z/2iEsQbgTXQaovQkt2QfQNKfkCC9U26hlNRPEeYd9rK94LcjL+XmkDe
+   tUkvqWWwkPR6OX7EWvPJBSwUCED3KXYTRTT2f4AEBBC9UrN7T/OdAUA5t
+   iLwC2nUDEKrRGrnXTFSYWQzJ2qX26NePckuiDp16GSN2bE6ZT4k+2MsAu
+   Uc5MqeWMJdxIK4kWG9ehBt9BPqos7JT3FxRF4bAVaRGGsZxXQ0v5e4Lgh
+   FN7dqQo4VOy3ptZz7+pZdFa/gN9l1O/NacJVAfZ18OkO76QByzBN/aeE4
+   KHRcsNCqlqIXDc2IQa3zThoDXpN8UNHAJBxztGIiqRcuV88VY7Q8Yljof
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10274"; a="316644412"
+X-IronPort-AV: E=Sophos;i="5.90,149,1643702400"; 
+   d="scan'208";a="316644412"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2022 07:52:33 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,149,1643702400"; 
+   d="scan'208";a="686170270"
+Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
+  by fmsmga001.fm.intel.com with ESMTP; 02 Mar 2022 07:52:32 -0800
+Received: from fmsmsx607.amr.corp.intel.com (10.18.126.87) by
+ fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 2 Mar 2022 07:52:32 -0800
+Received: from fmsmsx603.amr.corp.intel.com (10.18.126.83) by
+ fmsmsx607.amr.corp.intel.com (10.18.126.87) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 2 Mar 2022 07:52:32 -0800
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21 via Frontend Transport; Wed, 2 Mar 2022 07:52:32 -0800
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (104.47.56.42) by
+ edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2308.21; Wed, 2 Mar 2022 07:52:32 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SD15DHjpL4vxZ2ZZOtyVAotdR9d5iV4FrSSZtRAHYvio1htuSYWGgMwnVKxkwV/NjmF/wO3vQjMYMZZYWw/YqfsEHc5GIemCIfCzhvaeOxpOnWRjleWqiWKBAJMF5S27SaFH5yag+h5fI3u8XZ1YWc/56hZYr9hu/JYs43euLRZDA/EM3MphuhpXJ4lUgt/kec2gb7F84CQzDpLmb8+K2ataMJveUswcWMafOqN7U/5WPFvElZ7hnU+tuCUC4+GQBlHjqZp/qEMvVBeJG86At9iMYPV6XiU3XLK170179qj3gFsw3jtW9cDFHc3yiwS4dIjnaOfCF2EhgyICnsTWKg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=sX1VBvACN4mQ5RfIruEVLq7Mp1w1ZXQBvcv1c657wmo=;
+ b=MywHoJVJa3TVa/dZ/LrJf9/mo17qwO2vTo6k6ltkp6V1foMjDPSEB3+I9PLepxnlJ1dSI+zS/ZkadqAa9Vjt8RD7PITysSir3NAu/DzmmT0NsnBNfSZU/KAJ9wAmqM+UrSPhi29+tVAOUTWfDZ3Bmi0DW/rimEZqsVQBsJVSY6uLIxl10hne/sWje8HhmElJSnmfb9uBxhcV/7E85BqB76yFLJeSYY7gtO+7vMwMRcgr4/9bwPUcH21QMV7nehwICTDs11b+3rKCve8YiCLwd/fQ3DcrUHNsbkbzmhPy50DMKHvmfo/Dy70zata4aYYUEj2YXhQfoX3KoYs9yAbCbQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BYAPR11MB3256.namprd11.prod.outlook.com (2603:10b6:a03:76::19)
+ by BYAPR11MB3512.namprd11.prod.outlook.com (2603:10b6:a03:8f::26) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.14; Wed, 2 Mar
+ 2022 15:52:29 +0000
+Received: from BYAPR11MB3256.namprd11.prod.outlook.com
+ ([fe80::910a:a800:65c2:c366]) by BYAPR11MB3256.namprd11.prod.outlook.com
+ ([fe80::910a:a800:65c2:c366%5]) with mapi id 15.20.5017.027; Wed, 2 Mar 2022
+ 15:52:29 +0000
+From:   "Moore, Robert" <robert.moore@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        "Kaneda, Erik" <erik.kaneda@intel.com>,
+        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: RE: [PATCH 4.19 041/247] ACPICA: Fix exception code class checks
+Thread-Topic: [PATCH 4.19 041/247] ACPICA: Fix exception code class checks
+Thread-Index: AQHXDrktGbwa7JyMZEevLNlzkJk+AKyufWHg
+Date:   Wed, 2 Mar 2022 15:52:29 +0000
+Message-ID: <BYAPR11MB325620EA94EF89F8BBB1C4F687039@BYAPR11MB3256.namprd11.prod.outlook.com>
+References: <20210301161031.684018251@linuxfoundation.org>
+ <20210301161033.687197314@linuxfoundation.org>
+In-Reply-To: <20210301161033.687197314@linuxfoundation.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-version: 11.6.401.20
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 1109e8a2-de6f-4b4d-e810-08d9fc64a7ee
+x-ms-traffictypediagnostic: BYAPR11MB3512:EE_
+x-microsoft-antispam-prvs: <BYAPR11MB3512C1D281DF33CDBA837C3287039@BYAPR11MB3512.namprd11.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: TjcD8bZ0xScyex1C2+GoxKDdSvJlE7G9guX4nnxPnxvMCbIYIxHVTUanzQiU2m9ZGa9HRWb1l2fIL8kYgwFC9cAJaIHf1ytOqoOK4f+DHOKZdocLUT2b3MugFYjx+uXBJGUGUQtf4azVTpgeqUNZAgWq4XU0cN3sSdlzyj4qknuF63ZEfF3ojZfaiqYavZFdv8pqHF6NLMFEcfcFTVyuqJhAf7ep7piy2ZTQg+nsgA4y2AoOFGPrz7KnJWki5QizK1LB9xip2Qqz+MXZy2KoaV9ra0YBTYAe3VC6DfXvYKkTQ4751eBfFticr03+Ch9irjMblu8QaAGoqN84hwHXn9Ugqm8c97hCPtMYfOd59a3AKj3DXsK/dj9xZQ22bGpn50a+Zwa0pJdV1XUW90rvc4KdhVVZN5lOgBf1ghTiGZxnfNkPW9chhUxgVFxWA9Yb4knck8caJzFJctVgFbSbHKYPXYiwTghqYbuP2jGL8/uAHx8aP25ocMJDYho+7sMKrTWKfdm8/aIAXQk5aBR7aFYF9tvGViwJRHLu6T8RuervBR6QI9XGeC+awjY6Q9KmDF90xezP+rPQbzlDc1JRRbirVWZrV9v4lgCyW9XuK3Wr43BOKV9Tf7/LU+iN5z6dqETUKYkPpSEWNB/IJ3Adxb+UwtDrFV7ZjyiKtpcvE9wm74uUn7ajMwKK0umNpsnWQNIyNTNzsR7cenBi0++1nCZ3TrkZZMoHi6IHCdHz5aLUpPZdzzxl59UuOF+CMgBhRiYC5OQjZGqxODy2AkBbABblu++HTFibjSThl8r07pw=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB3256.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(8676002)(110136005)(64756008)(54906003)(66556008)(66476007)(66946007)(966005)(83380400001)(4326008)(66446008)(26005)(508600001)(186003)(82960400001)(316002)(86362001)(38070700005)(2906002)(55016003)(9686003)(33656002)(5660300002)(122000001)(38100700002)(53546011)(52536014)(8936002)(7696005)(76116006)(6506007)(71200400001);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?R0p5UGxYNThEV25kbUF3MGQ3cjdJcUF0cDBIbWZndy9mSUsvZHBRdFgxRjNG?=
+ =?utf-8?B?WXZaY3lvbUtNdHM3ZVl0ZHp4UDhWTkVDYndNZ0piZXVzRTRvemw2VjNKZjR1?=
+ =?utf-8?B?UW15ZUdhMmI1WVhhQ2g2VTE4TjZuWGlGaUdTRjZGMjVOQzAzV0tEWW1EZzg2?=
+ =?utf-8?B?VWNLL05SVG1mMC9leUVXVHVTWk9Jd3BIVmhCUWdqemZabU0vUExUdkthdTUw?=
+ =?utf-8?B?Y0x4MUFYMFdYZkhobHYrUHl6ZHJBSEJVQlMyTnI2NlYxYVdDeHk2K3BZdmR5?=
+ =?utf-8?B?RFRmejFyRXNBZjFOajh6RDZmK3UvYVBIQ2g5anRSV3RpZWNiVXZ2cW1US2NW?=
+ =?utf-8?B?L29qWTN0RGsxZy93SlVZSjBWZjRsU3RNM0dnbmViSzdoL2tDNjJQYml3OUF5?=
+ =?utf-8?B?dHV6dW1BT2FReWZ6RkFWQmxvUzE1ak9lREJ3amsxVi85aks0RVM3WVd1RTdI?=
+ =?utf-8?B?L1VTa2JPMmJqalpCUDRicUZFbTZvTi9IcXRnOC9OODZSUXd6amV5TUt0QTJl?=
+ =?utf-8?B?WlpwbXJKSlM1Yzk4MmQvQjdIbEFCQnNWcUhYVzZ0WElIMGtROXV4dngrT3hj?=
+ =?utf-8?B?T2lJSGdqTXhyVnZCNFVtUG1DV04wQTUwQUs1Mkduc01UUnR0anlqbGhYZEtF?=
+ =?utf-8?B?MjJEeWZIN3R3bUJpVSs0SkVLaDZXWVlVenRqNnhMT2UyVHZsS3FxUmdnOVlm?=
+ =?utf-8?B?QkNodXUycGRHaGVKMHpNazNFQ3QvUHd0Nk1oeXVPeHp4RXhSaWVxSjV1Vy9r?=
+ =?utf-8?B?RGpGL2Fpd1o0QllLa3FEb0d6aGlHbHF0elh0OTdsNjR2YkhqNS84dEg0Z2VU?=
+ =?utf-8?B?RDZ2Zmg3OExpUjhQbzZpZ01aSW1xMTY0YjlJWHR4UzlDQzgrZzFnWTF2V2hI?=
+ =?utf-8?B?SkxNb0NKTGxHYjBVdTlCUTJJdGdpL1d3dklJVThxRTg2dHR4TFkrajlmbi9s?=
+ =?utf-8?B?M0J0SDcvQ3NGb3hKYUpNbDY2OEsraFpEL2dSenh5RFRlc2VyUTREalpmdWdV?=
+ =?utf-8?B?NDk1OEVuUkFQVjFFY0ZSL29SUWRuSmhwQlp1Z3JmNk9KS3gvYldyTUR6cVZF?=
+ =?utf-8?B?d05aNWpXZzQ5ekhDRjBQVnA0QkRaa2ttdFNNcmpoMDhoTXE2cWJKZGl6RFd4?=
+ =?utf-8?B?T0k0aVdubFJVQWRUbGZ6OU8zR0tzNGtkUmYwNDQ1UzVzWlA0dnBiV0Nkcld4?=
+ =?utf-8?B?T1h5bHFUcXFiU2RWWndqOTRwRnRMN1dTOVdsTmRMOTBvWW5PTjV5d3lhaW8v?=
+ =?utf-8?B?VThWZFh6UEw2R1hYWE5qQ1daVG9oSEVZREg4NWUxUXpuUUhMUm13Y3VoRkw5?=
+ =?utf-8?B?ZWtnVXhGUW03dVJkQU9kRU4vK0N1dVMyUnFIWElLR2d0YVZmMUdxVjhFQ3R2?=
+ =?utf-8?B?UHZkUHhpUFh4bnJEeTVmTlF4VTRUY0lha0lPSU01ckdEbFhQVzhmNjQyclA1?=
+ =?utf-8?B?UU1uSTZHUXZsVmJOdHZIOEFOWUxtY05lOUFHbCtvSWFkY3ZMZUFidEFZWElE?=
+ =?utf-8?B?dmw0eDNRaWUwKzFEd0pmd2kvQ1hkdmFvZFo4WGZuL0VOU0FqZXhnN0EwRGhR?=
+ =?utf-8?B?VExFSURIbkVtaTJuRmxKdmtiU0Y5UmpmbHR5SG80amIrYW5DY0dGK2RSdTBu?=
+ =?utf-8?B?MXVPREFuNTdFbXZ5MDQ5WExIeUtsWkV5RWwrdk5ndkNRdUVSNk00UEhXUnpU?=
+ =?utf-8?B?QnYyTExnSXJOVzJ4YkQyemhHL2ljSmNWSzNEMUY2WFpuYkhlaWZaZDBMRVpH?=
+ =?utf-8?B?MGtaMzZrOTh3WFY0ZU1zcFpzWStQWnRlazJPWk5jZ3ppQy90dTEzN1MxQUtL?=
+ =?utf-8?B?QVp5Smc5QkU3LzU3ZzZVY2s2RkY2aThMMEdKTmw1NXZnUGJVL2g2YXM3cG9X?=
+ =?utf-8?B?cXpwZzRzZElpbGt3bmtoN2RUSko4cHRRV2Jid0lWWkRmK0R4MkRvaG0rSFgw?=
+ =?utf-8?B?QlFXbm5oK2RZK0VPQ2prZXFGam9QNmwvTVhMd0JqTjlHMU9ub29ZemxvQnAx?=
+ =?utf-8?B?R3JaZ2Rna3VacXpCSjRxUitFb0g3RmM5ditHY1VRaHhrc2JWUTgvU1lIay9p?=
+ =?utf-8?B?am85OTlqRlNON3hOUlgyRlFabVREbEM2Zmg0V1RCeWJqVmh2SkdabFFlU0Rt?=
+ =?utf-8?B?SC9qSDZSV01Ia0FFUlpJSmlaSS82SnRTUk12aWM4MDhWRk9nOVF0WDA1dS9O?=
+ =?utf-8?Q?P9T7PwDmgz4i8BlsujgpKSA=3D?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR11MB3256.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1109e8a2-de6f-4b4d-e810-08d9fc64a7ee
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Mar 2022 15:52:29.2923
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: d5gzRcTFBXsPOzpMABmRajnqMGkSBu7wsjMi0EHpXxaHXvAChK9c3sgBM/rfvA7Gy/H7UfZbi2SIx7iAUDpJYQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR11MB3512
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,360 +168,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    staging: rtl8723bs: Fix access-point mode deadlock
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 8f4347081be32e67b0873827e0138ab0fdaaf450 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Wed, 2 Mar 2022 11:16:36 +0100
-Subject: staging: rtl8723bs: Fix access-point mode deadlock
-
-Commit 54659ca026e5 ("staging: rtl8723bs: remove possible deadlock when
-disconnect (v2)") split the locking of pxmitpriv->lock vs sleep_q/lock
-into 2 locks in attempt to fix a lockdep reported issue with the locking
-order of the sta_hash_lock vs pxmitpriv->lock.
-
-But in the end this turned out to not fully solve the sta_hash_lock issue
-so commit a7ac783c338b ("staging: rtl8723bs: remove a second possible
-deadlock") was added to fix this in another way.
-
-The original fix was kept as it was still seen as a good thing to have,
-but now it turns out that it creates a deadlock in access-point mode:
-
-[Feb20 23:47] ======================================================
-[  +0.074085] WARNING: possible circular locking dependency detected
-[  +0.074077] 5.16.0-1-amd64 #1 Tainted: G         C  E
-[  +0.064710] ------------------------------------------------------
-[  +0.074075] ksoftirqd/3/29 is trying to acquire lock:
-[  +0.060542] ffffb8b30062ab00 (&pxmitpriv->lock){+.-.}-{2:2}, at: rtw_xmit_classifier+0x8a/0x140 [r8723bs]
-[  +0.114921]
-              but task is already holding lock:
-[  +0.069908] ffffb8b3007ab704 (&psta->sleep_q.lock){+.-.}-{2:2}, at: wakeup_sta_to_xmit+0x3b/0x300 [r8723bs]
-[  +0.116976]
-              which lock already depends on the new lock.
-
-[  +0.098037]
-              the existing dependency chain (in reverse order) is:
-[  +0.089704]
-              -> #1 (&psta->sleep_q.lock){+.-.}-{2:2}:
-[  +0.077232]        _raw_spin_lock_bh+0x34/0x40
-[  +0.053261]        xmitframe_enqueue_for_sleeping_sta+0xc1/0x2f0 [r8723bs]
-[  +0.082572]        rtw_xmit+0x58b/0x940 [r8723bs]
-[  +0.056528]        _rtw_xmit_entry+0xba/0x350 [r8723bs]
-[  +0.062755]        dev_hard_start_xmit+0xf1/0x320
-[  +0.056381]        sch_direct_xmit+0x9e/0x360
-[  +0.052212]        __dev_queue_xmit+0xce4/0x1080
-[  +0.055334]        ip6_finish_output2+0x18f/0x6e0
-[  +0.056378]        ndisc_send_skb+0x2c8/0x870
-[  +0.052209]        ndisc_send_ns+0xd3/0x210
-[  +0.050130]        addrconf_dad_work+0x3df/0x5a0
-[  +0.055338]        process_one_work+0x274/0x5a0
-[  +0.054296]        worker_thread+0x52/0x3b0
-[  +0.050124]        kthread+0x16c/0x1a0
-[  +0.044925]        ret_from_fork+0x1f/0x30
-[  +0.049092]
-              -> #0 (&pxmitpriv->lock){+.-.}-{2:2}:
-[  +0.074101]        __lock_acquire+0x10f5/0x1d80
-[  +0.054298]        lock_acquire+0xd7/0x300
-[  +0.049088]        _raw_spin_lock_bh+0x34/0x40
-[  +0.053248]        rtw_xmit_classifier+0x8a/0x140 [r8723bs]
-[  +0.066949]        rtw_xmitframe_enqueue+0xa/0x20 [r8723bs]
-[  +0.066946]        rtl8723bs_hal_xmitframe_enqueue+0x14/0x50 [r8723bs]
-[  +0.078386]        wakeup_sta_to_xmit+0xa6/0x300 [r8723bs]
-[  +0.065903]        rtw_recv_entry+0xe36/0x1160 [r8723bs]
-[  +0.063809]        rtl8723bs_recv_tasklet+0x349/0x6c0 [r8723bs]
-[  +0.071093]        tasklet_action_common.constprop.0+0xe5/0x110
-[  +0.070966]        __do_softirq+0x16f/0x50a
-[  +0.050134]        __irq_exit_rcu+0xeb/0x140
-[  +0.051172]        irq_exit_rcu+0xa/0x20
-[  +0.047006]        common_interrupt+0xb8/0xd0
-[  +0.052214]        asm_common_interrupt+0x1e/0x40
-[  +0.056381]        finish_task_switch.isra.0+0x100/0x3a0
-[  +0.063670]        __schedule+0x3ad/0xd20
-[  +0.048047]        schedule+0x4e/0xc0
-[  +0.043880]        smpboot_thread_fn+0xc4/0x220
-[  +0.054298]        kthread+0x16c/0x1a0
-[  +0.044922]        ret_from_fork+0x1f/0x30
-[  +0.049088]
-              other info that might help us debug this:
-
-[  +0.095950]  Possible unsafe locking scenario:
-
-[  +0.070952]        CPU0                    CPU1
-[  +0.054282]        ----                    ----
-[  +0.054285]   lock(&psta->sleep_q.lock);
-[  +0.047004]                                lock(&pxmitpriv->lock);
-[  +0.074082]                                lock(&psta->sleep_q.lock);
-[  +0.077209]   lock(&pxmitpriv->lock);
-[  +0.043873]
-               *** DEADLOCK ***
-
-[  +0.070950] 1 lock held by ksoftirqd/3/29:
-[  +0.049082]  #0: ffffb8b3007ab704 (&psta->sleep_q.lock){+.-.}-{2:2}, at: wakeup_sta_to_xmit+0x3b/0x300 [r8723bs]
-
-Analysis shows that in hindsight the splitting of the lock was not
-a good idea, so revert this to fix the access-point mode deadlock.
-
-Note this is a straight-forward revert done with git revert, the commented
-out "/* spin_lock_bh(&psta_bmc->sleep_q.lock); */" lines were part of the
-code before the reverted changes.
-
-Fixes: 54659ca026e5 ("staging: rtl8723bs: remove possible deadlock when disconnect (v2)")
-Cc: stable <stable@vger.kernel.org>
-Cc: Fabio Aiuto <fabioaiuto83@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215542
-Link: https://lore.kernel.org/r/20220302101637.26542-1-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/rtl8723bs/core/rtw_mlme_ext.c |  7 ++++--
- drivers/staging/rtl8723bs/core/rtw_recv.c     | 10 ++++++---
- drivers/staging/rtl8723bs/core/rtw_sta_mgt.c  | 22 +++++++++----------
- drivers/staging/rtl8723bs/core/rtw_xmit.c     | 16 ++++++++------
- .../staging/rtl8723bs/hal/rtl8723bs_xmit.c    |  2 ++
- 5 files changed, 33 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
-index 0f82f5031c43..49a3f45cb771 100644
---- a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
-@@ -5907,6 +5907,7 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
- 	struct sta_info *psta_bmc;
- 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
- 	struct xmit_frame *pxmitframe = NULL;
-+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 	struct sta_priv  *pstapriv = &padapter->stapriv;
- 
- 	/* for BC/MC Frames */
-@@ -5917,7 +5918,8 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
- 	if ((pstapriv->tim_bitmap&BIT(0)) && (psta_bmc->sleepq_len > 0)) {
- 		msleep(10);/*  10ms, ATIM(HIQ) Windows */
- 
--		spin_lock_bh(&psta_bmc->sleep_q.lock);
-+		/* spin_lock_bh(&psta_bmc->sleep_q.lock); */
-+		spin_lock_bh(&pxmitpriv->lock);
- 
- 		xmitframe_phead = get_list_head(&psta_bmc->sleep_q);
- 		list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
-@@ -5940,7 +5942,8 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
- 			rtw_hal_xmitframe_enqueue(padapter, pxmitframe);
- 		}
- 
--		spin_unlock_bh(&psta_bmc->sleep_q.lock);
-+		/* spin_unlock_bh(&psta_bmc->sleep_q.lock); */
-+		spin_unlock_bh(&pxmitpriv->lock);
- 
- 		/* check hi queue and bmc_sleepq */
- 		rtw_chk_hi_queue_cmd(padapter);
-diff --git a/drivers/staging/rtl8723bs/core/rtw_recv.c b/drivers/staging/rtl8723bs/core/rtw_recv.c
-index 41bfca549c64..105fe0e3482a 100644
---- a/drivers/staging/rtl8723bs/core/rtw_recv.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_recv.c
-@@ -957,8 +957,10 @@ static signed int validate_recv_ctrl_frame(struct adapter *padapter, union recv_
- 		if ((psta->state&WIFI_SLEEP_STATE) && (pstapriv->sta_dz_bitmap&BIT(psta->aid))) {
- 			struct list_head	*xmitframe_plist, *xmitframe_phead;
- 			struct xmit_frame *pxmitframe = NULL;
-+			struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 
--			spin_lock_bh(&psta->sleep_q.lock);
-+			/* spin_lock_bh(&psta->sleep_q.lock); */
-+			spin_lock_bh(&pxmitpriv->lock);
- 
- 			xmitframe_phead = get_list_head(&psta->sleep_q);
- 			xmitframe_plist = get_next(xmitframe_phead);
-@@ -989,10 +991,12 @@ static signed int validate_recv_ctrl_frame(struct adapter *padapter, union recv_
- 					update_beacon(padapter, WLAN_EID_TIM, NULL, true);
- 				}
- 
--				spin_unlock_bh(&psta->sleep_q.lock);
-+				/* spin_unlock_bh(&psta->sleep_q.lock); */
-+				spin_unlock_bh(&pxmitpriv->lock);
- 
- 			} else {
--				spin_unlock_bh(&psta->sleep_q.lock);
-+				/* spin_unlock_bh(&psta->sleep_q.lock); */
-+				spin_unlock_bh(&pxmitpriv->lock);
- 
- 				if (pstapriv->tim_bitmap&BIT(psta->aid)) {
- 					if (psta->sleepq_len == 0) {
-diff --git a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
-index 0c9ea1520fd0..beb11d89db18 100644
---- a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
-@@ -293,48 +293,46 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
- 
- 	/* list_del_init(&psta->wakeup_list); */
- 
--	spin_lock_bh(&psta->sleep_q.lock);
-+	spin_lock_bh(&pxmitpriv->lock);
-+
- 	rtw_free_xmitframe_queue(pxmitpriv, &psta->sleep_q);
- 	psta->sleepq_len = 0;
--	spin_unlock_bh(&psta->sleep_q.lock);
--
--	spin_lock_bh(&pxmitpriv->lock);
- 
- 	/* vo */
--	spin_lock_bh(&pstaxmitpriv->vo_q.sta_pending.lock);
-+	/* spin_lock_bh(&(pxmitpriv->vo_pending.lock)); */
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->vo_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->vo_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits;
- 	phwxmit->accnt -= pstaxmitpriv->vo_q.qcnt;
- 	pstaxmitpriv->vo_q.qcnt = 0;
--	spin_unlock_bh(&pstaxmitpriv->vo_q.sta_pending.lock);
-+	/* spin_unlock_bh(&(pxmitpriv->vo_pending.lock)); */
- 
- 	/* vi */
--	spin_lock_bh(&pstaxmitpriv->vi_q.sta_pending.lock);
-+	/* spin_lock_bh(&(pxmitpriv->vi_pending.lock)); */
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->vi_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->vi_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits+1;
- 	phwxmit->accnt -= pstaxmitpriv->vi_q.qcnt;
- 	pstaxmitpriv->vi_q.qcnt = 0;
--	spin_unlock_bh(&pstaxmitpriv->vi_q.sta_pending.lock);
-+	/* spin_unlock_bh(&(pxmitpriv->vi_pending.lock)); */
- 
- 	/* be */
--	spin_lock_bh(&pstaxmitpriv->be_q.sta_pending.lock);
-+	/* spin_lock_bh(&(pxmitpriv->be_pending.lock)); */
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->be_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->be_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits+2;
- 	phwxmit->accnt -= pstaxmitpriv->be_q.qcnt;
- 	pstaxmitpriv->be_q.qcnt = 0;
--	spin_unlock_bh(&pstaxmitpriv->be_q.sta_pending.lock);
-+	/* spin_unlock_bh(&(pxmitpriv->be_pending.lock)); */
- 
- 	/* bk */
--	spin_lock_bh(&pstaxmitpriv->bk_q.sta_pending.lock);
-+	/* spin_lock_bh(&(pxmitpriv->bk_pending.lock)); */
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->bk_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->bk_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits+3;
- 	phwxmit->accnt -= pstaxmitpriv->bk_q.qcnt;
- 	pstaxmitpriv->bk_q.qcnt = 0;
--	spin_unlock_bh(&pstaxmitpriv->bk_q.sta_pending.lock);
-+	/* spin_unlock_bh(&(pxmitpriv->bk_pending.lock)); */
- 
- 	spin_unlock_bh(&pxmitpriv->lock);
- 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_xmit.c b/drivers/staging/rtl8723bs/core/rtw_xmit.c
-index 13b8bd5ffabc..f466bfd248fb 100644
---- a/drivers/staging/rtl8723bs/core/rtw_xmit.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_xmit.c
-@@ -1734,12 +1734,15 @@ void rtw_free_xmitframe_queue(struct xmit_priv *pxmitpriv, struct __queue *pfram
- 	struct list_head *plist, *phead, *tmp;
- 	struct	xmit_frame	*pxmitframe;
- 
-+	spin_lock_bh(&pframequeue->lock);
-+
- 	phead = get_list_head(pframequeue);
- 	list_for_each_safe(plist, tmp, phead) {
- 		pxmitframe = list_entry(plist, struct xmit_frame, list);
- 
- 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
- 	}
-+	spin_unlock_bh(&pframequeue->lock);
- }
- 
- s32 rtw_xmitframe_enqueue(struct adapter *padapter, struct xmit_frame *pxmitframe)
-@@ -1794,7 +1797,6 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
- 	struct sta_info *psta;
- 	struct tx_servq	*ptxservq;
- 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
--	struct xmit_priv *xmit_priv = &padapter->xmitpriv;
- 	struct hw_xmit	*phwxmits =  padapter->xmitpriv.hwxmits;
- 	signed int res = _SUCCESS;
- 
-@@ -1812,14 +1814,12 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
- 
- 	ptxservq = rtw_get_sta_pending(padapter, psta, pattrib->priority, (u8 *)(&ac_index));
- 
--	spin_lock_bh(&xmit_priv->lock);
- 	if (list_empty(&ptxservq->tx_pending))
- 		list_add_tail(&ptxservq->tx_pending, get_list_head(phwxmits[ac_index].sta_queue));
- 
- 	list_add_tail(&pxmitframe->list, get_list_head(&ptxservq->sta_pending));
- 	ptxservq->qcnt++;
- 	phwxmits[ac_index].accnt++;
--	spin_unlock_bh(&xmit_priv->lock);
- 
- exit:
- 
-@@ -2202,10 +2202,11 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
- 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
- 	struct xmit_frame *pxmitframe = NULL;
- 	struct sta_priv *pstapriv = &padapter->stapriv;
-+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 
- 	psta_bmc = rtw_get_bcmc_stainfo(padapter);
- 
--	spin_lock_bh(&psta->sleep_q.lock);
-+	spin_lock_bh(&pxmitpriv->lock);
- 
- 	xmitframe_phead = get_list_head(&psta->sleep_q);
- 	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
-@@ -2306,7 +2307,7 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
- 
- _exit:
- 
--	spin_unlock_bh(&psta->sleep_q.lock);
-+	spin_unlock_bh(&pxmitpriv->lock);
- 
- 	if (update_mask)
- 		update_beacon(padapter, WLAN_EID_TIM, NULL, true);
-@@ -2318,8 +2319,9 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
- 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
- 	struct xmit_frame *pxmitframe = NULL;
- 	struct sta_priv *pstapriv = &padapter->stapriv;
-+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 
--	spin_lock_bh(&psta->sleep_q.lock);
-+	spin_lock_bh(&pxmitpriv->lock);
- 
- 	xmitframe_phead = get_list_head(&psta->sleep_q);
- 	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
-@@ -2372,7 +2374,7 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
- 		}
- 	}
- 
--	spin_unlock_bh(&psta->sleep_q.lock);
-+	spin_unlock_bh(&pxmitpriv->lock);
- }
- 
- void enqueue_pending_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
-diff --git a/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c b/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
-index b5d5e922231c..15810438a472 100644
---- a/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
-+++ b/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
-@@ -502,7 +502,9 @@ s32 rtl8723bs_hal_xmit(
- 			rtw_issue_addbareq_cmd(padapter, pxmitframe);
- 	}
- 
-+	spin_lock_bh(&pxmitpriv->lock);
- 	err = rtw_xmitframe_enqueue(padapter, pxmitframe);
-+	spin_unlock_bh(&pxmitpriv->lock);
- 	if (err != _SUCCESS) {
- 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
- 
--- 
-2.35.1
-
-
+SSBoYXZlIHRoZSBmZWVsaW5nIHRoYXQgdGhpcyB3YXMgYWxyZWFkeSBmaXhlZCBpbiBhIHByZXZp
+b3VzIGNvbW1pdCwgYnV0IEkgY291bGQgYmUgd3JvbmcuDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tDQpGcm9tOiBHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5kYXRpb24u
+b3JnPiANClNlbnQ6IE1vbmRheSwgTWFyY2ggMDEsIDIwMjEgODoxMSBBTQ0KVG86IGxpbnV4LWtl
+cm5lbEB2Z2VyLmtlcm5lbC5vcmcNCkNjOiBHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51
+eGZvdW5kYXRpb24ub3JnPjsgc3RhYmxlQHZnZXIua2VybmVsLm9yZzsgTWF4aW1pbGlhbiBMdXog
+PGx1em1heGltaWxpYW5AZ21haWwuY29tPjsgTW9vcmUsIFJvYmVydCA8cm9iZXJ0Lm1vb3JlQGlu
+dGVsLmNvbT47IEthbmVkYSwgRXJpayA8ZXJpay5rYW5lZGFAaW50ZWwuY29tPjsgV3lzb2NraSwg
+UmFmYWVsIEogPHJhZmFlbC5qLnd5c29ja2lAaW50ZWwuY29tPjsgU2FzaGEgTGV2aW4gPHNhc2hh
+bEBrZXJuZWwub3JnPg0KU3ViamVjdDogW1BBVENIIDQuMTkgMDQxLzI0N10gQUNQSUNBOiBGaXgg
+ZXhjZXB0aW9uIGNvZGUgY2xhc3MgY2hlY2tzDQoNCkZyb206IE1heGltaWxpYW4gTHV6IDxsdXpt
+YXhpbWlsaWFuQGdtYWlsLmNvbT4NCg0KWyBVcHN0cmVhbSBjb21taXQgM2RmYWVhMzgxMWY4YjZh
+ODlhMzQ3ZThkYTlhYjg2MmNkZjNlMzBmZSBdDQoNCkFDUElDQSBjb21taXQgMWEzYTU0OTI4NmVh
+OWRiMDdkN2VjNzAwZTdhNzBkZDhiY2M0MzU0ZQ0KDQpUaGUgbWFjcm9zIHRvIGNsYXNzaWZ5IGRp
+ZmZlcmVudCBBTUwgZXhjZXB0aW9uIGNvZGVzIGFyZSBicm9rZW4uIEZvciBpbnN0YW5jZSwNCg0K
+ICBBQ1BJX0VOVl9FWENFUFRJT04oU3RhdHVzKQ0KDQp3aWxsIGFsd2F5cyBldmFsdWF0ZSB0byB6
+ZXJvIGR1ZSB0bw0KDQogICNkZWZpbmUgQUVfQ09ERV9FTlZJUk9OTUVOVEFMICAgICAgMHgwMDAw
+DQogICNkZWZpbmUgQUNQSV9FTlZfRVhDRVBUSU9OKFN0YXR1cykgKFN0YXR1cyAmIEFFX0NPREVf
+RU5WSVJPTk1FTlRBTCkNCg0KU2ltaWxhcmx5LCBBQ1BJX0FNTF9FWENFUFRJT04oU3RhdHVzKSB3
+aWxsIGV2YWx1YXRlIHRvIGEgbm9uLXplcm8gdmFsdWUgZm9yIGVycm9yIGNvZGVzIG9mIHR5cGUg
+QUVfQ09ERV9QUk9HUkFNTUVSLCBBRV9DT0RFX0FDUElfVEFCTEVTLCBhcyB3ZWxsIGFzIEFFX0NP
+REVfQU1MLCBhbmQgbm90IGp1c3QgQUVfQ09ERV9BTUwgYXMgdGhlIG5hbWUgc3VnZ2VzdHMuDQoN
+ClRoaXMgY29tbWl0IGZpeGVzIHRob3NlIGNoZWNrcy4NCg0KRml4ZXM6IGQ0NmI2NTM3ZjBjZSAo
+IkFDUElDQTogQU1MIFBhcnNlcjogaWdub3JlIGFsbCBleGNlcHRpb25zIHJlc3VsdGluZyBmcm9t
+IGluY29ycmVjdCBBTUwgZHVyaW5nIHRhYmxlIGxvYWQiKQ0KTGluazogaHR0cHM6Ly9naXRodWIu
+Y29tL2FjcGljYS9hY3BpY2EvY29tbWl0LzFhM2E1NDkyDQpTaWduZWQtb2ZmLWJ5OiBNYXhpbWls
+aWFuIEx1eiA8bHV6bWF4aW1pbGlhbkBnbWFpbC5jb20+DQpTaWduZWQtb2ZmLWJ5OiBCb2IgTW9v
+cmUgPHJvYmVydC5tb29yZUBpbnRlbC5jb20+DQpTaWduZWQtb2ZmLWJ5OiBFcmlrIEthbmVkYSA8
+ZXJpay5rYW5lZGFAaW50ZWwuY29tPg0KU2lnbmVkLW9mZi1ieTogUmFmYWVsIEouIFd5c29ja2kg
+PHJhZmFlbC5qLnd5c29ja2lAaW50ZWwuY29tPg0KU2lnbmVkLW9mZi1ieTogU2FzaGEgTGV2aW4g
+PHNhc2hhbEBrZXJuZWwub3JnPg0KLS0tDQogaW5jbHVkZS9hY3BpL2FjZXhjZXAuaCB8IDEwICsr
+KysrLS0tLS0NCiAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygt
+KQ0KDQpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9hY3BpL2FjZXhjZXAuaCBiL2luY2x1ZGUvYWNwaS9h
+Y2V4Y2VwLmggaW5kZXggODU2YzU2ZWYwMTQzMS4uODc4YjhlMjZjNmM1MCAxMDA2NDQNCi0tLSBh
+L2luY2x1ZGUvYWNwaS9hY2V4Y2VwLmgNCisrKyBiL2luY2x1ZGUvYWNwaS9hY2V4Y2VwLmgNCkBA
+IC01OSwxMSArNTksMTEgQEAgc3RydWN0IGFjcGlfZXhjZXB0aW9uX2luZm8gew0KIA0KICNkZWZp
+bmUgQUVfT0sgICAgICAgICAgICAgICAgICAgICAgICAgICAoYWNwaV9zdGF0dXMpIDB4MDAwMA0K
+IA0KLSNkZWZpbmUgQUNQSV9FTlZfRVhDRVBUSU9OKHN0YXR1cykgICAgICAoc3RhdHVzICYgQUVf
+Q09ERV9FTlZJUk9OTUVOVEFMKQ0KLSNkZWZpbmUgQUNQSV9BTUxfRVhDRVBUSU9OKHN0YXR1cykg
+ICAgICAoc3RhdHVzICYgQUVfQ09ERV9BTUwpDQotI2RlZmluZSBBQ1BJX1BST0dfRVhDRVBUSU9O
+KHN0YXR1cykgICAgIChzdGF0dXMgJiBBRV9DT0RFX1BST0dSQU1NRVIpDQotI2RlZmluZSBBQ1BJ
+X1RBQkxFX0VYQ0VQVElPTihzdGF0dXMpICAgIChzdGF0dXMgJiBBRV9DT0RFX0FDUElfVEFCTEVT
+KQ0KLSNkZWZpbmUgQUNQSV9DTlRMX0VYQ0VQVElPTihzdGF0dXMpICAgICAoc3RhdHVzICYgQUVf
+Q09ERV9DT05UUk9MKQ0KKyNkZWZpbmUgQUNQSV9FTlZfRVhDRVBUSU9OKHN0YXR1cykgICAgICAo
+KChzdGF0dXMpICYgQUVfQ09ERV9NQVNLKSA9PSBBRV9DT0RFX0VOVklST05NRU5UQUwpDQorI2Rl
+ZmluZSBBQ1BJX0FNTF9FWENFUFRJT04oc3RhdHVzKSAgICAgICgoKHN0YXR1cykgJiBBRV9DT0RF
+X01BU0spID09IEFFX0NPREVfQU1MKQ0KKyNkZWZpbmUgQUNQSV9QUk9HX0VYQ0VQVElPTihzdGF0
+dXMpICAgICAoKChzdGF0dXMpICYgQUVfQ09ERV9NQVNLKSA9PSBBRV9DT0RFX1BST0dSQU1NRVIp
+DQorI2RlZmluZSBBQ1BJX1RBQkxFX0VYQ0VQVElPTihzdGF0dXMpICAgICgoKHN0YXR1cykgJiBB
+RV9DT0RFX01BU0spID09IEFFX0NPREVfQUNQSV9UQUJMRVMpDQorI2RlZmluZSBBQ1BJX0NOVExf
+RVhDRVBUSU9OKHN0YXR1cykgICAgICgoKHN0YXR1cykgJiBBRV9DT0RFX01BU0spID09IEFFX0NP
+REVfQ09OVFJPTCkNCiANCiAvKg0KICAqIEVudmlyb25tZW50YWwgZXhjZXB0aW9ucw0KLS0NCjIu
+MjcuMA0KDQoNCg0K
