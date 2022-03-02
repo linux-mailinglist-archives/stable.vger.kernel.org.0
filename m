@@ -2,104 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5981E4C9E28
-	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 08:05:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 257794C9EAA
+	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 08:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231935AbiCBHFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Mar 2022 02:05:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41552 "EHLO
+        id S239941AbiCBHzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Mar 2022 02:55:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231864AbiCBHFu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 02:05:50 -0500
-Received: from new2-smtp.messagingengine.com (new2-smtp.messagingengine.com [66.111.4.224])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10C4B45B5;
-        Tue,  1 Mar 2022 23:05:07 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 40B75580165;
-        Wed,  2 Mar 2022 02:05:07 -0500 (EST)
-Received: from imap49 ([10.202.2.99])
-  by compute2.internal (MEProxy); Wed, 02 Mar 2022 02:05:07 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        sladewatkins.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm1; bh=Y9cg5yFJmjEqXh
-        nbWcKhPYXX/6jowEUPalG3oQ3UQWw=; b=oDc3mAqmjs0bfYoiBnE/dgbLcIte+v
-        wRVfucgXVsoJIyz/IvzzcInK4u3pk0PQWirr/ydR07JX0mI9vGjKnaWAm/nC3zXq
-        1xTl67l/SVjdUzP9vAvsTClO7j1zJOcQsIfeN2LQ0mm3eRL+A2fJK0tZmm1j5nnx
-        fTMYAR/eaB8hrQ1DtMS42K76kOOtgOnLgTBi/JfmolE13pqQrCG4c4A/EVI6G/JO
-        3apaW3/RkbVHNW9fE05HnvHn3Yf6KWJMf1PEA4dcde65aS8M7JYZwuS2+MoxDdW5
-        03bQBj6BkHgYqjgRr5VJzkfyh87h01nCYCWfqlOVXOGgxz4JPzLQJUFQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Y9cg5yFJmjEqXhnbW
-        cKhPYXX/6jowEUPalG3oQ3UQWw=; b=WAHvkqtMRpyXp/8lf/eXf5MRzEZdrwEDE
-        Mo+3WpPJLEk9EjmjW3XiywFO4Xi8PwecSYHZRrY449L2xxzxt1BBIjv6mN1mwSUh
-        rQ9RmobCVDfJTjylz4nRCEKuollFnKIFAiUwY6KjOHnabuXD/CBLrNqx0kelTkbb
-        NaxMHTrdHXImCW/8zEk7Ul6JhPDrE2CD5qn1PWNQkPKpZ1u9FDQr0hHajGvUhiB7
-        qs0sHA2leH9v/ZlUhgCMBmUtiG+m0KCPRBKGhD+8goPuM5/skYa8Tw5f/9qiaTks
-        4gT+0Rz0WPbJfqGeFykD+D+1Ku1iJ+ok+dVLAbvx/t1jL9YbPzwCg==
-X-ME-Sender: <xms:IxcfYlxx5dacEeJ5r-nZn8-lBobjOR6iWcnTDtm0HnuUj_0ZVp-QRw>
-    <xme:IxcfYlQIUDRFqjixZ625_MwdZdRGaBfbJT4c65Ta_0OH9M7O8fXL2VTKpAfY4aUAo
-    iOKH92L1dTt_4jpYok>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddtfedgleegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvffutgesthdtredtreertdenucfhrhhomhepfdfulhgr
-    uggvucghrghtkhhinhhsfdcuoehslhgruggvsehslhgruggvfigrthhkihhnshdrtghomh
-    eqnecuggftrfgrthhtvghrnhepueeiffetjeeitefgveetleehveduheetiefhhfethedt
-    teelgeettddvvedvudegnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrg
-    hilhhfrhhomhepshhlrgguvgesshhlrgguvgifrghtkhhinhhsrdgtohhm
-X-ME-Proxy: <xmx:IxcfYvVbX6p-TGmwW115bhIBW2lLR-GNaDu3iipYPVGMeiOeNkUl-Q>
-    <xmx:IxcfYnix97eBRAQjDYlYndff7UZp2F2BEyAA6LeSaCx_r3q7_1LKdA>
-    <xmx:IxcfYnAkzMRgc--Kc8ycWN_LavD1jWALZrpdBTsuTDH8MrKggXiLGQ>
-    <xmx:IxcfYr6yRKNklcR61RbYUQcov9lOo3rVSt2Ueg4rr_NdfgaxT_5M5gWreSM>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 07DD0F60084; Wed,  2 Mar 2022 02:05:06 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.5.0-alpha0-4778-g14fba9972e-fm-20220217.001-g14fba997
-Mime-Version: 1.0
-Message-Id: <08c6fbaa-f3ed-4606-b7f4-3eeae19fbabb@www.fastmail.com>
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
-Date:   Wed, 02 Mar 2022 02:05:06 -0500
-From:   "Slade Watkins" <slade@sladewatkins.com>
-To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Andrew Morton" <akpm@linux-foundation.org>,
-        "Guenter Roeck" <linux@roeck-us.net>, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        "Pavel Machek" <pavel@denx.de>,
-        "Jon Hunter" <jonathanh@nvidia.com>,
-        "Florian Fainelli" <f.fainelli@gmail.com>,
-        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH 5.16 000/164] 5.16.12-rc1 review
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S239940AbiCBHzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 02:55:11 -0500
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0FF82D2C
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 23:54:28 -0800 (PST)
+Received: by mail-wm1-x32f.google.com with SMTP id q7-20020a7bce87000000b00382255f4ca9so2166140wmj.2
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 23:54:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=c6ICxqVOSDwYzpmIgcIPvPKtPkRYYwDZ/CKEoQLZ0fM=;
+        b=NLNs1JvRIKsLEPITfEpZjQaSA9a9V1Ue2S2zsgYeosZEvHK82+MU7cO3poSVeWiINz
+         RcXv1iu4ahiLT/HU9X5BxwYq69RLB7MIaPwxl/7Jp3dTzJpsJ9SocZ6U2FlmPrY7RzOT
+         dwi6GJAHOyB6XrRA7JGIBGWCrVv1BuzTruyWN4iCqDfmmaGIJpqb2BXlIyDuNhfrQ8cu
+         yhPguc027tZ0SYDzTZC6aiP6j+tf9y3a7gYPFKo6Hf9x8uMOqQyrqqpXVmZzmiO0PsUx
+         +NTeyRbXEsVufHRGrLBe64pcia/ospSlkb38q+7rjlmozPgLAwTE4CI4EZZcL5nSQ7sx
+         0Rhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=c6ICxqVOSDwYzpmIgcIPvPKtPkRYYwDZ/CKEoQLZ0fM=;
+        b=0VKyZleaNpaKCVEgTm0PMDmjzv3YRkASWTEn1/L5w9GO6DqYj2rs6+xIDVzhScxhxR
+         KSruhAqKVFzUuZo+kRag+EWBcoTRPsnr+6kCQAC4p/N6zS4DtjonMIrpaAMvcq9jePVV
+         zVZMQn2669pWFVXNgSO3lN1AgDdq43d7KKKleNGSy15aqE/fdk0xYTEp0+0tlj2p3FSN
+         dDpltxYKwd4TyKd8VmbNr1wryz7BRjAyJ/lmUAk5NLjMNK1OtGu/tNC7MGlUzYFNVpMf
+         U9dOQR4XUqZU45qu2l8/Xf0FfMEnwPtK3ojvshNZG36Toot5d60iKIqLOiMg5rjPTjZ4
+         Ub1g==
+X-Gm-Message-State: AOAM530OkCvjoB8DELi+6L2wJBittfVUiu7sR20BWPO7o7P633jH32JH
+        J2GTUTAOVKBvCroNlP29z0y2mg==
+X-Google-Smtp-Source: ABdhPJzeg9BJNdGu68uugP5ZRd/ZsHrKT5Kky4Ce44uKg6fonCFHYVnL94JIefllJ03DLHGf6n3diA==
+X-Received: by 2002:a7b:c091:0:b0:381:8179:a7b with SMTP id r17-20020a7bc091000000b0038181790a7bmr6341366wmh.195.1646207666772;
+        Tue, 01 Mar 2022 23:54:26 -0800 (PST)
+Received: from joneslee.c.googlers.com.com (205.215.190.35.bc.googleusercontent.com. [35.190.215.205])
+        by smtp.gmail.com with ESMTPSA id c14-20020a7bc84e000000b0038100c9a593sm6906498wml.45.2022.03.01.23.54.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Mar 2022 23:54:26 -0800 (PST)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org, mst@redhat.com, jasowang@redhat.com
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Subject: [PATCH 1/1] vhost: Protect the virtqueue from being cleared whilst still in use
+Date:   Wed,  2 Mar 2022 07:54:21 +0000
+Message-Id: <20220302075421.2131221-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.35.1.574.g5d30c73bfb-goog
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 28, 2022, at 12:22 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.12 release.
-> There are 164 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
-> Anything received after that time might be too late.
+vhost_vsock_handle_tx_kick() already holds the mutex during its call
+to vhost_get_vq_desc().  All we have to do is take the same lock
+during virtqueue clean-up and we mitigate the reported issues.
 
-5.16.12-rc1 compiled and booted with no errors or regressions on my x86_64 test system.
+Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
 
-Tested-by: Slade Watkins <slade@sladewatkins.com>
+Cc: <stable@vger.kernel.org>
+Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/vhost/vhost.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Cheers, 
-Slade
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 59edb5a1ffe28..bbaff6a5e21b8 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -693,6 +693,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ 	int i;
+ 
+ 	for (i = 0; i < dev->nvqs; ++i) {
++		mutex_lock(&dev->vqs[i]->mutex);
+ 		if (dev->vqs[i]->error_ctx)
+ 			eventfd_ctx_put(dev->vqs[i]->error_ctx);
+ 		if (dev->vqs[i]->kick)
+@@ -700,6 +701,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ 		if (dev->vqs[i]->call_ctx.ctx)
+ 			eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
+ 		vhost_vq_reset(dev, dev->vqs[i]);
++		mutex_unlock(&dev->vqs[i]->mutex);
+ 	}
+ 	vhost_dev_free_iovecs(dev);
+ 	if (dev->log_ctx)
+-- 
+2.35.1.574.g5d30c73bfb-goog
+
