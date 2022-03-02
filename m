@@ -2,59 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2D94C9AA2
-	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 02:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68BC54C9B07
+	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 03:11:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234844AbiCBBlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 20:41:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54750 "EHLO
+        id S238053AbiCBCMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 21:12:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232582AbiCBBlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 20:41:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB78A1BE8;
-        Tue,  1 Mar 2022 17:40:54 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C13BB81BEA;
-        Wed,  2 Mar 2022 01:40:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D76B5C340EE;
-        Wed,  2 Mar 2022 01:40:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646185252;
-        bh=t7b7XBlaSW5C/zrCE4sLY8sBYlVGnx0VRe90U0a1Cy0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=l3lTt8RMP2oSRblhVvuP/nR4t/f5RP5+dKwTfzyAbQLkLM4vYMpAbJi0fUWGfwBys
-         WfrKmrTRN8b0ISJTN/m86zV74A7TWcU5T0vLRq3wkvaZkUX06hqPYlVlsg/h1ujrOQ
-         tdZU7LUgSMB4/5vPlwDbVdITsVtOAJjjzkgW2GP0BUMkwNyQJB4A3/zzJculY7sXfg
-         GjV4atlpSv7E7dy7ipGz26JmvlNTrpNqQMXhBV5FOlZX0ejmbR3A3icA8epoqvJYHs
-         myfzsMdAxzUd6ZRXo2kIVVvSjndwL8xKbCHmxaiBYy3JVbaDoNsjfh6XqcmS/WRaJP
-         RPJP7jGfou74Q==
-Date:   Wed, 2 Mar 2022 02:41:37 +0100
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Dave Hansen <dave.hansen@intel.com>
-Cc:     linux-sgx@vger.kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "open list:X86 ARCHITECTURE (32-BIT AND 64-BIT)" 
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v5] x86/sgx: Free backing memory after faulting the
- enclave page
-Message-ID: <Yh7LUU401weiq0ew@iki.fi>
-References: <20220301125836.3430-1-jarkko@kernel.org>
- <3a083b4d-9645-dec6-8cdc-481429dd0a1f@intel.com>
+        with ESMTP id S237222AbiCBCMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 21:12:33 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3531A6507
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 18:11:50 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id g7-20020a17090a708700b001bb78857ccdso3509927pjk.1
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 18:11:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=F209WZI5vXfOkAuKwi/GeBW/6ePfEyIdvCWtsBXsuzo=;
+        b=iu79tfZfv3syKE43Jc12ubc5bbfcm39Ba+iZqiH3YF6xx2VPj3Kue+5S3kBvepBO5q
+         kdqhPnMePsk0a9w8OIsw9SA9VZIf2pxacttjWVOEkepKtTZDlhYIL9v+fhG0XVWGlEwh
+         Se8dU2iquV0Zmid8y13HZf9VaAMALn+8EStJ8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=F209WZI5vXfOkAuKwi/GeBW/6ePfEyIdvCWtsBXsuzo=;
+        b=RIeMVARO4DI40RMqbqfiyClVbqMBwRcQ6Sv/yYt4GiTDuXNH87ad5LYL4HbSQutHBb
+         6d/oEdtlS6cUXB9WX66tOHn5k9ECnhsK/9+OcQWw45cGe2ojMn3yCgrThBlf/vl42r+i
+         LEtfU2ICX2sfzaLuF4/NsiWGg8GgZXtQVu4cg0h0/aRJ8P2Z/d+IDXnpaLBAsCTHZBBl
+         IMDvALJHym7KviKuOrBcby0el4v7QHqAalgceoJ5HE00bh32/zEroRyz55sqQAWAGh4y
+         pnK4g0hErwR/nqvmdCtS+em3oqUMPSjAznpCCM6uLsnpikcIOCo9vS1vmEFrL4wL5Jxj
+         qRqA==
+X-Gm-Message-State: AOAM533K1U9AHfWRetXctvC8vLUFTQd1jhLAmzGko1PB6Yn8rOEzaQIe
+        ZAlXmT7wYgiu9ICLXADSFHvLrA==
+X-Google-Smtp-Source: ABdhPJwkV2kz8kBnK1WvzDVCNJRbzW5x17kwBoiaU5GguV6QDiHBp0jHTeZkBJ3WlYzD/yEyKxFkhQ==
+X-Received: by 2002:a17:90a:4609:b0:1bc:f41e:5390 with SMTP id w9-20020a17090a460900b001bcf41e5390mr23827824pjg.27.1646187110276;
+        Tue, 01 Mar 2022 18:11:50 -0800 (PST)
+Received: from localhost ([2620:15c:202:201:ddf3:7c12:38c:3c61])
+        by smtp.gmail.com with UTF8SMTPSA id f15-20020a056a0022cf00b004f3b99a6c43sm18651207pfj.219.2022.03.01.18.11.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Mar 2022 18:11:49 -0800 (PST)
+From:   Brian Norris <briannorris@chromium.org>
+To:     Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Cc:     Jonas Karlman <jonas@kwiboo.se>, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, Sean Paul <sean@poorly.run>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Doug Anderson <dianders@chromium.org>,
+        linux-rockchip@lists.infradead.org,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Brian Norris <briannorris@chromium.org>,
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: [PATCH v4 1/2] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
+Date:   Tue,  1 Mar 2022 18:11:38 -0800
+Message-Id: <20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid>
+X-Mailer: git-send-email 2.35.1.574.g5d30c73bfb-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3a083b4d-9645-dec6-8cdc-481429dd0a1f@intel.com>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,37 +71,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 01, 2022 at 09:54:14AM -0800, Dave Hansen wrote:
-> On 3/1/22 04:58, Jarkko Sakkinen wrote:
-> > @@ -32,14 +58,16 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
-> >  	else
-> >  		page_index = PFN_DOWN(encl->size);
-> >  
-> > +	page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
-> > +
-> >  	ret = sgx_encl_lookup_backing(encl, page_index, &b);
-> >  	if (ret)
-> >  		return ret;
-> 
-> What tree is this against?  It looks like it might be on top of
-> Kristen's overcommit series.
-> 
-> It would be best if you could test this on top of tip/sgx.  Kristen
-> changed code in this area as well.
+If the display is not enable()d, then we aren't holding a runtime PM
+reference here. Thus, it's easy to accidentally cause a hang, if user
+space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
 
-I rebased this against latest stuff and now I did a sanity check:
+Let's get a runtime PM reference, and check that we "see" the panel.
+Don't force any panel power-up, etc., because that can be intrusive, and
+that's not what other drivers do (see
+drivers/gpu/drm/bridge/ti-sn65dsi86.c and
+drivers/gpu/drm/bridge/parade-ps8640.c.)
 
-$ git fetch tip
-remote: Enumerating objects: 75, done.
-remote: Counting objects: 100% (75/75), done.
-remote: Compressing objects: 100% (12/12), done.
-remote: Total 77 (delta 65), reused 65 (delta 63), pack-reused 2
-Unpacking objects: 100% (77/77), 34.07 KiB | 157.00 KiB/s, done.
-From git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
-   161a9a33702a..cedd3614e5d9  perf/core  -> tip/perf/core
-   6255b48aebfd..25795ef6299f  sched/core -> tip/sched/core
+Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
+Cc: <stable@vger.kernel.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+---
 
-$ git rebase tip/x86/sgx 
-Current branch master is up to date.
+Changes in v4:
+- Add Doug's Reviewed-by
 
-BR, Jarkko
+Changes in v3:
+- Avoid panel power-up; just check for HPD state, and let the rest
+  happen "as-is" (e.g., time out, if the caller hasn't prepared things
+  properly)
+
+Changes in v2:
+- Fix spelling in Subject
+- DRM_DEV_ERROR() -> drm_err()
+- Propagate errors from un-analogix_dp_prepare_panel()
+
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+index b7d2e4449cfa..16be279aed2c 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1632,8 +1632,19 @@ static ssize_t analogix_dpaux_transfer(struct drm_dp_aux *aux,
+ 				       struct drm_dp_aux_msg *msg)
+ {
+ 	struct analogix_dp_device *dp = to_dp(aux);
++	int ret;
++
++	pm_runtime_get_sync(dp->dev);
++
++	ret = analogix_dp_detect_hpd(dp);
++	if (ret)
++		goto out;
+ 
+-	return analogix_dp_transfer(dp, msg);
++	ret = analogix_dp_transfer(dp, msg);
++out:
++	pm_runtime_put(dp->dev);
++
++	return ret;
+ }
+ 
+ struct analogix_dp_device *
+-- 
+2.35.1.574.g5d30c73bfb-goog
+
