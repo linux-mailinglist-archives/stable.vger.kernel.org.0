@@ -2,67 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68BC54C9B07
-	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 03:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34F2C4C9C56
+	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 05:06:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238053AbiCBCMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Mar 2022 21:12:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36020 "EHLO
+        id S232763AbiCBEHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Mar 2022 23:07:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237222AbiCBCMd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 21:12:33 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3531A6507
-        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 18:11:50 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id g7-20020a17090a708700b001bb78857ccdso3509927pjk.1
-        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 18:11:50 -0800 (PST)
+        with ESMTP id S232402AbiCBEHS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Mar 2022 23:07:18 -0500
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55158A9E07
+        for <stable@vger.kernel.org>; Tue,  1 Mar 2022 20:06:35 -0800 (PST)
+Received: by mail-lf1-x12f.google.com with SMTP id b9so638873lfv.7
+        for <stable@vger.kernel.org>; Tue, 01 Mar 2022 20:06:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=F209WZI5vXfOkAuKwi/GeBW/6ePfEyIdvCWtsBXsuzo=;
-        b=iu79tfZfv3syKE43Jc12ubc5bbfcm39Ba+iZqiH3YF6xx2VPj3Kue+5S3kBvepBO5q
-         kdqhPnMePsk0a9w8OIsw9SA9VZIf2pxacttjWVOEkepKtTZDlhYIL9v+fhG0XVWGlEwh
-         Se8dU2iquV0Zmid8y13HZf9VaAMALn+8EStJ8=
+        d=telus.net; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=pwP/17SAMqDWK9rS3MpChCd9GusweTp8HOOLgfont+E=;
+        b=KOLiNeDMHfWMVHhvak2rzCyDMZa9OirnYBlpX3lE12Q1dZDewa9wMKZcvGqIF4X2Wg
+         zmy0A9A6XGZmQBZ6gE9WjNb9qGD8UJ5U/gF6Z19bSv4E8LFSLRC4YXJT3zf7Rd311Djp
+         3gPyW8mo8RA8UurpMkrV5Q7DI9kMkDOBXzK5AGfkthd/bVWpwOh946XXnhlNrGNLiwOi
+         Ap9CPLs4sPmFmyRfAbLAY04F+S9h2gRK+cG/7Mn4IoKPwYCcOtoJoAC8M7DJzHiMKiGT
+         AO3n9RWXzsW2cKqdX/j6dznlnbwpNFXDDNXJohEfOg0UQTVnB3eIQ5e7YGYy8QkrQdel
+         A25g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=F209WZI5vXfOkAuKwi/GeBW/6ePfEyIdvCWtsBXsuzo=;
-        b=RIeMVARO4DI40RMqbqfiyClVbqMBwRcQ6Sv/yYt4GiTDuXNH87ad5LYL4HbSQutHBb
-         6d/oEdtlS6cUXB9WX66tOHn5k9ECnhsK/9+OcQWw45cGe2ojMn3yCgrThBlf/vl42r+i
-         LEtfU2ICX2sfzaLuF4/NsiWGg8GgZXtQVu4cg0h0/aRJ8P2Z/d+IDXnpaLBAsCTHZBBl
-         IMDvALJHym7KviKuOrBcby0el4v7QHqAalgceoJ5HE00bh32/zEroRyz55sqQAWAGh4y
-         pnK4g0hErwR/nqvmdCtS+em3oqUMPSjAznpCCM6uLsnpikcIOCo9vS1vmEFrL4wL5Jxj
-         qRqA==
-X-Gm-Message-State: AOAM533K1U9AHfWRetXctvC8vLUFTQd1jhLAmzGko1PB6Yn8rOEzaQIe
-        ZAlXmT7wYgiu9ICLXADSFHvLrA==
-X-Google-Smtp-Source: ABdhPJwkV2kz8kBnK1WvzDVCNJRbzW5x17kwBoiaU5GguV6QDiHBp0jHTeZkBJ3WlYzD/yEyKxFkhQ==
-X-Received: by 2002:a17:90a:4609:b0:1bc:f41e:5390 with SMTP id w9-20020a17090a460900b001bcf41e5390mr23827824pjg.27.1646187110276;
-        Tue, 01 Mar 2022 18:11:50 -0800 (PST)
-Received: from localhost ([2620:15c:202:201:ddf3:7c12:38c:3c61])
-        by smtp.gmail.com with UTF8SMTPSA id f15-20020a056a0022cf00b004f3b99a6c43sm18651207pfj.219.2022.03.01.18.11.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Mar 2022 18:11:49 -0800 (PST)
-From:   Brian Norris <briannorris@chromium.org>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Cc:     Jonas Karlman <jonas@kwiboo.se>, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, Sean Paul <sean@poorly.run>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Doug Anderson <dianders@chromium.org>,
-        linux-rockchip@lists.infradead.org,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Brian Norris <briannorris@chromium.org>,
-        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH v4 1/2] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
-Date:   Tue,  1 Mar 2022 18:11:38 -0800
-Message-Id: <20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid>
-X-Mailer: git-send-email 2.35.1.574.g5d30c73bfb-goog
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=pwP/17SAMqDWK9rS3MpChCd9GusweTp8HOOLgfont+E=;
+        b=whdxsvLZE5ZBDvujAAtHIKzvf5Vy0HHEHKNSI1+xQ05EF9IvDPiWefB1F+QmZtAH+s
+         S0tYFHQ5/Ct/T5ca7+aVG5q0NCqOho4V0iHqpZMnYe+CFAFpcqfDbpN3XWnYk9j9utq/
+         cyMhAR3MyuhF6qYIpeawGCzD6qOpDK56P/ejmLwet780EHC/BkHSaPyPNSvCfbuWiric
+         12P14ugwLh2ITuxeyKRteDqOKLqjxqrmhXqOqCRjlzni/BqckbTi7eQz2HWfCY+iagw6
+         +/D3+4Jujw1HPRkbC38M2/z+sMcL31ndqrcIpxMZT7NHYYArzuNBIW7JZg4EgRFQ3ryQ
+         aODg==
+X-Gm-Message-State: AOAM531wto59WUEAYnH7RyrcBGIr8RY5SSq1exQFFuqv2QASr5ATAI1f
+        QVBLOMGf0m6Dx0WUEGZMNh1bbIpki9nG8BGMvLdEYg==
+X-Google-Smtp-Source: ABdhPJxIhO5kUNzSwaTRh+eXLnX6KV8v/DAakMxV/KVN30eBs3fqzyAmURlOETVek1Sut/7HsytwAATILxvnL+4n9Jg=
+X-Received: by 2002:a05:6512:23a2:b0:43e:da99:71c1 with SMTP id
+ c34-20020a05651223a200b0043eda9971c1mr17458318lfv.515.1646193993625; Tue, 01
+ Mar 2022 20:06:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
+ <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
+ <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
+ <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
+ <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com> <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
+In-Reply-To: <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
+From:   Doug Smythies <dsmythies@telus.net>
+Date:   Tue, 1 Mar 2022 20:06:24 -0800
+Message-ID: <CAAYoRsWN-h+fBAoocGmUFHDkOv2PL+6U59_ASBYH74j0orHaCQ@mail.gmail.com>
+Subject: Re: CPU excessively long times between frequency scaling driver calls
+ - bisected
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     Feng Tang <feng.tang@intel.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        dsmythies <dsmythies@telus.net>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -71,64 +78,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the display is not enable()d, then we aren't holding a runtime PM
-reference here. Thus, it's easy to accidentally cause a hang, if user
-space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
+On Tue, Mar 1, 2022 at 9:34 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> On Tue, Mar 1, 2022 at 6:18 PM Doug Smythies <dsmythies@telus.net> wrote:
+> > On Tue, Mar 1, 2022 at 3:58 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > > On Tue, Mar 1, 2022 at 6:53 AM Feng Tang <feng.tang@intel.com> wrote:
+> > > > On Mon, Feb 28, 2022 at 08:36:03PM +0100, Rafael J. Wysocki wrote:
+> > ...
+> > > > >
+> > > > > However, it was a bit racy, so maybe it's good that it was not complete.
+> > > > >
+> > > > > Below is a new version.
+> > > >
+> > > > Thanks for the new version. I just gave it a try,  and the occasional
+> > > > long delay of cpufreq auto-adjusting I have seen can not be reproduced
+> > > > after applying it.
+> > >
+> > > OK, thanks!
+> > >
+> > > I'll wait for feedback from Dough, though.
+> >
+> > Hi Rafael,
+> >
+> > Thank you for your version 2 patch.
+> > I screwed up an overnight test and will have to re-do it.
+> > However, I do have some results.
+>
+> Thanks for testing it!
+>
+> > From reading the patch code, one worry was the
+> > potential to drive down the desired/required CPU
+> > frequency for the main periodic workflow, causing
+> > overruns, or inability of the task to complete its
+> > work before the next period.
+>
+> It is not clear to me why you worried about that just from reading the
+> patch?  Can you explain, please?
 
-Let's get a runtime PM reference, and check that we "see" the panel.
-Don't force any panel power-up, etc., because that can be intrusive, and
-that's not what other drivers do (see
-drivers/gpu/drm/bridge/ti-sn65dsi86.c and
-drivers/gpu/drm/bridge/parade-ps8640.c.)
+It is already covered below. And a couple of further tests
+directly contradict my thinking.
 
-Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
-Cc: <stable@vger.kernel.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
----
+> > I have always had overrun
+> > information, but it has never been relevant before.
+> >
+> > The other worry was if the threshold of
+> > turbo/not turbo frequency is enough.
+>
+> Agreed.
 
-Changes in v4:
-- Add Doug's Reviewed-by
+Just as an easy example and test I did this on
+top of this patch ("rjw-3"):
 
-Changes in v3:
-- Avoid panel power-up; just check for HPD state, and let the rest
-  happen "as-is" (e.g., time out, if the caller hasn't prepared things
-  properly)
-
-Changes in v2:
-- Fix spelling in Subject
-- DRM_DEV_ERROR() -> drm_err()
-- Propagate errors from un-analogix_dp_prepare_panel()
-
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index b7d2e4449cfa..16be279aed2c 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1632,8 +1632,19 @@ static ssize_t analogix_dpaux_transfer(struct drm_dp_aux *aux,
- 				       struct drm_dp_aux_msg *msg)
- {
- 	struct analogix_dp_device *dp = to_dp(aux);
-+	int ret;
-+
-+	pm_runtime_get_sync(dp->dev);
-+
-+	ret = analogix_dp_detect_hpd(dp);
-+	if (ret)
-+		goto out;
- 
--	return analogix_dp_transfer(dp, msg);
-+	ret = analogix_dp_transfer(dp, msg);
-+out:
-+	pm_runtime_put(dp->dev);
-+
-+	return ret;
+doug@s19:~/kernel/linux$ git diff
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index f878a4545eee..5cbdd7e479e8 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -1980,7 +1980,7 @@ static void intel_pstate_update_perf_ctl(struct
+cpudata *cpu)
+         * P-states to prevent them from getting back to the high frequency
+         * right away after getting out of deep idle.
+         */
+-       cpuidle_update_retain_tick(pstate > cpu->pstate.max_pstate);
++       cpuidle_update_retain_tick(pstate > (cpu->pstate.max_pstate >> 1));
+        wrmsrl(MSR_IA32_PERF_CTL, pstate_funcs.get_val(cpu, pstate));
  }
- 
- struct analogix_dp_device *
--- 
-2.35.1.574.g5d30c73bfb-goog
 
+> > I do not know how to test any final solution
+> > thoroughly, as so far I have simply found a
+> > good enough problematic example.
+> > We have so many years of experience with
+> > the convenient multi second NMI forcing
+> > lingering high pstate clean up. I'd keep it
+> > deciding within it if the TSC stuff needs to be
+> > executed or not.
+> >
+> > Anyway...
+> >
+> > Base Kernel 5.17-rc3.
+> > "stock" : unmodified.
+> > "revert" : with commit b50db7095fe reverted
+> > "rjw-2" : with this version2 patch added.
+> >
+> > Test 1 (as before. There is no test 2, yet.):
+> > 347 Hertz work/sleep frequency on one CPU while others do
+> > virtually no load but enough to increase the requested pstate,
+> > but at around 0.02 hertz aggregate.
+> >
+> > It is important to note the main load is approximately
+> > 38.6% @ 2.422 GHz, or 100% at 0.935 GHz.
+> > and almost exclusively uses idle state 2 (of
+> > 4 total idle states)
+> >
+> > /sys/devices/system/cpu/cpu7/cpuidle/state0/name:POLL
+> > /sys/devices/system/cpu/cpu7/cpuidle/state1/name:C1_ACPI
+> > /sys/devices/system/cpu/cpu7/cpuidle/state2/name:C2_ACPI
+> > /sys/devices/system/cpu/cpu7/cpuidle/state3/name:C3_ACPI
+> >
+> > Turbostat was used. ~10 samples at 300 seconds per.
+> > Processor package power (Watts):
+> >
+> > Workflow was run for 1 hour each time or 1249201 loops.
+> >
+> > revert:
+> > ave: 3.00
+> > min: 2.89
+> > max: 3.08
+>
+> I'm not sure what the above three numbers are.
+
+Processor package power, Watts.
+>
+> > ave freq: 2.422 GHz.
+> > overruns: 1.
+> > max overrun time: 113 uSec.
+> >
+> > stock:
+> > ave: 3.63 (+21%)
+> > min: 3.28
+> > max: 3.99
+> > ave freq: 2.791 GHz.
+> > overruns: 2.
+> > max overrun time: 677 uSec.
+> >
+> > rjw-2:
+> > ave: 3.14 (+5%)
+> > min: 2.97
+> > max: 3.28
+> > ave freq: 2.635 GHz
+>
+> I guess the numbers above could be reduced still by using a P-state
+> below the max non-turbo one as a limit.
+
+Yes, and for a test I did "rjw-3".
+
+> > overruns: 1042.
+> > max overrun time: 9,769 uSec.
+>
+> This would probably get worse then, though.
+
+Yes, that was my expectation, but not what happened.
+
+rjw-3:
+ave: 3.09 watts
+min: 3.01 watts
+max: 31.7 watts
+ave freq: 2.42 GHz.
+overruns: 12. (I did not expect this.)
+Max overruns time: 621 uSec.
+
+Note 1: IRQ's increased by 74%. i.e. it was going in
+and out of idle a lot more.
+
+Note 2: We know that processor package power
+is highly temperature dependent. I forgot to let my
+coolant cool adequately after the kernel compile,
+and so had to throw out the first 4 power samples
+(20 minutes).
+
+I retested both rjw-2 and rjw-3, but shorter tests
+and got 0 overruns in both cases.
+
+> ATM I'm not quite sure why this happens, but you seem to have some
+> insight into it, so it would help if you shared it.
+
+My insight seems questionable.
+
+My thinking was that one can not decide if the pstate needs to go
+down or not based on such a localized look. The risk being that the
+higher periodic load might suffer overruns. Since my first test did exactly
+that, I violated my own "repeat all tests 3 times before reporting rule".
+Now, I am not sure what is going on.
+I will need more time to acquire traces and dig into it.
+
+I also did a 1 hour intel_pstate_tracer test, with rjw-2, on an idle system
+and saw several long durations. This was expected as this patch set
+wouldn't change durations by more than a few jiffies.
+755 long durations (>6.1 seconds), and 327.7 seconds longest.
+
+... Doug
