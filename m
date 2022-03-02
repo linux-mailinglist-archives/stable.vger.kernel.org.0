@@ -2,154 +2,405 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FBD94CA922
-	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 16:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1930A4CA942
+	for <lists+stable@lfdr.de>; Wed,  2 Mar 2022 16:38:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238843AbiCBPhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Mar 2022 10:37:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52198 "EHLO
+        id S234746AbiCBPjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Mar 2022 10:39:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236394AbiCBPhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 10:37:33 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 830AEC4879
-        for <stable@vger.kernel.org>; Wed,  2 Mar 2022 07:36:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646235409;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=HiWuNUMDb+jMyibsjnWGqQsYAJ9IA+FOAlDaEyD0AQE=;
-        b=h9nVgsta46PTLxUXHwgpxror6zY7auE08UgC52vUBGTY+ozmAf9Uth5kxy/CGSCTsIsT4s
-        C+Z5iKQDND+8Xux3jDZyC7Q6btM3mo8+TbpuSJpOhJn9j/C0CzZIgIDUGJfA9dRAmaWz4l
-        VGmK5jXIq/uRjtNMBA5T57L/n7yPWpE=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-437-zOia2o15PMSMarlDM6Pm2w-1; Wed, 02 Mar 2022 10:36:48 -0500
-X-MC-Unique: zOia2o15PMSMarlDM6Pm2w-1
-Received: by mail-wr1-f71.google.com with SMTP id h11-20020a5d430b000000b001f01a35a86fso772764wrq.4
-        for <stable@vger.kernel.org>; Wed, 02 Mar 2022 07:36:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=HiWuNUMDb+jMyibsjnWGqQsYAJ9IA+FOAlDaEyD0AQE=;
-        b=121nby+LKrM6WTtvs3PdTy7SYxU01M7jEtGwlwi59wGrg+DHYaIv6LyKRd6NOdCbBL
-         54FWTaD2zm3LzZXmtmh4Mo8ZCYLVXMkpCvdqs5JG3dXI23L6RPUmOSbhG2E3m/fKZAFw
-         1fcWsA7QbtYVf61zkjBQLbsqGNcf5AIibjMKlPafBe72QB32zQ2f0wlhK7+c5l9HSaTr
-         3NmPEzG7P6/2ox/Z8jY577P1lzoCvSymkolAiNa4whwj2GlmKQQo2LW6mtKnaqs0LF7u
-         6MXkzNpvR4HLWZY7TCiFZyzgpU391QKa8f8q3ajfoT9gsTGOsTyA3hGRiGcpEK/W+f63
-         zwgg==
-X-Gm-Message-State: AOAM531HicRm7mEEAZJx7X/gRhYUHaNRVXTHs52fU2ZGFAEsikZD/aJ8
-        E4lraE+FCD1ZITUMMM9JUo2OAaMA0+1P9w5xZzQrbmOV21HfPR523VxLsOG7yRR34MLCZPOhGRk
-        lmPzFo3EGy7RpCA8y
-X-Received: by 2002:adf:914f:0:b0:1ed:bb92:d0cc with SMTP id j73-20020adf914f000000b001edbb92d0ccmr23760993wrj.297.1646235407399;
-        Wed, 02 Mar 2022 07:36:47 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyOXNVA6Ca35935P9zNNj3hLgvVWqdH+AVRnYEdYqNaoKk8H9E6ae22MHAewrFcGgr/Nliwkg==
-X-Received: by 2002:adf:914f:0:b0:1ed:bb92:d0cc with SMTP id j73-20020adf914f000000b001edbb92d0ccmr23760976wrj.297.1646235407162;
-        Wed, 02 Mar 2022 07:36:47 -0800 (PST)
-Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it. [95.248.229.156])
-        by smtp.gmail.com with ESMTPSA id m12-20020a7bcb8c000000b003811afe1d45sm5852294wmi.37.2022.03.02.07.36.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Mar 2022 07:36:46 -0800 (PST)
-Date:   Wed, 2 Mar 2022 16:36:43 +0100
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Lee Jones <lee.jones@linaro.org>, jasowang@redhat.com,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
- whilst still in use
-Message-ID: <20220302153643.glkmvnn2czrgpoyl@sgarzare-redhat>
-References: <20220302075421.2131221-1-lee.jones@linaro.org>
- <20220302093446.pjq3djoqi434ehz4@sgarzare-redhat>
- <20220302083413-mutt-send-email-mst@kernel.org>
- <20220302141121.sohhkhtiiaydlv47@sgarzare-redhat>
- <20220302094946-mutt-send-email-mst@kernel.org>
+        with ESMTP id S232582AbiCBPjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Mar 2022 10:39:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21BFD6E4D9
+        for <stable@vger.kernel.org>; Wed,  2 Mar 2022 07:38:47 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4C174CE21DD
+        for <stable@vger.kernel.org>; Wed,  2 Mar 2022 15:38:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA8BC004E1;
+        Wed,  2 Mar 2022 15:38:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646235523;
+        bh=m5CU6pKhn42Z192/PA1KWu/FxZ5WrsfNWyUrEsDPEMs=;
+        h=Subject:To:From:Date:From;
+        b=Ug6DJ+naDtUU2mWeGUODo06np1FYhMdaoL3+MVLCMPlfLy3X8vbSN+SdYw0Fg5DlR
+         8O9KGVNR2+fLM2Tc+QmqA7ty+T5POQMS2Mm1Y8fcL6OOQEofQmyj5E+LLVqhbEwhxU
+         ZMUZPEgeqovffTEBbMVybzUxkZs7Qk7eNPYJV33M=
+Subject: patch "staging: rtl8723bs: Fix access-point mode deadlock" added to staging-linus
+To:     hdegoede@redhat.com, fabioaiuto83@gmail.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 02 Mar 2022 16:38:40 +0100
+Message-ID: <164623552047109@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20220302094946-mutt-send-email-mst@kernel.org>
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 02, 2022 at 09:50:38AM -0500, Michael S. Tsirkin wrote:
->On Wed, Mar 02, 2022 at 03:11:21PM +0100, Stefano Garzarella wrote:
->> On Wed, Mar 02, 2022 at 08:35:08AM -0500, Michael S. Tsirkin wrote:
->> > On Wed, Mar 02, 2022 at 10:34:46AM +0100, Stefano Garzarella wrote:
->> > > On Wed, Mar 02, 2022 at 07:54:21AM +0000, Lee Jones wrote:
->> > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
->> > > > to vhost_get_vq_desc().  All we have to do is take the same lock
->> > > > during virtqueue clean-up and we mitigate the reported issues.
->> > > >
->> > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
->> > >
->> > > This issue is similar to [1] that should be already fixed upstream by [2].
->> > >
->> > > However I think this patch would have prevented some issues, because
->> > > vhost_vq_reset() sets vq->private to NULL, preventing the worker from
->> > > running.
->> > >
->> > > Anyway I think that when we enter in vhost_dev_cleanup() the worker should
->> > > be already stopped, so it shouldn't be necessary to take the mutex. But in
->> > > order to prevent future issues maybe it's better to take them, so:
->> > >
->> > > Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
->> > >
->> > > [1]
->> > > https://syzkaller.appspot.com/bug?id=993d8b5e64393ed9e6a70f9ae4de0119c605a822
->> > > [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a58da53ffd70294ebea8ecd0eb45fd0d74add9f9
->> >
->> >
->> > Right. I want to queue this but I would like to get a warning
->> > so we can detect issues like [2] before they cause more issues.
->>
->> I agree, what about moving the warning that we already have higher up, right
->> at the beginning of the function?
->>
->> I mean something like this:
->>
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index 59edb5a1ffe2..1721ff3f18c0 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -692,6 +692,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
->>  {
->>         int i;
->> +       WARN_ON(!llist_empty(&dev->work_list));
->> +
->>         for (i = 0; i < dev->nvqs; ++i) {
->>                 if (dev->vqs[i]->error_ctx)
->>                         eventfd_ctx_put(dev->vqs[i]->error_ctx);
->> @@ -712,7 +714,6 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
->>         dev->iotlb = NULL;
->>         vhost_clear_msg(dev);
->>         wake_up_interruptible_poll(&dev->wait, EPOLLIN | EPOLLRDNORM);
->> -       WARN_ON(!llist_empty(&dev->work_list));
->>         if (dev->worker) {
->>                 kthread_stop(dev->worker);
->>                 dev->worker = NULL;
->>
->
->Hmm I'm not sure why it matters.
 
-Because after this new patch, putting locks in the while loop, when we 
-finish the loop the workers should be stopped, because vhost_vq_reset() 
-sets vq->private to NULL.
+This is a note to let you know that I've just added the patch titled
 
-But the best thing IMHO is to check that there is no backend set for 
-each vq, so the workers have been stopped correctly at this point.
+    staging: rtl8723bs: Fix access-point mode deadlock
 
-Thanks,
-Stefano
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 8f4347081be32e67b0873827e0138ab0fdaaf450 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Wed, 2 Mar 2022 11:16:36 +0100
+Subject: staging: rtl8723bs: Fix access-point mode deadlock
+
+Commit 54659ca026e5 ("staging: rtl8723bs: remove possible deadlock when
+disconnect (v2)") split the locking of pxmitpriv->lock vs sleep_q/lock
+into 2 locks in attempt to fix a lockdep reported issue with the locking
+order of the sta_hash_lock vs pxmitpriv->lock.
+
+But in the end this turned out to not fully solve the sta_hash_lock issue
+so commit a7ac783c338b ("staging: rtl8723bs: remove a second possible
+deadlock") was added to fix this in another way.
+
+The original fix was kept as it was still seen as a good thing to have,
+but now it turns out that it creates a deadlock in access-point mode:
+
+[Feb20 23:47] ======================================================
+[  +0.074085] WARNING: possible circular locking dependency detected
+[  +0.074077] 5.16.0-1-amd64 #1 Tainted: G         C  E
+[  +0.064710] ------------------------------------------------------
+[  +0.074075] ksoftirqd/3/29 is trying to acquire lock:
+[  +0.060542] ffffb8b30062ab00 (&pxmitpriv->lock){+.-.}-{2:2}, at: rtw_xmit_classifier+0x8a/0x140 [r8723bs]
+[  +0.114921]
+              but task is already holding lock:
+[  +0.069908] ffffb8b3007ab704 (&psta->sleep_q.lock){+.-.}-{2:2}, at: wakeup_sta_to_xmit+0x3b/0x300 [r8723bs]
+[  +0.116976]
+              which lock already depends on the new lock.
+
+[  +0.098037]
+              the existing dependency chain (in reverse order) is:
+[  +0.089704]
+              -> #1 (&psta->sleep_q.lock){+.-.}-{2:2}:
+[  +0.077232]        _raw_spin_lock_bh+0x34/0x40
+[  +0.053261]        xmitframe_enqueue_for_sleeping_sta+0xc1/0x2f0 [r8723bs]
+[  +0.082572]        rtw_xmit+0x58b/0x940 [r8723bs]
+[  +0.056528]        _rtw_xmit_entry+0xba/0x350 [r8723bs]
+[  +0.062755]        dev_hard_start_xmit+0xf1/0x320
+[  +0.056381]        sch_direct_xmit+0x9e/0x360
+[  +0.052212]        __dev_queue_xmit+0xce4/0x1080
+[  +0.055334]        ip6_finish_output2+0x18f/0x6e0
+[  +0.056378]        ndisc_send_skb+0x2c8/0x870
+[  +0.052209]        ndisc_send_ns+0xd3/0x210
+[  +0.050130]        addrconf_dad_work+0x3df/0x5a0
+[  +0.055338]        process_one_work+0x274/0x5a0
+[  +0.054296]        worker_thread+0x52/0x3b0
+[  +0.050124]        kthread+0x16c/0x1a0
+[  +0.044925]        ret_from_fork+0x1f/0x30
+[  +0.049092]
+              -> #0 (&pxmitpriv->lock){+.-.}-{2:2}:
+[  +0.074101]        __lock_acquire+0x10f5/0x1d80
+[  +0.054298]        lock_acquire+0xd7/0x300
+[  +0.049088]        _raw_spin_lock_bh+0x34/0x40
+[  +0.053248]        rtw_xmit_classifier+0x8a/0x140 [r8723bs]
+[  +0.066949]        rtw_xmitframe_enqueue+0xa/0x20 [r8723bs]
+[  +0.066946]        rtl8723bs_hal_xmitframe_enqueue+0x14/0x50 [r8723bs]
+[  +0.078386]        wakeup_sta_to_xmit+0xa6/0x300 [r8723bs]
+[  +0.065903]        rtw_recv_entry+0xe36/0x1160 [r8723bs]
+[  +0.063809]        rtl8723bs_recv_tasklet+0x349/0x6c0 [r8723bs]
+[  +0.071093]        tasklet_action_common.constprop.0+0xe5/0x110
+[  +0.070966]        __do_softirq+0x16f/0x50a
+[  +0.050134]        __irq_exit_rcu+0xeb/0x140
+[  +0.051172]        irq_exit_rcu+0xa/0x20
+[  +0.047006]        common_interrupt+0xb8/0xd0
+[  +0.052214]        asm_common_interrupt+0x1e/0x40
+[  +0.056381]        finish_task_switch.isra.0+0x100/0x3a0
+[  +0.063670]        __schedule+0x3ad/0xd20
+[  +0.048047]        schedule+0x4e/0xc0
+[  +0.043880]        smpboot_thread_fn+0xc4/0x220
+[  +0.054298]        kthread+0x16c/0x1a0
+[  +0.044922]        ret_from_fork+0x1f/0x30
+[  +0.049088]
+              other info that might help us debug this:
+
+[  +0.095950]  Possible unsafe locking scenario:
+
+[  +0.070952]        CPU0                    CPU1
+[  +0.054282]        ----                    ----
+[  +0.054285]   lock(&psta->sleep_q.lock);
+[  +0.047004]                                lock(&pxmitpriv->lock);
+[  +0.074082]                                lock(&psta->sleep_q.lock);
+[  +0.077209]   lock(&pxmitpriv->lock);
+[  +0.043873]
+               *** DEADLOCK ***
+
+[  +0.070950] 1 lock held by ksoftirqd/3/29:
+[  +0.049082]  #0: ffffb8b3007ab704 (&psta->sleep_q.lock){+.-.}-{2:2}, at: wakeup_sta_to_xmit+0x3b/0x300 [r8723bs]
+
+Analysis shows that in hindsight the splitting of the lock was not
+a good idea, so revert this to fix the access-point mode deadlock.
+
+Note this is a straight-forward revert done with git revert, the commented
+out "/* spin_lock_bh(&psta_bmc->sleep_q.lock); */" lines were part of the
+code before the reverted changes.
+
+Fixes: 54659ca026e5 ("staging: rtl8723bs: remove possible deadlock when disconnect (v2)")
+Cc: stable <stable@vger.kernel.org>
+Cc: Fabio Aiuto <fabioaiuto83@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215542
+Link: https://lore.kernel.org/r/20220302101637.26542-1-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/rtl8723bs/core/rtw_mlme_ext.c |  7 ++++--
+ drivers/staging/rtl8723bs/core/rtw_recv.c     | 10 ++++++---
+ drivers/staging/rtl8723bs/core/rtw_sta_mgt.c  | 22 +++++++++----------
+ drivers/staging/rtl8723bs/core/rtw_xmit.c     | 16 ++++++++------
+ .../staging/rtl8723bs/hal/rtl8723bs_xmit.c    |  2 ++
+ 5 files changed, 33 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
+index 0f82f5031c43..49a3f45cb771 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
++++ b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
+@@ -5907,6 +5907,7 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
+ 	struct sta_info *psta_bmc;
+ 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
+ 	struct xmit_frame *pxmitframe = NULL;
++	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+ 	struct sta_priv  *pstapriv = &padapter->stapriv;
+ 
+ 	/* for BC/MC Frames */
+@@ -5917,7 +5918,8 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
+ 	if ((pstapriv->tim_bitmap&BIT(0)) && (psta_bmc->sleepq_len > 0)) {
+ 		msleep(10);/*  10ms, ATIM(HIQ) Windows */
+ 
+-		spin_lock_bh(&psta_bmc->sleep_q.lock);
++		/* spin_lock_bh(&psta_bmc->sleep_q.lock); */
++		spin_lock_bh(&pxmitpriv->lock);
+ 
+ 		xmitframe_phead = get_list_head(&psta_bmc->sleep_q);
+ 		list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
+@@ -5940,7 +5942,8 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
+ 			rtw_hal_xmitframe_enqueue(padapter, pxmitframe);
+ 		}
+ 
+-		spin_unlock_bh(&psta_bmc->sleep_q.lock);
++		/* spin_unlock_bh(&psta_bmc->sleep_q.lock); */
++		spin_unlock_bh(&pxmitpriv->lock);
+ 
+ 		/* check hi queue and bmc_sleepq */
+ 		rtw_chk_hi_queue_cmd(padapter);
+diff --git a/drivers/staging/rtl8723bs/core/rtw_recv.c b/drivers/staging/rtl8723bs/core/rtw_recv.c
+index 41bfca549c64..105fe0e3482a 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_recv.c
++++ b/drivers/staging/rtl8723bs/core/rtw_recv.c
+@@ -957,8 +957,10 @@ static signed int validate_recv_ctrl_frame(struct adapter *padapter, union recv_
+ 		if ((psta->state&WIFI_SLEEP_STATE) && (pstapriv->sta_dz_bitmap&BIT(psta->aid))) {
+ 			struct list_head	*xmitframe_plist, *xmitframe_phead;
+ 			struct xmit_frame *pxmitframe = NULL;
++			struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+ 
+-			spin_lock_bh(&psta->sleep_q.lock);
++			/* spin_lock_bh(&psta->sleep_q.lock); */
++			spin_lock_bh(&pxmitpriv->lock);
+ 
+ 			xmitframe_phead = get_list_head(&psta->sleep_q);
+ 			xmitframe_plist = get_next(xmitframe_phead);
+@@ -989,10 +991,12 @@ static signed int validate_recv_ctrl_frame(struct adapter *padapter, union recv_
+ 					update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+ 				}
+ 
+-				spin_unlock_bh(&psta->sleep_q.lock);
++				/* spin_unlock_bh(&psta->sleep_q.lock); */
++				spin_unlock_bh(&pxmitpriv->lock);
+ 
+ 			} else {
+-				spin_unlock_bh(&psta->sleep_q.lock);
++				/* spin_unlock_bh(&psta->sleep_q.lock); */
++				spin_unlock_bh(&pxmitpriv->lock);
+ 
+ 				if (pstapriv->tim_bitmap&BIT(psta->aid)) {
+ 					if (psta->sleepq_len == 0) {
+diff --git a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
+index 0c9ea1520fd0..beb11d89db18 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
++++ b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
+@@ -293,48 +293,46 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
+ 
+ 	/* list_del_init(&psta->wakeup_list); */
+ 
+-	spin_lock_bh(&psta->sleep_q.lock);
++	spin_lock_bh(&pxmitpriv->lock);
++
+ 	rtw_free_xmitframe_queue(pxmitpriv, &psta->sleep_q);
+ 	psta->sleepq_len = 0;
+-	spin_unlock_bh(&psta->sleep_q.lock);
+-
+-	spin_lock_bh(&pxmitpriv->lock);
+ 
+ 	/* vo */
+-	spin_lock_bh(&pstaxmitpriv->vo_q.sta_pending.lock);
++	/* spin_lock_bh(&(pxmitpriv->vo_pending.lock)); */
+ 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->vo_q.sta_pending);
+ 	list_del_init(&(pstaxmitpriv->vo_q.tx_pending));
+ 	phwxmit = pxmitpriv->hwxmits;
+ 	phwxmit->accnt -= pstaxmitpriv->vo_q.qcnt;
+ 	pstaxmitpriv->vo_q.qcnt = 0;
+-	spin_unlock_bh(&pstaxmitpriv->vo_q.sta_pending.lock);
++	/* spin_unlock_bh(&(pxmitpriv->vo_pending.lock)); */
+ 
+ 	/* vi */
+-	spin_lock_bh(&pstaxmitpriv->vi_q.sta_pending.lock);
++	/* spin_lock_bh(&(pxmitpriv->vi_pending.lock)); */
+ 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->vi_q.sta_pending);
+ 	list_del_init(&(pstaxmitpriv->vi_q.tx_pending));
+ 	phwxmit = pxmitpriv->hwxmits+1;
+ 	phwxmit->accnt -= pstaxmitpriv->vi_q.qcnt;
+ 	pstaxmitpriv->vi_q.qcnt = 0;
+-	spin_unlock_bh(&pstaxmitpriv->vi_q.sta_pending.lock);
++	/* spin_unlock_bh(&(pxmitpriv->vi_pending.lock)); */
+ 
+ 	/* be */
+-	spin_lock_bh(&pstaxmitpriv->be_q.sta_pending.lock);
++	/* spin_lock_bh(&(pxmitpriv->be_pending.lock)); */
+ 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->be_q.sta_pending);
+ 	list_del_init(&(pstaxmitpriv->be_q.tx_pending));
+ 	phwxmit = pxmitpriv->hwxmits+2;
+ 	phwxmit->accnt -= pstaxmitpriv->be_q.qcnt;
+ 	pstaxmitpriv->be_q.qcnt = 0;
+-	spin_unlock_bh(&pstaxmitpriv->be_q.sta_pending.lock);
++	/* spin_unlock_bh(&(pxmitpriv->be_pending.lock)); */
+ 
+ 	/* bk */
+-	spin_lock_bh(&pstaxmitpriv->bk_q.sta_pending.lock);
++	/* spin_lock_bh(&(pxmitpriv->bk_pending.lock)); */
+ 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->bk_q.sta_pending);
+ 	list_del_init(&(pstaxmitpriv->bk_q.tx_pending));
+ 	phwxmit = pxmitpriv->hwxmits+3;
+ 	phwxmit->accnt -= pstaxmitpriv->bk_q.qcnt;
+ 	pstaxmitpriv->bk_q.qcnt = 0;
+-	spin_unlock_bh(&pstaxmitpriv->bk_q.sta_pending.lock);
++	/* spin_unlock_bh(&(pxmitpriv->bk_pending.lock)); */
+ 
+ 	spin_unlock_bh(&pxmitpriv->lock);
+ 
+diff --git a/drivers/staging/rtl8723bs/core/rtw_xmit.c b/drivers/staging/rtl8723bs/core/rtw_xmit.c
+index 13b8bd5ffabc..f466bfd248fb 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_xmit.c
++++ b/drivers/staging/rtl8723bs/core/rtw_xmit.c
+@@ -1734,12 +1734,15 @@ void rtw_free_xmitframe_queue(struct xmit_priv *pxmitpriv, struct __queue *pfram
+ 	struct list_head *plist, *phead, *tmp;
+ 	struct	xmit_frame	*pxmitframe;
+ 
++	spin_lock_bh(&pframequeue->lock);
++
+ 	phead = get_list_head(pframequeue);
+ 	list_for_each_safe(plist, tmp, phead) {
+ 		pxmitframe = list_entry(plist, struct xmit_frame, list);
+ 
+ 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
+ 	}
++	spin_unlock_bh(&pframequeue->lock);
+ }
+ 
+ s32 rtw_xmitframe_enqueue(struct adapter *padapter, struct xmit_frame *pxmitframe)
+@@ -1794,7 +1797,6 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
+ 	struct sta_info *psta;
+ 	struct tx_servq	*ptxservq;
+ 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
+-	struct xmit_priv *xmit_priv = &padapter->xmitpriv;
+ 	struct hw_xmit	*phwxmits =  padapter->xmitpriv.hwxmits;
+ 	signed int res = _SUCCESS;
+ 
+@@ -1812,14 +1814,12 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
+ 
+ 	ptxservq = rtw_get_sta_pending(padapter, psta, pattrib->priority, (u8 *)(&ac_index));
+ 
+-	spin_lock_bh(&xmit_priv->lock);
+ 	if (list_empty(&ptxservq->tx_pending))
+ 		list_add_tail(&ptxservq->tx_pending, get_list_head(phwxmits[ac_index].sta_queue));
+ 
+ 	list_add_tail(&pxmitframe->list, get_list_head(&ptxservq->sta_pending));
+ 	ptxservq->qcnt++;
+ 	phwxmits[ac_index].accnt++;
+-	spin_unlock_bh(&xmit_priv->lock);
+ 
+ exit:
+ 
+@@ -2202,10 +2202,11 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
+ 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
+ 	struct xmit_frame *pxmitframe = NULL;
+ 	struct sta_priv *pstapriv = &padapter->stapriv;
++	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+ 
+ 	psta_bmc = rtw_get_bcmc_stainfo(padapter);
+ 
+-	spin_lock_bh(&psta->sleep_q.lock);
++	spin_lock_bh(&pxmitpriv->lock);
+ 
+ 	xmitframe_phead = get_list_head(&psta->sleep_q);
+ 	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
+@@ -2306,7 +2307,7 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
+ 
+ _exit:
+ 
+-	spin_unlock_bh(&psta->sleep_q.lock);
++	spin_unlock_bh(&pxmitpriv->lock);
+ 
+ 	if (update_mask)
+ 		update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+@@ -2318,8 +2319,9 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
+ 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
+ 	struct xmit_frame *pxmitframe = NULL;
+ 	struct sta_priv *pstapriv = &padapter->stapriv;
++	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+ 
+-	spin_lock_bh(&psta->sleep_q.lock);
++	spin_lock_bh(&pxmitpriv->lock);
+ 
+ 	xmitframe_phead = get_list_head(&psta->sleep_q);
+ 	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
+@@ -2372,7 +2374,7 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
+ 		}
+ 	}
+ 
+-	spin_unlock_bh(&psta->sleep_q.lock);
++	spin_unlock_bh(&pxmitpriv->lock);
+ }
+ 
+ void enqueue_pending_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
+diff --git a/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c b/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
+index b5d5e922231c..15810438a472 100644
+--- a/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
++++ b/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
+@@ -502,7 +502,9 @@ s32 rtl8723bs_hal_xmit(
+ 			rtw_issue_addbareq_cmd(padapter, pxmitframe);
+ 	}
+ 
++	spin_lock_bh(&pxmitpriv->lock);
+ 	err = rtw_xmitframe_enqueue(padapter, pxmitframe);
++	spin_unlock_bh(&pxmitpriv->lock);
+ 	if (err != _SUCCESS) {
+ 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
+ 
+-- 
+2.35.1
+
 
