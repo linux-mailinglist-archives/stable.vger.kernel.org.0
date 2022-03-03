@@ -2,93 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9BC4CBBE0
-	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 11:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF33A4CBC25
+	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 12:07:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232509AbiCCK62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Mar 2022 05:58:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54384 "EHLO
+        id S232635AbiCCLIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Mar 2022 06:08:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232204AbiCCK62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 05:58:28 -0500
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A203FBD0;
-        Thu,  3 Mar 2022 02:57:42 -0800 (PST)
+        with ESMTP id S231783AbiCCLIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 06:08:19 -0500
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0157CB59;
+        Thu,  3 Mar 2022 03:07:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646305062; x=1677841062;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=sKoPepeMFBcySRf8nl4k0PsCl3jVayZFcUg8BBK5zUQ=;
-  b=djnCCRsGV0M7r9rOAEaAZmJE/1ynmInWo5C+X6oLKv1Pn0X/uRhn/quB
-   gCYbBdjObU7lc0eHsdK8lO376tw9p4tmhlNjHx3W5rOzTsj1awti0rVhu
-   SeuLVvf8fT2AQfzcU9PUUkvHCCCLeUmK/QSWxYAuxaLl8Nvit5FnDexBZ
-   hCljo08OFr+ow9Tx/oE9uPc+0s1jI1UiUOK1S1xYFoyaDUe/PkKSMc87g
-   S8lAN5N+asY/eyD32u+7ykrn4tJX4wjzIkMbrYSkRf8j4hwBguCtiEJrw
-   jP+lnYEmjsPpvyKmA4r5NOn5c5zJOwmS8icX3t7/bQolmqazTI43kESLB
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10274"; a="252468984"
+  t=1646305652; x=1677841652;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=+XGuIpM+r+m/AeunvYr+GHU0lBtwG4Ax8Jpj4Gu8764=;
+  b=gjJADbYwJTuC3Cgm1jgGkzRb5kFjwxfcdq5VzfOEP6fWsW/PCVbCxuH7
+   IBbg6gQ7XyV+mqXxrznf8aLifhlKoullhOUduVhjv1AWW8M7lwQAxCHO8
+   ejS08LhFpBaAKirlriilHcumE9l/f3JdMLnpLZKPTqbSMakQ6FJ3K1/i/
+   mFNcv95pHVI6Fopum20vn/V/sAVsVap5v5Lbwk2ObOxc9fzna84eYNJCP
+   ZtN2+4pgPFowgkSm020GAB7/PBcICv+S9+izWeUqgtQgxQrAkS3W0Kh/C
+   Q++XpA72YoPYbojmXMVsFJG8Lezomw0j61BlLd2PWHzVVQROzw+4xRd0V
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10274"; a="251219875"
 X-IronPort-AV: E=Sophos;i="5.90,151,1643702400"; 
-   d="scan'208";a="252468984"
+   d="scan'208";a="251219875"
 Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2022 02:57:41 -0800
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2022 03:07:31 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.90,151,1643702400"; 
-   d="scan'208";a="576449577"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
-  by orsmga001.jf.intel.com with ESMTP; 03 Mar 2022 02:57:40 -0800
-Subject: Re: [PATCH 3/9] xhci: fix uninitialized string returned by
- xhci_decode_ctrl_ctx()
-To:     Anssi Hannula <anssi.hannula@bitwise.fi>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        gregkh@linuxfoundation.org
-References: <20220303102656.1661407-1-mathias.nyman@linux.intel.com>
- <20220303102656.1661407-4-mathias.nyman@linux.intel.com>
- <4343c187-e40e-2804-5444-4a45c22e3781@bitwise.fi>
+   d="scan'208";a="576452348"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
+  by orsmga001.jf.intel.com with ESMTP; 03 Mar 2022 03:07:29 -0800
 From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Message-ID: <51430531-b9f5-3da3-07da-d9c9b4562e14@linux.intel.com>
-Date:   Thu, 3 Mar 2022 12:59:22 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.14.0
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Pavan Kondeti <quic_pkondeti@quicinc.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/9] xhci: make xhci_handshake timeout for xhci_reset() adjustable
+Date:   Thu,  3 Mar 2022 13:08:55 +0200
+Message-Id: <20220303110903.1662404-2-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220303110903.1662404-1-mathias.nyman@linux.intel.com>
+References: <20220303110903.1662404-1-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <4343c187-e40e-2804-5444-4a45c22e3781@bitwise.fi>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3.3.2022 12.43, Anssi Hannula wrote:
-> Hi,
-> 
-> On 3.3.2022 12.26, Mathias Nyman wrote:
->> From: Anssi Hannula <anssi.hannula@bitwise.fi>
->>
->> xhci_decode_ctrl_ctx() returns the untouched buffer as-is if both "drop"
->> and "add" parameters are zero.
->>
->> Fix the function to return an empty string in that case.
->>
->> It was not immediately clear from the possible call chains whether this
->> issue is currently actually triggerable or not.
->>
->> Note that before commit 4843b4b5ec64 ("xhci: fix even more unsafe memory
->> Cc: stable@vger.kernel.org
->> usage in xhci tracing") the result effect in the failure case was different
->> as a static buffer was used here, but the code still worked incorrectly.
-> 
-> You added the Cc-stable line a few lines too early above :)
+xhci_reset() timeout was increased from 250ms to 10 seconds in order to
+give Renesas 720201 xHC enough time to get ready in probe.
 
-Oops, copypaste accident. 
+xhci_reset() is called with interrupts disabled in other places, and
+waiting for 10 seconds there is not acceptable.
 
-I'll resubmit 
+Add a timeout parameter to xhci_reset(), and adjust it back to 250ms
+when called from xhci_stop() or xhci_shutdown() where interrupts are
+disabled, and successful reset isn't that critical.
+This solves issues when deactivating host mode on platforms like SM8450.
 
-Thanks
--Mathias
+For now don't change the timeout if xHC is reset in xhci_resume().
+No issues are reported for it, and we need the reset to succeed.
+Locking around that reset needs to be revisited later.
+
+Additionally change the signed integer timeout parameter in
+xhci_handshake() to a u64 to match the timeout value we pass to
+readl_poll_timeout_atomic()
+
+Reported-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reported-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Fixes: 22ceac191211 ("xhci: Increase reset timeout for Renesas 720201 host.")
+Cc: stable@vger.kernel.org
+Tested-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci-hub.c |  2 +-
+ drivers/usb/host/xhci-mem.c |  2 +-
+ drivers/usb/host/xhci.c     | 20 +++++++++-----------
+ drivers/usb/host/xhci.h     |  7 +++++--
+ 4 files changed, 16 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index df3522dab31b..bb4f01ce90e3 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -762,7 +762,7 @@ static int xhci_exit_test_mode(struct xhci_hcd *xhci)
+ 	}
+ 	pm_runtime_allow(xhci_to_hcd(xhci)->self.controller);
+ 	xhci->test_mode = 0;
+-	return xhci_reset(xhci);
++	return xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ }
+ 
+ void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index cb70d0b31e08..48114a462908 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2575,7 +2575,7 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
+ 
+ fail:
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	xhci_mem_cleanup(xhci);
+ 	return -ENOMEM;
+ }
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index a1c781f70d02..6b32f7e65d4c 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -65,7 +65,7 @@ static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
+  * handshake done).  There are two failure modes:  "usec" have passed (major
+  * hardware flakeout), or the register reads as all-ones (hardware removed).
+  */
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
+ {
+ 	u32	result;
+ 	int	ret;
+@@ -73,7 +73,7 @@ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
+ 	ret = readl_poll_timeout_atomic(ptr, result,
+ 					(result & mask) == done ||
+ 					result == U32_MAX,
+-					1, usec);
++					1, timeout_us);
+ 	if (result == U32_MAX)		/* card removed */
+ 		return -ENODEV;
+ 
+@@ -162,7 +162,7 @@ int xhci_start(struct xhci_hcd *xhci)
+  * Transactions will be terminated immediately, and operational registers
+  * will be set to their defaults.
+  */
+-int xhci_reset(struct xhci_hcd *xhci)
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
+ {
+ 	u32 command;
+ 	u32 state;
+@@ -195,8 +195,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	if (xhci->quirks & XHCI_INTEL_HOST)
+ 		udelay(1000);
+ 
+-	ret = xhci_handshake(&xhci->op_regs->command,
+-			CMD_RESET, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->command, CMD_RESET, 0, timeout_us);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -209,8 +208,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	 * xHCI cannot write to any doorbells or operational registers other
+ 	 * than status until the "Controller Not Ready" flag is cleared.
+ 	 */
+-	ret = xhci_handshake(&xhci->op_regs->status,
+-			STS_CNR, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->status, STS_CNR, 0, timeout_us);
+ 
+ 	xhci->usb2_rhub.bus_state.port_c_suspend = 0;
+ 	xhci->usb2_rhub.bus_state.suspended_ports = 0;
+@@ -731,7 +729,7 @@ static void xhci_stop(struct usb_hcd *hcd)
+ 	xhci->xhc_state |= XHCI_STATE_HALTED;
+ 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -784,7 +782,7 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 	xhci_halt(xhci);
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+-		xhci_reset(xhci);
++		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -1170,7 +1168,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+ 		xhci_dbg(xhci, "Stop HCD\n");
+ 		xhci_halt(xhci);
+ 		xhci_zero_64b_regs(xhci);
+-		retval = xhci_reset(xhci);
++		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 		spin_unlock_irq(&xhci->lock);
+ 		if (retval)
+ 			return retval;
+@@ -5307,7 +5305,7 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
+ 
+ 	xhci_dbg(xhci, "Resetting HCD\n");
+ 	/* Reset the internal HC memory state and registers. */
+-	retval = xhci_reset(xhci);
++	retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 	if (retval)
+ 		return retval;
+ 	xhci_dbg(xhci, "Reset complete\n");
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 8a0026ee9524..fce32f8ea9d0 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -229,6 +229,9 @@ struct xhci_op_regs {
+ #define CMD_ETE		(1 << 14)
+ /* bits 15:31 are reserved (and should be preserved on writes). */
+ 
++#define XHCI_RESET_LONG_USEC		(10 * 1000 * 1000)
++#define XHCI_RESET_SHORT_USEC		(250 * 1000)
++
+ /* IMAN - Interrupt Management Register */
+ #define IMAN_IE		(1 << 1)
+ #define IMAN_IP		(1 << 0)
+@@ -2081,11 +2084,11 @@ void xhci_free_container_ctx(struct xhci_hcd *xhci,
+ 
+ /* xHCI host controller glue */
+ typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec);
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us);
+ void xhci_quiesce(struct xhci_hcd *xhci);
+ int xhci_halt(struct xhci_hcd *xhci);
+ int xhci_start(struct xhci_hcd *xhci);
+-int xhci_reset(struct xhci_hcd *xhci);
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us);
+ int xhci_run(struct usb_hcd *hcd);
+ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
+ void xhci_shutdown(struct usb_hcd *hcd);
+-- 
+2.25.1
+
