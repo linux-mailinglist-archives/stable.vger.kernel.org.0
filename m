@@ -2,263 +2,302 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D84C54CC29A
-	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 17:25:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5084CC21C
+	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 17:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbiCCQ0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Mar 2022 11:26:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55402 "EHLO
+        id S233567AbiCCQDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Mar 2022 11:03:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232791AbiCCQ0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 11:26:01 -0500
-X-Greylist: delayed 1405 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 03 Mar 2022 08:25:14 PST
-Received: from mx0d-0054df01.pphosted.com (mx0d-0054df01.pphosted.com [67.231.150.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CB549900;
-        Thu,  3 Mar 2022 08:25:14 -0800 (PST)
-Received: from pps.filterd (m0209000.ppops.net [127.0.0.1])
-        by mx0c-0054df01.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 223DxU9j013232;
-        Thu, 3 Mar 2022 11:01:34 -0500
-Received: from can01-to1-obe.outbound.protection.outlook.com (mail-to1can01lp2059.outbound.protection.outlook.com [104.47.61.59])
-        by mx0c-0054df01.pphosted.com (PPS) with ESMTPS id 3ejy1xr37q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 11:01:34 -0500
+        with ESMTP id S231127AbiCCQDX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 11:03:23 -0500
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2096.outbound.protection.outlook.com [40.107.220.96])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460DF403FA;
+        Thu,  3 Mar 2022 08:02:36 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=A34aiw9sazFVMt4foXYn2GAzBadMzSiKUv4D/wvDGoF5qtwyu9GOU9jnvyXL75Bu4TQw2+7LBgXTZjDxpPFAPO1kbKvYtVu5N7s4ui+kmMzqoHA1wNsffulMIrG9OtwkNDRl4VuofIC2SXrD3uzzMgjayESRmGWB6OR84WdWvMi3cXEXcPyiEIgfaDhwhTnUocMYOaX5geCljNNMckX0WbPJnvFSkZPZtu1Pd8ZZPgTsVUrI2MBKH272bOnpIqkyZmXrma3ynHitthECKXr+gyYafWaeGqyTIjC3WRxRJmNDfEkNUOGzCp1uE3hSflNJPhoHopHwWkiI1r6eI3EgyA==
+ b=JYudaET2XtwBwbAEIKUn+hdhKVTStI0jtrX4DJ8bs+YgSSHqBtuu1/pWjtc+qL3y/Fv6VNkd358lTj69t08ZaZGyBYH+q6tNz/mUt1qvJSX0/tin0B1wr0xgdO1xXO7a0rnWvcT7Yfv2JB9YQc1hKt1dwP6emfNe37z7DPIGnVSKJiloKAe7xhHJQ9xwFfXExVM0z7qDEWEj3Q6i1gVrIlQb8zTWqDa80yh9je3pMM7gK+v201h9kHzideaLOwNfK49BjJpAnZesc/YmXNhhRmT6fFxV5VBk2s9bdgR7VcIStipqWe4nXodphKxrkjTA3WgNSXigE/98p6kWWHMMPQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VRO7m+6f4246by8D6l3aUP9woUe8Aj0UxyKjtXB9Keo=;
- b=WV1B8ZI3B0TpGpipEjdYXqxxyNv8WEae8ClXMO//3mkTha6DICIMQs5tMWFURGiMyJwZsNhdFUbCNufB1EN+Fx7tnxX8HWYVMkzEqOZNIwQiwZD+yFhIdcnM8xK7WE5lspajQqYgR18lLCsvIZq4u8r+O8upm5xYuCiZf2V3HXH5hMwLAPhGWe6DwGgRRzeDQBzha50MCckJbdGtQCt6vYLjqD2lU9z6suCHkP6qWcR/bafJh77Il1IeIC/Bj1mlUKm0D1g9+OocHuiPRIIT3cNvPjw0b96nAJiEFHrY34ElKrEy0ercyJXkzZHzX0uEYC7a4lntmHEXnvI3JBeDCQ==
+ bh=fzKh1Nb8nYKY0Q1KH38LXSfwGiiTdo6xNP6GzGYZjC0=;
+ b=boJz4S4UPuqPSkDsRUuoro39yLMao6dRUy4+Gw9TsXv16/0ixdKShuA7jf/z3cZSiGyYjplRG455MeG32Egk6RKZRGLv2aAruggr6Rjzj2dHREHQQ4MI4Tg0n+y2AiUI9yZlqkHDDYsSL4u/DIXCptnwGYixxC3h02/HmP2i+ILcYAxtSyNH2ZfZjUHcQGQGDa1N7eYjSwQ0J9Ec5bAXnD/X8gEAu82y+khHuVlNCz18GG9xOU/Wym7+bvsWyhZ31lmKTLXnFl/WvnYBr6zHk9AH6tUQPpRRodR0g+VHpIVjqQ6um2L9fRMaGJd7rwnaCt5QAngWg5iva73vTu4xRA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=calian.com; dmarc=pass action=none header.from=calian.com;
- dkim=pass header.d=calian.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=calian.com;
- s=selector1;
+ smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
+ header.from=os.amperecomputing.com; dkim=pass
+ header.d=os.amperecomputing.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=os.amperecomputing.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VRO7m+6f4246by8D6l3aUP9woUe8Aj0UxyKjtXB9Keo=;
- b=MzRJ2O8/9ssrySxwpMddW0BsV7ogJ4QuJ8lI2BG0V7qPa4UD1Lf6IuEbXSjOddOdi1dJiO1a2IM31+sHPMzFJaXgN6GqM4d+j1kcXQ6zc4yvx1zVvYWIMY6y40HA4ZtK3/57pZJxkIQXJiuh4blT79olKJwiqTqxoV5c2c68whM=
-Received: from YT3PR01MB6274.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:6a::19)
- by YT3PR01MB5471.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:63::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.14; Thu, 3 Mar
- 2022 16:01:32 +0000
-Received: from YT3PR01MB6274.CANPRD01.PROD.OUTLOOK.COM
- ([fe80::e8a8:1158:905f:8230]) by YT3PR01MB6274.CANPRD01.PROD.OUTLOOK.COM
- ([fe80::e8a8:1158:905f:8230%7]) with mapi id 15.20.5038.014; Thu, 3 Mar 2022
- 16:01:32 +0000
-From:   Robert Hancock <robert.hancock@calian.com>
-To:     "kuba@kernel.org" <kuba@kernel.org>
-CC:     "nicolas.ferre@microchip.com" <nicolas.ferre@microchip.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "claudiu.beznea@microchip.com" <claudiu.beznea@microchip.com>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "soren.brinkmann@xilinx.com" <soren.brinkmann@xilinx.com>,
-        "scott.mcnutt@siriusxm.com" <scott.mcnutt@siriusxm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH net] net: macb: Fix lost RX packet wakeup race in NAPI
- receive
-Thread-Topic: [PATCH net] net: macb: Fix lost RX packet wakeup race in NAPI
- receive
-Thread-Index: AQHYLNHO27PnU9X+TEKHHm/oWWSx3KytOYOAgACcvoA=
-Date:   Thu, 3 Mar 2022 16:01:31 +0000
-Message-ID: <2a70a890c19ea563559a6a50c6f4f538e032a02f.camel@calian.com>
-References: <20220228183328.338143-1-robert.hancock@calian.com>
-         <20220302224031.72fb62a9@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-In-Reply-To: <20220302224031.72fb62a9@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-Accept-Language: en-CA, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 7c77ef88-22fb-4a29-cfc0-08d9fd2f15ca
-x-ms-traffictypediagnostic: YT3PR01MB5471:EE_
-x-microsoft-antispam-prvs: <YT3PR01MB54716A9EF9F3162DC416E99CEC049@YT3PR01MB5471.CANPRD01.PROD.OUTLOOK.COM>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 53oKSldiIOAIxrDDmci6E4W10yVfVEVxKVhh3DCOr5ylLPDXBTwg3cMzvB+I8LiUER6LONsYKwbD2+NLtIU3MzFeT3d4RjM1WVvoTC7TcUrG45qMcnAAH8G1yVrFss3mKkdbSmDkuuGPc6OS5x9Z0lf+pR9qM8QcSLvT0GV6cfexYjHgJ4T+RtPwc58itD+sbeArAaHwOBip/sIjwVzo4WR9b05OPp7kHOLMUB3d9S+ofTRw1x5gZpKUTaP2wE7p/JoBTzrT+GbxIKXUkXPX5OY3FXtkIG8Rdsm4ZyWkmyAf//fXXW3dBoj7HWJKsC1OgeP+TMUsfVPJpkZhuG0N2feHSO83qk+gMCfz/Z7de2PkJEG4hzgvxLM4tWRrM8twcqWMVkEEs41q0YfOlSh31wkyBu+iLn47gDto2xW6sNCRJvP5+ZjJryyzwuTfvC/U/XOXtVkTw7Mf1QVqkgqSPRn9sEYLZcBgfsVCfgrOJKr/61FKifvB3AfoWw3zW7nxtpfT+GbzZGL3peYUmMGsokPszu5UdCY/0CIIobGQQKNbqEYRNsLT2fyBlJMFL8pr7KSY+bLPw4X85FKP0DhPx2aQ4yY8lO6yymB+1hyVZFMePWUYkc0Zfp4c5+nvZ4utK3dyuns6YgszolFp1YfQ3gTDj2hTMuABW5EWJB6eQIQN6OLOnCYe87eM2dSB6MijcpYPhZmOotRZ2h9vj3ECcKEbGPpFtKhgWLjuvP9NziM=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:YT3PR01MB6274.CANPRD01.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(26005)(186003)(4326008)(86362001)(2616005)(71200400001)(8676002)(6512007)(6506007)(122000001)(66946007)(76116006)(66446008)(64756008)(91956017)(66556008)(66476007)(5660300002)(54906003)(44832011)(316002)(8936002)(6916009)(6486002)(36756003)(83380400001)(38070700005)(38100700002)(508600001)(2906002)(99106002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?Z1BPMXBCQm4xVEc0TW5EdmluSWtHRmhTc1NRYnA5NnZYY3F3c0VYdWx4V3Fi?=
- =?utf-8?B?M2dTSlhLS2pQWWJOSmVISmtITlQ1ZTZLZm9vbVBySVUrNVFpM0RVd0M2NHh3?=
- =?utf-8?B?UGplbEwvc2k2MWtTRjVCWktJdjRuRGJZZC9KVGp1a01SaTZRL082VWJwQk1P?=
- =?utf-8?B?ZE5Nc1ZsS05KVUZaNzhwd0FNWjVwa1NreTkxR1loNkhNMVpobHVtV0R5WlRW?=
- =?utf-8?B?VTF1dTQ0QXR4YTdCSG9kcmN4bktpQ3hXUkhTcmcwMDRlcWhOWmJqd1FUYnZB?=
- =?utf-8?B?N0pISmFncGt5N1lDanYzUnQ1V0dFMFRsNHJrUEMydDN6Q2tjVXpZK2hPSFA4?=
- =?utf-8?B?WlVaeUtlcy9nRUxSMXVLemIvWGF3ZjBqUXBxZE1mSWNsWTFCUmxIb0E4UHJk?=
- =?utf-8?B?TC9mbVlWelptdjFwSkJNL3BOYUJWR2hCSVBsZWJTQWhPMGRnSXY1SHdjOVpN?=
- =?utf-8?B?M2tMNWZwQ3RYYTdoZENDSVpDeXIvcHY0OUpsRnY5Y254QkJPNVBPam1xdlhJ?=
- =?utf-8?B?VlhRdXBMTFhTaEJWNW05THZla0NMNVEraExER2JaaGhsRWxSZG9qbTlnNXgw?=
- =?utf-8?B?ak1hdUFEMmlJSW1oZlYxckRTOEpFTGc3dFhsVG9EMUxVelZBUVoxMkE1Z1Rn?=
- =?utf-8?B?TlY3T3BOYU5YRnBNQzRXMkZpeDJoYy8vTnJSdVYvV3VFRXhQYmVUdU1tU09V?=
- =?utf-8?B?Y1VFekVTRGx5cWY2NXVFT0dRT3JFTFVFYWlrN2c0YzBNTGY0SGpKekJSR2hF?=
- =?utf-8?B?em83TnlydTFISjQrV01vb282cEpVZFBSSE9Ib0pIczNvS1FzOUIvaW5OUVl6?=
- =?utf-8?B?bEV6R2ZSWGhVRUN2SUwyQndheXBVaGdaMlhsSTcxMSt3a2pibC9vTEF0TWJ4?=
- =?utf-8?B?TzR4YzlYTGk1KzJsZDdvbHF1R0FKNFhpTVZzSW9Oc0ZmQytFRG9hc2g1NUVI?=
- =?utf-8?B?MjBLRmlmcmhuMU1heEx6RjJobnFreVB0TVhoa0E2Uk9aUnNaeTdCb05EOWdl?=
- =?utf-8?B?QWtGUUVBSmVXTmxxOUMybnlOOUp4cG5WWmNEUXl5eWdTNmRlR0ltNnpkbjVZ?=
- =?utf-8?B?Wk1PNHo5ZGx5RVV0aG0rR2pISlBKajdaS2ZUV2t6endxMlRwZU52dHFUdFU3?=
- =?utf-8?B?c2c5VnUwOUt0MjhGaVpvaTc0cm5vVGU2NW1mSmtaV3IraHZ1dU90cE9nSmIv?=
- =?utf-8?B?SjhHVFBWaStHMmlYUVZic3FEb0NubVh2V3VQMVRPeW8rV0plNkVEQTI4WjUr?=
- =?utf-8?B?eS96bms5OFdtRHZBTzdOV20wcHJWSGM2cTF1akFRSjFQTE1DQUlPQjBMVWlI?=
- =?utf-8?B?OWY5bkVkM1NQWFo5TVNUNDdHQ0FMQ3NEYlpJaWQwdDRnaC84cjlrZ0pRMXdD?=
- =?utf-8?B?bVh4SW96ZW1IbDJhczlDY1IzWWZhbzZZVHp1Z0pWWWQvdUFjc3FNOTlySTNT?=
- =?utf-8?B?NE95aG1RR0hDN2Vtak1lbjFXVFMwMkdvYkZWT1E4TW1PYzZBTU5EV3VLNXNT?=
- =?utf-8?B?SEc4aGdQd3EyWW0rZTZWV1JITENJVTExUFdSYk0zWitQRTZSYmFpM0VpWmQw?=
- =?utf-8?B?b2F6ZDM3VTVudUIxeVRjMThjTTg3NUF2VWR4Z0paOUlUcUZDUngwMldNN0FL?=
- =?utf-8?B?RW45ZzhqNm9aQ29VNWNwUmlJL3BST2pTaENid3BWaEd3TFhMTUYzVzVkbnM2?=
- =?utf-8?B?MS9FN1Jsc1J4RExKcWUvcGlWM3JZa0tIVWhoT3ZQQjFhUVN5bG4xN1ZxMHli?=
- =?utf-8?B?ZnVkUS8xTzkzU3VRWVVYbm12Zlp5bThuWkRKY1V2Qkl2MC9PcXJWNjVMYXBm?=
- =?utf-8?B?ZHlXOVFwOGpTSVhxMzgyMVlmZk1WWXlnTGV4Mm9yNy9tNXhxTWJLdzFjVGVs?=
- =?utf-8?B?RlFDMlQzQ1Q3Q1o0bHVZbnhWWXpWNGwwKzJ0RHd3Z0tvNVNLV2NjRTB1WTJT?=
- =?utf-8?B?YWRtMHlsbzhEQi9COGp1aFVlZGw2dFhPRmwvRXFrTEZ6Zm5lOEV4bUpFd2RT?=
- =?utf-8?B?bnZMN3lsZzBHMDY2L3A3SnQ5QUNBbWdZdGh0a2VNTWhBTlBTUXhQVElub2Zk?=
- =?utf-8?B?bVJkWXUrSmFQeTQ0cHlmbDBGN01LdTc0c2FISlBaYzZZNXNZRUdNL0FZODFP?=
- =?utf-8?B?QWJJL2pnSFFzdXVURXZDaWYxVHQrRVI1SlBPcFBtK0x2dmhRNVFoakxUTUVt?=
- =?utf-8?B?ams4YVJVb1lNYTlRNGxOenFES0g0b3RyNngya3diY2Y0ZVV1Y0F6K1k2NDdz?=
- =?utf-8?Q?nfVvIyYgWq/LyvEcZhZGx4DwkwAu/RtkH+tBJW4FNQ=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <07BAEB497AC8514180C5B10503180623@CANPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+ bh=fzKh1Nb8nYKY0Q1KH38LXSfwGiiTdo6xNP6GzGYZjC0=;
+ b=M/lGEcpqzWz1IZhAxXJjdE5LV9Y9J6QYC6R2/U92J6qOc6oNID2mQh/f8ylSZXno1AKweFGZN5mnHazCVK+uMAmeVJVsXSqiVIj+jII5Bv5R17VIeahwTUPhjbd+rDEkxg/q0wAX+2CtkGxCWFEEZNnZCGOe00fNIi7YMWfuGW0=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
+Received: from SA0PR01MB6329.prod.exchangelabs.com (2603:10b6:806:ee::12) by
+ MW4PR01MB6450.prod.exchangelabs.com (2603:10b6:303:7b::12) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5038.14; Thu, 3 Mar 2022 16:02:34 +0000
+Received: from SA0PR01MB6329.prod.exchangelabs.com
+ ([fe80::7cd6:6594:ce3c:6941]) by SA0PR01MB6329.prod.exchangelabs.com
+ ([fe80::7cd6:6594:ce3c:6941%9]) with mapi id 15.20.5017.029; Thu, 3 Mar 2022
+ 16:02:34 +0000
+Date:   Thu, 3 Mar 2022 08:02:31 -0800
+From:   Darren Hart <darren@os.amperecomputing.com>
+To:     Vincent Guittot <vincent.guittot@linaro.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] arm64: smp: Skip MC sched domain on SoCs with no LLC
+Message-ID: <YiDmlzoKr4VZplZo@fedora>
+References: <cover.1646094455.git.darren@os.amperecomputing.com>
+ <84e7cb911936f032318b6b376cf88009c90d93d5.1646094455.git.darren@os.amperecomputing.com>
+ <CAKfTPtAQwJYy4UDAgF3Va_MJTDj+UpxuU3UqTWZ5gjwmcTf5wA@mail.gmail.com>
+ <YiAlfGuRXWVnOmyF@fedora>
+ <CAKfTPtBbu3fUMBkXLszWGtaHkf4DRU+J+9z_2MZ42iCTAtLGkw@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKfTPtBbu3fUMBkXLszWGtaHkf4DRU+J+9z_2MZ42iCTAtLGkw@mail.gmail.com>
+X-ClientProxiedBy: MWHPR20CA0035.namprd20.prod.outlook.com
+ (2603:10b6:300:ed::21) To SA0PR01MB6329.prod.exchangelabs.com
+ (2603:10b6:806:ee::12)
 MIME-Version: 1.0
-X-OriginatorOrg: calian.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 4b09630f-9f95-4d8e-b170-08d9fd2f3a16
+X-MS-TrafficTypeDiagnostic: MW4PR01MB6450:EE_
+X-Microsoft-Antispam-PRVS: <MW4PR01MB6450807F426C2E6002DCFE05F7049@MW4PR01MB6450.prod.exchangelabs.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: FKr7YUTwACWy/FbpZH9VkrkzEBwU1DmLTRifavYw3EldiFMSzeqsH5AYKuKQnoHYkjGp67wRqwxALrZSXpMAx44b+it8zQPUWipQViNL0RCXZnGWomkLu/4fBgS39I7/ap+fQXKfqFdL19VH7AlzglMAGCvWTcpEAggfENd+BOVQw4PO8brHgKsJFe7so9J0MwR8rpi7lTTaRq29rQq6F6EeB4fwFfyaK33letYR0fudyGhwDx2hwHza5liQ4LgsWe3jut9WSybserOND/O1f+Chkk2BlqSj2ytHkgudIrzX2b40J1KSW8cqeF2bfUm654REsq1TpzHVZP4+oCKgVyDqh6OTpV4nQn0yUO5HartMyCK3yLi5PWAT77MEvuY32WETn3eidyRcuAnBPVT/Hb3uy3ZUXXqMds9I4kEXS1PtTFCsHQws7mjqDCaDKRmK+7i37jxjLiMGQGgT3Biiq4xBWG14GHJGI+VMlXy2MIuKgGgi9zMQ6sukX7qDAC57AwIzlXKlFqlGENf2h6KsaK12SR430LXVPjXJMyxzet2KdR+VhU4ukISyjsiK1K8SosksCwS7Gftta8hSEm1ydz7LqTfVXZa0kt8Zt33H5A1RSFHDRPR0fAS0o1FOM9DTAC5LcgR/Jv1o0PSkSWYo0GTWindJADY5bVV/UgPQWEBRULOrfx3T3lwLCvDakM9i7JubKUS4qWRKLs+jj2M/FQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(6029001)(4636009)(7916004)(366004)(4326008)(6486002)(6666004)(52116002)(186003)(83380400001)(26005)(8676002)(6512007)(86362001)(9686003)(2906002)(6506007)(8936002)(316002)(54906003)(6916009)(33716001)(5660300002)(508600001)(66556008)(66476007)(66946007)(38100700002)(38350700002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?T+KeAl2dOcErGxyrCaQFHmU0I0y1fXiFYjOkhhy1iW24c2Jz7wwKDuVltCDW?=
+ =?us-ascii?Q?4iXJVms+3ZUXJL/rR4p7eYfEHELDZSlFAUt3ROS6xD1/sxig6w1gqBEQqW2Z?=
+ =?us-ascii?Q?EUVFOcxWv4SN2VLDFMFx2COOska31xdZrauCEaA71QFPn6keO17DevpXT4iS?=
+ =?us-ascii?Q?MUJQqfNJDHyEs19jYLCHDNN1B76o+8HLglEwIiq5VTm+HLqwpT67pw3hTyDO?=
+ =?us-ascii?Q?ucnxLx6BZJN2j8wbqMQy7WWCAIQUh8Y1zo/G8QereLs2swT27TH6gvJ9dSYL?=
+ =?us-ascii?Q?u4Jr6wbOm6WcWgJjhqMJXqr0/JejHTVmE5MJpIkDz0ujvNkFWOiPO6/7t+pS?=
+ =?us-ascii?Q?m5q/rtfhn3D2sb81B2BSTJVhJxP/0dCrg6GB4M6XCK9lnJLh4zmK/equziQc?=
+ =?us-ascii?Q?4VFsbNanBNuWlH9bmlUMyOEL+TcTS8N3ssl69lxgIp07AQ0e3MUl7O8JNMK4?=
+ =?us-ascii?Q?ao1oJGUIY5HbRIlY1JwDm/Bzkmb14sp4oLZc23nl1BC2JB+0PVTYOsT3KC9o?=
+ =?us-ascii?Q?dUBOAZjbMAH0KXSG4IrSBpIbxsplosrVndDHTFNVW+AKYyfzndXAHadsu6CF?=
+ =?us-ascii?Q?I9sjTk2UEk0qMmNWTtHujwYA2n+g00O2/2SDyakI8LaGOl0B7oSWd6KtRy+W?=
+ =?us-ascii?Q?RSR7gSn0llLI/jiG7mCKo1k7AyGbRoO4TxwFOs47sdtVbrwWXHXNbE61N7tv?=
+ =?us-ascii?Q?M1sQ1Oa3KJEtd+C6FY2rtp7O11l6J01jwK8/agWNPOX9c2Fm/9H3niGnwa8q?=
+ =?us-ascii?Q?biDCwxp+BfKeuhMeyz3SeCjqhRwasPXvx/UHXxxW0Rgu2juRimS1QQ5zFEjL?=
+ =?us-ascii?Q?3YJQWTOb91o5GcJ+aFf2v06YKZToCAlsvgkm2DD83YtQj8ygpbv3cogijlep?=
+ =?us-ascii?Q?lmLTfhW0okGt/6MO38HbP/U/WLwRkekHVsJAI8DwNtVtbcbKubnKc+nwPa2B?=
+ =?us-ascii?Q?uakrsVjTedpTvMs4DsDlvH1m5JcPPLRzk+6MaGLWMP/5DfTLJcdfs4G7dGx6?=
+ =?us-ascii?Q?LK25iEH5ZOGO5NdGw2q+vZZVXoAsDDHh5i+GSCnvSEXhbw2J7oq2Ma+cezJI?=
+ =?us-ascii?Q?WxwVNjjMi5tyJZziUTMmZQgE2xKksKefMNbz7Co/hwaU9H6ATxy6kbDCb//E?=
+ =?us-ascii?Q?vOe/W4I6Aj+/rHuAy2g3OmD0GcnH2My4EkscC/0vT7CztyS3HWVqch8C01mc?=
+ =?us-ascii?Q?sPjbLcvScduKqq3Jlu/eQg5dFqvCktn4/ve01bCAuxsapY3ZVjcJb9WL1WnL?=
+ =?us-ascii?Q?baPzTKtxgVwRgmm7oD8dniN3tmzGZz47U0BLcPqIyT5VbflV+jHEin3m6X5N?=
+ =?us-ascii?Q?qD8RbOhKvClKORSqcgEgURlsVHzoQKiqkMfVv+Aa/2lBJl1/UIsXwf7JWiJQ?=
+ =?us-ascii?Q?1kBUl/9wNEb/3XTJoN76uFbpbWJ+ma7XJUtdiiRDY09bk/8NR2jShNDXzADG?=
+ =?us-ascii?Q?b32bF6Von3iclVULjkdZKbB9mXnpC8epqzGwBwiw8lrYKM8E8JG+1AsPYq6y?=
+ =?us-ascii?Q?k6Rca7M8S50q/pmiuRteGLFvqt7O7si/pw79Zh5AYu3i3BTghAwm3LOfIiLK?=
+ =?us-ascii?Q?CM4G0SPZKXBWwfo780F2DQIzlTwlWJQnJeS7wYMbTUSb5vKyGEOwU2Ru2HpB?=
+ =?us-ascii?Q?dmfhN1uEFGXlOAjmeue5cmdsfUPDc2sosb2WfPCOAwhgpuF51OnYQSNToujD?=
+ =?us-ascii?Q?+rf++fg618C73QZLg37Rn+ak5xzSnsd2+i8LKPVcZmSQ5El3cdbTABi95wN5?=
+ =?us-ascii?Q?EAZa94kkjQ=3D=3D?=
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4b09630f-9f95-4d8e-b170-08d9fd2f3a16
+X-MS-Exchange-CrossTenant-AuthSource: SA0PR01MB6329.prod.exchangelabs.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: YT3PR01MB6274.CANPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7c77ef88-22fb-4a29-cfc0-08d9fd2f15ca
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2022 16:01:31.9601
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Mar 2022 16:02:33.9504
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 23b57807-562f-49ad-92c4-3bb0f07a1fdf
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: xgPoOSDwZmRWLIYSrpRakgsaXYQjuj1biYwcXuh7g+5YLOGG9H/xsD9LM+mMez4DTPMX9YYS4Sc43rmevg1lt75pAxu6STtbU6ycg5Jth9o=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: YT3PR01MB5471
-X-Proofpoint-GUID: kAEx6zzv17coq41lhS_PoaJZhzmTTPMs
-X-Proofpoint-ORIG-GUID: kAEx6zzv17coq41lhS_PoaJZhzmTTPMs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-03_07,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 spamscore=0 suspectscore=0 mlxlogscore=999 bulkscore=0
- lowpriorityscore=0 malwarescore=0 clxscore=1015 mlxscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2203030077
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wA62Qrt8pqcNQlIxKIs/iqZQrLDNWKIM6XI8DKvSGjQJdkBghUBnQwbQWrfdRMSUP7djyn/cy9RzY0RKo3sV9GOxFeloiwzxLZHwcugfREjMWf8V9tkMSGx510cRdUu1
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR01MB6450
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gV2VkLCAyMDIyLTAzLTAyIGF0IDIyOjQwIC0wODAwLCBKYWt1YiBLaWNpbnNraSB3cm90ZToN
-Cj4gT24gTW9uLCAyOCBGZWIgMjAyMiAxMjozMzoyOCAtMDYwMCBSb2JlcnQgSGFuY29jayB3cm90
-ZToNCj4gPiBUaGVyZSBpcyBhbiBvZGRpdHkgaW4gdGhlIHdheSB0aGUgUlNSIHJlZ2lzdGVyIGZs
-YWdzIHByb3BhZ2F0ZSB0byB0aGUNCj4gPiBJU1IgcmVnaXN0ZXIgKGFuZCB0aGUgYWN0dWFsIGlu
-dGVycnVwdCBvdXRwdXQpIG9uIHRoaXMgaGFyZHdhcmU6IGl0DQo+ID4gYXBwZWFycyB0aGF0IFJT
-UiByZWdpc3RlciBiaXRzIG9ubHkgcmVzdWx0IGluIElTUiBiZWluZyBhc3NlcnRlZCBpZiB0aGUN
-Cj4gPiBpbnRlcnJ1cHQgd2FzIGFjdHVhbGx5IGVuYWJsZWQgYXQgdGhlIHRpbWUsIHNvIGVuYWJs
-aW5nIGludGVycnVwdHMgd2l0aA0KPiA+IFJTUiBiaXRzIGFscmVhZHkgc2V0IGRvZXNuJ3QgdHJp
-Z2dlciBhbiBpbnRlcnJ1cHQgdG8gYmUgcmFpc2VkLiBUaGVyZQ0KPiA+IHdhcyBhbHJlYWR5IGEg
-cGFydGlhbCBmaXggZm9yIHRoaXMgcmFjZSBpbiB0aGUgbWFjYl9wb2xsIGZ1bmN0aW9uIHdoZXJl
-DQo+ID4gaXQgY2hlY2tlZCBmb3IgUlNSIGJpdHMgYmVpbmcgc2V0IGFuZCByZS10cmlnZ2VyZWQg
-TkFQSSByZWNlaXZlLg0KPiA+IEhvd2V2ZXIsIHRoZXJlIHdhcyBhIHN0aWxsIGEgcmFjZSB3aW5k
-b3cgYmV0d2VlbiBjaGVja2luZyBSU1IgYW5kDQo+ID4gYWN0dWFsbHkgZW5hYmxpbmcgaW50ZXJy
-dXB0cywgd2hlcmUgYSBsb3N0IHdha2V1cCBjb3VsZCBoYXBwZW4uIEl0J3MNCj4gPiBuZWNlc3Nh
-cnkgdG8gY2hlY2sgYWdhaW4gYWZ0ZXIgZW5hYmxpbmcgaW50ZXJydXB0cyB0byBzZWUgaWYgUlNS
-IHdhcyBzZXQNCj4gPiBqdXN0IHByaW9yIHRvIHRoZSBpbnRlcnJ1cHQgYmVpbmcgZW5hYmxlZCwg
-YW5kIHJlLXRyaWdnZXIgcmVjZWl2ZSBpbiB0aGF0DQo+ID4gY2FzZS4NCj4gPiANCj4gPiBUaGlz
-IGlzc3VlIHdhcyBub3RpY2VkIGluIGEgcG9pbnQtdG8tcG9pbnQgVURQIHJlcXVlc3QtcmVzcG9u
-c2UgcHJvdG9jb2wNCj4gPiB3aGljaCBwZXJpb2RpY2FsbHkgc2F3IHRpbWVvdXRzIG9yIGFibm9y
-bWFsbHkgaGlnaCByZXNwb25zZSB0aW1lcyBkdWUgdG8NCj4gPiByZWNlaXZlZCBwYWNrZXRzIG5v
-dCBiZWluZyBwcm9jZXNzZWQgaW4gYSB0aW1lbHkgZmFzaGlvbi4gSW4gbWFueQ0KPiA+IGFwcGxp
-Y2F0aW9ucywgbW9yZSBwYWNrZXRzIGFycml2aW5nLCBpbmNsdWRpbmcgVENQIHJldHJhbnNtaXNz
-aW9ucywgd291bGQNCj4gPiBjYXVzZSB0aGUgb3JpZ2luYWwgcGFja2V0IHRvIGJlIHByb2Nlc3Nl
-ZCwgdGh1cyBtYXNraW5nIHRoZSBpc3N1ZS4NCj4gPiANCj4gPiBBbHNvIGNoYW5nZSBmcm9tIHVz
-aW5nIG5hcGlfcmVzY2hlZHVsZSB0byBuYXBpX3NjaGVkdWxlLCBhcyB0aGUgb25seQ0KPiA+IGRp
-ZmZlcmVuY2UgaXMgdGhlIHByZXNlbmNlIG9mIGEgcmV0dXJuIHZhbHVlIHdoaWNoIHdhc24ndCB1
-c2VkIGhlcmUNCj4gPiBhbnl3YXkuDQo+IA0KPiBMZXQncyBsZWF2ZSB0aGF0IG91dCBmcm9tIHRo
-aXMgcGFydGljdWxhciBwYXRjaCAtIGZpeGVzIHNob3VsZCBiZQ0KPiBtaW5pbWFsLCB0aGlzIHNv
-dW5kcyBsaWtlIGNsZWFudXAuDQoNCkNhbiBkby4NCg0KPiANCj4gPiBGaXhlczogMDJmN2EzNGYz
-NGUzICgibmV0OiBtYWNiOiBSZS1lbmFibGUgUlggaW50ZXJydXB0IG9ubHkgd2hlbiBSWCBpcw0K
-PiA+IGRvbmUiKQ0KPiA+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+ID4gQ28tZGV2ZWxv
-cGVkLWJ5OiBTY290dCBNY051dHQgPHNjb3R0Lm1jbnV0dEBzaXJpdXN4bS5jb20+DQo+ID4gU2ln
-bmVkLW9mZi1ieTogU2NvdHQgTWNOdXR0IDxzY290dC5tY251dHRAc2lyaXVzeG0uY29tPg0KPiA+
-IFNpZ25lZC1vZmYtYnk6IFJvYmVydCBIYW5jb2NrIDxyb2JlcnQuaGFuY29ja0BjYWxpYW4uY29t
-Pg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL25ldC9ldGhlcm5ldC9jYWRlbmNlL21hY2JfbWFpbi5j
-IHwgMjYgKysrKysrKysrKysrKysrKysrKysrKy0tDQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCAyNCBp
-bnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL25ldC9ldGhlcm5ldC9jYWRlbmNlL21hY2JfbWFpbi5jDQo+ID4gYi9kcml2ZXJzL25ldC9l
-dGhlcm5ldC9jYWRlbmNlL21hY2JfbWFpbi5jDQo+ID4gaW5kZXggOTg0OThhNzZhZTE2Li4zMzg2
-NjBmZTFkOTMgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9uZXQvZXRoZXJuZXQvY2FkZW5jZS9t
-YWNiX21haW4uYw0KPiA+ICsrKyBiL2RyaXZlcnMvbmV0L2V0aGVybmV0L2NhZGVuY2UvbWFjYl9t
-YWluLmMNCj4gPiBAQCAtMTU3MywxNCArMTU3MywzNiBAQCBzdGF0aWMgaW50IG1hY2JfcG9sbChz
-dHJ1Y3QgbmFwaV9zdHJ1Y3QgKm5hcGksIGludA0KPiA+IGJ1ZGdldCkNCj4gPiAgCWlmICh3b3Jr
-X2RvbmUgPCBidWRnZXQpIHsNCj4gPiAgCQluYXBpX2NvbXBsZXRlX2RvbmUobmFwaSwgd29ya19k
-b25lKTsNCj4gPiAgDQo+ID4gLQkJLyogUGFja2V0cyByZWNlaXZlZCB3aGlsZSBpbnRlcnJ1cHRz
-IHdlcmUgZGlzYWJsZWQgKi8NCj4gPiArCQkvKiBSU1IgYml0cyBvbmx5IHNlZW0gdG8gcHJvcGFn
-YXRlIHRvIHJhaXNlIGludGVycnVwdHMgd2hlbg0KPiA+ICsJCSAqIGludGVycnVwdHMgYXJlIGVu
-YWJsZWQgYXQgdGhlIHRpbWUsIHNvIGlmIGJpdHMgYXJlIGFscmVhZHkNCj4gPiArCQkgKiBzZXQg
-ZHVlIHRvIHBhY2tldHMgcmVjZWl2ZWQgd2hpbGUgaW50ZXJydXB0cyB3ZXJlIGRpc2FibGVkLA0K
-PiA+ICsJCSAqIHRoZXkgd2lsbCBub3QgY2F1c2UgYW5vdGhlciBpbnRlcnJ1cHQgdG8gYmUgZ2Vu
-ZXJhdGVkIHdoZW4NCj4gPiArCQkgKiBpbnRlcnJ1cHRzIGFyZSByZS1lbmFibGVkLg0KPiA+ICsJ
-CSAqIENoZWNrIGZvciB0aGlzIGNhc2UgaGVyZS4NCj4gPiArCQkgKi8NCj4gPiAgCQlzdGF0dXMg
-PSBtYWNiX3JlYWRsKGJwLCBSU1IpOw0KPiANCj4gV2hpY2ggY2FzZSBpcyBtb3JlIGxpa2VseSAt
-IHN0YXR1cyA9PSAwIG9yICE9IDA/DQo+IA0KPiBCZWNhdXNlIE1NSU8gcmVhZHMgYXJlIHVzdWFs
-bHkgZXhwZW5zaXZlIHNvIGlmIHN0YXR1cyBpcyBsaWtlbHkgDQo+IHRvIGJlIHplcm8geW91ciBv
-dGhlciBzdWdnZXN0aW9uIGNvdWxkIGJlIGxvd2VyIG92ZXJoZWFkLg0KPiBJdCdkIGJlIGdvb2Qg
-dG8gbWVudGlvbiB0aGlzIGV4cGVjdGF0aW9uIGluIHRoZSBjb21taXQgbWVzc2FnZSANCj4gb3Ig
-Y29tbWVudCBoZXJlLg0KDQpUaGVyZSB3YXMgc29tZSBtZWFzdXJlbWVudCBkb25lIG9uIHRoaXMg
-dGhhdCBtb3RpdmF0ZWQgYSBwcmV2aW91cyBwYXRjaCBpbiB0aGlzDQphcmVhOg0KDQpjb21taXQg
-NTA0YWQ5OGRmM2E2YjAyN2NlOTk3Y2E4ZjYyMGU5NDljYWZiMTUxZg0KQXV0aG9yOiBTb3JlbiBC
-cmlua21hbm4gPHNvcmVuLmJyaW5rbWFubkB4aWxpbnguY29tPg0KRGF0ZTogICBTdW4gTWF5IDQg
-MTU6NDM6MDEgMjAxNCAtMDcwMA0KDQogICAgbmV0OiBtYWNiOiBSZW1vdmUgJ3VubGlrZWx5JyBv
-cHRpbWl6YXRpb24NCiAgICANCiAgICBDb3ZlcmFnZSBkYXRhIHN1Z2dlc3RzIHRoYXQgdGhlIHVu
-bGlrZWx5IGNhc2Ugb2YgcmVjZWl2aW5nIGRhdGEgd2hpbGUNCiAgICB0aGUgcmVjZWl2ZSBoYW5k
-bGVyIGlzIHJ1bm5pbmcgbWF5IG5vdCBiZSB0aGF0IHVubGlrZWx5Lg0KICAgIENvdmVyYWdlIGRh
-dGEgYWZ0ZXIgcnVubmluZyBpcGVyZiBmb3IgYSB3aGlsZToNCiAgICAgICAgOTEzMjA6ICA4OTE6
-ICAgICAgICB3b3JrX2RvbmUgPSBicC0+bWFjYmdlbV9vcHMubW9nX3J4KGJwLCBidWRnZXQpOw0K
-ICAgICAgICA5MTMyMDogIDg5MjogICAgICAgIGlmICh3b3JrX2RvbmUgPCBidWRnZXQpIHsNCiAg
-ICAgICAgIDIzNjI6ICA4OTM6ICAgICAgICAgICAgICAgIG5hcGlfY29tcGxldGUobmFwaSk7DQog
-ICAgICAgICAgICAtOiAgODk0Og0KICAgICAgICAgICAgLTogIDg5NTogICAgICAgICAgICAgICAg
-LyogUGFja2V0cyByZWNlaXZlZCB3aGlsZSBpbnRlcnJ1cHRzIHdlcmUNCmRpc2FibGVkICovDQog
-ICAgICAgICA0NzI0OiAgODk2OiAgICAgICAgICAgICAgICBzdGF0dXMgPSBtYWNiX3JlYWRsKGJw
-LCBSU1IpOw0KICAgICAgICAgMjM2MjogIDg5NzogICAgICAgICAgICAgICAgaWYgKHVubGlrZWx5
-KHN0YXR1cykpIHsNCiAgICAgICAgICA3NjI6ICA4OTg6ICAgICAgICAgICAgICAgICAgICAgICAg
-aWYgKGJwLT5jYXBzICYNCk1BQ0JfQ0FQU19JU1JfQ0xFQVJfT05fV1JJVEUpDQogICAgICAgICAg
-NzYyOiAgODk5OiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWFjYl93cml0ZWwoYnAs
-IElTUiwNCk1BQ0JfQklUKFJDT01QKSk7DQogICAgICAgICAgICAtOiAgOTAwOiAgICAgICAgICAg
-ICAgICAgICAgICAgIG5hcGlfcmVzY2hlZHVsZShuYXBpKTsNCiAgICAgICAgICAgIC06ICA5MDE6
-ICAgICAgICAgICAgICAgIH0gZWxzZSB7DQogICAgICAgICAxNjAwOiAgOTAyOiAgICAgICAgICAg
-ICAgICAgICAgICAgIG1hY2Jfd3JpdGVsKGJwLCBJRVIsDQpNQUNCX1JYX0lOVF9GTEFHUyk7DQog
-ICAgICAgICAgICAtOiAgOTAzOiAgICAgICAgICAgICAgICB9DQogICAgICAgICAgICAtOiAgOTA0
-OiAgICAgICAgfQ0KICAgIA0KICAgIFNpZ25lZC1vZmYtYnk6IFNvcmVuIEJyaW5rbWFubiA8c29y
-ZW4uYnJpbmttYW5uQHhpbGlueC5jb20+DQogICAgU2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWls
-bGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0Pg0KDQpTbyBpdCBsb29rcyBsaWtlIHRoZSBub24temVy
-byBzdGF0dXMgY2FzZSB3YXMgYmVpbmcgaGl0IHJvdWdobHkgMS8zIG9mIHRoZQ0KdGltZSwgYXQg
-bGVhc3QgdW5kZXIgdGhhdCBwYXJ0aWN1bGFyIHdvcmtsb2FkLiBJdCBtYXkgZGVwZW5kIGhlYXZp
-bHkgb24NCndvcmtsb2FkIGV0Yy4gYnV0IGRvZXNuJ3Qgc2VlbSB0byBiZSBjbGVhci1jdXQgdG8g
-b3B0aW1pemUgb25lIHdheSBvciB0aGUNCm90aGVyLg0KDQpGb3IgdGhlIG5ldyAiZG91YmxlIGNo
-ZWNrIiBicmFuY2gsIGZyb20gYWRkaW5nIGRlYnVnIGluLCBpdCBhcHBlYXJzIHRoYXQgb25lIGlz
-DQpoaXQgb24gdGhlIG9yZGVyIG9mIGEgZmV3IGRvemVuIHRpbWVzIGEgZGF5IHVuZGVyIGNvbnN0
-YW50IGxvYWQsIHNvIHRoZQ0KInVubGlrZWx5IiBzZWVtcyBhcHByb3ByaWF0ZSB0aGVyZS4NCg0K
-PiANCj4gPiAgCQlpZiAoc3RhdHVzKSB7DQo+ID4gIAkJCWlmIChicC0+Y2FwcyAmIE1BQ0JfQ0FQ
-U19JU1JfQ0xFQVJfT05fV1JJVEUpDQo+ID4gIAkJCQlxdWV1ZV93cml0ZWwocXVldWUsIElTUiwg
-TUFDQl9CSVQoUkNPTVApKTsNCj4gPiAtCQkJbmFwaV9yZXNjaGVkdWxlKG5hcGkpOw0KPiA+ICsJ
-CQluYXBpX3NjaGVkdWxlKG5hcGkpOw0KPiA+ICAJCX0gZWxzZSB7DQo+ID4gIAkJCXF1ZXVlX3dy
-aXRlbChxdWV1ZSwgSUVSLCBicC0+cnhfaW50cl9tYXNrKTsNCj4gPiArDQo+ID4gKwkJCS8qIFBh
-Y2tldHMgY291bGQgaGF2ZSBiZWVuIHJlY2VpdmVkIGluIHRoZSB3aW5kb3cNCj4gPiArCQkJICog
-YmV0d2VlbiB0aGUgY2hlY2sgYWJvdmUgYW5kIHJlLWVuYWJsaW5nIGludGVycnVwdHMuDQo+ID4g
-KwkJCSAqIFRoZXJlZm9yZSwgYSBkb3VibGUtY2hlY2sgaXMgcmVxdWlyZWQgdG8gYXZvaWQNCj4g
-PiArCQkJICogbG9zaW5nIGEgd2FrZXVwLiBUaGlzIGNhbiBwb3RlbnRpYWxseSByYWNlIHdpdGgN
-Cj4gPiArCQkJICogdGhlIGludGVycnVwdCBoYW5kbGVyIGRvaW5nIHRoZSBzYW1lIGFjdGlvbnMg
-aWYgYW4NCj4gPiArCQkJICogaW50ZXJydXB0IGlzIHJhaXNlZCBqdXN0IGFmdGVyIGVuYWJsaW5n
-IHRoZW0sIGJ1dA0KPiA+ICsJCQkgKiB0aGlzIHNob3VsZCBiZSBoYXJtbGVzcy4NCj4gPiArCQkJ
-ICovDQo+ID4gKwkJCXN0YXR1cyA9IG1hY2JfcmVhZGwoYnAsIFJTUik7DQo+ID4gKwkJCWlmICh1
-bmxpa2VseShzdGF0dXMpKSB7DQo+ID4gKwkJCQlxdWV1ZV93cml0ZWwocXVldWUsIElEUiwgYnAt
-PnJ4X2ludHJfbWFzayk7DQo+ID4gKwkJCQlpZiAoYnAtPmNhcHMgJiBNQUNCX0NBUFNfSVNSX0NM
-RUFSX09OX1dSSVRFKQ0KPiA+ICsJCQkJCXF1ZXVlX3dyaXRlbChxdWV1ZSwgSVNSLA0KPiA+IE1B
-Q0JfQklUKFJDT01QKSk7DQo+ID4gKwkJCQluYXBpX3NjaGVkdWxlKG5hcGkpOw0KPiA+ICsJCQl9
-DQo+ID4gIAkJfQ0KPiA+ICAJfQ0KPiA+ICANCg==
+On Thu, Mar 03, 2022 at 09:08:38AM +0100, Vincent Guittot wrote:
+> On Thu, 3 Mar 2022 at 03:18, Darren Hart <darren@os.amperecomputing.com> wrote:
+> >
+> > On Wed, Mar 02, 2022 at 10:32:06AM +0100, Vincent Guittot wrote:
+> > > On Tue, 1 Mar 2022 at 01:35, Darren Hart <darren@os.amperecomputing.com> wrote:
+> > > >
+> > > > Ampere Altra defines CPU clusters in the ACPI PPTT. They share a Snoop
+> > > > Control Unit, but have no shared CPU-side last level cache.
+> > > >
+> > > > cpu_coregroup_mask() will return a cpumask with weight 1, while
+> > > > cpu_clustergroup_mask() will return a cpumask with weight 2.
+> > > >
+> > > > As a result, build_sched_domain() will BUG() once per CPU with:
+> > > >
+> > > > BUG: arch topology borken
+> > > >      the CLS domain not a subset of the MC domain
+> > > >
+> > > > The MC level cpumask is then extended to that of the CLS child, and is
+> > > > later removed entirely as redundant. This sched domain topology is an
+> > > > improvement over previous topologies, or those built without
+> > > > SCHED_CLUSTER, particularly for certain latency sensitive workloads.
+> > > > With the current scheduler model and heuristics, this is a desirable
+> > > > default topology for Ampere Altra and Altra Max system.
+> > > >
+> > > > Introduce an alternate sched domain topology for arm64 without the MC
+> > > > level and test for llc_sibling weight 1 across all CPUs to enable it.
+> > > >
+> > > > Do this in arch/arm64/kernel/smp.c (as opposed to
+> > > > arch/arm64/kernel/topology.c) as all the CPU sibling maps are now
+> > > > populated and we avoid needing to extend the drivers/acpi/pptt.c API to
+> > > > detect the cluster level being above the cpu llc level. This is
+> > > > consistent with other architectures and provides a readily extensible
+> > > > mechanism for other alternate topologies.
+> > > >
+> > > > The final sched domain topology for a 2 socket Ampere Altra system is
+> > > > unchanged with or without CONFIG_SCHED_CLUSTER, and the BUG is avoided:
+> > > >
+> > > > For CPU0:
+> > > >
+> > > > CONFIG_SCHED_CLUSTER=y
+> > > > CLS  [0-1]
+> > > > DIE  [0-79]
+> > > > NUMA [0-159]
+> > > >
+> > > > CONFIG_SCHED_CLUSTER is not set
+> > > > DIE  [0-79]
+> > > > NUMA [0-159]
+> > > >
+> > > > Cc: Catalin Marinas <catalin.marinas@arm.com>
+> > > > Cc: Will Deacon <will@kernel.org>
+> > > > Cc: Peter Zijlstra <peterz@infradead.org>
+> > > > Cc: Vincent Guittot <vincent.guittot@linaro.org>
+> > > > Cc: Barry Song <song.bao.hua@hisilicon.com>
+> > > > Cc: Valentin Schneider <valentin.schneider@arm.com>
+> > > > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
+> > > > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
+> > > > Cc: <stable@vger.kernel.org> # 5.16.x
+> > > > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
+> > > > ---
+> > > >  arch/arm64/kernel/smp.c | 28 ++++++++++++++++++++++++++++
+> > > >  1 file changed, 28 insertions(+)
+> > > >
+> > > > diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+> > > > index 27df5c1e6baa..3597e75645e1 100644
+> > > > --- a/arch/arm64/kernel/smp.c
+> > > > +++ b/arch/arm64/kernel/smp.c
+> > > > @@ -433,6 +433,33 @@ static void __init hyp_mode_check(void)
+> > > >         }
+> > > >  }
+> > > >
+> > > > +static struct sched_domain_topology_level arm64_no_mc_topology[] = {
+> > > > +#ifdef CONFIG_SCHED_SMT
+> > > > +       { cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
+> > > > +#endif
+> > > > +
+> > > > +#ifdef CONFIG_SCHED_CLUSTER
+> > > > +       { cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
+> > > > +#endif
+> > > > +
+> > > > +       { cpu_cpu_mask, SD_INIT_NAME(DIE) },
+> > > > +       { NULL, },
+> > > > +};
+> > > > +
+> > > > +static void __init update_sched_domain_topology(void)
+> > > > +{
+> > > > +       int cpu;
+> > > > +
+> > > > +       for_each_possible_cpu(cpu) {
+> > > > +               if (cpu_topology[cpu].llc_id != -1 &&
+> > >
+> > > Have you tested it with a non-acpi system ? AFAICT, llc_id is only set
+> > > by ACPI system and  llc_id == -1 for others like DT based system
+> > >
+> > > > +                   cpumask_weight(&cpu_topology[cpu].llc_sibling) > 1)
+> > > > +                       return;
+> > > > +       }
+> >
+> > Hi Vincent,
+> >
+> > I did not have a non-acpi system to test, no. You're right of course,
+> > llc_id is only set by ACPI systems on arm64. We could wrap this in a
+> > CONFIG_ACPI ifdef (or IS_ENABLED), but I think this would be preferable:
+> >
+> > +       for_each_possible_cpu(cpu) {
+> > +               if (cpu_topology[cpu].llc_id == -1 ||
+> > +                   cpumask_weight(&cpu_topology[cpu].llc_sibling) > 1)
+> > +                       return;
+> > +       }
+> 
+> This works.
+> Also , do you really need to loop on all possible cpus ? Would it be
+> enough to check only the 1st cpu ?
+> You won't be able to support a mixed topology so all cpus have the
+> same kind of topology i.e either cluster before or cluster before the
+> MC level
+
+My intention here is to restrict the use of of the new topology to a very
+specific architecture where the problem is known to manifest, and avoid
+introducing any unexpected change to other systems.
+
+For other systems, they will break on the first loop, so the loop is also
+minimal impact.
+
+As for supporting a mixed topology, my intention was again to not make any
+statement about the existance or viability of such systems. If they would break
+before, they would still break. If a new topology is needed for them, this
+provides a easily modifiable location to do that.
+
+If the consensus is we don't need the loop, this simplifies my specific use case
+at the cost of applying to a broader set (but only hypothetically I believe) of
+topologies. So no objection to dropping the loop.
+
+Will, do you have a preference? Lean toward targeted change and minimal impact,
+or lean toward simpler implementation with slightly broader impact?
+
+Thanks,
+
+> 
+> 
+> >
+> > Quickly tested on Altra successfully. Would appreciate anyone with non-acpi
+> > arm64 systems who can test and verify this behaves as intended. I will ask
+> > around tomorrow as well to see what I may have access to.
+> >
+> > Thanks,
+> >
+> > > > +
+> > > > +       pr_info("No LLC siblings, using No MC sched domains topology\n");
+> > > > +       set_sched_topology(arm64_no_mc_topology);
+> > > > +}
+> > > > +
+> > > >  void __init smp_cpus_done(unsigned int max_cpus)
+> > > >  {
+> > > >         pr_info("SMP: Total of %d processors activated.\n", num_online_cpus());
+> > > > @@ -440,6 +467,7 @@ void __init smp_cpus_done(unsigned int max_cpus)
+> > > >         hyp_mode_check();
+> > > >         apply_alternatives_all();
+> > > >         mark_linear_text_alias_ro();
+> > > > +       update_sched_domain_topology();
+> > > >  }
+> > > >
+> > > >  void __init smp_prepare_boot_cpu(void)
+> > > > --
+> > > > 2.31.1
+> > > >
+> >
+> > --
+> > Darren Hart
+> > Ampere Computing / OS and Kernel
+
+-- 
+Darren Hart
+Ampere Computing / OS and Kernel
