@@ -2,339 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2D34CC961
-	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 23:46:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 746874CC968
+	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 23:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235744AbiCCWq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Mar 2022 17:46:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
+        id S234478AbiCCWrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Mar 2022 17:47:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232560AbiCCWq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 17:46:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EEAF15C9E3;
-        Thu,  3 Mar 2022 14:46:11 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AD53B826EC;
-        Thu,  3 Mar 2022 22:46:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CEDDC340EC;
-        Thu,  3 Mar 2022 22:46:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646347569;
-        bh=0iM/LG+ZaoOQnUD8Y59axu+gsBRaEJqOMoi/DHqIZDI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QrFGl/wJAosMVeSyofyKI6MP10K7CveJ/WH2zfUZq9tAkZWukVToUCBed7VYLFxlM
-         2VfWy1zVbtEZotsmAvg0M2KA0dd/KnzI0hIRLtfjXd3nPiLDVNAdMy3WQfc18SI5Wp
-         7y8JojurhuQK/zC8oCbf0fA/gC9B47bF3piwzOTHNAHOzoNAiPio5VxLB7EYUA9Pmr
-         qM7yr57IQUlDJ/b5NAr8s0jEIc2qjx6cEpbbQntHaeK/XZAioURojndTNj1JUU5cDh
-         7P6UuPxWQyJm2MfGGy2f7kIAH7RTPNNvhtvNJfOM5bIs3Kpmh6gFB5v01jI0SCiLW4
-         wKsBOf9QKiq8A==
-Date:   Fri, 4 Mar 2022 00:45:28 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, stefanb@linux.vnet.ibm.com,
-        James.Bottomley@hansenpartnership.com, David.Laight@aculab.com,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        p.rosenberger@kunbus.com,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>
-Subject: Re: [PATCH v9 1/1] tpm: fix reference counting for struct tpm_chip
-Message-ID: <YiFFCP3/KVl6uo3e@iki.fi>
-References: <20220302094353.3465-1-LinoSanfilippo@gmx.de>
- <20220302094353.3465-2-LinoSanfilippo@gmx.de>
+        with ESMTP id S231805AbiCCWrf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 17:47:35 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2079.outbound.protection.outlook.com [40.107.243.79])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DAFF16BFA8
+        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 14:46:49 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=j7q19sBMYRbH04cyUfwxa7Ixb6XJlVkinvE9JRkmLq5P3Qh8paFyRp/JwpwGGkDI8hKixi+jk4Dw23UU43kHn9ndU+cuUZBh/TINHywJce1w4y/LiQGL/uV2LG9OgSMXVsvFZ21veriUnamrQiJFmdv2TJ4m5Xu1fe245oKerb/iX0MFsKC+5uV6owaXNioOLkQB41lSUcbPI35m6Qx/tvRWHmqLYrY0bTqe+ryfhShN/2hYU022pQjEIVSCF70U6a2ARlLzamenOkbF1F/RPoFbfYFkV3S69F5UWk0+BT6LmJW7/noaKOtFTfLpMt1kvOA6lhCidxPfhAHmIlEFJw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Djpxw02bqJy3CeyUSWjhn7YU9M6OlwDyL6omqa2z0hE=;
+ b=Uam6TwUvYAjmZskYgus89JdfsIuPjmHf1+h+8XKmil09tunuGtJJl97tKhX8qEpOXeyKbzxWlan2OYsZkyqXkJSCamY/64TrWTEg9H8zKdq0/5EacAPbnKUAAV608G6WhGFwWhNMt7pRPZP8ngFEkoIa8YJ24beips4Xmdm/nRRr4zHBCRWbHuKcVH+PTN9uyko3BF22geDkpLP30nCO4TJvtHYuGigADnXA/LeOu+6jEQzT26RrpYXvuPiCbzmzxCE2IZL02IKMcu7q5XO1MFlFYplDhdX6Mn2PpftYNokZBEJqUAYawAzH1mv/inSzI1gAA/SIIJEv5QWDT3GFMg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Djpxw02bqJy3CeyUSWjhn7YU9M6OlwDyL6omqa2z0hE=;
+ b=rgdmrA03qBH9R+WfpyZq2O7kBhAO4vC1EnGCIpikAwa/XGtG59eYCT7XLO61ntEEqZSHnSXeyYm7hDc7scN9j9uP/aPgIS7OI2lIkzS6uvuWxcIwXI4Uws2pdNAhr6o/m+PCr5tARLKj7DanNOeXhu5rIFh2DeVh20tzeXyGnJk=
+Received: from DM6PR14CA0067.namprd14.prod.outlook.com (2603:10b6:5:18f::44)
+ by DM4PR12MB5842.namprd12.prod.outlook.com (2603:10b6:8:65::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.14; Thu, 3 Mar
+ 2022 22:46:47 +0000
+Received: from DM6NAM11FT031.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:18f:cafe::d4) by DM6PR14CA0067.outlook.office365.com
+ (2603:10b6:5:18f::44) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.14 via Frontend
+ Transport; Thu, 3 Mar 2022 22:46:47 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DM6NAM11FT031.mail.protection.outlook.com (10.13.172.203) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5038.14 via Frontend Transport; Thu, 3 Mar 2022 22:46:47 +0000
+Received: from doryam3r2rack03-34.amd.com (10.180.168.240) by
+ SATLEXMB04.amd.com (10.181.40.145) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.18; Thu, 3 Mar 2022 16:46:45 -0600
+From:   Richard Gong <richard.gong@amd.com>
+To:     <stable@vger.kernel.org>
+CC:     <richard.gong@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>
+Subject: [PATCH 1/2] drm/amdgpu/display: Only set vblank_disable_immediate when PSR is not enabled
+Date:   Thu, 3 Mar 2022 16:46:24 -0600
+Message-ID: <20220303224625.2108948-1-richard.gong@amd.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220302094353.3465-2-LinoSanfilippo@gmx.de>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7899aab9-9199-401a-2120-08d9fd67b2ed
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5842:EE_
+X-Microsoft-Antispam-PRVS: <DM4PR12MB5842839E9165540D8B9CCC3895049@DM4PR12MB5842.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 87Oc7+6g8FNY6HmPnZJ9vQ+iXgsufo5hYYhfNxIckfgDQO2rVQjmIadI3bpFI++em2Mc+jDcELqHfmZZO+/eCrvAhCaYcB7IqyKi2d6k3hkVdb2JHaB8g8uOb0HCT4eOmohlh0seiHWGBdpJz/B2hxs/w9mpjnfwQTinGad12yMCn7snTU6aojVyR214TicJvAlWLcsGGfHZ1zAvemE3XRGGJgLhj6tqZkhInTPVdIMfQmFLAdT52XwCK1PTgutQ5IEm2uNLYtxLYKteXRAIxGqutpDUPwuNU69wX4PzEhnDb5QDp5H3oR0EpLPGKorKhU7NiXqg2wIOQuOtsObW2oACP4ysx6a3ReicUJ1FIuEB0fPRIo53wD/++53KyJ9RsUd6evpKi0IYIhDzwMzhnUV3NxBB1/Ev7YvmcMebG3eWnc/NulOsQ6M3wc3grtJBFGmymxGkPxHOzYTwmBGZr2CwKGGDBY2PZ4NbPPDGGUewx6aCNslTW7jUGTeRj0Tu0kumxbi9gS5xqZfEcTgXpTRtwii6BSEXDDLDNrCT5I6bDXmCCCLB/EcoWJ8zz7Iv5dJ4Oc6m/9dTHPAPTobrSsDT8mSmtPKpjrap0SMo9XRb5UlNdAmcOugWfGe53gsDn2l4FeXQLmGAUklerbSWe1Q5MTYqMN46Q7DkMUPu5QipQNCGqe4OK5ZevOLGFlx117D8SJcm4FJ2A14b9qXoPA5Me0W/YxAkwW0cwdFdHZs=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(40470700004)(46966006)(7696005)(426003)(336012)(40460700003)(26005)(1076003)(2906002)(16526019)(186003)(2616005)(82310400004)(86362001)(36860700001)(83380400001)(47076005)(356005)(81166007)(54906003)(6916009)(6666004)(44832011)(5660300002)(4326008)(8936002)(70206006)(508600001)(316002)(36756003)(70586007)(8676002)(14773001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Mar 2022 22:46:47.3885
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7899aab9-9199-401a-2120-08d9fd67b2ed
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT031.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5842
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 02, 2022 at 10:43:53AM +0100, Lino Sanfilippo wrote:
-> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
-> 
-> The following sequence of operations results in a refcount warning:
-> 
-> 1. Open device /dev/tpmrm.
-> 2. Remove module tpm_tis_spi.
-> 3. Write a TPM command to the file descriptor opened at step 1.
-> 
-> ------------[ cut here ]------------
-> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
-> refcount_t: addition on 0; use-after-free.
-> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
-> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
-> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
-> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
-> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
-> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
-> Hardware name: BCM2711
-> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
-> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
-> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
-> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
-> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
-> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
-> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
-> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
-> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
-> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
-> Exception stack(0xc226bfa8 to 0xc226bff0)
-> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
-> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
-> bfe0: 0000006c beafe648 0001056c b6eb6944
-> ---[ end trace d4b8409def9b8b1f ]---
-> 
-> The reason for this warning is the attempt to get the chip->dev reference
-> in tpm_common_write() although the reference counter is already zero.
-> 
-> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
-> extra reference used to prevent a premature zero counter is never taken,
-> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
-> 
-> Fix this by moving the TPM 2 character device handling from
-> tpm_chip_alloc() to tpm_add_char_device() which is called at a later point
-> in time when the flag has been set in case of TPM2.
-> 
-> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> already introduced function tpm_devs_release() to release the extra
-> reference but did not implement the required put on chip->devs that results
-> in the call of this function.
-> 
-> Fix this by putting chip->devs in tpm_chip_unregister().
-> 
-> Finally move the new implementation for the TPM 2 handling into a new
-> function to avoid multiple checks for the TPM_CHIP_FLAG_TPM2 flag in the
-> good case and error cases.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
-> Co-developed-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Tested-by: Stefan Berger <stefanb@linux.ibm.com>
-> Signed-off-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-> ---
->  drivers/char/tpm/tpm-chip.c   | 46 +++++--------------------
->  drivers/char/tpm/tpm.h        |  2 ++
->  drivers/char/tpm/tpm2-space.c | 65 +++++++++++++++++++++++++++++++++++
->  3 files changed, 75 insertions(+), 38 deletions(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index b009e7479b70..783d65fc71f0 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -274,14 +274,6 @@ static void tpm_dev_release(struct device *dev)
->  	kfree(chip);
->  }
->  
-> -static void tpm_devs_release(struct device *dev)
-> -{
-> -	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
-> -
-> -	/* release the master device reference */
-> -	put_device(&chip->dev);
-> -}
-> -
->  /**
->   * tpm_class_shutdown() - prepare the TPM device for loss of power.
->   * @dev: device to which the chip is associated.
-> @@ -344,7 +336,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	chip->dev_num = rc;
->  
->  	device_initialize(&chip->dev);
-> -	device_initialize(&chip->devs);
->  
->  	chip->dev.class = tpm_class;
->  	chip->dev.class->shutdown_pre = tpm_class_shutdown;
-> @@ -352,29 +343,12 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	chip->dev.parent = pdev;
->  	chip->dev.groups = chip->groups;
->  
-> -	chip->devs.parent = pdev;
-> -	chip->devs.class = tpmrm_class;
-> -	chip->devs.release = tpm_devs_release;
-> -	/* get extra reference on main device to hold on
-> -	 * behalf of devs.  This holds the chip structure
-> -	 * while cdevs is in use.  The corresponding put
-> -	 * is in the tpm_devs_release (TPM2 only)
-> -	 */
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> -		get_device(&chip->dev);
-> -
->  	if (chip->dev_num == 0)
->  		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
->  	else
->  		chip->dev.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num);
->  
-> -	chip->devs.devt =
-> -		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-> -
->  	rc = dev_set_name(&chip->dev, "tpm%d", chip->dev_num);
-> -	if (rc)
-> -		goto out;
-> -	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
->  	if (rc)
->  		goto out;
->  
-> @@ -382,9 +356,7 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  		chip->flags |= TPM_CHIP_FLAG_VIRTUAL;
->  
->  	cdev_init(&chip->cdev, &tpm_fops);
-> -	cdev_init(&chip->cdevs, &tpmrm_fops);
->  	chip->cdev.owner = THIS_MODULE;
-> -	chip->cdevs.owner = THIS_MODULE;
->  
->  	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
->  	if (rc) {
-> @@ -396,7 +368,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	return chip;
->  
->  out:
-> -	put_device(&chip->devs);
->  	put_device(&chip->dev);
->  	return ERR_PTR(rc);
->  }
-> @@ -445,14 +416,9 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->  	}
->  
->  	if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip)) {
-> -		rc = cdev_device_add(&chip->cdevs, &chip->devs);
-> -		if (rc) {
-> -			dev_err(&chip->devs,
-> -				"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-> -				dev_name(&chip->devs), MAJOR(chip->devs.devt),
-> -				MINOR(chip->devs.devt), rc);
-> -			return rc;
-> -		}
-> +		rc = tpm_devs_add(chip);
-> +		if (rc)
-> +			goto err_del_cdev;
->  	}
->  
->  	/* Make the chip available. */
-> @@ -460,6 +426,10 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->  	idr_replace(&dev_nums_idr, chip, chip->dev_num);
->  	mutex_unlock(&idr_lock);
->  
-> +	return 0;
-> +
-> +err_del_cdev:
-> +	cdev_device_del(&chip->cdev, &chip->dev);
->  	return rc;
->  }
->  
-> @@ -654,7 +624,7 @@ void tpm_chip_unregister(struct tpm_chip *chip)
->  		hwrng_unregister(&chip->hwrng);
->  	tpm_bios_log_teardown(chip);
->  	if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip))
-> -		cdev_device_del(&chip->cdevs, &chip->devs);
-> +		tpm_devs_remove(chip);
->  	tpm_del_char_device(chip);
->  }
->  EXPORT_SYMBOL_GPL(tpm_chip_unregister);
-> diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-> index 283f78211c3a..2163c6ee0d36 100644
-> --- a/drivers/char/tpm/tpm.h
-> +++ b/drivers/char/tpm/tpm.h
-> @@ -234,6 +234,8 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
->  		       size_t cmdsiz);
->  int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space, void *buf,
->  		      size_t *bufsiz);
-> +int tpm_devs_add(struct tpm_chip *chip);
-> +void tpm_devs_remove(struct tpm_chip *chip);
->  
->  void tpm_bios_log_setup(struct tpm_chip *chip);
->  void tpm_bios_log_teardown(struct tpm_chip *chip);
-> diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
-> index 97e916856cf3..265ec72b1d81 100644
-> --- a/drivers/char/tpm/tpm2-space.c
-> +++ b/drivers/char/tpm/tpm2-space.c
-> @@ -574,3 +574,68 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
->  	dev_err(&chip->dev, "%s: error %d\n", __func__, rc);
->  	return rc;
->  }
-> +
-> +/*
-> + * Put the reference to the main device.
-> + */
-> +static void tpm_devs_release(struct device *dev)
-> +{
-> +	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
-> +
-> +	/* release the master device reference */
-> +	put_device(&chip->dev);
-> +}
-> +
-> +/*
-> + * Remove the device file for exposed TPM spaces and release the device
-> + * reference. This may also release the reference to the master device.
-> + */
-> +void tpm_devs_remove(struct tpm_chip *chip)
-> +{
-> +	cdev_device_del(&chip->cdevs, &chip->devs);
-> +	put_device(&chip->devs);
-> +}
-> +
-> +/*
-> + * Add a device file to expose TPM spaces. Also take a reference to the
-> + * main device.
-> + */
-> +int tpm_devs_add(struct tpm_chip *chip)
-> +{
-> +	int rc;
-> +
-> +	device_initialize(&chip->devs);
-> +	chip->devs.parent = chip->dev.parent;
-> +	chip->devs.class = tpmrm_class;
-> +
-> +	/*
-> +	 * Get extra reference on main device to hold on behalf of devs.
-> +	 * This holds the chip structure while cdevs is in use. The
-> +	 * corresponding put is in the tpm_devs_release.
-> +	 */
-> +	get_device(&chip->dev);
-> +	chip->devs.release = tpm_devs_release;
-> +	chip->devs.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-> +	cdev_init(&chip->cdevs, &tpmrm_fops);
-> +	chip->cdevs.owner = THIS_MODULE;
-> +
-> +	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
-> +	if (rc)
-> +		goto err_put_devs;
-> +
-> +	rc = cdev_device_add(&chip->cdevs, &chip->devs);
-> +	if (rc) {
-> +		dev_err(&chip->devs,
-> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-> +			dev_name(&chip->devs), MAJOR(chip->devs.devt),
-> +			MINOR(chip->devs.devt), rc);
-> +		goto err_put_devs;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_put_devs:
-> +	put_device(&chip->devs);
-> +
-> +	return rc;
-> +}
-> -- 
-> 2.35.1
-> 
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-LGTM, thank you.
+'commit 708978487304 ("drm/amdgpu/display: Only set vblank_disable_immediate when PSR is not enabled")'
 
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: 92020e81ddbe ("drm/amdgpu/display: set vblank_disable_immediate for DC")
 
-Stefan, if possible, for sanity check, redo test with v9.
+Kernel version to apply: 5.15.17+
 
-BR, Jarkko
+[Why]
+PSR currently relies on the kernel's delayed vblank on/off mechanism
+as an implicit bufferring mechanism to prevent excessive entry/exit.
+
+Without this delay the user experience is impacted since it can take
+a few frames to enter/exit.
+
+[How]
+Only allow vblank disable immediate for DC when psr is not supported.
+
+Leave a TODO indicating that this support should be extended in the
+future to delay independent of the vblank interrupt.
+
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+---
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 5ae9b8133d6d..76967adc5160 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1279,9 +1279,6 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
+ 	adev_to_drm(adev)->mode_config.cursor_width = adev->dm.dc->caps.max_cursor_size;
+ 	adev_to_drm(adev)->mode_config.cursor_height = adev->dm.dc->caps.max_cursor_size;
+ 
+-	/* Disable vblank IRQs aggressively for power-saving */
+-	adev_to_drm(adev)->vblank_disable_immediate = true;
+-
+ 	if (drm_vblank_init(adev_to_drm(adev), adev->dm.display_indexes_num)) {
+ 		DRM_ERROR(
+ 		"amdgpu: failed to initialize sw for display support.\n");
+@@ -3866,6 +3863,14 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
+ 
+ 	}
+ 
++	/*
++	 * Disable vblank IRQs aggressively for power-saving.
++	 *
++	 * TODO: Fix vblank control helpers to delay PSR entry to allow this when PSR
++	 * is also supported.
++	 */
++	adev_to_drm(adev)->vblank_disable_immediate = !psr_feature_enabled;
++
+ 	/* Software is initialized. Now we can register interrupt handlers. */
+ 	switch (adev->asic_type) {
+ #if defined(CONFIG_DRM_AMD_DC_SI)
+-- 
+2.25.1
+
