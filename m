@@ -2,105 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE704CC631
-	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 20:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C22C4CC6D1
+	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 21:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236016AbiCCTjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Mar 2022 14:39:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58530 "EHLO
+        id S232934AbiCCUL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Mar 2022 15:11:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235984AbiCCTjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 14:39:41 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0079266200
-        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 11:38:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646336332;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2Vioz7xZsrNBUJ+Yejc/iDCBIufa8oqaSWrDx4bnstg=;
-        b=iM7HrloPgnTa4x0gONvKZkggs0NRDX2vM83Ex1Qh+ZwrKmfwvi1vc5hi/Lhlvm9cOznOX/
-        qcpXi9c5oHoNzYMSbLaZQIQ3pP6q+kASjT+/899EUxTEJ7agQDXX9+lp7Eh5VHNftu6KSj
-        /52uUIVhhmtT528wtNov3a8K4qxwM+o=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-553-gzaG4x_AOqOIA3A5PsxYqg-1; Thu, 03 Mar 2022 14:38:47 -0500
-X-MC-Unique: gzaG4x_AOqOIA3A5PsxYqg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 53BEC1883520;
-        Thu,  3 Mar 2022 19:38:45 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7227E5DF3A;
-        Thu,  3 Mar 2022 19:38:44 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Hildenbrand <david@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ben Gardon <bgardon@google.com>,
-        Mingwei Zhang <mizhang@google.com>, stable@vger.kernel.org
-Subject: [PATCH v4 01/30] KVM: x86/mmu: Check for present SPTE when clearing dirty bit in TDP MMU
-Date:   Thu,  3 Mar 2022 14:38:13 -0500
-Message-Id: <20220303193842.370645-2-pbonzini@redhat.com>
-In-Reply-To: <20220303193842.370645-1-pbonzini@redhat.com>
-References: <20220303193842.370645-1-pbonzini@redhat.com>
+        with ESMTP id S231293AbiCCUL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 15:11:28 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBA80144F79
+        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 12:10:42 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id mr24-20020a17090b239800b001bf0a375440so3429312pjb.4
+        for <stable@vger.kernel.org>; Thu, 03 Mar 2022 12:10:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tcbqu3CeiCxRY2UkCR4gNTIN4YpLaZ3VEUJxLi8dxwc=;
+        b=SNaaIdHynVIJjUr6GFZdEZ6cToofA516r2k1WpNWu6fPfoN3YJEax8qOYCwptXaCmU
+         XS39HVOVJFclDf2Y9OkaIfZWNN4z9KHkJB9F8QYYMdBrnZ7xiHcyad22dHN+srPFxyWu
+         fV/eaM3DDWjUPfPAMqhA+GpqSa+HKvINbg7QUQhTbHKJM3O5Hlde2fY8z9bqpdHtfZ6L
+         Gpxgb/ipSIuybxu1wPjvsmAnemesfXR+7Rarada2c2VSKe4Pm016TuZHpQyRgG/FKGVX
+         PtR/6XoYBOV/kBLy6Kf9K6VZEgEsCXcXktNGM82+SnkXM0NklkeOp/GPGu85TEMy9y2l
+         A/Dg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tcbqu3CeiCxRY2UkCR4gNTIN4YpLaZ3VEUJxLi8dxwc=;
+        b=dIzMHKsDB4gCE9HMtRo16L8L6HzCawp4lbPk+O1PF4so+fI+jd4CviAMMoz8hj48N2
+         v0+77C1oBADkh3mm9CFtqMhOCgnXwVjEocbEjryGtmAmTrdriz9HeZGwuDwqoUSNojn3
+         3KI0Rn9M7KP9n7DXZwDNouuqwWL88foDgoCaG5TES4n7cHEjKQ0ctD4yGLOP0vJJz0e9
+         wSHmbwrW0ZAE/EDThRdcQRBF4MMj0O5gEsCHumvrJ/1UwwJ2/pqk3FqglhVr1JKpNdGr
+         NPAKrjv7Ayp0RL7yobLRRfMfBW4y+8mQCmUMJh5Vp0jpJqJtBUevwZcq7k2ibwk5qZCe
+         B9+Q==
+X-Gm-Message-State: AOAM533mxZRPQQ4LWbw6TZ3NwK77pyTyZ6uhxIoxYdcFV8wrnamgqgmz
+        nzk48KRHUoRQLEd2u+pfz4GZXaTldEzgRPjbLHQ=
+X-Google-Smtp-Source: ABdhPJzIg3NwX9f2AFFPPyiSziwfyziYRcwLVbZpdVv/Y+sBpCqFDWHq75143CLbC0+XI+CM8fGhQQ==
+X-Received: by 2002:a17:902:ecc5:b0:14f:f310:4ed0 with SMTP id a5-20020a170902ecc500b0014ff3104ed0mr38380908plh.129.1646338242070;
+        Thu, 03 Mar 2022 12:10:42 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v24-20020a634818000000b0036407db4728sm2662897pga.26.2022.03.03.12.10.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Mar 2022 12:10:41 -0800 (PST)
+Message-ID: <622120c1.1c69fb81.1dadb.6cfa@mx.google.com>
+Date:   Thu, 03 Mar 2022 12:10:41 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.182-13-g0281def5f981
+Subject: stable-rc/queue/5.4 baseline: 100 runs,
+ 2 regressions (v5.4.182-13-g0281def5f981)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+stable-rc/queue/5.4 baseline: 100 runs, 2 regressions (v5.4.182-13-g0281def=
+5f981)
 
-Explicitly check for present SPTEs when clearing dirty bits in the TDP
-MMU.  This isn't strictly required for correctness, as setting the dirty
-bit in a defunct SPTE will not change the SPTE from !PRESENT to PRESENT.
-However, the guarded MMU_WARN_ON() in spte_ad_need_write_protect() would
-complain if anyone actually turned on KVM's MMU debugging.
+Regressions Summary
+-------------------
 
-Fixes: a6a0b05da9f3 ("kvm: x86/mmu: Support dirty logging for the TDP MMU")
-Cc: Ben Gardon <bgardon@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20220226001546.360188-3-seanjc@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/mmu/tdp_mmu.c | 3 +++
- 1 file changed, 3 insertions(+)
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index debf08212f12..4cf0cc04b2a0 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -1468,6 +1468,9 @@ static bool clear_dirty_gfn_range(struct kvm *kvm, struct kvm_mmu_page *root,
- 		if (tdp_mmu_iter_cond_resched(kvm, &iter, false, true))
- 			continue;
- 
-+		if (!is_shadow_present_pte(iter.old_spte))
-+			continue;
-+
- 		if (spte_ad_need_write_protect(iter.old_spte)) {
- 			if (is_writable_pte(iter.old_spte))
- 				new_spte = iter.old_spte & ~PT_WRITABLE_MASK;
--- 
-2.31.1
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.182-13-g0281def5f981/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.182-13-g0281def5f981
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0281def5f981d0e072f8db337fd7ae8730c688d3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6220e7d9c0bed7f03ac6296a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.182-1=
+3-g0281def5f981/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.182-1=
+3-g0281def5f981/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6220e7d9c0bed7f03ac62=
+96b
+        failing since 77 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6220e7daf249d89b02c6297d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.182-1=
+3-g0281def5f981/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.182-1=
+3-g0281def5f981/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6220e7daf249d89b02c62=
+97e
+        failing since 77 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
