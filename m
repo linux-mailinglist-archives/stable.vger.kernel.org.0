@@ -2,65 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF3FE4CC531
-	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 19:27:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 795AF4CC53F
+	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 19:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232145AbiCCS1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Mar 2022 13:27:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58102 "EHLO
+        id S234569AbiCCSeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Mar 2022 13:34:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234175AbiCCS1n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 13:27:43 -0500
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21B311A41CA
-        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 10:26:57 -0800 (PST)
-Received: by mail-pl1-x649.google.com with SMTP id c12-20020a170902848c00b0015025f53e9cso3344469plo.7
-        for <stable@vger.kernel.org>; Thu, 03 Mar 2022 10:26:57 -0800 (PST)
+        with ESMTP id S233906AbiCCSeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 13:34:19 -0500
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C3F10A7CA
+        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 10:33:33 -0800 (PST)
+Received: by mail-pj1-x1049.google.com with SMTP id c7-20020a17090a674700b001beef0afd32so2810717pjm.2
+        for <stable@vger.kernel.org>; Thu, 03 Mar 2022 10:33:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
         bh=QOuZ5I4KFRMXkF6seWShnE2Ey6ez7qDQdhK2bClCPu0=;
-        b=sLy9gR27I5Dr4L5BunA0ik6XS/gV9s1EnI+tW51on6ePT2+tp1bk8pAbAD+VkLZ1y0
-         eRZOLFXFP2YBbEHDUZss6GcHZ3U5Emtpx+Qhp/8lHSQuCZ2v6DjHs1JJjiFPk999aGQU
-         YaKhj9WzcKtZjWxrSkP63aux++Rzxkcq8vLYzoR+QTsWcu7iGG/XNdI+n23CNqOFyjb9
-         xD8Oz4RgOeIYXfJGK2mwYDlKxYkz7sck7Um+TByxxZTL6JkiKHO+io3XSU5ns/EA8xCM
-         3z6feyuRG0MN/hXKY7ltreP138DlJIFJcnoNaXWL7cAnBrIBE7sTG1mfZzWzsY3z6EUw
-         qi1w==
+        b=lDeisK5cHZpbtWacdaMm9AZjhDaWYo10ffNAXW4GS7AdNAyg+Hh/n56SMXrjaBrBGB
+         UvG1CT+h6m7qNJsCzbDviTmDG+Bovty9yvh5u/fbAP5+WCF779/YNu4zcmVpMKMUJVCo
+         kZDdVS4rlis+mXQWEAkHZU9clHM/euY6G6PR/1YG6sVnB8FymzRzfSiKZC8/Qqd+irdT
+         oJpjpOTjYdxq7uGIZj8weZuQIPQh4OBN3TN+afP/g1QU5r2EzbcIlPCFVLoI2xuUAkvE
+         FFOGmwmAtvioZej3cVRpljxne8EKoY4dt3ef0lJEaIyrJiHLZIyNShsen+31akNCCDZl
+         c8fA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
         bh=QOuZ5I4KFRMXkF6seWShnE2Ey6ez7qDQdhK2bClCPu0=;
-        b=rY3abToThOn/3XJOH0u0KA1mEHP5j/iZyekTF2Pf7FuWCy6oHV//4yKqTwawqOT4fg
-         SDW7IxyRmkGeN6Uo3PRMdcP5t5IL4PGsEaj9q2BDgOYUfRYdHXTQ1X/H8Obnk3BfV8qh
-         DhLQK5ynjJMcBpKnwXo0W3PiWYEcC6JESxdCof2bZ6wifQLAxnbNAYRv8UEhzkJq5/IL
-         1+Z41WXM26iBSrjBejo2iJxn332iuwqCBbZCd0pjlzK8gGhpQSsbUlCvDahLXdUneSnH
-         tcRKbMghJXVujPKUPlHSF11BCRFNjNIcln6odFzyBvlMTOoaUaoCTU2Jig+fp3FYos3S
-         1r0A==
-X-Gm-Message-State: AOAM530vjEISB9AjvtSaEyEpBc97tep0iYYHggEjM4ShnfIAweemCAxT
-        SV3tPNE3/Jl0StLSNbl4yM+1rWfi6LMAFA==
-X-Google-Smtp-Source: ABdhPJwv9F/tPxaYbn91Rb4OvtOb5KbJjAUyoZWfwNN8uizj7XVr2QgDsgz9NlIiaqWeFSpEyCol0tiA1Nww7w==
+        b=69zkhfD6MZSPEDJEe1PRIhNsxZObG0pOYVwzwRu0yPDSd0PN2G45W4U4fCCTbjUk2g
+         PZ21yvsPAidJTsSo95WDIHlLwC/vcryuqA4aw0EK5TXg/UkOr/Vm0vEBJy4UrfdXH9af
+         dBmQF/3pyc1eJlBSLrQjkxkgnfWPrVc3pk/AItIB53YQ0CtUlV4YbIIZMxl0n2c+yc1+
+         36nf/AzzU1KU5tAIjNE/PdsnmyxjuCHeqRqtkw+/Ks2vFrGRiWFtVuwFavT9LIvb4DcZ
+         hHIgEL7aDee2bl6J/0aVWrlNDEl8yblCeWtA9dc9/MNknFWmIFrnFwE4kxTnlGwaq2wf
+         v6Mg==
+X-Gm-Message-State: AOAM530pnYXQ1uk6dEcvM8uLeVeS9eTgxcG+xddK6vIhliUo50mv3HB1
+        WASl5N9V0NVBEu4gR+1V4BdgIQ+uoSpRuQ==
+X-Google-Smtp-Source: ABdhPJyMOASFXqZeTTIqtYO0itzLRZL9uApqq7mmkmPJO9JZ5PbxYzX10D2vZj7kQXTCDJOFzri0PvVd+gYYTQ==
 X-Received: from dmatlack-heavy.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:19cd])
- (user=dmatlack job=sendgmr) by 2002:a05:6a00:21ca:b0:4c9:ff9:47e3 with SMTP
- id t10-20020a056a0021ca00b004c90ff947e3mr39636853pfj.10.1646332016540; Thu,
- 03 Mar 2022 10:26:56 -0800 (PST)
-Date:   Thu,  3 Mar 2022 18:26:51 +0000
-In-Reply-To: <20220303182652.1496761-1-dmatlack@google.com>
-Message-Id: <20220303182652.1496761-2-dmatlack@google.com>
+ (user=dmatlack job=sendgmr) by 2002:a17:902:b602:b0:14f:e42b:d547 with SMTP
+ id b2-20020a170902b60200b0014fe42bd547mr37940828pls.91.1646332412852; Thu, 03
+ Mar 2022 10:33:32 -0800 (PST)
+Date:   Thu,  3 Mar 2022 18:33:27 +0000
+In-Reply-To: <20220303183328.1499189-1-dmatlack@google.com>
+Message-Id: <20220303183328.1499189-2-dmatlack@google.com>
 Mime-Version: 1.0
-References: <20220303182652.1496761-1-dmatlack@google.com>
+References: <20220303183328.1499189-1-dmatlack@google.com>
 X-Mailer: git-send-email 2.35.1.616.g0bdcbb4464-goog
-Subject: [PATCH 1/2] KVM: Prevent module exit until all VMs are freed
+Subject: [PATCH RESEND 1/2] KVM: Prevent module exit until all VMs are freed
 From:   David Matlack <dmatlack@google.com>
 To:     pbonzini@redhat.com
-Cc:     David Matlack <dmatlack@google.com>, stable@vger.kernel.org,
-        Ben Gardon <bgardon@google.com>
+Cc:     David Matlack <dmatlack@google.com>, kvm@vger.kernel.org,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Gleb Natapov <gleb@redhat.com>, Rik van Riel <riel@redhat.com>,
+        seanjc@google.com, bgardon@google.com, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-10.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
