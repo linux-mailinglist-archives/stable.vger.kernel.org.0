@@ -2,124 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3344CC03D
-	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 15:46:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6C54CC090
+	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 16:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230264AbiCCOq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Mar 2022 09:46:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42124 "EHLO
+        id S233473AbiCCPCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Mar 2022 10:02:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiCCOq7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 09:46:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8212218A793
-        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 06:46:13 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37D41B825AD
-        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 14:46:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82D8FC004E1;
-        Thu,  3 Mar 2022 14:46:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646318770;
-        bh=zTVJAwunlEo1wbP8rW/3GrwpH49zSpZqNRT50AKh5+E=;
-        h=Subject:To:From:Date:From;
-        b=mUX5LHMzm6ps5z7o1UBHA0va5OXkFoTtPa/1zSqp6GiTf4TihNRa3z+wPvFpIRr7D
-         4BxjLDnZaeTiue45HJnw17iyUH0E6BqrBQO99KJGygq0fXjNyMnF7WEQ7/t6me4xI/
-         DrZrSlMaOs/rXmm0j/RgKa74dQ51SSrtHoBHMacs=
-Subject: patch "usb: typec: tipd: Forward plug orientation to typec subsystem" added to usb-testing
-To:     sven@svenpeter.dev, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Mar 2022 15:45:55 +0100
-Message-ID: <1646318755196108@kroah.com>
+        with ESMTP id S230525AbiCCPCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 10:02:22 -0500
+Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1775C18FAFB
+        for <stable@vger.kernel.org>; Thu,  3 Mar 2022 07:01:37 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 8E0033200C6B;
+        Thu,  3 Mar 2022 10:01:33 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Thu, 03 Mar 2022 10:01:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; bh=PGIAXuxUDA7oqwwwXukmd9RORgRPlXwEI6vQ36
+        AAWTw=; b=OCBToIvtaKw8XDBpceipz46ratVZUqRddZGnDtWvTO8zEyOuV0TXu3
+        a0fe1Q6VtR5yqo10Fgx4HC26P92kIpYZoXQUHil/yZnhluzYIAWIVXS+1pN31KBx
+        Bj7OOM83jLVeGiqYyF+p4VmV6734EoYNdBEgcLoTFsyVgxj3wdZsaKlzDohWJbrF
+        LZyloaSd6DN97jOy26rxohxIZnt4giULuxprM7tESEKfKtK3VbXUGQpTL165/FOc
+        FzpL3s5xZtrTkiKN2hXhAAlNdzeXLIPAiH3TJ9HyHp1v3dhNRtYn21t6IkXwQu4M
+        firEPT/KDyhTURdYcVIuhDu9XCgCow4Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PGIAXuxUDA7oqwwwX
+        ukmd9RORgRPlXwEI6vQ36AAWTw=; b=GvTqCY2xIhJtKOvqnDJSj1GQAue9HqzSX
+        mLpxuDtfN9oBrA7WajPzaZ/EsF/ZuHeaSyvQLO3xC23VUN/nTjJySMk0rf6FUN6f
+        j92r42BRxlwS3v44X2TLlu8sBNf+jjF6yWxz4jO87etLLSAE3MdashM9wguXyon5
+        dcUf5lgODLWIRRH5FeE14JJAOUOWg0YnBRgFsjnJNkBh4dPYgbmybhyZdvY7Fs2G
+        sSbbVE6V/z+qUwsWa8tlh9/Cuy9Y/mSUszgjzrgRTEUWxkCyzO1NsigD+EkXcZZy
+        JwExNSkPjvqDH5jafs7UEmR5Wm4pg7eEqWe3t26+QJykiwoKc0cUA==
+X-ME-Sender: <xms:TNggYjl19TJO26IcMgwZFHY7XQzO5Qctlk_p5xdOEG1HtkOtps4P_Q>
+    <xme:TNggYm07VgB7ZA16bX8G-7e3eb2xebrqP8oCCMvkNC7jSWm77zIKYvLl4feuHxBMk
+    HRVqqojaJDspg>
+X-ME-Received: <xmr:TNggYpqT9-PRNbBPktl42GuCgAq5aGR4tgBuOX6q4IsRmoanQa-fI-wCXvENBeai-pKE9Vr7oicOMaWfXMLBEq8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddtiedgjedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:TNggYrmg4WHpYT0oOetJvpsrLmWOpvjHEiUgmdcwHR39BUmEboXlnQ>
+    <xmx:TNggYh1pRzjAizkgobL_IywX5rXwjuQjjZ97Gv6I3QQv_mq911VSDg>
+    <xmx:TNggYqtreqyd5zE6vAHUIyUCHqoPt8wa4hXL4qWfzXRflT53_yQyUQ>
+    <xmx:TdggYrqafgSGbO9mZkHobbM23n1hbYgPPj_wApAF92W-pC0-8F8n8w>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 3 Mar 2022 10:01:32 -0500 (EST)
+Date:   Thu, 3 Mar 2022 16:01:30 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     stable <stable@vger.kernel.org>, Hangyu Hua <hbh25y@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [stable] usb: gadget: Fix potential use-after-free
+Message-ID: <YiDYSj8XaFdVH/1S@kroah.com>
+References: <a4e0a5446a231fd67d1881d68047920918f1be65.camel@decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a4e0a5446a231fd67d1881d68047920918f1be65.camel@decadent.org.uk>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Feb 28, 2022 at 07:47:31PM +0100, Ben Hutchings wrote:
+> Please pick these two commits for all stable branches:
+> 
+> commit 89f3594d0de58e8a57d92d497dea9fee3d4b9cda
+> Author: Hangyu Hua <hbh25y@gmail.com>
+> Date:   Sat Jan 1 01:21:37 2022 +0800
+>  
+>     usb: gadget: don't release an existing dev->buf
+>  
+> commit 501e38a5531efbd77d5c73c0ba838a889bfc1d74
+> Author: Hangyu Hua <hbh25y@gmail.com>
+> Date:   Sat Jan 1 01:21:38 2022 +0800
+>  
+>     usb: gadget: clear related members when goto fail
+> 
 
-This is a note to let you know that I've just added the patch titled
+Now queued up, thanks
 
-    usb: typec: tipd: Forward plug orientation to typec subsystem
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 676748389f5db74e7d28f9d630eebd75cb8a11b4 Mon Sep 17 00:00:00 2001
-From: Sven Peter <sven@svenpeter.dev>
-Date: Sat, 26 Feb 2022 13:59:12 +0100
-Subject: usb: typec: tipd: Forward plug orientation to typec subsystem
-
-In order to bring up the USB3 PHY on the Apple M1 we need to know the
-orientation of the Type-C cable. Extract it from the status register and
-forward it to the typec subsystem.
-
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20220226125912.59828-1-sven@svenpeter.dev
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tipd/core.c     | 5 +++++
- drivers/usb/typec/tipd/tps6598x.h | 1 +
- 2 files changed, 6 insertions(+)
-
-diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
-index 7ffcda94d323..16b4560216ba 100644
---- a/drivers/usb/typec/tipd/core.c
-+++ b/drivers/usb/typec/tipd/core.c
-@@ -256,6 +256,10 @@ static int tps6598x_connect(struct tps6598x *tps, u32 status)
- 	typec_set_pwr_opmode(tps->port, mode);
- 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
- 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
-+	if (TPS_STATUS_TO_UPSIDE_DOWN(status))
-+		typec_set_orientation(tps->port, TYPEC_ORIENTATION_REVERSE);
-+	else
-+		typec_set_orientation(tps->port, TYPEC_ORIENTATION_NORMAL);
- 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), true);
- 
- 	tps->partner = typec_register_partner(tps->port, &desc);
-@@ -278,6 +282,7 @@ static void tps6598x_disconnect(struct tps6598x *tps, u32 status)
- 	typec_set_pwr_opmode(tps->port, TYPEC_PWR_MODE_USB);
- 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
- 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
-+	typec_set_orientation(tps->port, TYPEC_ORIENTATION_NONE);
- 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), false);
- 
- 	power_supply_changed(tps->psy);
-diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
-index 3dae84c524fb..527857549d69 100644
---- a/drivers/usb/typec/tipd/tps6598x.h
-+++ b/drivers/usb/typec/tipd/tps6598x.h
-@@ -17,6 +17,7 @@
- /* TPS_REG_STATUS bits */
- #define TPS_STATUS_PLUG_PRESENT		BIT(0)
- #define TPS_STATUS_PLUG_UPSIDE_DOWN	BIT(4)
-+#define TPS_STATUS_TO_UPSIDE_DOWN(s)	(!!((s) & TPS_STATUS_PLUG_UPSIDE_DOWN))
- #define TPS_STATUS_PORTROLE		BIT(5)
- #define TPS_STATUS_TO_TYPEC_PORTROLE(s) (!!((s) & TPS_STATUS_PORTROLE))
- #define TPS_STATUS_DATAROLE		BIT(6)
--- 
-2.35.1
-
-
+greg k-h
