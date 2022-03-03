@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF33A4CBC25
+	by mail.lfdr.de (Postfix) with ESMTP id 040654CBC23
 	for <lists+stable@lfdr.de>; Thu,  3 Mar 2022 12:07:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232635AbiCCLIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Mar 2022 06:08:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56292 "EHLO
+        id S232627AbiCCLIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Mar 2022 06:08:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231783AbiCCLIT (ORCPT
+        with ESMTP id S232399AbiCCLIT (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 3 Mar 2022 06:08:19 -0500
 Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0157CB59;
-        Thu,  3 Mar 2022 03:07:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A778817AAA;
+        Thu,  3 Mar 2022 03:07:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646305652; x=1677841652;
+  t=1646305653; x=1677841653;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=+XGuIpM+r+m/AeunvYr+GHU0lBtwG4Ax8Jpj4Gu8764=;
-  b=gjJADbYwJTuC3Cgm1jgGkzRb5kFjwxfcdq5VzfOEP6fWsW/PCVbCxuH7
-   IBbg6gQ7XyV+mqXxrznf8aLifhlKoullhOUduVhjv1AWW8M7lwQAxCHO8
-   ejS08LhFpBaAKirlriilHcumE9l/f3JdMLnpLZKPTqbSMakQ6FJ3K1/i/
-   mFNcv95pHVI6Fopum20vn/V/sAVsVap5v5Lbwk2ObOxc9fzna84eYNJCP
-   ZtN2+4pgPFowgkSm020GAB7/PBcICv+S9+izWeUqgtQgxQrAkS3W0Kh/C
-   Q++XpA72YoPYbojmXMVsFJG8Lezomw0j61BlLd2PWHzVVQROzw+4xRd0V
+  bh=74os4aT3i+C2SOidVvHvZZBWyvDlquCbqF5/mimla4Q=;
+  b=QY3rr1Sip08jAL0EYdj0bl7LTwbomToklSw3GT6ap++YxjI6vwYL3P8/
+   ytOXkWUMv3hQOlPaaAm+L65T0+y91w3rA8l4JqrtLf+UAIC+gPoM0gWbH
+   b78H6VzdjVsxfkxORprnYDco7vJFjCbOnGlhg0aD851KiQh0iT6r7HGzm
+   45VSAROBYdL9yS2h+ZIJ+EjaRmqKhdiitw8PHkkI0GiB4gT/Wu8aliWQw
+   EadqVqW3Jr+smEi+RusPIJEQ4+i/K2xWsqZlrQx0k8GzUzDoGp2CJ1XG8
+   VFtPdL90efyWvAJcc50BkVl6kToUNoaTABXM+G705YCNH+Xs6M8z6kdAp
    Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10274"; a="251219875"
+X-IronPort-AV: E=McAfee;i="6200,9189,10274"; a="251219879"
 X-IronPort-AV: E=Sophos;i="5.90,151,1643702400"; 
-   d="scan'208";a="251219875"
+   d="scan'208";a="251219879"
 Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2022 03:07:31 -0800
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2022 03:07:33 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.90,151,1643702400"; 
-   d="scan'208";a="576452348"
+   d="scan'208";a="576452357"
 Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
-  by orsmga001.jf.intel.com with ESMTP; 03 Mar 2022 03:07:29 -0800
+  by orsmga001.jf.intel.com with ESMTP; 03 Mar 2022 03:07:31 -0800
 From:   Mathias Nyman <mathias.nyman@linux.intel.com>
 To:     <gregkh@linuxfoundation.org>
 Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Pavan Kondeti <quic_pkondeti@quicinc.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 1/9] xhci: make xhci_handshake timeout for xhci_reset() adjustable
-Date:   Thu,  3 Mar 2022 13:08:55 +0200
-Message-Id: <20220303110903.1662404-2-mathias.nyman@linux.intel.com>
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH v2 2/9] xhci: fix garbage USBSTS being logged in some cases
+Date:   Thu,  3 Mar 2022 13:08:56 +0200
+Message-Id: <20220303110903.1662404-3-mathias.nyman@linux.intel.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220303110903.1662404-1-mathias.nyman@linux.intel.com>
 References: <20220303110903.1662404-1-mathias.nyman@linux.intel.com>
@@ -62,179 +61,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xhci_reset() timeout was increased from 250ms to 10 seconds in order to
-give Renesas 720201 xHC enough time to get ready in probe.
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-xhci_reset() is called with interrupts disabled in other places, and
-waiting for 10 seconds there is not acceptable.
+xhci_decode_usbsts() is expected to return a zero-terminated string by
+its only caller, xhci_stop_endpoint_command_watchdog(), which directly
+logs the return value:
 
-Add a timeout parameter to xhci_reset(), and adjust it back to 250ms
-when called from xhci_stop() or xhci_shutdown() where interrupts are
-disabled, and successful reset isn't that critical.
-This solves issues when deactivating host mode on platforms like SM8450.
+  xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(str, usbsts));
 
-For now don't change the timeout if xHC is reset in xhci_resume().
-No issues are reported for it, and we need the reset to succeed.
-Locking around that reset needs to be revisited later.
+However, if no recognized bits are set in usbsts, the function will
+return without having called any sprintf() and therefore return an
+untouched non-zero-terminated caller-provided buffer, causing garbage
+to be output to log.
 
-Additionally change the signed integer timeout parameter in
-xhci_handshake() to a u64 to match the timeout value we pass to
-readl_poll_timeout_atomic()
+Fix that by always including the raw value in the output.
 
-Reported-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Reported-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
-Fixes: 22ceac191211 ("xhci: Increase reset timeout for Renesas 720201 host.")
+Note that before commit 4843b4b5ec64 ("xhci: fix even more unsafe memory
+usage in xhci tracing") the result effect in the failure case was different
+as a static buffer was used here, but the code still worked incorrectly.
+
+Fixes: 9c1aa36efdae ("xhci: Show host status when watchdog triggers and host is assumed dead.")
 Cc: stable@vger.kernel.org
-Tested-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 ---
- drivers/usb/host/xhci-hub.c |  2 +-
- drivers/usb/host/xhci-mem.c |  2 +-
- drivers/usb/host/xhci.c     | 20 +++++++++-----------
- drivers/usb/host/xhci.h     |  7 +++++--
- 4 files changed, 16 insertions(+), 15 deletions(-)
+ drivers/usb/host/xhci.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index df3522dab31b..bb4f01ce90e3 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -762,7 +762,7 @@ static int xhci_exit_test_mode(struct xhci_hcd *xhci)
- 	}
- 	pm_runtime_allow(xhci_to_hcd(xhci)->self.controller);
- 	xhci->test_mode = 0;
--	return xhci_reset(xhci);
-+	return xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- }
- 
- void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index cb70d0b31e08..48114a462908 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -2575,7 +2575,7 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
- 
- fail:
- 	xhci_halt(xhci);
--	xhci_reset(xhci);
-+	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- 	xhci_mem_cleanup(xhci);
- 	return -ENOMEM;
- }
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index a1c781f70d02..6b32f7e65d4c 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -65,7 +65,7 @@ static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
-  * handshake done).  There are two failure modes:  "usec" have passed (major
-  * hardware flakeout), or the register reads as all-ones (hardware removed).
-  */
--int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
-+int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
- {
- 	u32	result;
- 	int	ret;
-@@ -73,7 +73,7 @@ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
- 	ret = readl_poll_timeout_atomic(ptr, result,
- 					(result & mask) == done ||
- 					result == U32_MAX,
--					1, usec);
-+					1, timeout_us);
- 	if (result == U32_MAX)		/* card removed */
- 		return -ENODEV;
- 
-@@ -162,7 +162,7 @@ int xhci_start(struct xhci_hcd *xhci)
-  * Transactions will be terminated immediately, and operational registers
-  * will be set to their defaults.
-  */
--int xhci_reset(struct xhci_hcd *xhci)
-+int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
- {
- 	u32 command;
- 	u32 state;
-@@ -195,8 +195,7 @@ int xhci_reset(struct xhci_hcd *xhci)
- 	if (xhci->quirks & XHCI_INTEL_HOST)
- 		udelay(1000);
- 
--	ret = xhci_handshake(&xhci->op_regs->command,
--			CMD_RESET, 0, 10 * 1000 * 1000);
-+	ret = xhci_handshake(&xhci->op_regs->command, CMD_RESET, 0, timeout_us);
- 	if (ret)
- 		return ret;
- 
-@@ -209,8 +208,7 @@ int xhci_reset(struct xhci_hcd *xhci)
- 	 * xHCI cannot write to any doorbells or operational registers other
- 	 * than status until the "Controller Not Ready" flag is cleared.
- 	 */
--	ret = xhci_handshake(&xhci->op_regs->status,
--			STS_CNR, 0, 10 * 1000 * 1000);
-+	ret = xhci_handshake(&xhci->op_regs->status, STS_CNR, 0, timeout_us);
- 
- 	xhci->usb2_rhub.bus_state.port_c_suspend = 0;
- 	xhci->usb2_rhub.bus_state.suspended_ports = 0;
-@@ -731,7 +729,7 @@ static void xhci_stop(struct usb_hcd *hcd)
- 	xhci->xhc_state |= XHCI_STATE_HALTED;
- 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
- 	xhci_halt(xhci);
--	xhci_reset(xhci);
-+	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- 	spin_unlock_irq(&xhci->lock);
- 
- 	xhci_cleanup_msix(xhci);
-@@ -784,7 +782,7 @@ void xhci_shutdown(struct usb_hcd *hcd)
- 	xhci_halt(xhci);
- 	/* Workaround for spurious wakeups at shutdown with HSW */
- 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
--		xhci_reset(xhci);
-+		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- 	spin_unlock_irq(&xhci->lock);
- 
- 	xhci_cleanup_msix(xhci);
-@@ -1170,7 +1168,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
- 		xhci_dbg(xhci, "Stop HCD\n");
- 		xhci_halt(xhci);
- 		xhci_zero_64b_regs(xhci);
--		retval = xhci_reset(xhci);
-+		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
- 		spin_unlock_irq(&xhci->lock);
- 		if (retval)
- 			return retval;
-@@ -5307,7 +5305,7 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
- 
- 	xhci_dbg(xhci, "Resetting HCD\n");
- 	/* Reset the internal HC memory state and registers. */
--	retval = xhci_reset(xhci);
-+	retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
- 	if (retval)
- 		return retval;
- 	xhci_dbg(xhci, "Reset complete\n");
 diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 8a0026ee9524..fce32f8ea9d0 100644
+index fce32f8ea9d0..1d83ddace482 100644
 --- a/drivers/usb/host/xhci.h
 +++ b/drivers/usb/host/xhci.h
-@@ -229,6 +229,9 @@ struct xhci_op_regs {
- #define CMD_ETE		(1 << 14)
- /* bits 15:31 are reserved (and should be preserved on writes). */
+@@ -2625,8 +2625,11 @@ static inline const char *xhci_decode_usbsts(char *str, u32 usbsts)
+ {
+ 	int ret = 0;
  
-+#define XHCI_RESET_LONG_USEC		(10 * 1000 * 1000)
-+#define XHCI_RESET_SHORT_USEC		(250 * 1000)
++	ret = sprintf(str, " 0x%08x", usbsts);
 +
- /* IMAN - Interrupt Management Register */
- #define IMAN_IE		(1 << 1)
- #define IMAN_IP		(1 << 0)
-@@ -2081,11 +2084,11 @@ void xhci_free_container_ctx(struct xhci_hcd *xhci,
- 
- /* xHCI host controller glue */
- typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
--int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec);
-+int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us);
- void xhci_quiesce(struct xhci_hcd *xhci);
- int xhci_halt(struct xhci_hcd *xhci);
- int xhci_start(struct xhci_hcd *xhci);
--int xhci_reset(struct xhci_hcd *xhci);
-+int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us);
- int xhci_run(struct usb_hcd *hcd);
- int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
- void xhci_shutdown(struct usb_hcd *hcd);
+ 	if (usbsts == ~(u32)0)
+-		return " 0xffffffff";
++		return str;
++
+ 	if (usbsts & STS_HALT)
+ 		ret += sprintf(str + ret, " HCHalted");
+ 	if (usbsts & STS_FATAL)
 -- 
 2.25.1
 
