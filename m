@@ -2,130 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8024CD8F9
-	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 17:19:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E07B4CD906
+	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 17:23:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239053AbiCDQUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Mar 2022 11:20:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38746 "EHLO
+        id S240642AbiCDQYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Mar 2022 11:24:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232609AbiCDQUL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 11:20:11 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD02E0AE0
-        for <stable@vger.kernel.org>; Fri,  4 Mar 2022 08:19:23 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id k1so8021384pfu.2
-        for <stable@vger.kernel.org>; Fri, 04 Mar 2022 08:19:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=LGY7Ko0l/yg7x3TLdgQBPD/a4gH5aOMfWAzboiTJt4M=;
-        b=lQvaL6LHqNLEoaLvO7Fn1aE3b5wq+TigN2cwsVd6W9qe6iEGwmXB3Db0pz9EnbLSsi
-         GHFE7dnzJGJdZrcgU9rNubFQTzgXWIzXOrWodqywq/mlopRIvbNQLzffdoWcW2W7jld4
-         4tRNjxZyBS2buHgbi4XpTQIebI66t1+34v0uaoswzaS9Z21I6fzJ8pkl1lzTDMcX5BJf
-         2K+1Vaqi3irhlZdhPX0/wOqnHKWCB4oObna5LPGYctxMjDsT8oywakNJyfLtGFcXjZnl
-         J0yLA9IneVc9Mlfegr+DEgaQTAeEHEVFg76eqKz/Hz4Yu8L4xR7r2FI8xQOC4ntRGiY8
-         DYYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=LGY7Ko0l/yg7x3TLdgQBPD/a4gH5aOMfWAzboiTJt4M=;
-        b=voe9J+Rlk4hsg4lleeqsEwjP8mxAUPPjIv4y/3/USDNRDIva56XDYP8kTZm8uAwEEj
-         wVoOE/DNMTespJc/NRYIqQPuARcpzmuDUl7Dyo8KcQyvuWSQEN+KUjnTWzQXL104SrF1
-         36IiZsNqEx7c3h49bPtpbo/E3z2LRKWHIzIFYlN8gj1aBx9aLhQjFqjXD+bBYKWSmYXF
-         DxIi96JWI+I1w3n4yPzILm59qx5m5SfBM7rQ74DptQ4UVEMD1l7eF62VDqcTerrhTPRM
-         v0USJfagu2ld3l6dIE6iFn5J3xT8vQuhkH6SL5VCZ7PRhW9fcCnoK67oC+3bM5RZDgRd
-         dRMw==
-X-Gm-Message-State: AOAM533OBkbOze1TsjPkiyxa20V7HOUdXg34W+KbE5RkG9RIOa4byeka
-        4HbR/9w+gjTTBvzgIjk9SbxOuq6Ixc9FSKmUTkc=
-X-Google-Smtp-Source: ABdhPJzrNOvvN9Zz5L1EpnZLUXNmfJqJ2rqXnKX0Ok96NEm3GtieVKeFzDSMjn/NlUaCOJPxWVPKMw==
-X-Received: by 2002:a63:2142:0:b0:35d:a95f:d1e9 with SMTP id s2-20020a632142000000b0035da95fd1e9mr34304739pgm.237.1646410762253;
-        Fri, 04 Mar 2022 08:19:22 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e11-20020a17090a280b00b001bf23a472c7sm2558229pjd.17.2022.03.04.08.19.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Mar 2022 08:19:21 -0800 (PST)
-Message-ID: <62223c09.1c69fb81.68753.76d6@mx.google.com>
-Date:   Fri, 04 Mar 2022 08:19:21 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S238075AbiCDQYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 11:24:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 920EA5675D;
+        Fri,  4 Mar 2022 08:23:24 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DF9B61D7E;
+        Fri,  4 Mar 2022 16:23:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8485BC340E9;
+        Fri,  4 Mar 2022 16:23:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646411003;
+        bh=A0WZoEr7gra5ckN9ZrUfGZctENNf9o5PHa/VMwr1bE8=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=DYoFhsdUWID4fR0kL9HCfwgaMWLdTUppwwygMrPdUFQyxz0wx9LByhTLBkqNP4ol1
+         fvV/o+le5SE7hDq2hNjVcVFUlhmHk2y/PSNwlarnXlnJ4iJ48XjTsItQs8L9j9pMgo
+         HToJHiKiNlBD3R+/wNfnrtSp0yb9jU+/iijVam0GJl7LUNlzKFdk0w2rx3Fw41qFXd
+         jRX5M+lkrTWlU1o87lLc2v0MFnB6M0agFz4O+6OpjFTOHMfRkjCbFI/f0A+tZdgsGK
+         wQNk9xDKjofThnAQV3TgDGBGxgthW3AmxU4e3OzXh5HnVHmVLzEcc7jG1zwhjBlAs8
+         DP2xeadk2gL4Q==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id 2CBEF5C04FD; Fri,  4 Mar 2022 08:23:23 -0800 (PST)
+Date:   Fri, 4 Mar 2022 08:23:23 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Feng Tang <feng.tang@intel.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Doug Smythies <dsmythies@telus.net>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        tim.c.chen@intel.com
+Subject: Re: CPU excessively long times between frequency scaling driver
+ calls - bisected
+Message-ID: <20220304162323.GN4285@paulmck-ThinkPad-P17-Gen-1>
+Reply-To: paulmck@kernel.org
+References: <20220228041228.GH4548@shbuild999.sh.intel.com>
+ <11956019.O9o76ZdvQC@kreacher>
+ <20220301055255.GI4548@shbuild999.sh.intel.com>
+ <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
+ <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
+ <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
+ <CAAYoRsWN-h+fBAoocGmUFHDkOv2PL+6U59_ASBYH74j0orHaCQ@mail.gmail.com>
+ <20220303052727.GM4548@shbuild999.sh.intel.com>
+ <CAJZ5v0h0yqP2qThX6KbQT-6zG=YfxkAbH+uGV8aZCgZX0tSPpw@mail.gmail.com>
+ <20220304051344.GA72462@shbuild999.sh.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.269
-Subject: stable-rc/linux-4.14.y baseline: 66 runs, 1 regressions (v4.14.269)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220304051344.GA72462@shbuild999.sh.intel.com>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 66 runs, 1 regressions (v4.14.269)
+On Fri, Mar 04, 2022 at 01:13:44PM +0800, Feng Tang wrote:
+> On Thu, Mar 03, 2022 at 01:02:01PM +0100, Rafael J. Wysocki wrote:
+> > On Thu, Mar 3, 2022 at 6:27 AM Feng Tang <feng.tang@intel.com> wrote:
+> > >
+> > > On Tue, Mar 01, 2022 at 08:06:24PM -0800, Doug Smythies wrote:
+> > > > On Tue, Mar 1, 2022 at 9:34 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > > > >
+> > > > > I guess the numbers above could be reduced still by using a P-state
+> > > > > below the max non-turbo one as a limit.
+> > > >
+> > > > Yes, and for a test I did "rjw-3".
+> > > >
+> > > > > > overruns: 1042.
+> > > > > > max overrun time: 9,769 uSec.
+> > > > >
+> > > > > This would probably get worse then, though.
+> > > >
+> > > > Yes, that was my expectation, but not what happened.
+> > > >
+> > > > rjw-3:
+> > > > ave: 3.09 watts
+> > > > min: 3.01 watts
+> > > > max: 31.7 watts
+> > > > ave freq: 2.42 GHz.
+> > > > overruns: 12. (I did not expect this.)
+> > > > Max overruns time: 621 uSec.
+> > > >
+> > > > Note 1: IRQ's increased by 74%. i.e. it was going in
+> > > > and out of idle a lot more.
+> > > >
+> > > > Note 2: We know that processor package power
+> > > > is highly temperature dependent. I forgot to let my
+> > > > coolant cool adequately after the kernel compile,
+> > > > and so had to throw out the first 4 power samples
+> > > > (20 minutes).
+> > > >
+> > > > I retested both rjw-2 and rjw-3, but shorter tests
+> > > > and got 0 overruns in both cases.
+> > >
+> > > One thought is can we consider trying the previous debug patch of
+> > > calling the util_update when entering idle (time limited).
+> > >
+> > > In current code, the RT/CFS/Deadline class all have places to call
+> > > cpufreq_update_util(), the patch will make sure it is called in all
+> > > four classes, also it follows the principle of 'schedutil' of not
+> > > introducing more system cost. And surely I could be missing some
+> > > details here.
+> > >
+> > > Following is a cleaner version of the patch, and the code could be
+> > > moved down to the internal loop of
+> > >
+> > >         while (!need_resched()) {
+> > >
+> > >         }
+> > >
+> > > Which will make it get called more frequently.
+> > 
+> > It will, but it's not necessary in all cases.  It only is necessary if
+> > the tick is going to be stopped (because the tick will update the
+> > P-state governor anyway if it runs).  However, at this point you don't
+> > know what's going to happen to the tick.
+> > 
+> > Moreover, updating the P-state governor before going idle doesn't
+> > really help,
+> 
+> >From Doug's previous test, the power consumption and the delay
+> both improved with the debug patch.
+> 
+> > because the P-state programmed by it at this point may
+> > very well be stale after getting out of the idle state, so instead of
+> > doing a full update at this point, it should force a low P-state on
+> > the way from idle.
+> 
+> Makes sense.
+> 
+> Paul has asked about the timer interupts, and here is some more info,
+> when there is no active load in system, the longest interval of 4
+> seconds between 2 timer interrupts comes from the kernel watchdog
+> for hardware/software lockup detector, and every CPU will have this
+> timer, which limits the maximum cpu idle duration to be 4 seconds.
 
-Regressions Summary
--------------------
+And thank you for the info!  One way to reduce this overhead is to boot
+with the watchdog_thresh kernel-boot parameter set to some value greater
+than 10.  The downside is that HW/FW/NMI catastrophes will need to last
+for more than 10 seconds before the system complains.  One approach
+is to run with a small watchdog_thresh during testing and a larger one
+in production.
 
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+							Thanx, Paul
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.269/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.269
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e853993d29aa42ac4b3c2912db975a0a66d7a5b0 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/6222052ff6736dce27c6296c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-69/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-69/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220218.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6222052ff6736dce27c62=
-96d
-        failing since 18 days (last pass: v4.14.266, first fail: v4.14.266-=
-45-gce409501ca5f) =
-
- =20
+> > > ---
+> > >
+> > > diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+> > > index d17b0a5ce6ac..e12688036725 100644
+> > > --- a/kernel/sched/idle.c
+> > > +++ b/kernel/sched/idle.c
+> > > @@ -258,15 +258,23 @@ static void cpuidle_idle_call(void)
+> > >   *
+> > >   * Called with polling cleared.
+> > >   */
+> > > +DEFINE_PER_CPU(u64, last_util_update_time);    /* in jiffies */
+> > >  static void do_idle(void)
+> > >  {
+> > >         int cpu = smp_processor_id();
+> > > +       u64 expire;
+> > >
+> > >         /*
+> > >          * Check if we need to update blocked load
+> > >          */
+> > >         nohz_run_idle_balance(cpu);
+> > >
+> > > +       expire = __this_cpu_read(last_util_update_time) + HZ * 3;
+> > > +       if (unlikely(time_is_before_jiffies((unsigned long)expire))) {
+> > > +               cpufreq_update_util(this_rq(), 0);
+> > 
+> > And quite frankly I'm not sure if running cpufreq_update_util() from
+> > here is safe.
+> 
+> I had that concern too :). Do you mean this is called when the local
+> irq is enabled, and could be interrupted causing some issue?
+> 
+> Thanks,
+> Feng
+> 
+> > > +               __this_cpu_write(last_util_update_time, get_jiffies_64());
+> > > +       }
+> > > +
+> > >         /*
+> > >          * If the arch has a polling bit, we maintain an invariant:
+> > >          *
+> > >
