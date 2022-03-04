@@ -2,392 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 586664CDCA0
-	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 19:35:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 585564CDCCE
+	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 19:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241709AbiCDSfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Mar 2022 13:35:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59812 "EHLO
+        id S241784AbiCDSlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Mar 2022 13:41:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235729AbiCDSfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 13:35:12 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97108159EAA;
-        Fri,  4 Mar 2022 10:34:22 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 224HoA2m010670;
-        Fri, 4 Mar 2022 18:34:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=YdxrP6ISC8fN7Erz3D5Qk28mXkYrjLG3b0dWOhyh47I=;
- b=j3HWKOzMoAMyYUyCsdnMfmtCkQQ83OSSRgy54uxWiTQ9aFwLkxnkwjtE7eDm1Oh5VeE/
- obG7JavQAHEcD5CZKUezTRj+lehN/VZlkBLmYkTlGE3cEs4qJU+0Pj3A/O2cZSU1+hBI
- y5qFSfH9ufsOZF3+IH4B9EUwlL084gQRzMjUKrF5SCBN5JmTZtN4EAZsd9xfg5sS8JT9
- 28xQRwcvIFygtmKjeytROQ/8c6UQSkjDa9W9mX4YkkliRJkqaGDSmGmnzOzzXHMiS9Y5
- VnG95AZVmmkoidJhOrCY9uWtRCO2oewOI0G2oZoOmrfOf9ih/RFbBOolC3Mg8q5IMww+ nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ekqgsgte0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Mar 2022 18:34:13 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 224IPilb006351;
-        Fri, 4 Mar 2022 18:34:12 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ekqgsgtds-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Mar 2022 18:34:12 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 224IHXxS006837;
-        Fri, 4 Mar 2022 18:34:11 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma04wdc.us.ibm.com with ESMTP id 3ek4kbemee-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Mar 2022 18:34:11 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 224IY9nj40632750
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 4 Mar 2022 18:34:09 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8544811206D;
-        Fri,  4 Mar 2022 18:34:09 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E23D112061;
-        Fri,  4 Mar 2022 18:34:06 +0000 (GMT)
-Received: from [9.47.158.152] (unknown [9.47.158.152])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri,  4 Mar 2022 18:34:06 +0000 (GMT)
-Message-ID: <8b594101-f676-ca9d-ebe5-337470a3de80@linux.ibm.com>
-Date:   Fri, 4 Mar 2022 13:34:06 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v9 1/1] tpm: fix reference counting for struct tpm_chip
-Content-Language: en-US
-To:     Jarkko Sakkinen <jarkko@kernel.org>,
-        Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, stefanb@linux.vnet.ibm.com,
-        James.Bottomley@hansenpartnership.com, David.Laight@aculab.com,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        p.rosenberger@kunbus.com,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
-        stable@vger.kernel.org
-References: <20220302094353.3465-1-LinoSanfilippo@gmx.de>
- <20220302094353.3465-2-LinoSanfilippo@gmx.de> <YiFFCP3/KVl6uo3e@iki.fi>
-From:   Stefan Berger <stefanb@linux.ibm.com>
-In-Reply-To: <YiFFCP3/KVl6uo3e@iki.fi>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: h9i3nsrFsvdPNGloOfsLgWKeC3o-gTFH
-X-Proofpoint-ORIG-GUID: zXGS_d4Df-eO0cVUWYOjwRqRTi2R26y6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-04_08,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- phishscore=0 priorityscore=1501 spamscore=0 clxscore=1015 suspectscore=0
- lowpriorityscore=0 adultscore=0 malwarescore=0 mlxscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203040093
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H5,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S240522AbiCDSle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 13:41:34 -0500
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772851BF90D
+        for <stable@vger.kernel.org>; Fri,  4 Mar 2022 10:40:45 -0800 (PST)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-2d5258e8a4bso77428217b3.22
+        for <stable@vger.kernel.org>; Fri, 04 Mar 2022 10:40:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=kcmyAeGkpK7r59rcNcxz8jTE3yUE+N3ayzd6XBblM0I=;
+        b=mvLff3CoVSfT2aw6kcMrK88S909hTrrgtBVT9DD32PyLCwH95gcIWOBgv7d+B5Lk94
+         6hmjfyCbTACgGXuUxAuHbq2YdDtEgFXLlDJxgr16HWSidmhaQZ6/Gn0xcRhFCGj2H6To
+         joT1GP1IfVR8Dsrm2glTVD3Xsj5i27miNaXmBqU2Azi8dzDhqV8o3qr/7mu6pH73YOfD
+         iR8mjRPGmKQl8K5kVyArnaFqeOTwfccrAcc9Za6ETbCJER3RiaXUWmRkYm/aKORgLWsh
+         7uBH2hMZTq4emcVx+Hfi9V3Yfk9hJdS9TbVc4g33OkzABHo84zPYWIo6YrfcDWw/wA7/
+         lX6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=kcmyAeGkpK7r59rcNcxz8jTE3yUE+N3ayzd6XBblM0I=;
+        b=53D2sMBwXsTE9CAZZ5JNG/CGbJFysuK02H/FfXSrYrBnYB5O9loUMVGa7V6MhfDeaj
+         kEakBJ3pm/wurUfAjVPuzkMF5y/pmYHjfV6ibW9QBudvwYfQ43rxr9t4MXuIf7l4FVUC
+         fiOVc12B3AfWC/1/qtibOY2CeRSbxM8x5EObrWpVTxX9OvHWU3aEfot2MO3TjDF38zk0
+         oQFW1bQDIBT0s1DhGrpVJw5TnCWWdJC6vDD+Qoxor3x7k8lq8DRW2B/xXe1qc6Sm60L3
+         NuLWduPiv5k3F4fmLi7MM0nRJ7AJAZl+GovLRZtd+/wqpq9JzcQPA1vid7F57XUvEIDu
+         nTZA==
+X-Gm-Message-State: AOAM5318Ts8cnDvdZZf1ocGjMHWX2u1mlCe64w1+hs4a2hEFa+3Rj1X4
+        1+4DtK3cN0Dr4/QjR7Xe+bYFmqtssWna9g==
+X-Google-Smtp-Source: ABdhPJxQbsi8RSzb6NYSX+gqf9JicHEI9Ols5mWOZ9t2xvgAme8I6b6RNy28Q54iJFfl4DPUNTHiNJ/cEzgcew==
+X-Received: from shakeelb.c.googlers.com ([fda3:e722:ac3:cc00:20:ed76:c0a8:28b])
+ (user=shakeelb job=sendgmr) by 2002:a81:2450:0:b0:2d6:aee8:f0d5 with SMTP id
+ k77-20020a812450000000b002d6aee8f0d5mr43748864ywk.81.1646419244705; Fri, 04
+ Mar 2022 10:40:44 -0800 (PST)
+Date:   Fri,  4 Mar 2022 18:40:40 +0000
+Message-Id: <20220304184040.1304781-1-shakeelb@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.1.616.g0bdcbb4464-goog
+Subject: [PATCH] memcg: sync flush only if periodic flush is delayed
+From:   Shakeel Butt <shakeelb@google.com>
+To:     "=?UTF-8?q?Michal=20Koutn=C3=BD?=" <mkoutny@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>
+Cc:     Ivan Babrou <ivan@cloudflare.com>,
+        Frank Hofmann <fhofmann@cloudflare.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Daniel Dao <dqminh@cloudflare.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-10.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Daniel Dao has reported [1] a regression on workloads that may trigger
+a lot of refaults (anon and file). The underlying issue is that flushing
+rstat is expensive. Although rstat flush are batched with (nr_cpus *
+MEMCG_BATCH) stat updates, it seems like there are workloads which
+genuinely do stat updates larger than batch value within short amount of
+time. Since the rstat flush can happen in the performance critical
+codepaths like page faults, such workload can suffer greatly.
 
-On 3/3/22 17:45, Jarkko Sakkinen wrote:
-> On Wed, Mar 02, 2022 at 10:43:53AM +0100, Lino Sanfilippo wrote:
->> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
->>
->> The following sequence of operations results in a refcount warning:
->>
->> 1. Open device /dev/tpmrm.
->> 2. Remove module tpm_tis_spi.
->> 3. Write a TPM command to the file descriptor opened at step 1.
->>
->> ------------[ cut here ]------------
->> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
->> refcount_t: addition on 0; use-after-free.
->> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
->> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
->> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
->> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
->> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
->> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
->> Hardware name: BCM2711
->> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
->> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
->> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
->> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
->> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
->> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
->> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
->> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
->> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
->> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
->> Exception stack(0xc226bfa8 to 0xc226bff0)
->> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
->> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
->> bfe0: 0000006c beafe648 0001056c b6eb6944
->> ---[ end trace d4b8409def9b8b1f ]---
->>
->> The reason for this warning is the attempt to get the chip->dev reference
->> in tpm_common_write() although the reference counter is already zero.
->>
->> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
->> extra reference used to prevent a premature zero counter is never taken,
->> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
->>
->> Fix this by moving the TPM 2 character device handling from
->> tpm_chip_alloc() to tpm_add_char_device() which is called at a later point
->> in time when the flag has been set in case of TPM2.
->>
->> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
->> already introduced function tpm_devs_release() to release the extra
->> reference but did not implement the required put on chip->devs that results
->> in the call of this function.
->>
->> Fix this by putting chip->devs in tpm_chip_unregister().
->>
->> Finally move the new implementation for the TPM 2 handling into a new
->> function to avoid multiple checks for the TPM_CHIP_FLAG_TPM2 flag in the
->> good case and error cases.
->>
->> Cc: stable@vger.kernel.org
->> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
->> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
->> Co-developed-by: Jason Gunthorpe <jgg@ziepe.ca>
->> Tested-by: Stefan Berger <stefanb@linux.ibm.com>
->> Signed-off-by: Jason Gunthorpe <jgg@ziepe.ca>
->> Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
->> ---
->>   drivers/char/tpm/tpm-chip.c   | 46 +++++--------------------
->>   drivers/char/tpm/tpm.h        |  2 ++
->>   drivers/char/tpm/tpm2-space.c | 65 +++++++++++++++++++++++++++++++++++
->>   3 files changed, 75 insertions(+), 38 deletions(-)
->>
->> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
->> index b009e7479b70..783d65fc71f0 100644
->> --- a/drivers/char/tpm/tpm-chip.c
->> +++ b/drivers/char/tpm/tpm-chip.c
->> @@ -274,14 +274,6 @@ static void tpm_dev_release(struct device *dev)
->>   	kfree(chip);
->>   }
->>   
->> -static void tpm_devs_release(struct device *dev)
->> -{
->> -	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
->> -
->> -	/* release the master device reference */
->> -	put_device(&chip->dev);
->> -}
->> -
->>   /**
->>    * tpm_class_shutdown() - prepare the TPM device for loss of power.
->>    * @dev: device to which the chip is associated.
->> @@ -344,7 +336,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->>   	chip->dev_num = rc;
->>   
->>   	device_initialize(&chip->dev);
->> -	device_initialize(&chip->devs);
->>   
->>   	chip->dev.class = tpm_class;
->>   	chip->dev.class->shutdown_pre = tpm_class_shutdown;
->> @@ -352,29 +343,12 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->>   	chip->dev.parent = pdev;
->>   	chip->dev.groups = chip->groups;
->>   
->> -	chip->devs.parent = pdev;
->> -	chip->devs.class = tpmrm_class;
->> -	chip->devs.release = tpm_devs_release;
->> -	/* get extra reference on main device to hold on
->> -	 * behalf of devs.  This holds the chip structure
->> -	 * while cdevs is in use.  The corresponding put
->> -	 * is in the tpm_devs_release (TPM2 only)
->> -	 */
->> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
->> -		get_device(&chip->dev);
->> -
->>   	if (chip->dev_num == 0)
->>   		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
->>   	else
->>   		chip->dev.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num);
->>   
->> -	chip->devs.devt =
->> -		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
->> -
->>   	rc = dev_set_name(&chip->dev, "tpm%d", chip->dev_num);
->> -	if (rc)
->> -		goto out;
->> -	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
->>   	if (rc)
->>   		goto out;
->>   
->> @@ -382,9 +356,7 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->>   		chip->flags |= TPM_CHIP_FLAG_VIRTUAL;
->>   
->>   	cdev_init(&chip->cdev, &tpm_fops);
->> -	cdev_init(&chip->cdevs, &tpmrm_fops);
->>   	chip->cdev.owner = THIS_MODULE;
->> -	chip->cdevs.owner = THIS_MODULE;
->>   
->>   	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
->>   	if (rc) {
->> @@ -396,7 +368,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->>   	return chip;
->>   
->>   out:
->> -	put_device(&chip->devs);
->>   	put_device(&chip->dev);
->>   	return ERR_PTR(rc);
->>   }
->> @@ -445,14 +416,9 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->>   	}
->>   
->>   	if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip)) {
->> -		rc = cdev_device_add(&chip->cdevs, &chip->devs);
->> -		if (rc) {
->> -			dev_err(&chip->devs,
->> -				"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
->> -				dev_name(&chip->devs), MAJOR(chip->devs.devt),
->> -				MINOR(chip->devs.devt), rc);
->> -			return rc;
->> -		}
->> +		rc = tpm_devs_add(chip);
->> +		if (rc)
->> +			goto err_del_cdev;
->>   	}
->>   
->>   	/* Make the chip available. */
->> @@ -460,6 +426,10 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->>   	idr_replace(&dev_nums_idr, chip, chip->dev_num);
->>   	mutex_unlock(&idr_lock);
->>   
->> +	return 0;
->> +
->> +err_del_cdev:
->> +	cdev_device_del(&chip->cdev, &chip->dev);
->>   	return rc;
->>   }
->>   
->> @@ -654,7 +624,7 @@ void tpm_chip_unregister(struct tpm_chip *chip)
->>   		hwrng_unregister(&chip->hwrng);
->>   	tpm_bios_log_teardown(chip);
->>   	if (chip->flags & TPM_CHIP_FLAG_TPM2 && !tpm_is_firmware_upgrade(chip))
->> -		cdev_device_del(&chip->cdevs, &chip->devs);
->> +		tpm_devs_remove(chip);
->>   	tpm_del_char_device(chip);
->>   }
->>   EXPORT_SYMBOL_GPL(tpm_chip_unregister);
->> diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
->> index 283f78211c3a..2163c6ee0d36 100644
->> --- a/drivers/char/tpm/tpm.h
->> +++ b/drivers/char/tpm/tpm.h
->> @@ -234,6 +234,8 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
->>   		       size_t cmdsiz);
->>   int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space, void *buf,
->>   		      size_t *bufsiz);
->> +int tpm_devs_add(struct tpm_chip *chip);
->> +void tpm_devs_remove(struct tpm_chip *chip);
->>   
->>   void tpm_bios_log_setup(struct tpm_chip *chip);
->>   void tpm_bios_log_teardown(struct tpm_chip *chip);
->> diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
->> index 97e916856cf3..265ec72b1d81 100644
->> --- a/drivers/char/tpm/tpm2-space.c
->> +++ b/drivers/char/tpm/tpm2-space.c
->> @@ -574,3 +574,68 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
->>   	dev_err(&chip->dev, "%s: error %d\n", __func__, rc);
->>   	return rc;
->>   }
->> +
->> +/*
->> + * Put the reference to the main device.
->> + */
->> +static void tpm_devs_release(struct device *dev)
->> +{
->> +	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
->> +
->> +	/* release the master device reference */
->> +	put_device(&chip->dev);
->> +}
->> +
->> +/*
->> + * Remove the device file for exposed TPM spaces and release the device
->> + * reference. This may also release the reference to the master device.
->> + */
->> +void tpm_devs_remove(struct tpm_chip *chip)
->> +{
->> +	cdev_device_del(&chip->cdevs, &chip->devs);
->> +	put_device(&chip->devs);
->> +}
->> +
->> +/*
->> + * Add a device file to expose TPM spaces. Also take a reference to the
->> + * main device.
->> + */
->> +int tpm_devs_add(struct tpm_chip *chip)
->> +{
->> +	int rc;
->> +
->> +	device_initialize(&chip->devs);
->> +	chip->devs.parent = chip->dev.parent;
->> +	chip->devs.class = tpmrm_class;
->> +
->> +	/*
->> +	 * Get extra reference on main device to hold on behalf of devs.
->> +	 * This holds the chip structure while cdevs is in use. The
->> +	 * corresponding put is in the tpm_devs_release.
->> +	 */
->> +	get_device(&chip->dev);
->> +	chip->devs.release = tpm_devs_release;
->> +	chip->devs.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
->> +	cdev_init(&chip->cdevs, &tpmrm_fops);
->> +	chip->cdevs.owner = THIS_MODULE;
->> +
->> +	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
->> +	if (rc)
->> +		goto err_put_devs;
->> +
->> +	rc = cdev_device_add(&chip->cdevs, &chip->devs);
->> +	if (rc) {
->> +		dev_err(&chip->devs,
->> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
->> +			dev_name(&chip->devs), MAJOR(chip->devs.devt),
->> +			MINOR(chip->devs.devt), rc);
->> +		goto err_put_devs;
->> +	}
->> +
->> +	return 0;
->> +
->> +err_put_devs:
->> +	put_device(&chip->devs);
->> +
->> +	return rc;
->> +}
->> -- 
->> 2.35.1
->>
-> LGTM, thank you.
->
-> Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
->
-> Stefan, if possible, for sanity check, redo test with v9.
+This patch fixes this regression by making the rstat flushing
+conditional in the performance critical codepaths. More specifically,
+the kernel relies on the async periodic rstat flusher to flush the stats
+and only if the periodic flusher is delayed by more than twice the
+amount of its normal time window then the kernel allows rstat flushing
+from the performance critical codepaths.
 
-We need that other patch as well!
+Now the question: what are the side-effects of this change? The worst
+that can happen is the refault codepath will see 4sec old lruvec stats
+and may cause false (or missed) activations of the refaulted page which
+may under-or-overestimate the workingset size. Though that is not very
+concerning as the kernel can already miss or do false activations.
 
+There are two more codepaths whose flushing behavior is not changed by
+this patch and we may need to come to them in future. One is the
+writeback stats used by dirty throttling and second is the deactivation
+heuristic in the reclaim. For now keeping an eye on them and if there is
+report of regression due to these codepaths, we will reevaluate then.
 
-Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+Link: https://lore.kernel.org/all/CA+wXwBSyO87ZX5PVwdHm-=dBjZYECGmfnydUicUyrQqndgX2MQ@mail.gmail.com [1]
+Fixes: 1f828223b799 ("memcg: flush lruvec stats in the refault")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reported-by: Daniel Dao <dqminh@cloudflare.com>
+Cc: <stable@vger.kernel.org>
+---
+ include/linux/memcontrol.h |  5 +++++
+ mm/memcontrol.c            | 12 +++++++++++-
+ mm/workingset.c            |  2 +-
+ 3 files changed, 17 insertions(+), 2 deletions(-)
 
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index a68dce3873fc..89b14729d59f 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -1012,6 +1012,7 @@ static inline unsigned long lruvec_page_state_local(struct lruvec *lruvec,
+ }
+ 
+ void mem_cgroup_flush_stats(void);
++void mem_cgroup_flush_stats_delayed(void);
+ 
+ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+ 			      int val);
+@@ -1455,6 +1456,10 @@ static inline void mem_cgroup_flush_stats(void)
+ {
+ }
+ 
++static inline void mem_cgroup_flush_stats_delayed(void)
++{
++}
++
+ static inline void __mod_memcg_lruvec_state(struct lruvec *lruvec,
+ 					    enum node_stat_item idx, int val)
+ {
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index f79bb3f25ce4..edfb337e6948 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -587,6 +587,9 @@ static DECLARE_DEFERRABLE_WORK(stats_flush_dwork, flush_memcg_stats_dwork);
+ static DEFINE_SPINLOCK(stats_flush_lock);
+ static DEFINE_PER_CPU(unsigned int, stats_updates);
+ static atomic_t stats_flush_threshold = ATOMIC_INIT(0);
++static u64 flush_next_time;
++
++#define FLUSH_TIME (2UL*HZ)
+ 
+ /*
+  * Accessors to ensure that preemption is disabled on PREEMPT_RT because it can
+@@ -637,6 +640,7 @@ static void __mem_cgroup_flush_stats(void)
+ 	if (!spin_trylock_irqsave(&stats_flush_lock, flag))
+ 		return;
+ 
++	flush_next_time = jiffies_64 + 2*FLUSH_TIME;
+ 	cgroup_rstat_flush_irqsafe(root_mem_cgroup->css.cgroup);
+ 	atomic_set(&stats_flush_threshold, 0);
+ 	spin_unlock_irqrestore(&stats_flush_lock, flag);
+@@ -648,10 +652,16 @@ void mem_cgroup_flush_stats(void)
+ 		__mem_cgroup_flush_stats();
+ }
+ 
++void mem_cgroup_flush_stats_delayed(void)
++{
++	if (rstat_flush_time && time_after64(jiffies_64, flush_next_time))
++		mem_cgroup_flush_stats();
++}
++
+ static void flush_memcg_stats_dwork(struct work_struct *w)
+ {
+ 	__mem_cgroup_flush_stats();
+-	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, 2UL*HZ);
++	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, FLUSH_TIME);
+ }
+ 
+ /**
+diff --git a/mm/workingset.c b/mm/workingset.c
+index 8a3828acc0bf..592569a8974c 100644
+--- a/mm/workingset.c
++++ b/mm/workingset.c
+@@ -355,7 +355,7 @@ void workingset_refault(struct folio *folio, void *shadow)
+ 
+ 	mod_lruvec_state(lruvec, WORKINGSET_REFAULT_BASE + file, nr);
+ 
+-	mem_cgroup_flush_stats();
++	mem_cgroup_flush_stats_delayed();
+ 	/*
+ 	 * Compare the distance to the existing workingset size. We
+ 	 * don't activate pages that couldn't stay resident even if
+-- 
+2.35.1.616.g0bdcbb4464-goog
 
-
-
-    Stefan
-
->
-> BR, Jarkko
