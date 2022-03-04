@@ -2,161 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C4F4CD65A
-	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 15:29:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD94B4CD75F
+	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 16:11:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239794AbiCDO3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Mar 2022 09:29:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42060 "EHLO
+        id S230207AbiCDPMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Mar 2022 10:12:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232296AbiCDO3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 09:29:46 -0500
-Received: from new4-smtp.messagingengine.com (new4-smtp.messagingengine.com [66.111.4.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB0C1B60AA
-        for <stable@vger.kernel.org>; Fri,  4 Mar 2022 06:28:57 -0800 (PST)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 6192358050E;
-        Fri,  4 Mar 2022 09:28:55 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 04 Mar 2022 09:28:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; bh=UK9vkuMHfT6LnlApSa4x+a66PQwwwcr7oPki2j
-        NRUl0=; b=N+2jGOBsXN0LXBB6xpsLSwG5wEZEcvyzL7pZEiazTL/puLHXyFartJ
-        wY2GgQwA246+Rm2Z9M0bpUIVvZLPLqwIphTydqjpp3wRzejaJibmv0KbtTidXrlm
-        NyqNW81owC1QIHdyNAGmgs985wRWLozVp4hKzcRfblUywWbneKLIJncESUQ3aeCm
-        Ri+sBzHqiGo9RgSTRGO75Gxd+FyvXT4TCwuz7F7QDePJmMoaEgqzY+ty93BjbreF
-        zg9LQMAmoAsKTDgpfXYX4omprPYsTD8/d4LWgQi9kNMCxCJrbIJoDzQVZIeJ1Y5f
-        DjzSGBxz8aKs/mBPo0PT15GaMA9XnzVg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=UK9vkuMHfT6LnlApS
-        a4x+a66PQwwwcr7oPki2jNRUl0=; b=jxsMnJdHvoEDIWm72z0o3JNNsD2R2drEF
-        t5AQLHbz3jkHG9yjJrExlW5zXOqu1HpJkFD7W2nEaUa8RJIq4+etetIdbfPlrUFY
-        4zYQzE2d1X2QejX/1EnbbpFsg22TkRJ6TEdadWwCBjgaHFmK9eNSgmM2uDVu8Env
-        SkUffrQ6yPJXDpfwQeD8zlNZZyIm6iA1C65j0K9Y48VazaAodXvJoK/PDQqa2o0x
-        c4ldf55xo5aAcLPa/kpqKzx7djUyDhbJnvTSKgRaaRGA4f/RDvpG8ltPAo0tlDuF
-        +vyj9Mf+rPuUIYuz2GLisFfVl1ycXon7gbenDMRbeQzym+2e01bcg==
-X-ME-Sender: <xms:JiIiYpVNpGU1syshHadKzxKQBGoWD-MALEZQkvO2v0gpANnCKF_2Wg>
-    <xme:JiIiYpkC--e_SyPbdxtPj8-AFU_1F6oi8DfG1X0eoKhrIBQJ0CML62wNSVlao7Ewg
-    JnJW3v7AVLRSQ>
-X-ME-Received: <xmr:JiIiYlbpoVQCgpXtrfV57St-5LuaBX2zMLy3Z76ldq8k8GBU91U6VdUzA7XAKDPqNzlzdCiqj50dEQKNKjzQvuc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddtkedgieehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:JiIiYsUJv3QSdXgD6l7R5N5gzBfx3362HvVTTR-cxnC4cyYBbECwAA>
-    <xmx:JiIiYjnr_WtejZ7tuFlxKzYT-Lpwal5SndpiBRVWO_8m1-JPoXLH0Q>
-    <xmx:JiIiYpf55OOf3rbqytIPo4xQtS4SJ6UhiNnpDfFL_sHGev5yisz45A>
-    <xmx:JyIiYmES6l-MuAH030JMSuAW09JHHFg0PcZDL9AVLl9Ct1XcaMlSWA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 4 Mar 2022 09:28:54 -0500 (EST)
-Date:   Fri, 4 Mar 2022 15:28:52 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Ali Haider <ali.haider@ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Doug Gilbert <dgilbert@interlog.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        stable@vger.kernel.org, iommu@lists.linux-foundation.org,
-        linux-doc@vger.kernel.org
-Subject: Re: [PATCH 2/2] swiotlb: fix info leak with DMA_FROM_DEVICE
-Message-ID: <YiIiJGVmQgqne22R@kroah.com>
-References: <20220304135859.3521513-1-pasic@linux.ibm.com>
- <20220304135859.3521513-3-pasic@linux.ibm.com>
+        with ESMTP id S235400AbiCDPMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 10:12:12 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA7B1C2F5F
+        for <stable@vger.kernel.org>; Fri,  4 Mar 2022 07:11:25 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id bd1so7951417plb.13
+        for <stable@vger.kernel.org>; Fri, 04 Mar 2022 07:11:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=t3gHzaXAKBn+dlAMZEX6uuPq2STkBXWMbJoj/NER0bI=;
+        b=4/FSb0z4pfoM4zlxNlu0ycF2Fn8UoSY98kV0qmunh4zM/iUtpbSONCJjjbkKh6B/Xk
+         U0yAa2Vu/YJj9MwlMATCd9t+JVO7jZw6D0s6wt8Sv76MUgaZgZBnaD2DiYMIjZJl6Hjs
+         ST3bDoAAs3yd6p0w7aa7497sz0zJZ+7kvF39yTy4h4yJIzLjSU+cqXOE6DQkGhi9OTMG
+         /YI5/rpmkfFMuEf0yHODuxcZ71mBgf4s5g/O9IFXe0Za1/c+DSRaK7TPuHwVAhCZvCSE
+         QiSErhb68eSJR8sYeyKjNOrypDcB24KglUJ/54qEcWlC/Q8dkWFOR9Dz8U23xKD08D/E
+         67FA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=t3gHzaXAKBn+dlAMZEX6uuPq2STkBXWMbJoj/NER0bI=;
+        b=ustU45rd2VSftIwUwb4ZDt7he8UFkGrGEIiVx0iQnBoC1ht2GYi8JShTA26x2usDxJ
+         cWnMfSoVKGy1nN112bwih74L02CILhj1Rf7Hib1o/I31e7uzTn5focWudnouvBOY2mKy
+         pmICp2sQCGzd41JR0Ck1WW9vdYtvZRpyts4gYJG7Fj9YF8tn9UzHKUqx7CST6iKCrCsz
+         NUve1N6SXAWXayxpEeDKJMmfF3kr5BYKbVabCJHt7VtRSsuYVRcBe86wjRg7uplzF1UF
+         DS3HmFWSO6F2+FBZD9HPB8+KPZ6zD3KKOIrZh9Lno/NbCwjEfPfK9BvwM/ETcLuAoqLz
+         PeNQ==
+X-Gm-Message-State: AOAM532IvF69F6TGNEJ7wmNwnvGTwEh6pi8HYtPLRTvW3ZEshCiyQtVZ
+        RDpcKew7A8EiL2PetKdjAjvEIRh86kRsB6hwbMM=
+X-Google-Smtp-Source: ABdhPJyPl5sWJGKhuwHQjVKHa8fcxBw3U5UmheP1aWfmAntmYiISRnNpOgypwo/lLsQX/UAj8HaBvA==
+X-Received: by 2002:a17:90b:2092:b0:1be:e373:2ed9 with SMTP id hb18-20020a17090b209200b001bee3732ed9mr11047349pjb.128.1646406684464;
+        Fri, 04 Mar 2022 07:11:24 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 8-20020a056a00070800b004e14ae3e8d7sm6219247pfl.164.2022.03.04.07.11.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Mar 2022 07:11:24 -0800 (PST)
+Message-ID: <62222c1c.1c69fb81.3602b.031c@mx.google.com>
+Date:   Fri, 04 Mar 2022 07:11:24 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220304135859.3521513-3-pasic@linux.ibm.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.182
+Subject: stable-rc/linux-5.4.y baseline: 83 runs, 2 regressions (v5.4.182)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 04, 2022 at 02:58:59PM +0100, Halil Pasic wrote:
-> The problem I'm addressing was discovered by the LTP test covering
-> cve-2018-1000204.
-> 
-> A short description of what happens follows:
-> 1) The test case issues a command code 00 (TEST UNIT READY) via the SG_IO
->    interface with: dxfer_len == 524288, dxdfer_dir == SG_DXFER_FROM_DEV
->    and a corresponding dxferp. The peculiar thing about this is that TUR
->    is not reading from the device.
-> 2) In sg_start_req() the invocation of blk_rq_map_user() effectively
->    bounces the user-space buffer. As if the device was to transfer into
->    it. Since commit a45b599ad808 ("scsi: sg: allocate with __GFP_ZERO in
->    sg_build_indirect()") we make sure this first bounce buffer is
->    allocated with GFP_ZERO.
-> 3) For the rest of the story we keep ignoring that we have a TUR, so the
->    device won't touch the buffer we prepare as if the we had a
->    DMA_FROM_DEVICE type of situation. My setup uses a virtio-scsi device
->    and the  buffer allocated by SG is mapped by the function
->    virtqueue_add_split() which uses DMA_FROM_DEVICE for the "in" sgs (here
->    scatter-gather and not scsi generics). This mapping involves bouncing
->    via the swiotlb (we need swiotlb to do virtio in protected guest like
->    s390 Secure Execution, or AMD SEV).
-> 4) When the SCSI TUR is done, we first copy back the content of the second
->    (that is swiotlb) bounce buffer (which most likely contains some
->    previous IO data), to the first bounce buffer, which contains all
->    zeros.  Then we copy back the content of the first bounce buffer to
->    the user-space buffer.
-> 5) The test case detects that the buffer, which it zero-initialized,
->   ain't all zeros and fails.
-> 
-> This is an swiotlb problem, because the swiotlb should be transparent in
-> a sense that it does not affect the outcome (if all other participants
-> are well behaved), and without swiotlb we leak all zeros.  Even if
-> swiotlb_tbl_map_single() zero-initialised the allocated slot(s) to avoid
-> leaking stale data back to the caller later, when it comes to unmap or
-> sync_for_cpu it still fundamentally cannot tell how much of the contents
-> of the bounce slot have actually changed, therefore if the caller was
-> expecting the device to do a partial write, the rest of the mapped
-> buffer *will* be corrupted by bouncing the whole thing back again.
-> 
-> Copying the content of the original buffer into the swiotlb buffer is
-> the only way I can think of to make swiotlb transparent in such
-> scenarios. So let's do just that.
-> 
-> The extra bounce is expected to hurt the performance. For the cases
-> where the extra bounce is not necessary we could get rid of it, if we
-> were told by the client code, that it is not needed. Such optimisations
-> are out of scope for this patch, and are likely to be a subject of some
-> future work.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Reported-by: Ali Haider <ali.haider@ibm.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> ---
->  kernel/dma/swiotlb.c | 22 +++++++++++++++-------
->  1 file changed, 15 insertions(+), 7 deletions(-)
+stable-rc/linux-5.4.y baseline: 83 runs, 2 regressions (v5.4.182)
 
-<formletter>
+Regressions Summary
+-------------------
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-</formletter>
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.182/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.182
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      866ae42cf4788c8b18de6bda0a522362702861d7 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6221f35acd3d3de766c62978
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.182=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
+fi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.182=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
+fi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6221f35acd3d3de766c62=
+979
+        failing since 78 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6221f35b5d9fbccbc3c62968
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.182=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
+fi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.182=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
+fi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6221f35b5d9fbccbc3c62=
+969
+        failing since 78 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =20
