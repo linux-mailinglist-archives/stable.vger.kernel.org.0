@@ -2,152 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 112BB4CE033
-	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 23:22:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 259BE4CE079
+	for <lists+stable@lfdr.de>; Fri,  4 Mar 2022 23:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229468AbiCDWXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Mar 2022 17:23:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44794 "EHLO
+        id S229746AbiCDW4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Mar 2022 17:56:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229618AbiCDWXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 17:23:24 -0500
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2058.outbound.protection.outlook.com [40.107.223.58])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0E448300
-        for <stable@vger.kernel.org>; Fri,  4 Mar 2022 14:22:34 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=P8bypZUAysFVx/vTXuumSxhfYkOBZvvosG23HBQMCBxsrF53z2+bCuGtqgJxHBPsutXXAwwH9Rcvilx/eyvpicHrYLjtZj9qYRg2gH8xMgKvGW0mtIvgMCkC/RKV1Q65xJr4kzsHs/bhUDP0m+IE2aeeXvf7vJH9H/xsFfrWapXousX27K/LjYuxo/iPGuYQhMlXvhvSqw4czOIHm93AEGrVhGI8CwtNjud3MZeT0ViBMG+J75RiEeO5XFjwdWhGBGjh/St2XW90nm+M9gGK682MoqSgdJp/X0cQvG0TC1hckcDdUuBHsAr9Cmx1nM/8w33ol8Rr2GZUNN1QvPiTQA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=olBMCajeMq6aYYn53XvFBgXSSQ+XrOFfooPLsYmPLDY=;
- b=lBvFoplSCedZVn9mJZsw45r82JZj1QsIKTMXtGRjA+hu40gHzusuulm1F9itED3LM+eof6PjzBLPs2V/t9yB9cyabEIDNhbNyNMbJ+vXv0Mt+Gk4sO7/Ho0U+GU473/k6paM50wQBvfqb3D6e88jUmjuVByPMp4/73B+Rk6wl2UwffDuvCdM5iDGe4mqBeQqXaDn3BzNgJm7TyuJPFe91jrnNfkHnT2u1fllnfyPHfY2gWJJTXQ1HR4RpJwVpo9Jz98EyHlL+sjJUBVQ+yhLILArTOGKXWx/YGjTGhlFm672KxSB/cMfk5uN7gG+fnJuXxE509iC4Lx9Su4hHUzzKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=olBMCajeMq6aYYn53XvFBgXSSQ+XrOFfooPLsYmPLDY=;
- b=HFXPYS7gWkpmsOFlrTmy0qRQgjvf8NJH3u5QLtDe36GAMKHCKHx90sjV4PSMGRnhp0uSS7CPVeYInfV4HwMK72vrpZVVjKAakefhdttlVW8vFOb1tsvbTotkBph3A2TzqvLuL9QRm1nMRCuClyCptcviqg6iIle/5s2T7xl5tvo=
-Received: from MWHPR20CA0024.namprd20.prod.outlook.com (2603:10b6:300:13d::34)
- by DM6PR12MB3530.namprd12.prod.outlook.com (2603:10b6:5:18a::33) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.15; Fri, 4 Mar
- 2022 22:22:31 +0000
-Received: from CO1NAM11FT029.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:13d:cafe::ae) by MWHPR20CA0024.outlook.office365.com
- (2603:10b6:300:13d::34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.14 via Frontend
- Transport; Fri, 4 Mar 2022 22:22:31 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1NAM11FT029.mail.protection.outlook.com (10.13.174.214) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5038.14 via Frontend Transport; Fri, 4 Mar 2022 22:22:30 +0000
-Received: from localhost.localdomain (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.18; Fri, 4 Mar
- 2022 16:22:29 -0600
-From:   Mario Limonciello <mario.limonciello@amd.com>
-To:     <stable@vger.kernel.org>
-CC:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Jimmy Kizito <Jimmy.Kizito@amd.com>,
-        Jasdeep Dhillon <jdhillon@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH] drm/amd/display: Fix stream->link_enc unassigned during stream removal
-Date:   Fri, 4 Mar 2022 16:20:09 -0600
-Message-ID: <20220304222009.362009-1-mario.limonciello@amd.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229662AbiCDW4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 17:56:15 -0500
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A563922FD94
+        for <stable@vger.kernel.org>; Fri,  4 Mar 2022 14:55:25 -0800 (PST)
+Received: by mail-pg1-x530.google.com with SMTP id t187so4384899pgb.1
+        for <stable@vger.kernel.org>; Fri, 04 Mar 2022 14:55:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=d7IYT69W69D6ZemvHrpvS0qSLOUttNKa1eJ+Bn18aoo=;
+        b=X0SQ8UNL1xXNZlFiO3g4naU9fvVDmaEylZElR87Gs8ouUxBJbR0W01DwJwZ3JyY2KY
+         XeD6IXsqE7JFVQx3KfmTYiUKcAjYnyfY4lIG88XFTSezgRR7hRwmLEA6gdhgPhIwNpTd
+         eYVq8fgt4rB+z6N2AjcYecsoIR931DM6pHm/IjyOgzDVsYS7tTE2l8snNONsPjR8uyWs
+         pGuyMmDXDfl98lkjJDx8n0PkmLrtSbiJLKH9M2WEKIQ73Q6rpZITUbWEbTpdfNbzQaak
+         2i8hK+wZLS4BmQWHyb0wTM72+KC6Rq6gWrr+PUhANVa4oWiTjO7QavQVcDl861/DSsl6
+         icjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=d7IYT69W69D6ZemvHrpvS0qSLOUttNKa1eJ+Bn18aoo=;
+        b=pKuJl1VbLQv5YmUM1locKl5xAYM2WeEAYoXrHNqzllmUPfkXTZBVoQkEhCZkZEMIIT
+         u/Vt3d3FLf7exqtoQn3nelOxEtNrJBjf8+Ns2DIzp58j+ZrN30BKLvb4wTBUOO0vxdgJ
+         0EWibWTteH50Tvn+pfKA0WWVaWQWMGZarTUvBL3OU+ixDOGzRyEcu7C0OXGotK1qsOv2
+         DY0ENm6RtSCiLh/wcrUS3pPBPRpkoHGYBgfcuNgQdoWpI1Kmr4Z8GZJfZH6RYiOBgilv
+         p4TYWiFAgE4pfsJB3+HpPcvXGJqjIuAttNOsThJbLXFC1wxyWAD4bdCXJrB5cLnykkQf
+         pDng==
+X-Gm-Message-State: AOAM530zX+kZo0BAFMkVQYtMSBkZ7Bwzt0FJ/50sKr8qa/DSTMieAY7K
+        bvIwa6WbXLB1WmbWyQbsD//+cj/Fcbc0RtTniDk=
+X-Google-Smtp-Source: ABdhPJx3/0gT8/yTi6piXfSMMMfbSbzBYG5ny2ibQ7AIyDh29HqNmtcWILTLU2oQaleFE9+ygdyvRA==
+X-Received: by 2002:a63:28d:0:b0:365:8e16:5c19 with SMTP id 135-20020a63028d000000b003658e165c19mr507182pgc.579.1646434524870;
+        Fri, 04 Mar 2022 14:55:24 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i6-20020a639d06000000b0037e47a2eca0sm2049908pgd.40.2022.03.04.14.55.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Mar 2022 14:55:24 -0800 (PST)
+Message-ID: <622298dc.1c69fb81.374bc.51cb@mx.google.com>
+Date:   Fri, 04 Mar 2022 14:55:24 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: dbcc8885-5f5b-44b8-e644-08d9fe2d7936
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3530:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR12MB353062EF89554DCCB9BC2401E2059@DM6PR12MB3530.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Mtdlc1mrtMySvd3u+diBpwGmsXVbX23/xE/5a8S+Dh5XG3X+hNdZo/D1aCcFLwwSk7NstcmN+yxNa0nf1S3llu7hEE6biqtgyvzAdmytrgzecT6Nnlji2+C3f02HbSHLBIpuDXljVnpq6MhE1rlZD37dMV0bxRkWGUpkX93qzU6vFut+J/08si1PRoC7Y2QTYON1VfzGYIe7uHnuJFpI8ofvlaVknI7REMUbNIUDT4v+nHUM9HLWieftr4M+7/tmcs2x5I03K89q8z6d5og/c8nc/6ruZNu8ST5j0N25uIStA/DO+sIakK6M13LGzJPcTKQFJ63hI0CWl2dvgJ1Bh//ymXt2LS40THLqv27pYE/JemFkivtYx7xb5uszcf44paAfBkcof65CQ4gzkxyYpRfBXZXbfXu+hNSKmOyl/M+sFjPE4NMRT96y5USiObPW6lGaEKZgltzkafMmqNKxONhHBKr3sRx0gKOc/X5NMeYBEbtXqQdSRnHA/9lK7HKtfYhHbkshKTUA1qDso1f/gtZlEsncYx+jz5u31425UhLBHi3Nrell2hUiJwgFsYst9tiVNUzdSCXzFyoZpGJVRySb7Tv+Oe8jlpT4N9F9nyS5vhED05A2wA6WOdFcV6svPvLLKzeu8PRBDMRGkEjSO0zlA6WpXu9HTrNcwUKQpYi3bCH0ohinuXRWSKVMEc6wEGZ6xBfc5uBCHTGcLiEG4w==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(40470700004)(46966006)(26005)(16526019)(426003)(356005)(1076003)(336012)(81166007)(83380400001)(70586007)(186003)(5660300002)(36756003)(44832011)(2906002)(8936002)(508600001)(86362001)(4326008)(70206006)(8676002)(82310400004)(316002)(2616005)(47076005)(40460700003)(54906003)(6666004)(6916009)(36860700001)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Mar 2022 22:22:30.8541
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: dbcc8885-5f5b-44b8-e644-08d9fe2d7936
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT029.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3530
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.269-12-gfbf41359100f
+Subject: stable-rc/queue/4.14 baseline: 51 runs,
+ 1 regressions (v4.14.269-12-gfbf41359100f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+stable-rc/queue/4.14 baseline: 51 runs, 1 regressions (v4.14.269-12-gfbf413=
+59100f)
 
-[Why]
-Found when running igt@kms_atomic.
+Regressions Summary
+-------------------
 
-Userspace attempts to do a TEST_COMMIT when 0 streams which calls
-dc_remove_stream_from_ctx. This in turn calls link_enc_unassign
-which ends up modifying stream->link = NULL directly, causing the
-global link_enc to be removed preventing further link activity
-and future link validation from passing.
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-[How]
-We take care of link_enc unassignment at the start of
-link_enc_cfg_link_encs_assign so this call is no longer necessary.
 
-Fixes global state from being modified while unlocked.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.269-12-gfbf41359100f/plan/baseline/
 
-Reviewed-by: Jimmy Kizito <Jimmy.Kizito@amd.com>
-Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-(cherry picked from commit 3743e7f6fcb938b7d8b7967e6a9442805e269b3d)
----
-Please apply this for 5.15.y.
-This was already targeted to stable and 5.16.y picked it up but doesn't
-apply cleanly on 5.15.y. This problem exists in 5.15 as well but the nearby
-`#if defined(CONFIG_DRM_AMD_DC_DCN)` from DP 2.0 support
-hasn't been introduced in 5.15.y.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.269-12-gfbf41359100f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fbf41359100fae49bb585711d4dd9d50948d306d =
 
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 3 ---
- 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index e94546187cf1..7ae409f7dcf8 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1799,9 +1799,6 @@ enum dc_status dc_remove_stream_from_ctx(
- 				dc->res_pool,
- 			del_pipe->stream_res.stream_enc,
- 			false);
--	/* Release link encoder from stream in new dc_state. */
--	if (dc->res_pool->funcs->link_enc_unassign)
--		dc->res_pool->funcs->link_enc_unassign(new_ctx, del_pipe->stream);
- 
- 	if (del_pipe->stream_res.audio)
- 		update_audio_usage(
--- 
-2.34.1
 
+Test Regressions
+---------------- =
+
+
+
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/6222640a4d620743fcc629aa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.269=
+-12-gfbf41359100f/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
+8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.269=
+-12-gfbf41359100f/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
+8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6222640a4d620743fcc62=
+9ab
+        failing since 19 days (last pass: v4.14.266-18-g18b83990eba9, first=
+ fail: v4.14.266-28-g7d44cfe0255d) =
+
+ =20
