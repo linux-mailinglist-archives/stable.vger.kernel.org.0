@@ -2,113 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DDF74CE13D
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 00:55:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C68664CE152
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 01:03:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230054AbiCDX43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Mar 2022 18:56:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57316 "EHLO
+        id S229880AbiCEAEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Mar 2022 19:04:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiCDX42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 18:56:28 -0500
-Received: from mail-4322.protonmail.ch (mail-4322.protonmail.ch [185.70.43.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518E01E2FF0;
-        Fri,  4 Mar 2022 15:55:39 -0800 (PST)
-Date:   Fri, 04 Mar 2022 23:55:30 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-        s=protonmail2; t=1646438136;
-        bh=7iQsbSfGsE+f1tC4tYMCvNcqThKw+2jGothi5mFcCCI=;
-        h=Date:To:From:Cc:Reply-To:Subject:Message-ID:In-Reply-To:
-         References:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-         Message-ID;
-        b=UK7u3n1SZq50J3Aw2I1DEiuetRd2HHVjlZE3QvcV6iPKP3tXK1/8u4GflGLVr67Os
-         DtF0yVoisgLRoRC6jD/VytER49hooQtTybS/KlnPlYK9mL67A3UWb/D2qz1soAaDkN
-         a8SrfQAQXmgZc1Eu8u01l77fWdyyG8nxs8q3xZuyBDyykvZqOIE1ScmHRkDc3E30XI
-         5liUTHgHmP+Q2Mh+5G5/9UnqvAeVgKDfVZJipUTGXCLL8QnBESvYT5PP3S93VKTDKj
-         iWbhAimmcq1vWj0jfY0vG4W0KZaFMrsFJqJRCOlAOd6j5R3vaOTWibi7CLk/PbfwAR
-         iozr0O3sQHUEg==
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-From:   Alexander Lobakin <alobakin@pm.me>
-Cc:     Alexander Lobakin <alobakin@pm.me>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: Re: [PATCH mips-fixes] MIPS: fix fortify panic when copying asm exception handlers
-Message-ID: <20220304234818.153517-1-alobakin@pm.me>
-In-Reply-To: <20220301163411.GC13091@alpha.franken.de>
-References: <20220223012338.262041-1-alobakin@pm.me> <20220301163411.GC13091@alpha.franken.de>
+        with ESMTP id S229521AbiCEAEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Mar 2022 19:04:34 -0500
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4121D207A0A;
+        Fri,  4 Mar 2022 16:03:45 -0800 (PST)
+X-UUID: d4708299e3234759b8b7d1d628fb891a-20220305
+X-UUID: d4708299e3234759b8b7d1d628fb891a-20220305
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+        (envelope-from <miles.chen@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 974430699; Sat, 05 Mar 2022 08:03:38 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Sat, 5 Mar 2022 08:03:37 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Sat, 5 Mar 2022 08:03:37 +0800
+From:   Miles Chen <miles.chen@mediatek.com>
+To:     <robin.murphy@arm.com>
+CC:     <iommu@lists.linux-foundation.org>, <joro@8bytes.org>,
+        <linux-kernel@vger.kernel.org>, <miles.chen@mediatek.com>,
+        <stable@vger.kernel.org>, <will@kernel.org>,
+        <wsd_upstream@mediatek.com>, <yf.wang@mediatek.com>
+Subject: Re: [PATCH] iommu/iova: Improve 32-bit free space estimate
+Date:   Sat, 5 Mar 2022 08:03:37 +0800
+Message-ID: <20220305000337.24995-1-miles.chen@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <77b0c978-7caa-c333-6015-1d784b5daf3f@arm.com>
+References: <77b0c978-7caa-c333-6015-1d784b5daf3f@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H5,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Date: Tue, 1 Mar 2022 17:34:11 +0100
+Hi Joerg, Robin,
 
-> On Wed, Feb 23, 2022 at 01:30:23AM +0000, Alexander Lobakin wrote:
-> > With KCFLAGS=3D"-O3", I was able to trigger a fortify-source
-> > memcpy() overflow panic on set_vi_srs_handler().
-> > Although O3 level is not supported in the mainline, under some
-> > conditions that may've happened with any optimization settings,
-> > it's just a matter of inlining luck. The panic itself is correct,
-> > more precisely, 50/50 false-positive and not at the same time.
-> > >From the one side, no real overflow happens. Exception handler
-> > defined in asm just gets copied to some reserved places in the
-> > memory.
-> > But the reason behind is that C code refers to that exception
-> > handler declares it as `char`, i.e. something of 1 byte length.
-> > It's obvious that the asm function itself is way more than 1 byte,
-> > so fortify logics thought we are going to past the symbol declared.
-> > The standard way to refer to asm symbols from C code which is not
-> > supposed to be called from C is to declare them as
-> > `extern const u8[]`. This is fully correct from any point of view,
-> > as any code itself is just a bunch of bytes (including 0 as it is
-> > for syms like _stext/_etext/etc.), and the exact size is not known
-> > at the moment of compilation.
-> > Adjust the type of the except_vec_vi_*() and related variables.
-> > Make set_handler() take `const` as a second argument to avoid
-> > cast-away warnings and give a little more room for optimization.
-> >
-> > Fixes: e01402b115cc ("More AP / SP bits for the 34K, the Malta bits and=
- things. Still wants")
-> > Fixes: c65a5480ff29 ("[MIPS] Fix potential latency problem due to non-a=
-tomic cpu_wait.")
-> > Cc: stable@vger.kernel.org # 3.10+
->
-> I like your patch, but I have a problem with these tags. If I understand
-> your description correctly there is no bug, but because of the way the
-> code is written fortify-source gets confused. So if it doesn't fix
-> anything, there shouldn't be Fixes tags, IMHO. If you agree, I'll
-> apply this patch to mips-next and remove the tags.
+> Applied without stable tag for now. If needed, please consider
+> re-sending it for stable when this patch is merged upstream.
 
-Oh, sorry for the late reply.
-Sure, feel free to apply to mips-next. Yeah, there is no real bug,
-just not-really-100%-clean-code which works anyways.
+> Yeah, having figured out the history, I ended up with the opinion that 
+> it was a missed corner-case optimisation opportunity, rather than an 
+> actual error with respect to intent or implementation, so I 
+> intentionally left that out. Plus figuring out an exact Fixes tag might 
+> be tricky - as above I reckon it probably only started to become 
+> significant somwehere around 5.11 or so.
+> 
+> All of these various levels of retry mechanisms are only a best-effort 
+> thing, and ultimately if you're making large allocations from a small 
+> space there are always going to be *some* circumstances that still 
+> manage to defeat them. Over time, we've made them try harder, but that 
+> fact that we haven't yet made them try hard enough to work well for a 
+> particular use-case does not constitute a bug. However as Joerg says, 
+> anyone's welcome to make a case to Greg to backport a mainline commit if 
+> it's a low-risk change with significant benefit to real-world stable 
+> kernel users.
 
->
-> Thomas.
->
-> --
-> Crap can work. Given enough thrust pigs will fly, but it's not necessaril=
-y a
-> good idea.                                                [ RFC1925, 2.3 =
-]
+Got it, thank you. 
+We will try to push to the android LTS trees we need.
 
 Thanks,
-Al
+Miles
 
+> 
+> Thanks all!
+> 
+> Robin.
