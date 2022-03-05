@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC494CE4B7
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 13:17:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 868334CE4B9
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 13:19:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbiCEMSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 07:18:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54122 "EHLO
+        id S231236AbiCEMTx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 07:19:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbiCEMSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 07:18:03 -0500
+        with ESMTP id S229518AbiCEMTx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 07:19:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E8043AD8
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 04:17:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C313AA51
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 04:19:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 564A36123F
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 12:17:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEFFC004E1;
-        Sat,  5 Mar 2022 12:17:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2242561155
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 12:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 159AEC004E1;
+        Sat,  5 Mar 2022 12:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646482632;
-        bh=YKnjlxZ/8j+y7Ogaq7H4U/jgKR1pzpcjE58cbpPH/BI=;
+        s=korg; t=1646482742;
+        bh=TnQBywEHnYOyeqLbgSpqb53d94OFqkiRlaQY12ZwZ7E=;
         h=Subject:To:Cc:From:Date:From;
-        b=gHbm6lHrSr5syMJoQ6AIQvqGAJsK1YxkCAPRtjq37tkG5JqMX8hzlqAKkt48NjZ+f
-         RrBnDbP4LhjMY2eEIPFVbdwDpYw1Ck+5a/fNU0BKMM7gXBVOAe+nuphDEA4lwZ+HMR
-         2Xb8/9f5Vy1FdBNOd0X9FI4Vre0kf5b6NkKrHQi4=
-Subject: FAILED: patch "[PATCH] batman-adv: Request iflink once in batadv-on-batadv check" failed to apply to 4.9-stable tree
-To:     sven@narfation.org, sw@simonwunderlich.de
+        b=d0AKn0vb+2KODyVPspRHC/uM4mDA5FOhPm40PcARITZme7O/AnWrGqi2txwbae38b
+         fgRF6aZDT1LC4dUPyz+wz3eje4uBKnFYaPSs1efZ88rwWJFP9PYlUKY2wAi3lHn2wH
+         s/QE/A7cAe8s5hOL7gFXJ+PoOmwjVIawOj+GErTg=
+Subject: FAILED: patch "[PATCH] net: ipv6: ensure we call ipv6_mc_down() at most once" failed to apply to 4.9-stable tree
+To:     j.nixdorf@avm.de, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Mar 2022 13:17:09 +0100
-Message-ID: <1646482629201193@kroah.com>
+Date:   Sat, 05 Mar 2022 13:18:59 +0100
+Message-ID: <164648273911413@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,51 +59,91 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 690bb6fb64f5dc7437317153902573ecad67593d Mon Sep 17 00:00:00 2001
-From: Sven Eckelmann <sven@narfation.org>
-Date: Mon, 28 Feb 2022 00:01:24 +0100
-Subject: [PATCH] batman-adv: Request iflink once in batadv-on-batadv check
+From 9995b408f17ff8c7f11bc725c8aa225ba3a63b1c Mon Sep 17 00:00:00 2001
+From: "j.nixdorf@avm.de" <j.nixdorf@avm.de>
+Date: Thu, 24 Feb 2022 10:06:49 +0100
+Subject: [PATCH] net: ipv6: ensure we call ipv6_mc_down() at most once
 
-There is no need to call dev_get_iflink multiple times for the same
-net_device in batadv_is_on_batman_iface. And since some of the
-.ndo_get_iflink callbacks are dynamic (for example via RCUs like in
-vxcan_get_iflink), it could easily happen that the returned values are not
-stable. The pre-checks before __dev_get_by_index are then of course bogus.
+There are two reasons for addrconf_notify() to be called with NETDEV_DOWN:
+either the network device is actually going down, or IPv6 was disabled
+on the interface.
 
-Fixes: b7eddd0b3950 ("batman-adv: prevent using any virtual device created on batman-adv as hard-interface")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+If either of them stays down while the other is toggled, we repeatedly
+call the code for NETDEV_DOWN, including ipv6_mc_down(), while never
+calling the corresponding ipv6_mc_up() in between. This will cause a
+new entry in idev->mc_tomb to be allocated for each multicast group
+the interface is subscribed to, which in turn leaks one struct ifmcaddr6
+per nontrivial multicast group the interface is subscribed to.
 
-diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
-index 8a2b78f9c4b2..35aa1122043b 100644
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -149,22 +149,23 @@ static bool batadv_is_on_batman_iface(const struct net_device *net_dev)
- 	struct net *net = dev_net(net_dev);
- 	struct net_device *parent_dev;
- 	struct net *parent_net;
-+	int iflink;
- 	bool ret;
+The following reproducer will leak at least $n objects:
+
+ip addr add ff2e::4242/32 dev eth0 autojoin
+sysctl -w net.ipv6.conf.eth0.disable_ipv6=1
+for i in $(seq 1 $n); do
+	ip link set up eth0; ip link set down eth0
+done
+
+Joining groups with IPV6_ADD_MEMBERSHIP (unprivileged) or setting the
+sysctl net.ipv6.conf.eth0.forwarding to 1 (=> subscribing to ff02::2)
+can also be used to create a nontrivial idev->mc_list, which will the
+leak objects with the right up-down-sequence.
+
+Based on both sources for NETDEV_DOWN events the interface IPv6 state
+should be considered:
+
+ - not ready if the network interface is not ready OR IPv6 is disabled
+   for it
+ - ready if the network interface is ready AND IPv6 is enabled for it
+
+The functions ipv6_mc_up() and ipv6_down() should only be run when this
+state changes.
+
+Implement this by remembering when the IPv6 state is ready, and only
+run ipv6_mc_down() if it actually changed from ready to not ready.
+
+The other direction (not ready -> ready) already works correctly, as:
+
+ - the interface notification triggered codepath for NETDEV_UP /
+   NETDEV_CHANGE returns early if ipv6 is disabled, and
+ - the disable_ipv6=0 triggered codepath skips fully initializing the
+   interface as long as addrconf_link_ready(dev) returns false
+ - calling ipv6_mc_up() repeatedly does not leak anything
+
+Fixes: 3ce62a84d53c ("ipv6: exit early in addrconf_notify() if IPv6 is disabled")
+Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 6c8ab3e6e6fe..f908e2fd30b2 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3732,6 +3732,7 @@ static int addrconf_ifdown(struct net_device *dev, bool unregister)
+ 	struct inet6_dev *idev;
+ 	struct inet6_ifaddr *ifa, *tmp;
+ 	bool keep_addr = false;
++	bool was_ready;
+ 	int state, i;
  
- 	/* check if this is a batman-adv mesh interface */
- 	if (batadv_softif_is_valid(net_dev))
- 		return true;
+ 	ASSERT_RTNL();
+@@ -3797,7 +3798,10 @@ static int addrconf_ifdown(struct net_device *dev, bool unregister)
  
-+	iflink = dev_get_iflink(net_dev);
-+
- 	/* no more parents..stop recursion */
--	if (dev_get_iflink(net_dev) == 0 ||
--	    dev_get_iflink(net_dev) == net_dev->ifindex)
-+	if (iflink == 0 || iflink == net_dev->ifindex)
- 		return false;
+ 	addrconf_del_rs_timer(idev);
  
- 	parent_net = batadv_getlink_net(net_dev, net);
+-	/* Step 2: clear flags for stateless addrconf */
++	/* Step 2: clear flags for stateless addrconf, repeated down
++	 *         detection
++	 */
++	was_ready = idev->if_flags & IF_READY;
+ 	if (!unregister)
+ 		idev->if_flags &= ~(IF_RS_SENT|IF_RA_RCVD|IF_READY);
  
- 	/* recurse over the parent device */
--	parent_dev = __dev_get_by_index((struct net *)parent_net,
--					dev_get_iflink(net_dev));
-+	parent_dev = __dev_get_by_index((struct net *)parent_net, iflink);
- 	/* if we got a NULL parent_dev there is something broken.. */
- 	if (!parent_dev) {
- 		pr_err("Cannot find parent device\n");
+@@ -3871,7 +3875,7 @@ static int addrconf_ifdown(struct net_device *dev, bool unregister)
+ 	if (unregister) {
+ 		ipv6_ac_destroy_dev(idev);
+ 		ipv6_mc_destroy_dev(idev);
+-	} else {
++	} else if (was_ready) {
+ 		ipv6_mc_down(idev);
+ 	}
+ 
 
