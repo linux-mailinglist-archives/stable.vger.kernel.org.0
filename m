@@ -2,25 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6FD64CE635
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 18:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C18374CE636
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 18:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232077AbiCERYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 12:24:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56676 "EHLO
+        id S232108AbiCER0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 12:26:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230426AbiCERX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 12:23:59 -0500
-X-Greylist: delayed 577 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 05 Mar 2022 09:23:09 PST
-Received: from relay.hostedemail.com (relay.hostedemail.com [64.99.140.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924EDC9A1C
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 09:23:09 -0800 (PST)
-Received: from omf16.hostedemail.com (a10.router.float.18 [10.200.18.1])
-        by unirelay06.hostedemail.com (Postfix) with ESMTP id E11BF23560;
-        Sat,  5 Mar 2022 17:13:30 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf16.hostedemail.com (Postfix) with ESMTPA id E4F822000D;
-        Sat,  5 Mar 2022 17:12:46 +0000 (UTC)
-Message-ID: <39660e162b54f241cdb571e0029c26d4596ec8e0.camel@perches.com>
+        with ESMTP id S232084AbiCER0E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 12:26:04 -0500
+Received: from relay3.hostedemail.com (relay3.hostedemail.com [64.99.140.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563841B84E2
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 09:25:14 -0800 (PST)
+Received: from omf15.hostedemail.com (a10.router.float.18 [10.200.18.1])
+        by unirelay01.hostedemail.com (Postfix) with ESMTP id 660E0612E8;
+        Sat,  5 Mar 2022 17:25:12 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf15.hostedemail.com (Postfix) with ESMTPA id 6F3351C;
+        Sat,  5 Mar 2022 17:24:37 +0000 (UTC)
+Message-ID: <45c5acb0e72112d2c3cf6330b0037389073fa5f3.camel@perches.com>
 Subject: Re: [PATCH 5.10+5.4 2/3] sched/topology: Fix
  sched_domain_topology_level alloc in sched_init_numa()
 From:   Joe Perches <joe@perches.com>
@@ -38,66 +37,48 @@ Cc:     Miao Xie <miaox@cn.fujitsu.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         linux-kernel@vger.kernel.org
-Date:   Sat, 05 Mar 2022 09:13:21 -0800
-In-Reply-To: <20220305164430.245125-3-dann.frazier@canonical.com>
+Date:   Sat, 05 Mar 2022 09:25:03 -0800
+In-Reply-To: <39660e162b54f241cdb571e0029c26d4596ec8e0.camel@perches.com>
 References: <20220305164430.245125-1-dann.frazier@canonical.com>
          <20220305164430.245125-3-dann.frazier@canonical.com>
+         <39660e162b54f241cdb571e0029c26d4596ec8e0.camel@perches.com>
 Content-Type: text/plain; charset="ISO-8859-1"
 User-Agent: Evolution 3.40.4-1ubuntu2 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=unavailable
-        autolearn_force=no version=3.4.6
-X-Stat-Signature: dxe3wtsd7dwd8huxdtt5cgwugib8qqpm
-X-Rspamd-Server: rspamout03
-X-Rspamd-Queue-Id: E4F822000D
+X-Rspamd-Server: rspamout05
+X-Rspamd-Queue-Id: 6F3351C
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE,
+        UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.6
+X-Stat-Signature: ayh3wfrt3brb8zgqthecyw37gcii3a1b
 X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Session-ID: U2FsdGVkX1+mCSH3LH0zbhwDl9OkUOjVBoOSQXNRy8c=
-X-HE-Tag: 1646500366-379292
+X-Session-ID: U2FsdGVkX1+gUly3Gk3jG59foXfiC7q41cuVLoX2m5k=
+X-HE-Tag: 1646501077-480000
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 2022-03-05 at 09:44 -0700, dann frazier wrote:
-> From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+On Sat, 2022-03-05 at 09:13 -0800, Joe Perches wrote:
+> On Sat, 2022-03-05 at 09:44 -0700, dann frazier wrote:
+> > From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+> > 
+> > commit 71e5f6644fb2f3304fcb310145ded234a37e7cc1 upstream.
+> > 
+> > Commit "sched/topology: Make sched_init_numa() use a set for the
+> > deduplicating sort" allocates 'i + nr_levels (level)' instead of
+> > 'i + nr_levels + 1' sched_domain_topology_level.
+> []
+> > diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+> []
+> > @@ -1655,7 +1655,7 @@ void sched_init_numa(void)
+> >  	/* Compute default topology size */
+> >  	for (i = 0; sched_domain_topology[i].mask; i++);
 > 
-> commit 71e5f6644fb2f3304fcb310145ded234a37e7cc1 upstream.
-> 
-> Commit "sched/topology: Make sched_init_numa() use a set for the
-> deduplicating sort" allocates 'i + nr_levels (level)' instead of
-> 'i + nr_levels + 1' sched_domain_topology_level.
-[]
-> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-[]
-> @@ -1655,7 +1655,7 @@ void sched_init_numa(void)
->  	/* Compute default topology size */
->  	for (i = 0; sched_domain_topology[i].mask; i++);
+> Thanks.
 
-Thanks.
-
-Couple trivial notes:
-
-A trailing semicolon in a for loop, "for (...);" can be error prone
-and is also the only usage of that style in kernel/ path.
-
-A more common usage might be:
-
-	i = 0;
-	while (sched_domain_topology[i].mask)
-		i++;
-
-> -	tl = kzalloc((i + nr_levels) *
-> +	tl = kzalloc((i + nr_levels + 1) *
->  			sizeof(struct sched_domain_topology_level), GFP_KERNEL);
-
-kcalloc would be better, although the array is completely set
-by the loop below so the zeroing isn't necessary.
-Maybe use kmalloc_array.
-
-Doubtful there's an overall impact though.
+Oops.  Didn't notice this was for a stable backport.
 
 
