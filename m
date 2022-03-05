@@ -2,188 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F4224CE501
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 14:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C464CE503
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 14:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231754AbiCENgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 08:36:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55862 "EHLO
+        id S231443AbiCENiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 08:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbiCENgm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 08:36:42 -0500
-Received: from wnew2-smtp.messagingengine.com (wnew2-smtp.messagingengine.com [64.147.123.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E066B1BB70A;
-        Sat,  5 Mar 2022 05:35:52 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.west.internal (Postfix) with ESMTP id 5EAA22B001F7;
-        Sat,  5 Mar 2022 08:35:51 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sat, 05 Mar 2022 08:35:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; bh=4dc0VTzxNmvFQlKVw1cNuvHdBVJG8Wjw/K/Pj1
-        9FZiU=; b=QLiKZAraGwCIsSdvHeIn74cQgEoxy+oVeQL5ojP+rVXNSGANtMx3vL
-        dRC9cCSwBFUXSg23b0s3GcOtii9Lzc6fc6NJl0c3irbzBZK/SJA3wMfshRXxLI0b
-        L7DZVl2mRjgkvY8uMOr/brgfNvPPQrVt0gFOjA6vKVVt2aNFBHv6I7i901OBZcyK
-        O+eeQCR/RHOt+3m3nj9nX+eV2YMZ8pKh1qcOqLbSruUxbmEm1BTFdrYhNd7PS0z4
-        IAik/LFRc4/1jENsdltxqHiT8pbS+jxLcEL4FUtqBpdFCKGyMi2tdOQ3C4aZqiuS
-        AEN/QiP+w0bNv78D6vtvvW5mFMC3fiig==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4dc0VTzxNmvFQlKVw
-        1cNuvHdBVJG8Wjw/K/Pj19FZiU=; b=Eeo+mPic7zpISsdEjrutKJdSy+8z+I7xe
-        1wum9JSqY+xK07vjoH94XafQ5eIySSvc10Vv2a6BtF9b5RMh8d8fythB+Rq52FOK
-        9GIwyFNz6msnqzoZhirc5wFhZyXv8/IQi3PL/gqCJVtNcgvDHREpBzPIFcxEjZ66
-        EufJdRAuuGZN3Dyx7Xop+VgEp30rzIWELOf3KflF4omx7tFkGpnNoJw93kIhunr2
-        EqyQSotkxSxEqieku9vhLIXWoLym3+mYm0x8hmxtVojQJHgI1QLEYxOSdJxWwmMg
-        WZ/yjv0WHKsdBMfbY0EoNc/T0saf7RQ/sQESWlUy/R3u75g5BzHqw==
-X-ME-Sender: <xms:NmcjYuyv9TpPZ3r4tJFyPQ-ROzLw4d-iOi_uNIOQnFwxbzE5x9KMUw>
-    <xme:NmcjYqQLMPS2wcvxkiYFiRs7vzMWOAxA24pk0iALVQqEBl1SK06lBHWNpyojg9JrB
-    fPYdG-cvcxKiw>
-X-ME-Received: <xmr:NmcjYgWleg2ONxL8hFeij-ELJxBJcc2qOkNhnVv0LiGxc4m-kg38dbJFxFU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddutddgheegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:NmcjYkgt-qgvbzZna7KtvfhSPfIuPbGK1f0bcaInnS699ouvxnkLUg>
-    <xmx:NmcjYgC81yERSkTUxzhNqPqGA1KHGTikf8_RSuAF4jdUa8utrliA3g>
-    <xmx:NmcjYlKoqQymB0wsHXJskIvWkB0wIt5lFZaQkGwE7lR2O0Bokl5aGw>
-    <xmx:NmcjYk5OpQfan7G27G653aEswXRQpI_8XxwAaZnxuTlleWcy1B2dL_mbsO8>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 5 Mar 2022 08:35:49 -0500 (EST)
-Date:   Sat, 5 Mar 2022 14:35:39 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Anand Jain <anand.jain@oracle.com>
-Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: Re: [PATCH stable-5.15.y] btrfs: fix ENOSPC failure when attempting
- direct IO write into NOCOW range
-Message-ID: <YiNnK4HMpZSg41Gc@kroah.com>
-References: <4d7223dc5a3e02562e48012334f76ed598bc9792.1646313523.git.anand.jain@oracle.com>
+        with ESMTP id S229575AbiCENiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 08:38:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7A61BB70A
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 05:37:10 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB477B80C0A
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 13:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADEF5C004E1;
+        Sat,  5 Mar 2022 13:37:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646487427;
+        bh=4IZHJtI3vQCmR0PSPGYvWsF+WI2I/+v1cDIi/BDEYh8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QfUOjoupeTvgwBQEAQrZ2C1N6htcU7m5BIUt10X8hTAeks1QDlYugh0RRH1FqvjPg
+         j/mp6uHYZ8wqsgpPJ7rN9O3CnlUyf2I5WL/TUvAeTxNn/TbP41S7u45ziXOB3OPYIN
+         LjxVwu0BeFtglZ26H/BHhZ6Ea52g3BdcJtFQvolk=
+Date:   Sat, 5 Mar 2022 14:37:03 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Zhen Lei <thunder.leizhen@huawei.com>
+Cc:     stable <stable@vger.kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>
+Subject: Re: [PATCH 5.10] rcu/nocb: Fix missed nocb_timer requeue
+Message-ID: <YiNnf5QT6oKU7PsR@kroah.com>
+References: <20220301134305.1528-1-thunder.leizhen@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d7223dc5a3e02562e48012334f76ed598bc9792.1646313523.git.anand.jain@oracle.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20220301134305.1528-1-thunder.leizhen@huawei.com>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 03, 2022 at 09:30:31PM +0800, Anand Jain wrote:
-> From: Filipe Manana <fdmanana@suse.com>
+On Tue, Mar 01, 2022 at 09:43:05PM +0800, Zhen Lei wrote:
+> From: Frederic Weisbecker <frederic@kernel.org>
 > 
-> Commit f0bfa76a11e93d0fe2c896fcb566568c5e8b5d3f upstream.
+> commit b2fcf2102049f6e56981e0ab3d9b633b8e2741da upstream.
 > 
-> When doing a direct IO write against a file range that either has
-> preallocated extents in that range or has regular extents and the file
-> has the NOCOW attribute set, the write fails with -ENOSPC when all of
-> the following conditions are met:
+> This sequence of events can lead to a failure to requeue a CPU's
+> ->nocb_timer:
 > 
-> 1) There are no data blocks groups with enough free space matching
->    the size of the write;
+> 1.	There are no callbacks queued for any CPU covered by CPU 0-2's
+> 	->nocb_gp_kthread.  Note that ->nocb_gp_kthread is associated
+> 	with CPU 0.
 > 
-> 2) There's not enough unallocated space for allocating a new data block
->    group;
+> 2.	CPU 1 enqueues its first callback with interrupts disabled, and
+> 	thus must defer awakening its ->nocb_gp_kthread.  It therefore
+> 	queues its rcu_data structure's ->nocb_timer.  At this point,
+> 	CPU 1's rdp->nocb_defer_wakeup is RCU_NOCB_WAKE.
 > 
-> 3) The extents in the target file range are not shared, neither through
->    snapshots nor through reflinks.
+> 3.	CPU 2, which shares the same ->nocb_gp_kthread, also enqueues a
+> 	callback, but with interrupts enabled, allowing it to directly
+> 	awaken the ->nocb_gp_kthread.
 > 
-> This is wrong because a NOCOW write can be done in such case, and in fact
-> it's possible to do it using a buffered IO write, since when failing to
-> allocate data space, the buffered IO path checks if a NOCOW write is
-> possible.
+> 4.	The newly awakened ->nocb_gp_kthread associates both CPU 1's
+> 	and CPU 2's callbacks with a future grace period and arranges
+> 	for that grace period to be started.
 > 
-> The failure in direct IO write path comes from the fact that early on,
-> at btrfs_dio_iomap_begin(), we try to allocate data space for the write
-> and if it that fails we return the error and stop - we never check if we
-> can do NOCOW. But later, at btrfs_get_blocks_direct_write(), we check
-> if we can do a NOCOW write into the range, or a subset of the range, and
-> then release the previously reserved data space.
+> 5.	This ->nocb_gp_kthread goes to sleep waiting for the end of this
+> 	future grace period.
 > 
-> Fix this by doing the data reservation only if needed, when we must COW,
-> at btrfs_get_blocks_direct_write() instead of doing it at
-> btrfs_dio_iomap_begin(). This also simplifies a bit the logic and removes
-> the inneficiency of doing unnecessary data reservations.
+> 6.	This grace period elapses before the CPU 1's timer fires.
+> 	This is normally improbably given that the timer is set for only
+> 	one jiffy, but timers can be delayed.  Besides, it is possible
+> 	that kernel was built with CONFIG_RCU_STRICT_GRACE_PERIOD=y.
 > 
-> The following example test script reproduces the problem:
+> 7.	The grace period ends, so rcu_gp_kthread awakens the
+> 	->nocb_gp_kthread, which in turn awakens both CPU 1's and
+> 	CPU 2's ->nocb_cb_kthread.  Then ->nocb_gb_kthread sleeps
+> 	waiting for more newly queued callbacks.
 > 
->   $ cat dio-nocow-enospc.sh
->   #!/bin/bash
+> 8.	CPU 1's ->nocb_cb_kthread invokes its callback, then sleeps
+> 	waiting for more invocable callbacks.
 > 
->   DEV=/dev/sdj
->   MNT=/mnt/sdj
+> 9.	Note that neither kthread updated any ->nocb_timer state,
+> 	so CPU 1's ->nocb_defer_wakeup is still set to RCU_NOCB_WAKE.
 > 
->   # Use a small fixed size (1G) filesystem so that it's quick to fill
->   # it up.
->   # Make sure the mixed block groups feature is not enabled because we
->   # later want to not have more space available for allocating data
->   # extents but still have enough metadata space free for the file writes.
->   mkfs.btrfs -f -b $((1024 * 1024 * 1024)) -O ^mixed-bg $DEV
->   mount $DEV $MNT
+> 10.	CPU 1 enqueues its second callback, this time with interrupts
+>  	enabled so it can wake directly	->nocb_gp_kthread.
+> 	It does so with calling wake_nocb_gp() which also cancels the
+> 	pending timer that got queued in step 2. But that doesn't reset
+> 	CPU 1's ->nocb_defer_wakeup which is still set to RCU_NOCB_WAKE.
+> 	So CPU 1's ->nocb_defer_wakeup and its ->nocb_timer are now
+> 	desynchronized.
 > 
->   # Create our test file with the NOCOW attribute set.
->   touch $MNT/foobar
->   chattr +C $MNT/foobar
+> 11.	->nocb_gp_kthread associates the callback queued in 10 with a new
+> 	grace period, arranges for that grace period to start and sleeps
+> 	waiting for it to complete.
 > 
->   # Now fill in all unallocated space with data for our test file.
->   # This will allocate a data block group that will be full and leave
->   # no (or a very small amount of) unallocated space in the device, so
->   # that it will not be possible to allocate a new block group later.
->   echo
->   echo "Creating test file with initial data..."
->   xfs_io -c "pwrite -S 0xab -b 1M 0 900M" $MNT/foobar
+> 12.	The grace period ends, rcu_gp_kthread awakens ->nocb_gp_kthread,
+> 	which in turn wakes up CPU 1's ->nocb_cb_kthread which then
+> 	invokes the callback queued in 10.
 > 
->   # Now try a direct IO write against file range [0, 10M[.
->   # This should succeed since this is a NOCOW file and an extent for the
->   # range was previously allocated.
->   echo
->   echo "Trying direct IO write over allocated space..."
->   xfs_io -d -c "pwrite -S 0xcd -b 10M 0 10M" $MNT/foobar
+> 13.	CPU 1 enqueues its third callback, this time with interrupts
+> 	disabled so it must queue a timer for a deferred wakeup. However
+> 	the value of its ->nocb_defer_wakeup is RCU_NOCB_WAKE which
+> 	incorrectly indicates that a timer is already queued.  Instead,
+> 	CPU 1's ->nocb_timer was cancelled in 10.  CPU 1 therefore fails
+> 	to queue the ->nocb_timer.
 > 
->   umount $MNT
+> 14.	CPU 1 has its pending callback and it may go unnoticed until
+> 	some other CPU ever wakes up ->nocb_gp_kthread or CPU 1 ever
+> 	calls an explicit deferred wakeup, for example, during idle entry.
 > 
-> When running the test:
+> This commit fixes this bug by resetting rdp->nocb_defer_wakeup everytime
+> we delete the ->nocb_timer.
 > 
->   $ ./dio-nocow-enospc.sh
->   (...)
+> It is quite possible that there is a similar scenario involving
+> ->nocb_bypass_timer and ->nocb_defer_wakeup.  However, despite some
+> effort from several people, a failure scenario has not yet been located.
+> However, that by no means guarantees that no such scenario exists.
+> Finding a failure scenario is left as an exercise for the reader, and the
+> "Fixes:" tag below relates to ->nocb_bypass_timer instead of ->nocb_timer.
 > 
->   Creating test file with initial data...
->   wrote 943718400/943718400 bytes at offset 0
->   900 MiB, 900 ops; 0:00:01.43 (625.526 MiB/sec and 625.5265 ops/sec)
+> Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
+> Cc: <stable@vger.kernel.org>
+> Cc: Josh Triplett <josh@joshtriplett.org>
+> Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+> Cc: Joel Fernandes <joel@joelfernandes.org>
+> Cc: Boqun Feng <boqun.feng@gmail.com>
+> Reviewed-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> Conflicts:
+> 	kernel/rcu/tree_plugin.h
 > 
->   Trying direct IO write over allocated space...
->   pwrite: No space left on device
-> 
-> A test case for fstests will follow, testing both this direct IO write
-> scenario as well as the buffered IO write scenario to make it less likely
-> to get future regressions on the buffered IO case.
-> 
-> Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-> Signed-off-by: Filipe Manana <fdmanana@suse.com>
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: Anand Jain <anand.jain@oracle.com>
+> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 > ---
->  fs/btrfs/inode.c | 142 ++++++++++++++++++++++++++---------------------
->  1 file changed, 78 insertions(+), 64 deletions(-)
+>  kernel/rcu/tree_plugin.h | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 
-A normal "cherry pick" worked here, right?
-
-Also this is needed for 5.16.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
