@@ -2,108 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E7B4CE69A
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 20:45:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF4904CE69B
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 20:50:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232258AbiCETqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 14:46:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43868 "EHLO
+        id S231454AbiCETvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 14:51:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232267AbiCETqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 14:46:06 -0500
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F58559A
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 11:45:15 -0800 (PST)
-Received: by mail-lj1-x232.google.com with SMTP id o6so15248649ljp.3
-        for <stable@vger.kernel.org>; Sat, 05 Mar 2022 11:45:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LPoOJ4AaVNL3oCNAAPlELZgxMH2Mdvtu3dbXK4LFzGs=;
-        b=VP5ml3rhFccJpQT10F3e7U/zoXUd4YieWbaCb33Zddq/fZ5PPyqKrvHehNKXJqspFK
-         t0tbIAsfMCXqBZGAxQ7y5zWU067Uum1XlNQ1M5GMkpzR6hRmOjp5TBpqLxpXZ+9kLLXT
-         asBh+rJ5Sj8uEdX26hAQGU9heQsqmTwvFUnvo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LPoOJ4AaVNL3oCNAAPlELZgxMH2Mdvtu3dbXK4LFzGs=;
-        b=bjOC26HVauMJT9gZTsBW1Hqt8OnC/Q6wQwVuOW4MKS+oD1q+/qREd243d9sgXhImD0
-         rO7oB7d4fs1dvdXOSTBMtB7FyCK7/d/9fizfqkFhdWYRceBngVtjFS+BOduZymaolFtS
-         Uxyf66ya7zKij/l0MqWsLPerhtSoRwiXr3o7HBQ2gPR6LQ9GolTf08lLGvxnl+5iLPlj
-         jAdAgjOwUf6wscn9tvkaVLqvNSV6V24VSEgDEExuH1+FnZHwYe9WYTq2m+7g90AMw/VM
-         mceIbVsTNUO+9HrfT5LQxuKBHgBdnz+zCxt/1xMsftTUeUE+sp4PLH/kO5Lufa8IvsGs
-         3ysg==
-X-Gm-Message-State: AOAM532mSEv123IUXzxO4hMsenHXNRMHcakNKNN/wVgxz/43X3+KD/RU
-        o8x8Bgwf1T5qxltkOborFs1B468taNXMqgUHU3c=
-X-Google-Smtp-Source: ABdhPJwmxMzDhJqFV9nryqkFHx9/5eUo/iSFsj0kO0JWn/NrkXBvnJz5Fd+xypXl0J7HQjJCnMqhOw==
-X-Received: by 2002:a2e:9d89:0:b0:244:1ed:1960 with SMTP id c9-20020a2e9d89000000b0024401ed1960mr2876431ljj.413.1646509510930;
-        Sat, 05 Mar 2022 11:45:10 -0800 (PST)
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com. [209.85.167.48])
-        by smtp.gmail.com with ESMTPSA id k8-20020a2eb748000000b00244badbe7c9sm1853386ljo.60.2022.03.05.11.45.08
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 05 Mar 2022 11:45:08 -0800 (PST)
-Received: by mail-lf1-f48.google.com with SMTP id bu29so19877113lfb.0
-        for <stable@vger.kernel.org>; Sat, 05 Mar 2022 11:45:08 -0800 (PST)
-X-Received: by 2002:ac2:41cf:0:b0:448:1eaa:296c with SMTP id
- d15-20020ac241cf000000b004481eaa296cmr3118225lfi.52.1646509508091; Sat, 05
- Mar 2022 11:45:08 -0800 (PST)
+        with ESMTP id S231834AbiCETvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 14:51:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A72064D4;
+        Sat,  5 Mar 2022 11:50:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1261B80CA1;
+        Sat,  5 Mar 2022 19:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFEBAC004E1;
+        Sat,  5 Mar 2022 19:50:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646509853;
+        bh=zE8mY7gSZ94ep1kSuWQL2BU4MPCGeaZjsBead339r+A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LtIJ6kb3cOTmfja5IypACO5cXZ6Tq+dnIt3f6IG+FZ5Hn4skKQGJWRuvJ2v/PoytQ
+         tU88U4Y8AKnl/lbabx6BMNmhpg+8WJoAI4KdjGWLXH5rEKUyiAeFXzC2J/ysMlJJXy
+         rpCCpdtkjM8J0GJWd8g/N5hWezEyY+4giLB7TJRY=
+Date:   Sat, 5 Mar 2022 20:50:42 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     dann frazier <dann.frazier@canonical.com>
+Cc:     stable@vger.kernel.org, Miao Xie <miaox@cn.fujitsu.com>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        Anatoly Pugachev <matorola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5.10+5.4 0/3] sched/topology: Fix missing scheduling
+ domain levels
+Message-ID: <YiO/EsBd0QlDA9o4@kroah.com>
+References: <20220305164430.245125-1-dann.frazier@canonical.com>
 MIME-Version: 1.0
-References: <20220305170714.2043896-1-pasic@linux.ibm.com>
-In-Reply-To: <20220305170714.2043896-1-pasic@linux.ibm.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sat, 5 Mar 2022 11:44:51 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wgZ6fNG03pd2pAVw9RtymwPDyHNvTLHr2Q3LX3S0Y1k5Q@mail.gmail.com>
-Message-ID: <CAHk-=wgZ6fNG03pd2pAVw9RtymwPDyHNvTLHr2Q3LX3S0Y1k5Q@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] swiotlb: rework "fix info leak with DMA_FROM_DEVICE"
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        stable <stable@vger.kernel.org>,
-        Doug Gilbert <dgilbert@interlog.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220305164430.245125-1-dann.frazier@canonical.com>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 5, 2022 at 9:07 AM Halil Pasic <pasic@linux.ibm.com> wrote:
->
-> Unfortunately, we ended up merging an old version of the patch "fix info
-> leak with DMA_FROM_DEVICE" instead of merging the latest one. Christoph
-> (the swiotlb maintainer), he asked me to create an incremental fix
-> (after I have pointed this out the mix up, and asked him for guidance).
-> So here we go.
- [...]
+On Sat, Mar 05, 2022 at 09:44:27AM -0700, dann frazier wrote:
+> The LTP cpuset_sched_domains test, authored by Miao Xie, fails on a Kunpeng920
+> server that has 4 NUMA nodes:
+>   https://launchpad.net/bugs/1951289
+> 
+> This does appear to be a real bug. /proc/schedstat displays 4 domain levels for
+> CPUs on 2 of the nodes, but only 3 levels for the others 2 (see below).
+> I assume this means the scheduler is making suboptimal decisions about
+> where to place/move processes. I'm not sure how to demonstrate that - but
+> open to suggestions if that evidence is important justification for stable.
+> 
+> This is not a problem in current upstream kernels, so I bisected and found
+> that the first patch here fixes it. I can't tell from the commit message
+> if fixing this case was Valentin's intent, or just a happy side-effect of the
+> set conversion. The other two patches fix regressions introduced by the first.
+> All cherry-pick cleanly back to 5.10.y and 5.4.y. This platform easily
+> reproduces the problem Dietmar's fix addresses. I don't have hardware to test
+> the ia64 fix.
+> 
+> Note: This also impacts earlier stable trees, but require some minor porting,
+> so I'll submit fixes for those separately.
+> 
+> Here's a comparison of /proc/schedstat before & after applying these
+> fixes:
 
-Christoph, I am assuming I'll get this from you, but if you have
-nothing else pending, just holler and I can take it directly.
+Thanks, now queued up.
 
-That said, it seems sad to bounce the buffer just in case the device
-doesn't do what we expect it to do. Wouldn't it be better to just
-clear the buffer instead of copying the old data into it?
-
-Also, possibly stupid question - when is swiotlb used in practice
-these days? What are the performance implications of this? Will this
-mean completely unnecessary copies for all normal IO that will be
-overwritten by the DMA? Can't we limit it to just SG_IO (or is it
-already for some reason)?
-
-                  Linus
+greg k-h
