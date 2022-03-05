@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C464CE503
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 14:37:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 331704CE504
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 14:38:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231443AbiCENiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 08:38:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56222 "EHLO
+        id S231752AbiCENjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 08:39:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbiCENiA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 08:38:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7A61BB70A
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 05:37:10 -0800 (PST)
+        with ESMTP id S229575AbiCENjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 08:39:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359E73A1AE
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 05:38:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB477B80C0A
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 13:37:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADEF5C004E1;
-        Sat,  5 Mar 2022 13:37:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9CA6B80B9E
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 13:38:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC7AC004E1;
+        Sat,  5 Mar 2022 13:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646487427;
-        bh=4IZHJtI3vQCmR0PSPGYvWsF+WI2I/+v1cDIi/BDEYh8=;
+        s=korg; t=1646487488;
+        bh=VZmtnjUiYBiOweinTqKjlzZ/YkvqWldc9rZKUZI5bAg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QfUOjoupeTvgwBQEAQrZ2C1N6htcU7m5BIUt10X8hTAeks1QDlYugh0RRH1FqvjPg
-         j/mp6uHYZ8wqsgpPJ7rN9O3CnlUyf2I5WL/TUvAeTxNn/TbP41S7u45ziXOB3OPYIN
-         LjxVwu0BeFtglZ26H/BHhZ6Ea52g3BdcJtFQvolk=
-Date:   Sat, 5 Mar 2022 14:37:03 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Zhen Lei <thunder.leizhen@huawei.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>
-Subject: Re: [PATCH 5.10] rcu/nocb: Fix missed nocb_timer requeue
-Message-ID: <YiNnf5QT6oKU7PsR@kroah.com>
-References: <20220301134305.1528-1-thunder.leizhen@huawei.com>
+        b=qmnZqdWQnO7/fD2hhvQGrzE891vjR0/mUWBJSFtzv0QC3AIlaQrhicV+KbdlBc+4c
+         WqncgEgdwy8cQEP4G3vVra64+xgm1r1UXC3oV/70KYbAFkv/NBi511ZOF6hktzmr99
+         kgy0Ol3z+jZft9lUrhUpbW2d/MSRp2QktwcIMfKQ=
+Date:   Sat, 5 Mar 2022 14:38:04 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mario Limonciello <mario.limonciello@amd.com>
+Cc:     stable@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] platform/x86: amd-pmc: Set QOS during suspend on CZN w/
+ timer wakeup
+Message-ID: <YiNnvAScPPtHC/d9@kroah.com>
+References: <20220301041510.1122030-1-mario.limonciello@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220301134305.1528-1-thunder.leizhen@huawei.com>
+In-Reply-To: <20220301041510.1122030-1-mario.limonciello@amd.com>
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -52,103 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 01, 2022 at 09:43:05PM +0800, Zhen Lei wrote:
-> From: Frederic Weisbecker <frederic@kernel.org>
+On Mon, Feb 28, 2022 at 10:15:10PM -0600, Mario Limonciello wrote:
+> commit 59348401ebed ("platform/x86: amd-pmc: Add special handling for
+> timer based S0i3 wakeup") adds support for using another platform timer
+> in lieu of the RTC which doesn't work properly on some systems. This path
+> was validated and worked well before submission. During the 5.16-rc1 merge
+> window other patches were merged that caused this to stop working properly.
 > 
-> commit b2fcf2102049f6e56981e0ab3d9b633b8e2741da upstream.
+> When this feature was used with 5.16-rc1 or later some OEM laptops with the
+> matching firmware requirements from that commit would shutdown instead of
+> program a timer based wakeup.
 > 
-> This sequence of events can lead to a failure to requeue a CPU's
-> ->nocb_timer:
+> This was bisected to commit 8d89835b0467 ("PM: suspend: Do not pause
+> cpuidle in the suspend-to-idle path").  This wasn't supposed to cause any
+> negative impacts and also tested well on both Intel and ARM platforms.
+> However this changed the semantics of when CPUs are allowed to be in the
+> deepest state. For the AMD systems in question it appears this causes a
+> firmware crash for timer based wakeup.
 > 
-> 1.	There are no callbacks queued for any CPU covered by CPU 0-2's
-> 	->nocb_gp_kthread.  Note that ->nocb_gp_kthread is associated
-> 	with CPU 0.
+> It's hypothesized to be caused by the `amd-pmc` driver sending `OS_HINT`
+> and all the CPUs going into a deep state while the timer is still being
+> programmed. It's likely a firmware bug, but to avoid it don't allow setting
+> CPUs into the deepest state while using CZN timer wakeup path.
 > 
-> 2.	CPU 1 enqueues its first callback with interrupts disabled, and
-> 	thus must defer awakening its ->nocb_gp_kthread.  It therefore
-> 	queues its rcu_data structure's ->nocb_timer.  At this point,
-> 	CPU 1's rdp->nocb_defer_wakeup is RCU_NOCB_WAKE.
+> If later it's discovered that this also occurs from "regular" suspends
+> without a timer as well or on other silicon, this may be later expanded to
+> run in the suspend path for more scenarios.
 > 
-> 3.	CPU 2, which shares the same ->nocb_gp_kthread, also enqueues a
-> 	callback, but with interrupts enabled, allowing it to directly
-> 	awaken the ->nocb_gp_kthread.
-> 
-> 4.	The newly awakened ->nocb_gp_kthread associates both CPU 1's
-> 	and CPU 2's callbacks with a future grace period and arranges
-> 	for that grace period to be started.
-> 
-> 5.	This ->nocb_gp_kthread goes to sleep waiting for the end of this
-> 	future grace period.
-> 
-> 6.	This grace period elapses before the CPU 1's timer fires.
-> 	This is normally improbably given that the timer is set for only
-> 	one jiffy, but timers can be delayed.  Besides, it is possible
-> 	that kernel was built with CONFIG_RCU_STRICT_GRACE_PERIOD=y.
-> 
-> 7.	The grace period ends, so rcu_gp_kthread awakens the
-> 	->nocb_gp_kthread, which in turn awakens both CPU 1's and
-> 	CPU 2's ->nocb_cb_kthread.  Then ->nocb_gb_kthread sleeps
-> 	waiting for more newly queued callbacks.
-> 
-> 8.	CPU 1's ->nocb_cb_kthread invokes its callback, then sleeps
-> 	waiting for more invocable callbacks.
-> 
-> 9.	Note that neither kthread updated any ->nocb_timer state,
-> 	so CPU 1's ->nocb_defer_wakeup is still set to RCU_NOCB_WAKE.
-> 
-> 10.	CPU 1 enqueues its second callback, this time with interrupts
->  	enabled so it can wake directly	->nocb_gp_kthread.
-> 	It does so with calling wake_nocb_gp() which also cancels the
-> 	pending timer that got queued in step 2. But that doesn't reset
-> 	CPU 1's ->nocb_defer_wakeup which is still set to RCU_NOCB_WAKE.
-> 	So CPU 1's ->nocb_defer_wakeup and its ->nocb_timer are now
-> 	desynchronized.
-> 
-> 11.	->nocb_gp_kthread associates the callback queued in 10 with a new
-> 	grace period, arranges for that grace period to start and sleeps
-> 	waiting for it to complete.
-> 
-> 12.	The grace period ends, rcu_gp_kthread awakens ->nocb_gp_kthread,
-> 	which in turn wakes up CPU 1's ->nocb_cb_kthread which then
-> 	invokes the callback queued in 10.
-> 
-> 13.	CPU 1 enqueues its third callback, this time with interrupts
-> 	disabled so it must queue a timer for a deferred wakeup. However
-> 	the value of its ->nocb_defer_wakeup is RCU_NOCB_WAKE which
-> 	incorrectly indicates that a timer is already queued.  Instead,
-> 	CPU 1's ->nocb_timer was cancelled in 10.  CPU 1 therefore fails
-> 	to queue the ->nocb_timer.
-> 
-> 14.	CPU 1 has its pending callback and it may go unnoticed until
-> 	some other CPU ever wakes up ->nocb_gp_kthread or CPU 1 ever
-> 	calls an explicit deferred wakeup, for example, during idle entry.
-> 
-> This commit fixes this bug by resetting rdp->nocb_defer_wakeup everytime
-> we delete the ->nocb_timer.
-> 
-> It is quite possible that there is a similar scenario involving
-> ->nocb_bypass_timer and ->nocb_defer_wakeup.  However, despite some
-> effort from several people, a failure scenario has not yet been located.
-> However, that by no means guarantees that no such scenario exists.
-> Finding a failure scenario is left as an exercise for the reader, and the
-> "Fixes:" tag below relates to ->nocb_bypass_timer instead of ->nocb_timer.
-> 
-> Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
-> Cc: <stable@vger.kernel.org>
-> Cc: Josh Triplett <josh@joshtriplett.org>
-> Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-> Cc: Joel Fernandes <joel@joelfernandes.org>
-> Cc: Boqun Feng <boqun.feng@gmail.com>
-> Reviewed-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-> Conflicts:
-> 	kernel/rcu/tree_plugin.h
-> 
-> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+> Cc: stable@vger.kernel.org # 5.16+
+> Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Link: https://lore.kernel.org/linux-acpi/BL1PR12MB51570F5BD05980A0DCA1F3F4E23A9@BL1PR12MB5157.namprd12.prod.outlook.com/T/#mee35f39c41a04b624700ab2621c795367f19c90e
+> Fixes: 8d89835b0467 ("PM: suspend: Do not pause cpuidle in the suspend-to-idle path")
+> Fixes: 23f62d7ab25b ("PM: sleep: Pause cpuidle later and resume it earlier during system transitions")
+> Fixes: 59348401ebed ("platform/x86: amd-pmc: Add special handling for timer based S0i3 wakeup"
+> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> Link: https://lore.kernel.org/r/20220223175237.6209-1-mario.limonciello@amd.com
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> (cherry picked from commit 68af28426b3ca1bf9ba21c7d8bdd0ff639e5134c)
 > ---
->  kernel/rcu/tree_plugin.h | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+> This didn't apply cleanly to 5.16.y because 5.16.y doesn't contain the STB
+> feature.  Manually fixed up the commit for this.
+> This is *only* intended for 5.16.
 
 Now queued up, thanks.
 
