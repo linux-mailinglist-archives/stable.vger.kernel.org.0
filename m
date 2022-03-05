@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C324CE6A0
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 20:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E45694CE6A1
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 20:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231790AbiCETzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 14:55:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50370 "EHLO
+        id S232234AbiCETzw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 14:55:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230342AbiCETzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 14:55:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B066581192
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 11:54:59 -0800 (PST)
+        with ESMTP id S230342AbiCETzv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 14:55:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EAD81882
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 11:55:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63A6AB80CA1
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 19:54:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5AE8C004E1;
-        Sat,  5 Mar 2022 19:54:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73B8360B57
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 19:55:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 828D7C004E1;
+        Sat,  5 Mar 2022 19:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646510097;
-        bh=AkMP1dH4e9NhSQ6OGkN1rlIwyFqppd9axYuJoqOeqE4=;
+        s=korg; t=1646510099;
+        bh=veUV/xfb6zZ+udGWZIbAHLsyqFCrcpSy2r+wXSkSMUQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=BXoP+OMvJfGFDWJ540a1NurlfArqqGZUO3zeFROpxiAAN1WW6X8I7mLOOAc16hu6B
-         XRKLpCSVPTwlOCh523i5++XD2NQLDRXPEOTR+gcqJW16UfEE0fvAYx8vqTfHORRNrK
-         SGhJBo72WfrORFa1TckOV/x78AYq1Bm8WgeyxgXc=
-Subject: FAILED: patch "[PATCH] net: stmmac: only enable DMA interrupts when ready" failed to apply to 5.4-stable tree
+        b=wbIJaLVGrRNPH8bdlBC+Z4zjiZ256rU3qrrlqbDzVbRqAJsQkl0CXNih/kgSwQLRn
+         UkP6zyMjenVw2xA9KLLruDpz1MVUNM7StS6wRL53hkzPEvdFWxPqgqhoXY3sar7dGv
+         BM5Wagy+FyvEObicE4YAngg7x4SVim7wqxWxX0Kc=
+Subject: FAILED: patch "[PATCH] net: stmmac: only enable DMA interrupts when ready" failed to apply to 5.15-stable tree
 To:     vincent.whitchurch@axis.com, davem@davemloft.net, larper@axis.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 05 Mar 2022 20:54:52 +0100
-Message-ID: <164651009251130@kroah.com>
+Message-ID: <164651009223049@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
