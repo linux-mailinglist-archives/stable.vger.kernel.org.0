@@ -2,206 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 093B34CE4FC
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 14:27:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4224CE501
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 14:35:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231539AbiCEN1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 08:27:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56494 "EHLO
+        id S231754AbiCENgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 08:36:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230155AbiCEN1o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 08:27:44 -0500
-Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100B94477F
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 05:26:55 -0800 (PST)
+        with ESMTP id S229575AbiCENgm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 08:36:42 -0500
+Received: from wnew2-smtp.messagingengine.com (wnew2-smtp.messagingengine.com [64.147.123.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E066B1BB70A;
+        Sat,  5 Mar 2022 05:35:52 -0800 (PST)
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 9E7EC32001BB;
-        Sat,  5 Mar 2022 08:26:52 -0500 (EST)
+        by mailnew.west.internal (Postfix) with ESMTP id 5EAA22B001F7;
+        Sat,  5 Mar 2022 08:35:51 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sat, 05 Mar 2022 08:26:52 -0500
+  by compute3.internal (MEProxy); Sat, 05 Mar 2022 08:35:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; bh=4dc0VTzxNmvFQlKVw1cNuvHdBVJG8Wjw/K/Pj1
+        9FZiU=; b=QLiKZAraGwCIsSdvHeIn74cQgEoxy+oVeQL5ojP+rVXNSGANtMx3vL
+        dRC9cCSwBFUXSg23b0s3GcOtii9Lzc6fc6NJl0c3irbzBZK/SJA3wMfshRXxLI0b
+        L7DZVl2mRjgkvY8uMOr/brgfNvPPQrVt0gFOjA6vKVVt2aNFBHv6I7i901OBZcyK
+        O+eeQCR/RHOt+3m3nj9nX+eV2YMZ8pKh1qcOqLbSruUxbmEm1BTFdrYhNd7PS0z4
+        IAik/LFRc4/1jENsdltxqHiT8pbS+jxLcEL4FUtqBpdFCKGyMi2tdOQ3C4aZqiuS
+        AEN/QiP+w0bNv78D6vtvvW5mFMC3fiig==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=V0Iro3
-        FnKp+/OWWit+q9n6pplU9UpdxwCCncwPymFjc=; b=d3ueeJJw0FPTrlp0Z6SJOu
-        TLpyvzUuKvue01+eib7UpxM/Zbbf7yluI8e4OJXdBzaMefCrkTKC9quSbnMbt4Xd
-        TZqVLhPP5sVOmtc6VfMFqhAmUp/mzAdahyJ4fK1CmE8btyCQjRUmyVnzZEpnNx94
-        Vbrn7eVjmkCVnIpyUvhj605W9iURN7KfYreGvUokLAw0rQO+VFPyhDjqW0hiVOq7
-        nK20B8jOgfkEHf7CN8tSK+5JFsluhyDtxlFD3O06HA8xEb6+51Nqb6S1ytIQX5nB
-        3wAPVtUsMKtSMoI2VmNt0qravxktXw0gGw+MD7QVfSDpVXXQIuzZpk4SWh5vytjg
-        ==
-X-ME-Sender: <xms:HGUjYmwQfefHet32L-crWrdKC0uDHjoR8K8S89uXRSL_LP6Lc8Kjjg>
-    <xme:HGUjYiQihwB5Ah38riQO5fSJRZ0wTUL-VYVyG7pptWkax-bajaMMNakCf-3GIVxz3
-    HqAYi54x7QeyA>
-X-ME-Received: <xmr:HGUjYoU5xkpIc7nARBiRztOAyupNR0_DFqzAHWK6W_E-8I9x-ZVUC8ZHMBs5NRx0tqgNezqH0EAVO2iaOjuh7m4wJGh_Gg5jGLUQ20spiJ20YNZkIZY>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddutddghedvucetufdoteggodetrfdotf
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4dc0VTzxNmvFQlKVw
+        1cNuvHdBVJG8Wjw/K/Pj19FZiU=; b=Eeo+mPic7zpISsdEjrutKJdSy+8z+I7xe
+        1wum9JSqY+xK07vjoH94XafQ5eIySSvc10Vv2a6BtF9b5RMh8d8fythB+Rq52FOK
+        9GIwyFNz6msnqzoZhirc5wFhZyXv8/IQi3PL/gqCJVtNcgvDHREpBzPIFcxEjZ66
+        EufJdRAuuGZN3Dyx7Xop+VgEp30rzIWELOf3KflF4omx7tFkGpnNoJw93kIhunr2
+        EqyQSotkxSxEqieku9vhLIXWoLym3+mYm0x8hmxtVojQJHgI1QLEYxOSdJxWwmMg
+        WZ/yjv0WHKsdBMfbY0EoNc/T0saf7RQ/sQESWlUy/R3u75g5BzHqw==
+X-ME-Sender: <xms:NmcjYuyv9TpPZ3r4tJFyPQ-ROzLw4d-iOi_uNIOQnFwxbzE5x9KMUw>
+    <xme:NmcjYqQLMPS2wcvxkiYFiRs7vzMWOAxA24pk0iALVQqEBl1SK06lBHWNpyojg9JrB
+    fPYdG-cvcxKiw>
+X-ME-Received: <xmr:NmcjYgWleg2ONxL8hFeij-ELJxBJcc2qOkNhnVv0LiGxc4m-kg38dbJFxFU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddutddgheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffogggtohfgsehtkeertdertdejnecuhfhrohhmpeforghrvghk
-    ucforghrtgiihihkohifshhkihdqifpkrhgvtghkihcuoehmrghrmhgrrhgvkhesihhnvh
-    hishhisghlvghthhhinhhgshhlrggsrdgtohhmqeenucggtffrrghtthgvrhhnpeegvdef
-    hfdtgfekfeevteekhfeivdeuvdejffeugfegfeffvdeuffevgfeuleetheenucffohhmrg
-    hinhepghhithhhuhgsrdgtohhmnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghm
-    pehmrghilhhfrhhomhepmhgrrhhmrghrvghksehinhhvihhsihgslhgvthhhihhnghhslh
-    grsgdrtghomh
-X-ME-Proxy: <xmx:HGUjYshnk4_HOfmP81ZaNkyXOPLhPuIwjss7NyrogLlILL1v5L8OYA>
-    <xmx:HGUjYoCkpOkbKzZeTVgPGNAA6liMDUXsnfaMqS6yjDmMyoJhXyrf8A>
-    <xmx:HGUjYtKmy40-OWGBtWeFeYXlpg_ve1NaTXKPjg3EHWThikZ41ebvHQ>
-    <xmx:HGUjYjoizdQomPox2k-nuMAQrgvVLO50W33Q4Xb7iwpQ43n4M7uc3g>
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:NmcjYkgt-qgvbzZna7KtvfhSPfIuPbGK1f0bcaInnS699ouvxnkLUg>
+    <xmx:NmcjYgC81yERSkTUxzhNqPqGA1KHGTikf8_RSuAF4jdUa8utrliA3g>
+    <xmx:NmcjYlKoqQymB0wsHXJskIvWkB0wIt5lFZaQkGwE7lR2O0Bokl5aGw>
+    <xmx:NmcjYk5OpQfan7G27G653aEswXRQpI_8XxwAaZnxuTlleWcy1B2dL_mbsO8>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 5 Mar 2022 08:26:51 -0500 (EST)
-From:   =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>
-To:     stable@vger.kernel.org
-Cc:     =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4,4.19] xen/netfront: destroy queues before real_num_tx_queues is zeroed
-Date:   Sat,  5 Mar 2022 14:26:17 +0100
-Message-Id: <20220305132616.3464066-1-marmarek@invisiblethingslab.com>
-X-Mailer: git-send-email 2.31.1
+ 5 Mar 2022 08:35:49 -0500 (EST)
+Date:   Sat, 5 Mar 2022 14:35:39 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Anand Jain <anand.jain@oracle.com>
+Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: Re: [PATCH stable-5.15.y] btrfs: fix ENOSPC failure when attempting
+ direct IO write into NOCOW range
+Message-ID: <YiNnK4HMpZSg41Gc@kroah.com>
+References: <4d7223dc5a3e02562e48012334f76ed598bc9792.1646313523.git.anand.jain@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Organization: Invisible Things Lab
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4d7223dc5a3e02562e48012334f76ed598bc9792.1646313523.git.anand.jain@oracle.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit dcf4ff7a48e7598e6b10126cc02177abb8ae4f3f upstream.
+On Thu, Mar 03, 2022 at 09:30:31PM +0800, Anand Jain wrote:
+> From: Filipe Manana <fdmanana@suse.com>
+> 
+> Commit f0bfa76a11e93d0fe2c896fcb566568c5e8b5d3f upstream.
+> 
+> When doing a direct IO write against a file range that either has
+> preallocated extents in that range or has regular extents and the file
+> has the NOCOW attribute set, the write fails with -ENOSPC when all of
+> the following conditions are met:
+> 
+> 1) There are no data blocks groups with enough free space matching
+>    the size of the write;
+> 
+> 2) There's not enough unallocated space for allocating a new data block
+>    group;
+> 
+> 3) The extents in the target file range are not shared, neither through
+>    snapshots nor through reflinks.
+> 
+> This is wrong because a NOCOW write can be done in such case, and in fact
+> it's possible to do it using a buffered IO write, since when failing to
+> allocate data space, the buffered IO path checks if a NOCOW write is
+> possible.
+> 
+> The failure in direct IO write path comes from the fact that early on,
+> at btrfs_dio_iomap_begin(), we try to allocate data space for the write
+> and if it that fails we return the error and stop - we never check if we
+> can do NOCOW. But later, at btrfs_get_blocks_direct_write(), we check
+> if we can do a NOCOW write into the range, or a subset of the range, and
+> then release the previously reserved data space.
+> 
+> Fix this by doing the data reservation only if needed, when we must COW,
+> at btrfs_get_blocks_direct_write() instead of doing it at
+> btrfs_dio_iomap_begin(). This also simplifies a bit the logic and removes
+> the inneficiency of doing unnecessary data reservations.
+> 
+> The following example test script reproduces the problem:
+> 
+>   $ cat dio-nocow-enospc.sh
+>   #!/bin/bash
+> 
+>   DEV=/dev/sdj
+>   MNT=/mnt/sdj
+> 
+>   # Use a small fixed size (1G) filesystem so that it's quick to fill
+>   # it up.
+>   # Make sure the mixed block groups feature is not enabled because we
+>   # later want to not have more space available for allocating data
+>   # extents but still have enough metadata space free for the file writes.
+>   mkfs.btrfs -f -b $((1024 * 1024 * 1024)) -O ^mixed-bg $DEV
+>   mount $DEV $MNT
+> 
+>   # Create our test file with the NOCOW attribute set.
+>   touch $MNT/foobar
+>   chattr +C $MNT/foobar
+> 
+>   # Now fill in all unallocated space with data for our test file.
+>   # This will allocate a data block group that will be full and leave
+>   # no (or a very small amount of) unallocated space in the device, so
+>   # that it will not be possible to allocate a new block group later.
+>   echo
+>   echo "Creating test file with initial data..."
+>   xfs_io -c "pwrite -S 0xab -b 1M 0 900M" $MNT/foobar
+> 
+>   # Now try a direct IO write against file range [0, 10M[.
+>   # This should succeed since this is a NOCOW file and an extent for the
+>   # range was previously allocated.
+>   echo
+>   echo "Trying direct IO write over allocated space..."
+>   xfs_io -d -c "pwrite -S 0xcd -b 10M 0 10M" $MNT/foobar
+> 
+>   umount $MNT
+> 
+> When running the test:
+> 
+>   $ ./dio-nocow-enospc.sh
+>   (...)
+> 
+>   Creating test file with initial data...
+>   wrote 943718400/943718400 bytes at offset 0
+>   900 MiB, 900 ops; 0:00:01.43 (625.526 MiB/sec and 625.5265 ops/sec)
+> 
+>   Trying direct IO write over allocated space...
+>   pwrite: No space left on device
+> 
+> A test case for fstests will follow, testing both this direct IO write
+> scenario as well as the buffered IO write scenario to make it less likely
+> to get future regressions on the buffered IO case.
+> 
+> Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+> Signed-off-by: Filipe Manana <fdmanana@suse.com>
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: Anand Jain <anand.jain@oracle.com>
+> ---
+>  fs/btrfs/inode.c | 142 ++++++++++++++++++++++++++---------------------
+>  1 file changed, 78 insertions(+), 64 deletions(-)
 
-xennet_destroy_queues() relies on info->netdev->real_num_tx_queues to
-delete queues. Since d7dac083414eb5bb99a6d2ed53dc2c1b405224e5
-("net-sysfs: update the queue counts in the unregistration path"),
-unregister_netdev() indirectly sets real_num_tx_queues to 0. Those two
-facts together means, that xennet_destroy_queues() called from
-xennet_remove() cannot do its job, because it's called after
-unregister_netdev(). This results in kfree-ing queues that are still
-linked in napi, which ultimately crashes:
+A normal "cherry pick" worked here, right?
 
-    BUG: kernel NULL pointer dereference, address: 0000000000000000
-    #PF: supervisor read access in kernel mode
-    #PF: error_code(0x0000) - not-present page
-    PGD 0 P4D 0
-    Oops: 0000 [#1] PREEMPT SMP PTI
-    CPU: 1 PID: 52 Comm: xenwatch Tainted: G        W         5.16.10-1.32.fc32.qubes.x86_64+ #226
-    RIP: 0010:free_netdev+0xa3/0x1a0
-    Code: ff 48 89 df e8 2e e9 00 00 48 8b 43 50 48 8b 08 48 8d b8 a0 fe ff ff 48 8d a9 a0 fe ff ff 49 39 c4 75 26 eb 47 e8 ed c1 66 ff <48> 8b 85 60 01 00 00 48 8d 95 60 01 00 00 48 89 ef 48 2d 60 01 00
-    RSP: 0000:ffffc90000bcfd00 EFLAGS: 00010286
-    RAX: 0000000000000000 RBX: ffff88800edad000 RCX: 0000000000000000
-    RDX: 0000000000000001 RSI: ffffc90000bcfc30 RDI: 00000000ffffffff
-    RBP: fffffffffffffea0 R08: 0000000000000000 R09: 0000000000000000
-    R10: 0000000000000000 R11: 0000000000000001 R12: ffff88800edad050
-    R13: ffff8880065f8f88 R14: 0000000000000000 R15: ffff8880066c6680
-    FS:  0000000000000000(0000) GS:ffff8880f3300000(0000) knlGS:0000000000000000
-    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    CR2: 0000000000000000 CR3: 00000000e998c006 CR4: 00000000003706e0
-    Call Trace:
-     <TASK>
-     xennet_remove+0x13d/0x300 [xen_netfront]
-     xenbus_dev_remove+0x6d/0xf0
-     __device_release_driver+0x17a/0x240
-     device_release_driver+0x24/0x30
-     bus_remove_device+0xd8/0x140
-     device_del+0x18b/0x410
-     ? _raw_spin_unlock+0x16/0x30
-     ? klist_iter_exit+0x14/0x20
-     ? xenbus_dev_request_and_reply+0x80/0x80
-     device_unregister+0x13/0x60
-     xenbus_dev_changed+0x18e/0x1f0
-     xenwatch_thread+0xc0/0x1a0
-     ? do_wait_intr_irq+0xa0/0xa0
-     kthread+0x16b/0x190
-     ? set_kthread_struct+0x40/0x40
-     ret_from_fork+0x22/0x30
-     </TASK>
+Also this is needed for 5.16.
 
-Fix this by calling xennet_destroy_queues() from xennet_uninit(),
-when real_num_tx_queues is still available. This ensures that queues are
-destroyed when real_num_tx_queues is set to 0, regardless of how
-unregister_netdev() was called.
+thanks,
 
-Originally reported at
-https://github.com/QubesOS/qubes-issues/issues/7257
-
-Fixes: d7dac083414eb5bb9 ("net-sysfs: update the queue counts in the unregistration path")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
----
- drivers/net/xen-netfront.c | 39 ++++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index d2b3381f7182..d45d83968e76 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -761,6 +761,28 @@ static int xennet_close(struct net_device *dev)
- 	return 0;
- }
- 
-+static void xennet_destroy_queues(struct netfront_info *info)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < info->netdev->real_num_tx_queues; i++) {
-+		struct netfront_queue *queue = &info->queues[i];
-+
-+		if (netif_running(info->netdev))
-+			napi_disable(&queue->napi);
-+		netif_napi_del(&queue->napi);
-+	}
-+
-+	kfree(info->queues);
-+	info->queues = NULL;
-+}
-+
-+static void xennet_uninit(struct net_device *dev)
-+{
-+	struct netfront_info *np = netdev_priv(dev);
-+	xennet_destroy_queues(np);
-+}
-+
- static void xennet_set_rx_rsp_cons(struct netfront_queue *queue, RING_IDX val)
- {
- 	unsigned long flags;
-@@ -1373,6 +1395,7 @@ static void xennet_poll_controller(struct net_device *dev)
- #endif
- 
- static const struct net_device_ops xennet_netdev_ops = {
-+	.ndo_uninit          = xennet_uninit,
- 	.ndo_open            = xennet_open,
- 	.ndo_stop            = xennet_close,
- 	.ndo_start_xmit      = xennet_start_xmit,
-@@ -1860,22 +1883,6 @@ static int write_queue_xenstore_keys(struct netfront_queue *queue,
- 	return err;
- }
- 
--static void xennet_destroy_queues(struct netfront_info *info)
--{
--	unsigned int i;
--
--	for (i = 0; i < info->netdev->real_num_tx_queues; i++) {
--		struct netfront_queue *queue = &info->queues[i];
--
--		if (netif_running(info->netdev))
--			napi_disable(&queue->napi);
--		netif_napi_del(&queue->napi);
--	}
--
--	kfree(info->queues);
--	info->queues = NULL;
--}
--
- static int xennet_create_queues(struct netfront_info *info,
- 				unsigned int *num_queues)
- {
--- 
-2.31.1
-
+greg k-h
