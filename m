@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A954CE4BA
-	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 13:19:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 613644CE4BB
+	for <lists+stable@lfdr.de>; Sat,  5 Mar 2022 13:19:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229518AbiCEMT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Mar 2022 07:19:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60558 "EHLO
+        id S231626AbiCEMUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Mar 2022 07:20:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231390AbiCEMT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 07:19:59 -0500
+        with ESMTP id S231390AbiCEMUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Mar 2022 07:20:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5443AA51
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 04:19:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2381C48E46
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 04:19:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ADCF61155
-        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 12:19:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 765C4C004E1;
-        Sat,  5 Mar 2022 12:19:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADB2E61155
+        for <stable@vger.kernel.org>; Sat,  5 Mar 2022 12:19:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B33E7C004E1;
+        Sat,  5 Mar 2022 12:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646482747;
-        bh=EhxdFKZpW1RbIzrXQhoae8JjYPlQajlLsjdyHvTmb1w=;
+        s=korg; t=1646482751;
+        bh=c8jeBBuCTxLR+6TEv3CJSfQqnwzbnhVDgLQcK7R5p9o=;
         h=Subject:To:Cc:From:Date:From;
-        b=UdHZspmmu2Ts0BhmvThp6jEvreaT14vWlQ6RKH+ubgPZAmhELcUM1UD0iko6MWUVu
-         Z2WHzL0dHyt/757+55/wwHT/a+neXr/3DSznJnIZlNCnyd97viGJZogmGRcLaMaiPi
-         iBe2GNq4anOAzQN+36EV4pm5ZX441jptSiYzkRmA=
-Subject: FAILED: patch "[PATCH] net: ipv6: ensure we call ipv6_mc_down() at most once" failed to apply to 4.14-stable tree
+        b=r8J5CfT42Fg0/uRsmApkSbei0lepnM4YbsYT4r9vrXzdFue1OGA8h2HytApbUpgOn
+         qlwRzOcs4/TyOHPqsOuWvv4W4qLkrEZhYE1nLTAr0gPoXqoMu8WyKV/qnFHtYRcbQS
+         e8IIjfa0fm+tlDYpJLpTsBp67Dv1qBelaBrF84IE=
+Subject: FAILED: patch "[PATCH] net: ipv6: ensure we call ipv6_mc_down() at most once" failed to apply to 4.19-stable tree
 To:     j.nixdorf@avm.de, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Mar 2022 13:19:00 +0100
-Message-ID: <164648274013779@kroah.com>
+Date:   Sat, 05 Mar 2022 13:19:02 +0100
+Message-ID: <164648274246196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
