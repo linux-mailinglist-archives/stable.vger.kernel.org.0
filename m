@@ -2,325 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 775D34CEC21
-	for <lists+stable@lfdr.de>; Sun,  6 Mar 2022 16:40:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B5B4CEC35
+	for <lists+stable@lfdr.de>; Sun,  6 Mar 2022 17:17:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231132AbiCFPlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Mar 2022 10:41:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40652 "EHLO
+        id S231625AbiCFQSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Mar 2022 11:18:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230439AbiCFPlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 10:41:36 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF4510FEB
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 07:40:44 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id p17so11741843plo.9
-        for <stable@vger.kernel.org>; Sun, 06 Mar 2022 07:40:44 -0800 (PST)
+        with ESMTP id S233745AbiCFQSp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 11:18:45 -0500
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C9422BC1
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 08:17:53 -0800 (PST)
+Received: by mail-pl1-x634.google.com with SMTP id w4so1428841ply.13
+        for <stable@vger.kernel.org>; Sun, 06 Mar 2022 08:17:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=XkFiekSuEsRvws8ArAP4yxlQEE7v734dap3TegIlpwQ=;
-        b=a39wlG/No0dhNRQWFNFuAUfEumNKWSV4cV+q+foU3jVz1jr86FyvBMGIC4xYgkCII5
-         uD52+cJhgCdclXuu+vY+saUjx3voMhTGPyU1JKT/Z13m8Wd3t1mY1h9AWogJzr5ILuf0
-         eTOaRFgTuNhEXhk3pQlIhNLH7G7+jTmR9UeKUuySIvwILSEABZz8ba4DOR3uo8nXqnAd
-         C7N/jevDVsheacNCV2SGIMstBLhm8crif8SzDNxMISX1DVRcaoZQYiNHltvCnRCB15mh
-         rqXj/cV0Bu9UkTjMojSrAd++k5L40o/lRWfpFxUhzJo6IhrLP/s0dGPBtUkEs69Lmbw7
-         nXig==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CLEItjpckwZ9kZPO4Jej8A51s1CPT2mF4opW2wllPoA=;
+        b=AstcZOJjizSyRDVqRIVi8Bar/PznMUSRnYq2GkUOh9wcyiNyIWjsZ5/6biGaRLHBOe
+         1WHIyIHlhQDiGv8mYbnWF392wqQ7ABpRxq41NKvw0fmnAYQqdWRdzzuuCAHCT+vp4g5x
+         7Mvgnq3kB+VzaAG7gsBqoVfk/F71g8+2h9fJYaKLziwU19WymOhrFRe4tB38sWvRfxl0
+         AvUPMg/ecioGE1TMOu/WGwcuskbXTbxuZMUXNjzyvjfxqMBYK9/mEQw+SQI76R28mzdT
+         qbS4h8dgHD5mTk8j5O5mpBH+Mw+OF4QtI/oXPCvWq7Gb6wu8LrgZliqxTcx0NUjtJH2+
+         /cfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=XkFiekSuEsRvws8ArAP4yxlQEE7v734dap3TegIlpwQ=;
-        b=7Z2eRiBunmr2P2ITL53ocVJHIrDfbjvRBT1oKHyM0xGl1T4GHAD4xu9BA577RQoY1k
-         cTbZvP5nXMT5JPNnwgyYB7DlUQgV7xtlQ/w8/PDListtnf3G9yqVD/gCazPxElu2MR7A
-         SXX9Ec3VnfaRzRhQeGD8ehuREJ53vqlC1LQ3KlSQss0I5Hu5VGexMmhUu4rIPo49mZyu
-         zSBvrnjhuCG2TW4i1b6HiLO8wZ6U0ZN0dl/sCiPACJwLrzgV1C1M7Shcrh/teQRgVDOO
-         LpbrBg2jkBY366AS75LJardemdjMfGCQmwEZ3VXpAmByJ/YuOaq4stCG7lO3L5xWUHLx
-         vtKQ==
-X-Gm-Message-State: AOAM531ifLw/yQ1kkLWzMBTfTWdmVWe8ZYidJznfEkJ2OzEf/yR9bdoU
-        ABcFrPxzKAnEjo6U3lforfdZMxj3gVc=
-X-Google-Smtp-Source: ABdhPJykHGHtbza1D3tzdz0cLl50m6i1zB5e9LohvutSSyby1fCjXo41Am5ELvhhuG1sao0wxZV0nw==
-X-Received: by 2002:a17:90a:9dc6:b0:1bc:5c73:522b with SMTP id x6-20020a17090a9dc600b001bc5c73522bmr8707166pjv.35.1646581243513;
-        Sun, 06 Mar 2022 07:40:43 -0800 (PST)
-Received: from ?IPV6:240b:10:2720:5500:7cd8:5236:546e:2b2c? ([240b:10:2720:5500:7cd8:5236:546e:2b2c])
-        by smtp.gmail.com with ESMTPSA id x29-20020aa79a5d000000b004f0ef1822d3sm12069519pfj.128.2022.03.06.07.40.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 06 Mar 2022 07:40:43 -0800 (PST)
-Message-ID: <4b6ca36d-6f9d-25f6-86ea-adc5fbe760d4@gmail.com>
-Date:   Mon, 7 Mar 2022 00:40:36 +0900
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CLEItjpckwZ9kZPO4Jej8A51s1CPT2mF4opW2wllPoA=;
+        b=HnLbihcVlZT4WTLrvXQrjuKdxQhgYJ+PKgHS5hJP31dbr8A9FdZeeDIZbyabt5TN7h
+         vEbes2Py/21q6nZGFGSJzQzeZIXRBvMWy4fA8nFQOyy1eqHxzJWfdLufrXfgZfLrUn8m
+         6r8wmJSWl2cbUDSJeUTZX2y1nA+o2/yxNLc1KYD7IGvHShZlaxIaNjp/IGj50uFNTOkl
+         wKbayWBZzHvhjjapTuWJ6Vfw+mVTncc0gLFA5HSAmMkvmQD7AX7PcSoNwnWI+GSVAJcU
+         +Mc+nsGPK+irflVPZnOtDByCW6OZDILYHfSF2FxPPr+/UhR+j1SDrC0tVgQqn79LoHBs
+         +jWg==
+X-Gm-Message-State: AOAM532RU3lUWcvGyB1tZgC6Z2zBQiawBBO4yaZn+yVGC/EvROIDP+tz
+        cu0TyL+vWcv04cU9iQgN1esThlK6x6wkkpufSog=
+X-Google-Smtp-Source: ABdhPJyyx0/IsuX0+t4oPZmt5Nf3xS1Gft7VVO/rrcsaRblarWcZ3+LqyM6A6/aQEzJUTzampJS1qg==
+X-Received: by 2002:a17:902:da85:b0:151:ac97:4f74 with SMTP id j5-20020a170902da8500b00151ac974f74mr8299506plx.73.1646583472625;
+        Sun, 06 Mar 2022 08:17:52 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h17-20020a63df51000000b0036b9776ae5bsm9565423pgj.85.2022.03.06.08.17.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Mar 2022 08:17:52 -0800 (PST)
+Message-ID: <6224deb0.1c69fb81.5bd20.8968@mx.google.com>
+Date:   Sun, 06 Mar 2022 08:17:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH] mtd: cfi_cmdset_0002: Use chip_ready() for write on
- S29GL064N
-Content-Language: en-US
-To:     Vignesh Raghavendra <vigneshr@ti.com>
-Cc:     linux-mtd@lists.infradead.org,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>, stable@vger.kernel.org
-References: <20220214182011.8493-1-ikegami.t@gmail.com>
- <e9cb486d-b775-896c-93b5-3a1154bd9f3e@ti.com>
-From:   Tokunori Ikegami <ikegami.t@gmail.com>
-In-Reply-To: <e9cb486d-b775-896c-93b5-3a1154bd9f3e@ti.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.232-45-g5da8d73687e7
+Subject: stable-rc/linux-4.19.y baseline: 95 runs,
+ 1 regressions (v4.19.232-45-g5da8d73687e7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-4.19.y baseline: 95 runs, 1 regressions (v4.19.232-45-g5da8=
+d73687e7)
 
-Thanks  for your review and comments.
+Regressions Summary
+-------------------
 
-On 2022/03/01 0:34, Vignesh Raghavendra wrote:
-> Hi,
->
-> On 14/02/22 11:50 pm, Tokunori Ikegami wrote:
->> The regression issue has been caused on S29GL064N and reported it.
->> Also the change mentioned is to use chip_good() for buffered write.
->> So disable the change on S29GL064N and use chip_ready() as before.
->>
->> Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
->> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
->> Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
->> Cc: linux-mtd@lists.infradead.org
->> Cc: stable@vger.kernel.org
->> ---
-> Thanks for working on the fix.
->
-> Please CC maintainers from
->
-> ./scripts/get_maintainer.pl -f drivers/mtd/chips/cfi_cmdset_0002.c
->
-> Else, patch would not get attention in time.
-Just added the maintainers as CC by the version 2 patch.
->
->>   drivers/mtd/chips/cfi_cmdset_0002.c | 105 ++++++++++++++++------------
->>   1 file changed, 59 insertions(+), 46 deletions(-)
->>
->> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
->> index a761134fd3be..a0dfc8ace899 100644
->> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
->> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
->> @@ -48,6 +48,7 @@
->>   #define SST49LF040B		0x0050
->>   #define SST49LF008A		0x005a
->>   #define AT49BV6416		0x00d6
->> +#define S29GL064N_MN12		0x0c01
->>   
->>   /*
->>    * Status Register bit description. Used by flash devices that don't
->> @@ -109,6 +110,8 @@ static struct mtd_chip_driver cfi_amdstd_chipdrv = {
->>   	.module		= THIS_MODULE
->>   };
->>   
->> +static bool use_chip_good_for_write;
->> +
-> Can we use per device private flag? Else this wont work on systems with
-> multiple CFI flashes with one of them being S29GL064N_MN12.
-Yes fixed the patch to check the cfi mfr and id values directly instead 
-of the static variable.
->
->>   /*
->>    * Use status register to poll for Erase/write completion when DQ is not
->>    * supported. This is indicated by Bit[1:0] of SoftwareFeatures field in
->> @@ -283,6 +286,17 @@ static void fixup_use_write_buffers(struct mtd_info *mtd)
->>   }
->>   #endif /* !FORCE_WORD_WRITE */
->>   
->> +static void fixup_use_chip_good_for_write(struct mtd_info *mtd)
->> +{
->> +	struct map_info *map = mtd->priv;
->> +	struct cfi_private *cfi = map->fldrv_priv;
->> +
->> +	if (cfi->mfr == CFI_MFR_AMD && cfi->id == S29GL064N_MN12)
->> +		return;
->> +
->> +	use_chip_good_for_write = true;
->> +}
->> +
->>   /* Atmel chips don't use the same PRI format as AMD chips */
->>   static void fixup_convert_atmel_pri(struct mtd_info *mtd)
->>   {
->> @@ -462,7 +476,7 @@ static struct cfi_fixup cfi_fixup_table[] = {
->>   	{ CFI_MFR_AMD, 0x0056, fixup_use_secsi },
->>   	{ CFI_MFR_AMD, 0x005C, fixup_use_secsi },
->>   	{ CFI_MFR_AMD, 0x005F, fixup_use_secsi },
->> -	{ CFI_MFR_AMD, 0x0c01, fixup_s29gl064n_sectors },
->> +	{ CFI_MFR_AMD, S29GL064N_MN12, fixup_s29gl064n_sectors },
->>   	{ CFI_MFR_AMD, 0x1301, fixup_s29gl064n_sectors },
->>   	{ CFI_MFR_AMD, 0x1a00, fixup_s29gl032n_sectors },
->>   	{ CFI_MFR_AMD, 0x1a01, fixup_s29gl032n_sectors },
->> @@ -474,6 +488,7 @@ static struct cfi_fixup cfi_fixup_table[] = {
->>   #if !FORCE_WORD_WRITE
->>   	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_write_buffers },
->>   #endif
->> +	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_chip_good_for_write },
->>   	{ 0, 0, NULL }
->>   };
->>   static struct cfi_fixup jedec_fixup_table[] = {
->> @@ -801,42 +816,61 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd_info *mtd)
->>   	return NULL;
->>   }
->>   
->> -/*
->> - * Return true if the chip is ready.
->> - *
->> - * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
->> - * non-suspended sector) and is indicated by no toggle bits toggling.
->> - *
->> - * Note that anything more complicated than checking if no bits are toggling
->> - * (including checking DQ5 for an error status) is tricky to get working
->> - * correctly and is therefore not done	(particularly with interleaved chips
->> - * as each chip must be checked independently of the others).
->> - */
->> -static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
->> -			       unsigned long addr)
->> +static int __xipram chip_check(struct map_info *map, struct flchip *chip,
->> +			       unsigned long addr, map_word *expected)
->>   {
->>   	struct cfi_private *cfi = map->fldrv_priv;
->> -	map_word d, t;
->> +	map_word oldd, curd;
->> +	int ret;
->>   
->>   	if (cfi_use_status_reg(cfi)) {
->>   		map_word ready = CMD(CFI_SR_DRB);
->> +
-> Unrelated change?
-Yes deleted the empty line added.
->
->>   		/*
->>   		 * For chips that support status register, check device
->>   		 * ready bit
->>   		 */
->>   		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
->>   				 cfi->device_type, NULL);
->> -		d = map_read(map, addr);
->> +		curd = map_read(map, addr);
->>   
->> -		return map_word_andequal(map, d, ready, ready);
->> +		return map_word_andequal(map, curd, ready, ready);
->>   	}
->>   
->> -	d = map_read(map, addr);
->> -	t = map_read(map, addr);
->> +	oldd = map_read(map, addr);
->> +	curd = map_read(map, addr);
->> +
->> +	ret = map_word_equal(map, oldd, curd);
->> +
->> +	if (!ret || !expected)
->> +		return ret;
-> Why even read oldd and curd if !expected ?
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-Since required this for chip ready that checks the oldd and curd if 
-equal or not.
 
-Regards,
-Ikegami
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.232-45-g5da8d73687e7/plan/baseline/
 
->
->> +
->> +	return map_word_equal(map, curd, *expected);
->> +}
->> +
->> +static int __xipram chip_good_for_write(struct map_info *map,
->> +					struct flchip *chip, unsigned long addr,
->> +					map_word expected)
->> +{
->> +	if (use_chip_good_for_write)
->> +		return chip_check(map, chip, addr, &expected);
->>   
->> -	return map_word_equal(map, d, t);
->> +	return chip_check(map, chip, addr, NULL);
->>   }
->>   
->> +/*
->> + * Return true if the chip is ready.
->> + *
->> + * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
->> + * non-suspended sector) and is indicated by no toggle bits toggling.
->> + *
->> + * Note that anything more complicated than checking if no bits are toggling
->> + * (including checking DQ5 for an error status) is tricky to get working
->> + * correctly and is therefore not done	(particularly with interleaved chips
->> + * as each chip must be checked independently of the others).
->> + */
->> +#define chip_ready(map, chip, addr) chip_check(map, chip, addr, NULL)
->> +
->>   /*
->>    * Return true if the chip is ready and has the correct value.
->>    *
->> @@ -855,28 +889,7 @@ static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
->>   static int __xipram chip_good(struct map_info *map, struct flchip *chip,
->>   			      unsigned long addr, map_word expected)
->>   {
->> -	struct cfi_private *cfi = map->fldrv_priv;
->> -	map_word oldd, curd;
->> -
->> -	if (cfi_use_status_reg(cfi)) {
->> -		map_word ready = CMD(CFI_SR_DRB);
->> -
->> -		/*
->> -		 * For chips that support status register, check device
->> -		 * ready bit
->> -		 */
->> -		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
->> -				 cfi->device_type, NULL);
->> -		curd = map_read(map, addr);
->> -
->> -		return map_word_andequal(map, curd, ready, ready);
->> -	}
->> -
->> -	oldd = map_read(map, addr);
->> -	curd = map_read(map, addr);
->> -
->> -	return	map_word_equal(map, oldd, curd) &&
->> -		map_word_equal(map, curd, expected);
->> +	return chip_check(map, chip, addr, &expected);
->>   }
->>   
->>   static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
->> @@ -1699,7 +1712,7 @@ static int __xipram do_write_oneword_once(struct map_info *map,
->>   		 * "chip_good" to avoid the failure due to scheduling.
->>   		 */
->>   		if (time_after(jiffies, timeo) &&
->> -		    !chip_good(map, chip, adr, datum)) {
->> +		    !chip_good_for_write(map, chip, adr, datum)) {
->>   			xip_enable(map, chip, adr);
->>   			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
->>   			xip_disable(map, chip, adr);
->> @@ -1707,7 +1720,7 @@ static int __xipram do_write_oneword_once(struct map_info *map,
->>   			break;
->>   		}
->>   
->> -		if (chip_good(map, chip, adr, datum)) {
->> +		if (chip_good_for_write(map, chip, adr, datum)) {
->>   			if (cfi_check_err_status(map, chip, adr))
->>   				ret = -EIO;
->>   			break;
->> @@ -1979,14 +1992,14 @@ static int __xipram do_write_buffer_wait(struct map_info *map,
->>   		 * "chip_good" to avoid the failure due to scheduling.
->>   		 */
->>   		if (time_after(jiffies, timeo) &&
->> -		    !chip_good(map, chip, adr, datum)) {
->> +		    !chip_good_for_write(map, chip, adr, datum)) {
->>   			pr_err("MTD %s(): software timeout, address:0x%.8lx.\n",
->>   			       __func__, adr);
->>   			ret = -EIO;
->>   			break;
->>   		}
->>   
->> -		if (chip_good(map, chip, adr, datum)) {
->> +		if (chip_good_for_write(map, chip, adr, datum)) {
->>   			if (cfi_check_err_status(map, chip, adr))
->>   				ret = -EIO;
->>   			break;
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.232-45-g5da8d73687e7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5da8d73687e76689822ac4e6070cb531337ec20a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6224a6b3ba8b345b3dc62968
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+32-45-g5da8d73687e7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+32-45-g5da8d73687e7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6224a6b3ba8b345b3dc6298e
+        new failure (last pass: v4.19.232)
+
+    2022-03-06T12:18:50.505485  <8>[   35.858259] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-06T12:18:51.519981  /lava-5825750/1/../bin/lava-test-case
+    2022-03-06T12:18:51.527951  <8>[   36.881632] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
