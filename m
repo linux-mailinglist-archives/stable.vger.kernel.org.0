@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C42EB4CEA33
-	for <lists+stable@lfdr.de>; Sun,  6 Mar 2022 10:33:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3634CEA4C
+	for <lists+stable@lfdr.de>; Sun,  6 Mar 2022 10:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233090AbiCFJe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Mar 2022 04:34:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33434 "EHLO
+        id S233185AbiCFJiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Mar 2022 04:38:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbiCFJe1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 04:34:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B5714029
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 01:33:34 -0800 (PST)
+        with ESMTP id S233214AbiCFJiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 04:38:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4831443E9
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 01:37:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 986E0611B7
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 09:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDF5C340EC;
-        Sun,  6 Mar 2022 09:33:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50791611E1
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 09:37:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EF73C340EC;
+        Sun,  6 Mar 2022 09:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646559212;
-        bh=Nz2+064ZaQeKEZ+JvbBKfRaHMgb8vKXUNdN6xN/vDtE=;
-        h=Subject:To:From:Date:From;
-        b=Dvz3sk4/8JgTpQcsPZkUQ4oguxxHoSD5eAoOL8hc7wlmy59N66YkC6lrnNLwJAGgy
-         SuUzeGGg232wwDiiGHjRjG2WjrFruUlEhQFWOQT/2Uks0QOLJ0Hri9cdVIrMIE3/y1
-         H/9xHMceBct/16kBQoGBgE3NaAm0o3Tba2UaBbRk=
-Subject: patch "usb: typec: tipd: Forward plug orientation to typec subsystem" added to usb-next
-To:     sven@svenpeter.dev, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
+        s=korg; t=1646559443;
+        bh=eap8gfVvHfZOTEz/2tCUqjdhmul/upUlMdxbIRbUndI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=e3iDMYpa6sZqAmKckak2BXLbq6WpN/02qNmY382uFxVcfA0uKdAe8pBOl7woAfc1s
+         8HjwhFrgQYb3U5RxsMGfZcQfVOMpcKHYoz9Nr3zM2lpUP/OrMv8CStZBp+G8Vr2rlF
+         5HIO5kXYApU9EaB4jhWqSjQty8ovq3UEAzhfNzSI=
+Subject: FAILED: patch "[PATCH] mm: prevent vm_area_struct::anon_name refcount saturation" failed to apply to 5.16-stable tree
+To:     surenb@google.com, akpm@linux-foundation.org, brauner@kernel.org,
+        caoxiaofeng@yulong.com, ccross@google.com, chris.hyser@oracle.com,
+        dave.hansen@intel.com, dave@stgolabs.net, david@redhat.com,
+        ebiederm@xmission.com, gorcunov@gmail.com, hannes@cmpxchg.org,
+        keescook@chromium.org, kirill.shutemov@linux.intel.com,
+        legion@kernel.org, mhocko@suse.com, pcc@google.com,
+        sashal@kernel.org, sumit.semwal@linaro.org,
+        torvalds@linux-foundation.org, vbabka@suse.cz, willy@infradead.org
+Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 06 Mar 2022 10:33:21 +0100
-Message-ID: <1646559201960@kroah.com>
+Date:   Sun, 06 Mar 2022 10:37:20 +0100
+Message-ID: <164655944021616@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,78 +55,119 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+The patch below does not apply to the 5.16-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-    usb: typec: tipd: Forward plug orientation to typec subsystem
+thanks,
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+greg k-h
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+------------------ original commit in Linus's tree ------------------
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+From 96403e11283def1d1c465c8279514c9a504d8630 Mon Sep 17 00:00:00 2001
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Fri, 4 Mar 2022 20:28:55 -0800
+Subject: [PATCH] mm: prevent vm_area_struct::anon_name refcount saturation
 
-If you have any questions about this process, please let me know.
+A deep process chain with many vmas could grow really high.  With
+default sysctl_max_map_count (64k) and default pid_max (32k) the max
+number of vmas in the system is 2147450880 and the refcounter has
+headroom of 1073774592 before it reaches REFCOUNT_SATURATED
+(3221225472).
 
+Therefore it's unlikely that an anonymous name refcounter will overflow
+with these defaults.  Currently the max for pid_max is PID_MAX_LIMIT
+(4194304) and for sysctl_max_map_count it's INT_MAX (2147483647).  In
+this configuration anon_vma_name refcount overflow becomes theoretically
+possible (that still require heavy sharing of that anon_vma_name between
+processes).
 
-From 676748389f5db74e7d28f9d630eebd75cb8a11b4 Mon Sep 17 00:00:00 2001
-From: Sven Peter <sven@svenpeter.dev>
-Date: Sat, 26 Feb 2022 13:59:12 +0100
-Subject: usb: typec: tipd: Forward plug orientation to typec subsystem
+kref refcounting interface used in anon_vma_name structure will detect a
+counter overflow when it reaches REFCOUNT_SATURATED value but will only
+generate a warning and freeze the ref counter.  This would lead to the
+refcounted object never being freed.  A determined attacker could leak
+memory like that but it would be rather expensive and inefficient way to
+do so.
 
-In order to bring up the USB3 PHY on the Apple M1 we need to know the
-orientation of the Type-C cable. Extract it from the status register and
-forward it to the typec subsystem.
+To ensure anon_vma_name refcount does not overflow, stop anon_vma_name
+sharing when the refcount reaches REFCOUNT_MAX (2147483647), which still
+leaves INT_MAX/2 (1073741823) values before the counter reaches
+REFCOUNT_SATURATED.  This should provide enough headroom for raising the
+refcounts temporarily.
 
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20220226125912.59828-1-sven@svenpeter.dev
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tipd/core.c     | 5 +++++
- drivers/usb/typec/tipd/tps6598x.h | 1 +
- 2 files changed, 6 insertions(+)
+Link: https://lkml.kernel.org/r/20220223153613.835563-2-surenb@google.com
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Alexey Gladkov <legion@kernel.org>
+Cc: Chris Hyser <chris.hyser@oracle.com>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Colin Cross <ccross@google.com>
+Cc: Cyrill Gorcunov <gorcunov@gmail.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Peter Collingbourne <pcc@google.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Xiaofeng Cao <caoxiaofeng@yulong.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
-index 7ffcda94d323..16b4560216ba 100644
---- a/drivers/usb/typec/tipd/core.c
-+++ b/drivers/usb/typec/tipd/core.c
-@@ -256,6 +256,10 @@ static int tps6598x_connect(struct tps6598x *tps, u32 status)
- 	typec_set_pwr_opmode(tps->port, mode);
- 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
- 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
-+	if (TPS_STATUS_TO_UPSIDE_DOWN(status))
-+		typec_set_orientation(tps->port, TYPEC_ORIENTATION_REVERSE);
-+	else
-+		typec_set_orientation(tps->port, TYPEC_ORIENTATION_NORMAL);
- 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), true);
+diff --git a/include/linux/mm_inline.h b/include/linux/mm_inline.h
+index dd3accaa4e6d..cf90b1fa2c60 100644
+--- a/include/linux/mm_inline.h
++++ b/include/linux/mm_inline.h
+@@ -161,15 +161,25 @@ static inline void anon_vma_name_put(struct anon_vma_name *anon_name)
+ 		kref_put(&anon_name->kref, anon_vma_name_free);
+ }
  
- 	tps->partner = typec_register_partner(tps->port, &desc);
-@@ -278,6 +282,7 @@ static void tps6598x_disconnect(struct tps6598x *tps, u32 status)
- 	typec_set_pwr_opmode(tps->port, TYPEC_PWR_MODE_USB);
- 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
- 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
-+	typec_set_orientation(tps->port, TYPEC_ORIENTATION_NONE);
- 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), false);
++static inline
++struct anon_vma_name *anon_vma_name_reuse(struct anon_vma_name *anon_name)
++{
++	/* Prevent anon_name refcount saturation early on */
++	if (kref_read(&anon_name->kref) < REFCOUNT_MAX) {
++		anon_vma_name_get(anon_name);
++		return anon_name;
++
++	}
++	return anon_vma_name_alloc(anon_name->name);
++}
++
+ static inline void dup_anon_vma_name(struct vm_area_struct *orig_vma,
+ 				     struct vm_area_struct *new_vma)
+ {
+ 	struct anon_vma_name *anon_name = anon_vma_name(orig_vma);
  
- 	power_supply_changed(tps->psy);
-diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
-index 3dae84c524fb..527857549d69 100644
---- a/drivers/usb/typec/tipd/tps6598x.h
-+++ b/drivers/usb/typec/tipd/tps6598x.h
-@@ -17,6 +17,7 @@
- /* TPS_REG_STATUS bits */
- #define TPS_STATUS_PLUG_PRESENT		BIT(0)
- #define TPS_STATUS_PLUG_UPSIDE_DOWN	BIT(4)
-+#define TPS_STATUS_TO_UPSIDE_DOWN(s)	(!!((s) & TPS_STATUS_PLUG_UPSIDE_DOWN))
- #define TPS_STATUS_PORTROLE		BIT(5)
- #define TPS_STATUS_TO_TYPEC_PORTROLE(s) (!!((s) & TPS_STATUS_PORTROLE))
- #define TPS_STATUS_DATAROLE		BIT(6)
--- 
-2.35.1
-
+-	if (anon_name) {
+-		anon_vma_name_get(anon_name);
+-		new_vma->anon_name = anon_name;
+-	}
++	if (anon_name)
++		new_vma->anon_name = anon_vma_name_reuse(anon_name);
+ }
+ 
+ static inline void free_anon_vma_name(struct vm_area_struct *vma)
+diff --git a/mm/madvise.c b/mm/madvise.c
+index 081b1cded21e..1f2693dccf7b 100644
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -113,8 +113,7 @@ static int replace_anon_vma_name(struct vm_area_struct *vma,
+ 	if (anon_vma_name_eq(orig_name, anon_name))
+ 		return 0;
+ 
+-	anon_vma_name_get(anon_name);
+-	vma->anon_name = anon_name;
++	vma->anon_name = anon_vma_name_reuse(anon_name);
+ 	anon_vma_name_put(orig_name);
+ 
+ 	return 0;
 
