@@ -2,167 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA354CEA2A
-	for <lists+stable@lfdr.de>; Sun,  6 Mar 2022 10:09:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C42EB4CEA33
+	for <lists+stable@lfdr.de>; Sun,  6 Mar 2022 10:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231445AbiCFJKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Mar 2022 04:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
+        id S233090AbiCFJe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Mar 2022 04:34:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbiCFJKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 04:10:12 -0500
-Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704F22E0AF
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 01:09:20 -0800 (PST)
-Received: by mail-qv1-xf2d.google.com with SMTP id kl20so275492qvb.10
-        for <stable@vger.kernel.org>; Sun, 06 Mar 2022 01:09:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :mime-version;
-        bh=mqJK3EpnAY54KA0CU5z37eTKddxlbF1kPQGw6UPLIso=;
-        b=NU/W0+Pqv2fOWCRSlJLXDHCirpHkv4c6Aio1ormqNvq82aOKhxnmaN3h5Qq14ZuUPv
-         S7i4dcAtwcITya7As8dl75WFefXYdBLby9UnN+vIibnHy+q6TSwgy6ln6e753UGHdCKr
-         KPgHFjW5YkGb790otOEbzsUq0SacIq6Gyv8vgUsBHjaZtVQ4MIxG6RrXHVakfj3G26qn
-         tI2U1b8n4ogfwLo15c1gknoCiRS1LXZMbqNokqLJcQCkcytCuGexgdcdkoJgS8MMdnD7
-         jHtw3jeI0x2W+bzI4BM/I77oGqrMxWDxYl8fXpGn3L/mTA7KYYJIhtX5cSRbYyvS+G4l
-         HwKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:mime-version;
-        bh=mqJK3EpnAY54KA0CU5z37eTKddxlbF1kPQGw6UPLIso=;
-        b=Iq+chC3VNdEOLuh4z9XgExBRXdK2VIlceaE6aTbhmKYpyXESCOhycbXL2yrYkyV3BE
-         ZAgaSjsxoB4a9nUX5lQVS01sSk8IHsoi5AiDCFSV4EMQLBbaPlt47b+9gNgtUB1Km5B6
-         GMTxp1SQexljAquqsswuCmr+Qa221fOdfchOCDVNUDoxmxyYvieGX1vsLZrFHpmi72uh
-         Q4TZMJgJb/ouIPeHRk+lYeQLFeCie+rvCuQ7ZZmXQ0OwZNcEJMy4SzVmPVW2UlU2TQC0
-         1t4DgCvscB3Rw8N/HjPpHOAZctiBMUEjcsZ9H0gm4G4lNzF7sO7v3QQg4rvE3BpVyHvU
-         9MIg==
-X-Gm-Message-State: AOAM5338tjHxzAWUsEgPn1CA0906Ef8c3ns5Jzs8S4YT7y15jvTHqB++
-        8UlJa27NB3PJwdBA09clxFPCYw==
-X-Google-Smtp-Source: ABdhPJwxIC6ssbECQ/OnY46cv+UGa5MU9uQofgAjHXQ+Hfks/my34c1a5/esfQiPvxBVBzWq000pYA==
-X-Received: by 2002:a05:6214:f08:b0:433:6cf:9f7c with SMTP id gw8-20020a0562140f0800b0043306cf9f7cmr4709016qvb.71.1646557759357;
-        Sun, 06 Mar 2022 01:09:19 -0800 (PST)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id d84-20020a379b57000000b00649177bc987sm4703439qke.131.2022.03.06.01.09.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Mar 2022 01:09:18 -0800 (PST)
-Date:   Sun, 6 Mar 2022 01:09:16 -0800 (PST)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.anvils
-To:     gregkh@linuxfoundation.org
-cc:     akpm@linux-foundation.org, cgel.zte@gmail.com, hughd@google.com,
-        kirill@shutemov.name, mike.kravetz@oracle.com,
-        songliubraving@fb.com, torvalds@linux-foundation.org,
-        wang.yong12@zte.com.cn, willy@infradead.org,
-        yang.yang29@zte.com.cn, zealci@zte.com.cn, yongw.pur@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: Patch "memfd: fix F_SEAL_WRITE after shmem huge page allocated"
- has been added to the 5.4-stable tree
-In-Reply-To: <1646512773164108@kroah.com>
-Message-ID: <d169b785-1486-7c3d-7843-e2c23870a048@google.com>
-References: <1646512773164108@kroah.com>
+        with ESMTP id S229614AbiCFJe1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 04:34:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B5714029
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 01:33:34 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 986E0611B7
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 09:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDF5C340EC;
+        Sun,  6 Mar 2022 09:33:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646559212;
+        bh=Nz2+064ZaQeKEZ+JvbBKfRaHMgb8vKXUNdN6xN/vDtE=;
+        h=Subject:To:From:Date:From;
+        b=Dvz3sk4/8JgTpQcsPZkUQ4oguxxHoSD5eAoOL8hc7wlmy59N66YkC6lrnNLwJAGgy
+         SuUzeGGg232wwDiiGHjRjG2WjrFruUlEhQFWOQT/2Uks0QOLJ0Hri9cdVIrMIE3/y1
+         H/9xHMceBct/16kBQoGBgE3NaAm0o3Tba2UaBbRk=
+Subject: patch "usb: typec: tipd: Forward plug orientation to typec subsystem" added to usb-next
+To:     sven@svenpeter.dev, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 06 Mar 2022 10:33:21 +0100
+Message-ID: <1646559201960@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-18.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 5 Mar 2022, gregkh@linuxfoundation.org wrote:
-> 
-> This is a note to let you know that I've just added the patch titled
-> 
->     memfd: fix F_SEAL_WRITE after shmem huge page allocated
-> 
-> to the 5.4-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      memfd-fix-f_seal_write-after-shmem-huge-page-allocated.patch
-> and it can be found in the queue-5.4 subdirectory.
 
-Thank you for adding that patch to 5.16, 5.15, 5.10 and 5.4:
-please accept the substitute patch below for 4.14 and 4.9 - thanks.
-A different patch for 4.19 has been sent separately.
+This is a note to let you know that I've just added the patch titled
 
-From f2b277c4d1c63a85127e8aa2588e9cc3bd21cb99 Mon Sep 17 00:00:00 2001
-From: Hugh Dickins <hughd@google.com>
-Date: Fri, 4 Mar 2022 20:29:01 -0800
-Subject: memfd: fix F_SEAL_WRITE after shmem huge page allocated
+    usb: typec: tipd: Forward plug orientation to typec subsystem
 
-From: Hugh Dickins <hughd@google.com>
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
-commit f2b277c4d1c63a85127e8aa2588e9cc3bd21cb99 upstream.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Wangyong reports: after enabling tmpfs filesystem to support transparent
-hugepage with the following command:
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-  echo always > /sys/kernel/mm/transparent_hugepage/shmem_enabled
+If you have any questions about this process, please let me know.
 
-the docker program tries to add F_SEAL_WRITE through the following
-command, but it fails unexpectedly with errno EBUSY:
 
-  fcntl(5, F_ADD_SEALS, F_SEAL_WRITE) = -1.
+From 676748389f5db74e7d28f9d630eebd75cb8a11b4 Mon Sep 17 00:00:00 2001
+From: Sven Peter <sven@svenpeter.dev>
+Date: Sat, 26 Feb 2022 13:59:12 +0100
+Subject: usb: typec: tipd: Forward plug orientation to typec subsystem
 
-That is because memfd_tag_pins() and memfd_wait_for_pins() were never
-updated for shmem huge pages: checking page_mapcount() against
-page_count() is hopeless on THP subpages - they need to check
-total_mapcount() against page_count() on THP heads only.
+In order to bring up the USB3 PHY on the Apple M1 we need to know the
+orientation of the Type-C cable. Extract it from the status register and
+forward it to the typec subsystem.
 
-Make memfd_tag_pins() (compared > 1) as strict as memfd_wait_for_pins()
-(compared != 1): either can be justified, but given the non-atomic
-total_mapcount() calculation, it is better now to be strict.  Bear in
-mind that total_mapcount() itself scans all of the THP subpages, when
-choosing to take an XA_CHECK_SCHED latency break.
-
-Also fix the unlikely xa_is_value() case in memfd_wait_for_pins(): if a
-page has been swapped out since memfd_tag_pins(), then its refcount must
-have fallen, and so it can safely be untagged.
-
-Link: https://lkml.kernel.org/r/a4f79248-df75-2c8c-3df-ba3317ccb5da@google.com
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Reported-by: wangyong <wang.yong12@zte.com.cn>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: CGEL ZTE <cgel.zte@gmail.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yang Yang <yang.yang29@zte.com.cn>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20220226125912.59828-1-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/shmem.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/typec/tipd/core.c     | 5 +++++
+ drivers/usb/typec/tipd/tps6598x.h | 1 +
+ 2 files changed, 6 insertions(+)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2689,7 +2689,8 @@ static void shmem_tag_pins(struct address_space *mapping)
- 				slot = radix_tree_iter_retry(&iter);
- 				continue;
- 			}
--		} else if (page_count(page) - page_mapcount(page) > 1) {
-+		} else if (!PageTail(page) && page_count(page) !=
-+			   hpage_nr_pages(page) + total_mapcount(page)) {
- 			radix_tree_tag_set(&mapping->page_tree, iter.index,
- 					   SHMEM_TAG_PINNED);
- 		}
-@@ -2749,8 +2750,8 @@ static int shmem_wait_for_pins(struct address_space *mapping)
- 				page = NULL;
- 			}
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index 7ffcda94d323..16b4560216ba 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -256,6 +256,10 @@ static int tps6598x_connect(struct tps6598x *tps, u32 status)
+ 	typec_set_pwr_opmode(tps->port, mode);
+ 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
+ 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
++	if (TPS_STATUS_TO_UPSIDE_DOWN(status))
++		typec_set_orientation(tps->port, TYPEC_ORIENTATION_REVERSE);
++	else
++		typec_set_orientation(tps->port, TYPEC_ORIENTATION_NORMAL);
+ 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), true);
  
--			if (page &&
--			    page_count(page) - page_mapcount(page) != 1) {
-+			if (page && page_count(page) !=
-+			    hpage_nr_pages(page) + total_mapcount(page)) {
- 				if (scan < LAST_SCAN)
- 					goto continue_resched;
+ 	tps->partner = typec_register_partner(tps->port, &desc);
+@@ -278,6 +282,7 @@ static void tps6598x_disconnect(struct tps6598x *tps, u32 status)
+ 	typec_set_pwr_opmode(tps->port, TYPEC_PWR_MODE_USB);
+ 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
+ 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
++	typec_set_orientation(tps->port, TYPEC_ORIENTATION_NONE);
+ 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), false);
  
+ 	power_supply_changed(tps->psy);
+diff --git a/drivers/usb/typec/tipd/tps6598x.h b/drivers/usb/typec/tipd/tps6598x.h
+index 3dae84c524fb..527857549d69 100644
+--- a/drivers/usb/typec/tipd/tps6598x.h
++++ b/drivers/usb/typec/tipd/tps6598x.h
+@@ -17,6 +17,7 @@
+ /* TPS_REG_STATUS bits */
+ #define TPS_STATUS_PLUG_PRESENT		BIT(0)
+ #define TPS_STATUS_PLUG_UPSIDE_DOWN	BIT(4)
++#define TPS_STATUS_TO_UPSIDE_DOWN(s)	(!!((s) & TPS_STATUS_PLUG_UPSIDE_DOWN))
+ #define TPS_STATUS_PORTROLE		BIT(5)
+ #define TPS_STATUS_TO_TYPEC_PORTROLE(s) (!!((s) & TPS_STATUS_PORTROLE))
+ #define TPS_STATUS_DATAROLE		BIT(6)
+-- 
+2.35.1
+
+
