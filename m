@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2F54CF613
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 781B74CF82D
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237237AbiCGJdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:33:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
+        id S233316AbiCGJwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:52:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237663AbiCGJdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7EC6660A;
-        Mon,  7 Mar 2022 01:30:00 -0800 (PST)
+        with ESMTP id S238839AbiCGJsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:48:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E3C6D4CD;
+        Mon,  7 Mar 2022 01:42:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 089CD61147;
-        Mon,  7 Mar 2022 09:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DADC340E9;
-        Mon,  7 Mar 2022 09:29:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 345AB61224;
+        Mon,  7 Mar 2022 09:42:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37104C36AE9;
+        Mon,  7 Mar 2022 09:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645379;
-        bh=3Q6HfLvnyk20c5KteC9b+hLzCTbQ2st3hb44bFNMDzQ=;
+        s=korg; t=1646646156;
+        bh=ZFa5qGU/Bx44asH0ijJeAVEBfCBxgDdBxw9ajPLlLR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbI0ZVvD/U1igvQbS62pBa1kydhWzYkvYDZe+fXiJSDaKayN5gCOGZWEKSaCezE2x
-         QmSiSX1dBUvLNSmc4Q8zvrx8vGqpJw+jcWSwbIWuWjpeXDPSgsWlknBT6l9vAxC6rA
-         6j1X2vn9qPGtX24fDe9elEJrZ4NWWxy4GlBKwm/Q=
+        b=wI7uR24pKni/lt3CzfJ4iH1z98M19BLZZawx454EvyUWzn2NARtiVXO9Kdej3eHOm
+         OL3aBm6+65pcjhAoZTbJmPBMgC7CkeM0DEp//nfXdVJYX9lk69N1RgRbsBjr0kH+Nv
+         m8EUd5yabrpwMAk3bmMKv+q5g/o3NaCXrqWKzuLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/105] dmaengine: shdma: Fix runtime PM imbalance on error
+        stable@vger.kernel.org, Jerry Dai <jerry.dai@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, Jon Mason <jdmason@kudzu.us>
+Subject: [PATCH 5.15 151/262] ntb: intel: fix port config status offset for SPR
 Date:   Mon,  7 Mar 2022 10:18:15 +0100
-Message-Id: <20220307091644.529997660@linuxfoundation.org>
+Message-Id: <20220307091706.701856383@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
+commit d5081bf5dcfb1cb83fb538708b0ac07a10a79cc4 upstream.
 
-pm_runtime_get_() increments the runtime PM usage counter even
-when it returns an error code, thus a matching decrement is needed on
-the error handling path to keep the counter balanced.
+The field offset for port configuration status on SPR has been changed to
+bit 14 from ICX where it resides at bit 12. By chance link status detection
+continued to work on SPR. This is due to bit 12 being a configuration bit
+which is in sync with the status bit. Fix this by checking for a SPR device
+and checking correct status bit.
 
-Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
-Link: https://lore.kernel.org/r/1642311296-87020-1-git-send-email-lyz_cs@pku.edu.cn
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 26bfe3d0b227 ("ntb: intel: Add Icelake (gen4) support for Intel NTB")
+Tested-by: Jerry Dai <jerry.dai@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/sh/shdma-base.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/ntb/hw/intel/ntb_hw_gen4.c |   17 ++++++++++++++++-
+ drivers/ntb/hw/intel/ntb_hw_gen4.h |   16 ++++++++++++++++
+ 2 files changed, 32 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/sh/shdma-base.c b/drivers/dma/sh/shdma-base.c
-index 7f72b3f4cd1ae..19ac95c0098f0 100644
---- a/drivers/dma/sh/shdma-base.c
-+++ b/drivers/dma/sh/shdma-base.c
-@@ -115,8 +115,10 @@ static dma_cookie_t shdma_tx_submit(struct dma_async_tx_descriptor *tx)
- 		ret = pm_runtime_get(schan->dev);
+--- a/drivers/ntb/hw/intel/ntb_hw_gen4.c
++++ b/drivers/ntb/hw/intel/ntb_hw_gen4.c
+@@ -168,6 +168,18 @@ static enum ntb_topo gen4_ppd_topo(struc
+ 	return NTB_TOPO_NONE;
+ }
  
- 		spin_unlock_irq(&schan->chan_lock);
--		if (ret < 0)
-+		if (ret < 0) {
- 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
-+			pm_runtime_put(schan->dev);
-+		}
++static enum ntb_topo spr_ppd_topo(struct intel_ntb_dev *ndev, u32 ppd)
++{
++	switch (ppd & SPR_PPD_TOPO_MASK) {
++	case SPR_PPD_TOPO_B2B_USD:
++		return NTB_TOPO_B2B_USD;
++	case SPR_PPD_TOPO_B2B_DSD:
++		return NTB_TOPO_B2B_DSD;
++	}
++
++	return NTB_TOPO_NONE;
++}
++
+ int gen4_init_dev(struct intel_ntb_dev *ndev)
+ {
+ 	struct pci_dev *pdev = ndev->ntb.pdev;
+@@ -183,7 +195,10 @@ int gen4_init_dev(struct intel_ntb_dev *
+ 	}
  
- 		pm_runtime_barrier(schan->dev);
+ 	ppd1 = ioread32(ndev->self_mmio + GEN4_PPD1_OFFSET);
+-	ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
++	if (pdev_is_ICX(pdev))
++		ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
++	else if (pdev_is_SPR(pdev))
++		ndev->ntb.topo = spr_ppd_topo(ndev, ppd1);
+ 	dev_dbg(&pdev->dev, "ppd %#x topo %s\n", ppd1,
+ 		ntb_topo_string(ndev->ntb.topo));
+ 	if (ndev->ntb.topo == NTB_TOPO_NONE)
+--- a/drivers/ntb/hw/intel/ntb_hw_gen4.h
++++ b/drivers/ntb/hw/intel/ntb_hw_gen4.h
+@@ -49,10 +49,14 @@
+ #define GEN4_PPD_CLEAR_TRN		0x0001
+ #define GEN4_PPD_LINKTRN		0x0008
+ #define GEN4_PPD_CONN_MASK		0x0300
++#define SPR_PPD_CONN_MASK		0x0700
+ #define GEN4_PPD_CONN_B2B		0x0200
+ #define GEN4_PPD_DEV_MASK		0x1000
+ #define GEN4_PPD_DEV_DSD		0x1000
+ #define GEN4_PPD_DEV_USD		0x0000
++#define SPR_PPD_DEV_MASK		0x4000
++#define SPR_PPD_DEV_DSD 		0x4000
++#define SPR_PPD_DEV_USD 		0x0000
+ #define GEN4_LINK_CTRL_LINK_DISABLE	0x0010
  
--- 
-2.34.1
-
+ #define GEN4_SLOTSTS			0xb05a
+@@ -62,6 +66,10 @@
+ #define GEN4_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_USD)
+ #define GEN4_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_DSD)
+ 
++#define SPR_PPD_TOPO_MASK	(SPR_PPD_CONN_MASK | SPR_PPD_DEV_MASK)
++#define SPR_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_USD)
++#define SPR_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_DSD)
++
+ #define GEN4_DB_COUNT			32
+ #define GEN4_DB_LINK			32
+ #define GEN4_DB_LINK_BIT		BIT_ULL(GEN4_DB_LINK)
+@@ -111,5 +119,13 @@ static inline int pdev_is_ICX(struct pci
+ 		return 1;
+ 	return 0;
+ }
++
++static inline int pdev_is_SPR(struct pci_dev *pdev)
++{
++	if (pdev_is_gen4(pdev) &&
++	    pdev->revision > PCI_DEVICE_REVISION_ICX_MAX)
++		return 1;
++	return 0;
++}
+ 
+ #endif
 
 
