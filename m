@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E19204CF9F6
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA44A4CF5E9
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234334AbiCGKNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:13:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50452 "EHLO
+        id S237218AbiCGJak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236787AbiCGKMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:12:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E8B68CDBE;
-        Mon,  7 Mar 2022 01:56:32 -0800 (PST)
+        with ESMTP id S237295AbiCGJ17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:27:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D664D674CB;
+        Mon,  7 Mar 2022 01:25:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81F8360E9A;
-        Mon,  7 Mar 2022 09:56:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AD52C340F3;
-        Mon,  7 Mar 2022 09:56:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AECAE61187;
+        Mon,  7 Mar 2022 09:24:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B794AC340E9;
+        Mon,  7 Mar 2022 09:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646983;
-        bh=LhBFBwMc99bqAd96HV/wf7b0senOyYNA5bBK+TFNAmM=;
+        s=korg; t=1646645099;
+        bh=9w7wfwKPGRpK9zkIDgGWdhu9dqbToz0KVbzKdvjnBHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGC/2oeLsOAGThXAgvaQ4C0Qswjsty/1JjG9pewQoObH1rIGtqFdsywU1eACHZoNS
-         LWYDRwjlSDfwUPbwKNEQq7Vv88bPvdfVQDlYhKlEH138zUAXZ4Vkho981nhzTxilS9
-         LyCX3SBrVKUHk/aKBh2Z3REdGwxRxzVUdSoRjki8=
+        b=TkuhE6ZmuvIWtD4+lAwqAiTKLmRXnhp/PHzCRsVGEeeIpODmFw8jw/RNeO89xfRpQ
+         s1UVbm34AxHhj9jborReMD7fO6nJunYdNagH7Wjq+THv8QDsl5pX/favGMeNI/IYtF
+         PrzprimrIAU3WsBvo5w5Q9/FprBThKloT4pHH3tE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dima Ruinskiy <dima.ruinskiy@intel.com>,
-        Corinna Vinschen <vinschen@redhat.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.16 114/186] igc: igc_write_phy_reg_gpy: drop premature return
-Date:   Mon,  7 Mar 2022 10:19:12 +0100
-Message-Id: <20220307091657.266224625@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 38/51] can: gs_usb: change active_channelss type from atomic_t to u8
+Date:   Mon,  7 Mar 2022 10:19:13 +0100
+Message-Id: <20220307091638.075805689@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit c4208653a327a09da1e9e7b10299709b6d9b17bf upstream.
+commit 035b0fcf02707d3c9c2890dc1484b11aa5335eb1 upstream.
 
-Similar to "igc_read_phy_reg_gpy: drop premature return" patch.
-igc_write_phy_reg_gpy checks the return value from igc_write_phy_reg_mdic
-and if it's not 0, returns immediately. By doing this, it leaves the HW
-semaphore in the acquired state.
+The driver uses an atomic_t variable: gs_usb:active_channels to keep
+track of the number of opened channels in order to only allocate
+memory for the URBs when this count changes from zero to one.
 
-Drop this premature return statement, the function returns after
-releasing the semaphore immediately anyway.
+However, the driver does not decrement the counter when an error
+occurs in gs_can_open(). This issue is fixed by changing the type from
+atomic_t to u8 and by simplifying the logic accordingly.
 
-Fixes: 5586838fe9ce ("igc: Add code for PHY support")
-Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
-Reported-by: Corinna Vinschen <vinschen@redhat.com>
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+It is safe to use an u8 here because the network stack big kernel lock
+(a.k.a. rtnl_mutex) is being hold. For details, please refer to [1].
+
+[1] https://lore.kernel.org/linux-can/CAMZ6Rq+sHpiw34ijPsmp7vbUpDtJwvVtdV7CvRZJsLixjAFfrg@mail.gmail.com/T/#t
+
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Link: https://lore.kernel.org/all/20220214234814.1321599-1-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igc/igc_phy.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/can/usb/gs_usb.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/intel/igc/igc_phy.c
-+++ b/drivers/net/ethernet/intel/igc/igc_phy.c
-@@ -746,8 +746,6 @@ s32 igc_write_phy_reg_gpy(struct igc_hw
- 		if (ret_val)
- 			return ret_val;
- 		ret_val = igc_write_phy_reg_mdic(hw, offset, data);
--		if (ret_val)
--			return ret_val;
- 		hw->phy.ops.release(hw);
- 	} else {
- 		ret_val = igc_write_xmdio_reg(hw, (u16)offset, dev_addr,
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -198,8 +198,8 @@ struct gs_can {
+ struct gs_usb {
+ 	struct gs_can *canch[GS_MAX_INTF];
+ 	struct usb_anchor rx_submitted;
+-	atomic_t active_channels;
+ 	struct usb_device *udev;
++	u8 active_channels;
+ };
+ 
+ /* 'allocate' a tx context.
+@@ -596,7 +596,7 @@ static int gs_can_open(struct net_device
+ 	if (rc)
+ 		return rc;
+ 
+-	if (atomic_add_return(1, &parent->active_channels) == 1) {
++	if (!parent->active_channels) {
+ 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
+ 			struct urb *urb;
+ 			u8 *buf;
+@@ -697,6 +697,7 @@ static int gs_can_open(struct net_device
+ 
+ 	dev->can.state = CAN_STATE_ERROR_ACTIVE;
+ 
++	parent->active_channels++;
+ 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
+ 		netif_start_queue(netdev);
+ 
+@@ -712,7 +713,8 @@ static int gs_can_close(struct net_devic
+ 	netif_stop_queue(netdev);
+ 
+ 	/* Stop polling */
+-	if (atomic_dec_and_test(&parent->active_channels))
++	parent->active_channels--;
++	if (!parent->active_channels)
+ 		usb_kill_anchored_urbs(&parent->rx_submitted);
+ 
+ 	/* Stop sending URBs */
+@@ -991,8 +993,6 @@ static int gs_usb_probe(struct usb_inter
+ 
+ 	init_usb_anchor(&dev->rx_submitted);
+ 
+-	atomic_set(&dev->active_channels, 0);
+-
+ 	usb_set_intfdata(intf, dev);
+ 	dev->udev = interface_to_usbdev(intf);
+ 
 
 
