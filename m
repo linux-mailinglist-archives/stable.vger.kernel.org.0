@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9E5D4CF6A8
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:42:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C71864CF777
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238087AbiCGJmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:42:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54394 "EHLO
+        id S238009AbiCGJqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:46:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239468AbiCGJjp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8FC71C9C;
-        Mon,  7 Mar 2022 01:35:46 -0800 (PST)
+        with ESMTP id S239744AbiCGJkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:40:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 891227486F;
+        Mon,  7 Mar 2022 01:36:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 889EE60FF6;
-        Mon,  7 Mar 2022 09:35:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8191FC340E9;
-        Mon,  7 Mar 2022 09:35:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 423B8B810BD;
+        Mon,  7 Mar 2022 09:35:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79FE2C36AE2;
+        Mon,  7 Mar 2022 09:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645746;
-        bh=iiiU8DN3ENwStLSi/sYPdqOZyIuha6jES6Cbw9b1hww=;
+        s=korg; t=1646645749;
+        bh=KFjAbm0DbIrJYdiTFFJY1+Id3/hhVIdMaWYvBSCbkok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fSed6adwTY113ldscxCHOA0L8b7sctcjmKwwaTYc22nOlHxYY5LwdxFlxqlWNYfcB
-         VnD57arwTfAr24Y1SQu2B/5WmhxWniXtEumS7gFr21TFsX4vD9KQA0DyIDW/wmFJF6
-         F+CV/bV745YkK5VS2mq6SDAR2lhjGG/FdsEizVWw=
+        b=jPmlqS63BG6ITv+D6jjZXpnytIR4TyZanA42vl9qwpXKzNsjQaijq/FCT9BDjmEPC
+         CmSiNsoPBkwXpC2KsldYaGQTUAOkjCED4RUPyFk1i/AYmNltBxpzyILmhM4sM2NUK8
+         ZFlMII/bNOXiAswi3pTuzhABy8CsnClpAS60lSJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/262] i2c: imx: allow COMPILE_TEST
-Date:   Mon,  7 Mar 2022 10:16:07 +0100
-Message-Id: <20220307091703.027193405@linuxfoundation.org>
+Subject: [PATCH 5.15 024/262] i2c: qup: allow COMPILE_TEST
+Date:   Mon,  7 Mar 2022 10:16:08 +0100
+Message-Id: <20220307091703.054130062@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -56,31 +55,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wolfram Sang <wsa@kernel.org>
 
-[ Upstream commit 2ce4462f2724d1b3cedccea441c6d18bb360629a ]
+[ Upstream commit 5de717974005fcad2502281e9f82e139ca91f4bb ]
 
 Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
 and easier maintenance.
 
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  drivers/i2c/busses/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 652b754a66db0..f76aaf9559365 100644
+index f76aaf9559365..fea403431f228 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -677,7 +677,7 @@ config I2C_IMG
+@@ -921,7 +921,7 @@ config I2C_QCOM_GENI
  
- config I2C_IMX
- 	tristate "IMX I2C interface"
--	depends on ARCH_MXC || ARCH_LAYERSCAPE || COLDFIRE
-+	depends on ARCH_MXC || ARCH_LAYERSCAPE || COLDFIRE || COMPILE_TEST
- 	select I2C_SLAVE
+ config I2C_QUP
+ 	tristate "Qualcomm QUP based I2C controller"
+-	depends on ARCH_QCOM
++	depends on ARCH_QCOM || COMPILE_TEST
  	help
- 	  Say Y here if you want to use the IIC bus controller on
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Qualcomm SoCs.
 -- 
 2.34.1
 
