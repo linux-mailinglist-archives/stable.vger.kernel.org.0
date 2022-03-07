@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C9C4CF6C3
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 027EE4CF740
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238247AbiCGJm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:42:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57046 "EHLO
+        id S238019AbiCGJpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239513AbiCGJjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:47 -0500
+        with ESMTP id S239831AbiCGJkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:40:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D75471EE4;
-        Mon,  7 Mar 2022 01:35:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9203B7520D;
+        Mon,  7 Mar 2022 01:36:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60850B80E70;
-        Mon,  7 Mar 2022 09:35:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E3FC340E9;
-        Mon,  7 Mar 2022 09:35:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4192EB810CE;
+        Mon,  7 Mar 2022 09:35:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87EE4C340E9;
+        Mon,  7 Mar 2022 09:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645724;
-        bh=kS8D6bkfgqqgmMhggKntZnsLULvt63AbdUvRgellOS4=;
+        s=korg; t=1646645727;
+        bh=124lfYyWE+LaMgjw4Q4I4/7cB+m2kmkCj43VRGmBnI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhvs7o3dW8BRkgWjn3AgKnFQt/2L1AizQoC62Hb/8lZyCek3Rao59C3Lpdx3P7f4K
-         yCy76/7z91VfDPpWW5AmC8qPJIQLumLgj2MXEosfPOeTZAm4RnuNsXAvSiprAcefYE
-         zc5olZbjQUr8RiKThAmx3Y8iClY7sdxpzA1FHeuk=
+        b=kPIxhcwRgXOIQy2tC1ntpvJlscSk1+sjAjm/mii8sK/ymH7GrXrqE1c9MTLn4IFbq
+         KQ1HlnYiz6bK8jYKHW7w+C2enuIdVE8PyP8ijK+7WXpZKJlFq4b78KJ2ZaLjOo3mdH
+         iR+Xccz0DcqderPTsq3s92eFCMGo4g4P7jr189Fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Sherry Yang <sherry.yang@oracle.com>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 017/262] cifs: modefromsids must add an ACE for authenticated users
-Date:   Mon,  7 Mar 2022 10:16:01 +0100
-Message-Id: <20220307091702.861572644@linuxfoundation.org>
+Subject: [PATCH 5.15 018/262] selftests/seccomp: Fix seccomp failure by adding missing headers
+Date:   Mon,  7 Mar 2022 10:16:02 +0100
+Message-Id: <20220307091702.888893436@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -55,53 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Sherry Yang <sherry.yang@oracle.com>
 
-[ Upstream commit 0c6f4ebf8835d01866eb686d47578cde80097981 ]
+[ Upstream commit 21bffcb76ee2fbafc7d5946cef10abc9df5cfff7 ]
 
-When we create a file with modefromsids we set an ACL that
-has one ACE for the magic modefromsid as well as a second ACE that
-grants full access to all authenticated users.
+seccomp_bpf failed on tests 47 global.user_notification_filter_empty
+and 48 global.user_notification_filter_empty_threaded when it's
+tested on updated kernel but with old kernel headers. Because old
+kernel headers don't have definition of macro __NR_clone3 which is
+required for these two tests. Since under selftests/, we can install
+headers once for all tests (the default INSTALL_HDR_PATH is
+usr/include), fix it by adding usr/include to the list of directories
+to be searched. Use "-isystem" to indicate it's a system directory as
+the real kernel headers directories are.
 
-When later we chante the mode on the file we strip away this, and other,
-ACE for authenticated users in set_chmod_dacl() and then just add back/update
-the modefromsid ACE.
-Thus leaving the file with a single ACE that is for the mode and no ACE
-to grant any user any rights to access the file.
-Fix this by always adding back also the modefromsid ACE so that we do not
-drop the rights to access the file.
-
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sherry Yang <sherry.yang@oracle.com>
+Tested-by: Sherry Yang <sherry.yang@oracle.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsacl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/testing/selftests/seccomp/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
-index 5df21d63dd04e..bf861fef2f0c3 100644
---- a/fs/cifs/cifsacl.c
-+++ b/fs/cifs/cifsacl.c
-@@ -949,6 +949,9 @@ static void populate_new_aces(char *nacl_base,
- 		pnntace = (struct cifs_ace *) (nacl_base + nsize);
- 		nsize += setup_special_mode_ACE(pnntace, nmode);
- 		num_aces++;
-+		pnntace = (struct cifs_ace *) (nacl_base + nsize);
-+		nsize += setup_authusers_ACE(pnntace);
-+		num_aces++;
- 		goto set_size;
- 	}
+diff --git a/tools/testing/selftests/seccomp/Makefile b/tools/testing/selftests/seccomp/Makefile
+index 0ebfe8b0e147f..585f7a0c10cbe 100644
+--- a/tools/testing/selftests/seccomp/Makefile
++++ b/tools/testing/selftests/seccomp/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+-CFLAGS += -Wl,-no-as-needed -Wall
++CFLAGS += -Wl,-no-as-needed -Wall -isystem ../../../../usr/include/
+ LDFLAGS += -lpthread
  
-@@ -1613,7 +1616,7 @@ id_mode_to_cifs_acl(struct inode *inode, const char *path, __u64 *pnmode,
- 	nsecdesclen = secdesclen;
- 	if (pnmode && *pnmode != NO_CHANGE_64) { /* chmod */
- 		if (mode_from_sid)
--			nsecdesclen += sizeof(struct cifs_ace);
-+			nsecdesclen += 2 * sizeof(struct cifs_ace);
- 		else /* cifsacl */
- 			nsecdesclen += 5 * sizeof(struct cifs_ace);
- 	} else { /* chown */
+ TEST_GEN_PROGS := seccomp_bpf seccomp_benchmark
 -- 
 2.34.1
 
