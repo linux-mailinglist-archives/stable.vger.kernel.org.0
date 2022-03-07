@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47B014CFA59
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ACDF4CF57F
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239231AbiCGKPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:15:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60450 "EHLO
+        id S235110AbiCGJ36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:29:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241354AbiCGKKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:08 -0500
+        with ESMTP id S237137AbiCGJ1s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:27:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB0E2BB09;
-        Mon,  7 Mar 2022 01:53:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFC458E4B;
+        Mon,  7 Mar 2022 01:24:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1228260A28;
-        Mon,  7 Mar 2022 09:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1048BC340F3;
-        Mon,  7 Mar 2022 09:52:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E02061009;
+        Mon,  7 Mar 2022 09:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C9ABC340E9;
+        Mon,  7 Mar 2022 09:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646762;
-        bh=UfCYSZXoVnRIB8H8VvbyXpKv1i03FqE5R0QtrAk+uj0=;
+        s=korg; t=1646645083;
+        bh=jLKMO32rA0KjtQgvheUPI/dFWNoxa++1fZrLUNzJ5aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evN6I1iFRADj9+NpO+OD7ewwE73FnQ4c35lbSfesV5JZOi1h00hH2WcsTfFQoHEQK
-         NCud95bH5qSfgAUDaZkP8ORapWdIcLxTdHk7H55+RwIfJFBI/vQDK1MI4FlkNp9owz
-         cX2kvRYWBLQ4xYU58xGpED99PQ6GyMCqacngI1DU=
+        b=eNOs5zRdCPpwjWTKv7iYVNa9/gOIlIJ6dUk1nk3NidITRUHM/vz5a2QahhlYMUPx9
+         LQuVPfD5PyK/o4n09+U40kfhcF/GyZGLSEOeWoOseaqngabju7CMm7Te3M708I8Lq0
+         l6pn1+NUHcvmnK7k9vK2aqBQhtfOeXfpxEJF9ujk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "D. Wythe" <alibuda@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 085/186] net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error cause by server
-Date:   Mon,  7 Mar 2022 10:18:43 +0100
-Message-Id: <20220307091656.462621250@linuxfoundation.org>
+        stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 09/51] i2c: cadence: allow COMPILE_TEST
+Date:   Mon,  7 Mar 2022 10:18:44 +0100
+Message-Id: <20220307091637.259399865@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Wolfram Sang <wsa@kernel.org>
 
-commit 4940a1fdf31c39f0806ac831cde333134862030b upstream.
+[ Upstream commit 0b0dcb3882c8f08bdeafa03adb4487e104d26050 ]
 
-The problem of SMC_CLC_DECL_ERR_REGRMB on the server is very clear.
-Based on the fact that whether a new SMC connection can be accepted or
-not depends on not only the limit of conn nums, but also the available
-entries of rtoken. Since the rtoken release is trigger by peer, while
-the conn nums is decrease by local, tons of thing can happen in this
-time difference.
+Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
+and easier maintenance.
 
-This only thing that needs to be mentioned is that now all connection
-creations are completely protected by smc_server_lgr_pending lock, it's
-enough to check only the available entries in rtokens_used_mask.
-
-Fixes: cd6851f30386 ("smc: remote memory buffers (RMBs)")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1783,7 +1783,8 @@ int smc_conn_create(struct smc_sock *smc
- 		    (ini->smcd_version == SMC_V2 ||
- 		     lgr->vlan_id == ini->vlan_id) &&
- 		    (role == SMC_CLNT || ini->is_smcd ||
--		     lgr->conns_num < SMC_RMBS_PER_LGR_MAX)) {
-+		    (lgr->conns_num < SMC_RMBS_PER_LGR_MAX &&
-+		      !bitmap_full(lgr->rtokens_used_mask, SMC_RMBS_PER_LGR_MAX)))) {
- 			/* link group found */
- 			ini->first_contact_local = 0;
- 			conn->lgr = lgr;
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 017aec34a238d..3a2f85d811f75 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -445,7 +445,7 @@ config I2C_BRCMSTB
+ 
+ config I2C_CADENCE
+ 	tristate "Cadence I2C Controller"
+-	depends on ARCH_ZYNQ || ARM64 || XTENSA
++	depends on ARCH_ZYNQ || ARM64 || XTENSA || COMPILE_TEST
+ 	help
+ 	  Say yes here to select Cadence I2C Host Controller. This controller is
+ 	  e.g. used by Xilinx Zynq.
+-- 
+2.34.1
+
 
 
