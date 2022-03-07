@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 758574CFA8C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:23:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2802A4CFADC
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234853AbiCGKV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:21:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
+        id S239325AbiCGKWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:22:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239716AbiCGKRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:17:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 740622725;
-        Mon,  7 Mar 2022 01:57:42 -0800 (PST)
+        with ESMTP id S239314AbiCGKQX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:16:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A048D8F60F;
+        Mon,  7 Mar 2022 01:57:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3139960BAF;
-        Mon,  7 Mar 2022 09:57:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264E0C340E9;
-        Mon,  7 Mar 2022 09:57:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F46AB80E70;
+        Mon,  7 Mar 2022 09:57:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EFBAC340E9;
+        Mon,  7 Mar 2022 09:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647029;
-        bh=wknCbxsS8KrFFvOBC2/qWCui6HURkWu4maIP2QSkvDM=;
+        s=korg; t=1646647032;
+        bh=ohnYKYo2lml7QBh0YB2fkZLgPTZvTVHY7s6SEjBwThU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4qyPWE7xdNcqOcRshvOoNLne/EUHBUnOsqLUjEkshjjruw5aOgbDYIvG277v+mJa
-         i9Y10oSbZ8ftYjeY4qfcpU+tlZxpkDs9TEn+cFeS2Kji3CQhOOKkTPIm+LHDCTHqhZ
-         t42fV5FL+CM++sFuHJfeZV+vsc6D5NJLsdcCTILA=
+        b=FmbHjHbEzsCyKdRWAUgh38Z87OX9Ke1p41Hz/6arlHQ4TB1hecbdsVhqGB6pntMyF
+         tWZKaPsZuGVVcKaeL3rFozbCP5lXT1Ey8m8iSmbSSbOKBOVj5a0mYDEcalxnGgAyvx
+         gbXMVdznld6GtKs28NlttwGZ6n57RsgPomSl8WOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, William Mahon <wmahon@chromium.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.16 169/186] HID: add mapping for KEY_DICTATE
-Date:   Mon,  7 Mar 2022 10:20:07 +0100
-Message-Id: <20220307091658.804103159@linuxfoundation.org>
+Subject: [PATCH 5.16 170/186] HID: add mapping for KEY_ALL_APPLICATIONS
+Date:   Mon,  7 Mar 2022 10:20:08 +0100
+Message-Id: <20220307091658.831958934@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -56,55 +56,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: William Mahon <wmahon@chromium.org>
 
-commit bfa26ba343c727e055223be04e08f2ebdd43c293 upstream.
+commit 327b89f0acc4c20a06ed59e4d9af7f6d804dc2e2 upstream.
 
-Numerous keyboards are adding dictate keys which allows for text
-messages to be dictated by a microphone.
+This patch adds a new key definition for KEY_ALL_APPLICATIONS
+and aliases KEY_DASHBOARD to it.
 
-This patch adds a new key definition KEY_DICTATE and maps 0x0c/0x0d8
-usage code to this new keycode. Additionally hid-debug is adjusted to
-recognize this new usage code as well.
+It also maps the 0x0c/0x2a2 usage code to KEY_ALL_APPLICATIONS.
 
 Signed-off-by: William Mahon <wmahon@chromium.org>
 Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20220303021501.1.I5dbf50eb1a7a6734ee727bda4a8573358c6d3ec0@changeid
+Link: https://lore.kernel.org/r/20220303035618.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-debug.c                |    1 +
- drivers/hid/hid-input.c                |    1 +
- include/uapi/linux/input-event-codes.h |    1 +
- 3 files changed, 3 insertions(+)
+ drivers/hid/hid-debug.c                |    4 +++-
+ drivers/hid/hid-input.c                |    2 ++
+ include/uapi/linux/input-event-codes.h |    3 ++-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
 --- a/drivers/hid/hid-debug.c
 +++ b/drivers/hid/hid-debug.c
-@@ -934,6 +934,7 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_ASSISTANT] = "Assistant",
- 	[KEY_KBD_LAYOUT_NEXT] = "KbdLayoutNext",
- 	[KEY_EMOJI_PICKER] = "EmojiPicker",
-+	[KEY_DICTATE] = "Dictate",
- 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
- 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
- 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+@@ -825,7 +825,9 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_F22] = "F22",			[KEY_F23] = "F23",
+ 	[KEY_F24] = "F24",			[KEY_PLAYCD] = "PlayCD",
+ 	[KEY_PAUSECD] = "PauseCD",		[KEY_PROG3] = "Prog3",
+-	[KEY_PROG4] = "Prog4",			[KEY_SUSPEND] = "Suspend",
++	[KEY_PROG4] = "Prog4",
++	[KEY_ALL_APPLICATIONS] = "AllApplications",
++	[KEY_SUSPEND] = "Suspend",
+ 	[KEY_CLOSE] = "Close",			[KEY_PLAY] = "Play",
+ 	[KEY_FASTFORWARD] = "FastForward",	[KEY_BASSBOOST] = "BassBoost",
+ 	[KEY_PRINT] = "Print",			[KEY_HP] = "HP",
 --- a/drivers/hid/hid-input.c
 +++ b/drivers/hid/hid-input.c
-@@ -994,6 +994,7 @@ static void hidinput_configure_usage(str
- 		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
- 		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
+@@ -1086,6 +1086,8 @@ static void hidinput_configure_usage(str
  
-+		case 0x0d8: map_key_clear(KEY_DICTATE);		break;
- 		case 0x0d9: map_key_clear(KEY_EMOJI_PICKER);	break;
+ 		case 0x29d: map_key_clear(KEY_KBD_LAYOUT_NEXT);	break;
  
- 		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
++		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
++
+ 		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
+ 		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
+ 		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
 --- a/include/uapi/linux/input-event-codes.h
 +++ b/include/uapi/linux/input-event-codes.h
-@@ -612,6 +612,7 @@
- #define KEY_ASSISTANT		0x247	/* AL Context-aware desktop assistant */
- #define KEY_KBD_LAYOUT_NEXT	0x248	/* AC Next Keyboard Layout Select */
- #define KEY_EMOJI_PICKER	0x249	/* Show/hide emoji picker (HUTRR101) */
-+#define KEY_DICTATE		0x24a	/* Start or Stop Voice Dictation Session (HUTRR99) */
- 
- #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
- #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
+@@ -278,7 +278,8 @@
+ #define KEY_PAUSECD		201
+ #define KEY_PROG3		202
+ #define KEY_PROG4		203
+-#define KEY_DASHBOARD		204	/* AL Dashboard */
++#define KEY_ALL_APPLICATIONS	204	/* AC Desktop Show All Applications */
++#define KEY_DASHBOARD		KEY_ALL_APPLICATIONS
+ #define KEY_SUSPEND		205
+ #define KEY_CLOSE		206	/* AC Close */
+ #define KEY_PLAY		207
 
 
