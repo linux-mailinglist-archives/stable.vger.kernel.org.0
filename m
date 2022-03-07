@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A34F34CF729
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CBCA4CF903
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237910AbiCGJot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57084 "EHLO
+        id S239561AbiCGKDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:03:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238663AbiCGJij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293226B081;
-        Mon,  7 Mar 2022 01:33:07 -0800 (PST)
+        with ESMTP id S239168AbiCGJ6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:58:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 573C07C792;
+        Mon,  7 Mar 2022 01:46:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 695896112D;
-        Mon,  7 Mar 2022 09:32:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739FFC340E9;
-        Mon,  7 Mar 2022 09:32:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE76B80E70;
+        Mon,  7 Mar 2022 09:46:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6CDDC36AF4;
+        Mon,  7 Mar 2022 09:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645575;
-        bh=2Ouh71z9V3h2h5XbRT/kLJZHt1QLCE2kUzamKqtu8aA=;
+        s=korg; t=1646646372;
+        bh=3HFDnw0Np8rruklzhkK/ONablS11EjiUf/++xtFh2sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRSkZH8LqCKfY6PVrnfrsNE2Aj8UJbN7owOJrT7sElapgDlTedDfJPvWKH7pRiFu6
-         4KhAREQqOOYqxh2cbPLcdG8PTJ+eDf6PPobPMjagZzB692YDFEIhBf7NYkeetY4nKn
-         kxdVSBUsb8SxbPjgnTtvrS1B1WxMHNzS8TBk0nYg=
+        b=OxCX+yMLm8oC/PBX7j2kngelIjmZ7WugU4FunqwHSH/CsUi7CoEW5RVShnpRZGloT
+         I3rEki+WIenzKgjYDMDv+oZkoG0sf4e4PGiHGG3Zq/38MsmTk/G0HIn/gyYUG4kEmO
+         IZr0HvOpGr6/9dv/TsAPvhh//yY7Unvj3Zx8TD14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Cohen <amcohen@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 076/105] selftests: mlxsw: tc_police_scale: Make test more robust
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 215/262] can: etas_es58x: change opened_channel_cnts type from atomic_t to u8
 Date:   Mon,  7 Mar 2022 10:19:19 +0100
-Message-Id: <20220307091646.315704743@linuxfoundation.org>
+Message-Id: <20220307091709.020578085@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Cohen <amcohen@nvidia.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit dc9752075341e7beb653e37c6f4a3723074dc8bc upstream.
+[ Upstream commit f4896248e9025ff744b4147e6758274a1cb8cbae ]
 
-The test adds tc filters and checks how many of them were offloaded by
-grepping for 'in_hw'.
+The driver uses an atomic_t variable: struct
+es58x_device::opened_channel_cnt to keep track of the number of opened
+channels in order to only allocate memory for the URBs when this count
+changes from zero to one.
 
-iproute2 commit f4cd4f127047 ("tc: add skip_hw and skip_sw to control
-action offload") added offload indication to tc actions, producing the
-following output:
+While the intent was to prevent race conditions, the choice of an
+atomic_t turns out to be a bad idea for several reasons:
 
- $ tc filter show dev swp2 ingress
- ...
- filter protocol ipv6 pref 1000 flower chain 0 handle 0x7c0
-   eth_type ipv6
-   dst_ip 2001:db8:1::7bf
-   skip_sw
-   in_hw in_hw_count 1
-         action order 1:  police 0x7c0 rate 10Mbit burst 100Kb mtu 2Kb action drop overhead 0b
-         ref 1 bind 1
-         not_in_hw
-         used_hw_stats immediate
+- implementation is incorrect and fails to decrement
+  opened_channel_cnt when the URB allocation fails as reported in
+  [1].
 
-The current grep expression matches on both 'in_hw' and 'not_in_hw',
-resulting in incorrect results.
+- even if opened_channel_cnt were to be correctly decremented,
+  atomic_t is insufficient to cover edge cases: there can be a race
+  condition in which 1/ a first process fails to allocate URBs
+  memory 2/ a second process enters es58x_open() before the first
+  process does its cleanup and decrements opened_channed_cnt. In
+  which case, the second process would successfully return despite
+  the URBs memory not being allocated.
 
-Fix that by using JSON output instead.
+- actually, any kind of locking mechanism was useless here because
+  it is redundant with the network stack big kernel lock
+  (a.k.a. rtnl_lock) which is being hold by all the callers of
+  net_device_ops:ndo_open() and net_device_ops:ndo_close(). c.f. the
+  ASSERST_RTNL() calls in __dev_open() [2] and __dev_close_many()
+  [3].
 
-Fixes: 5061e773264b ("selftests: mlxsw: Add scale test for tc-police")
-Signed-off-by: Amit Cohen <amcohen@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The atmomic_t is thus replaced by a simple u8 type and the logic to
+increment and decrement es58x_device:opened_channel_cnt is simplified
+accordingly fixing the bug reported in [1]. We do not check again for
+ASSERST_RTNL() as this is already done by the callers.
+
+[1] https://lore.kernel.org/linux-can/20220201140351.GA2548@kili/T/#u
+[2] https://elixir.bootlin.com/linux/v5.16/source/net/core/dev.c#L1463
+[3] https://elixir.bootlin.com/linux/v5.16/source/net/core/dev.c#L1541
+
+Fixes: 8537257874e9 ("can: etas_es58x: add core support for ETAS ES58X CAN USB interfaces")
+Link: https://lore.kernel.org/all/20220212112713.577957-1-mailhol.vincent@wanadoo.fr
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/can/usb/etas_es58x/es58x_core.c | 9 +++++----
+ drivers/net/can/usb/etas_es58x/es58x_core.h | 8 +++++---
+ 2 files changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh b/tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh
-index 3e3e06ea5703..86e787895f78 100644
---- a/tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh
-+++ b/tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh
-@@ -60,7 +60,8 @@ __tc_police_test()
+diff --git a/drivers/net/can/usb/etas_es58x/es58x_core.c b/drivers/net/can/usb/etas_es58x/es58x_core.c
+index 24627ab14626..cd4e7f356e48 100644
+--- a/drivers/net/can/usb/etas_es58x/es58x_core.c
++++ b/drivers/net/can/usb/etas_es58x/es58x_core.c
+@@ -1794,7 +1794,7 @@ static int es58x_open(struct net_device *netdev)
+ 	struct es58x_device *es58x_dev = es58x_priv(netdev)->es58x_dev;
+ 	int ret;
  
- 	tc_police_rules_create $count $should_fail
+-	if (atomic_inc_return(&es58x_dev->opened_channel_cnt) == 1) {
++	if (!es58x_dev->opened_channel_cnt) {
+ 		ret = es58x_alloc_rx_urbs(es58x_dev);
+ 		if (ret)
+ 			return ret;
+@@ -1812,12 +1812,13 @@ static int es58x_open(struct net_device *netdev)
+ 	if (ret)
+ 		goto free_urbs;
  
--	offload_count=$(tc filter show dev $swp1 ingress | grep in_hw | wc -l)
-+	offload_count=$(tc -j filter show dev $swp1 ingress |
-+			jq "[.[] | select(.options.in_hw == true)] | length")
- 	((offload_count == count))
- 	check_err_fail $should_fail $? "tc police offload count"
- }
++	es58x_dev->opened_channel_cnt++;
+ 	netif_start_queue(netdev);
+ 
+ 	return ret;
+ 
+  free_urbs:
+-	if (atomic_dec_and_test(&es58x_dev->opened_channel_cnt))
++	if (!es58x_dev->opened_channel_cnt)
+ 		es58x_free_urbs(es58x_dev);
+ 	netdev_err(netdev, "%s: Could not open the network device: %pe\n",
+ 		   __func__, ERR_PTR(ret));
+@@ -1852,7 +1853,8 @@ static int es58x_stop(struct net_device *netdev)
+ 
+ 	es58x_flush_pending_tx_msg(netdev);
+ 
+-	if (atomic_dec_and_test(&es58x_dev->opened_channel_cnt))
++	es58x_dev->opened_channel_cnt--;
++	if (!es58x_dev->opened_channel_cnt)
+ 		es58x_free_urbs(es58x_dev);
+ 
+ 	return 0;
+@@ -2221,7 +2223,6 @@ static struct es58x_device *es58x_init_es58x_dev(struct usb_interface *intf,
+ 	init_usb_anchor(&es58x_dev->tx_urbs_idle);
+ 	init_usb_anchor(&es58x_dev->tx_urbs_busy);
+ 	atomic_set(&es58x_dev->tx_urbs_idle_cnt, 0);
+-	atomic_set(&es58x_dev->opened_channel_cnt, 0);
+ 	usb_set_intfdata(intf, es58x_dev);
+ 
+ 	es58x_dev->rx_pipe = usb_rcvbulkpipe(es58x_dev->udev,
+diff --git a/drivers/net/can/usb/etas_es58x/es58x_core.h b/drivers/net/can/usb/etas_es58x/es58x_core.h
+index 826a15871573..e5033cb5e695 100644
+--- a/drivers/net/can/usb/etas_es58x/es58x_core.h
++++ b/drivers/net/can/usb/etas_es58x/es58x_core.h
+@@ -373,8 +373,6 @@ struct es58x_operators {
+  *	queue wake/stop logic should prevent this URB from getting
+  *	empty. Please refer to es58x_get_tx_urb() for more details.
+  * @tx_urbs_idle_cnt: number of urbs in @tx_urbs_idle.
+- * @opened_channel_cnt: number of channels opened (c.f. es58x_open()
+- *	and es58x_stop()).
+  * @ktime_req_ns: kernel timestamp when es58x_set_realtime_diff_ns()
+  *	was called.
+  * @realtime_diff_ns: difference in nanoseconds between the clocks of
+@@ -384,6 +382,10 @@ struct es58x_operators {
+  *	in RX branches.
+  * @rx_max_packet_size: Maximum length of bulk-in URB.
+  * @num_can_ch: Number of CAN channel (i.e. number of elements of @netdev).
++ * @opened_channel_cnt: number of channels opened. Free of race
++ *	conditions because its two users (net_device_ops:ndo_open()
++ *	and net_device_ops:ndo_close()) guarantee that the network
++ *	stack big kernel lock (a.k.a. rtnl_mutex) is being hold.
+  * @rx_cmd_buf_len: Length of @rx_cmd_buf.
+  * @rx_cmd_buf: The device might split the URB commands in an
+  *	arbitrary amount of pieces. This buffer is used to concatenate
+@@ -406,7 +408,6 @@ struct es58x_device {
+ 	struct usb_anchor tx_urbs_busy;
+ 	struct usb_anchor tx_urbs_idle;
+ 	atomic_t tx_urbs_idle_cnt;
+-	atomic_t opened_channel_cnt;
+ 
+ 	u64 ktime_req_ns;
+ 	s64 realtime_diff_ns;
+@@ -415,6 +416,7 @@ struct es58x_device {
+ 
+ 	u16 rx_max_packet_size;
+ 	u8 num_can_ch;
++	u8 opened_channel_cnt;
+ 
+ 	u16 rx_cmd_buf_len;
+ 	union es58x_urb_cmd rx_cmd_buf;
 -- 
-2.35.1
+2.34.1
 
 
 
