@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A94FC4CF51C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD694CF64E
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236767AbiCGJYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:24:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34664 "EHLO
+        id S237246AbiCGJfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:35:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236691AbiCGJY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:24:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26FC4593BF;
-        Mon,  7 Mar 2022 01:23:31 -0800 (PST)
+        with ESMTP id S237205AbiCGJdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7157A6D38B;
+        Mon,  7 Mar 2022 01:30:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5B9861132;
-        Mon,  7 Mar 2022 09:23:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0A3CC340F5;
-        Mon,  7 Mar 2022 09:23:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12D8E61119;
+        Mon,  7 Mar 2022 09:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2510DC340E9;
+        Mon,  7 Mar 2022 09:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645010;
-        bh=17QqH72kUFnUkJZ4j1HejBtx6GgW1dduu5IUz82at2E=;
+        s=korg; t=1646645442;
+        bh=0XM5ZexUMskW4ZkOyUw7cgz87x2gisU6TaKUIornEEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gqj8SYi8Jbs/OSZsb6IST3Uvlx2lDMFKsG2Hugscir5+XncR1y8CLvbHPw3bpL0f0
-         jpuSYLsaGeu1bL8BtVs6gN8MPSLyEsFdNyqEnYmlVUjZ8aR1T8IOsHj7EMRH5bzyRr
-         yCdJFJAKWXzTYwxDfU257zr0gCh3jDbrziL+3Ozw=
+        b=prVpmwuLgIooonbIepHM5R4nCKar+VYa+QwRltxUO8GtROqW4x0T/8m+EOEBiB4GL
+         /LmoNR4Wan3OcbhSb/sO+UboaqdV/t1QW157tW6NcomarZ4IRJgdsVCmXAGTInGsOA
+         NnS9Ra/0TmrrChIODtxha+1MKoezJ8yI2BrYWQm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Benjamin Beichler <benjamin.beichler@uni-rostock.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/51] mac80211_hwsim: report NOACK frames in tx_status
+        Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 033/105] thermal: core: Fix TZ_GET_TRIP NULL pointer dereference
 Date:   Mon,  7 Mar 2022 10:18:36 +0100
-Message-Id: <20220307091637.032868130@linuxfoundation.org>
+Message-Id: <20220307091645.116487211@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,38 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Beichler <benjamin.beichler@uni-rostock.de>
+From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
 
-[ Upstream commit 42a79960ffa50bfe9e0bf5d6280be89bf563a5dd ]
+commit 5838a14832d447990827d85e90afe17e6fb9c175 upstream.
 
-Add IEEE80211_TX_STAT_NOACK_TRANSMITTED to tx_status flags to have proper
-statistics for non-acked frames.
+Do not call get_trip_hyst() from thermal_genl_cmd_tz_get_trip() if
+the thermal zone does not define one.
 
-Signed-off-by: Benjamin Beichler <benjamin.beichler@uni-rostock.de>
-Link: https://lore.kernel.org/r/20220111221327.1499881-1-benjamin.beichler@uni-rostock.de
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1ce50e7d408e ("thermal: core: genetlink support for events/cmd/sampling")
+Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/thermal/thermal_netlink.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 3564f5869b444..6cd9a8b610107 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3176,6 +3176,10 @@ static int hwsim_tx_info_frame_received_nl(struct sk_buff *skb_2,
- 		}
- 		txi->flags |= IEEE80211_TX_STAT_ACK;
- 	}
-+
-+	if (hwsim_flags & HWSIM_TX_CTL_NO_ACK)
-+		txi->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
-+
- 	ieee80211_tx_status_irqsafe(data2->hw, skb);
- 	return 0;
- out:
--- 
-2.34.1
-
+--- a/drivers/thermal/thermal_netlink.c
++++ b/drivers/thermal/thermal_netlink.c
+@@ -418,11 +418,12 @@ static int thermal_genl_cmd_tz_get_trip(
+ 	for (i = 0; i < tz->trips; i++) {
+ 
+ 		enum thermal_trip_type type;
+-		int temp, hyst;
++		int temp, hyst = 0;
+ 
+ 		tz->ops->get_trip_type(tz, i, &type);
+ 		tz->ops->get_trip_temp(tz, i, &temp);
+-		tz->ops->get_trip_hyst(tz, i, &hyst);
++		if (tz->ops->get_trip_hyst)
++			tz->ops->get_trip_hyst(tz, i, &hyst);
+ 
+ 		if (nla_put_u32(msg, THERMAL_GENL_ATTR_TZ_TRIP_ID, i) ||
+ 		    nla_put_u32(msg, THERMAL_GENL_ATTR_TZ_TRIP_TYPE, type) ||
 
 
