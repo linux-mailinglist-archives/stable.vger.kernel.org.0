@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A904CFA14
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 771524CF9DB
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234023AbiCGKMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:12:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47284 "EHLO
+        id S234238AbiCGKOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:14:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242131AbiCGKLP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:15 -0500
+        with ESMTP id S242158AbiCGKLQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09FAB887A4;
-        Mon,  7 Mar 2022 01:54:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E82887B5;
+        Mon,  7 Mar 2022 01:54:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E6176092A;
-        Mon,  7 Mar 2022 09:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 256F5C340E9;
-        Mon,  7 Mar 2022 09:54:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38FD460B6F;
+        Mon,  7 Mar 2022 09:54:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350B8C340E9;
+        Mon,  7 Mar 2022 09:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646868;
-        bh=/P+khQUCz1gjLADcUzL6/3+TSXlLSdClqooalGmBoUk=;
+        s=korg; t=1646646871;
+        bh=TGDEm7/2812po9GORf08IwKMORinJ4Qursm9zlLlTP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/d+3JD2V7GVBJqJf5Trxw6xuzxbJdFR0rDUQfhGIY73iobBvTUGD1Kkl6b0mommG
-         ypGN2rDWUVLWLJZb9fT7WCemkEgzkB2TrrKazLVJ5OOtJ+LfoHzJUDVcah26MVaIf/
-         RLuSWPW30JpVC4zY3uJzEUxNB/+iaGYGGgpjWjQc=
+        b=evL89cgD7KoPlvMsBHd+gtFRZuh+73qsTrfdb1c2KDzJ/JY61dShzQwjU6mxrDDWb
+         KKI4FsfMNrlathgyHGdDTzbGg9tO6oDdUSmXFnJO9PSiT3dTougRAn7juAo5ERlaXb
+         tRAS7Zrqq+3+MLQq5Fi1nj2oTXxh0eveg5DwNXZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Zhang Qiao <zhangqiao22@huawei.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>
-Subject: [PATCH 5.16 119/186] sched: Fix yet more sched_fork() races
-Date:   Mon,  7 Mar 2022 10:19:17 +0100
-Message-Id: <20220307091657.406205277@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Geis <pgwipeout@gmail.com>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Michael Riesch <michael.riesch@wolfvision.net>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 120/186] arm64: dts: rockchip: drop pclk_xpcs from gmac0 on rk3568
+Date:   Mon,  7 Mar 2022 10:19:18 +0100
+Message-Id: <20220307091657.434434017@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -57,173 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-commit b1e8206582f9d680cff7d04828708c8b6ab32957 upstream.
+[ Upstream commit 85a8bccfa945680dc561f06b65ea01341d2033fc ]
 
-Where commit 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an
-invalid sched_task_group") fixed a fork race vs cgroup, it opened up a
-race vs syscalls by not placing the task on the runqueue before it
-gets exposed through the pidhash.
+pclk_xpcs is not supported by mainline driver and breaks dtbs_check
 
-Commit 13765de8148f ("sched/fair: Fix fault in reweight_entity") is
-trying to fix a single instance of this, instead fix the whole class
-of issues, effectively reverting this commit.
+following warnings occour, and many more
 
-Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Tested-by: Zhang Qiao <zhangqiao22@huawei.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lkml.kernel.org/r/YgoeCbwj5mbCR0qA@hirez.programming.kicks-ass.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+rk3568-evb1-v10.dt.yaml: ethernet@fe2a0000: clocks:
+    [[15, 386], [15, 389], [15, 389], [15, 184], [15, 180], [15, 181],
+    [15, 389], [15, 185], [15, 172]] is too long
+	From schema: Documentation/devicetree/bindings/net/snps,dwmac.yaml
+rk3568-evb1-v10.dt.yaml: ethernet@fe2a0000: clock-names:
+    ['stmmaceth', 'mac_clk_rx', 'mac_clk_tx', 'clk_mac_refout', 'aclk_mac',
+    'pclk_mac', 'clk_mac_speed', 'ptp_ref', 'pclk_xpcs'] is too long
+	From schema: Documentation/devicetree/bindings/net/snps,dwmac.yaml
+
+after removing it, the clock and other warnings are gone.
+
+pclk_xpcs on gmac is used to support QSGMII, but this requires a driver
+supporting it.
+Once xpcs support is introduced, the clock can be added to the
+documentation and both controllers.
+
+Fixes: b8d41e5053cd ("arm64: dts: rockchip: add gmac0 node to rk3568")
+Co-developed-by: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Acked-by: Michael Riesch <michael.riesch@wolfvision.net>
+Link: https://lore.kernel.org/r/20220123133510.135651-1-linux@fw-web.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched/task.h |    4 ++--
- kernel/fork.c              |   13 ++++++++++++-
- kernel/sched/core.c        |   34 +++++++++++++++++++++-------------
- 3 files changed, 35 insertions(+), 16 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3568.dtsi | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -54,8 +54,8 @@ extern asmlinkage void schedule_tail(str
- extern void init_idle(struct task_struct *idle, int cpu);
- 
- extern int sched_fork(unsigned long clone_flags, struct task_struct *p);
--extern void sched_post_fork(struct task_struct *p,
--			    struct kernel_clone_args *kargs);
-+extern void sched_cgroup_fork(struct task_struct *p, struct kernel_clone_args *kargs);
-+extern void sched_post_fork(struct task_struct *p);
- extern void sched_dead(struct task_struct *p);
- 
- void __noreturn do_task_dead(void);
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2294,6 +2294,17 @@ static __latent_entropy struct task_stru
- 		goto bad_fork_put_pidfd;
- 
- 	/*
-+	 * Now that the cgroups are pinned, re-clone the parent cgroup and put
-+	 * the new task on the correct runqueue. All this *before* the task
-+	 * becomes visible.
-+	 *
-+	 * This isn't part of ->can_fork() because while the re-cloning is
-+	 * cgroup specific, it unconditionally needs to place the task on a
-+	 * runqueue.
-+	 */
-+	sched_cgroup_fork(p, args);
-+
-+	/*
- 	 * From this point on we must avoid any synchronous user-space
- 	 * communication until we take the tasklist-lock. In particular, we do
- 	 * not want user-space to be able to predict the process start-time by
-@@ -2402,7 +2413,7 @@ static __latent_entropy struct task_stru
- 		fd_install(pidfd, pidfile);
- 
- 	proc_fork_connector(p);
--	sched_post_fork(p, args);
-+	sched_post_fork(p);
- 	cgroup_post_fork(p, args);
- 	perf_event_fork(p);
- 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1203,9 +1203,8 @@ int tg_nop(struct task_group *tg, void *
- }
- #endif
- 
--static void set_load_weight(struct task_struct *p)
-+static void set_load_weight(struct task_struct *p, bool update_load)
- {
--	bool update_load = !(READ_ONCE(p->__state) & TASK_NEW);
- 	int prio = p->static_prio - MAX_RT_PRIO;
- 	struct load_weight *load = &p->se.load;
- 
-@@ -4393,7 +4392,7 @@ int sched_fork(unsigned long clone_flags
- 			p->static_prio = NICE_TO_PRIO(0);
- 
- 		p->prio = p->normal_prio = p->static_prio;
--		set_load_weight(p);
-+		set_load_weight(p, false);
- 
- 		/*
- 		 * We don't need the reset flag anymore after the fork. It has
-@@ -4411,6 +4410,7 @@ int sched_fork(unsigned long clone_flags
- 
- 	init_entity_runnable_average(&p->se);
- 
-+
- #ifdef CONFIG_SCHED_INFO
- 	if (likely(sched_info_on()))
- 		memset(&p->sched_info, 0, sizeof(p->sched_info));
-@@ -4426,18 +4426,23 @@ int sched_fork(unsigned long clone_flags
- 	return 0;
- }
- 
--void sched_post_fork(struct task_struct *p, struct kernel_clone_args *kargs)
-+void sched_cgroup_fork(struct task_struct *p, struct kernel_clone_args *kargs)
- {
- 	unsigned long flags;
--#ifdef CONFIG_CGROUP_SCHED
--	struct task_group *tg;
--#endif
- 
-+	/*
-+	 * Because we're not yet on the pid-hash, p->pi_lock isn't strictly
-+	 * required yet, but lockdep gets upset if rules are violated.
-+	 */
- 	raw_spin_lock_irqsave(&p->pi_lock, flags);
- #ifdef CONFIG_CGROUP_SCHED
--	tg = container_of(kargs->cset->subsys[cpu_cgrp_id],
--			  struct task_group, css);
--	p->sched_task_group = autogroup_task_group(p, tg);
-+	if (1) {
-+		struct task_group *tg;
-+		tg = container_of(kargs->cset->subsys[cpu_cgrp_id],
-+				  struct task_group, css);
-+		tg = autogroup_task_group(p, tg);
-+		p->sched_task_group = tg;
-+	}
- #endif
- 	rseq_migrate(p);
- 	/*
-@@ -4448,7 +4453,10 @@ void sched_post_fork(struct task_struct
- 	if (p->sched_class->task_fork)
- 		p->sched_class->task_fork(p);
- 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
-+}
- 
-+void sched_post_fork(struct task_struct *p)
-+{
- 	uclamp_post_fork(p);
- }
- 
-@@ -6880,7 +6888,7 @@ void set_user_nice(struct task_struct *p
- 		put_prev_task(rq, p);
- 
- 	p->static_prio = NICE_TO_PRIO(nice);
--	set_load_weight(p);
-+	set_load_weight(p, true);
- 	old_prio = p->prio;
- 	p->prio = effective_prio(p);
- 
-@@ -7171,7 +7179,7 @@ static void __setscheduler_params(struct
- 	 */
- 	p->rt_priority = attr->sched_priority;
- 	p->normal_prio = normal_prio(p);
--	set_load_weight(p);
-+	set_load_weight(p, true);
- }
- 
- /*
-@@ -9410,7 +9418,7 @@ void __init sched_init(void)
- #endif
- 	}
- 
--	set_load_weight(&init_task);
-+	set_load_weight(&init_task, false);
- 
- 	/*
- 	 * The boot idle thread does lazy MMU switching as well:
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568.dtsi b/arch/arm64/boot/dts/rockchip/rk3568.dtsi
+index 2fd313a295f8..d91df1cde736 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3568.dtsi
+@@ -32,13 +32,11 @@
+ 		clocks = <&cru SCLK_GMAC0>, <&cru SCLK_GMAC0_RX_TX>,
+ 			 <&cru SCLK_GMAC0_RX_TX>, <&cru CLK_MAC0_REFOUT>,
+ 			 <&cru ACLK_GMAC0>, <&cru PCLK_GMAC0>,
+-			 <&cru SCLK_GMAC0_RX_TX>, <&cru CLK_GMAC0_PTP_REF>,
+-			 <&cru PCLK_XPCS>;
++			 <&cru SCLK_GMAC0_RX_TX>, <&cru CLK_GMAC0_PTP_REF>;
+ 		clock-names = "stmmaceth", "mac_clk_rx",
+ 			      "mac_clk_tx", "clk_mac_refout",
+ 			      "aclk_mac", "pclk_mac",
+-			      "clk_mac_speed", "ptp_ref",
+-			      "pclk_xpcs";
++			      "clk_mac_speed", "ptp_ref";
+ 		resets = <&cru SRST_A_GMAC0>;
+ 		reset-names = "stmmaceth";
+ 		rockchip,grf = <&grf>;
+-- 
+2.34.1
+
 
 
