@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 387D84CFAF2
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 075B74CF8EB
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239475AbiCGKWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:22:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
+        id S239009AbiCGKC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:02:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241919AbiCGKVb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:21:31 -0500
+        with ESMTP id S240348AbiCGKA5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A738490FE0;
-        Mon,  7 Mar 2022 01:58:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6E1DF29;
+        Mon,  7 Mar 2022 01:47:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95E89B810BF;
-        Mon,  7 Mar 2022 09:58:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E644AC340E9;
-        Mon,  7 Mar 2022 09:58:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5F21B80F9F;
+        Mon,  7 Mar 2022 09:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA70C340E9;
+        Mon,  7 Mar 2022 09:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647091;
-        bh=wciYs1Z2Wc8lea/p7Gi4XM3BlbwmUU0ilILwhu8t3Ys=;
+        s=korg; t=1646646459;
+        bh=Ob/qNd3VHsSqymcYuL8emr4oc6bdPm38KbcwkhBrKsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1E/iQ/q1mSbm7jJzqNpmurX0zjiOdXkeVGnWZEkGiEDsKttp/s9oZw+vaDS+ua9D
-         z9csd0qoXTKert+W0XBRNLR9+tuxxV/97+LhxZGIlI3+U8RSJuOX+4X6MwmiyTYL4n
-         baJQnTqXgZ5p+UGICIT3Ba6uMpSeCg9iJy8rj7U0=
+        b=jiXwVP2Y2G1nVFv+xtObZf1Y9XcccTrQq51/1RkXXqGl3qnhw70ZoIaYsy+TVL845
+         uJ96FwXnUhxOkwWOJhL2QJEYy5q36WmVHuu7FyOMj0a/iYM5kwQkmiddtR/fuUGJhn
+         kjXPwRseBAY/FAIVUlo1QRl0LTaDFOWV2JN7u4bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Phani Burra <phani.r.burra@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 154/186] iavf: Fix race in init state
-Date:   Mon,  7 Mar 2022 10:19:52 +0100
-Message-Id: <20220307091658.380846634@linuxfoundation.org>
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        anton ivanov <anton.ivanov@cambridgegreys.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 249/262] Input: samsung-keypad - properly state IOMEM dependency
+Date:   Mon,  7 Mar 2022 10:19:53 +0100
+Message-Id: <20220307091710.622996024@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,51 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit a472eb5cbaebb5774672c565e024336c039e9128 ]
+commit ba115adf61b36b8c167126425a62b0efc23f72c0 upstream.
 
-When iavf_init_version_check sends VIRTCHNL_OP_GET_VF_RESOURCES
-message, the driver will wait for the response after requeueing
-the watchdog task in iavf_init_get_resources call stack. The
-logic is implemented this way that iavf_init_get_resources has
-to be called in order to allocate adapter->vf_res. It is polling
-for the AQ response in iavf_get_vf_config function. Expect a
-call trace from kernel when adminq_task worker handles this
-message first. adapter->vf_res will be NULL in
-iavf_virtchnl_completion.
+Make the samsung-keypad driver explicitly depend on CONFIG_HAS_IOMEM, as it
+calls devm_ioremap(). This prevents compile errors in some configs (e.g,
+allyesconfig/randconfig under UML):
 
-Make the watchdog task not queue the adminq_task if the init
-process is not finished yet.
+/usr/bin/ld: drivers/input/keyboard/samsung-keypad.o: in function `samsung_keypad_probe':
+samsung-keypad.c:(.text+0xc60): undefined reference to `devm_ioremap'
 
-Fixes: 898ef1cb1cb2 ("iavf: Combine init and watchdog state machines")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Phani Burra <phani.r.burra@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: David Gow <davidgow@google.com>
+Acked-by: anton ivanov <anton.ivanov@cambridgegreys.com>
+Link: https://lore.kernel.org/r/20220225041727.1902850-1-davidgow@google.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/keyboard/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 1af3fe427543..9ed02a8ca7a3 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2124,7 +2124,8 @@ static void iavf_watchdog_task(struct work_struct *work)
- 	schedule_delayed_work(&adapter->client_task, msecs_to_jiffies(5));
- 	mutex_unlock(&adapter->crit_lock);
- restart_watchdog:
--	queue_work(iavf_wq, &adapter->adminq_task);
-+	if (adapter->state >= __IAVF_DOWN)
-+		queue_work(iavf_wq, &adapter->adminq_task);
- 	if (adapter->aq_required)
- 		queue_delayed_work(iavf_wq, &adapter->watchdog_task,
- 				   msecs_to_jiffies(20));
--- 
-2.34.1
-
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -556,7 +556,7 @@ config KEYBOARD_PMIC8XXX
+ 
+ config KEYBOARD_SAMSUNG
+ 	tristate "Samsung keypad support"
+-	depends on HAVE_CLK
++	depends on HAS_IOMEM && HAVE_CLK
+ 	select INPUT_MATRIXKMAP
+ 	help
+ 	  Say Y here if you want to use the keypad on your Samsung mobile
 
 
