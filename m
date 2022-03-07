@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18E784CF725
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8E94CF6CA
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238104AbiCGJor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54408 "EHLO
+        id S237687AbiCGJmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:42:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238077AbiCGJh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:37:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2937F69297;
-        Mon,  7 Mar 2022 01:31:59 -0800 (PST)
+        with ESMTP id S238402AbiCGJiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3B7C62119;
+        Mon,  7 Mar 2022 01:32:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDFCAB810BD;
-        Mon,  7 Mar 2022 09:31:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 135E8C340E9;
-        Mon,  7 Mar 2022 09:31:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 189C260FF6;
+        Mon,  7 Mar 2022 09:32:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AFBFC340E9;
+        Mon,  7 Mar 2022 09:31:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645517;
-        bh=3h9HoK3tkXo/ehmlMhtzA/d6uQk+8b2NErzbl6Nm5lQ=;
+        s=korg; t=1646645520;
+        bh=4cUGAbYITudA30+l+BZM4feCWlq9YwWvrWfKixVO6Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3aQkqAGYMb490mlzOqRVskXkRUfY3LZQaSB5x1omV4ClXKEaTh7lVJR8D2Iz38vA
-         DmyPaFCbENZgU/0BuKwrbZr1DfuGtuvkF1AepzTII81u8jyVsPewyPchXvq45z6n0F
-         Kefi4zXjf5NJMCPX9XqbIhSI9MIIgfd0gaTJ534Y=
+        b=TWm5DT2yGkQxjeork6mxvtQg2B+UqiNisTgGgU5SnPdFZfW13l5GVuSA0L/BRV6Wa
+         3jqUuihnIXQx7quQr7utrOJY4oBo/vReDgvVc19T9ed9NEN8JYsVRjjvdMqxB+44aZ
+         /4KpxpfHZRyRAxV/E4fkxzyfH0CapMp0lG5NI+dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
         Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>
-Subject: [PATCH 5.10 055/105] ice: Fix race conditions between virtchnl handling and VF ndo ops
-Date:   Mon,  7 Mar 2022 10:18:58 +0100
-Message-Id: <20220307091645.730421213@linuxfoundation.org>
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 056/105] ice: fix concurrent reset and removal of VFs
+Date:   Mon,  7 Mar 2022 10:18:59 +0100
+Message-Id: <20220307091645.757736961@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
 References: <20220307091644.179885033@linuxfoundation.org>
@@ -55,176 +54,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit e6ba5273d4ede03d075d7a116b8edad1f6115f4d upstream.
+commit fadead80fe4c033b5e514fcbadd20b55c4494112 upstream.
 
-The VF can be configured via the PF's ndo ops at the same time the PF is
-receiving/handling virtchnl messages. This has many issues, with
-one of them being the ndo op could be actively resetting a VF (i.e.
-resetting it to the default state and deleting/re-adding the VF's VSI)
-while a virtchnl message is being handled. The following error was seen
-because a VF ndo op was used to change a VF's trust setting while the
-VIRTCHNL_OP_CONFIG_VSI_QUEUES was ongoing:
+Commit c503e63200c6 ("ice: Stop processing VF messages during teardown")
+introduced a driver state flag, ICE_VF_DEINIT_IN_PROGRESS, which is
+intended to prevent some issues with concurrently handling messages from
+VFs while tearing down the VFs.
 
-[35274.192484] ice 0000:88:00.0: Failed to set LAN Tx queue context, error: ICE_ERR_PARAM
-[35274.193074] ice 0000:88:00.0: VF 0 failed opcode 6, retval: -5
-[35274.193640] iavf 0000:88:01.0: PF returned error -5 (IAVF_ERR_PARAM) to our request 6
+This change was motivated by crashes caused while tearing down and
+bringing up VFs in rapid succession.
 
-Fix this by making sure the virtchnl handling and VF ndo ops that
-trigger VF resets cannot run concurrently. This is done by adding a
-struct mutex cfg_lock to each VF structure. For VF ndo ops, the mutex
-will be locked around the critical operations and VFR. Since the ndo ops
-will trigger a VFR, the virtchnl thread will use mutex_trylock(). This
-is done because if any other thread (i.e. VF ndo op) has the mutex, then
-that means the current VF message being handled is no longer valid, so
-just ignore it.
+It turns out that the fix actually introduces issues with the VF driver
+caused because the PF no longer responds to any messages sent by the VF
+during its .remove routine. This results in the VF potentially removing
+its DMA memory before the PF has shut down the device queues.
 
-This issue can be seen using the following commands:
+Additionally, the fix doesn't actually resolve concurrency issues within
+the ice driver. It is possible for a VF to initiate a reset just prior
+to the ice driver removing VFs. This can result in the remove task
+concurrently operating while the VF is being reset. This results in
+similar memory corruption and panics purportedly fixed by that commit.
 
-for i in {0..50}; do
-        rmmod ice
-        modprobe ice
+Fix this concurrency at its root by protecting both the reset and
+removal flows using the existing VF cfg_lock. This ensures that we
+cannot remove the VF while any outstanding critical tasks such as a
+virtchnl message or a reset are occurring.
 
-        sleep 1
+This locking change also fixes the root cause originally fixed by commit
+c503e63200c6 ("ice: Stop processing VF messages during teardown"), so we
+can simply revert it.
 
-        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
+Note that I kept these two changes together because simply reverting the
+original commit alone would leave the driver vulnerable to worse race
+conditions.
 
-        ip link set ens785f1 vf 0 trust on
-        ip link set ens785f0 vf 0 trust on
-
-        sleep 2
-
-        echo 0 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 0 > /sys/class/net/ens785f1/device/sriov_numvfs
-        sleep 1
-        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
-
-        ip link set ens785f1 vf 0 trust on
-        ip link set ens785f0 vf 0 trust on
-done
-
-Fixes: 7c710869d64e ("ice: Add handlers for VF netdevice operations")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Fixes: c503e63200c6 ("ice: Stop processing VF messages during teardown")
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
 Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c |   25 +++++++++++++++++++++++
- drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h |    5 ++++
- 2 files changed, 30 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_main.c        |    2 +
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c |   35 ++++++++++++++++-------
+ 2 files changed, 27 insertions(+), 10 deletions(-)
 
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -1602,7 +1602,9 @@ static void ice_handle_mdd_event(struct
+ 				 * reset, so print the event prior to reset.
+ 				 */
+ 				ice_print_vf_rx_mdd_event(vf);
++				mutex_lock(&pf->vf[i].cfg_lock);
+ 				ice_reset_vf(&pf->vf[i], false);
++				mutex_unlock(&pf->vf[i].cfg_lock);
+ 			}
+ 		}
+ 	}
 --- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
 +++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -374,6 +374,8 @@ void ice_free_vfs(struct ice_pf *pf)
- 			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
- 			ice_free_vf_res(&pf->vf[i]);
- 		}
+@@ -360,22 +360,26 @@ void ice_free_vfs(struct ice_pf *pf)
+ 	else
+ 		dev_warn(dev, "VFs are assigned - not disabling SR-IOV\n");
+ 
+-	/* Avoid wait time by stopping all VFs at the same time */
+-	ice_for_each_vf(pf, i)
+-		ice_dis_vf_qs(&pf->vf[i]);
+-
+ 	tmp = pf->num_alloc_vfs;
+ 	pf->num_qps_per_vf = 0;
+ 	pf->num_alloc_vfs = 0;
+ 	for (i = 0; i < tmp; i++) {
+-		if (test_bit(ICE_VF_STATE_INIT, pf->vf[i].vf_states)) {
++		struct ice_vf *vf = &pf->vf[i];
 +
-+		mutex_destroy(&pf->vf[i].cfg_lock);
++		mutex_lock(&vf->cfg_lock);
++
++		ice_dis_vf_qs(vf);
++
++		if (test_bit(ICE_VF_STATE_INIT, vf->vf_states)) {
+ 			/* disable VF qp mappings and set VF disable state */
+-			ice_dis_vf_mappings(&pf->vf[i]);
+-			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
+-			ice_free_vf_res(&pf->vf[i]);
++			ice_dis_vf_mappings(vf);
++			set_bit(ICE_VF_STATE_DIS, vf->vf_states);
++			ice_free_vf_res(vf);
+ 		}
+ 
+-		mutex_destroy(&pf->vf[i].cfg_lock);
++		mutex_unlock(&vf->cfg_lock);
++
++		mutex_destroy(&vf->cfg_lock);
  	}
  
  	if (ice_sriov_free_msix_res(pf))
-@@ -1518,6 +1520,8 @@ static void ice_set_dflt_settings_vfs(st
- 		set_bit(ICE_VIRTCHNL_VF_CAP_L2, &vf->vf_caps);
- 		vf->spoofchk = true;
- 		vf->num_vf_qs = pf->num_qps_per_vf;
+@@ -1223,9 +1227,13 @@ bool ice_reset_all_vfs(struct ice_pf *pf
+ 	ice_for_each_vf(pf, v) {
+ 		vf = &pf->vf[v];
+ 
++		mutex_lock(&vf->cfg_lock);
 +
-+		mutex_init(&vf->cfg_lock);
+ 		ice_vf_pre_vsi_rebuild(vf);
+ 		ice_vf_rebuild_vsi(vf);
+ 		ice_vf_post_vsi_rebuild(vf);
++
++		mutex_unlock(&vf->cfg_lock);
+ 	}
+ 
+ 	ice_flush(hw);
+@@ -1272,6 +1280,8 @@ bool ice_reset_vf(struct ice_vf *vf, boo
+ 	u32 reg;
+ 	int i;
+ 
++	lockdep_assert_held(&vf->cfg_lock);
++
+ 	dev = ice_pf_to_dev(pf);
+ 
+ 	if (test_bit(__ICE_VF_RESETS_DISABLED, pf->state)) {
+@@ -1725,9 +1735,12 @@ void ice_process_vflr_event(struct ice_p
+ 		bit_idx = (hw->func_caps.vf_base_id + vf_id) % 32;
+ 		/* read GLGEN_VFLRSTAT register to find out the flr VFs */
+ 		reg = rd32(hw, GLGEN_VFLRSTAT(reg_idx));
+-		if (reg & BIT(bit_idx))
++		if (reg & BIT(bit_idx)) {
+ 			/* GLGEN_VFLRSTAT bit will be cleared in ice_reset_vf */
++			mutex_lock(&vf->cfg_lock);
+ 			ice_reset_vf(vf, true);
++			mutex_unlock(&vf->cfg_lock);
++		}
  	}
  }
  
-@@ -3345,6 +3349,8 @@ ice_set_vf_port_vlan(struct net_device *
- 		return 0;
- 	}
+@@ -1804,7 +1817,9 @@ ice_vf_lan_overflow_event(struct ice_pf
+ 	if (!vf)
+ 		return;
  
 +	mutex_lock(&vf->cfg_lock);
-+
- 	vf->port_vlan_info = vlanprio;
- 
- 	if (vf->port_vlan_info)
-@@ -3354,6 +3360,7 @@ ice_set_vf_port_vlan(struct net_device *
- 		dev_info(dev, "Clearing port VLAN on VF %d\n", vf_id);
- 
  	ice_vc_reset_vf(vf);
-+	mutex_unlock(&vf->cfg_lock);
- 
- 	return 0;
- }
-@@ -3719,6 +3726,15 @@ error_handler:
- 		return;
- 	}
- 
-+	/* VF is being configured in another context that triggers a VFR, so no
-+	 * need to process this message
-+	 */
-+	if (!mutex_trylock(&vf->cfg_lock)) {
-+		dev_info(dev, "VF %u is being configured in another context that will trigger a VFR, so there is no need to handle this message\n",
-+			 vf->vf_id);
-+		return;
-+	}
-+
- 	switch (v_opcode) {
- 	case VIRTCHNL_OP_VERSION:
- 		err = ice_vc_get_ver_msg(vf, msg);
-@@ -3795,6 +3811,8 @@ error_handler:
- 		dev_info(dev, "PF failed to honor VF %d, opcode %d, error %d\n",
- 			 vf_id, v_opcode, err);
- 	}
-+
 +	mutex_unlock(&vf->cfg_lock);
  }
  
  /**
-@@ -3909,6 +3927,8 @@ int ice_set_vf_mac(struct net_device *ne
- 		return -EINVAL;
- 	}
- 
-+	mutex_lock(&vf->cfg_lock);
-+
- 	/* VF is notified of its new MAC via the PF's response to the
- 	 * VIRTCHNL_OP_GET_VF_RESOURCES message after the VF has been reset
- 	 */
-@@ -3926,6 +3946,7 @@ int ice_set_vf_mac(struct net_device *ne
- 	}
- 
- 	ice_vc_reset_vf(vf);
-+	mutex_unlock(&vf->cfg_lock);
- 	return 0;
- }
- 
-@@ -3955,11 +3976,15 @@ int ice_set_vf_trust(struct net_device *
- 	if (trusted == vf->trusted)
- 		return 0;
- 
-+	mutex_lock(&vf->cfg_lock);
-+
- 	vf->trusted = trusted;
- 	ice_vc_reset_vf(vf);
- 	dev_info(ice_pf_to_dev(pf), "VF %u is now %strusted\n",
- 		 vf_id, trusted ? "" : "un");
- 
-+	mutex_unlock(&vf->cfg_lock);
-+
- 	return 0;
- }
- 
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-@@ -68,6 +68,11 @@ struct ice_mdd_vf_events {
- struct ice_vf {
- 	struct ice_pf *pf;
- 
-+	/* Used during virtchnl message handling and NDO ops against the VF
-+	 * that will trigger a VFR
-+	 */
-+	struct mutex cfg_lock;
-+
- 	u16 vf_id;			/* VF ID in the PF space */
- 	u16 lan_vsi_idx;		/* index into PF struct */
- 	/* first vector index of this VF in the PF space */
 
 
