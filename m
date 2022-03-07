@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F464CFB33
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:33:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6744CF8BF
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233016AbiCGKct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:32:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35220 "EHLO
+        id S235964AbiCGKCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:02:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240101AbiCGK1Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:27:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B62B6D4F9;
-        Mon,  7 Mar 2022 02:01:53 -0800 (PST)
+        with ESMTP id S240465AbiCGKBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EA25658B;
+        Mon,  7 Mar 2022 01:48:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6405AB810C3;
-        Mon,  7 Mar 2022 09:56:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82DAC340E9;
-        Mon,  7 Mar 2022 09:56:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AED966077B;
+        Mon,  7 Mar 2022 09:48:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB56FC340E9;
+        Mon,  7 Mar 2022 09:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647009;
-        bh=4HZR3FGCDTx2vgRZ0cLmyAQw9TnJRaGdyrSyXvUjbuk=;
+        s=korg; t=1646646509;
+        bh=53H0tB4nY7yBgAUfF4WYc+6Olkzsd74I9aJt+zfr/8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NqRUr9OVwyebl2AU4ZOQ21bkyLnnrMFE304nrW+UdwlBQgVHqUA12EANpFP0VX3gT
-         rd3fCSwko3Alb2nun1RORl33EuxuEOdyg6IZxzptFxR8rnpe5Y5ov/MS24EjBeR1lA
-         9y6S483G9TV7j1B7QgZ6dNjIfIODTRHq62eUcmuM=
+        b=hJuoO64RhI8TIMOe9/1tXmgbdDT9Fex14W3snY8GaDsOyIYiLjxWUiUO2nItsUHfO
+         57Ufly2AiqOU6MidC94/Tp7eS57QPww3+5YbLYFURQJjVxugR9sUlLfHxP1WMqBJYr
+         AiidrOkAdT1nN5AjAyy2t2szFls3+yGqcx1QG3uM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Cohen <amcohen@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 164/186] selftests: mlxsw: resource_scale: Fix return value
-Date:   Mon,  7 Mar 2022 10:20:02 +0100
-Message-Id: <20220307091658.662396399@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 259/262] btrfs: do not start relocation until in progress drops are done
+Date:   Mon,  7 Mar 2022 10:20:03 +0100
+Message-Id: <20220307091711.080864600@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,279 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Cohen <amcohen@nvidia.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 196f9bc050cbc5085b4cbb61cce2efe380bc66d0 ]
+commit b4be6aefa73c9a6899ef3ba9c5faaa8a66e333ef upstream.
 
-The test runs several test cases and is supposed to return an error in
-case at least one of them failed.
+We hit a bug with a recovering relocation on mount for one of our file
+systems in production.  I reproduced this locally by injecting errors
+into snapshot delete with balance running at the same time.  This
+presented as an error while looking up an extent item
 
-Currently, the check of the return value of each test case is in the
-wrong place, which can result in the wrong return value. For example:
+  WARNING: CPU: 5 PID: 1501 at fs/btrfs/extent-tree.c:866 lookup_inline_extent_backref+0x647/0x680
+  CPU: 5 PID: 1501 Comm: btrfs-balance Not tainted 5.16.0-rc8+ #8
+  RIP: 0010:lookup_inline_extent_backref+0x647/0x680
+  RSP: 0018:ffffae0a023ab960 EFLAGS: 00010202
+  RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: 000000000000000c RDI: 0000000000000000
+  RBP: ffff943fd2a39b60 R08: 0000000000000000 R09: 0000000000000001
+  R10: 0001434088152de0 R11: 0000000000000000 R12: 0000000001d05000
+  R13: ffff943fd2a39b60 R14: ffff943fdb96f2a0 R15: ffff9442fc923000
+  FS:  0000000000000000(0000) GS:ffff944e9eb40000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f1157b1fca8 CR3: 000000010f092000 CR4: 0000000000350ee0
+  Call Trace:
+   <TASK>
+   insert_inline_extent_backref+0x46/0xd0
+   __btrfs_inc_extent_ref.isra.0+0x5f/0x200
+   ? btrfs_merge_delayed_refs+0x164/0x190
+   __btrfs_run_delayed_refs+0x561/0xfa0
+   ? btrfs_search_slot+0x7b4/0xb30
+   ? btrfs_update_root+0x1a9/0x2c0
+   btrfs_run_delayed_refs+0x73/0x1f0
+   ? btrfs_update_root+0x1a9/0x2c0
+   btrfs_commit_transaction+0x50/0xa50
+   ? btrfs_update_reloc_root+0x122/0x220
+   prepare_to_merge+0x29f/0x320
+   relocate_block_group+0x2b8/0x550
+   btrfs_relocate_block_group+0x1a6/0x350
+   btrfs_relocate_chunk+0x27/0xe0
+   btrfs_balance+0x777/0xe60
+   balance_kthread+0x35/0x50
+   ? btrfs_balance+0xe60/0xe60
+   kthread+0x16b/0x190
+   ? set_kthread_struct+0x40/0x40
+   ret_from_fork+0x22/0x30
+   </TASK>
 
- # TESTS='tc_police' ./resource_scale.sh
- TEST: 'tc_police' [default] 968                                     [FAIL]
-         tc police offload count failed
- Error: mlxsw_spectrum: Failed to allocate policer index.
- We have an error talking to the kernel
- Command failed /tmp/tmp.i7Oc5HwmXY:969
- TEST: 'tc_police' [default] overflow 969                            [ OK ]
- ...
- TEST: 'tc_police' [ipv4_max] overflow 969                           [ OK ]
+Normally snapshot deletion and relocation are excluded from running at
+the same time by the fs_info->cleaner_mutex.  However if we had a
+pending balance waiting to get the ->cleaner_mutex, and a snapshot
+deletion was running, and then the box crashed, we would come up in a
+state where we have a half deleted snapshot.
 
- $ echo $?
- 0
+Again, in the normal case the snapshot deletion needs to complete before
+relocation can start, but in this case relocation could very well start
+before the snapshot deletion completes, as we simply add the root to the
+dead roots list and wait for the next time the cleaner runs to clean up
+the snapshot.
 
-Fix this by moving the check to be done after each test case.
+Fix this by setting a bit on the fs_info if we have any DEAD_ROOT's that
+had a pending drop_progress key.  If they do then we know we were in the
+middle of the drop operation and set a flag on the fs_info.  Then
+balance can wait until this flag is cleared to start up again.
 
-Fixes: 059b18e21c63 ("selftests: mlxsw: Return correct error code in resource scale test")
-Signed-off-by: Amit Cohen <amcohen@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If there are DEAD_ROOT's that don't have a drop_progress set then we're
+safe to start balance right away as we'll be properly protected by the
+cleaner_mutex.
+
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../selftests/drivers/net/mlxsw/spectrum/resource_scale.sh      | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/ctree.h       |   10 ++++++++++
+ fs/btrfs/disk-io.c     |   10 ++++++++++
+ fs/btrfs/extent-tree.c |   10 ++++++++++
+ fs/btrfs/relocation.c  |   13 +++++++++++++
+ fs/btrfs/root-tree.c   |   15 +++++++++++++++
+ fs/btrfs/transaction.c |   33 ++++++++++++++++++++++++++++++++-
+ fs/btrfs/transaction.h |    1 +
+ 7 files changed, 91 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh b/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
-index bcb110e830ce..dea33dc93790 100755
---- a/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
-+++ b/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
-@@ -50,8 +50,8 @@ for current_test in ${TESTS:-$ALL_TESTS}; do
- 			else
- 				log_test "'$current_test' [$profile] overflow $target"
- 			fi
-+			RET_FIN=$(( RET_FIN || RET ))
- 		done
--		RET_FIN=$(( RET_FIN || RET ))
- 	done
- done
- current_test=""
--- 
-2.34.1
-
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -593,6 +593,9 @@ enum {
+ 	/* Indicate whether there are any tree modification log users */
+ 	BTRFS_FS_TREE_MOD_LOG_USERS,
+ 
++	/* Indicate we have half completed snapshot deletions pending. */
++	BTRFS_FS_UNFINISHED_DROPS,
++
+ #if BITS_PER_LONG == 32
+ 	/* Indicate if we have error/warn message printed on 32bit systems */
+ 	BTRFS_FS_32BIT_ERROR,
+@@ -1098,8 +1101,15 @@ enum {
+ 	BTRFS_ROOT_HAS_LOG_TREE,
+ 	/* Qgroup flushing is in progress */
+ 	BTRFS_ROOT_QGROUP_FLUSHING,
++	/* This root has a drop operation that was started previously. */
++	BTRFS_ROOT_UNFINISHED_DROP,
+ };
+ 
++static inline void btrfs_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
++{
++	clear_and_wake_up_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
++}
++
+ /*
+  * Record swapped tree blocks of a subvolume tree for delayed subtree trace
+  * code. For detail check comment in fs/btrfs/qgroup.c.
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3659,6 +3659,10 @@ int __cold open_ctree(struct super_block
+ 
+ 	set_bit(BTRFS_FS_OPEN, &fs_info->flags);
+ 
++	/* Kick the cleaner thread so it'll start deleting snapshots. */
++	if (test_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags))
++		wake_up_process(fs_info->cleaner_kthread);
++
+ clear_oneshot:
+ 	btrfs_clear_oneshot_options(fs_info);
+ 	return 0;
+@@ -4340,6 +4344,12 @@ void __cold close_ctree(struct btrfs_fs_
+ 	 */
+ 	kthread_park(fs_info->cleaner_kthread);
+ 
++	/*
++	 * If we had UNFINISHED_DROPS we could still be processing them, so
++	 * clear that bit and wake up relocation so it can stop.
++	 */
++	btrfs_wake_unfinished_drop(fs_info);
++
+ 	/* wait for the qgroup rescan worker to stop */
+ 	btrfs_qgroup_wait_for_completion(fs_info, false);
+ 
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -5541,6 +5541,7 @@ int btrfs_drop_snapshot(struct btrfs_roo
+ 	int ret;
+ 	int level;
+ 	bool root_dropped = false;
++	bool unfinished_drop = false;
+ 
+ 	btrfs_debug(fs_info, "Drop subvolume %llu", root->root_key.objectid);
+ 
+@@ -5583,6 +5584,8 @@ int btrfs_drop_snapshot(struct btrfs_roo
+ 	 * already dropped.
+ 	 */
+ 	set_bit(BTRFS_ROOT_DELETING, &root->state);
++	unfinished_drop = test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
++
+ 	if (btrfs_disk_key_objectid(&root_item->drop_progress) == 0) {
+ 		level = btrfs_header_level(root->node);
+ 		path->nodes[level] = btrfs_lock_root_node(root);
+@@ -5758,6 +5761,13 @@ out_free:
+ 	btrfs_free_path(path);
+ out:
+ 	/*
++	 * We were an unfinished drop root, check to see if there are any
++	 * pending, and if not clear and wake up any waiters.
++	 */
++	if (!err && unfinished_drop)
++		btrfs_maybe_wake_unfinished_drop(fs_info);
++
++	/*
+ 	 * So if we need to stop dropping the snapshot for whatever reason we
+ 	 * need to make sure to add it back to the dead root list so that we
+ 	 * keep trying to do the work later.  This also cleans up roots if we
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3967,6 +3967,19 @@ int btrfs_relocate_block_group(struct bt
+ 	int rw = 0;
+ 	int err = 0;
+ 
++	/*
++	 * This only gets set if we had a half-deleted snapshot on mount.  We
++	 * cannot allow relocation to start while we're still trying to clean up
++	 * these pending deletions.
++	 */
++	ret = wait_on_bit(&fs_info->flags, BTRFS_FS_UNFINISHED_DROPS, TASK_INTERRUPTIBLE);
++	if (ret)
++		return ret;
++
++	/* We may have been woken up by close_ctree, so bail if we're closing. */
++	if (btrfs_fs_closing(fs_info))
++		return -EINTR;
++
+ 	bg = btrfs_lookup_block_group(fs_info, group_start);
+ 	if (!bg)
+ 		return -ENOENT;
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -280,6 +280,21 @@ int btrfs_find_orphan_roots(struct btrfs
+ 
+ 		WARN_ON(!test_bit(BTRFS_ROOT_ORPHAN_ITEM_INSERTED, &root->state));
+ 		if (btrfs_root_refs(&root->root_item) == 0) {
++			struct btrfs_key drop_key;
++
++			btrfs_disk_key_to_cpu(&drop_key, &root->root_item.drop_progress);
++			/*
++			 * If we have a non-zero drop_progress then we know we
++			 * made it partly through deleting this snapshot, and
++			 * thus we need to make sure we block any balance from
++			 * happening until this snapshot is completely dropped.
++			 */
++			if (drop_key.objectid != 0 || drop_key.type != 0 ||
++			    drop_key.offset != 0) {
++				set_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
++				set_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
++			}
++
+ 			set_bit(BTRFS_ROOT_DEAD_TREE, &root->state);
+ 			btrfs_add_dead_root(root);
+ 		}
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -1341,6 +1341,32 @@ again:
+ }
+ 
+ /*
++ * If we had a pending drop we need to see if there are any others left in our
++ * dead roots list, and if not clear our bit and wake any waiters.
++ */
++void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
++{
++	/*
++	 * We put the drop in progress roots at the front of the list, so if the
++	 * first entry doesn't have UNFINISHED_DROP set we can wake everybody
++	 * up.
++	 */
++	spin_lock(&fs_info->trans_lock);
++	if (!list_empty(&fs_info->dead_roots)) {
++		struct btrfs_root *root = list_first_entry(&fs_info->dead_roots,
++							   struct btrfs_root,
++							   root_list);
++		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state)) {
++			spin_unlock(&fs_info->trans_lock);
++			return;
++		}
++	}
++	spin_unlock(&fs_info->trans_lock);
++
++	btrfs_wake_unfinished_drop(fs_info);
++}
++
++/*
+  * dead roots are old snapshots that need to be deleted.  This allocates
+  * a dirty root struct and adds it into the list of dead roots that need to
+  * be deleted
+@@ -1352,7 +1378,12 @@ void btrfs_add_dead_root(struct btrfs_ro
+ 	spin_lock(&fs_info->trans_lock);
+ 	if (list_empty(&root->root_list)) {
+ 		btrfs_grab_root(root);
+-		list_add_tail(&root->root_list, &fs_info->dead_roots);
++
++		/* We want to process the partially complete drops first. */
++		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state))
++			list_add(&root->root_list, &fs_info->dead_roots);
++		else
++			list_add_tail(&root->root_list, &fs_info->dead_roots);
+ 	}
+ 	spin_unlock(&fs_info->trans_lock);
+ }
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -217,6 +217,7 @@ int btrfs_wait_for_commit(struct btrfs_f
+ 
+ void btrfs_add_dead_root(struct btrfs_root *root);
+ int btrfs_defrag_root(struct btrfs_root *root);
++void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info);
+ int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root);
+ int btrfs_commit_transaction(struct btrfs_trans_handle *trans);
+ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans);
 
 
