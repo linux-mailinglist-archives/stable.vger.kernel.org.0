@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BE44CF90C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 387D84CFAF2
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239592AbiCGKDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39754 "EHLO
+        id S239475AbiCGKWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:22:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240349AbiCGKA5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:57 -0500
+        with ESMTP id S241919AbiCGKVb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:21:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AEA5F67;
-        Mon,  7 Mar 2022 01:47:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A738490FE0;
+        Mon,  7 Mar 2022 01:58:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B47DB810A8;
-        Mon,  7 Mar 2022 09:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7F4FC340E9;
-        Mon,  7 Mar 2022 09:47:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95E89B810BF;
+        Mon,  7 Mar 2022 09:58:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E644AC340E9;
+        Mon,  7 Mar 2022 09:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646456;
-        bh=IPXs6wJEuD91u//7xaSoiF9crAv9dB6L53ZbQlSLD3Q=;
+        s=korg; t=1646647091;
+        bh=wciYs1Z2Wc8lea/p7Gi4XM3BlbwmUU0ilILwhu8t3Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTAKJBrQSBbQwIzSdVtUPtQ/TeVeHWmh/u9oT6GdtAXRx5FNxK7j4sAukdTkZo3XH
-         4gtdVlXK65ViBt8C5nElsZQPAyIXPqQMYJx6uqZm6xndRziDrdKHfmgRe7IJsMx9Em
-         4kOtLa3FlaWrOGHfxPTqDljxxUuDlJag6vrycp9c=
+        b=x1E/iQ/q1mSbm7jJzqNpmurX0zjiOdXkeVGnWZEkGiEDsKttp/s9oZw+vaDS+ua9D
+         z9csd0qoXTKert+W0XBRNLR9+tuxxV/97+LhxZGIlI3+U8RSJuOX+4X6MwmiyTYL4n
+         baJQnTqXgZ5p+UGICIT3Ba6uMpSeCg9iJy8rj7U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.15 248/262] Input: elan_i2c - fix regulator enable count imbalance after suspend/resume
+        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
+        Phani Burra <phani.r.burra@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 154/186] iavf: Fix race in init state
 Date:   Mon,  7 Mar 2022 10:19:52 +0100
-Message-Id: <20220307091710.575682171@linuxfoundation.org>
+Message-Id: <20220307091658.380846634@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +58,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Slawomir Laba <slawomirx.laba@intel.com>
 
-commit 04b7762e37c95d9b965d16bb0e18dbd1fa2e2861 upstream.
+[ Upstream commit a472eb5cbaebb5774672c565e024336c039e9128 ]
 
-Before these changes elan_suspend() would only disable the regulator
-when device_may_wakeup() returns false; whereas elan_resume() would
-unconditionally enable it, leading to an enable count imbalance when
-device_may_wakeup() returns true.
+When iavf_init_version_check sends VIRTCHNL_OP_GET_VF_RESOURCES
+message, the driver will wait for the response after requeueing
+the watchdog task in iavf_init_get_resources call stack. The
+logic is implemented this way that iavf_init_get_resources has
+to be called in order to allocate adapter->vf_res. It is polling
+for the AQ response in iavf_get_vf_config function. Expect a
+call trace from kernel when adminq_task worker handles this
+message first. adapter->vf_res will be NULL in
+iavf_virtchnl_completion.
 
-This triggers the "WARN_ON(regulator->enable_count)" in regulator_put()
-when the elan_i2c driver gets unbound, this happens e.g. with the
-hot-plugable dock with Elan I2C touchpad for the Asus TF103C 2-in-1.
+Make the watchdog task not queue the adminq_task if the init
+process is not finished yet.
 
-Fix this by making the regulator_enable() call also be conditional
-on device_may_wakeup() returning false.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220131135436.29638-2-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 898ef1cb1cb2 ("iavf: Combine init and watchdog state machines")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Phani Burra <phani.r.burra@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/elan_i2c_core.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1388,17 +1388,17 @@ static int __maybe_unused elan_resume(st
- 	struct elan_tp_data *data = i2c_get_clientdata(client);
- 	int error;
- 
--	if (device_may_wakeup(dev) && data->irq_wake) {
-+	if (!device_may_wakeup(dev)) {
-+		error = regulator_enable(data->vcc);
-+		if (error) {
-+			dev_err(dev, "error %d enabling regulator\n", error);
-+			goto err;
-+		}
-+	} else if (data->irq_wake) {
- 		disable_irq_wake(client->irq);
- 		data->irq_wake = false;
- 	}
- 
--	error = regulator_enable(data->vcc);
--	if (error) {
--		dev_err(dev, "error %d enabling regulator\n", error);
--		goto err;
--	}
--
- 	error = elan_set_power(data, true);
- 	if (error) {
- 		dev_err(dev, "power up when resuming failed: %d\n", error);
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 1af3fe427543..9ed02a8ca7a3 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2124,7 +2124,8 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 	schedule_delayed_work(&adapter->client_task, msecs_to_jiffies(5));
+ 	mutex_unlock(&adapter->crit_lock);
+ restart_watchdog:
+-	queue_work(iavf_wq, &adapter->adminq_task);
++	if (adapter->state >= __IAVF_DOWN)
++		queue_work(iavf_wq, &adapter->adminq_task);
+ 	if (adapter->aq_required)
+ 		queue_delayed_work(iavf_wq, &adapter->watchdog_task,
+ 				   msecs_to_jiffies(20));
+-- 
+2.34.1
+
 
 
