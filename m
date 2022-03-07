@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 080ED4CF74F
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2BF54CF720
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238225AbiCGJpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:45:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51988 "EHLO
+        id S236488AbiCGJom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241031AbiCGJlq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CC76D4E5;
-        Mon,  7 Mar 2022 01:39:21 -0800 (PST)
+        with ESMTP id S240442AbiCGJlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140C041327;
+        Mon,  7 Mar 2022 01:37:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86808B80F9F;
-        Mon,  7 Mar 2022 09:39:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB5CC340F3;
-        Mon,  7 Mar 2022 09:39:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75539B810CB;
+        Mon,  7 Mar 2022 09:37:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC81EC340E9;
+        Mon,  7 Mar 2022 09:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645960;
-        bh=dLkJHSehkvwf6TVlYKXzLag1jRfBp/iDlklf0WRr+0o=;
+        s=korg; t=1646645830;
+        bh=Pbxjfsz5h7lA5AO4pfCoeS41QbTB3ix6m1vRTueHYLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgP7/r19XFBUNpsyxOgroVwO/0zBxRXms+ZmGfIu1RUl2aRwVkiMVzhAUK2r5fN3X
-         et1al/B2scbfv1/Ms/m5O65wPTM5r+DhpriHLXwmUmYvCTU9I58feJpjesABevs0Xb
-         7MApC4nsDzkvEJ44p6Zukoybe00MZmO6Ueq0COVQ=
+        b=uNtaSpiUMzEGz569F3/kSyBvOfRmw3YN+9iBT8coP49S9pVOcm+f47AYz2f+ievCy
+         7f2vBkoFhlOJ1p28NZqJQCFJtEMfiw0UxTKwgOtI9MXu6gjhOk5zgzpRTvlF16j+N4
+         EzGH1Mjef4yC39JqkF/DgQlIE3r2sLbXBV+g7SNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 049/262] MIPS: fix local_{add,sub}_return on MIPS64
-Date:   Mon,  7 Mar 2022 10:16:33 +0100
-Message-Id: <20220307091703.904636269@linuxfoundation.org>
+Subject: [PATCH 5.15 050/262] signal: In get_signal test for signal_group_exit every time through the loop
+Date:   Mon,  7 Mar 2022 10:16:34 +0100
+Message-Id: <20220307091703.932029160@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -54,68 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 277c8cb3e8ac199f075bf9576ad286687ed17173 ]
+[ Upstream commit e7f7c99ba911f56bc338845c1cd72954ba591707 ]
 
-Use "daddu/dsubu" for long int on MIPS64 instead of "addu/subu"
+Recently while investigating a problem with rr and signals I noticed
+that siglock is dropped in ptrace_signal and get_signal does not jump
+to relock.
 
-Fixes: 7232311ef14c ("local_t: mips extension")
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Looking farther to see if the problem is anywhere else I see that
+do_signal_stop also returns if signal_group_exit is true.  I believe
+that test can now never be true, but it is a bit hard to trace
+through and be certain.
+
+Testing signal_group_exit is not expensive, so move the test for
+signal_group_exit into the for loop inside of get_signal to ensure
+the test is never skipped improperly.
+
+This has been a potential problem since I added the test for
+signal_group_exit was added.
+
+Fixes: 35634ffa1751 ("signal: Always notice exiting tasks")
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/875yssekcd.fsf_-_@email.froward.int.ebiederm.org
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/local.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ kernel/signal.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/mips/include/asm/local.h b/arch/mips/include/asm/local.h
-index ecda7295ddcd1..3fa6340903882 100644
---- a/arch/mips/include/asm/local.h
-+++ b/arch/mips/include/asm/local.h
-@@ -5,6 +5,7 @@
- #include <linux/percpu.h>
- #include <linux/bitops.h>
- #include <linux/atomic.h>
-+#include <asm/asm.h>
- #include <asm/cmpxchg.h>
- #include <asm/compiler.h>
- #include <asm/war.h>
-@@ -39,7 +40,7 @@ static __inline__ long local_add_return(long i, local_t * l)
- 		"	.set	arch=r4000				\n"
- 			__SYNC(full, loongson3_war) "			\n"
- 		"1:"	__LL	"%1, %2		# local_add_return	\n"
--		"	addu	%0, %1, %3				\n"
-+			__stringify(LONG_ADDU)	"	%0, %1, %3	\n"
- 			__SC	"%0, %2					\n"
- 		"	beqzl	%0, 1b					\n"
- 		"	addu	%0, %1, %3				\n"
-@@ -55,7 +56,7 @@ static __inline__ long local_add_return(long i, local_t * l)
- 		"	.set	"MIPS_ISA_ARCH_LEVEL"			\n"
- 			__SYNC(full, loongson3_war) "			\n"
- 		"1:"	__LL	"%1, %2		# local_add_return	\n"
--		"	addu	%0, %1, %3				\n"
-+			__stringify(LONG_ADDU)	"	%0, %1, %3	\n"
- 			__SC	"%0, %2					\n"
- 		"	beqz	%0, 1b					\n"
- 		"	addu	%0, %1, %3				\n"
-@@ -88,7 +89,7 @@ static __inline__ long local_sub_return(long i, local_t * l)
- 		"	.set	arch=r4000				\n"
- 			__SYNC(full, loongson3_war) "			\n"
- 		"1:"	__LL	"%1, %2		# local_sub_return	\n"
--		"	subu	%0, %1, %3				\n"
-+			__stringify(LONG_SUBU)	"	%0, %1, %3	\n"
- 			__SC	"%0, %2					\n"
- 		"	beqzl	%0, 1b					\n"
- 		"	subu	%0, %1, %3				\n"
-@@ -104,7 +105,7 @@ static __inline__ long local_sub_return(long i, local_t * l)
- 		"	.set	"MIPS_ISA_ARCH_LEVEL"			\n"
- 			__SYNC(full, loongson3_war) "			\n"
- 		"1:"	__LL	"%1, %2		# local_sub_return	\n"
--		"	subu	%0, %1, %3				\n"
-+			__stringify(LONG_SUBU)	"	%0, %1, %3	\n"
- 			__SC	"%0, %2					\n"
- 		"	beqz	%0, 1b					\n"
- 		"	subu	%0, %1, %3				\n"
+diff --git a/kernel/signal.c b/kernel/signal.c
+index aea93d6a5520a..6e3dbb3d12170 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2710,19 +2710,19 @@ bool get_signal(struct ksignal *ksig)
+ 		goto relock;
+ 	}
+ 
+-	/* Has this task already been marked for death? */
+-	if (signal_group_exit(signal)) {
+-		ksig->info.si_signo = signr = SIGKILL;
+-		sigdelset(&current->pending.signal, SIGKILL);
+-		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
+-				&sighand->action[SIGKILL - 1]);
+-		recalc_sigpending();
+-		goto fatal;
+-	}
+-
+ 	for (;;) {
+ 		struct k_sigaction *ka;
+ 
++		/* Has this task already been marked for death? */
++		if (signal_group_exit(signal)) {
++			ksig->info.si_signo = signr = SIGKILL;
++			sigdelset(&current->pending.signal, SIGKILL);
++			trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
++				&sighand->action[SIGKILL - 1]);
++			recalc_sigpending();
++			goto fatal;
++		}
++
+ 		if (unlikely(current->jobctl & JOBCTL_STOP_PENDING) &&
+ 		    do_signal_stop(0))
+ 			goto relock;
 -- 
 2.34.1
 
