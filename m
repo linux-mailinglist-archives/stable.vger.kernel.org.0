@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC6F4CF913
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B8A74CF4A1
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:20:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239602AbiCGKDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51852 "EHLO
+        id S236365AbiCGJUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:20:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239060AbiCGJ6C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:58:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 231377C160;
-        Mon,  7 Mar 2022 01:46:08 -0800 (PST)
+        with ESMTP id S236369AbiCGJU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:20:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98ECB4DF4C;
+        Mon,  7 Mar 2022 01:19:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E63EB80F9F;
-        Mon,  7 Mar 2022 09:46:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44A4C340F5;
-        Mon,  7 Mar 2022 09:46:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32E5761016;
+        Mon,  7 Mar 2022 09:19:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300F7C340F4;
+        Mon,  7 Mar 2022 09:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646366;
-        bh=aJiMtZDEzYoL9IK8Ld/F52RoqRogDvXyrBRCMv7st+U=;
+        s=korg; t=1646644774;
+        bh=wghIGJkzpuodDEQFADyhIM+kLpXkawWG1rofmq3dkMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1pSOpyQ2fTqUDGzQhvx9xyZUAFELAU7JdScOUXGTMujIT1ADAMfInBlm0wyIUVRRt
-         /JNnpomS+bemBpzhKQKVxxemzptiq1Pi9gLJPbGtx+znBr/io8l+5DQG/+JWgCtw51
-         feh0GsNlXkuiJr2D8gCkNMyrBCTR2pmfzMQLFOOk=
+        b=riDz0tpj+g63VWQv496gZ8dHIpySKIIA+TGavHyEr2U2UezYo7g6lb+69mvDQbSvl
+         oyfdHG9a3cvFjK1viGjfMWjQjzq2te1Q2slgNkA7udpFH3Q1208NoCgVvoIdhGFnXK
+         9hto9Zyz1Cxza1V7+crz2/5zj2W8xhDnpWvcLP+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maurice Baijens <maurice.baijens@ellips.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 180/262] ixgbe: xsk: change !netif_carrier_ok() handling in ixgbe_xmit_zc()
+        stable@vger.kernel.org, Gabriel Somlo <somlo@cmu.edu>,
+        Johan Hovold <johan@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 18/32] firmware: qemu_fw_cfg: fix kobject leak in probe error path
 Date:   Mon,  7 Mar 2022 10:18:44 +0100
-Message-Id: <20220307091707.496512150@linuxfoundation.org>
+Message-Id: <20220307091634.956473211@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
+References: <20220307091634.434478485@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 6c7273a266759d9d36f7c862149f248bcdeddc0f upstream.
+commit 47a1db8e797da01a1309bf42e0c0d771d4e4d4f3 upstream.
 
-Commit c685c69fba71 ("ixgbe: don't do any AF_XDP zero-copy transmit if
-netif is not OK") addressed the ring transient state when
-MEM_TYPE_XSK_BUFF_POOL was being configured which in turn caused the
-interface to through down/up. Maurice reported that when carrier is not
-ok and xsk_pool is present on ring pair, ksoftirqd will consume 100% CPU
-cycles due to the constant NAPI rescheduling as ixgbe_poll() states that
-there is still some work to be done.
+An initialised kobject must be freed using kobject_put() to avoid
+leaking associated resources (e.g. the object name).
 
-To fix this, do not set work_done to false for a !netif_carrier_ok().
+Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
+the leak in the first error path of the file registration helper but
+left the second one unchanged. This "fix" would however result in a NULL
+pointer dereference due to the release function also removing the never
+added entry from the fw_cfg_entry_cache list. This has now been
+addressed.
 
-Fixes: c685c69fba71 ("ixgbe: don't do any AF_XDP zero-copy transmit if netif is not OK")
-Reported-by: Maurice Baijens <maurice.baijens@ellips.com>
-Tested-by: Maurice Baijens <maurice.baijens@ellips.com>
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix the remaining kobject leak by restoring the common error path and
+adding the missing kobject_put().
+
+Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
+Cc: stable@vger.kernel.org      # 4.6
+Cc: Gabriel Somlo <somlo@cmu.edu>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211201132528.30025-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/firmware/qemu_fw_cfg.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-@@ -388,12 +388,14 @@ static bool ixgbe_xmit_zc(struct ixgbe_r
- 	u32 cmd_type;
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -461,15 +461,13 @@ static int fw_cfg_register_file(const st
+ 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
+ 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
+ 				   fw_cfg_sel_ko, "%d", entry->f.select);
+-	if (err) {
+-		kobject_put(&entry->kobj);
+-		return err;
+-	}
++	if (err)
++		goto err_put_entry;
  
- 	while (budget-- > 0) {
--		if (unlikely(!ixgbe_desc_unused(xdp_ring)) ||
--		    !netif_carrier_ok(xdp_ring->netdev)) {
-+		if (unlikely(!ixgbe_desc_unused(xdp_ring))) {
- 			work_done = false;
- 			break;
- 		}
+ 	/* add raw binary content access */
+ 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
+ 	if (err)
+-		goto err_add_raw;
++		goto err_del_entry;
  
-+		if (!netif_carrier_ok(xdp_ring->netdev))
-+			break;
-+
- 		if (!xsk_tx_peek_desc(pool, &desc))
- 			break;
+ 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
+ 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->f.name);
+@@ -478,9 +476,10 @@ static int fw_cfg_register_file(const st
+ 	fw_cfg_sysfs_cache_enlist(entry);
+ 	return 0;
+ 
+-err_add_raw:
++err_del_entry:
+ 	kobject_del(&entry->kobj);
+-	kfree(entry);
++err_put_entry:
++	kobject_put(&entry->kobj);
+ 	return err;
+ }
  
 
 
