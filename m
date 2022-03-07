@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ACFE4CF656
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:35:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FF24CF547
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:26:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237515AbiCGJf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:35:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36108 "EHLO
+        id S236790AbiCGJ0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:26:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237500AbiCGJfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:35:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E0B6582A;
-        Mon,  7 Mar 2022 01:31:05 -0800 (PST)
+        with ESMTP id S236881AbiCGJZr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:25:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2610D5BD24;
+        Mon,  7 Mar 2022 01:24:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EC4561135;
-        Mon,  7 Mar 2022 09:30:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FFFDC340F3;
-        Mon,  7 Mar 2022 09:30:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADD3A60C00;
+        Mon,  7 Mar 2022 09:24:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82ABC36AE3;
+        Mon,  7 Mar 2022 09:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645445;
-        bh=vP1+hxL2O9UZlM/is+4AjvFkyQYkgUsNa8SRsa9kfxg=;
+        s=korg; t=1646645044;
+        bh=i5VHI7JTDFpPs3+CFF91y+xv8PC264aoBXGF5EYIqL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPtVmZJY0aATA7/hB1oPB756vXw9S1xwKoPxJhgY6o9NfQv0jiMhwNLwFDgdGg81l
-         1dFAN1ePQ4u6xLuq00esd+Ji2lWOFqaegceARUzqMH1tzmtLcMzrJWVbi4mFTVNqNY
-         HQyHqCZEvi1TvxSDzR+jVGeen/Peu+jGgLpmFKwQ=
+        b=lTa8ATha4LGNoRTldEhsVqqCErUJdyV1Rtpxs9ynbbg4yAH2ZKSGHLgiqXdXB9g6K
+         yoL+w3iA16QGJyeZqJtci4UKBuo0qEc8x+Chl10WsMO5o6//8W6l24ucehU+hs3u7L
+         4hng52gVC6/UrUhZMntcxhsfDNnXMjIepJNw0JrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Dai <jerry.dai@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>, Jon Mason <jdmason@kudzu.us>
-Subject: [PATCH 5.10 034/105] ntb: intel: fix port config status offset for SPR
+        stable@vger.kernel.org, JaeMan Park <jaeman@google.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 02/51] mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
 Date:   Mon,  7 Mar 2022 10:18:37 +0100
-Message-Id: <20220307091645.144863046@linuxfoundation.org>
+Message-Id: <20220307091637.062630665@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: JaeMan Park <jaeman@google.com>
 
-commit d5081bf5dcfb1cb83fb538708b0ac07a10a79cc4 upstream.
+[ Upstream commit cacfddf82baf1470e5741edeecb187260868f195 ]
 
-The field offset for port configuration status on SPR has been changed to
-bit 14 from ICX where it resides at bit 12. By chance link status detection
-continued to work on SPR. This is due to bit 12 being a configuration bit
-which is in sync with the status bit. Fix this by checking for a SPR device
-and checking correct status bit.
+In mac80211_hwsim, the probe_req frame is created and sent while
+scanning. It is sent with ieee80211_tx_info which is not initialized.
+Uninitialized ieee80211_tx_info can cause problems when using
+mac80211_hwsim with wmediumd. wmediumd checks the tx_rates field of
+ieee80211_tx_info and doesn't relay probe_req frame to other clients
+even if it is a broadcasting message.
 
-Fixes: 26bfe3d0b227 ("ntb: intel: Add Icelake (gen4) support for Intel NTB")
-Tested-by: Jerry Dai <jerry.dai@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Call ieee80211_tx_prepare_skb() to initialize ieee80211_tx_info for
+the probe_req that is created by hw_scan_work in mac80211_hwsim.
+
+Signed-off-by: JaeMan Park <jaeman@google.com>
+Link: https://lore.kernel.org/r/20220113060235.546107-1-jaeman@google.com
+[fix memory leak]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/hw/intel/ntb_hw_gen4.c |   17 ++++++++++++++++-
- drivers/ntb/hw/intel/ntb_hw_gen4.h |   16 ++++++++++++++++
- 2 files changed, 32 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mac80211_hwsim.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/ntb/hw/intel/ntb_hw_gen4.c
-+++ b/drivers/ntb/hw/intel/ntb_hw_gen4.c
-@@ -168,6 +168,18 @@ static enum ntb_topo gen4_ppd_topo(struc
- 	return NTB_TOPO_NONE;
- }
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 6cd9a8b610107..c84ee5ba53812 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -2082,6 +2082,15 @@ static void hw_scan_work(struct work_struct *work)
+ 			if (req->ie_len)
+ 				skb_put_data(probe, req->ie, req->ie_len);
  
-+static enum ntb_topo spr_ppd_topo(struct intel_ntb_dev *ndev, u32 ppd)
-+{
-+	switch (ppd & SPR_PPD_TOPO_MASK) {
-+	case SPR_PPD_TOPO_B2B_USD:
-+		return NTB_TOPO_B2B_USD;
-+	case SPR_PPD_TOPO_B2B_DSD:
-+		return NTB_TOPO_B2B_DSD;
-+	}
++			if (!ieee80211_tx_prepare_skb(hwsim->hw,
++						      hwsim->hw_scan_vif,
++						      probe,
++						      hwsim->tmp_chan->band,
++						      NULL)) {
++				kfree_skb(probe);
++				continue;
++			}
 +
-+	return NTB_TOPO_NONE;
-+}
-+
- int gen4_init_dev(struct intel_ntb_dev *ndev)
- {
- 	struct pci_dev *pdev = ndev->ntb.pdev;
-@@ -181,7 +193,10 @@ int gen4_init_dev(struct intel_ntb_dev *
- 		ndev->hwerr_flags |= NTB_HWERR_BAR_ALIGN;
- 
- 	ppd1 = ioread32(ndev->self_mmio + GEN4_PPD1_OFFSET);
--	ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
-+	if (pdev_is_ICX(pdev))
-+		ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
-+	else if (pdev_is_SPR(pdev))
-+		ndev->ntb.topo = spr_ppd_topo(ndev, ppd1);
- 	dev_dbg(&pdev->dev, "ppd %#x topo %s\n", ppd1,
- 		ntb_topo_string(ndev->ntb.topo));
- 	if (ndev->ntb.topo == NTB_TOPO_NONE)
---- a/drivers/ntb/hw/intel/ntb_hw_gen4.h
-+++ b/drivers/ntb/hw/intel/ntb_hw_gen4.h
-@@ -46,10 +46,14 @@
- #define GEN4_PPD_CLEAR_TRN		0x0001
- #define GEN4_PPD_LINKTRN		0x0008
- #define GEN4_PPD_CONN_MASK		0x0300
-+#define SPR_PPD_CONN_MASK		0x0700
- #define GEN4_PPD_CONN_B2B		0x0200
- #define GEN4_PPD_DEV_MASK		0x1000
- #define GEN4_PPD_DEV_DSD		0x1000
- #define GEN4_PPD_DEV_USD		0x0000
-+#define SPR_PPD_DEV_MASK		0x4000
-+#define SPR_PPD_DEV_DSD 		0x4000
-+#define SPR_PPD_DEV_USD 		0x0000
- #define GEN4_LINK_CTRL_LINK_DISABLE	0x0010
- 
- #define GEN4_SLOTSTS			0xb05a
-@@ -59,6 +63,10 @@
- #define GEN4_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_USD)
- #define GEN4_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_DSD)
- 
-+#define SPR_PPD_TOPO_MASK	(SPR_PPD_CONN_MASK | SPR_PPD_DEV_MASK)
-+#define SPR_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_USD)
-+#define SPR_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_DSD)
-+
- #define GEN4_DB_COUNT			32
- #define GEN4_DB_LINK			32
- #define GEN4_DB_LINK_BIT		BIT_ULL(GEN4_DB_LINK)
-@@ -96,5 +104,13 @@ static inline int pdev_is_ICX(struct pci
- 		return 1;
- 	return 0;
- }
-+
-+static inline int pdev_is_SPR(struct pci_dev *pdev)
-+{
-+	if (pdev_is_gen4(pdev) &&
-+	    pdev->revision > PCI_DEVICE_REVISION_ICX_MAX)
-+		return 1;
-+	return 0;
-+}
- 
- #endif
+ 			local_bh_disable();
+ 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
+ 						hwsim->tmp_chan);
+-- 
+2.34.1
+
 
 
