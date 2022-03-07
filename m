@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFEE94CF5DB
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EE74CF776
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237343AbiCGJba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57894 "EHLO
+        id S238414AbiCGJqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:46:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238746AbiCGJ3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:39 -0500
+        with ESMTP id S238536AbiCGJid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C9B5C36F;
-        Mon,  7 Mar 2022 01:28:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C307A443C6;
+        Mon,  7 Mar 2022 01:32:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1FDE61119;
-        Mon,  7 Mar 2022 09:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5B65C340E9;
-        Mon,  7 Mar 2022 09:28:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 860C061287;
+        Mon,  7 Mar 2022 09:32:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93F63C341C7;
+        Mon,  7 Mar 2022 09:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645284;
-        bh=75ZY1WfUHU2Io4whiLfTwywajK/W9695AyieS52ILww=;
+        s=korg; t=1646645570;
+        bh=KjGoanFe9yX2UdN5dVRQKQaNmaQjJPnPPFDSw4zrYPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wr/eSdJqjxO+p1bXBS/xxRuQT03g9eiTWGvFizNkIil6K+x+6h7kwce1NbHazGGqx
-         Sjsi1sn3hS394o381kHCscyQ2/Y8fvt/Dkzf3v8P8+cTOUdzM7nSkqAyeBSaoWukRB
-         1UO16rgC6/71PJy52oANduXuWmpGyzUID8FGdzQw=
+        b=SWi0G/PtKc/3LpNqPAGwE5s8098JSZljOvZ9l97Ue8uZqsTgrRcJp/NBvtMCOvigv
+         nMHr/+getDwpcK4BfGV2SpMxJ/R1KkSPhTiKuvKAy4Gvdn9HTCqY0MCoBNqydbFgkX
+         Hyh+VIjexHKAc9PZ58Cyyysyl5r+M17Ui4UGcMzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.4 44/64] arm64: dts: rockchip: Switch RK3399-Gru DP to SPDIF output
+        stable@vger.kernel.org, Johannes Stezenbach <js@sig21.net>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.10 074/105] ARM: Fix kgdb breakpoint for Thumb2
 Date:   Mon,  7 Mar 2022 10:19:17 +0100
-Message-Id: <20220307091640.402267811@linuxfoundation.org>
+Message-Id: <20220307091646.259281048@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit b5fbaf7d779f5f02b7f75b080e7707222573be2a upstream.
+commit d920eaa4c4559f59be7b4c2d26fa0a2e1aaa3da9 upstream.
 
-Commit b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
-switched the platform to SPDIF, but we didn't fix up the device tree.
+The kgdb code needs to register an undef hook for the Thumb UDF
+instruction that will fault in order to be functional on Thumb2
+platforms.
 
-Drop the pinctrl settings, because the 'spdif_bus' pins are either:
- * unused (on kevin, bob), so the settings is ~harmless
- * used by a different function (on scarlet), which causes probe
-   failures (!!)
-
-Fixes: b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Link: https://lore.kernel.org/r/20220114150129.v2.1.I46f64b00508d9dff34abe1c3e8d2defdab4ea1e5@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Reported-by: Johannes Stezenbach <js@sig21.net>
+Tested-by: Johannes Stezenbach <js@sig21.net>
+Fixes: 5cbad0ebf45c ("kgdb: support for ARCH=arm")
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ arch/arm/kernel/kgdb.c |   36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-@@ -281,7 +281,7 @@
+--- a/arch/arm/kernel/kgdb.c
++++ b/arch/arm/kernel/kgdb.c
+@@ -154,22 +154,38 @@ static int kgdb_compiled_brk_fn(struct p
+ 	return 0;
+ }
  
- 	sound: sound {
- 		compatible = "rockchip,rk3399-gru-sound";
--		rockchip,cpu = <&i2s0 &i2s2>;
-+		rockchip,cpu = <&i2s0 &spdif>;
- 	};
+-static struct undef_hook kgdb_brkpt_hook = {
++static struct undef_hook kgdb_brkpt_arm_hook = {
+ 	.instr_mask		= 0xffffffff,
+ 	.instr_val		= KGDB_BREAKINST,
+-	.cpsr_mask		= MODE_MASK,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
+ 	.cpsr_val		= SVC_MODE,
+ 	.fn			= kgdb_brk_fn
  };
  
-@@ -432,10 +432,6 @@ ap_i2c_audio: &i2c8 {
- 	status = "okay";
- };
- 
--&i2s2 {
--	status = "okay";
--};
--
- &io_domains {
- 	status = "okay";
- 
-@@ -532,6 +528,17 @@ ap_i2c_audio: &i2c8 {
- 	vqmmc-supply = <&ppvar_sd_card_io>;
- };
- 
-+&spdif {
-+	status = "okay";
-+
-+	/*
-+	 * SPDIF is routed internally to DP; we either don't use these pins, or
-+	 * mux them to something else.
-+	 */
-+	/delete-property/ pinctrl-0;
-+	/delete-property/ pinctrl-names;
+-static struct undef_hook kgdb_compiled_brkpt_hook = {
++static struct undef_hook kgdb_brkpt_thumb_hook = {
++	.instr_mask		= 0xffff,
++	.instr_val		= KGDB_BREAKINST & 0xffff,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
++	.cpsr_val		= PSR_T_BIT | SVC_MODE,
++	.fn			= kgdb_brk_fn
 +};
 +
- &spi1 {
- 	status = "okay";
++static struct undef_hook kgdb_compiled_brkpt_arm_hook = {
+ 	.instr_mask		= 0xffffffff,
+ 	.instr_val		= KGDB_COMPILED_BREAK,
+-	.cpsr_mask		= MODE_MASK,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
+ 	.cpsr_val		= SVC_MODE,
+ 	.fn			= kgdb_compiled_brk_fn
+ };
+ 
++static struct undef_hook kgdb_compiled_brkpt_thumb_hook = {
++	.instr_mask		= 0xffff,
++	.instr_val		= KGDB_COMPILED_BREAK & 0xffff,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
++	.cpsr_val		= PSR_T_BIT | SVC_MODE,
++	.fn			= kgdb_compiled_brk_fn
++};
++
+ static int __kgdb_notify(struct die_args *args, unsigned long cmd)
+ {
+ 	struct pt_regs *regs = args->regs;
+@@ -210,8 +226,10 @@ int kgdb_arch_init(void)
+ 	if (ret != 0)
+ 		return ret;
+ 
+-	register_undef_hook(&kgdb_brkpt_hook);
+-	register_undef_hook(&kgdb_compiled_brkpt_hook);
++	register_undef_hook(&kgdb_brkpt_arm_hook);
++	register_undef_hook(&kgdb_brkpt_thumb_hook);
++	register_undef_hook(&kgdb_compiled_brkpt_arm_hook);
++	register_undef_hook(&kgdb_compiled_brkpt_thumb_hook);
+ 
+ 	return 0;
+ }
+@@ -224,8 +242,10 @@ int kgdb_arch_init(void)
+  */
+ void kgdb_arch_exit(void)
+ {
+-	unregister_undef_hook(&kgdb_brkpt_hook);
+-	unregister_undef_hook(&kgdb_compiled_brkpt_hook);
++	unregister_undef_hook(&kgdb_brkpt_arm_hook);
++	unregister_undef_hook(&kgdb_brkpt_thumb_hook);
++	unregister_undef_hook(&kgdb_compiled_brkpt_arm_hook);
++	unregister_undef_hook(&kgdb_compiled_brkpt_thumb_hook);
+ 	unregister_die_notifier(&kgdb_notifier);
+ }
  
 
 
