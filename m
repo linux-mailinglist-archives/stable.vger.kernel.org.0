@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE5164CFADA
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5C44CFA82
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239389AbiCGKWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:22:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42604 "EHLO
+        id S233249AbiCGKWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:22:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239971AbiCGKR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:17:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D618ABF48;
-        Mon,  7 Mar 2022 01:57:49 -0800 (PST)
+        with ESMTP id S240161AbiCGKSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:18:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E8811A14;
+        Mon,  7 Mar 2022 01:57:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71D8160F34;
-        Mon,  7 Mar 2022 09:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60CB7C340E9;
-        Mon,  7 Mar 2022 09:57:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A51EB80F9F;
+        Mon,  7 Mar 2022 09:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BAF6C340E9;
+        Mon,  7 Mar 2022 09:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647066;
-        bh=77uDszA9LC2XwKUtcnN5BkvJprjdPNdiHTMCFcNIBJ4=;
+        s=korg; t=1646647070;
+        bh=6Xy0AKRL44ozFeTAM65g/vCWA1q1e1weDYiab9eY6vU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7Gw3+zR3w0ng6QUddjCN0AfyRZs7dNsHi9GWfqsMMVUjfLhJj8oZDBKD/bMq0wFr
-         6ztumPHwCX3EMKvNm0PBR5k/i99th0HxOQxl3mQ0CHYC5hSHW0vwWUxQyCfGGlMeeH
-         nHG58SvgWaSNGnJcc3w1oEVkyQKPxkgTefSwbvqw=
+        b=j380FBhdc9FXjYDEtfwx/xoSO4obMolH6vSbZh2Z2p/MlJ/fHpp+j+S+ye0mv39BM
+         BPixKJSJty4GzdSbu9C1lPt63THO0Vifc1RFBPgRIkBKU+lfRptE6das47tKEIgPb2
+         OQY3iD2/yuY4lS2SKU7mXgZwxP0iBGyN7nqhDHGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 180/186] btrfs: do not start relocation until in progress drops are done
-Date:   Mon,  7 Mar 2022 10:20:18 +0100
-Message-Id: <20220307091659.113389701@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.16 181/186] Revert "xfrm: xfrm_state_mtu should return at least 1280 for ipv6"
+Date:   Mon,  7 Mar 2022 10:20:19 +0100
+Message-Id: <20220307091659.142180374@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -54,279 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jiri Bohac <jbohac@suse.cz>
 
-commit b4be6aefa73c9a6899ef3ba9c5faaa8a66e333ef upstream.
+commit a6d95c5a628a09be129f25d5663a7e9db8261f51 upstream.
 
-We hit a bug with a recovering relocation on mount for one of our file
-systems in production.  I reproduced this locally by injecting errors
-into snapshot delete with balance running at the same time.  This
-presented as an error while looking up an extent item
+This reverts commit b515d2637276a3810d6595e10ab02c13bfd0b63a.
 
-  WARNING: CPU: 5 PID: 1501 at fs/btrfs/extent-tree.c:866 lookup_inline_extent_backref+0x647/0x680
-  CPU: 5 PID: 1501 Comm: btrfs-balance Not tainted 5.16.0-rc8+ #8
-  RIP: 0010:lookup_inline_extent_backref+0x647/0x680
-  RSP: 0018:ffffae0a023ab960 EFLAGS: 00010202
-  RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 000000000000000c RDI: 0000000000000000
-  RBP: ffff943fd2a39b60 R08: 0000000000000000 R09: 0000000000000001
-  R10: 0001434088152de0 R11: 0000000000000000 R12: 0000000001d05000
-  R13: ffff943fd2a39b60 R14: ffff943fdb96f2a0 R15: ffff9442fc923000
-  FS:  0000000000000000(0000) GS:ffff944e9eb40000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f1157b1fca8 CR3: 000000010f092000 CR4: 0000000000350ee0
-  Call Trace:
-   <TASK>
-   insert_inline_extent_backref+0x46/0xd0
-   __btrfs_inc_extent_ref.isra.0+0x5f/0x200
-   ? btrfs_merge_delayed_refs+0x164/0x190
-   __btrfs_run_delayed_refs+0x561/0xfa0
-   ? btrfs_search_slot+0x7b4/0xb30
-   ? btrfs_update_root+0x1a9/0x2c0
-   btrfs_run_delayed_refs+0x73/0x1f0
-   ? btrfs_update_root+0x1a9/0x2c0
-   btrfs_commit_transaction+0x50/0xa50
-   ? btrfs_update_reloc_root+0x122/0x220
-   prepare_to_merge+0x29f/0x320
-   relocate_block_group+0x2b8/0x550
-   btrfs_relocate_block_group+0x1a6/0x350
-   btrfs_relocate_chunk+0x27/0xe0
-   btrfs_balance+0x777/0xe60
-   balance_kthread+0x35/0x50
-   ? btrfs_balance+0xe60/0xe60
-   kthread+0x16b/0x190
-   ? set_kthread_struct+0x40/0x40
-   ret_from_fork+0x22/0x30
-   </TASK>
+Commit b515d2637276a3810d6595e10ab02c13bfd0b63a ("xfrm: xfrm_state_mtu
+should return at least 1280 for ipv6") in v5.14 breaks the TCP MSS
+calculation in ipsec transport mode, resulting complete stalls of TCP
+connections. This happens when the (P)MTU is 1280 or slighly larger.
 
-Normally snapshot deletion and relocation are excluded from running at
-the same time by the fs_info->cleaner_mutex.  However if we had a
-pending balance waiting to get the ->cleaner_mutex, and a snapshot
-deletion was running, and then the box crashed, we would come up in a
-state where we have a half deleted snapshot.
+The desired formula for the MSS is:
+MSS = (MTU - ESP_overhead) - IP header - TCP header
 
-Again, in the normal case the snapshot deletion needs to complete before
-relocation can start, but in this case relocation could very well start
-before the snapshot deletion completes, as we simply add the root to the
-dead roots list and wait for the next time the cleaner runs to clean up
-the snapshot.
+However, the above commit clamps the (MTU - ESP_overhead) to a
+minimum of 1280, turning the formula into
+MSS = max(MTU - ESP overhead, 1280) -  IP header - TCP header
 
-Fix this by setting a bit on the fs_info if we have any DEAD_ROOT's that
-had a pending drop_progress key.  If they do then we know we were in the
-middle of the drop operation and set a flag on the fs_info.  Then
-balance can wait until this flag is cleared to start up again.
+With the (P)MTU near 1280, the calculated MSS is too large and the
+resulting TCP packets never make it to the destination because they
+are over the actual PMTU.
 
-If there are DEAD_ROOT's that don't have a drop_progress set then we're
-safe to start balance right away as we'll be properly protected by the
-cleaner_mutex.
+The above commit also causes suboptimal double fragmentation in
+xfrm tunnel mode, as described in
+https://lore.kernel.org/netdev/20210429202529.codhwpc7w6kbudug@dwarf.suse.cz/
 
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+The original problem the above commit was trying to fix is now fixed
+by commit 6596a0229541270fb8d38d989f91b78838e5e9da ("xfrm: fix MTU
+regression").
+
+Signed-off-by: Jiri Bohac <jbohac@suse.cz>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.h       |   10 ++++++++++
- fs/btrfs/disk-io.c     |   10 ++++++++++
- fs/btrfs/extent-tree.c |   10 ++++++++++
- fs/btrfs/relocation.c  |   13 +++++++++++++
- fs/btrfs/root-tree.c   |   15 +++++++++++++++
- fs/btrfs/transaction.c |   33 ++++++++++++++++++++++++++++++++-
- fs/btrfs/transaction.h |    1 +
- 7 files changed, 91 insertions(+), 1 deletion(-)
+ include/net/xfrm.h    |    1 -
+ net/ipv4/esp4.c       |    2 +-
+ net/ipv6/esp6.c       |    2 +-
+ net/xfrm/xfrm_state.c |   14 ++------------
+ 4 files changed, 4 insertions(+), 15 deletions(-)
 
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -601,6 +601,9 @@ enum {
- 	/* Indicate whether there are any tree modification log users */
- 	BTRFS_FS_TREE_MOD_LOG_USERS,
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1567,7 +1567,6 @@ void xfrm_sad_getinfo(struct net *net, s
+ void xfrm_spd_getinfo(struct net *net, struct xfrmk_spdinfo *si);
+ u32 xfrm_replay_seqhi(struct xfrm_state *x, __be32 net_seq);
+ int xfrm_init_replay(struct xfrm_state *x);
+-u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu);
+ u32 xfrm_state_mtu(struct xfrm_state *x, int mtu);
+ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload);
+ int xfrm_init_state(struct xfrm_state *x);
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -671,7 +671,7 @@ static int esp_output(struct xfrm_state
+ 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
+ 		u32 padto;
  
-+	/* Indicate we have half completed snapshot deletions pending. */
-+	BTRFS_FS_UNFINISHED_DROPS,
-+
- #if BITS_PER_LONG == 32
- 	/* Indicate if we have error/warn message printed on 32bit systems */
- 	BTRFS_FS_32BIT_ERROR,
-@@ -1110,8 +1113,15 @@ enum {
- 	BTRFS_ROOT_HAS_LOG_TREE,
- 	/* Qgroup flushing is in progress */
- 	BTRFS_ROOT_QGROUP_FLUSHING,
-+	/* This root has a drop operation that was started previously. */
-+	BTRFS_ROOT_UNFINISHED_DROP,
- };
- 
-+static inline void btrfs_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
-+{
-+	clear_and_wake_up_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
-+}
-+
- /*
-  * Record swapped tree blocks of a subvolume tree for delayed subtree trace
-  * code. For detail check comment in fs/btrfs/qgroup.c.
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3665,6 +3665,10 @@ int __cold open_ctree(struct super_block
- 
- 	set_bit(BTRFS_FS_OPEN, &fs_info->flags);
- 
-+	/* Kick the cleaner thread so it'll start deleting snapshots. */
-+	if (test_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags))
-+		wake_up_process(fs_info->cleaner_kthread);
-+
- clear_oneshot:
- 	btrfs_clear_oneshot_options(fs_info);
- 	return 0;
-@@ -4348,6 +4352,12 @@ void __cold close_ctree(struct btrfs_fs_
- 	 */
- 	kthread_park(fs_info->cleaner_kthread);
- 
-+	/*
-+	 * If we had UNFINISHED_DROPS we could still be processing them, so
-+	 * clear that bit and wake up relocation so it can stop.
-+	 */
-+	btrfs_wake_unfinished_drop(fs_info);
-+
- 	/* wait for the qgroup rescan worker to stop */
- 	btrfs_qgroup_wait_for_completion(fs_info, false);
- 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -5604,6 +5604,7 @@ int btrfs_drop_snapshot(struct btrfs_roo
- 	int ret;
- 	int level;
- 	bool root_dropped = false;
-+	bool unfinished_drop = false;
- 
- 	btrfs_debug(fs_info, "Drop subvolume %llu", root->root_key.objectid);
- 
-@@ -5646,6 +5647,8 @@ int btrfs_drop_snapshot(struct btrfs_roo
- 	 * already dropped.
- 	 */
- 	set_bit(BTRFS_ROOT_DELETING, &root->state);
-+	unfinished_drop = test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
-+
- 	if (btrfs_disk_key_objectid(&root_item->drop_progress) == 0) {
- 		level = btrfs_header_level(root->node);
- 		path->nodes[level] = btrfs_lock_root_node(root);
-@@ -5821,6 +5824,13 @@ out_free:
- 	btrfs_free_path(path);
- out:
- 	/*
-+	 * We were an unfinished drop root, check to see if there are any
-+	 * pending, and if not clear and wake up any waiters.
-+	 */
-+	if (!err && unfinished_drop)
-+		btrfs_maybe_wake_unfinished_drop(fs_info);
-+
-+	/*
- 	 * So if we need to stop dropping the snapshot for whatever reason we
- 	 * need to make sure to add it back to the dead root list so that we
- 	 * keep trying to do the work later.  This also cleans up roots if we
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -3971,6 +3971,19 @@ int btrfs_relocate_block_group(struct bt
- 	int rw = 0;
- 	int err = 0;
- 
-+	/*
-+	 * This only gets set if we had a half-deleted snapshot on mount.  We
-+	 * cannot allow relocation to start while we're still trying to clean up
-+	 * these pending deletions.
-+	 */
-+	ret = wait_on_bit(&fs_info->flags, BTRFS_FS_UNFINISHED_DROPS, TASK_INTERRUPTIBLE);
-+	if (ret)
-+		return ret;
-+
-+	/* We may have been woken up by close_ctree, so bail if we're closing. */
-+	if (btrfs_fs_closing(fs_info))
-+		return -EINTR;
-+
- 	bg = btrfs_lookup_block_group(fs_info, group_start);
- 	if (!bg)
- 		return -ENOENT;
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -278,6 +278,21 @@ int btrfs_find_orphan_roots(struct btrfs
- 
- 		WARN_ON(!test_bit(BTRFS_ROOT_ORPHAN_ITEM_INSERTED, &root->state));
- 		if (btrfs_root_refs(&root->root_item) == 0) {
-+			struct btrfs_key drop_key;
-+
-+			btrfs_disk_key_to_cpu(&drop_key, &root->root_item.drop_progress);
-+			/*
-+			 * If we have a non-zero drop_progress then we know we
-+			 * made it partly through deleting this snapshot, and
-+			 * thus we need to make sure we block any balance from
-+			 * happening until this snapshot is completely dropped.
-+			 */
-+			if (drop_key.objectid != 0 || drop_key.type != 0 ||
-+			    drop_key.offset != 0) {
-+				set_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
-+				set_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
-+			}
-+
- 			set_bit(BTRFS_ROOT_DEAD_TREE, &root->state);
- 			btrfs_add_dead_root(root);
- 		}
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -1340,6 +1340,32 @@ again:
- }
- 
- /*
-+ * If we had a pending drop we need to see if there are any others left in our
-+ * dead roots list, and if not clear our bit and wake any waiters.
-+ */
-+void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
-+{
-+	/*
-+	 * We put the drop in progress roots at the front of the list, so if the
-+	 * first entry doesn't have UNFINISHED_DROP set we can wake everybody
-+	 * up.
-+	 */
-+	spin_lock(&fs_info->trans_lock);
-+	if (!list_empty(&fs_info->dead_roots)) {
-+		struct btrfs_root *root = list_first_entry(&fs_info->dead_roots,
-+							   struct btrfs_root,
-+							   root_list);
-+		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state)) {
-+			spin_unlock(&fs_info->trans_lock);
-+			return;
-+		}
-+	}
-+	spin_unlock(&fs_info->trans_lock);
-+
-+	btrfs_wake_unfinished_drop(fs_info);
-+}
-+
-+/*
-  * dead roots are old snapshots that need to be deleted.  This allocates
-  * a dirty root struct and adds it into the list of dead roots that need to
-  * be deleted
-@@ -1351,7 +1377,12 @@ void btrfs_add_dead_root(struct btrfs_ro
- 	spin_lock(&fs_info->trans_lock);
- 	if (list_empty(&root->root_list)) {
- 		btrfs_grab_root(root);
--		list_add_tail(&root->root_list, &fs_info->dead_roots);
-+
-+		/* We want to process the partially complete drops first. */
-+		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state))
-+			list_add(&root->root_list, &fs_info->dead_roots);
-+		else
-+			list_add_tail(&root->root_list, &fs_info->dead_roots);
+-		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
++		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
+ 		if (skb->len < padto)
+ 			esp.tfclen = padto - skb->len;
  	}
- 	spin_unlock(&fs_info->trans_lock);
- }
---- a/fs/btrfs/transaction.h
-+++ b/fs/btrfs/transaction.h
-@@ -217,6 +217,7 @@ int btrfs_wait_for_commit(struct btrfs_f
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -708,7 +708,7 @@ static int esp6_output(struct xfrm_state
+ 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
+ 		u32 padto;
  
- void btrfs_add_dead_root(struct btrfs_root *root);
- int btrfs_defrag_root(struct btrfs_root *root);
-+void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info);
- int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root);
- int btrfs_commit_transaction(struct btrfs_trans_handle *trans);
- int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans);
+-		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
++		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
+ 		if (skb->len < padto)
+ 			esp.tfclen = padto - skb->len;
+ 	}
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2571,7 +2571,7 @@ void xfrm_state_delete_tunnel(struct xfr
+ }
+ EXPORT_SYMBOL(xfrm_state_delete_tunnel);
+ 
+-u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu)
++u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
+ {
+ 	const struct xfrm_type *type = READ_ONCE(x->type);
+ 	struct crypto_aead *aead;
+@@ -2602,17 +2602,7 @@ u32 __xfrm_state_mtu(struct xfrm_state *
+ 	return ((mtu - x->props.header_len - crypto_aead_authsize(aead) -
+ 		 net_adj) & ~(blksize - 1)) + net_adj - 2;
+ }
+-EXPORT_SYMBOL_GPL(__xfrm_state_mtu);
+-
+-u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
+-{
+-	mtu = __xfrm_state_mtu(x, mtu);
+-
+-	if (x->props.family == AF_INET6 && mtu < IPV6_MIN_MTU)
+-		return IPV6_MIN_MTU;
+-
+-	return mtu;
+-}
++EXPORT_SYMBOL_GPL(xfrm_state_mtu);
+ 
+ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
+ {
 
 
