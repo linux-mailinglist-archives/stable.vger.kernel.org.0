@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4014CFAD3
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D09934CF8E2
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233452AbiCGKWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:22:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41862 "EHLO
+        id S238959AbiCGKCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:02:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241429AbiCGKUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:20:32 -0500
+        with ESMTP id S240346AbiCGKA5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC7690265;
-        Mon,  7 Mar 2022 01:58:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 251F51176;
+        Mon,  7 Mar 2022 01:47:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB255B810B9;
-        Mon,  7 Mar 2022 09:58:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 076B4C340E9;
-        Mon,  7 Mar 2022 09:58:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C737FB80F9F;
+        Mon,  7 Mar 2022 09:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E74C340E9;
+        Mon,  7 Mar 2022 09:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647088;
-        bh=HVw/17tkybDcgz2QkK32R8n6u01uYDi6gFerfbbn+GE=;
+        s=korg; t=1646646453;
+        bh=xytpePAYg+Pf1xy5ot5dhr8kqJfnVy5IUhMPtgnfZxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abfV+141YBYlAGpO43l9HO1wEKFu1vqqzAwez+jUX2sWGFDmgC4O4B608Gk5kQC1v
-         DqLwi0WBFrw9LrLlwz5wHZZEDgXBfKOA+kxff4YqHrwwcTAEW3kxWLgEJBfUK8Jr2f
-         9K5ZR+9Gx6bok+uEXRwZN36qYypq3+aGLrJVsHjw=
+        b=TCkkbt7bx/TCt5qq6pUQCIbfZPdH1XT9FJ797XMJqmeSVdeZvzBuWLsvkqr9sQ1i0
+         w9/y+M7GkGCYx/7hjN3vWwv18vrMRKcg8tA4FTWccvQ0aGumgn0LYzwUAdSzvRFGba
+         flRrpxRPLchsH86Qow1f/VMuOpalVS3IAWo73dnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Phani Burra <phani.r.burra@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 153/186] iavf: Fix locking for VIRTCHNL_OP_GET_OFFLOAD_VLAN_V2_CAPS
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 247/262] Input: elan_i2c - move regulator_[en|dis]able() out of elan_[en|dis]able_power()
 Date:   Mon,  7 Mar 2022 10:19:51 +0100
-Message-Id: <20220307091658.352963419@linuxfoundation.org>
+Message-Id: <20220307091710.529180577@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,123 +53,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 0579fafd37fb7efe091f0e6c8ccf968864f40f3e ]
+commit 81a36d8ce554b82b0a08e2b95d0bd44fcbff339b upstream.
 
-iavf_virtchnl_completion is called under crit_lock but when
-the code for VIRTCHNL_OP_GET_OFFLOAD_VLAN_V2_CAPS is called,
-this lock is released in order to obtain rtnl_lock to avoid
-ABBA deadlock with unregister_netdev.
+elan_disable_power() is called conditionally on suspend, where as
+elan_enable_power() is always called on resume. This leads to
+an imbalance in the regulator's enable count.
 
-Along with the new way iavf_remove behaves, there exist
-many risks related to the lock release and attmepts to regrab
-it. The driver faces crashes related to races between
-unregister_netdev and netdev_update_features. Yet another
-risk is that the driver could already obtain the crit_lock
-in order to destroy it and iavf_virtchnl_completion could
-crash or block forever.
+Move the regulator_[en|dis]able() calls out of elan_[en|dis]able_power()
+in preparation of fixing this.
 
-Make iavf_virtchnl_completion never relock crit_lock in it's
-call paths.
+No functional changes intended.
 
-Extract rtnl_lock locking logic to the driver for
-unregister_netdev in order to set the netdev_registered flag
-inside the lock.
-
-Introduce a new flag that will inform adminq_task to perform
-the code from VIRTCHNL_OP_GET_OFFLOAD_VLAN_V2_CAPS right after
-it finishes processing messages. Guard this code with remove
-flags so it's never called when the driver is in remove state.
-
-Fixes: 5951a2b9812d ("iavf: Fix VLAN feature flags after VFR")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Phani Burra <phani.r.burra@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220131135436.29638-1-hdegoede@redhat.com
+[dtor: consolidate elan_[en|dis]able() into elan_set_power()]
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf.h          |  1 +
- drivers/net/ethernet/intel/iavf/iavf_main.c     | 16 +++++++++++++++-
- drivers/net/ethernet/intel/iavf/iavf_virtchnl.c | 14 +-------------
- 3 files changed, 17 insertions(+), 14 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c |   62 ++++++++++++------------------------
+ 1 file changed, 22 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
-index ffc61993019b..9a122aea6979 100644
---- a/drivers/net/ethernet/intel/iavf/iavf.h
-+++ b/drivers/net/ethernet/intel/iavf/iavf.h
-@@ -274,6 +274,7 @@ struct iavf_adapter {
- #define IAVF_FLAG_LEGACY_RX			BIT(15)
- #define IAVF_FLAG_REINIT_ITR_NEEDED		BIT(16)
- #define IAVF_FLAG_QUEUES_DISABLED		BIT(17)
-+#define IAVF_FLAG_SETUP_NETDEV_FEATURES		BIT(18)
- /* duplicates for common code */
- #define IAVF_FLAG_DCB_ENABLED			0
- 	/* flags for admin queue service task */
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 2a9044c8396f..1af3fe427543 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2465,6 +2465,18 @@ static void iavf_adminq_task(struct work_struct *work)
- 	} while (pending);
- 	mutex_unlock(&adapter->crit_lock);
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -186,55 +186,21 @@ static int elan_get_fwinfo(u16 ic_type,
+ 	return 0;
+ }
  
-+	if ((adapter->flags & IAVF_FLAG_SETUP_NETDEV_FEATURES)) {
-+		if (adapter->netdev_registered ||
-+		    !test_bit(__IAVF_IN_REMOVE_TASK, &adapter->crit_section)) {
-+			struct net_device *netdev = adapter->netdev;
+-static int elan_enable_power(struct elan_tp_data *data)
++static int elan_set_power(struct elan_tp_data *data, bool on)
+ {
+ 	int repeat = ETP_RETRY_COUNT;
+ 	int error;
+ 
+-	error = regulator_enable(data->vcc);
+-	if (error) {
+-		dev_err(&data->client->dev,
+-			"failed to enable regulator: %d\n", error);
+-		return error;
+-	}
+-
+ 	do {
+-		error = data->ops->power_control(data->client, true);
++		error = data->ops->power_control(data->client, on);
+ 		if (error >= 0)
+ 			return 0;
+ 
+ 		msleep(30);
+ 	} while (--repeat > 0);
+ 
+-	dev_err(&data->client->dev, "failed to enable power: %d\n", error);
+-	return error;
+-}
+-
+-static int elan_disable_power(struct elan_tp_data *data)
+-{
+-	int repeat = ETP_RETRY_COUNT;
+-	int error;
+-
+-	do {
+-		error = data->ops->power_control(data->client, false);
+-		if (!error) {
+-			error = regulator_disable(data->vcc);
+-			if (error) {
+-				dev_err(&data->client->dev,
+-					"failed to disable regulator: %d\n",
+-					error);
+-				/* Attempt to power the chip back up */
+-				data->ops->power_control(data->client, true);
+-				break;
+-			}
+-
+-			return 0;
+-		}
+-
+-		msleep(30);
+-	} while (--repeat > 0);
+-
+-	dev_err(&data->client->dev, "failed to disable power: %d\n", error);
++	dev_err(&data->client->dev, "failed to set power %s: %d\n",
++		on ? "on" : "off", error);
+ 	return error;
+ }
+ 
+@@ -1399,9 +1365,19 @@ static int __maybe_unused elan_suspend(s
+ 		/* Enable wake from IRQ */
+ 		data->irq_wake = (enable_irq_wake(client->irq) == 0);
+ 	} else {
+-		ret = elan_disable_power(data);
++		ret = elan_set_power(data, false);
++		if (ret)
++			goto err;
 +
-+			rtnl_lock();
-+			netdev_update_features(netdev);
-+			rtnl_unlock();
++		ret = regulator_disable(data->vcc);
++		if (ret) {
++			dev_err(dev, "error %d disabling regulator\n", ret);
++			/* Attempt to power the chip back up */
++			elan_set_power(data, true);
 +		}
-+
-+		adapter->flags &= ~IAVF_FLAG_SETUP_NETDEV_FEATURES;
-+	}
- 	if ((adapter->flags &
- 	     (IAVF_FLAG_RESET_PENDING | IAVF_FLAG_RESET_NEEDED)) ||
- 	    adapter->state == __IAVF_RESETTING)
-@@ -4029,8 +4041,10 @@ static void iavf_remove(struct pci_dev *pdev)
- 	cancel_delayed_work_sync(&adapter->watchdog_task);
- 
- 	if (adapter->netdev_registered) {
--		unregister_netdev(netdev);
-+		rtnl_lock();
-+		unregister_netdevice(netdev);
- 		adapter->netdev_registered = false;
-+		rtnl_unlock();
  	}
- 	if (CLIENT_ALLOWED(adapter)) {
- 		err = iavf_lan_del_device(adapter);
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-index d60bf7c21200..d3da65d24bd6 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-@@ -1752,19 +1752,7 @@ void iavf_virtchnl_completion(struct iavf_adapter *adapter,
  
- 		spin_unlock_bh(&adapter->mac_vlan_list_lock);
- 		iavf_process_config(adapter);
--
--		/* unlock crit_lock before acquiring rtnl_lock as other
--		 * processes holding rtnl_lock could be waiting for the same
--		 * crit_lock
--		 */
--		mutex_unlock(&adapter->crit_lock);
--		rtnl_lock();
--		netdev_update_features(adapter->netdev);
--		rtnl_unlock();
--		if (iavf_lock_timeout(&adapter->crit_lock, 10000))
--			dev_warn(&adapter->pdev->dev, "failed to acquire crit_lock in %s\n",
--				 __FUNCTION__);
--
-+		adapter->flags |= IAVF_FLAG_SETUP_NETDEV_FEATURES;
- 		}
- 		break;
- 	case VIRTCHNL_OP_ENABLE_QUEUES:
--- 
-2.34.1
-
++err:
+ 	mutex_unlock(&data->sysfs_mutex);
+ 	return ret;
+ }
+@@ -1417,7 +1393,13 @@ static int __maybe_unused elan_resume(st
+ 		data->irq_wake = false;
+ 	}
+ 
+-	error = elan_enable_power(data);
++	error = regulator_enable(data->vcc);
++	if (error) {
++		dev_err(dev, "error %d enabling regulator\n", error);
++		goto err;
++	}
++
++	error = elan_set_power(data, true);
+ 	if (error) {
+ 		dev_err(dev, "power up when resuming failed: %d\n", error);
+ 		goto err;
 
 
