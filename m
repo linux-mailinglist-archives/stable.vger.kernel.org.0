@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B17864CF8F5
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D00DE4CF5B3
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239127AbiCGKDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40402 "EHLO
+        id S235405AbiCGJaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240407AbiCGKBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A5ADDEB4;
-        Mon,  7 Mar 2022 01:47:57 -0800 (PST)
+        with ESMTP id S237528AbiCGJ2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:13 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5068A6AA4E;
+        Mon,  7 Mar 2022 01:25:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE7B0B810AA;
-        Mon,  7 Mar 2022 09:47:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3C9C340E9;
-        Mon,  7 Mar 2022 09:47:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C2A8ECE0E96;
+        Mon,  7 Mar 2022 09:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE43C340E9;
+        Mon,  7 Mar 2022 09:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646474;
-        bh=I5u6IfSANuhAMwea1cGIDxXBM8bn7OdydXst9KFSiNs=;
+        s=korg; t=1646645130;
+        bh=Rl9jppXT+nlDqo97+3POhwdfdodsvZ5K3mC+g7qN8aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RENGWEInU5qbyc1IHWOK9PggLM8CN9f8ClyG+Hzf/z9BT6Eufjj5olhvnn/qQodjK
-         on46/TqA+OQOPRhKaqa2SHzHmE8f+ASAV0h5tk7w7HxKMF85g9LAfo684r8B4+VuYu
-         GUzYgLWb1DsOx/0TGUtO6y4Xo7slpCeb9+EDal+c=
+        b=MpwyknbXsy9rqFH6FB/KW/VM6fOMv6+PBLONL/jJx8VkeA9Eq3JTe/TFHUND6D/z2
+         zOSkY5kezZH6bUe7P1eX/5v0dWDwfJm5NCyNpIT7cIv7+YOpkOZwhg94RKQXCTgzfo
+         0vXMOgX9g+tbX9UqdzZdC6zzMFiGc4Cx3WBd4z2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 218/262] ibmvnic: initialize rc before completing wait
+        stable@vger.kernel.org, William Mahon <wmahon@chromium.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 47/51] HID: add mapping for KEY_ALL_APPLICATIONS
 Date:   Mon,  7 Mar 2022 10:19:22 +0100
-Message-Id: <20220307091709.157309871@linuxfoundation.org>
+Message-Id: <20220307091638.328960313@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: William Mahon <wmahon@chromium.org>
 
-[ Upstream commit 765559b10ce514eb1576595834f23cdc92125fee ]
+commit 327b89f0acc4c20a06ed59e4d9af7f6d804dc2e2 upstream.
 
-We should initialize ->init_done_rc before calling complete(). Otherwise
-the waiting thread may see ->init_done_rc as 0 before we have updated it
-and may assume that the CRQ was successful.
+This patch adds a new key definition for KEY_ALL_APPLICATIONS
+and aliases KEY_DASHBOARD to it.
 
-Fixes: 6b278c0cb378 ("ibmvnic delay complete()")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It also maps the 0x0c/0x2a2 usage code to KEY_ALL_APPLICATIONS.
+
+Signed-off-by: William Mahon <wmahon@chromium.org>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20220303035618.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-debug.c                |    4 +++-
+ drivers/hid/hid-input.c                |    2 ++
+ include/uapi/linux/input-event-codes.h |    3 ++-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 52eb6629328c..e98f7d3f935d 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -5145,9 +5145,9 @@ static void ibmvnic_handle_crq(union ibmvnic_crq *crq,
- 			}
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -835,7 +835,9 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_F22] = "F22",			[KEY_F23] = "F23",
+ 	[KEY_F24] = "F24",			[KEY_PLAYCD] = "PlayCD",
+ 	[KEY_PAUSECD] = "PauseCD",		[KEY_PROG3] = "Prog3",
+-	[KEY_PROG4] = "Prog4",			[KEY_SUSPEND] = "Suspend",
++	[KEY_PROG4] = "Prog4",
++	[KEY_ALL_APPLICATIONS] = "AllApplications",
++	[KEY_SUSPEND] = "Suspend",
+ 	[KEY_CLOSE] = "Close",			[KEY_PLAY] = "Play",
+ 	[KEY_FASTFORWARD] = "FastForward",	[KEY_BASSBOOST] = "BassBoost",
+ 	[KEY_PRINT] = "Print",			[KEY_HP] = "HP",
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1037,6 +1037,8 @@ static void hidinput_configure_usage(str
+ 		case 0x28b: map_key_clear(KEY_FORWARDMAIL);	break;
+ 		case 0x28c: map_key_clear(KEY_SEND);		break;
  
- 			if (!completion_done(&adapter->init_done)) {
--				complete(&adapter->init_done);
- 				if (!adapter->init_done_rc)
- 					adapter->init_done_rc = -EAGAIN;
-+				complete(&adapter->init_done);
- 			}
- 
- 			break;
--- 
-2.34.1
-
++		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
++
+ 		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
+ 		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
+ 		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -278,7 +278,8 @@
+ #define KEY_PAUSECD		201
+ #define KEY_PROG3		202
+ #define KEY_PROG4		203
+-#define KEY_DASHBOARD		204	/* AL Dashboard */
++#define KEY_ALL_APPLICATIONS	204	/* AC Desktop Show All Applications */
++#define KEY_DASHBOARD		KEY_ALL_APPLICATIONS
+ #define KEY_SUSPEND		205
+ #define KEY_CLOSE		206	/* AC Close */
+ #define KEY_PLAY		207
 
 
