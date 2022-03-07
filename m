@@ -2,72 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E71A54CFC81
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 12:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F0034CFCB6
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 12:25:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231404AbiCGLUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 06:20:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43668 "EHLO
+        id S236025AbiCGL0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 06:26:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235956AbiCGLUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 06:20:08 -0500
-Received: from mail.itouring.de (mail.itouring.de [IPv6:2a01:4f8:a0:4463::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 240F49A9B6;
-        Mon,  7 Mar 2022 02:44:34 -0800 (PST)
-Received: from tux.applied-asynchrony.com (p5ddd7616.dip0.t-ipconnect.de [93.221.118.22])
-        by mail.itouring.de (Postfix) with ESMTPSA id DEF9011DD40;
-        Mon,  7 Mar 2022 11:44:32 +0100 (CET)
-Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
-        by tux.applied-asynchrony.com (Postfix) with ESMTP id 94D4FF01604;
-        Mon,  7 Mar 2022 11:44:32 +0100 (CET)
-Subject: Re: [PATCH 5.15 000/262] 5.15.27-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220307091702.378509770@linuxfoundation.org>
-From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
-Organization: Applied Asynchrony, Inc.
-Message-ID: <fe8b46f5-6c24-d749-668f-29ea51fa5d58@applied-asynchrony.com>
-Date:   Mon, 7 Mar 2022 11:44:32 +0100
+        with ESMTP id S242012AbiCGL0E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 06:26:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10ED45E153;
+        Mon,  7 Mar 2022 02:58:55 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7373861261;
+        Mon,  7 Mar 2022 10:58:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA32C340E9;
+        Mon,  7 Mar 2022 10:58:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646650734;
+        bh=5xyjKk8i5iRsuorQQjOqeV2wIQYYLgms+b4Hxo6LfKk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DRw36NOwr1DQBURyjpKJSGRxRQDIS2t8uE1I/cYZeSeAj/SyrQkUDriN6/PGYDDoL
+         SaPWbAAeKpHabGZHKBp/fxD7AuTu4nptMdgY0AZZJiVk0CriI0SSaOed3g51sQm34q
+         T6iWmw7dcGnv4xMjjCz4lnxqe1S3yUlQ8I8emo4z+y7cchCOn/uGT2ZKeJXsEghfeO
+         xA4KOKUWncMRja1PsKEMNKH281fpnrwhWpMMVjgg+Eh89F3dxdpUsD5esvEliZNuPw
+         jRfiykpQpWxMPQxGMI+rXDHP+AWzP9MWkJGuAKhofZeOMV5b6Jnrfk0kgJFnngeWKE
+         0AZ+yb+g9Upnw==
+Date:   Mon, 7 Mar 2022 05:58:50 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     stable-commits@vger.kernel.org, Joerg Roedel <joro@8bytes.org>,
+        stable@vger.kernel.org
+Subject: Re: Patch "iommu/amd: Simplify pagetable freeing" has been added to
+ the 5.15-stable tree
+Message-ID: <YiXlamFo/eqTYDeX@sashalap>
+References: <20220305210025.146536-1-sashal@kernel.org>
+ <34442eae-a30d-5144-0fc5-edee35bee7b9@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <34442eae-a30d-5144-0fc5-edee35bee7b9@arm.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-03-07 10:15, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.27 release.
-> There are 262 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Mar 07, 2022 at 10:35:19AM +0000, Robin Murphy wrote:
+>On 2022-03-05 21:00, Sasha Levin wrote:
+>>This is a note to let you know that I've just added the patch titled
+>>
+>>     iommu/amd: Simplify pagetable freeing
+>>
+>>to the 5.15-stable tree which can be found at:
+>>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>>
+>>The filename of the patch is:
+>>      iommu-amd-simplify-pagetable-freeing.patch
+>>and it can be found in the queue-5.15 subdirectory.
+>>
+>>If you, or anyone else, feels it should not be added to the stable tree,
+>>please let <stable@vger.kernel.org> know about it.
+>
+>I don't think this one qualifies for stable - it was just a 
+>refactoring to aid future development. The "fixing" of types is merely 
+>cosmetic, and the code size benefit was just a little bonus, hardly 
+>significant.
 
-CC [M]  drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn301/dcn301_fpu.o
-drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn301/dcn301_fpu.c:30:10: fatal error: dml/dcn20/dcn20_fpu.h: No such file or directory
-    30 | #include "dml/dcn20/dcn20_fpu.h"
-       |          ^~~~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
+I took it and "iommu/amd: Use put_pages_list" to avoid the conflict when
+taking 6b0b2d9a6a30 ("iommu/amd: Fix I/O page table memory leak").
 
-Culprit is "drm-amd-display-move-fpu-associated-dcn301-code-to-d.patch"
+Let me see if I can rework it to not need the 2 prereq patches...
 
-Looking over the git history of the dml/dnc20 directory I think the correct fix would
-be to also apply upstream commit ee37341199c61558b73113659695c90bf4736eb2 aka
-"drm/amd/display: Re-arrange FPU code structure for dcn2x"
-
-CC'ing Qingqing Zhuo for confirmation.
-
-cheers
-Holger
+-- 
+Thanks,
+Sasha
