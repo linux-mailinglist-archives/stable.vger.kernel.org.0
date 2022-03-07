@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C07D4CF73E
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5444CF7AE
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:46:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238040AbiCGJpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:45:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
+        id S238202AbiCGJrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:47:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241032AbiCGJlq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503B26D4EF;
-        Mon,  7 Mar 2022 01:39:24 -0800 (PST)
+        with ESMTP id S238446AbiCGJqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:46:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54D40694A6;
+        Mon,  7 Mar 2022 01:42:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD3E261219;
-        Mon,  7 Mar 2022 09:39:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC75C340E9;
-        Mon,  7 Mar 2022 09:39:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A008B80E70;
+        Mon,  7 Mar 2022 09:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF8B3C340E9;
+        Mon,  7 Mar 2022 09:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645963;
-        bh=itkFADjjYEkMvDwj674Xo1U+p/cXui1ckfMneVVXOnA=;
+        s=korg; t=1646645827;
+        bh=H62Pa9TB5DcGbjeRngxOfMiTImh+GHsLdwD6eP3n3iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELDa++y8eHgC1GFJ3ZZwyIN8vjgVx00xKFvZJ5KbNCA0/PIZGM02sduwObOi/qonC
-         R0ig2hdRClA5Koh19t+YNUP859KvHlljOeRohIEJ5mN6WOqlN7cz8QDb3l3wDX6pP9
-         I8PVBFgyFjiFpqUBF0OxPEAi8hQuL15XkRc+77z8=
+        b=rjLeFdemughK/SezbBlzaaaXHpkQxA3wzW+fzX2o82n2aUT2ck1bcumBHHIPYO7m7
+         xZNMHUtBJf+/Gi5YdkR2hSSvejEd75G0D65G5phJllsPhCLpAEdVOZRUfXZwdiNtq3
+         OOmCN6cGDY76S7RqX/PiR/4dWxxugkIkemYTkf+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Qiang Yu <qiang.yu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/262] drm/amdgpu: check vm ready by amdgpu_vm->evicting flag
-Date:   Mon,  7 Mar 2022 10:16:24 +0100
-Message-Id: <20220307091703.656240750@linuxfoundation.org>
+Subject: [PATCH 5.15 041/262] tracing: Add ustring operation to filtering string pointers
+Date:   Mon,  7 Mar 2022 10:16:25 +0100
+Message-Id: <20220307091703.683855708@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -56,78 +54,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <qiang.yu@amd.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-[ Upstream commit c1a66c3bc425ff93774fb2f6eefa67b83170dd7e ]
+[ Upstream commit f37c3bbc635994eda203a6da4ba0f9d05165a8d6 ]
 
-Workstation application ANSA/META v21.1.4 get this error dmesg when
-running CI test suite provided by ANSA/META:
-[drm:amdgpu_gem_va_ioctl [amdgpu]] *ERROR* Couldn't update BO_VA (-16)
+Since referencing user space pointers is special, if the user wants to
+filter on a field that is a pointer to user space, then they need to
+specify it.
 
-This is caused by:
-1. create a 256MB buffer in invisible VRAM
-2. CPU map the buffer and access it causes vm_fault and try to move
-   it to visible VRAM
-3. force visible VRAM space and traverse all VRAM bos to check if
-   evicting this bo is valuable
-4. when checking a VM bo (in invisible VRAM), amdgpu_vm_evictable()
-   will set amdgpu_vm->evicting, but latter due to not in visible
-   VRAM, won't really evict it so not add it to amdgpu_vm->evicted
-5. before next CS to clear the amdgpu_vm->evicting, user VM ops
-   ioctl will pass amdgpu_vm_ready() (check amdgpu_vm->evicted)
-   but fail in amdgpu_vm_bo_update_mapping() (check
-   amdgpu_vm->evicting) and get this error log
+Add a ".ustring" attribute to the field name for filters to state that the
+field is pointing to user space such that the kernel can take the
+appropriate action to read that pointer.
 
-This error won't affect functionality as next CS will finish the
-waiting VM ops. But we'd better clear the error log by checking
-the amdgpu_vm->evicting flag in amdgpu_vm_ready() to stop calling
-amdgpu_vm_bo_update_mapping() later.
+Link: https://lore.kernel.org/all/yt9d8rvmt2jq.fsf@linux.ibm.com/
 
-Another reason is amdgpu_vm->evicted list holds all BOs (both
-user buffer and page table), but only page table BOs' eviction
-prevent VM ops. amdgpu_vm->evicting flag is set only for page
-table BOs, so we should use evicting flag instead of evicted list
-in amdgpu_vm_ready().
-
-The side effect of this change is: previously blocked VM op (user
-buffer in "evicted" list but no page table in it) gets done
-immediately.
-
-v2: update commit comments.
-
-Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Qiang Yu <qiang.yu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 77360f9bbc7e ("tracing: Add test for user space strings when filtering on string pointers")
+Tested-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ Documentation/trace/events.rst     |  9 ++++
+ kernel/trace/trace_events_filter.c | 81 +++++++++++++++++++++---------
+ 2 files changed, 66 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index 6b15cad78de9d..a33cb2f4d7444 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -768,11 +768,16 @@ int amdgpu_vm_validate_pt_bos(struct amdgpu_device *adev, struct amdgpu_vm *vm,
-  * Check if all VM PDs/PTs are ready for updates
-  *
-  * Returns:
-- * True if eviction list is empty.
-+ * True if VM is not evicting.
-  */
- bool amdgpu_vm_ready(struct amdgpu_vm *vm)
- {
--	return list_empty(&vm->evicted);
-+	bool ret;
+diff --git a/Documentation/trace/events.rst b/Documentation/trace/events.rst
+index 45e66a60a816a..c47f381d0c002 100644
+--- a/Documentation/trace/events.rst
++++ b/Documentation/trace/events.rst
+@@ -198,6 +198,15 @@ The glob (~) accepts a wild card character (\*,?) and character classes
+   prev_comm ~ "*sh*"
+   prev_comm ~ "ba*sh"
+ 
++If the field is a pointer that points into user space (for example
++"filename" from sys_enter_openat), then you have to append ".ustring" to the
++field name::
 +
-+	amdgpu_vm_eviction_lock(vm);
-+	ret = !vm->evicting;
-+	amdgpu_vm_eviction_unlock(vm);
-+	return ret;
++  filename.ustring ~ "password"
++
++As the kernel will have to know how to retrieve the memory that the pointer
++is at from user space.
++
+ 5.2 Setting filters
+ -------------------
+ 
+diff --git a/kernel/trace/trace_events_filter.c b/kernel/trace/trace_events_filter.c
+index d3eb3c630f601..06d6318ee5377 100644
+--- a/kernel/trace/trace_events_filter.c
++++ b/kernel/trace/trace_events_filter.c
+@@ -665,6 +665,23 @@ struct ustring_buffer {
+ static __percpu struct ustring_buffer *ustring_per_cpu;
+ 
+ static __always_inline char *test_string(char *str)
++{
++	struct ustring_buffer *ubuf;
++	char *kstr;
++
++	if (!ustring_per_cpu)
++		return NULL;
++
++	ubuf = this_cpu_ptr(ustring_per_cpu);
++	kstr = ubuf->buffer;
++
++	/* For safety, do not trust the string pointer */
++	if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
++		return NULL;
++	return kstr;
++}
++
++static __always_inline char *test_ustring(char *str)
+ {
+ 	struct ustring_buffer *ubuf;
+ 	char __user *ustr;
+@@ -676,23 +693,11 @@ static __always_inline char *test_string(char *str)
+ 	ubuf = this_cpu_ptr(ustring_per_cpu);
+ 	kstr = ubuf->buffer;
+ 
+-	/*
+-	 * We use TASK_SIZE to denote user or kernel space, but this will
+-	 * not work for all architectures. If it picks the wrong one, it may
+-	 * just fail the filter (but will not bug).
+-	 *
+-	 * TODO: Have a way to properly denote which one this is for.
+-	 */
+-	if (likely((unsigned long)str >= TASK_SIZE)) {
+-		/* For safety, do not trust the string pointer */
+-		if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
+-			return NULL;
+-	} else {
+-		/* user space address? */
+-		ustr = (char __user *)str;
+-		if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
+-			return NULL;
+-	}
++	/* user space address? */
++	ustr = (char __user *)str;
++	if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
++		return NULL;
++
+ 	return kstr;
  }
  
- /**
+@@ -709,24 +714,42 @@ static int filter_pred_string(struct filter_pred *pred, void *event)
+ 	return match;
+ }
+ 
++static __always_inline int filter_pchar(struct filter_pred *pred, char *str)
++{
++	int cmp, match;
++	int len;
++
++	len = strlen(str) + 1;	/* including tailing '\0' */
++	cmp = pred->regex.match(str, &pred->regex, len);
++
++	match = cmp ^ pred->not;
++
++	return match;
++}
+ /* Filter predicate for char * pointers */
+ static int filter_pred_pchar(struct filter_pred *pred, void *event)
+ {
+ 	char **addr = (char **)(event + pred->offset);
+ 	char *str;
+-	int cmp, match;
+-	int len;
+ 
+ 	str = test_string(*addr);
+ 	if (!str)
+ 		return 0;
+ 
+-	len = strlen(str) + 1;	/* including tailing '\0' */
+-	cmp = pred->regex.match(str, &pred->regex, len);
++	return filter_pchar(pred, str);
++}
+ 
+-	match = cmp ^ pred->not;
++/* Filter predicate for char * pointers in user space*/
++static int filter_pred_pchar_user(struct filter_pred *pred, void *event)
++{
++	char **addr = (char **)(event + pred->offset);
++	char *str;
+ 
+-	return match;
++	str = test_ustring(*addr);
++	if (!str)
++		return 0;
++
++	return filter_pchar(pred, str);
+ }
+ 
+ /*
+@@ -1206,6 +1229,7 @@ static int parse_pred(const char *str, void *data,
+ 	struct filter_pred *pred = NULL;
+ 	char num_buf[24];	/* Big enough to hold an address */
+ 	char *field_name;
++	bool ustring = false;
+ 	char q;
+ 	u64 val;
+ 	int len;
+@@ -1240,6 +1264,12 @@ static int parse_pred(const char *str, void *data,
+ 		return -EINVAL;
+ 	}
+ 
++	/* See if the field is a user space string */
++	if ((len = str_has_prefix(str + i, ".ustring"))) {
++		ustring = true;
++		i += len;
++	}
++
+ 	while (isspace(str[i]))
+ 		i++;
+ 
+@@ -1377,7 +1407,10 @@ static int parse_pred(const char *str, void *data,
+ 					goto err_mem;
+ 			}
+ 
+-			pred->fn = filter_pred_pchar;
++			if (ustring)
++				pred->fn = filter_pred_pchar_user;
++			else
++				pred->fn = filter_pred_pchar;
+ 		}
+ 		/* go past the last quote */
+ 		i++;
 -- 
 2.34.1
 
