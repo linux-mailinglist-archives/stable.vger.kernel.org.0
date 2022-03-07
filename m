@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 960F34CF95C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903124CF637
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233217AbiCGKEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:04:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39744 "EHLO
+        id S236019AbiCGJdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:33:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240794AbiCGKBR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA34673F9;
-        Mon,  7 Mar 2022 01:50:54 -0800 (PST)
+        with ESMTP id S237745AbiCGJdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A506AA5F;
+        Mon,  7 Mar 2022 01:30:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB934B810DE;
-        Mon,  7 Mar 2022 09:50:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3AD4C340F6;
-        Mon,  7 Mar 2022 09:50:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1106A611AE;
+        Mon,  7 Mar 2022 09:30:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 134A0C36AEA;
+        Mon,  7 Mar 2022 09:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646651;
-        bh=zis2YNmlecfJhb2oUpwoY3eFIA+187AlapIw03AkN9A=;
+        s=korg; t=1646645403;
+        bh=YfYYgfEG/tUw+RF/Z5+2ChlPUubhZWSVdHx6WExWyhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEmpG6YobHudYlRBfMJhqjfpsftTxN6wPvPKT2pe+gy/2x7GnLmFb2ba7zkyrHHws
-         Iu+n35gbZFtZE4WbVVQAxTaaWdpq359pP+tyI93puhHADoo6GdrP2f3Rbrx4tCYmDb
-         aYSLpmMQVvGKKABnMUpZFUc8mNsXELfLfXlWVm24=
+        b=JVEgo96yKndjS/sfmfBMPb/TI7N4tMucpxfUBV01OzqdKLFhoaqWmegbzZG3CuGro
+         mcYdCMyaTpNCiRzID8b1UkeoIrosBfp7BqZJ99u/ieoSrNIZzpnOl07a/qmxh3kTKz
+         cQ1uqG7xgCeap44A+bC68e73+lKULNWHG7IGSixU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Ni <nizhen@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 048/186] ALSA: intel_hdmi: Fix reference to PCM buffer address
+        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 003/105] i2c: bcm2835: Avoid clock stretching timeouts
 Date:   Mon,  7 Mar 2022 10:18:06 +0100
-Message-Id: <20220307091655.438663635@linuxfoundation.org>
+Message-Id: <20220307091644.279301619@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Ni <nizhen@uniontech.com>
+From: Eric Anholt <eric@anholt.net>
 
-commit 0aa6b294b312d9710804679abd2c0c8ca52cc2bc upstream.
+[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
 
-PCM buffers might be allocated dynamically when the buffer
-preallocation failed or a larger buffer is requested, and it's not
-guaranteed that substream->dma_buffer points to the actually used
-buffer.  The driver needs to refer to substream->runtime->dma_addr
-instead for the buffer address.
+The CLKT register contains at poweron 0x40, which at our typical 100kHz
+bus rate means .64ms. But there is no specified limit to how long devices
+should be able to stretch the clocks, so just disable the timeout. We
+still have a timeout wrapping the entire transfer.
 
-Signed-off-by: Zhen Ni <nizhen@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220302074241.30469-1-nizhen@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+BugLink: https://github.com/raspberrypi/linux/issues/3064
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/x86/intel_hdmi_audio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/sound/x86/intel_hdmi_audio.c
-+++ b/sound/x86/intel_hdmi_audio.c
-@@ -1261,7 +1261,7 @@ static int had_pcm_mmap(struct snd_pcm_s
- {
- 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
- 	return remap_pfn_range(vma, vma->vm_start,
--			substream->dma_buffer.addr >> PAGE_SHIFT,
-+			substream->runtime->dma_addr >> PAGE_SHIFT,
- 			vma->vm_end - vma->vm_start, vma->vm_page_prot);
- }
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 37443edbf7546..ad3b124a2e376 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -23,6 +23,11 @@
+ #define BCM2835_I2C_FIFO	0x10
+ #define BCM2835_I2C_DIV		0x14
+ #define BCM2835_I2C_DEL		0x18
++/*
++ * 16-bit field for the number of SCL cycles to wait after rising SCL
++ * before deciding the slave is not responding. 0 disables the
++ * timeout detection.
++ */
+ #define BCM2835_I2C_CLKT	0x1c
  
+ #define BCM2835_I2C_C_READ	BIT(0)
+@@ -477,6 +482,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->quirks = of_device_get_match_data(&pdev->dev);
+ 
++	/*
++	 * Disable the hardware clock stretching timeout. SMBUS
++	 * specifies a limit for how long the device can stretch the
++	 * clock, but core I2C doesn't.
++	 */
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
+ 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 
+ 	ret = i2c_add_adapter(adap);
+-- 
+2.34.1
+
 
 
