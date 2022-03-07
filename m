@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C78E4CF07C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 04:40:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9888F4CF07E
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 04:42:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233030AbiCGDli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Mar 2022 22:41:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40246 "EHLO
+        id S230098AbiCGDnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Mar 2022 22:43:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233064AbiCGDlh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 22:41:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0CA4DF5A;
-        Sun,  6 Mar 2022 19:40:43 -0800 (PST)
+        with ESMTP id S231704AbiCGDnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 22:43:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFDD56548;
+        Sun,  6 Mar 2022 19:42:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5546B611E6;
-        Mon,  7 Mar 2022 03:40:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A64CEC340F3;
-        Mon,  7 Mar 2022 03:40:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 891D260F7D;
+        Mon,  7 Mar 2022 03:42:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC2D6C340F3;
+        Mon,  7 Mar 2022 03:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1646624442;
+        s=korg; t=1646624557;
         bh=dlxNltCGxYkiCNG9Z7OiUhRYJzwO3keptp1KXilohZc=;
         h=Date:To:From:Subject:From;
-        b=NmYcp4j5egrC4eZSKLzwZCaP8HqY7TGkJJj92PDX0iujzIC5h8wsFhmDwDfhocdeN
-         EIMNXX27L5oRJhvAlzOk6e1MQMcVBnMMDcT2z6fTcYM0qugTEEYMN8AkDSHmZkxE4/
-         3uysC1Ny6dj2IS+7sQLA2PCh+/VcBiJzr1NIYVA0=
-Date:   Sun, 06 Mar 2022 19:40:41 -0800
+        b=W5LBlfG0gqn9DNyX18AABgC4xH5OFzp2Vje3bTkgKBhbaPIEx1arz/wzaG1lm1IcH
+         9R6tx0jtGm5LPL0fd0U5CWIuimzT4zueISDTi28l5TDnspXQyFW4UOMsKX0apeIJS/
+         HfaJ8nU1tq2sOH3Lhw/RFn+GBMH1FioVeTk0onKs=
+Date:   Sun, 06 Mar 2022 19:42:36 -0800
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
         roman.gushchin@linux.dev, mkoutny@suse.com, mhocko@suse.com,
         ivan@cloudflare.com, hannes@cmpxchg.org, fhofmann@cloudflare.com,
@@ -36,7 +36,7 @@ To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
 Subject: + memcg-sync-flush-only-if-periodic-flush-is-delayed.patch added to -mm tree
-Message-Id: <20220307034042.A64CEC340F3@smtp.kernel.org>
+Message-Id: <20220307034236.DC2D6C340F3@smtp.kernel.org>
 X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
         RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
