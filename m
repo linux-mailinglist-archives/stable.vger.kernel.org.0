@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE134CF703
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC114CF861
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:53:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237838AbiCGJoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
+        id S238675AbiCGJxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:53:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238233AbiCGJiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7A5E61A36;
-        Mon,  7 Mar 2022 01:32:17 -0800 (PST)
+        with ESMTP id S238218AbiCGJvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:51:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0E566C8B;
+        Mon,  7 Mar 2022 01:45:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E7B0B810C2;
-        Mon,  7 Mar 2022 09:32:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96542C340E9;
-        Mon,  7 Mar 2022 09:32:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2CB8B810B9;
+        Mon,  7 Mar 2022 09:45:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10237C340E9;
+        Mon,  7 Mar 2022 09:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645536;
-        bh=rkN/9pHcviQL+3Bw05GKlarMeOkPn7TNP2Y495EHTAA=;
+        s=korg; t=1646646305;
+        bh=jZhJUgnC00Oi4NxwevCHNXIQrXbw0XYFCaL4YrnILQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jh6RTBQUZIcE11lgX1QHvXUb5lJYi5UhnZvAifIPV6jYrQsSJ2wlzN57Z9Uk9bw87
-         jwPNGHA2IQkoA2CRN8/6l/FLiU1kMByerkeaQr6HmMro1A+ZJs41FSR241cfs8Y07x
-         +7eZx3jZkG9PcnodR6Q+ftV9Kn3i1HDpzJSegQ6w=
+        b=Pb7aLgPGeFJDwWRN9GUpIpRH4Ca8ECVsfgyTC11ihhfmK+mgCdbZZQBpJhlm19i/m
+         FMQMBOuBP9EXpOAjjA5veOeeu+Tj05VzyA7TYzKjttjMzRuKgvczXt0sBrGHWCOMXN
+         wvq4XFdFFd/HPqgqFHJCNg08MaNA53gmZhuRJ68c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Nicolas Escande <nico.escande@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 060/105] mac80211: fix forwarded mesh frames AC & queue selection
-Date:   Mon,  7 Mar 2022 10:19:03 +0100
-Message-Id: <20220307091645.868637246@linuxfoundation.org>
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        Zeal Robot <zealci@zte.com.cn>,
+        wangyong <wang.yong12@zte.com.cn>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        CGEL ZTE <cgel.zte@gmail.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Song Liu <songliubraving@fb.com>,
+        Yang Yang <yang.yang29@zte.com.cn>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 200/262] memfd: fix F_SEAL_WRITE after shmem huge page allocated
+Date:   Mon,  7 Mar 2022 10:19:04 +0100
+Message-Id: <20220307091708.322068557@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +62,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Escande <nico.escande@gmail.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit 859ae7018316daa4adbc496012dcbbb458d7e510 upstream.
+commit f2b277c4d1c63a85127e8aa2588e9cc3bd21cb99 upstream.
 
-There are two problems with the current code that have been highlighted
-with the AQL feature that is now enbaled by default.
+Wangyong reports: after enabling tmpfs filesystem to support transparent
+hugepage with the following command:
 
-First problem is in ieee80211_rx_h_mesh_fwding(),
-ieee80211_select_queue_80211() is used on received packets to choose
-the sending AC queue of the forwarding packet although this function
-should only be called on TX packet (it uses ieee80211_tx_info).
-This ends with forwarded mesh packets been sent on unrelated random AC
-queue. To fix that, AC queue can directly be infered from skb->priority
-which has been extracted from QOS info (see ieee80211_parse_qos()).
+  echo always > /sys/kernel/mm/transparent_hugepage/shmem_enabled
 
-Second problem is the value of queue_mapping set on forwarded mesh
-frames via skb_set_queue_mapping() is not the AC of the packet but a
-hardware queue index. This may or may not work depending on AC to HW
-queue mapping which is driver specific.
+the docker program tries to add F_SEAL_WRITE through the following
+command, but it fails unexpectedly with errno EBUSY:
 
-Both of these issues lead to improper AC selection while forwarding
-mesh packets but more importantly due to improper airtime accounting
-(which is done on a per STA, per AC basis) caused traffic stall with
-the introduction of AQL.
+  fcntl(5, F_ADD_SEALS, F_SEAL_WRITE) = -1.
 
-Fixes: cf44012810cc ("mac80211: fix unnecessary frame drops in mesh fwding")
-Fixes: d3c1597b8d1b ("mac80211: fix forwarded mesh frame queue mapping")
-Co-developed-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Nicolas Escande <nico.escande@gmail.com>
-Link: https://lore.kernel.org/r/20220214173214.368862-1-nico.escande@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+That is because memfd_tag_pins() and memfd_wait_for_pins() were never
+updated for shmem huge pages: checking page_mapcount() against
+page_count() is hopeless on THP subpages - they need to check
+total_mapcount() against page_count() on THP heads only.
+
+Make memfd_tag_pins() (compared > 1) as strict as memfd_wait_for_pins()
+(compared != 1): either can be justified, but given the non-atomic
+total_mapcount() calculation, it is better now to be strict.  Bear in
+mind that total_mapcount() itself scans all of the THP subpages, when
+choosing to take an XA_CHECK_SCHED latency break.
+
+Also fix the unlikely xa_is_value() case in memfd_wait_for_pins(): if a
+page has been swapped out since memfd_tag_pins(), then its refcount must
+have fallen, and so it can safely be untagged.
+
+Link: https://lkml.kernel.org/r/a4f79248-df75-2c8c-3df-ba3317ccb5da@google.com
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Reported-by: wangyong <wang.yong12@zte.com.cn>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: CGEL ZTE <cgel.zte@gmail.com>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yang Yang <yang.yang29@zte.com.cn>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/memfd.c |   40 ++++++++++++++++++++++++++++------------
+ 1 file changed, 28 insertions(+), 12 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2910,13 +2910,13 @@ ieee80211_rx_h_mesh_fwding(struct ieee80
- 	    ether_addr_equal(sdata->vif.addr, hdr->addr3))
- 		return RX_CONTINUE;
+--- a/mm/memfd.c
++++ b/mm/memfd.c
+@@ -31,20 +31,28 @@
+ static void memfd_tag_pins(struct xa_state *xas)
+ {
+ 	struct page *page;
+-	unsigned int tagged = 0;
++	int latency = 0;
++	int cache_count;
  
--	ac = ieee80211_select_queue_80211(sdata, skb, hdr);
-+	ac = ieee802_1d_to_ac[skb->priority];
- 	q = sdata->vif.hw_queue[ac];
- 	if (ieee80211_queue_stopped(&local->hw, q)) {
- 		IEEE80211_IFSTA_MESH_CTR_INC(ifmsh, dropped_frames_congestion);
- 		return RX_DROP_MONITOR;
- 	}
--	skb_set_queue_mapping(skb, q);
-+	skb_set_queue_mapping(skb, ac);
+ 	lru_add_drain();
  
- 	if (!--mesh_hdr->ttl) {
- 		if (!is_multicast_ether_addr(hdr->addr1))
+ 	xas_lock_irq(xas);
+ 	xas_for_each(xas, page, ULONG_MAX) {
+-		if (xa_is_value(page))
+-			continue;
+-		page = find_subpage(page, xas->xa_index);
+-		if (page_count(page) - page_mapcount(page) > 1)
++		cache_count = 1;
++		if (!xa_is_value(page) &&
++		    PageTransHuge(page) && !PageHuge(page))
++			cache_count = HPAGE_PMD_NR;
++
++		if (!xa_is_value(page) &&
++		    page_count(page) - total_mapcount(page) != cache_count)
+ 			xas_set_mark(xas, MEMFD_TAG_PINNED);
++		if (cache_count != 1)
++			xas_set(xas, page->index + cache_count);
+ 
+-		if (++tagged % XA_CHECK_SCHED)
++		latency += cache_count;
++		if (latency < XA_CHECK_SCHED)
+ 			continue;
++		latency = 0;
+ 
+ 		xas_pause(xas);
+ 		xas_unlock_irq(xas);
+@@ -73,7 +81,8 @@ static int memfd_wait_for_pins(struct ad
+ 
+ 	error = 0;
+ 	for (scan = 0; scan <= LAST_SCAN; scan++) {
+-		unsigned int tagged = 0;
++		int latency = 0;
++		int cache_count;
+ 
+ 		if (!xas_marked(&xas, MEMFD_TAG_PINNED))
+ 			break;
+@@ -87,10 +96,14 @@ static int memfd_wait_for_pins(struct ad
+ 		xas_lock_irq(&xas);
+ 		xas_for_each_marked(&xas, page, ULONG_MAX, MEMFD_TAG_PINNED) {
+ 			bool clear = true;
+-			if (xa_is_value(page))
+-				continue;
+-			page = find_subpage(page, xas.xa_index);
+-			if (page_count(page) - page_mapcount(page) != 1) {
++
++			cache_count = 1;
++			if (!xa_is_value(page) &&
++			    PageTransHuge(page) && !PageHuge(page))
++				cache_count = HPAGE_PMD_NR;
++
++			if (!xa_is_value(page) && cache_count !=
++			    page_count(page) - total_mapcount(page)) {
+ 				/*
+ 				 * On the last scan, we clean up all those tags
+ 				 * we inserted; but make a note that we still
+@@ -103,8 +116,11 @@ static int memfd_wait_for_pins(struct ad
+ 			}
+ 			if (clear)
+ 				xas_clear_mark(&xas, MEMFD_TAG_PINNED);
+-			if (++tagged % XA_CHECK_SCHED)
++
++			latency += cache_count;
++			if (latency < XA_CHECK_SCHED)
+ 				continue;
++			latency = 0;
+ 
+ 			xas_pause(&xas);
+ 			xas_unlock_irq(&xas);
 
 
