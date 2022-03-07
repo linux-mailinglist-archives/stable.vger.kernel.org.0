@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E840A4CF9AF
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B444CF594
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235782AbiCGKOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:14:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33622 "EHLO
+        id S236715AbiCGJaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242342AbiCGKL0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:26 -0500
+        with ESMTP id S237712AbiCGJ2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2AD38A304;
-        Mon,  7 Mar 2022 01:54:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F01B5C84E;
+        Mon,  7 Mar 2022 01:25:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F77B60A23;
-        Mon,  7 Mar 2022 09:54:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C52CC340E9;
-        Mon,  7 Mar 2022 09:54:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECBE46114D;
+        Mon,  7 Mar 2022 09:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E63F1C340F4;
+        Mon,  7 Mar 2022 09:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646896;
-        bh=x+/m0XSob4i8XhaSbKnkLEgxtn13mwwPLD6Br4nANn4=;
+        s=korg; t=1646645139;
+        bh=yTOllWjCgOoc5lILcUbRa5RKg2Cr4i89zGrd/HAZhkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzcLiA7Gc/P1kWMvwxbL6rrB6C4qXdm0L+Jtnj5qCrBdWM7Pt+KoBcY6am/cvIvdB
-         53ISOGtHvVtuhzju+ZDJrYLng9hEIOq8ogbmbCBM1pBaKYSwj7F9xSvEJr2jxhMIFR
-         +IzJcu9qXkPFQjAWiJe5y6A70nX5g4/+84ZT8w7g=
+        b=kdgKUt3CnmmXhiJU68xc1D2l/zeRPWfqsdo1sxbm21JVt4EHKkGmE0jhVvXnL2llw
+         2wX3wpSX78pjIbDPforXeEMKIcTeIvhybZ7oKsnGsJHznxf95r0l1Ol6MYtw1wzfv2
+         WX2oILQqjyun/DrpO4rmXRqTMrOSW3PkHSB2SZTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
-        Chuanhong Guo <gch981213@gmail.com>,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 127/186] MIPS: ralink: mt7621: do memory detection on KSEG1
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 50/51] btrfs: add missing run of delayed items after unlink during log replay
 Date:   Mon,  7 Mar 2022 10:19:25 +0100
-Message-Id: <20220307091657.630682691@linuxfoundation.org>
+Message-Id: <20220307091638.412482256@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,95 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuanhong Guo <gch981213@gmail.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit cc19db8b312a6c75645645f5cc1b45166b109006 ]
+commit 4751dc99627e4d1465c5bfa8cb7ab31ed418eff5 upstream.
 
-It's reported that current memory detection code occasionally detects
-larger memory under some bootloaders.
-Current memory detection code tests whether address space wraps around
-on KSEG0, which is unreliable because it's cached.
+During log replay, whenever we need to check if a name (dentry) exists in
+a directory we do searches on the subvolume tree for inode references or
+or directory entries (BTRFS_DIR_INDEX_KEY keys, and BTRFS_DIR_ITEM_KEY
+keys as well, before kernel 5.17). However when during log replay we
+unlink a name, through btrfs_unlink_inode(), we may not delete inode
+references and dir index keys from a subvolume tree and instead just add
+the deletions to the delayed inode's delayed items, which will only be
+run when we commit the transaction used for log replay. This means that
+after an unlink operation during log replay, if we attempt to search for
+the same name during log replay, we will not see that the name was already
+deleted, since the deletion is recorded only on the delayed items.
 
-Rewrite memory size detection to perform the same test on KSEG1 instead.
-While at it, this patch also does the following two things:
-1. use a fixed pattern instead of a random function pointer as the magic
-   value.
-2. add an additional memory write and a second comparison as part of the
-   test to prevent possible smaller memory detection result due to
-   leftover values in memory.
+We run delayed items after every unlink operation during log replay,
+except at unlink_old_inode_refs() and at add_inode_ref(). This was due
+to an overlook, as delayed items should be run after evert unlink, for
+the reasons stated above.
 
-Fixes: 139c949f7f0a MIPS: ("ralink: mt7621: add memory detection support")
-Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
-Tested-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So fix those two cases.
+
+Fixes: 0d836392cadd5 ("Btrfs: fix mount failure after fsync due to hard link recreation")
+Fixes: 1f250e929a9c9 ("Btrfs: fix log replay failure after unlink and link combination")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/ralink/mt7621.c | 36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ fs/btrfs/tree-log.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/arch/mips/ralink/mt7621.c b/arch/mips/ralink/mt7621.c
-index bd71f5b14238..fd9a872d5713 100644
---- a/arch/mips/ralink/mt7621.c
-+++ b/arch/mips/ralink/mt7621.c
-@@ -20,31 +20,41 @@
- 
- #include "common.h"
- 
--static void *detect_magic __initdata = detect_memory_region;
-+#define MT7621_MEM_TEST_PATTERN         0xaa5555aa
-+
-+static u32 detect_magic __initdata;
- 
- phys_addr_t mips_cpc_default_phys_base(void)
- {
- 	panic("Cannot detect cpc address");
- }
- 
-+static bool __init mt7621_addr_wraparound_test(phys_addr_t size)
-+{
-+	void *dm = (void *)KSEG1ADDR(&detect_magic);
-+
-+	if (CPHYSADDR(dm + size) >= MT7621_LOWMEM_MAX_SIZE)
-+		return true;
-+	__raw_writel(MT7621_MEM_TEST_PATTERN, dm);
-+	if (__raw_readl(dm) != __raw_readl(dm + size))
-+		return false;
-+	__raw_writel(!MT7621_MEM_TEST_PATTERN, dm);
-+	return __raw_readl(dm) == __raw_readl(dm + size);
-+}
-+
- static void __init mt7621_memory_detect(void)
- {
--	void *dm = &detect_magic;
- 	phys_addr_t size;
- 
--	for (size = 32 * SZ_1M; size < 256 * SZ_1M; size <<= 1) {
--		if (!__builtin_memcmp(dm, dm + size, sizeof(detect_magic)))
--			break;
-+	for (size = 32 * SZ_1M; size <= 256 * SZ_1M; size <<= 1) {
-+		if (mt7621_addr_wraparound_test(size)) {
-+			memblock_add(MT7621_LOWMEM_BASE, size);
-+			return;
-+		}
- 	}
- 
--	if ((size == 256 * SZ_1M) &&
--	    (CPHYSADDR(dm + size) < MT7621_LOWMEM_MAX_SIZE) &&
--	    __builtin_memcmp(dm, dm + size, sizeof(detect_magic))) {
--		memblock_add(MT7621_LOWMEM_BASE, MT7621_LOWMEM_MAX_SIZE);
--		memblock_add(MT7621_HIGHMEM_BASE, MT7621_HIGHMEM_SIZE);
--	} else {
--		memblock_add(MT7621_LOWMEM_BASE, size);
--	}
-+	memblock_add(MT7621_LOWMEM_BASE, MT7621_LOWMEM_MAX_SIZE);
-+	memblock_add(MT7621_HIGHMEM_BASE, MT7621_HIGHMEM_SIZE);
- }
- 
- void __init ralink_of_remap(void)
--- 
-2.34.1
-
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1289,6 +1289,15 @@ again:
+ 						 inode, name, namelen);
+ 			kfree(name);
+ 			iput(dir);
++			/*
++			 * Whenever we need to check if a name exists or not, we
++			 * check the subvolume tree. So after an unlink we must
++			 * run delayed items, so that future checks for a name
++			 * during log replay see that the name does not exists
++			 * anymore.
++			 */
++			if (!ret)
++				ret = btrfs_run_delayed_items(trans);
+ 			if (ret)
+ 				goto out;
+ 			goto again;
+@@ -1480,6 +1489,15 @@ static noinline int add_inode_ref(struct
+ 				 */
+ 				if (!ret && inode->i_nlink == 0)
+ 					inc_nlink(inode);
++				/*
++				 * Whenever we need to check if a name exists or
++				 * not, we check the subvolume tree. So after an
++				 * unlink we must run delayed items, so that future
++				 * checks for a name during log replay see that the
++				 * name does not exists anymore.
++				 */
++				if (!ret)
++					ret = btrfs_run_delayed_items(trans);
+ 			}
+ 			if (ret < 0)
+ 				goto out;
 
 
