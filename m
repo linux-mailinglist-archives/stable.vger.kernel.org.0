@@ -2,85 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0034CFCB6
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 12:25:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2034CFCC1
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 12:26:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236025AbiCGL0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 06:26:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
+        id S241999AbiCGL1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 06:27:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242012AbiCGL0E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 06:26:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10ED45E153;
-        Mon,  7 Mar 2022 02:58:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7373861261;
-        Mon,  7 Mar 2022 10:58:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA32C340E9;
-        Mon,  7 Mar 2022 10:58:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646650734;
-        bh=5xyjKk8i5iRsuorQQjOqeV2wIQYYLgms+b4Hxo6LfKk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DRw36NOwr1DQBURyjpKJSGRxRQDIS2t8uE1I/cYZeSeAj/SyrQkUDriN6/PGYDDoL
-         SaPWbAAeKpHabGZHKBp/fxD7AuTu4nptMdgY0AZZJiVk0CriI0SSaOed3g51sQm34q
-         T6iWmw7dcGnv4xMjjCz4lnxqe1S3yUlQ8I8emo4z+y7cchCOn/uGT2ZKeJXsEghfeO
-         xA4KOKUWncMRja1PsKEMNKH281fpnrwhWpMMVjgg+Eh89F3dxdpUsD5esvEliZNuPw
-         jRfiykpQpWxMPQxGMI+rXDHP+AWzP9MWkJGuAKhofZeOMV5b6Jnrfk0kgJFnngeWKE
-         0AZ+yb+g9Upnw==
-Date:   Mon, 7 Mar 2022 05:58:50 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     stable-commits@vger.kernel.org, Joerg Roedel <joro@8bytes.org>,
-        stable@vger.kernel.org
-Subject: Re: Patch "iommu/amd: Simplify pagetable freeing" has been added to
- the 5.15-stable tree
-Message-ID: <YiXlamFo/eqTYDeX@sashalap>
-References: <20220305210025.146536-1-sashal@kernel.org>
- <34442eae-a30d-5144-0fc5-edee35bee7b9@arm.com>
+        with ESMTP id S242005AbiCGL1P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 06:27:15 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BBA6749F27
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 03:03:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646651019;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=gNPPt7IcCgazViAJnPdJB9z9Owb+g+PUdYAZ9hinRqk=;
+        b=gHCdzeOPcngl7boIMhqjUqDWcRNyq+HQWw/c9+Ehhd/lvK+RkdIL2n3z8dgOIg7mk1t4y5
+        RJdfPGMtIkUooI0ZgKjMKJ0jpL+PMsHs5CiqIM6xbQ7qFzmlHJJ0PGptuvbYHQlwnPdJID
+        1S6b7I83Z9/LhjTMy/391ccELCrM+bQ=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-131-zaW7GDbdOIOgFdmLbj4EVw-1; Mon, 07 Mar 2022 06:03:38 -0500
+X-MC-Unique: zaW7GDbdOIOgFdmLbj4EVw-1
+Received: by mail-ed1-f71.google.com with SMTP id da28-20020a056402177c00b00415ce4b20baso7489730edb.17
+        for <stable@vger.kernel.org>; Mon, 07 Mar 2022 03:03:38 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=gNPPt7IcCgazViAJnPdJB9z9Owb+g+PUdYAZ9hinRqk=;
+        b=zcDOK+3wdcSvBexf54/AeIJNDmyYgqxJftMSWk6gVTyTlbRDOizaNWvo/hKQixoHbf
+         lRYqG9VNnX60TMKnV1aniVaVW0pq2ILPagJjqgwE7QcLzMZyKhpLGzofVYtsF1z0jcvV
+         4NSCRq4DxP5nsWqr6J/WClX/pYqDjpry3RIkKJF3UeZL4eKzkElQqyQy4OMOmyg2JYdy
+         MrpimISPdDbBOeuhkDn52TYWcY+AW1WbBJCLIK44DdA8xZbrb8yrQy/iEXp01XF0XLKC
+         zRwfGICx8mdAHG4PcnekmhPOvnEOoUAkzX6EyBWzD5efXr9WeOzotQ1zZpaO+FenzqvH
+         IqbQ==
+X-Gm-Message-State: AOAM531aHmCHbpXftiVqCxrvLBtiDd0I7X64XJaaG43puKspyFF3N/KX
+        xxJ/LrkehoYlgQbnaNeTep6ENUzO7AzPwgwZvRKmXwl6icWZKN9qFjhbHUNEzsC2dej0LbkUI0A
+        azRBxp26Y3a5mRR2T
+X-Received: by 2002:a05:6402:1e91:b0:415:ecdb:bb42 with SMTP id f17-20020a0564021e9100b00415ecdbbb42mr10485782edf.367.1646651017440;
+        Mon, 07 Mar 2022 03:03:37 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzm045HAXHomDdQ4eh2BMpTcblB2cVV+JVDBoNGC3+rpUKylFjFOJZk78RZ+xJFhn3Hw+5UaQ==
+X-Received: by 2002:a05:6402:1e91:b0:415:ecdb:bb42 with SMTP id f17-20020a0564021e9100b00415ecdbbb42mr10485752edf.367.1646651017235;
+        Mon, 07 Mar 2022 03:03:37 -0800 (PST)
+Received: from redhat.com ([2.55.138.228])
+        by smtp.gmail.com with ESMTPSA id er12-20020a056402448c00b00413d03ac4a2sm5718316edb.69.2022.03.07.03.03.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Mar 2022 03:03:36 -0800 (PST)
+Date:   Mon, 7 Mar 2022 06:03:32 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        dan.carpenter@oracle.com, david@redhat.com, jasowang@redhat.com,
+        lkp@intel.com, mail@anirudhrb.com, mst@redhat.com,
+        pasic@linux.ibm.com, sgarzare@redhat.com, si-wei.liu@oracle.com,
+        stable@vger.kernel.org,
+        syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com,
+        wang.yi59@zte.com.cn, xieyongji@bytedance.com,
+        zhang.min9@zte.com.cn
+Subject: [GIT PULL] virtio: last minute fixes
+Message-ID: <20220307060332-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <34442eae-a30d-5144-0fc5-edee35bee7b9@arm.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Mutt-Fcc: =sent
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 07, 2022 at 10:35:19AM +0000, Robin Murphy wrote:
->On 2022-03-05 21:00, Sasha Levin wrote:
->>This is a note to let you know that I've just added the patch titled
->>
->>     iommu/amd: Simplify pagetable freeing
->>
->>to the 5.15-stable tree which can be found at:
->>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
->>
->>The filename of the patch is:
->>      iommu-amd-simplify-pagetable-freeing.patch
->>and it can be found in the queue-5.15 subdirectory.
->>
->>If you, or anyone else, feels it should not be added to the stable tree,
->>please let <stable@vger.kernel.org> know about it.
->
->I don't think this one qualifies for stable - it was just a 
->refactoring to aid future development. The "fixing" of types is merely 
->cosmetic, and the code size benefit was just a little bonus, hardly 
->significant.
+The following changes since commit 7e57714cd0ad2d5bb90e50b5096a0e671dec1ef3:
 
-I took it and "iommu/amd: Use put_pages_list" to avoid the conflict when
-taking 6b0b2d9a6a30 ("iommu/amd: Fix I/O page table memory leak").
+  Linux 5.17-rc6 (2022-02-27 14:36:33 -0800)
 
-Let me see if I can rework it to not need the 2 prereq patches...
+are available in the Git repository at:
 
--- 
-Thanks,
-Sasha
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 3dd7d135e75cb37c8501ba02977332a2a487dd39:
+
+  tools/virtio: handle fallout from folio work (2022-03-06 06:06:50 -0500)
+
+----------------------------------------------------------------
+virtio: last minute fixes
+
+Some fixes that took a while to get ready. Not regressions,
+but they look safe and seem to be worth to have.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Anirudh Rayabharam (1):
+      vhost: fix hung thread due to erroneous iotlb entries
+
+Michael S. Tsirkin (6):
+      virtio: unexport virtio_finalize_features
+      virtio: acknowledge all features before access
+      virtio: document virtio_reset_device
+      virtio_console: break out of buf poll on remove
+      virtio: drop default for virtio-mem
+      tools/virtio: handle fallout from folio work
+
+Si-Wei Liu (3):
+      vdpa: factor out vdpa_set_features_unlocked for vdpa internal use
+      vdpa/mlx5: should verify CTRL_VQ feature exists for MQ
+      vdpa/mlx5: add validation for VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command
+
+Stefano Garzarella (2):
+      vhost: remove avail_event arg from vhost_update_avail_event()
+      tools/virtio: fix virtio_test execution
+
+Xie Yongji (3):
+      vduse: Fix returning wrong type in vduse_domain_alloc_iova()
+      virtio-blk: Don't use MAX_DISCARD_SEGMENTS if max_discard_seg is zero
+      virtio-blk: Remove BUG_ON() in virtio_queue_rq()
+
+Zhang Min (1):
+      vdpa: fix use-after-free on vp_vdpa_remove
+
+ drivers/block/virtio_blk.c           | 20 ++++++-------
+ drivers/char/virtio_console.c        |  7 +++++
+ drivers/vdpa/mlx5/net/mlx5_vnet.c    | 34 ++++++++++++++++++++--
+ drivers/vdpa/vdpa.c                  |  2 +-
+ drivers/vdpa/vdpa_user/iova_domain.c |  2 +-
+ drivers/vdpa/virtio_pci/vp_vdpa.c    |  2 +-
+ drivers/vhost/iotlb.c                | 11 +++++++
+ drivers/vhost/vdpa.c                 |  2 +-
+ drivers/vhost/vhost.c                |  9 ++++--
+ drivers/virtio/Kconfig               |  1 -
+ drivers/virtio/virtio.c              | 56 ++++++++++++++++++++++++------------
+ drivers/virtio/virtio_vdpa.c         |  2 +-
+ include/linux/vdpa.h                 | 18 ++++++++----
+ include/linux/virtio.h               |  1 -
+ include/linux/virtio_config.h        |  3 +-
+ tools/virtio/linux/mm_types.h        |  3 ++
+ tools/virtio/virtio_test.c           |  1 +
+ 17 files changed, 127 insertions(+), 47 deletions(-)
+ create mode 100644 tools/virtio/linux/mm_types.h
+
