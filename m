@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA44A4CF5E9
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96CA74CF736
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237218AbiCGJak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38742 "EHLO
+        id S238365AbiCGJpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237295AbiCGJ17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:27:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D664D674CB;
-        Mon,  7 Mar 2022 01:25:08 -0800 (PST)
+        with ESMTP id S239149AbiCGJjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE2E70913;
+        Mon,  7 Mar 2022 01:34:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AECAE61187;
-        Mon,  7 Mar 2022 09:24:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B794AC340E9;
-        Mon,  7 Mar 2022 09:24:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21DB2B80F9F;
+        Mon,  7 Mar 2022 09:34:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 533DEC340E9;
+        Mon,  7 Mar 2022 09:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645099;
-        bh=9w7wfwKPGRpK9zkIDgGWdhu9dqbToz0KVbzKdvjnBHc=;
+        s=korg; t=1646645686;
+        bh=ho+1fk4JbqUuOdumvMPIOqALlMHuN+23rs2JHlchIaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TkuhE6ZmuvIWtD4+lAwqAiTKLmRXnhp/PHzCRsVGEeeIpODmFw8jw/RNeO89xfRpQ
-         s1UVbm34AxHhj9jborReMD7fO6nJunYdNagH7Wjq+THv8QDsl5pX/favGMeNI/IYtF
-         PrzprimrIAU3WsBvo5w5Q9/FprBThKloT4pHH3tE=
+        b=dH0tG8Ba7zzgExZll9jZ1mdnIyFmnRrLUK7FSesO6e7eLqS8TdNRFvcv1kksqtdNj
+         nnjWq6+R9N6Cxw0I5Q1kIDtxIRsDTNjnJP2AKl831cobqmjBFgQcR+TLSRJMLMBD76
+         LKZup7/KClGqAhJoGUYjGyPTWfboGByD2lRw2Aj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 38/51] can: gs_usb: change active_channelss type from atomic_t to u8
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 070/105] ASoC: cs4265: Fix the duplicated control name
 Date:   Mon,  7 Mar 2022 10:19:13 +0100
-Message-Id: <20220307091638.075805689@linuxfoundation.org>
+Message-Id: <20220307091646.147215888@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Fabio Estevam <festevam@denx.de>
 
-commit 035b0fcf02707d3c9c2890dc1484b11aa5335eb1 upstream.
+commit c5487b9cdea5c1ede38a7ec94db0fc59963c8e86 upstream.
 
-The driver uses an atomic_t variable: gs_usb:active_channels to keep
-track of the number of opened channels in order to only allocate
-memory for the URBs when this count changes from zero to one.
+Currently, the following error messages are seen during boot:
 
-However, the driver does not decrement the counter when an error
-occurs in gs_can_open(). This issue is fixed by changing the type from
-atomic_t to u8 and by simplifying the logic accordingly.
+asoc-simple-card sound: control 2:0:0:SPDIF Switch:0 is already present
+cs4265 1-004f: ASoC: failed to add widget SPDIF dapm kcontrol SPDIF Switch: -16
 
-It is safe to use an u8 here because the network stack big kernel lock
-(a.k.a. rtnl_mutex) is being hold. For details, please refer to [1].
+Quoting Mark Brown:
 
-[1] https://lore.kernel.org/linux-can/CAMZ6Rq+sHpiw34ijPsmp7vbUpDtJwvVtdV7CvRZJsLixjAFfrg@mail.gmail.com/T/#t
+"The driver is just plain buggy, it defines both a regular SPIDF Switch
+control and a SND_SOC_DAPM_SWITCH() called SPDIF both of which will
+create an identically named control, it can never have loaded without
+error.  One or both of those has to be renamed or they need to be
+merged into one thing."
 
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220214234814.1321599-1-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fix the duplicated control name by combining the two SPDIF controls here
+and move the register bits onto the DAPM widget and have DAPM control them.
+
+Fixes: f853d6b3ba34 ("ASoC: cs4265: Add a S/PDIF enable switch")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220215120514.1760628-1-festevam@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/gs_usb.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/soc/codecs/cs4265.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -198,8 +198,8 @@ struct gs_can {
- struct gs_usb {
- 	struct gs_can *canch[GS_MAX_INTF];
- 	struct usb_anchor rx_submitted;
--	atomic_t active_channels;
- 	struct usb_device *udev;
-+	u8 active_channels;
- };
+--- a/sound/soc/codecs/cs4265.c
++++ b/sound/soc/codecs/cs4265.c
+@@ -150,7 +150,6 @@ static const struct snd_kcontrol_new cs4
+ 	SOC_SINGLE("E to F Buffer Disable Switch", CS4265_SPDIF_CTL1,
+ 				6, 1, 0),
+ 	SOC_ENUM("C Data Access", cam_mode_enum),
+-	SOC_SINGLE("SPDIF Switch", CS4265_SPDIF_CTL2, 5, 1, 1),
+ 	SOC_SINGLE("Validity Bit Control Switch", CS4265_SPDIF_CTL2,
+ 				3, 1, 0),
+ 	SOC_ENUM("SPDIF Mono/Stereo", spdif_mono_stereo_enum),
+@@ -186,7 +185,7 @@ static const struct snd_soc_dapm_widget
  
- /* 'allocate' a tx context.
-@@ -596,7 +596,7 @@ static int gs_can_open(struct net_device
- 	if (rc)
- 		return rc;
- 
--	if (atomic_add_return(1, &parent->active_channels) == 1) {
-+	if (!parent->active_channels) {
- 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
- 			struct urb *urb;
- 			u8 *buf;
-@@ -697,6 +697,7 @@ static int gs_can_open(struct net_device
- 
- 	dev->can.state = CAN_STATE_ERROR_ACTIVE;
- 
-+	parent->active_channels++;
- 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
- 		netif_start_queue(netdev);
- 
-@@ -712,7 +713,8 @@ static int gs_can_close(struct net_devic
- 	netif_stop_queue(netdev);
- 
- 	/* Stop polling */
--	if (atomic_dec_and_test(&parent->active_channels))
-+	parent->active_channels--;
-+	if (!parent->active_channels)
- 		usb_kill_anchored_urbs(&parent->rx_submitted);
- 
- 	/* Stop sending URBs */
-@@ -991,8 +993,6 @@ static int gs_usb_probe(struct usb_inter
- 
- 	init_usb_anchor(&dev->rx_submitted);
- 
--	atomic_set(&dev->active_channels, 0);
--
- 	usb_set_intfdata(intf, dev);
- 	dev->udev = interface_to_usbdev(intf);
- 
+ 	SND_SOC_DAPM_SWITCH("Loopback", SND_SOC_NOPM, 0, 0,
+ 			&loopback_ctl),
+-	SND_SOC_DAPM_SWITCH("SPDIF", SND_SOC_NOPM, 0, 0,
++	SND_SOC_DAPM_SWITCH("SPDIF", CS4265_SPDIF_CTL2, 5, 1,
+ 			&spdif_switch),
+ 	SND_SOC_DAPM_SWITCH("DAC", CS4265_PWRCTL, 1, 1,
+ 			&dac_switch),
 
 
