@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2CC54CF84C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 755654CFA4B
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235424AbiCGJwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52122 "EHLO
+        id S231650AbiCGKPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:15:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240281AbiCGJus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08EC974DC3;
-        Mon,  7 Mar 2022 01:44:24 -0800 (PST)
+        with ESMTP id S241584AbiCGKKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8548F3630A;
+        Mon,  7 Mar 2022 01:53:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58C736116E;
-        Mon,  7 Mar 2022 09:44:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 534BFC340E9;
-        Mon,  7 Mar 2022 09:44:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A369D609D1;
+        Mon,  7 Mar 2022 09:53:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92FC6C340F3;
+        Mon,  7 Mar 2022 09:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646262;
-        bh=7op5MFowyiInE3pMmlvDncVgyDPHUsh9zGiv/8ME6CU=;
+        s=korg; t=1646646790;
+        bh=6M86J2o6M3bRHvKGhRNENY1cai9HlAyy4Bns/PkOgsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjM2vfxkbuBqLE9yoOy+6FqGTCqVZzQY/C/yWi1Nzed5NcAJasWvQPC218aFCaiwz
-         wq7sUD+nR5lpnpgi5koQKY33kbYli6g5gc44Vs1aBqTUZcceyum6h2ixeRSJELCntO
-         HMEh97MAFP3Jd5ZpBFB8JUHk0uB4FqU8wCWXXSXE=
+        b=lHXhg9W1s5nlk5PFUGo9CeHg1+YH3vk0hS2ESWmgqKriRL0KoXXErf6ml7PFci5Kh
+         eLd7iNOENZYeY16vZRlArajIvAdOo9ZnIfwssPamxUeY/pUfwYRe7xUXpoGndqXmLS
+         enTOvgE4TjfNWKwaytNrjSefMrsC4duVyNHaCN4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Poeschel <poeschel@lemonage.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Miguel Ojeda <ojeda@kernel.org>
-Subject: [PATCH 5.15 187/262] auxdisplay: lcd2s: Use proper API to free the instance of charlcd object
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Siva Reddy <siva.kallam@samsung.com>,
+        Girish K S <ks.giri@samsung.com>,
+        Byungho An <bh74.an@samsung.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 093/186] net: sxgbe: fix return value of __setup handler
 Date:   Mon,  7 Mar 2022 10:18:51 +0100
-Message-Id: <20220307091707.746320066@linuxfoundation.org>
+Message-Id: <20220307091656.684125600@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 9ed331f8a0fb674f4f06edf05a1687bf755af27b upstream.
+commit 50e06ddceeea263f57fe92baa677c638ecd65bb6 upstream.
 
-While it might work, the current approach is fragile in a few ways:
-- whenever members in the structure are shuffled, the pointer will be wrong
-- the resource freeing may include more than covered by kfree()
+__setup() handlers should return 1 on success, i.e., the parameter
+has been handled. A return of 0 causes the "option=value" string to be
+added to init's environment strings, polluting it.
 
-Fix this by using charlcd_free() call instead of kfree().
-
-Fixes: 8c9108d014c5 ("auxdisplay: add a driver for lcd2s character display")
-Cc: Lars Poeschel <poeschel@lemonage.de>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Fixes: acc18c147b22 ("net: sxgbe: add EEE(Energy Efficient Ethernet) for Samsung sxgbe")
+Fixes: 1edb9ca69e8a ("net: sxgbe: add basic framework for Samsung 10Gb ethernet driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Siva Reddy <siva.kallam@samsung.com>
+Cc: Girish K S <ks.giri@samsung.com>
+Cc: Byungho An <bh74.an@samsung.com>
+Link: https://lore.kernel.org/r/20220224033528.24640-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/auxdisplay/lcd2s.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/auxdisplay/lcd2s.c
-+++ b/drivers/auxdisplay/lcd2s.c
-@@ -336,7 +336,7 @@ static int lcd2s_i2c_probe(struct i2c_cl
- 	return 0;
+--- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
++++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
+@@ -2285,18 +2285,18 @@ static int __init sxgbe_cmdline_opt(char
+ 	char *opt;
  
- fail1:
--	kfree(lcd);
-+	charlcd_free(lcd2s->charlcd);
- 	return err;
+ 	if (!str || !*str)
+-		return -EINVAL;
++		return 1;
+ 	while ((opt = strsep(&str, ",")) != NULL) {
+ 		if (!strncmp(opt, "eee_timer:", 10)) {
+ 			if (kstrtoint(opt + 10, 0, &eee_timer))
+ 				goto err;
+ 		}
+ 	}
+-	return 0;
++	return 1;
+ 
+ err:
+ 	pr_err("%s: ERROR broken module parameter conversion\n", __func__);
+-	return -EINVAL;
++	return 1;
  }
  
-@@ -345,7 +345,7 @@ static int lcd2s_i2c_remove(struct i2c_c
- 	struct lcd2s_data *lcd2s = i2c_get_clientdata(i2c);
- 
- 	charlcd_unregister(lcd2s->charlcd);
--	kfree(lcd2s->charlcd);
-+	charlcd_free(lcd2s->charlcd);
- 	return 0;
- }
- 
+ __setup("sxgbeeth=", sxgbe_cmdline_opt);
 
 
