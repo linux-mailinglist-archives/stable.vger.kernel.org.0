@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 423F74CF9B2
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAB814CF77A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233065AbiCGKNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:13:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46616 "EHLO
+        id S238419AbiCGJqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:46:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242641AbiCGKLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F09E8BF14;
-        Mon,  7 Mar 2022 01:55:36 -0800 (PST)
+        with ESMTP id S240983AbiCGJlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E06E6D194;
+        Mon,  7 Mar 2022 01:38:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77BB460929;
-        Mon,  7 Mar 2022 09:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809DCC340F4;
-        Mon,  7 Mar 2022 09:55:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 016F2B810CC;
+        Mon,  7 Mar 2022 09:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF16C340F3;
+        Mon,  7 Mar 2022 09:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646934;
-        bh=L7RKs74ysQEn+9s6AjvZhS1X91Rg/qbUhMXlbmV99dg=;
+        s=korg; t=1646645633;
+        bh=FKaTv4ewBvPPtU04iar21AHuOmepis0nGGadrUm3lE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+Ir1urEYVolOt44Nb9MQmqmfpv1IIrTMyisDeX6JUfRtte2hYCwW0sJLt9+gdLil
-         QMVMkN02NE2Y8iAZ7yy/MfNfCD93mD155PVTNSUZv60QTT+DgnwPP5DXPz82lFRbBD
-         wJv6QYCL0xZDiqLKScNnz/LKaTElj+TrWtAcm9w4=
+        b=t7OsAvqbtDJDEnuCOsP8RGVIEUbJTVmmglIeRRS2B/wZQeWH6lMeVpsitU/u0syiD
+         aqFF6Lqmh3Q+AA7mkCtfkX8uGof6CXL6OVcygO14BX8jZfij6zLVL4Oh/BA/ysxK+1
+         V/Kb6zKhjmR+D+USm4cdTLCqhBea4QlNA1UdzEoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
-        Ong Boon Leong <boon.leong.ong@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Qiang Yu <qiang.yu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 138/186] net: stmmac: enhance XDP ZC driver level switching performance
+Subject: [PATCH 5.10 093/105] drm/amdgpu: fix suspend/resume hang regression
 Date:   Mon,  7 Mar 2022 10:19:36 +0100
-Message-Id: <20220307091657.936928509@linuxfoundation.org>
+Message-Id: <20220307091646.793701042@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,253 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ong Boon Leong <boon.leong.ong@intel.com>
+From: Qiang Yu <qiang.yu@amd.com>
 
-[ Upstream commit ac746c8520d9d056b6963ecca8ff1da9929d02f1 ]
+[ Upstream commit f1ef17011c765495c876fa75435e59eecfdc1ee4 ]
 
-The previous stmmac_xdp_set_prog() implementation uses stmmac_release()
-and stmmac_open() which tear down the PHY device and causes undesirable
-autonegotiation which causes a delay whenever AFXDP ZC is setup.
+Regression has been reported that suspend/resume may hang with
+the previous vm ready check commit.
 
-This patch introduces two new functions that just sufficiently tear
-down DMA descriptors, buffer, NAPI process, and IRQs and reestablish
-them accordingly in both stmmac_xdp_release() and stammac_xdp_open().
+So bring back the evicted list check as a temp fix.
 
-As the results of this enhancement, we get rid of transient state
-introduced by the link auto-negotiation:
-
-$ ./xdpsock -i eth0 -t -z
-
- sock0@eth0:0 txonly xdp-drv
-                   pps            pkts           1.00
-rx                 0              0
-tx                 634444         634560
-
- sock0@eth0:0 txonly xdp-drv
-                   pps            pkts           1.00
-rx                 0              0
-tx                 632330         1267072
-
- sock0@eth0:0 txonly xdp-drv
-                   pps            pkts           1.00
-rx                 0              0
-tx                 632438         1899584
-
- sock0@eth0:0 txonly xdp-drv
-                   pps            pkts           1.00
-rx                 0              0
-tx                 632502         2532160
-
-Reported-by: Kurt Kanzenbach <kurt@linutronix.de>
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Tested-by: Kurt Kanzenbach <kurt@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1922
+Fixes: c1a66c3bc425 ("drm/amdgpu: check vm ready by amdgpu_vm->evicting flag")
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Qiang Yu <qiang.yu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   4 +-
- .../net/ethernet/stmicro/stmmac/stmmac_main.c | 137 +++++++++++++++++-
- .../net/ethernet/stmicro/stmmac/stmmac_xdp.c  |   4 +-
- 3 files changed, 139 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-index 873b9e3e5da2..05b5371ca036 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-@@ -334,8 +334,8 @@ void stmmac_set_ethtool_ops(struct net_device *netdev);
- int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags);
- void stmmac_ptp_register(struct stmmac_priv *priv);
- void stmmac_ptp_unregister(struct stmmac_priv *priv);
--int stmmac_open(struct net_device *dev);
--int stmmac_release(struct net_device *dev);
-+int stmmac_xdp_open(struct net_device *dev);
-+void stmmac_xdp_release(struct net_device *dev);
- int stmmac_resume(struct device *dev);
- int stmmac_suspend(struct device *dev);
- int stmmac_dvr_remove(struct device *dev);
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 240dffe20fc3..2b3752bd1ac9 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3679,7 +3679,7 @@ static int stmmac_request_irq(struct net_device *dev)
-  *  0 on success and an appropriate (-)ve integer as defined in errno.h
-  *  file on failure.
-  */
--int stmmac_open(struct net_device *dev)
-+static int stmmac_open(struct net_device *dev)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int mode = priv->plat->phy_interface;
-@@ -3803,7 +3803,7 @@ static void stmmac_fpe_stop_wq(struct stmmac_priv *priv)
-  *  Description:
-  *  This is the stop entry point of the driver.
-  */
--int stmmac_release(struct net_device *dev)
-+static int stmmac_release(struct net_device *dev)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	u32 chan;
-@@ -6473,6 +6473,139 @@ void stmmac_enable_tx_queue(struct stmmac_priv *priv, u32 queue)
- 	spin_unlock_irqrestore(&ch->lock, flags);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+index 47cc038d7d50..635601d8b131 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -724,7 +724,8 @@ bool amdgpu_vm_ready(struct amdgpu_vm *vm)
+ 	amdgpu_vm_eviction_lock(vm);
+ 	ret = !vm->evicting;
+ 	amdgpu_vm_eviction_unlock(vm);
+-	return ret;
++
++	return ret && list_empty(&vm->evicted);
  }
  
-+void stmmac_xdp_release(struct net_device *dev)
-+{
-+	struct stmmac_priv *priv = netdev_priv(dev);
-+	u32 chan;
-+
-+	/* Disable NAPI process */
-+	stmmac_disable_all_queues(priv);
-+
-+	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
-+		hrtimer_cancel(&priv->tx_queue[chan].txtimer);
-+
-+	/* Free the IRQ lines */
-+	stmmac_free_irq(dev, REQ_IRQ_ERR_ALL, 0);
-+
-+	/* Stop TX/RX DMA channels */
-+	stmmac_stop_all_dma(priv);
-+
-+	/* Release and free the Rx/Tx resources */
-+	free_dma_desc_resources(priv);
-+
-+	/* Disable the MAC Rx/Tx */
-+	stmmac_mac_set(priv, priv->ioaddr, false);
-+
-+	/* set trans_start so we don't get spurious
-+	 * watchdogs during reset
-+	 */
-+	netif_trans_update(dev);
-+	netif_carrier_off(dev);
-+}
-+
-+int stmmac_xdp_open(struct net_device *dev)
-+{
-+	struct stmmac_priv *priv = netdev_priv(dev);
-+	u32 rx_cnt = priv->plat->rx_queues_to_use;
-+	u32 tx_cnt = priv->plat->tx_queues_to_use;
-+	u32 dma_csr_ch = max(rx_cnt, tx_cnt);
-+	struct stmmac_rx_queue *rx_q;
-+	struct stmmac_tx_queue *tx_q;
-+	u32 buf_size;
-+	bool sph_en;
-+	u32 chan;
-+	int ret;
-+
-+	ret = alloc_dma_desc_resources(priv);
-+	if (ret < 0) {
-+		netdev_err(dev, "%s: DMA descriptors allocation failed\n",
-+			   __func__);
-+		goto dma_desc_error;
-+	}
-+
-+	ret = init_dma_desc_rings(dev, GFP_KERNEL);
-+	if (ret < 0) {
-+		netdev_err(dev, "%s: DMA descriptors initialization failed\n",
-+			   __func__);
-+		goto init_error;
-+	}
-+
-+	/* DMA CSR Channel configuration */
-+	for (chan = 0; chan < dma_csr_ch; chan++)
-+		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
-+
-+	/* Adjust Split header */
-+	sph_en = (priv->hw->rx_csum > 0) && priv->sph;
-+
-+	/* DMA RX Channel Configuration */
-+	for (chan = 0; chan < rx_cnt; chan++) {
-+		rx_q = &priv->rx_queue[chan];
-+
-+		stmmac_init_rx_chan(priv, priv->ioaddr, priv->plat->dma_cfg,
-+				    rx_q->dma_rx_phy, chan);
-+
-+		rx_q->rx_tail_addr = rx_q->dma_rx_phy +
-+				     (rx_q->buf_alloc_num *
-+				      sizeof(struct dma_desc));
-+		stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
-+				       rx_q->rx_tail_addr, chan);
-+
-+		if (rx_q->xsk_pool && rx_q->buf_alloc_num) {
-+			buf_size = xsk_pool_get_rx_frame_size(rx_q->xsk_pool);
-+			stmmac_set_dma_bfsize(priv, priv->ioaddr,
-+					      buf_size,
-+					      rx_q->queue_index);
-+		} else {
-+			stmmac_set_dma_bfsize(priv, priv->ioaddr,
-+					      priv->dma_buf_sz,
-+					      rx_q->queue_index);
-+		}
-+
-+		stmmac_enable_sph(priv, priv->ioaddr, sph_en, chan);
-+	}
-+
-+	/* DMA TX Channel Configuration */
-+	for (chan = 0; chan < tx_cnt; chan++) {
-+		tx_q = &priv->tx_queue[chan];
-+
-+		stmmac_init_tx_chan(priv, priv->ioaddr, priv->plat->dma_cfg,
-+				    tx_q->dma_tx_phy, chan);
-+
-+		tx_q->tx_tail_addr = tx_q->dma_tx_phy;
-+		stmmac_set_tx_tail_ptr(priv, priv->ioaddr,
-+				       tx_q->tx_tail_addr, chan);
-+	}
-+
-+	/* Enable the MAC Rx/Tx */
-+	stmmac_mac_set(priv, priv->ioaddr, true);
-+
-+	/* Start Rx & Tx DMA Channels */
-+	stmmac_start_all_dma(priv);
-+
-+	stmmac_init_coalesce(priv);
-+
-+	ret = stmmac_request_irq(dev);
-+	if (ret)
-+		goto irq_error;
-+
-+	/* Enable NAPI process*/
-+	stmmac_enable_all_queues(priv);
-+	netif_carrier_on(dev);
-+	netif_tx_start_all_queues(dev);
-+
-+	return 0;
-+
-+irq_error:
-+	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
-+		hrtimer_cancel(&priv->tx_queue[chan].txtimer);
-+
-+	stmmac_hw_teardown(dev);
-+init_error:
-+	free_dma_desc_resources(priv);
-+dma_desc_error:
-+	return ret;
-+}
-+
- int stmmac_xsk_wakeup(struct net_device *dev, u32 queue, u32 flags)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
-index 2a616c6f7cd0..9d4d8c3dad0a 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
-@@ -119,7 +119,7 @@ int stmmac_xdp_set_prog(struct stmmac_priv *priv, struct bpf_prog *prog,
- 
- 	need_update = !!priv->xdp_prog != !!prog;
- 	if (if_running && need_update)
--		stmmac_release(dev);
-+		stmmac_xdp_release(dev);
- 
- 	old_prog = xchg(&priv->xdp_prog, prog);
- 	if (old_prog)
-@@ -129,7 +129,7 @@ int stmmac_xdp_set_prog(struct stmmac_priv *priv, struct bpf_prog *prog,
- 	priv->sph = priv->sph_cap && !stmmac_xdp_is_enabled(priv);
- 
- 	if (if_running && need_update)
--		stmmac_open(dev);
-+		stmmac_xdp_open(dev);
- 
- 	return 0;
- }
+ /**
 -- 
 2.34.1
 
