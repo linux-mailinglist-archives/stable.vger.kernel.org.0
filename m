@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A99E4CF840
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52EE04CF5E1
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238510AbiCGJw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54128 "EHLO
+        id S237256AbiCGJbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240394AbiCGJu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EE4274855;
-        Mon,  7 Mar 2022 01:44:34 -0800 (PST)
+        with ESMTP id S238394AbiCGJ3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFFA66CBF;
+        Mon,  7 Mar 2022 01:27:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3892A60FB3;
-        Mon,  7 Mar 2022 09:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F37C340F3;
-        Mon,  7 Mar 2022 09:44:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5577B810B9;
+        Mon,  7 Mar 2022 09:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6F8CC340E9;
+        Mon,  7 Mar 2022 09:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646268;
-        bh=ZdNObHiYHnzSCAvNC2nWvjr0DzK6YzERh5u9K+IXs9U=;
+        s=korg; t=1646645204;
+        bh=skb8VFSxszaHC1cX8xxG98ShO75j/DooKPFIUjJJWxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yv+hoj+mlGE7FRFih5vB72IJXiQaJ1R7lvtDGu/mElBsCOZAOIOLeH1A48irLSJXG
-         7yC7kV67WbKB4IDAcmt3B3keT4EIu5/0910scI8koVBPD4bzJqbazgivSMgrHmVlaY
-         uR3+lfYbOWURKmcwbkXGcXvKfS4YHt2TY5sTWGQs=
+        b=eivyfovurKWDKPOv3OepYGQs6ELeQ/UbBkt4fzjfR+KxbAlWrmNqwKnMtVfNve19O
+         YsyZjMQ8J4rkIYzuO8het7W7wnZFWOhuowyKnC87CtAb9toRPdum392qQUHXE0sa6J
+         ljzvOHfwqfFd/H1OD9/OspPHlhLtaC8U5V43SaTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.15 189/262] iommu/tegra-smmu: Fix missing put_device() call in tegra_smmu_find
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.4 20/64] xfrm: enforce validity of offload input flags
 Date:   Mon,  7 Mar 2022 10:18:53 +0100
-Message-Id: <20220307091707.838104146@linuxfoundation.org>
+Message-Id: <20220307091639.720028048@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 9826e393e4a8c3df474e7f9eacd3087266f74005 upstream.
+commit 7c76ecd9c99b6e9a771d813ab1aa7fa428b3ade1 upstream.
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+struct xfrm_user_offload has flags variable that received user input,
+but kernel didn't check if valid bits were provided. It caused a situation
+where not sanitized input was forwarded directly to the drivers.
 
-Fixes: 765a9d1d02b2 ("iommu/tegra-smmu: Fix mc errors on tegra124-nyan")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20220107080915.12686-1-linmq006@gmail.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+For example, XFRM_OFFLOAD_IPV6 define that was exposed, was used by
+strongswan, but not implemented in the kernel at all.
+
+As a solution, check and sanitize input flags to forward
+XFRM_OFFLOAD_INBOUND to the drivers.
+
+Fixes: d77e38e612a0 ("xfrm: Add an IPsec hardware offloading API")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/tegra-smmu.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/uapi/linux/xfrm.h |    6 ++++++
+ net/xfrm/xfrm_device.c    |    6 +++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -808,8 +808,10 @@ static struct tegra_smmu *tegra_smmu_fin
- 		return NULL;
+--- a/include/uapi/linux/xfrm.h
++++ b/include/uapi/linux/xfrm.h
+@@ -504,6 +504,12 @@ struct xfrm_user_offload {
+ 	int				ifindex;
+ 	__u8				flags;
+ };
++/* This flag was exposed without any kernel code that supporting it.
++ * Unfortunately, strongswan has the code that uses sets this flag,
++ * which makes impossible to reuse this bit.
++ *
++ * So leave it here to make sure that it won't be reused by mistake.
++ */
+ #define XFRM_OFFLOAD_IPV6	1
+ #define XFRM_OFFLOAD_INBOUND	2
  
- 	mc = platform_get_drvdata(pdev);
--	if (!mc)
-+	if (!mc) {
-+		put_device(&pdev->dev);
- 		return NULL;
-+	}
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -206,6 +206,9 @@ int xfrm_dev_state_add(struct net *net,
+ 	if (x->encap || x->tfcpad)
+ 		return -EINVAL;
  
- 	return mc->smmu;
- }
++	if (xuo->flags & ~(XFRM_OFFLOAD_IPV6 | XFRM_OFFLOAD_INBOUND))
++		return -EINVAL;
++
+ 	dev = dev_get_by_index(net, xuo->ifindex);
+ 	if (!dev) {
+ 		if (!(xuo->flags & XFRM_OFFLOAD_INBOUND)) {
+@@ -243,7 +246,8 @@ int xfrm_dev_state_add(struct net *net,
+ 
+ 	xso->dev = dev;
+ 	xso->num_exthdrs = 1;
+-	xso->flags = xuo->flags;
++	/* Don't forward bit that is not implemented */
++	xso->flags = xuo->flags & ~XFRM_OFFLOAD_IPV6;
+ 
+ 	err = dev->xfrmdev_ops->xdo_dev_state_add(x);
+ 	if (err) {
 
 
