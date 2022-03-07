@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 755654CFA4B
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72F894CF4C8
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:21:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231650AbiCGKPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:15:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
+        id S236597AbiCGJVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:21:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241584AbiCGKKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:22 -0500
+        with ESMTP id S236433AbiCGJVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:21:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8548F3630A;
-        Mon,  7 Mar 2022 01:53:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684DC52E41;
+        Mon,  7 Mar 2022 01:20:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A369D609D1;
-        Mon,  7 Mar 2022 09:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92FC6C340F3;
-        Mon,  7 Mar 2022 09:53:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 025036102A;
+        Mon,  7 Mar 2022 09:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D698C340E9;
+        Mon,  7 Mar 2022 09:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646790;
-        bh=6M86J2o6M3bRHvKGhRNENY1cai9HlAyy4Bns/PkOgsQ=;
+        s=korg; t=1646644799;
+        bh=w/LSniU9HL7T8izO5RIoccVJlyRX4WWQVkesBO8mLoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHXhg9W1s5nlk5PFUGo9CeHg1+YH3vk0hS2ESWmgqKriRL0KoXXErf6ml7PFci5Kh
-         eLd7iNOENZYeY16vZRlArajIvAdOo9ZnIfwssPamxUeY/pUfwYRe7xUXpoGndqXmLS
-         enTOvgE4TjfNWKwaytNrjSefMrsC4duVyNHaCN4U=
+        b=AK2wbqW10TMccMvsTAaD5wbBQ0MZvJ/5tpjQwsD5X/dqTlz5uZt/a4tLA+4HAqP+O
+         HmFz30XGO66jBOWD9EkuuTlnP0jePpWOm5lLMh3VeAIfjLtZaad8W2hYEMCrJCsq/i
+         HiUTGuKU8wYFkmDCcqExomyD+ZvLJdxZmbhYfV0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
         Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Siva Reddy <siva.kallam@samsung.com>,
-        Girish K S <ks.giri@samsung.com>,
-        Byungho An <bh74.an@samsung.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 093/186] net: sxgbe: fix return value of __setup handler
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        linux-arm-kernel@lists.infradead.org, patches@armlinux.org.uk,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.9 25/32] ARM: 9182/1: mmu: fix returns from early_param() and __setup() functions
 Date:   Mon,  7 Mar 2022 10:18:51 +0100
-Message-Id: <20220307091656.684125600@linuxfoundation.org>
+Message-Id: <20220307091635.153023221@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
+References: <20220307091634.434478485@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,50 +59,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 50e06ddceeea263f57fe92baa677c638ecd65bb6 upstream.
+commit 7b83299e5b9385943a857d59e15cba270df20d7e upstream.
 
+early_param() handlers should return 0 on success.
 __setup() handlers should return 1 on success, i.e., the parameter
-has been handled. A return of 0 causes the "option=value" string to be
-added to init's environment strings, polluting it.
+has been handled. A return of 0 would cause the "option=value" string
+to be added to init's environment strings, polluting it.
 
-Fixes: acc18c147b22 ("net: sxgbe: add EEE(Energy Efficient Ethernet) for Samsung sxgbe")
-Fixes: 1edb9ca69e8a ("net: sxgbe: add basic framework for Samsung 10Gb ethernet driver")
+../arch/arm/mm/mmu.c: In function 'test_early_cachepolicy':
+../arch/arm/mm/mmu.c:215:1: error: no return statement in function returning non-void [-Werror=return-type]
+../arch/arm/mm/mmu.c: In function 'test_noalign_setup':
+../arch/arm/mm/mmu.c:221:1: error: no return statement in function returning non-void [-Werror=return-type]
+
+Fixes: b849a60e0903 ("ARM: make cr_alignment read-only #ifndef CONFIG_CPU_CP15")
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Siva Reddy <siva.kallam@samsung.com>
-Cc: Girish K S <ks.giri@samsung.com>
-Cc: Byungho An <bh74.an@samsung.com>
-Link: https://lore.kernel.org/r/20220224033528.24640-1-rdunlap@infradead.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: patches@armlinux.org.uk
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/mm/mmu.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-+++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-@@ -2285,18 +2285,18 @@ static int __init sxgbe_cmdline_opt(char
- 	char *opt;
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -228,12 +228,14 @@ early_param("ecc", early_ecc);
+ static int __init early_cachepolicy(char *p)
+ {
+ 	pr_warn("cachepolicy kernel parameter not supported without cp15\n");
++	return 0;
+ }
+ early_param("cachepolicy", early_cachepolicy);
  
- 	if (!str || !*str)
--		return -EINVAL;
-+		return 1;
- 	while ((opt = strsep(&str, ",")) != NULL) {
- 		if (!strncmp(opt, "eee_timer:", 10)) {
- 			if (kstrtoint(opt + 10, 0, &eee_timer))
- 				goto err;
- 		}
- 	}
--	return 0;
-+	return 1;
- 
- err:
- 	pr_err("%s: ERROR broken module parameter conversion\n", __func__);
--	return -EINVAL;
+ static int __init noalign_setup(char *__unused)
+ {
+ 	pr_warn("noalign kernel parameter not supported without cp15\n");
 +	return 1;
  }
+ __setup("noalign", noalign_setup);
  
- __setup("sxgbeeth=", sxgbe_cmdline_opt);
 
 
