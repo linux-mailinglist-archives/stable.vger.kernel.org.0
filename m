@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D17DA4CF712
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAB74CF9E4
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237979AbiCGJo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57116 "EHLO
+        id S234513AbiCGKMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:12:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239053AbiCGJjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:10 -0500
+        with ESMTP id S242775AbiCGKLx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81C2A7090C;
-        Mon,  7 Mar 2022 01:34:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4E47939B;
+        Mon,  7 Mar 2022 01:55:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A1A4611AE;
-        Mon,  7 Mar 2022 09:34:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 535C6C340F4;
-        Mon,  7 Mar 2022 09:34:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6A6C60C6D;
+        Mon,  7 Mar 2022 09:55:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD5F3C340E9;
+        Mon,  7 Mar 2022 09:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645651;
-        bh=BO8DuYMKnodsGKT2IvNVN7t5Bqy/yxjI/YHCGpaJ+/E=;
+        s=korg; t=1646646953;
+        bh=Kczgmju90Ffg9RYS6oYFGLab4Hx9As58J5PH3ksVK4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jl4x8thPWWXbIer5tDOApAyg7EoaFntAvRwfGxuLjIyl+Bgl97DujqXVo/+jXSQvx
-         5FC1mAv07kG4nkNNCZyadJty7j5eTC6sPGV8BVEq5sMEYZUQbzBDd/PJ+5Fndeu9FR
-         RGWP/u/ScANrJtAfdn5N+amvQlFQgwo7OZ4bt4XI=
+        b=unLcKz9Xh5Vilm6x4BXiXyLqZEN3bPSHJnygZy3/Q2mxXuh/jbdb6PBYaBJfjs5/o
+         /ROiJtOMq1zqpFaVum6zzBrUuZUE31nxUSp0H5LuSdXy3nGGWmdHmvTZQHF5WUZxtm
+         TW0ZcOCsQwwrCFzK8J5NLTU7gYKIQEU6lYODwVKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Mahon <wmahon@chromium.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 099/105] HID: add mapping for KEY_ALL_APPLICATIONS
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 144/186] ibmvnic: init init_done_rc earlier
 Date:   Mon,  7 Mar 2022 10:19:42 +0100
-Message-Id: <20220307091646.962627223@linuxfoundation.org>
+Message-Id: <20220307091658.103351345@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Mahon <wmahon@chromium.org>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-commit 327b89f0acc4c20a06ed59e4d9af7f6d804dc2e2 upstream.
+[ Upstream commit ae16bf15374d8b055e040ac6f3f1147ab1c9bb7d ]
 
-This patch adds a new key definition for KEY_ALL_APPLICATIONS
-and aliases KEY_DASHBOARD to it.
+We currently initialize the ->init_done completion/return code fields
+before issuing a CRQ_INIT command. But if we get a transport event soon
+after registering the CRQ the taskslet may already have recorded the
+completion and error code. If we initialize here, we might overwrite/
+lose that and end up issuing the CRQ_INIT only to timeout later.
 
-It also maps the 0x0c/0x2a2 usage code to KEY_ALL_APPLICATIONS.
+If that timeout happens during probe, we will leave the adapter in the
+DOWN state rather than retrying to register/init the CRQ.
 
-Signed-off-by: William Mahon <wmahon@chromium.org>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20220303035618.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Initialize the completion before registering the CRQ so we don't lose
+the notification.
+
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-debug.c                |    4 +++-
- drivers/hid/hid-input.c                |    2 ++
- include/uapi/linux/input-event-codes.h |    3 ++-
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -823,7 +823,9 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_F22] = "F22",			[KEY_F23] = "F23",
- 	[KEY_F24] = "F24",			[KEY_PLAYCD] = "PlayCD",
- 	[KEY_PAUSECD] = "PauseCD",		[KEY_PROG3] = "Prog3",
--	[KEY_PROG4] = "Prog4",			[KEY_SUSPEND] = "Suspend",
-+	[KEY_PROG4] = "Prog4",
-+	[KEY_ALL_APPLICATIONS] = "AllApplications",
-+	[KEY_SUSPEND] = "Suspend",
- 	[KEY_CLOSE] = "Close",			[KEY_PLAY] = "Play",
- 	[KEY_FASTFORWARD] = "FastForward",	[KEY_BASSBOOST] = "BassBoost",
- 	[KEY_PRINT] = "Print",			[KEY_HP] = "HP",
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1048,6 +1048,8 @@ static void hidinput_configure_usage(str
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 7bd0ad590898..26ea1f32281f 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2212,6 +2212,19 @@ static const char *reset_reason_to_string(enum ibmvnic_reset_reason reason)
+ 	return "UNKNOWN";
+ }
  
- 		case 0x29d: map_key_clear(KEY_KBD_LAYOUT_NEXT);	break;
- 
-+		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
++/*
++ * Initialize the init_done completion and return code values. We
++ * can get a transport event just after registering the CRQ and the
++ * tasklet will use this to communicate the transport event. To ensure
++ * we don't miss the notification/error, initialize these _before_
++ * regisering the CRQ.
++ */
++static inline void reinit_init_done(struct ibmvnic_adapter *adapter)
++{
++	reinit_completion(&adapter->init_done);
++	adapter->init_done_rc = 0;
++}
 +
- 		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
- 		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
- 		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -278,7 +278,8 @@
- #define KEY_PAUSECD		201
- #define KEY_PROG3		202
- #define KEY_PROG4		203
--#define KEY_DASHBOARD		204	/* AL Dashboard */
-+#define KEY_ALL_APPLICATIONS	204	/* AC Desktop Show All Applications */
-+#define KEY_DASHBOARD		KEY_ALL_APPLICATIONS
- #define KEY_SUSPEND		205
- #define KEY_CLOSE		206	/* AC Close */
- #define KEY_PLAY		207
+ /*
+  * do_reset returns zero if we are able to keep processing reset events, or
+  * non-zero if we hit a fatal error and must halt.
+@@ -2318,6 +2331,8 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		 */
+ 		adapter->state = VNIC_PROBED;
+ 
++		reinit_init_done(adapter);
++
+ 		if (adapter->reset_reason == VNIC_RESET_CHANGE_PARAM) {
+ 			rc = init_crq_queue(adapter);
+ 		} else if (adapter->reset_reason == VNIC_RESET_MOBILITY) {
+@@ -2461,7 +2476,8 @@ static int do_hard_reset(struct ibmvnic_adapter *adapter,
+ 	 */
+ 	adapter->state = VNIC_PROBED;
+ 
+-	reinit_completion(&adapter->init_done);
++	reinit_init_done(adapter);
++
+ 	rc = init_crq_queue(adapter);
+ 	if (rc) {
+ 		netdev_err(adapter->netdev,
+@@ -5685,10 +5701,6 @@ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter, bool reset)
+ 
+ 	adapter->from_passive_init = false;
+ 
+-	if (reset)
+-		reinit_completion(&adapter->init_done);
+-
+-	adapter->init_done_rc = 0;
+ 	rc = ibmvnic_send_crq_init(adapter);
+ 	if (rc) {
+ 		dev_err(dev, "Send crq init failed with error %d\n", rc);
+@@ -5702,12 +5714,14 @@ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter, bool reset)
+ 
+ 	if (adapter->init_done_rc) {
+ 		release_crq_queue(adapter);
++		dev_err(dev, "CRQ-init failed, %d\n", adapter->init_done_rc);
+ 		return adapter->init_done_rc;
+ 	}
+ 
+ 	if (adapter->from_passive_init) {
+ 		adapter->state = VNIC_OPEN;
+ 		adapter->from_passive_init = false;
++		dev_err(dev, "CRQ-init failed, passive-init\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -5801,6 +5815,8 @@ static int ibmvnic_probe(struct vio_dev *dev, const struct vio_device_id *id)
+ 
+ 	init_success = false;
+ 	do {
++		reinit_init_done(adapter);
++
+ 		rc = init_crq_queue(adapter);
+ 		if (rc) {
+ 			dev_err(&dev->dev, "Couldn't initialize crq. rc=%d\n",
+-- 
+2.34.1
+
 
 
