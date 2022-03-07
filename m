@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 752644CF70B
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A914CF5D5
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237940AbiCGJoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54318 "EHLO
+        id S237305AbiCGJav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239247AbiCGJj3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76116D393;
-        Mon,  7 Mar 2022 01:35:13 -0800 (PST)
+        with ESMTP id S238747AbiCGJ3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18DF5C351;
+        Mon,  7 Mar 2022 01:28:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3DAB61052;
-        Mon,  7 Mar 2022 09:34:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99D92C340E9;
-        Mon,  7 Mar 2022 09:34:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88BFEB80F9F;
+        Mon,  7 Mar 2022 09:28:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC643C340E9;
+        Mon,  7 Mar 2022 09:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645693;
-        bh=75ZY1WfUHU2Io4whiLfTwywajK/W9695AyieS52ILww=;
+        s=korg; t=1646645281;
+        bh=E0sv/+ymdpW1t95+oxHtrZQOeK+K6NNFlNKrGTzqv20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mSiekGOa4+BOUjD1OYwT178EKn7gmUtF4X7+Df/DsvAkbJPY3j/CGiFjqm79fH98E
-         MDTmiRZIrM/B4AqRrQY3o6dcWjlUaMAmDQGwY8XStX8Fa4Vw5zgJqtvSMq72XUDxFl
-         BDLeC5tQ7Ps3KAvy9hadsn29s43RfJ/eUvE9pPDA=
+        b=UoXRNDtQWOk3FJJWQxpNDc5sBOP9GQKmQsqQAXE3UryH0YU60947TXTeBBPbnsF/o
+         gKzcHacMUzVSfk4wkBXSBS67IJQhqGTPHo1fwYzg+7TWuL0RJSqz9xNRBIftHuWlGS
+         i9XJ2pL31CGQliLiBsE7IEGiY04WmAPZc0kW9eC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.10 072/105] arm64: dts: rockchip: Switch RK3399-Gru DP to SPDIF output
-Date:   Mon,  7 Mar 2022 10:19:15 +0100
-Message-Id: <20220307091646.203607863@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 43/64] can: gs_usb: change active_channelss type from atomic_t to u8
+Date:   Mon,  7 Mar 2022 10:19:16 +0100
+Message-Id: <20220307091640.373741259@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit b5fbaf7d779f5f02b7f75b080e7707222573be2a upstream.
+commit 035b0fcf02707d3c9c2890dc1484b11aa5335eb1 upstream.
 
-Commit b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
-switched the platform to SPDIF, but we didn't fix up the device tree.
+The driver uses an atomic_t variable: gs_usb:active_channels to keep
+track of the number of opened channels in order to only allocate
+memory for the URBs when this count changes from zero to one.
 
-Drop the pinctrl settings, because the 'spdif_bus' pins are either:
- * unused (on kevin, bob), so the settings is ~harmless
- * used by a different function (on scarlet), which causes probe
-   failures (!!)
+However, the driver does not decrement the counter when an error
+occurs in gs_can_open(). This issue is fixed by changing the type from
+atomic_t to u8 and by simplifying the logic accordingly.
 
-Fixes: b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Link: https://lore.kernel.org/r/20220114150129.v2.1.I46f64b00508d9dff34abe1c3e8d2defdab4ea1e5@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+It is safe to use an u8 here because the network stack big kernel lock
+(a.k.a. rtnl_mutex) is being hold. For details, please refer to [1].
+
+[1] https://lore.kernel.org/linux-can/CAMZ6Rq+sHpiw34ijPsmp7vbUpDtJwvVtdV7CvRZJsLixjAFfrg@mail.gmail.com/T/#t
+
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Link: https://lore.kernel.org/all/20220214234814.1321599-1-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/net/can/usb/gs_usb.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-@@ -281,7 +281,7 @@
- 
- 	sound: sound {
- 		compatible = "rockchip,rk3399-gru-sound";
--		rockchip,cpu = <&i2s0 &i2s2>;
-+		rockchip,cpu = <&i2s0 &spdif>;
- 	};
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -190,8 +190,8 @@ struct gs_can {
+ struct gs_usb {
+ 	struct gs_can *canch[GS_MAX_INTF];
+ 	struct usb_anchor rx_submitted;
+-	atomic_t active_channels;
+ 	struct usb_device *udev;
++	u8 active_channels;
  };
  
-@@ -432,10 +432,6 @@ ap_i2c_audio: &i2c8 {
- 	status = "okay";
- };
+ /* 'allocate' a tx context.
+@@ -588,7 +588,7 @@ static int gs_can_open(struct net_device
+ 	if (rc)
+ 		return rc;
  
--&i2s2 {
--	status = "okay";
--};
+-	if (atomic_add_return(1, &parent->active_channels) == 1) {
++	if (!parent->active_channels) {
+ 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
+ 			struct urb *urb;
+ 			u8 *buf;
+@@ -689,6 +689,7 @@ static int gs_can_open(struct net_device
+ 
+ 	dev->can.state = CAN_STATE_ERROR_ACTIVE;
+ 
++	parent->active_channels++;
+ 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
+ 		netif_start_queue(netdev);
+ 
+@@ -704,7 +705,8 @@ static int gs_can_close(struct net_devic
+ 	netif_stop_queue(netdev);
+ 
+ 	/* Stop polling */
+-	if (atomic_dec_and_test(&parent->active_channels))
++	parent->active_channels--;
++	if (!parent->active_channels)
+ 		usb_kill_anchored_urbs(&parent->rx_submitted);
+ 
+ 	/* Stop sending URBs */
+@@ -983,8 +985,6 @@ static int gs_usb_probe(struct usb_inter
+ 
+ 	init_usb_anchor(&dev->rx_submitted);
+ 
+-	atomic_set(&dev->active_channels, 0);
 -
- &io_domains {
- 	status = "okay";
- 
-@@ -532,6 +528,17 @@ ap_i2c_audio: &i2c8 {
- 	vqmmc-supply = <&ppvar_sd_card_io>;
- };
- 
-+&spdif {
-+	status = "okay";
-+
-+	/*
-+	 * SPDIF is routed internally to DP; we either don't use these pins, or
-+	 * mux them to something else.
-+	 */
-+	/delete-property/ pinctrl-0;
-+	/delete-property/ pinctrl-names;
-+};
-+
- &spi1 {
- 	status = "okay";
+ 	usb_set_intfdata(intf, dev);
+ 	dev->udev = interface_to_usbdev(intf);
  
 
 
