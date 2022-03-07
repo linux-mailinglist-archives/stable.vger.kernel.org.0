@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8684CF79E
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC864CF61A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238493AbiCGJrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:47:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56214 "EHLO
+        id S233620AbiCGJdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238373AbiCGJpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:45:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBFE3673DD;
-        Mon,  7 Mar 2022 01:42:05 -0800 (PST)
+        with ESMTP id S237747AbiCGJdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E514A6AA5C;
+        Mon,  7 Mar 2022 01:30:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CA5DB810B2;
-        Mon,  7 Mar 2022 09:42:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C686C340E9;
-        Mon,  7 Mar 2022 09:42:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BAD36116E;
+        Mon,  7 Mar 2022 09:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20866C340E9;
+        Mon,  7 Mar 2022 09:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646121;
-        bh=Qv3CsfTqHITeNsEUEDuHNtUcskJy/YkGKsJ6nmZsq8s=;
+        s=korg; t=1646645400;
+        bh=cjVfmnK4fz5GuuXiNFft/0FaHOJnzNJnwdbrzYua5+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0u7/ifEPGJJfeNUagnXroGYmSyHr0XDQp1zN9FFy6/RhImIl8mEjY8982eiNRP+N
-         4IL0bo9J2YBxQyHU31guV/1ph0J9yZ9L1kLvx5aT52L8BYNnDjZB4MaXEcqJx0gBRO
-         iVqnBN2IsaZY/TrGmrlabAO8s0kdDttUDpYhZAWw=
+        b=eaxJIaD9vQZ4Jf+vlAwNlmp65nqG3YekdgHppTEz/nagmoLJA4vU9ihrsu8pmSJD8
+         n6ChnbfhsgdqgQV5bwxB9eJVyE3RnpLWC97QVg6zSiaxXllZc38eXwOLCzdD5WYWtn
+         UMMmcOILBF+xUrG58qB19bubNgTag4GGXETXyUXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        linux-wireless@vger.kernel.org, Kalle Valo <kvalo@kernel.org>,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 141/262] iwlwifi: mvm: check debugfs_dir ptr before use
+        stable@vger.kernel.org, JaeMan Park <jaeman@google.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 002/105] mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
 Date:   Mon,  7 Mar 2022 10:18:05 +0100
-Message-Id: <20220307091706.428077733@linuxfoundation.org>
+Message-Id: <20220307091644.251872591@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,118 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: JaeMan Park <jaeman@google.com>
 
-commit 5a6248c0a22352f09ea041665d3bd3e18f6f872c upstream.
+[ Upstream commit cacfddf82baf1470e5741edeecb187260868f195 ]
 
-When "debugfs=off" is used on the kernel command line, iwiwifi's
-mvm module uses an invalid/unchecked debugfs_dir pointer and causes
-a BUG:
+In mac80211_hwsim, the probe_req frame is created and sent while
+scanning. It is sent with ieee80211_tx_info which is not initialized.
+Uninitialized ieee80211_tx_info can cause problems when using
+mac80211_hwsim with wmediumd. wmediumd checks the tx_rates field of
+ieee80211_tx_info and doesn't relay probe_req frame to other clients
+even if it is a broadcasting message.
 
- BUG: kernel NULL pointer dereference, address: 000000000000004f
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP
- CPU: 1 PID: 503 Comm: modprobe Tainted: G        W         5.17.0-rc5 #7
- Hardware name: Dell Inc. Inspiron 15 5510/076F7Y, BIOS 2.4.1 11/05/2021
- RIP: 0010:iwl_mvm_dbgfs_register+0x692/0x700 [iwlmvm]
- Code: 69 a0 be 80 01 00 00 48 c7 c7 50 73 6a a0 e8 95 cf ee e0 48 8b 83 b0 1e 00 00 48 c7 c2 54 73 6a a0 be 64 00 00 00 48 8d 7d 8c <48> 8b 48 50 e8 15 22 07 e1 48 8b 43 28 48 8d 55 8c 48 c7 c7 5f 73
- RSP: 0018:ffffc90000a0ba68 EFLAGS: 00010246
- RAX: ffffffffffffffff RBX: ffff88817d6e3328 RCX: ffff88817d6e3328
- RDX: ffffffffa06a7354 RSI: 0000000000000064 RDI: ffffc90000a0ba6c
- RBP: ffffc90000a0bae0 R08: ffffffff824e4880 R09: ffffffffa069d620
- R10: ffffc90000a0ba00 R11: ffffffffffffffff R12: 0000000000000000
- R13: ffffc90000a0bb28 R14: ffff88817d6e3328 R15: ffff88817d6e3320
- FS:  00007f64dd92d740(0000) GS:ffff88847f640000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 000000000000004f CR3: 000000016fc79001 CR4: 0000000000770ee0
- PKRU: 55555554
- Call Trace:
-  <TASK>
-  ? iwl_mvm_mac_setup_register+0xbdc/0xda0 [iwlmvm]
-  iwl_mvm_start_post_nvm+0x71/0x100 [iwlmvm]
-  iwl_op_mode_mvm_start+0xab8/0xb30 [iwlmvm]
-  _iwl_op_mode_start+0x6f/0xd0 [iwlwifi]
-  iwl_opmode_register+0x6a/0xe0 [iwlwifi]
-  ? 0xffffffffa0231000
-  iwl_mvm_init+0x35/0x1000 [iwlmvm]
-  ? 0xffffffffa0231000
-  do_one_initcall+0x5a/0x1b0
-  ? kmem_cache_alloc+0x1e5/0x2f0
-  ? do_init_module+0x1e/0x220
-  do_init_module+0x48/0x220
-  load_module+0x2602/0x2bc0
-  ? __kernel_read+0x145/0x2e0
-  ? kernel_read_file+0x229/0x290
-  __do_sys_finit_module+0xc5/0x130
-  ? __do_sys_finit_module+0xc5/0x130
-  __x64_sys_finit_module+0x13/0x20
-  do_syscall_64+0x38/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f64dda564dd
- Code: 5b 41 5c c3 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 1b 29 0f 00 f7 d8 64 89 01 48
- RSP: 002b:00007ffdba393f88 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
- RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f64dda564dd
- RDX: 0000000000000000 RSI: 00005575399e2ab2 RDI: 0000000000000001
- RBP: 000055753a91c5e0 R08: 0000000000000000 R09: 0000000000000002
- R10: 0000000000000001 R11: 0000000000000246 R12: 00005575399e2ab2
- R13: 000055753a91ceb0 R14: 0000000000000000 R15: 000055753a923018
-  </TASK>
- Modules linked in: btintel(+) btmtk bluetooth vfat snd_hda_codec_hdmi fat snd_hda_codec_realtek snd_hda_codec_generic iwlmvm(+) snd_sof_pci_intel_tgl mac80211 snd_sof_intel_hda_common soundwire_intel soundwire_generic_allocation soundwire_cadence soundwire_bus snd_sof_intel_hda snd_sof_pci snd_sof snd_sof_xtensa_dsp snd_soc_hdac_hda snd_hda_ext_core snd_soc_acpi_intel_match snd_soc_acpi snd_soc_core btrfs snd_compress snd_hda_intel snd_intel_dspcfg snd_intel_sdw_acpi snd_hda_codec raid6_pq iwlwifi snd_hda_core snd_pcm snd_timer snd soundcore cfg80211 intel_ish_ipc(+) thunderbolt rfkill intel_ishtp ucsi_acpi wmi i2c_hid_acpi i2c_hid evdev
- CR2: 000000000000004f
- ---[ end trace 0000000000000000 ]---
+Call ieee80211_tx_prepare_skb() to initialize ieee80211_tx_info for
+the probe_req that is created by hw_scan_work in mac80211_hwsim.
 
-Check the debugfs_dir pointer for an error before using it.
-
-Fixes: 8c082a99edb9 ("iwlwifi: mvm: simplify iwl_mvm_dbgfs_register")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Luca Coelho <luciano.coelho@intel.com>
-Cc: linux-wireless@vger.kernel.org
-Cc: Kalle Valo <kvalo@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220223030630.23241-1-rdunlap@infradead.org
-[change to make both conditional]
+Signed-off-by: JaeMan Park <jaeman@google.com>
+Link: https://lore.kernel.org/r/20220113060235.546107-1-jaeman@google.com
+[fix memory leak]
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-@@ -5,6 +5,7 @@
-  * Copyright (C) 2016-2017 Intel Deutschland GmbH
-  */
- #include <linux/vmalloc.h>
-+#include <linux/err.h>
- #include <linux/ieee80211.h>
- #include <linux/netdevice.h>
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 0122585a1e500..cc550ba0c9dfe 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -2264,6 +2264,15 @@ static void hw_scan_work(struct work_struct *work)
+ 			if (req->ie_len)
+ 				skb_put_data(probe, req->ie, req->ie_len);
  
-@@ -2044,7 +2045,6 @@ void iwl_mvm_sta_add_debugfs(struct ieee
- void iwl_mvm_dbgfs_register(struct iwl_mvm *mvm)
- {
- 	struct dentry *bcast_dir __maybe_unused;
--	char buf[100];
- 
- 	spin_lock_init(&mvm->drv_stats_lock);
- 
-@@ -2140,6 +2140,11 @@ void iwl_mvm_dbgfs_register(struct iwl_m
- 	 * Create a symlink with mac80211. It will be removed when mac80211
- 	 * exists (before the opmode exists which removes the target.)
- 	 */
--	snprintf(buf, 100, "../../%pd2", mvm->debugfs_dir->d_parent);
--	debugfs_create_symlink("iwlwifi", mvm->hw->wiphy->debugfsdir, buf);
-+	if (!IS_ERR(mvm->debugfs_dir)) {
-+		char buf[100];
++			if (!ieee80211_tx_prepare_skb(hwsim->hw,
++						      hwsim->hw_scan_vif,
++						      probe,
++						      hwsim->tmp_chan->band,
++						      NULL)) {
++				kfree_skb(probe);
++				continue;
++			}
 +
-+		snprintf(buf, 100, "../../%pd2", mvm->debugfs_dir->d_parent);
-+		debugfs_create_symlink("iwlwifi", mvm->hw->wiphy->debugfsdir,
-+				       buf);
-+	}
- }
+ 			local_bh_disable();
+ 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
+ 						hwsim->tmp_chan);
+-- 
+2.34.1
+
 
 
