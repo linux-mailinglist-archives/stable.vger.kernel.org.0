@@ -2,86 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9714CF076
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 04:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C78E4CF07C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 04:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235151AbiCGDkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Mar 2022 22:40:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35312 "EHLO
+        id S233030AbiCGDli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Mar 2022 22:41:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235135AbiCGDkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 22:40:33 -0500
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 025255D196;
-        Sun,  6 Mar 2022 19:39:07 -0800 (PST)
-X-UUID: f7e21676e1fd457d8434de712293e217-20220307
-X-UUID: f7e21676e1fd457d8434de712293e217-20220307
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
-        (envelope-from <yf.wang@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 801078150; Mon, 07 Mar 2022 11:39:03 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.792.15; Mon, 7 Mar 2022 11:39:01 +0800
-Received: from mbjsdccf07.mediatek.inc (10.15.20.246) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 7 Mar 2022 11:38:47 +0800
-From:   <yf.wang@mediatek.com>
-To:     <robin.murphy@arm.com>
-CC:     <Libo.Kang@mediatek.com>, <Ning.Li@mediatek.com>,
-        <iommu@lists.linux-foundation.org>, <joro@8bytes.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <matthias.bgg@gmail.com>,
-        <stable@vger.kernel.org>, <will@kernel.org>,
-        <wsd_upstream@mediatek.com>, <yf.wang@mediatek.com>
-Subject: RE: [PATCH] iommu/iova: Free all CPU rcache for retry when iova alloc failure
-Date:   Mon, 7 Mar 2022 11:32:46 +0800
-Message-ID: <20220307033246.23051-1-yf.wang@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <906a446e-3e25-5813-d380-de699a84b6f4@arm.com>
-References: <906a446e-3e25-5813-d380-de699a84b6f4@arm.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-X-Spam-Status: No, score=0.1 required=5.0 tests=BAYES_00,PDS_OTHER_BAD_TLD,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY
-        autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S233064AbiCGDlh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Mar 2022 22:41:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0CA4DF5A;
+        Sun,  6 Mar 2022 19:40:43 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5546B611E6;
+        Mon,  7 Mar 2022 03:40:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A64CEC340F3;
+        Mon,  7 Mar 2022 03:40:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1646624442;
+        bh=dlxNltCGxYkiCNG9Z7OiUhRYJzwO3keptp1KXilohZc=;
+        h=Date:To:From:Subject:From;
+        b=NmYcp4j5egrC4eZSKLzwZCaP8HqY7TGkJJj92PDX0iujzIC5h8wsFhmDwDfhocdeN
+         EIMNXX27L5oRJhvAlzOk6e1MQMcVBnMMDcT2z6fTcYM0qugTEEYMN8AkDSHmZkxE4/
+         3uysC1Ny6dj2IS+7sQLA2PCh+/VcBiJzr1NIYVA0=
+Date:   Sun, 06 Mar 2022 19:40:41 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        roman.gushchin@linux.dev, mkoutny@suse.com, mhocko@suse.com,
+        ivan@cloudflare.com, hannes@cmpxchg.org, fhofmann@cloudflare.com,
+        dqminh@cloudflare.com, shakeelb@google.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + memcg-sync-flush-only-if-periodic-flush-is-delayed.patch added to -mm tree
+Message-Id: <20220307034042.A64CEC340F3@smtp.kernel.org>
+X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2022-03-04 at 14:03 +0000, Robin Murphy wrote:
-> 
-> OK, so either there's a mystery bug where IOVAs somehow get freed on 
-> offline CPUs, or the hotplug notifier isn't working correctly, or
-> you've 
-> contrived a situation where alloc_iova_fast() is actually racing
-> against 
-> iova_cpuhp_dead(). In the latter case, the solution is "don't do
-> that".
-> 
-> This change should not be necessary.
-> 
-> Thanks,
-> Robin.
 
-Hi Robin,
+The patch titled
+     Subject: memcg: sync flush only if periodic flush is delayed
+has been added to the -mm tree.  Its filename is
+     memcg-sync-flush-only-if-periodic-flush-is-delayed.patch
 
-1.As long as iova domain is not destroyed, the cached iovas will always
-exist, the only chance to free the cache is the retry flushing
-mechanism when alloc fail, but not free cached iova of not online CPU.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/memcg-sync-flush-only-if-periodic-flush-is-delayed.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/memcg-sync-flush-only-if-periodic-flush-is-delayed.patch
 
-2.Iova rcache mechanism is by cpu, but there is no free rcache
-mechanism when the CPU state switch.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-3.iova.c does not know about CPU state switching, eg.online <--> offline.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Based on the above basic information, this is not a user bug, it is
-more like a defect of the iova rcache mechanism.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Thanks,
-Yunfei.
+------------------------------------------------------
+From: Shakeel Butt <shakeelb@google.com>
+Subject: memcg: sync flush only if periodic flush is delayed
+
+Daniel Dao has reported [1] a regression on workloads that may trigger a
+lot of refaults (anon and file).  The underlying issue is that flushing
+rstat is expensive.  Although rstat flush are batched with (nr_cpus *
+MEMCG_BATCH) stat updates, it seems like there are workloads which
+genuinely do stat updates larger than batch value within short amount of
+time.  Since the rstat flush can happen in the performance critical
+codepaths like page faults, such workload can suffer greatly.
+
+This patch fixes this regression by making the rstat flushing conditional
+in the performance critical codepaths.  More specifically, the kernel
+relies on the async periodic rstat flusher to flush the stats and only if
+the periodic flusher is delayed by more than twice the amount of its
+normal time window then the kernel allows rstat flushing from the
+performance critical codepaths.
+
+Now the question: what are the side-effects of this change?  The worst
+that can happen is the refault codepath will see 4sec old lruvec stats and
+may cause false (or missed) activations of the refaulted page which may
+under-or-overestimate the workingset size.  Though that is not very
+concerning as the kernel can already miss or do false activations.
+
+There are two more codepaths whose flushing behavior is not changed by
+this patch and we may need to come to them in future.  One is the
+writeback stats used by dirty throttling and second is the deactivation
+heuristic in the reclaim.  For now keeping an eye on them and if there is
+report of regression due to these codepaths, we will reevaluate then.
+
+Link: https://lore.kernel.org/all/CA+wXwBSyO87ZX5PVwdHm-=dBjZYECGmfnydUicUyrQqndgX2MQ@mail.gmail.com [1]
+Link: https://lkml.kernel.org/r/20220304184040.1304781-1-shakeelb@google.com
+Fixes: 1f828223b799 ("memcg: flush lruvec stats in the refault")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reported-by: Daniel Dao <dqminh@cloudflare.com>
+Tested-by: Ivan Babrou <ivan@cloudflare.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Cc: Frank Hofmann <fhofmann@cloudflare.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/memcontrol.h |    5 +++++
+ mm/memcontrol.c            |   12 +++++++++++-
+ mm/workingset.c            |    2 +-
+ 3 files changed, 17 insertions(+), 2 deletions(-)
+
+--- a/include/linux/memcontrol.h~memcg-sync-flush-only-if-periodic-flush-is-delayed
++++ a/include/linux/memcontrol.h
+@@ -999,6 +999,7 @@ static inline unsigned long lruvec_page_
+ }
+ 
+ void mem_cgroup_flush_stats(void);
++void mem_cgroup_flush_stats_delayed(void);
+ 
+ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+ 			      int val);
+@@ -1442,6 +1443,10 @@ static inline void mem_cgroup_flush_stat
+ {
+ }
+ 
++static inline void mem_cgroup_flush_stats_delayed(void)
++{
++}
++
+ static inline void __mod_memcg_lruvec_state(struct lruvec *lruvec,
+ 					    enum node_stat_item idx, int val)
+ {
+--- a/mm/memcontrol.c~memcg-sync-flush-only-if-periodic-flush-is-delayed
++++ a/mm/memcontrol.c
+@@ -628,6 +628,9 @@ static DECLARE_DEFERRABLE_WORK(stats_flu
+ static DEFINE_SPINLOCK(stats_flush_lock);
+ static DEFINE_PER_CPU(unsigned int, stats_updates);
+ static atomic_t stats_flush_threshold = ATOMIC_INIT(0);
++static u64 flush_next_time;
++
++#define FLUSH_TIME (2UL*HZ)
+ 
+ static inline void memcg_rstat_updated(struct mem_cgroup *memcg, int val)
+ {
+@@ -649,6 +652,7 @@ static void __mem_cgroup_flush_stats(voi
+ 	if (!spin_trylock_irqsave(&stats_flush_lock, flag))
+ 		return;
+ 
++	flush_next_time = jiffies_64 + 2*FLUSH_TIME;
+ 	cgroup_rstat_flush_irqsafe(root_mem_cgroup->css.cgroup);
+ 	atomic_set(&stats_flush_threshold, 0);
+ 	spin_unlock_irqrestore(&stats_flush_lock, flag);
+@@ -660,10 +664,16 @@ void mem_cgroup_flush_stats(void)
+ 		__mem_cgroup_flush_stats();
+ }
+ 
++void mem_cgroup_flush_stats_delayed(void)
++{
++	if (rstat_flush_time && time_after64(jiffies_64, flush_next_time))
++		mem_cgroup_flush_stats();
++}
++
+ static void flush_memcg_stats_dwork(struct work_struct *w)
+ {
+ 	__mem_cgroup_flush_stats();
+-	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, 2UL*HZ);
++	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, FLUSH_TIME);
+ }
+ 
+ /**
+--- a/mm/workingset.c~memcg-sync-flush-only-if-periodic-flush-is-delayed
++++ a/mm/workingset.c
+@@ -354,7 +354,7 @@ void workingset_refault(struct folio *fo
+ 
+ 	mod_lruvec_state(lruvec, WORKINGSET_REFAULT_BASE + file, nr);
+ 
+-	mem_cgroup_flush_stats();
++	mem_cgroup_flush_stats_delayed();
+ 	/*
+ 	 * Compare the distance to the existing workingset size. We
+ 	 * don't activate pages that couldn't stay resident even if
+_
+
+Patches currently in -mm which might be from shakeelb@google.com are
+
+memcg-sync-flush-only-if-periodic-flush-is-delayed.patch
+memcg-replace-in_interrupt-with-in_task.patch
+memcg-refactor-mem_cgroup_oom.patch
+memcg-unify-force-charging-conditions.patch
+selftests-memcg-test-high-limit-for-single-entry-allocation.patch
+memcg-synchronously-enforce-memoryhigh-for-large-overcharges.patch
+
