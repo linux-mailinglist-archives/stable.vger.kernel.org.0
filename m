@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96A214CF5BA
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 799CB4CF86A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:53:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237098AbiCGJai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36326 "EHLO
+        id S238393AbiCGJyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:54:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238511AbiCGJ3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B4871CFCE;
-        Mon,  7 Mar 2022 01:27:33 -0800 (PST)
+        with ESMTP id S231229AbiCGJwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:52:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C004776E27;
+        Mon,  7 Mar 2022 01:45:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F06A5B810C5;
-        Mon,  7 Mar 2022 09:27:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13EDDC340F6;
-        Mon,  7 Mar 2022 09:27:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B21F612D0;
+        Mon,  7 Mar 2022 09:45:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60386C340E9;
+        Mon,  7 Mar 2022 09:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645244;
-        bh=PFk4EjdLYTAF6sqo7VwPI2C4Bb9XL2OGpcAbpcDAZZM=;
+        s=korg; t=1646646311;
+        bh=J2IJqSVavxlY4rZ2bGBmDCSa/4rvdwBbNFQjq4mtJSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUtVuLCooLDIs6v1QP/7dclzuOcPK8gdXANmLJ47w/nrfSrzq5nIG0EVrcE4JEZEP
-         0YEYuS2e5e0DeWl+25Ain0BtQu0+UfIJr7aepLEO0WysBsBekAQ8UUjtXua6M2MxCN
-         FUAQ9/VdUt6d2Ard2/gpzaFIpt/7vqe0jwRBmdcw=
+        b=a/5O6lV/rrOlzhAOgVhq2MotfkIClvar2FOZ9LmHXv/obedaUL+swvpvoy9AqHG8C
+         +hWIeNGqrttW7qEvP+AMK3uVYEc5KTJacl0bNMbH1zW2kRoChqVDi411LiAiD7Hger
+         OSTcFR0G1bbjMH6xelUJi6+1UvE60oY2P0dyl6fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 5.4 32/64] sched/topology: Fix sched_domain_topology_level alloc in sched_init_numa()
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.15 201/262] s390/extable: fix exception table sorting
 Date:   Mon,  7 Mar 2022 10:19:05 +0100
-Message-Id: <20220307091640.056331062@linuxfoundation.org>
+Message-Id: <20220307091708.365171874@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,49 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 71e5f6644fb2f3304fcb310145ded234a37e7cc1 upstream.
+commit c194dad21025dfd043210912653baab823bdff67 upstream.
 
-Commit "sched/topology: Make sched_init_numa() use a set for the
-deduplicating sort" allocates 'i + nr_levels (level)' instead of
-'i + nr_levels + 1' sched_domain_topology_level.
+s390 has a swap_ex_entry_fixup function, however it is not being used
+since common code expects a swap_ex_entry_fixup define. If it is not
+defined the default implementation will be used. So fix this by adding
+a proper define.
+However also the implementation of the function must be fixed, since a
+NULL value for handler has a special meaning and must not be adjusted.
 
-This led to an Oops (on Arm64 juno with CONFIG_SCHED_DEBUG):
+Luckily all of this doesn't fix a real bug currently: the main extable
+is correctly sorted during build time, and for runtime sorting there
+is currently no case where the handler field is not NULL.
 
-sched_init_domains
-  build_sched_domains()
-    __free_domain_allocs()
-      __sdt_free() {
-	...
-        for_each_sd_topology(tl)
-	  ...
-          sd = *per_cpu_ptr(sdd->sd, j); <--
-	  ...
-      }
-
-Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Vincent Guittot <vincent.guittot@linaro.org>
-Tested-by: Barry Song <song.bao.hua@hisilicon.com>
-Link: https://lkml.kernel.org/r/6000e39e-7d28-c360-9cd6-8798fd22a9bf@arm.com
-Signed-off-by: dann frazier <dann.frazier@canonical.com>
+Fixes: 05a68e892e89 ("s390/kernel: expand exception table logic to allow new handling options")
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/extable.h |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -1658,7 +1658,7 @@ void sched_init_numa(void)
- 	/* Compute default topology size */
- 	for (i = 0; sched_domain_topology[i].mask; i++);
+--- a/arch/s390/include/asm/extable.h
++++ b/arch/s390/include/asm/extable.h
+@@ -69,8 +69,13 @@ static inline void swap_ex_entry_fixup(s
+ {
+ 	a->fixup = b->fixup + delta;
+ 	b->fixup = tmp.fixup - delta;
+-	a->handler = b->handler + delta;
+-	b->handler = tmp.handler - delta;
++	a->handler = b->handler;
++	if (a->handler)
++		a->handler += delta;
++	b->handler = tmp.handler;
++	if (b->handler)
++		b->handler -= delta;
+ }
++#define swap_ex_entry_fixup swap_ex_entry_fixup
  
--	tl = kzalloc((i + nr_levels) *
-+	tl = kzalloc((i + nr_levels + 1) *
- 			sizeof(struct sched_domain_topology_level), GFP_KERNEL);
- 	if (!tl)
- 		return;
+ #endif
 
 
