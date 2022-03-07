@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3EF64CF94A
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A0D4CF855
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240068AbiCGKEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:04:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36006 "EHLO
+        id S238592AbiCGJwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:52:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240522AbiCGKBF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B32D1AD86;
-        Mon,  7 Mar 2022 01:50:01 -0800 (PST)
+        with ESMTP id S239978AbiCGJu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD956723EE;
+        Mon,  7 Mar 2022 01:43:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 074A5B8102B;
-        Mon,  7 Mar 2022 09:50:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66FAEC340F3;
-        Mon,  7 Mar 2022 09:49:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D77616128D;
+        Mon,  7 Mar 2022 09:43:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7EA0C340E9;
+        Mon,  7 Mar 2022 09:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646598;
-        bh=pRDJCw/bVvoDBr/puOKhzTpczSKlcPzkG7XLPTMFsF8=;
+        s=korg; t=1646646237;
+        bh=AaSQdNddQqXP9BLD0YECfLSKujsXjMpmANtH8HAYALQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDFLMjhagS4Hv66gNwt+BSeIoOLT1IlWkJMEi25UQsvN00uUgHy+G/qw7K4U1ubs6
-         DVyXprKHO1FW8gDyLg3d99zkd+8Vg89B/QnHjVc5N4rdIscxYmG8sBUEql76JoOIVm
-         P5BYoqLtBLFXdD4MdmOPfwPpO3bu6v5NRmoUU7Rc=
+        b=MnTH+S7ktJmFHWLfawW/5cmGzyE625MBLLTC0JUfvsRO+RiZx+cn0QeLW4f7VJdW2
+         pG4dqq8ROJMXIZaxAileCNyxr6xU3AtQcy9qHOtGDsX3/Ua1uBowa4QvyWsC+I0LaW
+         kkvte2CftcxrfDFfWiq/4keuPLV1VNZUH8a3s+d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 033/186] arm64: Mark start_backtrace() notrace and NOKPROBE_SYMBOL
+Subject: [PATCH 5.15 127/262] drm/mediatek: mtk_dsi: Reset the dsi0 hardware
 Date:   Mon,  7 Mar 2022 10:17:51 +0100
-Message-Id: <20220307091655.020561069@linuxfoundation.org>
+Message-Id: <20220307091706.041051902@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-[ Upstream commit 1e0924bd09916fab795fc2a21ec1d148f24299fd ]
+[ Upstream commit 605c83753d97946aab176735020a33ebfb0b4615 ]
 
-Mark the start_backtrace() as notrace and NOKPROBE_SYMBOL
-because this function is called from ftrace and lockdep to
-get the caller address via return_address(). The lockdep
-is used in kprobes, it should also be NOKPROBE_SYMBOL.
+Reset dsi0 HW to default when power on. This prevents to have different
+settingis between the bootloader and the kernel.
 
-Fixes: b07f3499661c ("arm64: stacktrace: Move start_backtrace() out of the header")
-Cc: <stable@vger.kernel.org> # 5.13.x
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/164301227374.1433152.12808232644267107415.stgit@devnote2
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+As not all Mediatek boards have the reset consumer configured in their
+board description, also is not needed on all of them, the reset is optional,
+so the change is compatible with all boards.
+
+Cc: Jitao Shi <jitao.shi@mediatek.com>
+Suggested-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/20210930103105.v4.7.Idbb4727ddf00ba2fe796b630906baff10d994d89@changeid
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/stacktrace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/stacktrace.c b/arch/arm64/kernel/stacktrace.c
-index 94f83cd44e507..0ee6bd390bd09 100644
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -33,7 +33,7 @@
-  */
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index 93b40c245f007..5d90d2eb00193 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -11,6 +11,7 @@
+ #include <linux/of_platform.h>
+ #include <linux/phy/phy.h>
+ #include <linux/platform_device.h>
++#include <linux/reset.h>
  
+ #include <video/mipi_display.h>
+ #include <video/videomode.h>
+@@ -980,8 +981,10 @@ static int mtk_dsi_bind(struct device *dev, struct device *master, void *data)
+ 	struct mtk_dsi *dsi = dev_get_drvdata(dev);
  
--void start_backtrace(struct stackframe *frame, unsigned long fp,
-+notrace void start_backtrace(struct stackframe *frame, unsigned long fp,
- 		     unsigned long pc)
- {
- 	frame->fp = fp;
-@@ -55,6 +55,7 @@ void start_backtrace(struct stackframe *frame, unsigned long fp,
- 	frame->prev_fp = 0;
- 	frame->prev_type = STACK_TYPE_UNKNOWN;
+ 	ret = mtk_dsi_encoder_init(drm, dsi);
++	if (ret)
++		return ret;
+ 
+-	return ret;
++	return device_reset_optional(dev);
  }
-+NOKPROBE_SYMBOL(start_backtrace);
  
- /*
-  * Unwind from one frame record (A) to the next frame record (B).
+ static void mtk_dsi_unbind(struct device *dev, struct device *master,
 -- 
 2.34.1
 
