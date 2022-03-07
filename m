@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 784FD4CF8FC
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B3B4CF71C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239351AbiCGKDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39754 "EHLO
+        id S238016AbiCGJoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241104AbiCGKBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7198770F64;
-        Mon,  7 Mar 2022 01:51:24 -0800 (PST)
+        with ESMTP id S241149AbiCGJl4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BAC96252;
+        Mon,  7 Mar 2022 01:40:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B694FB810D9;
-        Mon,  7 Mar 2022 09:51:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2755EC340F5;
-        Mon,  7 Mar 2022 09:51:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B73E611D5;
+        Mon,  7 Mar 2022 09:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33BCDC340F3;
+        Mon,  7 Mar 2022 09:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646681;
-        bh=3Q6HfLvnyk20c5KteC9b+hLzCTbQ2st3hb44bFNMDzQ=;
+        s=korg; t=1646646049;
+        bh=Lc8jc0mvjGKkI5mWqYol9JlaBHGpE0J/ZnEnk/UGLYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1x6aeVERMqCZeVnCQ285IBdyQIeDvJlI+5Cr91isfKdoX4KrWkNEcCrmZEcZJ5zZz
-         WCiM1olqZzf6BinIdDGTLuHOaWaHAozk5iGcnkNIbYBTE+cfOyfo2rwMOsJSvrYFre
-         hWWC08ipt/XyrWCM+d7G1I2NXWclFg40cB1laAws=
+        b=DoKQpEghJ5iLiZtg8DzsvbZq3XaQ/RcawjIolPv13VTJk8sJQhpBZQikjaNU45IQH
+         3b9RJzSFcHiyhcclPk2S6DqUg9+0+CoyQ5jO8eKYg4X5W9K5GuLxZ3lkCv3VZJO/ZM
+         C6FfSwUrK9a1/d3RFxJMxCQa0BxvYMBVVdsmrHDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 022/186] dmaengine: shdma: Fix runtime PM imbalance on error
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Marek Vasut <marex@denx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 116/262] drm: mxsfb: Fix NULL pointer dereference
 Date:   Mon,  7 Mar 2022 10:17:40 +0100
-Message-Id: <20220307091654.716977591@linuxfoundation.org>
+Message-Id: <20220307091705.741630517@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
+[ Upstream commit 622c9a3a7868e1eeca39c55305ca3ebec4742b64 ]
 
-pm_runtime_get_() increments the runtime PM usage counter even
-when it returns an error code, thus a matching decrement is needed on
-the error handling path to keep the counter balanced.
+mxsfb should not ever dereference the NULL pointer which
+drm_atomic_get_new_bridge_state is allowed to return.
+Assume a fixed format instead.
 
-Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
-Link: https://lore.kernel.org/r/1642311296-87020-1-git-send-email-lyz_cs@pku.edu.cn
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: b776b0f00f24 ("drm: mxsfb: Use bus_format from the nearest bridge if present")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220202081755.145716-3-alexander.stein@ew.tq-group.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/shdma-base.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mxsfb/mxsfb_kms.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/sh/shdma-base.c b/drivers/dma/sh/shdma-base.c
-index 7f72b3f4cd1ae..19ac95c0098f0 100644
---- a/drivers/dma/sh/shdma-base.c
-+++ b/drivers/dma/sh/shdma-base.c
-@@ -115,8 +115,10 @@ static dma_cookie_t shdma_tx_submit(struct dma_async_tx_descriptor *tx)
- 		ret = pm_runtime_get(schan->dev);
- 
- 		spin_unlock_irq(&schan->chan_lock);
--		if (ret < 0)
-+		if (ret < 0) {
- 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
-+			pm_runtime_put(schan->dev);
-+		}
- 
- 		pm_runtime_barrier(schan->dev);
- 
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_kms.c b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
+index b96ba348c68d9..988bc4fbd78df 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_kms.c
++++ b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
+@@ -361,7 +361,11 @@ static void mxsfb_crtc_atomic_enable(struct drm_crtc *crtc,
+ 		bridge_state =
+ 			drm_atomic_get_new_bridge_state(state,
+ 							mxsfb->bridge);
+-		bus_format = bridge_state->input_bus_cfg.format;
++		if (!bridge_state)
++			bus_format = MEDIA_BUS_FMT_FIXED;
++		else
++			bus_format = bridge_state->input_bus_cfg.format;
++
+ 		if (bus_format == MEDIA_BUS_FMT_FIXED) {
+ 			dev_warn_once(drm->dev,
+ 				      "Bridge does not provide bus format, assuming MEDIA_BUS_FMT_RGB888_1X24.\n"
 -- 
 2.34.1
 
