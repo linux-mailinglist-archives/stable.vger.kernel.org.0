@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E764CF951
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 888A24CF5C1
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239990AbiCGKE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:04:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40516 "EHLO
+        id S231508AbiCGJbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239914AbiCGKA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 516A37D01A;
-        Mon,  7 Mar 2022 01:46:34 -0800 (PST)
+        with ESMTP id S238808AbiCGJ3o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9445C765A;
+        Mon,  7 Mar 2022 01:28:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AFF3B810AA;
-        Mon,  7 Mar 2022 09:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8561AC340E9;
-        Mon,  7 Mar 2022 09:46:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F318B810B2;
+        Mon,  7 Mar 2022 09:28:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E93AC340F3;
+        Mon,  7 Mar 2022 09:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646391;
-        bh=fNbghsphnqjd+aQ1YEnnQU2LeC4m4Eg5nLJWZLd4RgY=;
+        s=korg; t=1646645327;
+        bh=wWdOksvsl0n4hqvHPuUSMZYSNyh8sB+6Ydafu2y5bp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nb5G82RHt/LiQyNfC+didCelyD/om50w2rogYEc469ZfX1uvO2oNj4FX59dNDAT+s
-         hHz0mz0DKDYL1x+jlXEBEE1cMnTYMTpshs+k1nz9oX3hWilg+e94OPEIzrAjyCl8cB
-         WpfAwKrWRlUn4MJYp3EfjyhXbtD0WxW5zJwUyhFE=
+        b=wYz081zc/aV4qtm54muCScTQ/1F3z5Ey5BuUkvQ7MBqHG9l3UB3m1dWUO9vI1Sg5p
+         W0dcjJHtr3MExQXKtZN4BNjls4CSwV1gUxsduxOGhBXZ8tWYWoiMgb9OS5ybo5lvSP
+         ie/vPT6rO5F5BbAy3wTYUK/UttvSwiTe7zOJ+CbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 229/262] iavf: Fix kernel BUG in free_msi_irqs
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 60/64] btrfs: fix lost prealloc extents beyond eof after full fsync
 Date:   Mon,  7 Mar 2022 10:19:33 +0100
-Message-Id: <20220307091709.659839241@linuxfoundation.org>
+Message-Id: <20220307091640.853385477@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,166 +53,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 605ca7c5c670762e36ccb475cfa089d7ad0698e0 ]
+commit d99478874355d3a7b9d86dfb5d7590d5b1754b1f upstream.
 
-Fix driver not freeing VF's traffic irqs, prior to calling
-pci_disable_msix in iavf_remove.
-There were possible 2 erroneous states in which, iavf_close would
-not be called.
-One erroneous state is fixed by allowing netdev to register, when state
-is already running. It was possible for VF adapter to enter state loop
-from running to resetting, where iavf_open would subsequently fail.
-If user would then unload driver/remove VF pci, iavf_close would not be
-called, as the netdev was not registered, leaving traffic pcis still
-allocated.
-Fixed this by breaking loop, allowing netdev to open device when adapter
-state is __IAVF_RUNNING and it is not explicitily downed.
-Other possiblity is entering to iavf_remove from __IAVF_RESETTING state,
-where iavf_close would not free irqs, but just return 0.
-Fixed this by checking for last adapter state and then removing irqs.
+When doing a full fsync, if we have prealloc extents beyond (or at) eof,
+and the leaves that contain them were not modified in the current
+transaction, we end up not logging them. This results in losing those
+extents when we replay the log after a power failure, since the inode is
+truncated to the current value of the logged i_size.
 
-Kernel panic:
-[ 2773.628585] kernel BUG at drivers/pci/msi.c:375!
-...
-[ 2773.631567] RIP: 0010:free_msi_irqs+0x180/0x1b0
-...
-[ 2773.640939] Call Trace:
-[ 2773.641572]  pci_disable_msix+0xf7/0x120
-[ 2773.642224]  iavf_reset_interrupt_capability.part.41+0x15/0x30 [iavf]
-[ 2773.642897]  iavf_remove+0x12e/0x500 [iavf]
-[ 2773.643578]  pci_device_remove+0x3b/0xc0
-[ 2773.644266]  device_release_driver_internal+0x103/0x1f0
-[ 2773.644948]  pci_stop_bus_device+0x69/0x90
-[ 2773.645576]  pci_stop_and_remove_bus_device+0xe/0x20
-[ 2773.646215]  pci_iov_remove_virtfn+0xba/0x120
-[ 2773.646862]  sriov_disable+0x2f/0xe0
-[ 2773.647531]  ice_free_vfs+0x2f8/0x350 [ice]
-[ 2773.648207]  ice_sriov_configure+0x94/0x960 [ice]
-[ 2773.648883]  ? _kstrtoull+0x3b/0x90
-[ 2773.649560]  sriov_numvfs_store+0x10a/0x190
-[ 2773.650249]  kernfs_fop_write+0x116/0x190
-[ 2773.650948]  vfs_write+0xa5/0x1a0
-[ 2773.651651]  ksys_write+0x4f/0xb0
-[ 2773.652358]  do_syscall_64+0x5b/0x1a0
-[ 2773.653075]  entry_SYSCALL_64_after_hwframe+0x65/0xca
+Just like for the fast fsync path, we need to always log all prealloc
+extents starting at or beyond i_size. The fast fsync case was fixed in
+commit 471d557afed155 ("Btrfs: fix loss of prealloc extents past i_size
+after fsync log replay") but it missed the full fsync path. The problem
+exists since the very early days, when the log tree was added by
+commit e02119d5a7b439 ("Btrfs: Add a write ahead tree log to optimize
+synchronous operations").
 
-Fixes: 22ead37f8af8 ("i40evf: Add longer wait after remove module")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Example reproducer:
+
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
+
+  # Create our test file with many file extent items, so that they span
+  # several leaves of metadata, even if the node/page size is 64K. Use
+  # direct IO and not fsync/O_SYNC because it's both faster and it avoids
+  # clearing the full sync flag from the inode - we want the fsync below
+  # to trigger the slow full sync code path.
+  $ xfs_io -f -d -c "pwrite -b 4K 0 16M" /mnt/foo
+
+  # Now add two preallocated extents to our file without extending the
+  # file's size. One right at i_size, and another further beyond, leaving
+  # a gap between the two prealloc extents.
+  $ xfs_io -c "falloc -k 16M 1M" /mnt/foo
+  $ xfs_io -c "falloc -k 20M 1M" /mnt/foo
+
+  # Make sure everything is durably persisted and the transaction is
+  # committed. This makes all created extents to have a generation lower
+  # than the generation of the transaction used by the next write and
+  # fsync.
+  sync
+
+  # Now overwrite only the first extent, which will result in modifying
+  # only the first leaf of metadata for our inode. Then fsync it. This
+  # fsync will use the slow code path (inode full sync bit is set) because
+  # it's the first fsync since the inode was created/loaded.
+  $ xfs_io -c "pwrite 0 4K" -c "fsync" /mnt/foo
+
+  # Extent list before power failure.
+  $ xfs_io -c "fiemap -v" /mnt/foo
+  /mnt/foo:
+   EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+     0: [0..7]:          2178048..2178055     8   0x0
+     1: [8..16383]:      26632..43007     16376   0x0
+     2: [16384..32767]:  2156544..2172927 16384   0x0
+     3: [32768..34815]:  2172928..2174975  2048 0x800
+     4: [34816..40959]:  hole              6144
+     5: [40960..43007]:  2174976..2177023  2048 0x801
+
+  <power fail>
+
+  # Mount fs again, trigger log replay.
+  $ mount /dev/sdc /mnt
+
+  # Extent list after power failure and log replay.
+  $ xfs_io -c "fiemap -v" /mnt/foo
+  /mnt/foo:
+   EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+     0: [0..7]:          2178048..2178055     8   0x0
+     1: [8..16383]:      26632..43007     16376   0x0
+     2: [16384..32767]:  2156544..2172927 16384   0x1
+
+  # The prealloc extents at file offsets 16M and 20M are missing.
+
+So fix this by calling btrfs_log_prealloc_extents() when we are doing a
+full fsync, so that we always log all prealloc extents beyond eof.
+
+A test case for fstests will follow soon.
+
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf.h      | 36 +++++++++++++++++++++
- drivers/net/ethernet/intel/iavf/iavf_main.c | 20 ++++++++++++
- 2 files changed, 56 insertions(+)
+ fs/btrfs/tree-log.c |   43 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 31 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
-index 997c45f2c542..21e0f3361560 100644
---- a/drivers/net/ethernet/intel/iavf/iavf.h
-+++ b/drivers/net/ethernet/intel/iavf/iavf.h
-@@ -395,6 +395,38 @@ struct iavf_device {
- extern char iavf_driver_name[];
- extern struct workqueue_struct *iavf_wq;
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4249,7 +4249,7 @@ static int log_one_extent(struct btrfs_t
  
-+static inline const char *iavf_state_str(enum iavf_state_t state)
-+{
-+	switch (state) {
-+	case __IAVF_STARTUP:
-+		return "__IAVF_STARTUP";
-+	case __IAVF_REMOVE:
-+		return "__IAVF_REMOVE";
-+	case __IAVF_INIT_VERSION_CHECK:
-+		return "__IAVF_INIT_VERSION_CHECK";
-+	case __IAVF_INIT_GET_RESOURCES:
-+		return "__IAVF_INIT_GET_RESOURCES";
-+	case __IAVF_INIT_SW:
-+		return "__IAVF_INIT_SW";
-+	case __IAVF_INIT_FAILED:
-+		return "__IAVF_INIT_FAILED";
-+	case __IAVF_RESETTING:
-+		return "__IAVF_RESETTING";
-+	case __IAVF_COMM_FAILED:
-+		return "__IAVF_COMM_FAILED";
-+	case __IAVF_DOWN:
-+		return "__IAVF_DOWN";
-+	case __IAVF_DOWN_PENDING:
-+		return "__IAVF_DOWN_PENDING";
-+	case __IAVF_TESTING:
-+		return "__IAVF_TESTING";
-+	case __IAVF_RUNNING:
-+		return "__IAVF_RUNNING";
-+	default:
-+		return "__IAVF_UNKNOWN_STATE";
-+	}
-+}
-+
- static inline void iavf_change_state(struct iavf_adapter *adapter,
- 				     enum iavf_state_t state)
+ /*
+  * Log all prealloc extents beyond the inode's i_size to make sure we do not
+- * lose them after doing a fast fsync and replaying the log. We scan the
++ * lose them after doing a full/fast fsync and replaying the log. We scan the
+  * subvolume's root instead of iterating the inode's extent map tree because
+  * otherwise we can log incorrect extent items based on extent map conversion.
+  * That can happen due to the fact that extent maps are merged when they
+@@ -5042,6 +5042,7 @@ static int copy_inode_items_to_log(struc
+ 				   struct btrfs_log_ctx *ctx,
+ 				   bool *need_log_inode_item)
  {
-@@ -402,6 +434,10 @@ static inline void iavf_change_state(struct iavf_adapter *adapter,
- 		adapter->last_state = adapter->state;
- 		adapter->state = state;
++	const u64 i_size = i_size_read(&inode->vfs_inode);
+ 	struct btrfs_root *root = inode->root;
+ 	int ins_start_slot = 0;
+ 	int ins_nr = 0;
+@@ -5062,13 +5063,21 @@ again:
+ 		if (min_key->type > max_key->type)
+ 			break;
+ 
+-		if (min_key->type == BTRFS_INODE_ITEM_KEY)
++		if (min_key->type == BTRFS_INODE_ITEM_KEY) {
+ 			*need_log_inode_item = false;
+-
+-		if ((min_key->type == BTRFS_INODE_REF_KEY ||
+-		     min_key->type == BTRFS_INODE_EXTREF_KEY) &&
+-		    inode->generation == trans->transid &&
+-		    !recursive_logging) {
++		} else if (min_key->type == BTRFS_EXTENT_DATA_KEY &&
++			   min_key->offset >= i_size) {
++			/*
++			 * Extents at and beyond eof are logged with
++			 * btrfs_log_prealloc_extents().
++			 * Only regular files have BTRFS_EXTENT_DATA_KEY keys,
++			 * and no keys greater than that, so bail out.
++			 */
++			break;
++		} else if ((min_key->type == BTRFS_INODE_REF_KEY ||
++			    min_key->type == BTRFS_INODE_EXTREF_KEY) &&
++			   inode->generation == trans->transid &&
++			   !recursive_logging) {
+ 			u64 other_ino = 0;
+ 			u64 other_parent = 0;
+ 
+@@ -5099,10 +5108,8 @@ again:
+ 				btrfs_release_path(path);
+ 				goto next_key;
+ 			}
+-		}
+-
+-		/* Skip xattrs, we log them later with btrfs_log_all_xattrs() */
+-		if (min_key->type == BTRFS_XATTR_ITEM_KEY) {
++		} else if (min_key->type == BTRFS_XATTR_ITEM_KEY) {
++			/* Skip xattrs, logged later with btrfs_log_all_xattrs() */
+ 			if (ins_nr == 0)
+ 				goto next_slot;
+ 			ret = copy_items(trans, inode, dst_path, path,
+@@ -5155,9 +5162,21 @@ next_key:
+ 			break;
+ 		}
  	}
-+	dev_dbg(&adapter->pdev->dev,
-+		"state transition from:%s to:%s\n",
-+		iavf_state_str(adapter->last_state),
-+		iavf_state_str(adapter->state));
+-	if (ins_nr)
++	if (ins_nr) {
+ 		ret = copy_items(trans, inode, dst_path, path, ins_start_slot,
+ 				 ins_nr, inode_only, logged_isize);
++		if (ret)
++			return ret;
++	}
++
++	if (inode_only == LOG_INODE_ALL && S_ISREG(inode->vfs_inode.i_mode)) {
++		/*
++		 * Release the path because otherwise we might attempt to double
++		 * lock the same leaf with btrfs_log_prealloc_extents() below.
++		 */
++		btrfs_release_path(path);
++		ret = btrfs_log_prealloc_extents(trans, inode, dst_path);
++	}
+ 
+ 	return ret;
  }
- 
- int iavf_up(struct iavf_adapter *adapter);
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 33a3dbcf8f2d..e97a8dbbbc89 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3325,6 +3325,13 @@ static int iavf_open(struct net_device *netdev)
- 		goto err_unlock;
- 	}
- 
-+	if (adapter->state == __IAVF_RUNNING &&
-+	    !test_bit(__IAVF_VSI_DOWN, adapter->vsi.state)) {
-+		dev_dbg(&adapter->pdev->dev, "VF is already open.\n");
-+		err = 0;
-+		goto err_unlock;
-+	}
-+
- 	/* allocate transmit descriptors */
- 	err = iavf_setup_all_tx_resources(adapter);
- 	if (err)
-@@ -3972,6 +3979,7 @@ static int __maybe_unused iavf_resume(struct device *dev_d)
- static void iavf_remove(struct pci_dev *pdev)
- {
- 	struct iavf_adapter *adapter = iavf_pdev_to_adapter(pdev);
-+	enum iavf_state_t prev_state = adapter->last_state;
- 	struct net_device *netdev = adapter->netdev;
- 	struct iavf_fdir_fltr *fdir, *fdirtmp;
- 	struct iavf_vlan_filter *vlf, *vlftmp;
-@@ -4013,9 +4021,21 @@ static void iavf_remove(struct pci_dev *pdev)
- 
- 	adapter->aq_required = 0;
- 	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
-+
- 	iavf_free_all_tx_resources(adapter);
- 	iavf_free_all_rx_resources(adapter);
- 	iavf_free_misc_irq(adapter);
-+
-+	/* In case we enter iavf_remove from erroneous state, free traffic irqs
-+	 * here, so as to not cause a kernel crash, when calling
-+	 * iavf_reset_interrupt_capability.
-+	 */
-+	if ((adapter->last_state == __IAVF_RESETTING &&
-+	     prev_state != __IAVF_DOWN) ||
-+	    (adapter->last_state == __IAVF_RUNNING &&
-+	     !(netdev->flags & IFF_UP)))
-+		iavf_free_traffic_irqs(adapter);
-+
- 	iavf_reset_interrupt_capability(adapter);
- 	iavf_free_q_vectors(adapter);
- 
--- 
-2.34.1
-
 
 
