@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15CD74CFA36
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 638754CF5DE
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234881AbiCGKNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:13:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
+        id S237154AbiCGJbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242588AbiCGKLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:40 -0500
+        with ESMTP id S238816AbiCGJ3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F95B8BE26;
-        Mon,  7 Mar 2022 01:55:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB3BF30;
+        Mon,  7 Mar 2022 01:28:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7A30B810C3;
-        Mon,  7 Mar 2022 09:55:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13F7CC340E9;
-        Mon,  7 Mar 2022 09:55:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EC9EB80F9F;
+        Mon,  7 Mar 2022 09:28:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3393C340E9;
+        Mon,  7 Mar 2022 09:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646928;
-        bh=e7wyFuXeYKc+o/zuFdJASwNJ1iJCwCwYWcu7YAwQ+Gs=;
+        s=korg; t=1646645330;
+        bh=QRptUylu6ioyya4CszpLn1NWYLWY1tZxmQs1STtJB34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9lzG23V4yLbCo2u9B4GgSX327bEt13gpRAP5ArgbWtrbicdcBGbxb/qkDZD0Cw7O
-         ttVPGyDDFDlfjWOSnFeI9TL4/noLh03kenVSQQ7GVNOVPmjUDiurnSI72ii+VEHX3l
-         vjZ1aqcl9njEIRkH4dS0mF0poJMat/yfITXpSbfc=
+        b=cyPleQcy47qUb8Om1MWL5L6h2mWIIG/ciA/xKyuSYzEW93gRi9h8J4eUM5t2ANEeN
+         OYjfqvlJyffAxThaO4wRusXcE9rM4isBpK9gT6SszHK4x3SO7Hbr6YrmXbTRLFRGfz
+         YiFakfADbrqUJRPurHzAc8506Eac39tDhUp4yiYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 136/186] Bluetooth: Fix bt_skb_sendmmsg not allocating partial chunks
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Sidong Yang <realwakka@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 61/64] btrfs: qgroup: fix deadlock between rescan worker and remove qgroup
 Date:   Mon,  7 Mar 2022 10:19:34 +0100
-Message-Id: <20220307091657.881119432@linuxfoundation.org>
+Message-Id: <20220307091640.881547064@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Sidong Yang <realwakka@gmail.com>
 
-[ Upstream commit 29fb608396d6a62c1b85acc421ad7a4399085b9f ]
+commit d4aef1e122d8bbdc15ce3bd0bc813d6b44a7d63a upstream.
 
-Since bt_skb_sendmmsg can be used with the likes of SOCK_STREAM it
-shall return the partial chunks it could allocate instead of freeing
-everything as otherwise it can cause problems like bellow.
+The commit e804861bd4e6 ("btrfs: fix deadlock between quota disable and
+qgroup rescan worker") by Kawasaki resolves deadlock between quota
+disable and qgroup rescan worker. But also there is a deadlock case like
+it. It's about enabling or disabling quota and creating or removing
+qgroup. It can be reproduced in simple script below.
 
-Fixes: 81be03e026dc ("Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Link: https://lore.kernel.org/r/d7206e12-1b99-c3be-84f4-df22af427ef5@molgen.mpg.de
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215594
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Paul Menzel <pmenzel@molgen.mpg.de> (Nokia N9 (MeeGo/Harmattan)
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+for i in {1..100}
+do
+    btrfs quota enable /mnt &
+    btrfs qgroup create 1/0 /mnt &
+    btrfs qgroup destroy 1/0 /mnt &
+    btrfs quota disable /mnt &
+done
+
+Here's why the deadlock happens:
+
+1) The quota rescan task is running.
+
+2) Task A calls btrfs_quota_disable(), locks the qgroup_ioctl_lock
+   mutex, and then calls btrfs_qgroup_wait_for_completion(), to wait for
+   the quota rescan task to complete.
+
+3) Task B calls btrfs_remove_qgroup() and it blocks when trying to lock
+   the qgroup_ioctl_lock mutex, because it's being held by task A. At that
+   point task B is holding a transaction handle for the current transaction.
+
+4) The quota rescan task calls btrfs_commit_transaction(). This results
+   in it waiting for all other tasks to release their handles on the
+   transaction, but task B is blocked on the qgroup_ioctl_lock mutex
+   while holding a handle on the transaction, and that mutex is being held
+   by task A, which is waiting for the quota rescan task to complete,
+   resulting in a deadlock between these 3 tasks.
+
+To resolve this issue, the thread disabling quota should unlock
+qgroup_ioctl_lock before waiting rescan completion. Move
+btrfs_qgroup_wait_for_completion() after unlock of qgroup_ioctl_lock.
+
+Fixes: e804861bd4e6 ("btrfs: fix deadlock between quota disable and qgroup rescan worker")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Sidong Yang <realwakka@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/bluetooth/bluetooth.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/btrfs/qgroup.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/bluetooth/bluetooth.h b/include/net/bluetooth/bluetooth.h
-index 3271870fd85e..a1093994e5e4 100644
---- a/include/net/bluetooth/bluetooth.h
-+++ b/include/net/bluetooth/bluetooth.h
-@@ -497,8 +497,7 @@ static inline struct sk_buff *bt_skb_sendmmsg(struct sock *sk,
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1117,13 +1117,20 @@ int btrfs_quota_disable(struct btrfs_fs_
+ 		goto out;
  
- 		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
- 		if (IS_ERR(tmp)) {
--			kfree_skb(skb);
--			return tmp;
-+			return skb;
- 		}
+ 	/*
++	 * Unlock the qgroup_ioctl_lock mutex before waiting for the rescan worker to
++	 * complete. Otherwise we can deadlock because btrfs_remove_qgroup() needs
++	 * to lock that mutex while holding a transaction handle and the rescan
++	 * worker needs to commit a transaction.
++	 */
++	mutex_unlock(&fs_info->qgroup_ioctl_lock);
++
++	/*
+ 	 * Request qgroup rescan worker to complete and wait for it. This wait
+ 	 * must be done before transaction start for quota disable since it may
+ 	 * deadlock with transaction by the qgroup rescan worker.
+ 	 */
+ 	clear_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
+ 	btrfs_qgroup_wait_for_completion(fs_info, false);
+-	mutex_unlock(&fs_info->qgroup_ioctl_lock);
  
- 		len -= tmp->len;
--- 
-2.34.1
-
+ 	/*
+ 	 * 1 For the root item
 
 
