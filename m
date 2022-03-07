@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D46D44CF87C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 843004CF5B7
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238811AbiCGJyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:54:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53388 "EHLO
+        id S235448AbiCGJag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238656AbiCGJxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:53:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F200775E78;
-        Mon,  7 Mar 2022 01:45:15 -0800 (PST)
+        with ESMTP id S238505AbiCGJ3P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C201A394;
+        Mon,  7 Mar 2022 01:27:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A37B6128D;
-        Mon,  7 Mar 2022 09:45:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79EFFC36AE9;
-        Mon,  7 Mar 2022 09:45:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECD00B810BF;
+        Mon,  7 Mar 2022 09:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A01C340E9;
+        Mon,  7 Mar 2022 09:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646314;
-        bh=SBHf2a7yUd4WUNercWNRH7elJmG5bff6672ToURpKNY=;
+        s=korg; t=1646645250;
+        bh=BY9Ruxi67wd8m2eQOnaUyRhsnnq5NaqeJk5fab+ldGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHCqr+XGDZBRuhnhGHdkaRL6is3bvdvO9809Conve2iLRxV3TOXrSCYMelfxPP39e
-         cKD/G3D8qAjvjNIHFC0H08wqs2jLceZf6oZCR22pE0w8jDma+VtMGfILuydRN13wDb
-         LZkmp47XIDUdOXfGcJTpXm0zT/dwe2ro/VavO4tE=
+        b=dVWGhKYqJijVrd5EWIm+Oax5ELRHe/FhrtwHgfh7F4b6Y6N4etdbu/8gfbRNc8QeV
+         NWlpu/lUqS9Uj3dNyj/+/DjPtPel+0EhlzmHOEZUAQogJo84dnNfvNeuxzuq3ePZyq
+         dSXVk28Ezpr/GYMCvuFngbkk2mKkMpKRRnPDIgZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Zhang Qiao <zhangqiao22@huawei.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>
-Subject: [PATCH 5.15 202/262] sched: Fix yet more sched_fork() races
-Date:   Mon,  7 Mar 2022 10:19:06 +0100
-Message-Id: <20220307091708.413231876@linuxfoundation.org>
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Nicolas Escande <nico.escande@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 34/64] mac80211: fix forwarded mesh frames AC & queue selection
+Date:   Mon,  7 Mar 2022 10:19:07 +0100
+Message-Id: <20220307091640.114466092@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,173 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Nicolas Escande <nico.escande@gmail.com>
 
-commit b1e8206582f9d680cff7d04828708c8b6ab32957 upstream.
+commit 859ae7018316daa4adbc496012dcbbb458d7e510 upstream.
 
-Where commit 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an
-invalid sched_task_group") fixed a fork race vs cgroup, it opened up a
-race vs syscalls by not placing the task on the runqueue before it
-gets exposed through the pidhash.
+There are two problems with the current code that have been highlighted
+with the AQL feature that is now enbaled by default.
 
-Commit 13765de8148f ("sched/fair: Fix fault in reweight_entity") is
-trying to fix a single instance of this, instead fix the whole class
-of issues, effectively reverting this commit.
+First problem is in ieee80211_rx_h_mesh_fwding(),
+ieee80211_select_queue_80211() is used on received packets to choose
+the sending AC queue of the forwarding packet although this function
+should only be called on TX packet (it uses ieee80211_tx_info).
+This ends with forwarded mesh packets been sent on unrelated random AC
+queue. To fix that, AC queue can directly be infered from skb->priority
+which has been extracted from QOS info (see ieee80211_parse_qos()).
 
-Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Tested-by: Zhang Qiao <zhangqiao22@huawei.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lkml.kernel.org/r/YgoeCbwj5mbCR0qA@hirez.programming.kicks-ass.net
+Second problem is the value of queue_mapping set on forwarded mesh
+frames via skb_set_queue_mapping() is not the AC of the packet but a
+hardware queue index. This may or may not work depending on AC to HW
+queue mapping which is driver specific.
+
+Both of these issues lead to improper AC selection while forwarding
+mesh packets but more importantly due to improper airtime accounting
+(which is done on a per STA, per AC basis) caused traffic stall with
+the introduction of AQL.
+
+Fixes: cf44012810cc ("mac80211: fix unnecessary frame drops in mesh fwding")
+Fixes: d3c1597b8d1b ("mac80211: fix forwarded mesh frame queue mapping")
+Co-developed-by: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: Nicolas Escande <nico.escande@gmail.com>
+Link: https://lore.kernel.org/r/20220214173214.368862-1-nico.escande@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sched/task.h |    4 ++--
- kernel/fork.c              |   13 ++++++++++++-
- kernel/sched/core.c        |   34 +++++++++++++++++++++-------------
- 3 files changed, 35 insertions(+), 16 deletions(-)
+ net/mac80211/rx.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -54,8 +54,8 @@ extern asmlinkage void schedule_tail(str
- extern void init_idle(struct task_struct *idle, int cpu);
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2852,13 +2852,13 @@ ieee80211_rx_h_mesh_fwding(struct ieee80
+ 	    ether_addr_equal(sdata->vif.addr, hdr->addr3))
+ 		return RX_CONTINUE;
  
- extern int sched_fork(unsigned long clone_flags, struct task_struct *p);
--extern void sched_post_fork(struct task_struct *p,
--			    struct kernel_clone_args *kargs);
-+extern void sched_cgroup_fork(struct task_struct *p, struct kernel_clone_args *kargs);
-+extern void sched_post_fork(struct task_struct *p);
- extern void sched_dead(struct task_struct *p);
- 
- void __noreturn do_task_dead(void);
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2297,6 +2297,17 @@ static __latent_entropy struct task_stru
- 		goto bad_fork_put_pidfd;
- 
- 	/*
-+	 * Now that the cgroups are pinned, re-clone the parent cgroup and put
-+	 * the new task on the correct runqueue. All this *before* the task
-+	 * becomes visible.
-+	 *
-+	 * This isn't part of ->can_fork() because while the re-cloning is
-+	 * cgroup specific, it unconditionally needs to place the task on a
-+	 * runqueue.
-+	 */
-+	sched_cgroup_fork(p, args);
-+
-+	/*
- 	 * From this point on we must avoid any synchronous user-space
- 	 * communication until we take the tasklist-lock. In particular, we do
- 	 * not want user-space to be able to predict the process start-time by
-@@ -2405,7 +2416,7 @@ static __latent_entropy struct task_stru
- 		fd_install(pidfd, pidfile);
- 
- 	proc_fork_connector(p);
--	sched_post_fork(p, args);
-+	sched_post_fork(p);
- 	cgroup_post_fork(p, args);
- 	perf_event_fork(p);
- 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1199,9 +1199,8 @@ int tg_nop(struct task_group *tg, void *
- }
- #endif
- 
--static void set_load_weight(struct task_struct *p)
-+static void set_load_weight(struct task_struct *p, bool update_load)
- {
--	bool update_load = !(READ_ONCE(p->__state) & TASK_NEW);
- 	int prio = p->static_prio - MAX_RT_PRIO;
- 	struct load_weight *load = &p->se.load;
- 
-@@ -4359,7 +4358,7 @@ int sched_fork(unsigned long clone_flags
- 			p->static_prio = NICE_TO_PRIO(0);
- 
- 		p->prio = p->normal_prio = p->static_prio;
--		set_load_weight(p);
-+		set_load_weight(p, false);
- 
- 		/*
- 		 * We don't need the reset flag anymore after the fork. It has
-@@ -4377,6 +4376,7 @@ int sched_fork(unsigned long clone_flags
- 
- 	init_entity_runnable_average(&p->se);
- 
-+
- #ifdef CONFIG_SCHED_INFO
- 	if (likely(sched_info_on()))
- 		memset(&p->sched_info, 0, sizeof(p->sched_info));
-@@ -4392,18 +4392,23 @@ int sched_fork(unsigned long clone_flags
- 	return 0;
- }
- 
--void sched_post_fork(struct task_struct *p, struct kernel_clone_args *kargs)
-+void sched_cgroup_fork(struct task_struct *p, struct kernel_clone_args *kargs)
- {
- 	unsigned long flags;
--#ifdef CONFIG_CGROUP_SCHED
--	struct task_group *tg;
--#endif
- 
-+	/*
-+	 * Because we're not yet on the pid-hash, p->pi_lock isn't strictly
-+	 * required yet, but lockdep gets upset if rules are violated.
-+	 */
- 	raw_spin_lock_irqsave(&p->pi_lock, flags);
- #ifdef CONFIG_CGROUP_SCHED
--	tg = container_of(kargs->cset->subsys[cpu_cgrp_id],
--			  struct task_group, css);
--	p->sched_task_group = autogroup_task_group(p, tg);
-+	if (1) {
-+		struct task_group *tg;
-+		tg = container_of(kargs->cset->subsys[cpu_cgrp_id],
-+				  struct task_group, css);
-+		tg = autogroup_task_group(p, tg);
-+		p->sched_task_group = tg;
-+	}
- #endif
- 	rseq_migrate(p);
- 	/*
-@@ -4414,7 +4419,10 @@ void sched_post_fork(struct task_struct
- 	if (p->sched_class->task_fork)
- 		p->sched_class->task_fork(p);
- 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
-+}
- 
-+void sched_post_fork(struct task_struct *p)
-+{
- 	uclamp_post_fork(p);
- }
- 
-@@ -6903,7 +6911,7 @@ void set_user_nice(struct task_struct *p
- 		put_prev_task(rq, p);
- 
- 	p->static_prio = NICE_TO_PRIO(nice);
--	set_load_weight(p);
-+	set_load_weight(p, true);
- 	old_prio = p->prio;
- 	p->prio = effective_prio(p);
- 
-@@ -7194,7 +7202,7 @@ static void __setscheduler_params(struct
- 	 */
- 	p->rt_priority = attr->sched_priority;
- 	p->normal_prio = normal_prio(p);
--	set_load_weight(p);
-+	set_load_weight(p, true);
- }
- 
- /*
-@@ -9432,7 +9440,7 @@ void __init sched_init(void)
- #endif
+-	ac = ieee80211_select_queue_80211(sdata, skb, hdr);
++	ac = ieee802_1d_to_ac[skb->priority];
+ 	q = sdata->vif.hw_queue[ac];
+ 	if (ieee80211_queue_stopped(&local->hw, q)) {
+ 		IEEE80211_IFSTA_MESH_CTR_INC(ifmsh, dropped_frames_congestion);
+ 		return RX_DROP_MONITOR;
  	}
+-	skb_set_queue_mapping(skb, q);
++	skb_set_queue_mapping(skb, ac);
  
--	set_load_weight(&init_task);
-+	set_load_weight(&init_task, false);
- 
- 	/*
- 	 * The boot idle thread does lazy MMU switching as well:
+ 	if (!--mesh_hdr->ttl) {
+ 		if (!is_multicast_ether_addr(hdr->addr1))
 
 
