@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E10B34CF5D1
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB1FB4CF691
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231310AbiCGJar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57962 "EHLO
+        id S237603AbiCGJmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:42:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238758AbiCGJ3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F017B5B893;
-        Mon,  7 Mar 2022 01:28:27 -0800 (PST)
+        with ESMTP id S238092AbiCGJh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:37:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D83B46E4E9;
+        Mon,  7 Mar 2022 01:32:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 995AFB810B2;
-        Mon,  7 Mar 2022 09:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3801C340E9;
-        Mon,  7 Mar 2022 09:28:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D901611E4;
+        Mon,  7 Mar 2022 09:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EFDAC340F3;
+        Mon,  7 Mar 2022 09:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645305;
-        bh=n5T1+I/pmeyijBxU7FOIfuJEcV3dxvkqCaFuwww8pfg=;
+        s=korg; t=1646645470;
+        bh=miO6KLXOqiSe4dToUkZ/8AFXWwSvItJzOnEW2FPUw00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOxwcVXguvS1L9VbHa/8vrnmxaSP65MkWMMlZ0dKO3pS7Glmm/jUc7OEzS0RzI+Ta
-         lhec6GwbwJR/2tKd8tUXoN6EVA7YgvLMIPb6s70Ttb+u8GJohZA8towf6BCpLJ8vpN
-         04kM+fk/6+KDha+AxStMNMxkOIfBX5N9BGZATFqg=
+        b=0xZs77ckwkkpp+Gj0Os+ij/WUTnwq4BRo2GHD2RdhPaU36fgaXzZ4IbF4veNn3yDX
+         Y86/aPEyYX1Lwn2MHdy6w8uGzJss+HAG8qRt6VaqUUGR3ZdCWHql63Iy3xlZXJvS+x
+         dJSF8NIIO8hi5atdd1V2two8wGcYokpQ9AZZNepI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/64] net: usb: cdc_mbim: avoid altsetting toggling for Telit FN990
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 041/105] e1000e: Correct NVM checksum verification flow
 Date:   Mon,  7 Mar 2022 10:18:44 +0100
-Message-Id: <20220307091639.465137235@linuxfoundation.org>
+Message-Id: <20220307091645.342350688@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 21e8a96377e6b6debae42164605bf9dcbe5720c5 ]
+commit ffd24fa2fcc76ecb2e61e7a4ef8588177bcb42a6 upstream.
 
-Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit FN990
-0x1071 composition in order to avoid bind error.
+Update MAC type check e1000_pch_tgp because for e1000_pch_cnp,
+NVM checksum update is still possible.
+Emit a more detailed warning message.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bugzilla: https://bugzilla.opensuse.org/show_bug.cgi?id=1191663
+Fixes: 4051f68318ca ("e1000e: Do not take care about recovery NVM checksum")
+Reported-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_mbim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
-index 77ac5a721e7b6..414341c9cf5ae 100644
---- a/drivers/net/usb/cdc_mbim.c
-+++ b/drivers/net/usb/cdc_mbim.c
-@@ -658,6 +658,11 @@ static const struct usb_device_id mbim_devs[] = {
- 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
- 	},
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -4134,9 +4134,9 @@ static s32 e1000_validate_nvm_checksum_i
+ 		return ret_val;
  
-+	/* Telit FN990 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1071, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
-+	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
-+	},
-+
- 	/* default entry */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
- 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
--- 
-2.34.1
-
+ 	if (!(data & valid_csum_mask)) {
+-		e_dbg("NVM Checksum Invalid\n");
++		e_dbg("NVM Checksum valid bit not set\n");
+ 
+-		if (hw->mac.type < e1000_pch_cnp) {
++		if (hw->mac.type < e1000_pch_tgp) {
+ 			data |= valid_csum_mask;
+ 			ret_val = e1000_write_nvm(hw, word, 1, &data);
+ 			if (ret_val)
 
 
