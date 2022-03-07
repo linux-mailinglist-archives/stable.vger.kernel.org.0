@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 331BB4CF5F1
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 428224CF73A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237269AbiCGJbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
+        id S238114AbiCGJpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237271AbiCGJau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:30:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDC066AF3;
-        Mon,  7 Mar 2022 01:29:19 -0800 (PST)
+        with ESMTP id S238914AbiCGJjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 265AE6F483;
+        Mon,  7 Mar 2022 01:33:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03C6261147;
-        Mon,  7 Mar 2022 09:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB091C340F4;
-        Mon,  7 Mar 2022 09:29:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B951EB810BF;
+        Mon,  7 Mar 2022 09:33:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED0B8C340E9;
+        Mon,  7 Mar 2022 09:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645358;
-        bh=BO8DuYMKnodsGKT2IvNVN7t5Bqy/yxjI/YHCGpaJ+/E=;
+        s=korg; t=1646645612;
+        bh=wucGYhU/4fjXHEiYCpmNe9ovLCQpTNtpqblxmIxE1Eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPVD32snLNleWEDXyDdnWxvLRorAXkpn8xS+R7MWBfPsyVCZ1UR9xnrfpJek6eQGn
-         SKzd86mtqO3ho//6tMQMGGYFQLiUX5r0QHoS20YG9Alr7obR/HAk4H1zUHGjIy7sdn
-         DK6SUuP52L9eYG7CE0UJE1Z92bBbySV6Z7jj6SL4=
+        b=kgoOJsjRryeGWPhvZZ+RcY7yD+6tq6KDyiybW0V2GSPKO0gfPOvzABQcMf4NJ17aj
+         CRCK4AcD1q8p/k6+fgkehb11rNZ/JwQsHBpFKVIGSCzIQGnOGiVBkf76dodErqbWw7
+         TwAOLMa0Irj/xep/NqXH2tKO6G8Io/szzL0x3x+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Mahon <wmahon@chromium.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.4 57/64] HID: add mapping for KEY_ALL_APPLICATIONS
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 087/105] ARM: tegra: Move panels to AUX bus
 Date:   Mon,  7 Mar 2022 10:19:30 +0100
-Message-Id: <20220307091640.767207668@linuxfoundation.org>
+Message-Id: <20220307091646.627103372@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Mahon <wmahon@chromium.org>
+From: Thierry Reding <treding@nvidia.com>
 
-commit 327b89f0acc4c20a06ed59e4d9af7f6d804dc2e2 upstream.
+[ Upstream commit 8d3b01e0d4bb54368d73d0984466d72c2eeeac74 ]
 
-This patch adds a new key definition for KEY_ALL_APPLICATIONS
-and aliases KEY_DASHBOARD to it.
+Move the eDP panel on Venice 2 and Nyan boards into the corresponding
+AUX bus device tree node. This allows us to avoid a nasty circular
+dependency that would otherwise be created between the DPAUX and panel
+nodes via the DDC/I2C phandle.
 
-It also maps the 0x0c/0x2a2 usage code to KEY_ALL_APPLICATIONS.
-
-Signed-off-by: William Mahon <wmahon@chromium.org>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20220303035618.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eb481f9ac95c ("ARM: tegra: add Acer Chromebook 13 device tree")
+Fixes: 59fe02cb079f ("ARM: tegra: Add DTS for the nyan-blaze board")
+Fixes: 40e231c770a4 ("ARM: tegra: Enable eDP for Venice2")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-debug.c                |    4 +++-
- drivers/hid/hid-input.c                |    2 ++
- include/uapi/linux/input-event-codes.h |    3 ++-
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/tegra124-nyan-big.dts   | 15 +++++++++------
+ arch/arm/boot/dts/tegra124-nyan-blaze.dts | 15 +++++++++------
+ arch/arm/boot/dts/tegra124-venice2.dts    | 14 +++++++-------
+ 3 files changed, 25 insertions(+), 19 deletions(-)
 
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -823,7 +823,9 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_F22] = "F22",			[KEY_F23] = "F23",
- 	[KEY_F24] = "F24",			[KEY_PLAYCD] = "PlayCD",
- 	[KEY_PAUSECD] = "PauseCD",		[KEY_PROG3] = "Prog3",
--	[KEY_PROG4] = "Prog4",			[KEY_SUSPEND] = "Suspend",
-+	[KEY_PROG4] = "Prog4",
-+	[KEY_ALL_APPLICATIONS] = "AllApplications",
-+	[KEY_SUSPEND] = "Suspend",
- 	[KEY_CLOSE] = "Close",			[KEY_PLAY] = "Play",
- 	[KEY_FASTFORWARD] = "FastForward",	[KEY_BASSBOOST] = "BassBoost",
- 	[KEY_PRINT] = "Print",			[KEY_HP] = "HP",
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1048,6 +1048,8 @@ static void hidinput_configure_usage(str
+diff --git a/arch/arm/boot/dts/tegra124-nyan-big.dts b/arch/arm/boot/dts/tegra124-nyan-big.dts
+index 1d2aac2cb6d0..fdc1d64dfff9 100644
+--- a/arch/arm/boot/dts/tegra124-nyan-big.dts
++++ b/arch/arm/boot/dts/tegra124-nyan-big.dts
+@@ -13,12 +13,15 @@
+ 		     "google,nyan-big-rev1", "google,nyan-big-rev0",
+ 		     "google,nyan-big", "google,nyan", "nvidia,tegra124";
  
- 		case 0x29d: map_key_clear(KEY_KBD_LAYOUT_NEXT);	break;
+-	panel: panel {
+-		compatible = "auo,b133xtn01";
+-
+-		power-supply = <&vdd_3v3_panel>;
+-		backlight = <&backlight>;
+-		ddc-i2c-bus = <&dpaux>;
++	host1x@50000000 {
++		dpaux@545c0000 {
++			aux-bus {
++				panel: panel {
++					compatible = "auo,b133xtn01";
++					backlight = <&backlight>;
++				};
++			};
++		};
+ 	};
  
-+		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
+ 	mmc@700b0400 { /* SD Card on this bus */
+diff --git a/arch/arm/boot/dts/tegra124-nyan-blaze.dts b/arch/arm/boot/dts/tegra124-nyan-blaze.dts
+index 677babde6460..abdf4456826f 100644
+--- a/arch/arm/boot/dts/tegra124-nyan-blaze.dts
++++ b/arch/arm/boot/dts/tegra124-nyan-blaze.dts
+@@ -15,12 +15,15 @@
+ 		     "google,nyan-blaze-rev0", "google,nyan-blaze",
+ 		     "google,nyan", "nvidia,tegra124";
+ 
+-	panel: panel {
+-		compatible = "samsung,ltn140at29-301";
+-
+-		power-supply = <&vdd_3v3_panel>;
+-		backlight = <&backlight>;
+-		ddc-i2c-bus = <&dpaux>;
++	host1x@50000000 {
++		dpaux@545c0000 {
++			aux-bus {
++				panel: panel {
++					compatible = "samsung,ltn140at29-301";
++					backlight = <&backlight>;
++				};
++			};
++		};
+ 	};
+ 
+ 	sound {
+diff --git a/arch/arm/boot/dts/tegra124-venice2.dts b/arch/arm/boot/dts/tegra124-venice2.dts
+index e6b54ac1ebd1..84e2d24065e9 100644
+--- a/arch/arm/boot/dts/tegra124-venice2.dts
++++ b/arch/arm/boot/dts/tegra124-venice2.dts
+@@ -48,6 +48,13 @@
+ 		dpaux@545c0000 {
+ 			vdd-supply = <&vdd_3v3_panel>;
+ 			status = "okay";
 +
- 		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
- 		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
- 		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -278,7 +278,8 @@
- #define KEY_PAUSECD		201
- #define KEY_PROG3		202
- #define KEY_PROG4		203
--#define KEY_DASHBOARD		204	/* AL Dashboard */
-+#define KEY_ALL_APPLICATIONS	204	/* AC Desktop Show All Applications */
-+#define KEY_DASHBOARD		KEY_ALL_APPLICATIONS
- #define KEY_SUSPEND		205
- #define KEY_CLOSE		206	/* AC Close */
- #define KEY_PLAY		207
++			aux-bus {
++				panel: panel {
++					compatible = "lg,lp129qe";
++					backlight = <&backlight>;
++				};
++			};
+ 		};
+ 	};
+ 
+@@ -1079,13 +1086,6 @@
+ 		};
+ 	};
+ 
+-	panel: panel {
+-		compatible = "lg,lp129qe";
+-		power-supply = <&vdd_3v3_panel>;
+-		backlight = <&backlight>;
+-		ddc-i2c-bus = <&dpaux>;
+-	};
+-
+ 	vdd_mux: regulator@0 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "+VDD_MUX";
+-- 
+2.34.1
+
 
 
