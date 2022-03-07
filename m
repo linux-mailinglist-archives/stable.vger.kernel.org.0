@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4AE4CF63F
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBA04CF846
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229541AbiCGJed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:34:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
+        id S238523AbiCGJwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:52:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238108AbiCGJde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:34 -0500
+        with ESMTP id S239670AbiCGJuB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7686D180;
-        Mon,  7 Mar 2022 01:30:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B805710DF;
+        Mon,  7 Mar 2022 01:43:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 029A6B810BD;
-        Mon,  7 Mar 2022 09:30:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 263AFC340E9;
-        Mon,  7 Mar 2022 09:30:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E49BFB810BC;
+        Mon,  7 Mar 2022 09:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260CDC340E9;
+        Mon,  7 Mar 2022 09:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645433;
-        bh=U0NBSGGAAiB5RuM+ha/CczSgoW4P8pJ0p++3T5GdVUA=;
+        s=korg; t=1646646216;
+        bh=xNBSLegiMNsww5M/MQqDExxz79QvamxtTPQDiZrclWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBJlxc2io+asrpTNvwDiGDQ2zMRHVzuNe5YKZWTTezH7C5mTuyHzc5n58cKIMeYdG
-         1Xk2pJ7jxJaONCWvYVT1AGYysMa2+eXvg4sB9bpSF4CjOQ59zrKHTKps7Z+wcc+xvl
-         BInyyu3Zu/QcBuYr9WSjlmzuWE5xuadZNPjcubrw=
+        b=HMLlodOvS335WtdtSmSDhMMX9OoU9JC21AMSTpaFP00l7yC3kQqtGkZq23WmkF0Hx
+         tSx4BErlSTX75Kp2GFLxdKEpIUeooKVMhTTnAO8KMxW+bRUsfcKV6MG9wwc5cJSdzE
+         nbCqhs7vEeY3NJi4bkU2ufhWxwtEf4fFDuCmnRps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.10 030/105] iommu/amd: Recover from event log overflow
+        stable@vger.kernel.org, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 169/262] net/smc: fix connection leak
 Date:   Mon,  7 Mar 2022 10:18:33 +0100
-Message-Id: <20220307091645.031593223@linuxfoundation.org>
+Message-Id: <20220307091707.195678290@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,117 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lennert Buytenhek <buytenh@wantstofly.org>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-commit 5ce97f4ec5e0f8726a5dda1710727b1ee9badcac upstream.
+commit 9f1c50cf39167ff71dc5953a3234f3f6eeb8fcb5 upstream.
 
-The AMD IOMMU logs I/O page faults and such to a ring buffer in
-system memory, and this ring buffer can overflow.  The AMD IOMMU
-spec has the following to say about the interrupt status bit that
-signals this overflow condition:
+There's a potential leak issue under following execution sequence :
 
-	EventOverflow: Event log overflow. RW1C. Reset 0b. 1 = IOMMU
-	event log overflow has occurred. This bit is set when a new
-	event is to be written to the event log and there is no usable
-	entry in the event log, causing the new event information to
-	be discarded. An interrupt is generated when EventOverflow = 1b
-	and MMIO Offset 0018h[EventIntEn] = 1b. No new event log
-	entries are written while this bit is set. Software Note: To
-	resume logging, clear EventOverflow (W1C), and write a 1 to
-	MMIO Offset 0018h[EventLogEn].
+smc_release  				smc_connect_work
+if (sk->sk_state == SMC_INIT)
+					send_clc_confirim
+	tcp_abort();
+					...
+					sk.sk_state = SMC_ACTIVE
+smc_close_active
+switch(sk->sk_state) {
+...
+case SMC_ACTIVE:
+	smc_close_final()
+	// then wait peer closed
 
-The AMD IOMMU driver doesn't currently implement this recovery
-sequence, meaning that if a ring buffer overflow occurs, logging
-of EVT/PPR/GA events will cease entirely.
+Unfortunately, tcp_abort() may discard CLC CONFIRM messages that are
+still in the tcp send buffer, in which case our connection token cannot
+be delivered to the server side, which means that we cannot get a
+passive close message at all. Therefore, it is impossible for the to be
+disconnected at all.
 
-This patch implements the spec-mandated reset sequence, with the
-minor tweak that the hardware seems to want to have a 0 written to
-MMIO Offset 0018h[EventLogEn] first, before writing an 1 into this
-field, or the IOMMU won't actually resume logging events.
+This patch tries a very simple way to avoid this issue, once the state
+has changed to SMC_ACTIVE after tcp_abort(), we can actively abort the
+smc connection, considering that the state is SMC_INIT before
+tcp_abort(), abandoning the complete disconnection process should not
+cause too much problem.
 
-Signed-off-by: Lennert Buytenhek <buytenh@arista.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/YVrSXEdW2rzEfOvk@wantstofly.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+In fact, this problem may exist as long as the CLC CONFIRM message is
+not received by the server. Whether a timer should be added after
+smc_close_final() needs to be discussed in the future. But even so, this
+patch provides a faster release for connection in above case, it should
+also be valuable.
+
+Fixes: 39f41f367b08 ("net/smc: common release code for non-accepted sockets")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd/amd_iommu.h       |    1 +
- drivers/iommu/amd/amd_iommu_types.h |    1 +
- drivers/iommu/amd/init.c            |   10 ++++++++++
- drivers/iommu/amd/iommu.c           |   10 ++++++++--
- 4 files changed, 20 insertions(+), 2 deletions(-)
+ net/smc/af_smc.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/amd/amd_iommu.h
-+++ b/drivers/iommu/amd/amd_iommu.h
-@@ -17,6 +17,7 @@ extern int amd_iommu_init_passthrough(vo
- extern irqreturn_t amd_iommu_int_thread(int irq, void *data);
- extern irqreturn_t amd_iommu_int_handler(int irq, void *data);
- extern void amd_iommu_apply_erratum_63(u16 devid);
-+extern void amd_iommu_restart_event_logging(struct amd_iommu *iommu);
- extern void amd_iommu_reset_cmd_buffer(struct amd_iommu *iommu);
- extern int amd_iommu_init_devices(void);
- extern void amd_iommu_uninit_devices(void);
---- a/drivers/iommu/amd/amd_iommu_types.h
-+++ b/drivers/iommu/amd/amd_iommu_types.h
-@@ -109,6 +109,7 @@
- #define PASID_MASK		0x0000ffff
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -182,7 +182,7 @@ static int smc_release(struct socket *so
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct smc_sock *smc;
+-	int rc = 0;
++	int old_state, rc = 0;
  
- /* MMIO status bits */
-+#define MMIO_STATUS_EVT_OVERFLOW_INT_MASK	(1 << 0)
- #define MMIO_STATUS_EVT_INT_MASK	(1 << 1)
- #define MMIO_STATUS_COM_WAIT_INT_MASK	(1 << 2)
- #define MMIO_STATUS_PPR_INT_MASK	(1 << 6)
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -657,6 +657,16 @@ static int __init alloc_command_buffer(s
- }
+ 	if (!sk)
+ 		goto out;
+@@ -190,8 +190,10 @@ static int smc_release(struct socket *so
+ 	sock_hold(sk); /* sock_put below */
+ 	smc = smc_sk(sk);
  
- /*
-+ * This function restarts event logging in case the IOMMU experienced
-+ * an event log buffer overflow.
-+ */
-+void amd_iommu_restart_event_logging(struct amd_iommu *iommu)
-+{
-+	iommu_feature_disable(iommu, CONTROL_EVT_LOG_EN);
-+	iommu_feature_enable(iommu, CONTROL_EVT_LOG_EN);
-+}
++	old_state = sk->sk_state;
 +
-+/*
-  * This function resets the command buffer if the IOMMU stopped fetching
-  * commands from it.
-  */
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -813,7 +813,8 @@ amd_iommu_set_pci_msi_domain(struct devi
- #endif /* !CONFIG_IRQ_REMAP */
+ 	/* cleanup for a dangling non-blocking connect */
+-	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
++	if (smc->connect_nonblock && old_state == SMC_INIT)
+ 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
  
- #define AMD_IOMMU_INT_MASK	\
--	(MMIO_STATUS_EVT_INT_MASK | \
-+	(MMIO_STATUS_EVT_OVERFLOW_INT_MASK | \
-+	 MMIO_STATUS_EVT_INT_MASK | \
- 	 MMIO_STATUS_PPR_INT_MASK | \
- 	 MMIO_STATUS_GALOG_INT_MASK)
+ 	if (cancel_work_sync(&smc->connect_work))
+@@ -205,6 +207,10 @@ static int smc_release(struct socket *so
+ 	else
+ 		lock_sock(sk);
  
-@@ -823,7 +824,7 @@ irqreturn_t amd_iommu_int_thread(int irq
- 	u32 status = readl(iommu->mmio_base + MMIO_STATUS_OFFSET);
- 
- 	while (status & AMD_IOMMU_INT_MASK) {
--		/* Enable EVT and PPR and GA interrupts again */
-+		/* Enable interrupt sources again */
- 		writel(AMD_IOMMU_INT_MASK,
- 			iommu->mmio_base + MMIO_STATUS_OFFSET);
- 
-@@ -844,6 +845,11 @@ irqreturn_t amd_iommu_int_thread(int irq
- 		}
- #endif
- 
-+		if (status & MMIO_STATUS_EVT_OVERFLOW_INT_MASK) {
-+			pr_info_ratelimited("IOMMU event log overflow\n");
-+			amd_iommu_restart_event_logging(iommu);
-+		}
++	if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
++	    !smc->use_fallback)
++		smc_close_active_abort(smc);
 +
- 		/*
- 		 * Hardware bug: ERBT1312
- 		 * When re-enabling interrupt (by writing 1
+ 	rc = __smc_release(smc);
+ 
+ 	/* detach socket */
 
 
