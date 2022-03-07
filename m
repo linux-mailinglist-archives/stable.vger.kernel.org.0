@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C914CF58E
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFEE94CF5DB
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236975AbiCGJaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35446 "EHLO
+        id S237343AbiCGJba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237409AbiCGJ2F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F412A6A029;
-        Mon,  7 Mar 2022 01:25:22 -0800 (PST)
+        with ESMTP id S238746AbiCGJ3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C9B5C36F;
+        Mon,  7 Mar 2022 01:28:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BF7460C00;
-        Mon,  7 Mar 2022 09:25:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4148CC340E9;
-        Mon,  7 Mar 2022 09:25:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1FDE61119;
+        Mon,  7 Mar 2022 09:28:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5B65C340E9;
+        Mon,  7 Mar 2022 09:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645111;
-        bh=8HVQ0bK50UVVZlUYGGpvPde5Jchndo2Q57B4WADFTzI=;
+        s=korg; t=1646645284;
+        bh=75ZY1WfUHU2Io4whiLfTwywajK/W9695AyieS52ILww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJzM/LJjNj35ADtw1nDmYkqdMH82iRqHDjgd54O1AbNI6PHt3C9qgaIFF1B4JUlWf
-         FNqglt/UgSCDAMtmbQSxic+wljz3cA061dqg0AQ+9G6/M8yF1tJRb32bnDivcKfI4J
-         qJMs4YN7rXIWUrv6pYICYpUqKNfn9HHs/s0IvaKo=
+        b=wr/eSdJqjxO+p1bXBS/xxRuQT03g9eiTWGvFizNkIil6K+x+6h7kwce1NbHazGGqx
+         Sjsi1sn3hS394o381kHCscyQ2/Y8fvt/Dkzf3v8P8+cTOUdzM7nSkqAyeBSaoWukRB
+         1UO16rgC6/71PJy52oANduXuWmpGyzUID8FGdzQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/51] soc: fsl: qe: Check of ioremap return value
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.4 44/64] arm64: dts: rockchip: Switch RK3399-Gru DP to SPDIF output
 Date:   Mon,  7 Mar 2022 10:19:17 +0100
-Message-Id: <20220307091638.188796141@linuxfoundation.org>
+Message-Id: <20220307091640.402267811@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit a222fd8541394b36b13c89d1698d9530afd59a9c ]
+commit b5fbaf7d779f5f02b7f75b080e7707222573be2a upstream.
 
-As the possible failure of the ioremap(), the par_io could be NULL.
-Therefore it should be better to check it and return error in order to
-guarantee the success of the initiation.
-But, I also notice that all the caller like mpc85xx_qe_par_io_init() in
-`arch/powerpc/platforms/85xx/common.c` don't check the return value of
-the par_io_init().
-Actually, par_io_init() needs to check to handle the potential error.
-I will submit another patch to fix that.
-Anyway, par_io_init() itsely should be fixed.
+Commit b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
+switched the platform to SPDIF, but we didn't fix up the device tree.
 
-Fixes: 7aa1aa6ecec2 ("QE: Move QE from arch/powerpc to drivers/soc")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Drop the pinctrl settings, because the 'spdif_bus' pins are either:
+ * unused (on kevin, bob), so the settings is ~harmless
+ * used by a different function (on scarlet), which causes probe
+   failures (!!)
+
+Fixes: b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Link: https://lore.kernel.org/r/20220114150129.v2.1.I46f64b00508d9dff34abe1c3e8d2defdab4ea1e5@changeid
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/fsl/qe/qe_io.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/soc/fsl/qe/qe_io.c b/drivers/soc/fsl/qe/qe_io.c
-index 7ae59abc7863..127a4a836e67 100644
---- a/drivers/soc/fsl/qe/qe_io.c
-+++ b/drivers/soc/fsl/qe/qe_io.c
-@@ -41,6 +41,8 @@ int par_io_init(struct device_node *np)
- 	if (ret)
- 		return ret;
- 	par_io = ioremap(res.start, resource_size(&res));
-+	if (!par_io)
-+		return -ENOMEM;
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
+@@ -281,7 +281,7 @@
  
- 	num_ports = of_get_property(np, "num-ports", NULL);
- 	if (num_ports)
--- 
-2.34.1
-
+ 	sound: sound {
+ 		compatible = "rockchip,rk3399-gru-sound";
+-		rockchip,cpu = <&i2s0 &i2s2>;
++		rockchip,cpu = <&i2s0 &spdif>;
+ 	};
+ };
+ 
+@@ -432,10 +432,6 @@ ap_i2c_audio: &i2c8 {
+ 	status = "okay";
+ };
+ 
+-&i2s2 {
+-	status = "okay";
+-};
+-
+ &io_domains {
+ 	status = "okay";
+ 
+@@ -532,6 +528,17 @@ ap_i2c_audio: &i2c8 {
+ 	vqmmc-supply = <&ppvar_sd_card_io>;
+ };
+ 
++&spdif {
++	status = "okay";
++
++	/*
++	 * SPDIF is routed internally to DP; we either don't use these pins, or
++	 * mux them to something else.
++	 */
++	/delete-property/ pinctrl-0;
++	/delete-property/ pinctrl-names;
++};
++
+ &spi1 {
+ 	status = "okay";
+ 
 
 
