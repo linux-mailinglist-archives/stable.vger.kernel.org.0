@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 184834CFABB
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE3504CFAEB
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237998AbiCGKWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:22:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43434 "EHLO
+        id S236431AbiCGKWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:22:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240024AbiCGKSB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:18:01 -0500
+        with ESMTP id S239960AbiCGKR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:17:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6104BCB0;
-        Mon,  7 Mar 2022 01:57:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6541626C;
+        Mon,  7 Mar 2022 01:57:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD76BB810B9;
-        Mon,  7 Mar 2022 09:56:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3828C340F4;
-        Mon,  7 Mar 2022 09:56:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1953B8102B;
+        Mon,  7 Mar 2022 09:56:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 089BFC340E9;
+        Mon,  7 Mar 2022 09:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647012;
-        bh=g57ENI8NMG7c24aILqIhKs7YngNbExCyU6rBDAMrUSA=;
+        s=korg; t=1646647017;
+        bh=xytpePAYg+Pf1xy5ot5dhr8kqJfnVy5IUhMPtgnfZxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1snrsPNZqLH8GknPOQ+WQz6DWdDq2/ULgO09mAh/ioh+Zzg7bqH2STrat87l4lZo5
-         gkVgU5o8ynx4PLeJOUFmrZ91OrZzhKu16X0Auhdal/1HA0PrCj6OQzCcBbXqdK4Foc
-         rBs1w+HaKTi/tctVkkwG3VfiXTAIUZyOtsmS1URg=
+        b=CRzClrAKdLcYk+oRXfGFT2VfF2bs0Aui0myEGPkoG4YON6wocYe4h5N5RevoKMjAv
+         MbHAwmgKhTxwj/AP4zCI+5gaWvBSKfaHVPjKz3OuN/7pRRCPCmK8ERb4cFAQvb9JlC
+         agC2hkCT/CsBZCpRnNgnegzLikDwUdyT++tZtrEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 165/186] net: stmmac: perserve TX and RX coalesce value during XDP setup
-Date:   Mon,  7 Mar 2022 10:20:03 +0100
-Message-Id: <20220307091658.691008182@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.16 166/186] Input: elan_i2c - move regulator_[en|dis]able() out of elan_[en|dis]able_power()
+Date:   Mon,  7 Mar 2022 10:20:04 +0100
+Message-Id: <20220307091658.720240030@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -54,45 +53,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ong Boon Leong <boon.leong.ong@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 61da6ac715700bcfeef50d187e15c6cc7c9d079b upstream.
+commit 81a36d8ce554b82b0a08e2b95d0bd44fcbff339b upstream.
 
-When XDP program is loaded, it is desirable that the previous TX and RX
-coalesce values are not re-inited to its default value. This prevents
-unnecessary re-configurig the coalesce values that were working fine
-before.
+elan_disable_power() is called conditionally on suspend, where as
+elan_enable_power() is always called on resume. This leads to
+an imbalance in the regulator's enable count.
 
-Fixes: ac746c8520d9 ("net: stmmac: enhance XDP ZC driver level switching performance")
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Tested-by: Kurt Kanzenbach <kurt@linutronix.de>
-Link: https://lore.kernel.org/r/20211124114019.3949125-1-boon.leong.ong@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Move the regulator_[en|dis]able() calls out of elan_[en|dis]able_power()
+in preparation of fixing this.
+
+No functional changes intended.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220131135436.29638-1-hdegoede@redhat.com
+[dtor: consolidate elan_[en|dis]able() into elan_set_power()]
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c |   62 ++++++++++++------------------------
+ 1 file changed, 22 insertions(+), 40 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -6596,6 +6596,9 @@ int stmmac_xdp_open(struct net_device *d
- 		tx_q->tx_tail_addr = tx_q->dma_tx_phy;
- 		stmmac_set_tx_tail_ptr(priv, priv->ioaddr,
- 				       tx_q->tx_tail_addr, chan);
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -186,55 +186,21 @@ static int elan_get_fwinfo(u16 ic_type,
+ 	return 0;
+ }
+ 
+-static int elan_enable_power(struct elan_tp_data *data)
++static int elan_set_power(struct elan_tp_data *data, bool on)
+ {
+ 	int repeat = ETP_RETRY_COUNT;
+ 	int error;
+ 
+-	error = regulator_enable(data->vcc);
+-	if (error) {
+-		dev_err(&data->client->dev,
+-			"failed to enable regulator: %d\n", error);
+-		return error;
+-	}
+-
+ 	do {
+-		error = data->ops->power_control(data->client, true);
++		error = data->ops->power_control(data->client, on);
+ 		if (error >= 0)
+ 			return 0;
+ 
+ 		msleep(30);
+ 	} while (--repeat > 0);
+ 
+-	dev_err(&data->client->dev, "failed to enable power: %d\n", error);
+-	return error;
+-}
+-
+-static int elan_disable_power(struct elan_tp_data *data)
+-{
+-	int repeat = ETP_RETRY_COUNT;
+-	int error;
+-
+-	do {
+-		error = data->ops->power_control(data->client, false);
+-		if (!error) {
+-			error = regulator_disable(data->vcc);
+-			if (error) {
+-				dev_err(&data->client->dev,
+-					"failed to disable regulator: %d\n",
+-					error);
+-				/* Attempt to power the chip back up */
+-				data->ops->power_control(data->client, true);
+-				break;
+-			}
+-
+-			return 0;
+-		}
+-
+-		msleep(30);
+-	} while (--repeat > 0);
+-
+-	dev_err(&data->client->dev, "failed to disable power: %d\n", error);
++	dev_err(&data->client->dev, "failed to set power %s: %d\n",
++		on ? "on" : "off", error);
+ 	return error;
+ }
+ 
+@@ -1399,9 +1365,19 @@ static int __maybe_unused elan_suspend(s
+ 		/* Enable wake from IRQ */
+ 		data->irq_wake = (enable_irq_wake(client->irq) == 0);
+ 	} else {
+-		ret = elan_disable_power(data);
++		ret = elan_set_power(data, false);
++		if (ret)
++			goto err;
 +
-+		hrtimer_init(&tx_q->txtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+		tx_q->txtimer.function = stmmac_tx_timer;
++		ret = regulator_disable(data->vcc);
++		if (ret) {
++			dev_err(dev, "error %d disabling regulator\n", ret);
++			/* Attempt to power the chip back up */
++			elan_set_power(data, true);
++		}
  	}
  
- 	/* Enable the MAC Rx/Tx */
-@@ -6604,8 +6607,6 @@ int stmmac_xdp_open(struct net_device *d
- 	/* Start Rx & Tx DMA Channels */
- 	stmmac_start_all_dma(priv);
++err:
+ 	mutex_unlock(&data->sysfs_mutex);
+ 	return ret;
+ }
+@@ -1417,7 +1393,13 @@ static int __maybe_unused elan_resume(st
+ 		data->irq_wake = false;
+ 	}
  
--	stmmac_init_coalesce(priv);
--
- 	ret = stmmac_request_irq(dev);
- 	if (ret)
- 		goto irq_error;
+-	error = elan_enable_power(data);
++	error = regulator_enable(data->vcc);
++	if (error) {
++		dev_err(dev, "error %d enabling regulator\n", error);
++		goto err;
++	}
++
++	error = elan_set_power(data, true);
+ 	if (error) {
+ 		dev_err(dev, "power up when resuming failed: %d\n", error);
+ 		goto err;
 
 
