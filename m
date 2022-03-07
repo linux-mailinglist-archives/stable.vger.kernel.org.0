@@ -2,54 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B214CF507
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7DF4CF6F9
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236759AbiCGJYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52748 "EHLO
+        id S233084AbiCGJnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:43:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237297AbiCGJXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:23:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85480652DC;
-        Mon,  7 Mar 2022 01:22:21 -0800 (PST)
+        with ESMTP id S237771AbiCGJgx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:36:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A47956E36B;
+        Mon,  7 Mar 2022 01:31:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D2F7B810BC;
-        Mon,  7 Mar 2022 09:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4EDC340F3;
-        Mon,  7 Mar 2022 09:22:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2500E6112D;
+        Mon,  7 Mar 2022 09:30:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A88CC340E9;
+        Mon,  7 Mar 2022 09:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644938;
-        bh=GKdd4VgpaM5s4qpkvtodSnYGBEaGyfU0kOv+WvU2fOY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=xTk7UKfyfJ37m/7IWXgQhdyftv3egjzuYT8D4goa6Hfcpri4N9zd5KsHxN09VTi+/
-         DFOR+vn4KSCEwuwuEr0UaiQELLYvXtpXY2wYLVtm8smwR7eYfO1FthDWQMO2D7sYNl
-         d6jI2frDOPTYPVZY4Cjqhq8NIsHBCoI/GDDZ06WE=
+        s=korg; t=1646645436;
+        bh=UVs6JRPbQFeW7JEvaNiBPtmdjIjHLHOygGadeUrFCNQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Bfp7y7F84J9DxpMvfJs3KP381qo5QBGEk9j/5QPom5ACl0LRvTDTKQ1l3jGG4U5qz
+         a5YchvZ1vrQeWkXa7O35VURHnSojRNZd9h1OROnZMvei6DZns1kS7YksHk7DCU5hfR
+         iiAbjNz5WuEhmzUvEYT0kb7vGqtxmJ9qUij+sBKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.14 00/42] 4.14.270-rc1 review
+        stable@vger.kernel.org, Matt Roper <matthew.d.roper@intel.com>,
+        Vivek Kasireddy <vivek.kasireddy@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Tomas Bzatek <bugs@bzatek.net>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.10 031/105] drm/i915: s/JSP2/ICP2/ PCH
 Date:   Mon,  7 Mar 2022 10:18:34 +0100
-Message-Id: <20220307091636.146155347@linuxfoundation.org>
+Message-Id: <20220307091645.060132686@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.270-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.270-rc1
-X-KernelTest-Deadline: 2022-03-09T09:16+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -62,199 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.270 release.
-There are 42 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
-Anything received after that time might be too late.
+commit 08783aa7693f55619859f4f63f384abf17cb58c5 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.270-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+This JSP2 PCH actually seems to be some special Apple
+specific ICP variant rather than a JSP. Make it so. Or at
+least all the references to it seem to be some Apple ICL
+machines. Didn't manage to find these PCI IDs in any
+public chipset docs unfortunately.
 
-thanks,
+The only thing we're losing here with this JSP->ICP change
+is Wa_14011294188, but based on the HSD that isn't actually
+needed on any ICP based design (including JSP), only TGP
+based stuff (including MCC) really need it. The documented
+w/a just never made that distinction because Windows didn't
+want to differentiate between JSP and MCC (not sure how
+they handle hpd/ddc/etc. then though...).
 
-greg k-h
+Cc: stable@vger.kernel.org
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Vivek Kasireddy <vivek.kasireddy@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4226
+Fixes: 943682e3bd19 ("drm/i915: Introduce Jasper Lake PCH")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220224132142.12927-1-ville.syrjala@linux.intel.com
+Acked-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
+Tested-by: Tomas Bzatek <bugs@bzatek.net>
+(cherry picked from commit 53581504a8e216d435f114a4f2596ad0dfd902fc)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/gpu/drm/i915/intel_pch.c |    2 +-
+ drivers/gpu/drm/i915/intel_pch.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.270-rc1
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: dcb: disable softirqs in dcbnl_flush_dev()
-
-Hugh Dickins <hughd@google.com>
-    memfd: fix F_SEAL_WRITE after shmem huge page allocated
-
-William Mahon <wmahon@chromium.org>
-    HID: add mapping for KEY_ALL_APPLICATIONS
-
-Hans de Goede <hdegoede@redhat.com>
-    Input: elan_i2c - fix regulator enable count imbalance after suspend/resume
-
-Hans de Goede <hdegoede@redhat.com>
-    Input: elan_i2c - move regulator_[en|dis]able() out of elan_[en|dis]able_power()
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    nl80211: Handle nla_memdup failures in handle_nan_filter
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    net: chelsio: cxgb3: check the return value of pci_find_capability()
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    soc: fsl: qe: Check of ioremap return value
-
-Randy Dunlap <rdunlap@infradead.org>
-    ARM: 9182/1: mmu: fix returns from early_param() and __setup() functions
-
-Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-    can: gs_usb: change active_channels's type from atomic_t to u8
-
-Jann Horn <jannh@google.com>
-    efivars: Respect "block" flag in efivar_entry_set_safe()
-
-Zheyu Ma <zheyuma97@gmail.com>
-    net: arcnet: com20020: Fix null-ptr-deref in com20020pci_probe()
-
-Randy Dunlap <rdunlap@infradead.org>
-    net: sxgbe: fix return value of __setup handler
-
-Randy Dunlap <rdunlap@infradead.org>
-    net: stmmac: fix return value of __setup handler
-
-Nicolas Escande <nico.escande@gmail.com>
-    mac80211: fix forwarded mesh frames AC & queue selection
-
-Johan Hovold <johan@kernel.org>
-    firmware: qemu_fw_cfg: fix kobject leak in probe error path
-
-Qiushi Wu <wu000273@umn.edu>
-    firmware: Fix a reference count leak.
-
-D. Wythe <alibuda@linux.alibaba.com>
-    net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error cause by server
-
-D. Wythe <alibuda@linux.alibaba.com>
-    net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error generated by client
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: dcb: flush lingering app table entries for unregistered devices
-
-Sven Eckelmann <sven@narfation.org>
-    batman-adv: Don't expect inter-netns unique iflink indices
-
-Sven Eckelmann <sven@narfation.org>
-    batman-adv: Request iflink once in batadv_get_real_netdevice
-
-Sven Eckelmann <sven@narfation.org>
-    batman-adv: Request iflink once in batadv-on-batadv check
-
-Florian Westphal <fw@strlen.de>
-    netfilter: nf_queue: fix possible use-after-free
-
-Florian Westphal <fw@strlen.de>
-    netfilter: nf_queue: don't assume sk is full socket
-
-Leon Romanovsky <leonro@nvidia.com>
-    xfrm: enforce validity of offload input flags
-
-Eric Dumazet <edumazet@google.com>
-    netfilter: fix use-after-free in __nf_register_net_hook()
-
-Jiri Bohac <jbohac@suse.cz>
-    xfrm: fix MTU regression
-
-Marek Vasut <marex@denx.de>
-    ASoC: ops: Shift tested values in snd_soc_put_volsw() by +min
-
-Zhen Ni <nizhen@uniontech.com>
-    ALSA: intel_hdmi: Fix reference to PCM buffer address
-
-Sergey Shtylyov <s.shtylyov@omp.ru>
-    ata: pata_hpt37x: fix PCI clock detection
-
-Hangyu Hua <hbh25y@gmail.com>
-    usb: gadget: clear related members when goto fail
-
-Hangyu Hua <hbh25y@gmail.com>
-    usb: gadget: don't release an existing dev->buf
-
-Daniele Palmas <dnlplm@gmail.com>
-    net: usb: cdc_mbim: avoid altsetting toggling for Telit FN990
-
-Wolfram Sang <wsa@kernel.org>
-    i2c: qup: allow COMPILE_TEST
-
-Wolfram Sang <wsa@kernel.org>
-    i2c: cadence: allow COMPILE_TEST
-
-Yongzhi Liu <lyz_cs@pku.edu.cn>
-    dmaengine: shdma: Fix runtime PM imbalance on error
-
-Ronnie Sahlberg <lsahlber@redhat.com>
-    cifs: fix double free race when mount fails in cifs_get_root()
-
-José Expósito <jose.exposito89@gmail.com>
-    Input: clear BTN_RIGHT/MIDDLE on buttonpads
-
-Eric Anholt <eric@anholt.net>
-    i2c: bcm2835: Avoid clock stretching timeouts
-
-JaeMan Park <jaeman@google.com>
-    mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
-
-Benjamin Beichler <benjamin.beichler@uni-rostock.de>
-    mac80211_hwsim: report NOACK frames in tx_status
-
-
--------------
-
-Diffstat:
-
- Makefile                                          |  4 +-
- arch/arm/mm/mmu.c                                 |  2 +
- drivers/ata/pata_hpt37x.c                         |  4 +-
- drivers/dma/sh/shdma-base.c                       |  4 +-
- drivers/firmware/efi/vars.c                       |  5 +-
- drivers/firmware/qemu_fw_cfg.c                    | 10 ++--
- drivers/hid/hid-debug.c                           |  4 +-
- drivers/hid/hid-input.c                           |  2 +
- drivers/i2c/busses/Kconfig                        |  4 +-
- drivers/i2c/busses/i2c-bcm2835.c                  | 11 ++++
- drivers/input/input.c                             |  6 +++
- drivers/input/mouse/elan_i2c_core.c               | 64 ++++++++---------------
- drivers/net/arcnet/com20020-pci.c                 |  3 ++
- drivers/net/can/usb/gs_usb.c                      | 10 ++--
- drivers/net/ethernet/chelsio/cxgb3/t3_hw.c        |  2 +
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c   |  6 +--
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |  6 +--
- drivers/net/usb/cdc_mbim.c                        |  5 ++
- drivers/net/wireless/mac80211_hwsim.c             | 13 +++++
- drivers/soc/fsl/qe/qe_io.c                        |  2 +
- drivers/usb/gadget/legacy/inode.c                 | 10 ++--
- fs/cifs/cifsfs.c                                  |  1 +
- include/net/netfilter/nf_queue.h                  |  2 +-
- include/uapi/linux/input-event-codes.h            |  3 +-
- include/uapi/linux/xfrm.h                         |  6 +++
- mm/shmem.c                                        |  7 +--
- net/batman-adv/hard-interface.c                   | 29 ++++++----
- net/dcb/dcbnl.c                                   | 44 ++++++++++++++++
- net/ipv6/ip6_output.c                             | 11 ++--
- net/mac80211/rx.c                                 |  4 +-
- net/netfilter/core.c                              |  5 +-
- net/netfilter/nf_queue.c                          | 23 ++++++--
- net/netfilter/nfnetlink_queue.c                   | 12 +++--
- net/smc/smc_core.c                                |  5 +-
- net/wireless/nl80211.c                            | 12 +++++
- net/xfrm/xfrm_device.c                            |  6 ++-
- sound/soc/soc-ops.c                               |  4 +-
- sound/x86/intel_hdmi_audio.c                      |  2 +-
- 38 files changed, 250 insertions(+), 103 deletions(-)
+--- a/drivers/gpu/drm/i915/intel_pch.c
++++ b/drivers/gpu/drm/i915/intel_pch.c
+@@ -110,6 +110,7 @@ intel_pch_type(const struct drm_i915_pri
+ 		/* Comet Lake V PCH is based on KBP, which is SPT compatible */
+ 		return PCH_SPT;
+ 	case INTEL_PCH_ICP_DEVICE_ID_TYPE:
++	case INTEL_PCH_ICP2_DEVICE_ID_TYPE:
+ 		drm_dbg_kms(&dev_priv->drm, "Found Ice Lake PCH\n");
+ 		drm_WARN_ON(&dev_priv->drm, !IS_ICELAKE(dev_priv));
+ 		return PCH_ICP;
+@@ -124,7 +125,6 @@ intel_pch_type(const struct drm_i915_pri
+ 			    !IS_ROCKETLAKE(dev_priv));
+ 		return PCH_TGP;
+ 	case INTEL_PCH_JSP_DEVICE_ID_TYPE:
+-	case INTEL_PCH_JSP2_DEVICE_ID_TYPE:
+ 		drm_dbg_kms(&dev_priv->drm, "Found Jasper Lake PCH\n");
+ 		drm_WARN_ON(&dev_priv->drm, !IS_ELKHARTLAKE(dev_priv));
+ 		return PCH_JSP;
+--- a/drivers/gpu/drm/i915/intel_pch.h
++++ b/drivers/gpu/drm/i915/intel_pch.h
+@@ -48,11 +48,11 @@ enum intel_pch {
+ #define INTEL_PCH_CMP2_DEVICE_ID_TYPE		0x0680
+ #define INTEL_PCH_CMP_V_DEVICE_ID_TYPE		0xA380
+ #define INTEL_PCH_ICP_DEVICE_ID_TYPE		0x3480
++#define INTEL_PCH_ICP2_DEVICE_ID_TYPE		0x3880
+ #define INTEL_PCH_MCC_DEVICE_ID_TYPE		0x4B00
+ #define INTEL_PCH_TGP_DEVICE_ID_TYPE		0xA080
+ #define INTEL_PCH_TGP2_DEVICE_ID_TYPE		0x4380
+ #define INTEL_PCH_JSP_DEVICE_ID_TYPE		0x4D80
+-#define INTEL_PCH_JSP2_DEVICE_ID_TYPE		0x3880
+ #define INTEL_PCH_P2X_DEVICE_ID_TYPE		0x7100
+ #define INTEL_PCH_P3X_DEVICE_ID_TYPE		0x7000
+ #define INTEL_PCH_QEMU_DEVICE_ID_TYPE		0x2900 /* qemu q35 has 2918 */
 
 
