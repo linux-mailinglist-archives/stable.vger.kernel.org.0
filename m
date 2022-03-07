@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D9D4CFA26
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2E04CF953
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239125AbiCGKMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:12:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50698 "EHLO
+        id S239281AbiCGKEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:04:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242657AbiCGKLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95D238BE0B;
-        Mon,  7 Mar 2022 01:55:39 -0800 (PST)
+        with ESMTP id S240091AbiCGKAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA92F7D02C;
+        Mon,  7 Mar 2022 01:46:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 376EEB80F9F;
-        Mon,  7 Mar 2022 09:55:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3F7C340E9;
-        Mon,  7 Mar 2022 09:55:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86CF260FB3;
+        Mon,  7 Mar 2022 09:46:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D6BC36AE2;
+        Mon,  7 Mar 2022 09:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646937;
-        bh=O6lEEzLW0d0NxblAfEx6hixWaOI+qgynxkKbjK6smLk=;
+        s=korg; t=1646646409;
+        bh=QiOVeJQEF3Etx495VCxmahhojVK5pWTINYYEamvuEkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFPn6p4vjnwQJu62SikxJXyh8GvmLyh4eH5wQ8UiOYY1sPADJCVLv2h2984ujd1iA
-         UsC6+Y5VMTCQOFZ4JMsdeCxIYIYgYLF0sYlfxAIUxxQUiqub8m/K10Q0FmTbPz1zgV
-         r/Ac89crEdye7d3q9AYND1crxoe6y6fbkAIoQRSY=
+        b=gT4FP1x9+vqA/rspdTiteu9std0K1QbTkr/l5QsoGFu+ghVDMdBUMDIvbeh12tcpf
+         XAoXHbkZ6WWXaaen2fBmAgb/zlOiOSgbR7qB960Tf3uVXKTiBAyBYb+pKMMEsqG6Y6
+         wPAMXcAsrTqDQ5tGAE3pjCSFmNUE1jdAgjW0BrD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Persson <larper@axis.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
+        Phani Burra <phani.r.burra@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 139/186] net: stmmac: only enable DMA interrupts when ready
-Date:   Mon,  7 Mar 2022 10:19:37 +0100
-Message-Id: <20220307091657.964669535@linuxfoundation.org>
+Subject: [PATCH 5.15 234/262] iavf: Fix __IAVF_RESETTING state usage
+Date:   Mon,  7 Mar 2022 10:19:38 +0100
+Message-Id: <20220307091709.897936123@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,109 +58,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Slawomir Laba <slawomirx.laba@intel.com>
 
-[ Upstream commit 087a7b944c5db409f7c1a68bf4896c56ba54eaff ]
+[ Upstream commit 14756b2ae265d526b8356e86729090b01778fdf6 ]
 
-In this driver's ->ndo_open() callback, it enables DMA interrupts,
-starts the DMA channels, then requests interrupts with request_irq(),
-and then finally enables napi.
+The setup of __IAVF_RESETTING state in watchdog task had no
+effect and could lead to slow resets in the driver as
+the task for __IAVF_RESETTING state only requeues watchdog.
+Till now the __IAVF_RESETTING was interpreted by reset task
+as running state which could lead to errors with allocating
+and resources disposal.
 
-If RX DMA interrupts are received before napi is enabled, no processing
-is done because napi_schedule_prep() will return false.  If the network
-has a lot of broadcast/multicast traffic, then the RX ring could fill up
-completely before napi is enabled.  When this happens, no further RX
-interrupts will be delivered, and the driver will fail to receive any
-packets.
+Make watchdog_task queue the reset task when it's necessary.
+Do not update the state to __IAVF_RESETTING so the reset task
+knows exactly what is the current state of the adapter.
 
-Fix this by only enabling DMA interrupts after all other initialization
-is complete.
-
-Fixes: 523f11b5d4fd72efb ("net: stmmac: move hardware setup for stmmac_open to new function")
-Reported-by: Lars Persson <larper@axis.com>
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 898ef1cb1cb2 ("iavf: Combine init and watchdog state machines")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Phani Burra <phani.r.burra@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/stmicro/stmmac/stmmac_main.c | 28 +++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 2b3752bd1ac9..8610e4d28e85 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2272,6 +2272,23 @@ static void stmmac_stop_tx_dma(struct stmmac_priv *priv, u32 chan)
- 	stmmac_stop_tx(priv, priv->ioaddr, chan);
- }
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index e23a062dc39c..50ecfb1faf61 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1073,8 +1073,7 @@ void iavf_down(struct iavf_adapter *adapter)
+ 		rss->state = IAVF_ADV_RSS_DEL_REQUEST;
+ 	spin_unlock_bh(&adapter->adv_rss_lock);
  
-+static void stmmac_enable_all_dma_irq(struct stmmac_priv *priv)
-+{
-+	u32 rx_channels_count = priv->plat->rx_queues_to_use;
-+	u32 tx_channels_count = priv->plat->tx_queues_to_use;
-+	u32 dma_csr_ch = max(rx_channels_count, tx_channels_count);
-+	u32 chan;
-+
-+	for (chan = 0; chan < dma_csr_ch; chan++) {
-+		struct stmmac_channel *ch = &priv->channel[chan];
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&ch->lock, flags);
-+		stmmac_enable_dma_irq(priv, priv->ioaddr, chan, 1, 1);
-+		spin_unlock_irqrestore(&ch->lock, flags);
-+	}
-+}
-+
- /**
-  * stmmac_start_all_dma - start all RX and TX DMA channels
-  * @priv: driver private structure
-@@ -2911,8 +2928,10 @@ static int stmmac_init_dma_engine(struct stmmac_priv *priv)
- 		stmmac_axi(priv, priv->ioaddr, priv->plat->axi);
+-	if (!(adapter->flags & IAVF_FLAG_PF_COMMS_FAILED) &&
+-	    adapter->state != __IAVF_RESETTING) {
++	if (!(adapter->flags & IAVF_FLAG_PF_COMMS_FAILED)) {
+ 		/* cancel any current operation */
+ 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
+ 		/* Schedule operations to close down the HW. Don't wait
+@@ -1992,11 +1991,12 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 	if (adapter->flags & IAVF_FLAG_PF_COMMS_FAILED)
+ 		iavf_change_state(adapter, __IAVF_COMM_FAILED);
  
- 	/* DMA CSR Channel configuration */
--	for (chan = 0; chan < dma_csr_ch; chan++)
-+	for (chan = 0; chan < dma_csr_ch; chan++) {
- 		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
-+		stmmac_disable_dma_irq(priv, priv->ioaddr, chan, 1, 1);
-+	}
- 
- 	/* DMA RX Channel Configuration */
- 	for (chan = 0; chan < rx_channels_count; chan++) {
-@@ -3768,6 +3787,7 @@ static int stmmac_open(struct net_device *dev)
- 
- 	stmmac_enable_all_queues(priv);
- 	netif_tx_start_all_queues(priv->dev);
-+	stmmac_enable_all_dma_irq(priv);
- 
- 	return 0;
- 
-@@ -6531,8 +6551,10 @@ int stmmac_xdp_open(struct net_device *dev)
+-	if (adapter->flags & IAVF_FLAG_RESET_NEEDED &&
+-	    adapter->state != __IAVF_RESETTING) {
+-		iavf_change_state(adapter, __IAVF_RESETTING);
++	if (adapter->flags & IAVF_FLAG_RESET_NEEDED) {
+ 		adapter->aq_required = 0;
+ 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
++		mutex_unlock(&adapter->crit_lock);
++		queue_work(iavf_wq, &adapter->reset_task);
++		return;
  	}
  
- 	/* DMA CSR Channel configuration */
--	for (chan = 0; chan < dma_csr_ch; chan++)
-+	for (chan = 0; chan < dma_csr_ch; chan++) {
- 		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
-+		stmmac_disable_dma_irq(priv, priv->ioaddr, chan, 1, 1);
-+	}
+ 	switch (adapter->state) {
+@@ -2290,8 +2290,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 	 * ndo_open() returning, so we can't assume it means all our open
+ 	 * tasks have finished, since we're not holding the rtnl_lock here.
+ 	 */
+-	running = ((adapter->state == __IAVF_RUNNING) ||
+-		   (adapter->state == __IAVF_RESETTING));
++	running = adapter->state == __IAVF_RUNNING;
  
- 	/* Adjust Split header */
- 	sph_en = (priv->hw->rx_csum > 0) && priv->sph;
-@@ -6592,6 +6614,7 @@ int stmmac_xdp_open(struct net_device *dev)
- 	stmmac_enable_all_queues(priv);
- 	netif_carrier_on(dev);
- 	netif_tx_start_all_queues(dev);
-+	stmmac_enable_all_dma_irq(priv);
- 
- 	return 0;
- 
-@@ -7470,6 +7493,7 @@ int stmmac_resume(struct device *dev)
- 	stmmac_restore_hw_vlan_rx_fltr(priv, ndev, priv->hw);
- 
- 	stmmac_enable_all_queues(priv);
-+	stmmac_enable_all_dma_irq(priv);
- 
- 	mutex_unlock(&priv->lock);
- 	rtnl_unlock();
+ 	if (running) {
+ 		netif_carrier_off(netdev);
 -- 
 2.34.1
 
