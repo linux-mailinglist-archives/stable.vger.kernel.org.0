@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBD24CF826
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2276B4CF49C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:19:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233332AbiCGJv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:51:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53444 "EHLO
+        id S235463AbiCGJUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:20:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240434AbiCGJvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:51:01 -0500
+        with ESMTP id S233897AbiCGJUJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:20:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B5075601;
-        Mon,  7 Mar 2022 01:44:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F903D1FD;
+        Mon,  7 Mar 2022 01:19:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1197B80F9F;
-        Mon,  7 Mar 2022 09:44:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 212B1C340E9;
-        Mon,  7 Mar 2022 09:44:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 615A5B81054;
+        Mon,  7 Mar 2022 09:19:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2BBBC340E9;
+        Mon,  7 Mar 2022 09:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646274;
-        bh=153pYkbNtQ6uMiWjTVZzDEHbjE1/6jBFe2d7OnN+QNo=;
+        s=korg; t=1646644753;
+        bh=71sl323eS025K3hQqxRUXxE4Bl6X+RJEAawq5oEERzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BR3AqG2/hCy/Ue0katcBtD5aRWOdp/zEWGfFpy3Q5cjGmc71Ik4i53VZrB0a54M80
-         rnhf6b3AU8NFpqDZd0Qeq3UglSocNxZ5XlElWMBEHbSdPJv12m1ltSfuQvY9N01p2C
-         LDLO/eHPEjwf2FEU3+61kIfEtwtyhKFU6yjfVoms=
+        b=br/bHE10kfWr5HerhbRzqlQW1HXcOK/F2il779uFdnF0MVeuJnF8kfSUYEKM0/uyd
+         jhcbrZkCnZfIh0rwqkHfAZndSnpy/bfC40gDUWTeJ3JpXK2t8MI9NQUf0rddyGAV23
+         3Y0u0KpAF/Pu00BzpvbzPwpjEWMyr1ZRVaGuK4Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Nicolas Escande <nico.escande@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 173/262] mac80211: fix forwarded mesh frames AC & queue selection
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/32] ata: pata_hpt37x: fix PCI clock detection
 Date:   Mon,  7 Mar 2022 10:18:37 +0100
-Message-Id: <20220307091707.304983012@linuxfoundation.org>
+Message-Id: <20220307091634.763233497@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
+References: <20220307091634.434478485@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Escande <nico.escande@gmail.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 859ae7018316daa4adbc496012dcbbb458d7e510 upstream.
+[ Upstream commit 5f6b0f2d037c8864f20ff15311c695f65eb09db5 ]
 
-There are two problems with the current code that have been highlighted
-with the AQL feature that is now enbaled by default.
+The f_CNT register (at the PCI config. address 0x78) is 16-bit, not
+8-bit! The bug was there from the very start... :-(
 
-First problem is in ieee80211_rx_h_mesh_fwding(),
-ieee80211_select_queue_80211() is used on received packets to choose
-the sending AC queue of the forwarding packet although this function
-should only be called on TX packet (it uses ieee80211_tx_info).
-This ends with forwarded mesh packets been sent on unrelated random AC
-queue. To fix that, AC queue can directly be infered from skb->priority
-which has been extracted from QOS info (see ieee80211_parse_qos()).
-
-Second problem is the value of queue_mapping set on forwarded mesh
-frames via skb_set_queue_mapping() is not the AC of the packet but a
-hardware queue index. This may or may not work depending on AC to HW
-queue mapping which is driver specific.
-
-Both of these issues lead to improper AC selection while forwarding
-mesh packets but more importantly due to improper airtime accounting
-(which is done on a per STA, per AC basis) caused traffic stall with
-the introduction of AQL.
-
-Fixes: cf44012810cc ("mac80211: fix unnecessary frame drops in mesh fwding")
-Fixes: d3c1597b8d1b ("mac80211: fix forwarded mesh frame queue mapping")
-Co-developed-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Nicolas Escande <nico.escande@gmail.com>
-Link: https://lore.kernel.org/r/20220214173214.368862-1-nico.escande@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Fixes: 669a5db411d8 ("[libata] Add a bunch of PATA drivers.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c |    4 ++--
+ drivers/ata/pata_hpt37x.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2918,13 +2918,13 @@ ieee80211_rx_h_mesh_fwding(struct ieee80
- 	    ether_addr_equal(sdata->vif.addr, hdr->addr3))
- 		return RX_CONTINUE;
+--- a/drivers/ata/pata_hpt37x.c
++++ b/drivers/ata/pata_hpt37x.c
+@@ -964,14 +964,14 @@ static int hpt37x_init_one(struct pci_de
  
--	ac = ieee80211_select_queue_80211(sdata, skb, hdr);
-+	ac = ieee802_1d_to_ac[skb->priority];
- 	q = sdata->vif.hw_queue[ac];
- 	if (ieee80211_queue_stopped(&local->hw, q)) {
- 		IEEE80211_IFSTA_MESH_CTR_INC(ifmsh, dropped_frames_congestion);
- 		return RX_DROP_MONITOR;
- 	}
--	skb_set_queue_mapping(skb, q);
-+	skb_set_queue_mapping(skb, ac);
+ 	if ((freq >> 12) != 0xABCDE) {
+ 		int i;
+-		u8 sr;
++		u16 sr;
+ 		u32 total = 0;
  
- 	if (!--mesh_hdr->ttl) {
- 		if (!is_multicast_ether_addr(hdr->addr1))
+ 		pr_warn("BIOS has not set timing clocks\n");
+ 
+ 		/* This is the process the HPT371 BIOS is reported to use */
+ 		for (i = 0; i < 128; i++) {
+-			pci_read_config_byte(dev, 0x78, &sr);
++			pci_read_config_word(dev, 0x78, &sr);
+ 			total += sr & 0x1FF;
+ 			udelay(15);
+ 		}
 
 
