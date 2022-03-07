@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D67064CF70C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15CD74CFA36
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233320AbiCGJoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57184 "EHLO
+        id S234881AbiCGKNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:13:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238905AbiCGJjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63F6E65F3;
-        Mon,  7 Mar 2022 01:33:45 -0800 (PST)
+        with ESMTP id S242588AbiCGKLk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F95B8BE26;
+        Mon,  7 Mar 2022 01:55:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 362CE61119;
-        Mon,  7 Mar 2022 09:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30B51C340F3;
-        Mon,  7 Mar 2022 09:33:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7A30B810C3;
+        Mon,  7 Mar 2022 09:55:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13F7CC340E9;
+        Mon,  7 Mar 2022 09:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645624;
-        bh=rscKA2iQ1oQMejilf4PUQni772CrPLMdUfLzRv0zDNU=;
+        s=korg; t=1646646928;
+        bh=e7wyFuXeYKc+o/zuFdJASwNJ1iJCwCwYWcu7YAwQ+Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iggwJ7So2jyuEktp4HnrCt2E0Fj7c4A3URXgY5a9QI0xe2MBUMDraMH1x5ElUtOUi
-         YTh+HENXn4wvBZIazNEv2eWNUG3o30HplGyaV4KdiXKHLSFasNob7YzUA/i95+a90O
-         jONyPdSN30LTfRfCPJliNd22dWYpc4QHLuRLSCTk=
+        b=p9lzG23V4yLbCo2u9B4GgSX327bEt13gpRAP5ArgbWtrbicdcBGbxb/qkDZD0Cw7O
+         ttVPGyDDFDlfjWOSnFeI9TL4/noLh03kenVSQQ7GVNOVPmjUDiurnSI72ii+VEHX3l
+         vjZ1aqcl9njEIRkH4dS0mF0poJMat/yfITXpSbfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Pawlak <jakub.pawlak@intel.com>,
-        Jan Sokolowski <jan.sokolowski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/105] iavf: Refactor iavf state machine tracking
+Subject: [PATCH 5.16 136/186] Bluetooth: Fix bt_skb_sendmmsg not allocating partial chunks
 Date:   Mon,  7 Mar 2022 10:19:34 +0100
-Message-Id: <20220307091646.738464032@linuxfoundation.org>
+Message-Id: <20220307091657.881119432@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,232 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 45eebd62999d37d13568723524b99d828e0ce22c ]
+[ Upstream commit 29fb608396d6a62c1b85acc421ad7a4399085b9f ]
 
-Replace state changes of iavf state machine
-with a method that also tracks the previous
-state the machine was on.
+Since bt_skb_sendmmsg can be used with the likes of SOCK_STREAM it
+shall return the partial chunks it could allocate instead of freeing
+everything as otherwise it can cause problems like bellow.
 
-This change is required for further work with
-refactoring init and watchdog state machines.
-
-Tracking of previous state would help us
-recover iavf after failure has occurred.
-
-Signed-off-by: Jakub Pawlak <jakub.pawlak@intel.com>
-Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 81be03e026dc ("Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Link: https://lore.kernel.org/r/d7206e12-1b99-c3be-84f4-df22af427ef5@molgen.mpg.de
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215594
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Tested-by: Paul Menzel <pmenzel@molgen.mpg.de> (Nokia N9 (MeeGo/Harmattan)
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf.h        | 10 +++++
- drivers/net/ethernet/intel/iavf/iavf_main.c   | 37 ++++++++++---------
- .../net/ethernet/intel/iavf/iavf_virtchnl.c   |  2 +-
- 3 files changed, 31 insertions(+), 18 deletions(-)
+ include/net/bluetooth/bluetooth.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
-index 6766446a33f4..ce1e2fb22e09 100644
---- a/drivers/net/ethernet/intel/iavf/iavf.h
-+++ b/drivers/net/ethernet/intel/iavf/iavf.h
-@@ -309,6 +309,7 @@ struct iavf_adapter {
- 	struct iavf_hw hw; /* defined in iavf_type.h */
+diff --git a/include/net/bluetooth/bluetooth.h b/include/net/bluetooth/bluetooth.h
+index 3271870fd85e..a1093994e5e4 100644
+--- a/include/net/bluetooth/bluetooth.h
++++ b/include/net/bluetooth/bluetooth.h
+@@ -497,8 +497,7 @@ static inline struct sk_buff *bt_skb_sendmmsg(struct sock *sk,
  
- 	enum iavf_state_t state;
-+	enum iavf_state_t last_state;
- 	unsigned long crit_section;
- 
- 	struct delayed_work watchdog_task;
-@@ -378,6 +379,15 @@ struct iavf_device {
- extern char iavf_driver_name[];
- extern struct workqueue_struct *iavf_wq;
- 
-+static inline void iavf_change_state(struct iavf_adapter *adapter,
-+				     enum iavf_state_t state)
-+{
-+	if (adapter->state != state) {
-+		adapter->last_state = adapter->state;
-+		adapter->state = state;
-+	}
-+}
-+
- int iavf_up(struct iavf_adapter *adapter);
- void iavf_down(struct iavf_adapter *adapter);
- int iavf_process_config(struct iavf_adapter *adapter);
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 07170b77d42b..bd1fb3774769 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -963,7 +963,7 @@ static void iavf_configure(struct iavf_adapter *adapter)
-  **/
- static void iavf_up_complete(struct iavf_adapter *adapter)
- {
--	adapter->state = __IAVF_RUNNING;
-+	iavf_change_state(adapter, __IAVF_RUNNING);
- 	clear_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
- 
- 	iavf_napi_enable_all(adapter);
-@@ -1698,7 +1698,7 @@ static int iavf_startup(struct iavf_adapter *adapter)
- 		iavf_shutdown_adminq(hw);
- 		goto err;
- 	}
--	adapter->state = __IAVF_INIT_VERSION_CHECK;
-+	iavf_change_state(adapter, __IAVF_INIT_VERSION_CHECK);
- err:
- 	return err;
- }
-@@ -1722,7 +1722,7 @@ static int iavf_init_version_check(struct iavf_adapter *adapter)
- 	if (!iavf_asq_done(hw)) {
- 		dev_err(&pdev->dev, "Admin queue command never completed\n");
- 		iavf_shutdown_adminq(hw);
--		adapter->state = __IAVF_STARTUP;
-+		iavf_change_state(adapter, __IAVF_STARTUP);
- 		goto err;
- 	}
- 
-@@ -1745,8 +1745,7 @@ static int iavf_init_version_check(struct iavf_adapter *adapter)
- 			err);
- 		goto err;
- 	}
--	adapter->state = __IAVF_INIT_GET_RESOURCES;
--
-+	iavf_change_state(adapter, __IAVF_INIT_GET_RESOURCES);
- err:
- 	return err;
- }
-@@ -1862,7 +1861,7 @@ static int iavf_init_get_resources(struct iavf_adapter *adapter)
- 	if (netdev->features & NETIF_F_GRO)
- 		dev_info(&pdev->dev, "GRO is enabled\n");
- 
--	adapter->state = __IAVF_DOWN;
-+	iavf_change_state(adapter, __IAVF_DOWN);
- 	set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
- 	rtnl_unlock();
- 
-@@ -1910,7 +1909,7 @@ static void iavf_watchdog_task(struct work_struct *work)
- 		goto restart_watchdog;
- 
- 	if (adapter->flags & IAVF_FLAG_PF_COMMS_FAILED)
--		adapter->state = __IAVF_COMM_FAILED;
-+		iavf_change_state(adapter, __IAVF_COMM_FAILED);
- 
- 	switch (adapter->state) {
- 	case __IAVF_COMM_FAILED:
-@@ -1921,7 +1920,7 @@ static void iavf_watchdog_task(struct work_struct *work)
- 			/* A chance for redemption! */
- 			dev_err(&adapter->pdev->dev,
- 				"Hardware came out of reset. Attempting reinit.\n");
--			adapter->state = __IAVF_STARTUP;
-+			iavf_change_state(adapter, __IAVF_STARTUP);
- 			adapter->flags &= ~IAVF_FLAG_PF_COMMS_FAILED;
- 			queue_delayed_work(iavf_wq, &adapter->init_task, 10);
- 			clear_bit(__IAVF_IN_CRITICAL_TASK,
-@@ -1971,9 +1970,10 @@ static void iavf_watchdog_task(struct work_struct *work)
- 		goto restart_watchdog;
- 	}
- 
--		/* check for hw reset */
-+	/* check for hw reset */
- 	reg_val = rd32(hw, IAVF_VF_ARQLEN1) & IAVF_VF_ARQLEN1_ARQENABLE_MASK;
- 	if (!reg_val) {
-+		iavf_change_state(adapter, __IAVF_RESETTING);
- 		adapter->flags |= IAVF_FLAG_RESET_PENDING;
- 		adapter->aq_required = 0;
- 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
-@@ -2053,7 +2053,7 @@ static void iavf_disable_vf(struct iavf_adapter *adapter)
- 	adapter->netdev->flags &= ~IFF_UP;
- 	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
- 	adapter->flags &= ~IAVF_FLAG_RESET_PENDING;
--	adapter->state = __IAVF_DOWN;
-+	iavf_change_state(adapter, __IAVF_DOWN);
- 	wake_up(&adapter->down_waitqueue);
- 	dev_info(&adapter->pdev->dev, "Reset task did not complete, VF disabled\n");
- }
-@@ -2165,7 +2165,7 @@ static void iavf_reset_task(struct work_struct *work)
- 	}
- 	iavf_irq_disable(adapter);
- 
--	adapter->state = __IAVF_RESETTING;
-+	iavf_change_state(adapter, __IAVF_RESETTING);
- 	adapter->flags &= ~IAVF_FLAG_RESET_PENDING;
- 
- 	/* free the Tx/Rx rings and descriptors, might be better to just
-@@ -2265,11 +2265,14 @@ static void iavf_reset_task(struct work_struct *work)
- 
- 		iavf_configure(adapter);
- 
-+		/* iavf_up_complete() will switch device back
-+		 * to __IAVF_RUNNING
-+		 */
- 		iavf_up_complete(adapter);
- 
- 		iavf_irq_enable(adapter, true);
- 	} else {
--		adapter->state = __IAVF_DOWN;
-+		iavf_change_state(adapter, __IAVF_DOWN);
- 		wake_up(&adapter->down_waitqueue);
- 	}
- 	clear_bit(__IAVF_IN_CLIENT_TASK, &adapter->crit_section);
-@@ -3277,7 +3280,7 @@ static int iavf_close(struct net_device *netdev)
- 		adapter->flags |= IAVF_FLAG_CLIENT_NEEDS_CLOSE;
- 
- 	iavf_down(adapter);
--	adapter->state = __IAVF_DOWN_PENDING;
-+	iavf_change_state(adapter, __IAVF_DOWN_PENDING);
- 	iavf_free_traffic_irqs(adapter);
- 
- 	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
-@@ -3661,7 +3664,7 @@ static void iavf_init_task(struct work_struct *work)
- 			"Failed to communicate with PF; waiting before retry\n");
- 		adapter->flags |= IAVF_FLAG_PF_COMMS_FAILED;
- 		iavf_shutdown_adminq(hw);
--		adapter->state = __IAVF_STARTUP;
-+		iavf_change_state(adapter, __IAVF_STARTUP);
- 		queue_delayed_work(iavf_wq, &adapter->init_task, HZ * 5);
- 		goto out;
- 	}
-@@ -3687,7 +3690,7 @@ static void iavf_shutdown(struct pci_dev *pdev)
- 	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
- 		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
- 	/* Prevent the watchdog from running. */
--	adapter->state = __IAVF_REMOVE;
-+	iavf_change_state(adapter, __IAVF_REMOVE);
- 	adapter->aq_required = 0;
- 	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
- 
-@@ -3760,7 +3763,7 @@ static int iavf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	hw->back = adapter;
- 
- 	adapter->msg_enable = BIT(DEFAULT_DEBUG_LEVEL_SHIFT) - 1;
--	adapter->state = __IAVF_STARTUP;
-+	iavf_change_state(adapter, __IAVF_STARTUP);
- 
- 	/* Call save state here because it relies on the adapter struct. */
- 	pci_save_state(pdev);
-@@ -3928,7 +3931,7 @@ static void iavf_remove(struct pci_dev *pdev)
- 		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
- 
- 	/* Shut down all the garbage mashers on the detention level */
--	adapter->state = __IAVF_REMOVE;
-+	iavf_change_state(adapter, __IAVF_REMOVE);
- 	adapter->aq_required = 0;
- 	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
- 	iavf_free_all_tx_resources(adapter);
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-index 8be3151f2c62..ff479bf72144 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-@@ -1460,7 +1460,7 @@ void iavf_virtchnl_completion(struct iavf_adapter *adapter,
- 		iavf_free_all_tx_resources(adapter);
- 		iavf_free_all_rx_resources(adapter);
- 		if (adapter->state == __IAVF_DOWN_PENDING) {
--			adapter->state = __IAVF_DOWN;
-+			iavf_change_state(adapter, __IAVF_DOWN);
- 			wake_up(&adapter->down_waitqueue);
+ 		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
+ 		if (IS_ERR(tmp)) {
+-			kfree_skb(skb);
+-			return tmp;
++			return skb;
  		}
- 		break;
+ 
+ 		len -= tmp->len;
 -- 
 2.34.1
 
