@@ -2,137 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76AE74D0B4B
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 23:40:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FD14D0B4C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 23:40:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343820AbiCGWkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 17:40:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35512 "EHLO
+        id S237663AbiCGWlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 17:41:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343821AbiCGWkw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 17:40:52 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A235926FE
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 14:39:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646692796;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=oJJnjNEDLDCxgTnNZiuLduAW9RdSuGCDd7yDQswPSHQ=;
-        b=OKk3qJpQhhx3+onVWv58QzIb9/VDnpmmhxHSaBtNPBvWoYwXFXxDn7idPgBLmP3xUAU7Uh
-        Kt/YTXM16jO6veGX53crXox2Vs91wU8ru4IQ07S8ikGB1/Ztfuk4F1R2A0Gd1trued9k7u
-        f9Nw4KPnqPczWDEzsLHDzuWYjIruNxM=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-605-Z8qcRIkwPJulw3wUTjcUYw-1; Mon, 07 Mar 2022 17:39:53 -0500
-X-MC-Unique: Z8qcRIkwPJulw3wUTjcUYw-1
-Received: by mail-ed1-f71.google.com with SMTP id e10-20020a056402190a00b00410f20467abso9439672edz.14
-        for <stable@vger.kernel.org>; Mon, 07 Mar 2022 14:39:53 -0800 (PST)
+        with ESMTP id S233890AbiCGWlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 17:41:50 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F3B20D
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 14:40:55 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id d17so6860245pfv.6
+        for <stable@vger.kernel.org>; Mon, 07 Mar 2022 14:40:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Zw+2en8c773Nx7Wqj5xME/FmsQtN7mSQAPZ+5MuSnDo=;
+        b=jpPJQVYHkHaT8UtxzR/uzOGXlmGCzIxEnMW1TwagY0ekaSIUdCHYzU9w/ZL7FrFpKl
+         eyYYws9yKjOphO6y9g0zpv/HGXXlPVDL3T2cDPf+39hWXEN2fXBU4Hbp2AQkIEn9zsX5
+         WFEo9fL17NV8mP7dvZLym+KdyLqxUeokKTvSpGZr/LwKzpgUsRjniYnJQv5QZjWT3NEU
+         9JZ1B0XzZIniOS2bhjoOQCPC5qDC/9H43S1J9TF60xKoB9cSYqCnH1Zpf10jRl5ucz+t
+         gf+aYRxc7SQsjnhJbCMt+sBg7E534ckOJKx/zizCW6f65QtXbWyJ1PBmtmQ21Jut+r3a
+         xykg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=oJJnjNEDLDCxgTnNZiuLduAW9RdSuGCDd7yDQswPSHQ=;
-        b=vfmpHM7uWyi3Uo5krfxPuULYUifCITs++JPZaK4pwLG4YfN0Q4IcwJlB8BvtEulPsP
-         PV9YEQXpbGcMYSQ+Yz98p2l7ej2vui7sKQSmPzU0vcqR8yiv74d8mXfjICXqaIEoSk4G
-         1QV95hsyrN43tk8nsb61ZDX+D0OuZoZ/0X2A1BjndDUL3J0depEwAP2ahb0BHfSpCyEQ
-         ij8p3hG//csHlethX4iRTeuIiUat40nrYEYKTFXJtW4pEr0/F9PQRgyP+YbDsmWUpW1V
-         sluLSLbuFvYLhx1YiU9CqVysmHzLArt/zS8HarIfufEqyuWvnYZTKgJVAy8LOg+N0jeh
-         TgzQ==
-X-Gm-Message-State: AOAM5333RqRz2syP+HaEEbo2LAH05LnuYu/0MF1f/z52WoBIKcnPZzHJ
-        HJOyuv3lnbG9/TEYSJ8NMkizQ6GXJYk2uQyFNCRsBbqx9NEsUvbgCOsLGCpqeIwMKq3oMy9TkWx
-        YM9U3mxTcsQ64leIG
-X-Received: by 2002:a50:f68b:0:b0:415:a36c:5c0b with SMTP id d11-20020a50f68b000000b00415a36c5c0bmr13019182edn.272.1646692791965;
-        Mon, 07 Mar 2022 14:39:51 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzHmg2BC0xk8nWy9xaqU2GCk4lH6furT6guufXi8TPI/KI61k1O7Q5pN2MxtI0peMXSX0VM9Q==
-X-Received: by 2002:a50:f68b:0:b0:415:a36c:5c0b with SMTP id d11-20020a50f68b000000b00415a36c5c0bmr13019168edn.272.1646692791770;
-        Mon, 07 Mar 2022 14:39:51 -0800 (PST)
-Received: from redhat.com ([2.55.138.228])
-        by smtp.gmail.com with ESMTPSA id gf17-20020a170906e21100b006da960ce78dsm4913346ejb.59.2022.03.07.14.39.49
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Zw+2en8c773Nx7Wqj5xME/FmsQtN7mSQAPZ+5MuSnDo=;
+        b=msy7x2WRO4BqpaNRguGf5MPSiCFhdb0SPZDkz+N6MgmvRZAlai3rw499RsWzPwTzcj
+         zQ5VNen3AIhpQCPYAbQ8mtM0Q+zbkUYLVo1mHxJeI9RtTad1+aJJ38nsGKp28cXn43Cv
+         U986mso1MhCfNs4TxEf3Bez8EKt77jtTm52HIvODW5Oof57Gi6QSnnvZnQTyXiRJ3ucc
+         OhH7x5sgBBoYVJyvMF3/CUZcF6qBj8heMA1TVIoNsEjvOTmlvsJAt0ZCBlHbqEZC5Ur2
+         sLNxDB830d8HqVHXOwbIKTp8T6Kl5YLsqQ5L+tX/G3WFrXdkez0H5uxqWQwS8RjadBY0
+         ycdA==
+X-Gm-Message-State: AOAM5319kib+DXTMDf2LOE9hkedEHC6ZFIphTNkrYkZrMDGYiXZl2+u+
+        GR8MnpnczrWHYwi2A8iY2sVfl/TsrJL4NQEokas=
+X-Google-Smtp-Source: ABdhPJwu+oIYgC84tXYiZfBmdJkR28KLyPNjgpSq03egxhL3qytQLNjQb+EnX6vwpq/TjnaeZqktuA==
+X-Received: by 2002:a62:8c44:0:b0:4c4:8072:e588 with SMTP id m65-20020a628c44000000b004c48072e588mr15374265pfd.11.1646692855230;
+        Mon, 07 Mar 2022 14:40:55 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f6-20020a056a00228600b004f709f5f3c1sm4015900pfe.28.2022.03.07.14.40.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Mar 2022 14:39:51 -0800 (PST)
-Date:   Mon, 7 Mar 2022 17:39:47 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Lee Jones <lee.jones@linaro.org>, jasowang@redhat.com,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
- whilst still in use
-Message-ID: <20220307173807-mutt-send-email-mst@kernel.org>
-References: <20220307191757.3177139-1-lee.jones@linaro.org>
- <YiZeB7l49KC2Y5Gz@kroah.com>
+        Mon, 07 Mar 2022 14:40:54 -0800 (PST)
+Message-ID: <622689f6.1c69fb81.22254.a82f@mx.google.com>
+Date:   Mon, 07 Mar 2022 14:40:54 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YiZeB7l49KC2Y5Gz@kroah.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.16.y
+X-Kernelci-Kernel: v5.16.12-185-gc596a0efed21
+Subject: stable-rc/linux-5.16.y baseline: 128 runs,
+ 1 regressions (v5.16.12-185-gc596a0efed21)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 07, 2022 at 08:33:27PM +0100, Greg KH wrote:
-> On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
-> > vhost_vsock_handle_tx_kick() already holds the mutex during its call
-> > to vhost_get_vq_desc().  All we have to do here is take the same lock
-> > during virtqueue clean-up and we mitigate the reported issues.
-> > 
-> > Also WARN() as a precautionary measure.  The purpose of this is to
-> > capture possible future race conditions which may pop up over time.
-> > 
-> > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
-> > 
-> > Cc: <stable@vger.kernel.org>
-> > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  drivers/vhost/vhost.c | 10 ++++++++++
-> >  1 file changed, 10 insertions(+)
-> > 
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index 59edb5a1ffe28..ef7e371e3e649 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
-> >  	int i;
-> >  
-> >  	for (i = 0; i < dev->nvqs; ++i) {
-> > +		/* No workers should run here by design. However, races have
-> > +		 * previously occurred where drivers have been unable to flush
-> > +		 * all work properly prior to clean-up.  Without a successful
-> > +		 * flush the guest will malfunction, but avoiding host memory
-> > +		 * corruption in those cases does seem preferable.
-> > +		 */
-> > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
-> 
-> So you are trading one syzbot triggered issue for another one in the
-> future?  :)
-> 
-> If this ever can happen, handle it, but don't log it with a WARN_ON() as
-> that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
-> you want that to happen?
-> 
-> And what happens if the mutex is locked _RIGHT_ after you checked it?
-> You still have a race...
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/linux-5.16.y baseline: 128 runs, 1 regressions (v5.16.12-185-gc59=
+6a0efed21)
 
-Well it's a symptom of a kernel bug. I guess people with panic on
-warn are not worried about DOS and more worried about integrity
-and security ... am I right?
+Regressions Summary
+-------------------
 
--- 
-MST
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.16.y/ker=
+nel/v5.16.12-185-gc596a0efed21/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.16.y
+  Describe: v5.16.12-185-gc596a0efed21
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c596a0efed21d96ec6d26eb247911dbfc7c3e36c =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62265086f06efba54ac62968
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
+2-185-gc596a0efed21/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
+2-185-gc596a0efed21/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62265086f06efba54ac6298e
+        failing since 1 day (last pass: v5.16.12, first fail: v5.16.12-166-=
+g373826da847f)
+
+    2022-03-07T18:35:41.476676  <8>[   32.684562] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-07T18:35:42.498716  /lava-5830152/1/../bin/lava-test-case   =
+
+ =20
