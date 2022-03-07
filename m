@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DAE4CFAE9
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C1F4CFA8D
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:23:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236080AbiCGKXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:23:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41514 "EHLO
+        id S235009AbiCGKVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:21:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241483AbiCGKUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:20:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CCA81FCC4;
-        Mon,  7 Mar 2022 01:58:16 -0800 (PST)
+        with ESMTP id S239453AbiCGKQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:16:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A80ECD6;
+        Mon,  7 Mar 2022 01:57:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44BFBB810CC;
-        Mon,  7 Mar 2022 09:57:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8330EC340F3;
-        Mon,  7 Mar 2022 09:57:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64696B80F9F;
+        Mon,  7 Mar 2022 09:57:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A96C340F3;
+        Mon,  7 Mar 2022 09:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647042;
-        bh=RaYjYkA7wIi0Rylirk2RdrKmYfd6H+amg6j5Og9zKEA=;
+        s=korg; t=1646647045;
+        bh=xwybxZxsYnb8bLR2i88/99+EEZoBrTGx1jm8fLOrNwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OwuSc3pdL44PvCASXyuLpcH00tMdlvuOjeCYh7G4OI/bsLS4vj88HVDo5JOH5rZEz
-         upQr0bKhw64GZ1bqJUrdYOiYCVAAekHH+h16tegivtzfnqRIfKojlANkjmsKeV7U0X
-         Qs1Z5G+MDovuHSvdEksc1DYvVMkXKG5EQO+N2T80=
+        b=N9c1c56aXIi9Xr073doIFkSNzfkOs+RZn945bqgWa/O+yI07FwNu4CuZdI2QCk3kA
+         ISAbouZtopOI13Hakb/36TU+g1Y2qj9BbUCyrlm4fAyr6gINQgWJeHU42BQYTpsSQt
+         fy/cb1F2IzYFjpZT9FVInOxtujXxsa4DskCFmTuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 173/186] btrfs: fix lost prealloc extents beyond eof after full fsync
-Date:   Mon,  7 Mar 2022 10:20:11 +0100
-Message-Id: <20220307091658.914403782@linuxfoundation.org>
+        Omar Sandoval <osandov@fb.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 174/186] btrfs: fix relocation crash due to premature return from btrfs_commit_transaction()
+Date:   Mon,  7 Mar 2022 10:20:12 +0100
+Message-Id: <20220307091658.942228196@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -53,175 +53,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Omar Sandoval <osandov@fb.com>
 
-commit d99478874355d3a7b9d86dfb5d7590d5b1754b1f upstream.
+commit 5fd76bf31ccfecc06e2e6b29f8c809e934085b99 upstream.
 
-When doing a full fsync, if we have prealloc extents beyond (or at) eof,
-and the leaves that contain them were not modified in the current
-transaction, we end up not logging them. This results in losing those
-extents when we replay the log after a power failure, since the inode is
-truncated to the current value of the logged i_size.
+We are seeing crashes similar to the following trace:
 
-Just like for the fast fsync path, we need to always log all prealloc
-extents starting at or beyond i_size. The fast fsync case was fixed in
-commit 471d557afed155 ("Btrfs: fix loss of prealloc extents past i_size
-after fsync log replay") but it missed the full fsync path. The problem
-exists since the very early days, when the log tree was added by
-commit e02119d5a7b439 ("Btrfs: Add a write ahead tree log to optimize
-synchronous operations").
+[38.969182] WARNING: CPU: 20 PID: 2105 at fs/btrfs/relocation.c:4070 btrfs_relocate_block_group+0x2dc/0x340 [btrfs]
+[38.973556] CPU: 20 PID: 2105 Comm: btrfs Not tainted 5.17.0-rc4 #54
+[38.974580] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[38.976539] RIP: 0010:btrfs_relocate_block_group+0x2dc/0x340 [btrfs]
+[38.980336] RSP: 0000:ffffb0dd42e03c20 EFLAGS: 00010206
+[38.981218] RAX: ffff96cfc4ede800 RBX: ffff96cfc3ce0000 RCX: 000000000002ca14
+[38.982560] RDX: 0000000000000000 RSI: 4cfd109a0bcb5d7f RDI: ffff96cfc3ce0360
+[38.983619] RBP: ffff96cfc309c000 R08: 0000000000000000 R09: 0000000000000000
+[38.984678] R10: ffff96cec0000001 R11: ffffe84c80000000 R12: ffff96cfc4ede800
+[38.985735] R13: 0000000000000000 R14: 0000000000000000 R15: ffff96cfc3ce0360
+[38.987146] FS:  00007f11c15218c0(0000) GS:ffff96d6dfb00000(0000) knlGS:0000000000000000
+[38.988662] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[38.989398] CR2: 00007ffc922c8e60 CR3: 00000001147a6001 CR4: 0000000000370ee0
+[38.990279] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[38.991219] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[38.992528] Call Trace:
+[38.992854]  <TASK>
+[38.993148]  btrfs_relocate_chunk+0x27/0xe0 [btrfs]
+[38.993941]  btrfs_balance+0x78e/0xea0 [btrfs]
+[38.994801]  ? vsnprintf+0x33c/0x520
+[38.995368]  ? __kmalloc_track_caller+0x351/0x440
+[38.996198]  btrfs_ioctl_balance+0x2b9/0x3a0 [btrfs]
+[38.997084]  btrfs_ioctl+0x11b0/0x2da0 [btrfs]
+[38.997867]  ? mod_objcg_state+0xee/0x340
+[38.998552]  ? seq_release+0x24/0x30
+[38.999184]  ? proc_nr_files+0x30/0x30
+[38.999654]  ? call_rcu+0xc8/0x2f0
+[39.000228]  ? __x64_sys_ioctl+0x84/0xc0
+[39.000872]  ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
+[39.001973]  __x64_sys_ioctl+0x84/0xc0
+[39.002566]  do_syscall_64+0x3a/0x80
+[39.003011]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[39.003735] RIP: 0033:0x7f11c166959b
+[39.007324] RSP: 002b:00007fff2543e998 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[39.008521] RAX: ffffffffffffffda RBX: 00007f11c1521698 RCX: 00007f11c166959b
+[39.009833] RDX: 00007fff2543ea40 RSI: 00000000c4009420 RDI: 0000000000000003
+[39.011270] RBP: 0000000000000003 R08: 0000000000000013 R09: 00007f11c16f94e0
+[39.012581] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff25440df3
+[39.014046] R13: 0000000000000000 R14: 00007fff2543ea40 R15: 0000000000000001
+[39.015040]  </TASK>
+[39.015418] ---[ end trace 0000000000000000 ]---
+[43.131559] ------------[ cut here ]------------
+[43.132234] kernel BUG at fs/btrfs/extent-tree.c:2717!
+[43.133031] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[43.133702] CPU: 1 PID: 1839 Comm: btrfs Tainted: G        W         5.17.0-rc4 #54
+[43.134863] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[43.136426] RIP: 0010:unpin_extent_range+0x37a/0x4f0 [btrfs]
+[43.139913] RSP: 0000:ffffb0dd4216bc70 EFLAGS: 00010246
+[43.140629] RAX: 0000000000000000 RBX: ffff96cfc34490f8 RCX: 0000000000000001
+[43.141604] RDX: 0000000080000001 RSI: 0000000051d00000 RDI: 00000000ffffffff
+[43.142645] RBP: 0000000000000000 R08: 0000000000000000 R09: ffff96cfd07dca50
+[43.143669] R10: ffff96cfc46e8a00 R11: fffffffffffec000 R12: 0000000041d00000
+[43.144657] R13: ffff96cfc3ce0000 R14: ffffb0dd4216bd08 R15: 0000000000000000
+[43.145686] FS:  00007f7657dd68c0(0000) GS:ffff96d6df640000(0000) knlGS:0000000000000000
+[43.146808] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[43.147584] CR2: 00007f7fe81bf5b0 CR3: 00000001093ee004 CR4: 0000000000370ee0
+[43.148589] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[43.149581] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[43.150559] Call Trace:
+[43.150904]  <TASK>
+[43.151253]  btrfs_finish_extent_commit+0x88/0x290 [btrfs]
+[43.152127]  btrfs_commit_transaction+0x74f/0xaa0 [btrfs]
+[43.152932]  ? btrfs_attach_transaction_barrier+0x1e/0x50 [btrfs]
+[43.153786]  btrfs_ioctl+0x1edc/0x2da0 [btrfs]
+[43.154475]  ? __check_object_size+0x150/0x170
+[43.155170]  ? preempt_count_add+0x49/0xa0
+[43.155753]  ? __x64_sys_ioctl+0x84/0xc0
+[43.156437]  ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
+[43.157456]  __x64_sys_ioctl+0x84/0xc0
+[43.157980]  do_syscall_64+0x3a/0x80
+[43.158543]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[43.159231] RIP: 0033:0x7f7657f1e59b
+[43.161819] RSP: 002b:00007ffda5cd1658 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[43.162702] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007f7657f1e59b
+[43.163526] RDX: 0000000000000000 RSI: 0000000000009408 RDI: 0000000000000003
+[43.164358] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+[43.165208] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+[43.166029] R13: 00005621b91c3232 R14: 00005621b91ba580 R15: 00007ffda5cd1800
+[43.166863]  </TASK>
+[43.167125] Modules linked in: btrfs blake2b_generic xor pata_acpi ata_piix libata raid6_pq scsi_mod libcrc32c virtio_net virtio_rng net_failover rng_core failover scsi_common
+[43.169552] ---[ end trace 0000000000000000 ]---
+[43.171226] RIP: 0010:unpin_extent_range+0x37a/0x4f0 [btrfs]
+[43.174767] RSP: 0000:ffffb0dd4216bc70 EFLAGS: 00010246
+[43.175600] RAX: 0000000000000000 RBX: ffff96cfc34490f8 RCX: 0000000000000001
+[43.176468] RDX: 0000000080000001 RSI: 0000000051d00000 RDI: 00000000ffffffff
+[43.177357] RBP: 0000000000000000 R08: 0000000000000000 R09: ffff96cfd07dca50
+[43.178271] R10: ffff96cfc46e8a00 R11: fffffffffffec000 R12: 0000000041d00000
+[43.179178] R13: ffff96cfc3ce0000 R14: ffffb0dd4216bd08 R15: 0000000000000000
+[43.180071] FS:  00007f7657dd68c0(0000) GS:ffff96d6df800000(0000) knlGS:0000000000000000
+[43.181073] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[43.181808] CR2: 00007fe09905f010 CR3: 00000001093ee004 CR4: 0000000000370ee0
+[43.182706] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[43.183591] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-Example reproducer:
+We first hit the WARN_ON(rc->block_group->pinned > 0) in
+btrfs_relocate_block_group() and then the BUG_ON(!cache) in
+unpin_extent_range(). This tells us that we are exiting relocation and
+removing the block group with bytes still pinned for that block group.
+This is supposed to be impossible: the last thing relocate_block_group()
+does is commit the transaction to get rid of pinned extents.
 
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
+Commit d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when
+waiting for a transaction commit") introduced an optimization so that
+commits from fsync don't have to wait for the previous commit to unpin
+extents. This was only intended to affect fsync, but it inadvertently
+made it possible for any commit to skip waiting for the previous commit
+to unpin. This is because if a call to btrfs_commit_transaction() finds
+that another thread is already committing the transaction, it waits for
+the other thread to complete the commit and then returns. If that other
+thread was in fsync, then it completes the commit without completing the
+previous commit. This makes the following sequence of events possible:
 
-  # Create our test file with many file extent items, so that they span
-  # several leaves of metadata, even if the node/page size is 64K. Use
-  # direct IO and not fsync/O_SYNC because it's both faster and it avoids
-  # clearing the full sync flag from the inode - we want the fsync below
-  # to trigger the slow full sync code path.
-  $ xfs_io -f -d -c "pwrite -b 4K 0 16M" /mnt/foo
+Thread 1____________________|Thread 2 (fsync)_____________________|Thread 3 (balance)___________________
+btrfs_commit_transaction(N) |                                     |
+  btrfs_run_delayed_refs    |                                     |
+    pin extents             |                                     |
+  ...                       |                                     |
+  state = UNBLOCKED         |btrfs_sync_file                      |
+                            |  btrfs_start_transaction(N + 1)     |relocate_block_group
+                            |                                     |  btrfs_join_transaction(N + 1)
+                            |  btrfs_commit_transaction(N + 1)    |
+  ...                       |  trans->state = COMMIT_START        |
+                            |                                     |  btrfs_commit_transaction(N + 1)
+                            |                                     |    wait_for_commit(N + 1, COMPLETED)
+                            |  wait_for_commit(N, SUPER_COMMITTED)|
+  state = SUPER_COMMITTED   |  ...                                |
+  btrfs_finish_extent_commit|                                     |
+    unpin_extent_range()    |  trans->state = COMPLETED           |
+                            |                                     |    return
+                            |                                     |
+    ...                     |                                     |Thread 1 isn't done, so pinned > 0
+                            |                                     |and we WARN
+                            |                                     |
+                            |                                     |btrfs_remove_block_group
+    unpin_extent_range()    |                                     |
+      Thread 3 removed the  |                                     |
+      block group, so we BUG|                                     |
 
-  # Now add two preallocated extents to our file without extending the
-  # file's size. One right at i_size, and another further beyond, leaving
-  # a gap between the two prealloc extents.
-  $ xfs_io -c "falloc -k 16M 1M" /mnt/foo
-  $ xfs_io -c "falloc -k 20M 1M" /mnt/foo
+There are other sequences involving SUPER_COMMITTED transactions that
+can cause a similar outcome.
 
-  # Make sure everything is durably persisted and the transaction is
-  # committed. This makes all created extents to have a generation lower
-  # than the generation of the transaction used by the next write and
-  # fsync.
-  sync
+We could fix this by making relocation explicitly wait for unpinning,
+but there may be other cases that need it. Josef mentioned ENOSPC
+flushing and the free space cache inode as other potential victims.
+Rather than playing whack-a-mole, this fix is conservative and makes all
+commits not in fsync wait for all previous transactions, which is what
+the optimization intended.
 
-  # Now overwrite only the first extent, which will result in modifying
-  # only the first leaf of metadata for our inode. Then fsync it. This
-  # fsync will use the slow code path (inode full sync bit is set) because
-  # it's the first fsync since the inode was created/loaded.
-  $ xfs_io -c "pwrite 0 4K" -c "fsync" /mnt/foo
-
-  # Extent list before power failure.
-  $ xfs_io -c "fiemap -v" /mnt/foo
-  /mnt/foo:
-   EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-     0: [0..7]:          2178048..2178055     8   0x0
-     1: [8..16383]:      26632..43007     16376   0x0
-     2: [16384..32767]:  2156544..2172927 16384   0x0
-     3: [32768..34815]:  2172928..2174975  2048 0x800
-     4: [34816..40959]:  hole              6144
-     5: [40960..43007]:  2174976..2177023  2048 0x801
-
-  <power fail>
-
-  # Mount fs again, trigger log replay.
-  $ mount /dev/sdc /mnt
-
-  # Extent list after power failure and log replay.
-  $ xfs_io -c "fiemap -v" /mnt/foo
-  /mnt/foo:
-   EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-     0: [0..7]:          2178048..2178055     8   0x0
-     1: [8..16383]:      26632..43007     16376   0x0
-     2: [16384..32767]:  2156544..2172927 16384   0x1
-
-  # The prealloc extents at file offsets 16M and 20M are missing.
-
-So fix this by calling btrfs_log_prealloc_extents() when we are doing a
-full fsync, so that we always log all prealloc extents beyond eof.
-
-A test case for fstests will follow soon.
-
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Fixes: d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when waiting for a transaction commit")
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c |   43 +++++++++++++++++++++++++++++++------------
- 1 file changed, 31 insertions(+), 12 deletions(-)
+ fs/btrfs/transaction.c |   32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4658,7 +4658,7 @@ static int log_one_extent(struct btrfs_t
- 
- /*
-  * Log all prealloc extents beyond the inode's i_size to make sure we do not
-- * lose them after doing a fast fsync and replaying the log. We scan the
-+ * lose them after doing a full/fast fsync and replaying the log. We scan the
-  * subvolume's root instead of iterating the inode's extent map tree because
-  * otherwise we can log incorrect extent items based on extent map conversion.
-  * That can happen due to the fact that extent maps are merged when they
-@@ -5437,6 +5437,7 @@ static int copy_inode_items_to_log(struc
- 				   struct btrfs_log_ctx *ctx,
- 				   bool *need_log_inode_item)
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -846,7 +846,37 @@ btrfs_attach_transaction_barrier(struct
+ static noinline void wait_for_commit(struct btrfs_transaction *commit,
+ 				     const enum btrfs_trans_state min_state)
  {
-+	const u64 i_size = i_size_read(&inode->vfs_inode);
- 	struct btrfs_root *root = inode->root;
- 	int ins_start_slot = 0;
- 	int ins_nr = 0;
-@@ -5457,13 +5458,21 @@ again:
- 		if (min_key->type > max_key->type)
- 			break;
- 
--		if (min_key->type == BTRFS_INODE_ITEM_KEY)
-+		if (min_key->type == BTRFS_INODE_ITEM_KEY) {
- 			*need_log_inode_item = false;
--
--		if ((min_key->type == BTRFS_INODE_REF_KEY ||
--		     min_key->type == BTRFS_INODE_EXTREF_KEY) &&
--		    inode->generation == trans->transid &&
--		    !recursive_logging) {
-+		} else if (min_key->type == BTRFS_EXTENT_DATA_KEY &&
-+			   min_key->offset >= i_size) {
-+			/*
-+			 * Extents at and beyond eof are logged with
-+			 * btrfs_log_prealloc_extents().
-+			 * Only regular files have BTRFS_EXTENT_DATA_KEY keys,
-+			 * and no keys greater than that, so bail out.
-+			 */
-+			break;
-+		} else if ((min_key->type == BTRFS_INODE_REF_KEY ||
-+			    min_key->type == BTRFS_INODE_EXTREF_KEY) &&
-+			   inode->generation == trans->transid &&
-+			   !recursive_logging) {
- 			u64 other_ino = 0;
- 			u64 other_parent = 0;
- 
-@@ -5494,10 +5503,8 @@ again:
- 				btrfs_release_path(path);
- 				goto next_key;
- 			}
--		}
--
--		/* Skip xattrs, we log them later with btrfs_log_all_xattrs() */
--		if (min_key->type == BTRFS_XATTR_ITEM_KEY) {
-+		} else if (min_key->type == BTRFS_XATTR_ITEM_KEY) {
-+			/* Skip xattrs, logged later with btrfs_log_all_xattrs() */
- 			if (ins_nr == 0)
- 				goto next_slot;
- 			ret = copy_items(trans, inode, dst_path, path,
-@@ -5550,9 +5557,21 @@ next_key:
- 			break;
- 		}
- 	}
--	if (ins_nr)
-+	if (ins_nr) {
- 		ret = copy_items(trans, inode, dst_path, path, ins_start_slot,
- 				 ins_nr, inode_only, logged_isize);
-+		if (ret)
-+			return ret;
-+	}
+-	wait_event(commit->commit_wait, commit->state >= min_state);
++	struct btrfs_fs_info *fs_info = commit->fs_info;
++	u64 transid = commit->transid;
++	bool put = false;
 +
-+	if (inode_only == LOG_INODE_ALL && S_ISREG(inode->vfs_inode.i_mode)) {
++	while (1) {
++		wait_event(commit->commit_wait, commit->state >= min_state);
++		if (put)
++			btrfs_put_transaction(commit);
++
++		if (min_state < TRANS_STATE_COMPLETED)
++			break;
++
 +		/*
-+		 * Release the path because otherwise we might attempt to double
-+		 * lock the same leaf with btrfs_log_prealloc_extents() below.
++		 * A transaction isn't really completed until all of the
++		 * previous transactions are completed, but with fsync we can
++		 * end up with SUPER_COMMITTED transactions before a COMPLETED
++		 * transaction. Wait for those.
 +		 */
-+		btrfs_release_path(path);
-+		ret = btrfs_log_prealloc_extents(trans, inode, dst_path);
++
++		spin_lock(&fs_info->trans_lock);
++		commit = list_first_entry_or_null(&fs_info->trans_list,
++						  struct btrfs_transaction,
++						  list);
++		if (!commit || commit->transid > transid) {
++			spin_unlock(&fs_info->trans_lock);
++			break;
++		}
++		refcount_inc(&commit->use_count);
++		put = true;
++		spin_unlock(&fs_info->trans_lock);
 +	}
- 
- 	return ret;
  }
+ 
+ int btrfs_wait_for_commit(struct btrfs_fs_info *fs_info, u64 transid)
 
 
