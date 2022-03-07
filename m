@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 802EA4CF590
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE564CF72A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236990AbiCGJaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36328 "EHLO
+        id S234123AbiCGJou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237464AbiCGJ2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D6D65AEEF;
-        Mon,  7 Mar 2022 01:25:27 -0800 (PST)
+        with ESMTP id S238644AbiCGJii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 135646AA76;
+        Mon,  7 Mar 2022 01:33:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C3EBB810B9;
-        Mon,  7 Mar 2022 09:25:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5472BC36AE2;
-        Mon,  7 Mar 2022 09:25:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBA58B810C5;
+        Mon,  7 Mar 2022 09:32:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C83BC340F4;
+        Mon,  7 Mar 2022 09:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645114;
-        bh=aMwMtXs6moMQebat+KZd1RU03CTYTmj44vWgILym86E=;
+        s=korg; t=1646645572;
+        bh=CaKtX6RI701ZDx4Bn/ja5BTKe+943YPz+gM9MRC0pRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4CfGYdgT/aKMWNlVBwqoNL+zAmr1U32juLWxskgdmcyXb10oghQeZRZa63OZxh/K
-         RptbMojUxEiiyx/E6l68CtXuN7PA4aLZW3ieJR6H471q+3umZhrzzxir3C/bDZHucU
-         HTZIo9DTIDnpNzMtH3hEUkeCqbi5dswy8gyZsG48=
+        b=HXtGaXbJIP1KTLvcZg56IZaNxCLuzVsk7+yvlvf1p3AS01yEISQF4Dg3QBBi+XYbW
+         t0fWT0epGe0FY8pPTasCpUHmDK8OxN5iRMZ+V2X+5rXj2rMYZCcHrbFoXUk5mBelh+
+         4bmJNv9mlyYuKADyhtc5QeRaVOfbrT2tz3oM13mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/51] net: chelsio: cxgb3: check the return value of pci_find_capability()
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        linux-arm-kernel@lists.infradead.org, patches@armlinux.org.uk,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.10 075/105] ARM: 9182/1: mmu: fix returns from early_param() and __setup() functions
 Date:   Mon,  7 Mar 2022 10:19:18 +0100
-Message-Id: <20220307091638.216605772@linuxfoundation.org>
+Message-Id: <20220307091646.287106770@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 767b9825ed1765894e569a3d698749d40d83762a ]
+commit 7b83299e5b9385943a857d59e15cba270df20d7e upstream.
 
-The function pci_find_capability() in t3_prep_adapter() can fail, so its
-return value should be checked.
+early_param() handlers should return 0 on success.
+__setup() handlers should return 1 on success, i.e., the parameter
+has been handled. A return of 0 would cause the "option=value" string
+to be added to init's environment strings, polluting it.
 
-Fixes: 4d22de3e6cc4 ("Add support for the latest 1G/10G Chelsio adapter, T3")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+../arch/arm/mm/mmu.c: In function 'test_early_cachepolicy':
+../arch/arm/mm/mmu.c:215:1: error: no return statement in function returning non-void [-Werror=return-type]
+../arch/arm/mm/mmu.c: In function 'test_noalign_setup':
+../arch/arm/mm/mmu.c:221:1: error: no return statement in function returning non-void [-Werror=return-type]
+
+Fixes: b849a60e0903 ("ARM: make cr_alignment read-only #ifndef CONFIG_CPU_CP15")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: patches@armlinux.org.uk
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/t3_hw.c | 2 ++
+ arch/arm/mm/mmu.c |    2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c b/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c
-index 080918af773c..cf563cdd0cb8 100644
---- a/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c
-@@ -3677,6 +3677,8 @@ int t3_prep_adapter(struct adapter *adapter, const struct adapter_info *ai,
- 	    MAC_STATS_ACCUM_SECS : (MAC_STATS_ACCUM_SECS * 10);
- 	adapter->params.pci.vpd_cap_addr =
- 	    pci_find_capability(adapter->pdev, PCI_CAP_ID_VPD);
-+	if (!adapter->params.pci.vpd_cap_addr)
-+		return -ENODEV;
- 	ret = get_vpd_params(adapter, &adapter->params.vpd);
- 	if (ret < 0)
- 		return ret;
--- 
-2.34.1
-
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -212,12 +212,14 @@ early_param("ecc", early_ecc);
+ static int __init early_cachepolicy(char *p)
+ {
+ 	pr_warn("cachepolicy kernel parameter not supported without cp15\n");
++	return 0;
+ }
+ early_param("cachepolicy", early_cachepolicy);
+ 
+ static int __init noalign_setup(char *__unused)
+ {
+ 	pr_warn("noalign kernel parameter not supported without cp15\n");
++	return 1;
+ }
+ __setup("noalign", noalign_setup);
+ 
 
 
