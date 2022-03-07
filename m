@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FD94D028D
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 16:17:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E0834D0290
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 16:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239058AbiCGPSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 10:18:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56410 "EHLO
+        id S243659AbiCGPS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 10:18:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233032AbiCGPSG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 10:18:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 110118CD9E
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:17:12 -0800 (PST)
+        with ESMTP id S242843AbiCGPS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 10:18:57 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E41EA50069;
+        Mon,  7 Mar 2022 07:17:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 755B0CE0E4A
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 15:17:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 715C5C340E9;
-        Mon,  7 Mar 2022 15:17:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 51A62CE10C2;
+        Mon,  7 Mar 2022 15:17:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163CAC340EB;
+        Mon,  7 Mar 2022 15:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646666228;
-        bh=bl7CvxmMLurqjFXSYuRo9hSzQhY3g7KQUAe9jS5yRLU=;
-        h=Subject:To:Cc:From:Date:From;
-        b=W/rvdd0es/o/rSA3OWpPpSaemaEDVa85lcNWobd8KRHsK0dHZMmD1cA4f7hLWiBvn
-         sWdYEjjuNuhThCfkquFHeoaLHafmuLVYEWyAeNj5vZUkd/GJ0CDhzftSIvT9ZPDzbz
-         iVlunn3JlCbt7fBbE4vln6qntLP+62PVeE/jJQGs=
-Subject: FAILED: patch "[PATCH] ibmvnic: define flush_reset_queue helper" failed to apply to 5.10-stable tree
-To:     sukadev@linux.ibm.com, davem@davemloft.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Mar 2022 16:16:55 +0100
-Message-ID: <164666621577226@kroah.com>
+        s=korg; t=1646666276;
+        bh=uqyrsemsbiCBvuiaRtl+MNqCGa0Z70W2a9m+jp91M2w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=v+ZNWJ4u53E/YpV5raYTl+5IC5U0clCuC5RCbgduh3lxqdScg2YReRgLnhroSqSOf
+         GI573HeHE/KMYy/TtC2jPDXZtatuJZcsnsX7b7iGM2a29//G83m16ggLoo6nnz6s10
+         rFjfMe7UdORTF5uPVmXAcfa0k/CX3GfzUZg8x0Bk=
+Date:   Mon, 7 Mar 2022 16:17:53 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 000/105] 5.10.104-rc1 review
+Message-ID: <YiYiIZMJTUkx6cu2@kroah.com>
+References: <20220307091644.179885033@linuxfoundation.org>
+ <d71d84d2-5aa2-7d72-9fdb-a0ac203cefb2@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d71d84d2-5aa2-7d72-9fdb-a0ac203cefb2@roeck-us.net>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -47,73 +55,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 07, 2022 at 06:15:02AM -0800, Guenter Roeck wrote:
+> On 3/7/22 01:18, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.104 release.
+> > There are 105 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> 
+> Building powerpc:allmodconfig ... failed
+> 
+> In file included from include/linux/module.h:12,
+>                  from drivers/net/ethernet/ibm/ibmvnic.c:35:
+> drivers/net/ethernet/ibm/ibmvnic.c: In function 'ibmvnic_reset':
+> drivers/net/ethernet/ibm/ibmvnic.c:2349:23: error: 'entry' undeclared
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+I'll go drop the offending patch, thanks!
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 83da53f7e4bd86dca4b2edc1e2bb324fb3c033a1 Mon Sep 17 00:00:00 2001
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Date: Thu, 24 Feb 2022 22:23:53 -0800
-Subject: [PATCH] ibmvnic: define flush_reset_queue helper
-
-Define and use a helper to flush the reset queue.
-
-Fixes: 2770a7984db5 ("ibmvnic: Introduce hard reset recovery")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index c73c699600a8..42c3ac9ebb75 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2735,12 +2735,23 @@ static void __ibmvnic_delayed_reset(struct work_struct *work)
- 	__ibmvnic_reset(&adapter->ibmvnic_reset);
- }
- 
-+static void flush_reset_queue(struct ibmvnic_adapter *adapter)
-+{
-+	struct list_head *entry, *tmp_entry;
-+
-+	if (!list_empty(&adapter->rwi_list)) {
-+		list_for_each_safe(entry, tmp_entry, &adapter->rwi_list) {
-+			list_del(entry);
-+			kfree(list_entry(entry, struct ibmvnic_rwi, list));
-+		}
-+	}
-+}
-+
- static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
- 			 enum ibmvnic_reset_reason reason)
- {
--	struct list_head *entry, *tmp_entry;
--	struct ibmvnic_rwi *rwi, *tmp;
- 	struct net_device *netdev = adapter->netdev;
-+	struct ibmvnic_rwi *rwi, *tmp;
- 	unsigned long flags;
- 	int ret;
- 
-@@ -2783,12 +2794,9 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
- 	/* if we just received a transport event,
- 	 * flush reset queue and process this reset
- 	 */
--	if (adapter->force_reset_recovery && !list_empty(&adapter->rwi_list)) {
--		list_for_each_safe(entry, tmp_entry, &adapter->rwi_list) {
--			list_del(entry);
--			kfree(list_entry(entry, struct ibmvnic_rwi, list));
--		}
--	}
-+	if (adapter->force_reset_recovery)
-+		flush_reset_queue(adapter);
-+
- 	rwi->reset_reason = reason;
- 	list_add_tail(&rwi->list, &adapter->rwi_list);
- 	netdev_dbg(adapter->netdev, "Scheduling reset (reason %s)\n",
-
