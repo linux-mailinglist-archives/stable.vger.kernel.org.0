@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9519B4CF63D
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:34:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C1D4CF843
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237396AbiCGJec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:34:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36420 "EHLO
+        id S233114AbiCGJwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:52:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238114AbiCGJde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF086D182;
-        Mon,  7 Mar 2022 01:30:49 -0800 (PST)
+        with ESMTP id S238505AbiCGJrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:47:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB1F6B086;
+        Mon,  7 Mar 2022 01:42:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9032B810C6;
-        Mon,  7 Mar 2022 09:30:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECFBFC340E9;
-        Mon,  7 Mar 2022 09:30:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 919D360F63;
+        Mon,  7 Mar 2022 09:42:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0DD6C340E9;
+        Mon,  7 Mar 2022 09:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645406;
-        bh=YHxPyR9nU1QEakJ9ptTge83WeKXRSnbPMpbGOYgU0lw=;
+        s=korg; t=1646646131;
+        bh=UACtXFZvc0MXgSbo6CfRxf5JX/bHK5FHgT+BESiJvds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ybg7r366PAd9qut7m7oN70LlzBYECD7kqEyzv6CTNJDvJGJhF4dL4B7we+VqHmuOL
-         GBjd5JkX1RLqg/Rl0tyMKhu5iCqEa/yDY7Y9MKWO+z+BSmFseicl6exQ/u6UsKfQhj
-         FQzfk8AskKJljgvXhpke1FMI0v/pvN/BxkNkzWMg=
+        b=T+nrEmX6dx1x32AePjXsywcUnd0uwjyenSkw4CmJTbnfARiy9kzoS8PhrPoS1gpZ/
+         3eH9Qui0E3Dj9eoCtOivkoLeOM+UheO6Ig7E+rMGXX/ss1CCwGKsdLHtwmxzUQD9N9
+         hxjWpoDm8F2ERIIroLFJM3ZCbeMwhu1oQA4sEgLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Shuming Fan <shumingf@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 004/105] ASoC: rt5668: do not block workqueue if card is unbound
-Date:   Mon,  7 Mar 2022 10:18:07 +0100
-Message-Id: <20220307091644.307470457@linuxfoundation.org>
+        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 144/262] iommu/amd: Recover from event log overflow
+Date:   Mon,  7 Mar 2022 10:18:08 +0100
+Message-Id: <20220307091706.511255356@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,63 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Lennert Buytenhek <buytenh@wantstofly.org>
 
-[ Upstream commit a6d78661dc903d90a327892bbc34268f3a5f4b9c ]
+commit 5ce97f4ec5e0f8726a5dda1710727b1ee9badcac upstream.
 
-The current rt5668_jack_detect_handler() assumes the component
-and card will always show up and implements an infinite usleep
-loop waiting for them to show up.
+The AMD IOMMU logs I/O page faults and such to a ring buffer in
+system memory, and this ring buffer can overflow.  The AMD IOMMU
+spec has the following to say about the interrupt status bit that
+signals this overflow condition:
 
-This does not hold true if a codec interrupt (or other
-event) occurs when the card is unbound. The codec driver's
-remove  or shutdown functions cannot cancel the workqueue due
-to the wait loop. As a result, code can either end up blocking
-the workqueue, or hit a kernel oops when the card is freed.
+	EventOverflow: Event log overflow. RW1C. Reset 0b. 1 = IOMMU
+	event log overflow has occurred. This bit is set when a new
+	event is to be written to the event log and there is no usable
+	entry in the event log, causing the new event information to
+	be discarded. An interrupt is generated when EventOverflow = 1b
+	and MMIO Offset 0018h[EventIntEn] = 1b. No new event log
+	entries are written while this bit is set. Software Note: To
+	resume logging, clear EventOverflow (W1C), and write a 1 to
+	MMIO Offset 0018h[EventLogEn].
 
-Fix the issue by rescheduling the jack detect handler in
-case the card is not ready. In case card never shows up,
-the shutdown/remove/suspend calls can now cancel the detect
-task.
+The AMD IOMMU driver doesn't currently implement this recovery
+sequence, meaning that if a ring buffer overflow occurs, logging
+of EVT/PPR/GA events will cease entirely.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Shuming Fan <shumingf@realtek.com>
-Link: https://lore.kernel.org/r/20220207153000.3452802-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch implements the spec-mandated reset sequence, with the
+minor tweak that the hardware seems to want to have a 0 written to
+MMIO Offset 0018h[EventLogEn] first, before writing an 1 into this
+field, or the IOMMU won't actually resume logging events.
+
+Signed-off-by: Lennert Buytenhek <buytenh@arista.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/YVrSXEdW2rzEfOvk@wantstofly.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt5668.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/iommu/amd/amd_iommu.h       |    1 +
+ drivers/iommu/amd/amd_iommu_types.h |    1 +
+ drivers/iommu/amd/init.c            |   10 ++++++++++
+ drivers/iommu/amd/iommu.c           |   10 ++++++++--
+ 4 files changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5668.c b/sound/soc/codecs/rt5668.c
-index bc69adc9c8b70..e625df57c69e5 100644
---- a/sound/soc/codecs/rt5668.c
-+++ b/sound/soc/codecs/rt5668.c
-@@ -1022,11 +1022,13 @@ static void rt5668_jack_detect_handler(struct work_struct *work)
- 		container_of(work, struct rt5668_priv, jack_detect_work.work);
- 	int val, btn_type;
+--- a/drivers/iommu/amd/amd_iommu.h
++++ b/drivers/iommu/amd/amd_iommu.h
+@@ -14,6 +14,7 @@
+ extern irqreturn_t amd_iommu_int_thread(int irq, void *data);
+ extern irqreturn_t amd_iommu_int_handler(int irq, void *data);
+ extern void amd_iommu_apply_erratum_63(u16 devid);
++extern void amd_iommu_restart_event_logging(struct amd_iommu *iommu);
+ extern void amd_iommu_reset_cmd_buffer(struct amd_iommu *iommu);
+ extern int amd_iommu_init_devices(void);
+ extern void amd_iommu_uninit_devices(void);
+--- a/drivers/iommu/amd/amd_iommu_types.h
++++ b/drivers/iommu/amd/amd_iommu_types.h
+@@ -110,6 +110,7 @@
+ #define PASID_MASK		0x0000ffff
  
--	while (!rt5668->component)
--		usleep_range(10000, 15000);
--
--	while (!rt5668->component->card->instantiated)
--		usleep_range(10000, 15000);
-+	if (!rt5668->component || !rt5668->component->card ||
-+	    !rt5668->component->card->instantiated) {
-+		/* card not yet ready, try later */
-+		mod_delayed_work(system_power_efficient_wq,
-+				 &rt5668->jack_detect_work, msecs_to_jiffies(15));
-+		return;
-+	}
+ /* MMIO status bits */
++#define MMIO_STATUS_EVT_OVERFLOW_INT_MASK	(1 << 0)
+ #define MMIO_STATUS_EVT_INT_MASK	(1 << 1)
+ #define MMIO_STATUS_COM_WAIT_INT_MASK	(1 << 2)
+ #define MMIO_STATUS_PPR_INT_MASK	(1 << 6)
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -656,6 +656,16 @@ static int __init alloc_command_buffer(s
+ }
  
- 	mutex_lock(&rt5668->calibrate_mutex);
+ /*
++ * This function restarts event logging in case the IOMMU experienced
++ * an event log buffer overflow.
++ */
++void amd_iommu_restart_event_logging(struct amd_iommu *iommu)
++{
++	iommu_feature_disable(iommu, CONTROL_EVT_LOG_EN);
++	iommu_feature_enable(iommu, CONTROL_EVT_LOG_EN);
++}
++
++/*
+  * This function resets the command buffer if the IOMMU stopped fetching
+  * commands from it.
+  */
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -742,7 +742,8 @@ amd_iommu_set_pci_msi_domain(struct devi
+ #endif /* !CONFIG_IRQ_REMAP */
  
--- 
-2.34.1
-
+ #define AMD_IOMMU_INT_MASK	\
+-	(MMIO_STATUS_EVT_INT_MASK | \
++	(MMIO_STATUS_EVT_OVERFLOW_INT_MASK | \
++	 MMIO_STATUS_EVT_INT_MASK | \
+ 	 MMIO_STATUS_PPR_INT_MASK | \
+ 	 MMIO_STATUS_GALOG_INT_MASK)
+ 
+@@ -752,7 +753,7 @@ irqreturn_t amd_iommu_int_thread(int irq
+ 	u32 status = readl(iommu->mmio_base + MMIO_STATUS_OFFSET);
+ 
+ 	while (status & AMD_IOMMU_INT_MASK) {
+-		/* Enable EVT and PPR and GA interrupts again */
++		/* Enable interrupt sources again */
+ 		writel(AMD_IOMMU_INT_MASK,
+ 			iommu->mmio_base + MMIO_STATUS_OFFSET);
+ 
+@@ -773,6 +774,11 @@ irqreturn_t amd_iommu_int_thread(int irq
+ 		}
+ #endif
+ 
++		if (status & MMIO_STATUS_EVT_OVERFLOW_INT_MASK) {
++			pr_info_ratelimited("IOMMU event log overflow\n");
++			amd_iommu_restart_event_logging(iommu);
++		}
++
+ 		/*
+ 		 * Hardware bug: ERBT1312
+ 		 * When re-enabling interrupt (by writing 1
 
 
