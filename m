@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 881C44CF916
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42E124CF7A8
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:46:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239659AbiCGKDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39756 "EHLO
+        id S238469AbiCGJq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:46:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240700AbiCGKBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96FCE60CDC;
-        Mon,  7 Mar 2022 01:50:38 -0800 (PST)
+        with ESMTP id S238175AbiCGJp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:45:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3480610FC7;
+        Mon,  7 Mar 2022 01:41:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D268B810DB;
-        Mon,  7 Mar 2022 09:50:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7078FC340F5;
-        Mon,  7 Mar 2022 09:50:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28C9961219;
+        Mon,  7 Mar 2022 09:41:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17070C36AE2;
+        Mon,  7 Mar 2022 09:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646635;
-        bh=H62Pa9TB5DcGbjeRngxOfMiTImh+GHsLdwD6eP3n3iw=;
+        s=korg; t=1646646112;
+        bh=4I1nU0P71/pBB/7Sc01HgZewKBA2sy8urZymuFYqK/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9dAUsko2aSvOI4wwfcIhzdpUh05G/fjeQ96HWgcuCYy4PchqDJjt/T+ltgRVNrHe
-         8pUocZ2N70lAsNXKKkGxjpSWXNiAUcibQ8vWwCRRVGClSoZVdwRA4bpickNpr2gkWB
-         AZ8xcbCIkn4+Nf49z640T+tOpij3NTaAoBZ4ms2A=
+        b=j5aGkhsiSQ6lwChHLrORSDjP7wxF5KmuwMnEwqfiBQh1GxLIQwuX6ottmKmiFvYKJ
+         aBFoeuTEUQbzse6GxB63z3ZOKEzsAvyqLRv1KVzAkU9wob3wKT/uMoKfvtAEWuDqDD
+         yaA9MLbHtK1idSPjrc9GDrjRxd4zGc41pCEYH6tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 044/186] tracing: Add ustring operation to filtering string pointers
+        stable@vger.kernel.org, Sunil V L <sunilvl@ventanamicro.com>,
+        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.15 138/262] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return value
 Date:   Mon,  7 Mar 2022 10:18:02 +0100
-Message-Id: <20220307091655.327700063@linuxfoundation.org>
+Message-Id: <20220307091706.347505626@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,190 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Sunil V L <sunilvl@ventanamicro.com>
 
-[ Upstream commit f37c3bbc635994eda203a6da4ba0f9d05165a8d6 ]
+commit dcf0c838854c86e1f41fb1934aea906845d69782 upstream.
 
-Since referencing user space pointers is special, if the user wants to
-filter on a field that is a pointer to user space, then they need to
-specify it.
+The get_boot_hartid_from_fdt() function currently returns U32_MAX
+for failure case which is not correct because U32_MAX is a valid
+hartid value. This patch fixes the issue by returning error code.
 
-Add a ".ustring" attribute to the field name for filters to state that the
-field is pointing to user space such that the kernel can take the
-appropriate action to read that pointer.
-
-Link: https://lore.kernel.org/all/yt9d8rvmt2jq.fsf@linux.ibm.com/
-
-Fixes: 77360f9bbc7e ("tracing: Add test for user space strings when filtering on string pointers")
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: d7071743db31 ("RISC-V: Add EFI stub support.")
+Signed-off-by: Sunil V L <sunilvl@ventanamicro.com>
+Reviewed-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/trace/events.rst     |  9 ++++
- kernel/trace/trace_events_filter.c | 81 +++++++++++++++++++++---------
- 2 files changed, 66 insertions(+), 24 deletions(-)
+ drivers/firmware/efi/libstub/riscv-stub.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/trace/events.rst b/Documentation/trace/events.rst
-index 45e66a60a816a..c47f381d0c002 100644
---- a/Documentation/trace/events.rst
-+++ b/Documentation/trace/events.rst
-@@ -198,6 +198,15 @@ The glob (~) accepts a wild card character (\*,?) and character classes
-   prev_comm ~ "*sh*"
-   prev_comm ~ "ba*sh"
+--- a/drivers/firmware/efi/libstub/riscv-stub.c
++++ b/drivers/firmware/efi/libstub/riscv-stub.c
+@@ -25,7 +25,7 @@ typedef void __noreturn (*jump_kernel_fu
  
-+If the field is a pointer that points into user space (for example
-+"filename" from sys_enter_openat), then you have to append ".ustring" to the
-+field name::
-+
-+  filename.ustring ~ "password"
-+
-+As the kernel will have to know how to retrieve the memory that the pointer
-+is at from user space.
-+
- 5.2 Setting filters
- -------------------
+ static u32 hartid;
  
-diff --git a/kernel/trace/trace_events_filter.c b/kernel/trace/trace_events_filter.c
-index d3eb3c630f601..06d6318ee5377 100644
---- a/kernel/trace/trace_events_filter.c
-+++ b/kernel/trace/trace_events_filter.c
-@@ -665,6 +665,23 @@ struct ustring_buffer {
- static __percpu struct ustring_buffer *ustring_per_cpu;
- 
- static __always_inline char *test_string(char *str)
-+{
-+	struct ustring_buffer *ubuf;
-+	char *kstr;
-+
-+	if (!ustring_per_cpu)
-+		return NULL;
-+
-+	ubuf = this_cpu_ptr(ustring_per_cpu);
-+	kstr = ubuf->buffer;
-+
-+	/* For safety, do not trust the string pointer */
-+	if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
-+		return NULL;
-+	return kstr;
-+}
-+
-+static __always_inline char *test_ustring(char *str)
+-static u32 get_boot_hartid_from_fdt(void)
++static int get_boot_hartid_from_fdt(void)
  {
- 	struct ustring_buffer *ubuf;
- 	char __user *ustr;
-@@ -676,23 +693,11 @@ static __always_inline char *test_string(char *str)
- 	ubuf = this_cpu_ptr(ustring_per_cpu);
- 	kstr = ubuf->buffer;
+ 	const void *fdt;
+ 	int chosen_node, len;
+@@ -33,23 +33,26 @@ static u32 get_boot_hartid_from_fdt(void
  
--	/*
--	 * We use TASK_SIZE to denote user or kernel space, but this will
--	 * not work for all architectures. If it picks the wrong one, it may
--	 * just fail the filter (but will not bug).
--	 *
--	 * TODO: Have a way to properly denote which one this is for.
--	 */
--	if (likely((unsigned long)str >= TASK_SIZE)) {
--		/* For safety, do not trust the string pointer */
--		if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
--			return NULL;
--	} else {
--		/* user space address? */
--		ustr = (char __user *)str;
--		if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
--			return NULL;
--	}
-+	/* user space address? */
-+	ustr = (char __user *)str;
-+	if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
-+		return NULL;
-+
- 	return kstr;
+ 	fdt = get_efi_config_table(DEVICE_TREE_GUID);
+ 	if (!fdt)
+-		return U32_MAX;
++		return -EINVAL;
+ 
+ 	chosen_node = fdt_path_offset(fdt, "/chosen");
+ 	if (chosen_node < 0)
+-		return U32_MAX;
++		return -EINVAL;
+ 
+ 	prop = fdt_getprop((void *)fdt, chosen_node, "boot-hartid", &len);
+ 	if (!prop || len != sizeof(u32))
+-		return U32_MAX;
++		return -EINVAL;
+ 
+-	return fdt32_to_cpu(*prop);
++	hartid = fdt32_to_cpu(*prop);
++	return 0;
  }
  
-@@ -709,24 +714,42 @@ static int filter_pred_string(struct filter_pred *pred, void *event)
- 	return match;
- }
- 
-+static __always_inline int filter_pchar(struct filter_pred *pred, char *str)
-+{
-+	int cmp, match;
-+	int len;
-+
-+	len = strlen(str) + 1;	/* including tailing '\0' */
-+	cmp = pred->regex.match(str, &pred->regex, len);
-+
-+	match = cmp ^ pred->not;
-+
-+	return match;
-+}
- /* Filter predicate for char * pointers */
- static int filter_pred_pchar(struct filter_pred *pred, void *event)
+ efi_status_t check_platform_features(void)
  {
- 	char **addr = (char **)(event + pred->offset);
- 	char *str;
--	int cmp, match;
--	int len;
- 
- 	str = test_string(*addr);
- 	if (!str)
- 		return 0;
- 
--	len = strlen(str) + 1;	/* including tailing '\0' */
--	cmp = pred->regex.match(str, &pred->regex, len);
-+	return filter_pchar(pred, str);
-+}
- 
--	match = cmp ^ pred->not;
-+/* Filter predicate for char * pointers in user space*/
-+static int filter_pred_pchar_user(struct filter_pred *pred, void *event)
-+{
-+	char **addr = (char **)(event + pred->offset);
-+	char *str;
- 
--	return match;
-+	str = test_ustring(*addr);
-+	if (!str)
-+		return 0;
+-	hartid = get_boot_hartid_from_fdt();
+-	if (hartid == U32_MAX) {
++	int ret;
 +
-+	return filter_pchar(pred, str);
- }
- 
- /*
-@@ -1206,6 +1229,7 @@ static int parse_pred(const char *str, void *data,
- 	struct filter_pred *pred = NULL;
- 	char num_buf[24];	/* Big enough to hold an address */
- 	char *field_name;
-+	bool ustring = false;
- 	char q;
- 	u64 val;
- 	int len;
-@@ -1240,6 +1264,12 @@ static int parse_pred(const char *str, void *data,
- 		return -EINVAL;
++	ret = get_boot_hartid_from_fdt();
++	if (ret) {
+ 		efi_err("/chosen/boot-hartid missing or invalid!\n");
+ 		return EFI_UNSUPPORTED;
  	}
- 
-+	/* See if the field is a user space string */
-+	if ((len = str_has_prefix(str + i, ".ustring"))) {
-+		ustring = true;
-+		i += len;
-+	}
-+
- 	while (isspace(str[i]))
- 		i++;
- 
-@@ -1377,7 +1407,10 @@ static int parse_pred(const char *str, void *data,
- 					goto err_mem;
- 			}
- 
--			pred->fn = filter_pred_pchar;
-+			if (ustring)
-+				pred->fn = filter_pred_pchar_user;
-+			else
-+				pred->fn = filter_pred_pchar;
- 		}
- 		/* go past the last quote */
- 		i++;
--- 
-2.34.1
-
 
 
