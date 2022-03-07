@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB364CF4CE
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7264CF753
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236577AbiCGJWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:22:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53040 "EHLO
+        id S238349AbiCGJph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236615AbiCGJVq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:21:46 -0500
+        with ESMTP id S238499AbiCGJia (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B02265831;
-        Mon,  7 Mar 2022 01:20:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64EF93EB94;
+        Mon,  7 Mar 2022 01:32:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D159E6103D;
-        Mon,  7 Mar 2022 09:20:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C064EC340F3;
-        Mon,  7 Mar 2022 09:20:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7AF5611E4;
+        Mon,  7 Mar 2022 09:32:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4722C340E9;
+        Mon,  7 Mar 2022 09:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644819;
-        bh=0J4jcFKw6gaKR0MPzB8D3qoZdK16pSHJvlNpqL7WFAE=;
+        s=korg; t=1646645551;
+        bh=5CXbBcdfgN66RFXybhCZIswRAYHG8fVX0Dk4Suk+HIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mmxh1ZaXtS1Lzy8ZhMTd3Yd4m6+ueo3CBOLMzP2ugjuG1pLSWiSvvy/H5AAyxIjwO
-         9Oa+girRJxZWKyG4p2JMHWI0WAE8nTPoVSE6CpppNnUkx4b7mMB8j4XeVqSBwcVWFi
-         xOXt3c+P9mbjqgvyOpCsyPYvpzbWGmNgHpqPSgHY=
+        b=Jq+fyQkTORgcfDlL6UD0rMeURMDGCW8TRzhxU25Z2DHw44vEvRMaczS9O2QO+H9RT
+         0qoITBlZ7CzlNn80hbPNgl3h1/pj0wayGy8yX6DoVKsMUNCUwmnIDYgngAtLvu1PTs
+         9fQB7L+yZSEUBqVF2Et7xv2Q/iLru1DF+4FRzTRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 03/32] i2c: bcm2835: Avoid clock stretching timeouts
+        stable@vger.kernel.org, Sunil V L <sunilvl@ventanamicro.com>,
+        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.10 026/105] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return value
 Date:   Mon,  7 Mar 2022 10:18:29 +0100
-Message-Id: <20220307091634.536040265@linuxfoundation.org>
+Message-Id: <20220307091644.917369222@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
-References: <20220307091634.434478485@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Anholt <eric@anholt.net>
+From: Sunil V L <sunilvl@ventanamicro.com>
 
-[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
+commit dcf0c838854c86e1f41fb1934aea906845d69782 upstream.
 
-The CLKT register contains at poweron 0x40, which at our typical 100kHz
-bus rate means .64ms. But there is no specified limit to how long devices
-should be able to stretch the clocks, so just disable the timeout. We
-still have a timeout wrapping the entire transfer.
+The get_boot_hartid_from_fdt() function currently returns U32_MAX
+for failure case which is not correct because U32_MAX is a valid
+hartid value. This patch fixes the issue by returning error code.
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-BugLink: https://github.com/raspberrypi/linux/issues/3064
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: d7071743db31 ("RISC-V: Add EFI stub support.")
+Signed-off-by: Sunil V L <sunilvl@ventanamicro.com>
+Reviewed-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/firmware/efi/libstub/riscv-stub.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 7ed09865cb4b9..4729c14b75017 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -28,6 +28,11 @@
- #define BCM2835_I2C_FIFO	0x10
- #define BCM2835_I2C_DIV		0x14
- #define BCM2835_I2C_DEL		0x18
-+/*
-+ * 16-bit field for the number of SCL cycles to wait after rising SCL
-+ * before deciding the slave is not responding. 0 disables the
-+ * timeout detection.
-+ */
- #define BCM2835_I2C_CLKT	0x1c
+diff --git a/drivers/firmware/efi/libstub/riscv-stub.c b/drivers/firmware/efi/libstub/riscv-stub.c
+index 380e4e251399..9c460843442f 100644
+--- a/drivers/firmware/efi/libstub/riscv-stub.c
++++ b/drivers/firmware/efi/libstub/riscv-stub.c
+@@ -25,7 +25,7 @@ typedef void __noreturn (*jump_kernel_func)(unsigned int, unsigned long);
  
- #define BCM2835_I2C_C_READ	BIT(0)
-@@ -313,6 +318,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	adap->dev.of_node = pdev->dev.of_node;
- 	adap->quirks = &bcm2835_i2c_quirks;
+ static u32 hartid;
  
-+	/*
-+	 * Disable the hardware clock stretching timeout. SMBUS
-+	 * specifies a limit for how long the device can stretch the
-+	 * clock, but core I2C doesn't.
-+	 */
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+-static u32 get_boot_hartid_from_fdt(void)
++static int get_boot_hartid_from_fdt(void)
+ {
+ 	const void *fdt;
+ 	int chosen_node, len;
+@@ -33,23 +33,26 @@ static u32 get_boot_hartid_from_fdt(void)
  
- 	ret = i2c_add_adapter(adap);
+ 	fdt = get_efi_config_table(DEVICE_TREE_GUID);
+ 	if (!fdt)
+-		return U32_MAX;
++		return -EINVAL;
+ 
+ 	chosen_node = fdt_path_offset(fdt, "/chosen");
+ 	if (chosen_node < 0)
+-		return U32_MAX;
++		return -EINVAL;
+ 
+ 	prop = fdt_getprop((void *)fdt, chosen_node, "boot-hartid", &len);
+ 	if (!prop || len != sizeof(u32))
+-		return U32_MAX;
++		return -EINVAL;
+ 
+-	return fdt32_to_cpu(*prop);
++	hartid = fdt32_to_cpu(*prop);
++	return 0;
+ }
+ 
+ efi_status_t check_platform_features(void)
+ {
+-	hartid = get_boot_hartid_from_fdt();
+-	if (hartid == U32_MAX) {
++	int ret;
++
++	ret = get_boot_hartid_from_fdt();
++	if (ret) {
+ 		efi_err("/chosen/boot-hartid missing or invalid!\n");
+ 		return EFI_UNSUPPORTED;
+ 	}
 -- 
-2.34.1
+2.35.1
 
 
 
