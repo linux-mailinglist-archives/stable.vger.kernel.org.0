@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3284CF832
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46CBC4CF950
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229901AbiCGJwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53376 "EHLO
+        id S239242AbiCGKEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:04:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239308AbiCGJta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:49:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6CEC1DA73;
-        Mon,  7 Mar 2022 01:42:57 -0800 (PST)
+        with ESMTP id S240529AbiCGKBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E48F27FC1;
+        Mon,  7 Mar 2022 01:50:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B9CCB810C3;
-        Mon,  7 Mar 2022 09:42:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C66EFC340E9;
-        Mon,  7 Mar 2022 09:42:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1713F60010;
+        Mon,  7 Mar 2022 09:50:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 245A6C340F3;
+        Mon,  7 Mar 2022 09:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646174;
-        bh=lpTIfqFfuxNnkZVoWmvjaup59vtQTcg03a28fDRHsfM=;
+        s=korg; t=1646646611;
+        bh=LLc6Jp/SFQrwFxVD3PlMzMB7rEtngGKss6tkYvtsEFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kR4BpZJeEKYoamKW+hmTbSir5vJc7fxqiWP22M3mDcN8IWbd8Z7MuYqJGRPjhwqg2
-         v3OvhbZ9sck1XYbgwXiLPiE8WVHYbTVv5+QelQf5JGSPcrUEM7PnmN1tRCdxgGPQr8
-         DB9BAYAihGRSd6w6y3UOoum5RjhMFmsuual0d+Mg=
+        b=CZ6Y/fn1+kmrojbOhwb4dijDgsLHgxo7vv1fNQhV8CEaWc0MTTQ/N+huNwtbOnloo
+         tZguhbdY5+8Xxi2MA/g3VzNy0W4EKv3uUidVunCurbKi3AWJMoAAt5e4KWRp+LbDUy
+         jIDlEQyFkB/vZGfvewGsIy889Tq9ddrJBAKbFpDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Scarborough <kim@scarborough.kim>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 130/262] cifs: fix confusing unneeded warning message on smb2.1 and earlier
-Date:   Mon,  7 Mar 2022 10:17:54 +0100
-Message-Id: <20220307091706.127954885@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 037/186] ext4: simplify updating of fast commit stats
+Date:   Mon,  7 Mar 2022 10:17:55 +0100
+Message-Id: <20220307091655.133939969@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +54,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
 
-[ Upstream commit 53923e0fe2098f90f339510aeaa0e1413ae99a16 ]
+[ Upstream commit 0915e464cb274648e1ef1663e1356e53ff400983 ]
 
-When mounting with SMB2.1 or earlier, even with nomultichannel, we
-log the confusing warning message:
-  "CIFS: VFS: multichannel is not supported on this protocol version, use 3.0 or above"
+Move fast commit stats updating logic to a separate function from
+ext4_fc_commit(). This significantly improves readability of
+ext4_fc_commit().
 
-Fix this so that we don't log this unless they really are trying
-to mount with multichannel.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215608
-Reported-by: Kim Scarborough <kim@scarborough.kim>
-Cc: stable@vger.kernel.org # 5.11+
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/20211223202140.2061101-4-harshads@google.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/sess.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/ext4/ext4.h        |  1 -
+ fs/ext4/fast_commit.c | 99 +++++++++++++++++++++++--------------------
+ fs/ext4/fast_commit.h | 27 ++++++------
+ 3 files changed, 68 insertions(+), 59 deletions(-)
 
-diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index a1e688113645f..5500ea7837845 100644
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -76,11 +76,6 @@ int cifs_try_adding_channels(struct cifs_sb_info *cifs_sb, struct cifs_ses *ses)
- 	struct cifs_server_iface *ifaces = NULL;
- 	size_t iface_count;
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index f80e4de726869..470fd3c2aef54 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1747,7 +1747,6 @@ struct ext4_sb_info {
+ 	spinlock_t s_fc_lock;
+ 	struct buffer_head *s_fc_bh;
+ 	struct ext4_fc_stats s_fc_stats;
+-	u64 s_fc_avg_commit_time;
+ #ifdef CONFIG_EXT4_DEBUG
+ 	int s_fc_debug_max_replay;
+ #endif
+diff --git a/fs/ext4/fast_commit.c b/fs/ext4/fast_commit.c
+index 48e522bb7bca4..1b935feec6f6b 100644
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1075,6 +1075,32 @@ static int ext4_fc_perform_commit(journal_t *journal)
+ 	return ret;
+ }
  
--	if (ses->server->dialect < SMB30_PROT_ID) {
--		cifs_dbg(VFS, "multichannel is not supported on this protocol version, use 3.0 or above\n");
--		return 0;
--	}
--
- 	spin_lock(&ses->chan_lock);
++static void ext4_fc_update_stats(struct super_block *sb, int status,
++				 u64 commit_time, int nblks)
++{
++	struct ext4_fc_stats *stats = &EXT4_SB(sb)->s_fc_stats;
++
++	jbd_debug(1, "Fast commit ended with status = %d", status);
++	if (status == EXT4_FC_STATUS_OK) {
++		stats->fc_num_commits++;
++		stats->fc_numblks += nblks;
++		if (likely(stats->s_fc_avg_commit_time))
++			stats->s_fc_avg_commit_time =
++				(commit_time +
++				 stats->s_fc_avg_commit_time * 3) / 4;
++		else
++			stats->s_fc_avg_commit_time = commit_time;
++	} else if (status == EXT4_FC_STATUS_FAILED ||
++		   status == EXT4_FC_STATUS_INELIGIBLE) {
++		if (status == EXT4_FC_STATUS_FAILED)
++			stats->fc_failed_commits++;
++		stats->fc_ineligible_commits++;
++	} else {
++		stats->fc_skipped_commits++;
++	}
++	trace_ext4_fc_commit_stop(sb, nblks, status);
++}
++
+ /*
+  * The main commit entry point. Performs a fast commit for transaction
+  * commit_tid if needed. If it's not possible to perform a fast commit
+@@ -1087,7 +1113,7 @@ int ext4_fc_commit(journal_t *journal, tid_t commit_tid)
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	int nblks = 0, ret, bsize = journal->j_blocksize;
+ 	int subtid = atomic_read(&sbi->s_fc_subtid);
+-	int reason = EXT4_FC_REASON_OK, fc_bufs_before = 0;
++	int status = EXT4_FC_STATUS_OK, fc_bufs_before = 0;
+ 	ktime_t start_time, commit_time;
  
- 	new_chan_count = old_chan_count = ses->chan_count;
-@@ -94,6 +89,12 @@ int cifs_try_adding_channels(struct cifs_sb_info *cifs_sb, struct cifs_ses *ses)
- 		return 0;
+ 	trace_ext4_fc_commit_start(sb);
+@@ -1104,69 +1130,52 @@ int ext4_fc_commit(journal_t *journal, tid_t commit_tid)
+ 		if (atomic_read(&sbi->s_fc_subtid) <= subtid &&
+ 			commit_tid > journal->j_commit_sequence)
+ 			goto restart_fc;
+-		reason = EXT4_FC_REASON_ALREADY_COMMITTED;
+-		goto out;
++		ext4_fc_update_stats(sb, EXT4_FC_STATUS_SKIPPED, 0, 0);
++		return 0;
+ 	} else if (ret) {
+-		sbi->s_fc_stats.fc_ineligible_reason_count[EXT4_FC_COMMIT_FAILED]++;
+-		reason = EXT4_FC_REASON_FC_START_FAILED;
+-		goto out;
++		/*
++		 * Commit couldn't start. Just update stats and perform a
++		 * full commit.
++		 */
++		ext4_fc_update_stats(sb, EXT4_FC_STATUS_FAILED, 0, 0);
++		return jbd2_complete_transaction(journal, commit_tid);
+ 	}
++
+ 	/*
+ 	 * After establishing journal barrier via jbd2_fc_begin_commit(), check
+ 	 * if we are fast commit ineligible.
+ 	 */
+ 	if (ext4_test_mount_flag(sb, EXT4_MF_FC_INELIGIBLE)) {
+-		reason = EXT4_FC_REASON_INELIGIBLE;
+-		goto out;
++		status = EXT4_FC_STATUS_INELIGIBLE;
++		goto fallback;
  	}
  
-+	if (ses->server->dialect < SMB30_PROT_ID) {
-+		spin_unlock(&ses->chan_lock);
-+		cifs_dbg(VFS, "multichannel is not supported on this protocol version, use 3.0 or above\n");
-+		return 0;
-+	}
+ 	fc_bufs_before = (sbi->s_fc_bytes + bsize - 1) / bsize;
+ 	ret = ext4_fc_perform_commit(journal);
+ 	if (ret < 0) {
+-		sbi->s_fc_stats.fc_ineligible_reason_count[EXT4_FC_COMMIT_FAILED]++;
+-		reason = EXT4_FC_REASON_FC_FAILED;
+-		goto out;
++		status = EXT4_FC_STATUS_FAILED;
++		goto fallback;
+ 	}
+ 	nblks = (sbi->s_fc_bytes + bsize - 1) / bsize - fc_bufs_before;
+ 	ret = jbd2_fc_wait_bufs(journal, nblks);
+ 	if (ret < 0) {
+-		sbi->s_fc_stats.fc_ineligible_reason_count[EXT4_FC_COMMIT_FAILED]++;
+-		reason = EXT4_FC_REASON_FC_FAILED;
+-		goto out;
++		status = EXT4_FC_STATUS_FAILED;
++		goto fallback;
+ 	}
+ 	atomic_inc(&sbi->s_fc_subtid);
+-	jbd2_fc_end_commit(journal);
+-out:
+-	spin_lock(&sbi->s_fc_lock);
+-	if (reason != EXT4_FC_REASON_OK &&
+-		reason != EXT4_FC_REASON_ALREADY_COMMITTED) {
+-		sbi->s_fc_stats.fc_ineligible_commits++;
+-	} else {
+-		sbi->s_fc_stats.fc_num_commits++;
+-		sbi->s_fc_stats.fc_numblks += nblks;
+-	}
+-	spin_unlock(&sbi->s_fc_lock);
+-	nblks = (reason == EXT4_FC_REASON_OK) ? nblks : 0;
+-	trace_ext4_fc_commit_stop(sb, nblks, reason);
+-	commit_time = ktime_to_ns(ktime_sub(ktime_get(), start_time));
++	ret = jbd2_fc_end_commit(journal);
+ 	/*
+-	 * weight the commit time higher than the average time so we don't
+-	 * react too strongly to vast changes in the commit time
++	 * weight the commit time higher than the average time so we
++	 * don't react too strongly to vast changes in the commit time
+ 	 */
+-	if (likely(sbi->s_fc_avg_commit_time))
+-		sbi->s_fc_avg_commit_time = (commit_time +
+-				sbi->s_fc_avg_commit_time * 3) / 4;
+-	else
+-		sbi->s_fc_avg_commit_time = commit_time;
+-	jbd_debug(1,
+-		"Fast commit ended with blks = %d, reason = %d, subtid - %d",
+-		nblks, reason, subtid);
+-	if (reason == EXT4_FC_REASON_FC_FAILED)
+-		return jbd2_fc_end_commit_fallback(journal);
+-	if (reason == EXT4_FC_REASON_FC_START_FAILED ||
+-		reason == EXT4_FC_REASON_INELIGIBLE)
+-		return jbd2_complete_transaction(journal, commit_tid);
+-	return 0;
++	commit_time = ktime_to_ns(ktime_sub(ktime_get(), start_time));
++	ext4_fc_update_stats(sb, status, commit_time, nblks);
++	return ret;
 +
- 	if (!(ses->server->capabilities & SMB2_GLOBAL_CAP_MULTI_CHANNEL)) {
- 		cifs_dbg(VFS, "server %s does not support multichannel\n", ses->server->hostname);
- 		ses->chan_max = 1;
++fallback:
++	ret = jbd2_fc_end_commit_fallback(journal);
++	ext4_fc_update_stats(sb, status, 0, 0);
++	return ret;
+ }
+ 
+ /*
+@@ -2132,7 +2141,7 @@ int ext4_fc_info_show(struct seq_file *seq, void *v)
+ 		"fc stats:\n%ld commits\n%ld ineligible\n%ld numblks\n%lluus avg_commit_time\n",
+ 		   stats->fc_num_commits, stats->fc_ineligible_commits,
+ 		   stats->fc_numblks,
+-		   div_u64(sbi->s_fc_avg_commit_time, 1000));
++		   div_u64(stats->s_fc_avg_commit_time, 1000));
+ 	seq_puts(seq, "Ineligible reasons:\n");
+ 	for (i = 0; i < EXT4_FC_REASON_MAX; i++)
+ 		seq_printf(seq, "\"%s\":\t%d\n", fc_ineligible_reasons[i],
+diff --git a/fs/ext4/fast_commit.h b/fs/ext4/fast_commit.h
+index 937c381b4c85e..083ad1cb705a7 100644
+--- a/fs/ext4/fast_commit.h
++++ b/fs/ext4/fast_commit.h
+@@ -71,21 +71,19 @@ struct ext4_fc_tail {
+ };
+ 
+ /*
+- * Fast commit reason codes
++ * Fast commit status codes
++ */
++enum {
++	EXT4_FC_STATUS_OK = 0,
++	EXT4_FC_STATUS_INELIGIBLE,
++	EXT4_FC_STATUS_SKIPPED,
++	EXT4_FC_STATUS_FAILED,
++};
++
++/*
++ * Fast commit ineligiblity reasons:
+  */
+ enum {
+-	/*
+-	 * Commit status codes:
+-	 */
+-	EXT4_FC_REASON_OK = 0,
+-	EXT4_FC_REASON_INELIGIBLE,
+-	EXT4_FC_REASON_ALREADY_COMMITTED,
+-	EXT4_FC_REASON_FC_START_FAILED,
+-	EXT4_FC_REASON_FC_FAILED,
+-
+-	/*
+-	 * Fast commit ineligiblity reasons:
+-	 */
+ 	EXT4_FC_REASON_XATTR = 0,
+ 	EXT4_FC_REASON_CROSS_RENAME,
+ 	EXT4_FC_REASON_JOURNAL_FLAG_CHANGE,
+@@ -117,7 +115,10 @@ struct ext4_fc_stats {
+ 	unsigned int fc_ineligible_reason_count[EXT4_FC_REASON_MAX];
+ 	unsigned long fc_num_commits;
+ 	unsigned long fc_ineligible_commits;
++	unsigned long fc_failed_commits;
++	unsigned long fc_skipped_commits;
+ 	unsigned long fc_numblks;
++	u64 s_fc_avg_commit_time;
+ };
+ 
+ #define EXT4_FC_REPLAY_REALLOC_INCREMENT	4
 -- 
 2.34.1
 
