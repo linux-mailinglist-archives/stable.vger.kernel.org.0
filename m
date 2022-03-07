@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6264CF632
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E174A4CF8DF
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233580AbiCGJdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:33:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34096 "EHLO
+        id S238891AbiCGKCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:02:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237287AbiCGJbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:31:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D8F66C83;
-        Mon,  7 Mar 2022 01:29:32 -0800 (PST)
+        with ESMTP id S239899AbiCGKAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18DAB69484;
+        Mon,  7 Mar 2022 01:46:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BF1D61185;
-        Mon,  7 Mar 2022 09:29:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16215C340F4;
-        Mon,  7 Mar 2022 09:29:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 574B461052;
+        Mon,  7 Mar 2022 09:46:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D833C340E9;
+        Mon,  7 Mar 2022 09:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645364;
-        bh=+sF1ZZKsec9M7x/W4cxtc7hDUruS5zQHxsrQZYqu2ZE=;
+        s=korg; t=1646646387;
+        bh=CNjjbDsQ8prVbFHV22sMlC4quIRpot1LlEfds24tKLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXa9TXSJ4IC393dejjtr2a64bpizBEzLNZLqwZucYPX1G4Q5GJdRqkmr8+bV5VeG7
-         wE0jayfJ9/3CpRuLWbqwbaYX/ZbI5HAt4qs7K2q2BKRxFLU7c9/MrBCYjWBkR+gz4g
-         v8l2d0myRNlWJofTj24/RNMb2fb/rCHdfzcUFzgQ=
+        b=fhMYOeEwCAPv6C9pcSF02cws8rMDbL/IVxQHcM2uylX0oct4Znf6TarTRopjvm/hp
+         zwnGfr0TmUAeKBcIVG1dvjbqlOjEHaQHFsh7LJerVCWO8OTH1xV6K+mH0vvFLIoDhV
+         ELte69wEHIYGMdgcjYeYp1LCLt/jtaOi3fUpmFjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 59/64] tracing: Fix return value of __setup handlers
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Karen Sornek <karen.sornek@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 228/262] iavf: Add helper function to go from pci_dev to adapter
 Date:   Mon,  7 Mar 2022 10:19:32 +0100
-Message-Id: <20220307091640.824915664@linuxfoundation.org>
+Message-Id: <20220307091709.615594279@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Karen Sornek <karen.sornek@intel.com>
 
-commit 1d02b444b8d1345ea4708db3bab4db89a7784b55 upstream.
+[ Upstream commit 247aa001b72b6c8a89df9d108a2ec6f274a6b64d ]
 
-__setup() handlers should generally return 1 to indicate that the
-boot options have been handled.
+Add helper function to go from pci_dev to adapter to make work simple -
+to go from a pci_dev to the adapter structure and make netdev assignment
+instead of having to go to the net_device then the adapter.
 
-Using invalid option values causes the entire kernel boot option
-string to be reported as Unknown and added to init's environment
-strings, polluting it.
-
-  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc6
-    kprobe_event=p,syscall_any,$arg1 trace_options=quiet
-    trace_clock=jiffies", will be passed to user space.
-
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc6
-     kprobe_event=p,syscall_any,$arg1
-     trace_options=quiet
-     trace_clock=jiffies
-
-Return 1 from the __setup() handlers so that init's environment is not
-polluted with kernel boot options.
-
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lkml.kernel.org/r/20220303031744.32356-1-rdunlap@infradead.org
-
-Cc: stable@vger.kernel.org
-Fixes: 7bcfaf54f591 ("tracing: Add trace_options kernel command line parameter")
-Fixes: e1e232ca6b8f ("tracing: Add trace_clock=<clock> kernel parameter")
-Fixes: 970988e19eb0 ("tracing/kprobe: Add kprobe_event= boot parameter")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Karen Sornek <karen.sornek@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c        |    4 ++--
- kernel/trace/trace_kprobe.c |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 24 +++++++++++++++------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -219,7 +219,7 @@ static char trace_boot_options_buf[MAX_T
- static int __init set_trace_boot_options(char *str)
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 3aa21568686d..33a3dbcf8f2d 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -51,6 +51,15 @@ MODULE_LICENSE("GPL v2");
+ static const struct net_device_ops iavf_netdev_ops;
+ struct workqueue_struct *iavf_wq;
+ 
++/**
++ * iavf_pdev_to_adapter - go from pci_dev to adapter
++ * @pdev: pci_dev pointer
++ */
++static struct iavf_adapter *iavf_pdev_to_adapter(struct pci_dev *pdev)
++{
++	return netdev_priv(pci_get_drvdata(pdev));
++}
++
+ /**
+  * iavf_allocate_dma_mem_d - OS specific memory alloc for shared code
+  * @hw:   pointer to the HW structure
+@@ -3739,8 +3748,8 @@ int iavf_process_config(struct iavf_adapter *adapter)
+  **/
+ static void iavf_shutdown(struct pci_dev *pdev)
  {
- 	strlcpy(trace_boot_options_buf, str, MAX_TRACER_SIZE);
--	return 0;
-+	return 1;
- }
- __setup("trace_options=", set_trace_boot_options);
+-	struct net_device *netdev = pci_get_drvdata(pdev);
+-	struct iavf_adapter *adapter = netdev_priv(netdev);
++	struct iavf_adapter *adapter = iavf_pdev_to_adapter(pdev);
++	struct net_device *netdev = adapter->netdev;
  
-@@ -230,7 +230,7 @@ static int __init set_trace_boot_clock(c
+ 	netif_device_detach(netdev);
+ 
+@@ -3923,10 +3932,11 @@ static int __maybe_unused iavf_suspend(struct device *dev_d)
+ static int __maybe_unused iavf_resume(struct device *dev_d)
  {
- 	strlcpy(trace_boot_clock_buf, str, MAX_TRACER_SIZE);
- 	trace_boot_clock = trace_boot_clock_buf;
--	return 0;
-+	return 1;
+ 	struct pci_dev *pdev = to_pci_dev(dev_d);
+-	struct net_device *netdev = pci_get_drvdata(pdev);
+-	struct iavf_adapter *adapter = netdev_priv(netdev);
++	struct iavf_adapter *adapter;
+ 	u32 err;
+ 
++	adapter = iavf_pdev_to_adapter(pdev);
++
+ 	pci_set_master(pdev);
+ 
+ 	rtnl_lock();
+@@ -3945,7 +3955,7 @@ static int __maybe_unused iavf_resume(struct device *dev_d)
+ 
+ 	queue_work(iavf_wq, &adapter->reset_task);
+ 
+-	netif_device_attach(netdev);
++	netif_device_attach(adapter->netdev);
+ 
+ 	return err;
  }
- __setup("trace_clock=", set_trace_boot_clock);
- 
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -430,7 +430,7 @@ static int disable_trace_kprobe(struct t
- 		 */
- 		trace_probe_remove_file(tp, file);
- 
--	return 0;
-+	return 1;
- }
- 
- #if defined(CONFIG_DYNAMIC_FTRACE) && \
+@@ -3961,8 +3971,8 @@ static int __maybe_unused iavf_resume(struct device *dev_d)
+  **/
+ static void iavf_remove(struct pci_dev *pdev)
+ {
+-	struct net_device *netdev = pci_get_drvdata(pdev);
+-	struct iavf_adapter *adapter = netdev_priv(netdev);
++	struct iavf_adapter *adapter = iavf_pdev_to_adapter(pdev);
++	struct net_device *netdev = adapter->netdev;
+ 	struct iavf_fdir_fltr *fdir, *fdirtmp;
+ 	struct iavf_vlan_filter *vlf, *vlftmp;
+ 	struct iavf_adv_rss *rss, *rsstmp;
+-- 
+2.34.1
+
 
 
