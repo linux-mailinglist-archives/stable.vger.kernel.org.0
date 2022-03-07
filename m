@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FBFE4CF6B6
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:42:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75DAD4CF9B9
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238328AbiCGJnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:43:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54400 "EHLO
+        id S236477AbiCGKOW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:14:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238508AbiCGJib (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:31 -0500
+        with ESMTP id S242112AbiCGKLP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD854249F;
-        Mon,  7 Mar 2022 01:32:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CB18878F;
+        Mon,  7 Mar 2022 01:54:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37057B810C0;
-        Mon,  7 Mar 2022 09:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 699F1C340F5;
-        Mon,  7 Mar 2022 09:32:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D38CEB810AA;
+        Mon,  7 Mar 2022 09:54:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10BA4C340E9;
+        Mon,  7 Mar 2022 09:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645566;
-        bh=zEsng+QabY6S/u4Deg/8fZ5H1jLxZcEmj/N6Lvj1rzM=;
+        s=korg; t=1646646865;
+        bh=J2IJqSVavxlY4rZ2bGBmDCSa/4rvdwBbNFQjq4mtJSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRFiLNbJKiStHkqdlQ4euEkMmGofoyGoua3wiDMDGK+geEIR7eAbwRredaBwRPYGL
-         IpILAobuYaR8vG3H9oH+zKahiF4xyM1NWnXXWc1GDG5pOKmbXfvzOK61xI/ojML/sj
-         CjZwx9md9o76VQNtr1ERfxlyZ+O+cGHf5hWEGK94=
+        b=11lKayyoHupNT5wvR7/jXoyz/JekWaiCExOdtiBvZBaUxlV18dYhp5Iim5VzC7UYJ
+         SzpsaFIYUwz+gNeR0joR3CZaE6Q/HzIIt0FEqKQfBlHoZPXrsV5S9NVzRDFrphtZZL
+         ECtb1ikyrLXc8bhXnYaXd5UOPl5CPw04LsDJUuag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corinna Vinschen <vinschen@redhat.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 073/105] igc: igc_read_phy_reg_gpy: drop premature return
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.16 118/186] s390/extable: fix exception table sorting
 Date:   Mon,  7 Mar 2022 10:19:16 +0100
-Message-Id: <20220307091646.231838760@linuxfoundation.org>
+Message-Id: <20220307091657.378683319@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corinna Vinschen <vinschen@redhat.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit fda2635466cd26ad237e1bc5d3f6a60f97ad09b6 upstream.
+commit c194dad21025dfd043210912653baab823bdff67 upstream.
 
-igc_read_phy_reg_gpy checks the return value from igc_read_phy_reg_mdic
-and if it's not 0, returns immediately. By doing this, it leaves the HW
-semaphore in the acquired state.
+s390 has a swap_ex_entry_fixup function, however it is not being used
+since common code expects a swap_ex_entry_fixup define. If it is not
+defined the default implementation will be used. So fix this by adding
+a proper define.
+However also the implementation of the function must be fixed, since a
+NULL value for handler has a special meaning and must not be adjusted.
 
-Drop this premature return statement, the function returns after
-releasing the semaphore immediately anyway.
+Luckily all of this doesn't fix a real bug currently: the main extable
+is correctly sorted during build time, and for runtime sorting there
+is currently no case where the handler field is not NULL.
 
-Fixes: 5586838fe9ce ("igc: Add code for PHY support")
-Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 05a68e892e89 ("s390/kernel: expand exception table logic to allow new handling options")
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igc/igc_phy.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/s390/include/asm/extable.h |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/igc/igc_phy.c
-+++ b/drivers/net/ethernet/intel/igc/igc_phy.c
-@@ -781,8 +781,6 @@ s32 igc_read_phy_reg_gpy(struct igc_hw *
- 		if (ret_val)
- 			return ret_val;
- 		ret_val = igc_read_phy_reg_mdic(hw, offset, data);
--		if (ret_val)
--			return ret_val;
- 		hw->phy.ops.release(hw);
- 	} else {
- 		ret_val = igc_read_xmdio_reg(hw, (u16)offset, dev_addr,
+--- a/arch/s390/include/asm/extable.h
++++ b/arch/s390/include/asm/extable.h
+@@ -69,8 +69,13 @@ static inline void swap_ex_entry_fixup(s
+ {
+ 	a->fixup = b->fixup + delta;
+ 	b->fixup = tmp.fixup - delta;
+-	a->handler = b->handler + delta;
+-	b->handler = tmp.handler - delta;
++	a->handler = b->handler;
++	if (a->handler)
++		a->handler += delta;
++	b->handler = tmp.handler;
++	if (b->handler)
++		b->handler -= delta;
+ }
++#define swap_ex_entry_fixup swap_ex_entry_fixup
+ 
+ #endif
 
 
