@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C2C4CF76C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF4E4CF8E4
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234707AbiCGJqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:46:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51220 "EHLO
+        id S238955AbiCGKCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:02:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241151AbiCGJl4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206466392;
-        Mon,  7 Mar 2022 01:40:55 -0800 (PST)
+        with ESMTP id S241287AbiCGKBu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27C46723CA;
+        Mon,  7 Mar 2022 01:51:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDCBDB810B9;
-        Mon,  7 Mar 2022 09:40:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D985C340F3;
-        Mon,  7 Mar 2022 09:40:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBDAD60919;
+        Mon,  7 Mar 2022 09:51:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3686C340F3;
+        Mon,  7 Mar 2022 09:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646052;
-        bh=4yB1WueRXrnEYauJd4KT8rCFKjgpOh9M/xBmzREYX8Q=;
+        s=korg; t=1646646697;
+        bh=+0EpU+HNeg1odvwyzGPv0Wt95moAaPvI9wujS/xY2j0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TW++v8YhMpJvMXgLJ640u3ffqA4/qb8ZY36aGlB4DRVCP5EkutgyLpkUrwYSj4IQU
-         Uui0Tlg5UnCmwl/AZ/uM3VJIksA9/ZafraQsDg2jtFHBpvhGClrisdZrFaJ7WzGc5o
-         q+Fk+H25+lZgYWwwG/nsh19c9AfLn4GfY9t3lWrA=
+        b=iCyo5hfLsWcg0IrSuQXhQuil61yi1jZCfcSYbe2zGhBQBfQMPHrd6dXS/wjXp75W/
+         sMpk2dfpbzk8X5etCVBKFSvRpUd7klMFQMXTHNRjp8EQ/duXzIun+VqklZAgM6hPZb
+         FFGsUzQOqCMBmq6AM3WhGGcEHLkwtXRoz2yeoVPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Myrtle Shah <gatecat@ds0.me>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/262] riscv/mm: Add XIP_FIXUP for phys_ram_base
+Subject: [PATCH 5.16 023/186] i2c: cadence: allow COMPILE_TEST
 Date:   Mon,  7 Mar 2022 10:17:41 +0100
-Message-Id: <20220307091705.768399587@linuxfoundation.org>
+Message-Id: <20220307091654.744227783@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Wolfram Sang <wsa@kernel.org>
 
-[ Upstream commit 4b1c70aa8ed8249608bb991380cb8ff423edf49e ]
+[ Upstream commit 0b0dcb3882c8f08bdeafa03adb4487e104d26050 ]
 
-This manifests as a crash early in boot on VexRiscv.
+Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
+and easier maintenance.
 
-Signed-off-by: Myrtle Shah <gatecat@ds0.me>
-[Palmer: split commit]
-Fixes: 6d7f91d914bc ("riscv: Get rid of CONFIG_PHYS_RAM_BASE in kernel physical address conversion")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/init.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 5e7decd875258..3de593b26850e 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -451,6 +451,7 @@ static uintptr_t __init best_map_size(phys_addr_t base, phys_addr_t size)
- }
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index dce3928390176..b1c20859fe8c9 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -488,7 +488,7 @@ config I2C_BRCMSTB
  
- #ifdef CONFIG_XIP_KERNEL
-+#define phys_ram_base  (*(phys_addr_t *)XIP_FIXUP(&phys_ram_base))
- /* called from head.S with MMU off */
- asmlinkage void __init __copy_data(void)
- {
+ config I2C_CADENCE
+ 	tristate "Cadence I2C Controller"
+-	depends on ARCH_ZYNQ || ARM64 || XTENSA
++	depends on ARCH_ZYNQ || ARM64 || XTENSA || COMPILE_TEST
+ 	help
+ 	  Say yes here to select Cadence I2C Host Controller. This controller is
+ 	  e.g. used by Xilinx Zynq.
 -- 
 2.34.1
 
