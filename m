@@ -2,44 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 756DA4CF634
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3097C4CF7E9
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:51:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbiCGJd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:33:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33152 "EHLO
+        id S238077AbiCGJvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:51:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237696AbiCGJdH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:07 -0500
+        with ESMTP id S239106AbiCGJtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:49:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD2D6AA45;
-        Mon,  7 Mar 2022 01:30:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE9B10FEE;
+        Mon,  7 Mar 2022 01:42:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93624B810B6;
-        Mon,  7 Mar 2022 09:29:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2C5BC340F4;
-        Mon,  7 Mar 2022 09:29:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD272B810BF;
+        Mon,  7 Mar 2022 09:42:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07289C340E9;
+        Mon,  7 Mar 2022 09:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645382;
-        bh=C61B4YqZLuPfUtAJA5XNOFg/InlbWVrwKeMTqahBgjI=;
+        s=korg; t=1646646159;
+        bh=jL18z2hE6xJ6jALu7cW0FPYndfKRVk1ejDkLHHhGj0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6AMD+qDehhcVH9rQE8fhAmPlNT3ozSPxoT7ZM9dLB0dzCmYws4SBe7Uzu8yb/mMm
-         vk07aBM/GJaR1hg31jIQQwnynMMEBAZSKipHlyWe+XTf+Tt0pkejG7jYfL7cz0yBsi
-         YMgbv1Lu5vTJvKBJTXxYH74HMIhjoW7q74KxJQwk=
+        b=sRuAYlB+g6yNUQSaMENQcUwbzzN2RWMTBrqm0E894pfmoxEkaJaVns0fK1vLuQBIm
+         pmE6IdynNSl2QSoTNJ8x0tmYq+l8FwXa5YxxedRcUZCiKCm+zxPXWcNhKgILMID+I4
+         EwQsARWmYqFgpYETU0lB/rhscKspXLGhDhZpklJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 013/105] i2c: cadence: allow COMPILE_TEST
+        stable@vger.kernel.org,
+        syzbot+11421fbbff99b989670e@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Willy Tarreau <w@1wt.eu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Michal Hocko <mhocko@suse.com>
+Subject: [PATCH 5.15 152/262] mm: Consider __GFP_NOWARN flag for oversized kvmalloc() calls
 Date:   Mon,  7 Mar 2022 10:18:16 +0100
-Message-Id: <20220307091644.558022260@linuxfoundation.org>
+Message-Id: <20220307091706.728892880@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +65,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@kernel.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 0b0dcb3882c8f08bdeafa03adb4487e104d26050 ]
+commit 0708a0afe291bdfe1386d74d5ec1f0c27e8b9168 upstream.
 
-Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
-and easier maintenance.
+syzkaller was recently triggering an oversized kvmalloc() warning via
+xdp_umem_create().
 
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The triggered warning was added back in 7661809d493b ("mm: don't allow
+oversized kvmalloc() calls"). The rationale for the warning for huge
+kvmalloc sizes was as a reaction to a security bug where the size was
+more than UINT_MAX but not everything was prepared to handle unsigned
+long sizes.
+
+Anyway, the AF_XDP related call trace from this syzkaller report was:
+
+  kvmalloc include/linux/mm.h:806 [inline]
+  kvmalloc_array include/linux/mm.h:824 [inline]
+  kvcalloc include/linux/mm.h:829 [inline]
+  xdp_umem_pin_pages net/xdp/xdp_umem.c:102 [inline]
+  xdp_umem_reg net/xdp/xdp_umem.c:219 [inline]
+  xdp_umem_create+0x6a5/0xf00 net/xdp/xdp_umem.c:252
+  xsk_setsockopt+0x604/0x790 net/xdp/xsk.c:1068
+  __sys_setsockopt+0x1fd/0x4e0 net/socket.c:2176
+  __do_sys_setsockopt net/socket.c:2187 [inline]
+  __se_sys_setsockopt net/socket.c:2184 [inline]
+  __x64_sys_setsockopt+0xb5/0x150 net/socket.c:2184
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Björn mentioned that requests for >2GB allocation can still be valid:
+
+  The structure that is being allocated is the page-pinning accounting.
+  AF_XDP has an internal limit of U32_MAX pages, which is *a lot*, but
+  still fewer than what memcg allows (PAGE_COUNTER_MAX is a LONG_MAX/
+  PAGE_SIZE on 64 bit systems). [...]
+
+  I could just change from U32_MAX to INT_MAX, but as I stated earlier
+  that has a hacky feeling to it. [...] From my perspective, the code
+  isn't broken, with the memcg limits in consideration. [...]
+
+Linus says:
+
+  [...] Pretty much every time this has come up, the kernel warning has
+  shown that yes, the code was broken and there really wasn't a reason
+  for doing allocations that big.
+
+  Of course, some people would be perfectly fine with the allocation
+  failing, they just don't want the warning. I didn't want __GFP_NOWARN
+  to shut it up originally because I wanted people to see all those
+  cases, but these days I think we can just say "yeah, people can shut
+  it up explicitly by saying 'go ahead and fail this allocation, don't
+  warn about it'".
+
+  So enough time has passed that by now I'd certainly be ok with [it].
+
+Thus allow call-sites to silence such userspace triggered splats if the
+allocation requests have __GFP_NOWARN. For xdp_umem_pin_pages()'s call
+to kvcalloc() this is already the case, so nothing else needed there.
+
+Fixes: 7661809d493b ("mm: don't allow oversized kvmalloc() calls")
+Reported-by: syzbot+11421fbbff99b989670e@syzkaller.appspotmail.com
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: syzbot+11421fbbff99b989670e@syzkaller.appspotmail.com
+Cc: Björn Töpel <bjorn@kernel.org>
+Cc: Magnus Karlsson <magnus.karlsson@intel.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/bpf/CAJ+HfNhyfsT5cS_U9EC213ducHs9k9zNxX9+abqC0kTrPbQ0gg@mail.gmail.com
+Link: https://lore.kernel.org/bpf/20211201202905.b9892171e3f5b9a60f9da251@linux-foundation.org
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Ackd-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/util.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 7e693dcbdd196..d5fc8ec025020 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -488,7 +488,7 @@ config I2C_BRCMSTB
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -594,8 +594,10 @@ void *kvmalloc_node(size_t size, gfp_t f
+ 		return ret;
  
- config I2C_CADENCE
- 	tristate "Cadence I2C Controller"
--	depends on ARCH_ZYNQ || ARM64 || XTENSA
-+	depends on ARCH_ZYNQ || ARM64 || XTENSA || COMPILE_TEST
- 	help
- 	  Say yes here to select Cadence I2C Host Controller. This controller is
- 	  e.g. used by Xilinx Zynq.
--- 
-2.34.1
-
+ 	/* Don't even allow crazy sizes */
+-	if (WARN_ON_ONCE(size > INT_MAX))
++	if (unlikely(size > INT_MAX)) {
++		WARN_ON_ONCE(!(flags & __GFP_NOWARN));
+ 		return NULL;
++	}
+ 
+ 	return __vmalloc_node(size, 1, flags, node,
+ 			__builtin_return_address(0));
 
 
