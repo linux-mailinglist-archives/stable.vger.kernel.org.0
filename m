@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A3424CF848
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 019064CF544
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:26:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238529AbiCGJwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53948 "EHLO
+        id S236946AbiCGJ0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:26:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240324AbiCGJu4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68687461D;
-        Mon,  7 Mar 2022 01:44:27 -0800 (PST)
+        with ESMTP id S236911AbiCGJZo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:25:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBC55B8A1;
+        Mon,  7 Mar 2022 01:23:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57BFA612D2;
-        Mon,  7 Mar 2022 09:44:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5008CC340E9;
-        Mon,  7 Mar 2022 09:44:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1FA3B810B9;
+        Mon,  7 Mar 2022 09:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B251C340E9;
+        Mon,  7 Mar 2022 09:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646265;
-        bh=xKRWElij6OuQu68z/epaNC3rjgzBAHua+vCW4tVnPjI=;
+        s=korg; t=1646645034;
+        bh=EZIKephx41aSwgXMxQQVEEJe8KcjQAFUcCqvEtTI/lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Rsts/Vzu/vbGxjpB07qlXXpI9k2W1oErecGvDfxkAhINOpUPyuyf79LLdWY1tZl2
-         SUenDl60ZuC5taG2f7MqNRW14iq1hKjspxCWV9og40T7y38FDNwe4tNfp70MtImSMu
-         NZU07+Y78pndoQI86p8uMyGGyfR3ZJ8fnumokZrw=
+        b=se9e7kcPUAW92S95UjajotSn+ESsxbsdhOfA5i8+qO4YwHQAA5sf8FyqPi+GZEB77
+         JZYS5eb9zXvBLTUbkVnLKDp/lacN1cH95gpaHoh1mivYjKGQfIcuyKAjiGqotZOJ1Y
+         QeOAj/CGqCnABv5ddHErcgirhXIzuoVD2l4hAxdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 188/262] can: gs_usb: change active_channelss type from atomic_t to u8
+        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.19 17/51] xfrm: fix MTU regression
 Date:   Mon,  7 Mar 2022 10:18:52 +0100
-Message-Id: <20220307091707.794205501@linuxfoundation.org>
+Message-Id: <20220307091637.481589859@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Jiri Bohac <jbohac@suse.cz>
 
-commit 035b0fcf02707d3c9c2890dc1484b11aa5335eb1 upstream.
+commit 6596a0229541270fb8d38d989f91b78838e5e9da upstream.
 
-The driver uses an atomic_t variable: gs_usb:active_channels to keep
-track of the number of opened channels in order to only allocate
-memory for the URBs when this count changes from zero to one.
+Commit 749439bfac6e1a2932c582e2699f91d329658196 ("ipv6: fix udpv6
+sendmsg crash caused by too small MTU") breaks PMTU for xfrm.
 
-However, the driver does not decrement the counter when an error
-occurs in gs_can_open(). This issue is fixed by changing the type from
-atomic_t to u8 and by simplifying the logic accordingly.
+A Packet Too Big ICMPv6 message received in response to an ESP
+packet will prevent all further communication through the tunnel
+if the reported MTU minus the ESP overhead is smaller than 1280.
 
-It is safe to use an u8 here because the network stack big kernel lock
-(a.k.a. rtnl_mutex) is being hold. For details, please refer to [1].
+E.g. in a case of a tunnel-mode ESP with sha256/aes the overhead
+is 92 bytes. Receiving a PTB with MTU of 1371 or less will result
+in all further packets in the tunnel dropped. A ping through the
+tunnel fails with "ping: sendmsg: Invalid argument".
 
-[1] https://lore.kernel.org/linux-can/CAMZ6Rq+sHpiw34ijPsmp7vbUpDtJwvVtdV7CvRZJsLixjAFfrg@mail.gmail.com/T/#t
+Apparently the MTU on the xfrm route is smaller than 1280 and
+fails the check inside ip6_setup_cork() added by 749439bf.
 
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220214234814.1321599-1-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+We found this by debugging USGv6/ipv6ready failures. Failing
+tests are: "Phase-2 Interoperability Test Scenario IPsec" /
+5.3.11 and 5.4.11 (Tunnel Mode: Fragmentation).
+
+Commit b515d2637276a3810d6595e10ab02c13bfd0b63a ("xfrm:
+xfrm_state_mtu should return at least 1280 for ipv6") attempted
+to fix this but caused another regression in TCP MSS calculations
+and had to be reverted.
+
+The patch below fixes the situation by dropping the MTU
+check and instead checking for the underflows described in the
+749439bf commit message.
+
+Signed-off-by: Jiri Bohac <jbohac@suse.cz>
+Fixes: 749439bfac6e ("ipv6: fix udpv6 sendmsg crash caused by too small MTU")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/gs_usb.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/ipv6/ip6_output.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -191,8 +191,8 @@ struct gs_can {
- struct gs_usb {
- 	struct gs_can *canch[GS_MAX_INTF];
- 	struct usb_anchor rx_submitted;
--	atomic_t active_channels;
- 	struct usb_device *udev;
-+	u8 active_channels;
- };
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1259,8 +1259,6 @@ static int ip6_setup_cork(struct sock *s
+ 		if (np->frag_size)
+ 			mtu = np->frag_size;
+ 	}
+-	if (mtu < IPV6_MIN_MTU)
+-		return -EINVAL;
+ 	cork->base.fragsize = mtu;
+ 	cork->base.gso_size = ipc6->gso_size;
+ 	cork->base.tx_flags = 0;
+@@ -1320,8 +1318,6 @@ static int __ip6_append_data(struct sock
  
- /* 'allocate' a tx context.
-@@ -590,7 +590,7 @@ static int gs_can_open(struct net_device
- 	if (rc)
- 		return rc;
+ 	fragheaderlen = sizeof(struct ipv6hdr) + rt->rt6i_nfheader_len +
+ 			(opt ? opt->opt_nflen : 0);
+-	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
+-		     sizeof(struct frag_hdr);
  
--	if (atomic_add_return(1, &parent->active_channels) == 1) {
-+	if (!parent->active_channels) {
- 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
- 			struct urb *urb;
- 			u8 *buf;
-@@ -691,6 +691,7 @@ static int gs_can_open(struct net_device
+ 	headersize = sizeof(struct ipv6hdr) +
+ 		     (opt ? opt->opt_flen + opt->opt_nflen : 0) +
+@@ -1329,6 +1325,13 @@ static int __ip6_append_data(struct sock
+ 		      sizeof(struct frag_hdr) : 0) +
+ 		     rt->rt6i_nfheader_len;
  
- 	dev->can.state = CAN_STATE_ERROR_ACTIVE;
- 
-+	parent->active_channels++;
- 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
- 		netif_start_queue(netdev);
- 
-@@ -706,7 +707,8 @@ static int gs_can_close(struct net_devic
- 	netif_stop_queue(netdev);
- 
- 	/* Stop polling */
--	if (atomic_dec_and_test(&parent->active_channels))
-+	parent->active_channels--;
-+	if (!parent->active_channels)
- 		usb_kill_anchored_urbs(&parent->rx_submitted);
- 
- 	/* Stop sending URBs */
-@@ -985,8 +987,6 @@ static int gs_usb_probe(struct usb_inter
- 
- 	init_usb_anchor(&dev->rx_submitted);
- 
--	atomic_set(&dev->active_channels, 0);
--
- 	usb_set_intfdata(intf, dev);
- 	dev->udev = interface_to_usbdev(intf);
- 
++	if (mtu < fragheaderlen ||
++	    ((mtu - fragheaderlen) & ~7) + fragheaderlen < sizeof(struct frag_hdr))
++		goto emsgsize;
++
++	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
++		     sizeof(struct frag_hdr);
++
+ 	/* as per RFC 7112 section 5, the entire IPv6 Header Chain must fit
+ 	 * the first fragment
+ 	 */
 
 
