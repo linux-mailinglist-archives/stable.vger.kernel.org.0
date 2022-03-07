@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CBCA4CF903
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F28444CF5D0
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239561AbiCGKDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43634 "EHLO
+        id S237174AbiCGJas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239168AbiCGJ6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:58:10 -0500
+        with ESMTP id S238750AbiCGJ3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 573C07C792;
-        Mon,  7 Mar 2022 01:46:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 881DB58E4B;
+        Mon,  7 Mar 2022 01:28:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE76B80E70;
-        Mon,  7 Mar 2022 09:46:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6CDDC36AF4;
-        Mon,  7 Mar 2022 09:46:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41365B810B6;
+        Mon,  7 Mar 2022 09:28:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA06C340F3;
+        Mon,  7 Mar 2022 09:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646372;
-        bh=3HFDnw0Np8rruklzhkK/ONablS11EjiUf/++xtFh2sc=;
+        s=korg; t=1646645293;
+        bh=KjGoanFe9yX2UdN5dVRQKQaNmaQjJPnPPFDSw4zrYPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OxCX+yMLm8oC/PBX7j2kngelIjmZ7WugU4FunqwHSH/CsUi7CoEW5RVShnpRZGloT
-         I3rEki+WIenzKgjYDMDv+oZkoG0sf4e4PGiHGG3Zq/38MsmTk/G0HIn/gyYUG4kEmO
-         IZr0HvOpGr6/9dv/TsAPvhh//yY7Unvj3Zx8TD14=
+        b=EITSur4PIT8XVWTsgWKzI0f2ebtrCJbq/ht6bPfkbvQ+uEfrqMlTO97HyrqNYIooS
+         w83W57eguHJoP5ggKc9kQ+ckP/Z1uwWXf1QTWW2K+xe8zLomk1soY2btTX2HD5PkQK
+         q1n+HvScSJRlPtyfVxIjMAAANlawgVpin3qHL+2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 215/262] can: etas_es58x: change opened_channel_cnts type from atomic_t to u8
+        stable@vger.kernel.org, Johannes Stezenbach <js@sig21.net>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 46/64] ARM: Fix kgdb breakpoint for Thumb2
 Date:   Mon,  7 Mar 2022 10:19:19 +0100
-Message-Id: <20220307091709.020578085@linuxfoundation.org>
+Message-Id: <20220307091640.458774703@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,145 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit f4896248e9025ff744b4147e6758274a1cb8cbae ]
+commit d920eaa4c4559f59be7b4c2d26fa0a2e1aaa3da9 upstream.
 
-The driver uses an atomic_t variable: struct
-es58x_device::opened_channel_cnt to keep track of the number of opened
-channels in order to only allocate memory for the URBs when this count
-changes from zero to one.
+The kgdb code needs to register an undef hook for the Thumb UDF
+instruction that will fault in order to be functional on Thumb2
+platforms.
 
-While the intent was to prevent race conditions, the choice of an
-atomic_t turns out to be a bad idea for several reasons:
-
-- implementation is incorrect and fails to decrement
-  opened_channel_cnt when the URB allocation fails as reported in
-  [1].
-
-- even if opened_channel_cnt were to be correctly decremented,
-  atomic_t is insufficient to cover edge cases: there can be a race
-  condition in which 1/ a first process fails to allocate URBs
-  memory 2/ a second process enters es58x_open() before the first
-  process does its cleanup and decrements opened_channed_cnt. In
-  which case, the second process would successfully return despite
-  the URBs memory not being allocated.
-
-- actually, any kind of locking mechanism was useless here because
-  it is redundant with the network stack big kernel lock
-  (a.k.a. rtnl_lock) which is being hold by all the callers of
-  net_device_ops:ndo_open() and net_device_ops:ndo_close(). c.f. the
-  ASSERST_RTNL() calls in __dev_open() [2] and __dev_close_many()
-  [3].
-
-The atmomic_t is thus replaced by a simple u8 type and the logic to
-increment and decrement es58x_device:opened_channel_cnt is simplified
-accordingly fixing the bug reported in [1]. We do not check again for
-ASSERST_RTNL() as this is already done by the callers.
-
-[1] https://lore.kernel.org/linux-can/20220201140351.GA2548@kili/T/#u
-[2] https://elixir.bootlin.com/linux/v5.16/source/net/core/dev.c#L1463
-[3] https://elixir.bootlin.com/linux/v5.16/source/net/core/dev.c#L1541
-
-Fixes: 8537257874e9 ("can: etas_es58x: add core support for ETAS ES58X CAN USB interfaces")
-Link: https://lore.kernel.org/all/20220212112713.577957-1-mailhol.vincent@wanadoo.fr
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Johannes Stezenbach <js@sig21.net>
+Tested-by: Johannes Stezenbach <js@sig21.net>
+Fixes: 5cbad0ebf45c ("kgdb: support for ARCH=arm")
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/etas_es58x/es58x_core.c | 9 +++++----
- drivers/net/can/usb/etas_es58x/es58x_core.h | 8 +++++---
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ arch/arm/kernel/kgdb.c |   36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/can/usb/etas_es58x/es58x_core.c b/drivers/net/can/usb/etas_es58x/es58x_core.c
-index 24627ab14626..cd4e7f356e48 100644
---- a/drivers/net/can/usb/etas_es58x/es58x_core.c
-+++ b/drivers/net/can/usb/etas_es58x/es58x_core.c
-@@ -1794,7 +1794,7 @@ static int es58x_open(struct net_device *netdev)
- 	struct es58x_device *es58x_dev = es58x_priv(netdev)->es58x_dev;
- 	int ret;
+--- a/arch/arm/kernel/kgdb.c
++++ b/arch/arm/kernel/kgdb.c
+@@ -154,22 +154,38 @@ static int kgdb_compiled_brk_fn(struct p
+ 	return 0;
+ }
  
--	if (atomic_inc_return(&es58x_dev->opened_channel_cnt) == 1) {
-+	if (!es58x_dev->opened_channel_cnt) {
- 		ret = es58x_alloc_rx_urbs(es58x_dev);
- 		if (ret)
- 			return ret;
-@@ -1812,12 +1812,13 @@ static int es58x_open(struct net_device *netdev)
- 	if (ret)
- 		goto free_urbs;
+-static struct undef_hook kgdb_brkpt_hook = {
++static struct undef_hook kgdb_brkpt_arm_hook = {
+ 	.instr_mask		= 0xffffffff,
+ 	.instr_val		= KGDB_BREAKINST,
+-	.cpsr_mask		= MODE_MASK,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
+ 	.cpsr_val		= SVC_MODE,
+ 	.fn			= kgdb_brk_fn
+ };
  
-+	es58x_dev->opened_channel_cnt++;
- 	netif_start_queue(netdev);
+-static struct undef_hook kgdb_compiled_brkpt_hook = {
++static struct undef_hook kgdb_brkpt_thumb_hook = {
++	.instr_mask		= 0xffff,
++	.instr_val		= KGDB_BREAKINST & 0xffff,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
++	.cpsr_val		= PSR_T_BIT | SVC_MODE,
++	.fn			= kgdb_brk_fn
++};
++
++static struct undef_hook kgdb_compiled_brkpt_arm_hook = {
+ 	.instr_mask		= 0xffffffff,
+ 	.instr_val		= KGDB_COMPILED_BREAK,
+-	.cpsr_mask		= MODE_MASK,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
+ 	.cpsr_val		= SVC_MODE,
+ 	.fn			= kgdb_compiled_brk_fn
+ };
  
- 	return ret;
++static struct undef_hook kgdb_compiled_brkpt_thumb_hook = {
++	.instr_mask		= 0xffff,
++	.instr_val		= KGDB_COMPILED_BREAK & 0xffff,
++	.cpsr_mask		= PSR_T_BIT | MODE_MASK,
++	.cpsr_val		= PSR_T_BIT | SVC_MODE,
++	.fn			= kgdb_compiled_brk_fn
++};
++
+ static int __kgdb_notify(struct die_args *args, unsigned long cmd)
+ {
+ 	struct pt_regs *regs = args->regs;
+@@ -210,8 +226,10 @@ int kgdb_arch_init(void)
+ 	if (ret != 0)
+ 		return ret;
  
-  free_urbs:
--	if (atomic_dec_and_test(&es58x_dev->opened_channel_cnt))
-+	if (!es58x_dev->opened_channel_cnt)
- 		es58x_free_urbs(es58x_dev);
- 	netdev_err(netdev, "%s: Could not open the network device: %pe\n",
- 		   __func__, ERR_PTR(ret));
-@@ -1852,7 +1853,8 @@ static int es58x_stop(struct net_device *netdev)
- 
- 	es58x_flush_pending_tx_msg(netdev);
- 
--	if (atomic_dec_and_test(&es58x_dev->opened_channel_cnt))
-+	es58x_dev->opened_channel_cnt--;
-+	if (!es58x_dev->opened_channel_cnt)
- 		es58x_free_urbs(es58x_dev);
+-	register_undef_hook(&kgdb_brkpt_hook);
+-	register_undef_hook(&kgdb_compiled_brkpt_hook);
++	register_undef_hook(&kgdb_brkpt_arm_hook);
++	register_undef_hook(&kgdb_brkpt_thumb_hook);
++	register_undef_hook(&kgdb_compiled_brkpt_arm_hook);
++	register_undef_hook(&kgdb_compiled_brkpt_thumb_hook);
  
  	return 0;
-@@ -2221,7 +2223,6 @@ static struct es58x_device *es58x_init_es58x_dev(struct usb_interface *intf,
- 	init_usb_anchor(&es58x_dev->tx_urbs_idle);
- 	init_usb_anchor(&es58x_dev->tx_urbs_busy);
- 	atomic_set(&es58x_dev->tx_urbs_idle_cnt, 0);
--	atomic_set(&es58x_dev->opened_channel_cnt, 0);
- 	usb_set_intfdata(intf, es58x_dev);
+ }
+@@ -224,8 +242,10 @@ int kgdb_arch_init(void)
+  */
+ void kgdb_arch_exit(void)
+ {
+-	unregister_undef_hook(&kgdb_brkpt_hook);
+-	unregister_undef_hook(&kgdb_compiled_brkpt_hook);
++	unregister_undef_hook(&kgdb_brkpt_arm_hook);
++	unregister_undef_hook(&kgdb_brkpt_thumb_hook);
++	unregister_undef_hook(&kgdb_compiled_brkpt_arm_hook);
++	unregister_undef_hook(&kgdb_compiled_brkpt_thumb_hook);
+ 	unregister_die_notifier(&kgdb_notifier);
+ }
  
- 	es58x_dev->rx_pipe = usb_rcvbulkpipe(es58x_dev->udev,
-diff --git a/drivers/net/can/usb/etas_es58x/es58x_core.h b/drivers/net/can/usb/etas_es58x/es58x_core.h
-index 826a15871573..e5033cb5e695 100644
---- a/drivers/net/can/usb/etas_es58x/es58x_core.h
-+++ b/drivers/net/can/usb/etas_es58x/es58x_core.h
-@@ -373,8 +373,6 @@ struct es58x_operators {
-  *	queue wake/stop logic should prevent this URB from getting
-  *	empty. Please refer to es58x_get_tx_urb() for more details.
-  * @tx_urbs_idle_cnt: number of urbs in @tx_urbs_idle.
-- * @opened_channel_cnt: number of channels opened (c.f. es58x_open()
-- *	and es58x_stop()).
-  * @ktime_req_ns: kernel timestamp when es58x_set_realtime_diff_ns()
-  *	was called.
-  * @realtime_diff_ns: difference in nanoseconds between the clocks of
-@@ -384,6 +382,10 @@ struct es58x_operators {
-  *	in RX branches.
-  * @rx_max_packet_size: Maximum length of bulk-in URB.
-  * @num_can_ch: Number of CAN channel (i.e. number of elements of @netdev).
-+ * @opened_channel_cnt: number of channels opened. Free of race
-+ *	conditions because its two users (net_device_ops:ndo_open()
-+ *	and net_device_ops:ndo_close()) guarantee that the network
-+ *	stack big kernel lock (a.k.a. rtnl_mutex) is being hold.
-  * @rx_cmd_buf_len: Length of @rx_cmd_buf.
-  * @rx_cmd_buf: The device might split the URB commands in an
-  *	arbitrary amount of pieces. This buffer is used to concatenate
-@@ -406,7 +408,6 @@ struct es58x_device {
- 	struct usb_anchor tx_urbs_busy;
- 	struct usb_anchor tx_urbs_idle;
- 	atomic_t tx_urbs_idle_cnt;
--	atomic_t opened_channel_cnt;
- 
- 	u64 ktime_req_ns;
- 	s64 realtime_diff_ns;
-@@ -415,6 +416,7 @@ struct es58x_device {
- 
- 	u16 rx_max_packet_size;
- 	u8 num_can_ch;
-+	u8 opened_channel_cnt;
- 
- 	u16 rx_cmd_buf_len;
- 	union es58x_urb_cmd rx_cmd_buf;
--- 
-2.34.1
-
 
 
