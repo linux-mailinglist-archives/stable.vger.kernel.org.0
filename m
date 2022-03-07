@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F87B4CF947
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 052D34CF499
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:19:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238799AbiCGKE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:04:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50124 "EHLO
+        id S236387AbiCGJUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:20:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238964AbiCGJ5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:57:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1577B575;
-        Mon,  7 Mar 2022 01:46:05 -0800 (PST)
+        with ESMTP id S236164AbiCGJUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:20:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59F7145792;
+        Mon,  7 Mar 2022 01:19:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6E92613CA;
-        Mon,  7 Mar 2022 09:45:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B39C340F3;
-        Mon,  7 Mar 2022 09:45:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05CDFB810B9;
+        Mon,  7 Mar 2022 09:19:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71326C340E9;
+        Mon,  7 Mar 2022 09:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646357;
-        bh=SaOWSdfpn9CGBVS1B4toCBOUU00mGD5nHWoK8cA+Qkk=;
+        s=korg; t=1646644764;
+        bh=dvkQIVaVU/XwX/y85aJnhScdigTtuAhBAx1OV2QuNa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHYvmsD7NbHumFWhZoYYAKsLXcjU+zWBh7o2ZQ/PZ3qtj0zmZ3543+Alnj7psJwB7
-         ItldZjsB52kp/xiqxMjpu9St8TdXrv6wIdTvHdcshO06/VPuxDK6+bgTp0ZN/OUSVq
-         oo/fO8Ac/9RFyR4sZ8bjFMtPQIR4MfN6vzPrhCbs=
+        b=DeeBDI+w20OkWTuhfOIOkibO9bLb9OVQwE8fCR8olRSH7MFATIbWGZcjYx9YecHVM
+         PdnhU6WliIziJBWxoJPlt0khk0tKtxkZlOW+MfK0GjugDwet4nQIaHZ5Lf05fGYDnk
+         M08H3H0vRpbjnonrBk3f7Ef2rTVJ17B3Gk394950=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Siva Reddy <siva.kallam@samsung.com>,
-        Girish K S <ks.giri@samsung.com>,
-        Byungho An <bh74.an@samsung.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 177/262] net: sxgbe: fix return value of __setup handler
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Florian Westphal <fw@strlen.de>
+Subject: [PATCH 4.9 15/32] netfilter: nf_queue: fix possible use-after-free
 Date:   Mon,  7 Mar 2022 10:18:41 +0100
-Message-Id: <20220307091707.414229455@linuxfoundation.org>
+Message-Id: <20220307091634.873450554@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
+References: <20220307091634.434478485@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Florian Westphal <fw@strlen.de>
 
-commit 50e06ddceeea263f57fe92baa677c638ecd65bb6 upstream.
+commit c3873070247d9e3c7a6b0cf9bf9b45e8018427b1 upstream.
 
-__setup() handlers should return 1 on success, i.e., the parameter
-has been handled. A return of 0 causes the "option=value" string to be
-added to init's environment strings, polluting it.
+Eric Dumazet says:
+  The sock_hold() side seems suspect, because there is no guarantee
+  that sk_refcnt is not already 0.
 
-Fixes: acc18c147b22 ("net: sxgbe: add EEE(Energy Efficient Ethernet) for Samsung sxgbe")
-Fixes: 1edb9ca69e8a ("net: sxgbe: add basic framework for Samsung 10Gb ethernet driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Siva Reddy <siva.kallam@samsung.com>
-Cc: Girish K S <ks.giri@samsung.com>
-Cc: Byungho An <bh74.an@samsung.com>
-Link: https://lore.kernel.org/r/20220224033528.24640-1-rdunlap@infradead.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+On failure, we cannot queue the packet and need to indicate an
+error.  The packet will be dropped by the caller.
+
+v2: split skb prefetch hunk into separate change
+
+Fixes: 271b72c7fa82c ("udp: RCU handling for Unicast packets.")
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/net/netfilter/nf_queue.h |    2 +-
+ net/netfilter/nf_queue.c         |   12 ++++++++++--
+ net/netfilter/nfnetlink_queue.c  |   12 +++++++++---
+ 3 files changed, 20 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-+++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-@@ -2282,18 +2282,18 @@ static int __init sxgbe_cmdline_opt(char
- 	char *opt;
+--- a/include/net/netfilter/nf_queue.h
++++ b/include/net/netfilter/nf_queue.h
+@@ -31,7 +31,7 @@ void nf_register_queue_handler(struct ne
+ void nf_unregister_queue_handler(struct net *net);
+ void nf_reinject(struct nf_queue_entry *entry, unsigned int verdict);
  
- 	if (!str || !*str)
--		return -EINVAL;
-+		return 1;
- 	while ((opt = strsep(&str, ",")) != NULL) {
- 		if (!strncmp(opt, "eee_timer:", 10)) {
- 			if (kstrtoint(opt + 10, 0, &eee_timer))
- 				goto err;
- 		}
+-void nf_queue_entry_get_refs(struct nf_queue_entry *entry);
++bool nf_queue_entry_get_refs(struct nf_queue_entry *entry);
+ void nf_queue_entry_release_refs(struct nf_queue_entry *entry);
+ 
+ static inline void init_hashrandom(u32 *jhash_initval)
+--- a/net/netfilter/nf_queue.c
++++ b/net/netfilter/nf_queue.c
+@@ -80,10 +80,13 @@ void nf_queue_entry_release_refs(struct
+ EXPORT_SYMBOL_GPL(nf_queue_entry_release_refs);
+ 
+ /* Bump dev refs so they don't vanish while packet is out */
+-void nf_queue_entry_get_refs(struct nf_queue_entry *entry)
++bool nf_queue_entry_get_refs(struct nf_queue_entry *entry)
+ {
+ 	struct nf_hook_state *state = &entry->state;
+ 
++	if (state->sk && !atomic_inc_not_zero(&state->sk->sk_refcnt))
++		return false;
++
+ 	if (state->in)
+ 		dev_hold(state->in);
+ 	if (state->out)
+@@ -102,6 +105,7 @@ void nf_queue_entry_get_refs(struct nf_q
+ 			dev_hold(physdev);
  	}
--	return 0;
-+	return 1;
+ #endif
++	return true;
+ }
+ EXPORT_SYMBOL_GPL(nf_queue_entry_get_refs);
  
- err:
- 	pr_err("%s: ERROR broken module parameter conversion\n", __func__);
--	return -EINVAL;
-+	return 1;
+@@ -148,7 +152,11 @@ static int __nf_queue(struct sk_buff *sk
+ 		.size	= sizeof(*entry) + afinfo->route_key_size,
+ 	};
+ 
+-	nf_queue_entry_get_refs(entry);
++	if (!nf_queue_entry_get_refs(entry)) {
++		kfree(entry);
++		return -ENOTCONN;
++	}
++
+ 	skb_dst_force(skb);
+ 	afinfo->saveroute(skb, entry);
+ 	status = qh->outfn(entry, queuenum);
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -673,9 +673,15 @@ static struct nf_queue_entry *
+ nf_queue_entry_dup(struct nf_queue_entry *e)
+ {
+ 	struct nf_queue_entry *entry = kmemdup(e, e->size, GFP_ATOMIC);
+-	if (entry)
+-		nf_queue_entry_get_refs(entry);
+-	return entry;
++
++	if (!entry)
++		return NULL;
++
++	if (nf_queue_entry_get_refs(entry))
++		return entry;
++
++	kfree(entry);
++	return NULL;
  }
  
- __setup("sxgbeeth=", sxgbe_cmdline_opt);
+ #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
 
 
