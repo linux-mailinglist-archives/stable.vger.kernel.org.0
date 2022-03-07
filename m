@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B14624CF932
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056D64CF706
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235054AbiCGKEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:04:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40432 "EHLO
+        id S237879AbiCGJoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240506AbiCGKBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 962AA245BC;
-        Mon,  7 Mar 2022 01:49:36 -0800 (PST)
+        with ESMTP id S241092AbiCGJlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D27F5D19F;
+        Mon,  7 Mar 2022 01:40:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 226EDB80E70;
-        Mon,  7 Mar 2022 09:49:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5123DC340F3;
-        Mon,  7 Mar 2022 09:49:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 884D5B80F9F;
+        Mon,  7 Mar 2022 09:40:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1268C340E9;
+        Mon,  7 Mar 2022 09:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646573;
-        bh=+py2/YkglTXEKa0T51ANTzQbG+KNxe2UNnISO+IdftA=;
+        s=korg; t=1646646004;
+        bh=ycM/QmibiU7Q/BdwlMZj3lZ2noC+UzaK8jXmgw66M10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FgtAmY9zYJt7FXr/ZKIIEF33c/ZwkWmHr6dV+rKU4h3JAl+ANwoBNvl1Ijz2Ysgfi
-         oAKz+RVcHtc55m9uR2pHf1Tq21+XPzm9P4w/EH+65lK/GTXfK239vwsFyXIQSDfo3D
-         zWt5rJR2ApGrtiHTtPytCPqHTU4hFcZoInTyfFKE=
+        b=Cv8CkeHqCaCv6lVMqQKWELTV/n3kOJ42/HHlLNhw3iO+fBtNmXQURcsUceJeNiRII
+         qAnV8JJGtHT0MrtPW6V1k0u0AfPmdT+69GHpgEpDsHsFFKSsRb76x/uibgB33Q7nQb
+         RdmFisxkEMm0JhDhY8f/5ttb6EXka1NPu4/KwTTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Omar Sandoval <osandov@fb.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Kiran Kumar K <kirankumark@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 009/186] btrfs: get rid of warning on transaction commit when using flushoncommit
-Date:   Mon,  7 Mar 2022 10:17:27 +0100
-Message-Id: <20220307091654.357208343@linuxfoundation.org>
+Subject: [PATCH 5.15 104/262] octeontx2-af: Optimize KPU1 processing for variable-length headers
+Date:   Mon,  7 Mar 2022 10:17:28 +0100
+Message-Id: <20220307091705.411688952@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,284 +54,897 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Kiran Kumar K <kirankumark@marvell.com>
 
-[ Upstream commit a0f0cf8341e34e5d2265bfd3a7ad68342da1e2aa ]
+[ Upstream commit edadeb38dc2fa2550801995b748110c3e5e59557 ]
 
-When using the flushoncommit mount option, during almost every transaction
-commit we trigger a warning from __writeback_inodes_sb_nr():
+Optimized KPU1 entry processing for variable-length custom L2 headers
+of size 24B, 90B by
+	- Moving LA LTYPE parsing for 24B and 90B headers to PKIND.
+	- Removing LA flags assignment for 24B and 90B headers.
+	- Reserving a PKIND 55 to parse variable length headers.
 
-  $ cat fs/fs-writeback.c:
-  (...)
-  static void __writeback_inodes_sb_nr(struct super_block *sb, ...
-  {
-        (...)
-        WARN_ON(!rwsem_is_locked(&sb->s_umount));
-        (...)
-  }
-  (...)
+Also, new mailbox(NPC_SET_PKIND) added to configure PKIND with
+corresponding variable-length offset, mask, and shift count
+(NPC_AF_KPUX_ENTRYX_ACTION0).
 
-The trace produced in dmesg looks like the following:
-
-  [947.473890] WARNING: CPU: 5 PID: 930 at fs/fs-writeback.c:2610 __writeback_inodes_sb_nr+0x7e/0xb3
-  [947.481623] Modules linked in: nfsd nls_cp437 cifs asn1_decoder cifs_arc4 fscache cifs_md4 ipmi_ssif
-  [947.489571] CPU: 5 PID: 930 Comm: btrfs-transacti Not tainted 95.16.3-srb-asrock-00001-g36437ad63879 #186
-  [947.497969] RIP: 0010:__writeback_inodes_sb_nr+0x7e/0xb3
-  [947.502097] Code: 24 10 4c 89 44 24 18 c6 (...)
-  [947.519760] RSP: 0018:ffffc90000777e10 EFLAGS: 00010246
-  [947.523818] RAX: 0000000000000000 RBX: 0000000000963300 RCX: 0000000000000000
-  [947.529765] RDX: 0000000000000000 RSI: 000000000000fa51 RDI: ffffc90000777e50
-  [947.535740] RBP: ffff888101628a90 R08: ffff888100955800 R09: ffff888100956000
-  [947.541701] R10: 0000000000000002 R11: 0000000000000001 R12: ffff888100963488
-  [947.547645] R13: ffff888100963000 R14: ffff888112fb7200 R15: ffff888100963460
-  [947.553621] FS:  0000000000000000(0000) GS:ffff88841fd40000(0000) knlGS:0000000000000000
-  [947.560537] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [947.565122] CR2: 0000000008be50c4 CR3: 000000000220c000 CR4: 00000000001006e0
-  [947.571072] Call Trace:
-  [947.572354]  <TASK>
-  [947.573266]  btrfs_commit_transaction+0x1f1/0x998
-  [947.576785]  ? start_transaction+0x3ab/0x44e
-  [947.579867]  ? schedule_timeout+0x8a/0xdd
-  [947.582716]  transaction_kthread+0xe9/0x156
-  [947.585721]  ? btrfs_cleanup_transaction.isra.0+0x407/0x407
-  [947.590104]  kthread+0x131/0x139
-  [947.592168]  ? set_kthread_struct+0x32/0x32
-  [947.595174]  ret_from_fork+0x22/0x30
-  [947.597561]  </TASK>
-  [947.598553] ---[ end trace 644721052755541c ]---
-
-This is because we started using writeback_inodes_sb() to flush delalloc
-when committing a transaction (when using -o flushoncommit), in order to
-avoid deadlocks with filesystem freeze operations. This change was made
-by commit ce8ea7cc6eb313 ("btrfs: don't call btrfs_start_delalloc_roots
-in flushoncommit"). After that change we started producing that warning,
-and every now and then a user reports this since the warning happens too
-often, it spams dmesg/syslog, and a user is unsure if this reflects any
-problem that might compromise the filesystem's reliability.
-
-We can not just lock the sb->s_umount semaphore before calling
-writeback_inodes_sb(), because that would at least deadlock with
-filesystem freezing, since at fs/super.c:freeze_super() sync_filesystem()
-is called while we are holding that semaphore in write mode, and that can
-trigger a transaction commit, resulting in a deadlock. It would also
-trigger the same type of deadlock in the unmount path. Possibly, it could
-also introduce some other locking dependencies that lockdep would report.
-
-To fix this call try_to_writeback_inodes_sb() instead of
-writeback_inodes_sb(), because that will try to read lock sb->s_umount
-and then will only call writeback_inodes_sb() if it was able to lock it.
-This is fine because the cases where it can't read lock sb->s_umount
-are during a filesystem unmount or during a filesystem freeze - in those
-cases sb->s_umount is write locked and sync_filesystem() is called, which
-calls writeback_inodes_sb(). In other words, in all cases where we can't
-take a read lock on sb->s_umount, writeback is already being triggered
-elsewhere.
-
-An alternative would be to call btrfs_start_delalloc_roots() with a
-number of pages different from LONG_MAX, for example matching the number
-of delalloc bytes we currently have, in which case we would end up
-starting all delalloc with filemap_fdatawrite_wbc() and not with an
-async flush via filemap_flush() - that is only possible after the rather
-recent commit e076ab2a2ca70a ("btrfs: shrink delalloc pages instead of
-full inodes"). However that creates a whole new can of worms due to new
-lock dependencies, which lockdep complains, like for example:
-
-[ 8948.247280] ======================================================
-[ 8948.247823] WARNING: possible circular locking dependency detected
-[ 8948.248353] 5.17.0-rc1-btrfs-next-111 #1 Not tainted
-[ 8948.248786] ------------------------------------------------------
-[ 8948.249320] kworker/u16:18/933570 is trying to acquire lock:
-[ 8948.249812] ffff9b3de1591690 (sb_internal#2){.+.+}-{0:0}, at: find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.250638]
-               but task is already holding lock:
-[ 8948.251140] ffff9b3e09c717d8 (&root->delalloc_mutex){+.+.}-{3:3}, at: start_delalloc_inodes+0x78/0x400 [btrfs]
-[ 8948.252018]
-               which lock already depends on the new lock.
-
-[ 8948.252710]
-               the existing dependency chain (in reverse order) is:
-[ 8948.253343]
-               -> #2 (&root->delalloc_mutex){+.+.}-{3:3}:
-[ 8948.253950]        __mutex_lock+0x90/0x900
-[ 8948.254354]        start_delalloc_inodes+0x78/0x400 [btrfs]
-[ 8948.254859]        btrfs_start_delalloc_roots+0x194/0x2a0 [btrfs]
-[ 8948.255408]        btrfs_commit_transaction+0x32f/0xc00 [btrfs]
-[ 8948.255942]        btrfs_mksubvol+0x380/0x570 [btrfs]
-[ 8948.256406]        btrfs_mksnapshot+0x81/0xb0 [btrfs]
-[ 8948.256870]        __btrfs_ioctl_snap_create+0x17f/0x190 [btrfs]
-[ 8948.257413]        btrfs_ioctl_snap_create_v2+0xbb/0x140 [btrfs]
-[ 8948.257961]        btrfs_ioctl+0x1196/0x3630 [btrfs]
-[ 8948.258418]        __x64_sys_ioctl+0x83/0xb0
-[ 8948.258793]        do_syscall_64+0x3b/0xc0
-[ 8948.259146]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 8948.259709]
-               -> #1 (&fs_info->delalloc_root_mutex){+.+.}-{3:3}:
-[ 8948.260330]        __mutex_lock+0x90/0x900
-[ 8948.260692]        btrfs_start_delalloc_roots+0x97/0x2a0 [btrfs]
-[ 8948.261234]        btrfs_commit_transaction+0x32f/0xc00 [btrfs]
-[ 8948.261766]        btrfs_set_free_space_cache_v1_active+0x38/0x60 [btrfs]
-[ 8948.262379]        btrfs_start_pre_rw_mount+0x119/0x180 [btrfs]
-[ 8948.262909]        open_ctree+0x1511/0x171e [btrfs]
-[ 8948.263359]        btrfs_mount_root.cold+0x12/0xde [btrfs]
-[ 8948.263863]        legacy_get_tree+0x30/0x50
-[ 8948.264242]        vfs_get_tree+0x28/0xc0
-[ 8948.264594]        vfs_kern_mount.part.0+0x71/0xb0
-[ 8948.265017]        btrfs_mount+0x11d/0x3a0 [btrfs]
-[ 8948.265462]        legacy_get_tree+0x30/0x50
-[ 8948.265851]        vfs_get_tree+0x28/0xc0
-[ 8948.266203]        path_mount+0x2d4/0xbe0
-[ 8948.266554]        __x64_sys_mount+0x103/0x140
-[ 8948.266940]        do_syscall_64+0x3b/0xc0
-[ 8948.267300]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 8948.267790]
-               -> #0 (sb_internal#2){.+.+}-{0:0}:
-[ 8948.268322]        __lock_acquire+0x12e8/0x2260
-[ 8948.268733]        lock_acquire+0xd7/0x310
-[ 8948.269092]        start_transaction+0x44c/0x6e0 [btrfs]
-[ 8948.269591]        find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.270087]        btrfs_reserve_extent+0x14b/0x280 [btrfs]
-[ 8948.270588]        cow_file_range+0x17e/0x490 [btrfs]
-[ 8948.271051]        btrfs_run_delalloc_range+0x345/0x7a0 [btrfs]
-[ 8948.271586]        writepage_delalloc+0xb5/0x170 [btrfs]
-[ 8948.272071]        __extent_writepage+0x156/0x3c0 [btrfs]
-[ 8948.272579]        extent_write_cache_pages+0x263/0x460 [btrfs]
-[ 8948.273113]        extent_writepages+0x76/0x130 [btrfs]
-[ 8948.273573]        do_writepages+0xd2/0x1c0
-[ 8948.273942]        filemap_fdatawrite_wbc+0x68/0x90
-[ 8948.274371]        start_delalloc_inodes+0x17f/0x400 [btrfs]
-[ 8948.274876]        btrfs_start_delalloc_roots+0x194/0x2a0 [btrfs]
-[ 8948.275417]        flush_space+0x1f2/0x630 [btrfs]
-[ 8948.275863]        btrfs_async_reclaim_data_space+0x108/0x1b0 [btrfs]
-[ 8948.276438]        process_one_work+0x252/0x5a0
-[ 8948.276829]        worker_thread+0x55/0x3b0
-[ 8948.277189]        kthread+0xf2/0x120
-[ 8948.277506]        ret_from_fork+0x22/0x30
-[ 8948.277868]
-               other info that might help us debug this:
-
-[ 8948.278548] Chain exists of:
-                 sb_internal#2 --> &fs_info->delalloc_root_mutex --> &root->delalloc_mutex
-
-[ 8948.279601]  Possible unsafe locking scenario:
-
-[ 8948.280102]        CPU0                    CPU1
-[ 8948.280508]        ----                    ----
-[ 8948.280915]   lock(&root->delalloc_mutex);
-[ 8948.281271]                                lock(&fs_info->delalloc_root_mutex);
-[ 8948.281915]                                lock(&root->delalloc_mutex);
-[ 8948.282487]   lock(sb_internal#2);
-[ 8948.282800]
-                *** DEADLOCK ***
-
-[ 8948.283333] 4 locks held by kworker/u16:18/933570:
-[ 8948.283750]  #0: ffff9b3dc00a9d48 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1d2/0x5a0
-[ 8948.284609]  #1: ffffa90349dafe70 ((work_completion)(&fs_info->async_data_reclaim_work)){+.+.}-{0:0}, at: process_one_work+0x1d2/0x5a0
-[ 8948.285637]  #2: ffff9b3e14db5040 (&fs_info->delalloc_root_mutex){+.+.}-{3:3}, at: btrfs_start_delalloc_roots+0x97/0x2a0 [btrfs]
-[ 8948.286674]  #3: ffff9b3e09c717d8 (&root->delalloc_mutex){+.+.}-{3:3}, at: start_delalloc_inodes+0x78/0x400 [btrfs]
-[ 8948.287596]
-              stack backtrace:
-[ 8948.287975] CPU: 3 PID: 933570 Comm: kworker/u16:18 Not tainted 5.17.0-rc1-btrfs-next-111 #1
-[ 8948.288677] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[ 8948.289649] Workqueue: events_unbound btrfs_async_reclaim_data_space [btrfs]
-[ 8948.290298] Call Trace:
-[ 8948.290517]  <TASK>
-[ 8948.290700]  dump_stack_lvl+0x59/0x73
-[ 8948.291026]  check_noncircular+0xf3/0x110
-[ 8948.291375]  ? start_transaction+0x228/0x6e0 [btrfs]
-[ 8948.291826]  __lock_acquire+0x12e8/0x2260
-[ 8948.292241]  lock_acquire+0xd7/0x310
-[ 8948.292714]  ? find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.293241]  ? lock_is_held_type+0xea/0x140
-[ 8948.293601]  start_transaction+0x44c/0x6e0 [btrfs]
-[ 8948.294055]  ? find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.294518]  find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.294957]  ? _raw_spin_unlock+0x29/0x40
-[ 8948.295312]  ? btrfs_get_alloc_profile+0x124/0x290 [btrfs]
-[ 8948.295813]  btrfs_reserve_extent+0x14b/0x280 [btrfs]
-[ 8948.296270]  cow_file_range+0x17e/0x490 [btrfs]
-[ 8948.296691]  btrfs_run_delalloc_range+0x345/0x7a0 [btrfs]
-[ 8948.297175]  ? find_lock_delalloc_range+0x247/0x270 [btrfs]
-[ 8948.297678]  writepage_delalloc+0xb5/0x170 [btrfs]
-[ 8948.298123]  __extent_writepage+0x156/0x3c0 [btrfs]
-[ 8948.298570]  extent_write_cache_pages+0x263/0x460 [btrfs]
-[ 8948.299061]  extent_writepages+0x76/0x130 [btrfs]
-[ 8948.299495]  do_writepages+0xd2/0x1c0
-[ 8948.299817]  ? sched_clock_cpu+0xd/0x110
-[ 8948.300160]  ? lock_release+0x155/0x4a0
-[ 8948.300494]  filemap_fdatawrite_wbc+0x68/0x90
-[ 8948.300874]  ? do_raw_spin_unlock+0x4b/0xa0
-[ 8948.301243]  start_delalloc_inodes+0x17f/0x400 [btrfs]
-[ 8948.301706]  ? lock_release+0x155/0x4a0
-[ 8948.302055]  btrfs_start_delalloc_roots+0x194/0x2a0 [btrfs]
-[ 8948.302564]  flush_space+0x1f2/0x630 [btrfs]
-[ 8948.302970]  btrfs_async_reclaim_data_space+0x108/0x1b0 [btrfs]
-[ 8948.303510]  process_one_work+0x252/0x5a0
-[ 8948.303860]  ? process_one_work+0x5a0/0x5a0
-[ 8948.304221]  worker_thread+0x55/0x3b0
-[ 8948.304543]  ? process_one_work+0x5a0/0x5a0
-[ 8948.304904]  kthread+0xf2/0x120
-[ 8948.305184]  ? kthread_complete_and_exit+0x20/0x20
-[ 8948.305598]  ret_from_fork+0x22/0x30
-[ 8948.305921]  </TASK>
-
-It all comes from the fact that btrfs_start_delalloc_roots() takes the
-delalloc_root_mutex, in the transaction commit path we are holding a
-read lock on one of the superblock's freeze semaphores (via
-sb_start_intwrite()), the async reclaim task can also do a call to
-btrfs_start_delalloc_roots(), which ends up triggering writeback with
-calls to filemap_fdatawrite_wbc(), resulting in extent allocation which
-in turn can call btrfs_start_transaction(), which will result in taking
-the freeze semaphore via sb_start_intwrite(), forming a nasty dependency
-on all those locks which can be taken in different orders by different
-code paths.
-
-So just adopt the simple approach of calling try_to_writeback_inodes_sb()
-at btrfs_start_delalloc_flush().
-
-Link: https://lore.kernel.org/linux-btrfs/20220130005258.GA7465@cuci.nl/
-Link: https://lore.kernel.org/linux-btrfs/43acc426-d683-d1b6-729d-c6bc4a2fff4d@gmail.com/
-Link: https://lore.kernel.org/linux-btrfs/6833930a-08d7-6fbc-0141-eb9cdfd6bb4d@gmail.com/
-Link: https://lore.kernel.org/linux-btrfs/20190322041731.GF16651@hungrycats.org/
-Reviewed-by: Omar Sandoval <osandov@fb.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-[ add more link reports ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Kiran Kumar K <kirankumark@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/transaction.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ .../net/ethernet/marvell/octeontx2/af/mbox.h  |  20 +-
+ .../net/ethernet/marvell/octeontx2/af/npc.h   |   9 +-
+ .../marvell/octeontx2/af/npc_profile.h        | 382 +++---------------
+ .../net/ethernet/marvell/octeontx2/af/rvu.h   |   5 +
+ .../ethernet/marvell/octeontx2/af/rvu_cgx.c   |   2 +-
+ .../ethernet/marvell/octeontx2/af/rvu_nix.c   |   4 +
+ .../ethernet/marvell/octeontx2/af/rvu_npc.c   |  96 +++++
+ 7 files changed, 195 insertions(+), 323 deletions(-)
 
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index 27b93a6c41bb4..90aab24165b5f 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2013,16 +2013,24 @@ static void btrfs_cleanup_pending_block_groups(struct btrfs_trans_handle *trans)
- static inline int btrfs_start_delalloc_flush(struct btrfs_fs_info *fs_info)
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
+index 26ad71842b3b2..472eb2a5697a4 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
+@@ -84,7 +84,7 @@ struct mbox_msghdr {
+ #define OTX2_MBOX_REQ_SIG (0xdead)
+ #define OTX2_MBOX_RSP_SIG (0xbeef)
+ 	u16 sig;         /* Signature, for validating corrupted msgs */
+-#define OTX2_MBOX_VERSION (0x0009)
++#define OTX2_MBOX_VERSION (0x000a)
+ 	u16 ver;         /* Version of msg's structure for this ID */
+ 	u16 next_msgoff; /* Offset of next msg within mailbox region */
+ 	int rc;          /* Msg process'ed response code */
+@@ -229,6 +229,8 @@ M(NPC_DELETE_FLOW,	  0x600e, npc_delete_flow,			\
+ M(NPC_MCAM_READ_ENTRY,	  0x600f, npc_mcam_read_entry,			\
+ 				  npc_mcam_read_entry_req,		\
+ 				  npc_mcam_read_entry_rsp)		\
++M(NPC_SET_PKIND,        0x6010,   npc_set_pkind,                        \
++				  npc_set_pkind, msg_rsp)               \
+ M(NPC_MCAM_READ_BASE_RULE, 0x6011, npc_read_base_steer_rule,            \
+ 				   msg_req, npc_mcam_read_base_rule_rsp)  \
+ M(NPC_MCAM_GET_STATS, 0x6012, npc_mcam_entry_stats,                     \
+@@ -593,6 +595,22 @@ struct rpm_stats_rsp {
+ 	u64 tx_stats[RPM_TX_STATS_COUNT];
+ };
+ 
++struct npc_set_pkind {
++	struct mbox_msghdr hdr;
++#define OTX2_PRIV_FLAGS_DEFAULT  BIT_ULL(0)
++#define OTX2_PRIV_FLAGS_CUSTOM   BIT_ULL(63)
++	u64 mode;
++#define PKIND_TX		BIT_ULL(0)
++#define PKIND_RX		BIT_ULL(1)
++	u8 dir;
++	u8 pkind; /* valid only in case custom flag */
++	u8 var_len_off; /* Offset of custom header length field.
++			 * Valid only for pkind NPC_RX_CUSTOM_PRE_L2_PKIND
++			 */
++	u8 var_len_off_mask; /* Mask for length with in offset */
++	u8 shift_dir; /* shift direction to get length of the header at var_len_off */
++};
++
+ /* NPA mbox message formats */
+ 
+ /* NPA mailbox error codes
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/npc.h b/drivers/net/ethernet/marvell/octeontx2/af/npc.h
+index 3a819b24accc6..6e1192f526089 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/npc.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/npc.h
+@@ -31,9 +31,9 @@ enum npc_kpu_la_ltype {
+ 	NPC_LT_LA_HIGIG2_ETHER,
+ 	NPC_LT_LA_IH_NIX_HIGIG2_ETHER,
+ 	NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-	NPC_LT_LA_CH_LEN_90B_ETHER,
+ 	NPC_LT_LA_CPT_HDR,
+ 	NPC_LT_LA_CUSTOM_L2_24B_ETHER,
++	NPC_LT_LA_CUSTOM_PRE_L2_ETHER,
+ 	NPC_LT_LA_CUSTOM0 = 0xE,
+ 	NPC_LT_LA_CUSTOM1 = 0xF,
+ };
+@@ -148,10 +148,11 @@ enum npc_kpu_lh_ltype {
+  * Software assigns pkind for each incoming port such as CGX
+  * Ethernet interfaces, LBK interfaces, etc.
+  */
+-#define NPC_UNRESERVED_PKIND_COUNT NPC_RX_VLAN_EXDSA_PKIND
++#define NPC_UNRESERVED_PKIND_COUNT NPC_RX_CUSTOM_PRE_L2_PKIND
+ 
+ enum npc_pkind_type {
+ 	NPC_RX_LBK_PKIND = 0ULL,
++	NPC_RX_CUSTOM_PRE_L2_PKIND = 55ULL,
+ 	NPC_RX_VLAN_EXDSA_PKIND = 56ULL,
+ 	NPC_RX_CHLEN24B_PKIND = 57ULL,
+ 	NPC_RX_CPT_HDR_PKIND,
+@@ -162,6 +163,10 @@ enum npc_pkind_type {
+ 	NPC_TX_DEF_PKIND,	/* NIX-TX PKIND */
+ };
+ 
++enum npc_interface_type {
++	NPC_INTF_MODE_DEF,
++};
++
+ /* list of known and supported fields in packet header and
+  * fields present in key structure.
+  */
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h b/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h
+index 588822a0cf21e..2b7030886daec 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h
+@@ -176,9 +176,8 @@ enum npc_kpu_parser_state {
+ 	NPC_S_KPU1_EXDSA,
+ 	NPC_S_KPU1_HIGIG2,
+ 	NPC_S_KPU1_IH_NIX_HIGIG2,
+-	NPC_S_KPU1_CUSTOM_L2_90B,
++	NPC_S_KPU1_CUSTOM_PRE_L2,
+ 	NPC_S_KPU1_CPT_HDR,
+-	NPC_S_KPU1_CUSTOM_L2_24B,
+ 	NPC_S_KPU1_VLAN_EXDSA,
+ 	NPC_S_KPU2_CTAG,
+ 	NPC_S_KPU2_CTAG2,
+@@ -979,8 +978,8 @@ static struct npc_kpu_profile_action ikpu_action_entries[] = {
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		12, 16, 20, 0, 0,
+-		NPC_S_KPU1_ETHER, 0, 0,
+-		NPC_LID_LA, NPC_LT_NA,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0, 1,
++		NPC_LID_LA, NPC_LT_LA_CUSTOM_PRE_L2_ETHER,
+ 		0,
+ 		0, 0, 0, 0,
+ 
+@@ -996,9 +995,9 @@ static struct npc_kpu_profile_action ikpu_action_entries[] = {
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		36, 40, 44, 0, 0,
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0, 0,
+-		NPC_LID_LA, NPC_LT_NA,
++		12, 16, 20, 0, 0,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 24, 1,
++		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+ 		0,
+ 		0, 0, 0, 0,
+ 
+@@ -1014,9 +1013,9 @@ static struct npc_kpu_profile_action ikpu_action_entries[] = {
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		102, 106, 110, 0, 0,
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0, 0,
+-		NPC_LID_LA, NPC_LT_NA,
++		12, 16, 20, 0, 0,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 90, 1,
++		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+ 		0,
+ 		0, 0, 0, 0,
+ 
+@@ -1711,7 +1710,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_IP,
+ 		0xffff,
+ 		0x0000,
+@@ -1720,7 +1719,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_IP6,
+ 		0xffff,
+ 		0x0000,
+@@ -1729,7 +1728,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_ARP,
+ 		0xffff,
+ 		0x0000,
+@@ -1738,7 +1737,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_RARP,
+ 		0xffff,
+ 		0x0000,
+@@ -1747,7 +1746,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_PTP,
+ 		0xffff,
+ 		0x0000,
+@@ -1756,7 +1755,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_FCOE,
+ 		0xffff,
+ 		0x0000,
+@@ -1765,7 +1764,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_CTAG,
+ 		0xffff,
+ 		NPC_ETYPE_CTAG,
+@@ -1774,7 +1773,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_CTAG,
+ 		0xffff,
+ 		0x0000,
+@@ -1783,7 +1782,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_SBTAG,
+ 		0xffff,
+ 		0x0000,
+@@ -1792,7 +1791,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_QINQ,
+ 		0xffff,
+ 		0x0000,
+@@ -1801,7 +1800,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_ETAG,
+ 		0xffff,
+ 		0x0000,
+@@ -1810,7 +1809,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_MPLSU,
+ 		0xffff,
+ 		0x0000,
+@@ -1819,7 +1818,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_MPLSM,
+ 		0xffff,
+ 		0x0000,
+@@ -1828,7 +1827,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		NPC_ETYPE_NSH,
+ 		0xffff,
+ 		0x0000,
+@@ -1837,7 +1836,7 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 	},
+ 	{
+-		NPC_S_KPU1_CUSTOM_L2_90B, 0xff,
++		NPC_S_KPU1_CUSTOM_PRE_L2, 0xff,
+ 		0x0000,
+ 		0x0000,
+ 		0x0000,
+@@ -1926,141 +1925,6 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
+ 		0x0000,
+ 		0x0000,
+ 	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_IP,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_IP6,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_ARP,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_RARP,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_PTP,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_FCOE,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_CTAG,
+-		0xffff,
+-		NPC_ETYPE_CTAG,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_CTAG,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_SBTAG,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_QINQ,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_ETAG,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_MPLSU,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_MPLSM,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		NPC_ETYPE_NSH,
+-		0xffff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+-	{
+-		NPC_S_KPU1_CUSTOM_L2_24B, 0xff,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-		0x0000,
+-	},
+ 	{
+ 		NPC_S_KPU1_VLAN_EXDSA, 0xff,
+ 		NPC_ETYPE_CTAG,
+@@ -9192,121 +9056,121 @@ static struct npc_kpu_profile_action kpu1_action_entries[] = {
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		8, 0, 6, 3, 0,
+-		NPC_S_KPU5_IP, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
++		NPC_S_KPU5_IP, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
+ 		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		6, 0, 0, 3, 0,
+-		NPC_S_KPU5_IP6, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
++		NPC_S_KPU5_IP6, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
+ 		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_ARP, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
++		NPC_S_KPU5_ARP, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
+ 		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_RARP, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
++		NPC_S_KPU5_RARP, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
+ 		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_PTP, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
++		NPC_S_KPU5_PTP, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
+ 		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_FCOE, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
++		NPC_S_KPU5_FCOE, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
+ 		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		8, 12, 0, 0, 0,
+-		NPC_S_KPU2_CTAG2, 102, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
++		NPC_S_KPU2_CTAG2, 12, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		4, 8, 0, 0, 0,
+-		NPC_S_KPU2_CTAG, 102, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
++		NPC_S_KPU2_CTAG, 12, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		4, 8, 22, 0, 0,
+-		NPC_S_KPU2_SBTAG, 102, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
++		NPC_S_KPU2_SBTAG, 12, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		4, 8, 0, 0, 0,
+-		NPC_S_KPU2_QINQ, 102, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
++		NPC_S_KPU2_QINQ, 12, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		8, 12, 26, 0, 0,
+-		NPC_S_KPU2_ETAG, 102, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_ETAG,
++		NPC_S_KPU2_ETAG, 12, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		2, 6, 10, 2, 0,
+-		NPC_S_KPU4_MPLS, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_L_WITH_MPLS,
++		NPC_S_KPU4_MPLS, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		2, 6, 10, 2, 0,
+-		NPC_S_KPU4_MPLS, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_L_WITH_MPLS,
++		NPC_S_KPU4_MPLS, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		2, 0, 0, 2, 0,
+-		NPC_S_KPU4_NSH, 104, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_L_WITH_NSH,
++		NPC_S_KPU4_NSH, 14, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		0, 0, 0, 0, 1,
+-		NPC_S_NA, 0, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_90B_ETHER,
+-		NPC_F_LA_L_UNK_ETYPE,
++		NPC_S_NA, 0, 0,
++		NPC_LID_LA, NPC_LT_NA,
++		0,
+ 		0, 0, 0, 0,
+ 	},
+ 	{
+@@ -9381,126 +9245,6 @@ static struct npc_kpu_profile_action kpu1_action_entries[] = {
+ 		NPC_F_LA_L_UNK_ETYPE,
+ 		0, 0, 0, 0,
+ 	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		8, 0, 6, 3, 0,
+-		NPC_S_KPU5_IP, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		0,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		6, 0, 0, 3, 0,
+-		NPC_S_KPU5_IP6, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		0,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_ARP, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		0,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_RARP, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		0,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_PTP, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		0,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		0, 0, 0, 3, 0,
+-		NPC_S_KPU5_FCOE, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		0,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		8, 12, 0, 0, 0,
+-		NPC_S_KPU2_CTAG2, 36, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		4, 8, 0, 0, 0,
+-		NPC_S_KPU2_CTAG, 36, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		4, 8, 22, 0, 0,
+-		NPC_S_KPU2_SBTAG, 36, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		4, 8, 0, 0, 0,
+-		NPC_S_KPU2_QINQ, 36, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_VLAN,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		8, 12, 26, 0, 0,
+-		NPC_S_KPU2_ETAG, 36, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_U_HAS_TAG | NPC_F_LA_L_WITH_ETAG,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		2, 6, 10, 2, 0,
+-		NPC_S_KPU4_MPLS, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_L_WITH_MPLS,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		2, 6, 10, 2, 0,
+-		NPC_S_KPU4_MPLS, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_L_WITH_MPLS,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		2, 0, 0, 2, 0,
+-		NPC_S_KPU4_NSH, 38, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_L_WITH_NSH,
+-		0, 0, 0, 0,
+-	},
+-	{
+-		NPC_ERRLEV_RE, NPC_EC_NOERR,
+-		0, 0, 0, 0, 1,
+-		NPC_S_NA, 0, 1,
+-		NPC_LID_LA, NPC_LT_LA_CUSTOM_L2_24B_ETHER,
+-		NPC_F_LA_L_UNK_ETYPE,
+-		0, 0, 0, 0,
+-	},
+ 	{
+ 		NPC_ERRLEV_RE, NPC_EC_NOERR,
+ 		12, 0, 0, 1, 0,
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
+index 1d9411232f1da..c3979ec2bb86d 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
+@@ -237,6 +237,7 @@ struct rvu_pfvf {
+ 	bool	cgx_in_use; /* this PF/VF using CGX? */
+ 	int	cgx_users;  /* number of cgx users - used only by PFs */
+ 
++	int     intf_mode;
+ 	u8	nix_blkaddr; /* BLKADDR_NIX0/1 assigned to this PF */
+ 	u8	nix_rx_intf; /* NIX0_RX/NIX1_RX interface to NPC */
+ 	u8	nix_tx_intf; /* NIX0_TX/NIX1_TX interface to NPC */
+@@ -794,6 +795,7 @@ void npc_enable_mcam_entry(struct rvu *rvu, struct npc_mcam *mcam,
+ void npc_read_mcam_entry(struct rvu *rvu, struct npc_mcam *mcam,
+ 			 int blkaddr, u16 src, struct mcam_entry *entry,
+ 			 u8 *intf, u8 *ena);
++bool is_cgx_config_permitted(struct rvu *rvu, u16 pcifunc);
+ bool is_mac_feature_supported(struct rvu *rvu, int pf, int feature);
+ u32  rvu_cgx_get_fifolen(struct rvu *rvu);
+ void *rvu_first_cgx_pdata(struct rvu *rvu);
+@@ -827,4 +829,7 @@ void rvu_switch_enable(struct rvu *rvu);
+ void rvu_switch_disable(struct rvu *rvu);
+ void rvu_switch_update_rules(struct rvu *rvu, u16 pcifunc);
+ 
++int rvu_npc_set_parse_mode(struct rvu *rvu, u16 pcifunc, u64 mode, u8 dir,
++			   u64 pkind, u8 var_len_off, u8 var_len_off_mask,
++			   u8 shift_dir);
+ #endif /* RVU_H */
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
+index 81e8ea9ee30ea..21e5906bcc372 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
+@@ -411,7 +411,7 @@ int rvu_cgx_exit(struct rvu *rvu)
+  * VF's of mapped PF and other PFs are not allowed. This fn() checks
+  * whether a PFFUNC is permitted to do the config or not.
+  */
+-static bool is_cgx_config_permitted(struct rvu *rvu, u16 pcifunc)
++inline bool is_cgx_config_permitted(struct rvu *rvu, u16 pcifunc)
  {
- 	/*
--	 * We use writeback_inodes_sb here because if we used
-+	 * We use try_to_writeback_inodes_sb() here because if we used
- 	 * btrfs_start_delalloc_roots we would deadlock with fs freeze.
- 	 * Currently are holding the fs freeze lock, if we do an async flush
- 	 * we'll do btrfs_join_transaction() and deadlock because we need to
- 	 * wait for the fs freeze lock.  Using the direct flushing we benefit
- 	 * from already being in a transaction and our join_transaction doesn't
- 	 * have to re-take the fs freeze lock.
-+	 *
-+	 * Note that try_to_writeback_inodes_sb() will only trigger writeback
-+	 * if it can read lock sb->s_umount. It will always be able to lock it,
-+	 * except when the filesystem is being unmounted or being frozen, but in
-+	 * those cases sync_filesystem() is called, which results in calling
-+	 * writeback_inodes_sb() while holding a write lock on sb->s_umount.
-+	 * Note that we don't call writeback_inodes_sb() directly, because it
-+	 * will emit a warning if sb->s_umount is not locked.
- 	 */
- 	if (btrfs_test_opt(fs_info, FLUSHONCOMMIT))
--		writeback_inodes_sb(fs_info->sb, WB_REASON_SYNC);
-+		try_to_writeback_inodes_sb(fs_info->sb, WB_REASON_SYNC);
+ 	if ((pcifunc & RVU_PFVF_FUNC_MASK) ||
+ 	    !is_pf_cgxmapped(rvu, rvu_get_pf(pcifunc)))
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+index 959266894cf15..f43df4683943d 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+@@ -4555,6 +4555,10 @@ void rvu_nix_lf_teardown(struct rvu *rvu, u16 pcifunc, int blkaddr, int nixlf)
+ 			dev_err(rvu->dev, "CQ ctx disable failed\n");
+ 	}
+ 
++	/* reset HW config done for Switch headers */
++	rvu_npc_set_parse_mode(rvu, pcifunc, OTX2_PRIV_FLAGS_DEFAULT,
++			       (PKIND_TX | PKIND_RX), 0, 0, 0, 0);
++
+ 	nix_ctx_free(rvu, pfvf);
+ 
+ 	nix_free_all_bandprof(rvu, pcifunc);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+index 87f18e32b4634..2f347e937f00a 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+@@ -3183,6 +3183,102 @@ int rvu_mbox_handler_npc_get_kex_cfg(struct rvu *rvu, struct msg_req *req,
  	return 0;
  }
  
++int
++npc_set_var_len_offset_pkind(struct rvu *rvu, u16 pcifunc, u64 pkind,
++			     u8 var_len_off, u8 var_len_off_mask, u8 shift_dir)
++{
++	struct npc_kpu_action0 *act0;
++	u8 shift_count = 0;
++	int blkaddr;
++	u64 val;
++
++	if (!var_len_off_mask)
++		return -EINVAL;
++
++	if (var_len_off_mask != 0xff) {
++		if (shift_dir)
++			shift_count = __ffs(var_len_off_mask);
++		else
++			shift_count = (8 - __fls(var_len_off_mask));
++	}
++	blkaddr = rvu_get_blkaddr(rvu, BLKTYPE_NPC, pcifunc);
++	if (blkaddr < 0) {
++		dev_err(rvu->dev, "%s: NPC block not implemented\n", __func__);
++		return -EINVAL;
++	}
++	val = rvu_read64(rvu, blkaddr, NPC_AF_PKINDX_ACTION0(pkind));
++	act0 = (struct npc_kpu_action0 *)&val;
++	act0->var_len_shift = shift_count;
++	act0->var_len_right = shift_dir;
++	act0->var_len_mask = var_len_off_mask;
++	act0->var_len_offset = var_len_off;
++	rvu_write64(rvu, blkaddr, NPC_AF_PKINDX_ACTION0(pkind), val);
++	return 0;
++}
++
++int rvu_npc_set_parse_mode(struct rvu *rvu, u16 pcifunc, u64 mode, u8 dir,
++			   u64 pkind, u8 var_len_off, u8 var_len_off_mask,
++			   u8 shift_dir)
++
++{
++	struct rvu_pfvf *pfvf = rvu_get_pfvf(rvu, pcifunc);
++	int blkaddr, nixlf, rc, intf_mode;
++	int pf = rvu_get_pf(pcifunc);
++	u64 rxpkind, txpkind;
++	u8 cgx_id, lmac_id;
++
++	/* use default pkind to disable edsa/higig */
++	rxpkind = rvu_npc_get_pkind(rvu, pf);
++	txpkind = NPC_TX_DEF_PKIND;
++	intf_mode = NPC_INTF_MODE_DEF;
++
++	if (mode & OTX2_PRIV_FLAGS_CUSTOM) {
++		if (pkind == NPC_RX_CUSTOM_PRE_L2_PKIND) {
++			rc = npc_set_var_len_offset_pkind(rvu, pcifunc, pkind,
++							  var_len_off,
++							  var_len_off_mask,
++							  shift_dir);
++			if (rc)
++				return rc;
++		}
++		rxpkind = pkind;
++		txpkind = pkind;
++	}
++
++	if (dir & PKIND_RX) {
++		/* rx pkind set req valid only for cgx mapped PFs */
++		if (!is_cgx_config_permitted(rvu, pcifunc))
++			return 0;
++		rvu_get_cgx_lmac_id(rvu->pf2cgxlmac_map[pf], &cgx_id, &lmac_id);
++
++		rc = cgx_set_pkind(rvu_cgx_pdata(cgx_id, rvu), lmac_id,
++				   rxpkind);
++		if (rc)
++			return rc;
++	}
++
++	if (dir & PKIND_TX) {
++		/* Tx pkind set request valid if PCIFUNC has NIXLF attached */
++		rc = nix_get_nixlf(rvu, pcifunc, &nixlf, &blkaddr);
++		if (rc)
++			return rc;
++
++		rvu_write64(rvu, blkaddr, NIX_AF_LFX_TX_PARSE_CFG(nixlf),
++			    txpkind);
++	}
++
++	pfvf->intf_mode = intf_mode;
++	return 0;
++}
++
++int rvu_mbox_handler_npc_set_pkind(struct rvu *rvu, struct npc_set_pkind *req,
++				   struct msg_rsp *rsp)
++{
++	return rvu_npc_set_parse_mode(rvu, req->hdr.pcifunc, req->mode,
++				      req->dir, req->pkind, req->var_len_off,
++				      req->var_len_off_mask, req->shift_dir);
++}
++
+ int rvu_mbox_handler_npc_read_base_steer_rule(struct rvu *rvu,
+ 					      struct msg_req *req,
+ 					      struct npc_mcam_read_base_rule_rsp *rsp)
 -- 
 2.34.1
 
