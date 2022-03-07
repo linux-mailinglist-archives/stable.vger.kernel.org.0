@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BBA04CF846
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD4D4CF994
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238523AbiCGJwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
+        id S240234AbiCGKH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:07:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239670AbiCGJuB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B805710DF;
-        Mon,  7 Mar 2022 01:43:38 -0800 (PST)
+        with ESMTP id S240236AbiCGKGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:06:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB89D75633;
+        Mon,  7 Mar 2022 01:52:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E49BFB810BC;
-        Mon,  7 Mar 2022 09:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260CDC340E9;
-        Mon,  7 Mar 2022 09:43:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98A56B80E70;
+        Mon,  7 Mar 2022 09:52:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D18D8C340F3;
+        Mon,  7 Mar 2022 09:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646216;
-        bh=xNBSLegiMNsww5M/MQqDExxz79QvamxtTPQDiZrclWc=;
+        s=korg; t=1646646728;
+        bh=G9AhXJMncP9M8uGCSalT39DSnLh5dH33AtDnouCfyEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMLlodOvS335WtdtSmSDhMMX9OoU9JC21AMSTpaFP00l7yC3kQqtGkZq23WmkF0Hx
-         tSx4BErlSTX75Kp2GFLxdKEpIUeooKVMhTTnAO8KMxW+bRUsfcKV6MG9wwc5cJSdzE
-         nbCqhs7vEeY3NJi4bkU2ufhWxwtEf4fFDuCmnRps=
+        b=Z5lnlKliJzF2gTo1aAg8UAo9pc9LMzaiPEPRW2OLljX9vPzyWRGZrpfQ5BnVLtACc
+         cVd+AxrcU1v1ymSS07TOGUCk9/QRPKkwktlQhnC5lPyeDZ+TuuUBL4cho1Y7oQAPo5
+         61Q4h1DgyltWpzr7ZOSSpCY9607Clep41JsZm+9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 169/262] net/smc: fix connection leak
+        stable@vger.kernel.org, Joe Stringer <joe@cilium.io>,
+        Florian Westphal <fw@strlen.de>
+Subject: [PATCH 5.16 075/186] netfilter: nf_queue: handle socket prefetch
 Date:   Mon,  7 Mar 2022 10:18:33 +0100
-Message-Id: <20220307091707.195678290@linuxfoundation.org>
+Message-Id: <20220307091656.186460618@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 9f1c50cf39167ff71dc5953a3234f3f6eeb8fcb5 upstream.
+commit 3b836da4081fa585cf6c392f62557496f2cb0efe upstream.
 
-There's a potential leak issue under following execution sequence :
+In case someone combines bpf socket assign and nf_queue, then we will
+queue an skb who references a struct sock that did not have its
+reference count incremented.
 
-smc_release  				smc_connect_work
-if (sk->sk_state == SMC_INIT)
-					send_clc_confirim
-	tcp_abort();
-					...
-					sk.sk_state = SMC_ACTIVE
-smc_close_active
-switch(sk->sk_state) {
-...
-case SMC_ACTIVE:
-	smc_close_final()
-	// then wait peer closed
+As we leave rcu protection, there is no guarantee that skb->sk is still
+valid.
 
-Unfortunately, tcp_abort() may discard CLC CONFIRM messages that are
-still in the tcp send buffer, in which case our connection token cannot
-be delivered to the server side, which means that we cannot get a
-passive close message at all. Therefore, it is impossible for the to be
-disconnected at all.
+For refcount-less skb->sk case, try to increment the reference count
+and then override the destructor.
 
-This patch tries a very simple way to avoid this issue, once the state
-has changed to SMC_ACTIVE after tcp_abort(), we can actively abort the
-smc connection, considering that the state is SMC_INIT before
-tcp_abort(), abandoning the complete disconnection process should not
-cause too much problem.
+In case of failure we have two choices: orphan the skb and 'delete'
+preselect or let nf_queue() drop the packet.
 
-In fact, this problem may exist as long as the CLC CONFIRM message is
-not received by the server. Whether a timer should be added after
-smc_close_final() needs to be discussed in the future. But even so, this
-patch provides a faster release for connection in above case, it should
-also be valuable.
+Do the latter, it should not happen during normal operation.
 
-Fixes: 39f41f367b08 ("net/smc: common release code for non-accepted sockets")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cf7fbe660f2d ("bpf: Add socket assign support")
+Acked-by: Joe Stringer <joe@cilium.io>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/netfilter/nf_queue.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -182,7 +182,7 @@ static int smc_release(struct socket *so
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
--	int rc = 0;
-+	int old_state, rc = 0;
+--- a/net/netfilter/nf_queue.c
++++ b/net/netfilter/nf_queue.c
+@@ -180,6 +180,18 @@ static int __nf_queue(struct sk_buff *sk
+ 		break;
+ 	}
  
- 	if (!sk)
- 		goto out;
-@@ -190,8 +190,10 @@ static int smc_release(struct socket *so
- 	sock_hold(sk); /* sock_put below */
- 	smc = smc_sk(sk);
- 
-+	old_state = sk->sk_state;
++	if (skb_sk_is_prefetched(skb)) {
++		struct sock *sk = skb->sk;
 +
- 	/* cleanup for a dangling non-blocking connect */
--	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
-+	if (smc->connect_nonblock && old_state == SMC_INIT)
- 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
- 
- 	if (cancel_work_sync(&smc->connect_work))
-@@ -205,6 +207,10 @@ static int smc_release(struct socket *so
- 	else
- 		lock_sock(sk);
- 
-+	if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
-+	    !smc->use_fallback)
-+		smc_close_active_abort(smc);
++		if (!sk_is_refcounted(sk)) {
++			if (!refcount_inc_not_zero(&sk->sk_refcnt))
++				return -ENOTCONN;
 +
- 	rc = __smc_release(smc);
- 
- 	/* detach socket */
++			/* drop refcount on skb_orphan */
++			skb->destructor = sock_edemux;
++		}
++	}
++
+ 	entry = kmalloc(sizeof(*entry) + route_key_size, GFP_ATOMIC);
+ 	if (!entry)
+ 		return -ENOMEM;
 
 
