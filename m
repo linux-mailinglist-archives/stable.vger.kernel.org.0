@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A54D4CF5D4
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 423F74CF9B2
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237187AbiCGJbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
+        id S233065AbiCGKNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:13:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238833AbiCGJ3v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A702BDEF;
-        Mon,  7 Mar 2022 01:28:57 -0800 (PST)
+        with ESMTP id S242641AbiCGKLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F09E8BF14;
+        Mon,  7 Mar 2022 01:55:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40DBA60C00;
-        Mon,  7 Mar 2022 09:28:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 525DAC340E9;
-        Mon,  7 Mar 2022 09:28:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77BB460929;
+        Mon,  7 Mar 2022 09:55:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809DCC340F4;
+        Mon,  7 Mar 2022 09:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645336;
-        bh=6ZBj3r1Avvm002zaEoE/iDo0vTxoL/2Zm5ACvtb4eeo=;
+        s=korg; t=1646646934;
+        bh=L7RKs74ysQEn+9s6AjvZhS1X91Rg/qbUhMXlbmV99dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOktFm8ae/wWv0PVx4yPs4CaMNjXjSHLUGzPG68XkEW9o+rn6I43bOypOHN4JDdgm
-         +P6vK8NvmaGcaT+iyJIlUtqBb14KPe/oq8sChQi9wL66M9YiHaVjSmmb+RQSqMoiZf
-         ELClfBhAfVGWPfS1wbq2awKd+3wWm3+uPddlxvaM=
+        b=U+Ir1urEYVolOt44Nb9MQmqmfpv1IIrTMyisDeX6JUfRtte2hYCwW0sJLt9+gdLil
+         QMVMkN02NE2Y8iAZ7yy/MfNfCD93mD155PVTNSUZv60QTT+DgnwPP5DXPz82lFRbBD
+         wJv6QYCL0xZDiqLKScNnz/LKaTElj+TrWtAcm9w4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.4 63/64] Revert "xfrm: xfrm_state_mtu should return at least 1280 for ipv6"
+        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 138/186] net: stmmac: enhance XDP ZC driver level switching performance
 Date:   Mon,  7 Mar 2022 10:19:36 +0100
-Message-Id: <20220307091640.937915287@linuxfoundation.org>
+Message-Id: <20220307091657.936928509@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +55,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Bohac <jbohac@suse.cz>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-commit a6d95c5a628a09be129f25d5663a7e9db8261f51 upstream.
+[ Upstream commit ac746c8520d9d056b6963ecca8ff1da9929d02f1 ]
 
-This reverts commit b515d2637276a3810d6595e10ab02c13bfd0b63a.
+The previous stmmac_xdp_set_prog() implementation uses stmmac_release()
+and stmmac_open() which tear down the PHY device and causes undesirable
+autonegotiation which causes a delay whenever AFXDP ZC is setup.
 
-Commit b515d2637276a3810d6595e10ab02c13bfd0b63a ("xfrm: xfrm_state_mtu
-should return at least 1280 for ipv6") in v5.14 breaks the TCP MSS
-calculation in ipsec transport mode, resulting complete stalls of TCP
-connections. This happens when the (P)MTU is 1280 or slighly larger.
+This patch introduces two new functions that just sufficiently tear
+down DMA descriptors, buffer, NAPI process, and IRQs and reestablish
+them accordingly in both stmmac_xdp_release() and stammac_xdp_open().
 
-The desired formula for the MSS is:
-MSS = (MTU - ESP_overhead) - IP header - TCP header
+As the results of this enhancement, we get rid of transient state
+introduced by the link auto-negotiation:
 
-However, the above commit clamps the (MTU - ESP_overhead) to a
-minimum of 1280, turning the formula into
-MSS = max(MTU - ESP overhead, 1280) -  IP header - TCP header
+$ ./xdpsock -i eth0 -t -z
 
-With the (P)MTU near 1280, the calculated MSS is too large and the
-resulting TCP packets never make it to the destination because they
-are over the actual PMTU.
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 634444         634560
 
-The above commit also causes suboptimal double fragmentation in
-xfrm tunnel mode, as described in
-https://lore.kernel.org/netdev/20210429202529.codhwpc7w6kbudug@dwarf.suse.cz/
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 632330         1267072
 
-The original problem the above commit was trying to fix is now fixed
-by commit 6596a0229541270fb8d38d989f91b78838e5e9da ("xfrm: fix MTU
-regression").
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 632438         1899584
 
-Signed-off-by: Jiri Bohac <jbohac@suse.cz>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 632502         2532160
+
+Reported-by: Kurt Kanzenbach <kurt@linutronix.de>
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Tested-by: Kurt Kanzenbach <kurt@linutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h    |    1 -
- net/ipv4/esp4.c       |    2 +-
- net/ipv6/esp6.c       |    2 +-
- net/xfrm/xfrm_state.c |   14 ++------------
- 4 files changed, 4 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   4 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 137 +++++++++++++++++-
+ .../net/ethernet/stmicro/stmmac/stmmac_xdp.c  |   4 +-
+ 3 files changed, 139 insertions(+), 6 deletions(-)
 
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1543,7 +1543,6 @@ void xfrm_sad_getinfo(struct net *net, s
- void xfrm_spd_getinfo(struct net *net, struct xfrmk_spdinfo *si);
- u32 xfrm_replay_seqhi(struct xfrm_state *x, __be32 net_seq);
- int xfrm_init_replay(struct xfrm_state *x);
--u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu);
- u32 xfrm_state_mtu(struct xfrm_state *x, int mtu);
- int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload);
- int xfrm_init_state(struct xfrm_state *x);
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -499,7 +499,7 @@ static int esp_output(struct xfrm_state
- 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
- 		u32 padto;
- 
--		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
-+		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
- 		if (skb->len < padto)
- 			esp.tfclen = padto - skb->len;
- 	}
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -440,7 +440,7 @@ static int esp6_output(struct xfrm_state
- 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
- 		u32 padto;
- 
--		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
-+		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
- 		if (skb->len < padto)
- 			esp.tfclen = padto - skb->len;
- 	}
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -2440,7 +2440,7 @@ void xfrm_state_delete_tunnel(struct xfr
- }
- EXPORT_SYMBOL(xfrm_state_delete_tunnel);
- 
--u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu)
-+u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+index 873b9e3e5da2..05b5371ca036 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+@@ -334,8 +334,8 @@ void stmmac_set_ethtool_ops(struct net_device *netdev);
+ int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags);
+ void stmmac_ptp_register(struct stmmac_priv *priv);
+ void stmmac_ptp_unregister(struct stmmac_priv *priv);
+-int stmmac_open(struct net_device *dev);
+-int stmmac_release(struct net_device *dev);
++int stmmac_xdp_open(struct net_device *dev);
++void stmmac_xdp_release(struct net_device *dev);
+ int stmmac_resume(struct device *dev);
+ int stmmac_suspend(struct device *dev);
+ int stmmac_dvr_remove(struct device *dev);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 240dffe20fc3..2b3752bd1ac9 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3679,7 +3679,7 @@ static int stmmac_request_irq(struct net_device *dev)
+  *  0 on success and an appropriate (-)ve integer as defined in errno.h
+  *  file on failure.
+  */
+-int stmmac_open(struct net_device *dev)
++static int stmmac_open(struct net_device *dev)
  {
- 	const struct xfrm_type *type = READ_ONCE(x->type);
- 	struct crypto_aead *aead;
-@@ -2471,17 +2471,7 @@ u32 __xfrm_state_mtu(struct xfrm_state *
- 	return ((mtu - x->props.header_len - crypto_aead_authsize(aead) -
- 		 net_adj) & ~(blksize - 1)) + net_adj - 2;
- }
--EXPORT_SYMBOL_GPL(__xfrm_state_mtu);
--
--u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
--{
--	mtu = __xfrm_state_mtu(x, mtu);
--
--	if (x->props.family == AF_INET6 && mtu < IPV6_MIN_MTU)
--		return IPV6_MIN_MTU;
--
--	return mtu;
--}
-+EXPORT_SYMBOL_GPL(xfrm_state_mtu);
- 
- int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	int mode = priv->plat->phy_interface;
+@@ -3803,7 +3803,7 @@ static void stmmac_fpe_stop_wq(struct stmmac_priv *priv)
+  *  Description:
+  *  This is the stop entry point of the driver.
+  */
+-int stmmac_release(struct net_device *dev)
++static int stmmac_release(struct net_device *dev)
  {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	u32 chan;
+@@ -6473,6 +6473,139 @@ void stmmac_enable_tx_queue(struct stmmac_priv *priv, u32 queue)
+ 	spin_unlock_irqrestore(&ch->lock, flags);
+ }
+ 
++void stmmac_xdp_release(struct net_device *dev)
++{
++	struct stmmac_priv *priv = netdev_priv(dev);
++	u32 chan;
++
++	/* Disable NAPI process */
++	stmmac_disable_all_queues(priv);
++
++	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
++		hrtimer_cancel(&priv->tx_queue[chan].txtimer);
++
++	/* Free the IRQ lines */
++	stmmac_free_irq(dev, REQ_IRQ_ERR_ALL, 0);
++
++	/* Stop TX/RX DMA channels */
++	stmmac_stop_all_dma(priv);
++
++	/* Release and free the Rx/Tx resources */
++	free_dma_desc_resources(priv);
++
++	/* Disable the MAC Rx/Tx */
++	stmmac_mac_set(priv, priv->ioaddr, false);
++
++	/* set trans_start so we don't get spurious
++	 * watchdogs during reset
++	 */
++	netif_trans_update(dev);
++	netif_carrier_off(dev);
++}
++
++int stmmac_xdp_open(struct net_device *dev)
++{
++	struct stmmac_priv *priv = netdev_priv(dev);
++	u32 rx_cnt = priv->plat->rx_queues_to_use;
++	u32 tx_cnt = priv->plat->tx_queues_to_use;
++	u32 dma_csr_ch = max(rx_cnt, tx_cnt);
++	struct stmmac_rx_queue *rx_q;
++	struct stmmac_tx_queue *tx_q;
++	u32 buf_size;
++	bool sph_en;
++	u32 chan;
++	int ret;
++
++	ret = alloc_dma_desc_resources(priv);
++	if (ret < 0) {
++		netdev_err(dev, "%s: DMA descriptors allocation failed\n",
++			   __func__);
++		goto dma_desc_error;
++	}
++
++	ret = init_dma_desc_rings(dev, GFP_KERNEL);
++	if (ret < 0) {
++		netdev_err(dev, "%s: DMA descriptors initialization failed\n",
++			   __func__);
++		goto init_error;
++	}
++
++	/* DMA CSR Channel configuration */
++	for (chan = 0; chan < dma_csr_ch; chan++)
++		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
++
++	/* Adjust Split header */
++	sph_en = (priv->hw->rx_csum > 0) && priv->sph;
++
++	/* DMA RX Channel Configuration */
++	for (chan = 0; chan < rx_cnt; chan++) {
++		rx_q = &priv->rx_queue[chan];
++
++		stmmac_init_rx_chan(priv, priv->ioaddr, priv->plat->dma_cfg,
++				    rx_q->dma_rx_phy, chan);
++
++		rx_q->rx_tail_addr = rx_q->dma_rx_phy +
++				     (rx_q->buf_alloc_num *
++				      sizeof(struct dma_desc));
++		stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
++				       rx_q->rx_tail_addr, chan);
++
++		if (rx_q->xsk_pool && rx_q->buf_alloc_num) {
++			buf_size = xsk_pool_get_rx_frame_size(rx_q->xsk_pool);
++			stmmac_set_dma_bfsize(priv, priv->ioaddr,
++					      buf_size,
++					      rx_q->queue_index);
++		} else {
++			stmmac_set_dma_bfsize(priv, priv->ioaddr,
++					      priv->dma_buf_sz,
++					      rx_q->queue_index);
++		}
++
++		stmmac_enable_sph(priv, priv->ioaddr, sph_en, chan);
++	}
++
++	/* DMA TX Channel Configuration */
++	for (chan = 0; chan < tx_cnt; chan++) {
++		tx_q = &priv->tx_queue[chan];
++
++		stmmac_init_tx_chan(priv, priv->ioaddr, priv->plat->dma_cfg,
++				    tx_q->dma_tx_phy, chan);
++
++		tx_q->tx_tail_addr = tx_q->dma_tx_phy;
++		stmmac_set_tx_tail_ptr(priv, priv->ioaddr,
++				       tx_q->tx_tail_addr, chan);
++	}
++
++	/* Enable the MAC Rx/Tx */
++	stmmac_mac_set(priv, priv->ioaddr, true);
++
++	/* Start Rx & Tx DMA Channels */
++	stmmac_start_all_dma(priv);
++
++	stmmac_init_coalesce(priv);
++
++	ret = stmmac_request_irq(dev);
++	if (ret)
++		goto irq_error;
++
++	/* Enable NAPI process*/
++	stmmac_enable_all_queues(priv);
++	netif_carrier_on(dev);
++	netif_tx_start_all_queues(dev);
++
++	return 0;
++
++irq_error:
++	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
++		hrtimer_cancel(&priv->tx_queue[chan].txtimer);
++
++	stmmac_hw_teardown(dev);
++init_error:
++	free_dma_desc_resources(priv);
++dma_desc_error:
++	return ret;
++}
++
+ int stmmac_xsk_wakeup(struct net_device *dev, u32 queue, u32 flags)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
+index 2a616c6f7cd0..9d4d8c3dad0a 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
+@@ -119,7 +119,7 @@ int stmmac_xdp_set_prog(struct stmmac_priv *priv, struct bpf_prog *prog,
+ 
+ 	need_update = !!priv->xdp_prog != !!prog;
+ 	if (if_running && need_update)
+-		stmmac_release(dev);
++		stmmac_xdp_release(dev);
+ 
+ 	old_prog = xchg(&priv->xdp_prog, prog);
+ 	if (old_prog)
+@@ -129,7 +129,7 @@ int stmmac_xdp_set_prog(struct stmmac_priv *priv, struct bpf_prog *prog,
+ 	priv->sph = priv->sph_cap && !stmmac_xdp_is_enabled(priv);
+ 
+ 	if (if_running && need_update)
+-		stmmac_open(dev);
++		stmmac_xdp_open(dev);
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+
 
 
