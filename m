@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F095B4CF5F3
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6C5A4CF5AA
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237189AbiCGJbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33236 "EHLO
+        id S235144AbiCGJaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234196AbiCGJaH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:30:07 -0500
+        with ESMTP id S237749AbiCGJ2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E968593A6;
-        Mon,  7 Mar 2022 01:29:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE8A6B0BF;
+        Mon,  7 Mar 2022 01:26:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7FAE61119;
-        Mon,  7 Mar 2022 09:29:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9AD0C340E9;
-        Mon,  7 Mar 2022 09:29:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D3B261150;
+        Mon,  7 Mar 2022 09:25:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B48BC340F6;
+        Mon,  7 Mar 2022 09:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645343;
-        bh=9/hY6KOQxNGmcFPrb7ue5KAfX84rmPATCgx/s4tbcxs=;
+        s=korg; t=1646645142;
+        bh=ZNdsitM6nGFjpVv13+1bhRl7U8W/yDXt/WgufaQwueA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8MSRJRLIyhPlcSXD9pWDP9bsGGlnn8MPijuGY84xmIa8FGYwQ1lG8zWoFE7J0HZv
-         oen0BT2ye5/iTV1QvNBJYP5G/1BAOmbeF0WGge0IuW3vjxwuqYU3fj2ZKfjIt1njnN
-         8nvirZ68fSZCc2do04HBFh7LJ3FqlX7iFkhKFrAk=
+        b=SBCdx0Y1bRVOxA1fdfl4tTjjrVSHyVs2PXHt+h2tqUSp3tO2dTJy80ydl1I/egVhK
+         iJUAeZmCNrnGDyQriolralgeTWAwwFOGenaRVTp79NpbMbxrkvqjGiXIIePYwymBam
+         XbSievAPizF5zW2zuAOjTqvsPJeh6r/edKPestPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 52/64] net: chelsio: cxgb3: check the return value of pci_find_capability()
-Date:   Mon,  7 Mar 2022 10:19:25 +0100
-Message-Id: <20220307091640.627830784@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@idosch.org>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 51/51] net: dcb: disable softirqs in dcbnl_flush_dev()
+Date:   Mon,  7 Mar 2022 10:19:26 +0100
+Message-Id: <20220307091638.441349892@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 767b9825ed1765894e569a3d698749d40d83762a ]
+commit 10b6bb62ae1a49ee818fc479cf57b8900176773e upstream.
 
-The function pci_find_capability() in t3_prep_adapter() can fail, so its
-return value should be checked.
+Ido Schimmel points out that since commit 52cff74eef5d ("dcbnl : Disable
+software interrupts before taking dcb_lock"), the DCB API can be called
+by drivers from softirq context.
 
-Fixes: 4d22de3e6cc4 ("Add support for the latest 1G/10G Chelsio adapter, T3")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+One such in-tree example is the chelsio cxgb4 driver:
+dcb_rpl
+-> cxgb4_dcb_handle_fw_update
+   -> dcb_ieee_setapp
+
+If the firmware for this driver happened to send an event which resulted
+in a call to dcb_ieee_setapp() at the exact same time as another
+DCB-enabled interface was unregistering on the same CPU, the softirq
+would deadlock, because the interrupted process was already holding the
+dcb_lock in dcbnl_flush_dev().
+
+Fix this unlikely event by using spin_lock_bh() in dcbnl_flush_dev() as
+in the rest of the dcbnl code.
+
+Fixes: 91b0383fef06 ("net: dcb: flush lingering app table entries for unregistered devices")
+Reported-by: Ido Schimmel <idosch@idosch.org>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20220302193939.1368823-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/t3_hw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/dcb/dcbnl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c b/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c
-index 0a9f2c596624..d3e11fe1eabc 100644
---- a/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb3/t3_hw.c
-@@ -3677,6 +3677,8 @@ int t3_prep_adapter(struct adapter *adapter, const struct adapter_info *ai,
- 	    MAC_STATS_ACCUM_SECS : (MAC_STATS_ACCUM_SECS * 10);
- 	adapter->params.pci.vpd_cap_addr =
- 	    pci_find_capability(adapter->pdev, PCI_CAP_ID_VPD);
-+	if (!adapter->params.pci.vpd_cap_addr)
-+		return -ENODEV;
- 	ret = get_vpd_params(adapter, &adapter->params.vpd);
- 	if (ret < 0)
- 		return ret;
--- 
-2.34.1
-
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -2058,7 +2058,7 @@ static void dcbnl_flush_dev(struct net_d
+ {
+ 	struct dcb_app_type *itr, *tmp;
+ 
+-	spin_lock(&dcb_lock);
++	spin_lock_bh(&dcb_lock);
+ 
+ 	list_for_each_entry_safe(itr, tmp, &dcb_app_list, list) {
+ 		if (itr->ifindex == dev->ifindex) {
+@@ -2067,7 +2067,7 @@ static void dcbnl_flush_dev(struct net_d
+ 		}
+ 	}
+ 
+-	spin_unlock(&dcb_lock);
++	spin_unlock_bh(&dcb_lock);
+ }
+ 
+ static int dcbnl_netdevice_event(struct notifier_block *nb,
 
 
