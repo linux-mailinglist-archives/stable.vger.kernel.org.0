@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67BD44CFA65
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A14D4CF50C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234604AbiCGKQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:16:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
+        id S234623AbiCGJY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:24:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239336AbiCGKPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:15:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F067A9AE;
-        Mon,  7 Mar 2022 01:57:09 -0800 (PST)
+        with ESMTP id S236650AbiCGJYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:24:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00C8258382;
+        Mon,  7 Mar 2022 01:23:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78EEB60E8F;
-        Mon,  7 Mar 2022 09:56:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80236C340F3;
-        Mon,  7 Mar 2022 09:56:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 622866113A;
+        Mon,  7 Mar 2022 09:23:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69319C340F7;
+        Mon,  7 Mar 2022 09:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646986;
-        bh=ZdNObHiYHnzSCAvNC2nWvjr0DzK6YzERh5u9K+IXs9U=;
+        s=korg; t=1646645000;
+        bh=z6HjUXSLau7wzFifNIWNvi+IufkwGy+566WAkZsMxDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2BWEtnMrptFPF/m3XbbPHcA3PdTDUBp6JVZVcYcLQV3iFkfhJUjOlpyuQV+CKw8k2
-         EiRralQeREDcdbKS/eAQ4q5sYL2FzIg2r3AXuVOqCp7VbECbL8bsTAMtglufZMdHhR
-         7gbAdPxAzovduPaaBAuWKTtqV9DHuUvqZl4/xt/g=
+        b=KnFFv1RkqxZwa+LuyBx37MpDmrOeN5rDFR14hl1oU7k7G6e74mR8J5vnvfm+XtKu5
+         F0jxp3wAXjAhoNRiNNIYJc9UNlIU3uJCoDsaG7Wirhy0cn8C7fcjf8KHK64m140Cqh
+         exaSLjKTssZN5n6xbAbYZu8RwoIiB1XoF4epSpm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.16 105/186] iommu/tegra-smmu: Fix missing put_device() call in tegra_smmu_find
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 29/42] net: stmmac: fix return value of __setup handler
 Date:   Mon,  7 Mar 2022 10:19:03 +0100
-Message-Id: <20220307091657.015501227@linuxfoundation.org>
+Message-Id: <20220307091637.001107391@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
+References: <20220307091636.146155347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 9826e393e4a8c3df474e7f9eacd3087266f74005 upstream.
+commit e01b042e580f1fbf4fd8da467442451da00c7a90 upstream.
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+__setup() handlers should return 1 on success, i.e., the parameter
+has been handled. A return of 0 causes the "option=value" string to be
+added to init's environment strings, polluting it.
 
-Fixes: 765a9d1d02b2 ("iommu/tegra-smmu: Fix mc errors on tegra124-nyan")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20220107080915.12686-1-linmq006@gmail.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 47dd7a540b8a ("net: add support for STMicroelectronics Ethernet controllers.")
+Fixes: f3240e2811f0 ("stmmac: remove warning when compile as built-in (V2)")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Jose Abreu <joabreu@synopsys.com>
+Link: https://lore.kernel.org/r/20220224033536.25056-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/tegra-smmu.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -808,8 +808,10 @@ static struct tegra_smmu *tegra_smmu_fin
- 		return NULL;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4550,7 +4550,7 @@ static int __init stmmac_cmdline_opt(cha
+ 	char *opt;
  
- 	mc = platform_get_drvdata(pdev);
--	if (!mc)
-+	if (!mc) {
-+		put_device(&pdev->dev);
- 		return NULL;
-+	}
+ 	if (!str || !*str)
+-		return -EINVAL;
++		return 1;
+ 	while ((opt = strsep(&str, ",")) != NULL) {
+ 		if (!strncmp(opt, "debug:", 6)) {
+ 			if (kstrtoint(opt + 6, 0, &debug))
+@@ -4581,11 +4581,11 @@ static int __init stmmac_cmdline_opt(cha
+ 				goto err;
+ 		}
+ 	}
+-	return 0;
++	return 1;
  
- 	return mc->smmu;
+ err:
+ 	pr_err("%s: ERROR broken module parameter conversion", __func__);
+-	return -EINVAL;
++	return 1;
  }
+ 
+ __setup("stmmaceth=", stmmac_cmdline_opt);
 
 
