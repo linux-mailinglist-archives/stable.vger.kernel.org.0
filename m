@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 781B74CF82D
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6951E4CF901
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233316AbiCGJwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52204 "EHLO
+        id S239483AbiCGKDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:03:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238839AbiCGJsr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:48:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E3C6D4CD;
-        Mon,  7 Mar 2022 01:42:37 -0800 (PST)
+        with ESMTP id S241063AbiCGKBk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7343F70CF0;
+        Mon,  7 Mar 2022 01:51:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 345AB61224;
-        Mon,  7 Mar 2022 09:42:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37104C36AE9;
-        Mon,  7 Mar 2022 09:42:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAF26609E9;
+        Mon,  7 Mar 2022 09:51:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9055C340F3;
+        Mon,  7 Mar 2022 09:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646156;
-        bh=ZFa5qGU/Bx44asH0ijJeAVEBfCBxgDdBxw9ajPLlLR0=;
+        s=korg; t=1646646678;
+        bh=zkLJNs8O2CCSa0+qdjEJ0wIH1AngXqnd3Wz7sPQS0m0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wI7uR24pKni/lt3CzfJ4iH1z98M19BLZZawx454EvyUWzn2NARtiVXO9Kdej3eHOm
-         OL3aBm6+65pcjhAoZTbJmPBMgC7CkeM0DEp//nfXdVJYX9lk69N1RgRbsBjr0kH+Nv
-         m8EUd5yabrpwMAk3bmMKv+q5g/o3NaCXrqWKzuLY=
+        b=vCTbom9RqWpXfr+5cakHFvugVvYfbCz6muGl/J0paRnA/01f2vdVaqYpgDwNee2ka
+         OfNMCrOh9Y69G7Jf+GzyGYSZW3jgULgvczyd+JvcG+2UuyzvBYk7lH9yn6xHyNJCqv
+         a5wCCvoX3GAEI9qyrTdAJwby5LsB/Katklv2QOSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Dai <jerry.dai@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>, Jon Mason <jdmason@kudzu.us>
-Subject: [PATCH 5.15 151/262] ntb: intel: fix port config status offset for SPR
+        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.16 057/186] iommu/amd: Recover from event log overflow
 Date:   Mon,  7 Mar 2022 10:18:15 +0100
-Message-Id: <20220307091706.701856383@linuxfoundation.org>
+Message-Id: <20220307091655.687642912@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Lennert Buytenhek <buytenh@wantstofly.org>
 
-commit d5081bf5dcfb1cb83fb538708b0ac07a10a79cc4 upstream.
+commit 5ce97f4ec5e0f8726a5dda1710727b1ee9badcac upstream.
 
-The field offset for port configuration status on SPR has been changed to
-bit 14 from ICX where it resides at bit 12. By chance link status detection
-continued to work on SPR. This is due to bit 12 being a configuration bit
-which is in sync with the status bit. Fix this by checking for a SPR device
-and checking correct status bit.
+The AMD IOMMU logs I/O page faults and such to a ring buffer in
+system memory, and this ring buffer can overflow.  The AMD IOMMU
+spec has the following to say about the interrupt status bit that
+signals this overflow condition:
 
-Fixes: 26bfe3d0b227 ("ntb: intel: Add Icelake (gen4) support for Intel NTB")
-Tested-by: Jerry Dai <jerry.dai@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+	EventOverflow: Event log overflow. RW1C. Reset 0b. 1 = IOMMU
+	event log overflow has occurred. This bit is set when a new
+	event is to be written to the event log and there is no usable
+	entry in the event log, causing the new event information to
+	be discarded. An interrupt is generated when EventOverflow = 1b
+	and MMIO Offset 0018h[EventIntEn] = 1b. No new event log
+	entries are written while this bit is set. Software Note: To
+	resume logging, clear EventOverflow (W1C), and write a 1 to
+	MMIO Offset 0018h[EventLogEn].
+
+The AMD IOMMU driver doesn't currently implement this recovery
+sequence, meaning that if a ring buffer overflow occurs, logging
+of EVT/PPR/GA events will cease entirely.
+
+This patch implements the spec-mandated reset sequence, with the
+minor tweak that the hardware seems to want to have a 0 written to
+MMIO Offset 0018h[EventLogEn] first, before writing an 1 into this
+field, or the IOMMU won't actually resume logging events.
+
+Signed-off-by: Lennert Buytenhek <buytenh@arista.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/YVrSXEdW2rzEfOvk@wantstofly.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ntb/hw/intel/ntb_hw_gen4.c |   17 ++++++++++++++++-
- drivers/ntb/hw/intel/ntb_hw_gen4.h |   16 ++++++++++++++++
- 2 files changed, 32 insertions(+), 1 deletion(-)
+ drivers/iommu/amd/amd_iommu.h       |    1 +
+ drivers/iommu/amd/amd_iommu_types.h |    1 +
+ drivers/iommu/amd/init.c            |   10 ++++++++++
+ drivers/iommu/amd/iommu.c           |   10 ++++++++--
+ 4 files changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/ntb/hw/intel/ntb_hw_gen4.c
-+++ b/drivers/ntb/hw/intel/ntb_hw_gen4.c
-@@ -168,6 +168,18 @@ static enum ntb_topo gen4_ppd_topo(struc
- 	return NTB_TOPO_NONE;
+--- a/drivers/iommu/amd/amd_iommu.h
++++ b/drivers/iommu/amd/amd_iommu.h
+@@ -14,6 +14,7 @@
+ extern irqreturn_t amd_iommu_int_thread(int irq, void *data);
+ extern irqreturn_t amd_iommu_int_handler(int irq, void *data);
+ extern void amd_iommu_apply_erratum_63(u16 devid);
++extern void amd_iommu_restart_event_logging(struct amd_iommu *iommu);
+ extern void amd_iommu_reset_cmd_buffer(struct amd_iommu *iommu);
+ extern int amd_iommu_init_devices(void);
+ extern void amd_iommu_uninit_devices(void);
+--- a/drivers/iommu/amd/amd_iommu_types.h
++++ b/drivers/iommu/amd/amd_iommu_types.h
+@@ -110,6 +110,7 @@
+ #define PASID_MASK		0x0000ffff
+ 
+ /* MMIO status bits */
++#define MMIO_STATUS_EVT_OVERFLOW_INT_MASK	(1 << 0)
+ #define MMIO_STATUS_EVT_INT_MASK	(1 << 1)
+ #define MMIO_STATUS_COM_WAIT_INT_MASK	(1 << 2)
+ #define MMIO_STATUS_PPR_INT_MASK	(1 << 6)
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -658,6 +658,16 @@ static int __init alloc_command_buffer(s
  }
  
-+static enum ntb_topo spr_ppd_topo(struct intel_ntb_dev *ndev, u32 ppd)
+ /*
++ * This function restarts event logging in case the IOMMU experienced
++ * an event log buffer overflow.
++ */
++void amd_iommu_restart_event_logging(struct amd_iommu *iommu)
 +{
-+	switch (ppd & SPR_PPD_TOPO_MASK) {
-+	case SPR_PPD_TOPO_B2B_USD:
-+		return NTB_TOPO_B2B_USD;
-+	case SPR_PPD_TOPO_B2B_DSD:
-+		return NTB_TOPO_B2B_DSD;
-+	}
-+
-+	return NTB_TOPO_NONE;
++	iommu_feature_disable(iommu, CONTROL_EVT_LOG_EN);
++	iommu_feature_enable(iommu, CONTROL_EVT_LOG_EN);
 +}
 +
- int gen4_init_dev(struct intel_ntb_dev *ndev)
- {
- 	struct pci_dev *pdev = ndev->ntb.pdev;
-@@ -183,7 +195,10 @@ int gen4_init_dev(struct intel_ntb_dev *
- 	}
++/*
+  * This function resets the command buffer if the IOMMU stopped fetching
+  * commands from it.
+  */
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -764,7 +764,8 @@ amd_iommu_set_pci_msi_domain(struct devi
+ #endif /* !CONFIG_IRQ_REMAP */
  
- 	ppd1 = ioread32(ndev->self_mmio + GEN4_PPD1_OFFSET);
--	ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
-+	if (pdev_is_ICX(pdev))
-+		ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
-+	else if (pdev_is_SPR(pdev))
-+		ndev->ntb.topo = spr_ppd_topo(ndev, ppd1);
- 	dev_dbg(&pdev->dev, "ppd %#x topo %s\n", ppd1,
- 		ntb_topo_string(ndev->ntb.topo));
- 	if (ndev->ntb.topo == NTB_TOPO_NONE)
---- a/drivers/ntb/hw/intel/ntb_hw_gen4.h
-+++ b/drivers/ntb/hw/intel/ntb_hw_gen4.h
-@@ -49,10 +49,14 @@
- #define GEN4_PPD_CLEAR_TRN		0x0001
- #define GEN4_PPD_LINKTRN		0x0008
- #define GEN4_PPD_CONN_MASK		0x0300
-+#define SPR_PPD_CONN_MASK		0x0700
- #define GEN4_PPD_CONN_B2B		0x0200
- #define GEN4_PPD_DEV_MASK		0x1000
- #define GEN4_PPD_DEV_DSD		0x1000
- #define GEN4_PPD_DEV_USD		0x0000
-+#define SPR_PPD_DEV_MASK		0x4000
-+#define SPR_PPD_DEV_DSD 		0x4000
-+#define SPR_PPD_DEV_USD 		0x0000
- #define GEN4_LINK_CTRL_LINK_DISABLE	0x0010
+ #define AMD_IOMMU_INT_MASK	\
+-	(MMIO_STATUS_EVT_INT_MASK | \
++	(MMIO_STATUS_EVT_OVERFLOW_INT_MASK | \
++	 MMIO_STATUS_EVT_INT_MASK | \
+ 	 MMIO_STATUS_PPR_INT_MASK | \
+ 	 MMIO_STATUS_GALOG_INT_MASK)
  
- #define GEN4_SLOTSTS			0xb05a
-@@ -62,6 +66,10 @@
- #define GEN4_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_USD)
- #define GEN4_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_DSD)
+@@ -774,7 +775,7 @@ irqreturn_t amd_iommu_int_thread(int irq
+ 	u32 status = readl(iommu->mmio_base + MMIO_STATUS_OFFSET);
  
-+#define SPR_PPD_TOPO_MASK	(SPR_PPD_CONN_MASK | SPR_PPD_DEV_MASK)
-+#define SPR_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_USD)
-+#define SPR_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_DSD)
-+
- #define GEN4_DB_COUNT			32
- #define GEN4_DB_LINK			32
- #define GEN4_DB_LINK_BIT		BIT_ULL(GEN4_DB_LINK)
-@@ -111,5 +119,13 @@ static inline int pdev_is_ICX(struct pci
- 		return 1;
- 	return 0;
- }
-+
-+static inline int pdev_is_SPR(struct pci_dev *pdev)
-+{
-+	if (pdev_is_gen4(pdev) &&
-+	    pdev->revision > PCI_DEVICE_REVISION_ICX_MAX)
-+		return 1;
-+	return 0;
-+}
+ 	while (status & AMD_IOMMU_INT_MASK) {
+-		/* Enable EVT and PPR and GA interrupts again */
++		/* Enable interrupt sources again */
+ 		writel(AMD_IOMMU_INT_MASK,
+ 			iommu->mmio_base + MMIO_STATUS_OFFSET);
  
+@@ -795,6 +796,11 @@ irqreturn_t amd_iommu_int_thread(int irq
+ 		}
  #endif
+ 
++		if (status & MMIO_STATUS_EVT_OVERFLOW_INT_MASK) {
++			pr_info_ratelimited("IOMMU event log overflow\n");
++			amd_iommu_restart_event_logging(iommu);
++		}
++
+ 		/*
+ 		 * Hardware bug: ERBT1312
+ 		 * When re-enabling interrupt (by writing 1
 
 
