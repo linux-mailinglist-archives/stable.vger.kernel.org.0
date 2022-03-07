@@ -2,78 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F044D004E
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 14:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F33444D0070
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 14:50:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235124AbiCGNmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 08:42:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33378 "EHLO
+        id S238031AbiCGNvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 08:51:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235052AbiCGNmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 08:42:11 -0500
-Received: from mail.itouring.de (mail.itouring.de [IPv6:2a01:4f8:a0:4463::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7284185BE3;
-        Mon,  7 Mar 2022 05:41:17 -0800 (PST)
-Received: from tux.applied-asynchrony.com (p5ddd7616.dip0.t-ipconnect.de [93.221.118.22])
-        by mail.itouring.de (Postfix) with ESMTPSA id D115711DD40;
-        Mon,  7 Mar 2022 14:41:15 +0100 (CET)
-Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
-        by tux.applied-asynchrony.com (Postfix) with ESMTP id 8663DF01605;
-        Mon,  7 Mar 2022 14:41:15 +0100 (CET)
-Subject: Re: [PATCH 5.15 000/262] 5.15.27-rc1 review
-From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220307091702.378509770@linuxfoundation.org>
- <fe8b46f5-6c24-d749-668f-29ea51fa5d58@applied-asynchrony.com>
-Organization: Applied Asynchrony, Inc.
-Message-ID: <5e048582-5c63-38c2-bbcb-6a0c20cb47e4@applied-asynchrony.com>
-Date:   Mon, 7 Mar 2022 14:41:15 +0100
+        with ESMTP id S237571AbiCGNve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 08:51:34 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5FC8BF55
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 05:50:39 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id bc27so13614983pgb.4
+        for <stable@vger.kernel.org>; Mon, 07 Mar 2022 05:50:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=wsuzyce8CAW5lltmM4g7NZ0LpjLf4pAEjcAtvpVx4dg=;
+        b=mVIFCAaP2RoEbt+E6qYATWjptlgip+8BeD08qZIRPhxpIhBPNXC9tuBsm0i/+2unN2
+         J79iwrLG0JOeq644hrBvJMHWaBgu/M1wgpwJA3Vxeu4u7fHzpqcFlsskdraVLPXRb2Am
+         rgy+uL+44VhPBRbdd3vvRfBKyuCqEEQ5M+ZbIxuZKtcju7N/deJbVn5cUzztxz5i34va
+         eeX7Uvxd5/FMSmCTxiSRP3XDyBYEZiYD/Vft8ilsR8mN1x9god6kwm88Cg0NQP06cDwy
+         EwQSLd+WHcO7WgpchAV2YkYxjSofNFzr4BE+A8VdtqqvFFoTU2q/T0scziz37Pjw4nEC
+         h8Bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=wsuzyce8CAW5lltmM4g7NZ0LpjLf4pAEjcAtvpVx4dg=;
+        b=L1qydoRAC1oMD7BVEpRaevc94ZOhACNhiE9XvKPlq/iCbVR9mrguoPbW+XfZWCkCc1
+         uBsCsSfycKF3fN35R937s87bpJQHpeLRih1Cgnxc9AW5I9yRh1GgpMVdCQDAYS+77CF5
+         9lAofSIkSm+Kw0Jf5KPy6oXf0eYGTk1484sXBaMDgYbL4pKb6WSPrGyq6L6vsapJHN53
+         Hd0esXZsGGbnii7H2kFrRDnLkJF9kNAYNnc+ZreEEyXL+rQKvu0FoMnT8CC5LzMk/4lK
+         MewxXhkP6DWkN244SvH3JLGyrPFKTSBybVDzkPQwJI55YILQ9sA4rTeoEVMqC+l3ZdfS
+         aCPw==
+X-Gm-Message-State: AOAM531+8Un8t8JHbT3wuk/p8PzV3QM8B4miMGWimaTRlRxhnF1OzO1Y
+        +jHqn/5ferH+5D2GWVNs6L6Us3ACxdw9/bfx3EA=
+X-Google-Smtp-Source: ABdhPJwW+897XI2f0/aYLbhJmlcDX7g8DX6JdC/62y53ull9+iQFNB/8G+nQ+tZZYEFnbYouL0HBzQ==
+X-Received: by 2002:a65:6a46:0:b0:37f:ef34:7b8e with SMTP id o6-20020a656a46000000b0037fef347b8emr9788103pgu.503.1646661039335;
+        Mon, 07 Mar 2022 05:50:39 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a22-20020a056a000c9600b004f10137a096sm16998310pfv.50.2022.03.07.05.50.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Mar 2022 05:50:39 -0800 (PST)
+Message-ID: <62260daf.1c69fb81.51711.a074@mx.google.com>
+Date:   Mon, 07 Mar 2022 05:50:39 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <fe8b46f5-6c24-d749-668f-29ea51fa5d58@applied-asynchrony.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.269-43-ga1eb78ce1bf6
+Subject: stable-rc/linux-4.14.y baseline: 41 runs,
+ 1 regressions (v4.14.269-43-ga1eb78ce1bf6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-03-07 11:44, Holger Hoffstätte wrote:
-> On 2022-03-07 10:15, Greg Kroah-Hartman wrote:
->> This is the start of the stable review cycle for the 5.15.27 release.
->> There are 262 patches in this series, all will be posted as a response
->> to this one.  If anyone has any issues with these being applied, please
->> let me know.
-> 
-> CC [M]  drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn301/dcn301_fpu.o
-> drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn301/dcn301_fpu.c:30:10: fatal error: dml/dcn20/dcn20_fpu.h: No such file or directory
->     30 | #include "dml/dcn20/dcn20_fpu.h"
->        |          ^~~~~~~~~~~~~~~~~~~~~~~
-> compilation terminated.
-> 
-> Culprit is "drm-amd-display-move-fpu-associated-dcn301-code-to-d.patch"
-> 
-> Looking over the git history of the dml/dnc20 directory I think the correct fix would
-> be to also apply upstream commit ee37341199c61558b73113659695c90bf4736eb2 aka
-> "drm/amd/display: Re-arrange FPU code structure for dcn2x"
-> 
-> CC'ing Qingqing Zhuo for confirmation.
+stable-rc/linux-4.14.y baseline: 41 runs, 1 regressions (v4.14.269-43-ga1eb=
+78ce1bf6)
 
-I can confirm that applying a modified ee37341199c6 fixes the issue. \o/
-The hunk that refers to drivers/gpu/drm/amd/display/dc/dcn201 needs to be removed,
-since that directory (support for "cyan_skillfish") does not exist in 5.15.x.
+Regressions Summary
+-------------------
 
-cheers
-Holger
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.269-43-ga1eb78ce1bf6/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.269-43-ga1eb78ce1bf6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a1eb78ce1bf6ba801e76033760945bfc97f8d9d9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/6225d6b787c4646049c6296a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+69-43-ga1eb78ce1bf6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-mes=
+on8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+69-43-ga1eb78ce1bf6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-mes=
+on8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6225d6b787c4646049c62=
+96b
+        failing since 20 days (last pass: v4.14.266, first fail: v4.14.266-=
+45-gce409501ca5f) =
+
+ =20
