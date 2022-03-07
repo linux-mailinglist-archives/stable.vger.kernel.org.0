@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67204CF5E2
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA474CFA3A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237130AbiCGJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36184 "EHLO
+        id S238807AbiCGKOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:14:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237849AbiCGJ23 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA486BDEF;
-        Mon,  7 Mar 2022 01:26:09 -0800 (PST)
+        with ESMTP id S242096AbiCGKLO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9936F88781;
+        Mon,  7 Mar 2022 01:54:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B30426116E;
-        Mon,  7 Mar 2022 09:26:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1ABAC340E9;
-        Mon,  7 Mar 2022 09:26:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E44160BB5;
+        Mon,  7 Mar 2022 09:53:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F764C340F3;
+        Mon,  7 Mar 2022 09:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645166;
-        bh=XeQWuE9QS00qsRaIJms6ytgoEPSUO8UYDaaenG9fc9I=;
+        s=korg; t=1646646827;
+        bh=xKRWElij6OuQu68z/epaNC3rjgzBAHua+vCW4tVnPjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btCnVASBdAB8vPWEZVFG2om6p36/gflqnVHd5BFzmK9bV7/1Zw0cZwpF/QDGWKlu1
-         cbMtGAtW2ojNDrO51CLwyLaBazzLUe/bmFFxPZpL5w2ttHBGd21YDyn5a6Wl2mXjQ2
-         eNTNrNBN6aFGq0ZrP63mjntj7yFT9ViEijo13Ccg=
+        b=fEe3PIAdi/GcXXM3KssBt1CDtv/u80R4IH3b9XjNesSp/4LMdBaADZa3KJyzctA20
+         AMKJ4nZ2t/d2DYhBOUF5Zs3wZtwCVqQE+bQvok5TR6hw+7zWYIuyGXcei/06BSE8+V
+         wFqseOJ2HnTYQOmYjU/bdEbevC6WIbDoPz4UFKtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 26/51] net: dcb: flush lingering app table entries for unregistered devices
-Date:   Mon,  7 Mar 2022 10:19:01 +0100
-Message-Id: <20220307091637.737283808@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.16 104/186] can: gs_usb: change active_channelss type from atomic_t to u8
+Date:   Mon,  7 Mar 2022 10:19:02 +0100
+Message-Id: <20220307091656.987735882@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,103 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit 91b0383fef06f20b847fa9e4f0e3054ead0b1a1b upstream.
+commit 035b0fcf02707d3c9c2890dc1484b11aa5335eb1 upstream.
 
-If I'm not mistaken (and I don't think I am), the way in which the
-dcbnl_ops work is that drivers call dcb_ieee_setapp() and this populates
-the application table with dynamically allocated struct dcb_app_type
-entries that are kept in the module-global dcb_app_list.
+The driver uses an atomic_t variable: gs_usb:active_channels to keep
+track of the number of opened channels in order to only allocate
+memory for the URBs when this count changes from zero to one.
 
-However, nobody keeps exact track of these entries, and although
-dcb_ieee_delapp() is supposed to remove them, nobody does so when the
-interface goes away (example: driver unbinds from device). So the
-dcb_app_list will contain lingering entries with an ifindex that no
-longer matches any device in dcb_app_lookup().
+However, the driver does not decrement the counter when an error
+occurs in gs_can_open(). This issue is fixed by changing the type from
+atomic_t to u8 and by simplifying the logic accordingly.
 
-Reclaim the lost memory by listening for the NETDEV_UNREGISTER event and
-flushing the app table entries of interfaces that are now gone.
+It is safe to use an u8 here because the network stack big kernel lock
+(a.k.a. rtnl_mutex) is being hold. For details, please refer to [1].
 
-In fact something like this used to be done as part of the initial
-commit (blamed below), but it was done in dcbnl_exit() -> dcb_flushapp(),
-essentially at module_exit time. That became dead code after commit
-7a6b6f515f77 ("DCB: fix kconfig option") which essentially merged
-"tristate config DCB" and "bool config DCBNL" into a single "bool config
-DCB", so net/dcb/dcbnl.c could not be built as a module anymore.
+[1] https://lore.kernel.org/linux-can/CAMZ6Rq+sHpiw34ijPsmp7vbUpDtJwvVtdV7CvRZJsLixjAFfrg@mail.gmail.com/T/#t
 
-Commit 36b9ad8084bd ("net/dcb: make dcbnl.c explicitly non-modular")
-recognized this and deleted dcbnl_exit() and dcb_flushapp() altogether,
-leaving us with the version we have today.
-
-Since flushing application table entries can and should be done as soon
-as the netdevice disappears, fundamentally the commit that is to blame
-is the one that introduced the design of this API.
-
-Fixes: 9ab933ab2cc8 ("dcbnl: add appliction tlv handlers")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Link: https://lore.kernel.org/all/20220214234814.1321599-1-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dcb/dcbnl.c |   44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ drivers/net/can/usb/gs_usb.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -2054,10 +2054,54 @@ u8 dcb_ieee_getapp_default_prio_mask(con
- }
- EXPORT_SYMBOL(dcb_ieee_getapp_default_prio_mask);
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -191,8 +191,8 @@ struct gs_can {
+ struct gs_usb {
+ 	struct gs_can *canch[GS_MAX_INTF];
+ 	struct usb_anchor rx_submitted;
+-	atomic_t active_channels;
+ 	struct usb_device *udev;
++	u8 active_channels;
+ };
  
-+static void dcbnl_flush_dev(struct net_device *dev)
-+{
-+	struct dcb_app_type *itr, *tmp;
-+
-+	spin_lock(&dcb_lock);
-+
-+	list_for_each_entry_safe(itr, tmp, &dcb_app_list, list) {
-+		if (itr->ifindex == dev->ifindex) {
-+			list_del(&itr->list);
-+			kfree(itr);
-+		}
-+	}
-+
-+	spin_unlock(&dcb_lock);
-+}
-+
-+static int dcbnl_netdevice_event(struct notifier_block *nb,
-+				 unsigned long event, void *ptr)
-+{
-+	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
-+
-+	switch (event) {
-+	case NETDEV_UNREGISTER:
-+		if (!dev->dcbnl_ops)
-+			return NOTIFY_DONE;
-+
-+		dcbnl_flush_dev(dev);
-+
-+		return NOTIFY_OK;
-+	default:
-+		return NOTIFY_DONE;
-+	}
-+}
-+
-+static struct notifier_block dcbnl_nb __read_mostly = {
-+	.notifier_call  = dcbnl_netdevice_event,
-+};
-+
- static int __init dcbnl_init(void)
- {
-+	int err;
-+
- 	INIT_LIST_HEAD(&dcb_app_list);
+ /* 'allocate' a tx context.
+@@ -590,7 +590,7 @@ static int gs_can_open(struct net_device
+ 	if (rc)
+ 		return rc;
  
-+	err = register_netdevice_notifier(&dcbnl_nb);
-+	if (err)
-+		return err;
-+
- 	rtnl_register(PF_UNSPEC, RTM_GETDCB, dcb_doit, NULL, 0);
- 	rtnl_register(PF_UNSPEC, RTM_SETDCB, dcb_doit, NULL, 0);
+-	if (atomic_add_return(1, &parent->active_channels) == 1) {
++	if (!parent->active_channels) {
+ 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
+ 			struct urb *urb;
+ 			u8 *buf;
+@@ -691,6 +691,7 @@ static int gs_can_open(struct net_device
+ 
+ 	dev->can.state = CAN_STATE_ERROR_ACTIVE;
+ 
++	parent->active_channels++;
+ 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
+ 		netif_start_queue(netdev);
+ 
+@@ -706,7 +707,8 @@ static int gs_can_close(struct net_devic
+ 	netif_stop_queue(netdev);
+ 
+ 	/* Stop polling */
+-	if (atomic_dec_and_test(&parent->active_channels))
++	parent->active_channels--;
++	if (!parent->active_channels)
+ 		usb_kill_anchored_urbs(&parent->rx_submitted);
+ 
+ 	/* Stop sending URBs */
+@@ -985,8 +987,6 @@ static int gs_usb_probe(struct usb_inter
+ 
+ 	init_usb_anchor(&dev->rx_submitted);
+ 
+-	atomic_set(&dev->active_channels, 0);
+-
+ 	usb_set_intfdata(intf, dev);
+ 	dev->udev = interface_to_usbdev(intf);
  
 
 
