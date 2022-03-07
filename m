@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1FF24CF547
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:26:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 612A64CF5A3
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236790AbiCGJ0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:26:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36142 "EHLO
+        id S237065AbiCGJaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236881AbiCGJZr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:25:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2610D5BD24;
-        Mon,  7 Mar 2022 01:24:05 -0800 (PST)
+        with ESMTP id S237951AbiCGJ2e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E331657B5;
+        Mon,  7 Mar 2022 01:26:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADD3A60C00;
-        Mon,  7 Mar 2022 09:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82ABC36AE3;
-        Mon,  7 Mar 2022 09:24:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 156FFB810C3;
+        Mon,  7 Mar 2022 09:26:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 323DCC340F3;
+        Mon,  7 Mar 2022 09:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645044;
-        bh=i5VHI7JTDFpPs3+CFF91y+xv8PC264aoBXGF5EYIqL8=;
+        s=korg; t=1646645178;
+        bh=x8fJSb9IKlcqvRl4YJcfYG9sKVjOS3ECVVnLLeHY8RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTa8ATha4LGNoRTldEhsVqqCErUJdyV1Rtpxs9ynbbg4yAH2ZKSGHLgiqXdXB9g6K
-         yoL+w3iA16QGJyeZqJtci4UKBuo0qEc8x+Chl10WsMO5o6//8W6l24ucehU+hs3u7L
-         4hng52gVC6/UrUhZMntcxhsfDNnXMjIepJNw0JrM=
+        b=o+SLLW57F3PdtQ4pb00v1JJ7FRrmiCWz9ikz54MmRNmwGN3NoBN/d+VBzUxQxGoa5
+         /80UK1N2XalV7TnYmU/b5YxWkTb+9SUQ4PYgQAGc5CUbmXHBC6NfbJLLOyXZbqafzG
+         lUvKwTvP/z0MV23to0aBw6HFbFMmk5q9c6H+xqWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, JaeMan Park <jaeman@google.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/51] mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
+Subject: [PATCH 5.4 04/64] ASoC: rt5668: do not block workqueue if card is unbound
 Date:   Mon,  7 Mar 2022 10:18:37 +0100
-Message-Id: <20220307091637.062630665@linuxfoundation.org>
+Message-Id: <20220307091639.265431590@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +60,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JaeMan Park <jaeman@google.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit cacfddf82baf1470e5741edeecb187260868f195 ]
+[ Upstream commit a6d78661dc903d90a327892bbc34268f3a5f4b9c ]
 
-In mac80211_hwsim, the probe_req frame is created and sent while
-scanning. It is sent with ieee80211_tx_info which is not initialized.
-Uninitialized ieee80211_tx_info can cause problems when using
-mac80211_hwsim with wmediumd. wmediumd checks the tx_rates field of
-ieee80211_tx_info and doesn't relay probe_req frame to other clients
-even if it is a broadcasting message.
+The current rt5668_jack_detect_handler() assumes the component
+and card will always show up and implements an infinite usleep
+loop waiting for them to show up.
 
-Call ieee80211_tx_prepare_skb() to initialize ieee80211_tx_info for
-the probe_req that is created by hw_scan_work in mac80211_hwsim.
+This does not hold true if a codec interrupt (or other
+event) occurs when the card is unbound. The codec driver's
+remove  or shutdown functions cannot cancel the workqueue due
+to the wait loop. As a result, code can either end up blocking
+the workqueue, or hit a kernel oops when the card is freed.
 
-Signed-off-by: JaeMan Park <jaeman@google.com>
-Link: https://lore.kernel.org/r/20220113060235.546107-1-jaeman@google.com
-[fix memory leak]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fix the issue by rescheduling the jack detect handler in
+case the card is not ready. In case card never shows up,
+the shutdown/remove/suspend calls can now cancel the detect
+task.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20220207153000.3452802-2-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/codecs/rt5668.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 6cd9a8b610107..c84ee5ba53812 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -2082,6 +2082,15 @@ static void hw_scan_work(struct work_struct *work)
- 			if (req->ie_len)
- 				skb_put_data(probe, req->ie, req->ie_len);
+diff --git a/sound/soc/codecs/rt5668.c b/sound/soc/codecs/rt5668.c
+index 5716cede99cb4..acc2b34ca334a 100644
+--- a/sound/soc/codecs/rt5668.c
++++ b/sound/soc/codecs/rt5668.c
+@@ -1022,11 +1022,13 @@ static void rt5668_jack_detect_handler(struct work_struct *work)
+ 		container_of(work, struct rt5668_priv, jack_detect_work.work);
+ 	int val, btn_type;
  
-+			if (!ieee80211_tx_prepare_skb(hwsim->hw,
-+						      hwsim->hw_scan_vif,
-+						      probe,
-+						      hwsim->tmp_chan->band,
-+						      NULL)) {
-+				kfree_skb(probe);
-+				continue;
-+			}
-+
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
+-	while (!rt5668->component)
+-		usleep_range(10000, 15000);
+-
+-	while (!rt5668->component->card->instantiated)
+-		usleep_range(10000, 15000);
++	if (!rt5668->component || !rt5668->component->card ||
++	    !rt5668->component->card->instantiated) {
++		/* card not yet ready, try later */
++		mod_delayed_work(system_power_efficient_wq,
++				 &rt5668->jack_detect_work, msecs_to_jiffies(15));
++		return;
++	}
+ 
+ 	mutex_lock(&rt5668->calibrate_mutex);
+ 
 -- 
 2.34.1
 
