@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC01C4CF724
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA6A4CF757
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238099AbiCGJoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
+        id S238312AbiCGJpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240957AbiCGJlm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:42 -0500
+        with ESMTP id S240973AbiCGJln (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 397B96CA4C;
-        Mon,  7 Mar 2022 01:38:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11206C1CA;
+        Mon,  7 Mar 2022 01:38:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEA9AB810BD;
-        Mon,  7 Mar 2022 09:38:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DB86C340F3;
-        Mon,  7 Mar 2022 09:38:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 392C4B8102B;
+        Mon,  7 Mar 2022 09:38:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73EFCC340F3;
+        Mon,  7 Mar 2022 09:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645925;
-        bh=ifDCbOlvlfDMlQSljIfCesPKWuSzZT3V2906vyaUncs=;
+        s=korg; t=1646645928;
+        bh=Ljpn8FdyEg3DeGHMfdNwKAXkMrJs/1K06M6QjXTJynQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+MYAYI+/zPJ55gjXUZVxKKrOrsipUSMFQacs9b7mbhDyHs/LRqSmF687m+zkHAzP
-         EU5gtox9U3PaPpBy/0NLo/NA3uT6Nb97MIbe3v8uae5AEwnng5U4g4EuCZPvp8AU9i
-         h0dYbPF+Ae0kDOltf60Tp2ObqUdD74msROTmh4uA=
+        b=d+4GFnPo+NGMku5ctl6vTPh7ZNUoS8xH6WCamUda8Lar1oMz4SnQgvywckPqGLDkw
+         /A1GqFMBNgihf5i3d76rMDgQWUV71xw16ZzVswqx3cfS+uJ4Qi3Dhql4YR19F3GaaG
+         txNHgn50N7Sm13degQ2STguVvEbwzdKHT7lsjrU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 078/262] x86/hyperv: Properly deal with empty cpumasks in hyperv_flush_tlb_multi()
-Date:   Mon,  7 Mar 2022 10:17:02 +0100
-Message-Id: <20220307091704.692711717@linuxfoundation.org>
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 079/262] drm/i915: dont call free_mmap_offset when purging
+Date:   Mon,  7 Mar 2022 10:17:03 +0100
+Message-Id: <20220307091704.720213737@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -54,138 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Matthew Auld <matthew.auld@intel.com>
 
-[ Upstream commit 51500b71d500f251037ed339047a4d9e7d7e295b ]
+[ Upstream commit 4c2602ba8d74c35d550ed3d518809c697de08d88 ]
 
-KASAN detected the following issue:
+The TTM backend is in theory the only user here(also purge should only
+be called once we have dropped the pages), where it is setup at object
+creation and is only removed once the object is destroyed. Also
+resetting the node here might be iffy since the ttm fault handler
+uses the stored fake offset to determine the page offset within the pages
+array.
 
- BUG: KASAN: slab-out-of-bounds in hyperv_flush_tlb_multi+0xf88/0x1060
- Read of size 4 at addr ffff8880011ccbc0 by task kcompactd0/33
+This also blows up in the dontneed-before-mmap test, since the
+expectation is that the vma_node will live on, until the object is
+destroyed:
 
- CPU: 1 PID: 33 Comm: kcompactd0 Not tainted 5.14.0-39.el9.x86_64+debug #1
- Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine,
-     BIOS Hyper-V UEFI Release v4.0 12/17/2019
- Call Trace:
-  dump_stack_lvl+0x57/0x7d
-  print_address_description.constprop.0+0x1f/0x140
-  ? hyperv_flush_tlb_multi+0xf88/0x1060
-  __kasan_report.cold+0x7f/0x11e
-  ? hyperv_flush_tlb_multi+0xf88/0x1060
-  kasan_report+0x38/0x50
-  hyperv_flush_tlb_multi+0xf88/0x1060
-  flush_tlb_mm_range+0x1b1/0x200
-  ptep_clear_flush+0x10e/0x150
-...
- Allocated by task 0:
-  kasan_save_stack+0x1b/0x40
-  __kasan_kmalloc+0x7c/0x90
-  hv_common_init+0xae/0x115
-  hyperv_init+0x97/0x501
-  apic_intr_mode_init+0xb3/0x1e0
-  x86_late_time_init+0x92/0xa2
-  start_kernel+0x338/0x3eb
-  secondary_startup_64_no_verify+0xc2/0xcb
+<2> [749.062902] kernel BUG at drivers/gpu/drm/i915/gem/i915_gem_ttm.c:943!
+<4> [749.062923] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+<4> [749.062928] CPU: 0 PID: 1643 Comm: gem_madvise Tainted: G     U  W         5.16.0-rc8-CI-CI_DRM_11046+ #1
+<4> [749.062933] Hardware name: Gigabyte Technology Co., Ltd. GB-Z390 Garuda/GB-Z390 Garuda-CF, BIOS IG1c 11/19/2019
+<4> [749.062937] RIP: 0010:i915_ttm_mmap_offset.cold.35+0x5b/0x5d [i915]
+<4> [749.063044] Code: 00 48 c7 c2 a0 23 4e a0 48 c7 c7 26 df 4a a0 e8 95 1d d0 e0 bf 01 00 00 00 e8 8b ec cf e0 31 f6 bf 09 00 00 00 e8 5f 30 c0 e0 <0f> 0b 48 c7 c1 24 4b 56 a0 ba 5b 03 00 00 48 c7 c6 c0 23 4e a0 48
+<4> [749.063052] RSP: 0018:ffffc90002ab7d38 EFLAGS: 00010246
+<4> [749.063056] RAX: 0000000000000240 RBX: ffff88811f2e61c0 RCX: 0000000000000006
+<4> [749.063060] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000009
+<4> [749.063063] RBP: ffffc90002ab7e58 R08: 0000000000000001 R09: 0000000000000001
+<4> [749.063067] R10: 000000000123d0f8 R11: ffffc90002ab7b20 R12: ffff888112a1a000
+<4> [749.063071] R13: 0000000000000004 R14: ffff88811f2e61c0 R15: ffff888112a1a000
+<4> [749.063074] FS:  00007f6e5fcad500(0000) GS:ffff8884ad600000(0000) knlGS:0000000000000000
+<4> [749.063078] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+<4> [749.063081] CR2: 00007efd264e39f0 CR3: 0000000115fd6005 CR4: 00000000003706f0
+<4> [749.063085] Call Trace:
+<4> [749.063087]  <TASK>
+<4> [749.063089]  __assign_mmap_offset+0x41/0x300 [i915]
+<4> [749.063171]  __assign_mmap_offset_handle+0x159/0x270 [i915]
+<4> [749.063248]  ? i915_gem_dumb_mmap_offset+0x70/0x70 [i915]
+<4> [749.063325]  drm_ioctl_kernel+0xae/0x140
+<4> [749.063330]  drm_ioctl+0x201/0x3d0
+<4> [749.063333]  ? i915_gem_dumb_mmap_offset+0x70/0x70 [i915]
+<4> [749.063409]  ? do_user_addr_fault+0x200/0x670
+<4> [749.063415]  __x64_sys_ioctl+0x6d/0xa0
+<4> [749.063419]  do_syscall_64+0x3a/0xb0
+<4> [749.063423]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+<4> [749.063428] RIP: 0033:0x7f6e5f100317
 
- The buggy address belongs to the object at ffff8880011cc800
-  which belongs to the cache kmalloc-1k of size 1024
- The buggy address is located 960 bytes inside of
-  1024-byte region [ffff8880011cc800, ffff8880011ccc00)
-
-'hyperv_flush_tlb_multi+0xf88/0x1060' points to
-hv_cpu_number_to_vp_number() and '960 bytes' means we're trying to get
-VP_INDEX for CPU#240. 'nr_cpus' here is exactly 240 so we're trying to
-access past hv_vp_index's last element. This can (and will) happen
-when 'cpus' mask is empty and cpumask_last() will return '>=nr_cpus'.
-
-Commit ad0a6bad4475 ("x86/hyperv: check cpu mask after interrupt has
-been disabled") tried to deal with empty cpumask situation but
-apparently didn't fully fix the issue.
-
-'cpus' cpumask which is passed to hyperv_flush_tlb_multi() is
-'mm_cpumask(mm)' (which is '&mm->cpu_bitmap'). This mask changes every
-time the particular mm is scheduled/unscheduled on some CPU (see
-switch_mm_irqs_off()), disabling IRQs on the CPU which is performing remote
-TLB flush has zero influence on whether the particular process can get
-scheduled/unscheduled on _other_ CPUs so e.g. in the case where the mm was
-scheduled on one other CPU and got unscheduled during
-hyperv_flush_tlb_multi()'s execution will lead to cpumask becoming empty.
-
-It doesn't seem that there's a good way to protect 'mm_cpumask(mm)'
-from changing during hyperv_flush_tlb_multi()'s execution. It would be
-possible to copy it in the very beginning of the function but this is a
-waste. It seems we can deal with changing cpumask just fine.
-
-When 'cpus' cpumask changes during hyperv_flush_tlb_multi()'s
-execution, there are two possible issues:
-- 'Under-flushing': we will not flush TLB on a CPU which got added to
-the mask while hyperv_flush_tlb_multi() was already running. This is
-not a problem as this is equal to mm getting scheduled on that CPU
-right after TLB flush.
-- 'Over-flushing': we may flush TLB on a CPU which is already cleared
-from the mask. First, extra TLB flush preserves correctness. Second,
-Hyper-V's TLB flush hypercall takes 'mm->pgd' argument so Hyper-V may
-avoid the flush if CR3 doesn't match.
-
-Fix the immediate issue with cpumask_last()/hv_cpu_number_to_vp_number()
-and remove the pointless cpumask_empty() check from the beginning of the
-function as it really doesn't protect anything. Also, avoid the hypercall
-altogether when 'flush->processor_mask' ends up being empty.
-
-Fixes: ad0a6bad4475 ("x86/hyperv: check cpu mask after interrupt has been disabled")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20220106094611.1404218-1-vkuznets@redhat.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Testcase: igt/gem_madvise/dontneed-before-mmap
+Fixes: cf3e3e86d779 ("drm/i915: Use ttm mmap handling for ttm bo's.")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220106174910.280616-1-matthew.auld@intel.com
+(cherry picked from commit 658a0c632625e1db51837ff754fe18a6a7f2ccf8)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/mmu.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_pages.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
-index bd13736d0c054..0ad2378fe6ad7 100644
---- a/arch/x86/hyperv/mmu.c
-+++ b/arch/x86/hyperv/mmu.c
-@@ -68,15 +68,6 @@ static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
- 
- 	local_irq_save(flags);
- 
--	/*
--	 * Only check the mask _after_ interrupt has been disabled to avoid the
--	 * mask changing under our feet.
--	 */
--	if (cpumask_empty(cpus)) {
--		local_irq_restore(flags);
--		return;
--	}
--
- 	flush_pcpu = (struct hv_tlb_flush **)
- 		     this_cpu_ptr(hyperv_pcpu_input_arg);
- 
-@@ -115,7 +106,9 @@ static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
- 		 * must. We will also check all VP numbers when walking the
- 		 * supplied CPU set to remain correct in all cases.
- 		 */
--		if (hv_cpu_number_to_vp_number(cpumask_last(cpus)) >= 64)
-+		cpu = cpumask_last(cpus);
-+
-+		if (cpu < nr_cpumask_bits && hv_cpu_number_to_vp_number(cpu) >= 64)
- 			goto do_ex_hypercall;
- 
- 		for_each_cpu(cpu, cpus) {
-@@ -131,6 +124,12 @@ static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
- 			__set_bit(vcpu, (unsigned long *)
- 				  &flush->processor_mask);
- 		}
-+
-+		/* nothing to flush if 'processor_mask' ends up being empty */
-+		if (!flush->processor_mask) {
-+			local_irq_restore(flags);
-+			return;
-+		}
- 	}
- 
- 	/*
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+index 8d6c38a622016..9053cea3395a6 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+@@ -162,7 +162,6 @@ int i915_gem_object_pin_pages_unlocked(struct drm_i915_gem_object *obj)
+ /* Immediately discard the backing storage */
+ void i915_gem_object_truncate(struct drm_i915_gem_object *obj)
+ {
+-	drm_gem_free_mmap_offset(&obj->base);
+ 	if (obj->ops->truncate)
+ 		obj->ops->truncate(obj);
+ }
 -- 
 2.34.1
 
