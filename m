@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86B9B4CFA32
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5374CF84E
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:53:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239027AbiCGKMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:12:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46442 "EHLO
+        id S238538AbiCGJwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:52:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241696AbiCGKKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199773A190;
-        Mon,  7 Mar 2022 01:53:43 -0800 (PST)
+        with ESMTP id S240577AbiCGJvK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:51:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9638E657B5;
+        Mon,  7 Mar 2022 01:44:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5B4FB80F9F;
-        Mon,  7 Mar 2022 09:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26BDEC340F3;
-        Mon,  7 Mar 2022 09:53:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7607F60F62;
+        Mon,  7 Mar 2022 09:44:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E0D8C340F3;
+        Mon,  7 Mar 2022 09:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646821;
-        bh=VfEIdLUz6bH6L/JeAHwklQGWBPhkXIBpMuMn3x4wokQ=;
+        s=korg; t=1646646292;
+        bh=+NzAtLObj6uMrptvGTkHCHEAmFeyo5+8E9Db1t+8QB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4o+SZzhdFANtkF64ll4gcNizlW5OFGx5eYGKiWjxBqee4SgSiwkcBjDHqpEUobWr
-         CYd9ZcfBRC2g8f4uTC3bF9T/b37JMw56Hvit+eGZOwrN0Hv4SB1KTk6ikOM8UNMG8O
-         87HglkQnmwV7/dluCesVGjyDJxv5rLyKq5yjszGE=
+        b=ly+GesbPd56nSVAIawB0oPXncZYME1Zipc1Kxrn67yCNf+POamLBDDObyZ3mvCBCI
+         R8bY2XqnqfWhMUhvi7bRuoMvuwsAV5XfkLlRzRTa+QjAWU4+d4146Oe1yT8OYbxCiv
+         gkWebhqyzv+T31HHUot5P+yMz5hFCu/lyCzDcc3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Poeschel <poeschel@lemonage.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Miguel Ojeda <ojeda@kernel.org>
-Subject: [PATCH 5.16 102/186] auxdisplay: lcd2s: Fix memory leak in ->remove()
+        stable@vger.kernel.org, Amit Cohen <amcohen@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 196/262] selftests: mlxsw: tc_police_scale: Make test more robust
 Date:   Mon,  7 Mar 2022 10:19:00 +0100
-Message-Id: <20220307091656.933201339@linuxfoundation.org>
+Message-Id: <20220307091708.140705665@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Amit Cohen <amcohen@nvidia.com>
 
-commit 898c0a15425a5bcaa8d44bd436eae5afd2483796 upstream.
+commit dc9752075341e7beb653e37c6f4a3723074dc8bc upstream.
 
-Once allocated the struct lcd2s_data is never freed.
-Fix the memory leak by switching to devm_kzalloc().
+The test adds tc filters and checks how many of them were offloaded by
+grepping for 'in_hw'.
 
-Fixes: 8c9108d014c5 ("auxdisplay: add a driver for lcd2s character display")
-Cc: Lars Poeschel <poeschel@lemonage.de>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+iproute2 commit f4cd4f127047 ("tc: add skip_hw and skip_sw to control
+action offload") added offload indication to tc actions, producing the
+following output:
+
+ $ tc filter show dev swp2 ingress
+ ...
+ filter protocol ipv6 pref 1000 flower chain 0 handle 0x7c0
+   eth_type ipv6
+   dst_ip 2001:db8:1::7bf
+   skip_sw
+   in_hw in_hw_count 1
+         action order 1:  police 0x7c0 rate 10Mbit burst 100Kb mtu 2Kb action drop overhead 0b
+         ref 1 bind 1
+         not_in_hw
+         used_hw_stats immediate
+
+The current grep expression matches on both 'in_hw' and 'not_in_hw',
+resulting in incorrect results.
+
+Fix that by using JSON output instead.
+
+Fixes: 5061e773264b ("selftests: mlxsw: Add scale test for tc-police")
+Signed-off-by: Amit Cohen <amcohen@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/auxdisplay/lcd2s.c |   18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/auxdisplay/lcd2s.c
-+++ b/drivers/auxdisplay/lcd2s.c
-@@ -298,6 +298,10 @@ static int lcd2s_i2c_probe(struct i2c_cl
- 			I2C_FUNC_SMBUS_WRITE_BLOCK_DATA))
- 		return -EIO;
+--- a/tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/tc_police_scale.sh
+@@ -60,7 +60,8 @@ __tc_police_test()
  
-+	lcd2s = devm_kzalloc(&i2c->dev, sizeof(*lcd2s), GFP_KERNEL);
-+	if (!lcd2s)
-+		return -ENOMEM;
-+
- 	/* Test, if the display is responding */
- 	err = lcd2s_i2c_smbus_write_byte(i2c, LCD2S_CMD_DISPLAY_OFF);
- 	if (err < 0)
-@@ -307,12 +311,6 @@ static int lcd2s_i2c_probe(struct i2c_cl
- 	if (!lcd)
- 		return -ENOMEM;
+ 	tc_police_rules_create $count $should_fail
  
--	lcd2s = kzalloc(sizeof(struct lcd2s_data), GFP_KERNEL);
--	if (!lcd2s) {
--		err = -ENOMEM;
--		goto fail1;
--	}
--
- 	lcd->drvdata = lcd2s;
- 	lcd2s->i2c = i2c;
- 	lcd2s->charlcd = lcd;
-@@ -321,24 +319,22 @@ static int lcd2s_i2c_probe(struct i2c_cl
- 	err = device_property_read_u32(&i2c->dev, "display-height-chars",
- 			&lcd->height);
- 	if (err)
--		goto fail2;
-+		goto fail1;
- 
- 	err = device_property_read_u32(&i2c->dev, "display-width-chars",
- 			&lcd->width);
- 	if (err)
--		goto fail2;
-+		goto fail1;
- 
- 	lcd->ops = &lcd2s_ops;
- 
- 	err = charlcd_register(lcd2s->charlcd);
- 	if (err)
--		goto fail2;
-+		goto fail1;
- 
- 	i2c_set_clientdata(i2c, lcd2s);
- 	return 0;
- 
--fail2:
--	kfree(lcd2s);
- fail1:
- 	kfree(lcd);
- 	return err;
+-	offload_count=$(tc filter show dev $swp1 ingress | grep in_hw | wc -l)
++	offload_count=$(tc -j filter show dev $swp1 ingress |
++			jq "[.[] | select(.options.in_hw == true)] | length")
+ 	((offload_count == count))
+ 	check_err_fail $should_fail $? "tc police offload count"
+ }
 
 
