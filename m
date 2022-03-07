@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 178FF4CF519
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ACFE4CF656
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233960AbiCGJY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:24:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
+        id S237515AbiCGJf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:35:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237171AbiCGJX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:23:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF4551327;
-        Mon,  7 Mar 2022 01:22:01 -0800 (PST)
+        with ESMTP id S237500AbiCGJfU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:35:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E0B6582A;
+        Mon,  7 Mar 2022 01:31:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9367B810BC;
-        Mon,  7 Mar 2022 09:21:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 524E1C340E9;
-        Mon,  7 Mar 2022 09:21:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EC4561135;
+        Mon,  7 Mar 2022 09:30:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FFFDC340F3;
+        Mon,  7 Mar 2022 09:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644918;
-        bh=p3NpOOloCl+up0CATJ/0J6lmGf3pYfYwJI3ux1MhqfE=;
+        s=korg; t=1646645445;
+        bh=vP1+hxL2O9UZlM/is+4AjvFkyQYkgUsNa8SRsa9kfxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoftWsXUwxzLimZdYJC4r9IZ1Dp7TqXZaMGhd+jT4NEZpxLnAsLnXPbOVr3b5WoD8
-         WczGHKkCOZXyJ80xRocgnquHJmuFwGVzGnK9keUqjyEwKJkG9r6qgZGCdKPoWj/H6J
-         v/KHBGKHqz1eJ8SRAuY6UUe3/n5EzmBFQ3lKfRaA=
+        b=SPtVmZJY0aATA7/hB1oPB756vXw9S1xwKoPxJhgY6o9NfQv0jiMhwNLwFDgdGg81l
+         1dFAN1ePQ4u6xLuq00esd+Ji2lWOFqaegceARUzqMH1tzmtLcMzrJWVbi4mFTVNqNY
+         HQyHqCZEvi1TvxSDzR+jVGeen/Peu+jGgLpmFKwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/42] i2c: bcm2835: Avoid clock stretching timeouts
+        stable@vger.kernel.org, Jerry Dai <jerry.dai@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, Jon Mason <jdmason@kudzu.us>
+Subject: [PATCH 5.10 034/105] ntb: intel: fix port config status offset for SPR
 Date:   Mon,  7 Mar 2022 10:18:37 +0100
-Message-Id: <20220307091636.248501558@linuxfoundation.org>
+Message-Id: <20220307091645.144863046@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
-References: <20220307091636.146155347@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Anholt <eric@anholt.net>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
+commit d5081bf5dcfb1cb83fb538708b0ac07a10a79cc4 upstream.
 
-The CLKT register contains at poweron 0x40, which at our typical 100kHz
-bus rate means .64ms. But there is no specified limit to how long devices
-should be able to stretch the clocks, so just disable the timeout. We
-still have a timeout wrapping the entire transfer.
+The field offset for port configuration status on SPR has been changed to
+bit 14 from ICX where it resides at bit 12. By chance link status detection
+continued to work on SPR. This is due to bit 12 being a configuration bit
+which is in sync with the status bit. Fix this by checking for a SPR device
+and checking correct status bit.
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-BugLink: https://github.com/raspberrypi/linux/issues/3064
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 26bfe3d0b227 ("ntb: intel: Add Icelake (gen4) support for Intel NTB")
+Tested-by: Jerry Dai <jerry.dai@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/ntb/hw/intel/ntb_hw_gen4.c |   17 ++++++++++++++++-
+ drivers/ntb/hw/intel/ntb_hw_gen4.h |   16 ++++++++++++++++
+ 2 files changed, 32 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 4d19254f78c8a..db1ab9ccc30e7 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -28,6 +28,11 @@
- #define BCM2835_I2C_FIFO	0x10
- #define BCM2835_I2C_DIV		0x14
- #define BCM2835_I2C_DEL		0x18
-+/*
-+ * 16-bit field for the number of SCL cycles to wait after rising SCL
-+ * before deciding the slave is not responding. 0 disables the
-+ * timeout detection.
-+ */
- #define BCM2835_I2C_CLKT	0x1c
+--- a/drivers/ntb/hw/intel/ntb_hw_gen4.c
++++ b/drivers/ntb/hw/intel/ntb_hw_gen4.c
+@@ -168,6 +168,18 @@ static enum ntb_topo gen4_ppd_topo(struc
+ 	return NTB_TOPO_NONE;
+ }
  
- #define BCM2835_I2C_C_READ	BIT(0)
-@@ -398,6 +403,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	adap->dev.of_node = pdev->dev.of_node;
- 	adap->quirks = &bcm2835_i2c_quirks;
++static enum ntb_topo spr_ppd_topo(struct intel_ntb_dev *ndev, u32 ppd)
++{
++	switch (ppd & SPR_PPD_TOPO_MASK) {
++	case SPR_PPD_TOPO_B2B_USD:
++		return NTB_TOPO_B2B_USD;
++	case SPR_PPD_TOPO_B2B_DSD:
++		return NTB_TOPO_B2B_DSD;
++	}
++
++	return NTB_TOPO_NONE;
++}
++
+ int gen4_init_dev(struct intel_ntb_dev *ndev)
+ {
+ 	struct pci_dev *pdev = ndev->ntb.pdev;
+@@ -181,7 +193,10 @@ int gen4_init_dev(struct intel_ntb_dev *
+ 		ndev->hwerr_flags |= NTB_HWERR_BAR_ALIGN;
  
-+	/*
-+	 * Disable the hardware clock stretching timeout. SMBUS
-+	 * specifies a limit for how long the device can stretch the
-+	 * clock, but core I2C doesn't.
-+	 */
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 	ppd1 = ioread32(ndev->self_mmio + GEN4_PPD1_OFFSET);
+-	ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
++	if (pdev_is_ICX(pdev))
++		ndev->ntb.topo = gen4_ppd_topo(ndev, ppd1);
++	else if (pdev_is_SPR(pdev))
++		ndev->ntb.topo = spr_ppd_topo(ndev, ppd1);
+ 	dev_dbg(&pdev->dev, "ppd %#x topo %s\n", ppd1,
+ 		ntb_topo_string(ndev->ntb.topo));
+ 	if (ndev->ntb.topo == NTB_TOPO_NONE)
+--- a/drivers/ntb/hw/intel/ntb_hw_gen4.h
++++ b/drivers/ntb/hw/intel/ntb_hw_gen4.h
+@@ -46,10 +46,14 @@
+ #define GEN4_PPD_CLEAR_TRN		0x0001
+ #define GEN4_PPD_LINKTRN		0x0008
+ #define GEN4_PPD_CONN_MASK		0x0300
++#define SPR_PPD_CONN_MASK		0x0700
+ #define GEN4_PPD_CONN_B2B		0x0200
+ #define GEN4_PPD_DEV_MASK		0x1000
+ #define GEN4_PPD_DEV_DSD		0x1000
+ #define GEN4_PPD_DEV_USD		0x0000
++#define SPR_PPD_DEV_MASK		0x4000
++#define SPR_PPD_DEV_DSD 		0x4000
++#define SPR_PPD_DEV_USD 		0x0000
+ #define GEN4_LINK_CTRL_LINK_DISABLE	0x0010
  
- 	ret = i2c_add_adapter(adap);
--- 
-2.34.1
-
+ #define GEN4_SLOTSTS			0xb05a
+@@ -59,6 +63,10 @@
+ #define GEN4_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_USD)
+ #define GEN4_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | GEN4_PPD_DEV_DSD)
+ 
++#define SPR_PPD_TOPO_MASK	(SPR_PPD_CONN_MASK | SPR_PPD_DEV_MASK)
++#define SPR_PPD_TOPO_B2B_USD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_USD)
++#define SPR_PPD_TOPO_B2B_DSD	(GEN4_PPD_CONN_B2B | SPR_PPD_DEV_DSD)
++
+ #define GEN4_DB_COUNT			32
+ #define GEN4_DB_LINK			32
+ #define GEN4_DB_LINK_BIT		BIT_ULL(GEN4_DB_LINK)
+@@ -96,5 +104,13 @@ static inline int pdev_is_ICX(struct pci
+ 		return 1;
+ 	return 0;
+ }
++
++static inline int pdev_is_SPR(struct pci_dev *pdev)
++{
++	if (pdev_is_gen4(pdev) &&
++	    pdev->revision > PCI_DEVICE_REVISION_ICX_MAX)
++		return 1;
++	return 0;
++}
+ 
+ #endif
 
 
