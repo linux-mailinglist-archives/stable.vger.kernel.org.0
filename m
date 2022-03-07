@@ -2,53 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEE564D02A1
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 16:23:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6FE4D02AD
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 16:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239417AbiCGPYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 10:24:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45824 "EHLO
+        id S236252AbiCGP0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 10:26:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243574AbiCGPYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 10:24:44 -0500
+        with ESMTP id S243734AbiCGP0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 10:26:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBE4E70CC5;
-        Mon,  7 Mar 2022 07:23:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 699B190CD9
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:25:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 603CAB815E0;
-        Mon,  7 Mar 2022 15:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 957FFC340E9;
-        Mon,  7 Mar 2022 15:23:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21D62B815E2
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 15:25:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B28C340E9;
+        Mon,  7 Mar 2022 15:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646666627;
-        bh=lkV/7UN2kW+KOHRiC8zLasgxJcQG73Hgpx6BBaDabI0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=weaZrAhlIEGAGwfO9Gm6dU/DC8NMLi73mIs2pSbpVQ9besyXaj6lPLjzBLXoLBzmX
-         PVOzepAC6X8w1f1XRscjVD71scLKodXhf5vrhP4ayz5R3qVxgOGXFkHFSfJy813ktm
-         26iAcclWMm3ibESrPW9/rJU8kKpcAgQACB4lLFbo=
-Date:   Mon, 7 Mar 2022 16:23:44 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Holger =?iso-8859-1?Q?Hoffst=E4tte?= 
-        <holger@applied-asynchrony.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.15 000/262] 5.15.27-rc1 review
-Message-ID: <YiYjgPn8lbsD/dUb@kroah.com>
-References: <20220307091702.378509770@linuxfoundation.org>
- <fe8b46f5-6c24-d749-668f-29ea51fa5d58@applied-asynchrony.com>
- <5e048582-5c63-38c2-bbcb-6a0c20cb47e4@applied-asynchrony.com>
+        s=korg; t=1646666708;
+        bh=tAnyq2Ahtbi5n/3ZF1ZO8QSkb/X0PXbMiPP1RzLNunU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=dDqB8ESQLcSnGFax6m4MBB/EZbHgu5qYa8Qmk4Z/adOVqL3pjpiSQgFZ/zxLr+s/2
+         HN1ycH9+wJOpqJP1S9sNeGwfHbYdkN9Nja8GmnxlxTHBN27h5Qeamf3C/2xdVsP+64
+         hv90yUZLf4V7e7yTdB3dBzajH6MjJ0ebtMgsEOJI=
+Subject: FAILED: patch "[PATCH] bpf, arm64: Use emit_addr_mov_i64() for BPF_PSEUDO_FUNC" failed to apply to 5.15-stable tree
+To:     houtao1@huawei.com, daniel@iogearbox.net
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 07 Mar 2022 16:25:06 +0100
+Message-ID: <164666670621020@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <5e048582-5c63-38c2-bbcb-6a0c20cb47e4@applied-asynchrony.com>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,35 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 07, 2022 at 02:41:15PM +0100, Holger Hoffstätte wrote:
-> On 2022-03-07 11:44, Holger Hoffstätte wrote:
-> > On 2022-03-07 10:15, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.15.27 release.
-> > > There are 262 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > 
-> > CC [M]  drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn301/dcn301_fpu.o
-> > drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn301/dcn301_fpu.c:30:10: fatal error: dml/dcn20/dcn20_fpu.h: No such file or directory
-> >     30 | #include "dml/dcn20/dcn20_fpu.h"
-> >        |          ^~~~~~~~~~~~~~~~~~~~~~~
-> > compilation terminated.
-> > 
-> > Culprit is "drm-amd-display-move-fpu-associated-dcn301-code-to-d.patch"
-> > 
-> > Looking over the git history of the dml/dnc20 directory I think the correct fix would
-> > be to also apply upstream commit ee37341199c61558b73113659695c90bf4736eb2 aka
-> > "drm/amd/display: Re-arrange FPU code structure for dcn2x"
-> > 
-> > CC'ing Qingqing Zhuo for confirmation.
-> 
-> I can confirm that applying a modified ee37341199c6 fixes the issue. \o/
-> The hunk that refers to drivers/gpu/drm/amd/display/dc/dcn201 needs to be removed,
-> since that directory (support for "cyan_skillfish") does not exist in 5.15.x.
 
-I'll let you submit a working version, dropping chunks in the middle of
-patches is not exactly obvious at times :)
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e4a41c2c1fa916547e63440c73a51a5eb06247af Mon Sep 17 00:00:00 2001
+From: Hou Tao <houtao1@huawei.com>
+Date: Fri, 31 Dec 2021 23:10:18 +0800
+Subject: [PATCH] bpf, arm64: Use emit_addr_mov_i64() for BPF_PSEUDO_FUNC
+
+The following error is reported when running "./test_progs -t for_each"
+under arm64:
+
+  bpf_jit: multi-func JIT bug 58 != 56
+  [...]
+  JIT doesn't support bpf-to-bpf calls
+
+The root cause is the size of BPF_PSEUDO_FUNC instruction increases
+from 2 to 3 after the address of called bpf-function is settled and
+there are two bpf-to-bpf calls in test_pkt_access. The generated
+instructions are shown below:
+
+  0x48:  21 00 C0 D2    movz x1, #0x1, lsl #32
+  0x4c:  21 00 80 F2    movk x1, #0x1
+
+  0x48:  E1 3F C0 92    movn x1, #0x1ff, lsl #32
+  0x4c:  41 FE A2 F2    movk x1, #0x17f2, lsl #16
+  0x50:  81 70 9F F2    movk x1, #0xfb84
+
+Fixing it by using emit_addr_mov_i64() for BPF_PSEUDO_FUNC, so
+the size of jited image will not change.
+
+Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20211231151018.3781550-1-houtao1@huawei.com
+
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index 07aad85848fa..e96d4d87291f 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -792,7 +792,10 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
+ 		u64 imm64;
+ 
+ 		imm64 = (u64)insn1.imm << 32 | (u32)imm;
+-		emit_a64_mov_i64(dst, imm64, ctx);
++		if (bpf_pseudo_func(insn))
++			emit_addr_mov_i64(dst, imm64, ctx);
++		else
++			emit_a64_mov_i64(dst, imm64, ctx);
+ 
+ 		return 1;
+ 	}
+
