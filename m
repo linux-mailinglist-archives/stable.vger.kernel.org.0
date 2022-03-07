@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F314CF525
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BABC4CF5FE
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236648AbiCGJYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:24:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52656 "EHLO
+        id S237286AbiCGJau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236950AbiCGJXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:23:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8343865830;
-        Mon,  7 Mar 2022 01:21:28 -0800 (PST)
+        with ESMTP id S238757AbiCGJ3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F22E660D8;
+        Mon,  7 Mar 2022 01:28:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D470B810BD;
-        Mon,  7 Mar 2022 09:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B826C340F5;
-        Mon,  7 Mar 2022 09:21:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94FFCB80F9F;
+        Mon,  7 Mar 2022 09:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1410C340E9;
+        Mon,  7 Mar 2022 09:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644885;
-        bh=0Q2WVn2wAh2H+CtyxAHWdQFdZ4PNcyjRU4u5dhDfKhU=;
+        s=korg; t=1646645308;
+        bh=GU1qZ8dbEsL6J9ZZT5ufr9ok5ZV+KF9ztqFDg6yIkCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFlIO2VGTvSeTK6qui5Ra5ww1tkxwwLO8pgmr7HnUxM4nwdZTadfT/YqOzUmgv/eI
-         HYtwWpwz/OnMjOdlHCGh9fDy/u4ryRZXjdOJAgz2/6Q1iAK1UscS6ExarhQyR9LRop
-         mO51fuXefVgwmLZkOs0+18OqIUIJXVgSmZm6fJk4=
+        b=W0K2cNbrbuUlcS3HUMSABkdjzk3ApRDWAVnC2di/IxwmLNQ3S4OPl7O7VTQxW+Joh
+         7ES6ALK+QPLUEflbQ+r6/vdIktPbQd5KTXfa5+9xDer2s0lWY/5G8z6JncqHc/bIDH
+         KUA88WOCUfWi9a7A85vimwqv6dv96kwGB/MMjVL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
         Hangyu Hua <hbh25y@gmail.com>
-Subject: [PATCH 4.14 11/42] usb: gadget: clear related members when goto fail
+Subject: [PATCH 5.4 12/64] usb: gadget: dont release an existing dev->buf
 Date:   Mon,  7 Mar 2022 10:18:45 +0100
-Message-Id: <20220307091636.478364799@linuxfoundation.org>
+Message-Id: <20220307091639.492236845@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
-References: <20220307091636.146155347@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 501e38a5531efbd77d5c73c0ba838a889bfc1d74 upstream.
+commit 89f3594d0de58e8a57d92d497dea9fee3d4b9cda upstream.
 
-dev->config and dev->hs_config and dev->dev need to be cleaned if
-dev_config fails to avoid UAF.
+dev->buf does not need to be released if it already exists before
+executing dev_config.
 
 Acked-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20211231172138.7993-3-hbh25y@gmail.com
+Link: https://lore.kernel.org/r/20211231172138.7993-2-hbh25y@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/inode.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/legacy/inode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/drivers/usb/gadget/legacy/inode.c
 +++ b/drivers/usb/gadget/legacy/inode.c
-@@ -1882,8 +1882,8 @@ dev_config (struct file *fd, const char
+@@ -1829,8 +1829,9 @@ dev_config (struct file *fd, const char
+ 	spin_lock_irq (&dev->lock);
+ 	value = -EINVAL;
+ 	if (dev->buf) {
++		spin_unlock_irq(&dev->lock);
+ 		kfree(kbuf);
+-		goto fail;
++		return value;
+ 	}
+ 	dev->buf = kbuf;
  
- 	value = usb_gadget_probe_driver(&gadgetfs_driver);
- 	if (value != 0) {
--		kfree (dev->buf);
--		dev->buf = NULL;
-+		spin_lock_irq(&dev->lock);
-+		goto fail;
- 	} else {
- 		/* at this point "good" hardware has for the first time
- 		 * let the USB the host see us.  alternatively, if users
-@@ -1900,6 +1900,9 @@ dev_config (struct file *fd, const char
- 	return value;
- 
- fail:
-+	dev->config = NULL;
-+	dev->hs_config = NULL;
-+	dev->dev = NULL;
- 	spin_unlock_irq (&dev->lock);
- 	pr_debug ("%s: %s fail %zd, %p\n", shortname, __func__, value, dev);
- 	kfree (dev->buf);
 
 
