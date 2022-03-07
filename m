@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A914CF5D5
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 363A94CF8F4
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237305AbiCGJav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57892 "EHLO
+        id S239110AbiCGKDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:03:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238747AbiCGJ3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18DF5C351;
-        Mon,  7 Mar 2022 01:28:03 -0800 (PST)
+        with ESMTP id S238746AbiCGJ4u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:56:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5BF793AB;
+        Mon,  7 Mar 2022 01:45:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88BFEB80F9F;
-        Mon,  7 Mar 2022 09:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC643C340E9;
-        Mon,  7 Mar 2022 09:28:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9C80612D2;
+        Mon,  7 Mar 2022 09:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4105C340F6;
+        Mon,  7 Mar 2022 09:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645281;
-        bh=E0sv/+ymdpW1t95+oxHtrZQOeK+K6NNFlNKrGTzqv20=;
+        s=korg; t=1646646348;
+        bh=pQlJEJDvqtDu+suvKnjHMbbeU6Qxo+vHXTUbe6fe3vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoXRNDtQWOk3FJJWQxpNDc5sBOP9GQKmQsqQAXE3UryH0YU60947TXTeBBPbnsF/o
-         gKzcHacMUzVSfk4wkBXSBS67IJQhqGTPHo1fwYzg+7TWuL0RJSqz9xNRBIftHuWlGS
-         i9XJ2pL31CGQliLiBsE7IEGiY04WmAPZc0kW9eC8=
+        b=d5dPDdmGYMhQmBRq9tVcmfibdWOj8X8Ia1yLjEMs040ys+vKc8si76eEQGuyhD67S
+         iWjglMV8yzmamujncjoV7xI7RvMABpfiavHADFC74iQT0xR7Zv0KXqstWSCuFWTgwR
+         MzPFMjtuEZcB6VfXVEkpNiqCMcYMwYwe8RQhYz3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 43/64] can: gs_usb: change active_channelss type from atomic_t to u8
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 212/262] soc: fsl: qe: Check of ioremap return value
 Date:   Mon,  7 Mar 2022 10:19:16 +0100
-Message-Id: <20220307091640.373741259@linuxfoundation.org>
+Message-Id: <20220307091708.884646150@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 035b0fcf02707d3c9c2890dc1484b11aa5335eb1 upstream.
+[ Upstream commit a222fd8541394b36b13c89d1698d9530afd59a9c ]
 
-The driver uses an atomic_t variable: gs_usb:active_channels to keep
-track of the number of opened channels in order to only allocate
-memory for the URBs when this count changes from zero to one.
+As the possible failure of the ioremap(), the par_io could be NULL.
+Therefore it should be better to check it and return error in order to
+guarantee the success of the initiation.
+But, I also notice that all the caller like mpc85xx_qe_par_io_init() in
+`arch/powerpc/platforms/85xx/common.c` don't check the return value of
+the par_io_init().
+Actually, par_io_init() needs to check to handle the potential error.
+I will submit another patch to fix that.
+Anyway, par_io_init() itsely should be fixed.
 
-However, the driver does not decrement the counter when an error
-occurs in gs_can_open(). This issue is fixed by changing the type from
-atomic_t to u8 and by simplifying the logic accordingly.
-
-It is safe to use an u8 here because the network stack big kernel lock
-(a.k.a. rtnl_mutex) is being hold. For details, please refer to [1].
-
-[1] https://lore.kernel.org/linux-can/CAMZ6Rq+sHpiw34ijPsmp7vbUpDtJwvVtdV7CvRZJsLixjAFfrg@mail.gmail.com/T/#t
-
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220214234814.1321599-1-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7aa1aa6ecec2 ("QE: Move QE from arch/powerpc to drivers/soc")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/gs_usb.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/soc/fsl/qe/qe_io.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -190,8 +190,8 @@ struct gs_can {
- struct gs_usb {
- 	struct gs_can *canch[GS_MAX_INTF];
- 	struct usb_anchor rx_submitted;
--	atomic_t active_channels;
- 	struct usb_device *udev;
-+	u8 active_channels;
- };
+diff --git a/drivers/soc/fsl/qe/qe_io.c b/drivers/soc/fsl/qe/qe_io.c
+index e277c827bdf3..a5e2d0e5ab51 100644
+--- a/drivers/soc/fsl/qe/qe_io.c
++++ b/drivers/soc/fsl/qe/qe_io.c
+@@ -35,6 +35,8 @@ int par_io_init(struct device_node *np)
+ 	if (ret)
+ 		return ret;
+ 	par_io = ioremap(res.start, resource_size(&res));
++	if (!par_io)
++		return -ENOMEM;
  
- /* 'allocate' a tx context.
-@@ -588,7 +588,7 @@ static int gs_can_open(struct net_device
- 	if (rc)
- 		return rc;
- 
--	if (atomic_add_return(1, &parent->active_channels) == 1) {
-+	if (!parent->active_channels) {
- 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
- 			struct urb *urb;
- 			u8 *buf;
-@@ -689,6 +689,7 @@ static int gs_can_open(struct net_device
- 
- 	dev->can.state = CAN_STATE_ERROR_ACTIVE;
- 
-+	parent->active_channels++;
- 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
- 		netif_start_queue(netdev);
- 
-@@ -704,7 +705,8 @@ static int gs_can_close(struct net_devic
- 	netif_stop_queue(netdev);
- 
- 	/* Stop polling */
--	if (atomic_dec_and_test(&parent->active_channels))
-+	parent->active_channels--;
-+	if (!parent->active_channels)
- 		usb_kill_anchored_urbs(&parent->rx_submitted);
- 
- 	/* Stop sending URBs */
-@@ -983,8 +985,6 @@ static int gs_usb_probe(struct usb_inter
- 
- 	init_usb_anchor(&dev->rx_submitted);
- 
--	atomic_set(&dev->active_channels, 0);
--
- 	usb_set_intfdata(intf, dev);
- 	dev->udev = interface_to_usbdev(intf);
- 
+ 	if (!of_property_read_u32(np, "num-ports", &num_ports))
+ 		num_par_io_ports = num_ports;
+-- 
+2.34.1
+
 
 
