@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4194CF6DD
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2945C4CF90B
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237649AbiCGJmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:42:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52592 "EHLO
+        id S236533AbiCGKD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:03:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241136AbiCGJlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8BE1163;
-        Mon,  7 Mar 2022 01:40:38 -0800 (PST)
+        with ESMTP id S240533AbiCGKBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 150BF28982;
+        Mon,  7 Mar 2022 01:50:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACA936116E;
-        Mon,  7 Mar 2022 09:40:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1A28C340E9;
-        Mon,  7 Mar 2022 09:40:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA5E1B80E70;
+        Mon,  7 Mar 2022 09:50:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E3EC340F5;
+        Mon,  7 Mar 2022 09:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646037;
-        bh=1KdZZPBpmda3aO8BSAxIkdeJTjDLQGxFa1W+XSEQcWM=;
+        s=korg; t=1646646614;
+        bh=n3QwWAR+wfLNuvJcbKMdRrffzEFu6/xpFp/K+9FMyzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYegaNKmYIugdqZLiR06O33mwA2bJG3ZCVEQbTIaS8CftjcOlxqWutq/+rQMLcwdA
-         4Kgb6R+rY2T7FgB1XlMUk27dmlkWHF2UK0sL+FMgYr+VIjhVDEnqpXG6gC1UQqaHhe
-         /5iC3GhoUWmcTl8xkaMGFKo0R9XBt9DvZVwbFKps=
+        b=ApE2s0Fkj4ueox+QPCX9ccx9JhH7x5JzBKw05+m7vkrWdIIHuxzZIh9L9x7dXvgIh
+         up0Lgw5FM+W85moggeP7KehM3+QwAWZbSM0+wOwu51q4Vi8hEkR+MtYftG6+VakwbN
+         Nidxb6KtoPbTgrioqMn8mZHy4APwPsT9CmFQsdEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, He Fengqing <hefengqing@huawei.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 113/262] bpf: Fix possible race in inc_misses_counter
-Date:   Mon,  7 Mar 2022 10:17:37 +0100
-Message-Id: <20220307091705.660001804@linuxfoundation.org>
+Subject: [PATCH 5.16 020/186] drm/amd/pm: correct UMD pstate clocks for Dimgrey Cavefish and Beige Goby
+Date:   Mon,  7 Mar 2022 10:17:38 +0100
+Message-Id: <20220307091654.660999238@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Fengqing <hefengqing@huawei.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 0e3135d3bfa5dfb658145238d2bc723a8e30c3a3 ]
+[ Upstream commit 0136f5844b006e2286f873457c3fcba8c45a3735 ]
 
-It seems inc_misses_counter() suffers from same issue fixed in
-the commit d979617aa84d ("bpf: Fixes possible race in update_prog_stats()
-for 32bit arches"):
-As it can run while interrupts are enabled, it could
-be re-entered and the u64_stats syncp could be mangled.
+Correct the UMD pstate profiling clocks for Dimgrey Cavefish and Beige
+Goby.
 
-Fixes: 9ed9e9ba2337 ("bpf: Count the number of times recursion was prevented")
-Signed-off-by: He Fengqing <hefengqing@huawei.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20220122102936.1219518-1-hefengqing@huawei.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/trampoline.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ .../amd/pm/swsmu/smu11/sienna_cichlid_ppt.c   | 26 +++++++++++++++----
+ .../amd/pm/swsmu/smu11/sienna_cichlid_ppt.h   |  8 ++++++
+ 2 files changed, 29 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
-index 6933a9bfee637..2660fbced9ad4 100644
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -541,11 +541,12 @@ static u64 notrace bpf_prog_start_time(void)
- static void notrace inc_misses_counter(struct bpf_prog *prog)
- {
- 	struct bpf_prog_stats *stats;
-+	unsigned int flags;
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index b55118388d2d7..59e1b92f0d27e 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -1261,21 +1261,37 @@ static int sienna_cichlid_populate_umd_state_clk(struct smu_context *smu)
+ 				&dpm_context->dpm_tables.soc_table;
+ 	struct smu_umd_pstate_table *pstate_table =
+ 				&smu->pstate_table;
++	struct amdgpu_device *adev = smu->adev;
  
- 	stats = this_cpu_ptr(prog->stats);
--	u64_stats_update_begin(&stats->syncp);
-+	flags = u64_stats_update_begin_irqsave(&stats->syncp);
- 	u64_stats_inc(&stats->misses);
--	u64_stats_update_end(&stats->syncp);
-+	u64_stats_update_end_irqrestore(&stats->syncp, flags);
+ 	pstate_table->gfxclk_pstate.min = gfx_table->min;
+ 	pstate_table->gfxclk_pstate.peak = gfx_table->max;
+-	if (gfx_table->max >= SIENNA_CICHLID_UMD_PSTATE_PROFILING_GFXCLK)
+-		pstate_table->gfxclk_pstate.standard = SIENNA_CICHLID_UMD_PSTATE_PROFILING_GFXCLK;
+ 
+ 	pstate_table->uclk_pstate.min = mem_table->min;
+ 	pstate_table->uclk_pstate.peak = mem_table->max;
+-	if (mem_table->max >= SIENNA_CICHLID_UMD_PSTATE_PROFILING_MEMCLK)
+-		pstate_table->uclk_pstate.standard = SIENNA_CICHLID_UMD_PSTATE_PROFILING_MEMCLK;
+ 
+ 	pstate_table->socclk_pstate.min = soc_table->min;
+ 	pstate_table->socclk_pstate.peak = soc_table->max;
+-	if (soc_table->max >= SIENNA_CICHLID_UMD_PSTATE_PROFILING_SOCCLK)
++
++	switch (adev->asic_type) {
++	case CHIP_SIENNA_CICHLID:
++	case CHIP_NAVY_FLOUNDER:
++		pstate_table->gfxclk_pstate.standard = SIENNA_CICHLID_UMD_PSTATE_PROFILING_GFXCLK;
++		pstate_table->uclk_pstate.standard = SIENNA_CICHLID_UMD_PSTATE_PROFILING_MEMCLK;
+ 		pstate_table->socclk_pstate.standard = SIENNA_CICHLID_UMD_PSTATE_PROFILING_SOCCLK;
++		break;
++	case CHIP_DIMGREY_CAVEFISH:
++		pstate_table->gfxclk_pstate.standard = DIMGREY_CAVEFISH_UMD_PSTATE_PROFILING_GFXCLK;
++		pstate_table->uclk_pstate.standard = DIMGREY_CAVEFISH_UMD_PSTATE_PROFILING_MEMCLK;
++		pstate_table->socclk_pstate.standard = DIMGREY_CAVEFISH_UMD_PSTATE_PROFILING_SOCCLK;
++		break;
++	case CHIP_BEIGE_GOBY:
++		pstate_table->gfxclk_pstate.standard = BEIGE_GOBY_UMD_PSTATE_PROFILING_GFXCLK;
++		pstate_table->uclk_pstate.standard = BEIGE_GOBY_UMD_PSTATE_PROFILING_MEMCLK;
++		pstate_table->socclk_pstate.standard = BEIGE_GOBY_UMD_PSTATE_PROFILING_SOCCLK;
++		break;
++	default:
++		break;
++	}
+ 
+ 	return 0;
  }
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.h b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.h
+index 38cd0ece24f6b..42f705c7a36f8 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.h
+@@ -33,6 +33,14 @@ typedef enum {
+ #define SIENNA_CICHLID_UMD_PSTATE_PROFILING_SOCCLK    960
+ #define SIENNA_CICHLID_UMD_PSTATE_PROFILING_MEMCLK    1000
  
- /* The logic is similar to bpf_prog_run(), but with an explicit
++#define DIMGREY_CAVEFISH_UMD_PSTATE_PROFILING_GFXCLK 1950
++#define DIMGREY_CAVEFISH_UMD_PSTATE_PROFILING_SOCCLK 960
++#define DIMGREY_CAVEFISH_UMD_PSTATE_PROFILING_MEMCLK 676
++
++#define BEIGE_GOBY_UMD_PSTATE_PROFILING_GFXCLK 2200
++#define BEIGE_GOBY_UMD_PSTATE_PROFILING_SOCCLK 960
++#define BEIGE_GOBY_UMD_PSTATE_PROFILING_MEMCLK 1000
++
+ extern void sienna_cichlid_set_ppt_funcs(struct smu_context *smu);
+ 
+ #endif
 -- 
 2.34.1
 
