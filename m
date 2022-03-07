@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9D94CF5C0
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D466B4CF522
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235071AbiCGJbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40632 "EHLO
+        id S236755AbiCGJYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:24:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237647AbiCGJ2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CEA26AA63;
-        Mon,  7 Mar 2022 01:25:48 -0800 (PST)
+        with ESMTP id S236699AbiCGJYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:24:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DDD58806;
+        Mon,  7 Mar 2022 01:23:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B65E2B810B9;
-        Mon,  7 Mar 2022 09:25:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF12C340F3;
-        Mon,  7 Mar 2022 09:25:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FB761146;
+        Mon,  7 Mar 2022 09:23:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AFE2C340F4;
+        Mon,  7 Mar 2022 09:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645145;
-        bh=l/hF19ts1pVffdE2/W6xqEpFVxjmTbWSdZr2grIVloI=;
+        s=korg; t=1646645003;
+        bh=SaOWSdfpn9CGBVS1B4toCBOUU00mGD5nHWoK8cA+Qkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uEmlSwFoQ7CtG7dSTmRXKxYuR6sn5h+vmspFCJZ1eEs118uUW8DdCkyfBH2KkmuvB
-         QOn0XsvQ4UCFa5zvP4s1mv8mlgEOo8SHAD35D42WzIbtgQDLss2qtxnXyB3NDAp1mp
-         jW36X1CPxi+a9KP4COXhhwqmX9U6yptQ3finjUSE=
+        b=fGVjRV11OoUlkfUXarpi689VxaNlTTBfYVtd2b0NBRLPGzmQlU5tSMLtUmP2G+Ctm
+         bczT877njZRnxi78HnmFXHdjEUK58YVJcTypwNb3lzU4vRmE84S6oYZnJNAw9PCmWS
+         FvQ/KVRUQ5Mg2IOzDUlSCVmA1FxDpY0WI2xvWXRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 29/51] block: Fix fsync always failed if once failed
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Siva Reddy <siva.kallam@samsung.com>,
+        Girish K S <ks.giri@samsung.com>,
+        Byungho An <bh74.an@samsung.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 30/42] net: sxgbe: fix return value of __setup handler
 Date:   Mon,  7 Mar 2022 10:19:04 +0100
-Message-Id: <20220307091637.820937128@linuxfoundation.org>
+Message-Id: <20220307091637.029989429@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
+References: <20220307091636.146155347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 8a7518931baa8ea023700987f3db31cb0a80610b upstream.
+commit 50e06ddceeea263f57fe92baa677c638ecd65bb6 upstream.
 
-We do test with inject error fault base on v4.19, after test some time we found
-sync /dev/sda always failed.
-[root@localhost] sync /dev/sda
-sync: error syncing '/dev/sda': Input/output error
+__setup() handlers should return 1 on success, i.e., the parameter
+has been handled. A return of 0 causes the "option=value" string to be
+added to init's environment strings, polluting it.
 
-scsi log as follows:
-[19069.812296] sd 0:0:0:0: [sda] tag#64 Send: scmd 0x00000000d03a0b6b
-[19069.812302] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
-[19069.812533] sd 0:0:0:0: [sda] tag#64 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK
-[19069.812536] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
-[19069.812539] sd 0:0:0:0: [sda] tag#64 scsi host busy 1 failed 0
-[19069.812542] sd 0:0:0:0: Notifying upper driver of completion (result 0)
-[19069.812546] sd 0:0:0:0: [sda] tag#64 sd_done: completed 0 of 0 bytes
-[19069.812549] sd 0:0:0:0: [sda] tag#64 0 sectors total, 0 bytes done.
-[19069.812564] print_req_error: I/O error, dev sda, sector 0
-
-ftrace log as follows:
- rep-306069 [007] .... 19654.923315: block_bio_queue: 8,0 FWS 0 + 0 [rep]
- rep-306069 [007] .... 19654.923333: block_getrq: 8,0 FWS 0 + 0 [rep]
- kworker/7:1H-250   [007] .... 19654.923352: block_rq_issue: 8,0 FF 0 () 0 + 0 [kworker/7:1H]
- <idle>-0     [007] ..s. 19654.923562: block_rq_complete: 8,0 FF () 18446744073709551615 + 0 [0]
- <idle>-0     [007] d.s. 19654.923576: block_rq_complete: 8,0 WS () 0 + 0 [-5]
-
-As 8d6996630c03 introduce 'fq->rq_status', this data only update when 'flush_rq'
-reference count isn't zero. If flush request once failed and record error code
-in 'fq->rq_status'. If there is no chance to update 'fq->rq_status',then do fsync
-will always failed.
-To address this issue reset 'fq->rq_status' after return error code to upper layer.
-
-Fixes: 8d6996630c03("block: fix null pointer dereference in blk_mq_rq_timed_out()")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20211129012659.1553733-1-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: acc18c147b22 ("net: sxgbe: add EEE(Energy Efficient Ethernet) for Samsung sxgbe")
+Fixes: 1edb9ca69e8a ("net: sxgbe: add basic framework for Samsung 10Gb ethernet driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Siva Reddy <siva.kallam@samsung.com>
+Cc: Girish K S <ks.giri@samsung.com>
+Cc: Byungho An <bh74.an@samsung.com>
+Link: https://lore.kernel.org/r/20220224033528.24640-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-flush.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/block/blk-flush.c
-+++ b/block/blk-flush.c
-@@ -239,8 +239,10 @@ static void flush_end_io(struct request
- 			return;
+--- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
++++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
+@@ -2282,18 +2282,18 @@ static int __init sxgbe_cmdline_opt(char
+ 	char *opt;
+ 
+ 	if (!str || !*str)
+-		return -EINVAL;
++		return 1;
+ 	while ((opt = strsep(&str, ",")) != NULL) {
+ 		if (!strncmp(opt, "eee_timer:", 10)) {
+ 			if (kstrtoint(opt + 10, 0, &eee_timer))
+ 				goto err;
  		}
+ 	}
+-	return 0;
++	return 1;
  
--		if (fq->rq_status != BLK_STS_OK)
-+		if (fq->rq_status != BLK_STS_OK) {
- 			error = fq->rq_status;
-+			fq->rq_status = BLK_STS_OK;
-+		}
+ err:
+ 	pr_err("%s: ERROR broken module parameter conversion\n", __func__);
+-	return -EINVAL;
++	return 1;
+ }
  
- 		hctx = blk_mq_map_queue(q, flush_rq->mq_ctx->cpu);
- 		if (!q->elevator) {
+ __setup("sxgbeeth=", sxgbe_cmdline_opt);
 
 
