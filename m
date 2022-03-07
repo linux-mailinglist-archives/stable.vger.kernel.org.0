@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BFC04CFA87
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:23:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE5164CFADA
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232385AbiCGKVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:21:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34400 "EHLO
+        id S239389AbiCGKWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:22:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239867AbiCGKR6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:17:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D296383;
-        Mon,  7 Mar 2022 01:57:47 -0800 (PST)
+        with ESMTP id S239971AbiCGKR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:17:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D618ABF48;
+        Mon,  7 Mar 2022 01:57:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB9DDB810D8;
-        Mon,  7 Mar 2022 09:57:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0D8C340E9;
-        Mon,  7 Mar 2022 09:57:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71D8160F34;
+        Mon,  7 Mar 2022 09:57:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60CB7C340E9;
+        Mon,  7 Mar 2022 09:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647063;
-        bh=uj2cmqZOpUoP0uNRoxzqlR+Q/lzO3YdB2W5xVSbEOxo=;
+        s=korg; t=1646647066;
+        bh=77uDszA9LC2XwKUtcnN5BkvJprjdPNdiHTMCFcNIBJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLh6uLHKeFxZ37HWZ529xlOOnL3k6HmZY+UQdxg9djWWLgf7VYIETvvWsMN7nyo72
-         hbz8RT5UAMnLaSN6sV8Ndn1vcQzzGHxn/ZipZ+47VfZz4HDZ772LYPgwqzbv/a2Mrh
-         0Exf3QU28IEzL8lsC8WuwskL3IGIxl4wa/dQtpKE=
+        b=y7Gw3+zR3w0ng6QUddjCN0AfyRZs7dNsHi9GWfqsMMVUjfLhJj8oZDBKD/bMq0wFr
+         6ztumPHwCX3EMKvNm0PBR5k/i99th0HxOQxl3mQ0CHYC5hSHW0vwWUxQyCfGGlMeeH
+         nHG58SvgWaSNGnJcc3w1oEVkyQKPxkgTefSwbvqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 179/186] btrfs: fallback to blocking mode when doing async dio over multiple extents
-Date:   Mon,  7 Mar 2022 10:20:17 +0100
-Message-Id: <20220307091659.084842846@linuxfoundation.org>
+Subject: [PATCH 5.16 180/186] btrfs: do not start relocation until in progress drops are done
+Date:   Mon,  7 Mar 2022 10:20:18 +0100
+Message-Id: <20220307091659.113389701@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -54,318 +54,279 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit ca93e44bfb5fd7996b76f0f544999171f647f93b upstream.
+commit b4be6aefa73c9a6899ef3ba9c5faaa8a66e333ef upstream.
 
-Some users recently reported that MariaDB was getting a read corruption
-when using io_uring on top of btrfs. This started to happen in 5.16,
-after commit 51bd9563b6783d ("btrfs: fix deadlock due to page faults
-during direct IO reads and writes"). That changed btrfs to use the new
-iomap flag IOMAP_DIO_PARTIAL and to disable page faults before calling
-iomap_dio_rw(). This was necessary to fix deadlocks when the iovector
-corresponds to a memory mapped file region. That type of scenario is
-exercised by test case generic/647 from fstests.
+We hit a bug with a recovering relocation on mount for one of our file
+systems in production.  I reproduced this locally by injecting errors
+into snapshot delete with balance running at the same time.  This
+presented as an error while looking up an extent item
 
-For this MariaDB scenario, we attempt to read 16K from file offset X
-using IOCB_NOWAIT and io_uring. In that range we have 4 extents, each
-with a size of 4K, and what happens is the following:
+  WARNING: CPU: 5 PID: 1501 at fs/btrfs/extent-tree.c:866 lookup_inline_extent_backref+0x647/0x680
+  CPU: 5 PID: 1501 Comm: btrfs-balance Not tainted 5.16.0-rc8+ #8
+  RIP: 0010:lookup_inline_extent_backref+0x647/0x680
+  RSP: 0018:ffffae0a023ab960 EFLAGS: 00010202
+  RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: 000000000000000c RDI: 0000000000000000
+  RBP: ffff943fd2a39b60 R08: 0000000000000000 R09: 0000000000000001
+  R10: 0001434088152de0 R11: 0000000000000000 R12: 0000000001d05000
+  R13: ffff943fd2a39b60 R14: ffff943fdb96f2a0 R15: ffff9442fc923000
+  FS:  0000000000000000(0000) GS:ffff944e9eb40000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f1157b1fca8 CR3: 000000010f092000 CR4: 0000000000350ee0
+  Call Trace:
+   <TASK>
+   insert_inline_extent_backref+0x46/0xd0
+   __btrfs_inc_extent_ref.isra.0+0x5f/0x200
+   ? btrfs_merge_delayed_refs+0x164/0x190
+   __btrfs_run_delayed_refs+0x561/0xfa0
+   ? btrfs_search_slot+0x7b4/0xb30
+   ? btrfs_update_root+0x1a9/0x2c0
+   btrfs_run_delayed_refs+0x73/0x1f0
+   ? btrfs_update_root+0x1a9/0x2c0
+   btrfs_commit_transaction+0x50/0xa50
+   ? btrfs_update_reloc_root+0x122/0x220
+   prepare_to_merge+0x29f/0x320
+   relocate_block_group+0x2b8/0x550
+   btrfs_relocate_block_group+0x1a6/0x350
+   btrfs_relocate_chunk+0x27/0xe0
+   btrfs_balance+0x777/0xe60
+   balance_kthread+0x35/0x50
+   ? btrfs_balance+0xe60/0xe60
+   kthread+0x16b/0x190
+   ? set_kthread_struct+0x40/0x40
+   ret_from_fork+0x22/0x30
+   </TASK>
 
-1) btrfs_direct_read() disables page faults and calls iomap_dio_rw();
+Normally snapshot deletion and relocation are excluded from running at
+the same time by the fs_info->cleaner_mutex.  However if we had a
+pending balance waiting to get the ->cleaner_mutex, and a snapshot
+deletion was running, and then the box crashed, we would come up in a
+state where we have a half deleted snapshot.
 
-2) iomap creates a struct iomap_dio object, its reference count is
-   initialized to 1 and its ->size field is initialized to 0;
+Again, in the normal case the snapshot deletion needs to complete before
+relocation can start, but in this case relocation could very well start
+before the snapshot deletion completes, as we simply add the root to the
+dead roots list and wait for the next time the cleaner runs to clean up
+the snapshot.
 
-3) iomap calls btrfs_dio_iomap_begin() with file offset X, which finds
-   the first 4K extent, and setups an iomap for this extent consisting
-   of a single page;
+Fix this by setting a bit on the fs_info if we have any DEAD_ROOT's that
+had a pending drop_progress key.  If they do then we know we were in the
+middle of the drop operation and set a flag on the fs_info.  Then
+balance can wait until this flag is cleared to start up again.
 
-4) At iomap_dio_bio_iter(), we are able to access the first page of the
-   buffer (struct iov_iter) with bio_iov_iter_get_pages() without
-   triggering a page fault;
+If there are DEAD_ROOT's that don't have a drop_progress set then we're
+safe to start balance right away as we'll be properly protected by the
+cleaner_mutex.
 
-5) iomap submits a bio for this 4K extent
-   (iomap_dio_submit_bio() -> btrfs_submit_direct()) and increments
-   the refcount on the struct iomap_dio object to 2; The ->size field
-   of the struct iomap_dio object is incremented to 4K;
-
-6) iomap calls btrfs_iomap_begin() again, this time with a file
-   offset of X + 4K. There we setup an iomap for the next extent
-   that also has a size of 4K;
-
-7) Then at iomap_dio_bio_iter() we call bio_iov_iter_get_pages(),
-   which tries to access the next page (2nd page) of the buffer.
-   This triggers a page fault and returns -EFAULT;
-
-8) At __iomap_dio_rw() we see the -EFAULT, but we reset the error
-   to 0 because we passed the flag IOMAP_DIO_PARTIAL to iomap and
-   the struct iomap_dio object has a ->size value of 4K (we submitted
-   a bio for an extent already). The 'wait_for_completion' variable
-   is not set to true, because our iocb has IOCB_NOWAIT set;
-
-9) At the bottom of __iomap_dio_rw(), we decrement the reference count
-   of the struct iomap_dio object from 2 to 1. Because we were not
-   the only ones holding a reference on it and 'wait_for_completion' is
-   set to false, -EIOCBQUEUED is returned to btrfs_direct_read(), which
-   just returns it up the callchain, up to io_uring;
-
-10) The bio submitted for the first extent (step 5) completes and its
-    bio endio function, iomap_dio_bio_end_io(), decrements the last
-    reference on the struct iomap_dio object, resulting in calling
-    iomap_dio_complete_work() -> iomap_dio_complete().
-
-11) At iomap_dio_complete() we adjust the iocb->ki_pos from X to X + 4K
-    and return 4K (the amount of io done) to iomap_dio_complete_work();
-
-12) iomap_dio_complete_work() calls the iocb completion callback,
-    iocb->ki_complete() with a second argument value of 4K (total io
-    done) and the iocb with the adjust ki_pos of X + 4K. This results
-    in completing the read request for io_uring, leaving it with a
-    result of 4K bytes read, and only the first page of the buffer
-    filled in, while the remaining 3 pages, corresponding to the other
-    3 extents, were not filled;
-
-13) For the application, the result is unexpected because if we ask
-    to read N bytes, it expects to get N bytes read as long as those
-    N bytes don't cross the EOF (i_size).
-
-MariaDB reports this as an error, as it's not expecting a short read,
-since it knows it's asking for read operations fully within the i_size
-boundary. This is typical in many applications, but it may also be
-questionable if they should react to such short reads by issuing more
-read calls to get the remaining data. Nevertheless, the short read
-happened due to a change in btrfs regarding how it deals with page
-faults while in the middle of a read operation, and there's no reason
-why btrfs can't have the previous behaviour of returning the whole data
-that was requested by the application.
-
-The problem can also be triggered with the following simple program:
-
-  /* Get O_DIRECT */
-  #ifndef _GNU_SOURCE
-  #define _GNU_SOURCE
-  #endif
-
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <unistd.h>
-  #include <fcntl.h>
-  #include <errno.h>
-  #include <string.h>
-  #include <liburing.h>
-
-  int main(int argc, char *argv[])
-  {
-      char *foo_path;
-      struct io_uring ring;
-      struct io_uring_sqe *sqe;
-      struct io_uring_cqe *cqe;
-      struct iovec iovec;
-      int fd;
-      long pagesize;
-      void *write_buf;
-      void *read_buf;
-      ssize_t ret;
-      int i;
-
-      if (argc != 2) {
-          fprintf(stderr, "Use: %s <directory>\n", argv[0]);
-          return 1;
-      }
-
-      foo_path = malloc(strlen(argv[1]) + 5);
-      if (!foo_path) {
-          fprintf(stderr, "Failed to allocate memory for file path\n");
-          return 1;
-      }
-      strcpy(foo_path, argv[1]);
-      strcat(foo_path, "/foo");
-
-      /*
-       * Create file foo with 2 extents, each with a size matching
-       * the page size. Then allocate a buffer to read both extents
-       * with io_uring, using O_DIRECT and IOCB_NOWAIT. Before doing
-       * the read with io_uring, access the first page of the buffer
-       * to fault it in, so that during the read we only trigger a
-       * page fault when accessing the second page of the buffer.
-       */
-       fd = open(foo_path, O_CREAT | O_TRUNC | O_WRONLY |
-                O_DIRECT, 0666);
-       if (fd == -1) {
-           fprintf(stderr,
-                   "Failed to create file 'foo': %s (errno %d)",
-                   strerror(errno), errno);
-           return 1;
-       }
-
-       pagesize = sysconf(_SC_PAGE_SIZE);
-       ret = posix_memalign(&write_buf, pagesize, 2 * pagesize);
-       if (ret) {
-           fprintf(stderr, "Failed to allocate write buffer\n");
-           return 1;
-       }
-
-       memset(write_buf, 0xab, pagesize);
-       memset(write_buf + pagesize, 0xcd, pagesize);
-
-       /* Create 2 extents, each with a size matching page size. */
-       for (i = 0; i < 2; i++) {
-           ret = pwrite(fd, write_buf + i * pagesize, pagesize,
-                        i * pagesize);
-           if (ret != pagesize) {
-               fprintf(stderr,
-                     "Failed to write to file, ret = %ld errno %d (%s)\n",
-                      ret, errno, strerror(errno));
-               return 1;
-           }
-           ret = fsync(fd);
-           if (ret != 0) {
-               fprintf(stderr, "Failed to fsync file\n");
-               return 1;
-           }
-       }
-
-       close(fd);
-       fd = open(foo_path, O_RDONLY | O_DIRECT);
-       if (fd == -1) {
-           fprintf(stderr,
-                   "Failed to open file 'foo': %s (errno %d)",
-                   strerror(errno), errno);
-           return 1;
-       }
-
-       ret = posix_memalign(&read_buf, pagesize, 2 * pagesize);
-       if (ret) {
-           fprintf(stderr, "Failed to allocate read buffer\n");
-           return 1;
-       }
-
-       /*
-        * Fault in only the first page of the read buffer.
-        * We want to trigger a page fault for the 2nd page of the
-        * read buffer during the read operation with io_uring
-        * (O_DIRECT and IOCB_NOWAIT).
-        */
-       memset(read_buf, 0, 1);
-
-       ret = io_uring_queue_init(1, &ring, 0);
-       if (ret != 0) {
-           fprintf(stderr, "Failed to create io_uring queue\n");
-           return 1;
-       }
-
-       sqe = io_uring_get_sqe(&ring);
-       if (!sqe) {
-           fprintf(stderr, "Failed to get io_uring sqe\n");
-           return 1;
-       }
-
-       iovec.iov_base = read_buf;
-       iovec.iov_len = 2 * pagesize;
-       io_uring_prep_readv(sqe, fd, &iovec, 1, 0);
-
-       ret = io_uring_submit_and_wait(&ring, 1);
-       if (ret != 1) {
-           fprintf(stderr,
-                   "Failed at io_uring_submit_and_wait()\n");
-           return 1;
-       }
-
-       ret = io_uring_wait_cqe(&ring, &cqe);
-       if (ret < 0) {
-           fprintf(stderr, "Failed at io_uring_wait_cqe()\n");
-           return 1;
-       }
-
-       printf("io_uring read result for file foo:\n\n");
-       printf("  cqe->res == %d (expected %d)\n", cqe->res, 2 * pagesize);
-       printf("  memcmp(read_buf, write_buf) == %d (expected 0)\n",
-              memcmp(read_buf, write_buf, 2 * pagesize));
-
-       io_uring_cqe_seen(&ring, cqe);
-       io_uring_queue_exit(&ring);
-
-       return 0;
-  }
-
-When running it on an unpatched kernel:
-
-  $ gcc io_uring_test.c -luring
-  $ mkfs.btrfs -f /dev/sda
-  $ mount /dev/sda /mnt/sda
-  $ ./a.out /mnt/sda
-  io_uring read result for file foo:
-
-    cqe->res == 4096 (expected 8192)
-    memcmp(read_buf, write_buf) == -205 (expected 0)
-
-After this patch, the read always returns 8192 bytes, with the buffer
-filled with the correct data. Although that reproducer always triggers
-the bug in my test vms, it's possible that it will not be so reliable
-on other environments, as that can happen if the bio for the first
-extent completes and decrements the reference on the struct iomap_dio
-object before we do the atomic_dec_and_test() on the reference at
-__iomap_dio_rw().
-
-Fix this in btrfs by having btrfs_dio_iomap_begin() return -EAGAIN
-whenever we try to satisfy a non blocking IO request (IOMAP_NOWAIT flag
-set) over a range that spans multiple extents (or a mix of extents and
-holes). This avoids returning success to the caller when we only did
-partial IO, which is not optimal for writes and for reads it's actually
-incorrect, as the caller doesn't expect to get less bytes read than it has
-requested (unless EOF is crossed), as previously mentioned. This is also
-the type of behaviour that xfs follows (xfs_direct_write_iomap_begin()),
-even though it doesn't use IOMAP_DIO_PARTIAL.
-
-A test case for fstests will follow soon.
-
-Link: https://lore.kernel.org/linux-btrfs/CABVffEM0eEWho+206m470rtM0d9J8ue85TtR-A_oVTuGLWFicA@mail.gmail.com/
-Link: https://lore.kernel.org/linux-btrfs/CAHF2GV6U32gmqSjLe=XKgfcZAmLCiH26cJ2OnHGp5x=VAH4OHQ@mail.gmail.com/
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ fs/btrfs/ctree.h       |   10 ++++++++++
+ fs/btrfs/disk-io.c     |   10 ++++++++++
+ fs/btrfs/extent-tree.c |   10 ++++++++++
+ fs/btrfs/relocation.c  |   13 +++++++++++++
+ fs/btrfs/root-tree.c   |   15 +++++++++++++++
+ fs/btrfs/transaction.c |   33 ++++++++++++++++++++++++++++++++-
+ fs/btrfs/transaction.h |    1 +
+ 7 files changed, 91 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -7965,6 +7965,34 @@ static int btrfs_dio_iomap_begin(struct
- 	}
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -601,6 +601,9 @@ enum {
+ 	/* Indicate whether there are any tree modification log users */
+ 	BTRFS_FS_TREE_MOD_LOG_USERS,
  
- 	len = min(len, em->len - (start - em->start));
++	/* Indicate we have half completed snapshot deletions pending. */
++	BTRFS_FS_UNFINISHED_DROPS,
++
+ #if BITS_PER_LONG == 32
+ 	/* Indicate if we have error/warn message printed on 32bit systems */
+ 	BTRFS_FS_32BIT_ERROR,
+@@ -1110,8 +1113,15 @@ enum {
+ 	BTRFS_ROOT_HAS_LOG_TREE,
+ 	/* Qgroup flushing is in progress */
+ 	BTRFS_ROOT_QGROUP_FLUSHING,
++	/* This root has a drop operation that was started previously. */
++	BTRFS_ROOT_UNFINISHED_DROP,
+ };
+ 
++static inline void btrfs_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
++{
++	clear_and_wake_up_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
++}
++
+ /*
+  * Record swapped tree blocks of a subvolume tree for delayed subtree trace
+  * code. For detail check comment in fs/btrfs/qgroup.c.
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3665,6 +3665,10 @@ int __cold open_ctree(struct super_block
+ 
+ 	set_bit(BTRFS_FS_OPEN, &fs_info->flags);
+ 
++	/* Kick the cleaner thread so it'll start deleting snapshots. */
++	if (test_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags))
++		wake_up_process(fs_info->cleaner_kthread);
++
+ clear_oneshot:
+ 	btrfs_clear_oneshot_options(fs_info);
+ 	return 0;
+@@ -4348,6 +4352,12 @@ void __cold close_ctree(struct btrfs_fs_
+ 	 */
+ 	kthread_park(fs_info->cleaner_kthread);
+ 
++	/*
++	 * If we had UNFINISHED_DROPS we could still be processing them, so
++	 * clear that bit and wake up relocation so it can stop.
++	 */
++	btrfs_wake_unfinished_drop(fs_info);
++
+ 	/* wait for the qgroup rescan worker to stop */
+ 	btrfs_qgroup_wait_for_completion(fs_info, false);
+ 
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -5604,6 +5604,7 @@ int btrfs_drop_snapshot(struct btrfs_roo
+ 	int ret;
+ 	int level;
+ 	bool root_dropped = false;
++	bool unfinished_drop = false;
+ 
+ 	btrfs_debug(fs_info, "Drop subvolume %llu", root->root_key.objectid);
+ 
+@@ -5646,6 +5647,8 @@ int btrfs_drop_snapshot(struct btrfs_roo
+ 	 * already dropped.
+ 	 */
+ 	set_bit(BTRFS_ROOT_DELETING, &root->state);
++	unfinished_drop = test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
++
+ 	if (btrfs_disk_key_objectid(&root_item->drop_progress) == 0) {
+ 		level = btrfs_header_level(root->node);
+ 		path->nodes[level] = btrfs_lock_root_node(root);
+@@ -5821,6 +5824,13 @@ out_free:
+ 	btrfs_free_path(path);
+ out:
+ 	/*
++	 * We were an unfinished drop root, check to see if there are any
++	 * pending, and if not clear and wake up any waiters.
++	 */
++	if (!err && unfinished_drop)
++		btrfs_maybe_wake_unfinished_drop(fs_info);
 +
 +	/*
-+	 * If we have a NOWAIT request and the range contains multiple extents
-+	 * (or a mix of extents and holes), then we return -EAGAIN to make the
-+	 * caller fallback to a context where it can do a blocking (without
-+	 * NOWAIT) request. This way we avoid doing partial IO and returning
-+	 * success to the caller, which is not optimal for writes and for reads
-+	 * it can result in unexpected behaviour for an application.
-+	 *
-+	 * When doing a read, because we use IOMAP_DIO_PARTIAL when calling
-+	 * iomap_dio_rw(), we can end up returning less data then what the caller
-+	 * asked for, resulting in an unexpected, and incorrect, short read.
-+	 * That is, the caller asked to read N bytes and we return less than that,
-+	 * which is wrong unless we are crossing EOF. This happens if we get a
-+	 * page fault error when trying to fault in pages for the buffer that is
-+	 * associated to the struct iov_iter passed to iomap_dio_rw(), and we
-+	 * have previously submitted bios for other extents in the range, in
-+	 * which case iomap_dio_rw() may return us EIOCBQUEUED if not all of
-+	 * those bios have completed by the time we get the page fault error,
-+	 * which we return back to our caller - we should only return EIOCBQUEUED
-+	 * after we have submitted bios for all the extents in the range.
+ 	 * So if we need to stop dropping the snapshot for whatever reason we
+ 	 * need to make sure to add it back to the dead root list so that we
+ 	 * keep trying to do the work later.  This also cleans up roots if we
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3971,6 +3971,19 @@ int btrfs_relocate_block_group(struct bt
+ 	int rw = 0;
+ 	int err = 0;
+ 
++	/*
++	 * This only gets set if we had a half-deleted snapshot on mount.  We
++	 * cannot allow relocation to start while we're still trying to clean up
++	 * these pending deletions.
 +	 */
-+	if ((flags & IOMAP_NOWAIT) && len < length) {
-+		free_extent_map(em);
-+		ret = -EAGAIN;
-+		goto unlock_err;
-+	}
++	ret = wait_on_bit(&fs_info->flags, BTRFS_FS_UNFINISHED_DROPS, TASK_INTERRUPTIBLE);
++	if (ret)
++		return ret;
 +
- 	if (write) {
- 		ret = btrfs_get_blocks_direct_write(&em, inode, dio_data,
- 						    start, len);
++	/* We may have been woken up by close_ctree, so bail if we're closing. */
++	if (btrfs_fs_closing(fs_info))
++		return -EINTR;
++
+ 	bg = btrfs_lookup_block_group(fs_info, group_start);
+ 	if (!bg)
+ 		return -ENOENT;
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -278,6 +278,21 @@ int btrfs_find_orphan_roots(struct btrfs
+ 
+ 		WARN_ON(!test_bit(BTRFS_ROOT_ORPHAN_ITEM_INSERTED, &root->state));
+ 		if (btrfs_root_refs(&root->root_item) == 0) {
++			struct btrfs_key drop_key;
++
++			btrfs_disk_key_to_cpu(&drop_key, &root->root_item.drop_progress);
++			/*
++			 * If we have a non-zero drop_progress then we know we
++			 * made it partly through deleting this snapshot, and
++			 * thus we need to make sure we block any balance from
++			 * happening until this snapshot is completely dropped.
++			 */
++			if (drop_key.objectid != 0 || drop_key.type != 0 ||
++			    drop_key.offset != 0) {
++				set_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
++				set_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
++			}
++
+ 			set_bit(BTRFS_ROOT_DEAD_TREE, &root->state);
+ 			btrfs_add_dead_root(root);
+ 		}
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -1340,6 +1340,32 @@ again:
+ }
+ 
+ /*
++ * If we had a pending drop we need to see if there are any others left in our
++ * dead roots list, and if not clear our bit and wake any waiters.
++ */
++void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
++{
++	/*
++	 * We put the drop in progress roots at the front of the list, so if the
++	 * first entry doesn't have UNFINISHED_DROP set we can wake everybody
++	 * up.
++	 */
++	spin_lock(&fs_info->trans_lock);
++	if (!list_empty(&fs_info->dead_roots)) {
++		struct btrfs_root *root = list_first_entry(&fs_info->dead_roots,
++							   struct btrfs_root,
++							   root_list);
++		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state)) {
++			spin_unlock(&fs_info->trans_lock);
++			return;
++		}
++	}
++	spin_unlock(&fs_info->trans_lock);
++
++	btrfs_wake_unfinished_drop(fs_info);
++}
++
++/*
+  * dead roots are old snapshots that need to be deleted.  This allocates
+  * a dirty root struct and adds it into the list of dead roots that need to
+  * be deleted
+@@ -1351,7 +1377,12 @@ void btrfs_add_dead_root(struct btrfs_ro
+ 	spin_lock(&fs_info->trans_lock);
+ 	if (list_empty(&root->root_list)) {
+ 		btrfs_grab_root(root);
+-		list_add_tail(&root->root_list, &fs_info->dead_roots);
++
++		/* We want to process the partially complete drops first. */
++		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state))
++			list_add(&root->root_list, &fs_info->dead_roots);
++		else
++			list_add_tail(&root->root_list, &fs_info->dead_roots);
+ 	}
+ 	spin_unlock(&fs_info->trans_lock);
+ }
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -217,6 +217,7 @@ int btrfs_wait_for_commit(struct btrfs_f
+ 
+ void btrfs_add_dead_root(struct btrfs_root *root);
+ int btrfs_defrag_root(struct btrfs_root *root);
++void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info);
+ int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root);
+ int btrfs_commit_transaction(struct btrfs_trans_handle *trans);
+ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans);
 
 
