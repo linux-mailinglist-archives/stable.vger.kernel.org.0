@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6DAA4CF921
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE1BB4CF5BE
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239870AbiCGKDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
+        id S237115AbiCGJa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239927AbiCGKA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:26 -0500
+        with ESMTP id S238820AbiCGJ3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8217D023;
-        Mon,  7 Mar 2022 01:46:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99574DEF;
+        Mon,  7 Mar 2022 01:28:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 727ED61220;
-        Mon,  7 Mar 2022 09:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 769EFC340E9;
-        Mon,  7 Mar 2022 09:46:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3181C60C00;
+        Mon,  7 Mar 2022 09:28:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23728C340F4;
+        Mon,  7 Mar 2022 09:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646393;
-        bh=RBIP91LgZUyqhUHzo0CuYJAho8yLrXfh2cIdnSzoUw0=;
+        s=korg; t=1646645333;
+        bh=3hTRPYILVHFgwkPuAGP/+yznlxcvOHyMJhbXkvArwJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RV0cmJxB0YLFEK4RyWyioQQ1SWZyW6+qMGxdAcRQtbgJr5Cm82ljnErcNmfr8gyJ3
-         YTDmU/g3fAJXBgTzbSgg8xnNXWoUE0WRjDUIUClvsucHu4OmqYBP7TmrFzrBsnq/+s
-         cGJFtpY6h2w57fXtzCLy9NRwlesxJZl2YxepcB+8=
+        b=yYubcIeVa2phAcGmbpGU8PpyysMQ1RY5mp3qi3bQtBGWSDx9k8iYxCM815DB3vtpJ
+         8eGo0rlI8t9+GnA2WfP2QXjIuv6aqrXbSLw15oDSuV8fxUay6A69ulP1SixGgCq5x2
+         P690/KiwFC8JUleXkRK5oiKkjC9E6uuPj86CpYUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Phani Burra <phani.r.burra@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 230/262] iavf: Add waiting so the port is initialized in remove
-Date:   Mon,  7 Mar 2022 10:19:34 +0100
-Message-Id: <20220307091709.708747963@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 62/64] btrfs: add missing run of delayed items after unlink during log replay
+Date:   Mon,  7 Mar 2022 10:19:35 +0100
+Message-Id: <20220307091640.909500764@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,91 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 974578017fc1fdd06cea8afb9dfa32602e8529ed ]
+commit 4751dc99627e4d1465c5bfa8cb7ab31ed418eff5 upstream.
 
-There exist races when port is being configured and remove is
-triggered.
+During log replay, whenever we need to check if a name (dentry) exists in
+a directory we do searches on the subvolume tree for inode references or
+or directory entries (BTRFS_DIR_INDEX_KEY keys, and BTRFS_DIR_ITEM_KEY
+keys as well, before kernel 5.17). However when during log replay we
+unlink a name, through btrfs_unlink_inode(), we may not delete inode
+references and dir index keys from a subvolume tree and instead just add
+the deletions to the delayed inode's delayed items, which will only be
+run when we commit the transaction used for log replay. This means that
+after an unlink operation during log replay, if we attempt to search for
+the same name during log replay, we will not see that the name was already
+deleted, since the deletion is recorded only on the delayed items.
 
-unregister_netdev is not and can't be called under crit_lock
-mutex since it is calling ndo_stop -> iavf_close which requires
-this lock. Depending on init state the netdev could be still
-unregistered so unregister_netdev never cleans up, when shortly
-after that the device could become registered.
+We run delayed items after every unlink operation during log replay,
+except at unlink_old_inode_refs() and at add_inode_ref(). This was due
+to an overlook, as delayed items should be run after evert unlink, for
+the reasons stated above.
 
-Make iavf_remove wait until port finishes initialization.
-All critical state changes are atomic (under crit_lock).
-Crashes that come from iavf_reset_interrupt_capability and
-iavf_free_traffic_irqs should now be solved in a graceful
-manner.
+So fix those two cases.
 
-Fixes: 605ca7c5c6707 ("iavf: Fix kernel BUG in free_msi_irqs")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Phani Burra <phani.r.burra@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0d836392cadd5 ("Btrfs: fix mount failure after fsync due to hard link recreation")
+Fixes: 1f250e929a9c9 ("Btrfs: fix log replay failure after unlink and link combination")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 27 ++++++++++++---------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ fs/btrfs/tree-log.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index e97a8dbbbc89..60e6f55c6dc5 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3979,7 +3979,6 @@ static int __maybe_unused iavf_resume(struct device *dev_d)
- static void iavf_remove(struct pci_dev *pdev)
- {
- 	struct iavf_adapter *adapter = iavf_pdev_to_adapter(pdev);
--	enum iavf_state_t prev_state = adapter->last_state;
- 	struct net_device *netdev = adapter->netdev;
- 	struct iavf_fdir_fltr *fdir, *fdirtmp;
- 	struct iavf_vlan_filter *vlf, *vlftmp;
-@@ -3989,6 +3988,22 @@ static void iavf_remove(struct pci_dev *pdev)
- 	struct iavf_hw *hw = &adapter->hw;
- 	int err;
- 
-+	/* Wait until port initialization is complete.
-+	 * There are flows where register/unregister netdev may race.
-+	 */
-+	while (1) {
-+		mutex_lock(&adapter->crit_lock);
-+		if (adapter->state == __IAVF_RUNNING ||
-+		    adapter->state == __IAVF_DOWN) {
-+			mutex_unlock(&adapter->crit_lock);
-+			break;
-+		}
-+
-+		mutex_unlock(&adapter->crit_lock);
-+		usleep_range(500, 1000);
-+	}
-+	cancel_delayed_work_sync(&adapter->watchdog_task);
-+
- 	if (adapter->netdev_registered) {
- 		unregister_netdev(netdev);
- 		adapter->netdev_registered = false;
-@@ -4026,16 +4041,6 @@ static void iavf_remove(struct pci_dev *pdev)
- 	iavf_free_all_rx_resources(adapter);
- 	iavf_free_misc_irq(adapter);
- 
--	/* In case we enter iavf_remove from erroneous state, free traffic irqs
--	 * here, so as to not cause a kernel crash, when calling
--	 * iavf_reset_interrupt_capability.
--	 */
--	if ((adapter->last_state == __IAVF_RESETTING &&
--	     prev_state != __IAVF_DOWN) ||
--	    (adapter->last_state == __IAVF_RUNNING &&
--	     !(netdev->flags & IFF_UP)))
--		iavf_free_traffic_irqs(adapter);
--
- 	iavf_reset_interrupt_capability(adapter);
- 	iavf_free_q_vectors(adapter);
- 
--- 
-2.34.1
-
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1308,6 +1308,15 @@ again:
+ 						 inode, name, namelen);
+ 			kfree(name);
+ 			iput(dir);
++			/*
++			 * Whenever we need to check if a name exists or not, we
++			 * check the subvolume tree. So after an unlink we must
++			 * run delayed items, so that future checks for a name
++			 * during log replay see that the name does not exists
++			 * anymore.
++			 */
++			if (!ret)
++				ret = btrfs_run_delayed_items(trans);
+ 			if (ret)
+ 				goto out;
+ 			goto again;
+@@ -1559,6 +1568,15 @@ static noinline int add_inode_ref(struct
+ 				 */
+ 				if (!ret && inode->i_nlink == 0)
+ 					inc_nlink(inode);
++				/*
++				 * Whenever we need to check if a name exists or
++				 * not, we check the subvolume tree. So after an
++				 * unlink we must run delayed items, so that future
++				 * checks for a name during log replay see that the
++				 * name does not exists anymore.
++				 */
++				if (!ret)
++					ret = btrfs_run_delayed_items(trans);
+ 			}
+ 			if (ret < 0)
+ 				goto out;
 
 
