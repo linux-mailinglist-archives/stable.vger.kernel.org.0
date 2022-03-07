@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1E24CF8DD
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81F374CF622
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238884AbiCGKCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:02:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40676 "EHLO
+        id S237211AbiCGJdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:33:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241187AbiCGKBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D0271C94;
-        Mon,  7 Mar 2022 01:51:32 -0800 (PST)
+        with ESMTP id S237650AbiCGJdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC0365824;
+        Mon,  7 Mar 2022 01:29:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C4C260929;
-        Mon,  7 Mar 2022 09:51:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E0CC340F3;
-        Mon,  7 Mar 2022 09:51:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DC62B810C5;
+        Mon,  7 Mar 2022 09:29:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4591C36AE2;
+        Mon,  7 Mar 2022 09:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646687;
-        bh=2kbntivt/U8rpmz5zh4XeBcxUOVSFlPKZj62j90goC8=;
+        s=korg; t=1646645385;
+        bh=oQ/WUyu1a1DvBwsfO0I1oS/ecdqExqC9GcCSL1Zqbds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGKGsH5f2PkeHPUAZTUB2pKr1Pvx/zPFenj93YpA9YKYjgQ59RufRvEEYtjmSN6hj
-         cH0zgvlwct69MZaZfhbIGxX2GszfHn5nyWk+Knm3hdsmmwh8q0evJ3drwgQKnAhPaU
-         1tUg0VNkd66s4MHXVXhMCOCx3uyziPQ9dgCS94Hk=
+        b=M2EJH3Jbwhsauty3BBE+CzSqEB8O+H7/GY+kaHJCZBRVhMR43TSVw2SUGcgtAYWjC
+         mkPONKkmZPKbXo9Lxb7ovAla5XCa1WtBKSheDxkD6d2CMn8pWQBP3Iz6FDOZefVM07
+         9qJqaY7SvU4u+6QaHTJknoZDlfdTpRYkBpdwWXX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Leo (Hanghong) Ma" <hanghong.ma@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 5.16 059/186] drm/amd/display: Reduce dmesg error to a debug print
+        stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 014/105] i2c: qup: allow COMPILE_TEST
 Date:   Mon,  7 Mar 2022 10:18:17 +0100
-Message-Id: <20220307091655.742586091@linuxfoundation.org>
+Message-Id: <20220307091644.585896841@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo (Hanghong) Ma <hanghong.ma@amd.com>
+From: Wolfram Sang <wsa@kernel.org>
 
-commit 1d925758ba1a5d2716a847903e2fd04efcbd9862 upstream.
+[ Upstream commit 5de717974005fcad2502281e9f82e139ca91f4bb ]
 
-[Why & How]
-Dmesg errors are found on dcn3.1 during reset test, but it's not
-a really failure. So reduce it to a debug print.
+Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
+and easier maintenance.
 
-Signed-off-by: Leo (Hanghong) Ma <hanghong.ma@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -4454,7 +4454,9 @@ bool dp_retrieve_lttpr_cap(struct dc_lin
- 				lttpr_dpcd_data,
- 				sizeof(lttpr_dpcd_data));
- 		if (status != DC_OK) {
--			dm_error("%s: Read LTTPR caps data failed.\n", __func__);
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+			DC_LOG_DP2("%s: Read LTTPR caps data failed.\n", __func__);
-+#endif
- 			return false;
- 		}
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index d5fc8ec025020..ea474b16e3aac 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -926,7 +926,7 @@ config I2C_QCOM_GENI
  
+ config I2C_QUP
+ 	tristate "Qualcomm QUP based I2C controller"
+-	depends on ARCH_QCOM
++	depends on ARCH_QCOM || COMPILE_TEST
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Qualcomm SoCs.
+-- 
+2.34.1
+
 
 
