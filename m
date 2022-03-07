@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BF2A4CF669
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:36:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E78D04CF5FF
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237556AbiCGJgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:36:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55790 "EHLO
+        id S237234AbiCGJaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237593AbiCGJgU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:36:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59ACF66FAA;
-        Mon,  7 Mar 2022 01:31:25 -0800 (PST)
+        with ESMTP id S238751AbiCGJ3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 172725C65C;
+        Mon,  7 Mar 2022 01:28:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54592611AE;
-        Mon,  7 Mar 2022 09:31:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 571F7C340E9;
-        Mon,  7 Mar 2022 09:31:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A533361119;
+        Mon,  7 Mar 2022 09:28:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A30D8C340E9;
+        Mon,  7 Mar 2022 09:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645467;
-        bh=21YY4NxrrfmPda0r7VTfoipztWCNAl+87mork/YF//A=;
+        s=korg; t=1646645290;
+        bh=KU9KxHdaFgt17cuA03Z+1RGe0NpG03ZvA+hiQ+3fiuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hi/jOk6zozW9k1ii7PU9/WZmnZc5OkueblWEubXW4bF0tEwmD/2Vp9P9uH8jpEoDe
-         h3TzCKkVJFDH+c08pzYCFXkRa1/vlw4ew6cNPB/EclHa7iy93glrtitkjwlmyhpyNO
-         szZ9hUt7w4GQg39kds8qQUDxa6jm2m3ATHtYRxnE=
+        b=nBZoS5N0dE3bs2VHolHxZAgxx3LZiOJFdRLp2RwoXC0V8Agzzo/VNud2J0Sjv8smT
+         0grHU0AG7hz3lLatUzCRiINJNXnyQSqxlUA/mCzKAgZN6UQsIt9yiMoG3Efvg2g3u2
+         MtCCPSq4BwnKc/QSBaPLSfdsRJGfYKXBjy7HXwxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.10 040/105] xfrm: enforce validity of offload input flags
+        stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/64] i2c: qup: allow COMPILE_TEST
 Date:   Mon,  7 Mar 2022 10:18:43 +0100
-Message-Id: <20220307091645.315094498@linuxfoundation.org>
+Message-Id: <20220307091639.435817673@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Wolfram Sang <wsa@kernel.org>
 
-commit 7c76ecd9c99b6e9a771d813ab1aa7fa428b3ade1 upstream.
+[ Upstream commit 5de717974005fcad2502281e9f82e139ca91f4bb ]
 
-struct xfrm_user_offload has flags variable that received user input,
-but kernel didn't check if valid bits were provided. It caused a situation
-where not sanitized input was forwarded directly to the drivers.
+Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
+and easier maintenance.
 
-For example, XFRM_OFFLOAD_IPV6 define that was exposed, was used by
-strongswan, but not implemented in the kernel at all.
-
-As a solution, check and sanitize input flags to forward
-XFRM_OFFLOAD_INBOUND to the drivers.
-
-Fixes: d77e38e612a0 ("xfrm: Add an IPsec hardware offloading API")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/xfrm.h |    6 ++++++
- net/xfrm/xfrm_device.c    |    6 +++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/linux/xfrm.h
-+++ b/include/uapi/linux/xfrm.h
-@@ -506,6 +506,12 @@ struct xfrm_user_offload {
- 	int				ifindex;
- 	__u8				flags;
- };
-+/* This flag was exposed without any kernel code that supporting it.
-+ * Unfortunately, strongswan has the code that uses sets this flag,
-+ * which makes impossible to reuse this bit.
-+ *
-+ * So leave it here to make sure that it won't be reused by mistake.
-+ */
- #define XFRM_OFFLOAD_IPV6	1
- #define XFRM_OFFLOAD_INBOUND	2
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 94c78329f841c..854f1b2658b82 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -894,7 +894,7 @@ config I2C_QCOM_GENI
  
---- a/net/xfrm/xfrm_device.c
-+++ b/net/xfrm/xfrm_device.c
-@@ -223,6 +223,9 @@ int xfrm_dev_state_add(struct net *net,
- 	if (x->encap || x->tfcpad)
- 		return -EINVAL;
- 
-+	if (xuo->flags & ~(XFRM_OFFLOAD_IPV6 | XFRM_OFFLOAD_INBOUND))
-+		return -EINVAL;
-+
- 	dev = dev_get_by_index(net, xuo->ifindex);
- 	if (!dev) {
- 		if (!(xuo->flags & XFRM_OFFLOAD_INBOUND)) {
-@@ -261,7 +264,8 @@ int xfrm_dev_state_add(struct net *net,
- 	xso->dev = dev;
- 	xso->real_dev = dev;
- 	xso->num_exthdrs = 1;
--	xso->flags = xuo->flags;
-+	/* Don't forward bit that is not implemented */
-+	xso->flags = xuo->flags & ~XFRM_OFFLOAD_IPV6;
- 
- 	err = dev->xfrmdev_ops->xdo_dev_state_add(x);
- 	if (err) {
+ config I2C_QUP
+ 	tristate "Qualcomm QUP based I2C controller"
+-	depends on ARCH_QCOM
++	depends on ARCH_QCOM || COMPILE_TEST
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Qualcomm SoCs.
+-- 
+2.34.1
+
 
 
