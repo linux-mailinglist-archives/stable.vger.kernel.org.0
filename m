@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA6A4CF757
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 341164CF73C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238312AbiCGJpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:45:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
+        id S238033AbiCGJpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240973AbiCGJln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11206C1CA;
-        Mon,  7 Mar 2022 01:38:51 -0800 (PST)
+        with ESMTP id S240986AbiCGJlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9A06D193;
+        Mon,  7 Mar 2022 01:38:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 392C4B8102B;
-        Mon,  7 Mar 2022 09:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73EFCC340F3;
-        Mon,  7 Mar 2022 09:38:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 189446116E;
+        Mon,  7 Mar 2022 09:38:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20C93C340E9;
+        Mon,  7 Mar 2022 09:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645928;
-        bh=Ljpn8FdyEg3DeGHMfdNwKAXkMrJs/1K06M6QjXTJynQ=;
+        s=korg; t=1646645935;
+        bh=vUUx7TDfvi9NLzfwhBM7JvnGySc+0jCcgOAbRK5rt/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+4GFnPo+NGMku5ctl6vTPh7ZNUoS8xH6WCamUda8Lar1oMz4SnQgvywckPqGLDkw
-         /A1GqFMBNgihf5i3d76rMDgQWUV71xw16ZzVswqx3cfS+uJ4Qi3Dhql4YR19F3GaaG
-         txNHgn50N7Sm13degQ2STguVvEbwzdKHT7lsjrU0=
+        b=XlVMajugN+JxMxA+O9lTJv4FhRyRj2ssg8ajocIMQK+dLkTa1MtlJwEPBNhfeN4it
+         SwVb7js1lwqmZWUIOgBU40qnkzaPRPO2lcmUpIfAC5Li6VwK9QSf/HylRjOFeVXD0e
+         upBdULY6cdLijjReitXyMC+Hn2tXlmy8TP7Uc4j8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 079/262] drm/i915: dont call free_mmap_offset when purging
-Date:   Mon,  7 Mar 2022 10:17:03 +0100
-Message-Id: <20220307091704.720213737@linuxfoundation.org>
+Subject: [PATCH 5.15 080/262] SUNRPC: Fix sockaddr handling in the svc_xprt_create_error trace point
+Date:   Mon,  7 Mar 2022 10:17:04 +0100
+Message-Id: <20220307091704.747088295@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -56,75 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 4c2602ba8d74c35d550ed3d518809c697de08d88 ]
+[ Upstream commit dc6c6fb3d639756a532bcc47d4a9bf9f3965881b ]
 
-The TTM backend is in theory the only user here(also purge should only
-be called once we have dropped the pages), where it is setup at object
-creation and is only removed once the object is destroyed. Also
-resetting the node here might be iffy since the ttm fault handler
-uses the stored fake offset to determine the page offset within the pages
-array.
+While testing, I got an unexpected KASAN splat:
 
-This also blows up in the dontneed-before-mmap test, since the
-expectation is that the vma_node will live on, until the object is
-destroyed:
+Jan 08 13:50:27 oracle-102.nfsv4.dev kernel: BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_svc_xprt_create_err+0x190/0x210 [sunrpc]
+Jan 08 13:50:27 oracle-102.nfsv4.dev kernel: Read of size 28 at addr ffffc9000008f728 by task mount.nfs/4628
 
-<2> [749.062902] kernel BUG at drivers/gpu/drm/i915/gem/i915_gem_ttm.c:943!
-<4> [749.062923] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-<4> [749.062928] CPU: 0 PID: 1643 Comm: gem_madvise Tainted: G     U  W         5.16.0-rc8-CI-CI_DRM_11046+ #1
-<4> [749.062933] Hardware name: Gigabyte Technology Co., Ltd. GB-Z390 Garuda/GB-Z390 Garuda-CF, BIOS IG1c 11/19/2019
-<4> [749.062937] RIP: 0010:i915_ttm_mmap_offset.cold.35+0x5b/0x5d [i915]
-<4> [749.063044] Code: 00 48 c7 c2 a0 23 4e a0 48 c7 c7 26 df 4a a0 e8 95 1d d0 e0 bf 01 00 00 00 e8 8b ec cf e0 31 f6 bf 09 00 00 00 e8 5f 30 c0 e0 <0f> 0b 48 c7 c1 24 4b 56 a0 ba 5b 03 00 00 48 c7 c6 c0 23 4e a0 48
-<4> [749.063052] RSP: 0018:ffffc90002ab7d38 EFLAGS: 00010246
-<4> [749.063056] RAX: 0000000000000240 RBX: ffff88811f2e61c0 RCX: 0000000000000006
-<4> [749.063060] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000009
-<4> [749.063063] RBP: ffffc90002ab7e58 R08: 0000000000000001 R09: 0000000000000001
-<4> [749.063067] R10: 000000000123d0f8 R11: ffffc90002ab7b20 R12: ffff888112a1a000
-<4> [749.063071] R13: 0000000000000004 R14: ffff88811f2e61c0 R15: ffff888112a1a000
-<4> [749.063074] FS:  00007f6e5fcad500(0000) GS:ffff8884ad600000(0000) knlGS:0000000000000000
-<4> [749.063078] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-<4> [749.063081] CR2: 00007efd264e39f0 CR3: 0000000115fd6005 CR4: 00000000003706f0
-<4> [749.063085] Call Trace:
-<4> [749.063087]  <TASK>
-<4> [749.063089]  __assign_mmap_offset+0x41/0x300 [i915]
-<4> [749.063171]  __assign_mmap_offset_handle+0x159/0x270 [i915]
-<4> [749.063248]  ? i915_gem_dumb_mmap_offset+0x70/0x70 [i915]
-<4> [749.063325]  drm_ioctl_kernel+0xae/0x140
-<4> [749.063330]  drm_ioctl+0x201/0x3d0
-<4> [749.063333]  ? i915_gem_dumb_mmap_offset+0x70/0x70 [i915]
-<4> [749.063409]  ? do_user_addr_fault+0x200/0x670
-<4> [749.063415]  __x64_sys_ioctl+0x6d/0xa0
-<4> [749.063419]  do_syscall_64+0x3a/0xb0
-<4> [749.063423]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-<4> [749.063428] RIP: 0033:0x7f6e5f100317
+The memcpy() in the TP_fast_assign section of this trace point
+copies the size of the destination buffer in order that the buffer
+won't be overrun.
 
-Testcase: igt/gem_madvise/dontneed-before-mmap
-Fixes: cf3e3e86d779 ("drm/i915: Use ttm mmap handling for ttm bo's.")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220106174910.280616-1-matthew.auld@intel.com
-(cherry picked from commit 658a0c632625e1db51837ff754fe18a6a7f2ccf8)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+In other similar trace points, the source buffer for this memcpy is
+a "struct sockaddr_storage" so the actual length of the source
+buffer is always long enough to prevent the memcpy from reading
+uninitialized or unallocated memory.
+
+However, for this trace point, the source buffer can be as small as
+a "struct sockaddr_in". For AF_INET sockaddrs, the memcpy() reads
+memory that follows the source buffer, which is not always valid
+memory.
+
+To avoid copying past the end of the passed-in sockaddr, make the
+source address's length available to the memcpy(). It would be a
+little nicer if the tracing infrastructure was more friendly about
+storing socket addresses that are not AF_INET, but I could not find
+a way to make printk("%pIS") work with a dynamic array.
+
+Reported-by: KASAN
+Fixes: 4b8f380e46e4 ("SUNRPC: Tracepoint to record errors in svc_xpo_create()")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_pages.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/trace/events/sunrpc.h | 5 +++--
+ net/sunrpc/svc_xprt.c         | 2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-index 8d6c38a622016..9053cea3395a6 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-@@ -162,7 +162,6 @@ int i915_gem_object_pin_pages_unlocked(struct drm_i915_gem_object *obj)
- /* Immediately discard the backing storage */
- void i915_gem_object_truncate(struct drm_i915_gem_object *obj)
- {
--	drm_gem_free_mmap_offset(&obj->base);
- 	if (obj->ops->truncate)
- 		obj->ops->truncate(obj);
+diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
+index daaf407e9e494..1213c078dcca5 100644
+--- a/include/trace/events/sunrpc.h
++++ b/include/trace/events/sunrpc.h
+@@ -1727,10 +1727,11 @@ TRACE_EVENT(svc_xprt_create_err,
+ 		const char *program,
+ 		const char *protocol,
+ 		struct sockaddr *sap,
++		size_t salen,
+ 		const struct svc_xprt *xprt
+ 	),
+ 
+-	TP_ARGS(program, protocol, sap, xprt),
++	TP_ARGS(program, protocol, sap, salen, xprt),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(long, error)
+@@ -1743,7 +1744,7 @@ TRACE_EVENT(svc_xprt_create_err,
+ 		__entry->error = PTR_ERR(xprt);
+ 		__assign_str(program, program);
+ 		__assign_str(protocol, protocol);
+-		memcpy(__entry->addr, sap, sizeof(__entry->addr));
++		memcpy(__entry->addr, sap, min(salen, sizeof(__entry->addr)));
+ 	),
+ 
+ 	TP_printk("addr=%pISpc program=%s protocol=%s error=%ld",
+diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
+index 6316bd2b8f37b..d4b663401be14 100644
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -243,7 +243,7 @@ static struct svc_xprt *__svc_xpo_create(struct svc_xprt_class *xcl,
+ 	xprt = xcl->xcl_ops->xpo_create(serv, net, sap, len, flags);
+ 	if (IS_ERR(xprt))
+ 		trace_svc_xprt_create_err(serv->sv_program->pg_name,
+-					  xcl->xcl_name, sap, xprt);
++					  xcl->xcl_name, sap, len, xprt);
+ 	return xprt;
  }
+ 
 -- 
 2.34.1
 
