@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5404CF5CB
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA5D4CF58A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237318AbiCGJb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58388 "EHLO
+        id S236900AbiCGJaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238715AbiCGJ3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E0C5B8BE;
-        Mon,  7 Mar 2022 01:27:55 -0800 (PST)
+        with ESMTP id S237354AbiCGJ2C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C825A5A164;
+        Mon,  7 Mar 2022 01:25:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B309A60C00;
-        Mon,  7 Mar 2022 09:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A44C340E9;
-        Mon,  7 Mar 2022 09:27:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 360FFB810C0;
+        Mon,  7 Mar 2022 09:25:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F56DC340F3;
+        Mon,  7 Mar 2022 09:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645275;
-        bh=f4g8xhcP711CTJtA/JNIAJ1Z6B3hMC8yWnMW76UYusA=;
+        s=korg; t=1646645102;
+        bh=CdbhoOIuBsH1DbMzlzA8mShODwOPYYh3vrMPo75ltZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsxCgzYh0rgCpQDMg4EIkp5559XEaHOY0osgLhOdNzFZyHq//7oKR7S+NfXSR7GhN
-         x7mQoK3cbLSAaZ/vzixkddpGXK850Znjhh4Af9/pJOsIAqlxd/tqioxEahAXz5Qy7/
-         oK8BhuvFiwLmZHmJQjmlDdCNdkWxSI1gcHPClIvY=
+        b=aKWRZv86dhGhp1gAUAaL1tN6OiJmHYN9XM1laBFW2hmgw9YAqjZBdHlaBhTzPs+j8
+         +yJa7k792GyxM0bGN5jaOa7wCKDLRKLKeMoYMh1CmagqI0pIZDCYC2p3pC26aGGU1y
+         NWR22vC9aSfhisuJFg9uSEKOJU3yHpy9/58c7KzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Alyssa Ross <hi@alyssa.is>, Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 5.4 41/64] firmware: arm_scmi: Remove space in MODULE_ALIAS name
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 4.19 39/51] arm64: dts: rockchip: Switch RK3399-Gru DP to SPDIF output
 Date:   Mon,  7 Mar 2022 10:19:14 +0100
-Message-Id: <20220307091640.313149941@linuxfoundation.org>
+Message-Id: <20220307091638.104821164@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 1ba603f56568c3b4c2542dfba07afa25f21dcff3 upstream.
+commit b5fbaf7d779f5f02b7f75b080e7707222573be2a upstream.
 
-modprobe can't handle spaces in aliases. Get rid of it to fix the issue.
+Commit b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
+switched the platform to SPDIF, but we didn't fix up the device tree.
 
-Link: https://lore.kernel.org/r/20220211102704.128354-1-sudeep.holla@arm.com
-Fixes: aa4f886f3893 ("firmware: arm_scmi: add basic driver infrastructure for SCMI")
-Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Drop the pinctrl settings, because the 'spdif_bus' pins are either:
+ * unused (on kevin, bob), so the settings is ~harmless
+ * used by a different function (on scarlet), which causes probe
+   failures (!!)
+
+Fixes: b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Link: https://lore.kernel.org/r/20220114150129.v2.1.I46f64b00508d9dff34abe1c3e8d2defdab4ea1e5@changeid
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/driver.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -983,7 +983,7 @@ static struct platform_driver scmi_drive
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
+@@ -287,7 +287,7 @@
  
- module_platform_driver(scmi_driver);
+ 	sound: sound {
+ 		compatible = "rockchip,rk3399-gru-sound";
+-		rockchip,cpu = <&i2s0 &i2s2>;
++		rockchip,cpu = <&i2s0 &spdif>;
+ 	};
+ };
  
--MODULE_ALIAS("platform: arm-scmi");
-+MODULE_ALIAS("platform:arm-scmi");
- MODULE_AUTHOR("Sudeep Holla <sudeep.holla@arm.com>");
- MODULE_DESCRIPTION("ARM SCMI protocol driver");
- MODULE_LICENSE("GPL v2");
+@@ -438,10 +438,6 @@ ap_i2c_audio: &i2c8 {
+ 	status = "okay";
+ };
+ 
+-&i2s2 {
+-	status = "okay";
+-};
+-
+ &io_domains {
+ 	status = "okay";
+ 
+@@ -538,6 +534,17 @@ ap_i2c_audio: &i2c8 {
+ 	vqmmc-supply = <&ppvar_sd_card_io>;
+ };
+ 
++&spdif {
++	status = "okay";
++
++	/*
++	 * SPDIF is routed internally to DP; we either don't use these pins, or
++	 * mux them to something else.
++	 */
++	/delete-property/ pinctrl-0;
++	/delete-property/ pinctrl-names;
++};
++
+ &spi1 {
+ 	status = "okay";
+ 
 
 
