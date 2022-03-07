@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 400524CF94E
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 331BB4CF5F1
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238665AbiCGKEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:04:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51850 "EHLO
+        id S237269AbiCGJbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239785AbiCGKAI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5757CDCF;
-        Mon,  7 Mar 2022 01:46:27 -0800 (PST)
+        with ESMTP id S237271AbiCGJau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:30:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDC066AF3;
+        Mon,  7 Mar 2022 01:29:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4052460FB3;
-        Mon,  7 Mar 2022 09:46:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E12C340E9;
-        Mon,  7 Mar 2022 09:46:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03C6261147;
+        Mon,  7 Mar 2022 09:29:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB091C340F4;
+        Mon,  7 Mar 2022 09:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646381;
-        bh=RfcgCi+OgPHxW8rGPGMHmlN7CGVuKzFFNDwYuTGQzag=;
+        s=korg; t=1646645358;
+        bh=BO8DuYMKnodsGKT2IvNVN7t5Bqy/yxjI/YHCGpaJ+/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTCqYS1l6SnOefVt1dH56bPMXkDYyD/OnpAjND1vqqaZZBK8wYgOKzwTX3fwJOiTa
-         QfYM+tNewIGJSRVRowXlFkyfZ9zXv06VgHFlZssgLS5xBxBuaBxb+OnwP9HeydYOOq
-         Wn4scKOCbce51g/w3Jja40aLUvJp1B7+MhW++RNA=
+        b=jPVD32snLNleWEDXyDdnWxvLRorAXkpn8xS+R7MWBfPsyVCZ1UR9xnrfpJek6eQGn
+         SKzd86mtqO3ho//6tMQMGGYFQLiUX5r0QHoS20YG9Alr7obR/HAk4H1zUHGjIy7sdn
+         DK6SUuP52L9eYG7CE0UJE1Z92bBbySV6Z7jj6SL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 226/262] iavf: Add trace while removing device
+        stable@vger.kernel.org, William Mahon <wmahon@chromium.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 57/64] HID: add mapping for KEY_ALL_APPLICATIONS
 Date:   Mon,  7 Mar 2022 10:19:30 +0100
-Message-Id: <20220307091709.525351216@linuxfoundation.org>
+Message-Id: <20220307091640.767207668@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: William Mahon <wmahon@chromium.org>
 
-[ Upstream commit bdb9e5c7aec73a7b8b5acab37587b6de1203e68d ]
+commit 327b89f0acc4c20a06ed59e4d9af7f6d804dc2e2 upstream.
 
-Add kernel trace that device was removed.
-Currently there is no such information.
-I.e. Host admin removes a PCI device from a VM,
-than on VM shall be info about the event.
+This patch adds a new key definition for KEY_ALL_APPLICATIONS
+and aliases KEY_DASHBOARD to it.
 
-This patch adds info log to iavf_remove function.
+It also maps the 0x0c/0x2a2 usage code to KEY_ALL_APPLICATIONS.
 
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: William Mahon <wmahon@chromium.org>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20220303035618.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-debug.c                |    4 +++-
+ drivers/hid/hid-input.c                |    2 ++
+ include/uapi/linux/input-event-codes.h |    3 ++-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 7bc8b646e37c..75fab4ea42b6 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3985,6 +3985,7 @@ static void iavf_remove(struct pci_dev *pdev)
- 	if (iavf_lock_timeout(&adapter->crit_lock, 5000))
- 		dev_warn(&adapter->pdev->dev, "failed to acquire crit_lock in %s\n", __FUNCTION__);
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -823,7 +823,9 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_F22] = "F22",			[KEY_F23] = "F23",
+ 	[KEY_F24] = "F24",			[KEY_PLAYCD] = "PlayCD",
+ 	[KEY_PAUSECD] = "PauseCD",		[KEY_PROG3] = "Prog3",
+-	[KEY_PROG4] = "Prog4",			[KEY_SUSPEND] = "Suspend",
++	[KEY_PROG4] = "Prog4",
++	[KEY_ALL_APPLICATIONS] = "AllApplications",
++	[KEY_SUSPEND] = "Suspend",
+ 	[KEY_CLOSE] = "Close",			[KEY_PLAY] = "Play",
+ 	[KEY_FASTFORWARD] = "FastForward",	[KEY_BASSBOOST] = "BassBoost",
+ 	[KEY_PRINT] = "Print",			[KEY_HP] = "HP",
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1048,6 +1048,8 @@ static void hidinput_configure_usage(str
  
-+	dev_info(&adapter->pdev->dev, "Removing device\n");
- 	/* Shut down all the garbage mashers on the detention level */
- 	iavf_change_state(adapter, __IAVF_REMOVE);
- 	adapter->aq_required = 0;
--- 
-2.34.1
-
+ 		case 0x29d: map_key_clear(KEY_KBD_LAYOUT_NEXT);	break;
+ 
++		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
++
+ 		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
+ 		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
+ 		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -278,7 +278,8 @@
+ #define KEY_PAUSECD		201
+ #define KEY_PROG3		202
+ #define KEY_PROG4		203
+-#define KEY_DASHBOARD		204	/* AL Dashboard */
++#define KEY_ALL_APPLICATIONS	204	/* AC Desktop Show All Applications */
++#define KEY_DASHBOARD		KEY_ALL_APPLICATIONS
+ #define KEY_SUSPEND		205
+ #define KEY_CLOSE		206	/* AC Close */
+ #define KEY_PLAY		207
 
 
