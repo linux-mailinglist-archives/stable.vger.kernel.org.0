@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72ED54CF749
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C199F4CF8E6
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238252AbiCGJp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:45:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
+        id S238968AbiCGKCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:02:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238652AbiCGJij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2955B6B082;
-        Mon,  7 Mar 2022 01:33:07 -0800 (PST)
+        with ESMTP id S240131AbiCGKAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499247E088;
+        Mon,  7 Mar 2022 01:46:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 641CA61119;
-        Mon,  7 Mar 2022 09:32:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF3EC340E9;
-        Mon,  7 Mar 2022 09:32:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7060C6140F;
+        Mon,  7 Mar 2022 09:46:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F4A4C340E9;
+        Mon,  7 Mar 2022 09:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645578;
-        bh=K7m3Sfc/qWJ0tybqDLT00RD7TUonF20rm7LwRCpNImo=;
+        s=korg; t=1646646406;
+        bh=7KQRv1FfgU2XIE+SAZ6yifWu7VmFH81QrLCx9gkQp4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czYr39C14lsaKYKTMANsvWoZU3x/FCr3jiSZL8h02qWBHoPJ869GGiwUkjsPy2j1c
-         WSqzgpTox5Al5hmOK3KdrZkygSj/RCECxTsBt6PjMmSS22Ub7EFirlkBCcuHppchEt
-         VbLYP4LDdQXzXC+L5WBlHcAhTtEcHeDsHZjRE6g0=
+        b=kuSdoKNL/lKvzstawHwL/4wxLarohAVDFRc0qhIQ2CJjRRbJ88yOPRPxdB84LLwD1
+         aWBhzLSnbBp/UZhd8HrnP/+aAUK9z5Wdf2q4CrZ9e/0m5ociyr1JGI9VUa7AAkhrBf
+         Zf395Rwl1AwcdK66Y+QCPz0liiOu4gZDgoObt17Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.10 077/105] pinctrl: sunxi: Use unique lockdep classes for IRQs
+        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 216/262] net: stmmac: enhance XDP ZC driver level switching performance
 Date:   Mon,  7 Mar 2022 10:19:20 +0100
-Message-Id: <20220307091646.343867452@linuxfoundation.org>
+Message-Id: <20220307091709.064311513@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +55,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-commit bac129dbc6560dfeb634c03f0c08b78024e71915 upstream.
+[ Upstream commit ac746c8520d9d056b6963ecca8ff1da9929d02f1 ]
 
-This driver, like several others, uses a chained IRQ for each GPIO bank,
-and forwards .irq_set_wake to the GPIO bank's upstream IRQ. As a result,
-a call to irq_set_irq_wake() needs to lock both the upstream and
-downstream irq_desc's. Lockdep considers this to be a possible deadlock
-when the irq_desc's share lockdep classes, which they do by default:
+The previous stmmac_xdp_set_prog() implementation uses stmmac_release()
+and stmmac_open() which tear down the PHY device and causes undesirable
+autonegotiation which causes a delay whenever AFXDP ZC is setup.
 
- ============================================
- WARNING: possible recursive locking detected
- 5.17.0-rc3-00394-gc849047c2473 #1 Not tainted
- --------------------------------------------
- init/307 is trying to acquire lock:
- c2dfe27c (&irq_desc_lock_class){-.-.}-{2:2}, at: __irq_get_desc_lock+0x58/0xa0
+This patch introduces two new functions that just sufficiently tear
+down DMA descriptors, buffer, NAPI process, and IRQs and reestablish
+them accordingly in both stmmac_xdp_release() and stammac_xdp_open().
 
- but task is already holding lock:
- c3c0ac7c (&irq_desc_lock_class){-.-.}-{2:2}, at: __irq_get_desc_lock+0x58/0xa0
+As the results of this enhancement, we get rid of transient state
+introduced by the link auto-negotiation:
 
- other info that might help us debug this:
-  Possible unsafe locking scenario:
+$ ./xdpsock -i eth0 -t -z
 
-        CPU0
-        ----
-   lock(&irq_desc_lock_class);
-   lock(&irq_desc_lock_class);
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 634444         634560
 
-  *** DEADLOCK ***
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 632330         1267072
 
-  May be due to missing lock nesting notation
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 632438         1899584
 
- 4 locks held by init/307:
-  #0: c1f29f18 (system_transition_mutex){+.+.}-{3:3}, at: __do_sys_reboot+0x90/0x23c
-  #1: c20f7760 (&dev->mutex){....}-{3:3}, at: device_shutdown+0xf4/0x224
-  #2: c2e804d8 (&dev->mutex){....}-{3:3}, at: device_shutdown+0x104/0x224
-  #3: c3c0ac7c (&irq_desc_lock_class){-.-.}-{2:2}, at: __irq_get_desc_lock+0x58/0xa0
+ sock0@eth0:0 txonly xdp-drv
+                   pps            pkts           1.00
+rx                 0              0
+tx                 632502         2532160
 
- stack backtrace:
- CPU: 0 PID: 307 Comm: init Not tainted 5.17.0-rc3-00394-gc849047c2473 #1
- Hardware name: Allwinner sun8i Family
-  unwind_backtrace from show_stack+0x10/0x14
-  show_stack from dump_stack_lvl+0x68/0x90
-  dump_stack_lvl from __lock_acquire+0x1680/0x31a0
-  __lock_acquire from lock_acquire+0x148/0x3dc
-  lock_acquire from _raw_spin_lock_irqsave+0x50/0x6c
-  _raw_spin_lock_irqsave from __irq_get_desc_lock+0x58/0xa0
-  __irq_get_desc_lock from irq_set_irq_wake+0x2c/0x19c
-  irq_set_irq_wake from irq_set_irq_wake+0x13c/0x19c
-    [tail call from sunxi_pinctrl_irq_set_wake]
-  irq_set_irq_wake from gpio_keys_suspend+0x80/0x1a4
-  gpio_keys_suspend from gpio_keys_shutdown+0x10/0x2c
-  gpio_keys_shutdown from device_shutdown+0x180/0x224
-  device_shutdown from __do_sys_reboot+0x134/0x23c
-  __do_sys_reboot from ret_fast_syscall+0x0/0x1c
-
-However, this can never deadlock because the upstream and downstream
-IRQs are never the same (nor do they even involve the same irqchip).
-
-Silence this erroneous lockdep splat by applying what appears to be the
-usual fix of moving the GPIO IRQs to separate lockdep classes.
-
-Fixes: a59c99d9eaf9 ("pinctrl: sunxi: Forward calls to irq_set_irq_wake")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220216040037.22730-1-samuel@sholland.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Kurt Kanzenbach <kurt@linutronix.de>
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Tested-by: Kurt Kanzenbach <kurt@linutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-sunxi.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   4 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 137 +++++++++++++++++-
+ .../net/ethernet/stmicro/stmmac/stmmac_xdp.c  |   4 +-
+ 3 files changed, 139 insertions(+), 6 deletions(-)
 
---- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-@@ -36,6 +36,13 @@
- #include "../core.h"
- #include "pinctrl-sunxi.h"
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+index 873b9e3e5da2..05b5371ca036 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+@@ -334,8 +334,8 @@ void stmmac_set_ethtool_ops(struct net_device *netdev);
+ int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags);
+ void stmmac_ptp_register(struct stmmac_priv *priv);
+ void stmmac_ptp_unregister(struct stmmac_priv *priv);
+-int stmmac_open(struct net_device *dev);
+-int stmmac_release(struct net_device *dev);
++int stmmac_xdp_open(struct net_device *dev);
++void stmmac_xdp_release(struct net_device *dev);
+ int stmmac_resume(struct device *dev);
+ int stmmac_suspend(struct device *dev);
+ int stmmac_dvr_remove(struct device *dev);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index c6e3b0c1f1e8..4595282a9790 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3667,7 +3667,7 @@ static int stmmac_request_irq(struct net_device *dev)
+  *  0 on success and an appropriate (-)ve integer as defined in errno.h
+  *  file on failure.
+  */
+-int stmmac_open(struct net_device *dev)
++static int stmmac_open(struct net_device *dev)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	int mode = priv->plat->phy_interface;
+@@ -3791,7 +3791,7 @@ static void stmmac_fpe_stop_wq(struct stmmac_priv *priv)
+  *  Description:
+  *  This is the stop entry point of the driver.
+  */
+-int stmmac_release(struct net_device *dev)
++static int stmmac_release(struct net_device *dev)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	u32 chan;
+@@ -6456,6 +6456,139 @@ void stmmac_enable_tx_queue(struct stmmac_priv *priv, u32 queue)
+ 	spin_unlock_irqrestore(&ch->lock, flags);
+ }
  
-+/*
-+ * These lock classes tell lockdep that GPIO IRQs are in a different
-+ * category than their parents, so it won't report false recursion.
-+ */
-+static struct lock_class_key sunxi_pinctrl_irq_lock_class;
-+static struct lock_class_key sunxi_pinctrl_irq_request_class;
++void stmmac_xdp_release(struct net_device *dev)
++{
++	struct stmmac_priv *priv = netdev_priv(dev);
++	u32 chan;
 +
- static struct irq_chip sunxi_pinctrl_edge_irq_chip;
- static struct irq_chip sunxi_pinctrl_level_irq_chip;
++	/* Disable NAPI process */
++	stmmac_disable_all_queues(priv);
++
++	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
++		hrtimer_cancel(&priv->tx_queue[chan].txtimer);
++
++	/* Free the IRQ lines */
++	stmmac_free_irq(dev, REQ_IRQ_ERR_ALL, 0);
++
++	/* Stop TX/RX DMA channels */
++	stmmac_stop_all_dma(priv);
++
++	/* Release and free the Rx/Tx resources */
++	free_dma_desc_resources(priv);
++
++	/* Disable the MAC Rx/Tx */
++	stmmac_mac_set(priv, priv->ioaddr, false);
++
++	/* set trans_start so we don't get spurious
++	 * watchdogs during reset
++	 */
++	netif_trans_update(dev);
++	netif_carrier_off(dev);
++}
++
++int stmmac_xdp_open(struct net_device *dev)
++{
++	struct stmmac_priv *priv = netdev_priv(dev);
++	u32 rx_cnt = priv->plat->rx_queues_to_use;
++	u32 tx_cnt = priv->plat->tx_queues_to_use;
++	u32 dma_csr_ch = max(rx_cnt, tx_cnt);
++	struct stmmac_rx_queue *rx_q;
++	struct stmmac_tx_queue *tx_q;
++	u32 buf_size;
++	bool sph_en;
++	u32 chan;
++	int ret;
++
++	ret = alloc_dma_desc_resources(priv);
++	if (ret < 0) {
++		netdev_err(dev, "%s: DMA descriptors allocation failed\n",
++			   __func__);
++		goto dma_desc_error;
++	}
++
++	ret = init_dma_desc_rings(dev, GFP_KERNEL);
++	if (ret < 0) {
++		netdev_err(dev, "%s: DMA descriptors initialization failed\n",
++			   __func__);
++		goto init_error;
++	}
++
++	/* DMA CSR Channel configuration */
++	for (chan = 0; chan < dma_csr_ch; chan++)
++		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
++
++	/* Adjust Split header */
++	sph_en = (priv->hw->rx_csum > 0) && priv->sph;
++
++	/* DMA RX Channel Configuration */
++	for (chan = 0; chan < rx_cnt; chan++) {
++		rx_q = &priv->rx_queue[chan];
++
++		stmmac_init_rx_chan(priv, priv->ioaddr, priv->plat->dma_cfg,
++				    rx_q->dma_rx_phy, chan);
++
++		rx_q->rx_tail_addr = rx_q->dma_rx_phy +
++				     (rx_q->buf_alloc_num *
++				      sizeof(struct dma_desc));
++		stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
++				       rx_q->rx_tail_addr, chan);
++
++		if (rx_q->xsk_pool && rx_q->buf_alloc_num) {
++			buf_size = xsk_pool_get_rx_frame_size(rx_q->xsk_pool);
++			stmmac_set_dma_bfsize(priv, priv->ioaddr,
++					      buf_size,
++					      rx_q->queue_index);
++		} else {
++			stmmac_set_dma_bfsize(priv, priv->ioaddr,
++					      priv->dma_buf_sz,
++					      rx_q->queue_index);
++		}
++
++		stmmac_enable_sph(priv, priv->ioaddr, sph_en, chan);
++	}
++
++	/* DMA TX Channel Configuration */
++	for (chan = 0; chan < tx_cnt; chan++) {
++		tx_q = &priv->tx_queue[chan];
++
++		stmmac_init_tx_chan(priv, priv->ioaddr, priv->plat->dma_cfg,
++				    tx_q->dma_tx_phy, chan);
++
++		tx_q->tx_tail_addr = tx_q->dma_tx_phy;
++		stmmac_set_tx_tail_ptr(priv, priv->ioaddr,
++				       tx_q->tx_tail_addr, chan);
++	}
++
++	/* Enable the MAC Rx/Tx */
++	stmmac_mac_set(priv, priv->ioaddr, true);
++
++	/* Start Rx & Tx DMA Channels */
++	stmmac_start_all_dma(priv);
++
++	stmmac_init_coalesce(priv);
++
++	ret = stmmac_request_irq(dev);
++	if (ret)
++		goto irq_error;
++
++	/* Enable NAPI process*/
++	stmmac_enable_all_queues(priv);
++	netif_carrier_on(dev);
++	netif_tx_start_all_queues(dev);
++
++	return 0;
++
++irq_error:
++	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
++		hrtimer_cancel(&priv->tx_queue[chan].txtimer);
++
++	stmmac_hw_teardown(dev);
++init_error:
++	free_dma_desc_resources(priv);
++dma_desc_error:
++	return ret;
++}
++
+ int stmmac_xsk_wakeup(struct net_device *dev, u32 queue, u32 flags)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
+index 2a616c6f7cd0..9d4d8c3dad0a 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
+@@ -119,7 +119,7 @@ int stmmac_xdp_set_prog(struct stmmac_priv *priv, struct bpf_prog *prog,
  
-@@ -1552,6 +1559,8 @@ int sunxi_pinctrl_init_with_variant(stru
- 	for (i = 0; i < (pctl->desc->irq_banks * IRQ_PER_BANK); i++) {
- 		int irqno = irq_create_mapping(pctl->domain, i);
+ 	need_update = !!priv->xdp_prog != !!prog;
+ 	if (if_running && need_update)
+-		stmmac_release(dev);
++		stmmac_xdp_release(dev);
  
-+		irq_set_lockdep_class(irqno, &sunxi_pinctrl_irq_lock_class,
-+				      &sunxi_pinctrl_irq_request_class);
- 		irq_set_chip_and_handler(irqno, &sunxi_pinctrl_edge_irq_chip,
- 					 handle_edge_irq);
- 		irq_set_chip_data(irqno, pctl);
+ 	old_prog = xchg(&priv->xdp_prog, prog);
+ 	if (old_prog)
+@@ -129,7 +129,7 @@ int stmmac_xdp_set_prog(struct stmmac_priv *priv, struct bpf_prog *prog,
+ 	priv->sph = priv->sph_cap && !stmmac_xdp_is_enabled(priv);
+ 
+ 	if (if_running && need_update)
+-		stmmac_open(dev);
++		stmmac_xdp_open(dev);
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+
 
 
