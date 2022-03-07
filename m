@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4D44CF78F
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF7C4CF934
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238149AbiCGJqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:46:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50426 "EHLO
+        id S232783AbiCGKEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:04:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234934AbiCGJmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:42:07 -0500
+        with ESMTP id S240512AbiCGKBE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCEEDED7;
-        Mon,  7 Mar 2022 01:41:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA1120F58;
+        Mon,  7 Mar 2022 01:49:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C6CF61354;
-        Mon,  7 Mar 2022 09:41:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108EDC340FF;
-        Mon,  7 Mar 2022 09:41:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF1EB60010;
+        Mon,  7 Mar 2022 09:49:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2EC6C340F5;
+        Mon,  7 Mar 2022 09:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646071;
-        bh=kRf2+Neh77iSMJt5sEjQ41gXstfFY7Iu39R7lcfHym4=;
+        s=korg; t=1646646589;
+        bh=PxzTc57IQdrmDgTvi0EtjhOekh9QUtO7TK6zL07Nh+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRSO8yPNB8e5XTqrtWExOIShYPSl/8PN1tOuo/kqrqIiLymL5p6pIsIWeSw5ZiT0q
-         eGiu2eyaTGbDFexQiclnwfG0t5cUcXFnhgTuu2nYS+mBoS0Qa4Zz0nj8SPy+5o6lui
-         zbUjrHyHz7c/f6RVvNQJEPqSvntW/W7T5bEC1VVQ=
+        b=LxxINoID4ZZwd/gIkzldZpiioQdA+ZoU+Nvpp19MZjiAD3Q6mzoYWmJBFsDD3L+y2
+         ykxAzEjU8eCOj2cj1I2C3RSAd5SjT2A3tatjEZnr6HgrtT4YtnCr5KeyVFER+Vgy30
+         zjVixJ5h4ssw8nknLrZVgpoHfaMaO+IPdXpWJtnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 123/262] net: dsa: seville: register the mdiobus under devres
-Date:   Mon,  7 Mar 2022 10:17:47 +0100
-Message-Id: <20220307091705.932468911@linuxfoundation.org>
+Subject: [PATCH 5.16 030/186] exfat: reuse exfat_inode_info variable instead of calling EXFAT_I()
+Date:   Mon,  7 Mar 2022 10:17:48 +0100
+Message-Id: <20220307091654.936386507@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>
 
-[ Upstream commit bd488afc3b39e045ba71aab472233f2a78726e7b ]
+[ Upstream commit 7dee6f57d7f22a89dd214518c778aec448270d4c ]
 
-As explained in commits:
-74b6d7d13307 ("net: dsa: realtek: register the MDIO bus under devres")
-5135e96a3dd2 ("net: dsa: don't allocate the slave_mii_bus using devres")
+Also add a local "struct exfat_inode_info *ei" variable to
+exfat_truncate() to simplify the code.
 
-mdiobus_free() will panic when called from devm_mdiobus_free() <-
-devres_release_all() <- __device_release_driver(), and that mdiobus was
-not previously unregistered.
-
-The Seville VSC9959 switch is a platform device, so the initial set of
-constraints that I thought would cause this (I2C or SPI buses which call
-->remove on ->shutdown) do not apply. But there is one more which
-applies here.
-
-If the DSA master itself is on a bus that calls ->remove from ->shutdown
-(like dpaa2-eth, which is on the fsl-mc bus), there is a device link
-between the switch and the DSA master, and device_links_unbind_consumers()
-will unbind the seville switch driver on shutdown.
-
-So the same treatment must be applied to all DSA switch drivers, which
-is: either use devres for both the mdiobus allocation and registration,
-or don't use devres at all.
-
-The seville driver has a code structure that could accommodate both the
-mdiobus_unregister and mdiobus_free calls, but it has an external
-dependency upon mscc_miim_setup() from mdio-mscc-miim.c, which calls
-devm_mdiobus_alloc_size() on its behalf. So rather than restructuring
-that, and exporting yet one more symbol mscc_miim_teardown(), let's work
-with devres and replace of_mdiobus_register with the devres variant.
-When we use all-devres, we can ensure that devres doesn't free a
-still-registered bus (it either runs both callbacks, or none).
-
-Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/ocelot/seville_vsc9953.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/exfat/file.c  | 14 +++++++-------
+ fs/exfat/inode.c |  9 ++++-----
+ fs/exfat/namei.c |  6 +++---
+ fs/exfat/super.c |  6 +++---
+ 4 files changed, 17 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/dsa/ocelot/seville_vsc9953.c b/drivers/net/dsa/ocelot/seville_vsc9953.c
-index ca8c003b99bc5..05e4e75c01076 100644
---- a/drivers/net/dsa/ocelot/seville_vsc9953.c
-+++ b/drivers/net/dsa/ocelot/seville_vsc9953.c
-@@ -1111,7 +1111,7 @@ static int vsc9953_mdio_bus_alloc(struct ocelot *ocelot)
- 	snprintf(bus->id, MII_BUS_ID_SIZE, "%s-imdio", dev_name(dev));
+diff --git a/fs/exfat/file.c b/fs/exfat/file.c
+index 6af0191b648f1..848166d6d5e9d 100644
+--- a/fs/exfat/file.c
++++ b/fs/exfat/file.c
+@@ -110,8 +110,7 @@ int __exfat_truncate(struct inode *inode, loff_t new_size)
+ 	exfat_set_volume_dirty(sb);
  
- 	/* Needed in order to initialize the bus mutex lock */
--	rc = of_mdiobus_register(bus, NULL);
-+	rc = devm_of_mdiobus_register(dev, bus, NULL);
- 	if (rc < 0) {
- 		dev_err(dev, "failed to register MDIO bus\n");
- 		return rc;
-@@ -1163,7 +1163,8 @@ static void vsc9953_mdio_bus_free(struct ocelot *ocelot)
- 		mdio_device_free(pcs->mdio);
- 		lynx_pcs_destroy(pcs);
+ 	num_clusters_new = EXFAT_B_TO_CLU_ROUND_UP(i_size_read(inode), sbi);
+-	num_clusters_phys =
+-		EXFAT_B_TO_CLU_ROUND_UP(EXFAT_I(inode)->i_size_ondisk, sbi);
++	num_clusters_phys = EXFAT_B_TO_CLU_ROUND_UP(ei->i_size_ondisk, sbi);
+ 
+ 	exfat_chain_set(&clu, ei->start_clu, num_clusters_phys, ei->flags);
+ 
+@@ -228,12 +227,13 @@ void exfat_truncate(struct inode *inode, loff_t size)
+ {
+ 	struct super_block *sb = inode->i_sb;
+ 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
++	struct exfat_inode_info *ei = EXFAT_I(inode);
+ 	unsigned int blocksize = i_blocksize(inode);
+ 	loff_t aligned_size;
+ 	int err;
+ 
+ 	mutex_lock(&sbi->s_lock);
+-	if (EXFAT_I(inode)->start_clu == 0) {
++	if (ei->start_clu == 0) {
+ 		/*
+ 		 * Empty start_clu != ~0 (not allocated)
+ 		 */
+@@ -260,11 +260,11 @@ void exfat_truncate(struct inode *inode, loff_t size)
+ 		aligned_size++;
  	}
--	mdiobus_unregister(felix->imdio);
-+
-+	/* mdiobus_unregister and mdiobus_free handled by devres */
+ 
+-	if (EXFAT_I(inode)->i_size_ondisk > i_size_read(inode))
+-		EXFAT_I(inode)->i_size_ondisk = aligned_size;
++	if (ei->i_size_ondisk > i_size_read(inode))
++		ei->i_size_ondisk = aligned_size;
+ 
+-	if (EXFAT_I(inode)->i_size_aligned > i_size_read(inode))
+-		EXFAT_I(inode)->i_size_aligned = aligned_size;
++	if (ei->i_size_aligned > i_size_read(inode))
++		ei->i_size_aligned = aligned_size;
+ 	mutex_unlock(&sbi->s_lock);
  }
  
- static const struct felix_info seville_info_vsc9953 = {
+diff --git a/fs/exfat/inode.c b/fs/exfat/inode.c
+index 1c7aa1ea4724c..aca2e64d045b6 100644
+--- a/fs/exfat/inode.c
++++ b/fs/exfat/inode.c
+@@ -114,10 +114,9 @@ static int exfat_map_cluster(struct inode *inode, unsigned int clu_offset,
+ 	unsigned int local_clu_offset = clu_offset;
+ 	unsigned int num_to_be_allocated = 0, num_clusters = 0;
+ 
+-	if (EXFAT_I(inode)->i_size_ondisk > 0)
++	if (ei->i_size_ondisk > 0)
+ 		num_clusters =
+-			EXFAT_B_TO_CLU_ROUND_UP(EXFAT_I(inode)->i_size_ondisk,
+-			sbi);
++			EXFAT_B_TO_CLU_ROUND_UP(ei->i_size_ondisk, sbi);
+ 
+ 	if (clu_offset >= num_clusters)
+ 		num_to_be_allocated = clu_offset - num_clusters + 1;
+@@ -416,10 +415,10 @@ static int exfat_write_end(struct file *file, struct address_space *mapping,
+ 
+ 	err = generic_write_end(file, mapping, pos, len, copied, pagep, fsdata);
+ 
+-	if (EXFAT_I(inode)->i_size_aligned < i_size_read(inode)) {
++	if (ei->i_size_aligned < i_size_read(inode)) {
+ 		exfat_fs_error(inode->i_sb,
+ 			"invalid size(size(%llu) > aligned(%llu)\n",
+-			i_size_read(inode), EXFAT_I(inode)->i_size_aligned);
++			i_size_read(inode), ei->i_size_aligned);
+ 		return -EIO;
+ 	}
+ 
+diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
+index 24b41103d1cc0..9d8ada781250b 100644
+--- a/fs/exfat/namei.c
++++ b/fs/exfat/namei.c
+@@ -395,9 +395,9 @@ static int exfat_find_empty_entry(struct inode *inode,
+ 
+ 		/* directory inode should be updated in here */
+ 		i_size_write(inode, size);
+-		EXFAT_I(inode)->i_size_ondisk += sbi->cluster_size;
+-		EXFAT_I(inode)->i_size_aligned += sbi->cluster_size;
+-		EXFAT_I(inode)->flags = p_dir->flags;
++		ei->i_size_ondisk += sbi->cluster_size;
++		ei->i_size_aligned += sbi->cluster_size;
++		ei->flags = p_dir->flags;
+ 		inode->i_blocks += 1 << sbi->sect_per_clus_bits;
+ 	}
+ 
+diff --git a/fs/exfat/super.c b/fs/exfat/super.c
+index 5539ffc20d164..1a2115d73a48a 100644
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -366,9 +366,9 @@ static int exfat_read_root(struct inode *inode)
+ 
+ 	inode->i_blocks = ((i_size_read(inode) + (sbi->cluster_size - 1))
+ 			& ~(sbi->cluster_size - 1)) >> inode->i_blkbits;
+-	EXFAT_I(inode)->i_pos = ((loff_t)sbi->root_dir << 32) | 0xffffffff;
+-	EXFAT_I(inode)->i_size_aligned = i_size_read(inode);
+-	EXFAT_I(inode)->i_size_ondisk = i_size_read(inode);
++	ei->i_pos = ((loff_t)sbi->root_dir << 32) | 0xffffffff;
++	ei->i_size_aligned = i_size_read(inode);
++	ei->i_size_ondisk = i_size_read(inode);
+ 
+ 	exfat_save_attr(inode, ATTR_SUBDIR);
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = ei->i_crtime =
 -- 
 2.34.1
 
