@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 683B24CF662
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:35:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9D54CF910
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237340AbiCGJg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:36:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57086 "EHLO
+        id S239599AbiCGKDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:03:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237660AbiCGJfz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:35:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 848BE59A4B;
-        Mon,  7 Mar 2022 01:31:14 -0800 (PST)
+        with ESMTP id S238945AbiCGJ5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:57:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8329B7B561;
+        Mon,  7 Mar 2022 01:46:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52E71B810D6;
-        Mon,  7 Mar 2022 09:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E480C340E9;
-        Mon,  7 Mar 2022 09:30:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5292FB810C3;
+        Mon,  7 Mar 2022 09:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B932CC340F3;
+        Mon,  7 Mar 2022 09:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645455;
-        bh=PQnv2p/9jLlnPlV/caiQgOThrifuKFV0ko81jq8bh+k=;
+        s=korg; t=1646646354;
+        bh=hampRF1xat1hho1n/bgLbdw80cfDHlGbjyr6jsw/pSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNlKH0jXt2kWXhKaVsov+1g5Ol46vmZymSjxSPi6aqkFk7ZULjXXL/USrGJX4GfKn
-         3YKABEXCH7y3IDZlU1LKuQCvuGhV8HJQBBdC1PXy1WVaWDWWENaeHaxe8WfkX8QYKp
-         lw5FV1YLuIa47CBzMFj/MuSaY3Kfuranrw6t3x+4=
+        b=YObi/NEOfgMTl+jYgZc1dXY8cAcdjbCAkNLSo/8wu2cVoYGhST+p2kgWOPhedidge
+         LKv+fiDfksOCuJ6pSGxIMfo4Lm8CpPWAgd/1xLG8N6+N1Fxvw5UAMwlaDFMArA4Kvt
+         XYx1V7XLymvlTH/kbRw5E/DczSTbq39g474ATkuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.10 037/105] netfilter: fix use-after-free in __nf_register_net_hook()
+        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
+        Phani Burra <phani.r.burra@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 176/262] iavf: Fix missing check for running netdev
 Date:   Mon,  7 Mar 2022 10:18:40 +0100
-Message-Id: <20220307091645.229986363@linuxfoundation.org>
+Message-Id: <20220307091707.386536997@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,141 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Slawomir Laba <slawomirx.laba@intel.com>
 
-commit 56763f12b0f02706576a088e85ef856deacc98a0 upstream.
+commit d2c0f45fcceb0995f208c441d9c9a453623f9ccf upstream.
 
-We must not dereference @new_hooks after nf_hook_mutex has been released,
-because other threads might have freed our allocated hooks already.
+The driver was queueing reset_task regardless of the netdev
+state.
 
-BUG: KASAN: use-after-free in nf_hook_entries_get_hook_ops include/linux/netfilter.h:130 [inline]
-BUG: KASAN: use-after-free in hooks_validate net/netfilter/core.c:171 [inline]
-BUG: KASAN: use-after-free in __nf_register_net_hook+0x77a/0x820 net/netfilter/core.c:438
-Read of size 2 at addr ffff88801c1a8000 by task syz-executor237/4430
+Do not queue the reset task in iavf_change_mtu if netdev
+is not running.
 
-CPU: 1 PID: 4430 Comm: syz-executor237 Not tainted 5.17.0-rc5-syzkaller-00306-g2293be58d6a1 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x336 mm/kasan/report.c:255
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
- nf_hook_entries_get_hook_ops include/linux/netfilter.h:130 [inline]
- hooks_validate net/netfilter/core.c:171 [inline]
- __nf_register_net_hook+0x77a/0x820 net/netfilter/core.c:438
- nf_register_net_hook+0x114/0x170 net/netfilter/core.c:571
- nf_register_net_hooks+0x59/0xc0 net/netfilter/core.c:587
- nf_synproxy_ipv6_init+0x85/0xe0 net/netfilter/nf_synproxy_core.c:1218
- synproxy_tg6_check+0x30d/0x560 net/ipv6/netfilter/ip6t_SYNPROXY.c:81
- xt_check_target+0x26c/0x9e0 net/netfilter/x_tables.c:1038
- check_target net/ipv6/netfilter/ip6_tables.c:530 [inline]
- find_check_entry.constprop.0+0x7f1/0x9e0 net/ipv6/netfilter/ip6_tables.c:573
- translate_table+0xc8b/0x1750 net/ipv6/netfilter/ip6_tables.c:735
- do_replace net/ipv6/netfilter/ip6_tables.c:1153 [inline]
- do_ip6t_set_ctl+0x56e/0xb90 net/ipv6/netfilter/ip6_tables.c:1639
- nf_setsockopt+0x83/0xe0 net/netfilter/nf_sockopt.c:101
- ipv6_setsockopt+0x122/0x180 net/ipv6/ipv6_sockglue.c:1024
- rawv6_setsockopt+0xd3/0x6a0 net/ipv6/raw.c:1084
- __sys_setsockopt+0x2db/0x610 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0xba/0x150 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f65a1ace7d9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 71 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f65a1a7f308 EFLAGS: 00000246 ORIG_RAX: 0000000000000036
-RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 00007f65a1ace7d9
-RDX: 0000000000000040 RSI: 0000000000000029 RDI: 0000000000000003
-RBP: 00007f65a1b574c8 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000020000000 R11: 0000000000000246 R12: 00007f65a1b55130
-R13: 00007f65a1b574c0 R14: 00007f65a1b24090 R15: 0000000000022000
- </TASK>
-
-The buggy address belongs to the page:
-page:ffffea0000706a00 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1c1a8
-flags: 0xfff00000000000(node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000000000 ffffea0001c1b108 ffffea000046dd08 0000000000000000
-raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as freed
-page last allocated via order 2, migratetype Unmovable, gfp_mask 0x52dc0(GFP_KERNEL|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_ZERO), pid 4430, ts 1061781545818, free_ts 1061791488993
- prep_new_page mm/page_alloc.c:2434 [inline]
- get_page_from_freelist+0xa72/0x2f50 mm/page_alloc.c:4165
- __alloc_pages+0x1b2/0x500 mm/page_alloc.c:5389
- __alloc_pages_node include/linux/gfp.h:572 [inline]
- alloc_pages_node include/linux/gfp.h:595 [inline]
- kmalloc_large_node+0x62/0x130 mm/slub.c:4438
- __kmalloc_node+0x35a/0x4a0 mm/slub.c:4454
- kmalloc_node include/linux/slab.h:604 [inline]
- kvmalloc_node+0x97/0x100 mm/util.c:580
- kvmalloc include/linux/slab.h:731 [inline]
- kvzalloc include/linux/slab.h:739 [inline]
- allocate_hook_entries_size net/netfilter/core.c:61 [inline]
- nf_hook_entries_grow+0x140/0x780 net/netfilter/core.c:128
- __nf_register_net_hook+0x144/0x820 net/netfilter/core.c:429
- nf_register_net_hook+0x114/0x170 net/netfilter/core.c:571
- nf_register_net_hooks+0x59/0xc0 net/netfilter/core.c:587
- nf_synproxy_ipv6_init+0x85/0xe0 net/netfilter/nf_synproxy_core.c:1218
- synproxy_tg6_check+0x30d/0x560 net/ipv6/netfilter/ip6t_SYNPROXY.c:81
- xt_check_target+0x26c/0x9e0 net/netfilter/x_tables.c:1038
- check_target net/ipv6/netfilter/ip6_tables.c:530 [inline]
- find_check_entry.constprop.0+0x7f1/0x9e0 net/ipv6/netfilter/ip6_tables.c:573
- translate_table+0xc8b/0x1750 net/ipv6/netfilter/ip6_tables.c:735
- do_replace net/ipv6/netfilter/ip6_tables.c:1153 [inline]
- do_ip6t_set_ctl+0x56e/0xb90 net/ipv6/netfilter/ip6_tables.c:1639
- nf_setsockopt+0x83/0xe0 net/netfilter/nf_sockopt.c:101
-page last free stack trace:
- reset_page_owner include/linux/page_owner.h:24 [inline]
- free_pages_prepare mm/page_alloc.c:1352 [inline]
- free_pcp_prepare+0x374/0x870 mm/page_alloc.c:1404
- free_unref_page_prepare mm/page_alloc.c:3325 [inline]
- free_unref_page+0x19/0x690 mm/page_alloc.c:3404
- kvfree+0x42/0x50 mm/util.c:613
- rcu_do_batch kernel/rcu/tree.c:2527 [inline]
- rcu_core+0x7b1/0x1820 kernel/rcu/tree.c:2778
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Memory state around the buggy address:
- ffff88801c1a7f00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff88801c1a7f80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->ffff88801c1a8000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                   ^
- ffff88801c1a8080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff88801c1a8100: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-
-Fixes: 2420b79f8c18 ("netfilter: debug: check for sorted array")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: fdd4044ffdc8 ("iavf: Remove timer for work triggering, use delaying work instead")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Phani Burra <phani.r.burra@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/core.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/core.c
-+++ b/net/netfilter/core.c
-@@ -406,14 +406,15 @@ static int __nf_register_net_hook(struct
- 	p = nf_entry_dereference(*pp);
- 	new_hooks = nf_hook_entries_grow(p, reg);
- 
--	if (!IS_ERR(new_hooks))
-+	if (!IS_ERR(new_hooks)) {
-+		hooks_validate(new_hooks);
- 		rcu_assign_pointer(*pp, new_hooks);
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -3373,8 +3373,11 @@ static int iavf_change_mtu(struct net_de
+ 		iavf_notify_client_l2_params(&adapter->vsi);
+ 		adapter->flags |= IAVF_FLAG_SERVICE_CLIENT_REQUESTED;
+ 	}
+-	adapter->flags |= IAVF_FLAG_RESET_NEEDED;
+-	queue_work(iavf_wq, &adapter->reset_task);
++
++	if (netif_running(netdev)) {
++		adapter->flags |= IAVF_FLAG_RESET_NEEDED;
++		queue_work(iavf_wq, &adapter->reset_task);
 +	}
  
- 	mutex_unlock(&nf_hook_mutex);
- 	if (IS_ERR(new_hooks))
- 		return PTR_ERR(new_hooks);
- 
--	hooks_validate(new_hooks);
- #ifdef CONFIG_NETFILTER_INGRESS
- 	if (nf_ingress_hook(reg, pf))
- 		net_inc_ingress_queue();
+ 	return 0;
+ }
 
 
