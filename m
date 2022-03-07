@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3444CF6FD
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51BD24CF517
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237767AbiCGJoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55646 "EHLO
+        id S236756AbiCGJYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:24:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238334AbiCGJiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B972AE4E;
-        Mon,  7 Mar 2022 01:32:29 -0800 (PST)
+        with ESMTP id S237156AbiCGJX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:23:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2FD66ADE;
+        Mon,  7 Mar 2022 01:21:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A63261225;
-        Mon,  7 Mar 2022 09:31:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F31DC340E9;
-        Mon,  7 Mar 2022 09:31:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E76A1B810C0;
+        Mon,  7 Mar 2022 09:21:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3548EC340FC;
+        Mon,  7 Mar 2022 09:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645505;
-        bh=XDc477/3beWxxSmCW2K4WGCl4Y/J3tDQ9d+epshTneI=;
+        s=korg; t=1646644915;
+        bh=7CwRksKJml/9QpQn0cdYH6brkoQJtb4mCcNbBsPHmvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gH8V8gf91saaT6YLF59aTh1LsNAN+Zz7jX0o9XxdCR6788evzcXJyzOWdqzVoSXIn
-         Ro639+qdtVmbeNhEEkRr9hduqlscjXWeWNsysrd7ZqRly2pXNC4z4Lsq1nrRMBFbc/
-         SM2h4ce9FEy4Ahg5/AzrO56EL35V8eB8ov+W+Je8=
+        b=KSYa9elC87gzUm5uKrw/S6N4DG60Z9zdX/19St3oyOe+qLmhmiThFktVuocxOkjC2
+         teP+DawSQy9fRDxmcJDggkv+MpkTBr7VnATcxEq4it6+DEhmRBBqCT8LD310fpQX9Z
+         x289XK3BQ503hP3DiL1PQdn/wkkCHYeM1Yj6Sp6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 051/105] net/smc: fix connection leak
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 20/42] batman-adv: Request iflink once in batadv-on-batadv check
 Date:   Mon,  7 Mar 2022 10:18:54 +0100
-Message-Id: <20220307091645.619198431@linuxfoundation.org>
+Message-Id: <20220307091636.738398248@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
+References: <20220307091636.146155347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 9f1c50cf39167ff71dc5953a3234f3f6eeb8fcb5 upstream.
+commit 690bb6fb64f5dc7437317153902573ecad67593d upstream.
 
-There's a potential leak issue under following execution sequence :
+There is no need to call dev_get_iflink multiple times for the same
+net_device in batadv_is_on_batman_iface. And since some of the
+.ndo_get_iflink callbacks are dynamic (for example via RCUs like in
+vxcan_get_iflink), it could easily happen that the returned values are not
+stable. The pre-checks before __dev_get_by_index are then of course bogus.
 
-smc_release  				smc_connect_work
-if (sk->sk_state == SMC_INIT)
-					send_clc_confirim
-	tcp_abort();
-					...
-					sk.sk_state = SMC_ACTIVE
-smc_close_active
-switch(sk->sk_state) {
-...
-case SMC_ACTIVE:
-	smc_close_final()
-	// then wait peer closed
-
-Unfortunately, tcp_abort() may discard CLC CONFIRM messages that are
-still in the tcp send buffer, in which case our connection token cannot
-be delivered to the server side, which means that we cannot get a
-passive close message at all. Therefore, it is impossible for the to be
-disconnected at all.
-
-This patch tries a very simple way to avoid this issue, once the state
-has changed to SMC_ACTIVE after tcp_abort(), we can actively abort the
-smc connection, considering that the state is SMC_INIT before
-tcp_abort(), abandoning the complete disconnection process should not
-cause too much problem.
-
-In fact, this problem may exist as long as the CLC CONFIRM message is
-not received by the server. Whether a timer should be added after
-smc_close_final() needs to be discussed in the future. But even so, this
-patch provides a faster release for connection in above case, it should
-also be valuable.
-
-Fixes: 39f41f367b08 ("net/smc: common release code for non-accepted sockets")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b7eddd0b3950 ("batman-adv: prevent using any virtual device created on batman-adv as hard-interface")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/batman-adv/hard-interface.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -180,7 +180,7 @@ static int smc_release(struct socket *so
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
--	int rc = 0;
-+	int old_state, rc = 0;
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -155,22 +155,23 @@ static bool batadv_is_on_batman_iface(co
+ 	struct net *net = dev_net(net_dev);
+ 	struct net_device *parent_dev;
+ 	struct net *parent_net;
++	int iflink;
+ 	bool ret;
  
- 	if (!sk)
- 		goto out;
-@@ -188,8 +188,10 @@ static int smc_release(struct socket *so
- 	sock_hold(sk); /* sock_put below */
- 	smc = smc_sk(sk);
+ 	/* check if this is a batman-adv mesh interface */
+ 	if (batadv_softif_is_valid(net_dev))
+ 		return true;
  
-+	old_state = sk->sk_state;
++	iflink = dev_get_iflink(net_dev);
 +
- 	/* cleanup for a dangling non-blocking connect */
--	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
-+	if (smc->connect_nonblock && old_state == SMC_INIT)
- 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
+ 	/* no more parents..stop recursion */
+-	if (dev_get_iflink(net_dev) == 0 ||
+-	    dev_get_iflink(net_dev) == net_dev->ifindex)
++	if (iflink == 0 || iflink == net_dev->ifindex)
+ 		return false;
  
- 	if (cancel_work_sync(&smc->connect_work))
-@@ -203,6 +205,10 @@ static int smc_release(struct socket *so
- 	else
- 		lock_sock(sk);
+ 	parent_net = batadv_getlink_net(net_dev, net);
  
-+	if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
-+	    !smc->use_fallback)
-+		smc_close_active_abort(smc);
-+
- 	rc = __smc_release(smc);
- 
- 	/* detach socket */
+ 	/* recurse over the parent device */
+-	parent_dev = __dev_get_by_index((struct net *)parent_net,
+-					dev_get_iflink(net_dev));
++	parent_dev = __dev_get_by_index((struct net *)parent_net, iflink);
+ 	/* if we got a NULL parent_dev there is something broken.. */
+ 	if (!parent_dev) {
+ 		pr_err("Cannot find parent device\n");
 
 
