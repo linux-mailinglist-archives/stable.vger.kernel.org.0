@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30BF24CF5A6
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2254CF4F6
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:23:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236997AbiCGJaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35446 "EHLO
+        id S236590AbiCGJYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:24:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237761AbiCGJ2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E040D6BDC0;
-        Mon,  7 Mar 2022 01:26:01 -0800 (PST)
+        with ESMTP id S237325AbiCGJXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:23:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B7E3AA63;
+        Mon,  7 Mar 2022 01:22:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82002B810C3;
-        Mon,  7 Mar 2022 09:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E54B9C340E9;
-        Mon,  7 Mar 2022 09:25:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 845E261027;
+        Mon,  7 Mar 2022 09:22:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EC55C340F3;
+        Mon,  7 Mar 2022 09:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645160;
-        bh=CK3eEObTQCzihqYXNzqQI6yEEk1qfx3bNrLoHVUmXRc=;
+        s=korg; t=1646644958;
+        bh=8HVQ0bK50UVVZlUYGGpvPde5Jchndo2Q57B4WADFTzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2eQ83MKVdGUCs9n+qTVS7Td06OrRgPV0niHnb5nkLskQX2q+4a8o5nc3xWtHlwwl
-         4vo5jN23BnP7KZcV2Ov8OIEJ5uiwPKrwPVakL0x6xbIcfwNnSPZKNE9kdmFSj8v8/j
-         cdz30sbHQpfvfQmmLuCfXc9kdBNLm2BvKyvh5pSI=
+        b=jT4a5GEADtID+u7evbBD1QQojYcW/jdnQaRYP1hHCjp9FpbbtfW0P0LTXWoJ4qyt5
+         SsqVxcbPPU3UOIB91vIlYNabFC4Bj+8po45kCwhV4+Htmjp4d06Ev6kl9goSpSzg1R
+         UR3Eyc/wIQ6myr5ePmBxWfP0jlYdpp5Hbpq2IKuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Siva Reddy <siva.kallam@samsung.com>,
-        Girish K S <ks.giri@samsung.com>,
-        Byungho An <bh74.an@samsung.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 34/51] net: sxgbe: fix return value of __setup handler
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 35/42] soc: fsl: qe: Check of ioremap return value
 Date:   Mon,  7 Mar 2022 10:19:09 +0100
-Message-Id: <20220307091637.962751138@linuxfoundation.org>
+Message-Id: <20220307091637.174000208@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
+References: <20220307091636.146155347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 50e06ddceeea263f57fe92baa677c638ecd65bb6 upstream.
+[ Upstream commit a222fd8541394b36b13c89d1698d9530afd59a9c ]
 
-__setup() handlers should return 1 on success, i.e., the parameter
-has been handled. A return of 0 causes the "option=value" string to be
-added to init's environment strings, polluting it.
+As the possible failure of the ioremap(), the par_io could be NULL.
+Therefore it should be better to check it and return error in order to
+guarantee the success of the initiation.
+But, I also notice that all the caller like mpc85xx_qe_par_io_init() in
+`arch/powerpc/platforms/85xx/common.c` don't check the return value of
+the par_io_init().
+Actually, par_io_init() needs to check to handle the potential error.
+I will submit another patch to fix that.
+Anyway, par_io_init() itsely should be fixed.
 
-Fixes: acc18c147b22 ("net: sxgbe: add EEE(Energy Efficient Ethernet) for Samsung sxgbe")
-Fixes: 1edb9ca69e8a ("net: sxgbe: add basic framework for Samsung 10Gb ethernet driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Siva Reddy <siva.kallam@samsung.com>
-Cc: Girish K S <ks.giri@samsung.com>
-Cc: Byungho An <bh74.an@samsung.com>
-Link: https://lore.kernel.org/r/20220224033528.24640-1-rdunlap@infradead.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7aa1aa6ecec2 ("QE: Move QE from arch/powerpc to drivers/soc")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/soc/fsl/qe/qe_io.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-+++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-@@ -2280,18 +2280,18 @@ static int __init sxgbe_cmdline_opt(char
- 	char *opt;
+diff --git a/drivers/soc/fsl/qe/qe_io.c b/drivers/soc/fsl/qe/qe_io.c
+index 7ae59abc7863..127a4a836e67 100644
+--- a/drivers/soc/fsl/qe/qe_io.c
++++ b/drivers/soc/fsl/qe/qe_io.c
+@@ -41,6 +41,8 @@ int par_io_init(struct device_node *np)
+ 	if (ret)
+ 		return ret;
+ 	par_io = ioremap(res.start, resource_size(&res));
++	if (!par_io)
++		return -ENOMEM;
  
- 	if (!str || !*str)
--		return -EINVAL;
-+		return 1;
- 	while ((opt = strsep(&str, ",")) != NULL) {
- 		if (!strncmp(opt, "eee_timer:", 10)) {
- 			if (kstrtoint(opt + 10, 0, &eee_timer))
- 				goto err;
- 		}
- 	}
--	return 0;
-+	return 1;
- 
- err:
- 	pr_err("%s: ERROR broken module parameter conversion\n", __func__);
--	return -EINVAL;
-+	return 1;
- }
- 
- __setup("sxgbeeth=", sxgbe_cmdline_opt);
+ 	num_ports = of_get_property(np, "num-ports", NULL);
+ 	if (num_ports)
+-- 
+2.34.1
+
 
 
