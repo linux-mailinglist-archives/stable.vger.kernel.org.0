@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96A804CFA25
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB71C4CF4FC
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235790AbiCGKMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:12:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
+        id S236665AbiCGJYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:24:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241571AbiCGKKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5138B3586F;
-        Mon,  7 Mar 2022 01:53:25 -0800 (PST)
+        with ESMTP id S237298AbiCGJXj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:23:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCD451E47;
+        Mon,  7 Mar 2022 01:22:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A95A5B80E70;
-        Mon,  7 Mar 2022 09:53:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 118DBC340F3;
-        Mon,  7 Mar 2022 09:53:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C48C860F63;
+        Mon,  7 Mar 2022 09:22:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB0A9C340E9;
+        Mon,  7 Mar 2022 09:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646802;
-        bh=ePmz86mPRMXE68iGLQpnwBF9ZBuR5kkBXH804rKDfwI=;
+        s=korg; t=1646644942;
+        bh=8hpKamfxg1T8JN9vzi7VHlfE8PZstfB+AUhGlZlHYc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmE80F11eBoevJ1kyy2kQBhiG+G6LpJpAVtyzRzzF13kXKw6IN9af4Cjtx81DI2oh
-         yTlYhKJOBZLOeAvU88jgbSkGJuDY+SQokEeapf2BNHFiRE5w8PzmB6vMdH6/hEVuy2
-         owdtPAlkQBcKT0xl7hcXMg4PtujWpY4OrLK89liw=
+        b=1IF8x0qHVMYgiesb3RR+ynhplGGS/tFYDc+ymZ2Uejf++BFnLaHoi9gcrJ8nlk4q2
+         aFUmEsLBj34JNqtrzeJ0svUPEPAVIqRk9OP5xeLRFxx6SpzgzYoCea5raR7tQx1E4D
+         EjqqMqbivuKepJorBBzSUh7VTeDk9q8Ef9NIrcfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Phani Burra <phani.r.burra@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.16 097/186] iavf: Fix deadlock in iavf_reset_task
-Date:   Mon,  7 Mar 2022 10:18:55 +0100
-Message-Id: <20220307091656.794834906@linuxfoundation.org>
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 22/42] batman-adv: Dont expect inter-netns unique iflink indices
+Date:   Mon,  7 Mar 2022 10:18:56 +0100
+Message-Id: <20220307091636.796307669@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
+References: <20220307091636.146155347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,36 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit e85ff9c631e1bf109ce8428848dfc8e8b0041f48 upstream.
+commit 6c1f41afc1dbe59d9d3c8bb0d80b749c119aa334 upstream.
 
-There exists a missing mutex_unlock call on crit_lock in
-iavf_reset_task call path.
+The ifindex doesn't have to be unique for multiple network namespaces on
+the same machine.
 
-Unlock the crit_lock before returning from reset task.
+  $ ip netns add test1
+  $ ip -net test1 link add dummy1 type dummy
+  $ ip netns add test2
+  $ ip -net test2 link add dummy2 type dummy
 
-Fixes: 5ac49f3c2702 ("iavf: use mutexes for locking of critical sections")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Phani Burra <phani.r.burra@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+  $ ip -net test1 link show dev dummy1
+  6: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether 96:81:55:1e:dd:85 brd ff:ff:ff:ff:ff:ff
+  $ ip -net test2 link show dev dummy2
+  6: dummy2: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether 5a:3c:af:35:07:c3 brd ff:ff:ff:ff:ff:ff
+
+But the batman-adv code to walk through the various layers of virtual
+interfaces uses this assumption because dev_get_iflink handles it
+internally and doesn't return the actual netns of the iflink. And
+dev_get_iflink only documents the situation where ifindex == iflink for
+physical devices.
+
+But only checking for dev->netdev_ops->ndo_get_iflink is also not an option
+because ipoib_get_iflink implements it even when it sometimes returns an
+iflink != ifindex and sometimes iflink == ifindex. The caller must
+therefore make sure itself to check both netns and iflink + ifindex for
+equality. Only when they are equal, a "physical" interface was detected
+which should stop the traversal. On the other hand, vxcan_get_iflink can
+also return 0 in case there was currently no valid peer. In this case, it
+is still necessary to stop.
+
+Fixes: b7eddd0b3950 ("batman-adv: prevent using any virtual device created on batman-adv as hard-interface")
+Fixes: 5ed4a460a1d3 ("batman-adv: additional checks for virtual interfaces on top of WiFi")
+Reported-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/hard-interface.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2254,6 +2254,7 @@ static void iavf_reset_task(struct work_
- 			reg_val);
- 		iavf_disable_vf(adapter);
- 		mutex_unlock(&adapter->client_lock);
-+		mutex_unlock(&adapter->crit_lock);
- 		return; /* Do not attempt to reinit. It's dead, Jim. */
- 	}
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -163,13 +163,15 @@ static bool batadv_is_on_batman_iface(co
+ 		return true;
  
+ 	iflink = dev_get_iflink(net_dev);
+-
+-	/* no more parents..stop recursion */
+-	if (iflink == 0 || iflink == net_dev->ifindex)
++	if (iflink == 0)
+ 		return false;
+ 
+ 	parent_net = batadv_getlink_net(net_dev, net);
+ 
++	/* iflink to itself, most likely physical device */
++	if (net == parent_net && iflink == net_dev->ifindex)
++		return false;
++
+ 	/* recurse over the parent device */
+ 	parent_dev = __dev_get_by_index((struct net *)parent_net, iflink);
+ 	/* if we got a NULL parent_dev there is something broken.. */
+@@ -229,8 +231,7 @@ static struct net_device *batadv_get_rea
+ 		return NULL;
+ 
+ 	iflink = dev_get_iflink(netdev);
+-
+-	if (netdev->ifindex == iflink) {
++	if (iflink == 0) {
+ 		dev_hold(netdev);
+ 		return netdev;
+ 	}
+@@ -241,6 +242,14 @@ static struct net_device *batadv_get_rea
+ 
+ 	net = dev_net(hard_iface->soft_iface);
+ 	real_net = batadv_getlink_net(netdev, net);
++
++	/* iflink to itself, most likely physical device */
++	if (net == real_net && netdev->ifindex == iflink) {
++		real_netdev = netdev;
++		dev_hold(real_netdev);
++		goto out;
++	}
++
+ 	real_netdev = dev_get_by_index(real_net, iflink);
+ 
+ out:
 
 
