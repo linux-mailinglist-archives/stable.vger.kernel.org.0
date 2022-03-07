@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 799CB4CF86A
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3204CF597
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238393AbiCGJyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:54:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53124 "EHLO
+        id S237007AbiCGJaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:30:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231229AbiCGJwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:52:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C004776E27;
-        Mon,  7 Mar 2022 01:45:12 -0800 (PST)
+        with ESMTP id S237813AbiCGJ21 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B9D66B082;
+        Mon,  7 Mar 2022 01:26:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B21F612D0;
-        Mon,  7 Mar 2022 09:45:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60386C340E9;
-        Mon,  7 Mar 2022 09:45:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BFF7AB810BF;
+        Mon,  7 Mar 2022 09:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B15C340F3;
+        Mon,  7 Mar 2022 09:25:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646311;
-        bh=J2IJqSVavxlY4rZ2bGBmDCSa/4rvdwBbNFQjq4mtJSw=;
+        s=korg; t=1646645148;
+        bh=4Do5akYphTBtPcYBc/ozTHbz6rGCD1xHyIWyKYfRseI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/5O6lV/rrOlzhAOgVhq2MotfkIClvar2FOZ9LmHXv/obedaUL+swvpvoy9AqHG8C
-         +hWIeNGqrttW7qEvP+AMK3uVYEc5KTJacl0bNMbH1zW2kRoChqVDi411LiAiD7Hger
-         OSTcFR0G1bbjMH6xelUJi6+1UvE60oY2P0dyl6fo=
+        b=tFc7jhmHZ7XRiyTra2Yxt06C/XvhVlU8UzmYJc2WXVabRIULIpLrrEJqzgVAwrdNa
+         41+oHLp1IZmoRwhOF+cvac17OOUe/xCvzXXEC9mC04kNi3urfDDXZOvC9zNEBOWP2z
+         3t4m3rrzWDNtd/iRvevD1S2+eVpGjbLvey8TUtfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.15 201/262] s390/extable: fix exception table sorting
+        stable@vger.kernel.org, Joseph Bao <joseph.bao@intel.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Stuart Hayes <stuart.w.hayes@gmail.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 30/51] PCI: pciehp: Fix infinite loop in IRQ handler upon power fault
 Date:   Mon,  7 Mar 2022 10:19:05 +0100
-Message-Id: <20220307091708.365171874@linuxfoundation.org>
+Message-Id: <20220307091637.848544322@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit c194dad21025dfd043210912653baab823bdff67 upstream.
+commit 23584c1ed3e15a6f4bfab8dc5a88d94ab929ee12 upstream.
 
-s390 has a swap_ex_entry_fixup function, however it is not being used
-since common code expects a swap_ex_entry_fixup define. If it is not
-defined the default implementation will be used. So fix this by adding
-a proper define.
-However also the implementation of the function must be fixed, since a
-NULL value for handler has a special meaning and must not be adjusted.
+The Power Fault Detected bit in the Slot Status register differs from
+all other hotplug events in that it is sticky:  It can only be cleared
+after turning off slot power.  Per PCIe r5.0, sec. 6.7.1.8:
 
-Luckily all of this doesn't fix a real bug currently: the main extable
-is correctly sorted during build time, and for runtime sorting there
-is currently no case where the handler field is not NULL.
+  If a power controller detects a main power fault on the hot-plug slot,
+  it must automatically set its internal main power fault latch [...].
+  The main power fault latch is cleared when software turns off power to
+  the hot-plug slot.
 
-Fixes: 05a68e892e89 ("s390/kernel: expand exception table logic to allow new handling options")
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+The stickiness used to cause interrupt storms and infinite loops which
+were fixed in 2009 by commits 5651c48cfafe ("PCI pciehp: fix power fault
+interrupt storm problem") and 99f0169c17f3 ("PCI: pciehp: enable
+software notification on empty slots").
+
+Unfortunately in 2020 the infinite loop issue was inadvertently
+reintroduced by commit 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt
+race"):  The hardirq handler pciehp_isr() clears the PFD bit until
+pciehp's power_fault_detected flag is set.  That happens in the IRQ
+thread pciehp_ist(), which never learns of the event because the hardirq
+handler is stuck in an infinite loop.  Fix by setting the
+power_fault_detected flag already in the hardirq handler.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214989
+Link: https://lore.kernel.org/linux-pci/DM8PR11MB5702255A6A92F735D90A4446868B9@DM8PR11MB5702.namprd11.prod.outlook.com
+Fixes: 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt race")
+Link: https://lore.kernel.org/r/66eaeef31d4997ceea357ad93259f290ededecfd.1637187226.git.lukas@wunner.de
+Reported-by: Joseph Bao <joseph.bao@intel.com>
+Tested-by: Joseph Bao <joseph.bao@intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v4.19+
+Cc: Stuart Hayes <stuart.w.hayes@gmail.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/extable.h |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/pciehp_hpc.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/s390/include/asm/extable.h
-+++ b/arch/s390/include/asm/extable.h
-@@ -69,8 +69,13 @@ static inline void swap_ex_entry_fixup(s
- {
- 	a->fixup = b->fixup + delta;
- 	b->fixup = tmp.fixup - delta;
--	a->handler = b->handler + delta;
--	b->handler = tmp.handler - delta;
-+	a->handler = b->handler;
-+	if (a->handler)
-+		a->handler += delta;
-+	b->handler = tmp.handler;
-+	if (b->handler)
-+		b->handler -= delta;
- }
-+#define swap_ex_entry_fixup swap_ex_entry_fixup
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -576,6 +576,8 @@ read_status:
+ 	 */
+ 	if (ctrl->power_fault_detected)
+ 		status &= ~PCI_EXP_SLTSTA_PFD;
++	else if (status & PCI_EXP_SLTSTA_PFD)
++		ctrl->power_fault_detected = true;
  
- #endif
+ 	events |= status;
+ 	if (!events) {
+@@ -585,7 +587,7 @@ read_status:
+ 	}
+ 
+ 	if (status) {
+-		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
++		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, status);
+ 
+ 		/*
+ 		 * In MSI mode, all event bits must be zero before the port
+@@ -660,8 +662,7 @@ static irqreturn_t pciehp_ist(int irq, v
+ 	}
+ 
+ 	/* Check Power Fault Detected */
+-	if ((events & PCI_EXP_SLTSTA_PFD) && !ctrl->power_fault_detected) {
+-		ctrl->power_fault_detected = 1;
++	if (events & PCI_EXP_SLTSTA_PFD) {
+ 		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(slot));
+ 		pciehp_set_attention_status(slot, 1);
+ 		pciehp_green_led_off(slot);
 
 
