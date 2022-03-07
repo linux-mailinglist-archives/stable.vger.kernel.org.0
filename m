@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4F24CF5DF
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7D94CF787
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbiCGJbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35420 "EHLO
+        id S238440AbiCGJq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:46:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237539AbiCGJ2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE96D6AA58;
-        Mon,  7 Mar 2022 01:25:35 -0800 (PST)
+        with ESMTP id S238803AbiCGJiv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140AE6BDD2;
+        Mon,  7 Mar 2022 01:33:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60E05B810B6;
-        Mon,  7 Mar 2022 09:25:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D73C340E9;
-        Mon,  7 Mar 2022 09:25:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A34B2611E4;
+        Mon,  7 Mar 2022 09:33:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 839C0C340E9;
+        Mon,  7 Mar 2022 09:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645133;
-        bh=RA5MjAREVeLlyf8DR2wQTDiIpoO9krt7YPldP0t9j60=;
+        s=korg; t=1646645588;
+        bh=jZhJUgnC00Oi4NxwevCHNXIQrXbw0XYFCaL4YrnILQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQSvIZgUUEKNnXo31o/+yosHBj2WYmbST0WyeLKBQHjiJt/uvfstbCbYVDJewymVr
-         eAjBzPw3/M+3/UAzdTanTADIEEgOf5icAq04CiFVPOvexkarWTFGl+I9K53h6xwv5F
-         +hIp74gFJ08kP0xIaCRp7UG87RwTMNo6JSFuYT60=
+        b=JeHNcR9WXl3oCjwxL8805vOXy7WqmC7PJhEQmiScTxdHsKYO9rmX3iT+ewkSJPJHJ
+         UIz8NYj8rTgszYAdoCdq9iVqynbQx8oNQVx0V9vQ/iSvtcZWad/15niZTLVAVZWnRt
+         M2DoUAwh9TAulHdNF/igCNoUGywM3O5tg34qiQKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -42,19 +42,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Yang Yang <yang.yang29@zte.com.cn>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 48/51] memfd: fix F_SEAL_WRITE after shmem huge page allocated
+Subject: [PATCH 5.10 080/105] memfd: fix F_SEAL_WRITE after shmem huge page allocated
 Date:   Mon,  7 Mar 2022 10:19:23 +0100
-Message-Id: <20220307091638.357126249@linuxfoundation.org>
+Message-Id: <20220307091646.428770541@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -106,75 +106,87 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memfd.c |   30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+ mm/memfd.c |   40 ++++++++++++++++++++++++++++------------
+ 1 file changed, 28 insertions(+), 12 deletions(-)
 
 --- a/mm/memfd.c
 +++ b/mm/memfd.c
-@@ -34,26 +34,35 @@ static void memfd_tag_pins(struct addres
- 	void __rcu **slot;
- 	pgoff_t start;
+@@ -31,20 +31,28 @@
+ static void memfd_tag_pins(struct xa_state *xas)
+ {
  	struct page *page;
 -	unsigned int tagged = 0;
 +	int latency = 0;
 +	int cache_count;
  
  	lru_add_drain();
- 	start = 0;
  
- 	xa_lock_irq(&mapping->i_pages);
- 	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
+ 	xas_lock_irq(xas);
+ 	xas_for_each(xas, page, ULONG_MAX) {
+-		if (xa_is_value(page))
+-			continue;
+-		page = find_subpage(page, xas->xa_index);
+-		if (page_count(page) - page_mapcount(page) > 1)
 +		cache_count = 1;
- 		page = radix_tree_deref_slot_protected(slot, &mapping->i_pages.xa_lock);
--		if (!page || radix_tree_exception(page)) {
-+		if (!page || radix_tree_exception(page) || PageTail(page)) {
- 			if (radix_tree_deref_retry(page)) {
- 				slot = radix_tree_iter_retry(&iter);
- 				continue;
- 			}
--		} else if (page_count(page) - page_mapcount(page) > 1) {
--			radix_tree_tag_set(&mapping->i_pages, iter.index,
--					   MEMFD_TAG_PINNED);
-+		} else {
-+			if (PageTransHuge(page) && !PageHuge(page))
-+				cache_count = HPAGE_PMD_NR;
-+			if (cache_count !=
-+			    page_count(page) - total_mapcount(page)) {
-+				radix_tree_tag_set(&mapping->i_pages,
-+						iter.index, MEMFD_TAG_PINNED);
-+			}
- 		}
++		if (!xa_is_value(page) &&
++		    PageTransHuge(page) && !PageHuge(page))
++			cache_count = HPAGE_PMD_NR;
++
++		if (!xa_is_value(page) &&
++		    page_count(page) - total_mapcount(page) != cache_count)
+ 			xas_set_mark(xas, MEMFD_TAG_PINNED);
++		if (cache_count != 1)
++			xas_set(xas, page->index + cache_count);
  
--		if (++tagged % 1024)
+-		if (++tagged % XA_CHECK_SCHED)
 +		latency += cache_count;
-+		if (latency < 1024)
++		if (latency < XA_CHECK_SCHED)
  			continue;
 +		latency = 0;
  
- 		slot = radix_tree_iter_resume(slot, &iter);
- 		xa_unlock_irq(&mapping->i_pages);
-@@ -79,6 +88,7 @@ static int memfd_wait_for_pins(struct ad
- 	pgoff_t start;
- 	struct page *page;
- 	int error, scan;
-+	int cache_count;
+ 		xas_pause(xas);
+ 		xas_unlock_irq(xas);
+@@ -73,7 +81,8 @@ static int memfd_wait_for_pins(struct ad
  
- 	memfd_tag_pins(mapping);
+ 	error = 0;
+ 	for (scan = 0; scan <= LAST_SCAN; scan++) {
+-		unsigned int tagged = 0;
++		int latency = 0;
++		int cache_count;
  
-@@ -107,8 +117,12 @@ static int memfd_wait_for_pins(struct ad
- 				page = NULL;
- 			}
- 
--			if (page &&
--			    page_count(page) - page_mapcount(page) != 1) {
+ 		if (!xas_marked(&xas, MEMFD_TAG_PINNED))
+ 			break;
+@@ -87,10 +96,14 @@ static int memfd_wait_for_pins(struct ad
+ 		xas_lock_irq(&xas);
+ 		xas_for_each_marked(&xas, page, ULONG_MAX, MEMFD_TAG_PINNED) {
+ 			bool clear = true;
+-			if (xa_is_value(page))
+-				continue;
+-			page = find_subpage(page, xas.xa_index);
+-			if (page_count(page) - page_mapcount(page) != 1) {
++
 +			cache_count = 1;
-+			if (page && PageTransHuge(page) && !PageHuge(page))
++			if (!xa_is_value(page) &&
++			    PageTransHuge(page) && !PageHuge(page))
 +				cache_count = HPAGE_PMD_NR;
 +
-+			if (page && cache_count !=
++			if (!xa_is_value(page) && cache_count !=
 +			    page_count(page) - total_mapcount(page)) {
- 				if (scan < LAST_SCAN)
- 					goto continue_resched;
+ 				/*
+ 				 * On the last scan, we clean up all those tags
+ 				 * we inserted; but make a note that we still
+@@ -103,8 +116,11 @@ static int memfd_wait_for_pins(struct ad
+ 			}
+ 			if (clear)
+ 				xas_clear_mark(&xas, MEMFD_TAG_PINNED);
+-			if (++tagged % XA_CHECK_SCHED)
++
++			latency += cache_count;
++			if (latency < XA_CHECK_SCHED)
+ 				continue;
++			latency = 0;
  
+ 			xas_pause(&xas);
+ 			xas_unlock_irq(&xas);
 
 
