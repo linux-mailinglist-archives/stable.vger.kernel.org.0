@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 489CE4CF5D9
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46A2D4CF983
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:06:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237146AbiCGJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51382 "EHLO
+        id S233892AbiCGKGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:06:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237913AbiCGJ2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:32 -0500
+        with ESMTP id S240206AbiCGKFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:05:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3B8F6C1E4;
-        Mon,  7 Mar 2022 01:26:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB66076673;
+        Mon,  7 Mar 2022 01:52:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EF9661150;
-        Mon,  7 Mar 2022 09:26:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47353C340F4;
-        Mon,  7 Mar 2022 09:26:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22190609D1;
+        Mon,  7 Mar 2022 09:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12FBBC340F3;
+        Mon,  7 Mar 2022 09:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645175;
-        bh=z6WtXkdplajcHr5U4+TEBsmCq0vuiEtw9uFAEm14z5M=;
+        s=korg; t=1646646737;
+        bh=Ine+6jSeWmLKe1F1++yX8U/yKTHmdiSmORT2Y+pEfuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJ6J5pR4ARnE3OMF6nzFMKueeiJMhAZ1YGfssk0Pdf6c+lSBBDLLMwQkXSPFYiemc
-         n43wYELX51y5t25QqhPXMhDdecsFt+9jomII3B3WRQXDKSjMRPwTYeLYxJF47rqDm6
-         KfMc6vuOzrLbcxnIGaY55nSs2/vffKv8xuKg9cys=
+        b=AcN93jHkOrF6Ql9TtDJmw6acKO7BqKUOwhxBZSkUFX8htcv2gmlOs9DL/OsPB3uKk
+         KuBQaowGNjhoyVZ2tlfKq6AUW4apefRox6BI8JzXyrTHZ3dG613SArFFFjbf1+3eg6
+         kSc8M1gHNw8HpldPUDvLqRTNNiyreRxPPHmI2yZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/64] i2c: bcm2835: Avoid clock stretching timeouts
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 5.16 078/186] batman-adv: Dont expect inter-netns unique iflink indices
 Date:   Mon,  7 Mar 2022 10:18:36 +0100
-Message-Id: <20220307091639.236601603@linuxfoundation.org>
+Message-Id: <20220307091656.269200691@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Anholt <eric@anholt.net>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
+commit 6c1f41afc1dbe59d9d3c8bb0d80b749c119aa334 upstream.
 
-The CLKT register contains at poweron 0x40, which at our typical 100kHz
-bus rate means .64ms. But there is no specified limit to how long devices
-should be able to stretch the clocks, so just disable the timeout. We
-still have a timeout wrapping the entire transfer.
+The ifindex doesn't have to be unique for multiple network namespaces on
+the same machine.
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-BugLink: https://github.com/raspberrypi/linux/issues/3064
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  $ ip netns add test1
+  $ ip -net test1 link add dummy1 type dummy
+  $ ip netns add test2
+  $ ip -net test2 link add dummy2 type dummy
+
+  $ ip -net test1 link show dev dummy1
+  6: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether 96:81:55:1e:dd:85 brd ff:ff:ff:ff:ff:ff
+  $ ip -net test2 link show dev dummy2
+  6: dummy2: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether 5a:3c:af:35:07:c3 brd ff:ff:ff:ff:ff:ff
+
+But the batman-adv code to walk through the various layers of virtual
+interfaces uses this assumption because dev_get_iflink handles it
+internally and doesn't return the actual netns of the iflink. And
+dev_get_iflink only documents the situation where ifindex == iflink for
+physical devices.
+
+But only checking for dev->netdev_ops->ndo_get_iflink is also not an option
+because ipoib_get_iflink implements it even when it sometimes returns an
+iflink != ifindex and sometimes iflink == ifindex. The caller must
+therefore make sure itself to check both netns and iflink + ifindex for
+equality. Only when they are equal, a "physical" interface was detected
+which should stop the traversal. On the other hand, vxcan_get_iflink can
+also return 0 in case there was currently no valid peer. In this case, it
+is still necessary to stop.
+
+Fixes: b7eddd0b3950 ("batman-adv: prevent using any virtual device created on batman-adv as hard-interface")
+Fixes: 5ed4a460a1d3 ("batman-adv: additional checks for virtual interfaces on top of WiFi")
+Reported-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/batman-adv/hard-interface.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 5ab901ad615dd..c265fe4621621 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -23,6 +23,11 @@
- #define BCM2835_I2C_FIFO	0x10
- #define BCM2835_I2C_DIV		0x14
- #define BCM2835_I2C_DEL		0x18
-+/*
-+ * 16-bit field for the number of SCL cycles to wait after rising SCL
-+ * before deciding the slave is not responding. 0 disables the
-+ * timeout detection.
-+ */
- #define BCM2835_I2C_CLKT	0x1c
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -157,13 +157,15 @@ static bool batadv_is_on_batman_iface(co
+ 		return true;
  
- #define BCM2835_I2C_C_READ	BIT(0)
-@@ -479,6 +484,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	adap->dev.of_node = pdev->dev.of_node;
- 	adap->quirks = of_device_get_match_data(&pdev->dev);
+ 	iflink = dev_get_iflink(net_dev);
+-
+-	/* no more parents..stop recursion */
+-	if (iflink == 0 || iflink == net_dev->ifindex)
++	if (iflink == 0)
+ 		return false;
  
-+	/*
-+	 * Disable the hardware clock stretching timeout. SMBUS
-+	 * specifies a limit for how long the device can stretch the
-+	 * clock, but core I2C doesn't.
-+	 */
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 	parent_net = batadv_getlink_net(net_dev, net);
  
- 	ret = i2c_add_adapter(adap);
--- 
-2.34.1
-
++	/* iflink to itself, most likely physical device */
++	if (net == parent_net && iflink == net_dev->ifindex)
++		return false;
++
+ 	/* recurse over the parent device */
+ 	parent_dev = __dev_get_by_index((struct net *)parent_net, iflink);
+ 	/* if we got a NULL parent_dev there is something broken.. */
+@@ -223,8 +225,7 @@ static struct net_device *batadv_get_rea
+ 		return NULL;
+ 
+ 	iflink = dev_get_iflink(netdev);
+-
+-	if (netdev->ifindex == iflink) {
++	if (iflink == 0) {
+ 		dev_hold(netdev);
+ 		return netdev;
+ 	}
+@@ -235,6 +236,14 @@ static struct net_device *batadv_get_rea
+ 
+ 	net = dev_net(hard_iface->soft_iface);
+ 	real_net = batadv_getlink_net(netdev, net);
++
++	/* iflink to itself, most likely physical device */
++	if (net == real_net && netdev->ifindex == iflink) {
++		real_netdev = netdev;
++		dev_hold(real_netdev);
++		goto out;
++	}
++
+ 	real_netdev = dev_get_by_index(real_net, iflink);
+ 
+ out:
 
 
