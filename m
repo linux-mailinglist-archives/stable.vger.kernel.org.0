@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E41184CF7FB
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B534CF948
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237972AbiCGJvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:51:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53380 "EHLO
+        id S240136AbiCGKFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:05:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239310AbiCGJta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:49:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E154547AD3;
-        Mon,  7 Mar 2022 01:43:02 -0800 (PST)
+        with ESMTP id S239918AbiCGKD4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:03:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3EF75207;
+        Mon,  7 Mar 2022 01:51:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAD9AB810D2;
-        Mon,  7 Mar 2022 09:42:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C3AC340F5;
-        Mon,  7 Mar 2022 09:42:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BB1F60919;
+        Mon,  7 Mar 2022 09:51:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD0FC340F4;
+        Mon,  7 Mar 2022 09:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646177;
-        bh=Oo8c0T73WwRUB0tlUJ77/gdoT2ejqRUeLYuZyye5QNA=;
+        s=korg; t=1646646715;
+        bh=HGY8bZHnNj0ChX0IiyXwwCG+PIxtDhcYwRoyL0o6fO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzwhSfkmtMNEBnpG7LHUujw17z3viWwRF6rUYWIx/B78rrFC4v5AFnlrs1G6nyv+o
-         p8DNAvl8eAW9Qco9NXwRHm0nLjSNBgFppLeFzWZ+sx7Cusefv6mFLOK80WbnpYBIO/
-         AvLJzkI+8NDaCH7gsWu1K5kvHBiaHLjl7nVVkfyw=
+        b=ZyuzATy4Vl5Utm8MOJOwACt5kvORqnK97lUsRsxlRIzP+oGSphk378vqiJwf/Sgqa
+         y/klvEzjDBZf+4DTojRRfprVrou5twatTdvN9cYFETXnmOlP6QduVLiaUAJJ5LAj3P
+         BgxDzoKJpJ99RvxG6SZFcN72fILPYVH+EuVCV0r0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.15 157/262] xfrm: enforce validity of offload input flags
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 063/186] blktrace: fix use after free for struct blk_trace
 Date:   Mon,  7 Mar 2022 10:18:21 +0100
-Message-Id: <20220307091706.866568881@linuxfoundation.org>
+Message-Id: <20220307091655.856433453@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 7c76ecd9c99b6e9a771d813ab1aa7fa428b3ade1 upstream.
+commit 30939293262eb433c960c4532a0d59c4073b2b84 upstream.
 
-struct xfrm_user_offload has flags variable that received user input,
-but kernel didn't check if valid bits were provided. It caused a situation
-where not sanitized input was forwarded directly to the drivers.
+When tracing the whole disk, 'dropped' and 'msg' will be created
+under 'q->debugfs_dir' and 'bt->dir' is NULL, thus blk_trace_free()
+won't remove those files. What's worse, the following UAF can be
+triggered because of accessing stale 'dropped' and 'msg':
 
-For example, XFRM_OFFLOAD_IPV6 define that was exposed, was used by
-strongswan, but not implemented in the kernel at all.
+==================================================================
+BUG: KASAN: use-after-free in blk_dropped_read+0x89/0x100
+Read of size 4 at addr ffff88816912f3d8 by task blktrace/1188
 
-As a solution, check and sanitize input flags to forward
-XFRM_OFFLOAD_INBOUND to the drivers.
+CPU: 27 PID: 1188 Comm: blktrace Not tainted 5.17.0-rc4-next-20220217+ #469
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-4
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x34/0x44
+ print_address_description.constprop.0.cold+0xab/0x381
+ ? blk_dropped_read+0x89/0x100
+ ? blk_dropped_read+0x89/0x100
+ kasan_report.cold+0x83/0xdf
+ ? blk_dropped_read+0x89/0x100
+ kasan_check_range+0x140/0x1b0
+ blk_dropped_read+0x89/0x100
+ ? blk_create_buf_file_callback+0x20/0x20
+ ? kmem_cache_free+0xa1/0x500
+ ? do_sys_openat2+0x258/0x460
+ full_proxy_read+0x8f/0xc0
+ vfs_read+0xc6/0x260
+ ksys_read+0xb9/0x150
+ ? vfs_write+0x3d0/0x3d0
+ ? fpregs_assert_state_consistent+0x55/0x60
+ ? exit_to_user_mode_prepare+0x39/0x1e0
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7fbc080d92fd
+Code: ce 20 00 00 75 10 b8 00 00 00 00 0f 05 48 3d 01 f0 ff ff 73 31 c3 48 83 1
+RSP: 002b:00007fbb95ff9cb0 EFLAGS: 00000293 ORIG_RAX: 0000000000000000
+RAX: ffffffffffffffda RBX: 00007fbb95ff9dc0 RCX: 00007fbc080d92fd
+RDX: 0000000000000100 RSI: 00007fbb95ff9cc0 RDI: 0000000000000045
+RBP: 0000000000000045 R08: 0000000000406299 R09: 00000000fffffffd
+R10: 000000000153afa0 R11: 0000000000000293 R12: 00007fbb780008c0
+R13: 00007fbb78000938 R14: 0000000000608b30 R15: 00007fbb780029c8
+ </TASK>
 
-Fixes: d77e38e612a0 ("xfrm: Add an IPsec hardware offloading API")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Allocated by task 1050:
+ kasan_save_stack+0x1e/0x40
+ __kasan_kmalloc+0x81/0xa0
+ do_blk_trace_setup+0xcb/0x410
+ __blk_trace_setup+0xac/0x130
+ blk_trace_ioctl+0xe9/0x1c0
+ blkdev_ioctl+0xf1/0x390
+ __x64_sys_ioctl+0xa5/0xe0
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Freed by task 1050:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0x103/0x180
+ kfree+0x9a/0x4c0
+ __blk_trace_remove+0x53/0x70
+ blk_trace_ioctl+0x199/0x1c0
+ blkdev_common_ioctl+0x5e9/0xb30
+ blkdev_ioctl+0x1a5/0x390
+ __x64_sys_ioctl+0xa5/0xe0
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The buggy address belongs to the object at ffff88816912f380
+ which belongs to the cache kmalloc-96 of size 96
+The buggy address is located 88 bytes inside of
+ 96-byte region [ffff88816912f380, ffff88816912f3e0)
+The buggy address belongs to the page:
+page:000000009a1b4e7c refcount:1 mapcount:0 mapping:0000000000000000 index:0x0f
+flags: 0x17ffffc0000200(slab|node=0|zone=2|lastcpupid=0x1fffff)
+raw: 0017ffffc0000200 ffffea00044f1100 dead000000000002 ffff88810004c780
+raw: 0000000000000000 0000000000200020 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88816912f280: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+ ffff88816912f300: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+>ffff88816912f380: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+                                                    ^
+ ffff88816912f400: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+ ffff88816912f480: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+==================================================================
+
+Fixes: c0ea57608b69 ("blktrace: remove debugfs file dentries from struct blk_trace")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220228034354.4047385-1-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/xfrm.h |    6 ++++++
- net/xfrm/xfrm_device.c    |    6 +++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ kernel/trace/blktrace.c |   26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
---- a/include/uapi/linux/xfrm.h
-+++ b/include/uapi/linux/xfrm.h
-@@ -511,6 +511,12 @@ struct xfrm_user_offload {
- 	int				ifindex;
- 	__u8				flags;
- };
-+/* This flag was exposed without any kernel code that supporting it.
-+ * Unfortunately, strongswan has the code that uses sets this flag,
-+ * which makes impossible to reuse this bit.
-+ *
-+ * So leave it here to make sure that it won't be reused by mistake.
-+ */
- #define XFRM_OFFLOAD_IPV6	1
- #define XFRM_OFFLOAD_INBOUND	2
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -310,10 +310,20 @@ record_it:
+ 	local_irq_restore(flags);
+ }
  
---- a/net/xfrm/xfrm_device.c
-+++ b/net/xfrm/xfrm_device.c
-@@ -223,6 +223,9 @@ int xfrm_dev_state_add(struct net *net,
- 	if (x->encap || x->tfcpad)
+-static void blk_trace_free(struct blk_trace *bt)
++static void blk_trace_free(struct request_queue *q, struct blk_trace *bt)
+ {
+ 	relay_close(bt->rchan);
+-	debugfs_remove(bt->dir);
++
++	/*
++	 * If 'bt->dir' is not set, then both 'dropped' and 'msg' are created
++	 * under 'q->debugfs_dir', thus lookup and remove them.
++	 */
++	if (!bt->dir) {
++		debugfs_remove(debugfs_lookup("dropped", q->debugfs_dir));
++		debugfs_remove(debugfs_lookup("msg", q->debugfs_dir));
++	} else {
++		debugfs_remove(bt->dir);
++	}
+ 	free_percpu(bt->sequence);
+ 	free_percpu(bt->msg_data);
+ 	kfree(bt);
+@@ -335,10 +345,10 @@ static void put_probe_ref(void)
+ 	mutex_unlock(&blk_probe_mutex);
+ }
+ 
+-static void blk_trace_cleanup(struct blk_trace *bt)
++static void blk_trace_cleanup(struct request_queue *q, struct blk_trace *bt)
+ {
+ 	synchronize_rcu();
+-	blk_trace_free(bt);
++	blk_trace_free(q, bt);
+ 	put_probe_ref();
+ }
+ 
+@@ -352,7 +362,7 @@ static int __blk_trace_remove(struct req
  		return -EINVAL;
  
-+	if (xuo->flags & ~(XFRM_OFFLOAD_IPV6 | XFRM_OFFLOAD_INBOUND))
-+		return -EINVAL;
-+
- 	dev = dev_get_by_index(net, xuo->ifindex);
- 	if (!dev) {
- 		if (!(xuo->flags & XFRM_OFFLOAD_INBOUND)) {
-@@ -261,7 +264,8 @@ int xfrm_dev_state_add(struct net *net,
- 	xso->dev = dev;
- 	xso->real_dev = dev;
- 	xso->num_exthdrs = 1;
--	xso->flags = xuo->flags;
-+	/* Don't forward bit that is not implemented */
-+	xso->flags = xuo->flags & ~XFRM_OFFLOAD_IPV6;
+ 	if (bt->trace_state != Blktrace_running)
+-		blk_trace_cleanup(bt);
++		blk_trace_cleanup(q, bt);
  
- 	err = dev->xfrmdev_ops->xdo_dev_state_add(x);
- 	if (err) {
+ 	return 0;
+ }
+@@ -572,7 +582,7 @@ static int do_blk_trace_setup(struct req
+ 	ret = 0;
+ err:
+ 	if (ret)
+-		blk_trace_free(bt);
++		blk_trace_free(q, bt);
+ 	return ret;
+ }
+ 
+@@ -1616,7 +1626,7 @@ static int blk_trace_remove_queue(struct
+ 
+ 	put_probe_ref();
+ 	synchronize_rcu();
+-	blk_trace_free(bt);
++	blk_trace_free(q, bt);
+ 	return 0;
+ }
+ 
+@@ -1647,7 +1657,7 @@ static int blk_trace_setup_queue(struct
+ 	return 0;
+ 
+ free_bt:
+-	blk_trace_free(bt);
++	blk_trace_free(q, bt);
+ 	return ret;
+ }
+ 
 
 
