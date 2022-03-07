@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 168854CF83A
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 622174CF4AF
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234885AbiCGJwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54132 "EHLO
+        id S236448AbiCGJU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:20:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239545AbiCGJtw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:49:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109DC70CFA;
-        Mon,  7 Mar 2022 01:43:28 -0800 (PST)
+        with ESMTP id S236381AbiCGJUs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:20:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6F3517F4;
+        Mon,  7 Mar 2022 01:19:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9D59B80F9F;
-        Mon,  7 Mar 2022 09:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 247DDC340F3;
-        Mon,  7 Mar 2022 09:43:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBF2B6103D;
+        Mon,  7 Mar 2022 09:19:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9811C340F6;
+        Mon,  7 Mar 2022 09:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646198;
-        bh=t6bUSDl+6zCGKg/wyCDGHNCuN5OZaGz49qTEh+916Xw=;
+        s=korg; t=1646644780;
+        bh=ajqEBc+WHQgS/A0sHKtldUjwemPzGFKvKtzhAy1csHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XSf9eRqyd1/yChXRxWUAofbkBXX2PI8bpaa31KB76Gz7I2JZscdXmyrvfTy6CrHyP
-         degymiKd1nMH9FUSaEbsIciZu558H3n82SEAl7H2rE4SSprFaXbZ0HmMyYQd62PlDW
-         9ZMdlNfD39VOswspsuVPBMAEzfesnGLCgpOyMRns=
+        b=JdJA5dbC7qBdCBLoUwwdnNK/SeQPEumr8omZRFCe+HPbSJuGBskWlBc//H8bmoaw4
+         Wy3vv75WVyuLlOqAAomdX2nfLiM18GWguPGDczrz2odwOMaEch7cBZ6eM1vWXist3a
+         BzLdNHO3rTUAgoEs3rpChCGahyxJQDccWNQT8Sic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.15 164/262] batman-adv: Request iflink once in batadv_get_real_netdevice
+        stable@vger.kernel.org, JaeMan Park <jaeman@google.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 02/32] mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
 Date:   Mon,  7 Mar 2022 10:18:28 +0100
-Message-Id: <20220307091707.058612131@linuxfoundation.org>
+Message-Id: <20220307091634.506680595@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
+References: <20220307091634.434478485@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: JaeMan Park <jaeman@google.com>
 
-commit 6116ba09423f7d140f0460be6a1644dceaad00da upstream.
+[ Upstream commit cacfddf82baf1470e5741edeecb187260868f195 ]
 
-There is no need to call dev_get_iflink multiple times for the same
-net_device in batadv_get_real_netdevice. And since some of the
-ndo_get_iflink callbacks are dynamic (for example via RCUs like in
-vxcan_get_iflink), it could easily happen that the returned values are not
-stable. The pre-checks before __dev_get_by_index are then of course bogus.
+In mac80211_hwsim, the probe_req frame is created and sent while
+scanning. It is sent with ieee80211_tx_info which is not initialized.
+Uninitialized ieee80211_tx_info can cause problems when using
+mac80211_hwsim with wmediumd. wmediumd checks the tx_rates field of
+ieee80211_tx_info and doesn't relay probe_req frame to other clients
+even if it is a broadcasting message.
 
-Fixes: 5ed4a460a1d3 ("batman-adv: additional checks for virtual interfaces on top of WiFi")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Call ieee80211_tx_prepare_skb() to initialize ieee80211_tx_info for
+the probe_req that is created by hw_scan_work in mac80211_hwsim.
+
+Signed-off-by: JaeMan Park <jaeman@google.com>
+Link: https://lore.kernel.org/r/20220113060235.546107-1-jaeman@google.com
+[fix memory leak]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/hard-interface.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -215,14 +215,16 @@ static struct net_device *batadv_get_rea
- 	struct net_device *real_netdev = NULL;
- 	struct net *real_net;
- 	struct net *net;
--	int ifindex;
-+	int iflink;
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index a965ce9261d3a..a34647efb5ea5 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -1987,6 +1987,15 @@ static void hw_scan_work(struct work_struct *work)
+ 				memcpy(skb_put(probe, req->ie_len), req->ie,
+ 				       req->ie_len);
  
- 	ASSERT_RTNL();
- 
- 	if (!netdev)
- 		return NULL;
- 
--	if (netdev->ifindex == dev_get_iflink(netdev)) {
-+	iflink = dev_get_iflink(netdev);
++			if (!ieee80211_tx_prepare_skb(hwsim->hw,
++						      hwsim->hw_scan_vif,
++						      probe,
++						      hwsim->tmp_chan->band,
++						      NULL)) {
++				kfree_skb(probe);
++				continue;
++			}
 +
-+	if (netdev->ifindex == iflink) {
- 		dev_hold(netdev);
- 		return netdev;
- 	}
-@@ -232,9 +234,8 @@ static struct net_device *batadv_get_rea
- 		goto out;
- 
- 	net = dev_net(hard_iface->soft_iface);
--	ifindex = dev_get_iflink(netdev);
- 	real_net = batadv_getlink_net(netdev, net);
--	real_netdev = dev_get_by_index(real_net, ifindex);
-+	real_netdev = dev_get_by_index(real_net, iflink);
- 
- out:
- 	batadv_hardif_put(hard_iface);
+ 			local_bh_disable();
+ 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
+ 						hwsim->tmp_chan);
+-- 
+2.34.1
+
 
 
