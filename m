@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DEA4CFA06
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E784CF725
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236573AbiCGKMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:12:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47982 "EHLO
+        id S238104AbiCGJor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241644AbiCGKKZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A5038791;
-        Mon,  7 Mar 2022 01:53:35 -0800 (PST)
+        with ESMTP id S238077AbiCGJh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:37:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2937F69297;
+        Mon,  7 Mar 2022 01:31:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBDCA60A28;
-        Mon,  7 Mar 2022 09:53:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3EB7C340F3;
-        Mon,  7 Mar 2022 09:53:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDFCAB810BD;
+        Mon,  7 Mar 2022 09:31:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 135E8C340E9;
+        Mon,  7 Mar 2022 09:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646812;
-        bh=3fisiECyisSO7Ji5C0pqaTBPKeGnqyFjtJ41/s4CMIo=;
+        s=korg; t=1646645517;
+        bh=3h9HoK3tkXo/ehmlMhtzA/d6uQk+8b2NErzbl6Nm5lQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IApEzv7YpO34aFkdB/yV/8fKjPjUU1FOXmsNnO8+vO8TPAL/LOCpvDoFnvMBr0rZp
-         N3GBmbkLLmzTPR5sSpYhraC736sPNpSw0SJScyANbpbYtl1CsPnMHnXKv1h0yqNyhW
-         Li2IlC/+BfI5HOBDD00ArIGYg9OreIUzEtc1JIBU=
+        b=L3aQkqAGYMb490mlzOqRVskXkRUfY3LZQaSB5x1omV4ClXKEaTh7lVJR8D2Iz38vA
+         DmyPaFCbENZgU/0BuKwrbZr1DfuGtuvkF1AepzTII81u8jyVsPewyPchXvq45z6n0F
+         Kefi4zXjf5NJMCPX9XqbIhSI9MIIgfd0gaTJ534Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Alyssa Ross <hi@alyssa.is>, Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 5.16 100/186] firmware: arm_scmi: Remove space in MODULE_ALIAS name
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>
+Subject: [PATCH 5.10 055/105] ice: Fix race conditions between virtchnl handling and VF ndo ops
 Date:   Mon,  7 Mar 2022 10:18:58 +0100
-Message-Id: <20220307091656.877500650@linuxfoundation.org>
+Message-Id: <20220307091645.730421213@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +55,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Brett Creeley <brett.creeley@intel.com>
 
-commit 1ba603f56568c3b4c2542dfba07afa25f21dcff3 upstream.
+commit e6ba5273d4ede03d075d7a116b8edad1f6115f4d upstream.
 
-modprobe can't handle spaces in aliases. Get rid of it to fix the issue.
+The VF can be configured via the PF's ndo ops at the same time the PF is
+receiving/handling virtchnl messages. This has many issues, with
+one of them being the ndo op could be actively resetting a VF (i.e.
+resetting it to the default state and deleting/re-adding the VF's VSI)
+while a virtchnl message is being handled. The following error was seen
+because a VF ndo op was used to change a VF's trust setting while the
+VIRTCHNL_OP_CONFIG_VSI_QUEUES was ongoing:
 
-Link: https://lore.kernel.org/r/20220211102704.128354-1-sudeep.holla@arm.com
-Fixes: aa4f886f3893 ("firmware: arm_scmi: add basic driver infrastructure for SCMI")
-Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+[35274.192484] ice 0000:88:00.0: Failed to set LAN Tx queue context, error: ICE_ERR_PARAM
+[35274.193074] ice 0000:88:00.0: VF 0 failed opcode 6, retval: -5
+[35274.193640] iavf 0000:88:01.0: PF returned error -5 (IAVF_ERR_PARAM) to our request 6
+
+Fix this by making sure the virtchnl handling and VF ndo ops that
+trigger VF resets cannot run concurrently. This is done by adding a
+struct mutex cfg_lock to each VF structure. For VF ndo ops, the mutex
+will be locked around the critical operations and VFR. Since the ndo ops
+will trigger a VFR, the virtchnl thread will use mutex_trylock(). This
+is done because if any other thread (i.e. VF ndo op) has the mutex, then
+that means the current VF message being handled is no longer valid, so
+just ignore it.
+
+This issue can be seen using the following commands:
+
+for i in {0..50}; do
+        rmmod ice
+        modprobe ice
+
+        sleep 1
+
+        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
+        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
+
+        ip link set ens785f1 vf 0 trust on
+        ip link set ens785f0 vf 0 trust on
+
+        sleep 2
+
+        echo 0 > /sys/class/net/ens785f0/device/sriov_numvfs
+        echo 0 > /sys/class/net/ens785f1/device/sriov_numvfs
+        sleep 1
+        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
+        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
+
+        ip link set ens785f1 vf 0 trust on
+        ip link set ens785f0 vf 0 trust on
+done
+
+Fixes: 7c710869d64e ("ice: Add handlers for VF netdevice operations")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/driver.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c |   25 +++++++++++++++++++++++
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h |    5 ++++
+ 2 files changed, 30 insertions(+)
 
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -2112,7 +2112,7 @@ static void __exit scmi_driver_exit(void
- }
- module_exit(scmi_driver_exit);
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -374,6 +374,8 @@ void ice_free_vfs(struct ice_pf *pf)
+ 			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
+ 			ice_free_vf_res(&pf->vf[i]);
+ 		}
++
++		mutex_destroy(&pf->vf[i].cfg_lock);
+ 	}
  
--MODULE_ALIAS("platform: arm-scmi");
-+MODULE_ALIAS("platform:arm-scmi");
- MODULE_AUTHOR("Sudeep Holla <sudeep.holla@arm.com>");
- MODULE_DESCRIPTION("ARM SCMI protocol driver");
- MODULE_LICENSE("GPL v2");
+ 	if (ice_sriov_free_msix_res(pf))
+@@ -1518,6 +1520,8 @@ static void ice_set_dflt_settings_vfs(st
+ 		set_bit(ICE_VIRTCHNL_VF_CAP_L2, &vf->vf_caps);
+ 		vf->spoofchk = true;
+ 		vf->num_vf_qs = pf->num_qps_per_vf;
++
++		mutex_init(&vf->cfg_lock);
+ 	}
+ }
+ 
+@@ -3345,6 +3349,8 @@ ice_set_vf_port_vlan(struct net_device *
+ 		return 0;
+ 	}
+ 
++	mutex_lock(&vf->cfg_lock);
++
+ 	vf->port_vlan_info = vlanprio;
+ 
+ 	if (vf->port_vlan_info)
+@@ -3354,6 +3360,7 @@ ice_set_vf_port_vlan(struct net_device *
+ 		dev_info(dev, "Clearing port VLAN on VF %d\n", vf_id);
+ 
+ 	ice_vc_reset_vf(vf);
++	mutex_unlock(&vf->cfg_lock);
+ 
+ 	return 0;
+ }
+@@ -3719,6 +3726,15 @@ error_handler:
+ 		return;
+ 	}
+ 
++	/* VF is being configured in another context that triggers a VFR, so no
++	 * need to process this message
++	 */
++	if (!mutex_trylock(&vf->cfg_lock)) {
++		dev_info(dev, "VF %u is being configured in another context that will trigger a VFR, so there is no need to handle this message\n",
++			 vf->vf_id);
++		return;
++	}
++
+ 	switch (v_opcode) {
+ 	case VIRTCHNL_OP_VERSION:
+ 		err = ice_vc_get_ver_msg(vf, msg);
+@@ -3795,6 +3811,8 @@ error_handler:
+ 		dev_info(dev, "PF failed to honor VF %d, opcode %d, error %d\n",
+ 			 vf_id, v_opcode, err);
+ 	}
++
++	mutex_unlock(&vf->cfg_lock);
+ }
+ 
+ /**
+@@ -3909,6 +3927,8 @@ int ice_set_vf_mac(struct net_device *ne
+ 		return -EINVAL;
+ 	}
+ 
++	mutex_lock(&vf->cfg_lock);
++
+ 	/* VF is notified of its new MAC via the PF's response to the
+ 	 * VIRTCHNL_OP_GET_VF_RESOURCES message after the VF has been reset
+ 	 */
+@@ -3926,6 +3946,7 @@ int ice_set_vf_mac(struct net_device *ne
+ 	}
+ 
+ 	ice_vc_reset_vf(vf);
++	mutex_unlock(&vf->cfg_lock);
+ 	return 0;
+ }
+ 
+@@ -3955,11 +3976,15 @@ int ice_set_vf_trust(struct net_device *
+ 	if (trusted == vf->trusted)
+ 		return 0;
+ 
++	mutex_lock(&vf->cfg_lock);
++
+ 	vf->trusted = trusted;
+ 	ice_vc_reset_vf(vf);
+ 	dev_info(ice_pf_to_dev(pf), "VF %u is now %strusted\n",
+ 		 vf_id, trusted ? "" : "un");
+ 
++	mutex_unlock(&vf->cfg_lock);
++
+ 	return 0;
+ }
+ 
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
+@@ -68,6 +68,11 @@ struct ice_mdd_vf_events {
+ struct ice_vf {
+ 	struct ice_pf *pf;
+ 
++	/* Used during virtchnl message handling and NDO ops against the VF
++	 * that will trigger a VFR
++	 */
++	struct mutex cfg_lock;
++
+ 	u16 vf_id;			/* VF ID in the PF space */
+ 	u16 lan_vsi_idx;		/* index into PF struct */
+ 	/* first vector index of this VF in the PF space */
 
 
