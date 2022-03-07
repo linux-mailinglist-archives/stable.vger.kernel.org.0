@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 121EA4CF6D7
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E164CF782
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235430AbiCGJnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:43:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59072 "EHLO
+        id S238425AbiCGJqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:46:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240257AbiCGJkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:40:51 -0500
+        with ESMTP id S240358AbiCGJk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:40:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF6AA6E570;
-        Mon,  7 Mar 2022 01:37:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95D8165830;
+        Mon,  7 Mar 2022 01:37:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64D4FB810D1;
-        Mon,  7 Mar 2022 09:36:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81D34C340E9;
-        Mon,  7 Mar 2022 09:36:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8899B810BD;
+        Mon,  7 Mar 2022 09:37:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4B31C340F3;
+        Mon,  7 Mar 2022 09:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645817;
-        bh=ogsP3s5MeLbN7aR6oo7GJS1vGcKrwQu0DklK25U2cWM=;
+        s=korg; t=1646645820;
+        bh=pJlFBvjxuJ7foblMFzRm/Bg/OJGdmZY6qGEQYa19W1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDNk8Ls+4KEStO/oAsxyprRsuLf48wIJHa0JBjYStwsgqekU1ZXyu0e85V8lxR7zy
-         e24sqoT+Z8oCWDE6aYynDoyJPpPM80xg5sZjcRZWvM9HsAYKP3QBlDHzt94pRmkmNN
-         hL2ZAHt4k+oePNEiL2YsCrX+xX0Sg4JUw1NpeDzU=
+        b=LOSq5QQjHHKSQjNED9VfmvyqfNJV9EsABx00pLbRgN4jgZE1S6U2kO5QS7+pRFGsP
+         zObAn4ZpUlZmgAhVO8wCVzJRv9Exlv7DB304fLrJXVz6z6PVOwpFwhIeZx4cV+aQ8a
+         hbxsCESgtInaZeLhnDYyiDPtubufyWsPHRDVQcyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Omar Sandoval <osandov@fb.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 008/262] btrfs: get rid of warning on transaction commit when using flushoncommit
-Date:   Mon,  7 Mar 2022 10:15:52 +0100
-Message-Id: <20220307091702.615122612@linuxfoundation.org>
+        stable@vger.kernel.org, Ricardo Koller <ricarkol@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 009/262] KVM: arm64: vgic: Read HW interrupt pending state from the HW
+Date:   Mon,  7 Mar 2022 10:15:53 +0100
+Message-Id: <20220307091702.642074598@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -55,284 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit a0f0cf8341e34e5d2265bfd3a7ad68342da1e2aa ]
+[ Upstream commit 5bfa685e62e9ba93c303a9a8db646c7228b9b570 ]
 
-When using the flushoncommit mount option, during almost every transaction
-commit we trigger a warning from __writeback_inodes_sb_nr():
+It appears that a read access to GIC[DR]_I[CS]PENDRn doesn't always
+result in the pending interrupts being accurately reported if they are
+mapped to a HW interrupt. This is particularily visible when acking
+the timer interrupt and reading the GICR_ISPENDR1 register immediately
+after, for example (the interrupt appears as not-pending while it really
+is...).
 
-  $ cat fs/fs-writeback.c:
-  (...)
-  static void __writeback_inodes_sb_nr(struct super_block *sb, ...
-  {
-        (...)
-        WARN_ON(!rwsem_is_locked(&sb->s_umount));
-        (...)
-  }
-  (...)
+This is because a HW interrupt has its 'active and pending state' kept
+in the *physical* distributor, and not in the virtual one, as mandated
+by the spec (this is what allows the direct deactivation). The virtual
+distributor only caries the pending and active *states* (note the
+plural, as these are two independent and non-overlapping states).
 
-The trace produced in dmesg looks like the following:
+Fix it by reading the HW state back, either from the timer itself or
+from the distributor if necessary.
 
-  [947.473890] WARNING: CPU: 5 PID: 930 at fs/fs-writeback.c:2610 __writeback_inodes_sb_nr+0x7e/0xb3
-  [947.481623] Modules linked in: nfsd nls_cp437 cifs asn1_decoder cifs_arc4 fscache cifs_md4 ipmi_ssif
-  [947.489571] CPU: 5 PID: 930 Comm: btrfs-transacti Not tainted 95.16.3-srb-asrock-00001-g36437ad63879 #186
-  [947.497969] RIP: 0010:__writeback_inodes_sb_nr+0x7e/0xb3
-  [947.502097] Code: 24 10 4c 89 44 24 18 c6 (...)
-  [947.519760] RSP: 0018:ffffc90000777e10 EFLAGS: 00010246
-  [947.523818] RAX: 0000000000000000 RBX: 0000000000963300 RCX: 0000000000000000
-  [947.529765] RDX: 0000000000000000 RSI: 000000000000fa51 RDI: ffffc90000777e50
-  [947.535740] RBP: ffff888101628a90 R08: ffff888100955800 R09: ffff888100956000
-  [947.541701] R10: 0000000000000002 R11: 0000000000000001 R12: ffff888100963488
-  [947.547645] R13: ffff888100963000 R14: ffff888112fb7200 R15: ffff888100963460
-  [947.553621] FS:  0000000000000000(0000) GS:ffff88841fd40000(0000) knlGS:0000000000000000
-  [947.560537] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [947.565122] CR2: 0000000008be50c4 CR3: 000000000220c000 CR4: 00000000001006e0
-  [947.571072] Call Trace:
-  [947.572354]  <TASK>
-  [947.573266]  btrfs_commit_transaction+0x1f1/0x998
-  [947.576785]  ? start_transaction+0x3ab/0x44e
-  [947.579867]  ? schedule_timeout+0x8a/0xdd
-  [947.582716]  transaction_kthread+0xe9/0x156
-  [947.585721]  ? btrfs_cleanup_transaction.isra.0+0x407/0x407
-  [947.590104]  kthread+0x131/0x139
-  [947.592168]  ? set_kthread_struct+0x32/0x32
-  [947.595174]  ret_from_fork+0x22/0x30
-  [947.597561]  </TASK>
-  [947.598553] ---[ end trace 644721052755541c ]---
-
-This is because we started using writeback_inodes_sb() to flush delalloc
-when committing a transaction (when using -o flushoncommit), in order to
-avoid deadlocks with filesystem freeze operations. This change was made
-by commit ce8ea7cc6eb313 ("btrfs: don't call btrfs_start_delalloc_roots
-in flushoncommit"). After that change we started producing that warning,
-and every now and then a user reports this since the warning happens too
-often, it spams dmesg/syslog, and a user is unsure if this reflects any
-problem that might compromise the filesystem's reliability.
-
-We can not just lock the sb->s_umount semaphore before calling
-writeback_inodes_sb(), because that would at least deadlock with
-filesystem freezing, since at fs/super.c:freeze_super() sync_filesystem()
-is called while we are holding that semaphore in write mode, and that can
-trigger a transaction commit, resulting in a deadlock. It would also
-trigger the same type of deadlock in the unmount path. Possibly, it could
-also introduce some other locking dependencies that lockdep would report.
-
-To fix this call try_to_writeback_inodes_sb() instead of
-writeback_inodes_sb(), because that will try to read lock sb->s_umount
-and then will only call writeback_inodes_sb() if it was able to lock it.
-This is fine because the cases where it can't read lock sb->s_umount
-are during a filesystem unmount or during a filesystem freeze - in those
-cases sb->s_umount is write locked and sync_filesystem() is called, which
-calls writeback_inodes_sb(). In other words, in all cases where we can't
-take a read lock on sb->s_umount, writeback is already being triggered
-elsewhere.
-
-An alternative would be to call btrfs_start_delalloc_roots() with a
-number of pages different from LONG_MAX, for example matching the number
-of delalloc bytes we currently have, in which case we would end up
-starting all delalloc with filemap_fdatawrite_wbc() and not with an
-async flush via filemap_flush() - that is only possible after the rather
-recent commit e076ab2a2ca70a ("btrfs: shrink delalloc pages instead of
-full inodes"). However that creates a whole new can of worms due to new
-lock dependencies, which lockdep complains, like for example:
-
-[ 8948.247280] ======================================================
-[ 8948.247823] WARNING: possible circular locking dependency detected
-[ 8948.248353] 5.17.0-rc1-btrfs-next-111 #1 Not tainted
-[ 8948.248786] ------------------------------------------------------
-[ 8948.249320] kworker/u16:18/933570 is trying to acquire lock:
-[ 8948.249812] ffff9b3de1591690 (sb_internal#2){.+.+}-{0:0}, at: find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.250638]
-               but task is already holding lock:
-[ 8948.251140] ffff9b3e09c717d8 (&root->delalloc_mutex){+.+.}-{3:3}, at: start_delalloc_inodes+0x78/0x400 [btrfs]
-[ 8948.252018]
-               which lock already depends on the new lock.
-
-[ 8948.252710]
-               the existing dependency chain (in reverse order) is:
-[ 8948.253343]
-               -> #2 (&root->delalloc_mutex){+.+.}-{3:3}:
-[ 8948.253950]        __mutex_lock+0x90/0x900
-[ 8948.254354]        start_delalloc_inodes+0x78/0x400 [btrfs]
-[ 8948.254859]        btrfs_start_delalloc_roots+0x194/0x2a0 [btrfs]
-[ 8948.255408]        btrfs_commit_transaction+0x32f/0xc00 [btrfs]
-[ 8948.255942]        btrfs_mksubvol+0x380/0x570 [btrfs]
-[ 8948.256406]        btrfs_mksnapshot+0x81/0xb0 [btrfs]
-[ 8948.256870]        __btrfs_ioctl_snap_create+0x17f/0x190 [btrfs]
-[ 8948.257413]        btrfs_ioctl_snap_create_v2+0xbb/0x140 [btrfs]
-[ 8948.257961]        btrfs_ioctl+0x1196/0x3630 [btrfs]
-[ 8948.258418]        __x64_sys_ioctl+0x83/0xb0
-[ 8948.258793]        do_syscall_64+0x3b/0xc0
-[ 8948.259146]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 8948.259709]
-               -> #1 (&fs_info->delalloc_root_mutex){+.+.}-{3:3}:
-[ 8948.260330]        __mutex_lock+0x90/0x900
-[ 8948.260692]        btrfs_start_delalloc_roots+0x97/0x2a0 [btrfs]
-[ 8948.261234]        btrfs_commit_transaction+0x32f/0xc00 [btrfs]
-[ 8948.261766]        btrfs_set_free_space_cache_v1_active+0x38/0x60 [btrfs]
-[ 8948.262379]        btrfs_start_pre_rw_mount+0x119/0x180 [btrfs]
-[ 8948.262909]        open_ctree+0x1511/0x171e [btrfs]
-[ 8948.263359]        btrfs_mount_root.cold+0x12/0xde [btrfs]
-[ 8948.263863]        legacy_get_tree+0x30/0x50
-[ 8948.264242]        vfs_get_tree+0x28/0xc0
-[ 8948.264594]        vfs_kern_mount.part.0+0x71/0xb0
-[ 8948.265017]        btrfs_mount+0x11d/0x3a0 [btrfs]
-[ 8948.265462]        legacy_get_tree+0x30/0x50
-[ 8948.265851]        vfs_get_tree+0x28/0xc0
-[ 8948.266203]        path_mount+0x2d4/0xbe0
-[ 8948.266554]        __x64_sys_mount+0x103/0x140
-[ 8948.266940]        do_syscall_64+0x3b/0xc0
-[ 8948.267300]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 8948.267790]
-               -> #0 (sb_internal#2){.+.+}-{0:0}:
-[ 8948.268322]        __lock_acquire+0x12e8/0x2260
-[ 8948.268733]        lock_acquire+0xd7/0x310
-[ 8948.269092]        start_transaction+0x44c/0x6e0 [btrfs]
-[ 8948.269591]        find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.270087]        btrfs_reserve_extent+0x14b/0x280 [btrfs]
-[ 8948.270588]        cow_file_range+0x17e/0x490 [btrfs]
-[ 8948.271051]        btrfs_run_delalloc_range+0x345/0x7a0 [btrfs]
-[ 8948.271586]        writepage_delalloc+0xb5/0x170 [btrfs]
-[ 8948.272071]        __extent_writepage+0x156/0x3c0 [btrfs]
-[ 8948.272579]        extent_write_cache_pages+0x263/0x460 [btrfs]
-[ 8948.273113]        extent_writepages+0x76/0x130 [btrfs]
-[ 8948.273573]        do_writepages+0xd2/0x1c0
-[ 8948.273942]        filemap_fdatawrite_wbc+0x68/0x90
-[ 8948.274371]        start_delalloc_inodes+0x17f/0x400 [btrfs]
-[ 8948.274876]        btrfs_start_delalloc_roots+0x194/0x2a0 [btrfs]
-[ 8948.275417]        flush_space+0x1f2/0x630 [btrfs]
-[ 8948.275863]        btrfs_async_reclaim_data_space+0x108/0x1b0 [btrfs]
-[ 8948.276438]        process_one_work+0x252/0x5a0
-[ 8948.276829]        worker_thread+0x55/0x3b0
-[ 8948.277189]        kthread+0xf2/0x120
-[ 8948.277506]        ret_from_fork+0x22/0x30
-[ 8948.277868]
-               other info that might help us debug this:
-
-[ 8948.278548] Chain exists of:
-                 sb_internal#2 --> &fs_info->delalloc_root_mutex --> &root->delalloc_mutex
-
-[ 8948.279601]  Possible unsafe locking scenario:
-
-[ 8948.280102]        CPU0                    CPU1
-[ 8948.280508]        ----                    ----
-[ 8948.280915]   lock(&root->delalloc_mutex);
-[ 8948.281271]                                lock(&fs_info->delalloc_root_mutex);
-[ 8948.281915]                                lock(&root->delalloc_mutex);
-[ 8948.282487]   lock(sb_internal#2);
-[ 8948.282800]
-                *** DEADLOCK ***
-
-[ 8948.283333] 4 locks held by kworker/u16:18/933570:
-[ 8948.283750]  #0: ffff9b3dc00a9d48 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1d2/0x5a0
-[ 8948.284609]  #1: ffffa90349dafe70 ((work_completion)(&fs_info->async_data_reclaim_work)){+.+.}-{0:0}, at: process_one_work+0x1d2/0x5a0
-[ 8948.285637]  #2: ffff9b3e14db5040 (&fs_info->delalloc_root_mutex){+.+.}-{3:3}, at: btrfs_start_delalloc_roots+0x97/0x2a0 [btrfs]
-[ 8948.286674]  #3: ffff9b3e09c717d8 (&root->delalloc_mutex){+.+.}-{3:3}, at: start_delalloc_inodes+0x78/0x400 [btrfs]
-[ 8948.287596]
-              stack backtrace:
-[ 8948.287975] CPU: 3 PID: 933570 Comm: kworker/u16:18 Not tainted 5.17.0-rc1-btrfs-next-111 #1
-[ 8948.288677] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[ 8948.289649] Workqueue: events_unbound btrfs_async_reclaim_data_space [btrfs]
-[ 8948.290298] Call Trace:
-[ 8948.290517]  <TASK>
-[ 8948.290700]  dump_stack_lvl+0x59/0x73
-[ 8948.291026]  check_noncircular+0xf3/0x110
-[ 8948.291375]  ? start_transaction+0x228/0x6e0 [btrfs]
-[ 8948.291826]  __lock_acquire+0x12e8/0x2260
-[ 8948.292241]  lock_acquire+0xd7/0x310
-[ 8948.292714]  ? find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.293241]  ? lock_is_held_type+0xea/0x140
-[ 8948.293601]  start_transaction+0x44c/0x6e0 [btrfs]
-[ 8948.294055]  ? find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.294518]  find_free_extent+0x141e/0x1590 [btrfs]
-[ 8948.294957]  ? _raw_spin_unlock+0x29/0x40
-[ 8948.295312]  ? btrfs_get_alloc_profile+0x124/0x290 [btrfs]
-[ 8948.295813]  btrfs_reserve_extent+0x14b/0x280 [btrfs]
-[ 8948.296270]  cow_file_range+0x17e/0x490 [btrfs]
-[ 8948.296691]  btrfs_run_delalloc_range+0x345/0x7a0 [btrfs]
-[ 8948.297175]  ? find_lock_delalloc_range+0x247/0x270 [btrfs]
-[ 8948.297678]  writepage_delalloc+0xb5/0x170 [btrfs]
-[ 8948.298123]  __extent_writepage+0x156/0x3c0 [btrfs]
-[ 8948.298570]  extent_write_cache_pages+0x263/0x460 [btrfs]
-[ 8948.299061]  extent_writepages+0x76/0x130 [btrfs]
-[ 8948.299495]  do_writepages+0xd2/0x1c0
-[ 8948.299817]  ? sched_clock_cpu+0xd/0x110
-[ 8948.300160]  ? lock_release+0x155/0x4a0
-[ 8948.300494]  filemap_fdatawrite_wbc+0x68/0x90
-[ 8948.300874]  ? do_raw_spin_unlock+0x4b/0xa0
-[ 8948.301243]  start_delalloc_inodes+0x17f/0x400 [btrfs]
-[ 8948.301706]  ? lock_release+0x155/0x4a0
-[ 8948.302055]  btrfs_start_delalloc_roots+0x194/0x2a0 [btrfs]
-[ 8948.302564]  flush_space+0x1f2/0x630 [btrfs]
-[ 8948.302970]  btrfs_async_reclaim_data_space+0x108/0x1b0 [btrfs]
-[ 8948.303510]  process_one_work+0x252/0x5a0
-[ 8948.303860]  ? process_one_work+0x5a0/0x5a0
-[ 8948.304221]  worker_thread+0x55/0x3b0
-[ 8948.304543]  ? process_one_work+0x5a0/0x5a0
-[ 8948.304904]  kthread+0xf2/0x120
-[ 8948.305184]  ? kthread_complete_and_exit+0x20/0x20
-[ 8948.305598]  ret_from_fork+0x22/0x30
-[ 8948.305921]  </TASK>
-
-It all comes from the fact that btrfs_start_delalloc_roots() takes the
-delalloc_root_mutex, in the transaction commit path we are holding a
-read lock on one of the superblock's freeze semaphores (via
-sb_start_intwrite()), the async reclaim task can also do a call to
-btrfs_start_delalloc_roots(), which ends up triggering writeback with
-calls to filemap_fdatawrite_wbc(), resulting in extent allocation which
-in turn can call btrfs_start_transaction(), which will result in taking
-the freeze semaphore via sb_start_intwrite(), forming a nasty dependency
-on all those locks which can be taken in different orders by different
-code paths.
-
-So just adopt the simple approach of calling try_to_writeback_inodes_sb()
-at btrfs_start_delalloc_flush().
-
-Link: https://lore.kernel.org/linux-btrfs/20220130005258.GA7465@cuci.nl/
-Link: https://lore.kernel.org/linux-btrfs/43acc426-d683-d1b6-729d-c6bc4a2fff4d@gmail.com/
-Link: https://lore.kernel.org/linux-btrfs/6833930a-08d7-6fbc-0141-eb9cdfd6bb4d@gmail.com/
-Link: https://lore.kernel.org/linux-btrfs/20190322041731.GF16651@hungrycats.org/
-Reviewed-by: Omar Sandoval <osandov@fb.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-[ add more link reports ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Ricardo Koller <ricarkol@google.com>
+Tested-by: Ricardo Koller <ricarkol@google.com>
+Reviewed-by: Ricardo Koller <ricarkol@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220208123726.3604198-1-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/transaction.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/vgic/vgic-mmio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index f1ae5a5b79c68..e3e9c58ea66fa 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2014,16 +2014,24 @@ static void btrfs_cleanup_pending_block_groups(struct btrfs_trans_handle *trans)
- static inline int btrfs_start_delalloc_flush(struct btrfs_fs_info *fs_info)
- {
- 	/*
--	 * We use writeback_inodes_sb here because if we used
-+	 * We use try_to_writeback_inodes_sb() here because if we used
- 	 * btrfs_start_delalloc_roots we would deadlock with fs freeze.
- 	 * Currently are holding the fs freeze lock, if we do an async flush
- 	 * we'll do btrfs_join_transaction() and deadlock because we need to
- 	 * wait for the fs freeze lock.  Using the direct flushing we benefit
- 	 * from already being in a transaction and our join_transaction doesn't
- 	 * have to re-take the fs freeze lock.
-+	 *
-+	 * Note that try_to_writeback_inodes_sb() will only trigger writeback
-+	 * if it can read lock sb->s_umount. It will always be able to lock it,
-+	 * except when the filesystem is being unmounted or being frozen, but in
-+	 * those cases sync_filesystem() is called, which results in calling
-+	 * writeback_inodes_sb() while holding a write lock on sb->s_umount.
-+	 * Note that we don't call writeback_inodes_sb() directly, because it
-+	 * will emit a warning if sb->s_umount is not locked.
- 	 */
- 	if (btrfs_test_opt(fs_info, FLUSHONCOMMIT))
--		writeback_inodes_sb(fs_info->sb, WB_REASON_SYNC);
-+		try_to_writeback_inodes_sb(fs_info->sb, WB_REASON_SYNC);
- 	return 0;
- }
- 
+diff --git a/arch/arm64/kvm/vgic/vgic-mmio.c b/arch/arm64/kvm/vgic/vgic-mmio.c
+index 48c6067fc5ecb..f972992682746 100644
+--- a/arch/arm64/kvm/vgic/vgic-mmio.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio.c
+@@ -248,6 +248,8 @@ unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
+ 						    IRQCHIP_STATE_PENDING,
+ 						    &val);
+ 			WARN_RATELIMIT(err, "IRQ %d", irq->host_irq);
++		} else if (vgic_irq_is_mapped_level(irq)) {
++			val = vgic_get_phys_line_level(irq);
+ 		} else {
+ 			val = irq_is_pending(irq);
+ 		}
 -- 
 2.34.1
 
