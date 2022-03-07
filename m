@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 214304CF7AB
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:46:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 515404CF768
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238325AbiCGJqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:46:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
+        id S235345AbiCGJp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238364AbiCGJpB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:45:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E219265483;
-        Mon,  7 Mar 2022 01:41:44 -0800 (PST)
+        with ESMTP id S239930AbiCGJkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:40:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7EC75C18;
+        Mon,  7 Mar 2022 01:36:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 05C2CCE0EA6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DA1CB810BD;
+        Mon,  7 Mar 2022 09:36:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC41EC340F3;
         Mon,  7 Mar 2022 09:36:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1127C340E9;
-        Mon,  7 Mar 2022 09:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645798;
-        bh=M4VKDxamwSQeNGGlXuPwb4g02Kpws/cOYKRyL0pwvRg=;
+        s=korg; t=1646645801;
+        bh=4nV0Rt1hVSFqqgPnAUQQsOzvV1i7xstj0KiqKOkxUws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t8sRntp/kr8TtsDHdDPWlVvgpenw3AJ6CQYuUk6ZcJ5QEFXtiqYKBUQPMqMEJdKFk
-         SZyyl93ttJGsntpisTvufp9mrtZkCJGk9afCKTrk2zIpsZ+2HmPvYALFzG9dMp7GMd
-         6ppQd+jM1FCGgrufW5O7KmJyCPAcZWaNK+ERiIH4=
+        b=ZnoGJU+4hIiQTErbqokR29qtOlO58B23QLZFnOTTZHtK7UqALkLRqv/EH9f88KZPZ
+         2y+fOVkMkmoX27M1oQSvSHVRUdOo9Qb4p/vy0GZWQtR33pwFUAct58JyqPd+AH9mw2
+         4Uctk1dVjJ5DOp4C248zfTgjugv4yBGQM4ESkAD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/262] sched/fair: Fix fault in reweight_entity
-Date:   Mon,  7 Mar 2022 10:16:22 +0100
-Message-Id: <20220307091703.600785457@linuxfoundation.org>
+Subject: [PATCH 5.15 039/262] ata: pata_hpt37x: fix PCI clock detection
+Date:   Mon,  7 Mar 2022 10:16:23 +0100
+Message-Id: <20220307091703.628670051@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -57,100 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 13765de8148f71fa795e0a6607de37c49ea5915a ]
+[ Upstream commit 5f6b0f2d037c8864f20ff15311c695f65eb09db5 ]
 
-Syzbot found a GPF in reweight_entity. This has been bisected to
-commit 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid
-sched_task_group")
+The f_CNT register (at the PCI config. address 0x78) is 16-bit, not
+8-bit! The bug was there from the very start... :-(
 
-There is a race between sched_post_fork() and setpriority(PRIO_PGRP)
-within a thread group that causes a null-ptr-deref in
-reweight_entity() in CFS. The scenario is that the main process spawns
-number of new threads, which then call setpriority(PRIO_PGRP, 0, -20),
-wait, and exit.  For each of the new threads the copy_process() gets
-invoked, which adds the new task_struct and calls sched_post_fork()
-for it.
-
-In the above scenario there is a possibility that
-setpriority(PRIO_PGRP) and set_one_prio() will be called for a thread
-in the group that is just being created by copy_process(), and for
-which the sched_post_fork() has not been executed yet. This will
-trigger a null pointer dereference in reweight_entity(), as it will
-try to access the run queue pointer, which hasn't been set.
-
-Before the mentioned change the cfs_rq pointer for the task  has been
-set in sched_fork(), which is called much earlier in copy_process(),
-before the new task is added to the thread_group.  Now it is done in
-the sched_post_fork(), which is called after that.  To fix the issue
-the remove the update_load param from the update_load param() function
-and call reweight_task() only if the task flag doesn't have the
-TASK_NEW flag set.
-
-Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
-Reported-by: syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Fixes: 669a5db411d8 ("[libata] Add a bunch of PATA drivers.")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20220203161846.1160750-1-tadeusz.struk@linaro.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/ata/pata_hpt37x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index c2dec6ce98091..57e5c79142964 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1199,8 +1199,9 @@ int tg_nop(struct task_group *tg, void *data)
- }
- #endif
+diff --git a/drivers/ata/pata_hpt37x.c b/drivers/ata/pata_hpt37x.c
+index ae8375e9d2681..9d371859e81ed 100644
+--- a/drivers/ata/pata_hpt37x.c
++++ b/drivers/ata/pata_hpt37x.c
+@@ -964,14 +964,14 @@ static int hpt37x_init_one(struct pci_dev *dev, const struct pci_device_id *id)
  
--static void set_load_weight(struct task_struct *p, bool update_load)
-+static void set_load_weight(struct task_struct *p)
- {
-+	bool update_load = !(READ_ONCE(p->__state) & TASK_NEW);
- 	int prio = p->static_prio - MAX_RT_PRIO;
- 	struct load_weight *load = &p->se.load;
+ 	if ((freq >> 12) != 0xABCDE) {
+ 		int i;
+-		u8 sr;
++		u16 sr;
+ 		u32 total = 0;
  
-@@ -4358,7 +4359,7 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
- 			p->static_prio = NICE_TO_PRIO(0);
+ 		pr_warn("BIOS has not set timing clocks\n");
  
- 		p->prio = p->normal_prio = p->static_prio;
--		set_load_weight(p, false);
-+		set_load_weight(p);
- 
- 		/*
- 		 * We don't need the reset flag anymore after the fork. It has
-@@ -6902,7 +6903,7 @@ void set_user_nice(struct task_struct *p, long nice)
- 		put_prev_task(rq, p);
- 
- 	p->static_prio = NICE_TO_PRIO(nice);
--	set_load_weight(p, true);
-+	set_load_weight(p);
- 	old_prio = p->prio;
- 	p->prio = effective_prio(p);
- 
-@@ -7193,7 +7194,7 @@ static void __setscheduler_params(struct task_struct *p,
- 	 */
- 	p->rt_priority = attr->sched_priority;
- 	p->normal_prio = normal_prio(p);
--	set_load_weight(p, true);
-+	set_load_weight(p);
- }
- 
- /*
-@@ -9431,7 +9432,7 @@ void __init sched_init(void)
- #endif
- 	}
- 
--	set_load_weight(&init_task, false);
-+	set_load_weight(&init_task);
- 
- 	/*
- 	 * The boot idle thread does lazy MMU switching as well:
+ 		/* This is the process the HPT371 BIOS is reported to use */
+ 		for (i = 0; i < 128; i++) {
+-			pci_read_config_byte(dev, 0x78, &sr);
++			pci_read_config_word(dev, 0x78, &sr);
+ 			total += sr & 0x1FF;
+ 			udelay(15);
+ 		}
 -- 
 2.34.1
 
