@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B45D4CF908
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D54C4CF936
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239580AbiCGKDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35528 "EHLO
+        id S239943AbiCGKEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:04:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240266AbiCGKAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B7B7DE24;
-        Mon,  7 Mar 2022 01:47:13 -0800 (PST)
+        with ESMTP id S240277AbiCGKAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A487EA01;
+        Mon,  7 Mar 2022 01:47:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9370FB810B9;
-        Mon,  7 Mar 2022 09:47:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC847C340E9;
-        Mon,  7 Mar 2022 09:47:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D400E61220;
+        Mon,  7 Mar 2022 09:47:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2E1FC340E9;
+        Mon,  7 Mar 2022 09:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646431;
-        bh=Qhn1dzLQ60XqRJgYiz0jMsK2rdWDBMOKVka6WLgUbOg=;
+        s=korg; t=1646646434;
+        bh=GM+SAC4XwtLdOfovUXNj15UnumA0rmQKcj4iNRK+McQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H84b+dfEV/B5sXsMLciK113xotqONvjh+JWVpmVCts6Cj1O//lym2T6J/TkxJaZFU
-         j0Q0eem3fF/rhk3Vsjvlvc4x0533LvRjmkAtNluzzavH4SPXU8OoEwrstP2WYUTeda
-         GTOFMUhYUVALPJ3pw7U4Ce3NIIoXbbbjNgaprhGE=
+        b=MbhK3lZynnPCw38EVRT3rBQhG88DSBEemx7jvXW59nWrtEEpyikN8sEAKY1mPwlV9
+         oEFfacak9tGiI+8Kw35rB98bAur1/ILBaGdZsDkc4NVvLFAg8ENyKpnxLNa/xSaaxd
+         /EiF25OZ/ESyguWLy2AExZE/pNWlWOae5q+sF1mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@idosch.org>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Amit Cohen <amcohen@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 241/262] net: dcb: disable softirqs in dcbnl_flush_dev()
-Date:   Mon,  7 Mar 2022 10:19:45 +0100
-Message-Id: <20220307091710.242137283@linuxfoundation.org>
+Subject: [PATCH 5.15 242/262] selftests: mlxsw: resource_scale: Fix return value
+Date:   Mon,  7 Mar 2022 10:19:46 +0100
+Message-Id: <20220307091710.296934597@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -55,60 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Amit Cohen <amcohen@nvidia.com>
 
-[ Upstream commit 10b6bb62ae1a49ee818fc479cf57b8900176773e ]
+[ Upstream commit 196f9bc050cbc5085b4cbb61cce2efe380bc66d0 ]
 
-Ido Schimmel points out that since commit 52cff74eef5d ("dcbnl : Disable
-software interrupts before taking dcb_lock"), the DCB API can be called
-by drivers from softirq context.
+The test runs several test cases and is supposed to return an error in
+case at least one of them failed.
 
-One such in-tree example is the chelsio cxgb4 driver:
-dcb_rpl
--> cxgb4_dcb_handle_fw_update
-   -> dcb_ieee_setapp
+Currently, the check of the return value of each test case is in the
+wrong place, which can result in the wrong return value. For example:
 
-If the firmware for this driver happened to send an event which resulted
-in a call to dcb_ieee_setapp() at the exact same time as another
-DCB-enabled interface was unregistering on the same CPU, the softirq
-would deadlock, because the interrupted process was already holding the
-dcb_lock in dcbnl_flush_dev().
+ # TESTS='tc_police' ./resource_scale.sh
+ TEST: 'tc_police' [default] 968                                     [FAIL]
+         tc police offload count failed
+ Error: mlxsw_spectrum: Failed to allocate policer index.
+ We have an error talking to the kernel
+ Command failed /tmp/tmp.i7Oc5HwmXY:969
+ TEST: 'tc_police' [default] overflow 969                            [ OK ]
+ ...
+ TEST: 'tc_police' [ipv4_max] overflow 969                           [ OK ]
 
-Fix this unlikely event by using spin_lock_bh() in dcbnl_flush_dev() as
-in the rest of the dcbnl code.
+ $ echo $?
+ 0
 
-Fixes: 91b0383fef06 ("net: dcb: flush lingering app table entries for unregistered devices")
-Reported-by: Ido Schimmel <idosch@idosch.org>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220302193939.1368823-1-vladimir.oltean@nxp.com
+Fix this by moving the check to be done after each test case.
+
+Fixes: 059b18e21c63 ("selftests: mlxsw: Return correct error code in resource scale test")
+Signed-off-by: Amit Cohen <amcohen@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dcb/dcbnl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../selftests/drivers/net/mlxsw/spectrum/resource_scale.sh      | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dcb/dcbnl.c b/net/dcb/dcbnl.c
-index 36c91273daac..dc4fb699b56c 100644
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -2077,7 +2077,7 @@ static void dcbnl_flush_dev(struct net_device *dev)
- {
- 	struct dcb_app_type *itr, *tmp;
- 
--	spin_lock(&dcb_lock);
-+	spin_lock_bh(&dcb_lock);
- 
- 	list_for_each_entry_safe(itr, tmp, &dcb_app_list, list) {
- 		if (itr->ifindex == dev->ifindex) {
-@@ -2086,7 +2086,7 @@ static void dcbnl_flush_dev(struct net_device *dev)
- 		}
- 	}
- 
--	spin_unlock(&dcb_lock);
-+	spin_unlock_bh(&dcb_lock);
- }
- 
- static int dcbnl_netdevice_event(struct notifier_block *nb,
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh b/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
+index 685dfb3478b3..b9b8274643de 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
+@@ -50,8 +50,8 @@ for current_test in ${TESTS:-$ALL_TESTS}; do
+ 			else
+ 				log_test "'$current_test' [$profile] overflow $target"
+ 			fi
++			RET_FIN=$(( RET_FIN || RET ))
+ 		done
+-		RET_FIN=$(( RET_FIN || RET ))
+ 	done
+ done
+ current_test=""
 -- 
 2.34.1
 
