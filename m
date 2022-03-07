@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6232E4CF5EB
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47DA14CF6C6
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235861AbiCGJay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40470 "EHLO
+        id S238333AbiCGJnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:43:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238772AbiCGJ3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 163AF1DA6A;
-        Mon,  7 Mar 2022 01:28:37 -0800 (PST)
+        with ESMTP id S237492AbiCGJgg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:36:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337236E341;
+        Mon,  7 Mar 2022 01:31:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3213B810B2;
-        Mon,  7 Mar 2022 09:28:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C48EC340E9;
-        Mon,  7 Mar 2022 09:28:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C710261119;
+        Mon,  7 Mar 2022 09:31:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B9A5C340E9;
+        Mon,  7 Mar 2022 09:31:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645314;
-        bh=UX0cSTiXuUImb5J5fbrqY4X0GrbQz0H/DOnt2nvYZ/U=;
+        s=korg; t=1646645483;
+        bh=8XZ+BPtqFWNxqj7jFe97w03KpviOdTmNni0N36TjqxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7ObAXxp+TOOOfttYgOpTYdsaqS2YU6ye17BHct6qkUnzBJF93EZvUdpELb7BTeWN
-         5o3R6kgbdn1I8/Y7ndrmscLlTSARGV8Lp3/oBEYeCOcsL1sLubyCoC06NQ5vI7Ylti
-         mPGJ7PQGyZ+0Il2mbqSBR+cDPC9iLonVQVykMLy0=
+        b=qiZmvLPqbuhwFvL+xnlY0Xi6iWBSusUbDRoG9JnzeAbaMZ0FeVfOUoaAF0vPFlIU0
+         S5a12T+qbZQERAPv4kw9g7CDoQlMpRHT++CRbX6dQzAmL0pLaIT9l8QmJb0bn7pK6s
+         Z0tbAfYqzu5qbPAB73pvqjF/j3vY86w4OxaJ+lMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/64] ata: pata_hpt37x: fix PCI clock detection
-Date:   Mon,  7 Mar 2022 10:18:47 +0100
-Message-Id: <20220307091639.547976907@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Stringer <joe@cilium.io>,
+        Florian Westphal <fw@strlen.de>
+Subject: [PATCH 5.10 045/105] netfilter: nf_queue: handle socket prefetch
+Date:   Mon,  7 Mar 2022 10:18:48 +0100
+Message-Id: <20220307091645.453234294@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 5f6b0f2d037c8864f20ff15311c695f65eb09db5 ]
+commit 3b836da4081fa585cf6c392f62557496f2cb0efe upstream.
 
-The f_CNT register (at the PCI config. address 0x78) is 16-bit, not
-8-bit! The bug was there from the very start... :-(
+In case someone combines bpf socket assign and nf_queue, then we will
+queue an skb who references a struct sock that did not have its
+reference count incremented.
 
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Fixes: 669a5db411d8 ("[libata] Add a bunch of PATA drivers.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As we leave rcu protection, there is no guarantee that skb->sk is still
+valid.
+
+For refcount-less skb->sk case, try to increment the reference count
+and then override the destructor.
+
+In case of failure we have two choices: orphan the skb and 'delete'
+preselect or let nf_queue() drop the packet.
+
+Do the latter, it should not happen during normal operation.
+
+Fixes: cf7fbe660f2d ("bpf: Add socket assign support")
+Acked-by: Joe Stringer <joe@cilium.io>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/pata_hpt37x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_queue.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/ata/pata_hpt37x.c b/drivers/ata/pata_hpt37x.c
-index 499a947d56ddb..fef46de2f6b23 100644
---- a/drivers/ata/pata_hpt37x.c
-+++ b/drivers/ata/pata_hpt37x.c
-@@ -962,14 +962,14 @@ static int hpt37x_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+--- a/net/netfilter/nf_queue.c
++++ b/net/netfilter/nf_queue.c
+@@ -189,6 +189,18 @@ static int __nf_queue(struct sk_buff *sk
+ 		break;
+ 	}
  
- 	if ((freq >> 12) != 0xABCDE) {
- 		int i;
--		u8 sr;
-+		u16 sr;
- 		u32 total = 0;
- 
- 		pr_warn("BIOS has not set timing clocks\n");
- 
- 		/* This is the process the HPT371 BIOS is reported to use */
- 		for (i = 0; i < 128; i++) {
--			pci_read_config_byte(dev, 0x78, &sr);
-+			pci_read_config_word(dev, 0x78, &sr);
- 			total += sr & 0x1FF;
- 			udelay(15);
- 		}
--- 
-2.34.1
-
++	if (skb_sk_is_prefetched(skb)) {
++		struct sock *sk = skb->sk;
++
++		if (!sk_is_refcounted(sk)) {
++			if (!refcount_inc_not_zero(&sk->sk_refcnt))
++				return -ENOTCONN;
++
++			/* drop refcount on skb_orphan */
++			skb->destructor = sock_edemux;
++		}
++	}
++
+ 	entry = kmalloc(sizeof(*entry) + route_key_size, GFP_ATOMIC);
+ 	if (!entry)
+ 		return -ENOMEM;
 
 
