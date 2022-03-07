@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DABAF4CF727
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7968A4CF765
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238120AbiCGJos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:44:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
+        id S238062AbiCGJp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240602AbiCGJlL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79F644B43A;
-        Mon,  7 Mar 2022 01:37:59 -0800 (PST)
+        with ESMTP id S240698AbiCGJl2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78338FD2F;
+        Mon,  7 Mar 2022 01:38:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADBBD60FF6;
-        Mon,  7 Mar 2022 09:37:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51AF6C340F4;
-        Mon,  7 Mar 2022 09:37:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CCE4B810D2;
+        Mon,  7 Mar 2022 09:37:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5542C340E9;
+        Mon,  7 Mar 2022 09:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645865;
-        bh=tgNigy6iluIbCmY3PIKN2TAhpdqPD7xQ2/sANhsu4tc=;
+        s=korg; t=1646645868;
+        bh=VbmKCL72Oen/J1WzvyZ7/8kn5y0mhpkYsLrA1c3G/+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=junW8Bo3SGds9qNJ9VJ7cDRCCxYuhF+puwRfzUFivJgxhLfCrDb1qenJoG8Osyxl9
-         TKoH+FpiqDAzcD+bq/Ju832KVlODnod5uGG2R/VXKh6i4Kn0MTK9cht/lEpM4HQABx
-         +ywZtvxRi7EiGUIRgEueSjVFmSRgH/VLg8WRuCqE=
+        b=eYwOu194p0/yDL9w2DOtG9/zMYF2gujpjzcY4U3whg0kyvgPtuUtLTeYWENba7r71
+         3CmdCDbjR38IUK3rehHxno9Tqkvow79w3G7s4cVzaH1ui8EpepSUzGSPeIf2fjpH5h
+         b+2/kZ3m5LtMVURlW8DFqD+iOWiEi3sU0jnPaHbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hou Wenlong <houwenlong93@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Boris Brezillon <bbrezillon@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Jamie Iles <quic_jiles@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/262] KVM: x86: Exit to userspace if emulation prepared a completion callback
-Date:   Mon,  7 Mar 2022 10:16:44 +0100
-Message-Id: <20220307091704.203349969@linuxfoundation.org>
+Subject: [PATCH 5.15 061/262] i3c: fix incorrect address slot lookup on 64-bit
+Date:   Mon,  7 Mar 2022 10:16:45 +0100
+Message-Id: <20220307091704.230344957@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -55,54 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Wenlong <houwenlong93@linux.alibaba.com>
+From: Jamie Iles <quic_jiles@quicinc.com>
 
-[ Upstream commit adbfb12d4c4517a8adde23a7fc46538953d56eea ]
+[ Upstream commit f18f98110f2b179792cb70d85cba697320a3790f ]
 
-em_rdmsr() and em_wrmsr() return X86EMUL_IO_NEEDED if MSR accesses
-required an exit to userspace. However, x86_emulate_insn() doesn't return
-X86EMUL_*, so x86_emulate_instruction() doesn't directly act on
-X86EMUL_IO_NEEDED; instead, it looks for other signals to differentiate
-between PIO, MMIO, etc. causing RDMSR/WRMSR emulation not to
-exit to userspace now.
+The address slot bitmap is an array of unsigned long's which are the
+same size as an int on 32-bit platforms but not 64-bit.  Loading the
+bitmap into an int could result in the incorrect status being returned
+for a slot and slots being reported as the wrong status.
 
-Nevertheless, if the userspace_msr_exit_test testcase in selftests
-is changed to test RDMSR/WRMSR with a forced emulation prefix,
-the test passes.  What happens is that first userspace exit
-information is filled but the userspace exit does not happen.
-Because x86_emulate_instruction() returns 1, the guest retries
-the instruction---but this time RIP has already been adjusted
-past the forced emulation prefix, so the guest executes RDMSR/WRMSR
-and the userspace exit finally happens.
-
-Since the X86EMUL_IO_NEEDED path has provided a complete_userspace_io
-callback, x86_emulate_instruction() can just return 0 if the
-callback is not NULL. Then RDMSR/WRMSR instruction emulation will
-exit to userspace directly, without the RDMSR/WRMSR vmexit.
-
-Fixes: 1ae099540e8c7 ("KVM: x86: Allow deflecting unknown MSR accesses to user space")
-Signed-off-by: Hou Wenlong <houwenlong93@linux.alibaba.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <56f9df2ee5c05a81155e2be366c9dc1f7adc8817.1635842679.git.houwenlong93@linux.alibaba.com>
+Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210922165600.179394-1-quic_jiles@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i3c/master.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 6b76486702ded..8213f7fb71a7b 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8068,6 +8068,9 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
- 			writeback = false;
- 		r = 0;
- 		vcpu->arch.complete_userspace_io = complete_emulated_mmio;
-+	} else if (vcpu->arch.complete_userspace_io) {
-+		writeback = false;
-+		r = 0;
- 	} else if (r == EMULATION_RESTART)
- 		goto restart;
- 	else
+diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+index c3b4c677b4429..dfe18dcd008d4 100644
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -343,7 +343,8 @@ struct bus_type i3c_bus_type = {
+ static enum i3c_addr_slot_status
+ i3c_bus_get_addr_slot_status(struct i3c_bus *bus, u16 addr)
+ {
+-	int status, bitpos = addr * 2;
++	unsigned long status;
++	int bitpos = addr * 2;
+ 
+ 	if (addr > I2C_MAX_ADDR)
+ 		return I3C_ADDR_SLOT_RSVD;
 -- 
 2.34.1
 
