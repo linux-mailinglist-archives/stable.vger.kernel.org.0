@@ -2,117 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFB34D0452
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 17:42:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 277E44D048C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 17:51:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230388AbiCGQm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 11:42:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49626 "EHLO
+        id S237188AbiCGQwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 11:52:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229591AbiCGQm6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 11:42:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79522DAAD;
-        Mon,  7 Mar 2022 08:42:03 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52D4060FFD;
-        Mon,  7 Mar 2022 16:42:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C7AC340EF;
-        Mon,  7 Mar 2022 16:42:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646671322;
-        bh=cCeFcTKoA0HdFbg50sKHYVPHLCgp/zrKFa5N/0XGs3A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nAVxDee35AASEIEtky1C9I/DubZYctIAJpp05hvPqjBtN73TaKDo+3j8mZc0yegqe
-         15r++axCcsInReG+C4hshNfZZ8K2qeEe3bDifuVsqmRqhCcLlnkjTBvwpIcuYrAww+
-         D7zbZ08oxOkX5xzUB8xgGXDpCevZXEFAVK7y4EHI=
-Date:   Mon, 7 Mar 2022 17:41:59 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.15 000/262] 5.15.27-rc1 review
-Message-ID: <YiY1151bYrq+AvHM@kroah.com>
-References: <20220307091702.378509770@linuxfoundation.org>
- <24c54a05-bb80-a128-d0ba-a78c6d5d101c@roeck-us.net>
- <YiYw3hV2r8DTa7fb@kroah.com>
- <e23ebf8b-5227-cc97-d166-797a4e852cd2@roeck-us.net>
+        with ESMTP id S232809AbiCGQwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 11:52:10 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7051066FB4
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 08:51:16 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id e15so12829248pfv.11
+        for <stable@vger.kernel.org>; Mon, 07 Mar 2022 08:51:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=22jr83ksN+0ptUH+iJwPMNkt4Mg7rjUCgFK7Ro1mRv8=;
+        b=eNhWMy7N5BxvSEIsPWkocoYyzCpnx9ImlcrlQukeNT7MvfxCps5MoVnh1cT65g5BKf
+         NA2Jmkhjp8QpWgeaoEzaQFlumj1m7t1YExgfz4hPo/XboHSfXbBr3Z+R9Pj7zzskH8kR
+         fRQuKobsgjMx3BKynakkyE1kk5Py7u9ycO+XYrTSAqSCDKJ2fKKNp6X/SHAX4ZxZbopT
+         PZmt3dbDlhCeAtWYXtI+xHOv1xIGrsG7hGOXKiVoXtKraifY2XOLN3wIlvkG/9W7WIeQ
+         Quao5mvIB6NgVeP0hpszI2iUFe3c2rN1tC/tq9BqfC/6epyo5JNO1/grNdHj7d3KH6wA
+         Y0gQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=22jr83ksN+0ptUH+iJwPMNkt4Mg7rjUCgFK7Ro1mRv8=;
+        b=NDegIOuaZ2nc30r/vw7xZv5XGbMTJQsjBoalsykhB5dJYLeh10ZTrPeydmwLaATDEp
+         IAc/AWTJA9Iw5DiLmMwA9j3smrx7Pk+9K4Zprobt8Bw84SweUWrzkOcywgCCQdEqF+V8
+         Kc7bwyKOSKS3dvB6NSNLrjzidNDeI/hHpaunOEOSo4VDlWMIAn3XMYPbG/l7W2HPSm/y
+         +IvFCXheITPw9Fd7v0LpItwVzdtOT/z8tSg8PQs5sCh8GrOfo6o+oksW+1trHsnSh9On
+         atO4oy+1cG/QSCAeJq40lGfoZX0mXBDoJu+dKm6ekbpKNxgHf5ZfSOnNX664Ay02V3sj
+         Qzxg==
+X-Gm-Message-State: AOAM531huR0fjtl6nUYecCoXdjJLMCa4FFIQQRDxbBUrLqg6FOhoNmxO
+        uR12fo0Z4WLH8RdJlFpS3Oybh+HwD0JaYjBbDMw=
+X-Google-Smtp-Source: ABdhPJx2dj+qbbW09QFGJdpdpQoW7yjqbwdQ5n7uYY8Iu17wqdjUarUgNgr1gDqyTZV3HStCjx0NWA==
+X-Received: by 2002:a63:6cca:0:b0:37c:7cd8:e53d with SMTP id h193-20020a636cca000000b0037c7cd8e53dmr10748950pgc.600.1646671875848;
+        Mon, 07 Mar 2022 08:51:15 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b21-20020a17090a551500b001b90ef40301sm14207447pji.22.2022.03.07.08.51.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Mar 2022 08:51:15 -0800 (PST)
+Message-ID: <62263803.1c69fb81.3b5bd.4042@mx.google.com>
+Date:   Mon, 07 Mar 2022 08:51:15 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e23ebf8b-5227-cc97-d166-797a4e852cd2@roeck-us.net>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.269
+Subject: stable/linux-4.14.y baseline: 67 runs, 1 regressions (v4.14.269)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 07, 2022 at 08:34:48AM -0800, Guenter Roeck wrote:
-> On 3/7/22 08:20, Greg Kroah-Hartman wrote:
-> > On Mon, Mar 07, 2022 at 06:36:22AM -0800, Guenter Roeck wrote:
-> > > On 3/7/22 01:15, Greg Kroah-Hartman wrote:
-> > > > This is the start of the stable review cycle for the 5.15.27 release.
-> > > > There are 262 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > > 
-> > > > Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
-> > > > Anything received after that time might be too late.
-> > > > 
-> > > 
-> > > In addition to other reported build errors:
-> > > 
-> > > Building mips:allmodconfig ... failed
-> > > --------------
-> > > Error log:
-> > > drivers/net/hamradio/mkiss.c:35: error: "END" redefined
-> > 
-> > That is odd, I don't see any changes to that driver, nor any MIPS
-> > changes that touch "END".
-> > 
-> > I don't even see "END" in the diff anywhere.
-> > 
-> > Any chance you can bisect?
-> > 
-> 
-> git bisect start 'HEAD' 'v5.15.26'
-> # bad: [20ab3ebe56f306d821cf1c6858cf29f4d2e0075a] drm/amd/display: Fix stream->link_enc unassigned during stream removal
-> git bisect bad 20ab3ebe56f306d821cf1c6858cf29f4d2e0075a
-> # bad: [2f01eec30992529350bae197f73d71136b35e3b1] Input: ti_am335x_tsc - fix STEPCONFIG setup for Z2
-> git bisect bad 2f01eec30992529350bae197f73d71136b35e3b1
-> # good: [d369b344b4fb5a6ab9f72bacece674526761b885] arm64: Mark start_backtrace() notrace and NOKPROBE_SYMBOL
-> git bisect good d369b344b4fb5a6ab9f72bacece674526761b885
-> # good: [46f46f14bd45acdabcfb1d9f3b648f4a27d18c08] bpf, arm64: Use emit_addr_mov_i64() for BPF_PSEUDO_FUNC
-> git bisect good 46f46f14bd45acdabcfb1d9f3b648f4a27d18c08
-> # bad: [5b0c543b875e976e74c347b2d009c6519a6d2939] KVM: s390: Ensure kvm_arch_no_poll() is read once when blocking vCPU
-> git bisect bad 5b0c543b875e976e74c347b2d009c6519a6d2939
-> # bad: [58452f46ddb11fbe5b5f31d93a979d57efdad4b1] PCI: rcar: Check if device is runtime suspended instead of __clk_is_enabled()
-> git bisect bad 58452f46ddb11fbe5b5f31d93a979d57efdad4b1
-> # bad: [d6ab8da0cb6234fbc4fd240b9d7470b4c03d5df9] signal: In get_signal test for signal_group_exit every time through the loop
-> git bisect bad d6ab8da0cb6234fbc4fd240b9d7470b4c03d5df9
-> # bad: [53863a048566989e87f8bb306e835f940a10ed73] MIPS: fix local_{add,sub}_return on MIPS64
-> git bisect bad 53863a048566989e87f8bb306e835f940a10ed73
-> # first bad commit: [53863a048566989e87f8bb306e835f940a10ed73] MIPS: fix local_{add,sub}_return on MIPS64
-> 
-> The problem is the innocent looking
-> 
->  #include <linux/atomic.h>
-> +#include <asm/asm.h>
->  #include <asm/cmpxchg.h>
-> 
-> in that patch. Reverting it fixes the problem. Alternatively, you could apply
-> commit 16517829f2e0 ("hamradio: fix macro redefine warning").
+stable/linux-4.14.y baseline: 67 runs, 1 regressions (v4.14.269)
 
-Ah, that works better, I'll go queue that one up, thanks!
+Regressions Summary
+-------------------
 
-greg k-h
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.269/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.269
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      e853993d29aa42ac4b3c2912db975a0a66d7a5b0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/621fccf6367bbb1e44c62968
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.269/=
+arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.269/=
+arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/621fccf6367bbb1e44c62=
+969
+        failing since 14 days (last pass: v4.14.266, first fail: v4.14.267) =
+
+ =20
