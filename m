@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39A874CF8F6
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5D784CF6FE
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239142AbiCGKDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40402 "EHLO
+        id S237848AbiCGJoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240162AbiCGKAr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:47 -0500
+        with ESMTP id S239054AbiCGJjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 377037DE13;
-        Mon,  7 Mar 2022 01:47:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8DE970906;
+        Mon,  7 Mar 2022 01:34:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B79E61220;
-        Mon,  7 Mar 2022 09:46:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD1CDC340E9;
-        Mon,  7 Mar 2022 09:46:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B8C561256;
+        Mon,  7 Mar 2022 09:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 570DAC340F8;
+        Mon,  7 Mar 2022 09:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646419;
-        bh=pNDp5nWRSBhinNFZm8hy3QHMNRTvUd6XoKNcO8RCUuY=;
+        s=korg; t=1646645648;
+        bh=v0mhPLi2aLsr/GqtGnRVGGrhS+JfUPZXyYIEqPQ6pS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUj/TEHZnqEl1vkn4N+inceSjK6b7KZLlUx/FwIC5Ucpv6FRtB6jqZJ9/s7XKkVbQ
-         VMJb2LpDre0zNBSvMoYpo+La6ebWa209X0DOeJQ5HZifp45B5coyKgYc2YzROcdlHl
-         wlMq4FnI+LaPIAa0w+xQwBdxEhKqBAiNCiMdKisM=
+        b=INxb7qSWufW1dhfelAoAoUpLO8vxRT3KgM4n2wkj9KEh+tvEilMTzlYsXe2m8cPr6
+         YlYMw9kFD35RCco/lj3c1+SAJ7j/udkK7PvB42iggcIzfGNBl7CwPK18CbtIza0pMg
+         G17AaTS9OT24ujvWDwy3GUY8s/Feedl1S3Kp9T/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dima Ruinskiy <dima.ruinskiy@intel.com>,
-        Nir Efrati <nir.efrati@intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 237/262] e1000e: Fix possible HW unit hang after an s0ix exit
+        stable@vger.kernel.org, William Mahon <wmahon@chromium.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.10 098/105] HID: add mapping for KEY_DICTATE
 Date:   Mon,  7 Mar 2022 10:19:41 +0100
-Message-Id: <20220307091710.039447036@linuxfoundation.org>
+Message-Id: <20220307091646.934685451@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,124 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: William Mahon <wmahon@chromium.org>
 
-[ Upstream commit 1866aa0d0d6492bc2f8d22d0df49abaccf50cddd ]
+commit bfa26ba343c727e055223be04e08f2ebdd43c293 upstream.
 
-Disable the OEM bit/Gig Disable/restart AN impact and disable the PHY
-LAN connected device (LCD) reset during power management flows. This
-fixes possible HW unit hangs on the s0ix exit on some corporate ADL
-platforms.
+Numerous keyboards are adding dictate keys which allows for text
+messages to be dictated by a microphone.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=214821
-Fixes: 3e55d231716e ("e1000e: Add handshake with the CSME to support S0ix")
-Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
-Suggested-by: Nir Efrati <nir.efrati@intel.com>
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch adds a new key definition KEY_DICTATE and maps 0x0c/0x0d8
+usage code to this new keycode. Additionally hid-debug is adjusted to
+recognize this new usage code as well.
+
+Signed-off-by: William Mahon <wmahon@chromium.org>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20220303021501.1.I5dbf50eb1a7a6734ee727bda4a8573358c6d3ec0@changeid
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/hw.h      |  1 +
- drivers/net/ethernet/intel/e1000e/ich8lan.c |  4 ++++
- drivers/net/ethernet/intel/e1000e/ich8lan.h |  1 +
- drivers/net/ethernet/intel/e1000e/netdev.c  | 26 +++++++++++++++++++++
- 4 files changed, 32 insertions(+)
+ drivers/hid/hid-debug.c                |    1 +
+ drivers/hid/hid-input.c                |    1 +
+ include/uapi/linux/input-event-codes.h |    1 +
+ 3 files changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/hw.h b/drivers/net/ethernet/intel/e1000e/hw.h
-index bcf680e83811..13382df2f2ef 100644
---- a/drivers/net/ethernet/intel/e1000e/hw.h
-+++ b/drivers/net/ethernet/intel/e1000e/hw.h
-@@ -630,6 +630,7 @@ struct e1000_phy_info {
- 	bool disable_polarity_correction;
- 	bool is_mdix;
- 	bool polarity_correction;
-+	bool reset_disable;
- 	bool speed_downgraded;
- 	bool autoneg_wait_to_complete;
- };
-diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-index a3e42d06c63e..d60e2016d03c 100644
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-@@ -2050,6 +2050,10 @@ static s32 e1000_check_reset_block_ich8lan(struct e1000_hw *hw)
- 	bool blocked = false;
- 	int i = 0;
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -930,6 +930,7 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_SCREENSAVER] = "ScreenSaver",
+ 	[KEY_VOICECOMMAND] = "VoiceCommand",
+ 	[KEY_EMOJI_PICKER] = "EmojiPicker",
++	[KEY_DICTATE] = "Dictate",
+ 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
+ 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
+ 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -956,6 +956,7 @@ static void hidinput_configure_usage(str
+ 		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
+ 		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
  
-+	/* Check the PHY (LCD) reset flag */
-+	if (hw->phy.reset_disable)
-+		return true;
-+
- 	while ((blocked = !(er32(FWSM) & E1000_ICH_FWSM_RSPCIPHY)) &&
- 	       (i++ < 30))
- 		usleep_range(10000, 11000);
-diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
-index 2504b11c3169..638a3ddd7ada 100644
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
-@@ -271,6 +271,7 @@
- #define I217_CGFREG_ENABLE_MTA_RESET	0x0002
- #define I217_MEMPWR			PHY_REG(772, 26)
- #define I217_MEMPWR_DISABLE_SMB_RELEASE	0x0010
-+#define I217_MEMPWR_MOEM		0x1000
++		case 0x0d8: map_key_clear(KEY_DICTATE);		break;
+ 		case 0x0d9: map_key_clear(KEY_EMOJI_PICKER);	break;
  
- /* Receive Address Initial CRC Calculation */
- #define E1000_PCH_RAICC(_n)	(0x05F50 + ((_n) * 4))
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index af2029bb43e3..ce48e630fe55 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -6992,8 +6992,21 @@ static __maybe_unused int e1000e_pm_suspend(struct device *dev)
- 	struct net_device *netdev = pci_get_drvdata(to_pci_dev(dev));
- 	struct e1000_adapter *adapter = netdev_priv(netdev);
- 	struct pci_dev *pdev = to_pci_dev(dev);
-+	struct e1000_hw *hw = &adapter->hw;
-+	u16 phy_data;
- 	int rc;
+ 		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -612,6 +612,7 @@
+ #define KEY_ASSISTANT		0x247	/* AL Context-aware desktop assistant */
+ #define KEY_KBD_LAYOUT_NEXT	0x248	/* AC Next Keyboard Layout Select */
+ #define KEY_EMOJI_PICKER	0x249	/* Show/hide emoji picker (HUTRR101) */
++#define KEY_DICTATE		0x24a	/* Start or Stop Voice Dictation Session (HUTRR99) */
  
-+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
-+	    hw->mac.type >= e1000_pch_adp) {
-+		/* Mask OEM Bits / Gig Disable / Restart AN (772_26[12] = 1) */
-+		e1e_rphy(hw, I217_MEMPWR, &phy_data);
-+		phy_data |= I217_MEMPWR_MOEM;
-+		e1e_wphy(hw, I217_MEMPWR, phy_data);
-+
-+		/* Disable LCD reset */
-+		hw->phy.reset_disable = true;
-+	}
-+
- 	e1000e_flush_lpic(pdev);
- 
- 	e1000e_pm_freeze(dev);
-@@ -7015,6 +7028,8 @@ static __maybe_unused int e1000e_pm_resume(struct device *dev)
- 	struct net_device *netdev = pci_get_drvdata(to_pci_dev(dev));
- 	struct e1000_adapter *adapter = netdev_priv(netdev);
- 	struct pci_dev *pdev = to_pci_dev(dev);
-+	struct e1000_hw *hw = &adapter->hw;
-+	u16 phy_data;
- 	int rc;
- 
- 	/* Introduce S0ix implementation */
-@@ -7025,6 +7040,17 @@ static __maybe_unused int e1000e_pm_resume(struct device *dev)
- 	if (rc)
- 		return rc;
- 
-+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
-+	    hw->mac.type >= e1000_pch_adp) {
-+		/* Unmask OEM Bits / Gig Disable / Restart AN 772_26[12] = 0 */
-+		e1e_rphy(hw, I217_MEMPWR, &phy_data);
-+		phy_data &= ~I217_MEMPWR_MOEM;
-+		e1e_wphy(hw, I217_MEMPWR, phy_data);
-+
-+		/* Enable LCD reset */
-+		hw->phy.reset_disable = false;
-+	}
-+
- 	return e1000e_pm_thaw(dev);
- }
- 
--- 
-2.34.1
-
+ #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
+ #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
 
 
