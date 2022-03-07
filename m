@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B4A4CFA6C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4EE4CFA6B
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236939AbiCGKQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:16:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50618 "EHLO
+        id S238961AbiCGKQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:16:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239152AbiCGKPf (ORCPT
+        with ESMTP id S239298AbiCGKPf (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:15:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955937B553;
-        Mon,  7 Mar 2022 01:57:14 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95F4B7C145;
+        Mon,  7 Mar 2022 01:57:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1B4E3CE0DF4;
-        Mon,  7 Mar 2022 09:56:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8C45C340F5;
-        Mon,  7 Mar 2022 09:56:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5123460A23;
+        Mon,  7 Mar 2022 09:56:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 414CEC340E9;
+        Mon,  7 Mar 2022 09:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646996;
-        bh=fdPXcfk+r7MAY/CS3iNHs7XATdAsqDDd+PTYNYkarAI=;
+        s=korg; t=1646646999;
+        bh=5F5auzfzkdMpSUKFR4bTjbWgfqjhnAg35Vq0NJ55ko8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cI3hQZOVObB/eVLA3gzAHTSP/CWahHLolfHw5Jw+VbGIOZfy+o86ZmuqNc8yZ4ZIA
-         636gVk+kz9Gm6rRSpB0ljcYtpabF7nBEsf2+82FXnj4UqrBOB79ZLBzSrt8wOJxWAv
-         rVtlRmK/zCact9r46VWItaEdDp1i8ezQPE8R/bq8=
+        b=m0rxXZcetrxZGoMye9mP4K9WMGkikbjOBuiX70RcbcIfcj1l8YvdMTivYT8YB3hpl
+         Qv19zXJIJX9B3CGMx9u+svKIghZpN30inRuuLJ3hxOfw4K2Ts055C3EihrZoFN1mzj
+         g2VmZFXvEzVUMkteQNHMb/w+3MSah59XELImTxCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 160/186] nl80211: Handle nla_memdup failures in handle_nan_filter
-Date:   Mon,  7 Mar 2022 10:19:58 +0100
-Message-Id: <20220307091658.549469050@linuxfoundation.org>
+Subject: [PATCH 5.16 161/186] ptp: ocp: Add ptp_ocp_adjtime_coarse for large adjustments
+Date:   Mon,  7 Mar 2022 10:19:59 +0100
+Message-Id: <20220307091658.577485153@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -54,52 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Jonathan Lemon <jonathan.lemon@gmail.com>
 
-[ Upstream commit 6ad27f522cb3b210476daf63ce6ddb6568c0508b ]
+[ Upstream commit 90f8f4c0e3cebd541deaa45cf0e470bb9810dd4f ]
 
-As there's potential for failure of the nla_memdup(),
-check the return value.
+In ("ptp: ocp: Have FPGA fold in ns adjustment for adjtime."), the
+ns adjustment was written to the FPGA register, so the clock could
+accurately perform adjustments.
 
-Fixes: a442b761b24b ("cfg80211: add add_nan_func / del_nan_func")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220301100020.3801187-1-jiasheng@iscas.ac.cn
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+However, the adjtime() call passes in a s64, while the clock adjustment
+registers use a s32.  When trying to perform adjustments with a large
+value (37 sec), things fail.
+
+Examine the incoming delta, and if larger than 1 sec, use the original
+(coarse) adjustment method.  If smaller than 1 sec, then allow the
+FPGA to fold in the changes over a 1 second window.
+
+Fixes: 6d59d4fa1789 ("ptp: ocp: Have FPGA fold in ns adjustment for adjtime.")
+Signed-off-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Link: https://lore.kernel.org/r/20220228203957.367371-1-jonathan.lemon@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/ptp/ptp_ocp.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index a27b3b5fa210..f73251828782 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -13379,6 +13379,9 @@ static int handle_nan_filter(struct nlattr *attr_filter,
- 	i = 0;
- 	nla_for_each_nested(attr, attr_filter, rem) {
- 		filter[i].filter = nla_memdup(attr, GFP_KERNEL);
-+		if (!filter[i].filter)
-+			goto err;
-+
- 		filter[i].len = nla_len(attr);
- 		i++;
- 	}
-@@ -13391,6 +13394,15 @@ static int handle_nan_filter(struct nlattr *attr_filter,
- 	}
- 
- 	return 0;
-+
-+err:
-+	i = 0;
-+	nla_for_each_nested(attr, attr_filter, rem) {
-+		kfree(filter[i].filter);
-+		i++;
-+	}
-+	kfree(filter);
-+	return -ENOMEM;
+diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
+index 0f1b5a7d2a89..17ad5f0d13b2 100644
+--- a/drivers/ptp/ptp_ocp.c
++++ b/drivers/ptp/ptp_ocp.c
+@@ -607,7 +607,7 @@ ptp_ocp_settime(struct ptp_clock_info *ptp_info, const struct timespec64 *ts)
  }
  
- static int nl80211_nan_add_func(struct sk_buff *skb,
+ static void
+-__ptp_ocp_adjtime_locked(struct ptp_ocp *bp, u64 adj_val)
++__ptp_ocp_adjtime_locked(struct ptp_ocp *bp, u32 adj_val)
+ {
+ 	u32 select, ctrl;
+ 
+@@ -615,7 +615,7 @@ __ptp_ocp_adjtime_locked(struct ptp_ocp *bp, u64 adj_val)
+ 	iowrite32(OCP_SELECT_CLK_REG, &bp->reg->select);
+ 
+ 	iowrite32(adj_val, &bp->reg->offset_ns);
+-	iowrite32(adj_val & 0x7f, &bp->reg->offset_window_ns);
++	iowrite32(NSEC_PER_SEC, &bp->reg->offset_window_ns);
+ 
+ 	ctrl = OCP_CTRL_ADJUST_OFFSET | OCP_CTRL_ENABLE;
+ 	iowrite32(ctrl, &bp->reg->ctrl);
+@@ -624,6 +624,22 @@ __ptp_ocp_adjtime_locked(struct ptp_ocp *bp, u64 adj_val)
+ 	iowrite32(select >> 16, &bp->reg->select);
+ }
+ 
++static void
++ptp_ocp_adjtime_coarse(struct ptp_ocp *bp, u64 delta_ns)
++{
++	struct timespec64 ts;
++	unsigned long flags;
++	int err;
++
++	spin_lock_irqsave(&bp->lock, flags);
++	err = __ptp_ocp_gettime_locked(bp, &ts, NULL);
++	if (likely(!err)) {
++		timespec64_add_ns(&ts, delta_ns);
++		__ptp_ocp_settime_locked(bp, &ts);
++	}
++	spin_unlock_irqrestore(&bp->lock, flags);
++}
++
+ static int
+ ptp_ocp_adjtime(struct ptp_clock_info *ptp_info, s64 delta_ns)
+ {
+@@ -631,6 +647,11 @@ ptp_ocp_adjtime(struct ptp_clock_info *ptp_info, s64 delta_ns)
+ 	unsigned long flags;
+ 	u32 adj_ns, sign;
+ 
++	if (delta_ns > NSEC_PER_SEC || -delta_ns > NSEC_PER_SEC) {
++		ptp_ocp_adjtime_coarse(bp, delta_ns);
++		return 0;
++	}
++
+ 	sign = delta_ns < 0 ? BIT(31) : 0;
+ 	adj_ns = sign ? -delta_ns : delta_ns;
+ 
 -- 
 2.34.1
 
