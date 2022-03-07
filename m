@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EC84CFA50
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 112F34CF5F5
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235584AbiCGKPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:15:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
+        id S237239AbiCGJbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241564AbiCGKKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6A434B99;
-        Mon,  7 Mar 2022 01:53:23 -0800 (PST)
+        with ESMTP id S238077AbiCGJ2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D134A6D186;
+        Mon,  7 Mar 2022 01:26:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D843B810A8;
-        Mon,  7 Mar 2022 09:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78F9DC340F3;
-        Mon,  7 Mar 2022 09:53:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D59961052;
+        Mon,  7 Mar 2022 09:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC31C340E9;
+        Mon,  7 Mar 2022 09:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646786;
-        bh=Z7BigJV33VDRSubBPp+Oxiv8DS+bW0iXi63kmst+PEM=;
+        s=korg; t=1646645195;
+        bh=vGEorF7ZRDC5ExCYoUtecOvjQ7MZEXKKS0DTbOo26NE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lg/Q7Ip0lNgGEkcwptB8pB+TgF3Og17B1hF+6o7unTiwGrQTO7Hpj2yAssZ5VMsYL
-         BYdwWBi3uZ1xCL47tJ1WNB3FrXyw4zCesxU7pOH5XtvwV6UHT1L+/WAm2WOWsUj0oY
-         Hk8XcrYUc3nbJ0mSIn3OA8n4nP+WdaIfh39LLxHA=
+        b=i9PTX3cxhY3+GHjIdOg9ZN6aLesWpjOtGW6U1KIg4KwqwxecajAQbmJhbtreT9pWa
+         nlkOcdTK4HH0H5Le1OX+kGUVKN/5B8xReCQSkPYMpOKIlgigNw1MF+PHK1FWx5b8uB
+         iALn6U9VoTHfYh4PqMyTObkZ7zg3vEtz/nUxEatY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Phani Burra <phani.r.burra@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.16 092/186] iavf: Fix missing check for running netdev
+        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.4 17/64] xfrm: fix MTU regression
 Date:   Mon,  7 Mar 2022 10:18:50 +0100
-Message-Id: <20220307091656.656614652@linuxfoundation.org>
+Message-Id: <20220307091639.634611209@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Jiri Bohac <jbohac@suse.cz>
 
-commit d2c0f45fcceb0995f208c441d9c9a453623f9ccf upstream.
+commit 6596a0229541270fb8d38d989f91b78838e5e9da upstream.
 
-The driver was queueing reset_task regardless of the netdev
-state.
+Commit 749439bfac6e1a2932c582e2699f91d329658196 ("ipv6: fix udpv6
+sendmsg crash caused by too small MTU") breaks PMTU for xfrm.
 
-Do not queue the reset task in iavf_change_mtu if netdev
-is not running.
+A Packet Too Big ICMPv6 message received in response to an ESP
+packet will prevent all further communication through the tunnel
+if the reported MTU minus the ESP overhead is smaller than 1280.
 
-Fixes: fdd4044ffdc8 ("iavf: Remove timer for work triggering, use delaying work instead")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Phani Burra <phani.r.burra@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+E.g. in a case of a tunnel-mode ESP with sha256/aes the overhead
+is 92 bytes. Receiving a PTB with MTU of 1371 or less will result
+in all further packets in the tunnel dropped. A ping through the
+tunnel fails with "ping: sendmsg: Invalid argument".
+
+Apparently the MTU on the xfrm route is smaller than 1280 and
+fails the check inside ip6_setup_cork() added by 749439bf.
+
+We found this by debugging USGv6/ipv6ready failures. Failing
+tests are: "Phase-2 Interoperability Test Scenario IPsec" /
+5.3.11 and 5.4.11 (Tunnel Mode: Fragmentation).
+
+Commit b515d2637276a3810d6595e10ab02c13bfd0b63a ("xfrm:
+xfrm_state_mtu should return at least 1280 for ipv6") attempted
+to fix this but caused another regression in TCP MSS calculations
+and had to be reverted.
+
+The patch below fixes the situation by dropping the MTU
+check and instead checking for the underflows described in the
+749439bf commit message.
+
+Signed-off-by: Jiri Bohac <jbohac@suse.cz>
+Fixes: 749439bfac6e ("ipv6: fix udpv6 sendmsg crash caused by too small MTU")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_output.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3436,8 +3436,11 @@ static int iavf_change_mtu(struct net_de
- 		iavf_notify_client_l2_params(&adapter->vsi);
- 		adapter->flags |= IAVF_FLAG_SERVICE_CLIENT_REQUESTED;
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1361,8 +1361,6 @@ static int ip6_setup_cork(struct sock *s
+ 		if (np->frag_size)
+ 			mtu = np->frag_size;
  	}
--	adapter->flags |= IAVF_FLAG_RESET_NEEDED;
--	queue_work(iavf_wq, &adapter->reset_task);
-+
-+	if (netif_running(netdev)) {
-+		adapter->flags |= IAVF_FLAG_RESET_NEEDED;
-+		queue_work(iavf_wq, &adapter->reset_task);
-+	}
+-	if (mtu < IPV6_MIN_MTU)
+-		return -EINVAL;
+ 	cork->base.fragsize = mtu;
+ 	cork->base.gso_size = ipc6->gso_size;
+ 	cork->base.tx_flags = 0;
+@@ -1424,8 +1422,6 @@ static int __ip6_append_data(struct sock
  
- 	return 0;
- }
+ 	fragheaderlen = sizeof(struct ipv6hdr) + rt->rt6i_nfheader_len +
+ 			(opt ? opt->opt_nflen : 0);
+-	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
+-		     sizeof(struct frag_hdr);
+ 
+ 	headersize = sizeof(struct ipv6hdr) +
+ 		     (opt ? opt->opt_flen + opt->opt_nflen : 0) +
+@@ -1433,6 +1429,13 @@ static int __ip6_append_data(struct sock
+ 		      sizeof(struct frag_hdr) : 0) +
+ 		     rt->rt6i_nfheader_len;
+ 
++	if (mtu < fragheaderlen ||
++	    ((mtu - fragheaderlen) & ~7) + fragheaderlen < sizeof(struct frag_hdr))
++		goto emsgsize;
++
++	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
++		     sizeof(struct frag_hdr);
++
+ 	/* as per RFC 7112 section 5, the entire IPv6 Header Chain must fit
+ 	 * the first fragment
+ 	 */
 
 
