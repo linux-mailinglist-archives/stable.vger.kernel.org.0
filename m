@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6ECD4CF6FB
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C3E24CF6EC
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234306AbiCGJn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:43:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46106 "EHLO
+        id S238302AbiCGJnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:43:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240712AbiCGJla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BCEF2BB2C;
-        Mon,  7 Mar 2022 01:38:07 -0800 (PST)
+        with ESMTP id S240538AbiCGJlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46742273D;
+        Mon,  7 Mar 2022 01:37:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8EA23CE0B91;
-        Mon,  7 Mar 2022 09:37:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510B0C340E9;
-        Mon,  7 Mar 2022 09:37:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70CCB6128E;
+        Mon,  7 Mar 2022 09:37:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88B50C340E9;
+        Mon,  7 Mar 2022 09:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645839;
-        bh=+2VXaBSzPCczrSieBa6Z5FKW8gMdw7eVMp/ZAnh4K0w=;
+        s=korg; t=1646645842;
+        bh=r8Ao5v/dnH/vW+0w9rwvC1D8D+2q8aKGa6MHCS65ao0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIXouci0gDacMxoGTWmwQZxrOrFV1PoDd1zvysz5DXQlKrqDYaMigzoLOoTQ1ToRP
-         xanS1EjcKtMZ6W2OXt1RxXdKG60nQQYVY2Q5pwmm27jxuMSRBtzODcvv4Z76tM4jJ+
-         GNq1EY5gpYvUwgZlTRd7KuIDQevQAoy3yf8XtvnQ=
+        b=M2rSomsNqZ3KF3N153HPViLt3E4JlxJ2CmKXonjsv9Ff2bh1NfAqCP8/ATtpbCPCt
+         yH703DOP4kMSV1Pjn+43cQ1VDmW118xYFuQg6lh32Vuw2XTEjhCg66sAmtunP/9A0m
+         aQK+lkPFk/ExOVKBVCFnjJCiuk6Znu56KcR50AR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Richard Zhu <hongxing.zhu@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/262] PCI: dwc: Do not remap invalid res
-Date:   Mon,  7 Mar 2022 10:16:37 +0100
-Message-Id: <20220307091704.013388515@linuxfoundation.org>
+Subject: [PATCH 5.15 054/262] PCI: aardvark: Fix checking for MEM resource type
+Date:   Mon,  7 Mar 2022 10:16:38 +0100
+Message-Id: <20220307091704.040305642@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -56,47 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 6e5ebc96ec651b67131f816d7e3bf286c635e749 ]
+[ Upstream commit 2070b2ddea89f5b604fac3d27ade5cb6d19a5706 ]
 
-On imx6 and perhaps others when pcie probes you get a:
-imx6q-pcie 33800000.pcie: invalid resource
+IORESOURCE_MEM_64 is not a resource type but a type flag.
 
-This occurs because the atu is not specified in the DT and as such it
-should not be remapped.
+Remove incorrect check for type IORESOURCE_MEM_64.
 
-Link: https://lore.kernel.org/r/20211101180243.23761-1-tharvey@gateworks.com
-Fixes: 281f1f99cf3a ("PCI: dwc: Detect number of iATU windows")
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Link: https://lore.kernel.org/r/20211125160148.26029-2-kabel@kernel.org
+Fixes: 64f160e19e92 ("PCI: aardvark: Configure PCIe resources from 'ranges' DT property")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Richard Zhu <hongxing.zhu@nxp.com>
-Cc: Richard Zhu <hongxing.zhu@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
-index a945f0c0e73dc..3254f60d1713f 100644
---- a/drivers/pci/controller/dwc/pcie-designware.c
-+++ b/drivers/pci/controller/dwc/pcie-designware.c
-@@ -671,10 +671,11 @@ void dw_pcie_iatu_detect(struct dw_pcie *pci)
- 		if (!pci->atu_base) {
- 			struct resource *res =
- 				platform_get_resource_byname(pdev, IORESOURCE_MEM, "atu");
--			if (res)
-+			if (res) {
- 				pci->atu_size = resource_size(res);
--			pci->atu_base = devm_ioremap_resource(dev, res);
--			if (IS_ERR(pci->atu_base))
-+				pci->atu_base = devm_ioremap_resource(dev, res);
-+			}
-+			if (!pci->atu_base || IS_ERR(pci->atu_base))
- 				pci->atu_base = pci->dbi_base + DEFAULT_DBI_ATU_OFFSET;
- 		}
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 85323cbc4888a..b2217e2b3efde 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1537,8 +1537,7 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 		 * only PIO for issuing configuration transfers which does
+ 		 * not use PCIe window configuration.
+ 		 */
+-		if (type != IORESOURCE_MEM && type != IORESOURCE_MEM_64 &&
+-		    type != IORESOURCE_IO)
++		if (type != IORESOURCE_MEM && type != IORESOURCE_IO)
+ 			continue;
  
+ 		/*
+@@ -1546,8 +1545,7 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 		 * configuration is set to transparent memory access so it
+ 		 * does not need window configuration.
+ 		 */
+-		if ((type == IORESOURCE_MEM || type == IORESOURCE_MEM_64) &&
+-		    entry->offset == 0)
++		if (type == IORESOURCE_MEM && entry->offset == 0)
+ 			continue;
+ 
+ 		/*
 -- 
 2.34.1
 
