@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 052D34CF499
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:19:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE6E4CF5E4
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236387AbiCGJUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:20:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49834 "EHLO
+        id S232593AbiCGJbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236164AbiCGJUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:20:22 -0500
+        with ESMTP id S238279AbiCGJ3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59F7145792;
-        Mon,  7 Mar 2022 01:19:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C72C866AEF;
+        Mon,  7 Mar 2022 01:27:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05CDFB810B9;
-        Mon,  7 Mar 2022 09:19:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71326C340E9;
-        Mon,  7 Mar 2022 09:19:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 196E8B810AC;
+        Mon,  7 Mar 2022 09:27:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE20C340F4;
+        Mon,  7 Mar 2022 09:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644764;
-        bh=dvkQIVaVU/XwX/y85aJnhScdigTtuAhBAx1OV2QuNa4=;
+        s=korg; t=1646645222;
+        bh=mrV6dQUlm23eEo1U+VXCrk3Sau7WDOBqJMKBwzUVdnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DeeBDI+w20OkWTuhfOIOkibO9bLb9OVQwE8fCR8olRSH7MFATIbWGZcjYx9YecHVM
-         PdnhU6WliIziJBWxoJPlt0khk0tKtxkZlOW+MfK0GjugDwet4nQIaHZ5Lf05fGYDnk
-         M08H3H0vRpbjnonrBk3f7Ef2rTVJ17B3Gk394950=
+        b=2JU1V73ZCqOsBCPlg2PxnnFQpnq94eoNyBO5m6YObQj3RxxeGbN9mMrivPYvLdW6K
+         NBz2IyAmwvTXceNI4mhhm6WefjCH4vNUnC4WBB9auNhl8d4y3wWfFU3tWfHIcKl02o
+         oUQEzs88rhHFDsSzsm7Mzlz6hdmE5xSB3iDLlJ+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Florian Westphal <fw@strlen.de>
-Subject: [PATCH 4.9 15/32] netfilter: nf_queue: fix possible use-after-free
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 08/64] dmaengine: shdma: Fix runtime PM imbalance on error
 Date:   Mon,  7 Mar 2022 10:18:41 +0100
-Message-Id: <20220307091634.873450554@linuxfoundation.org>
+Message-Id: <20220307091639.379452870@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
-References: <20220307091634.434478485@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-commit c3873070247d9e3c7a6b0cf9bf9b45e8018427b1 upstream.
+[ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
 
-Eric Dumazet says:
-  The sock_hold() side seems suspect, because there is no guarantee
-  that sk_refcnt is not already 0.
+pm_runtime_get_() increments the runtime PM usage counter even
+when it returns an error code, thus a matching decrement is needed on
+the error handling path to keep the counter balanced.
 
-On failure, we cannot queue the packet and need to indicate an
-error.  The packet will be dropped by the caller.
-
-v2: split skb prefetch hunk into separate change
-
-Fixes: 271b72c7fa82c ("udp: RCU handling for Unicast packets.")
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Link: https://lore.kernel.org/r/1642311296-87020-1-git-send-email-lyz_cs@pku.edu.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_queue.h |    2 +-
- net/netfilter/nf_queue.c         |   12 ++++++++++--
- net/netfilter/nfnetlink_queue.c  |   12 +++++++++---
- 3 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/dma/sh/shdma-base.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/net/netfilter/nf_queue.h
-+++ b/include/net/netfilter/nf_queue.h
-@@ -31,7 +31,7 @@ void nf_register_queue_handler(struct ne
- void nf_unregister_queue_handler(struct net *net);
- void nf_reinject(struct nf_queue_entry *entry, unsigned int verdict);
+diff --git a/drivers/dma/sh/shdma-base.c b/drivers/dma/sh/shdma-base.c
+index c51de498b5b4b..19eee3d0900b0 100644
+--- a/drivers/dma/sh/shdma-base.c
++++ b/drivers/dma/sh/shdma-base.c
+@@ -115,8 +115,10 @@ static dma_cookie_t shdma_tx_submit(struct dma_async_tx_descriptor *tx)
+ 		ret = pm_runtime_get(schan->dev);
  
--void nf_queue_entry_get_refs(struct nf_queue_entry *entry);
-+bool nf_queue_entry_get_refs(struct nf_queue_entry *entry);
- void nf_queue_entry_release_refs(struct nf_queue_entry *entry);
+ 		spin_unlock_irq(&schan->chan_lock);
+-		if (ret < 0)
++		if (ret < 0) {
+ 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
++			pm_runtime_put(schan->dev);
++		}
  
- static inline void init_hashrandom(u32 *jhash_initval)
---- a/net/netfilter/nf_queue.c
-+++ b/net/netfilter/nf_queue.c
-@@ -80,10 +80,13 @@ void nf_queue_entry_release_refs(struct
- EXPORT_SYMBOL_GPL(nf_queue_entry_release_refs);
+ 		pm_runtime_barrier(schan->dev);
  
- /* Bump dev refs so they don't vanish while packet is out */
--void nf_queue_entry_get_refs(struct nf_queue_entry *entry)
-+bool nf_queue_entry_get_refs(struct nf_queue_entry *entry)
- {
- 	struct nf_hook_state *state = &entry->state;
- 
-+	if (state->sk && !atomic_inc_not_zero(&state->sk->sk_refcnt))
-+		return false;
-+
- 	if (state->in)
- 		dev_hold(state->in);
- 	if (state->out)
-@@ -102,6 +105,7 @@ void nf_queue_entry_get_refs(struct nf_q
- 			dev_hold(physdev);
- 	}
- #endif
-+	return true;
- }
- EXPORT_SYMBOL_GPL(nf_queue_entry_get_refs);
- 
-@@ -148,7 +152,11 @@ static int __nf_queue(struct sk_buff *sk
- 		.size	= sizeof(*entry) + afinfo->route_key_size,
- 	};
- 
--	nf_queue_entry_get_refs(entry);
-+	if (!nf_queue_entry_get_refs(entry)) {
-+		kfree(entry);
-+		return -ENOTCONN;
-+	}
-+
- 	skb_dst_force(skb);
- 	afinfo->saveroute(skb, entry);
- 	status = qh->outfn(entry, queuenum);
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -673,9 +673,15 @@ static struct nf_queue_entry *
- nf_queue_entry_dup(struct nf_queue_entry *e)
- {
- 	struct nf_queue_entry *entry = kmemdup(e, e->size, GFP_ATOMIC);
--	if (entry)
--		nf_queue_entry_get_refs(entry);
--	return entry;
-+
-+	if (!entry)
-+		return NULL;
-+
-+	if (nf_queue_entry_get_refs(entry))
-+		return entry;
-+
-+	kfree(entry);
-+	return NULL;
- }
- 
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+-- 
+2.34.1
+
 
 
