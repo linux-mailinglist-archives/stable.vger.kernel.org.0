@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 019064CF544
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:26:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ED0B4CF5CD
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236946AbiCGJ0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:26:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39490 "EHLO
+        id S233573AbiCGJbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:31:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236911AbiCGJZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:25:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBC55B8A1;
-        Mon,  7 Mar 2022 01:23:57 -0800 (PST)
+        with ESMTP id S238193AbiCGJ2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:28:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 773786D392;
+        Mon,  7 Mar 2022 01:26:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1FA3B810B9;
-        Mon,  7 Mar 2022 09:23:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B251C340E9;
-        Mon,  7 Mar 2022 09:23:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C12686112D;
+        Mon,  7 Mar 2022 09:26:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D20D6C340F3;
+        Mon,  7 Mar 2022 09:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645034;
-        bh=EZIKephx41aSwgXMxQQVEEJe8KcjQAFUcCqvEtTI/lg=;
+        s=korg; t=1646645201;
+        bh=pmVijEbEFKYoe7HTA58/hzwzXUNDi38IO2jZxZuY5IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=se9e7kcPUAW92S95UjajotSn+ESsxbsdhOfA5i8+qO4YwHQAA5sf8FyqPi+GZEB77
-         JZYS5eb9zXvBLTUbkVnLKDp/lacN1cH95gpaHoh1mivYjKGQfIcuyKAjiGqotZOJ1Y
-         QeOAj/CGqCnABv5ddHErcgirhXIzuoVD2l4hAxdE=
+        b=e2LMriel1xSz5Gmsypsi4Nk5GHh0ko/FQKzT67WGOSoyqTL7VE6jBXl9veG3efVPc
+         eNtE0Xwu/qGP25qBkLyfaxDxVV/3HdGSmO/bdUscJAyZ7uZT9EvCtTJkCG2UGyMb6x
+         1xKxY7Cqo35thQC1VvPbrgdMNPztE1i8VMX38+yY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Antony Antony <antony.antony@secunet.com>,
         Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.19 17/51] xfrm: fix MTU regression
+Subject: [PATCH 5.4 19/64] xfrm: fix the if_id check in changelink
 Date:   Mon,  7 Mar 2022 10:18:52 +0100
-Message-Id: <20220307091637.481589859@linuxfoundation.org>
+Message-Id: <20220307091639.692354714@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Bohac <jbohac@suse.cz>
+From: Antony Antony <antony.antony@secunet.com>
 
-commit 6596a0229541270fb8d38d989f91b78838e5e9da upstream.
+commit 6d0d95a1c2b07270870e7be16575c513c29af3f1 upstream.
 
-Commit 749439bfac6e1a2932c582e2699f91d329658196 ("ipv6: fix udpv6
-sendmsg crash caused by too small MTU") breaks PMTU for xfrm.
+if_id will be always 0, because it was not yet initialized.
 
-A Packet Too Big ICMPv6 message received in response to an ESP
-packet will prevent all further communication through the tunnel
-if the reported MTU minus the ESP overhead is smaller than 1280.
-
-E.g. in a case of a tunnel-mode ESP with sha256/aes the overhead
-is 92 bytes. Receiving a PTB with MTU of 1371 or less will result
-in all further packets in the tunnel dropped. A ping through the
-tunnel fails with "ping: sendmsg: Invalid argument".
-
-Apparently the MTU on the xfrm route is smaller than 1280 and
-fails the check inside ip6_setup_cork() added by 749439bf.
-
-We found this by debugging USGv6/ipv6ready failures. Failing
-tests are: "Phase-2 Interoperability Test Scenario IPsec" /
-5.3.11 and 5.4.11 (Tunnel Mode: Fragmentation).
-
-Commit b515d2637276a3810d6595e10ab02c13bfd0b63a ("xfrm:
-xfrm_state_mtu should return at least 1280 for ipv6") attempted
-to fix this but caused another regression in TCP MSS calculations
-and had to be reverted.
-
-The patch below fixes the situation by dropping the MTU
-check and instead checking for the underflows described in the
-749439bf commit message.
-
-Signed-off-by: Jiri Bohac <jbohac@suse.cz>
-Fixes: 749439bfac6e ("ipv6: fix udpv6 sendmsg crash caused by too small MTU")
+Fixes: 8dce43919566 ("xfrm: interface with if_id 0 should return error")
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ net/xfrm/xfrm_interface.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1259,8 +1259,6 @@ static int ip6_setup_cork(struct sock *s
- 		if (np->frag_size)
- 			mtu = np->frag_size;
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -695,12 +695,12 @@ static int xfrmi_changelink(struct net_d
+ 	struct net *net = xi->net;
+ 	struct xfrm_if_parms p = {};
+ 
++	xfrmi_netlink_parms(data, &p);
+ 	if (!p.if_id) {
+ 		NL_SET_ERR_MSG(extack, "if_id must be non zero");
+ 		return -EINVAL;
  	}
--	if (mtu < IPV6_MIN_MTU)
--		return -EINVAL;
- 	cork->base.fragsize = mtu;
- 	cork->base.gso_size = ipc6->gso_size;
- 	cork->base.tx_flags = 0;
-@@ -1320,8 +1318,6 @@ static int __ip6_append_data(struct sock
  
- 	fragheaderlen = sizeof(struct ipv6hdr) + rt->rt6i_nfheader_len +
- 			(opt ? opt->opt_nflen : 0);
--	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
--		     sizeof(struct frag_hdr);
- 
- 	headersize = sizeof(struct ipv6hdr) +
- 		     (opt ? opt->opt_flen + opt->opt_nflen : 0) +
-@@ -1329,6 +1325,13 @@ static int __ip6_append_data(struct sock
- 		      sizeof(struct frag_hdr) : 0) +
- 		     rt->rt6i_nfheader_len;
- 
-+	if (mtu < fragheaderlen ||
-+	    ((mtu - fragheaderlen) & ~7) + fragheaderlen < sizeof(struct frag_hdr))
-+		goto emsgsize;
-+
-+	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
-+		     sizeof(struct frag_hdr);
-+
- 	/* as per RFC 7112 section 5, the entire IPv6 Header Chain must fit
- 	 * the first fragment
- 	 */
+-	xfrmi_netlink_parms(data, &p);
+ 	xi = xfrmi_locate(net, &p);
+ 	if (!xi) {
+ 		xi = netdev_priv(dev);
 
 
