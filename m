@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E174A4CF8DF
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9974CF9DE
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238891AbiCGKCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:02:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40434 "EHLO
+        id S239112AbiCGKM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:12:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239899AbiCGKAZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18DAB69484;
-        Mon,  7 Mar 2022 01:46:32 -0800 (PST)
+        with ESMTP id S242800AbiCGKLy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DADF7793B9;
+        Mon,  7 Mar 2022 01:55:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 574B461052;
-        Mon,  7 Mar 2022 09:46:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D833C340E9;
-        Mon,  7 Mar 2022 09:46:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 713E4B810B9;
+        Mon,  7 Mar 2022 09:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D59CDC340E9;
+        Mon,  7 Mar 2022 09:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646387;
-        bh=CNjjbDsQ8prVbFHV22sMlC4quIRpot1LlEfds24tKLE=;
+        s=korg; t=1646646925;
+        bh=wucGYhU/4fjXHEiYCpmNe9ovLCQpTNtpqblxmIxE1Eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhMYOeEwCAPv6C9pcSF02cws8rMDbL/IVxQHcM2uylX0oct4Znf6TarTRopjvm/hp
-         zwnGfr0TmUAeKBcIVG1dvjbqlOjEHaQHFsh7LJerVCWO8OTH1xV6K+mH0vvFLIoDhV
-         ELte69wEHIYGMdgcjYeYp1LCLt/jtaOi3fUpmFjU=
+        b=rkKaWTz+n/vtUU6AOZeViV3G3hf9Ejv9Vi4GjYqcrqLq7RyNSpQ82d03Gop+r2yG2
+         fdiRBkGHRc6uj5RvkYwBkjOIwWKJffpu3pM8lJyFsK5KlEvO8wqK9lj/nQzPIByYhe
+         KWWrauxBHQhIdcwvkls4FObZfDgi1mM/NrujlpH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Karen Sornek <karen.sornek@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 228/262] iavf: Add helper function to go from pci_dev to adapter
-Date:   Mon,  7 Mar 2022 10:19:32 +0100
-Message-Id: <20220307091709.615594279@linuxfoundation.org>
+Subject: [PATCH 5.16 135/186] ARM: tegra: Move panels to AUX bus
+Date:   Mon,  7 Mar 2022 10:19:33 +0100
+Message-Id: <20220307091657.853459416@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,88 +53,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karen Sornek <karen.sornek@intel.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 247aa001b72b6c8a89df9d108a2ec6f274a6b64d ]
+[ Upstream commit 8d3b01e0d4bb54368d73d0984466d72c2eeeac74 ]
 
-Add helper function to go from pci_dev to adapter to make work simple -
-to go from a pci_dev to the adapter structure and make netdev assignment
-instead of having to go to the net_device then the adapter.
+Move the eDP panel on Venice 2 and Nyan boards into the corresponding
+AUX bus device tree node. This allows us to avoid a nasty circular
+dependency that would otherwise be created between the DPAUX and panel
+nodes via the DDC/I2C phandle.
 
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Signed-off-by: Karen Sornek <karen.sornek@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: eb481f9ac95c ("ARM: tegra: add Acer Chromebook 13 device tree")
+Fixes: 59fe02cb079f ("ARM: tegra: Add DTS for the nyan-blaze board")
+Fixes: 40e231c770a4 ("ARM: tegra: Enable eDP for Venice2")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 24 +++++++++++++++------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/tegra124-nyan-big.dts   | 15 +++++++++------
+ arch/arm/boot/dts/tegra124-nyan-blaze.dts | 15 +++++++++------
+ arch/arm/boot/dts/tegra124-venice2.dts    | 14 +++++++-------
+ 3 files changed, 25 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 3aa21568686d..33a3dbcf8f2d 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -51,6 +51,15 @@ MODULE_LICENSE("GPL v2");
- static const struct net_device_ops iavf_netdev_ops;
- struct workqueue_struct *iavf_wq;
+diff --git a/arch/arm/boot/dts/tegra124-nyan-big.dts b/arch/arm/boot/dts/tegra124-nyan-big.dts
+index 1d2aac2cb6d0..fdc1d64dfff9 100644
+--- a/arch/arm/boot/dts/tegra124-nyan-big.dts
++++ b/arch/arm/boot/dts/tegra124-nyan-big.dts
+@@ -13,12 +13,15 @@
+ 		     "google,nyan-big-rev1", "google,nyan-big-rev0",
+ 		     "google,nyan-big", "google,nyan", "nvidia,tegra124";
  
-+/**
-+ * iavf_pdev_to_adapter - go from pci_dev to adapter
-+ * @pdev: pci_dev pointer
-+ */
-+static struct iavf_adapter *iavf_pdev_to_adapter(struct pci_dev *pdev)
-+{
-+	return netdev_priv(pci_get_drvdata(pdev));
-+}
+-	panel: panel {
+-		compatible = "auo,b133xtn01";
+-
+-		power-supply = <&vdd_3v3_panel>;
+-		backlight = <&backlight>;
+-		ddc-i2c-bus = <&dpaux>;
++	host1x@50000000 {
++		dpaux@545c0000 {
++			aux-bus {
++				panel: panel {
++					compatible = "auo,b133xtn01";
++					backlight = <&backlight>;
++				};
++			};
++		};
+ 	};
+ 
+ 	mmc@700b0400 { /* SD Card on this bus */
+diff --git a/arch/arm/boot/dts/tegra124-nyan-blaze.dts b/arch/arm/boot/dts/tegra124-nyan-blaze.dts
+index 677babde6460..abdf4456826f 100644
+--- a/arch/arm/boot/dts/tegra124-nyan-blaze.dts
++++ b/arch/arm/boot/dts/tegra124-nyan-blaze.dts
+@@ -15,12 +15,15 @@
+ 		     "google,nyan-blaze-rev0", "google,nyan-blaze",
+ 		     "google,nyan", "nvidia,tegra124";
+ 
+-	panel: panel {
+-		compatible = "samsung,ltn140at29-301";
+-
+-		power-supply = <&vdd_3v3_panel>;
+-		backlight = <&backlight>;
+-		ddc-i2c-bus = <&dpaux>;
++	host1x@50000000 {
++		dpaux@545c0000 {
++			aux-bus {
++				panel: panel {
++					compatible = "samsung,ltn140at29-301";
++					backlight = <&backlight>;
++				};
++			};
++		};
+ 	};
+ 
+ 	sound {
+diff --git a/arch/arm/boot/dts/tegra124-venice2.dts b/arch/arm/boot/dts/tegra124-venice2.dts
+index e6b54ac1ebd1..84e2d24065e9 100644
+--- a/arch/arm/boot/dts/tegra124-venice2.dts
++++ b/arch/arm/boot/dts/tegra124-venice2.dts
+@@ -48,6 +48,13 @@
+ 		dpaux@545c0000 {
+ 			vdd-supply = <&vdd_3v3_panel>;
+ 			status = "okay";
 +
- /**
-  * iavf_allocate_dma_mem_d - OS specific memory alloc for shared code
-  * @hw:   pointer to the HW structure
-@@ -3739,8 +3748,8 @@ int iavf_process_config(struct iavf_adapter *adapter)
-  **/
- static void iavf_shutdown(struct pci_dev *pdev)
- {
--	struct net_device *netdev = pci_get_drvdata(pdev);
--	struct iavf_adapter *adapter = netdev_priv(netdev);
-+	struct iavf_adapter *adapter = iavf_pdev_to_adapter(pdev);
-+	struct net_device *netdev = adapter->netdev;
++			aux-bus {
++				panel: panel {
++					compatible = "lg,lp129qe";
++					backlight = <&backlight>;
++				};
++			};
+ 		};
+ 	};
  
- 	netif_device_detach(netdev);
+@@ -1079,13 +1086,6 @@
+ 		};
+ 	};
  
-@@ -3923,10 +3932,11 @@ static int __maybe_unused iavf_suspend(struct device *dev_d)
- static int __maybe_unused iavf_resume(struct device *dev_d)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev_d);
--	struct net_device *netdev = pci_get_drvdata(pdev);
--	struct iavf_adapter *adapter = netdev_priv(netdev);
-+	struct iavf_adapter *adapter;
- 	u32 err;
- 
-+	adapter = iavf_pdev_to_adapter(pdev);
-+
- 	pci_set_master(pdev);
- 
- 	rtnl_lock();
-@@ -3945,7 +3955,7 @@ static int __maybe_unused iavf_resume(struct device *dev_d)
- 
- 	queue_work(iavf_wq, &adapter->reset_task);
- 
--	netif_device_attach(netdev);
-+	netif_device_attach(adapter->netdev);
- 
- 	return err;
- }
-@@ -3961,8 +3971,8 @@ static int __maybe_unused iavf_resume(struct device *dev_d)
-  **/
- static void iavf_remove(struct pci_dev *pdev)
- {
--	struct net_device *netdev = pci_get_drvdata(pdev);
--	struct iavf_adapter *adapter = netdev_priv(netdev);
-+	struct iavf_adapter *adapter = iavf_pdev_to_adapter(pdev);
-+	struct net_device *netdev = adapter->netdev;
- 	struct iavf_fdir_fltr *fdir, *fdirtmp;
- 	struct iavf_vlan_filter *vlf, *vlftmp;
- 	struct iavf_adv_rss *rss, *rsstmp;
+-	panel: panel {
+-		compatible = "lg,lp129qe";
+-		power-supply = <&vdd_3v3_panel>;
+-		backlight = <&backlight>;
+-		ddc-i2c-bus = <&dpaux>;
+-	};
+-
+ 	vdd_mux: regulator@0 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "+VDD_MUX";
 -- 
 2.34.1
 
