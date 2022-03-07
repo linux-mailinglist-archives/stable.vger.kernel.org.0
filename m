@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97B9A4CF4CF
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 917964CFA4A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236600AbiCGJWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:22:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52460 "EHLO
+        id S239215AbiCGKPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:15:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236630AbiCGJWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:22:04 -0500
+        with ESMTP id S241596AbiCGKKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88AB6621E;
-        Mon,  7 Mar 2022 01:20:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFC2366B1;
+        Mon,  7 Mar 2022 01:53:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96ECAB810BD;
-        Mon,  7 Mar 2022 09:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0001FC340E9;
-        Mon,  7 Mar 2022 09:20:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF363B80F9F;
+        Mon,  7 Mar 2022 09:53:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB679C340F3;
+        Mon,  7 Mar 2022 09:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644822;
-        bh=3nyyhG8mEedFzdLoB7Y/fMxZd+KD3iJrmNB4FdbsMic=;
+        s=korg; t=1646646805;
+        bh=R8uY/zTXdHSzjpLIxZlJhb0hQIo+MzsaqToLbh99yeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3eIsGRjjE2EJ9ku4oW45++LRZ8KIbMCSN1VW6HimcA61nnV69M3I2Zurs4OuY+cl
-         QLtaSrVIWRweITsPR4/gY/TtOlkOu8++pM8LKVWD36tKuyDondLxMr+esKi2yg5n1x
-         4dt+zLMb9XU0p1X9TPQaSdWoFlRISsSEe5jS854o=
+        b=AK1+nI3jQqDb4Cn/gf54A/zCsaLZzujSVc6sR4lQGfsUIHUe6L7ITGID1W71UzqDY
+         PkDebHMXN/FoKOelS0nvJbudqpm4ye5u6Js7UvS8Q3pEReWqwZre0Xwqjfq1jNMNmG
+         VWPei4cJgcTEHrej27mSnfCm+0qH8sEhRN0u3/0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Mahon <wmahon@chromium.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 30/32] HID: add mapping for KEY_ALL_APPLICATIONS
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.16 098/186] efivars: Respect "block" flag in efivar_entry_set_safe()
 Date:   Mon,  7 Mar 2022 10:18:56 +0100
-Message-Id: <20220307091635.292689667@linuxfoundation.org>
+Message-Id: <20220307091656.822308175@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
-References: <20220307091634.434478485@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Mahon <wmahon@chromium.org>
+From: Jann Horn <jannh@google.com>
 
-commit 327b89f0acc4c20a06ed59e4d9af7f6d804dc2e2 upstream.
+commit 258dd902022cb10c83671176688074879517fd21 upstream.
 
-This patch adds a new key definition for KEY_ALL_APPLICATIONS
-and aliases KEY_DASHBOARD to it.
+When the "block" flag is false, the old code would sometimes still call
+check_var_size(), which wrongly tells ->query_variable_store() that it can
+block.
 
-It also maps the 0x0c/0x2a2 usage code to KEY_ALL_APPLICATIONS.
+As far as I can tell, this can't really materialize as a bug at the moment,
+because ->query_variable_store only does something on X86 with generic EFI,
+and in that configuration we always take the efivar_entry_set_nonblocking()
+path.
 
-Signed-off-by: William Mahon <wmahon@chromium.org>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20220303035618.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: ca0e30dcaa53 ("efi: Add nonblocking option to efi_query_variable_store()")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220218180559.1432559-1-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-debug.c                |    4 +++-
- drivers/hid/hid-input.c                |    2 ++
- include/uapi/linux/input-event-codes.h |    3 ++-
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/vars.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -833,7 +833,9 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_F22] = "F22",			[KEY_F23] = "F23",
- 	[KEY_F24] = "F24",			[KEY_PLAYCD] = "PlayCD",
- 	[KEY_PAUSECD] = "PauseCD",		[KEY_PROG3] = "Prog3",
--	[KEY_PROG4] = "Prog4",			[KEY_SUSPEND] = "Suspend",
-+	[KEY_PROG4] = "Prog4",
-+	[KEY_ALL_APPLICATIONS] = "AllApplications",
-+	[KEY_SUSPEND] = "Suspend",
- 	[KEY_CLOSE] = "Close",			[KEY_PLAY] = "Play",
- 	[KEY_FASTFORWARD] = "FastForward",	[KEY_BASSBOOST] = "BassBoost",
- 	[KEY_PRINT] = "Print",			[KEY_HP] = "HP",
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -937,6 +937,8 @@ static void hidinput_configure_usage(str
- 		case 0x28b: map_key_clear(KEY_FORWARDMAIL);	break;
- 		case 0x28c: map_key_clear(KEY_SEND);		break;
+--- a/drivers/firmware/efi/vars.c
++++ b/drivers/firmware/efi/vars.c
+@@ -742,6 +742,7 @@ int efivar_entry_set_safe(efi_char16_t *
+ {
+ 	const struct efivar_operations *ops;
+ 	efi_status_t status;
++	unsigned long varsize;
  
-+		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
-+
- 		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
- 		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
- 		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -277,7 +277,8 @@
- #define KEY_PAUSECD		201
- #define KEY_PROG3		202
- #define KEY_PROG4		203
--#define KEY_DASHBOARD		204	/* AL Dashboard */
-+#define KEY_ALL_APPLICATIONS	204	/* AC Desktop Show All Applications */
-+#define KEY_DASHBOARD		KEY_ALL_APPLICATIONS
- #define KEY_SUSPEND		205
- #define KEY_CLOSE		206	/* AC Close */
- #define KEY_PLAY		207
+ 	if (!__efivars)
+ 		return -EINVAL;
+@@ -764,15 +765,17 @@ int efivar_entry_set_safe(efi_char16_t *
+ 		return efivar_entry_set_nonblocking(name, vendor, attributes,
+ 						    size, data);
+ 
++	varsize = size + ucs2_strsize(name, 1024);
+ 	if (!block) {
+ 		if (down_trylock(&efivars_lock))
+ 			return -EBUSY;
++		status = check_var_size_nonblocking(attributes, varsize);
+ 	} else {
+ 		if (down_interruptible(&efivars_lock))
+ 			return -EINTR;
++		status = check_var_size(attributes, varsize);
+ 	}
+ 
+-	status = check_var_size(attributes, size + ucs2_strsize(name, 1024));
+ 	if (status != EFI_SUCCESS) {
+ 		up(&efivars_lock);
+ 		return -ENOSPC;
 
 
