@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3801A4CFA4F
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F034CF8CC
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237714AbiCGKPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:15:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50440 "EHLO
+        id S238761AbiCGKC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:02:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238690AbiCGKOY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:14:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632DB8EB72;
-        Mon,  7 Mar 2022 01:57:02 -0800 (PST)
+        with ESMTP id S240427AbiCGKBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABAF21EAD3;
+        Mon,  7 Mar 2022 01:48:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D351B810CC;
-        Mon,  7 Mar 2022 09:56:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C5C0C340E9;
-        Mon,  7 Mar 2022 09:56:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C68960010;
+        Mon,  7 Mar 2022 09:48:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56163C340E9;
+        Mon,  7 Mar 2022 09:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647006;
-        bh=Qhn1dzLQ60XqRJgYiz0jMsK2rdWDBMOKVka6WLgUbOg=;
+        s=korg; t=1646646486;
+        bh=z60zXuYXptNBGJ0tBVZp3+fhv8bqkROWAvgb8COEoY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swRz3vZwoOC2FfGQ5NvtwoduU+rHO45OpScJLks4VeJZ4RnFJzVJgmP2fYqioRV6A
-         6nTxLlrv45l8DY8KmZryzfiSg5C090qIVULVgvEkRBu2fOStrklW7TBJiv+Medg7q+
-         M0TNU8NWktL3B5ieE/Iw5rnC/dKWan8UHeWWeKw8=
+        b=hPpGKoeChhaf4157b3zbDeGN6wRypAODuqgk+Rl3wm0UEFtZfCc/yXKkyTA281LXr
+         5D62YWNTHa4uCuwO2CmtS/YASjahU6Wpyh7S3/ndXpXqbXfdSW/mK7qpbd3d6C4PtT
+         XqBGyN8iNIjZI39T1AxevRc+LaMmEvc9ACRWkLW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@idosch.org>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 163/186] net: dcb: disable softirqs in dcbnl_flush_dev()
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Sidong Yang <realwakka@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 257/262] btrfs: qgroup: fix deadlock between rescan worker and remove qgroup
 Date:   Mon,  7 Mar 2022 10:20:01 +0100
-Message-Id: <20220307091658.632822797@linuxfoundation.org>
+Message-Id: <20220307091710.984548696@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Sidong Yang <realwakka@gmail.com>
 
-[ Upstream commit 10b6bb62ae1a49ee818fc479cf57b8900176773e ]
+commit d4aef1e122d8bbdc15ce3bd0bc813d6b44a7d63a upstream.
 
-Ido Schimmel points out that since commit 52cff74eef5d ("dcbnl : Disable
-software interrupts before taking dcb_lock"), the DCB API can be called
-by drivers from softirq context.
+The commit e804861bd4e6 ("btrfs: fix deadlock between quota disable and
+qgroup rescan worker") by Kawasaki resolves deadlock between quota
+disable and qgroup rescan worker. But also there is a deadlock case like
+it. It's about enabling or disabling quota and creating or removing
+qgroup. It can be reproduced in simple script below.
 
-One such in-tree example is the chelsio cxgb4 driver:
-dcb_rpl
--> cxgb4_dcb_handle_fw_update
-   -> dcb_ieee_setapp
+for i in {1..100}
+do
+    btrfs quota enable /mnt &
+    btrfs qgroup create 1/0 /mnt &
+    btrfs qgroup destroy 1/0 /mnt &
+    btrfs quota disable /mnt &
+done
 
-If the firmware for this driver happened to send an event which resulted
-in a call to dcb_ieee_setapp() at the exact same time as another
-DCB-enabled interface was unregistering on the same CPU, the softirq
-would deadlock, because the interrupted process was already holding the
-dcb_lock in dcbnl_flush_dev().
+Here's why the deadlock happens:
 
-Fix this unlikely event by using spin_lock_bh() in dcbnl_flush_dev() as
-in the rest of the dcbnl code.
+1) The quota rescan task is running.
 
-Fixes: 91b0383fef06 ("net: dcb: flush lingering app table entries for unregistered devices")
-Reported-by: Ido Schimmel <idosch@idosch.org>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220302193939.1368823-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+2) Task A calls btrfs_quota_disable(), locks the qgroup_ioctl_lock
+   mutex, and then calls btrfs_qgroup_wait_for_completion(), to wait for
+   the quota rescan task to complete.
+
+3) Task B calls btrfs_remove_qgroup() and it blocks when trying to lock
+   the qgroup_ioctl_lock mutex, because it's being held by task A. At that
+   point task B is holding a transaction handle for the current transaction.
+
+4) The quota rescan task calls btrfs_commit_transaction(). This results
+   in it waiting for all other tasks to release their handles on the
+   transaction, but task B is blocked on the qgroup_ioctl_lock mutex
+   while holding a handle on the transaction, and that mutex is being held
+   by task A, which is waiting for the quota rescan task to complete,
+   resulting in a deadlock between these 3 tasks.
+
+To resolve this issue, the thread disabling quota should unlock
+qgroup_ioctl_lock before waiting rescan completion. Move
+btrfs_qgroup_wait_for_completion() after unlock of qgroup_ioctl_lock.
+
+Fixes: e804861bd4e6 ("btrfs: fix deadlock between quota disable and qgroup rescan worker")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Sidong Yang <realwakka@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dcb/dcbnl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/qgroup.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/dcb/dcbnl.c b/net/dcb/dcbnl.c
-index 36c91273daac..dc4fb699b56c 100644
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -2077,7 +2077,7 @@ static void dcbnl_flush_dev(struct net_device *dev)
- {
- 	struct dcb_app_type *itr, *tmp;
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1197,13 +1197,20 @@ int btrfs_quota_disable(struct btrfs_fs_
+ 		goto out;
  
--	spin_lock(&dcb_lock);
-+	spin_lock_bh(&dcb_lock);
+ 	/*
++	 * Unlock the qgroup_ioctl_lock mutex before waiting for the rescan worker to
++	 * complete. Otherwise we can deadlock because btrfs_remove_qgroup() needs
++	 * to lock that mutex while holding a transaction handle and the rescan
++	 * worker needs to commit a transaction.
++	 */
++	mutex_unlock(&fs_info->qgroup_ioctl_lock);
++
++	/*
+ 	 * Request qgroup rescan worker to complete and wait for it. This wait
+ 	 * must be done before transaction start for quota disable since it may
+ 	 * deadlock with transaction by the qgroup rescan worker.
+ 	 */
+ 	clear_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
+ 	btrfs_qgroup_wait_for_completion(fs_info, false);
+-	mutex_unlock(&fs_info->qgroup_ioctl_lock);
  
- 	list_for_each_entry_safe(itr, tmp, &dcb_app_list, list) {
- 		if (itr->ifindex == dev->ifindex) {
-@@ -2086,7 +2086,7 @@ static void dcbnl_flush_dev(struct net_device *dev)
- 		}
- 	}
- 
--	spin_unlock(&dcb_lock);
-+	spin_unlock_bh(&dcb_lock);
- }
- 
- static int dcbnl_netdevice_event(struct notifier_block *nb,
--- 
-2.34.1
-
+ 	/*
+ 	 * 1 For the root item
 
 
