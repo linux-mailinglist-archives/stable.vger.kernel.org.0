@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0B534CF948
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FFA34CF631
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240136AbiCGKFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:05:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40544 "EHLO
+        id S235674AbiCGJdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:33:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239918AbiCGKD4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:03:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3EF75207;
-        Mon,  7 Mar 2022 01:51:59 -0800 (PST)
+        with ESMTP id S237704AbiCGJdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBF136AA4E;
+        Mon,  7 Mar 2022 01:30:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BB1F60919;
-        Mon,  7 Mar 2022 09:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD0FC340F4;
-        Mon,  7 Mar 2022 09:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2460611EC;
+        Mon,  7 Mar 2022 09:29:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC059C340F5;
+        Mon,  7 Mar 2022 09:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646715;
-        bh=HGY8bZHnNj0ChX0IiyXwwCG+PIxtDhcYwRoyL0o6fO8=;
+        s=korg; t=1646645397;
+        bh=OPairPbhUOTqUDIxGFauf9QTL0KPMO5IQu105xh9w0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyuzATy4Vl5Utm8MOJOwACt5kvORqnK97lUsRsxlRIzP+oGSphk378vqiJwf/Sgqa
-         y/klvEzjDBZf+4DTojRRfprVrou5twatTdvN9cYFETXnmOlP6QduVLiaUAJJ5LAj3P
-         BgxDzoKJpJ99RvxG6SZFcN72fILPYVH+EuVCV0r0=
+        b=A+cZKjLrWQXgx+D7/m2AHkWpdw09IUgakyDDEr58+bOxHuetvohps+CyhB5o/hMQk
+         hdZIV70MRvH6a9MyZSFT3JV+jRQvKg0GtRTidNknqXXm/OvR1cEcJZp/y5b93bwuLg
+         bPDMIT7+/gxkLKK2z0pxXIQQSDURwNpwkSSqH200=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 063/186] blktrace: fix use after free for struct blk_trace
+        stable@vger.kernel.org,
+        Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 018/105] exfat: reuse exfat_inode_info variable instead of calling EXFAT_I()
 Date:   Mon,  7 Mar 2022 10:18:21 +0100
-Message-Id: <20220307091655.856433453@linuxfoundation.org>
+Message-Id: <20220307091644.696426921@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-References: <20220307091654.092878898@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,180 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>
 
-commit 30939293262eb433c960c4532a0d59c4073b2b84 upstream.
+[ Upstream commit 7dee6f57d7f22a89dd214518c778aec448270d4c ]
 
-When tracing the whole disk, 'dropped' and 'msg' will be created
-under 'q->debugfs_dir' and 'bt->dir' is NULL, thus blk_trace_free()
-won't remove those files. What's worse, the following UAF can be
-triggered because of accessing stale 'dropped' and 'msg':
+Also add a local "struct exfat_inode_info *ei" variable to
+exfat_truncate() to simplify the code.
 
-==================================================================
-BUG: KASAN: use-after-free in blk_dropped_read+0x89/0x100
-Read of size 4 at addr ffff88816912f3d8 by task blktrace/1188
-
-CPU: 27 PID: 1188 Comm: blktrace Not tainted 5.17.0-rc4-next-20220217+ #469
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-4
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_address_description.constprop.0.cold+0xab/0x381
- ? blk_dropped_read+0x89/0x100
- ? blk_dropped_read+0x89/0x100
- kasan_report.cold+0x83/0xdf
- ? blk_dropped_read+0x89/0x100
- kasan_check_range+0x140/0x1b0
- blk_dropped_read+0x89/0x100
- ? blk_create_buf_file_callback+0x20/0x20
- ? kmem_cache_free+0xa1/0x500
- ? do_sys_openat2+0x258/0x460
- full_proxy_read+0x8f/0xc0
- vfs_read+0xc6/0x260
- ksys_read+0xb9/0x150
- ? vfs_write+0x3d0/0x3d0
- ? fpregs_assert_state_consistent+0x55/0x60
- ? exit_to_user_mode_prepare+0x39/0x1e0
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fbc080d92fd
-Code: ce 20 00 00 75 10 b8 00 00 00 00 0f 05 48 3d 01 f0 ff ff 73 31 c3 48 83 1
-RSP: 002b:00007fbb95ff9cb0 EFLAGS: 00000293 ORIG_RAX: 0000000000000000
-RAX: ffffffffffffffda RBX: 00007fbb95ff9dc0 RCX: 00007fbc080d92fd
-RDX: 0000000000000100 RSI: 00007fbb95ff9cc0 RDI: 0000000000000045
-RBP: 0000000000000045 R08: 0000000000406299 R09: 00000000fffffffd
-R10: 000000000153afa0 R11: 0000000000000293 R12: 00007fbb780008c0
-R13: 00007fbb78000938 R14: 0000000000608b30 R15: 00007fbb780029c8
- </TASK>
-
-Allocated by task 1050:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0x81/0xa0
- do_blk_trace_setup+0xcb/0x410
- __blk_trace_setup+0xac/0x130
- blk_trace_ioctl+0xe9/0x1c0
- blkdev_ioctl+0xf1/0x390
- __x64_sys_ioctl+0xa5/0xe0
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Freed by task 1050:
- kasan_save_stack+0x1e/0x40
- kasan_set_track+0x21/0x30
- kasan_set_free_info+0x20/0x30
- __kasan_slab_free+0x103/0x180
- kfree+0x9a/0x4c0
- __blk_trace_remove+0x53/0x70
- blk_trace_ioctl+0x199/0x1c0
- blkdev_common_ioctl+0x5e9/0xb30
- blkdev_ioctl+0x1a5/0x390
- __x64_sys_ioctl+0xa5/0xe0
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The buggy address belongs to the object at ffff88816912f380
- which belongs to the cache kmalloc-96 of size 96
-The buggy address is located 88 bytes inside of
- 96-byte region [ffff88816912f380, ffff88816912f3e0)
-The buggy address belongs to the page:
-page:000000009a1b4e7c refcount:1 mapcount:0 mapping:0000000000000000 index:0x0f
-flags: 0x17ffffc0000200(slab|node=0|zone=2|lastcpupid=0x1fffff)
-raw: 0017ffffc0000200 ffffea00044f1100 dead000000000002 ffff88810004c780
-raw: 0000000000000000 0000000000200020 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88816912f280: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
- ffff88816912f300: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
->ffff88816912f380: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-                                                    ^
- ffff88816912f400: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
- ffff88816912f480: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-==================================================================
-
-Fixes: c0ea57608b69 ("blktrace: remove debugfs file dentries from struct blk_trace")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220228034354.4047385-1-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c |   26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ fs/exfat/file.c  | 14 +++++++-------
+ fs/exfat/inode.c |  9 ++++-----
+ fs/exfat/namei.c |  6 +++---
+ fs/exfat/super.c |  6 +++---
+ 4 files changed, 17 insertions(+), 18 deletions(-)
 
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -310,10 +310,20 @@ record_it:
- 	local_irq_restore(flags);
- }
+diff --git a/fs/exfat/file.c b/fs/exfat/file.c
+index a92478eabfa4e..6258c5da3060b 100644
+--- a/fs/exfat/file.c
++++ b/fs/exfat/file.c
+@@ -109,8 +109,7 @@ int __exfat_truncate(struct inode *inode, loff_t new_size)
+ 	exfat_set_volume_dirty(sb);
  
--static void blk_trace_free(struct blk_trace *bt)
-+static void blk_trace_free(struct request_queue *q, struct blk_trace *bt)
+ 	num_clusters_new = EXFAT_B_TO_CLU_ROUND_UP(i_size_read(inode), sbi);
+-	num_clusters_phys =
+-		EXFAT_B_TO_CLU_ROUND_UP(EXFAT_I(inode)->i_size_ondisk, sbi);
++	num_clusters_phys = EXFAT_B_TO_CLU_ROUND_UP(ei->i_size_ondisk, sbi);
+ 
+ 	exfat_chain_set(&clu, ei->start_clu, num_clusters_phys, ei->flags);
+ 
+@@ -227,12 +226,13 @@ void exfat_truncate(struct inode *inode, loff_t size)
  {
- 	relay_close(bt->rchan);
--	debugfs_remove(bt->dir);
-+
-+	/*
-+	 * If 'bt->dir' is not set, then both 'dropped' and 'msg' are created
-+	 * under 'q->debugfs_dir', thus lookup and remove them.
-+	 */
-+	if (!bt->dir) {
-+		debugfs_remove(debugfs_lookup("dropped", q->debugfs_dir));
-+		debugfs_remove(debugfs_lookup("msg", q->debugfs_dir));
-+	} else {
-+		debugfs_remove(bt->dir);
-+	}
- 	free_percpu(bt->sequence);
- 	free_percpu(bt->msg_data);
- 	kfree(bt);
-@@ -335,10 +345,10 @@ static void put_probe_ref(void)
- 	mutex_unlock(&blk_probe_mutex);
+ 	struct super_block *sb = inode->i_sb;
+ 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
++	struct exfat_inode_info *ei = EXFAT_I(inode);
+ 	unsigned int blocksize = i_blocksize(inode);
+ 	loff_t aligned_size;
+ 	int err;
+ 
+ 	mutex_lock(&sbi->s_lock);
+-	if (EXFAT_I(inode)->start_clu == 0) {
++	if (ei->start_clu == 0) {
+ 		/*
+ 		 * Empty start_clu != ~0 (not allocated)
+ 		 */
+@@ -259,11 +259,11 @@ void exfat_truncate(struct inode *inode, loff_t size)
+ 		aligned_size++;
+ 	}
+ 
+-	if (EXFAT_I(inode)->i_size_ondisk > i_size_read(inode))
+-		EXFAT_I(inode)->i_size_ondisk = aligned_size;
++	if (ei->i_size_ondisk > i_size_read(inode))
++		ei->i_size_ondisk = aligned_size;
+ 
+-	if (EXFAT_I(inode)->i_size_aligned > i_size_read(inode))
+-		EXFAT_I(inode)->i_size_aligned = aligned_size;
++	if (ei->i_size_aligned > i_size_read(inode))
++		ei->i_size_aligned = aligned_size;
+ 	mutex_unlock(&sbi->s_lock);
  }
  
--static void blk_trace_cleanup(struct blk_trace *bt)
-+static void blk_trace_cleanup(struct request_queue *q, struct blk_trace *bt)
- {
- 	synchronize_rcu();
--	blk_trace_free(bt);
-+	blk_trace_free(q, bt);
- 	put_probe_ref();
- }
+diff --git a/fs/exfat/inode.c b/fs/exfat/inode.c
+index 8b0288f70e93d..d7f11b7ab46c5 100644
+--- a/fs/exfat/inode.c
++++ b/fs/exfat/inode.c
+@@ -114,10 +114,9 @@ static int exfat_map_cluster(struct inode *inode, unsigned int clu_offset,
+ 	unsigned int local_clu_offset = clu_offset;
+ 	unsigned int num_to_be_allocated = 0, num_clusters = 0;
  
-@@ -352,7 +362,7 @@ static int __blk_trace_remove(struct req
- 		return -EINVAL;
+-	if (EXFAT_I(inode)->i_size_ondisk > 0)
++	if (ei->i_size_ondisk > 0)
+ 		num_clusters =
+-			EXFAT_B_TO_CLU_ROUND_UP(EXFAT_I(inode)->i_size_ondisk,
+-			sbi);
++			EXFAT_B_TO_CLU_ROUND_UP(ei->i_size_ondisk, sbi);
  
- 	if (bt->trace_state != Blktrace_running)
--		blk_trace_cleanup(bt);
-+		blk_trace_cleanup(q, bt);
+ 	if (clu_offset >= num_clusters)
+ 		num_to_be_allocated = clu_offset - num_clusters + 1;
+@@ -415,10 +414,10 @@ static int exfat_write_end(struct file *file, struct address_space *mapping,
  
- 	return 0;
- }
-@@ -572,7 +582,7 @@ static int do_blk_trace_setup(struct req
- 	ret = 0;
- err:
- 	if (ret)
--		blk_trace_free(bt);
-+		blk_trace_free(q, bt);
- 	return ret;
- }
+ 	err = generic_write_end(file, mapping, pos, len, copied, pagep, fsdata);
  
-@@ -1616,7 +1626,7 @@ static int blk_trace_remove_queue(struct
+-	if (EXFAT_I(inode)->i_size_aligned < i_size_read(inode)) {
++	if (ei->i_size_aligned < i_size_read(inode)) {
+ 		exfat_fs_error(inode->i_sb,
+ 			"invalid size(size(%llu) > aligned(%llu)\n",
+-			i_size_read(inode), EXFAT_I(inode)->i_size_aligned);
++			i_size_read(inode), ei->i_size_aligned);
+ 		return -EIO;
+ 	}
  
- 	put_probe_ref();
- 	synchronize_rcu();
--	blk_trace_free(bt);
-+	blk_trace_free(q, bt);
- 	return 0;
- }
+diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
+index 2932b23a3b6c3..935f600509009 100644
+--- a/fs/exfat/namei.c
++++ b/fs/exfat/namei.c
+@@ -395,9 +395,9 @@ static int exfat_find_empty_entry(struct inode *inode,
  
-@@ -1647,7 +1657,7 @@ static int blk_trace_setup_queue(struct
- 	return 0;
+ 		/* directory inode should be updated in here */
+ 		i_size_write(inode, size);
+-		EXFAT_I(inode)->i_size_ondisk += sbi->cluster_size;
+-		EXFAT_I(inode)->i_size_aligned += sbi->cluster_size;
+-		EXFAT_I(inode)->flags = p_dir->flags;
++		ei->i_size_ondisk += sbi->cluster_size;
++		ei->i_size_aligned += sbi->cluster_size;
++		ei->flags = p_dir->flags;
+ 		inode->i_blocks += 1 << sbi->sect_per_clus_bits;
+ 	}
  
- free_bt:
--	blk_trace_free(bt);
-+	blk_trace_free(q, bt);
- 	return ret;
- }
+diff --git a/fs/exfat/super.c b/fs/exfat/super.c
+index c6d8d2e534865..7b91214a4110e 100644
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -366,9 +366,9 @@ static int exfat_read_root(struct inode *inode)
  
+ 	inode->i_blocks = ((i_size_read(inode) + (sbi->cluster_size - 1))
+ 			& ~(sbi->cluster_size - 1)) >> inode->i_blkbits;
+-	EXFAT_I(inode)->i_pos = ((loff_t)sbi->root_dir << 32) | 0xffffffff;
+-	EXFAT_I(inode)->i_size_aligned = i_size_read(inode);
+-	EXFAT_I(inode)->i_size_ondisk = i_size_read(inode);
++	ei->i_pos = ((loff_t)sbi->root_dir << 32) | 0xffffffff;
++	ei->i_size_aligned = i_size_read(inode);
++	ei->i_size_ondisk = i_size_read(inode);
+ 
+ 	exfat_save_attr(inode, ATTR_SUBDIR);
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = ei->i_crtime =
+-- 
+2.34.1
+
 
 
