@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D22504CF4FA
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:23:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D104CF559
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:26:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236659AbiCGJYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:24:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52822 "EHLO
+        id S236830AbiCGJZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:25:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237059AbiCGJXW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:23:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5325C6662A;
-        Mon,  7 Mar 2022 01:21:46 -0800 (PST)
+        with ESMTP id S236897AbiCGJZm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:25:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35F95B881;
+        Mon,  7 Mar 2022 01:23:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F080FB810C0;
-        Mon,  7 Mar 2022 09:21:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6482AC340F6;
-        Mon,  7 Mar 2022 09:21:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE7D0B810C0;
+        Mon,  7 Mar 2022 09:23:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C1AC36AE7;
+        Mon,  7 Mar 2022 09:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644903;
-        bh=zu22j3tHmE8fVI+T7JaCdg1E5egrF7AQyc/FiqQy8Qg=;
+        s=korg; t=1646645031;
+        bh=tozq4ciK0IC+DMbSMOvqSOpHdPePfpNxa67dMJWlD/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSPn1nOc4013KRM2/+xI7OyHDS0DAMb2A8iZlf3wAo/M+ZtiJMfhrXdSYHAW833dg
-         FczabSDWvFVyS7a4ngHrUiEh3l87zI6lKXDj3xpQdgWGTEFOOjQv6EaHlWzwDlGRb4
-         cSCrDBSiK7WfkTxy8jQOtaw7UuZUnLuGFt+HclX0=
+        b=iBwIq8CsMrHBejBhOZXqZfO7EKU4NS2J5/s1n9ahI2OCpAiipi3cJVKPMH3RkOZgU
+         CS22IB2sV3gYse6BVu+wIjGdTj/a+qTN92AbzaDdDalrlW8cxZbI6kKhZkiZBLkr3B
+         gMfzXzngkPXW7XJyhI7EWXlu8lcGR35jvTkb/ZdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.14 17/42] xfrm: enforce validity of offload input flags
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 16/51] ASoC: ops: Shift tested values in snd_soc_put_volsw() by +min
 Date:   Mon,  7 Mar 2022 10:18:51 +0100
-Message-Id: <20220307091636.652610016@linuxfoundation.org>
+Message-Id: <20220307091637.453536571@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
-References: <20220307091636.146155347@linuxfoundation.org>
+In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
+References: <20220307091636.988950823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Marek Vasut <marex@denx.de>
 
-commit 7c76ecd9c99b6e9a771d813ab1aa7fa428b3ade1 upstream.
+commit 9bdd10d57a8807dba0003af0325191f3cec0f11c upstream.
 
-struct xfrm_user_offload has flags variable that received user input,
-but kernel didn't check if valid bits were provided. It caused a situation
-where not sanitized input was forwarded directly to the drivers.
+While the $val/$val2 values passed in from userspace are always >= 0
+integers, the limits of the control can be signed integers and the $min
+can be non-zero and less than zero. To correctly validate $val/$val2
+against platform_max, add the $min offset to val first.
 
-For example, XFRM_OFFLOAD_IPV6 define that was exposed, was used by
-strongswan, but not implemented in the kernel at all.
-
-As a solution, check and sanitize input flags to forward
-XFRM_OFFLOAD_INBOUND to the drivers.
-
-Fixes: d77e38e612a0 ("xfrm: Add an IPsec hardware offloading API")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 817f7c9335ec0 ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw()")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220215130645.164025-1-marex@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/xfrm.h |    6 ++++++
- net/xfrm/xfrm_device.c    |    6 +++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ sound/soc/soc-ops.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/uapi/linux/xfrm.h
-+++ b/include/uapi/linux/xfrm.h
-@@ -501,6 +501,12 @@ struct xfrm_user_offload {
- 	int				ifindex;
- 	__u8				flags;
- };
-+/* This flag was exposed without any kernel code that supporting it.
-+ * Unfortunately, strongswan has the code that uses sets this flag,
-+ * which makes impossible to reuse this bit.
-+ *
-+ * So leave it here to make sure that it won't be reused by mistake.
-+ */
- #define XFRM_OFFLOAD_IPV6	1
- #define XFRM_OFFLOAD_INBOUND	2
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -323,7 +323,7 @@ int snd_soc_put_volsw(struct snd_kcontro
+ 		mask = BIT(sign_bit + 1) - 1;
  
---- a/net/xfrm/xfrm_device.c
-+++ b/net/xfrm/xfrm_device.c
-@@ -69,6 +69,9 @@ int xfrm_dev_state_add(struct net *net,
- 	if (x->encap || x->tfcpad || (x->props.flags & XFRM_STATE_ESN))
- 		return 0;
- 
-+	if (xuo->flags & ~(XFRM_OFFLOAD_IPV6 | XFRM_OFFLOAD_INBOUND))
-+		return -EINVAL;
-+
- 	dev = dev_get_by_index(net, xuo->ifindex);
- 	if (!dev) {
- 		if (!(xuo->flags & XFRM_OFFLOAD_INBOUND)) {
-@@ -98,7 +101,8 @@ int xfrm_dev_state_add(struct net *net,
- 
- 	xso->dev = dev;
- 	xso->num_exthdrs = 1;
--	xso->flags = xuo->flags;
-+	/* Don't forward bit that is not implemented */
-+	xso->flags = xuo->flags & ~XFRM_OFFLOAD_IPV6;
- 
- 	err = dev->xfrmdev_ops->xdo_dev_state_add(x);
- 	if (err) {
+ 	val = ucontrol->value.integer.value[0];
+-	if (mc->platform_max && val > mc->platform_max)
++	if (mc->platform_max && ((int)val + min) > mc->platform_max)
+ 		return -EINVAL;
+ 	if (val > max - min)
+ 		return -EINVAL;
+@@ -336,7 +336,7 @@ int snd_soc_put_volsw(struct snd_kcontro
+ 	val = val << shift;
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+ 		val2 = ucontrol->value.integer.value[1];
+-		if (mc->platform_max && val2 > mc->platform_max)
++		if (mc->platform_max && ((int)val2 + min) > mc->platform_max)
+ 			return -EINVAL;
+ 		if (val2 > max - min)
+ 			return -EINVAL;
 
 
