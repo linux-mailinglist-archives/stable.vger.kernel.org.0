@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E40A24CF865
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D333E4CF841
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238305AbiCGJxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:53:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53118 "EHLO
+        id S238515AbiCGJw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:52:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239908AbiCGJuV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1136F723C1;
-        Mon,  7 Mar 2022 01:43:55 -0800 (PST)
+        with ESMTP id S240018AbiCGJuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:50:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B6673057;
+        Mon,  7 Mar 2022 01:44:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1504261224;
-        Mon,  7 Mar 2022 09:43:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108DBC340F3;
-        Mon,  7 Mar 2022 09:43:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAAFE6136F;
+        Mon,  7 Mar 2022 09:43:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04ED0C340E9;
+        Mon,  7 Mar 2022 09:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646228;
-        bh=pTjuL6BPXjGQj8a+GNkF6+8a01Bmr4IZIrwdI89SEF8=;
+        s=korg; t=1646646231;
+        bh=UBdrsVWMvpEWnpvpGDJX06Kk5StTYHhkGEu8qr1hKtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5uKPs/vtW6zDMPrTwRhyige+UeLoQ5Wi8iDKtlB0lr2OTkd0wwJDJA2rFYj62yub
-         KUNSf4oio0Sw0ecPkZiAN1HjT65DtQ3HlnaMDbc823huVNACNkg1wqaGz5V/TNYJ3U
-         dbjCN/r/NSnt3NDPxIvdpXBTzvGK1SfoyY4pqfhA=
+        b=Fk3fIEW0h7h5DyWu4MgMNNVqqzC/vv9qQMkzEZDQ0Wth6plY5b9dbkG+SHoSAABa3
+         HU7NM2+cdfjBllYxRB4O7GEurfqziwfrtngpcvByeWgX9QQQ3oqxZxFleTvwSm/ZUN
+         r0vYxd9Q8D8p7OR2f96njMjp+BF06X7ROgU360kM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Palus <jpalus@fastmail.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 134/262] PCI: mvebu: Fix device enumeration regression
-Date:   Mon,  7 Mar 2022 10:17:58 +0100
-Message-Id: <20220307091706.238853666@linuxfoundation.org>
+Subject: [PATCH 5.15 135/262] net: of: fix stub of_net helpers for CONFIG_NET=n
+Date:   Mon,  7 Mar 2022 10:17:59 +0100
+Message-Id: <20220307091706.265997031@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -55,49 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit c49ae619905eebd3f54598a84e4cd2bd58ba8fe9 ]
+[ Upstream commit 8b017fbe0bbb98dd71fb4850f6b9cc0e136a26b8 ]
 
-Jan reported that on Turris Omnia (Armada 385), no PCIe devices were
-detected after upgrading from v5.16.1 to v5.16.3 and identified the cause
-as the backport of 91a8d79fc797 ("PCI: mvebu: Fix configuring secondary bus
-of PCIe Root Port via emulated bridge"), which appeared in v5.17-rc1.
+Moving the of_net code from drivers/of/ to net/core means we
+no longer stub out the helpers when networking is disabled,
+which leads to a randconfig build failure with at least one
+ARM platform that calls this from non-networking code:
 
-91a8d79fc797 was incorrectly applied from mailing list patch [1] to the
-linux git repository [2] probably due to resolving merge conflicts
-incorrectly. Fix it now.
+arm-linux-gnueabi-ld: arch/arm/mach-mvebu/kirkwood.o: in function `kirkwood_dt_eth_fixup':
+kirkwood.c:(.init.text+0x54): undefined reference to `of_get_mac_address'
 
-[1] https://lore.kernel.org/r/20211125124605.25915-12-pali@kernel.org
-[2] https://git.kernel.org/linus/91a8d79fc797
+Restore the way this worked before by changing that #ifdef
+check back to testing for both CONFIG_OF and CONFIG_NET.
 
-[bhelgaas: commit log]
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215540
-Fixes: 91a8d79fc797 ("PCI: mvebu: Fix configuring secondary bus of PCIe Root Port via emulated bridge")
-Link: https://lore.kernel.org/r/20220214110228.25825-1-pali@kernel.org
-Link: https://lore.kernel.org/r/20220127234917.GA150851@bhelgaas
-Reported-by: Jan Palus <jpalus@fastmail.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: e330fb14590c ("of: net: move of_net under net/")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211014090055.2058949-1-arnd@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-mvebu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/of_net.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-mvebu.c b/drivers/pci/controller/pci-mvebu.c
-index 357e9a293edf7..2a3bf82aa4e26 100644
---- a/drivers/pci/controller/pci-mvebu.c
-+++ b/drivers/pci/controller/pci-mvebu.c
-@@ -1288,7 +1288,8 @@ static int mvebu_pcie_probe(struct platform_device *pdev)
- 		 * indirectly via kernel emulated PCI bridge driver.
- 		 */
- 		mvebu_pcie_setup_hw(port);
--		mvebu_pcie_set_local_dev_nr(port, 0);
-+		mvebu_pcie_set_local_dev_nr(port, 1);
-+		mvebu_pcie_set_local_bus_nr(port, 0);
- 	}
+diff --git a/include/linux/of_net.h b/include/linux/of_net.h
+index cf31188329b5a..55460ecfa50ad 100644
+--- a/include/linux/of_net.h
++++ b/include/linux/of_net.h
+@@ -8,7 +8,7 @@
  
- 	pcie->nports = i;
+ #include <linux/phy.h>
+ 
+-#ifdef CONFIG_OF
++#if defined(CONFIG_OF) && defined(CONFIG_NET)
+ #include <linux/of.h>
+ 
+ struct net_device;
 -- 
 2.34.1
 
