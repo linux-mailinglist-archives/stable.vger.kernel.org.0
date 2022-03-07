@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D466B4CF522
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C43D84CF760
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:45:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236755AbiCGJYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:24:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
+        id S238380AbiCGJps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236699AbiCGJYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:24:25 -0500
+        with ESMTP id S238280AbiCGJiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DDD58806;
-        Mon,  7 Mar 2022 01:23:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 657B56622F;
+        Mon,  7 Mar 2022 01:32:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FB761146;
-        Mon,  7 Mar 2022 09:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AFE2C340F4;
-        Mon,  7 Mar 2022 09:23:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8601F6112D;
+        Mon,  7 Mar 2022 09:32:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F4E7C340F3;
+        Mon,  7 Mar 2022 09:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645003;
-        bh=SaOWSdfpn9CGBVS1B4toCBOUU00mGD5nHWoK8cA+Qkk=;
+        s=korg; t=1646645541;
+        bh=gxPrhTGW0ZDgmDqLkGfBMfRQjpypB7P4AmaZkDIlRQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGVjRV11OoUlkfUXarpi689VxaNlTTBfYVtd2b0NBRLPGzmQlU5tSMLtUmP2G+Ctm
-         bczT877njZRnxi78HnmFXHdjEUK58YVJcTypwNb3lzU4vRmE84S6oYZnJNAw9PCmWS
-         FvQ/KVRUQ5Mg2IOzDUlSCVmA1FxDpY0WI2xvWXRQ=
+        b=ppTNNtktfoHFiIgMK5Kbget9WxWB67wA/llBkv3kbEgD3NcBs+n2k/bNubtqjjfD8
+         7UYj5ecII4FXyMWiUl5reV/k7ACuU12Eo0JgrqS2mlRQvkrCtSY5WxVDPO6EBsCzXO
+         ZsC330kLvT8GxXOV36wE0VUkAiRaIRmiX74HrRBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Siva Reddy <siva.kallam@samsung.com>,
-        Girish K S <ks.giri@samsung.com>,
-        Byungho An <bh74.an@samsung.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 30/42] net: sxgbe: fix return value of __setup handler
-Date:   Mon,  7 Mar 2022 10:19:04 +0100
-Message-Id: <20220307091637.029989429@linuxfoundation.org>
+        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 062/105] mac80211: treat some SAE auth steps as final
+Date:   Mon,  7 Mar 2022 10:19:05 +0100
+Message-Id: <20220307091645.923943356@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
-References: <20220307091636.146155347@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 50e06ddceeea263f57fe92baa677c638ecd65bb6 upstream.
+commit 94d9864cc86f572f881db9b842a78e9d075493ae upstream.
 
-__setup() handlers should return 1 on success, i.e., the parameter
-has been handled. A return of 0 causes the "option=value" string to be
-added to init's environment strings, polluting it.
+When we get anti-clogging token required (added by the commit
+mentioned below), or the other status codes added by the later
+commit 4e56cde15f7d ("mac80211: Handle special status codes in
+SAE commit") we currently just pretend (towards the internal
+state machine of authentication) that we didn't receive anything.
 
-Fixes: acc18c147b22 ("net: sxgbe: add EEE(Energy Efficient Ethernet) for Samsung sxgbe")
-Fixes: 1edb9ca69e8a ("net: sxgbe: add basic framework for Samsung 10Gb ethernet driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Siva Reddy <siva.kallam@samsung.com>
-Cc: Girish K S <ks.giri@samsung.com>
-Cc: Byungho An <bh74.an@samsung.com>
-Link: https://lore.kernel.org/r/20220224033528.24640-1-rdunlap@infradead.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This has the undesirable consequence of retransmitting the prior
+frame, which is not expected, because the timer is still armed.
+
+If we just disarm the timer at that point, it would result in
+the undesirable side effect of being in this state indefinitely
+if userspace crashes, or so.
+
+So to fix this, reset the timer and set a new auth_data->waiting
+in order to have no more retransmissions, but to have the data
+destroyed when the timer actually fires, which will only happen
+if userspace didn't continue (i.e. crashed or abandoned it.)
+
+Fixes: a4055e74a2ff ("mac80211: Don't destroy auth data in case of anti-clogging")
+Reported-by: Jouni Malinen <j@w1.fi>
+Link: https://lore.kernel.org/r/20220224103932.75964e1d7932.Ia487f91556f29daae734bf61f8181404642e1eec@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/mac80211/ieee80211_i.h |    2 +-
+ net/mac80211/mlme.c        |   16 ++++++++++++----
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-+++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-@@ -2282,18 +2282,18 @@ static int __init sxgbe_cmdline_opt(char
- 	char *opt;
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -374,7 +374,7 @@ struct ieee80211_mgd_auth_data {
  
- 	if (!str || !*str)
--		return -EINVAL;
-+		return 1;
- 	while ((opt = strsep(&str, ",")) != NULL) {
- 		if (!strncmp(opt, "eee_timer:", 10)) {
- 			if (kstrtoint(opt + 10, 0, &eee_timer))
- 				goto err;
- 		}
- 	}
--	return 0;
-+	return 1;
+ 	u8 key[WLAN_KEY_LEN_WEP104];
+ 	u8 key_len, key_idx;
+-	bool done;
++	bool done, waiting;
+ 	bool peer_confirmed;
+ 	bool timeout_started;
  
- err:
- 	pr_err("%s: ERROR broken module parameter conversion\n", __func__);
--	return -EINVAL;
-+	return 1;
- }
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -37,6 +37,7 @@
+ #define IEEE80211_AUTH_TIMEOUT_SAE	(HZ * 2)
+ #define IEEE80211_AUTH_MAX_TRIES	3
+ #define IEEE80211_AUTH_WAIT_ASSOC	(HZ * 5)
++#define IEEE80211_AUTH_WAIT_SAE_RETRY	(HZ * 2)
+ #define IEEE80211_ASSOC_TIMEOUT		(HZ / 5)
+ #define IEEE80211_ASSOC_TIMEOUT_LONG	(HZ / 2)
+ #define IEEE80211_ASSOC_TIMEOUT_SHORT	(HZ / 10)
+@@ -2999,8 +3000,15 @@ static void ieee80211_rx_mgmt_auth(struc
+ 		    (status_code == WLAN_STATUS_ANTI_CLOG_REQUIRED ||
+ 		     (auth_transaction == 1 &&
+ 		      (status_code == WLAN_STATUS_SAE_HASH_TO_ELEMENT ||
+-		       status_code == WLAN_STATUS_SAE_PK))))
++		       status_code == WLAN_STATUS_SAE_PK)))) {
++			/* waiting for userspace now */
++			ifmgd->auth_data->waiting = true;
++			ifmgd->auth_data->timeout =
++				jiffies + IEEE80211_AUTH_WAIT_SAE_RETRY;
++			ifmgd->auth_data->timeout_started = true;
++			run_again(sdata, ifmgd->auth_data->timeout);
+ 			return;
++		}
  
- __setup("sxgbeeth=", sxgbe_cmdline_opt);
+ 		sdata_info(sdata, "%pM denied authentication (status %d)\n",
+ 			   mgmt->sa, status_code);
+@@ -4526,10 +4534,10 @@ void ieee80211_sta_work(struct ieee80211
+ 
+ 	if (ifmgd->auth_data && ifmgd->auth_data->timeout_started &&
+ 	    time_after(jiffies, ifmgd->auth_data->timeout)) {
+-		if (ifmgd->auth_data->done) {
++		if (ifmgd->auth_data->done || ifmgd->auth_data->waiting) {
+ 			/*
+-			 * ok ... we waited for assoc but userspace didn't,
+-			 * so let's just kill the auth data
++			 * ok ... we waited for assoc or continuation but
++			 * userspace didn't do it, so kill the auth data
+ 			 */
+ 			ieee80211_destroy_auth_data(sdata, false);
+ 		} else if (ieee80211_auth(sdata)) {
 
 
