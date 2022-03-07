@@ -2,129 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 277E44D048C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 17:51:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B08A4D04B3
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 17:56:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237188AbiCGQwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 11:52:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51092 "EHLO
+        id S244349AbiCGQ5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 11:57:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232809AbiCGQwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 11:52:10 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7051066FB4
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 08:51:16 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id e15so12829248pfv.11
-        for <stable@vger.kernel.org>; Mon, 07 Mar 2022 08:51:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=22jr83ksN+0ptUH+iJwPMNkt4Mg7rjUCgFK7Ro1mRv8=;
-        b=eNhWMy7N5BxvSEIsPWkocoYyzCpnx9ImlcrlQukeNT7MvfxCps5MoVnh1cT65g5BKf
-         NA2Jmkhjp8QpWgeaoEzaQFlumj1m7t1YExgfz4hPo/XboHSfXbBr3Z+R9Pj7zzskH8kR
-         fRQuKobsgjMx3BKynakkyE1kk5Py7u9ycO+XYrTSAqSCDKJ2fKKNp6X/SHAX4ZxZbopT
-         PZmt3dbDlhCeAtWYXtI+xHOv1xIGrsG7hGOXKiVoXtKraifY2XOLN3wIlvkG/9W7WIeQ
-         Quao5mvIB6NgVeP0hpszI2iUFe3c2rN1tC/tq9BqfC/6epyo5JNO1/grNdHj7d3KH6wA
-         Y0gQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=22jr83ksN+0ptUH+iJwPMNkt4Mg7rjUCgFK7Ro1mRv8=;
-        b=NDegIOuaZ2nc30r/vw7xZv5XGbMTJQsjBoalsykhB5dJYLeh10ZTrPeydmwLaATDEp
-         IAc/AWTJA9Iw5DiLmMwA9j3smrx7Pk+9K4Zprobt8Bw84SweUWrzkOcywgCCQdEqF+V8
-         Kc7bwyKOSKS3dvB6NSNLrjzidNDeI/hHpaunOEOSo4VDlWMIAn3XMYPbG/l7W2HPSm/y
-         +IvFCXheITPw9Fd7v0LpItwVzdtOT/z8tSg8PQs5sCh8GrOfo6o+oksW+1trHsnSh9On
-         atO4oy+1cG/QSCAeJq40lGfoZX0mXBDoJu+dKm6ekbpKNxgHf5ZfSOnNX664Ay02V3sj
-         Qzxg==
-X-Gm-Message-State: AOAM531huR0fjtl6nUYecCoXdjJLMCa4FFIQQRDxbBUrLqg6FOhoNmxO
-        uR12fo0Z4WLH8RdJlFpS3Oybh+HwD0JaYjBbDMw=
-X-Google-Smtp-Source: ABdhPJx2dj+qbbW09QFGJdpdpQoW7yjqbwdQ5n7uYY8Iu17wqdjUarUgNgr1gDqyTZV3HStCjx0NWA==
-X-Received: by 2002:a63:6cca:0:b0:37c:7cd8:e53d with SMTP id h193-20020a636cca000000b0037c7cd8e53dmr10748950pgc.600.1646671875848;
-        Mon, 07 Mar 2022 08:51:15 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b21-20020a17090a551500b001b90ef40301sm14207447pji.22.2022.03.07.08.51.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Mar 2022 08:51:15 -0800 (PST)
-Message-ID: <62263803.1c69fb81.3b5bd.4042@mx.google.com>
-Date:   Mon, 07 Mar 2022 08:51:15 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S240575AbiCGQ5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 11:57:06 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 825DC7E0A4
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 08:56:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1646672171; x=1678208171;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=AwbKo24yKF2bCePiwEFmKEP+UKMMSSUYfSyBbq1wJcM=;
+  b=afN3j9gkAYTPZRC2YKejmxdqW3luC9zBujyPmAfNYcGcfLNUCtiOwD62
+   qiiBTU5VpMT2ExN8wrXJwOesWcWTvZK2rpmQufteikQHvsVXgjpHArjKJ
+   tK480KmhOAo2ajC2n+rBnmXn2xzanZ1vu1wKq7Dc/O4f2przsStCm1eGb
+   MheI9K3QHf0XUfixVn5r20kHXYSP0NZZytVgzi8AzuAt18GLh5jwAulcR
+   wu5dS9YuF8r3ghgO/nV9iZRYJ6JWcfAgJNxsTl9c9Bsl+c6agYhGYbYOZ
+   mvraXrEpJI+t8dKt971MIexz+D6GL+xKgQVAButFS6ktRsN/6V63jMj4t
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10279"; a="254634886"
+X-IronPort-AV: E=Sophos;i="5.90,162,1643702400"; 
+   d="scan'208";a="254634886"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2022 08:56:11 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,162,1643702400"; 
+   d="scan'208";a="687601655"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.151])
+  by fmsmga001.fm.intel.com with SMTP; 07 Mar 2022 08:56:08 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Mon, 07 Mar 2022 18:56:07 +0200
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, tvrtko.ursulin@intel.com,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Subject: [PATCH stable-5.15] drm/i915: Workaround broken BIOS DBUF configuration on TGL/RKL
+Date:   Mon,  7 Mar 2022 18:56:07 +0200
+Message-Id: <20220307165607.32368-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <16464835403018@kroah.com>
+References: <16464835403018@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.269
-Subject: stable/linux-4.14.y baseline: 67 runs, 1 regressions (v4.14.269)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 67 runs, 1 regressions (v4.14.269)
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Regressions Summary
--------------------
+commit 4e6f55120c7eccf6f9323bb681632e23cbcb3f3c upstream.
 
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+On TGL/RKL the BIOS likes to use some kind of bogus DBUF layout
+that doesn't match what the spec recommends. With a single active
+pipe that is not going to be a problem, but with multiple pipes
+active skl_commit_modeset_enables() goes into an infinite loop
+since it can't figure out any order in which it can commit the
+pipes without causing DBUF overlaps between the planes.
 
+We'd need some kind of extra DBUF defrag stage in between to
+make the transition possible. But that is clearly way too complex
+a solution, so in the name of simplicity let's just sanitize the
+DBUF state by simply turning off all planes when we detect a
+pipe encroaching on its neighbours' DBUF slices. We only have
+to disable the primary planes as all other planes should have
+already been disabled (if they somehow were enabled) by
+earlier sanitization steps.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.269/plan/baseline/
+And for good measure let's also sanitize in case the DBUF
+allocations of the pipes already seem to overlap each other.
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.269
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      e853993d29aa42ac4b3c2912db975a0a66d7a5b0 =
+Cc: <stable@vger.kernel.org> # v5.14+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4762
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220204141818.1900-3-ville.syrjala@linux.intel.com
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+(cherry picked from commit 15512021eb3975a8c2366e3883337e252bb0eee5)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+(cherry picked from commit 4e6f55120c7eccf6f9323bb681632e23cbcb3f3c)
+---
+The chain of additional cherry-picks needed to get
+intel_plane_disable_noatomic() destaticed looked pretty
+hairy, so I just fixed it up manually.
 
+ drivers/gpu/drm/i915/display/intel_display.c |  5 +-
+ drivers/gpu/drm/i915/display/intel_display.h |  2 +
+ drivers/gpu/drm/i915/intel_pm.c              | 68 ++++++++++++++++++++
+ drivers/gpu/drm/i915/intel_pm.h              |  1 +
+ 4 files changed, 74 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 17f44ffea586..3bffed7b8ce7 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -1833,8 +1833,8 @@ static void fixup_plane_bitmasks(struct intel_crtc_state *crtc_state)
+ 	}
+ }
+ 
+-static void intel_plane_disable_noatomic(struct intel_crtc *crtc,
+-					 struct intel_plane *plane)
++void intel_plane_disable_noatomic(struct intel_crtc *crtc,
++				  struct intel_plane *plane)
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(crtc->base.dev);
+ 	struct intel_crtc_state *crtc_state =
+@@ -13435,6 +13435,7 @@ intel_modeset_setup_hw_state(struct drm_device *dev,
+ 		vlv_wm_sanitize(dev_priv);
+ 	} else if (DISPLAY_VER(dev_priv) >= 9) {
+ 		skl_wm_get_hw_state(dev_priv);
++		skl_wm_sanitize(dev_priv);
+ 	} else if (HAS_PCH_SPLIT(dev_priv)) {
+ 		ilk_wm_get_hw_state(dev_priv);
+ 	}
+diff --git a/drivers/gpu/drm/i915/display/intel_display.h b/drivers/gpu/drm/i915/display/intel_display.h
+index 284936f0ddab..6a7a91b38080 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.h
++++ b/drivers/gpu/drm/i915/display/intel_display.h
+@@ -629,6 +629,8 @@ void intel_plane_unpin_fb(struct intel_plane_state *old_plane_state);
+ struct intel_encoder *
+ intel_get_crtc_new_encoder(const struct intel_atomic_state *state,
+ 			   const struct intel_crtc_state *crtc_state);
++void intel_plane_disable_noatomic(struct intel_crtc *crtc,
++				  struct intel_plane *plane);
+ 
+ unsigned int intel_surf_alignment(const struct drm_framebuffer *fb,
+ 				  int color_plane);
+diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+index 9c5e4758947b..c7c8a556e401 100644
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -6681,6 +6681,74 @@ void skl_wm_get_hw_state(struct drm_i915_private *dev_priv)
+ 	dbuf_state->enabled_slices = dev_priv->dbuf.enabled_slices;
+ }
+ 
++static bool skl_dbuf_is_misconfigured(struct drm_i915_private *i915)
++{
++	const struct intel_dbuf_state *dbuf_state =
++		to_intel_dbuf_state(i915->dbuf.obj.state);
++	struct skl_ddb_entry entries[I915_MAX_PIPES] = {};
++	struct intel_crtc *crtc;
++
++	for_each_intel_crtc(&i915->drm, crtc) {
++		const struct intel_crtc_state *crtc_state =
++			to_intel_crtc_state(crtc->base.state);
++
++		entries[crtc->pipe] = crtc_state->wm.skl.ddb;
++	}
++
++	for_each_intel_crtc(&i915->drm, crtc) {
++		const struct intel_crtc_state *crtc_state =
++			to_intel_crtc_state(crtc->base.state);
++		u8 slices;
++
++		slices = skl_compute_dbuf_slices(crtc, dbuf_state->active_pipes,
++						 dbuf_state->joined_mbus);
++		if (dbuf_state->slices[crtc->pipe] & ~slices)
++			return true;
++
++		if (skl_ddb_allocation_overlaps(&crtc_state->wm.skl.ddb, entries,
++						I915_MAX_PIPES, crtc->pipe))
++			return true;
++	}
++
++	return false;
++}
++
++void skl_wm_sanitize(struct drm_i915_private *i915)
++{
++	struct intel_crtc *crtc;
++
++	/*
++	 * On TGL/RKL (at least) the BIOS likes to assign the planes
++	 * to the wrong DBUF slices. This will cause an infinite loop
++	 * in skl_commit_modeset_enables() as it can't find a way to
++	 * transition between the old bogus DBUF layout to the new
++	 * proper DBUF layout without DBUF allocation overlaps between
++	 * the planes (which cannot be allowed or else the hardware
++	 * may hang). If we detect a bogus DBUF layout just turn off
++	 * all the planes so that skl_commit_modeset_enables() can
++	 * simply ignore them.
++	 */
++	if (!skl_dbuf_is_misconfigured(i915))
++		return;
++
++	drm_dbg_kms(&i915->drm, "BIOS has misprogrammed the DBUF, disabling all planes\n");
++
++	for_each_intel_crtc(&i915->drm, crtc) {
++		struct intel_plane *plane = to_intel_plane(crtc->base.primary);
++		const struct intel_plane_state *plane_state =
++			to_intel_plane_state(plane->base.state);
++		struct intel_crtc_state *crtc_state =
++			to_intel_crtc_state(crtc->base.state);
++
++		if (plane_state->uapi.visible)
++			intel_plane_disable_noatomic(crtc, plane);
++
++		drm_WARN_ON(&i915->drm, crtc_state->active_planes != 0);
++
++		memset(&crtc_state->wm.skl.ddb, 0, sizeof(crtc_state->wm.skl.ddb));
++	}
++}
++
+ static void ilk_pipe_wm_get_hw_state(struct intel_crtc *crtc)
+ {
+ 	struct drm_device *dev = crtc->base.dev;
+diff --git a/drivers/gpu/drm/i915/intel_pm.h b/drivers/gpu/drm/i915/intel_pm.h
+index 91f23b7f0af2..79d89fe22d8c 100644
+--- a/drivers/gpu/drm/i915/intel_pm.h
++++ b/drivers/gpu/drm/i915/intel_pm.h
+@@ -48,6 +48,7 @@ void skl_pipe_wm_get_hw_state(struct intel_crtc *crtc,
+ 			      struct skl_pipe_wm *out);
+ void g4x_wm_sanitize(struct drm_i915_private *dev_priv);
+ void vlv_wm_sanitize(struct drm_i915_private *dev_priv);
++void skl_wm_sanitize(struct drm_i915_private *dev_priv);
+ bool intel_can_enable_sagv(struct drm_i915_private *dev_priv,
+ 			   const struct intel_bw_state *bw_state);
+ void intel_sagv_pre_plane_update(struct intel_atomic_state *state);
+-- 
+2.34.1
 
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/621fccf6367bbb1e44c62968
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.269/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.269/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220218.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/621fccf6367bbb1e44c62=
-969
-        failing since 14 days (last pass: v4.14.266, first fail: v4.14.267) =
-
- =20
