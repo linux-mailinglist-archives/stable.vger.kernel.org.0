@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BD54CF628
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B284CF742
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236118AbiCGJdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:33:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
+        id S237493AbiCGJpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237364AbiCGJbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:31:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92DC9674C6;
-        Mon,  7 Mar 2022 01:29:32 -0800 (PST)
+        with ESMTP id S239094AbiCGJjM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:39:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B3BD6D191;
+        Mon,  7 Mar 2022 01:34:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C13D611E4;
-        Mon,  7 Mar 2022 09:29:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1760BC36AE3;
-        Mon,  7 Mar 2022 09:29:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9488B80E70;
+        Mon,  7 Mar 2022 09:33:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13ED6C340E9;
+        Mon,  7 Mar 2022 09:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645361;
-        bh=z5w9AmcYMwwTjhSWz8gLZUrRoEEFuaIlvJn/QOAWlFY=;
+        s=korg; t=1646645615;
+        bh=HPXmOkP3wrkQiz6RZ2g/fuX9WBPu5Ha+Bz20V8cASm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLnn+XkIDbrWb2yt+bneJASl7m2rzUkC9s4GFqsaNN/uG8ULnrv65NeVcHXS7nAjQ
-         QM1oF3RrEzEv4yg2ebRDw2mhQMdRbIGP+I67hr/HKSJ+XfNrHBkh+3JXuYIiKxkc2l
-         z14fza+cOH7q4ilIqsDKrC1GPSUKIXagErxuFGP4=
+        b=F0dalyef/PLb7PFq9H7ETh+Zfm36Kpu1yV14cy3Yijme9E6ElND06nxpl44hf3zyp
+         Du9cEqE/whLl2YuHd3YkqnbnwXFuPV+PbhV2Uh/fivUmj6W42i1Vmz9jM6mBaSOuNG
+         m6mjmRaGyas2rci3ndrApLVkI0cW9QW7KC/HtjZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 58/64] tracing/histogram: Fix sorting on old "cpu" value
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 088/105] ibmvnic: define flush_reset_queue helper
 Date:   Mon,  7 Mar 2022 10:19:31 +0100
-Message-Id: <20220307091640.796258993@linuxfoundation.org>
+Message-Id: <20220307091646.654996804@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-commit 1d1898f65616c4601208963c3376c1d828cbf2c7 upstream.
+[ Upstream commit 83da53f7e4bd86dca4b2edc1e2bb324fb3c033a1 ]
 
-When trying to add a histogram against an event with the "cpu" field, it
-was impossible due to "cpu" being a keyword to key off of the running CPU.
-So to fix this, it was changed to "common_cpu" to match the other generic
-fields (like "common_pid"). But since some scripts used "cpu" for keying
-off of the CPU (for events that did not have "cpu" as a field, which is
-most of them), a backward compatibility trick was added such that if "cpu"
-was used as a key, and the event did not have "cpu" as a field name, then
-it would fallback and switch over to "common_cpu".
+Define and use a helper to flush the reset queue.
 
-This fix has a couple of subtle bugs. One was that when switching over to
-"common_cpu", it did not change the field name, it just set a flag. But
-the code still found a "cpu" field. The "cpu" field is used for filtering
-and is returned when the event does not have a "cpu" field.
-
-This was found by:
-
-  # cd /sys/kernel/tracing
-  # echo hist:key=cpu,pid:sort=cpu > events/sched/sched_wakeup/trigger
-  # cat events/sched/sched_wakeup/hist
-
-Which showed the histogram unsorted:
-
-{ cpu:         19, pid:       1175 } hitcount:          1
-{ cpu:          6, pid:        239 } hitcount:          2
-{ cpu:         23, pid:       1186 } hitcount:         14
-{ cpu:         12, pid:        249 } hitcount:          2
-{ cpu:          3, pid:        994 } hitcount:          5
-
-Instead of hard coding the "cpu" checks, take advantage of the fact that
-trace_event_field_field() returns a special field for "cpu" and "CPU" if
-the event does not have "cpu" as a field. This special field has the
-"filter_type" of "FILTER_CPU". Check that to test if the returned field is
-of the CPU type instead of doing the string compare.
-
-Also, fix the sorting bug by testing for the hist_field flag of
-HIST_FIELD_FL_CPU when setting up the sort routine. Otherwise it will use
-the special CPU field to know what compare routine to use, and since that
-special field does not have a size, it returns tracing_map_cmp_none.
-
-Cc: stable@vger.kernel.org
-Fixes: 1e3bac71c505 ("tracing/histogram: Rename "cpu" to "common_cpu"")
-Reported-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2770a7984db5 ("ibmvnic: Introduce hard reset recovery")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2891,9 +2891,9 @@ parse_field(struct hist_trigger_data *hi
- 			/*
- 			 * For backward compatibility, if field_name
- 			 * was "cpu", then we treat this the same as
--			 * common_cpu.
-+			 * common_cpu. This also works for "CPU".
- 			 */
--			if (strcmp(field_name, "cpu") == 0) {
-+			if (field && field->filter_type == FILTER_CPU) {
- 				*flags |= HIST_FIELD_FL_CPU;
- 			} else {
- 				hist_err(tr, HIST_ERR_FIELD_NOT_FOUND,
-@@ -5247,7 +5247,7 @@ static int create_tracing_map_fields(str
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index de58824f4c18..f07468316656 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2304,12 +2304,23 @@ static void __ibmvnic_delayed_reset(struct work_struct *work)
+ 	__ibmvnic_reset(&adapter->ibmvnic_reset);
+ }
  
- 			if (hist_field->flags & HIST_FIELD_FL_STACKTRACE)
- 				cmp_fn = tracing_map_cmp_none;
--			else if (!field)
-+			else if (!field || hist_field->flags & HIST_FIELD_FL_CPU)
- 				cmp_fn = tracing_map_cmp_num(hist_field->size,
- 							     hist_field->is_signed);
- 			else if (is_string_field(field))
++static void flush_reset_queue(struct ibmvnic_adapter *adapter)
++{
++	struct list_head *entry, *tmp_entry;
++
++	if (!list_empty(&adapter->rwi_list)) {
++		list_for_each_safe(entry, tmp_entry, &adapter->rwi_list) {
++			list_del(entry);
++			kfree(list_entry(entry, struct ibmvnic_rwi, list));
++		}
++	}
++}
++
+ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
+ 			 enum ibmvnic_reset_reason reason)
+ {
+-	struct list_head *entry, *tmp_entry;
+-	struct ibmvnic_rwi *rwi, *tmp;
+ 	struct net_device *netdev = adapter->netdev;
++	struct ibmvnic_rwi *rwi, *tmp;
+ 	unsigned long flags;
+ 	int ret;
+ 
+@@ -2353,12 +2364,9 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
+ 	/* if we just received a transport event,
+ 	 * flush reset queue and process this reset
+ 	 */
+-	if (adapter->force_reset_recovery && !list_empty(&adapter->rwi_list)) {
+-		list_for_each_safe(entry, tmp_entry, &adapter->rwi_list) {
+-			list_del(entry);
+-			kfree(list_entry(entry, struct ibmvnic_rwi, list));
+-		}
+-	}
++	if (adapter->force_reset_recovery)
++		flush_reset_queue(adapter);
++
+ 	rwi->reset_reason = reason;
+ 	list_add_tail(&rwi->list, &adapter->rwi_list);
+ 	netdev_dbg(adapter->netdev, "Scheduling reset (reason %d)\n", reason);
+-- 
+2.34.1
+
 
 
