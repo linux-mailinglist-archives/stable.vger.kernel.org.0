@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0108F4CF7EC
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:51:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B704CF68A
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234703AbiCGJvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:51:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50754 "EHLO
+        id S231976AbiCGJmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:42:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239407AbiCGJtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:49:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C946E7A1;
-        Mon,  7 Mar 2022 01:43:16 -0800 (PST)
+        with ESMTP id S238472AbiCGJi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4456AA50;
+        Mon,  7 Mar 2022 01:32:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CB0E612CA;
-        Mon,  7 Mar 2022 09:43:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B303C340E9;
-        Mon,  7 Mar 2022 09:43:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15516B810B2;
+        Mon,  7 Mar 2022 09:32:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F1B3C340E9;
+        Mon,  7 Mar 2022 09:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646195;
-        bh=ubYZLPsvSjt4wj0ebdsKZ/CA5idFgv8UFzuCxWiQYVU=;
+        s=korg; t=1646645544;
+        bh=i6DxXfo7DTlXcqQp1VTy8Pv5pVrdvmqjzixtWUJOiGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=blb/sWwVMKItjSv1synZkqMjO94s6857ckzZ8kzkMWZS1BVEP9ujAt0kX5Gav8CC9
-         OJks9FHIs/97DFyjOPncIDqmpaPYP0wVFmpk5T5lo7qVJr41IfoZXGfguGMbeB3ZBr
-         xnJXYDUZg8m2cVLhsr/DQ3A0L5hlZjM9A8VGEHPI=
+        b=qY18Xaq6uHrKbBKnyi00Rk3kRLYNV3iba/AAxOFJkOPK90j5etYB57YrHdNIQOtm2
+         QZZpq3XmXqJpnKcVpsEcwYY+NVoYez+7ag9hO+cVkJXzG3z6coeynKh4CiQk4WPUjH
+         5xCR4uEz1vKYC68oCP7YgAjMouP/yrWwn88acD3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.15 163/262] batman-adv: Request iflink once in batadv-on-batadv check
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 024/105] tracing: Add ustring operation to filtering string pointers
 Date:   Mon,  7 Mar 2022 10:18:27 +0100
-Message-Id: <20220307091707.031642024@linuxfoundation.org>
+Message-Id: <20220307091644.862367188@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-commit 690bb6fb64f5dc7437317153902573ecad67593d upstream.
+[ Upstream commit f37c3bbc635994eda203a6da4ba0f9d05165a8d6 ]
 
-There is no need to call dev_get_iflink multiple times for the same
-net_device in batadv_is_on_batman_iface. And since some of the
-.ndo_get_iflink callbacks are dynamic (for example via RCUs like in
-vxcan_get_iflink), it could easily happen that the returned values are not
-stable. The pre-checks before __dev_get_by_index are then of course bogus.
+Since referencing user space pointers is special, if the user wants to
+filter on a field that is a pointer to user space, then they need to
+specify it.
 
-Fixes: b7eddd0b3950 ("batman-adv: prevent using any virtual device created on batman-adv as hard-interface")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add a ".ustring" attribute to the field name for filters to state that the
+field is pointing to user space such that the kernel can take the
+appropriate action to read that pointer.
+
+Link: https://lore.kernel.org/all/yt9d8rvmt2jq.fsf@linux.ibm.com/
+
+Fixes: 77360f9bbc7e ("tracing: Add test for user space strings when filtering on string pointers")
+Tested-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/hard-interface.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ Documentation/trace/events.rst     |  9 ++++
+ kernel/trace/trace_events_filter.c | 81 +++++++++++++++++++++---------
+ 2 files changed, 66 insertions(+), 24 deletions(-)
 
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -149,22 +149,23 @@ static bool batadv_is_on_batman_iface(co
- 	struct net *net = dev_net(net_dev);
- 	struct net_device *parent_dev;
- 	struct net *parent_net;
-+	int iflink;
- 	bool ret;
+diff --git a/Documentation/trace/events.rst b/Documentation/trace/events.rst
+index 58a471b690e07..9df29a935757a 100644
+--- a/Documentation/trace/events.rst
++++ b/Documentation/trace/events.rst
+@@ -198,6 +198,15 @@ The glob (~) accepts a wild card character (\*,?) and character classes
+   prev_comm ~ "*sh*"
+   prev_comm ~ "ba*sh"
  
- 	/* check if this is a batman-adv mesh interface */
- 	if (batadv_softif_is_valid(net_dev))
- 		return true;
- 
-+	iflink = dev_get_iflink(net_dev);
++If the field is a pointer that points into user space (for example
++"filename" from sys_enter_openat), then you have to append ".ustring" to the
++field name::
 +
- 	/* no more parents..stop recursion */
--	if (dev_get_iflink(net_dev) == 0 ||
--	    dev_get_iflink(net_dev) == net_dev->ifindex)
-+	if (iflink == 0 || iflink == net_dev->ifindex)
- 		return false;
++  filename.ustring ~ "password"
++
++As the kernel will have to know how to retrieve the memory that the pointer
++is at from user space.
++
+ 5.2 Setting filters
+ -------------------
  
- 	parent_net = batadv_getlink_net(net_dev, net);
+diff --git a/kernel/trace/trace_events_filter.c b/kernel/trace/trace_events_filter.c
+index 7b1fb811cb0ab..a255ffbe342f3 100644
+--- a/kernel/trace/trace_events_filter.c
++++ b/kernel/trace/trace_events_filter.c
+@@ -665,6 +665,23 @@ struct ustring_buffer {
+ static __percpu struct ustring_buffer *ustring_per_cpu;
  
- 	/* recurse over the parent device */
--	parent_dev = __dev_get_by_index((struct net *)parent_net,
--					dev_get_iflink(net_dev));
-+	parent_dev = __dev_get_by_index((struct net *)parent_net, iflink);
- 	/* if we got a NULL parent_dev there is something broken.. */
- 	if (!parent_dev) {
- 		pr_err("Cannot find parent device\n");
+ static __always_inline char *test_string(char *str)
++{
++	struct ustring_buffer *ubuf;
++	char *kstr;
++
++	if (!ustring_per_cpu)
++		return NULL;
++
++	ubuf = this_cpu_ptr(ustring_per_cpu);
++	kstr = ubuf->buffer;
++
++	/* For safety, do not trust the string pointer */
++	if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
++		return NULL;
++	return kstr;
++}
++
++static __always_inline char *test_ustring(char *str)
+ {
+ 	struct ustring_buffer *ubuf;
+ 	char __user *ustr;
+@@ -676,23 +693,11 @@ static __always_inline char *test_string(char *str)
+ 	ubuf = this_cpu_ptr(ustring_per_cpu);
+ 	kstr = ubuf->buffer;
+ 
+-	/*
+-	 * We use TASK_SIZE to denote user or kernel space, but this will
+-	 * not work for all architectures. If it picks the wrong one, it may
+-	 * just fail the filter (but will not bug).
+-	 *
+-	 * TODO: Have a way to properly denote which one this is for.
+-	 */
+-	if (likely((unsigned long)str >= TASK_SIZE)) {
+-		/* For safety, do not trust the string pointer */
+-		if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
+-			return NULL;
+-	} else {
+-		/* user space address? */
+-		ustr = (char __user *)str;
+-		if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
+-			return NULL;
+-	}
++	/* user space address? */
++	ustr = (char __user *)str;
++	if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
++		return NULL;
++
+ 	return kstr;
+ }
+ 
+@@ -709,24 +714,42 @@ static int filter_pred_string(struct filter_pred *pred, void *event)
+ 	return match;
+ }
+ 
++static __always_inline int filter_pchar(struct filter_pred *pred, char *str)
++{
++	int cmp, match;
++	int len;
++
++	len = strlen(str) + 1;	/* including tailing '\0' */
++	cmp = pred->regex.match(str, &pred->regex, len);
++
++	match = cmp ^ pred->not;
++
++	return match;
++}
+ /* Filter predicate for char * pointers */
+ static int filter_pred_pchar(struct filter_pred *pred, void *event)
+ {
+ 	char **addr = (char **)(event + pred->offset);
+ 	char *str;
+-	int cmp, match;
+-	int len;
+ 
+ 	str = test_string(*addr);
+ 	if (!str)
+ 		return 0;
+ 
+-	len = strlen(str) + 1;	/* including tailing '\0' */
+-	cmp = pred->regex.match(str, &pred->regex, len);
++	return filter_pchar(pred, str);
++}
+ 
+-	match = cmp ^ pred->not;
++/* Filter predicate for char * pointers in user space*/
++static int filter_pred_pchar_user(struct filter_pred *pred, void *event)
++{
++	char **addr = (char **)(event + pred->offset);
++	char *str;
+ 
+-	return match;
++	str = test_ustring(*addr);
++	if (!str)
++		return 0;
++
++	return filter_pchar(pred, str);
+ }
+ 
+ /*
+@@ -1206,6 +1229,7 @@ static int parse_pred(const char *str, void *data,
+ 	struct filter_pred *pred = NULL;
+ 	char num_buf[24];	/* Big enough to hold an address */
+ 	char *field_name;
++	bool ustring = false;
+ 	char q;
+ 	u64 val;
+ 	int len;
+@@ -1240,6 +1264,12 @@ static int parse_pred(const char *str, void *data,
+ 		return -EINVAL;
+ 	}
+ 
++	/* See if the field is a user space string */
++	if ((len = str_has_prefix(str + i, ".ustring"))) {
++		ustring = true;
++		i += len;
++	}
++
+ 	while (isspace(str[i]))
+ 		i++;
+ 
+@@ -1377,7 +1407,10 @@ static int parse_pred(const char *str, void *data,
+ 					goto err_mem;
+ 			}
+ 
+-			pred->fn = filter_pred_pchar;
++			if (ustring)
++				pred->fn = filter_pred_pchar_user;
++			else
++				pred->fn = filter_pred_pchar;
+ 		}
+ 		/* go past the last quote */
+ 		i++;
+-- 
+2.34.1
+
 
 
