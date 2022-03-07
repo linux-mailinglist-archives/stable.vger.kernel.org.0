@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC5D4CF2A0
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:32:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7FBA4CF2AD
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234444AbiCGHdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 02:33:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48280 "EHLO
+        id S235082AbiCGHhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 02:37:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235817AbiCGHd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:33:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC00DC1
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 23:32:30 -0800 (PST)
+        with ESMTP id S229835AbiCGHhN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:37:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A5ED5F8C5
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 23:36:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65DE4B8101D
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E07DC340F4;
-        Mon,  7 Mar 2022 07:32:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CAACB81015
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:36:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4377C340EF;
+        Mon,  7 Mar 2022 07:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646638348;
-        bh=V3zhvJrx8X7B5I1zAv52xR0KP4p7lLVHps/aKpfIP7s=;
+        s=korg; t=1646638576;
+        bh=Bww52vFw0zWo9h2X+D6skgORMy5nJQB+Jd7UMGxWjaU=;
         h=Subject:To:Cc:From:Date:From;
-        b=nZCw2acrunTTu/ouTtfbH1KdTQyx2ktaXAn0E5E5p6lEV9UktotMptcuT6xzxV27A
-         4tTihspFfi1S/zZFCjCfUWkh/xXKFIxvW5FEGT5I+8nUFd43WHmGEuUSAYn0q2xp3g
-         U0evNNpHTP5gO4R2FVNFWtHyX0PFXPFhYOceHJCA=
-Subject: FAILED: patch "[PATCH] btrfs: do not WARN_ON() if we have PageError set" failed to apply to 5.10-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com
+        b=ytgLonGguLNlI1Ylxw3DHA/gmDhuy46JhDFBqMYT5y4x7IbH0oH4IpufzKLuf0ymn
+         CXaa67Qab3cA3DTEHwPEBSZ1JFgKEcWgxsJQI0ZrEy9W0ykeSYchZb2UhhR/NJQPT1
+         slsyal87zO1uC3rhdU2eRTQo70UDrkxqnbiKR3Yo=
+Subject: FAILED: patch "[PATCH] btrfs: do not start relocation until in progress drops are" failed to apply to 5.10-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Mar 2022 08:32:24 +0100
-Message-ID: <164663834467252@kroah.com>
+Date:   Mon, 07 Mar 2022 08:36:13 +0100
+Message-ID: <164663857344125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,117 +59,284 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a50e1fcbc9b85fd4e95b89a75c0884cb032a3e06 Mon Sep 17 00:00:00 2001
+From b4be6aefa73c9a6899ef3ba9c5faaa8a66e333ef Mon Sep 17 00:00:00 2001
 From: Josef Bacik <josef@toxicpanda.com>
-Date: Fri, 18 Feb 2022 10:17:39 -0500
-Subject: [PATCH] btrfs: do not WARN_ON() if we have PageError set
+Date: Fri, 18 Feb 2022 14:56:10 -0500
+Subject: [PATCH] btrfs: do not start relocation until in progress drops are
+ done
 
-Whenever we do any extent buffer operations we call
-assert_eb_page_uptodate() to complain loudly if we're operating on an
-non-uptodate page.  Our overnight tests caught this warning earlier this
-week
+We hit a bug with a recovering relocation on mount for one of our file
+systems in production.  I reproduced this locally by injecting errors
+into snapshot delete with balance running at the same time.  This
+presented as an error while looking up an extent item
 
-  WARNING: CPU: 1 PID: 553508 at fs/btrfs/extent_io.c:6849 assert_eb_page_uptodate+0x3f/0x50
-  CPU: 1 PID: 553508 Comm: kworker/u4:13 Tainted: G        W         5.17.0-rc3+ #564
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  Workqueue: btrfs-cache btrfs_work_helper
-  RIP: 0010:assert_eb_page_uptodate+0x3f/0x50
-  RSP: 0018:ffffa961440a7c68 EFLAGS: 00010246
-  RAX: 0017ffffc0002112 RBX: ffffe6e74453f9c0 RCX: 0000000000001000
-  RDX: ffffe6e74467c887 RSI: ffffe6e74453f9c0 RDI: ffff8d4c5efc2fc0
-  RBP: 0000000000000d56 R08: ffff8d4d4a224000 R09: 0000000000000000
-  R10: 00015817fa9d1ef0 R11: 000000000000000c R12: 00000000000007b1
-  R13: ffff8d4c5efc2fc0 R14: 0000000001500000 R15: 0000000001cb1000
-  FS:  0000000000000000(0000) GS:ffff8d4dbbd00000(0000) knlGS:0000000000000000
+  WARNING: CPU: 5 PID: 1501 at fs/btrfs/extent-tree.c:866 lookup_inline_extent_backref+0x647/0x680
+  CPU: 5 PID: 1501 Comm: btrfs-balance Not tainted 5.16.0-rc8+ #8
+  RIP: 0010:lookup_inline_extent_backref+0x647/0x680
+  RSP: 0018:ffffae0a023ab960 EFLAGS: 00010202
+  RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: 000000000000000c RDI: 0000000000000000
+  RBP: ffff943fd2a39b60 R08: 0000000000000000 R09: 0000000000000001
+  R10: 0001434088152de0 R11: 0000000000000000 R12: 0000000001d05000
+  R13: ffff943fd2a39b60 R14: ffff943fdb96f2a0 R15: ffff9442fc923000
+  FS:  0000000000000000(0000) GS:ffff944e9eb40000(0000) knlGS:0000000000000000
   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007ff31d3448d8 CR3: 0000000118be8004 CR4: 0000000000370ee0
+  CR2: 00007f1157b1fca8 CR3: 000000010f092000 CR4: 0000000000350ee0
   Call Trace:
+   <TASK>
+   insert_inline_extent_backref+0x46/0xd0
+   __btrfs_inc_extent_ref.isra.0+0x5f/0x200
+   ? btrfs_merge_delayed_refs+0x164/0x190
+   __btrfs_run_delayed_refs+0x561/0xfa0
+   ? btrfs_search_slot+0x7b4/0xb30
+   ? btrfs_update_root+0x1a9/0x2c0
+   btrfs_run_delayed_refs+0x73/0x1f0
+   ? btrfs_update_root+0x1a9/0x2c0
+   btrfs_commit_transaction+0x50/0xa50
+   ? btrfs_update_reloc_root+0x122/0x220
+   prepare_to_merge+0x29f/0x320
+   relocate_block_group+0x2b8/0x550
+   btrfs_relocate_block_group+0x1a6/0x350
+   btrfs_relocate_chunk+0x27/0xe0
+   btrfs_balance+0x777/0xe60
+   balance_kthread+0x35/0x50
+   ? btrfs_balance+0xe60/0xe60
+   kthread+0x16b/0x190
+   ? set_kthread_struct+0x40/0x40
+   ret_from_fork+0x22/0x30
+   </TASK>
 
-   extent_buffer_test_bit+0x3f/0x70
-   free_space_test_bit+0xa6/0xc0
-   load_free_space_tree+0x1f6/0x470
-   caching_thread+0x454/0x630
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? lock_release+0x1f0/0x2d0
-   btrfs_work_helper+0xf2/0x3e0
-   ? lock_release+0x1f0/0x2d0
-   ? finish_task_switch.isra.0+0xf9/0x3a0
-   process_one_work+0x26d/0x580
-   ? process_one_work+0x580/0x580
-   worker_thread+0x55/0x3b0
-   ? process_one_work+0x580/0x580
-   kthread+0xf0/0x120
-   ? kthread_complete_and_exit+0x20/0x20
-   ret_from_fork+0x1f/0x30
+Normally snapshot deletion and relocation are excluded from running at
+the same time by the fs_info->cleaner_mutex.  However if we had a
+pending balance waiting to get the ->cleaner_mutex, and a snapshot
+deletion was running, and then the box crashed, we would come up in a
+state where we have a half deleted snapshot.
 
-This was partially fixed by c2e39305299f01 ("btrfs: clear extent buffer
-uptodate when we fail to write it"), however all that fix did was keep
-us from finding extent buffers after a failed writeout.  It didn't keep
-us from continuing to use a buffer that we already had found.
+Again, in the normal case the snapshot deletion needs to complete before
+relocation can start, but in this case relocation could very well start
+before the snapshot deletion completes, as we simply add the root to the
+dead roots list and wait for the next time the cleaner runs to clean up
+the snapshot.
 
-In this case we're searching the commit root to cache the block group,
-so we can start committing the transaction and switch the commit root
-and then start writing.  After the switch we can look up an extent
-buffer that hasn't been written yet and start processing that block
-group.  Then we fail to write that block out and clear Uptodate on the
-page, and then we start spewing these errors.
+Fix this by setting a bit on the fs_info if we have any DEAD_ROOT's that
+had a pending drop_progress key.  If they do then we know we were in the
+middle of the drop operation and set a flag on the fs_info.  Then
+balance can wait until this flag is cleared to start up again.
 
-Normally we're protected by the tree lock to a certain degree here.  If
-we read a block we have that block read locked, and we block the writer
-from locking the block before we submit it for the write.  However this
-isn't necessarily fool proof because the read could happen before we do
-the submit_bio and after we locked and unlocked the extent buffer.
+If there are DEAD_ROOT's that don't have a drop_progress set then we're
+safe to start balance right away as we'll be properly protected by the
+cleaner_mutex.
 
-Also in this particular case we have path->skip_locking set, so that
-won't save us here.  We'll simply get a block that was valid when we
-read it, but became invalid while we were using it.
-
-What we really want is to catch the case where we've "read" a block but
-it's not marked Uptodate.  On read we ClearPageError(), so if we're
-!Uptodate and !Error we know we didn't do the right thing for reading
-the page.
-
-Fix this by checking !Uptodate && !Error, this way we will not complain
-if our buffer gets invalidated while we're using it, and we'll maintain
-the spirit of the check which is to make sure we have a fully in-cache
-block while we're messing with it.
-
-CC: stable@vger.kernel.org # 5.4+
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index d6d48ecf823c..9081223c3230 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -6851,14 +6851,24 @@ static void assert_eb_page_uptodate(const struct extent_buffer *eb,
- {
- 	struct btrfs_fs_info *fs_info = eb->fs_info;
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index 947f04789389..ebb2d109e8bb 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -602,6 +602,9 @@ enum {
+ 	/* Indicate that we want the transaction kthread to commit right now. */
+ 	BTRFS_FS_COMMIT_TRANS,
+ 
++	/* Indicate we have half completed snapshot deletions pending. */
++	BTRFS_FS_UNFINISHED_DROPS,
++
+ #if BITS_PER_LONG == 32
+ 	/* Indicate if we have error/warn message printed on 32bit systems */
+ 	BTRFS_FS_32BIT_ERROR,
+@@ -1106,8 +1109,15 @@ enum {
+ 	BTRFS_ROOT_QGROUP_FLUSHING,
+ 	/* We started the orphan cleanup for this root. */
+ 	BTRFS_ROOT_ORPHAN_CLEANUP,
++	/* This root has a drop operation that was started previously. */
++	BTRFS_ROOT_UNFINISHED_DROP,
+ };
+ 
++static inline void btrfs_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
++{
++	clear_and_wake_up_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
++}
++
+ /*
+  * Record swapped tree blocks of a subvolume tree for delayed subtree trace
+  * code. For detail check comment in fs/btrfs/qgroup.c.
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 87a5addbedf6..48590a380762 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3813,6 +3813,10 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
+ 
+ 	set_bit(BTRFS_FS_OPEN, &fs_info->flags);
+ 
++	/* Kick the cleaner thread so it'll start deleting snapshots. */
++	if (test_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags))
++		wake_up_process(fs_info->cleaner_kthread);
++
+ clear_oneshot:
+ 	btrfs_clear_oneshot_options(fs_info);
+ 	return 0;
+@@ -4538,6 +4542,12 @@ void __cold close_ctree(struct btrfs_fs_info *fs_info)
+ 	 */
+ 	kthread_park(fs_info->cleaner_kthread);
  
 +	/*
-+	 * If we are using the commit root we could potentially clear a page
-+	 * Uptodate while we're using the extent buffer that we've previously
-+	 * looked up.  We don't want to complain in this case, as the page was
-+	 * valid before, we just didn't write it out.  Instead we want to catch
-+	 * the case where we didn't actually read the block properly, which
-+	 * would have !PageUptodate && !PageError, as we clear PageError before
-+	 * reading.
++	 * If we had UNFINISHED_DROPS we could still be processing them, so
++	 * clear that bit and wake up relocation so it can stop.
 +	 */
- 	if (fs_info->sectorsize < PAGE_SIZE) {
--		bool uptodate;
-+		bool uptodate, error;
++	btrfs_wake_unfinished_drop(fs_info);
++
+ 	/* wait for the qgroup rescan worker to stop */
+ 	btrfs_qgroup_wait_for_completion(fs_info, false);
  
- 		uptodate = btrfs_subpage_test_uptodate(fs_info, page,
- 						       eb->start, eb->len);
--		WARN_ON(!uptodate);
-+		error = btrfs_subpage_test_error(fs_info, page, eb->start, eb->len);
-+		WARN_ON(!uptodate && !error);
- 	} else {
--		WARN_ON(!PageUptodate(page));
-+		WARN_ON(!PageUptodate(page) && !PageError(page));
- 	}
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index d89273c4b6b8..96427b1ecac3 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -5622,6 +5622,7 @@ int btrfs_drop_snapshot(struct btrfs_root *root, int update_ref, int for_reloc)
+ 	int ret;
+ 	int level;
+ 	bool root_dropped = false;
++	bool unfinished_drop = false;
+ 
+ 	btrfs_debug(fs_info, "Drop subvolume %llu", root->root_key.objectid);
+ 
+@@ -5664,6 +5665,8 @@ int btrfs_drop_snapshot(struct btrfs_root *root, int update_ref, int for_reloc)
+ 	 * already dropped.
+ 	 */
+ 	set_bit(BTRFS_ROOT_DELETING, &root->state);
++	unfinished_drop = test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
++
+ 	if (btrfs_disk_key_objectid(&root_item->drop_progress) == 0) {
+ 		level = btrfs_header_level(root->node);
+ 		path->nodes[level] = btrfs_lock_root_node(root);
+@@ -5838,6 +5841,13 @@ out_free:
+ 	kfree(wc);
+ 	btrfs_free_path(path);
+ out:
++	/*
++	 * We were an unfinished drop root, check to see if there are any
++	 * pending, and if not clear and wake up any waiters.
++	 */
++	if (!err && unfinished_drop)
++		btrfs_maybe_wake_unfinished_drop(fs_info);
++
+ 	/*
+ 	 * So if we need to stop dropping the snapshot for whatever reason we
+ 	 * need to make sure to add it back to the dead root list so that we
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index f5465197996d..9d8054839782 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3960,6 +3960,19 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
+ 	int rw = 0;
+ 	int err = 0;
+ 
++	/*
++	 * This only gets set if we had a half-deleted snapshot on mount.  We
++	 * cannot allow relocation to start while we're still trying to clean up
++	 * these pending deletions.
++	 */
++	ret = wait_on_bit(&fs_info->flags, BTRFS_FS_UNFINISHED_DROPS, TASK_INTERRUPTIBLE);
++	if (ret)
++		return ret;
++
++	/* We may have been woken up by close_ctree, so bail if we're closing. */
++	if (btrfs_fs_closing(fs_info))
++		return -EINTR;
++
+ 	bg = btrfs_lookup_block_group(fs_info, group_start);
+ 	if (!bg)
+ 		return -ENOENT;
+diff --git a/fs/btrfs/root-tree.c b/fs/btrfs/root-tree.c
+index 3d68d2dcd83e..ca7426ef61c8 100644
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -278,6 +278,21 @@ int btrfs_find_orphan_roots(struct btrfs_fs_info *fs_info)
+ 
+ 		WARN_ON(!test_bit(BTRFS_ROOT_ORPHAN_ITEM_INSERTED, &root->state));
+ 		if (btrfs_root_refs(&root->root_item) == 0) {
++			struct btrfs_key drop_key;
++
++			btrfs_disk_key_to_cpu(&drop_key, &root->root_item.drop_progress);
++			/*
++			 * If we have a non-zero drop_progress then we know we
++			 * made it partly through deleting this snapshot, and
++			 * thus we need to make sure we block any balance from
++			 * happening until this snapshot is completely dropped.
++			 */
++			if (drop_key.objectid != 0 || drop_key.type != 0 ||
++			    drop_key.offset != 0) {
++				set_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
++				set_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
++			}
++
+ 			set_bit(BTRFS_ROOT_DEAD_TREE, &root->state);
+ 			btrfs_add_dead_root(root);
+ 		}
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index c3cfdfd8de9b..f17bf3764ce8 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -1319,6 +1319,32 @@ again:
+ 	return 0;
  }
  
++/*
++ * If we had a pending drop we need to see if there are any others left in our
++ * dead roots list, and if not clear our bit and wake any waiters.
++ */
++void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
++{
++	/*
++	 * We put the drop in progress roots at the front of the list, so if the
++	 * first entry doesn't have UNFINISHED_DROP set we can wake everybody
++	 * up.
++	 */
++	spin_lock(&fs_info->trans_lock);
++	if (!list_empty(&fs_info->dead_roots)) {
++		struct btrfs_root *root = list_first_entry(&fs_info->dead_roots,
++							   struct btrfs_root,
++							   root_list);
++		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state)) {
++			spin_unlock(&fs_info->trans_lock);
++			return;
++		}
++	}
++	spin_unlock(&fs_info->trans_lock);
++
++	btrfs_wake_unfinished_drop(fs_info);
++}
++
+ /*
+  * dead roots are old snapshots that need to be deleted.  This allocates
+  * a dirty root struct and adds it into the list of dead roots that need to
+@@ -1331,7 +1357,12 @@ void btrfs_add_dead_root(struct btrfs_root *root)
+ 	spin_lock(&fs_info->trans_lock);
+ 	if (list_empty(&root->root_list)) {
+ 		btrfs_grab_root(root);
+-		list_add_tail(&root->root_list, &fs_info->dead_roots);
++
++		/* We want to process the partially complete drops first. */
++		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state))
++			list_add(&root->root_list, &fs_info->dead_roots);
++		else
++			list_add_tail(&root->root_list, &fs_info->dead_roots);
+ 	}
+ 	spin_unlock(&fs_info->trans_lock);
+ }
+diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
+index 9402d8d94484..ba8a9826eb37 100644
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -216,6 +216,7 @@ int btrfs_wait_for_commit(struct btrfs_fs_info *fs_info, u64 transid);
+ 
+ void btrfs_add_dead_root(struct btrfs_root *root);
+ int btrfs_defrag_root(struct btrfs_root *root);
++void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info);
+ int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root);
+ int btrfs_commit_transaction(struct btrfs_trans_handle *trans);
+ void btrfs_commit_transaction_async(struct btrfs_trans_handle *trans);
 
