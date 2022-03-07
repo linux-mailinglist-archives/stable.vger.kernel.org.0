@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F23BC4CF5E3
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F12C14CF71B
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237267AbiCGJbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36260 "EHLO
+        id S238007AbiCGJoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237191AbiCGJaj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:30:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB76D652E2;
-        Mon,  7 Mar 2022 01:29:11 -0800 (PST)
+        with ESMTP id S238826AbiCGJix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE586BDFD;
+        Mon,  7 Mar 2022 01:33:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E39DB810BF;
-        Mon,  7 Mar 2022 09:29:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97C82C340F3;
-        Mon,  7 Mar 2022 09:29:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5A2A6116E;
+        Mon,  7 Mar 2022 09:33:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2295C340F3;
+        Mon,  7 Mar 2022 09:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645349;
-        bh=UDiUSxdVlF03zmyCAAJ1XdSqruRRjoof5WO0J5NUuMc=;
+        s=korg; t=1646645603;
+        bh=oe7SPUu/FZii2D5OpDZKgwBQny+lXJx42fOx2VDyJj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCAxd2NX5Wh0HwoYbvRrUtnomkUTwrqwkMS5pbTONVcINyCgIHndz0IBNhCXGz8W8
-         H97DJRNGR4ae9RTL7fKAoUzT4oWniWS7/oGJqs+phaBkYuPMgRtA2ciE/W3nQFxAVi
-         ttStmJK+hym6uWqgPaivh4A8cKa5hK36yXXJJXvI=
+        b=eZ+lZXhwwy5dsMzeFCTfBCl9k+1eZYhnJqFSFSC3+cbbmyVkFX2GRVKNJCzujsyOj
+         cCwNrf69xeQ7h96x4l3regTML1ilUqzxICSiXXkqV2YoDBygGRAo89DqIfi2TMh2q1
+         PiOkslrI99WLzwDmv7sjBoKmpAHGU+iN2NtAnGuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.4 54/64] Input: elan_i2c - move regulator_[en|dis]able() out of elan_[en|dis]able_power()
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 084/105] soc: fsl: guts: Revert commit 3c0d64e867ed
 Date:   Mon,  7 Mar 2022 10:19:27 +0100
-Message-Id: <20220307091640.685111676@linuxfoundation.org>
+Message-Id: <20220307091646.542408900@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,125 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 81a36d8ce554b82b0a08e2b95d0bd44fcbff339b upstream.
+[ Upstream commit b113737cf12964a20cc3ba1ddabe6229099661c6 ]
 
-elan_disable_power() is called conditionally on suspend, where as
-elan_enable_power() is always called on resume. This leads to
-an imbalance in the regulator's enable count.
+This reverts commit 3c0d64e867ed
+("soc: fsl: guts: reuse machine name from device tree").
 
-Move the regulator_[en|dis]able() calls out of elan_[en|dis]able_power()
-in preparation of fixing this.
+A following patch will fix the missing memory allocation failure check
+instead.
 
-No functional changes intended.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220131135436.29638-1-hdegoede@redhat.com
-[dtor: consolidate elan_[en|dis]able() into elan_set_power()]
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/elan_i2c_core.c |   62 ++++++++++++------------------------
- 1 file changed, 22 insertions(+), 40 deletions(-)
+ drivers/soc/fsl/guts.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -139,55 +139,21 @@ static int elan_get_fwinfo(u16 ic_type,
+diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
+index 34810f9bb2ee..6d7465afd6fd 100644
+--- a/drivers/soc/fsl/guts.c
++++ b/drivers/soc/fsl/guts.c
+@@ -28,7 +28,6 @@ struct fsl_soc_die_attr {
+ static struct guts *guts;
+ static struct soc_device_attribute soc_dev_attr;
+ static struct soc_device *soc_dev;
+-static struct device_node *root;
+ 
+ 
+ /* SoC die attribute definition for QorIQ platform */
+@@ -138,7 +137,7 @@ static u32 fsl_guts_get_svr(void)
+ 
+ static int fsl_guts_probe(struct platform_device *pdev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
++	struct device_node *root, *np = pdev->dev.of_node;
+ 	struct device *dev = &pdev->dev;
+ 	struct resource *res;
+ 	const struct fsl_soc_die_attr *soc_die;
+@@ -161,8 +160,9 @@ static int fsl_guts_probe(struct platform_device *pdev)
+ 	root = of_find_node_by_path("/");
+ 	if (of_property_read_string(root, "model", &machine))
+ 		of_property_read_string_index(root, "compatible", 0, &machine);
++	of_node_put(root);
+ 	if (machine)
+-		soc_dev_attr.machine = machine;
++		soc_dev_attr.machine = devm_kstrdup(dev, machine, GFP_KERNEL);
+ 
+ 	svr = fsl_guts_get_svr();
+ 	soc_die = fsl_soc_die_match(svr, fsl_soc_die);
+@@ -197,7 +197,6 @@ static int fsl_guts_probe(struct platform_device *pdev)
+ static int fsl_guts_remove(struct platform_device *dev)
+ {
+ 	soc_device_unregister(soc_dev);
+-	of_node_put(root);
  	return 0;
  }
  
--static int elan_enable_power(struct elan_tp_data *data)
-+static int elan_set_power(struct elan_tp_data *data, bool on)
- {
- 	int repeat = ETP_RETRY_COUNT;
- 	int error;
- 
--	error = regulator_enable(data->vcc);
--	if (error) {
--		dev_err(&data->client->dev,
--			"failed to enable regulator: %d\n", error);
--		return error;
--	}
--
- 	do {
--		error = data->ops->power_control(data->client, true);
-+		error = data->ops->power_control(data->client, on);
- 		if (error >= 0)
- 			return 0;
- 
- 		msleep(30);
- 	} while (--repeat > 0);
- 
--	dev_err(&data->client->dev, "failed to enable power: %d\n", error);
--	return error;
--}
--
--static int elan_disable_power(struct elan_tp_data *data)
--{
--	int repeat = ETP_RETRY_COUNT;
--	int error;
--
--	do {
--		error = data->ops->power_control(data->client, false);
--		if (!error) {
--			error = regulator_disable(data->vcc);
--			if (error) {
--				dev_err(&data->client->dev,
--					"failed to disable regulator: %d\n",
--					error);
--				/* Attempt to power the chip back up */
--				data->ops->power_control(data->client, true);
--				break;
--			}
--
--			return 0;
--		}
--
--		msleep(30);
--	} while (--repeat > 0);
--
--	dev_err(&data->client->dev, "failed to disable power: %d\n", error);
-+	dev_err(&data->client->dev, "failed to set power %s: %d\n",
-+		on ? "on" : "off", error);
- 	return error;
- }
- 
-@@ -1316,9 +1282,19 @@ static int __maybe_unused elan_suspend(s
- 		/* Enable wake from IRQ */
- 		data->irq_wake = (enable_irq_wake(client->irq) == 0);
- 	} else {
--		ret = elan_disable_power(data);
-+		ret = elan_set_power(data, false);
-+		if (ret)
-+			goto err;
-+
-+		ret = regulator_disable(data->vcc);
-+		if (ret) {
-+			dev_err(dev, "error %d disabling regulator\n", ret);
-+			/* Attempt to power the chip back up */
-+			elan_set_power(data, true);
-+		}
- 	}
- 
-+err:
- 	mutex_unlock(&data->sysfs_mutex);
- 	return ret;
- }
-@@ -1334,7 +1310,13 @@ static int __maybe_unused elan_resume(st
- 		data->irq_wake = false;
- 	}
- 
--	error = elan_enable_power(data);
-+	error = regulator_enable(data->vcc);
-+	if (error) {
-+		dev_err(dev, "error %d enabling regulator\n", error);
-+		goto err;
-+	}
-+
-+	error = elan_set_power(data, true);
- 	if (error) {
- 		dev_err(dev, "power up when resuming failed: %d\n", error);
- 		goto err;
+-- 
+2.34.1
+
 
 
