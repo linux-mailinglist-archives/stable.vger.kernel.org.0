@@ -2,97 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CFF4D013C
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 15:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 284DA4D022B
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 15:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235954AbiCGOau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 09:30:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51114 "EHLO
+        id S233356AbiCGO7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 09:59:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243188AbiCGOat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 09:30:49 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852C878934;
-        Mon,  7 Mar 2022 06:29:55 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id n2so4398794plf.4;
-        Mon, 07 Mar 2022 06:29:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=SqUFf/0e9pIfYA2SPUi1rOc62Loeelt2Cp4NKFK25pw=;
-        b=n2oWKDzxZmGwqowGp4AEgcRLjh1BUYKx02aE7FgNv+I+jooioHnW++CUWq65y81gqd
-         wJR5Nf4BCpjvQYuIL5lM0tRI7ZVy3yll2SaMzR+LVWc4mWiFB7B8eaW81T7j+y3hiRlo
-         TfHC5LPZWHf5cHH1Liyq0OwcN+VBfwXtOeJHs1MDbbWeyfRNRGQRJf2QWZt02ifKpgFy
-         qOb8LdDDEriC/4n+YRsl3ZSVKte854pch8MIyJnjJ4aj+gJUUjue+lEHyy0Eu2PeO/Kk
-         TUwiZ6h5PdokAeFgavsw+8ntKTaDjTB4PpsEkQD6ek5guB7A/0KPsIWt4hhOsR1YWtWh
-         osyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=SqUFf/0e9pIfYA2SPUi1rOc62Loeelt2Cp4NKFK25pw=;
-        b=Hl6eeTTUAr1E2y3KnKDuFZRUCSfR0+FHMZlz1K8diW5NgbiujgHcLFdW4iRkm0fVyu
-         wt8j6T7NIBxXJSGKiEF+8pgdJoYhmeh+7dcCzkkZdEMyOGP3xu0BLfdTqRNmoQpdYyTp
-         CJNYLd7cnZBiCAUQxNFugafC8cB17mdusp45rDp3KU7hnGqcOCc8FZNDoHelBKOBPQai
-         wA9NFVkBDL3Uo3CV4fmCMKU/bQzj94bgstesPpUWdb4bdDibVMb6SrE4d654HyXEVFMr
-         HU35eZALEvu8q/grTER27qMVJfMOZ2rM1K48AwL9YM/WRkrRelVfbmWbrVRfMGT23by5
-         fbJg==
-X-Gm-Message-State: AOAM532L5i/7r1Ab7/eqm7a3XtyQvOxCTPPO/Co2WRL7slA6KjxAOlH8
-        eZKRm5kQUhGYml9u+zr/WIDavxvcmOXDFmR2UoHqmg==
-X-Google-Smtp-Source: ABdhPJycETZ3OKOAQKgyTTtP46/9uLpeaMNzbTPBQSO4ZbB7wkp+zOyMQI5/hBmYYalbGljhIbtL2w==
-X-Received: by 2002:a17:902:b683:b0:150:c60:288f with SMTP id c3-20020a170902b68300b001500c60288fmr12359661pls.61.1646663394339;
-        Mon, 07 Mar 2022 06:29:54 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id r16-20020a17090a0ad000b001bf6ab71e75sm3105914pje.28.2022.03.07.06.29.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Mar 2022 06:29:53 -0800 (PST)
-Message-ID: <622616e1.1c69fb81.33021.7133@mx.google.com>
-Date:   Mon, 07 Mar 2022 06:29:53 -0800 (PST)
-X-Google-Original-Date: Mon, 07 Mar 2022 14:29:51 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
-Subject: RE: [PATCH 5.16 000/186] 5.16.13-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
+        with ESMTP id S231239AbiCGO7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 09:59:51 -0500
+X-Greylist: delayed 1350 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Mar 2022 06:58:56 PST
+Received: from gateway34.websitewelcome.com (gateway34.websitewelcome.com [192.185.148.222])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF30333A2D
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 06:58:56 -0800 (PST)
+Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
+        by gateway34.websitewelcome.com (Postfix) with ESMTP id 2B9751973FC
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 08:36:25 -0600 (CST)
+Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
+        by cmsmtp with SMTP
+        id RETInW3kvb6UBRETJn9sgB; Mon, 07 Mar 2022 08:36:25 -0600
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=0YOcud4UjX4A8vuagXWQbi+Ry040RmgGU/96BuLodnE=; b=wEHFIGtbFv4cR4lDRsaaCBWccL
+        4x5Uj447m1ND5lrJ4hWhvrj6/D//Ph8QO1IBn/1t/bZw36c0NOBReP5SFDpBpgIfX6ifYwul712Bx
+        Kz7GhsvmxnzoBH9qBWi9vBpv1RVjJpiSwv2nIagH8HT+YaNkm+k2DqV/F0Q8wk6wXLKlbL32/SW/M
+        4AafZKKjGeKEhIky7wh6PvnCzkPZNu2TWcwyaZTg8QofsOW1c1a8Aog0EpBY827Zng9CIGBjVlm66
+        389MLK32/X2g0eZHKlsGm8yVjyv8VnqQ4oqkq/0WZB25OuS0EaOLQDCH5VJHED/ZFVIa4qDfg+tA4
+        Vlu3X9aQ==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:38092)
+        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@roeck-us.net>)
+        id 1nRETI-002Cmu-Dd; Mon, 07 Mar 2022 14:36:24 +0000
+Message-ID: <24c54a05-bb80-a128-d0ba-a78c6d5d101c@roeck-us.net>
+Date:   Mon, 7 Mar 2022 06:36:22 -0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.15 000/262] 5.15.27-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220307091702.378509770@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1nRETI-002Cmu-Dd
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:38092
+X-Source-Auth: linux@roeck-us.net
+X-Email-Count: 26
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon,  7 Mar 2022 10:17:18 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.16.13 release.
-> There are 186 patches in this series, all will be posted as a response
+On 3/7/22 01:15, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.27 release.
+> There are 262 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
 > Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
 > Anything received after that time might be too late.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.13-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-5.16.13-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+In addition to other reported build errors:
 
+Building mips:allmodconfig ... failed
+--------------
+Error log:
+drivers/net/hamradio/mkiss.c:35: error: "END" redefined
+
+Guenter
