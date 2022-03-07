@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ACDF4CF57F
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 447194CFA5F
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235110AbiCGJ36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:29:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40648 "EHLO
+        id S239030AbiCGKQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:16:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237137AbiCGJ1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:27:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFC458E4B;
-        Mon,  7 Mar 2022 01:24:50 -0800 (PST)
+        with ESMTP id S241271AbiCGKKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 179B4289B3;
+        Mon,  7 Mar 2022 01:52:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E02061009;
-        Mon,  7 Mar 2022 09:24:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C9ABC340E9;
-        Mon,  7 Mar 2022 09:24:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09CB0B80F9F;
+        Mon,  7 Mar 2022 09:52:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A87BC340F3;
+        Mon,  7 Mar 2022 09:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645083;
-        bh=jLKMO32rA0KjtQgvheUPI/dFWNoxa++1fZrLUNzJ5aw=;
+        s=korg; t=1646646765;
+        bh=uOdloT4UxEdjJCrokwuBMI5NfJ6rNyIdOY3Arl13A7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNOs5zRdCPpwjWTKv7iYVNa9/gOIlIJ6dUk1nk3NidITRUHM/vz5a2QahhlYMUPx9
-         LQuVPfD5PyK/o4n09+U40kfhcF/GyZGLSEOeWoOseaqngabju7CMm7Te3M708I8Lq0
-         l6pn1+NUHcvmnK7k9vK2aqBQhtfOeXfpxEJF9ujk=
+        b=LufKmnEdMi0zKUhDQXdcyXT8sbpu3Etrjj6MC4T8ExSFt6pC4qeXRgOqwrVLYNivz
+         XV5JJyzODxg16V04mwyPxSpqrniwJCHwbbMbk89HZF2ObeFhJYBa+BZSmP7HDBzDYJ
+         JaQX3mzP9dBwBqataZEgKN4tKBcsoBS6ZgRpJd0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/51] i2c: cadence: allow COMPILE_TEST
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 086/186] btrfs: fix ENOSPC failure when attempting direct IO write into NOCOW range
 Date:   Mon,  7 Mar 2022 10:18:44 +0100
-Message-Id: <20220307091637.259399865@linuxfoundation.org>
+Message-Id: <20220307091656.490263627@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091636.988950823@linuxfoundation.org>
-References: <20220307091636.988950823@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,310 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@kernel.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 0b0dcb3882c8f08bdeafa03adb4487e104d26050 ]
+commit f0bfa76a11e93d0fe2c896fcb566568c5e8b5d3f upstream.
 
-Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
-and easier maintenance.
+When doing a direct IO write against a file range that either has
+preallocated extents in that range or has regular extents and the file
+has the NOCOW attribute set, the write fails with -ENOSPC when all of
+the following conditions are met:
 
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1) There are no data blocks groups with enough free space matching
+   the size of the write;
+
+2) There's not enough unallocated space for allocating a new data block
+   group;
+
+3) The extents in the target file range are not shared, neither through
+   snapshots nor through reflinks.
+
+This is wrong because a NOCOW write can be done in such case, and in fact
+it's possible to do it using a buffered IO write, since when failing to
+allocate data space, the buffered IO path checks if a NOCOW write is
+possible.
+
+The failure in direct IO write path comes from the fact that early on,
+at btrfs_dio_iomap_begin(), we try to allocate data space for the write
+and if it that fails we return the error and stop - we never check if we
+can do NOCOW. But later, at btrfs_get_blocks_direct_write(), we check
+if we can do a NOCOW write into the range, or a subset of the range, and
+then release the previously reserved data space.
+
+Fix this by doing the data reservation only if needed, when we must COW,
+at btrfs_get_blocks_direct_write() instead of doing it at
+btrfs_dio_iomap_begin(). This also simplifies a bit the logic and removes
+the inneficiency of doing unnecessary data reservations.
+
+The following example test script reproduces the problem:
+
+  $ cat dio-nocow-enospc.sh
+  #!/bin/bash
+
+  DEV=/dev/sdj
+  MNT=/mnt/sdj
+
+  # Use a small fixed size (1G) filesystem so that it's quick to fill
+  # it up.
+  # Make sure the mixed block groups feature is not enabled because we
+  # later want to not have more space available for allocating data
+  # extents but still have enough metadata space free for the file writes.
+  mkfs.btrfs -f -b $((1024 * 1024 * 1024)) -O ^mixed-bg $DEV
+  mount $DEV $MNT
+
+  # Create our test file with the NOCOW attribute set.
+  touch $MNT/foobar
+  chattr +C $MNT/foobar
+
+  # Now fill in all unallocated space with data for our test file.
+  # This will allocate a data block group that will be full and leave
+  # no (or a very small amount of) unallocated space in the device, so
+  # that it will not be possible to allocate a new block group later.
+  echo
+  echo "Creating test file with initial data..."
+  xfs_io -c "pwrite -S 0xab -b 1M 0 900M" $MNT/foobar
+
+  # Now try a direct IO write against file range [0, 10M[.
+  # This should succeed since this is a NOCOW file and an extent for the
+  # range was previously allocated.
+  echo
+  echo "Trying direct IO write over allocated space..."
+  xfs_io -d -c "pwrite -S 0xcd -b 10M 0 10M" $MNT/foobar
+
+  umount $MNT
+
+When running the test:
+
+  $ ./dio-nocow-enospc.sh
+  (...)
+
+  Creating test file with initial data...
+  wrote 943718400/943718400 bytes at offset 0
+  900 MiB, 900 ops; 0:00:01.43 (625.526 MiB/sec and 625.5265 ops/sec)
+
+  Trying direct IO write over allocated space...
+  pwrite: No space left on device
+
+A test case for fstests will follow, testing both this direct IO write
+scenario as well as the buffered IO write scenario to make it less likely
+to get future regressions on the buffered IO case.
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/inode.c |  142 ++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 78 insertions(+), 64 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 017aec34a238d..3a2f85d811f75 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -445,7 +445,7 @@ config I2C_BRCMSTB
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -61,8 +61,6 @@ struct btrfs_iget_args {
+ };
  
- config I2C_CADENCE
- 	tristate "Cadence I2C Controller"
--	depends on ARCH_ZYNQ || ARM64 || XTENSA
-+	depends on ARCH_ZYNQ || ARM64 || XTENSA || COMPILE_TEST
- 	help
- 	  Say yes here to select Cadence I2C Host Controller. This controller is
- 	  e.g. used by Xilinx Zynq.
--- 
-2.34.1
-
+ struct btrfs_dio_data {
+-	u64 reserve;
+-	loff_t length;
+ 	ssize_t submitted;
+ 	struct extent_changeset *data_reserved;
+ };
+@@ -7773,6 +7771,10 @@ static int btrfs_get_blocks_direct_write
+ {
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+ 	struct extent_map *em = *map;
++	int type;
++	u64 block_start, orig_start, orig_block_len, ram_bytes;
++	bool can_nocow = false;
++	bool space_reserved = false;
+ 	int ret = 0;
+ 
+ 	/*
+@@ -7787,9 +7789,6 @@ static int btrfs_get_blocks_direct_write
+ 	if (test_bit(EXTENT_FLAG_PREALLOC, &em->flags) ||
+ 	    ((BTRFS_I(inode)->flags & BTRFS_INODE_NODATACOW) &&
+ 	     em->block_start != EXTENT_MAP_HOLE)) {
+-		int type;
+-		u64 block_start, orig_start, orig_block_len, ram_bytes;
+-
+ 		if (test_bit(EXTENT_FLAG_PREALLOC, &em->flags))
+ 			type = BTRFS_ORDERED_PREALLOC;
+ 		else
+@@ -7799,53 +7798,92 @@ static int btrfs_get_blocks_direct_write
+ 
+ 		if (can_nocow_extent(inode, start, &len, &orig_start,
+ 				     &orig_block_len, &ram_bytes, false) == 1 &&
+-		    btrfs_inc_nocow_writers(fs_info, block_start)) {
+-			struct extent_map *em2;
++		    btrfs_inc_nocow_writers(fs_info, block_start))
++			can_nocow = true;
++	}
+ 
+-			em2 = btrfs_create_dio_extent(BTRFS_I(inode), start, len,
+-						      orig_start, block_start,
+-						      len, orig_block_len,
+-						      ram_bytes, type);
++	if (can_nocow) {
++		struct extent_map *em2;
++
++		/* We can NOCOW, so only need to reserve metadata space. */
++		ret = btrfs_delalloc_reserve_metadata(BTRFS_I(inode), len);
++		if (ret < 0) {
++			/* Our caller expects us to free the input extent map. */
++			free_extent_map(em);
++			*map = NULL;
+ 			btrfs_dec_nocow_writers(fs_info, block_start);
+-			if (type == BTRFS_ORDERED_PREALLOC) {
+-				free_extent_map(em);
+-				*map = em = em2;
+-			}
++			goto out;
++		}
++		space_reserved = true;
+ 
+-			if (em2 && IS_ERR(em2)) {
+-				ret = PTR_ERR(em2);
+-				goto out;
+-			}
+-			/*
+-			 * For inode marked NODATACOW or extent marked PREALLOC,
+-			 * use the existing or preallocated extent, so does not
+-			 * need to adjust btrfs_space_info's bytes_may_use.
+-			 */
+-			btrfs_free_reserved_data_space_noquota(fs_info, len);
+-			goto skip_cow;
++		em2 = btrfs_create_dio_extent(BTRFS_I(inode), start, len,
++					      orig_start, block_start,
++					      len, orig_block_len,
++					      ram_bytes, type);
++		btrfs_dec_nocow_writers(fs_info, block_start);
++		if (type == BTRFS_ORDERED_PREALLOC) {
++			free_extent_map(em);
++			*map = em = em2;
+ 		}
+-	}
+ 
+-	/* this will cow the extent */
+-	free_extent_map(em);
+-	*map = em = btrfs_new_extent_direct(BTRFS_I(inode), start, len);
+-	if (IS_ERR(em)) {
+-		ret = PTR_ERR(em);
+-		goto out;
++		if (IS_ERR(em2)) {
++			ret = PTR_ERR(em2);
++			goto out;
++		}
++	} else {
++		const u64 prev_len = len;
++
++		/* Our caller expects us to free the input extent map. */
++		free_extent_map(em);
++		*map = NULL;
++
++		/* We have to COW, so need to reserve metadata and data space. */
++		ret = btrfs_delalloc_reserve_space(BTRFS_I(inode),
++						   &dio_data->data_reserved,
++						   start, len);
++		if (ret < 0)
++			goto out;
++		space_reserved = true;
++
++		em = btrfs_new_extent_direct(BTRFS_I(inode), start, len);
++		if (IS_ERR(em)) {
++			ret = PTR_ERR(em);
++			goto out;
++		}
++		*map = em;
++		len = min(len, em->len - (start - em->start));
++		if (len < prev_len)
++			btrfs_delalloc_release_space(BTRFS_I(inode),
++						     dio_data->data_reserved,
++						     start + len, prev_len - len,
++						     true);
+ 	}
+ 
+-	len = min(len, em->len - (start - em->start));
++	/*
++	 * We have created our ordered extent, so we can now release our reservation
++	 * for an outstanding extent.
++	 */
++	btrfs_delalloc_release_extents(BTRFS_I(inode), len);
+ 
+-skip_cow:
+ 	/*
+ 	 * Need to update the i_size under the extent lock so buffered
+ 	 * readers will get the updated i_size when we unlock.
+ 	 */
+ 	if (start + len > i_size_read(inode))
+ 		i_size_write(inode, start + len);
+-
+-	dio_data->reserve -= len;
+ out:
++	if (ret && space_reserved) {
++		btrfs_delalloc_release_extents(BTRFS_I(inode), len);
++		if (can_nocow) {
++			btrfs_delalloc_release_metadata(BTRFS_I(inode), len, true);
++		} else {
++			btrfs_delalloc_release_space(BTRFS_I(inode),
++						     dio_data->data_reserved,
++						     start, len, true);
++			extent_changeset_free(dio_data->data_reserved);
++			dio_data->data_reserved = NULL;
++		}
++	}
+ 	return ret;
+ }
+ 
+@@ -7887,18 +7925,6 @@ static int btrfs_dio_iomap_begin(struct
+ 	if (!dio_data)
+ 		return -ENOMEM;
+ 
+-	dio_data->length = length;
+-	if (write) {
+-		dio_data->reserve = round_up(length, fs_info->sectorsize);
+-		ret = btrfs_delalloc_reserve_space(BTRFS_I(inode),
+-				&dio_data->data_reserved,
+-				start, dio_data->reserve);
+-		if (ret) {
+-			extent_changeset_free(dio_data->data_reserved);
+-			kfree(dio_data);
+-			return ret;
+-		}
+-	}
+ 	iomap->private = dio_data;
+ 
+ 
+@@ -7991,14 +8017,8 @@ unlock_err:
+ 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, lockstart, lockend,
+ 			     &cached_state);
+ err:
+-	if (dio_data) {
+-		btrfs_delalloc_release_space(BTRFS_I(inode),
+-				dio_data->data_reserved, start,
+-				dio_data->reserve, true);
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), dio_data->reserve);
+-		extent_changeset_free(dio_data->data_reserved);
+-		kfree(dio_data);
+-	}
++	kfree(dio_data);
++
+ 	return ret;
+ }
+ 
+@@ -8028,14 +8048,8 @@ static int btrfs_dio_iomap_end(struct in
+ 		ret = -ENOTBLK;
+ 	}
+ 
+-	if (write) {
+-		if (dio_data->reserve)
+-			btrfs_delalloc_release_space(BTRFS_I(inode),
+-					dio_data->data_reserved, pos,
+-					dio_data->reserve, true);
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), dio_data->length);
++	if (write)
+ 		extent_changeset_free(dio_data->data_reserved);
+-	}
+ out:
+ 	kfree(dio_data);
+ 	iomap->private = NULL;
 
 
