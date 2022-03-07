@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE50F4CF74A
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3114CF943
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238269AbiCGJp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:45:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57846 "EHLO
+        id S236957AbiCGKFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:05:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238519AbiCGJib (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:38:31 -0500
+        with ESMTP id S239866AbiCGKDk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:03:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E059424A4;
-        Mon,  7 Mar 2022 01:32:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 805D875201;
+        Mon,  7 Mar 2022 01:51:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47116611AE;
-        Mon,  7 Mar 2022 09:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 458B8C340E9;
-        Mon,  7 Mar 2022 09:32:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F89160A28;
+        Mon,  7 Mar 2022 09:51:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47310C340F3;
+        Mon,  7 Mar 2022 09:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645554;
-        bh=s7RKyKCdoWIbiAKu7tIbVIF6+FyE4HSjQxDrQ1ZCu5o=;
+        s=korg; t=1646646718;
+        bh=MWNdMjbNh4UhiYgSJBEtVbNiySIpwKPjsIXuqTbu7D0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9TQ1BL6B2S2OlFWu5HiNgINEgdG08Qt0P/H1XDbGz7U4HPyWsrO9VypMpVtUq7eC
-         ZwrxpfWmRdQrc7kgpHXo7F4DzjIUuLkurhLOsBVMffKNTGiEYYHGKfR45dC/zRnbfh
-         kSfzMsyX+yDIqQvnmbBo2hgvM/nJPo9/eIAy5O3g=
+        b=LIgtMHSoOR0itYiRiFzja7Fi1FtV6X5rpCTBtQ3sz0dKW57e+Bd3sSLNyQMsjrQJ4
+         rHWaz1sS8JhgbHkwHXnXumD3c/bF/1ezzBi+bZ9o3e/96uB+H5AUc/j4FNXOhEMH7y
+         eHvDqiUKFJDHQljkhSL5Izi6La+zibq3eWxIKdvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 027/105] riscv: Fix config KASAN && SPARSEMEM && !SPARSE_VMEMMAP
+        stable@vger.kernel.org, lena wang <lena.wang@mediatek.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 072/186] net: fix up skbs delta_truesize in UDP GRO frag_list
 Date:   Mon,  7 Mar 2022 10:18:30 +0100
-Message-Id: <20220307091644.944399615@linuxfoundation.org>
+Message-Id: <20220307091656.103893732@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+From: lena wang <lena.wang@mediatek.com>
 
-commit a3d328037846d013bb4c7f3777241e190e4c75e1 upstream.
+commit 224102de2ff105a2c05695e66a08f4b5b6b2d19c upstream.
 
-In order to get the pfn of a struct page* when sparsemem is enabled
-without vmemmap, the mem_section structures need to be initialized which
-happens in sparse_init.
+The truesize for a UDP GRO packet is added by main skb and skbs in main
+skb's frag_list:
+skb_gro_receive_list
+        p->truesize += skb->truesize;
 
-But kasan_early_init calls pfn_to_page way before sparse_init is called,
-which then tries to dereference a null mem_section pointer.
+The commit 53475c5dd856 ("net: fix use-after-free when UDP GRO with
+shared fraglist") introduced a truesize increase for frag_list skbs.
+When uncloning skb, it will call pskb_expand_head and trusesize for
+frag_list skbs may increase. This can occur when allocators uses
+__netdev_alloc_skb and not jump into __alloc_skb. This flow does not
+use ksize(len) to calculate truesize while pskb_expand_head uses.
+skb_segment_list
+err = skb_unclone(nskb, GFP_ATOMIC);
+pskb_expand_head
+        if (!skb->sk || skb->destructor == sock_edemux)
+                skb->truesize += size - osize;
 
-Fix this by removing the usage of this function in kasan_early_init.
+If we uses increased truesize adding as delta_truesize, it will be
+larger than before and even larger than previous total truesize value
+if skbs in frag_list are abundant. The main skb truesize will become
+smaller and even a minus value or a huge value for an unsigned int
+parameter. Then the following memory check will drop this abnormal skb.
 
-Fixes: 8ad8b72721d0 ("riscv: Add KASAN support")
-Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+To avoid this error we should use the original truesize to segment the
+main skb.
+
+Fixes: 53475c5dd856 ("net: fix use-after-free when UDP GRO with shared fraglist")
+Signed-off-by: lena wang <lena.wang@mediatek.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1646133431-8948-1-git-send-email-lena.wang@mediatek.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/mm/kasan_init.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/core/skbuff.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/mm/kasan_init.c
-+++ b/arch/riscv/mm/kasan_init.c
-@@ -21,8 +21,7 @@ asmlinkage void __init kasan_early_init(
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3854,6 +3854,7 @@ struct sk_buff *skb_segment_list(struct
+ 		list_skb = list_skb->next;
  
- 	for (i = 0; i < PTRS_PER_PTE; ++i)
- 		set_pte(kasan_early_shadow_pte + i,
--			mk_pte(virt_to_page(kasan_early_shadow_page),
--			       PAGE_KERNEL));
-+			pfn_pte(virt_to_pfn(kasan_early_shadow_page), PAGE_KERNEL));
+ 		err = 0;
++		delta_truesize += nskb->truesize;
+ 		if (skb_shared(nskb)) {
+ 			tmp = skb_clone(nskb, GFP_ATOMIC);
+ 			if (tmp) {
+@@ -3878,7 +3879,6 @@ struct sk_buff *skb_segment_list(struct
+ 		tail = nskb;
  
- 	for (i = 0; i < PTRS_PER_PMD; ++i)
- 		set_pmd(kasan_early_shadow_pmd + i,
+ 		delta_len += nskb->len;
+-		delta_truesize += nskb->truesize;
+ 
+ 		skb_push(nskb, -skb_network_offset(nskb) + offset);
+ 
 
 
