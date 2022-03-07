@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7716B4CF7A1
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:46:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9F54CF6DC
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238042AbiCGJqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:46:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57946 "EHLO
+        id S231723AbiCGJnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:43:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238303AbiCGJpB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:45:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC7C65432;
-        Mon,  7 Mar 2022 01:41:44 -0800 (PST)
+        with ESMTP id S241035AbiCGJlq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBB16D4F9;
+        Mon,  7 Mar 2022 01:39:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC64F612C9;
-        Mon,  7 Mar 2022 09:41:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4053C340F3;
-        Mon,  7 Mar 2022 09:41:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2E2D611D5;
+        Mon,  7 Mar 2022 09:39:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3A01C340E9;
+        Mon,  7 Mar 2022 09:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646103;
-        bh=ZRudVY4cCl8/MQQO5V8VjUC2mo62hikaH/uo7E/qylE=;
+        s=korg; t=1646645966;
+        bh=PuPDInC1r/GLcY+Vi+sQObVdNBoB1cbEQ8SKVAlGUU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuQMm6qa3dqfBS5uEaTT7yYFViHRx2O/T5d7UIL8aYlmRFDHC0E68bM8mKwWhXjsb
-         7YOeUPgUfDaCWigEJaZIfZTqV/rcPVQmUyv9u0ubH7YWoRGkw8KL+Q3Osmt86HaHLt
-         n0y5l5NG1+XIR4pqqhqUU+Y//dBxSTzp7BuPXxUY=
+        b=nnZD1aCBBo4aEGUnDWd7ZfJ0djITBUMWgdOV+KNvyajLbhnyyM+uXQSffXBM69CKM
+         kHZcAZ2cwAJaBM16FvrJnn0eBgKIOyQtIFBvtwBLSVtlkgXZI8anUJFjFlSP8tDCAx
+         Zn5if8l+E8iAdZHuoGBsy8Kkk68Y5wG5HDtrd/tY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Pallotta <jmpallotta@gmail.com>,
+        stable@vger.kernel.org, Wesley Sheng <wesley.sheng@microchip.com>,
         Kelvin Cao <kelvin.cao@microchip.com>,
         Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 084/262] ntb_hw_switchtec: Fix pff ioread to read into mmio_part_cfg_all
-Date:   Mon,  7 Mar 2022 10:17:08 +0100
-Message-Id: <20220307091704.855171721@linuxfoundation.org>
+Subject: [PATCH 5.15 085/262] ntb_hw_switchtec: Fix bug with more than 32 partitions
+Date:   Mon,  7 Mar 2022 10:17:09 +0100
+Message-Id: <20220307091704.882023540@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -54,38 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Pallotta <jmpallotta@gmail.com>
+From: Wesley Sheng <wesley.sheng@microchip.com>
 
-[ Upstream commit 32c3d375b0ed84b6acb51ae5ebef35ff0d649d85 ]
+[ Upstream commit 7ff351c86b6b258f387502ab2c9b9d04f82c1c3d ]
 
-Array mmio_part_cfg_all holds the partition configuration of all
-partitions, with partition number as index. Fix this by reading into
-mmio_part_cfg_all for pff.
+Switchtec could support as mush as 48 partitions, but ffs & fls are
+for 32 bit argument, in case of partition index larger than 31, the
+current code could not parse the peer partition index correctly.
+Change to the 64 bit version __ffs64 & fls64 accordingly to fix this
+bug.
 
-Fixes: 0ee28f26f378 ("NTB: switchtec_ntb: Add link management")
-Signed-off-by: Jeremy Pallotta <jmpallotta@gmail.com>
+Fixes: 3df54c870f52 ("ntb_hw_switchtec: Allow using Switchtec NTB in multi-partition setups")
+Signed-off-by: Wesley Sheng <wesley.sheng@microchip.com>
 Signed-off-by: Kelvin Cao <kelvin.cao@microchip.com>
 Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/hw/mscc/ntb_hw_switchtec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ntb/hw/mscc/ntb_hw_switchtec.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/ntb/hw/mscc/ntb_hw_switchtec.c b/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-index 4c6eb61a6ac62..6603c77c0a848 100644
+index 6603c77c0a848..ec9cb6c81edae 100644
 --- a/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
 +++ b/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-@@ -419,8 +419,8 @@ static void switchtec_ntb_part_link_speed(struct switchtec_ntb *sndev,
- 					  enum ntb_width *width)
- {
- 	struct switchtec_dev *stdev = sndev->stdev;
--
--	u32 pff = ioread32(&stdev->mmio_part_cfg[partition].vep_pff_inst_id);
-+	u32 pff =
-+		ioread32(&stdev->mmio_part_cfg_all[partition].vep_pff_inst_id);
- 	u32 linksta = ioread32(&stdev->mmio_pff_csr[pff].pci_cap_region[13]);
+@@ -840,7 +840,6 @@ static int switchtec_ntb_init_sndev(struct switchtec_ntb *sndev)
+ 	u64 tpart_vec;
+ 	int self;
+ 	u64 part_map;
+-	int bit;
  
- 	if (speed)
+ 	sndev->ntb.pdev = sndev->stdev->pdev;
+ 	sndev->ntb.topo = NTB_TOPO_SWITCH;
+@@ -861,29 +860,28 @@ static int switchtec_ntb_init_sndev(struct switchtec_ntb *sndev)
+ 	part_map = ioread64(&sndev->mmio_ntb->ep_map);
+ 	part_map &= ~(1 << sndev->self_partition);
+ 
+-	if (!ffs(tpart_vec)) {
++	if (!tpart_vec) {
+ 		if (sndev->stdev->partition_count != 2) {
+ 			dev_err(&sndev->stdev->dev,
+ 				"ntb target partition not defined\n");
+ 			return -ENODEV;
+ 		}
+ 
+-		bit = ffs(part_map);
+-		if (!bit) {
++		if (!part_map) {
+ 			dev_err(&sndev->stdev->dev,
+ 				"peer partition is not NT partition\n");
+ 			return -ENODEV;
+ 		}
+ 
+-		sndev->peer_partition = bit - 1;
++		sndev->peer_partition = __ffs64(part_map);
+ 	} else {
+-		if (ffs(tpart_vec) != fls(tpart_vec)) {
++		if (__ffs64(tpart_vec) != (fls64(tpart_vec) - 1)) {
+ 			dev_err(&sndev->stdev->dev,
+ 				"ntb driver only supports 1 pair of 1-1 ntb mapping\n");
+ 			return -ENODEV;
+ 		}
+ 
+-		sndev->peer_partition = ffs(tpart_vec) - 1;
++		sndev->peer_partition = __ffs64(tpart_vec);
+ 		if (!(part_map & (1ULL << sndev->peer_partition))) {
+ 			dev_err(&sndev->stdev->dev,
+ 				"ntb target partition is not NT partition\n");
 -- 
 2.34.1
 
