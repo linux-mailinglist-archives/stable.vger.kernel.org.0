@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D164CFABE
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7FC94CFA80
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234240AbiCGKWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:22:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55806 "EHLO
+        id S239245AbiCGKWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:22:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241454AbiCGKUd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:20:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE6390CCE;
-        Mon,  7 Mar 2022 01:58:15 -0800 (PST)
+        with ESMTP id S240793AbiCGKT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:19:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79E86622C;
+        Mon,  7 Mar 2022 01:57:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC69660A27;
-        Mon,  7 Mar 2022 09:57:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD686C340E9;
-        Mon,  7 Mar 2022 09:57:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B374C60BAF;
+        Mon,  7 Mar 2022 09:57:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1EAC340F3;
+        Mon,  7 Mar 2022 09:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646647076;
-        bh=aTBoFzea2VDWZAwplzr9/WG4T19S1+TQrCpCXTAxJKk=;
+        s=korg; t=1646647079;
+        bh=YD3MXLQIQr/JqZEO7ZzfsiIS3V636Ue2jI9mSt6slXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMvG09zvwWNA+HAZ7baJfQchQfVBYfWXud6igkDHEo/bsL/i56vuLPq6fvORylZQJ
-         36FHrEgKNc+0THtL4+9i+0DBd4ulsdFhVkB6L+XPF10ISS/t2s1QqYRTi12Hi9RV2w
-         DiQEXuKEoHExPdrekWJkST7tV34nSrbT9Hv33YnY=
+        b=e0Le6pcXrdJxGs/IkMzOGT8m9B/z6GH54ZT31jhnhBu3uJ1V5y8/VRTL/1T1CLvNN
+         GrSEixebweOAcg02nEuTCq5XNpyIBz40OUfMEw8pNqlAK2EU9ARUwFnJZjKjg6jAGS
+         sEs8kGnMIFoPZwwOtddKuZfShRfGoWjwYcpEFOmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 183/186] x86/kvmclock: Fix Hyper-V Isolated VMs boot issue when vCPUs > 64
-Date:   Mon,  7 Mar 2022 10:20:21 +0100
-Message-Id: <20220307091659.198746831@linuxfoundation.org>
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.16 184/186] s390/ftrace: fix arch_ftrace_get_regs implementation
+Date:   Mon,  7 Mar 2022 10:20:22 +0100
+Message-Id: <20220307091659.226167182@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
 References: <20220307091654.092878898@linuxfoundation.org>
@@ -55,57 +58,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 92e68cc558774de01024c18e8b35cdce4731c910 upstream.
+commit 1389f17937a03fe4ec71b094e1aa6530a901963e upstream.
 
-When Linux runs as an Isolated VM on Hyper-V, it supports AMD SEV-SNP
-but it's partially enlightened, i.e. cc_platform_has(
-CC_ATTR_GUEST_MEM_ENCRYPT) is true but sev_active() is false.
+arch_ftrace_get_regs is supposed to return a struct pt_regs pointer
+only if the pt_regs structure contains all register contents, which
+means it must have been populated when created via ftrace_regs_caller.
 
-Commit 4d96f9109109 per se is good, but with it now
-kvm_setup_vsyscall_timeinfo() -> kvmclock_init_mem() calls
-set_memory_decrypted(), and later gets stuck when trying to zere out
-the pages pointed by 'hvclock_mem', if Linux runs as an Isolated VM on
-Hyper-V. The cause is that here now the Linux VM should no longer access
-the original guest physical addrss (GPA); instead the VM should do
-memremap() and access the original GPA + ms_hyperv.shared_gpa_boundary:
-see the example code in drivers/hv/connection.c: vmbus_connect() or
-drivers/hv/ring_buffer.c: hv_ringbuffer_init(). If the VM tries to
-access the original GPA, it keepts getting injected a fault by Hyper-V
-and gets stuck there.
+If it was populated via ftrace_caller the contents are not complete
+(the psw mask part is missing), and therefore a NULL pointer needs be
+returned.
 
-Here the issue happens only when the VM has >=65 vCPUs, because the
-global static array hv_clock_boot[] can hold 64 "struct
-pvclock_vsyscall_time_info" (the sizeof of the struct is 64 bytes), so
-kvmclock_init_mem() only allocates memory in the case of vCPUs > 64.
+The current code incorrectly always returns a struct pt_regs pointer.
 
-Since the 'hvclock_mem' pages are only useful when the kvm clock is
-supported by the underlying hypervisor, fix the issue by returning
-early when Linux VM runs on Hyper-V, which doesn't support kvm clock.
+Fix this by adding another pt_regs flag which indicates if the
+contents are complete, and fix arch_ftrace_get_regs accordingly.
 
-Fixes: 4d96f9109109 ("x86/sev: Replace occurrences of sev_active() with cc_platform_has()")
-Tested-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Message-Id: <20220225084600.17817-1-decui@microsoft.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 894979689d3a ("s390/ftrace: provide separate ftrace_caller/ftrace_regs_caller implementations")
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reported-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kvmclock.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/include/asm/ftrace.h |   10 ++++++----
+ arch/s390/include/asm/ptrace.h |    2 ++
+ arch/s390/kernel/ftrace.c      |    2 +-
+ arch/s390/kernel/mcount.S      |    9 +++++++++
+ 4 files changed, 18 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -239,6 +239,9 @@ static void __init kvmclock_init_mem(voi
+--- a/arch/s390/include/asm/ftrace.h
++++ b/arch/s390/include/asm/ftrace.h
+@@ -47,15 +47,17 @@ struct ftrace_regs {
  
- static int __init kvm_setup_vsyscall_timeinfo(void)
+ static __always_inline struct pt_regs *arch_ftrace_get_regs(struct ftrace_regs *fregs)
  {
-+	if (!kvm_para_available())
-+		return 0;
+-	return &fregs->regs;
++	struct pt_regs *regs = &fregs->regs;
 +
- 	kvmclock_init_mem();
++	if (test_pt_regs_flag(regs, PIF_FTRACE_FULL_REGS))
++		return regs;
++	return NULL;
+ }
  
- #ifdef CONFIG_X86_64
+ static __always_inline void ftrace_instruction_pointer_set(struct ftrace_regs *fregs,
+ 							   unsigned long ip)
+ {
+-	struct pt_regs *regs = arch_ftrace_get_regs(fregs);
+-
+-	regs->psw.addr = ip;
++	fregs->regs.psw.addr = ip;
+ }
+ 
+ /*
+--- a/arch/s390/include/asm/ptrace.h
++++ b/arch/s390/include/asm/ptrace.h
+@@ -15,11 +15,13 @@
+ #define PIF_EXECVE_PGSTE_RESTART	1	/* restart execve for PGSTE binaries */
+ #define PIF_SYSCALL_RET_SET		2	/* return value was set via ptrace */
+ #define PIF_GUEST_FAULT			3	/* indicates program check in sie64a */
++#define PIF_FTRACE_FULL_REGS		4	/* all register contents valid (ftrace) */
+ 
+ #define _PIF_SYSCALL			BIT(PIF_SYSCALL)
+ #define _PIF_EXECVE_PGSTE_RESTART	BIT(PIF_EXECVE_PGSTE_RESTART)
+ #define _PIF_SYSCALL_RET_SET		BIT(PIF_SYSCALL_RET_SET)
+ #define _PIF_GUEST_FAULT		BIT(PIF_GUEST_FAULT)
++#define _PIF_FTRACE_FULL_REGS		BIT(PIF_FTRACE_FULL_REGS)
+ 
+ #ifndef __ASSEMBLY__
+ 
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -291,7 +291,7 @@ void kprobe_ftrace_handler(unsigned long
+ 
+ 	regs = ftrace_get_regs(fregs);
+ 	p = get_kprobe((kprobe_opcode_t *)ip);
+-	if (unlikely(!p) || kprobe_disabled(p))
++	if (!regs || unlikely(!p) || kprobe_disabled(p))
+ 		goto out;
+ 
+ 	if (kprobe_running()) {
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -27,6 +27,7 @@ ENDPROC(ftrace_stub)
+ #define STACK_PTREGS_GPRS	(STACK_PTREGS + __PT_GPRS)
+ #define STACK_PTREGS_PSW	(STACK_PTREGS + __PT_PSW)
+ #define STACK_PTREGS_ORIG_GPR2	(STACK_PTREGS + __PT_ORIG_GPR2)
++#define STACK_PTREGS_FLAGS	(STACK_PTREGS + __PT_FLAGS)
+ #ifdef __PACK_STACK
+ /* allocate just enough for r14, r15 and backchain */
+ #define TRACED_FUNC_FRAME_SIZE	24
+@@ -57,6 +58,14 @@ ENDPROC(ftrace_stub)
+ 	.if \allregs == 1
+ 	stg	%r14,(STACK_PTREGS_PSW)(%r15)
+ 	stosm	(STACK_PTREGS_PSW)(%r15),0
++#ifdef CONFIG_HAVE_MARCH_Z10_FEATURES
++	mvghi	STACK_PTREGS_FLAGS(%r15),_PIF_FTRACE_FULL_REGS
++#else
++	lghi	%r14,_PIF_FTRACE_FULL_REGS
++	stg	%r14,STACK_PTREGS_FLAGS(%r15)
++#endif
++	.else
++	xc	STACK_PTREGS_FLAGS(8,%r15),STACK_PTREGS_FLAGS(%r15)
+ 	.endif
+ 
+ 	lg	%r14,(__SF_GPRS+8*8)(%r1)	# restore original return address
 
 
