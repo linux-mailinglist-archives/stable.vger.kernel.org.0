@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 847124D028B
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 16:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50BB34D028C
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 16:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243698AbiCGPR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 10:17:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56324 "EHLO
+        id S236295AbiCGPSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 10:18:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242843AbiCGPRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 10:17:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0E48CD96
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:17:00 -0800 (PST)
+        with ESMTP id S233032AbiCGPSC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 10:18:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 421168CD9E
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:17:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC48BB815B4
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 15:16:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30722C340EB;
-        Mon,  7 Mar 2022 15:16:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1A78B815D7
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 15:17:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 611D9C340EB;
+        Mon,  7 Mar 2022 15:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646666217;
-        bh=KuwHL+6f6ePZEGVfn5D1X9NLVM8YWD6shz5ncgRNax0=;
+        s=korg; t=1646666225;
+        bh=Em2sU6ijdbqeZmUK8nReNQKBlwfJU1mjaJ4n7rq3WzM=;
         h=Subject:To:Cc:From:Date:From;
-        b=JyHakN9tBfAyxqrlcedhEtAYOZoSB2UhldgiuH2KPDOVAAHRkVVCl8O+o2NCQhKFa
-         Ns47xP3N7h4f2SuNlrf5yEtHafrdqsy/8fIw+1IrLtLvnMMevRty5MdsX7/tOiEVbz
-         JRJqSKiQCZmcUe1Ha0+zZ4EJoICLAlwEuhF5Dc1Q=
-Subject: FAILED: patch "[PATCH] ibmvnic: define flush_reset_queue helper" failed to apply to 4.19-stable tree
+        b=v3EBwToFDQVKImsCquSI3aqyjCtksv3qFtHejST75sRK2FDUWWtUWiw0E/Sbnf9GF
+         O+jKWSrX3dMEHbnBgSMjy0zIiYLy8PuvLFGRFNZ62thWx+Ux1mRFo5qrW7b5qsIQiz
+         x7ME6jYyDKItM31QROZrRYmpR7i3kSUo28Xs8jGk=
+Subject: FAILED: patch "[PATCH] ibmvnic: define flush_reset_queue helper" failed to apply to 5.4-stable tree
 To:     sukadev@linux.ibm.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 07 Mar 2022 16:16:54 +0100
-Message-ID: <164666621419440@kroah.com>
+Message-ID: <16466662143421@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
