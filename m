@@ -2,124 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 667BF4D06C4
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 19:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 887A54D06CC
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 19:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235367AbiCGSqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 13:46:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45328 "EHLO
+        id S233717AbiCGSrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 13:47:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230425AbiCGSqI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 13:46:08 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B251C5EDC6
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 10:45:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646678712;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vZqX6DybrLxhMSThzgJlQJxqEmTvZwmh5MmGL6Skfc4=;
-        b=iWmBjiqbmgmcc9hOLfMHjKmw9gVNPjbtyoEPxhNjGsbrQxQW6icHfVd2rt7CXzTHjU6Xhv
-        n93mVQkeFS0q7GnW7zZTmetD9ezos3kejiTKHlrTuZVjCdUd6xb9mIXYz/p5qVIDFOxZke
-        CvNkEgrbFyuXolouvt0mpd0Qa30pL+k=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-339-hi49fM7_OxCSIg41IMf8MQ-1; Mon, 07 Mar 2022 13:45:11 -0500
-X-MC-Unique: hi49fM7_OxCSIg41IMf8MQ-1
-Received: by mail-qv1-f69.google.com with SMTP id fw9-20020a056214238900b0043522aa5b81so13118483qvb.21
-        for <stable@vger.kernel.org>; Mon, 07 Mar 2022 10:45:11 -0800 (PST)
+        with ESMTP id S230385AbiCGSrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 13:47:31 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D489C89CCB;
+        Mon,  7 Mar 2022 10:46:35 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id t5so14957406pfg.4;
+        Mon, 07 Mar 2022 10:46:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=fxKMK7UCdJbBPbPCFvDMLXZUSzTlavV72kZHFoZsD0U=;
+        b=RSF+x3XQQo9a2d79IpGr6B7cnoPkPEYuOJ8IyWgZBx2obiQSHyrXZ3RO3pbNcu6XFz
+         Iq1D7sXfpX7ZHYM+2Qth2EXZn1EdYsP5Q3Y4UGjn+YfUBOX25hShvCFsmKr1+x0FdsQb
+         9jWrNUuvlZu/dPt0GASQOK5Bb0ofMLLHS1E36DPJqm6lHwuMHp7JA7yz3eENOIHVIh0j
+         zFby3x8wU60vceHP4FSty3BlcutJJTJNDHTqn4g4i+MCRM4nQIVsLNv5s38YzQ7bC4z3
+         0oQvpMw6ZhRJiWXWSLjTTGCWMPdSm3R1fOHGRk9u8nj9ugfY5gLM5+SvjEmBoEI2kOc1
+         /M0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=vZqX6DybrLxhMSThzgJlQJxqEmTvZwmh5MmGL6Skfc4=;
-        b=p65Q9U4PyqpfFHVJtklExQf75onCanem236x9eOQ7Mr1rtnBPXUTGknQiDdCJG2zDP
-         CoMlPUGnG27BdGH/AMp8bUWQ1jEmmjr75EqikR+2lgV4BV/LOQ0HkrXveqDOPtaUHIdM
-         4Q6OM1Qtp7NEA7shhvxbycVvC5IvI//EtLWezQXinvO7tefj4cCzx/bQFbXGuBkVXa4N
-         NPlj6fmsHGDQs2D4z6Ejj0hD+y3gXc78DyD55nJKUzFmd2r1HS1c2XWU8tF8f0OiGINv
-         wTfIk7f96fALPKAENyxKdR5x4tjD2ZOsXhu7M4KlXzlbXr7YOL9PdQvvJQFH55i86qTG
-         2XQQ==
-X-Gm-Message-State: AOAM533HSacLNRu4fuF+vnd88jgixXBDFHh4ZFw32CqKNw/yz8jOF9jY
-        PPULxon/gjITj9AgdYRBbmmLuc3XOXeL4FODVDmoedQlWbKK10nUIov+ctFLTMB+kZAFIjym4gV
-        E5s7rXDiseaLSCR/V
-X-Received: by 2002:a37:a281:0:b0:67b:3c17:ffdb with SMTP id l123-20020a37a281000000b0067b3c17ffdbmr2176785qke.105.1646678710962;
-        Mon, 07 Mar 2022 10:45:10 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxr+onuOzJkv86pztnLwhpwxB4uZhsCLFG9fnvE+XZZ5Enkeqvf0FUIwK5cM7bu7bVmFfObww==
-X-Received: by 2002:a37:a281:0:b0:67b:3c17:ffdb with SMTP id l123-20020a37a281000000b0067b3c17ffdbmr2176770qke.105.1646678710658;
-        Mon, 07 Mar 2022 10:45:10 -0800 (PST)
-Received: from treble ([2600:1700:6e32:6c00::45])
-        by smtp.gmail.com with ESMTPSA id o21-20020ac85a55000000b002d7847160c0sm8852117qta.82.2022.03.07.10.45.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Mar 2022 10:45:10 -0800 (PST)
-Date:   Mon, 7 Mar 2022 10:45:05 -0800
-From:   Josh Poimboeuf <jpoimboe@redhat.com>
-To:     Alex Thorlton <alex.thorlton@oracle.com>
-Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/paravirt: Apply paravirt instructions in consistent
- order during boot/module load
-Message-ID: <20220307184505.pvwzjujlqoyrpk44@treble>
-References: <20220307180338.7608-1-alex.thorlton@oracle.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=fxKMK7UCdJbBPbPCFvDMLXZUSzTlavV72kZHFoZsD0U=;
+        b=p8dInydzwp0wSpBzAXyzEsXWo76XCEz7nuUQR63VXLSSpHLvO0weL8aYaB3WUlnXmF
+         lQglUdjG7fK2g3DcahZJEXMsU/3thbD8aIh/7e/ykx5qrp7i9I1bOhV6J72j53Kjbnhc
+         WYXU9l3/eYgx3JkA7IzTKGMYus3y5inbxrXzwDT66E2m6HYlvt2ytkn76mkiElLUZpbC
+         S+778mlKB9WCTCjSGr7P7L4qiP8COZkzxPATsNefEDwzrpdiKNVn/amw52Db7JbX7KBY
+         ll4lH4oz7hutrmuBOELdeVGYK7BjkOQmUDI3oxPofg8/J9+N9PKWRX/NA2tZ8LBk/zhN
+         37Lg==
+X-Gm-Message-State: AOAM531DDl92ZgY9EheyKLRpD5L63fTT2SdV6bIMGR10UJ25B/t1hTSo
+        XqK9WSqaf8nJ+j8Uq9PR2rsX9lhDT1c=
+X-Google-Smtp-Source: ABdhPJz8um4I2EEfOe6kNKBk8mQw1s1D+D0Eb5xKw8V2GY5pTxpnxMN0kro8QqduxA5rwswo9gmzGg==
+X-Received: by 2002:a05:6a00:2489:b0:4f7:1c56:2e15 with SMTP id c9-20020a056a00248900b004f71c562e15mr2344149pfv.62.1646678795317;
+        Mon, 07 Mar 2022 10:46:35 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id ob13-20020a17090b390d00b001becfd7c6f3sm86573pjb.27.2022.03.07.10.46.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Mar 2022 10:46:34 -0800 (PST)
+Subject: Re: [PATCH 5.4 00/64] 5.4.183-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220307091639.136830784@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <70173f00-aae1-ea5b-4072-4866cfb3064d@gmail.com>
+Date:   Mon, 7 Mar 2022 10:46:32 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220307180338.7608-1-alex.thorlton@oracle.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 07, 2022 at 12:03:38PM -0600, Alex Thorlton wrote:
-> Commit 4e6292114c74 ("x86/paravirt: Add new features for paravirt
-> patching") changed the order in which altinstructions and paravirt
-> instructions are patched at boot time.  However, no analogous change was
-> made in module_finalize, where we apply altinstructions and
-> parainstructions during module load.
+On 3/7/22 1:18 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.183 release.
+> There are 64 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> As a result, any code that generates "stacked up" altinstructions and
-> parainstructions (i.e. local_irq_save/restore) will produce different
-> results when used in built-in kernel code vs. kernel modules.  This also
-> makes it possible to inadvertently replace altinstructions in the booted
-> kernel with their parainstruction counterparts when using
-> livepatch/kpatch.
+> Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
+> Anything received after that time might be too late.
 > 
-> To fix this, re-order the processing in module_finalize, so that we do
-> things in this order:
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.183-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
 > 
->  1. apply_paravirt
->  2. apply_retpolines
->  3. apply_alternatives
->  4. alternatives_smp_module_add
+> thanks,
 > 
-> This is the same ordering that is used at boot time in
-> alternative_instructions.
-> 
-> Fixes: 4e6292114c74 ("x86/paravirt: Add new features for paravirt patching")
-> Signed-off-by: Alex Thorlton <alex.thorlton@oracle.com>
-> Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+> greg k-h
 
-Peter previously posted a fix, buried in his IBT series:
 
-  https://lkml.kernel.org/r/20220303112825.068773913@infradead.org
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-It should probably go ahead and be merged now...
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Josh
-
+Florian
