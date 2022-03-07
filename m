@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 638754CF5DE
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DAA4CF921
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237154AbiCGJbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:31:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
+        id S239870AbiCGKDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:03:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238816AbiCGJ3r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB3BF30;
-        Mon,  7 Mar 2022 01:28:52 -0800 (PST)
+        with ESMTP id S239927AbiCGKA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:00:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8217D023;
+        Mon,  7 Mar 2022 01:46:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EC9EB80F9F;
-        Mon,  7 Mar 2022 09:28:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3393C340E9;
-        Mon,  7 Mar 2022 09:28:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 727ED61220;
+        Mon,  7 Mar 2022 09:46:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 769EFC340E9;
+        Mon,  7 Mar 2022 09:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645330;
-        bh=QRptUylu6ioyya4CszpLn1NWYLWY1tZxmQs1STtJB34=;
+        s=korg; t=1646646393;
+        bh=RBIP91LgZUyqhUHzo0CuYJAho8yLrXfh2cIdnSzoUw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cyPleQcy47qUb8Om1MWL5L6h2mWIIG/ciA/xKyuSYzEW93gRi9h8J4eUM5t2ANEeN
-         OYjfqvlJyffAxThaO4wRusXcE9rM4isBpK9gT6SszHK4x3SO7Hbr6YrmXbTRLFRGfz
-         YiFakfADbrqUJRPurHzAc8506Eac39tDhUp4yiYc=
+        b=RV0cmJxB0YLFEK4RyWyioQQ1SWZyW6+qMGxdAcRQtbgJr5Cm82ljnErcNmfr8gyJ3
+         YTDmU/g3fAJXBgTzbSgg8xnNXWoUE0WRjDUIUClvsucHu4OmqYBP7TmrFzrBsnq/+s
+         cGJFtpY6h2w57fXtzCLy9NRwlesxJZl2YxepcB+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Sidong Yang <realwakka@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 61/64] btrfs: qgroup: fix deadlock between rescan worker and remove qgroup
+        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
+        Phani Burra <phani.r.burra@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 230/262] iavf: Add waiting so the port is initialized in remove
 Date:   Mon,  7 Mar 2022 10:19:34 +0100
-Message-Id: <20220307091640.881547064@linuxfoundation.org>
+Message-Id: <20220307091709.708747963@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +58,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sidong Yang <realwakka@gmail.com>
+From: Slawomir Laba <slawomirx.laba@intel.com>
 
-commit d4aef1e122d8bbdc15ce3bd0bc813d6b44a7d63a upstream.
+[ Upstream commit 974578017fc1fdd06cea8afb9dfa32602e8529ed ]
 
-The commit e804861bd4e6 ("btrfs: fix deadlock between quota disable and
-qgroup rescan worker") by Kawasaki resolves deadlock between quota
-disable and qgroup rescan worker. But also there is a deadlock case like
-it. It's about enabling or disabling quota and creating or removing
-qgroup. It can be reproduced in simple script below.
+There exist races when port is being configured and remove is
+triggered.
 
-for i in {1..100}
-do
-    btrfs quota enable /mnt &
-    btrfs qgroup create 1/0 /mnt &
-    btrfs qgroup destroy 1/0 /mnt &
-    btrfs quota disable /mnt &
-done
+unregister_netdev is not and can't be called under crit_lock
+mutex since it is calling ndo_stop -> iavf_close which requires
+this lock. Depending on init state the netdev could be still
+unregistered so unregister_netdev never cleans up, when shortly
+after that the device could become registered.
 
-Here's why the deadlock happens:
+Make iavf_remove wait until port finishes initialization.
+All critical state changes are atomic (under crit_lock).
+Crashes that come from iavf_reset_interrupt_capability and
+iavf_free_traffic_irqs should now be solved in a graceful
+manner.
 
-1) The quota rescan task is running.
-
-2) Task A calls btrfs_quota_disable(), locks the qgroup_ioctl_lock
-   mutex, and then calls btrfs_qgroup_wait_for_completion(), to wait for
-   the quota rescan task to complete.
-
-3) Task B calls btrfs_remove_qgroup() and it blocks when trying to lock
-   the qgroup_ioctl_lock mutex, because it's being held by task A. At that
-   point task B is holding a transaction handle for the current transaction.
-
-4) The quota rescan task calls btrfs_commit_transaction(). This results
-   in it waiting for all other tasks to release their handles on the
-   transaction, but task B is blocked on the qgroup_ioctl_lock mutex
-   while holding a handle on the transaction, and that mutex is being held
-   by task A, which is waiting for the quota rescan task to complete,
-   resulting in a deadlock between these 3 tasks.
-
-To resolve this issue, the thread disabling quota should unlock
-qgroup_ioctl_lock before waiting rescan completion. Move
-btrfs_qgroup_wait_for_completion() after unlock of qgroup_ioctl_lock.
-
-Fixes: e804861bd4e6 ("btrfs: fix deadlock between quota disable and qgroup rescan worker")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Sidong Yang <realwakka@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 605ca7c5c6707 ("iavf: Fix kernel BUG in free_msi_irqs")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Phani Burra <phani.r.burra@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 27 ++++++++++++---------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -1117,13 +1117,20 @@ int btrfs_quota_disable(struct btrfs_fs_
- 		goto out;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index e97a8dbbbc89..60e6f55c6dc5 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -3979,7 +3979,6 @@ static int __maybe_unused iavf_resume(struct device *dev_d)
+ static void iavf_remove(struct pci_dev *pdev)
+ {
+ 	struct iavf_adapter *adapter = iavf_pdev_to_adapter(pdev);
+-	enum iavf_state_t prev_state = adapter->last_state;
+ 	struct net_device *netdev = adapter->netdev;
+ 	struct iavf_fdir_fltr *fdir, *fdirtmp;
+ 	struct iavf_vlan_filter *vlf, *vlftmp;
+@@ -3989,6 +3988,22 @@ static void iavf_remove(struct pci_dev *pdev)
+ 	struct iavf_hw *hw = &adapter->hw;
+ 	int err;
  
- 	/*
-+	 * Unlock the qgroup_ioctl_lock mutex before waiting for the rescan worker to
-+	 * complete. Otherwise we can deadlock because btrfs_remove_qgroup() needs
-+	 * to lock that mutex while holding a transaction handle and the rescan
-+	 * worker needs to commit a transaction.
++	/* Wait until port initialization is complete.
++	 * There are flows where register/unregister netdev may race.
 +	 */
-+	mutex_unlock(&fs_info->qgroup_ioctl_lock);
++	while (1) {
++		mutex_lock(&adapter->crit_lock);
++		if (adapter->state == __IAVF_RUNNING ||
++		    adapter->state == __IAVF_DOWN) {
++			mutex_unlock(&adapter->crit_lock);
++			break;
++		}
 +
-+	/*
- 	 * Request qgroup rescan worker to complete and wait for it. This wait
- 	 * must be done before transaction start for quota disable since it may
- 	 * deadlock with transaction by the qgroup rescan worker.
- 	 */
- 	clear_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
- 	btrfs_qgroup_wait_for_completion(fs_info, false);
--	mutex_unlock(&fs_info->qgroup_ioctl_lock);
++		mutex_unlock(&adapter->crit_lock);
++		usleep_range(500, 1000);
++	}
++	cancel_delayed_work_sync(&adapter->watchdog_task);
++
+ 	if (adapter->netdev_registered) {
+ 		unregister_netdev(netdev);
+ 		adapter->netdev_registered = false;
+@@ -4026,16 +4041,6 @@ static void iavf_remove(struct pci_dev *pdev)
+ 	iavf_free_all_rx_resources(adapter);
+ 	iavf_free_misc_irq(adapter);
  
- 	/*
- 	 * 1 For the root item
+-	/* In case we enter iavf_remove from erroneous state, free traffic irqs
+-	 * here, so as to not cause a kernel crash, when calling
+-	 * iavf_reset_interrupt_capability.
+-	 */
+-	if ((adapter->last_state == __IAVF_RESETTING &&
+-	     prev_state != __IAVF_DOWN) ||
+-	    (adapter->last_state == __IAVF_RUNNING &&
+-	     !(netdev->flags & IFF_UP)))
+-		iavf_free_traffic_irqs(adapter);
+-
+ 	iavf_reset_interrupt_capability(adapter);
+ 	iavf_free_q_vectors(adapter);
+ 
+-- 
+2.34.1
+
 
 
