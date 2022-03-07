@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7384CF61E
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1794CF960
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:04:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237232AbiCGJdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:33:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36422 "EHLO
+        id S240001AbiCGKE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:04:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237466AbiCGJcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:32:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFCE95DE4C;
-        Mon,  7 Mar 2022 01:29:46 -0800 (PST)
+        with ESMTP id S240970AbiCGKBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B2B6E4E3;
+        Mon,  7 Mar 2022 01:51:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FC4EB810B2;
-        Mon,  7 Mar 2022 09:29:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 191F0C340E9;
-        Mon,  7 Mar 2022 09:29:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D36B560A23;
+        Mon,  7 Mar 2022 09:51:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E55BAC340F4;
+        Mon,  7 Mar 2022 09:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645373;
-        bh=Xs82X3vYzB+vo4Y5ziej9+mfchUN9IptXOlbGV1QJdA=;
+        s=korg; t=1646646672;
+        bh=J3C58RKqRkdt0Z9ppRxUiMEM8xgTHy1k+NvGXw5NCTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQIqhdug/HiMi5lWNgj7sIUCx0X3SX4oon6KllTHotIQZkZLbEzVEDy9251Ua6NH5
-         N3XkTwAxNiAyxnQXNsMimvZa+Pa4oqzAiy/sPyfmjIxMzKKIpNLmWNCPqb3lYNotPo
-         uiCfqGahgTl400JvgDb/so3KLpR9gSkyrsSsy76o=
+        b=EQf0zwO7foI4V5CsScP69zWSYpS7LTJWU23LsES1IsvRqK9diAMlANY7eA6/9bRLq
+         D3qXxqSmr+Ux20LG0XTvWQ9v7rjugQIsmUCLzRHeSpeeNFImA6vFe1KgiDD9uTGaZJ
+         gUo1A+OKNVEjDkABErEo23OQbZNzNrvjNVAZ3Zlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/105] cifs: fix double free race when mount fails in cifs_get_root()
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.16 055/186] ASoC: ops: Shift tested values in snd_soc_put_volsw() by +min
 Date:   Mon,  7 Mar 2022 10:18:13 +0100
-Message-Id: <20220307091644.473806523@linuxfoundation.org>
+Message-Id: <20220307091655.631688958@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,95 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 3d6cc9898efdfb062efb74dc18cfc700e082f5d5 ]
+commit 9bdd10d57a8807dba0003af0325191f3cec0f11c upstream.
 
-When cifs_get_root() fails during cifs_smb3_do_mount() we call
-deactivate_locked_super() which eventually will call delayed_free() which
-will free the context.
-In this situation we should not proceed to enter the out: section in
-cifs_smb3_do_mount() and free the same resources a second time.
+While the $val/$val2 values passed in from userspace are always >= 0
+integers, the limits of the control can be signed integers and the $min
+can be non-zero and less than zero. To correctly validate $val/$val2
+against platform_max, add the $min offset to val first.
 
-[Thu Feb 10 12:59:06 2022] BUG: KASAN: use-after-free in rcu_cblist_dequeue+0x32/0x60
-[Thu Feb 10 12:59:06 2022] Read of size 8 at addr ffff888364f4d110 by task swapper/1/0
-
-[Thu Feb 10 12:59:06 2022] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G           OE     5.17.0-rc3+ #4
-[Thu Feb 10 12:59:06 2022] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.0 12/17/2019
-[Thu Feb 10 12:59:06 2022] Call Trace:
-[Thu Feb 10 12:59:06 2022]  <IRQ>
-[Thu Feb 10 12:59:06 2022]  dump_stack_lvl+0x5d/0x78
-[Thu Feb 10 12:59:06 2022]  print_address_description.constprop.0+0x24/0x150
-[Thu Feb 10 12:59:06 2022]  ? rcu_cblist_dequeue+0x32/0x60
-[Thu Feb 10 12:59:06 2022]  kasan_report.cold+0x7d/0x117
-[Thu Feb 10 12:59:06 2022]  ? rcu_cblist_dequeue+0x32/0x60
-[Thu Feb 10 12:59:06 2022]  __asan_load8+0x86/0xa0
-[Thu Feb 10 12:59:06 2022]  rcu_cblist_dequeue+0x32/0x60
-[Thu Feb 10 12:59:06 2022]  rcu_core+0x547/0xca0
-[Thu Feb 10 12:59:06 2022]  ? call_rcu+0x3c0/0x3c0
-[Thu Feb 10 12:59:06 2022]  ? __this_cpu_preempt_check+0x13/0x20
-[Thu Feb 10 12:59:06 2022]  ? lock_is_held_type+0xea/0x140
-[Thu Feb 10 12:59:06 2022]  rcu_core_si+0xe/0x10
-[Thu Feb 10 12:59:06 2022]  __do_softirq+0x1d4/0x67b
-[Thu Feb 10 12:59:06 2022]  __irq_exit_rcu+0x100/0x150
-[Thu Feb 10 12:59:06 2022]  irq_exit_rcu+0xe/0x30
-[Thu Feb 10 12:59:06 2022]  sysvec_hyperv_stimer0+0x9d/0xc0
-...
-[Thu Feb 10 12:59:07 2022] Freed by task 58179:
-[Thu Feb 10 12:59:07 2022]  kasan_save_stack+0x26/0x50
-[Thu Feb 10 12:59:07 2022]  kasan_set_track+0x25/0x30
-[Thu Feb 10 12:59:07 2022]  kasan_set_free_info+0x24/0x40
-[Thu Feb 10 12:59:07 2022]  ____kasan_slab_free+0x137/0x170
-[Thu Feb 10 12:59:07 2022]  __kasan_slab_free+0x12/0x20
-[Thu Feb 10 12:59:07 2022]  slab_free_freelist_hook+0xb3/0x1d0
-[Thu Feb 10 12:59:07 2022]  kfree+0xcd/0x520
-[Thu Feb 10 12:59:07 2022]  cifs_smb3_do_mount+0x149/0xbe0 [cifs]
-[Thu Feb 10 12:59:07 2022]  smb3_get_tree+0x1a0/0x2e0 [cifs]
-[Thu Feb 10 12:59:07 2022]  vfs_get_tree+0x52/0x140
-[Thu Feb 10 12:59:07 2022]  path_mount+0x635/0x10c0
-[Thu Feb 10 12:59:07 2022]  __x64_sys_mount+0x1bf/0x210
-[Thu Feb 10 12:59:07 2022]  do_syscall_64+0x5c/0xc0
-[Thu Feb 10 12:59:07 2022]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-[Thu Feb 10 12:59:07 2022] Last potentially related work creation:
-[Thu Feb 10 12:59:07 2022]  kasan_save_stack+0x26/0x50
-[Thu Feb 10 12:59:07 2022]  __kasan_record_aux_stack+0xb6/0xc0
-[Thu Feb 10 12:59:07 2022]  kasan_record_aux_stack_noalloc+0xb/0x10
-[Thu Feb 10 12:59:07 2022]  call_rcu+0x76/0x3c0
-[Thu Feb 10 12:59:07 2022]  cifs_umount+0xce/0xe0 [cifs]
-[Thu Feb 10 12:59:07 2022]  cifs_kill_sb+0xc8/0xe0 [cifs]
-[Thu Feb 10 12:59:07 2022]  deactivate_locked_super+0x5d/0xd0
-[Thu Feb 10 12:59:07 2022]  cifs_smb3_do_mount+0xab9/0xbe0 [cifs]
-[Thu Feb 10 12:59:07 2022]  smb3_get_tree+0x1a0/0x2e0 [cifs]
-[Thu Feb 10 12:59:07 2022]  vfs_get_tree+0x52/0x140
-[Thu Feb 10 12:59:07 2022]  path_mount+0x635/0x10c0
-[Thu Feb 10 12:59:07 2022]  __x64_sys_mount+0x1bf/0x210
-[Thu Feb 10 12:59:07 2022]  do_syscall_64+0x5c/0xc0
-[Thu Feb 10 12:59:07 2022]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Reported-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 817f7c9335ec0 ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw()")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220215130645.164025-1-marex@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-ops.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index f0ed29a9a6f11..aa5a4d759ca23 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -864,6 +864,7 @@ cifs_smb3_do_mount(struct file_system_type *fs_type,
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -317,7 +317,7 @@ int snd_soc_put_volsw(struct snd_kcontro
+ 		mask = BIT(sign_bit + 1) - 1;
  
- out_super:
- 	deactivate_locked_super(sb);
-+	return root;
- out:
- 	cifs_cleanup_volume_info(volume_info);
- 	return root;
--- 
-2.34.1
-
+ 	val = ucontrol->value.integer.value[0];
+-	if (mc->platform_max && val > mc->platform_max)
++	if (mc->platform_max && ((int)val + min) > mc->platform_max)
+ 		return -EINVAL;
+ 	if (val > max - min)
+ 		return -EINVAL;
+@@ -330,7 +330,7 @@ int snd_soc_put_volsw(struct snd_kcontro
+ 	val = val << shift;
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+ 		val2 = ucontrol->value.integer.value[1];
+-		if (mc->platform_max && val2 > mc->platform_max)
++		if (mc->platform_max && ((int)val2 + min) > mc->platform_max)
+ 			return -EINVAL;
+ 		if (val2 > max - min)
+ 			return -EINVAL;
 
 
