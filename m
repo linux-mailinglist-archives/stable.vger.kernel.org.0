@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C11AE4CF6E4
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC01C4CF724
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238314AbiCGJnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:43:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41818 "EHLO
+        id S238099AbiCGJoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:44:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240938AbiCGJlm (ORCPT
+        with ESMTP id S240957AbiCGJlm (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:41:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884CD5B893;
-        Mon,  7 Mar 2022 01:38:43 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 397B96CA4C;
+        Mon,  7 Mar 2022 01:38:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D0BA6116E;
-        Mon,  7 Mar 2022 09:38:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE02C340F3;
-        Mon,  7 Mar 2022 09:38:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEA9AB810BD;
+        Mon,  7 Mar 2022 09:38:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DB86C340F3;
+        Mon,  7 Mar 2022 09:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645922;
-        bh=3/kkwC3GonZthDwBJEBTO1peZX/rHod02QG4EBjZFYw=;
+        s=korg; t=1646645925;
+        bh=ifDCbOlvlfDMlQSljIfCesPKWuSzZT3V2906vyaUncs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDpYAQgN+JdKvL8Qj9uBcFcTZE9Hee+S4DwnbKbA6FrFrP6EINk8YOH+7eCLlq9Gn
-         y2HNruxXnBFW+g1M5764jKM15Ex41FmnC/8GZupFrVDsWS5S7XqXdwySGRWETf2J7+
-         HDd9wnH2Lr/RmMmHEbZZVhAQCox7+k8na8jkF+lc=
+        b=S+MYAYI+/zPJ55gjXUZVxKKrOrsipUSMFQacs9b7mbhDyHs/LRqSmF687m+zkHAzP
+         EU5gtox9U3PaPpBy/0NLo/NA3uT6Nb97MIbe3v8uae5AEwnng5U4g4EuCZPvp8AU9i
+         h0dYbPF+Ae0kDOltf60Tp2ObqUdD74msROTmh4uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rtm@csail.mit.edu,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/262] nfsd: fix crash on COPY_NOTIFY with special stateid
-Date:   Mon,  7 Mar 2022 10:17:01 +0100
-Message-Id: <20220307091704.665272036@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 078/262] x86/hyperv: Properly deal with empty cpumasks in hyperv_flush_tlb_multi()
+Date:   Mon,  7 Mar 2022 10:17:02 +0100
+Message-Id: <20220307091704.692711717@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
 References: <20220307091702.378509770@linuxfoundation.org>
@@ -56,54 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 074b07d94e0bb6ddce5690a9b7e2373088e8b33a ]
+[ Upstream commit 51500b71d500f251037ed339047a4d9e7d7e295b ]
 
-RTM says "If the special ONE stateid is passed to
-nfs4_preprocess_stateid_op(), it returns status=0 but does not set
-*cstid. nfsd4_copy_notify() depends on stid being set if status=0, and
-thus can crash if the client sends the right COPY_NOTIFY RPC."
+KASAN detected the following issue:
 
-RFC 7862 says "The cna_src_stateid MUST refer to either open or locking
-states provided earlier by the server.  If it is invalid, then the
-operation MUST fail."
+ BUG: KASAN: slab-out-of-bounds in hyperv_flush_tlb_multi+0xf88/0x1060
+ Read of size 4 at addr ffff8880011ccbc0 by task kcompactd0/33
 
-The RFC doesn't specify an error, and the choice doesn't matter much as
-this is clearly illegal client behavior, but bad_stateid seems
-reasonable.
+ CPU: 1 PID: 33 Comm: kcompactd0 Not tainted 5.14.0-39.el9.x86_64+debug #1
+ Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine,
+     BIOS Hyper-V UEFI Release v4.0 12/17/2019
+ Call Trace:
+  dump_stack_lvl+0x57/0x7d
+  print_address_description.constprop.0+0x1f/0x140
+  ? hyperv_flush_tlb_multi+0xf88/0x1060
+  __kasan_report.cold+0x7f/0x11e
+  ? hyperv_flush_tlb_multi+0xf88/0x1060
+  kasan_report+0x38/0x50
+  hyperv_flush_tlb_multi+0xf88/0x1060
+  flush_tlb_mm_range+0x1b1/0x200
+  ptep_clear_flush+0x10e/0x150
+...
+ Allocated by task 0:
+  kasan_save_stack+0x1b/0x40
+  __kasan_kmalloc+0x7c/0x90
+  hv_common_init+0xae/0x115
+  hyperv_init+0x97/0x501
+  apic_intr_mode_init+0xb3/0x1e0
+  x86_late_time_init+0x92/0xa2
+  start_kernel+0x338/0x3eb
+  secondary_startup_64_no_verify+0xc2/0xcb
 
-Simplest is just to guarantee that nfs4_preprocess_stateid_op, called
-with non-NULL cstid, errors out if it can't return a stateid.
+ The buggy address belongs to the object at ffff8880011cc800
+  which belongs to the cache kmalloc-1k of size 1024
+ The buggy address is located 960 bytes inside of
+  1024-byte region [ffff8880011cc800, ffff8880011ccc00)
 
-Reported-by: rtm@csail.mit.edu
-Fixes: 624322f1adc5 ("NFSD add COPY_NOTIFY operation")
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Reviewed-by: Olga Kornievskaia <kolga@netapp.com>
-Tested-by: Olga Kornievskaia <kolga@netapp.com>
+'hyperv_flush_tlb_multi+0xf88/0x1060' points to
+hv_cpu_number_to_vp_number() and '960 bytes' means we're trying to get
+VP_INDEX for CPU#240. 'nr_cpus' here is exactly 240 so we're trying to
+access past hv_vp_index's last element. This can (and will) happen
+when 'cpus' mask is empty and cpumask_last() will return '>=nr_cpus'.
+
+Commit ad0a6bad4475 ("x86/hyperv: check cpu mask after interrupt has
+been disabled") tried to deal with empty cpumask situation but
+apparently didn't fully fix the issue.
+
+'cpus' cpumask which is passed to hyperv_flush_tlb_multi() is
+'mm_cpumask(mm)' (which is '&mm->cpu_bitmap'). This mask changes every
+time the particular mm is scheduled/unscheduled on some CPU (see
+switch_mm_irqs_off()), disabling IRQs on the CPU which is performing remote
+TLB flush has zero influence on whether the particular process can get
+scheduled/unscheduled on _other_ CPUs so e.g. in the case where the mm was
+scheduled on one other CPU and got unscheduled during
+hyperv_flush_tlb_multi()'s execution will lead to cpumask becoming empty.
+
+It doesn't seem that there's a good way to protect 'mm_cpumask(mm)'
+from changing during hyperv_flush_tlb_multi()'s execution. It would be
+possible to copy it in the very beginning of the function but this is a
+waste. It seems we can deal with changing cpumask just fine.
+
+When 'cpus' cpumask changes during hyperv_flush_tlb_multi()'s
+execution, there are two possible issues:
+- 'Under-flushing': we will not flush TLB on a CPU which got added to
+the mask while hyperv_flush_tlb_multi() was already running. This is
+not a problem as this is equal to mm getting scheduled on that CPU
+right after TLB flush.
+- 'Over-flushing': we may flush TLB on a CPU which is already cleared
+from the mask. First, extra TLB flush preserves correctness. Second,
+Hyper-V's TLB flush hypercall takes 'mm->pgd' argument so Hyper-V may
+avoid the flush if CR3 doesn't match.
+
+Fix the immediate issue with cpumask_last()/hv_cpu_number_to_vp_number()
+and remove the pointless cpumask_empty() check from the beginning of the
+function as it really doesn't protect anything. Also, avoid the hypercall
+altogether when 'flush->processor_mask' ends up being empty.
+
+Fixes: ad0a6bad4475 ("x86/hyperv: check cpu mask after interrupt has been disabled")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220106094611.1404218-1-vkuznets@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/hyperv/mmu.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 97090ddcfc94d..db4a47a280dc5 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -6042,7 +6042,11 @@ nfs4_preprocess_stateid_op(struct svc_rqst *rqstp,
- 		*nfp = NULL;
+diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
+index bd13736d0c054..0ad2378fe6ad7 100644
+--- a/arch/x86/hyperv/mmu.c
++++ b/arch/x86/hyperv/mmu.c
+@@ -68,15 +68,6 @@ static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
  
- 	if (ZERO_STATEID(stateid) || ONE_STATEID(stateid)) {
--		status = check_special_stateids(net, fhp, stateid, flags);
-+		if (cstid)
-+			status = nfserr_bad_stateid;
-+		else
-+			status = check_special_stateids(net, fhp, stateid,
-+									flags);
- 		goto done;
+ 	local_irq_save(flags);
+ 
+-	/*
+-	 * Only check the mask _after_ interrupt has been disabled to avoid the
+-	 * mask changing under our feet.
+-	 */
+-	if (cpumask_empty(cpus)) {
+-		local_irq_restore(flags);
+-		return;
+-	}
+-
+ 	flush_pcpu = (struct hv_tlb_flush **)
+ 		     this_cpu_ptr(hyperv_pcpu_input_arg);
+ 
+@@ -115,7 +106,9 @@ static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
+ 		 * must. We will also check all VP numbers when walking the
+ 		 * supplied CPU set to remain correct in all cases.
+ 		 */
+-		if (hv_cpu_number_to_vp_number(cpumask_last(cpus)) >= 64)
++		cpu = cpumask_last(cpus);
++
++		if (cpu < nr_cpumask_bits && hv_cpu_number_to_vp_number(cpu) >= 64)
+ 			goto do_ex_hypercall;
+ 
+ 		for_each_cpu(cpu, cpus) {
+@@ -131,6 +124,12 @@ static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
+ 			__set_bit(vcpu, (unsigned long *)
+ 				  &flush->processor_mask);
+ 		}
++
++		/* nothing to flush if 'processor_mask' ends up being empty */
++		if (!flush->processor_mask) {
++			local_irq_restore(flags);
++			return;
++		}
  	}
  
+ 	/*
 -- 
 2.34.1
 
