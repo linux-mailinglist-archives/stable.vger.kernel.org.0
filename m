@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF124CF93A
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DFC14CFA34
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:15:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236579AbiCGKEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:04:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39746 "EHLO
+        id S235660AbiCGKN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:13:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240463AbiCGKBD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B449635D;
-        Mon,  7 Mar 2022 01:48:28 -0800 (PST)
+        with ESMTP id S242450AbiCGKLe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:11:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B2EB8A313;
+        Mon,  7 Mar 2022 01:55:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6D8BB8102B;
-        Mon,  7 Mar 2022 09:48:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8973C340F3;
-        Mon,  7 Mar 2022 09:48:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 381F660A27;
+        Mon,  7 Mar 2022 09:54:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38222C340E9;
+        Mon,  7 Mar 2022 09:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646505;
-        bh=wucGYhU/4fjXHEiYCpmNe9ovLCQpTNtpqblxmIxE1Eg=;
+        s=korg; t=1646646874;
+        bh=7ZaHIqiLhEKHT66BkWo+qr1fJJ6/m4DqN31xrBv38I4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hO2jdL4bnkqWZR0yJegijaomf6EFlPQM4TZKEBWAFSMH7ZWqwhzz+umxByJzRfbwa
-         FVoKQ/q0chK0IsieIYJrx/+6sPT+dgyjVA9+/6k1TZ++KWF4fLEnE7wV4UyjaxZOva
-         8oiMidObUaI/+KZS8K8N6ATIpUt6cB5VVJv+EgJo=
+        b=lwJu5JvXvyNFvQwyWP/MHiSEAurIbqs8uVAMfbJzmTTxdZxt9xX0pKW284QpHYkM7
+         YW7dQY7M+3EWzfDP4qsJlnX7DDyeh/NzliWaMc9Sx3qJRrbdTKFcAI2ETde7rztztI
+         J/QhavTKXuQzykX1ykL+oWjNM89GYuo4fzhZk4bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 214/262] ARM: tegra: Move panels to AUX bus
-Date:   Mon,  7 Mar 2022 10:19:18 +0100
-Message-Id: <20220307091708.973077975@linuxfoundation.org>
+Subject: [PATCH 5.16 121/186] arm64: dts: juno: Remove GICv2m dma-range
+Date:   Mon,  7 Mar 2022 10:19:19 +0100
+Message-Id: <20220307091657.463588854@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 8d3b01e0d4bb54368d73d0984466d72c2eeeac74 ]
+[ Upstream commit 31eeb6b09f4053f32a30ce9fbcdfca31f713028d ]
 
-Move the eDP panel on Venice 2 and Nyan boards into the corresponding
-AUX bus device tree node. This allows us to avoid a nasty circular
-dependency that would otherwise be created between the DPAUX and panel
-nodes via the DDC/I2C phandle.
+Although it is painstakingly honest to describe all 3 PCI windows in
+"dma-ranges", it misses the the subtle distinction that the window for
+the GICv2m range is normally programmed for Device memory attributes
+rather than Normal Cacheable like the DRAM windows. Since MMU-401 only
+offers stage 2 translation, this means that when the PCI SMMU is
+enabled, accesses through that IPA range unexpectedly lose coherency if
+mapped as cacheable at the SMMU, due to the attribute combining rules.
+Since an extra 256KB is neither here nor there when we still have 10GB
+worth of usable address space, rather than attempting to describe and
+cope with this detail let's just remove the offending range. If the SMMU
+is not used then it makes no difference anyway.
 
-Fixes: eb481f9ac95c ("ARM: tegra: add Acer Chromebook 13 device tree")
-Fixes: 59fe02cb079f ("ARM: tegra: Add DTS for the nyan-blaze board")
-Fixes: 40e231c770a4 ("ARM: tegra: Enable eDP for Venice2")
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/856c3f7192c6c3ce545ba67462f2ce9c86ed6b0c.1643046936.git.robin.murphy@arm.com
+Fixes: 4ac4d146cb63 ("arm64: dts: juno: Describe PCI dma-ranges")
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra124-nyan-big.dts   | 15 +++++++++------
- arch/arm/boot/dts/tegra124-nyan-blaze.dts | 15 +++++++++------
- arch/arm/boot/dts/tegra124-venice2.dts    | 14 +++++++-------
- 3 files changed, 25 insertions(+), 19 deletions(-)
+ arch/arm64/boot/dts/arm/juno-base.dtsi | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra124-nyan-big.dts b/arch/arm/boot/dts/tegra124-nyan-big.dts
-index 1d2aac2cb6d0..fdc1d64dfff9 100644
---- a/arch/arm/boot/dts/tegra124-nyan-big.dts
-+++ b/arch/arm/boot/dts/tegra124-nyan-big.dts
-@@ -13,12 +13,15 @@
- 		     "google,nyan-big-rev1", "google,nyan-big-rev0",
- 		     "google,nyan-big", "google,nyan", "nvidia,tegra124";
- 
--	panel: panel {
--		compatible = "auo,b133xtn01";
--
--		power-supply = <&vdd_3v3_panel>;
--		backlight = <&backlight>;
--		ddc-i2c-bus = <&dpaux>;
-+	host1x@50000000 {
-+		dpaux@545c0000 {
-+			aux-bus {
-+				panel: panel {
-+					compatible = "auo,b133xtn01";
-+					backlight = <&backlight>;
-+				};
-+			};
-+		};
- 	};
- 
- 	mmc@700b0400 { /* SD Card on this bus */
-diff --git a/arch/arm/boot/dts/tegra124-nyan-blaze.dts b/arch/arm/boot/dts/tegra124-nyan-blaze.dts
-index 677babde6460..abdf4456826f 100644
---- a/arch/arm/boot/dts/tegra124-nyan-blaze.dts
-+++ b/arch/arm/boot/dts/tegra124-nyan-blaze.dts
-@@ -15,12 +15,15 @@
- 		     "google,nyan-blaze-rev0", "google,nyan-blaze",
- 		     "google,nyan", "nvidia,tegra124";
- 
--	panel: panel {
--		compatible = "samsung,ltn140at29-301";
--
--		power-supply = <&vdd_3v3_panel>;
--		backlight = <&backlight>;
--		ddc-i2c-bus = <&dpaux>;
-+	host1x@50000000 {
-+		dpaux@545c0000 {
-+			aux-bus {
-+				panel: panel {
-+					compatible = "samsung,ltn140at29-301";
-+					backlight = <&backlight>;
-+				};
-+			};
-+		};
- 	};
- 
- 	sound {
-diff --git a/arch/arm/boot/dts/tegra124-venice2.dts b/arch/arm/boot/dts/tegra124-venice2.dts
-index e6b54ac1ebd1..84e2d24065e9 100644
---- a/arch/arm/boot/dts/tegra124-venice2.dts
-+++ b/arch/arm/boot/dts/tegra124-venice2.dts
-@@ -48,6 +48,13 @@
- 		dpaux@545c0000 {
- 			vdd-supply = <&vdd_3v3_panel>;
- 			status = "okay";
-+
-+			aux-bus {
-+				panel: panel {
-+					compatible = "lg,lp129qe";
-+					backlight = <&backlight>;
-+				};
-+			};
- 		};
- 	};
- 
-@@ -1079,13 +1086,6 @@
- 		};
- 	};
- 
--	panel: panel {
--		compatible = "lg,lp129qe";
--		power-supply = <&vdd_3v3_panel>;
--		backlight = <&backlight>;
--		ddc-i2c-bus = <&dpaux>;
--	};
--
- 	vdd_mux: regulator@0 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "+VDD_MUX";
+diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+index 6288e104a089..a2635b14da30 100644
+--- a/arch/arm64/boot/dts/arm/juno-base.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+@@ -543,8 +543,7 @@
+ 			 <0x02000000 0x00 0x50000000 0x00 0x50000000 0x0 0x08000000>,
+ 			 <0x42000000 0x40 0x00000000 0x40 0x00000000 0x1 0x00000000>;
+ 		/* Standard AXI Translation entries as programmed by EDK2 */
+-		dma-ranges = <0x02000000 0x0 0x2c1c0000 0x0 0x2c1c0000 0x0 0x00040000>,
+-			     <0x02000000 0x0 0x80000000 0x0 0x80000000 0x0 0x80000000>,
++		dma-ranges = <0x02000000 0x0 0x80000000 0x0 0x80000000 0x0 0x80000000>,
+ 			     <0x43000000 0x8 0x00000000 0x8 0x00000000 0x2 0x00000000>;
+ 		#interrupt-cells = <1>;
+ 		interrupt-map-mask = <0 0 0 7>;
 -- 
 2.34.1
 
