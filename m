@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E774CF847
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:52:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F377E4CF9C6
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238526AbiCGJwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:52:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53378 "EHLO
+        id S239668AbiCGKNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:13:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240426AbiCGJvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:51:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E14967522B;
-        Mon,  7 Mar 2022 01:44:36 -0800 (PST)
+        with ESMTP id S241770AbiCGKKd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983216D962;
+        Mon,  7 Mar 2022 01:53:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27C4661374;
-        Mon,  7 Mar 2022 09:44:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A88C340E9;
-        Mon,  7 Mar 2022 09:44:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD637B8102B;
+        Mon,  7 Mar 2022 09:53:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8D6AC36AE2;
+        Mon,  7 Mar 2022 09:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646271;
-        bh=q+N6qQHHbewH0S9LAj4Ur73Dl++E5J0JYWwl7aZW/7g=;
+        s=korg; t=1646646799;
+        bh=WhYYTOs/fM1PMYyBG+qH/BNWVxzvl8L3EJkFvVylbDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sa9d34Bxuvatg8qEOlNeBZGKchOZ2pGUGKRd7Nn6MJrxg26f3Remme9JpMOpWIDmu
-         rdZQcmmwBTjbCW2rgvFpvNHjl5P2mc2bsElVLmIfqFHq7HmcJ4g33XVJryyKhhgWAE
-         DxEHqtRhhOYIXeoJzkOhvxIyZzgqMbuc1ckvgUqk=
+        b=zFlaF513q/5mfUVOuM496+53h/mMWN7TUMxqYabYcqRlck1bZnCdlq1wsluOM+v1D
+         V7Z7yL3DVPYuvZjMkvRO+ahXe+hTs/uMSNGVz97rAK/6bPCE041RinqZB7Q6WK7+UK
+         87/qekHfofpI4aZ/jWnrHpIfxPj4VRruJhJWgmoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.15 190/262] arm64: dts: rockchip: Switch RK3399-Gru DP to SPDIF output
+        stable@vger.kernel.org,
+        Maurice Baijens <maurice.baijens@ellips.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 096/186] ixgbe: xsk: change !netif_carrier_ok() handling in ixgbe_xmit_zc()
 Date:   Mon,  7 Mar 2022 10:18:54 +0100
-Message-Id: <20220307091707.872730955@linuxfoundation.org>
+Message-Id: <20220307091656.766103293@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-commit b5fbaf7d779f5f02b7f75b080e7707222573be2a upstream.
+commit 6c7273a266759d9d36f7c862149f248bcdeddc0f upstream.
 
-Commit b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
-switched the platform to SPDIF, but we didn't fix up the device tree.
+Commit c685c69fba71 ("ixgbe: don't do any AF_XDP zero-copy transmit if
+netif is not OK") addressed the ring transient state when
+MEM_TYPE_XSK_BUFF_POOL was being configured which in turn caused the
+interface to through down/up. Maurice reported that when carrier is not
+ok and xsk_pool is present on ring pair, ksoftirqd will consume 100% CPU
+cycles due to the constant NAPI rescheduling as ixgbe_poll() states that
+there is still some work to be done.
 
-Drop the pinctrl settings, because the 'spdif_bus' pins are either:
- * unused (on kevin, bob), so the settings is ~harmless
- * used by a different function (on scarlet), which causes probe
-   failures (!!)
+To fix this, do not set work_done to false for a !netif_carrier_ok().
 
-Fixes: b18c6c3c7768 ("ASoC: rockchip: cdn-dp sound output use spdif")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Link: https://lore.kernel.org/r/20220114150129.v2.1.I46f64b00508d9dff34abe1c3e8d2defdab4ea1e5@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: c685c69fba71 ("ixgbe: don't do any AF_XDP zero-copy transmit if netif is not OK")
+Reported-by: Maurice Baijens <maurice.baijens@ellips.com>
+Tested-by: Maurice Baijens <maurice.baijens@ellips.com>
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-@@ -286,7 +286,7 @@
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
+@@ -390,12 +390,14 @@ static bool ixgbe_xmit_zc(struct ixgbe_r
+ 	u32 cmd_type;
  
- 	sound: sound {
- 		compatible = "rockchip,rk3399-gru-sound";
--		rockchip,cpu = <&i2s0 &i2s2>;
-+		rockchip,cpu = <&i2s0 &spdif>;
- 	};
- };
+ 	while (budget-- > 0) {
+-		if (unlikely(!ixgbe_desc_unused(xdp_ring)) ||
+-		    !netif_carrier_ok(xdp_ring->netdev)) {
++		if (unlikely(!ixgbe_desc_unused(xdp_ring))) {
+ 			work_done = false;
+ 			break;
+ 		}
  
-@@ -437,10 +437,6 @@ ap_i2c_audio: &i2c8 {
- 	status = "okay";
- };
- 
--&i2s2 {
--	status = "okay";
--};
--
- &io_domains {
- 	status = "okay";
- 
-@@ -537,6 +533,17 @@ ap_i2c_audio: &i2c8 {
- 	vqmmc-supply = <&ppvar_sd_card_io>;
- };
- 
-+&spdif {
-+	status = "okay";
++		if (!netif_carrier_ok(xdp_ring->netdev))
++			break;
 +
-+	/*
-+	 * SPDIF is routed internally to DP; we either don't use these pins, or
-+	 * mux them to something else.
-+	 */
-+	/delete-property/ pinctrl-0;
-+	/delete-property/ pinctrl-names;
-+};
-+
- &spi1 {
- 	status = "okay";
+ 		if (!xsk_tx_peek_desc(pool, &desc))
+ 			break;
  
 
 
