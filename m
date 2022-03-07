@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 928E04CF5F9
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4904CF73F
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:44:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235543AbiCGJax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40684 "EHLO
+        id S233318AbiCGJpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:45:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238762AbiCGJ3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 794575C864;
-        Mon,  7 Mar 2022 01:28:32 -0800 (PST)
+        with ESMTP id S237741AbiCGJgY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:36:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14896E293;
+        Mon,  7 Mar 2022 01:31:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5C9F61119;
-        Mon,  7 Mar 2022 09:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4B1CC340E9;
-        Mon,  7 Mar 2022 09:28:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3C2FB810B9;
+        Mon,  7 Mar 2022 09:31:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B9EBC340E9;
+        Mon,  7 Mar 2022 09:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645311;
-        bh=stdlv2J1UkzSjlsuBLGDoszBpm+lXxb2VHMR9D1vs1g=;
+        s=korg; t=1646645476;
+        bh=AnauxGBZ8p0xwscdaSv0eJJZrWzw18OZ91+tPeMhTpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2i8gs3v0Z6forz7HYErjHX7tlytAzf8xCL/EH6jIdtq7mMPjOtSoLL/IG5RQFMZPW
-         RwnU986gXQP5AiTf/n1okCmjQWiEgrexfhhSugx75LCSTkNfmT/msbZ03g4a48g13X
-         4JSIOiLX1zihLNsEsUUqyt9IAoRG0DiBoL4RT61Y=
+        b=kHOVXQv6dDSemxRZ7yR2q+2p4iCkfCECwm5h0AJ1hAFTnZ2pjmsAqW+hGfYoFpQcG
+         ohLWDsBu2GHypnKNAN9Ldp3H7YHr3s0qT/hh+YLGkLww2evFwsLkEd/HxmfqAJeV0V
+         jPR/dJnZiggSno/hsH1c5Us0wC2gLDt36Nld0lQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Hangyu Hua <hbh25y@gmail.com>
-Subject: [PATCH 5.4 13/64] usb: gadget: clear related members when goto fail
+        stable@vger.kernel.org, Oleksandr Natalenko <oleksandr@redhat.com>,
+        Florian Westphal <fw@strlen.de>
+Subject: [PATCH 5.10 043/105] netfilter: nf_queue: dont assume sk is full socket
 Date:   Mon,  7 Mar 2022 10:18:46 +0100
-Message-Id: <20220307091639.520505131@linuxfoundation.org>
+Message-Id: <20220307091645.397407421@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 501e38a5531efbd77d5c73c0ba838a889bfc1d74 upstream.
+commit 747670fd9a2d1b7774030dba65ca022ba442ce71 upstream.
 
-dev->config and dev->hs_config and dev->dev need to be cleaned if
-dev_config fails to avoid UAF.
+There is no guarantee that state->sk refers to a full socket.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20211231172138.7993-3-hbh25y@gmail.com
+If refcount transitions to 0, sock_put calls sk_free which then ends up
+with garbage fields.
+
+I'd like to thank Oleksandr Natalenko and Jiri Benc for considerable
+debug work and pointing out state->sk oddities.
+
+Fixes: ca6fb0651883 ("tcp: attach SYNACK messages to request sockets instead of listener")
+Tested-by: Oleksandr Natalenko <oleksandr@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/inode.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/netfilter/nf_queue.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -1878,8 +1878,8 @@ dev_config (struct file *fd, const char
+--- a/net/netfilter/nf_queue.c
++++ b/net/netfilter/nf_queue.c
+@@ -46,6 +46,15 @@ void nf_unregister_queue_handler(struct
+ }
+ EXPORT_SYMBOL(nf_unregister_queue_handler);
  
- 	value = usb_gadget_probe_driver(&gadgetfs_driver);
- 	if (value != 0) {
--		kfree (dev->buf);
--		dev->buf = NULL;
-+		spin_lock_irq(&dev->lock);
-+		goto fail;
- 	} else {
- 		/* at this point "good" hardware has for the first time
- 		 * let the USB the host see us.  alternatively, if users
-@@ -1896,6 +1896,9 @@ dev_config (struct file *fd, const char
- 	return value;
++static void nf_queue_sock_put(struct sock *sk)
++{
++#ifdef CONFIG_INET
++	sock_gen_put(sk);
++#else
++	sock_put(sk);
++#endif
++}
++
+ static void nf_queue_entry_release_refs(struct nf_queue_entry *entry)
+ {
+ 	struct nf_hook_state *state = &entry->state;
+@@ -56,7 +65,7 @@ static void nf_queue_entry_release_refs(
+ 	if (state->out)
+ 		dev_put(state->out);
+ 	if (state->sk)
+-		sock_put(state->sk);
++		nf_queue_sock_put(state->sk);
  
- fail:
-+	dev->config = NULL;
-+	dev->hs_config = NULL;
-+	dev->dev = NULL;
- 	spin_unlock_irq (&dev->lock);
- 	pr_debug ("%s: %s fail %zd, %p\n", shortname, __func__, value, dev);
- 	kfree (dev->buf);
+ #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+ 	if (entry->physin)
 
 
