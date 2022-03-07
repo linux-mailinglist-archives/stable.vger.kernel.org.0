@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A524CF92F
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:03:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B014CFA59
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:16:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239923AbiCGKD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 05:03:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
+        id S239231AbiCGKPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:15:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238919AbiCGJ5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:57:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F07B97B560;
-        Mon,  7 Mar 2022 01:46:03 -0800 (PST)
+        with ESMTP id S241354AbiCGKKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:10:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB0E2BB09;
+        Mon,  7 Mar 2022 01:53:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2C7A612D2;
-        Mon,  7 Mar 2022 09:46:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD927C340E9;
-        Mon,  7 Mar 2022 09:46:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1228260A28;
+        Mon,  7 Mar 2022 09:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1048BC340F3;
+        Mon,  7 Mar 2022 09:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646646363;
-        bh=vr0+wwaEZAzHQoUwmpetBlQ5szZb4b7r+VodDSiJkzU=;
+        s=korg; t=1646646762;
+        bh=UfCYSZXoVnRIB8H8VvbyXpKv1i03FqE5R0QtrAk+uj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vpj4z3u3VPHrx9PDjV6b5yFH1Mbl6rrBNsIot/e8kjWjw7WfL2XxJV6GehCreSnfk
-         MjsOYt9FF9dYCQkwlG8Q3eFSJfZ0f5lDeUxVOJVVJEC74baI8ME7a1kZCw/SE+rKHj
-         EJTPJud5Px3KRdFz3Yzd0k0w4iItDc4jk8od3occ=
+        b=evN6I1iFRADj9+NpO+OD7ewwE73FnQ4c35lbSfesV5JZOi1h00hH2WcsTfFQoHEQK
+         NCud95bH5qSfgAUDaZkP8ORapWdIcLxTdHk7H55+RwIfJFBI/vQDK1MI4FlkNp9owz
+         cX2kvRYWBLQ4xYU58xGpED99PQ6GyMCqacngI1DU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, "D. Wythe" <alibuda@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 179/262] net: arcnet: com20020: Fix null-ptr-deref in com20020pci_probe()
+Subject: [PATCH 5.16 085/186] net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error cause by server
 Date:   Mon,  7 Mar 2022 10:18:43 +0100
-Message-Id: <20220307091707.469022799@linuxfoundation.org>
+Message-Id: <20220307091656.462621250@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
-References: <20220307091702.378509770@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-commit bd6f1fd5d33dfe5d1b4f2502d3694a7cc13f166d upstream.
+commit 4940a1fdf31c39f0806ac831cde333134862030b upstream.
 
-During driver initialization, the pointer of card info, i.e. the
-variable 'ci' is required. However, the definition of
-'com20020pci_id_table' reveals that this field is empty for some
-devices, which will cause null pointer dereference when initializing
-these devices.
+The problem of SMC_CLC_DECL_ERR_REGRMB on the server is very clear.
+Based on the fact that whether a new SMC connection can be accepted or
+not depends on not only the limit of conn nums, but also the available
+entries of rtoken. Since the rtoken release is trigger by peer, while
+the conn nums is decrease by local, tons of thing can happen in this
+time difference.
 
-The following log reveals it:
+This only thing that needs to be mentioned is that now all connection
+creations are completely protected by smc_server_lgr_pending lock, it's
+enough to check only the available entries in rtokens_used_mask.
 
-[    3.973806] KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
-[    3.973819] RIP: 0010:com20020pci_probe+0x18d/0x13e0 [com20020_pci]
-[    3.975181] Call Trace:
-[    3.976208]  local_pci_probe+0x13f/0x210
-[    3.977248]  pci_device_probe+0x34c/0x6d0
-[    3.977255]  ? pci_uevent+0x470/0x470
-[    3.978265]  really_probe+0x24c/0x8d0
-[    3.978273]  __driver_probe_device+0x1b3/0x280
-[    3.979288]  driver_probe_device+0x50/0x370
-
-Fix this by checking whether the 'ci' is a null pointer first.
-
-Fixes: 8c14f9c70327 ("ARCNET: add com20020 PCI IDs with metadata")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Fixes: cd6851f30386 ("smc: remote memory buffers (RMBs)")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/arcnet/com20020-pci.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/smc/smc_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/arcnet/com20020-pci.c
-+++ b/drivers/net/arcnet/com20020-pci.c
-@@ -138,6 +138,9 @@ static int com20020pci_probe(struct pci_
- 		return -ENOMEM;
- 
- 	ci = (struct com20020_pci_card_info *)id->driver_data;
-+	if (!ci)
-+		return -EINVAL;
-+
- 	priv->ci = ci;
- 	mm = &ci->misc_map;
- 
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1783,7 +1783,8 @@ int smc_conn_create(struct smc_sock *smc
+ 		    (ini->smcd_version == SMC_V2 ||
+ 		     lgr->vlan_id == ini->vlan_id) &&
+ 		    (role == SMC_CLNT || ini->is_smcd ||
+-		     lgr->conns_num < SMC_RMBS_PER_LGR_MAX)) {
++		    (lgr->conns_num < SMC_RMBS_PER_LGR_MAX &&
++		      !bitmap_full(lgr->rtokens_used_mask, SMC_RMBS_PER_LGR_MAX)))) {
+ 			/* link group found */
+ 			ini->first_contact_local = 0;
+ 			conn->lgr = lgr;
 
 
