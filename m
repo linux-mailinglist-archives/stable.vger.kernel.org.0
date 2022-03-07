@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E79554CF49E
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:19:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F564CF65B
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236384AbiCGJUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:20:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49506 "EHLO
+        id S237548AbiCGJgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:36:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236374AbiCGJUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:20:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C7A4BB9E;
-        Mon,  7 Mar 2022 01:19:21 -0800 (PST)
+        with ESMTP id S237550AbiCGJfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:35:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D66116D3BB;
+        Mon,  7 Mar 2022 01:31:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30013B810B2;
-        Mon,  7 Mar 2022 09:19:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EC2FC340F5;
-        Mon,  7 Mar 2022 09:19:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A11CB810C2;
+        Mon,  7 Mar 2022 09:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8303DC340E9;
+        Mon,  7 Mar 2022 09:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646644759;
-        bh=j6TUN0r8UfveiHMI6u6iwnzfl6vV6ocFAP0/ty86B9I=;
+        s=korg; t=1646645451;
+        bh=VhGi8MFyHuo28m+9+2Z+7/z5004SCo//JCYm45CBOqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+9+jEmgBiNV+bcbMWnb+L9tA1jP5hfjt/2jQ0qMUG2BHbjGB6MQ8RMHor7BVal+G
-         7mkKva4T3YHeaiD/nSq/7GXY1nyc+jVO9DALeEkihgrxkB4FHAkagdzctvqjLSZvst
-         4dLCRkXmiqoeeVjjsQFfSYWpPagCX6KqhGt8Zs7g=
+        b=JcRtprgGIYhHg2OVmlo73sa1+5Srfl88H2eMc2SZyDsNPQKNri6RmiG/6QfgJtuZs
+         iess1sY2CUp/VC2f/f+pRMlYfZ4gQLx7sxnkyCM1JZoezUyk8mK40AwLsA7oAFcs6a
+         FPplc9edVZ8Bobfsq5I9pVAQ4R/rO3DlDkHtUf2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
         Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.9 13/32] xfrm: fix MTU regression
+Subject: [PATCH 5.10 036/105] xfrm: fix MTU regression
 Date:   Mon,  7 Mar 2022 10:18:39 +0100
-Message-Id: <20220307091634.818002970@linuxfoundation.org>
+Message-Id: <20220307091645.201437369@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091634.434478485@linuxfoundation.org>
-References: <20220307091634.434478485@linuxfoundation.org>
+In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
+References: <20220307091644.179885033@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -95,16 +95,16 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/ipv6/ip6_output.c
 +++ b/net/ipv6/ip6_output.c
-@@ -1274,8 +1274,6 @@ static int ip6_setup_cork(struct sock *s
+@@ -1432,8 +1432,6 @@ static int ip6_setup_cork(struct sock *s
  		if (np->frag_size)
  			mtu = np->frag_size;
  	}
 -	if (mtu < IPV6_MIN_MTU)
 -		return -EINVAL;
  	cork->base.fragsize = mtu;
- 	if (dst_allfrag(rt->dst.path))
- 		cork->base.flags |= IPCORK_ALLFRAG;
-@@ -1324,8 +1322,6 @@ static int __ip6_append_data(struct sock
+ 	cork->base.gso_size = ipc6->gso_size;
+ 	cork->base.tx_flags = 0;
+@@ -1495,8 +1493,6 @@ static int __ip6_append_data(struct sock
  
  	fragheaderlen = sizeof(struct ipv6hdr) + rt->rt6i_nfheader_len +
  			(opt ? opt->opt_nflen : 0);
@@ -113,7 +113,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	headersize = sizeof(struct ipv6hdr) +
  		     (opt ? opt->opt_flen + opt->opt_nflen : 0) +
-@@ -1333,6 +1329,13 @@ static int __ip6_append_data(struct sock
+@@ -1504,6 +1500,13 @@ static int __ip6_append_data(struct sock
  		      sizeof(struct frag_hdr) : 0) +
  		     rt->rt6i_nfheader_len;
  
