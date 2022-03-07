@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD7E4CF2B4
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:36:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4908D4CF2C5
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:42:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235834AbiCGHht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 02:37:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57804 "EHLO
+        id S235640AbiCGHnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 02:43:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234623AbiCGHhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:37:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD1585F8C1
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 23:36:54 -0800 (PST)
+        with ESMTP id S235174AbiCGHnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:43:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6924D49
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 23:42:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38EB060AEE
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E54C340EF;
-        Mon,  7 Mar 2022 07:36:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6D93B80B52
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08620C340E9;
+        Mon,  7 Mar 2022 07:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646638613;
-        bh=kb6ubUIZ65xPVBrb4/1/emmDnKgBn07Vucv3JpDToeI=;
+        s=korg; t=1646638955;
+        bh=yX1Ef4Ft0cuGeGkMC3lPAvO4FMVq2CTBgBtlZHD+cUU=;
         h=Subject:To:Cc:From:Date:From;
-        b=VDn2K9oto4J7a4pORLycwVwyCpzdH8AwlNpR+o9WQtBqpez7qlkIHXUiya8mXba/5
-         9vvikntykzATuwVEoe2qIaAOhyCN+u5HSCAjvaOuh5HYdC5IXP+j6NGr0TrOCuFOcX
-         KYaD5w2M9HT9BhP7Rhr9p+nK0Gp5NpufisBldmr8=
-Subject: FAILED: patch "[PATCH] btrfs: tree-checker: use u64 for item data end to avoid" failed to apply to 5.16-stable tree
-To:     l@damenly.su, dsterba@suse.com, wenqingliu0120@gmail.com
+        b=c6RJfiW9RkH/qcsBKj0U7uF1HAfJmCk+PpS1C1NQ82yZiL9BI3UKZWlFsv7Pi82l9
+         xOKYoiSHBi8AWzTmkavGdmetgcY+nfAwt1pYZU5tiXRkuNFXf8jO3NywizjPX2P+aq
+         PNQ2Qas1fk0phdl2vOm6XPvPde3rnQLT4potnmdg=
+Subject: FAILED: patch "[PATCH] tee: optee: fix error return code in probe function" failed to apply to 5.16-stable tree
+To:     yangyingliang@huawei.com, hulkci@huawei.com,
+        jens.wiklander@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Mar 2022 08:36:38 +0100
-Message-ID: <164663859813361@kroah.com>
+Date:   Mon, 07 Mar 2022 08:42:25 +0100
+Message-ID: <16466389455912@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,130 +60,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a6ab66eb8541d61b0a11d70980f07b4c2dfeddc5 Mon Sep 17 00:00:00 2001
-From: Su Yue <l@damenly.su>
-Date: Tue, 22 Feb 2022 16:42:07 +0800
-Subject: [PATCH] btrfs: tree-checker: use u64 for item data end to avoid
- overflow
+From 40eb0dcf4114cbfff4d207890fa5a19e82da9fdc Mon Sep 17 00:00:00 2001
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Thu, 10 Feb 2022 17:10:53 +0800
+Subject: [PATCH] tee: optee: fix error return code in probe function
 
-User reported there is an array-index-out-of-bounds access while
-mounting the crafted image:
+If teedev_open() fails, probe function need return
+error code.
 
-  [350.411942 ] loop0: detected capacity change from 0 to 262144
-  [350.427058 ] BTRFS: device fsid a62e00e8-e94e-4200-8217-12444de93c2e devid 1 transid 8 /dev/loop0 scanned by systemd-udevd (1044)
-  [350.428564 ] BTRFS info (device loop0): disk space caching is enabled
-  [350.428568 ] BTRFS info (device loop0): has skinny extents
-  [350.429589 ]
-  [350.429619 ] UBSAN: array-index-out-of-bounds in fs/btrfs/struct-funcs.c:161:1
-  [350.429636 ] index 1048096 is out of range for type 'page *[16]'
-  [350.429650 ] CPU: 0 PID: 9 Comm: kworker/u8:1 Not tainted 5.16.0-rc4
-  [350.429652 ] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-  [350.429653 ] Workqueue: btrfs-endio-meta btrfs_work_helper [btrfs]
-  [350.429772 ] Call Trace:
-  [350.429774 ]  <TASK>
-  [350.429776 ]  dump_stack_lvl+0x47/0x5c
-  [350.429780 ]  ubsan_epilogue+0x5/0x50
-  [350.429786 ]  __ubsan_handle_out_of_bounds+0x66/0x70
-  [350.429791 ]  btrfs_get_16+0xfd/0x120 [btrfs]
-  [350.429832 ]  check_leaf+0x754/0x1a40 [btrfs]
-  [350.429874 ]  ? filemap_read+0x34a/0x390
-  [350.429878 ]  ? load_balance+0x175/0xfc0
-  [350.429881 ]  validate_extent_buffer+0x244/0x310 [btrfs]
-  [350.429911 ]  btrfs_validate_metadata_buffer+0xf8/0x100 [btrfs]
-  [350.429935 ]  end_bio_extent_readpage+0x3af/0x850 [btrfs]
-  [350.429969 ]  ? newidle_balance+0x259/0x480
-  [350.429972 ]  end_workqueue_fn+0x29/0x40 [btrfs]
-  [350.429995 ]  btrfs_work_helper+0x71/0x330 [btrfs]
-  [350.430030 ]  ? __schedule+0x2fb/0xa40
-  [350.430033 ]  process_one_work+0x1f6/0x400
-  [350.430035 ]  ? process_one_work+0x400/0x400
-  [350.430036 ]  worker_thread+0x2d/0x3d0
-  [350.430037 ]  ? process_one_work+0x400/0x400
-  [350.430038 ]  kthread+0x165/0x190
-  [350.430041 ]  ? set_kthread_struct+0x40/0x40
-  [350.430043 ]  ret_from_fork+0x1f/0x30
-  [350.430047 ]  </TASK>
-  [350.430047 ]
-  [350.430077 ] BTRFS warning (device loop0): bad eb member start: ptr 0xffe20f4e start 20975616 member offset 4293005178 size 2
+Fixes: aceeafefff73 ("optee: use driver internal tee_context for some rpc")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 
-btrfs check reports:
-  corrupt leaf: root=3 block=20975616 physical=20975616 slot=1, unexpected
-  item end, have 4294971193 expect 3897
-
-The first slot item offset is 4293005033 and the size is 1966160.
-In check_leaf, we use btrfs_item_end() to check item boundary versus
-extent_buffer data size. However, return type of btrfs_item_end() is u32.
-(u32)(4293005033 + 1966160) == 3897, overflow happens and the result 3897
-equals to leaf data size reasonably.
-
-Fix it by use u64 variable to store item data end in check_leaf() to
-avoid u32 overflow.
-
-This commit does solve the invalid memory access showed by the stack
-trace.  However, its metadata profile is DUP and another copy of the
-leaf is fine.  So the image can be mounted successfully. But when umount
-is called, the ASSERT btrfs_mark_buffer_dirty() will be triggered
-because the only node in extent tree has 0 item and invalid owner. It's
-solved by another commit
-"btrfs: check extent buffer owner against the owner rootid".
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215299
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Su Yue <l@damenly.su>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-index 9fd145f1c4bc..aae5697dde32 100644
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -1682,6 +1682,7 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
- 	 */
- 	for (slot = 0; slot < nritems; slot++) {
- 		u32 item_end_expected;
-+		u64 item_data_end;
- 		int ret;
+diff --git a/drivers/tee/optee/ffa_abi.c b/drivers/tee/optee/ffa_abi.c
+index 545f61af1248..0c90355896a0 100644
+--- a/drivers/tee/optee/ffa_abi.c
++++ b/drivers/tee/optee/ffa_abi.c
+@@ -860,8 +860,10 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
+ 	optee_supp_init(&optee->supp);
+ 	ffa_dev_set_drvdata(ffa_dev, optee);
+ 	ctx = teedev_open(optee->teedev);
+-	if (IS_ERR(ctx))
++	if (IS_ERR(ctx)) {
++		rc = PTR_ERR(ctx);
+ 		goto err_rhashtable_free;
++	}
+ 	optee->ctx = ctx;
+ 	rc = optee_notif_init(optee, OPTEE_DEFAULT_MAX_NOTIF_VALUE);
+ 	if (rc)
+diff --git a/drivers/tee/optee/smc_abi.c b/drivers/tee/optee/smc_abi.c
+index bacd1a1d79ee..4157f4b41bdd 100644
+--- a/drivers/tee/optee/smc_abi.c
++++ b/drivers/tee/optee/smc_abi.c
+@@ -1427,8 +1427,10 @@ static int optee_probe(struct platform_device *pdev)
  
- 		btrfs_item_key_to_cpu(leaf, &key, slot);
-@@ -1696,6 +1697,8 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
- 			return -EUCLEAN;
- 		}
- 
-+		item_data_end = (u64)btrfs_item_offset(leaf, slot) +
-+				btrfs_item_size(leaf, slot);
- 		/*
- 		 * Make sure the offset and ends are right, remember that the
- 		 * item data starts at the end of the leaf and grows towards the
-@@ -1706,11 +1709,10 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
- 		else
- 			item_end_expected = btrfs_item_offset(leaf,
- 								 slot - 1);
--		if (unlikely(btrfs_item_data_end(leaf, slot) != item_end_expected)) {
-+		if (unlikely(item_data_end != item_end_expected)) {
- 			generic_err(leaf, slot,
--				"unexpected item end, have %u expect %u",
--				btrfs_item_data_end(leaf, slot),
--				item_end_expected);
-+				"unexpected item end, have %llu expect %u",
-+				item_data_end, item_end_expected);
- 			return -EUCLEAN;
- 		}
- 
-@@ -1719,12 +1721,10 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
- 		 * just in case all the items are consistent to each other, but
- 		 * all point outside of the leaf.
- 		 */
--		if (unlikely(btrfs_item_data_end(leaf, slot) >
--			     BTRFS_LEAF_DATA_SIZE(fs_info))) {
-+		if (unlikely(item_data_end > BTRFS_LEAF_DATA_SIZE(fs_info))) {
- 			generic_err(leaf, slot,
--			"slot end outside of leaf, have %u expect range [0, %u]",
--				btrfs_item_data_end(leaf, slot),
--				BTRFS_LEAF_DATA_SIZE(fs_info));
-+			"slot end outside of leaf, have %llu expect range [0, %u]",
-+				item_data_end, BTRFS_LEAF_DATA_SIZE(fs_info));
- 			return -EUCLEAN;
- 		}
- 
+ 	platform_set_drvdata(pdev, optee);
+ 	ctx = teedev_open(optee->teedev);
+-	if (IS_ERR(ctx))
++	if (IS_ERR(ctx)) {
++		rc = PTR_ERR(ctx);
+ 		goto err_supp_uninit;
++	}
+ 	optee->ctx = ctx;
+ 	rc = optee_notif_init(optee, max_notif_value);
+ 	if (rc)
 
