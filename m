@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC864CF61A
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F3A4CF8F2
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 11:02:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233620AbiCGJdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:33:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
+        id S239116AbiCGKDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 05:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237747AbiCGJdK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:33:10 -0500
+        with ESMTP id S240747AbiCGKBP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 05:01:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E514A6AA5C;
-        Mon,  7 Mar 2022 01:30:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 693366AA5E;
+        Mon,  7 Mar 2022 01:50:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BAD36116E;
-        Mon,  7 Mar 2022 09:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20866C340E9;
-        Mon,  7 Mar 2022 09:29:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAF7B60AEC;
+        Mon,  7 Mar 2022 09:50:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B05C340F3;
+        Mon,  7 Mar 2022 09:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645400;
-        bh=cjVfmnK4fz5GuuXiNFft/0FaHOJnzNJnwdbrzYua5+k=;
+        s=korg; t=1646646645;
+        bh=cCvGd8yQ8lD4nHtyqMot3EfWFxRQlXARj6mKIkcVBjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eaxJIaD9vQZ4Jf+vlAwNlmp65nqG3YekdgHppTEz/nagmoLJA4vU9ihrsu8pmSJD8
-         n6ChnbfhsgdqgQV5bwxB9eJVyE3RnpLWC97QVg6zSiaxXllZc38eXwOLCzdD5WYWtn
-         UMMmcOILBF+xUrG58qB19bubNgTag4GGXETXyUXI=
+        b=j9sPXUJ/ooi2GQJDBFCzxmCtvqF390SCFTMaERcPKAbb867XiQcs4PVB06A+3smxq
+         nE+pJriXaMWfm7smk+xB7Gch4/1LaxgcqEjs94SAoXFOy0cZDae0DrhRL1iPLsGXlN
+         gUjMHUmkVDi0faMryrVfTdGVAdHM8vBN5t38EaGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, JaeMan Park <jaeman@google.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 002/105] mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 047/186] btrfs: defrag: dont use merged extent map for their generation check
 Date:   Mon,  7 Mar 2022 10:18:05 +0100
-Message-Id: <20220307091644.251872591@linuxfoundation.org>
+Message-Id: <20220307091655.411079917@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-References: <20220307091644.179885033@linuxfoundation.org>
+In-Reply-To: <20220307091654.092878898@linuxfoundation.org>
+References: <20220307091654.092878898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JaeMan Park <jaeman@google.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit cacfddf82baf1470e5741edeecb187260868f195 ]
+commit 199257a78bb01341c3ba6e85bdcf3a2e6e452c6d upstream.
 
-In mac80211_hwsim, the probe_req frame is created and sent while
-scanning. It is sent with ieee80211_tx_info which is not initialized.
-Uninitialized ieee80211_tx_info can cause problems when using
-mac80211_hwsim with wmediumd. wmediumd checks the tx_rates field of
-ieee80211_tx_info and doesn't relay probe_req frame to other clients
-even if it is a broadcasting message.
+For extent maps, if they are not compressed extents and are adjacent by
+logical addresses and file offsets, they can be merged into one larger
+extent map.
 
-Call ieee80211_tx_prepare_skb() to initialize ieee80211_tx_info for
-the probe_req that is created by hw_scan_work in mac80211_hwsim.
+Such merged extent map will have the higher generation of all the
+original ones.
 
-Signed-off-by: JaeMan Park <jaeman@google.com>
-Link: https://lore.kernel.org/r/20220113060235.546107-1-jaeman@google.com
-[fix memory leak]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But this brings a problem for autodefrag, as it relies on accurate
+extent_map::generation to determine if one extent should be defragged.
+
+For merged extent maps, their higher generation can mark some older
+extents to be defragged while the original extent map doesn't meet the
+minimal generation threshold.
+
+Thus this will cause extra IO.
+
+So solve the problem, here we introduce a new flag, EXTENT_FLAG_MERGED,
+to indicate if the extent map is merged from one or more ems.
+
+And for autodefrag, if we find a merged extent map, and its generation
+meets the generation requirement, we just don't use this one, and go
+back to defrag_get_extent() to read extent maps from subvolume trees.
+
+This could cause more read IO, but should result less defrag data write,
+so in the long run it should be a win for autodefrag.
+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/btrfs/extent_map.c |    2 ++
+ fs/btrfs/extent_map.h |    8 ++++++++
+ fs/btrfs/ioctl.c      |   14 ++++++++++++++
+ 3 files changed, 24 insertions(+)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 0122585a1e500..cc550ba0c9dfe 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -2264,6 +2264,15 @@ static void hw_scan_work(struct work_struct *work)
- 			if (req->ie_len)
- 				skb_put_data(probe, req->ie, req->ie_len);
+--- a/fs/btrfs/extent_map.c
++++ b/fs/btrfs/extent_map.c
+@@ -261,6 +261,7 @@ static void try_merge_map(struct extent_
+ 			em->mod_len = (em->mod_len + em->mod_start) - merge->mod_start;
+ 			em->mod_start = merge->mod_start;
+ 			em->generation = max(em->generation, merge->generation);
++			set_bit(EXTENT_FLAG_MERGED, &em->flags);
  
-+			if (!ieee80211_tx_prepare_skb(hwsim->hw,
-+						      hwsim->hw_scan_vif,
-+						      probe,
-+						      hwsim->tmp_chan->band,
-+						      NULL)) {
-+				kfree_skb(probe);
-+				continue;
-+			}
+ 			rb_erase_cached(&merge->rb_node, &tree->map);
+ 			RB_CLEAR_NODE(&merge->rb_node);
+@@ -278,6 +279,7 @@ static void try_merge_map(struct extent_
+ 		RB_CLEAR_NODE(&merge->rb_node);
+ 		em->mod_len = (merge->mod_start + merge->mod_len) - em->mod_start;
+ 		em->generation = max(em->generation, merge->generation);
++		set_bit(EXTENT_FLAG_MERGED, &em->flags);
+ 		free_extent_map(merge);
+ 	}
+ }
+--- a/fs/btrfs/extent_map.h
++++ b/fs/btrfs/extent_map.h
+@@ -25,6 +25,8 @@ enum {
+ 	EXTENT_FLAG_FILLING,
+ 	/* filesystem extent mapping type */
+ 	EXTENT_FLAG_FS_MAPPING,
++	/* This em is merged from two or more physically adjacent ems */
++	EXTENT_FLAG_MERGED,
+ };
+ 
+ struct extent_map {
+@@ -40,6 +42,12 @@ struct extent_map {
+ 	u64 ram_bytes;
+ 	u64 block_start;
+ 	u64 block_len;
 +
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
--- 
-2.34.1
-
++	/*
++	 * Generation of the extent map, for merged em it's the highest
++	 * generation of all merged ems.
++	 * For non-merged extents, it's from btrfs_file_extent_item::generation.
++	 */
+ 	u64 generation;
+ 	unsigned long flags;
+ 	/* Used for chunk mappings, flag EXTENT_FLAG_FS_MAPPING must be set */
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -1149,6 +1149,20 @@ static struct extent_map *defrag_lookup_
+ 	em = lookup_extent_mapping(em_tree, start, sectorsize);
+ 	read_unlock(&em_tree->lock);
+ 
++	/*
++	 * We can get a merged extent, in that case, we need to re-search
++	 * tree to get the original em for defrag.
++	 *
++	 * If @newer_than is 0 or em::generation < newer_than, we can trust
++	 * this em, as either we don't care about the generation, or the
++	 * merged extent map will be rejected anyway.
++	 */
++	if (em && test_bit(EXTENT_FLAG_MERGED, &em->flags) &&
++	    newer_than && em->generation >= newer_than) {
++		free_extent_map(em);
++		em = NULL;
++	}
++
+ 	if (!em) {
+ 		struct extent_state *cached = NULL;
+ 		u64 end = start + sectorsize - 1;
 
 
