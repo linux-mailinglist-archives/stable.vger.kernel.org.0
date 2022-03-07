@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C60C34CF5E8
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C2C74CF874
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 10:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237000AbiCGJal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 04:30:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51388 "EHLO
+        id S238742AbiCGJzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 04:55:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238596AbiCGJ3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:29:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE60642A29;
-        Mon,  7 Mar 2022 01:27:40 -0800 (PST)
+        with ESMTP id S238764AbiCGJyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 04:54:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD2378055;
+        Mon,  7 Mar 2022 01:45:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F29661185;
-        Mon,  7 Mar 2022 09:27:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF49C340F3;
-        Mon,  7 Mar 2022 09:27:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 306766137D;
+        Mon,  7 Mar 2022 09:45:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD7CC340E9;
+        Mon,  7 Mar 2022 09:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646645259;
-        bh=fcckVDvJc857jFVAiGekitFckuwdPE60S5tE7C7nExk=;
+        s=korg; t=1646646323;
+        bh=IiS7yHaWm4QOG2+YIP3ZKm2D0uUzYZnty3HNZZCfhAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czz3ClJ6in+34T8Aot1PC4Rn4PqRIJraqOJFJZawAp5EQTTk3965uxHUqBzzhxoXm
-         fNWlsI3t1upe6GB8AaZfz5BUnl1qAjwkfm7Ty+b+nzD+f4o8qYOGnabYr11n7iZ/id
-         tlW7mSLORybI2jMJPF7szAbD2N1wwJlVlMiZX/uo=
+        b=TCISR3ApkT7K7m92tXZzSRAGvb8gl9HOjlUe8Fcot5THt/yKa+vpEtcP8BnMtyHmX
+         XK9AM569VI3SWSVmD8lF5hbniqgjGT4l9KGNzCa6f0RFajw0vu78jDHC47ERY/amRf
+         rbmHCpVaXhCG2FYRmWc14KR2vXksKs1a8/fCG+BA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Phani Burra <phani.r.burra@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 36/64] iavf: Fix missing check for running netdev
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 205/262] iommu/amd: Use put_pages_list
 Date:   Mon,  7 Mar 2022 10:19:09 +0100
-Message-Id: <20220307091640.172080649@linuxfoundation.org>
+Message-Id: <20220307091708.549722003@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
-References: <20220307091639.136830784@linuxfoundation.org>
+In-Reply-To: <20220307091702.378509770@linuxfoundation.org>
+References: <20220307091702.378509770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +55,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit d2c0f45fcceb0995f208c441d9c9a453623f9ccf upstream.
+[ Upstream commit ce00eece6909c266da123fd147172d745a4f14a0 ]
 
-The driver was queueing reset_task regardless of the netdev
-state.
+page->freelist is for the use of slab.  We already have the ability
+to free a list of pages in the core mm, but it requires the use of a
+list_head and for the pages to be chained together through page->lru.
+Switch the AMD IOMMU code over to using free_pages_list().
 
-Do not queue the reset task in iavf_change_mtu if netdev
-is not running.
-
-Fixes: fdd4044ffdc8 ("iavf: Remove timer for work triggering, use delaying work instead")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Phani Burra <phani.r.burra@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+[rm: split from original patch, cosmetic tweaks]
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/73af128f651aaa1f38f69e586c66765a88ad2de0.1639753638.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/iommu/amd/io_pgtable.c | 50 ++++++++++++----------------------
+ 1 file changed, 18 insertions(+), 32 deletions(-)
 
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3323,8 +3323,11 @@ static int iavf_change_mtu(struct net_de
- 		iavf_notify_client_l2_params(&adapter->vsi);
- 		adapter->flags |= IAVF_FLAG_SERVICE_CLIENT_REQUESTED;
- 	}
--	adapter->flags |= IAVF_FLAG_RESET_NEEDED;
--	queue_work(iavf_wq, &adapter->reset_task);
-+
-+	if (netif_running(netdev)) {
-+		adapter->flags |= IAVF_FLAG_RESET_NEEDED;
-+		queue_work(iavf_wq, &adapter->reset_task);
-+	}
+diff --git a/drivers/iommu/amd/io_pgtable.c b/drivers/iommu/amd/io_pgtable.c
+index 4165e1372b6e..b1bf4125b0f7 100644
+--- a/drivers/iommu/amd/io_pgtable.c
++++ b/drivers/iommu/amd/io_pgtable.c
+@@ -74,26 +74,14 @@ static u64 *first_pte_l7(u64 *pte, unsigned long *page_size,
+  *
+  ****************************************************************************/
  
- 	return 0;
+-static void free_page_list(struct page *freelist)
+-{
+-	while (freelist != NULL) {
+-		unsigned long p = (unsigned long)page_address(freelist);
+-
+-		freelist = freelist->freelist;
+-		free_page(p);
+-	}
+-}
+-
+-static struct page *free_pt_page(u64 *pt, struct page *freelist)
++static void free_pt_page(u64 *pt, struct list_head *freelist)
+ {
+ 	struct page *p = virt_to_page(pt);
+ 
+-	p->freelist = freelist;
+-
+-	return p;
++	list_add_tail(&p->lru, freelist);
  }
+ 
+-static struct page *free_pt_lvl(u64 *pt, struct page *freelist, int lvl)
++static void free_pt_lvl(u64 *pt, struct list_head *freelist, int lvl)
+ {
+ 	u64 *p;
+ 	int i;
+@@ -114,22 +102,22 @@ static struct page *free_pt_lvl(u64 *pt, struct page *freelist, int lvl)
+ 		 */
+ 		p = IOMMU_PTE_PAGE(pt[i]);
+ 		if (lvl > 2)
+-			freelist = free_pt_lvl(p, freelist, lvl - 1);
++			free_pt_lvl(p, freelist, lvl - 1);
+ 		else
+-			freelist = free_pt_page(p, freelist);
++			free_pt_page(p, freelist);
+ 	}
+ 
+-	return free_pt_page(pt, freelist);
++	free_pt_page(pt, freelist);
+ }
+ 
+-static struct page *free_sub_pt(u64 *root, int mode, struct page *freelist)
++static void free_sub_pt(u64 *root, int mode, struct list_head *freelist)
+ {
+ 	switch (mode) {
+ 	case PAGE_MODE_NONE:
+ 	case PAGE_MODE_7_LEVEL:
+ 		break;
+ 	case PAGE_MODE_1_LEVEL:
+-		freelist = free_pt_page(root, freelist);
++		free_pt_page(root, freelist);
+ 		break;
+ 	case PAGE_MODE_2_LEVEL:
+ 	case PAGE_MODE_3_LEVEL:
+@@ -141,8 +129,6 @@ static struct page *free_sub_pt(u64 *root, int mode, struct page *freelist)
+ 	default:
+ 		BUG();
+ 	}
+-
+-	return freelist;
+ }
+ 
+ void amd_iommu_domain_set_pgtable(struct protection_domain *domain,
+@@ -350,7 +336,7 @@ static u64 *fetch_pte(struct amd_io_pgtable *pgtable,
+ 	return pte;
+ }
+ 
+-static struct page *free_clear_pte(u64 *pte, u64 pteval, struct page *freelist)
++static void free_clear_pte(u64 *pte, u64 pteval, struct list_head *freelist)
+ {
+ 	u64 *pt;
+ 	int mode;
+@@ -361,12 +347,12 @@ static struct page *free_clear_pte(u64 *pte, u64 pteval, struct page *freelist)
+ 	}
+ 
+ 	if (!IOMMU_PTE_PRESENT(pteval))
+-		return freelist;
++		return;
+ 
+ 	pt   = IOMMU_PTE_PAGE(pteval);
+ 	mode = IOMMU_PTE_MODE(pteval);
+ 
+-	return free_sub_pt(pt, mode, freelist);
++	free_sub_pt(pt, mode, freelist);
+ }
+ 
+ /*
+@@ -380,7 +366,7 @@ static int iommu_v1_map_page(struct io_pgtable_ops *ops, unsigned long iova,
+ 			  phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
+ {
+ 	struct protection_domain *dom = io_pgtable_ops_to_domain(ops);
+-	struct page *freelist = NULL;
++	LIST_HEAD(freelist);
+ 	bool updated = false;
+ 	u64 __pte, *pte;
+ 	int ret, i, count;
+@@ -400,9 +386,9 @@ static int iommu_v1_map_page(struct io_pgtable_ops *ops, unsigned long iova,
+ 		goto out;
+ 
+ 	for (i = 0; i < count; ++i)
+-		freelist = free_clear_pte(&pte[i], pte[i], freelist);
++		free_clear_pte(&pte[i], pte[i], &freelist);
+ 
+-	if (freelist != NULL)
++	if (!list_empty(&freelist))
+ 		updated = true;
+ 
+ 	if (count > 1) {
+@@ -437,7 +423,7 @@ static int iommu_v1_map_page(struct io_pgtable_ops *ops, unsigned long iova,
+ 	}
+ 
+ 	/* Everything flushed out, free pages now */
+-	free_page_list(freelist);
++	put_pages_list(&freelist);
+ 
+ 	return ret;
+ }
+@@ -499,7 +485,7 @@ static void v1_free_pgtable(struct io_pgtable *iop)
+ {
+ 	struct amd_io_pgtable *pgtable = container_of(iop, struct amd_io_pgtable, iop);
+ 	struct protection_domain *dom;
+-	struct page *freelist = NULL;
++	LIST_HEAD(freelist);
+ 
+ 	if (pgtable->mode == PAGE_MODE_NONE)
+ 		return;
+@@ -516,9 +502,9 @@ static void v1_free_pgtable(struct io_pgtable *iop)
+ 	BUG_ON(pgtable->mode < PAGE_MODE_NONE ||
+ 	       pgtable->mode > PAGE_MODE_6_LEVEL);
+ 
+-	freelist = free_sub_pt(pgtable->root, pgtable->mode, freelist);
++	free_sub_pt(pgtable->root, pgtable->mode, &freelist);
+ 
+-	free_page_list(freelist);
++	put_pages_list(&freelist);
+ }
+ 
+ static struct io_pgtable *v1_alloc_pgtable(struct io_pgtable_cfg *cfg, void *cookie)
+-- 
+2.34.1
+
 
 
