@@ -2,97 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8384CFE0A
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 13:19:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D66F94CFE4E
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 13:25:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234258AbiCGMUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 07:20:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44776 "EHLO
+        id S242173AbiCGM0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 07:26:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233829AbiCGMUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 07:20:06 -0500
-Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B5A3E0F5;
-        Mon,  7 Mar 2022 04:19:07 -0800 (PST)
-Received: by mail-il1-x12b.google.com with SMTP id i1so11375477ila.7;
-        Mon, 07 Mar 2022 04:19:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=CxRERgirGnLDrVdYflXCvy2HBelraq/vQz0ZO4WiAz8=;
-        b=UPmIGJ2dpVy4r5X84CfHwdUVEvmAtgTM6i4wfwBvVCxzhlKUdZgAPPk9wA1WzZXcVl
-         Q+ap1qlB5YGh2j6FFY36aFh6e9BY/KozP7l2ph8xXXa/+tVTq1Pq9hJOt0BSplrGyUKo
-         aYTg4j2JSreA63lOkBkDSiSrz2fPBF8IqRE1lmEf79m/mcGdGbf6lRJjicyFZScNPZIs
-         G8rdCGrEA4wPQxGNQbqv7RJ7Z7eI05gYoiOispfHVOR3GMTxUtBsATagUcO2uqfVYT7z
-         gNTNDgsH3bemctmFpB9+K7x7MWhojKUPdeDoD3ByligupDAgI3Epx1wyJlw9oUKhwTeq
-         HEXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=CxRERgirGnLDrVdYflXCvy2HBelraq/vQz0ZO4WiAz8=;
-        b=qEoxHHi6a5wx9lFiYWBFiV1q1g6uXZoQdrUAhgPj7Tg88RTlP4K4Ks57KQ8WqYEuUz
-         x1S2NHlsREVAOg5YKglvwMJHqjq9cKVYBTJCg7TOnoYlR7WatNGI2gX8xwxTLHyYFddk
-         EZH8GM5cLf3bQsAqwVLga0uKIeqAR7G0NsggtUnESSiSaRVO6soRDA1f5IJU8bu3iVS7
-         vXYuYeS333Lv3qYYYETBZLPt3K2Va4DLJ64w6/c65Z0PBuxzddNaKrDGaqgVy0lYG1VY
-         pCdTPjt1VQl132m0XsJXWTJKXuEPN5cc+I5yNITHNs6D0RKezI8W85e/LerjP79aGjZB
-         RpoQ==
-X-Gm-Message-State: AOAM530PT7r9yBkoIUA85AStsGtCqrpj35Z7zvBW96JTJqtSi+6v99v2
-        ezPR871xFgtZMsDb0/1KZvqpfmkGPac6FienOVIYKA==
-X-Google-Smtp-Source: ABdhPJxJ5bWvUNeIEltERNvPwJqsjjmJpmEEa28rT4FSXHcuhgfzzRwjT3IuhsHzo1cu7PyWNwCn+Q==
-X-Received: by 2002:a05:6e02:b25:b0:2c6:2043:5862 with SMTP id e5-20020a056e020b2500b002c620435862mr11601093ilu.217.1646655545841;
-        Mon, 07 Mar 2022 04:19:05 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id f5-20020a5d8785000000b00604cdf69dc8sm9267686ion.13.2022.03.07.04.19.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Mar 2022 04:19:05 -0800 (PST)
-Message-ID: <6225f839.1c69fb81.2b2af.0387@mx.google.com>
-Date:   Mon, 07 Mar 2022 04:19:05 -0800 (PST)
-X-Google-Original-Date: Mon, 07 Mar 2022 12:19:03 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220307091644.179885033@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 000/105] 5.10.104-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S242181AbiCGM0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 07:26:20 -0500
+Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3FE988092E;
+        Mon,  7 Mar 2022 04:25:26 -0800 (PST)
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1nRCQS-00072o-00; Mon, 07 Mar 2022 13:25:20 +0100
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 3DF34C122A; Mon,  7 Mar 2022 13:20:04 +0100 (CET)
+Date:   Mon, 7 Mar 2022 13:20:04 +0100
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Alexander Lobakin <alobakin@pm.me>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Liam Howlett <liam.howlett@oracle.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        linux-mips@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH mips-fixes] MIPS: fix fortify panic when copying asm
+ exception handlers
+Message-ID: <20220307122004.GA14422@alpha.franken.de>
+References: <20220223012338.262041-1-alobakin@pm.me>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220223012338.262041-1-alobakin@pm.me>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE,T_SPF_HELO_PERMERROR autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon,  7 Mar 2022 10:18:03 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.104 release.
-> There are 105 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Feb 23, 2022 at 01:30:23AM +0000, Alexander Lobakin wrote:
+> With KCFLAGS="-O3", I was able to trigger a fortify-source
+> memcpy() overflow panic on set_vi_srs_handler().
+> Although O3 level is not supported in the mainline, under some
+> conditions that may've happened with any optimization settings,
+> it's just a matter of inlining luck. The panic itself is correct,
+> more precisely, 50/50 false-positive and not at the same time.
+> >From the one side, no real overflow happens. Exception handler
+> defined in asm just gets copied to some reserved places in the
+> memory.
+> But the reason behind is that C code refers to that exception
+> handler declares it as `char`, i.e. something of 1 byte length.
+> It's obvious that the asm function itself is way more than 1 byte,
+> so fortify logics thought we are going to past the symbol declared.
+> The standard way to refer to asm symbols from C code which is not
+> supposed to be called from C is to declare them as
+> `extern const u8[]`. This is fully correct from any point of view,
+> as any code itself is just a bunch of bytes (including 0 as it is
+> for syms like _stext/_etext/etc.), and the exact size is not known
+> at the moment of compilation.
+> Adjust the type of the except_vec_vi_*() and related variables.
+> Make set_handler() take `const` as a second argument to avoid
+> cast-away warnings and give a little more room for optimization.
 > 
-> Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.104-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Fixes: e01402b115cc ("More AP / SP bits for the 34K, the Malta bits and things. Still wants")
+> Fixes: c65a5480ff29 ("[MIPS] Fix potential latency problem due to non-atomic cpu_wait.")
+> Cc: stable@vger.kernel.org # 3.10+
+> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+> ---
+>  arch/mips/include/asm/setup.h |  2 +-
+>  arch/mips/kernel/traps.c      | 22 +++++++++++-----------
+>  2 files changed, 12 insertions(+), 12 deletions(-)
 
-5.10.104-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+applied to mips-next.
 
+Thomas.
+
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
