@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7FBA4CF2AD
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:36:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B474CF2AE
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235082AbiCGHhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 02:37:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57552 "EHLO
+        id S235792AbiCGHhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 02:37:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229835AbiCGHhN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:37:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A5ED5F8C5
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 23:36:19 -0800 (PST)
+        with ESMTP id S229835AbiCGHhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:37:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 582AF5F4F8
+        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 23:36:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CAACB81015
-        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:36:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4377C340EF;
-        Mon,  7 Mar 2022 07:36:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E453E60AF6
+        for <stable@vger.kernel.org>; Mon,  7 Mar 2022 07:36:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D69C340EF;
+        Mon,  7 Mar 2022 07:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646638576;
-        bh=Bww52vFw0zWo9h2X+D6skgORMy5nJQB+Jd7UMGxWjaU=;
+        s=korg; t=1646638596;
+        bh=l3ueuCiNYG6fXv3kuzgnkKm713+R2eKfjOK6uS0zJm4=;
         h=Subject:To:Cc:From:Date:From;
-        b=ytgLonGguLNlI1Ylxw3DHA/gmDhuy46JhDFBqMYT5y4x7IbH0oH4IpufzKLuf0ymn
-         CXaa67Qab3cA3DTEHwPEBSZ1JFgKEcWgxsJQI0ZrEy9W0ykeSYchZb2UhhR/NJQPT1
-         slsyal87zO1uC3rhdU2eRTQo70UDrkxqnbiKR3Yo=
-Subject: FAILED: patch "[PATCH] btrfs: do not start relocation until in progress drops are" failed to apply to 5.10-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
+        b=JZlheCNEEQ0+ERind11gLvffZ6KhAFjxkxKaCG+mFixh0jhsama4gc9N0WYRWga+A
+         u/vj+94dQtokBVpYc0C/6rDT9yF8PcaTjWI1DyYvx8N6eYYaTcNpk/Afoo8Y6MLW1X
+         ghoo6OjQ82exZAiXiCVBqEF2YecpmzHi5VWf1OtU=
+Subject: FAILED: patch "[PATCH] btrfs: tree-checker: use u64 for item data end to avoid" failed to apply to 4.19-stable tree
+To:     l@damenly.su, dsterba@suse.com, wenqingliu0120@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Mar 2022 08:36:13 +0100
-Message-ID: <164663857344125@kroah.com>
+Date:   Mon, 07 Mar 2022 08:36:33 +0100
+Message-ID: <164663859314532@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,284 +59,130 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b4be6aefa73c9a6899ef3ba9c5faaa8a66e333ef Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Fri, 18 Feb 2022 14:56:10 -0500
-Subject: [PATCH] btrfs: do not start relocation until in progress drops are
- done
+From a6ab66eb8541d61b0a11d70980f07b4c2dfeddc5 Mon Sep 17 00:00:00 2001
+From: Su Yue <l@damenly.su>
+Date: Tue, 22 Feb 2022 16:42:07 +0800
+Subject: [PATCH] btrfs: tree-checker: use u64 for item data end to avoid
+ overflow
 
-We hit a bug with a recovering relocation on mount for one of our file
-systems in production.  I reproduced this locally by injecting errors
-into snapshot delete with balance running at the same time.  This
-presented as an error while looking up an extent item
+User reported there is an array-index-out-of-bounds access while
+mounting the crafted image:
 
-  WARNING: CPU: 5 PID: 1501 at fs/btrfs/extent-tree.c:866 lookup_inline_extent_backref+0x647/0x680
-  CPU: 5 PID: 1501 Comm: btrfs-balance Not tainted 5.16.0-rc8+ #8
-  RIP: 0010:lookup_inline_extent_backref+0x647/0x680
-  RSP: 0018:ffffae0a023ab960 EFLAGS: 00010202
-  RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 000000000000000c RDI: 0000000000000000
-  RBP: ffff943fd2a39b60 R08: 0000000000000000 R09: 0000000000000001
-  R10: 0001434088152de0 R11: 0000000000000000 R12: 0000000001d05000
-  R13: ffff943fd2a39b60 R14: ffff943fdb96f2a0 R15: ffff9442fc923000
-  FS:  0000000000000000(0000) GS:ffff944e9eb40000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f1157b1fca8 CR3: 000000010f092000 CR4: 0000000000350ee0
-  Call Trace:
-   <TASK>
-   insert_inline_extent_backref+0x46/0xd0
-   __btrfs_inc_extent_ref.isra.0+0x5f/0x200
-   ? btrfs_merge_delayed_refs+0x164/0x190
-   __btrfs_run_delayed_refs+0x561/0xfa0
-   ? btrfs_search_slot+0x7b4/0xb30
-   ? btrfs_update_root+0x1a9/0x2c0
-   btrfs_run_delayed_refs+0x73/0x1f0
-   ? btrfs_update_root+0x1a9/0x2c0
-   btrfs_commit_transaction+0x50/0xa50
-   ? btrfs_update_reloc_root+0x122/0x220
-   prepare_to_merge+0x29f/0x320
-   relocate_block_group+0x2b8/0x550
-   btrfs_relocate_block_group+0x1a6/0x350
-   btrfs_relocate_chunk+0x27/0xe0
-   btrfs_balance+0x777/0xe60
-   balance_kthread+0x35/0x50
-   ? btrfs_balance+0xe60/0xe60
-   kthread+0x16b/0x190
-   ? set_kthread_struct+0x40/0x40
-   ret_from_fork+0x22/0x30
-   </TASK>
+  [350.411942 ] loop0: detected capacity change from 0 to 262144
+  [350.427058 ] BTRFS: device fsid a62e00e8-e94e-4200-8217-12444de93c2e devid 1 transid 8 /dev/loop0 scanned by systemd-udevd (1044)
+  [350.428564 ] BTRFS info (device loop0): disk space caching is enabled
+  [350.428568 ] BTRFS info (device loop0): has skinny extents
+  [350.429589 ]
+  [350.429619 ] UBSAN: array-index-out-of-bounds in fs/btrfs/struct-funcs.c:161:1
+  [350.429636 ] index 1048096 is out of range for type 'page *[16]'
+  [350.429650 ] CPU: 0 PID: 9 Comm: kworker/u8:1 Not tainted 5.16.0-rc4
+  [350.429652 ] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+  [350.429653 ] Workqueue: btrfs-endio-meta btrfs_work_helper [btrfs]
+  [350.429772 ] Call Trace:
+  [350.429774 ]  <TASK>
+  [350.429776 ]  dump_stack_lvl+0x47/0x5c
+  [350.429780 ]  ubsan_epilogue+0x5/0x50
+  [350.429786 ]  __ubsan_handle_out_of_bounds+0x66/0x70
+  [350.429791 ]  btrfs_get_16+0xfd/0x120 [btrfs]
+  [350.429832 ]  check_leaf+0x754/0x1a40 [btrfs]
+  [350.429874 ]  ? filemap_read+0x34a/0x390
+  [350.429878 ]  ? load_balance+0x175/0xfc0
+  [350.429881 ]  validate_extent_buffer+0x244/0x310 [btrfs]
+  [350.429911 ]  btrfs_validate_metadata_buffer+0xf8/0x100 [btrfs]
+  [350.429935 ]  end_bio_extent_readpage+0x3af/0x850 [btrfs]
+  [350.429969 ]  ? newidle_balance+0x259/0x480
+  [350.429972 ]  end_workqueue_fn+0x29/0x40 [btrfs]
+  [350.429995 ]  btrfs_work_helper+0x71/0x330 [btrfs]
+  [350.430030 ]  ? __schedule+0x2fb/0xa40
+  [350.430033 ]  process_one_work+0x1f6/0x400
+  [350.430035 ]  ? process_one_work+0x400/0x400
+  [350.430036 ]  worker_thread+0x2d/0x3d0
+  [350.430037 ]  ? process_one_work+0x400/0x400
+  [350.430038 ]  kthread+0x165/0x190
+  [350.430041 ]  ? set_kthread_struct+0x40/0x40
+  [350.430043 ]  ret_from_fork+0x1f/0x30
+  [350.430047 ]  </TASK>
+  [350.430047 ]
+  [350.430077 ] BTRFS warning (device loop0): bad eb member start: ptr 0xffe20f4e start 20975616 member offset 4293005178 size 2
 
-Normally snapshot deletion and relocation are excluded from running at
-the same time by the fs_info->cleaner_mutex.  However if we had a
-pending balance waiting to get the ->cleaner_mutex, and a snapshot
-deletion was running, and then the box crashed, we would come up in a
-state where we have a half deleted snapshot.
+btrfs check reports:
+  corrupt leaf: root=3 block=20975616 physical=20975616 slot=1, unexpected
+  item end, have 4294971193 expect 3897
 
-Again, in the normal case the snapshot deletion needs to complete before
-relocation can start, but in this case relocation could very well start
-before the snapshot deletion completes, as we simply add the root to the
-dead roots list and wait for the next time the cleaner runs to clean up
-the snapshot.
+The first slot item offset is 4293005033 and the size is 1966160.
+In check_leaf, we use btrfs_item_end() to check item boundary versus
+extent_buffer data size. However, return type of btrfs_item_end() is u32.
+(u32)(4293005033 + 1966160) == 3897, overflow happens and the result 3897
+equals to leaf data size reasonably.
 
-Fix this by setting a bit on the fs_info if we have any DEAD_ROOT's that
-had a pending drop_progress key.  If they do then we know we were in the
-middle of the drop operation and set a flag on the fs_info.  Then
-balance can wait until this flag is cleared to start up again.
+Fix it by use u64 variable to store item data end in check_leaf() to
+avoid u32 overflow.
 
-If there are DEAD_ROOT's that don't have a drop_progress set then we're
-safe to start balance right away as we'll be properly protected by the
-cleaner_mutex.
+This commit does solve the invalid memory access showed by the stack
+trace.  However, its metadata profile is DUP and another copy of the
+leaf is fine.  So the image can be mounted successfully. But when umount
+is called, the ASSERT btrfs_mark_buffer_dirty() will be triggered
+because the only node in extent tree has 0 item and invalid owner. It's
+solved by another commit
+"btrfs: check extent buffer owner against the owner rootid".
 
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215299
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Su Yue <l@damenly.su>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 947f04789389..ebb2d109e8bb 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -602,6 +602,9 @@ enum {
- 	/* Indicate that we want the transaction kthread to commit right now. */
- 	BTRFS_FS_COMMIT_TRANS,
- 
-+	/* Indicate we have half completed snapshot deletions pending. */
-+	BTRFS_FS_UNFINISHED_DROPS,
-+
- #if BITS_PER_LONG == 32
- 	/* Indicate if we have error/warn message printed on 32bit systems */
- 	BTRFS_FS_32BIT_ERROR,
-@@ -1106,8 +1109,15 @@ enum {
- 	BTRFS_ROOT_QGROUP_FLUSHING,
- 	/* We started the orphan cleanup for this root. */
- 	BTRFS_ROOT_ORPHAN_CLEANUP,
-+	/* This root has a drop operation that was started previously. */
-+	BTRFS_ROOT_UNFINISHED_DROP,
- };
- 
-+static inline void btrfs_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
-+{
-+	clear_and_wake_up_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
-+}
-+
- /*
-  * Record swapped tree blocks of a subvolume tree for delayed subtree trace
-  * code. For detail check comment in fs/btrfs/qgroup.c.
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 87a5addbedf6..48590a380762 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3813,6 +3813,10 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
- 
- 	set_bit(BTRFS_FS_OPEN, &fs_info->flags);
- 
-+	/* Kick the cleaner thread so it'll start deleting snapshots. */
-+	if (test_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags))
-+		wake_up_process(fs_info->cleaner_kthread);
-+
- clear_oneshot:
- 	btrfs_clear_oneshot_options(fs_info);
- 	return 0;
-@@ -4538,6 +4542,12 @@ void __cold close_ctree(struct btrfs_fs_info *fs_info)
+diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
+index 9fd145f1c4bc..aae5697dde32 100644
+--- a/fs/btrfs/tree-checker.c
++++ b/fs/btrfs/tree-checker.c
+@@ -1682,6 +1682,7 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
  	 */
- 	kthread_park(fs_info->cleaner_kthread);
+ 	for (slot = 0; slot < nritems; slot++) {
+ 		u32 item_end_expected;
++		u64 item_data_end;
+ 		int ret;
  
-+	/*
-+	 * If we had UNFINISHED_DROPS we could still be processing them, so
-+	 * clear that bit and wake up relocation so it can stop.
-+	 */
-+	btrfs_wake_unfinished_drop(fs_info);
-+
- 	/* wait for the qgroup rescan worker to stop */
- 	btrfs_qgroup_wait_for_completion(fs_info, false);
- 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index d89273c4b6b8..96427b1ecac3 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -5622,6 +5622,7 @@ int btrfs_drop_snapshot(struct btrfs_root *root, int update_ref, int for_reloc)
- 	int ret;
- 	int level;
- 	bool root_dropped = false;
-+	bool unfinished_drop = false;
- 
- 	btrfs_debug(fs_info, "Drop subvolume %llu", root->root_key.objectid);
- 
-@@ -5664,6 +5665,8 @@ int btrfs_drop_snapshot(struct btrfs_root *root, int update_ref, int for_reloc)
- 	 * already dropped.
- 	 */
- 	set_bit(BTRFS_ROOT_DELETING, &root->state);
-+	unfinished_drop = test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
-+
- 	if (btrfs_disk_key_objectid(&root_item->drop_progress) == 0) {
- 		level = btrfs_header_level(root->node);
- 		path->nodes[level] = btrfs_lock_root_node(root);
-@@ -5838,6 +5841,13 @@ out_free:
- 	kfree(wc);
- 	btrfs_free_path(path);
- out:
-+	/*
-+	 * We were an unfinished drop root, check to see if there are any
-+	 * pending, and if not clear and wake up any waiters.
-+	 */
-+	if (!err && unfinished_drop)
-+		btrfs_maybe_wake_unfinished_drop(fs_info);
-+
- 	/*
- 	 * So if we need to stop dropping the snapshot for whatever reason we
- 	 * need to make sure to add it back to the dead root list so that we
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index f5465197996d..9d8054839782 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -3960,6 +3960,19 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
- 	int rw = 0;
- 	int err = 0;
- 
-+	/*
-+	 * This only gets set if we had a half-deleted snapshot on mount.  We
-+	 * cannot allow relocation to start while we're still trying to clean up
-+	 * these pending deletions.
-+	 */
-+	ret = wait_on_bit(&fs_info->flags, BTRFS_FS_UNFINISHED_DROPS, TASK_INTERRUPTIBLE);
-+	if (ret)
-+		return ret;
-+
-+	/* We may have been woken up by close_ctree, so bail if we're closing. */
-+	if (btrfs_fs_closing(fs_info))
-+		return -EINTR;
-+
- 	bg = btrfs_lookup_block_group(fs_info, group_start);
- 	if (!bg)
- 		return -ENOENT;
-diff --git a/fs/btrfs/root-tree.c b/fs/btrfs/root-tree.c
-index 3d68d2dcd83e..ca7426ef61c8 100644
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -278,6 +278,21 @@ int btrfs_find_orphan_roots(struct btrfs_fs_info *fs_info)
- 
- 		WARN_ON(!test_bit(BTRFS_ROOT_ORPHAN_ITEM_INSERTED, &root->state));
- 		if (btrfs_root_refs(&root->root_item) == 0) {
-+			struct btrfs_key drop_key;
-+
-+			btrfs_disk_key_to_cpu(&drop_key, &root->root_item.drop_progress);
-+			/*
-+			 * If we have a non-zero drop_progress then we know we
-+			 * made it partly through deleting this snapshot, and
-+			 * thus we need to make sure we block any balance from
-+			 * happening until this snapshot is completely dropped.
-+			 */
-+			if (drop_key.objectid != 0 || drop_key.type != 0 ||
-+			    drop_key.offset != 0) {
-+				set_bit(BTRFS_FS_UNFINISHED_DROPS, &fs_info->flags);
-+				set_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state);
-+			}
-+
- 			set_bit(BTRFS_ROOT_DEAD_TREE, &root->state);
- 			btrfs_add_dead_root(root);
+ 		btrfs_item_key_to_cpu(leaf, &key, slot);
+@@ -1696,6 +1697,8 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
+ 			return -EUCLEAN;
  		}
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index c3cfdfd8de9b..f17bf3764ce8 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -1319,6 +1319,32 @@ again:
- 	return 0;
- }
  
-+/*
-+ * If we had a pending drop we need to see if there are any others left in our
-+ * dead roots list, and if not clear our bit and wake any waiters.
-+ */
-+void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
-+{
-+	/*
-+	 * We put the drop in progress roots at the front of the list, so if the
-+	 * first entry doesn't have UNFINISHED_DROP set we can wake everybody
-+	 * up.
-+	 */
-+	spin_lock(&fs_info->trans_lock);
-+	if (!list_empty(&fs_info->dead_roots)) {
-+		struct btrfs_root *root = list_first_entry(&fs_info->dead_roots,
-+							   struct btrfs_root,
-+							   root_list);
-+		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state)) {
-+			spin_unlock(&fs_info->trans_lock);
-+			return;
-+		}
-+	}
-+	spin_unlock(&fs_info->trans_lock);
-+
-+	btrfs_wake_unfinished_drop(fs_info);
-+}
-+
- /*
-  * dead roots are old snapshots that need to be deleted.  This allocates
-  * a dirty root struct and adds it into the list of dead roots that need to
-@@ -1331,7 +1357,12 @@ void btrfs_add_dead_root(struct btrfs_root *root)
- 	spin_lock(&fs_info->trans_lock);
- 	if (list_empty(&root->root_list)) {
- 		btrfs_grab_root(root);
--		list_add_tail(&root->root_list, &fs_info->dead_roots);
-+
-+		/* We want to process the partially complete drops first. */
-+		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state))
-+			list_add(&root->root_list, &fs_info->dead_roots);
-+		else
-+			list_add_tail(&root->root_list, &fs_info->dead_roots);
- 	}
- 	spin_unlock(&fs_info->trans_lock);
- }
-diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
-index 9402d8d94484..ba8a9826eb37 100644
---- a/fs/btrfs/transaction.h
-+++ b/fs/btrfs/transaction.h
-@@ -216,6 +216,7 @@ int btrfs_wait_for_commit(struct btrfs_fs_info *fs_info, u64 transid);
++		item_data_end = (u64)btrfs_item_offset(leaf, slot) +
++				btrfs_item_size(leaf, slot);
+ 		/*
+ 		 * Make sure the offset and ends are right, remember that the
+ 		 * item data starts at the end of the leaf and grows towards the
+@@ -1706,11 +1709,10 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
+ 		else
+ 			item_end_expected = btrfs_item_offset(leaf,
+ 								 slot - 1);
+-		if (unlikely(btrfs_item_data_end(leaf, slot) != item_end_expected)) {
++		if (unlikely(item_data_end != item_end_expected)) {
+ 			generic_err(leaf, slot,
+-				"unexpected item end, have %u expect %u",
+-				btrfs_item_data_end(leaf, slot),
+-				item_end_expected);
++				"unexpected item end, have %llu expect %u",
++				item_data_end, item_end_expected);
+ 			return -EUCLEAN;
+ 		}
  
- void btrfs_add_dead_root(struct btrfs_root *root);
- int btrfs_defrag_root(struct btrfs_root *root);
-+void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info);
- int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root);
- int btrfs_commit_transaction(struct btrfs_trans_handle *trans);
- void btrfs_commit_transaction_async(struct btrfs_trans_handle *trans);
+@@ -1719,12 +1721,10 @@ static int check_leaf(struct extent_buffer *leaf, bool check_item_data)
+ 		 * just in case all the items are consistent to each other, but
+ 		 * all point outside of the leaf.
+ 		 */
+-		if (unlikely(btrfs_item_data_end(leaf, slot) >
+-			     BTRFS_LEAF_DATA_SIZE(fs_info))) {
++		if (unlikely(item_data_end > BTRFS_LEAF_DATA_SIZE(fs_info))) {
+ 			generic_err(leaf, slot,
+-			"slot end outside of leaf, have %u expect range [0, %u]",
+-				btrfs_item_data_end(leaf, slot),
+-				BTRFS_LEAF_DATA_SIZE(fs_info));
++			"slot end outside of leaf, have %llu expect range [0, %u]",
++				item_data_end, BTRFS_LEAF_DATA_SIZE(fs_info));
+ 			return -EUCLEAN;
+ 		}
+ 
 
