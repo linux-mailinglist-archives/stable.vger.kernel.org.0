@@ -2,69 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 492394CF2F1
-	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:49:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C1F4CF30F
+	for <lists+stable@lfdr.de>; Mon,  7 Mar 2022 08:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235968AbiCGHum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Mar 2022 02:50:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59218 "EHLO
+        id S235972AbiCGH7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Mar 2022 02:59:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235970AbiCGHul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:50:41 -0500
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52C360D99
-        for <stable@vger.kernel.org>; Sun,  6 Mar 2022 23:49:47 -0800 (PST)
-Received: by mail-il1-x141.google.com with SMTP id 9so10911479ily.11
-        for <stable@vger.kernel.org>; Sun, 06 Mar 2022 23:49:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=8J38Rv9T88O8LznVLYDAMzgkYD+RbVqzgKVGb2a4ys8=;
-        b=a7Z24VcVWgLEWrBVhd5vl1tH5VD1O1GqSYNkCn4eBojvD5ECXvdzBwC7n7fwpROGrb
-         QlIQ+IA7vREnxjZMagFOAY0DzSewSBFRv3HIRRPBZ+C2dIPaHzUgtIWKzS62pfThu4qZ
-         A9ZWbB1dNsxc8F1/yGubQEXpk3OzXPIQZqzQ7t8b+dFGn53FQvkMfJjhJBGMQKoOr+43
-         o963XM+voTJ9RNjkKdVuMfTXSsnwjBmcTkHF7LUwUOndROUfZmPpY5ub5lwe3h537nIm
-         m0tS5kkqF/evzR5JabSj7S6LhbhVJvCLmKQGXSxX8k14dQaCw0PmoQTJtE9X7n4JuLNn
-         fDLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=8J38Rv9T88O8LznVLYDAMzgkYD+RbVqzgKVGb2a4ys8=;
-        b=sdfgbV+l23h3HENFfZdJV6yXgFECnsnFn7ms0gk9pbKtnWpxL+ndBkKid57WTtInVC
-         CYmcnvnNtyBcms7eJGXNm92VM9WnM1ZccCUIESEu5nNNm0ds2jcGQlYdBTIbv8BEwnul
-         fmkJ6J7kUkjY5mKO9qM+BvvxNc8npQJ6O6VHuqKVnYypVN6rwZIS94tYv63slQvTCxDg
-         TgSyovKwKUeg4PqskHzbcIBfqeA0IFyoEv6ZrzmseXIJ1djW267lovOsLHcxHUSXZvHg
-         B+ayoSvZin9ru6eePdDo83cGF+OYIFzaMLnx/jw6IjkjlE5jTwdDWc+nXgGatz2RQOI6
-         f51g==
-X-Gm-Message-State: AOAM533fp8PYS4sjx+EaIOaUqZylP/adxJioI5DEYaOkmS6reVvoBmMv
-        qBv857v5M+dubau3dNthgLKy26hbHacmyncTALI=
-X-Google-Smtp-Source: ABdhPJxdVrUzznIqTgfkGugG3mWbuN9Z7w+aw5fQqUdMuqN1eqO8Z/wqNAZIKvB8fZMHtI5VXHj3IkyAGGw2TiP3GSc=
-X-Received: by 2002:a05:6e02:19c6:b0:2c2:5f51:c81 with SMTP id
- r6-20020a056e0219c600b002c25f510c81mr10220279ill.57.1646639387317; Sun, 06
- Mar 2022 23:49:47 -0800 (PST)
+        with ESMTP id S234793AbiCGH7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Mar 2022 02:59:03 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187A51BE84;
+        Sun,  6 Mar 2022 23:58:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=SBkufQbkk7WS7cnTX6Fdy468qPhDhtk/GXWCSTup/Tk=; b=xQj49Z6kmfBylR8KA/UdSDpvUz
+        2HQJ0OZ3qRoMv5IeF0IQ/68p+VdqWxJ4qG7BGTzd6ru4qeiILLEFi3OuVN/MqLS00YT/OG4KJeJoO
+        AR5oik0TyTpTYSTCXokA78CHsVWLIlAqCXVOaWPhQeYx6wJbIlkUdS9Z55Pjkp6PtzDsZSs8kVtK+
+        f3UYXsB7Hh3XGQqWr+QeIfKuvwVJA3e2H772HR57Q1DJV/B0QAWzzH2zpoTs0n4YeNJZodhYXs6HO
+        mcnivCjVE2R+/Rm+XSDVmJXDdzi/GD1D1SRLhS/wLNhnxtg4wFtY44x2Ts8nxKQOiWN5qBNNXIyzp
+        TAAlsP9Q==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nR8Fo-00GMXh-RF; Mon, 07 Mar 2022 07:58:04 +0000
+Date:   Sun, 6 Mar 2022 23:58:04 -0800
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        Doug Gilbert <dgilbert@interlog.com>,
+        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [PATCH v2 1/1] swiotlb: rework "fix info leak with
+ DMA_FROM_DEVICE"
+Message-ID: <YiW7DMRymTV/zvDb@infradead.org>
+References: <20220305170714.2043896-1-pasic@linux.ibm.com>
+ <CAHk-=wgZ6fNG03pd2pAVw9RtymwPDyHNvTLHr2Q3LX3S0Y1k5Q@mail.gmail.com>
+ <YiRpuGbjyU2M47pQ@infradead.org>
+ <CAHk-=wgQGLgqqgsKXUCykiK9B1UwdCj2-NvDkBAuYhSgdtAmkQ@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6e02:1e0b:0:0:0:0 with HTTP; Sun, 6 Mar 2022 23:49:47
- -0800 (PST)
-Reply-To: fb5485370@gmail.com
-From:   fred benson <fb5088646@gmail.com>
-Date:   Mon, 7 Mar 2022 08:49:47 +0100
-Message-ID: <CAGY2EXMFM7dEGXA7WdUAveaRqQej8f_kGsKQWJDpN=m+8syh-A@mail.gmail.com>
-Subject: dearest
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_20,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wgQGLgqqgsKXUCykiK9B1UwdCj2-NvDkBAuYhSgdtAmkQ@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-please get back to me for more information on the transfer.
+On Sun, Mar 06, 2022 at 12:30:55PM -0800, Linus Torvalds wrote:
+> So I would expect that
+> 
+>  (a) READ/WRITE actually fills the whole buffer
+> 
+>  (b) READ/WRITE are the only ones where we care about performance at a
+> bounce-buffer level
+> 
+> so it boils down to "do we still do this horrible memcpy even for
+> regular IO commands"? Because that would, in my opinion, just be
+> stupid.
 
-THANKS
+For one thing this is not just for block I/O, but for all DMA.
+Second, "normal" I/O might always fail, including after partial
+transfers.  SCSI even considers that normal.  Network devices consider
+it normal to not fill the entiret receive buffers, etc.
+
+In short:  anything that operates directly on user memory is a trivial
+reproducer here.  The CVE uses SG_IO, but staying in block land direct
+I/O will work just the same because swiotlb will copy back the
+uninitialized data to user memory after an I/O failure.
+
+What we've been thinking of is a version of the dma map calls where
+the unmap gets passed how much data actually was transferred and only
+copies that out.  But that seems like the only sane interface.
+
+Now IFF we known that the buffer is never looked at on I/O failure
+or short I/O we could do away with all this.  But without adding new
+interfaces where the caller guarantees that we can't know that.  For
+userspace memory it is guaranteed to be not true.  For kernel memory
+is most likely is true, but there's some amazingly awful pieces of
+code that probably still get it wrong.
