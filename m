@@ -2,134 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F40D4D13FF
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 10:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D595F4D1410
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 10:59:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345529AbiCHJ6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 04:58:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43240 "EHLO
+        id S1345567AbiCHKAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 05:00:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345517AbiCHJ6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 04:58:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5BF220E3;
-        Tue,  8 Mar 2022 01:57:48 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08F38B817E5;
-        Tue,  8 Mar 2022 09:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E02C340EB;
-        Tue,  8 Mar 2022 09:57:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646733465;
-        bh=7GPwiQFAd5CuYvQ6BoG6+MDynbTBHNmzU2GdfJdpniw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eyV5TecsHnCQcROeM6ptXccS+s2HQjlww+bQgyjZlDS12CoULoQ9IwWiP3e4BOx+R
-         xTttNLd0bQzd40C40Q+UNSCG7MkHW3syr8Rwwq+5XkKzHqxDFeJVg7KjprApnRaiL4
-         EBBlUc+GVKbwA0LxjpX4jt/a+64eFlAefvSZifuk=
-Date:   Tue, 8 Mar 2022 10:57:42 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
- whilst still in use
-Message-ID: <YicolvcbY9VT6AKc@kroah.com>
-References: <20220307191757.3177139-1-lee.jones@linaro.org>
- <YiZeB7l49KC2Y5Gz@kroah.com>
- <YicPXnNFHpoJHcUN@google.com>
- <Yicalf1I6oBytbse@kroah.com>
- <Yicer3yGg5rrdSIs@google.com>
+        with ESMTP id S1345571AbiCHKAl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 05:00:41 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E1A39687;
+        Tue,  8 Mar 2022 01:59:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1646733585; x=1678269585;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=CmU/s/E0INqhtkxEdG6nX1vb75Ifunj3U62eYAzaRTM=;
+  b=L3+t5uD+F6cx8Htuf9pEuOOmlEOsJeQYAKWkF5oDMwHHidcDYk038kCT
+   Ihp0zSZZ2kLSp+KnOiocbsh/Y7zJlAzkFzQ2Yi0yLax3CKylM+3GpVnVg
+   oYS65LyJHKIwCdUfqOy2Q5wMj4EL0UOLU7LLhXXl4YLP/EQJbq1D0mJfm
+   bUWUIJaxZF42xMsqfRBeG4DpF/IHPZL9x1JqBxJEFFKfqelWni0WndzkY
+   sXn6Ry7CfxkKBB5RZjxJ9h1XcsBPNQ2iQVYGN2I5Ep4dweNQaTKh/Yf/I
+   aIQ6G4n/BoYfeFCNwIx7Fng2mg1HQix5JQa4ns8JpL2BaoXZk56ExQyQj
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10279"; a="254373012"
+X-IronPort-AV: E=Sophos;i="5.90,164,1643702400"; 
+   d="scan'208";a="254373012"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2022 01:59:45 -0800
+X-IronPort-AV: E=Sophos;i="5.90,164,1643702400"; 
+   d="scan'208";a="553555980"
+Received: from twinkler-lnx.jer.intel.com ([10.12.91.43])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2022 01:59:43 -0800
+From:   Tomas Winkler <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        Vitaly Lubart <vitaly.lubart@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [char-misc-next] mei: avoid iterator usage outside of list_for_each_entry
+Date:   Tue,  8 Mar 2022 11:59:26 +0200
+Message-Id: <20220308095926.300412-1-tomas.winkler@intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yicer3yGg5rrdSIs@google.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 08, 2022 at 09:15:27AM +0000, Lee Jones wrote:
-> On Tue, 08 Mar 2022, Greg KH wrote:
-> 
-> > On Tue, Mar 08, 2022 at 08:10:06AM +0000, Lee Jones wrote:
-> > > On Mon, 07 Mar 2022, Greg KH wrote:
-> > > 
-> > > > On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
-> > > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
-> > > > > to vhost_get_vq_desc().  All we have to do here is take the same lock
-> > > > > during virtqueue clean-up and we mitigate the reported issues.
-> > > > > 
-> > > > > Also WARN() as a precautionary measure.  The purpose of this is to
-> > > > > capture possible future race conditions which may pop up over time.
-> > > > > 
-> > > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
-> > > > > 
-> > > > > Cc: <stable@vger.kernel.org>
-> > > > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-> > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > > > > ---
-> > > > >  drivers/vhost/vhost.c | 10 ++++++++++
-> > > > >  1 file changed, 10 insertions(+)
-> > > > > 
-> > > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > > > index 59edb5a1ffe28..ef7e371e3e649 100644
-> > > > > --- a/drivers/vhost/vhost.c
-> > > > > +++ b/drivers/vhost/vhost.c
-> > > > > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
-> > > > >  	int i;
-> > > > >  
-> > > > >  	for (i = 0; i < dev->nvqs; ++i) {
-> > > > > +		/* No workers should run here by design. However, races have
-> > > > > +		 * previously occurred where drivers have been unable to flush
-> > > > > +		 * all work properly prior to clean-up.  Without a successful
-> > > > > +		 * flush the guest will malfunction, but avoiding host memory
-> > > > > +		 * corruption in those cases does seem preferable.
-> > > > > +		 */
-> > > > > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
-> > > > 
-> > > > So you are trading one syzbot triggered issue for another one in the
-> > > > future?  :)
-> > > > 
-> > > > If this ever can happen, handle it, but don't log it with a WARN_ON() as
-> > > > that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
-> > > > you want that to happen?
-> > > 
-> > > No, Syzbot doesn't report warnings, only BUGs and memory corruption.
-> > 
-> > Has it changed?  Last I looked, it did trigger on WARN_* calls, which
-> > has resulted in a huge number of kernel fixes because of that.
-> 
-> Everything is customisable in syzkaller, so maybe there are specific
-> builds which panic_on_warn enabled, but none that I'm involved with
-> do.
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-Many systems run with panic-on-warn (i.e. the cloud), as they want to
-drop a box and restart it if anything goes wrong.
+Usage of the iterator outside of the list_for_each_entry
+is considered harmful. https://lkml.org/lkml/2022/2/17/1032
 
-That's why syzbot reports on WARN_* calls.  They should never be
-reachable by userspace actions.
+Do not reference the loop variable outside of the loop,
+by rearranging the orders of execution.
+Instead of performing search loop and checking outside the loop
+if the end of the list was hit and no matching element was found,
+the execution is performed inside the loop upon a successful match
+followed by a goto statement to the next step,
+therefore no condition has to be performed after the loop has ended.
 
-> Here follows a topical example.  The report above in the Link: tag
-> comes with a crashlog [0].  In there you can see the WARN() at the
-> bottom of vhost_dev_cleanup() trigger many times due to a populated
-> (non-flushed) worker list, before finally tripping the BUG() which
-> triggers the report:
-> 
-> [0] https://syzkaller.appspot.com/text?tag=CrashLog&x=16a61fce700000
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/misc/mei/interrupt.c | 35 +++++++++++++++--------------------
+ 1 file changed, 15 insertions(+), 20 deletions(-)
 
-Ok, so both happens here.  But don't add a warning for something that
-can't happen.  Just handle it and move on.  It looks like you are
-handling it in this code, so please drop the WARN_ON().
+diff --git a/drivers/misc/mei/interrupt.c b/drivers/misc/mei/interrupt.c
+index a67f4f2d33a9..0706322154cb 100644
+--- a/drivers/misc/mei/interrupt.c
++++ b/drivers/misc/mei/interrupt.c
+@@ -424,31 +424,26 @@ int mei_irq_read_handler(struct mei_device *dev,
+ 	list_for_each_entry(cl, &dev->file_list, link) {
+ 		if (mei_cl_hbm_equal(cl, mei_hdr)) {
+ 			cl_dbg(dev, cl, "got a message\n");
+-			break;
++			ret = mei_cl_irq_read_msg(cl, mei_hdr, meta_hdr, cmpl_list);
++			goto reset_slots;
+ 		}
+ 	}
+ 
+ 	/* if no recipient cl was found we assume corrupted header */
+-	if (&cl->link == &dev->file_list) {
+-		/* A message for not connected fixed address clients
+-		 * should be silently discarded
+-		 * On power down client may be force cleaned,
+-		 * silently discard such messages
+-		 */
+-		if (hdr_is_fixed(mei_hdr) ||
+-		    dev->dev_state == MEI_DEV_POWER_DOWN) {
+-			mei_irq_discard_msg(dev, mei_hdr, mei_hdr->length);
+-			ret = 0;
+-			goto reset_slots;
+-		}
+-		dev_err(dev->dev, "no destination client found 0x%08X\n",
+-				dev->rd_msg_hdr[0]);
+-		ret = -EBADMSG;
+-		goto end;
++	/* A message for not connected fixed address clients
++	 * should be silently discarded
++	 * On power down client may be force cleaned,
++	 * silently discard such messages
++	 */
++	if (hdr_is_fixed(mei_hdr) ||
++	    dev->dev_state == MEI_DEV_POWER_DOWN) {
++		mei_irq_discard_msg(dev, mei_hdr, mei_hdr->length);
++		ret = 0;
++		goto reset_slots;
+ 	}
+-
+-	ret = mei_cl_irq_read_msg(cl, mei_hdr, meta_hdr, cmpl_list);
+-
++	dev_err(dev->dev, "no destination client found 0x%08X\n", dev->rd_msg_hdr[0]);
++	ret = -EBADMSG;
++	goto end;
+ 
+ reset_slots:
+ 	/* reset the number of slots and header */
+-- 
+2.35.1
 
-thanks,
-
-greg k-h
