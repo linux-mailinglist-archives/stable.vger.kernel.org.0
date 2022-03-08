@@ -2,130 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5594D1CD8
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 17:10:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EFF14D1D2B
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 17:29:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348210AbiCHQL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 11:11:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
+        id S242905AbiCHQau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 11:30:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348216AbiCHQLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 11:11:25 -0500
-Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933EC506FA;
-        Tue,  8 Mar 2022 08:10:28 -0800 (PST)
-Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-2dc242a79beso196646427b3.8;
-        Tue, 08 Mar 2022 08:10:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rKTCr+Og+sv9jUdP0DwOyofew83xNo3e9HNzBgkZFCU=;
-        b=CNP9MSLV8F9EMIaBfN+SPUUjOSXAQiMSDSRUNUsWzrtvpIaoxkqD0SK26zoDRBBJd6
-         mmlDvUyUGZhmsiIhpuZM5VyyRjRrho4NVqzbRYcazg6qqZyhYE3estKDevx9k2unZw88
-         NV0m61L3tbKNh1OLLWl1xxD0y00dD7IKXYaSrllS8cJ4mzeh+2mBskWD8f5PTEjPckDD
-         /1DdifV9Ep4hg/ovtHjrFTRtvDE4U86ymG9e+0oHIlaa0FuL/rlgbDfDOTddbv97LASz
-         mebZq6PwtoCnxrDo5exoxmSEDQfNeLVWnsdER+o360b9cHFbkNr040tEKs7LRu5K1ynb
-         HyJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rKTCr+Og+sv9jUdP0DwOyofew83xNo3e9HNzBgkZFCU=;
-        b=qt/JJsALBcs9BIbuw60ETbGckSJn21f2Hj51CYlEAINWfXx5u2t0SS3Sj0klFRvW4m
-         N0skaq57RDNB5aCfx4cnnNxfiB61QyAT3yzqCYWhW5SWiSnZkHl8zvhV05fZ9gCcwqwA
-         794wV0GjYuz3q4mwCVEAkZgK/cyLvBCFnLb/Nsrc7gynUuUf16/iOOp9pMtvTNbPrRdK
-         s6hdS9GPfM1c4n/Pto9aYamzKpVvo9QBo2Vhgu4uAf73b2jZrkFfl754OG82UF/smykk
-         LcSVJ/IdQLSwXhEFvWzZa2z5B2MnA0ES7ToiKGQJfJ7C2Ozen5oeC2xoJ00CDiULVs7D
-         M8Nw==
-X-Gm-Message-State: AOAM530cxnzUCKShOi1oVcqFXTXtCH5fwnLsqbVDccx6xCd2HzaDTzrW
-        CrXVOhilPLzjuXErGLMFOmMmKgc8gWT3DWRW2PI=
-X-Google-Smtp-Source: ABdhPJwrIeggD3PCTymggq9Gq/D99TWUJYcaJJQ0yB2mYPT+Y2wpKYg884AglLmVS1Qlq7w65ZAUrluNoskJc6rsnvk=
-X-Received: by 2002:a81:5789:0:b0:2d7:9ad:44d0 with SMTP id
- l131-20020a815789000000b002d709ad44d0mr12777631ywb.488.1646755827825; Tue, 08
- Mar 2022 08:10:27 -0800 (PST)
+        with ESMTP id S233477AbiCHQau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 11:30:50 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9EF6450447
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 08:29:53 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6ADFB1516;
+        Tue,  8 Mar 2022 08:29:53 -0800 (PST)
+Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9CE273FA45;
+        Tue,  8 Mar 2022 08:29:52 -0800 (PST)
+From:   James Morse <james.morse@arm.com>
+To:     stable@vger.kernel.org, kvmarm@lists.cs.columbia.edu
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        james.morse@arm.com
+Subject: [stable:PATCH] KVM: arm64: Reset PMC_EL0 to avoid a panic() on systems with no PMU
+Date:   Tue,  8 Mar 2022 16:29:39 +0000
+Message-Id: <20220308162939.603335-1-james.morse@arm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-References: <20220307162207.188028559@linuxfoundation.org> <Yid4BNbLm3mStBi2@debian>
-In-Reply-To: <Yid4BNbLm3mStBi2@debian>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Tue, 8 Mar 2022 16:09:51 +0000
-Message-ID: <CADVatmPdzXRU2aTeh-8dfZVmW6YPJwntSDCO8gcGDUJn-qzzAg@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/256] 5.15.27-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 8, 2022 at 3:36 PM Sudip Mukherjee
-<sudipm.mukherjee@gmail.com> wrote:
->
-> Hi Greg,
->
-> On Mon, Mar 07, 2022 at 05:28:50PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.15.27 release.
-> > There are 256 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
+The logic in commit 2a5f1b67ec57 "KVM: arm64: Don't access PMCR_EL0 when no
+PMU is available" relies on an empty reset handler being benign.  This was
+not the case in earlier kernel versions, so the stable backport of this
+patch is causing problems.
 
-<snip>
+KVMs behaviour in this area changed over time. In particular, prior to commit
+03fdfb269009 ("KVM: arm64: Don't write junk to sysregs on reset"), an empty
+reset handler will trigger a warning, as the guest registers have been
+poisoned.
+Prior to commit 20589c8cc47d ("arm/arm64: KVM: Don't panic on failure to
+properly reset system registers"), this warning was a panic().
 
->
-> Mips failures,
->
-> allmodconfig, gpr_defconfig and mtx1_defconfig fails with:
+Instead of reverting the backport, make it write 0 to the sys_reg[] array.
+This keeps the reset logic happy, and the dodgy value can't be seen by
+the guest as it can't request the emulation.
 
-And, here is the bisect log:
+The original bug was accessing the PMCR_EL0 register on CPUs that don't
+implement that feature. There is no known silicon that does this, but
+v4.9's ACPI support is unable to find the PMU, so triggers this code:
 
-# bad: [7b9aacd770fa105a0a5f0be43bc72ce176d30331] Linux 5.15.27-rc2
-# good: [8993e6067f263765fd26edabf3e3012e3ec4d81e] Linux 5.15.26
-git bisect start 'HEAD' 'v5.15.26'
-# bad: [6d4f8e67749d97f83f377911e874ca116be71fbd] drm/amd/display: For
-vblank_disable_immediate, check PSR is really used
-git bisect bad 6d4f8e67749d97f83f377911e874ca116be71fbd
-# bad: [527ec9ffce51cb10a3172380aba30066ee2d056c] Input: ti_am335x_tsc
-- fix STEPCONFIG setup for Z2
-git bisect bad 527ec9ffce51cb10a3172380aba30066ee2d056c
-# good: [96039b910c5a933221faa9aeca4f2fb2fa4976a1] arm64: Mark
-start_backtrace() notrace and NOKPROBE_SYMBOL
-git bisect good 96039b910c5a933221faa9aeca4f2fb2fa4976a1
-# bad: [4778338032b338f80393b9dfab6832d02bddb819] MIPS: fix
-local_{add,sub}_return on MIPS64
-git bisect bad 4778338032b338f80393b9dfab6832d02bddb819
-# good: [ba52217d4edd5824427134cfdfa9c2ab4390d77f] drm/amdgpu: check
-vm ready by amdgpu_vm->evicting flag
-git bisect good ba52217d4edd5824427134cfdfa9c2ab4390d77f
-# good: [9eeb0cb7e2d675e3bbecc08302e3bafe21c61c52] NFSD: Fix
-zero-length NFSv3 WRITEs
-git bisect good 9eeb0cb7e2d675e3bbecc08302e3bafe21c61c52
-# good: [8e68b6e3bdce82f387619e7fb6e85e6be9820182]
-tools/resolve_btf_ids: Close ELF file on error
-git bisect good 8e68b6e3bdce82f387619e7fb6e85e6be9820182
-# good: [238d4d64ad4da4acefedd73094be0d1051897810] mtd: spi-nor: Fix
-mtd size for s3an flashes
-git bisect good 238d4d64ad4da4acefedd73094be0d1051897810
-# first bad commit: [4778338032b338f80393b9dfab6832d02bddb819] MIPS:
-fix local_{add,sub}_return on MIPS64
+| Kernel panic - not syncing: Didn't reset vcpu_sys_reg(24)
+| CPU: 1 PID: 3055 Comm: lkvm Not tainted 4.9.302-00032-g64e078a56789 #13476
+| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Jul 30 2018
+| Call trace:
+| [<ffff00000808b4b0>] dump_backtrace+0x0/0x1a0
+| [<ffff00000808b664>] show_stack+0x14/0x20
+| [<ffff0000088f0e18>] dump_stack+0x98/0xb8
+| [<ffff0000088eef08>] panic+0x118/0x274
+| [<ffff0000080b50e0>] access_actlr+0x0/0x20
+| [<ffff0000080b2620>] kvm_reset_vcpu+0x5c/0xac
+| [<ffff0000080ac688>] kvm_arch_vcpu_ioctl+0x3e4/0x490
+| [<ffff0000080a382c>] kvm_vcpu_ioctl+0x5b8/0x720
+| [<ffff000008201e44>] do_vfs_ioctl+0x2f4/0x884
+| [<ffff00000820244c>] SyS_ioctl+0x78/0x9c
+| [<ffff000008083a9c>] __sys_trace_return+0x0/0x4
 
-Reverting 4778338032b3 ("MIPS: fix local_{add,sub}_return on MIPS64")
-has fixed all the 3 build failures.
+Cc: <stable@vger.kernel.org> # < v5.3 with 2a5f1b67ec57 backported
+Signed-off-by: James Morse <james.morse@arm.com>
+---
+ arch/arm64/kvm/sys_regs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 10d80456f38f..8d548fdbb6b2 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -451,8 +451,10 @@ static void reset_pmcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ 	u64 pmcr, val;
+ 
+ 	/* No PMU available, PMCR_EL0 may UNDEF... */
+-	if (!kvm_arm_support_pmu_v3())
++	if (!kvm_arm_support_pmu_v3()) {
++		vcpu_sys_reg(vcpu, PMCR_EL0) = 0;
+ 		return;
++	}
+ 
+ 	pmcr = read_sysreg(pmcr_el0);
+ 	/*
 -- 
-Regards
-Sudip
+2.30.2
+
