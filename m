@@ -2,114 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 307DA4D130B
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 10:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 840154D1313
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 10:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345198AbiCHJH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 04:07:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59964 "EHLO
+        id S238320AbiCHJMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 04:12:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345300AbiCHJH5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 04:07:57 -0500
-Received: from qproxy6-pub.mail.unifiedlayer.com (qproxy6-pub.mail.unifiedlayer.com [69.89.23.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B263FBE0
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 01:07:00 -0800 (PST)
-Received: from gproxy3-pub.mail.unifiedlayer.com (unknown [69.89.30.42])
-        by qproxy6.mail.unifiedlayer.com (Postfix) with ESMTP id 62D27802F6A7
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 09:07:00 +0000 (UTC)
-Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
-        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 87D02100482A7
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 09:06:59 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id RVo3n3cBjwm8iRVo3n55KE; Tue, 08 Mar 2022 09:06:59 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=DpSTREz+ c=1 sm=1 tr=0 ts=62271cb3
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=o8Y5sQTvuykA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=TW8tJxXyv0mGgdEXXAtMFp3rPUTXw7YtdxoQSHbuvfs=; b=rKhW6ub3KVIhsqDjLc4pnPrn6E
-        T63SrTsOqULObE4Fq1V1jEa8SkLguCgDWEXkZ//aGw8r3MI7tBt1XFCpyR0t9KyN64bbXNuTbOPk/
-        OaOeqLhC4NnsP7m9OtC8xCQVP;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:59564 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nRVo2-002Omi-5f; Tue, 08 Mar 2022 02:06:58 -0700
-Subject: Re: [PATCH 5.15 000/256] 5.15.27-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220307162207.188028559@linuxfoundation.org>
-In-Reply-To: <20220307162207.188028559@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <5feb5017-1137-c015-3fc4-6c3bff742198@w6rz.net>
-Date:   Tue, 8 Mar 2022 01:06:56 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S231797AbiCHJMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 04:12:36 -0500
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8BE21E34;
+        Tue,  8 Mar 2022 01:11:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1646730700; x=1678266700;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=dt5nXBEH13ocfQEG1E2enePW6gJAUmwutTqF7/GLjFA=;
+  b=ti8jAxNIG6wiBApKMGg+JoahwUOazVFzv3aSYZO1nxzT72d6y0EnSzC6
+   pLcqJGorBn3NCE4WIB46rve3moNMyrT/Sd1CJnimEAZfBeLRa5ZE3+6Mp
+   UUkaRGNioESGs/nrWkLgwoKA8XUkhX3sMJtvrH6QHAzg6m8dO9AUIJhrL
+   ocUnLHiZFHlK7CY7g53cpgcdxGNikxM5wTErDS1MQ8S9SNkSaUqOA2DK/
+   2l35yGtX23MS/1acCxBti40IPFZ16F1ZzA/MdvK8QHRkAls+xPD9akJ36
+   mE7GuBsgBE9NLnXc0PCrle6ytGsAfH7mr06Jwoih/ow5Dfw5t2ZKmcX/p
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.90,164,1643698800"; 
+   d="scan'208";a="164903324"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 08 Mar 2022 02:11:40 -0700
+Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.17; Tue, 8 Mar 2022 02:11:39 -0700
+Received: from ROB-ULT-M18064N.mchp-main.com (10.10.115.15) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
+ 15.1.2375.17 via Frontend Transport; Tue, 8 Mar 2022 02:11:37 -0700
+From:   Tudor Ambarus <tudor.ambarus@microchip.com>
+To:     <p.yadav@ti.com>, <michael@walle.cc>
+CC:     <miquel.raynal@bootlin.com>, <richard@nod.at>, <vigneshr@ti.com>,
+        <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        "Tudor Ambarus" <tudor.ambarus@microchip.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2] mtd: spi-nor: core: Skip setting erase types when SPI_NOR_NO_ERASE is set
+Date:   Tue, 8 Mar 2022 11:11:35 +0200
+Message-ID: <20220308091135.88615-1-tudor.ambarus@microchip.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nRVo2-002Omi-5f
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:59564
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,T_SCC_BODY_TEXT_LINE,
+        T_SPF_PERMERROR autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/7/22 8:28 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.27 release.
-> There are 256 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 09 Mar 2022 16:21:31 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.27-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Even if SPI_NOR_NO_ERASE was specified at flash declaration, the erase
+type of size nor->info->sector_size was incorrectly set as supported.
+Don't set erase types when SPI_NOR_NO_ERASE is set.
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Fixes: b199489d37b2 ("mtd: spi-nor: add the framework for SPI NOR")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: stable@vger.kernel.org
+---
+v2:
+- add comment, update commit message, split change in individual commit
+- add fixes tag and cc to stable.
 
-Tested-by: Ron Economos <re@w6rz.net>
+ drivers/mtd/spi-nor/core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index b4f141ad9c9c..64cf7b9df621 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -2392,6 +2392,10 @@ static void spi_nor_no_sfdp_init_params(struct spi_nor *nor)
+ 					SPINOR_OP_PP, SNOR_PROTO_8_8_8_DTR);
+ 	}
+ 
++	/* Skip setting erase types when SPI_NOR_NO_ERASE is set. */
++	if (nor->info->flags & SPI_NOR_NO_ERASE)
++		return;
++
+ 	/*
+ 	 * Sector Erase settings. Sort Erase Types in ascending order, with the
+ 	 * smallest erase size starting at BIT(0).
+-- 
+2.25.1
 
