@@ -2,82 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 502934D24AE
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 00:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AB0D4D25A9
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 02:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229606AbiCHXMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 18:12:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55934 "EHLO
+        id S230195AbiCIBL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 20:11:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbiCHXMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 18:12:48 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C2EB17DAB7
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 15:11:45 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6B9951650;
-        Tue,  8 Mar 2022 15:11:45 -0800 (PST)
-Received: from [10.57.41.254] (unknown [10.57.41.254])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 071B83FA20;
-        Tue,  8 Mar 2022 15:11:43 -0800 (PST)
-Message-ID: <7341895d-0c69-5a84-6dfe-f228a05df03b@arm.com>
-Date:   Tue, 8 Mar 2022 23:11:38 +0000
+        with ESMTP id S230147AbiCIBLo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 20:11:44 -0500
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51D7BC683D
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 16:54:10 -0800 (PST)
+Received: by mail-lf1-x129.google.com with SMTP id 3so994821lfr.7
+        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 16:54:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nCdD3sQqnKJUyCXjoQIWWYik/UVOacEyJhPiXRkqPhw=;
+        b=BEGslrjfRvpCN4jdyJSHh1JbnDf2fA5/7RvTdiZ95KEK8tz4bZGeH/gFBMpg9UJh8w
+         KG6i2b2nE7/a3dTAkYihQHcj9yU1nLyZLC89CYRCMi4FFAa/Cyh0O1stJoEBYjPBTGE7
+         fkKRc/S+QBqGgG4A5q4CBpHCpbgIbrV0qDaCduqGhSC0GOlzoPxjv9Y+Ysn8Czh3l6mZ
+         Tap0Ci3fR6OMKTl8SVDPhtLN6/Phal0VKyFKRlq40qB40Vsufg+yxZR6wHeFmbiYmEWg
+         ++EN14da0QHaqsATfGv0nOF/Xj6Tme2EMJGvnl+7f2kPkfoSKSLaJpMdEXRo2rG/o244
+         Ruwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nCdD3sQqnKJUyCXjoQIWWYik/UVOacEyJhPiXRkqPhw=;
+        b=Q4tlEWecAFFUzo94tLevw731qig6vLUvbk0p+A2L6rgRdNWabsX67JrX5AjzjCR1EY
+         TT1+RL/CNaeNuvXXLFwYbgtmuREyjJWB8t2B/aa4fbWij6JuEh93ogMzNEGkU+BEEmrU
+         KPNRDIW+xVva85JbZQNqepo88zKLpdweToALKlKvvmfkj1sC8DK9q+onT5CZhwxMwzmz
+         TFEWC+UpEh63HyBfrc2NmwyLkZjwdp8VS4i4AiTGyVbXEgL9Hn701Gdf4LDykJfQaYYF
+         zGeb9usS8AasD6jOuIQLRrXpCUvps/s/u/g0uJlroFfvKNVxhUw1yV/dm4CC5ZZRtQqS
+         83Uw==
+X-Gm-Message-State: AOAM530wWlOUnoI0yLoFsqc4Sb3dhJ2/iumH2eC6Oq6dIDZHeoiAO/Am
+        nTveHynDXjkhKNbZMx5i/Eq1aNCD1DgT7WgiJasz5x/hJe5ahQ==
+X-Google-Smtp-Source: ABdhPJzR8TsofjdSD7dN+nIpZWpLqGsJWoV3sfUXzDleVMPV2HQfR9vmcwag/mjfc62gRBdA9LPZHOgI+tstwcFfu5c=
+X-Received: by 2002:a05:6512:108c:b0:443:d8a6:dff6 with SMTP id
+ j12-20020a056512108c00b00443d8a6dff6mr12662005lfg.235.1646783063591; Tue, 08
+ Mar 2022 15:44:23 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: arm64 memcpy+memove 5.10 patch
-Content-Language: en-GB
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Manoj Gupta <manojgupta@google.com>,
-        Denis Nikitin <denik@google.com>,
-        Will Deacon <will@kernel.org>, llvm@lists.linux.dev,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-References: <CAKwvOd=iOS3HEUH1w-R4vYSNMwAzE7kr30FcXNZg0e1WBvpenQ@mail.gmail.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <CAKwvOd=iOS3HEUH1w-R4vYSNMwAzE7kr30FcXNZg0e1WBvpenQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220303183328.1499189-1-dmatlack@google.com> <20220303183328.1499189-2-dmatlack@google.com>
+ <YifNPekMfIta+xcv@google.com>
+In-Reply-To: <YifNPekMfIta+xcv@google.com>
+From:   David Matlack <dmatlack@google.com>
+Date:   Tue, 8 Mar 2022 15:43:57 -0800
+Message-ID: <CALzav=foWcCdiM98ZNB2B2vAqndg3gvOAX-jh5V-h4OC5f1dSQ@mail.gmail.com>
+Subject: Re: [PATCH RESEND 1/2] KVM: Prevent module exit until all VMs are freed
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        kvm list <kvm@vger.kernel.org>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Gleb Natapov <gleb@redhat.com>, Rik van Riel <riel@redhat.com>,
+        Ben Gardon <bgardon@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-03-08 22:38, Nick Desaulniers wrote:
-> Dear stable kernel maintainers,
-> Please consider cherry-picking
-> 
-> commit 6c23d54f4cb8 ("arm64: Import latest memcpy()/memmove() implementation")
-> 
-> to v5.10.y.  It first landed in v5.14-rc1.
-> 
-> It fixes a linkage failure observed when building kernels for ChromeOS
-> under AutoFDO:
-> 
-> ld.lld: error: arch/arm64/lib/lib.a(memmove.o):(function __memmove:
-> .text+0x8): relocation R_AARCH64_CONDBR19 out of range: -6331272 is
-> not in [-1048576, 1048575]; references __memcpy
->>>> defined in arch/arm64/lib/lib.a(memcpy.o)
-> 
-> (The prior version of memmove used assembler conditional branches to
-> memcpy; under AutoFDO the linker will decide where best to place
-> memmove; it may be > 1MB away from memcpy. After this patch, memcpy
-> and memmove are the same function).
+On Tue, Mar 8, 2022 at 1:40 PM Sean Christopherson <seanjc@google.com> wrote:
+>
+> On Thu, Mar 03, 2022, David Matlack wrote:
+> > Tie the lifetime the KVM module to the lifetime of each VM via
+> > kvm.users_count. This way anything that grabs a reference to the VM via
+> > kvm_get_kvm() cannot accidentally outlive the KVM module.
+> >
+> > Prior to this commit, the lifetime of the KVM module was tied to the
+> > lifetime of /dev/kvm file descriptors, VM file descriptors, and vCPU
+> > file descriptors by their respective file_operations "owner" field.
+> > This approach is insufficient because references grabbed via
+> > kvm_get_kvm() do not prevent closing any of the aforementioned file
+> > descriptors.
+> >
+> > This fixes a long standing theoretical bug in KVM that at least affects
+> > async page faults. kvm_setup_async_pf() grabs a reference via
+> > kvm_get_kvm(), and drops it in an asynchronous work callback. Nothing
+> > prevents the VM file descriptor from being closed and the KVM module
+> > from being unloaded before this callback runs.
+> >
+> > Fixes: af585b921e5d ("KVM: Halt vcpu if page it tries to access is swapped out")
+>
+> And (or)
+>
+>   Fixes: 3d3aab1b973b ("KVM: set owner of cpu and vm file operations")
+>
+> because the above is x86-centric, at a glance PPC and maybe s390 have issues
+> beyond async #PF.
 
-Just beware that the new implementation turned out to be really good at 
-finding places where __iomem pointers are erroneously being passed to 
-memcpy(), by more readily triggering alignment faults, so there is a 
-non-zero possibility of functional regressions if any of those places 
-are still present in 5.10.y (particularly any which had "naturally" 
-disappeared before 5.14). At least one of them still isn't fixed in 
-mainline, but that one's so obscure I wouldn't consider it a major 
-concern by itself.
+SGTM. It's a moot point in terms of stable inclusion since
+af585b921e5d was first added in v2.6.38. But for anyone doing their
+own backporting, 3d3aab1b973b makes it a bit more obvious this is a
+generic problem even though it's not the commit that introduces the
+bug.
 
-Thanks,
-Robin.
+>
+> > Cc: stable@vger.kernel.org
+> > Suggested-by: Ben Gardon <bgardon@google.com>
+> > [ Based on a patch from Ben implemented for Google's kernel. ]
+> > Signed-off-by: David Matlack <dmatlack@google.com>
+> > ---
+> >  virt/kvm/kvm_main.c | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> >
+> > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> > index 35ae6d32dae5..b59f0a29dbd5 100644
+> > --- a/virt/kvm/kvm_main.c
+> > +++ b/virt/kvm/kvm_main.c
+> > @@ -117,6 +117,8 @@ EXPORT_SYMBOL_GPL(kvm_debugfs_dir);
+> >
+> >  static const struct file_operations stat_fops_per_vm;
+> >
+> > +static struct file_operations kvm_chardev_ops;
+> > +
+> >  static long kvm_vcpu_ioctl(struct file *file, unsigned int ioctl,
+> >                          unsigned long arg);
+> >  #ifdef CONFIG_KVM_COMPAT
+> > @@ -1131,6 +1133,11 @@ static struct kvm *kvm_create_vm(unsigned long type)
+> >       preempt_notifier_inc();
+> >       kvm_init_pm_notifier(kvm);
+> >
+> > +     if (!try_module_get(kvm_chardev_ops.owner)) {
+>
+> The "try" aspect is unnecessary.  Stealing from Paolo's version,
+>
+>         /* KVM is pinned via open("/dev/kvm"), the fd passed to this ioctl(). */
+>         __module_get(kvm_chardev_ops.owner);
+>
+> > +             r = -ENODEV;
+> > +             goto out_err;
+> > +     }
+> > +
+> >       return kvm;
+> >
+> >  out_err:
+> > @@ -1220,6 +1227,7 @@ static void kvm_destroy_vm(struct kvm *kvm)
+> >       preempt_notifier_dec();
+> >       hardware_disable_all();
+> >       mmdrop(mm);
+> > +     module_put(kvm_chardev_ops.owner);
+> >  }
+> >
+> >  void kvm_get_kvm(struct kvm *kvm)
+> >
+> > base-commit: b13a3befc815eae574d87e6249f973dfbb6ad6cd
+> > prerequisite-patch-id: 38f66d60319bf0bc9bf49f91f0f9119e5441629b
+> > prerequisite-patch-id: 51aa921d68ea649d436ea68e1b8f4aabc3805156
+> > --
+> > 2.35.1.616.g0bdcbb4464-goog
+> >
