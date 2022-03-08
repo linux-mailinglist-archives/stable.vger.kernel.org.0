@@ -2,83 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 100874D2314
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 22:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F854D2308
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 22:06:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350055AbiCHVMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 16:12:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44780 "EHLO
+        id S245606AbiCHVGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 16:06:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234380AbiCHVMJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 16:12:09 -0500
-X-Greylist: delayed 1277 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Mar 2022 13:11:10 PST
-Received: from gateway33.websitewelcome.com (gateway33.websitewelcome.com [192.185.145.190])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2EF849C8D
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 13:11:10 -0800 (PST)
-Received: from cm11.websitewelcome.com (cm11.websitewelcome.com [100.42.49.5])
-        by gateway33.websitewelcome.com (Postfix) with ESMTP id 32C565B79A
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 14:49:53 -0600 (CST)
-Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
-        by cmsmtp with SMTP
-        id RgmGnUieOdx86RgmHnbR8Z; Tue, 08 Mar 2022 14:49:53 -0600
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:Subject:From:References:Cc:To:MIME-Version:Date:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=mtK1aVJ31smKWIVWWlv6HiJulv7YkPPlGrK3oIjYevI=; b=o761dwgjzaq47QnG0dIgBHlD9c
-        K4d1RHNDj9+nt/CTKSmTxPIV33WcCtC9aOQcVPFdc9THoEgc78edIrYt5gXs12ks84Mu92tHlhLfp
-        8UVETJCoFEu2q4OrtNE45PWj05GCqDqnUk7wYkZUWGQ1hMK619Ddivb/v2figDwiN9IiL4fJI7uWu
-        IFswxF/Kl35MC9o18+CmkVBcFcaoSNwdOE3fH2MlZfooOcQXQo63PSK35UN5+ei9YPiPWyKhc6tle
-        Ks0USAwH9DXxyGnhkEPEvmegBMI3NVqvSUeOdicIf1yxk4hhl2VfHfOIUJbpXZ6Iw8iOeUmjrTeid
-        f763QrCg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:38106)
-        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@roeck-us.net>)
-        id 1nRgmF-002ViM-W1; Tue, 08 Mar 2022 20:49:52 +0000
-Message-ID: <d687840f-1622-59de-8369-f1a8c090ae46@roeck-us.net>
-Date:   Tue, 8 Mar 2022 12:49:49 -0800
+        with ESMTP id S241663AbiCHVGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 16:06:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C74DA47077;
+        Tue,  8 Mar 2022 13:05:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5000C61868;
+        Tue,  8 Mar 2022 21:05:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84ECC340EB;
+        Tue,  8 Mar 2022 21:05:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646773555;
+        bh=mYqMNx9pKqFYL/FDYMjOkeTrTnmEiYyKLzmGgh/VjJs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ywhavWVbVVse1twgmQMIBO3N1UTKzMnb+NxZ0NdosoykxPXeq+EHAxkiwoKHomIHU
+         tIVez9aCzbGc/fZC9SGLnZyyiRp8MG0ln6xFvh2xkm2Xu0Mi0n9PSOgJkw73+9zIfq
+         JPd2ND25PUa5lHMN1aochyEauHvyBOqoOE42bcbM=
+Date:   Tue, 8 Mar 2022 22:05:52 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 000/256] 5.15.27-rc2 review
+Message-ID: <YifFMPFMp9gPnjPc@kroah.com>
+References: <20220307162207.188028559@linuxfoundation.org>
+ <Yid4BNbLm3mStBi2@debian>
+ <CADVatmPdzXRU2aTeh-8dfZVmW6YPJwntSDCO8gcGDUJn-qzzAg@mail.gmail.com>
+ <CA+G9fYv74gGWQLkEZ4idGYri+F9BFV1+9=bz5L0+aophSzDdVA@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220307162147.440035361@linuxfoundation.org>
- <20220308185219.GA3686655@roeck-us.net> <YienMYvdhGPCcPSv@kroah.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 5.16 000/184] 5.16.13-rc2 review
-In-Reply-To: <YienMYvdhGPCcPSv@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1nRgmF-002ViM-W1
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:38106
-X-Source-Auth: linux@roeck-us.net
-X-Email-Count: 12
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYv74gGWQLkEZ4idGYri+F9BFV1+9=bz5L0+aophSzDdVA@mail.gmail.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -86,35 +63,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/8/22 10:57, Greg Kroah-Hartman wrote:
-> On Tue, Mar 08, 2022 at 10:52:19AM -0800, Guenter Roeck wrote:
->> On Mon, Mar 07, 2022 at 05:28:30PM +0100, Greg Kroah-Hartman wrote:
->>> This is the start of the stable review cycle for the 5.16.13 release.
->>> There are 184 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Wed, 09 Mar 2022 16:21:20 +0000.
->>> Anything received after that time might be too late.
->>>
->>
->> Your cycles are getting too short for my test system to provide results
->> in time. It gets overwhelmed, especially when there are updates affecting
->> all stable branches which trigger a complete rebuild of all those branches.
+On Tue, Mar 08, 2022 at 11:08:10PM +0530, Naresh Kamboju wrote:
+> Hi Greg,
 > 
-> Sorry, but this one had to go out a bit sooner for reasons I don't want
-> to speculate about :)
+> On Tue, 8 Mar 2022 at 21:40, Sudip Mukherjee <sudipm.mukherjee@gmail.com> wrote:
+> >
+> > On Tue, Mar 8, 2022 at 3:36 PM Sudip Mukherjee
+> > <sudipm.mukherjee@gmail.com> wrote:
+> > >
+> > > Hi Greg,
+> > >
+> > > On Mon, Mar 07, 2022 at 05:28:50PM +0100, Greg Kroah-Hartman wrote:
+> > > > This is the start of the stable review cycle for the 5.15.27 release.
+> > > > There are 256 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > >
+> >
+> > <snip>
+> >
+> > >
+> > > Mips failures,
+> > >
+> > > allmodconfig, gpr_defconfig and mtx1_defconfig fails with:
 > 
-
-Another one, after the write file issue ? Sigh.
-I really hate that the Powers That Be don't tell me about that stuff :-(.
-
-We have severe conflicts against all Chrome OS kernel branches in this series.
-I hope that fix was worth it.
-
-> Anyway, I checked your builders, and they all looked ok except the 5.15
-> tree, which I know is broken on MIPS right now.
+> LKFT build regression noticed as Sudip reported.
+>    - mips-gcc-10-allmodconfig - FAILED.
 > 
-Hmm, sorry, I didn't realize that there was more than one END issue.
+> >
+> > And, here is the bisect log:
+> >
+> > # bad: [7b9aacd770fa105a0a5f0be43bc72ce176d30331] Linux 5.15.27-rc2
+> > # good: [8993e6067f263765fd26edabf3e3012e3ec4d81e] Linux 5.15.26
+> > git bisect start 'HEAD' 'v5.15.26'
+> > # bad: [6d4f8e67749d97f83f377911e874ca116be71fbd] drm/amd/display: For
+> > vblank_disable_immediate, check PSR is really used
+> > git bisect bad 6d4f8e67749d97f83f377911e874ca116be71fbd
+> > # bad: [527ec9ffce51cb10a3172380aba30066ee2d056c] Input: ti_am335x_tsc
+> > - fix STEPCONFIG setup for Z2
+> > git bisect bad 527ec9ffce51cb10a3172380aba30066ee2d056c
+> > # good: [96039b910c5a933221faa9aeca4f2fb2fa4976a1] arm64: Mark
+> > start_backtrace() notrace and NOKPROBE_SYMBOL
+> > git bisect good 96039b910c5a933221faa9aeca4f2fb2fa4976a1
+> > # bad: [4778338032b338f80393b9dfab6832d02bddb819] MIPS: fix
+> > local_{add,sub}_return on MIPS64
+> > git bisect bad 4778338032b338f80393b9dfab6832d02bddb819
+> > # good: [ba52217d4edd5824427134cfdfa9c2ab4390d77f] drm/amdgpu: check
+> > vm ready by amdgpu_vm->evicting flag
+> > git bisect good ba52217d4edd5824427134cfdfa9c2ab4390d77f
+> > # good: [9eeb0cb7e2d675e3bbecc08302e3bafe21c61c52] NFSD: Fix
+> > zero-length NFSv3 WRITEs
+> > git bisect good 9eeb0cb7e2d675e3bbecc08302e3bafe21c61c52
+> > # good: [8e68b6e3bdce82f387619e7fb6e85e6be9820182]
+> > tools/resolve_btf_ids: Close ELF file on error
+> > git bisect good 8e68b6e3bdce82f387619e7fb6e85e6be9820182
+> > # good: [238d4d64ad4da4acefedd73094be0d1051897810] mtd: spi-nor: Fix
+> > mtd size for s3an flashes
+> > git bisect good 238d4d64ad4da4acefedd73094be0d1051897810
+> > # first bad commit: [4778338032b338f80393b9dfab6832d02bddb819] MIPS:
+> > fix local_{add,sub}_return on MIPS64
+> >
+> > Reverting 4778338032b3 ("MIPS: fix local_{add,sub}_return on MIPS64")
+> > has fixed all the 3 build failures.
+> 
+> MIPS: fix local_{add,sub}_return on MIPS64
+> [ Upstream commit 277c8cb3e8ac199f075bf9576ad286687ed17173 ]
+> 
+> Use "daddu/dsubu" for long int on MIPS64 instead of "addu/subu"
+> 
+> Fixes: 7232311ef14c ("local_t: mips extension")
+> Signed-off-by: Huang Pei <huangpei@loongson.cn>
+> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Guenter
+Ah, I'll queue up the revert for that in the morning, thanks for finding
+it.  Odd it doesn't trigger the same issue in 5.16.y.
+
+thanks,
+
+greg k-h
