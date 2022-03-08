@@ -2,63 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23DB24D14C7
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 11:30:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C9D4D14C9
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 11:31:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242030AbiCHKbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 05:31:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41004 "EHLO
+        id S244754AbiCHKbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 05:31:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243608AbiCHKbQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 05:31:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D553C3C49C;
-        Tue,  8 Mar 2022 02:30:19 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CB3C61580;
-        Tue,  8 Mar 2022 10:30:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1DBC340EF;
-        Tue,  8 Mar 2022 10:30:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646735418;
-        bh=E6G3HiPLRyrOj03X2ujBXJMTzrUxMjwNhkXg21CG+U8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M1oThiuofqh3xeFKZQaytRfDhYBezMDPsbC39YerDdHh4F5nK9JK8QrEQH8Xxzizj
-         mdWhdifioc/a36RrkAwGUv65W9qE7o1eN1jkLp4RWCDC7Jgl1oxN7iCGMQBhtxphnF
-         fYFXZ+SB2c1J3cTZ+CHANzEIThoY+23DDUbftNvRq9GlTi6F7Kzjw08oaqeJd7FfFK
-         TpsQGsL5y4USLmVhRnavuC4O3JyMGFn5rDAlu9ec98fguQ2Q/S3mQKMf4yN7zdKSYI
-         wRRCQsLdmNRI831GB4+IYcSC9ty4y3TKUD87YJlxwfyY7EKo3+PUg9acrBX54Kmh5Y
-         n5f8EsboETDvw==
-Date:   Tue, 8 Mar 2022 10:30:12 +0000
-From:   Will Deacon <will@kernel.org>
-To:     Darren Hart <darren@os.amperecomputing.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] topology: make core_mask include at least
- cluster_siblings
-Message-ID: <20220308103012.GA31267@willie-the-truck>
-References: <f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com>
+        with ESMTP id S1345729AbiCHKbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 05:31:32 -0500
+Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F245242ED8
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 02:30:35 -0800 (PST)
+Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-2db2add4516so196270317b3.1
+        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 02:30:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=pI4sO34o2WA60Pcvn5zAQkpz6zs55UHDC+h4/Al1DFg=;
+        b=e8dlJ2VyOEpOosCUIKiHjr+2UKegfTOM8FweNzRevMZdK1CIAdG4hV643EGMhONo4F
+         HCsysbFENbfqLlORsf4fknZPyBMXosHKlQ3VrkOsyHRX/xMR0OqRlKnaqoHIk57WcZP2
+         zxm8RZSxyNVxWP+Ut78bcezuzQyjv2oKCqVtDohNv8bsjPcfnrvRzeUisCzpAl/XZj3/
+         z580ZA9Lo9WFgPBJO9IRs3dYBC5MWqrb8rtcftz3guLpDptQkUw8siYN1BWtDnjOml4Z
+         gRyzrFJkW39TBSMEBowkxKSv+Wyyy77jpU9d2+sbPOUxQ5DupCe6pVXLwXtZLm8+Phas
+         yg3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=pI4sO34o2WA60Pcvn5zAQkpz6zs55UHDC+h4/Al1DFg=;
+        b=6RP5da5nUHgEsFzjP9qMgs/pGmeqEGuhjjliX3rHiTYxqSJVF0HgIKVXMb92B/q67G
+         2bRYTZlt/EQwptzP2OB2YUt9ETIhWXCzo0JGsq8ZleKxfD4qIG2/eeqBH7B9+Gz7t710
+         7CTIt6UIQ1EetdI4jy65DxWAqrZi32uL4sfew4l/Wre4eqxzxHkMLZozwF2ckW9FcQ/p
+         Kud0ggKacvZ+Wj1MwSk4pDLS3qXnoozpL60kJzE3q7meGspqNlBF444R4md0JrS4NGAd
+         8Hso3TxMmhIAHcGs+97OLBIdhGzccwdBY9q8e7UXQzxqdxqHIEQBDT3qZ8jgBaC7e5d0
+         9iUg==
+X-Gm-Message-State: AOAM533sIyZNsjcNSQ3yU7o4FYwo1R35s/ZwX0ENosqzfTmxU4mCLdji
+        3b3RnS1ipLx26vbklSyJBHVmoI3AC/wGpWLSz3T92Rvq98ZR8sWe
+X-Google-Smtp-Source: ABdhPJyD1mSCjF4jbeM4VIh8FpKRW07XbUnf51YR+THWdLXcImQb0DvP0dz6M2IUemltei896sLHEu7x/UVe50MXerQ=
+X-Received: by 2002:a81:4ed5:0:b0:2dc:e57:e5f2 with SMTP id
+ c204-20020a814ed5000000b002dc0e57e5f2mr12070641ywb.199.1646735434976; Tue, 08
+ Mar 2022 02:30:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+References: <20220307162142.066663718@linuxfoundation.org>
+In-Reply-To: <20220307162142.066663718@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 8 Mar 2022 16:00:23 +0530
+Message-ID: <CA+G9fYvuY20t+wEbNBUTHcMQnAOLVee0bqora02XFd+5xbryOA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/104] 5.10.104-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -66,89 +70,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 04, 2022 at 09:01:36AM -0800, Darren Hart wrote:
-> Ampere Altra defines CPU clusters in the ACPI PPTT. They share a Snoop
-> Control Unit, but have no shared CPU-side last level cache.
-> 
-> cpu_coregroup_mask() will return a cpumask with weight 1, while
-> cpu_clustergroup_mask() will return a cpumask with weight 2.
-> 
-> As a result, build_sched_domain() will BUG() once per CPU with:
-> 
-> BUG: arch topology borken
-> the CLS domain not a subset of the MC domain
-> 
-> The MC level cpumask is then extended to that of the CLS child, and is
-> later removed entirely as redundant. This sched domain topology is an
-> improvement over previous topologies, or those built without
-> SCHED_CLUSTER, particularly for certain latency sensitive workloads.
-> With the current scheduler model and heuristics, this is a desirable
-> default topology for Ampere Altra and Altra Max system.
-> 
-> Rather than create a custom sched domains topology structure and
-> introduce new logic in arch/arm64 to detect these systems, update the
-> core_mask so coregroup is never a subset of clustergroup, extending it
-> to cluster_siblings if necessary.
-> 
-> This has the added benefit over a custom topology of working for both
-> symmetric and asymmetric topologies. It does not address systems where
-> the cluster topology is above a populated mc topology, but these are not
-> considered today and can be addressed separately if and when they
-> appear.
-> 
-> The final sched domain topology for a 2 socket Ampere Altra system is
-> unchanged with or without CONFIG_SCHED_CLUSTER, and the BUG is avoided:
-> 
-> For CPU0:
-> 
-> CONFIG_SCHED_CLUSTER=y
-> CLS  [0-1]
-> DIE  [0-79]
-> NUMA [0-159]
-> 
-> CONFIG_SCHED_CLUSTER is not set
-> DIE  [0-79]
-> NUMA [0-159]
-> 
-> Cc: Sudeep Holla <sudeep.holla@arm.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> Cc: Barry Song <song.bao.hua@hisilicon.com>
-> Cc: Valentin Schneider <valentin.schneider@arm.com>
-> Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-> Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-> Cc: <stable@vger.kernel.org> # 5.16.x
-> Suggested-by: Barry Song <song.bao.hua@hisilicon.com>
-> Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> ---
-> v1: Drop MC level if coregroup weight == 1
-> v2: New sd topo in arch/arm64/kernel/smp.c
-> v3: No new topo, extend core_mask to cluster_siblings
-> 
->  drivers/base/arch_topology.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-> index 976154140f0b..a96f45db928b 100644
-> --- a/drivers/base/arch_topology.c
-> +++ b/drivers/base/arch_topology.c
-> @@ -628,6 +628,14 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
->  			core_mask = &cpu_topology[cpu].llc_sibling;
->  	}
->  
-> +	/*
-> +	 * For systems with no shared cpu-side LLC but with clusters defined,
-> +	 * extend core_mask to cluster_siblings. The sched domain builder will
-> +	 * then remove MC as redundant with CLS if SCHED_CLUSTER is enabled.
-> +	 */
-> +	if (cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
-> +		core_mask = &cpu_topology[cpu].cluster_sibling;
-> +
+On Mon, 7 Mar 2022 at 21:58, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.104 release.
+> There are 104 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 09 Mar 2022 16:21:24 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.104-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Sudeep, Vincent, are you happy with this now?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Will
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.10.104-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.10.y
+* git commit: 79bd6348914c7f6f715fb706a7dde1de833e6fef
+* git describe: v5.10.103-106-g79bd6348914c
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.103-106-g79bd6348914c
+
+## Test Regressions (compared to v5.10.103-105-g959462ebd29b)
+No test regressions found.
+
+## Metric Regressions (compared to v5.10.103-105-g959462ebd29b)
+No metric regressions found.
+
+## Test Fixes (compared to v5.10.103-105-g959462ebd29b)
+No test fixes found.
+
+## Metric Fixes (compared to v5.10.103-105-g959462ebd29b)
+No metric fixes found.
+
+## Test result summary
+total: 101847, pass: 86386, fail: 912, skip: 13610, xfail: 939
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 291 total, 291 passed, 0 failed
+* arm64: 41 total, 41 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 40 total, 40 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 46 passed, 14 failed
+* riscv: 27 total, 27 passed, 0 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 41 total, 41 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
