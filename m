@@ -2,116 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 578994D1FC9
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 19:11:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE804D1FEA
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 19:18:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242020AbiCHSMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 13:12:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53952 "EHLO
+        id S1343533AbiCHSTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 13:19:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234694AbiCHSMD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 13:12:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0805676C;
-        Tue,  8 Mar 2022 10:11:02 -0800 (PST)
+        with ESMTP id S234608AbiCHSTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 13:19:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE2A02EF;
+        Tue,  8 Mar 2022 10:18:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34AEAB81C00;
-        Tue,  8 Mar 2022 18:11:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F4DDC340EB;
-        Tue,  8 Mar 2022 18:10:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646763060;
-        bh=UGnQ+9PXtGIKt1K2UPOABZIYq3sN0VamEDK6RQWFxyQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IaaDcWeIhFPuSlJRYeoVRqf1GU4wq85BvxkDp9OlbDMHhN/kWO9W86U6GfiiQTXLH
-         OvK19ZpPKazfKRKzI017BQcW/a0OGgUqG7XnTY2jpcmkYZiC3HreFlOYN179sSpLCC
-         NE3FGvUSBeMFEdrmI97jdjkjPhJc8oNy7zx7Q+Xo=
-Date:   Tue, 8 Mar 2022 19:10:57 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qais Yousef <qais.yousef@arm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
-        Abhijeet Dharmapurikar <adharmap@quicinc.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>, x86@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [tip: sched/core] sched/tracing: Don't re-read p->state when
- emitting sched_switch event
-Message-ID: <YiecMTy8ckUdXTQO@kroah.com>
-References: <20220120162520.570782-2-valentin.schneider@arm.com>
- <164614827941.16921.4995078681021904041.tip-bot2@tip-bot2>
- <20220308180240.qivyjdn4e3te3urm@wubuntu>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 794236157C;
+        Tue,  8 Mar 2022 18:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E7CBC340EB;
+        Tue,  8 Mar 2022 18:18:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646763500;
+        bh=hfliW31AVRSU5p6jjAxSw1HcKyAHEKOmAwFZjydld00=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=BhEHsqr3EDTXwEIBwWtIIb/LdCdEwCx9P3HaPD+EkCBnAmRPkzSpaFvJGs84nFuZW
+         f4reBJEEPm8T4qO7GUn1rTm5pX0t1NW/dZPlVc4s4BZHn8gYAfkLT43xAJSm7fDVaL
+         tVFk4gqmjoMOZwpdDdHb/dSIwlSYXMmemtDirUm4gJaeFnjhgT0aQKSPNcdcvWMF0I
+         UzCgdZoI/5/224f43RrsVcOPRbzBPan/peHqSnTCCm/qzMaaVh2fN3rHX+ucCV4Bcb
+         rBZbbrcmq6IhOaD8B8F8ciFQJlJ8Yb6guJixW21bJJCSCE9uuIewLYPPuAEGCXk9hY
+         aUySQg3RkP+0A==
+Message-ID: <66463e26-8564-9f58-ce41-9a2843891d1a@kernel.org>
+Date:   Tue, 8 Mar 2022 11:18:18 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220308180240.qivyjdn4e3te3urm@wubuntu>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.6.2
+Subject: Re: [PATCH] net: ipv6: fix invalid alloclen in __ip6_append_data
+Content-Language: en-US
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        David Laight <David.Laight@ACULAB.COM>,
+        "davem@davemloft.net" <davem@davemloft.net>
+Cc:     Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com" 
+        <syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com>
+References: <20220308000146.534935-1-tadeusz.struk@linaro.org>
+ <14626165dad64bbaabed58ba7d59e523@AcuMS.aculab.com>
+ <6155b68c-161b-0745-b303-f7e037b56e28@linaro.org>
+From:   David Ahern <dsahern@kernel.org>
+In-Reply-To: <6155b68c-161b-0745-b303-f7e037b56e28@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 08, 2022 at 06:02:40PM +0000, Qais Yousef wrote:
-> +CC stable
+On 3/8/22 8:43 AM, Tadeusz Struk wrote:
+> Hi David,
+> On 3/7/22 18:58, David Laight wrote:
+>>> diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+>>> index 4788f6b37053..622345af323e 100644
+>>> --- a/net/ipv6/ip6_output.c
+>>> +++ b/net/ipv6/ip6_output.c
+>>> @@ -1629,6 +1629,13 @@ static int __ip6_append_data(struct sock *sk,
+>>>                   err = -EINVAL;
+>>>                   goto error;
+>>>               }
+>>> +            if (unlikely(alloclen < fraglen)) {
+>>> +                if (printk_ratelimit())
+>>> +                    pr_warn("%s: wrong alloclen: %d, fraglen: %d",
+>>> +                        __func__, alloclen, fraglen);
+>>> +                alloclen = fraglen;
+>>> +            }
+>>> +
+>> Except that is a valid case, see a few lines higher:
+>>
+>>                 alloclen = min_t(int, fraglen, MAX_HEADER);
+>>                 pagedlen = fraglen - alloclen;
+>>
+>> You need to report the input values that cause the problem later on.
 > 
-> On 03/01/22 15:24, tip-bot2 for Valentin Schneider wrote:
-> > The following commit has been merged into the sched/core branch of tip:
-> > 
-> > Commit-ID:     fa2c3254d7cfff5f7a916ab928a562d1165f17bb
-> > Gitweb:        https://git.kernel.org/tip/fa2c3254d7cfff5f7a916ab928a562d1165f17bb
-> > Author:        Valentin Schneider <valentin.schneider@arm.com>
-> > AuthorDate:    Thu, 20 Jan 2022 16:25:19 
-> > Committer:     Peter Zijlstra <peterz@infradead.org>
-> > CommitterDate: Tue, 01 Mar 2022 16:18:39 +01:00
-> > 
-> > sched/tracing: Don't re-read p->state when emitting sched_switch event
-> > 
-> > As of commit
-> > 
-> >   c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
-> > 
-> > the following sequence becomes possible:
-> > 
-> > 		      p->__state = TASK_INTERRUPTIBLE;
-> > 		      __schedule()
-> > 			deactivate_task(p);
-> >   ttwu()
-> >     READ !p->on_rq
-> >     p->__state=TASK_WAKING
-> > 			trace_sched_switch()
-> > 			  __trace_sched_switch_state()
-> > 			    task_state_index()
-> > 			      return 0;
-> > 
-> > TASK_WAKING isn't in TASK_REPORT, so the task appears as TASK_RUNNING in
-> > the trace event.
-> > 
-> > Prevent this by pushing the value read from __schedule() down the trace
-> > event.
-> > 
-> > Reported-by: Abhijeet Dharmapurikar <adharmap@quicinc.com>
-> > Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-> > Link: https://lore.kernel.org/r/20220120162520.570782-2-valentin.schneider@arm.com
+> OK, but in this case it falls into the first if block:
+> https://elixir.bootlin.com/linux/v5.17-rc7/source/net/ipv6/ip6_output.c#L1606
 > 
-> Any objection to picking this for stable? I'm interested in this one for some
-> Android users but prefer if it can be taken by stable rather than backport it
-> individually.
+> where alloclen is assigned the value of mtu.
+> The values in this case are just before the alloc_skb() are:
 > 
-> I think it makes sense to pick the next one in the series too.
+> alloclen = 1480
+> alloc_extra = 136
+> datalen = 64095
+> fragheaderlen = 1480
+> fraglen = 65575
+> transhdrlen = 0
+> mtu = 1480
+> 
 
-What commit does this fix in Linus's tree?
+Does this solve the problem (whitespace damaged on paste, but it is just
+a code move and removing fraglen getting set twice):
 
-Once it hits Linus's tree, let stable@vger.kernel.org know what the git
-commit id is in Linus's tree.
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index e69fac576970..59f036241f1b 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1589,6 +1589,15 @@ static int __ip6_append_data(struct sock *sk,
 
-thanks,
+                        if (datalen > (cork->length <= mtu &&
+!(cork->flags & IPCORK_ALLFRAG) ? mtu : maxfraglen) - fragheaderlen)
+                                datalen = maxfraglen - fragheaderlen -
+rt->dst.trailer_len;
++
++                       if (datalen != length + fraggap) {
++                               /*
++                                * this is not the last fragment, the
+trailer
++                                * space is regarded as data space.
++                                */
++                               datalen += rt->dst.trailer_len;
++                       }
++
+                        fraglen = datalen + fragheaderlen;
+                        pagedlen = 0;
 
-greg k-h
+@@ -1615,16 +1624,6 @@ static int __ip6_append_data(struct sock *sk,
+                        }
+                        alloclen += alloc_extra;
+
+-                       if (datalen != length + fraggap) {
+-                               /*
+-                                * this is not the last fragment, the
+trailer
+-                                * space is regarded as data space.
+-                                */
+-                               datalen += rt->dst.trailer_len;
+-                       }
+-
+-                       fraglen = datalen + fragheaderlen;
+-
+                        copy = datalen - transhdrlen - fraggap - pagedlen;
+                        if (copy < 0) {
+                                err = -EINVAL;
