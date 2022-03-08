@@ -2,155 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F0954D131F
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 10:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B02F4D132F
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 10:18:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242742AbiCHJQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 04:16:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42922 "EHLO
+        id S234858AbiCHJTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 04:19:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233068AbiCHJQ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 04:16:27 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87B034091D
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 01:15:31 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id u1so27352460wrg.11
-        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 01:15:31 -0800 (PST)
+        with ESMTP id S230385AbiCHJTo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 04:19:44 -0500
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16463C4AA
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 01:18:48 -0800 (PST)
+Received: by mail-lj1-x22f.google.com with SMTP id u3so7644037ljd.0
+        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 01:18:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=A67AlhskYiiSCgOgMfxOM8VtIq/AZbd8NuTpwj7+O9E=;
-        b=ru0ZMHr+H3SzWxJ5c6z+akoloC2eYUtrZZDP/bO0aM7LsTlONsVtFwFb/M0zFfOyf8
-         ElYyllP0vUy0v0lbdXhcPYe4WzX7ped6as7iO4g3cCmAJaWF+VZOQBy9ug42T440YpRF
-         GUNi+yilLEuh339WAnK2G0QLo/WGwWiiz6vZ/8lCD4bCmK0TFsJdNrkLS30iJ3WFSL83
-         SnRbArDjmbspkK6+UFofwFDjTRmpVBG0W/hwgBdGn/4koeWXQAPzHE106Pho9SQPGPFW
-         5I7zM7fAiaC+9DyvnsQWd0h5V5zBpL4P1Hkpp1YpcllRm9Tk5tHYCkPE7/0BSdXqV9ip
-         lg1Q==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Zr7FJr/ROqrH3KPFcIbpCq/ZL9h+i4UX28KOdEhJPUU=;
+        b=lGCbPTRO6h0Nw70ozr4kDCxhE2K7ivnul7UDxm1RLFySlQvUm36/2g56uOdnJMwnSI
+         meNX1QkC9LxkyUqXsTnskgFdm0eQeIPybdsbwj0CcTEfd8kySFfhyYjGAr+EyPdMylfz
+         Zt4H+bzdkr3c+K8I8LuCO2szFK65lgDZVJR3bkwlaw2UAng9Iz2W/spgiZRbQ5VnPQ+j
+         LA+K+dd8g0W24Z0qARSxz+902yyzNdHlFgHYIYg5R+25QhJc/pvkOmGyeWtpl029w32+
+         3HaUyi1hROGelZ0gVn4VgWPpzW/K6v67q/fXvFTMM50LHPvYjDgCvHp92XzuKmVji2Kf
+         xrWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=A67AlhskYiiSCgOgMfxOM8VtIq/AZbd8NuTpwj7+O9E=;
-        b=EM0UBqFnycdasbt4dMCgW2tPxywaztRJ1ejtVny2+oTr7uxRF9E5kOvhfx/mQ9550Z
-         XARAqfapI69B51KHCn2ag4/1WyqZfrv1DiDXhw7gJ0rYdH1FFg2Vews4eOYk4q2vFp0N
-         RCv5hje98tQI8J7WhxHqOlcDe8EapSct4nt+0EZhM6yO12rCNql+EMONfx8pAXRR1zFM
-         7YdylCuBLE3/Vw5McJKlylqQ5v78M/9WU4gmWtiF+sE5GbS1HCFB23cC+HC0sdmUnyzz
-         ayQLOvZi1QsU56jL+4UPDviZD6zTH20ZMdm9vnexn25C0T8YxvmaZikSaRcpjU3BBRXq
-         jc6A==
-X-Gm-Message-State: AOAM531awk8oDjsg4RQ+KhJCBNYYXo20sGvuRZcCwy3Nfd1aEj7tfSPC
-        STDONz6S3tvIB8EHsCT1kDDoGA==
-X-Google-Smtp-Source: ABdhPJy9FjH8HkL7B/j6ELLmslkDBEpsnA6isr76dWseTv/sIBWInh7Ka7q7NHwbZ1Go3z4nK7Q0BQ==
-X-Received: by 2002:adf:e448:0:b0:1ea:c7b6:782 with SMTP id t8-20020adfe448000000b001eac7b60782mr11302842wrm.29.1646730930092;
-        Tue, 08 Mar 2022 01:15:30 -0800 (PST)
-Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id h13-20020adff18d000000b001f1de9f930esm15425518wro.81.2022.03.08.01.15.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Mar 2022 01:15:29 -0800 (PST)
-Date:   Tue, 8 Mar 2022 09:15:27 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
- whilst still in use
-Message-ID: <Yicer3yGg5rrdSIs@google.com>
-References: <20220307191757.3177139-1-lee.jones@linaro.org>
- <YiZeB7l49KC2Y5Gz@kroah.com>
- <YicPXnNFHpoJHcUN@google.com>
- <Yicalf1I6oBytbse@kroah.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Zr7FJr/ROqrH3KPFcIbpCq/ZL9h+i4UX28KOdEhJPUU=;
+        b=YNQly/pj+Y3112wDC+Bi9dzwgFk4rFa84u4j6bxHPHjGDzWQ22f3wDI/OjzyY28b6k
+         AsrMVTt1BVbeEhxmtBiXDaN/PnwkAHkirX5+KhoUIPQ9zuuGXvImXg3pVDnX7wUJ2sNC
+         /GP3bze5yk0bzfDeEbAzcudmfc0mHW5qjDxxi9nnYh+tb7/nrwWvQVMGFiGJNAaFT+Zx
+         bej5S25mGTldj9yd6mDgCOvyIIpdMTDJJ0yYmrpPEQ2iUnDIZB/ic/Pxn3nOemWwdEP1
+         6WF+9vusMATg817ctMitX+rQRNFZY5IvKTex6hycwe7AVavz1wSB1ZG2G/+Q90183gn7
+         Hflg==
+X-Gm-Message-State: AOAM533TVcuTNabwTHsA0uB0zVAZwSF0xYkqDWm0nAWxdhKkS+rDxeE+
+        tsF4TBZk4SwGIoG20qHOgKWV7WAv0nnvVKv3Bp8=
+X-Google-Smtp-Source: ABdhPJzJweWjPlO5gnPMN7cSUwaxDz2RGvUXcwPp3JPdoFNNE5Dj12JRU7oRzADGxeFU85c20fw1DfArr0z6vN8zmg8=
+X-Received: by 2002:a2e:bc0e:0:b0:247:f348:d6dd with SMTP id
+ b14-20020a2ebc0e000000b00247f348d6ddmr1084694ljf.323.1646731126609; Tue, 08
+ Mar 2022 01:18:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Yicalf1I6oBytbse@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Received: by 2002:ab3:4701:0:0:0:0:0 with HTTP; Tue, 8 Mar 2022 01:18:45 -0800 (PST)
+Reply-To: mariam002musa@gmail.com
+From:   "Miss. Mariam Musa" <akpe8899@gmail.com>
+Date:   Tue, 8 Mar 2022 01:18:45 -0800
+Message-ID: <CABnntFT_RbW7AcOC9GiqLtme-p9e8RVpP1CenGd+uRO6BuEaHQ@mail.gmail.com>
+Subject: Please I need your help my name is Mariam.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.4 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,HK_NAME_FM_MR_MRS,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:22f listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4286]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [akpe8899[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [akpe8899[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 HK_NAME_FM_MR_MRS No description available.
+        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 08 Mar 2022, Greg KH wrote:
+Good day,
 
-> On Tue, Mar 08, 2022 at 08:10:06AM +0000, Lee Jones wrote:
-> > On Mon, 07 Mar 2022, Greg KH wrote:
-> > 
-> > > On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
-> > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
-> > > > to vhost_get_vq_desc().  All we have to do here is take the same lock
-> > > > during virtqueue clean-up and we mitigate the reported issues.
-> > > > 
-> > > > Also WARN() as a precautionary measure.  The purpose of this is to
-> > > > capture possible future race conditions which may pop up over time.
-> > > > 
-> > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
-> > > > 
-> > > > Cc: <stable@vger.kernel.org>
-> > > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-> > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > > > ---
-> > > >  drivers/vhost/vhost.c | 10 ++++++++++
-> > > >  1 file changed, 10 insertions(+)
-> > > > 
-> > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > > index 59edb5a1ffe28..ef7e371e3e649 100644
-> > > > --- a/drivers/vhost/vhost.c
-> > > > +++ b/drivers/vhost/vhost.c
-> > > > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
-> > > >  	int i;
-> > > >  
-> > > >  	for (i = 0; i < dev->nvqs; ++i) {
-> > > > +		/* No workers should run here by design. However, races have
-> > > > +		 * previously occurred where drivers have been unable to flush
-> > > > +		 * all work properly prior to clean-up.  Without a successful
-> > > > +		 * flush the guest will malfunction, but avoiding host memory
-> > > > +		 * corruption in those cases does seem preferable.
-> > > > +		 */
-> > > > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
-> > > 
-> > > So you are trading one syzbot triggered issue for another one in the
-> > > future?  :)
-> > > 
-> > > If this ever can happen, handle it, but don't log it with a WARN_ON() as
-> > > that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
-> > > you want that to happen?
-> > 
-> > No, Syzbot doesn't report warnings, only BUGs and memory corruption.
-> 
-> Has it changed?  Last I looked, it did trigger on WARN_* calls, which
-> has resulted in a huge number of kernel fixes because of that.
+Can I write you here? I have urgent information for you here, With
+utmost good faith?, as you know that my country have been in deep
+crisis due to the war,
 
-Everything is customisable in syzkaller, so maybe there are specific
-builds which panic_on_warn enabled, but none that I'm involved with
-do.
-
-Here follows a topical example.  The report above in the Link: tag
-comes with a crashlog [0].  In there you can see the WARN() at the
-bottom of vhost_dev_cleanup() trigger many times due to a populated
-(non-flushed) worker list, before finally tripping the BUG() which
-triggers the report:
-
-[0] https://syzkaller.appspot.com/text?tag=CrashLog&x=16a61fce700000
-
-> > > And what happens if the mutex is locked _RIGHT_ after you checked it?
-> > > You still have a race...
-> > 
-> > No, we miss a warning that one time.  Memory is still protected.
-> 
-> Then don't warn on something that doesn't matter.  This line can be
-> dropped as there's nothing anyone can do about it, right?
-
-You'll have to take that point up with Michael.
-
--- 
-Lee Jones [李琼斯]
-Principal Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Miss. Mariam Musa.
