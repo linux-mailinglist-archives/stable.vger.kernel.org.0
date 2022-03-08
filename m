@@ -2,55 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 512C44D12E0
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 09:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B704D12F2
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 09:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230349AbiCHIxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 03:53:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40858 "EHLO
+        id S1345260AbiCHI7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 03:59:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242263AbiCHIxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 03:53:10 -0500
-X-Greylist: delayed 374 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Mar 2022 00:52:13 PST
-Received: from mail.lasedrum.pl (mail.lasedrum.pl [151.236.17.159])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE4F840907
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 00:52:13 -0800 (PST)
-Received: by mail.lasedrum.pl (Postfix, from userid 1001)
-        id CB5A440E14; Tue,  8 Mar 2022 09:45:45 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lasedrum.pl; s=mail;
-        t=1646729157; bh=jqHIBqxs7o8giDgUN2U2QL98LF/31E7JMwKZLkg2F1M=;
-        h=Date:From:To:Subject:From;
-        b=Vx1Bea0vk+Xjjl98mHzux5x4s1B/dY1r4j1HA1V/BFTWoOWJYNo4r/Z5NIbYuKbc+
-         WgxT2XqIV+w6jgHv+08muCqpoVCPUIQ7l2oT9I/hbX0mx/IbzYtlUw2RFFobtFocH9
-         3lyMqevdkn/5ltZq0vscd7QSdYB9y/3Ywc4HOAqA0qlQsqMLOT+ymy40/jRxPHmRV9
-         +aWXQGOV94/AZUEsWJAwYjLQf4NpNa3C8pZRJ9WVD2PqDKg4E0OI1Bze/LBBZ/9Qkv
-         hj0RPCVRLEAs/gqcGaaNrZ0ySmwr6zm3olHVet5paxOrYorRKshmYratxSjbDQRYej
-         DoPcU3pZTU5ow==
-Received: by mail.lasedrum.pl for <stable@vger.kernel.org>; Tue,  8 Mar 2022 08:45:43 GMT
-Message-ID: <20220308084500-0.1.1b.37wy.0.92i3dk1sv0@lasedrum.pl>
-Date:   Tue,  8 Mar 2022 08:45:43 GMT
-From:   "Marcin Chruszcz" <marcin.chruszcz@lasedrum.pl>
-To:     <stable@vger.kernel.org>
-Subject: =?UTF-8?Q?Pytanie_o_samoch=C3=B3d?=
-X-Mailer: mail.lasedrum.pl
+        with ESMTP id S1345259AbiCHI7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 03:59:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B74E3C4AF;
+        Tue,  8 Mar 2022 00:58:03 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DF69B817D4;
+        Tue,  8 Mar 2022 08:58:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FA6AC340EB;
+        Tue,  8 Mar 2022 08:58:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646729880;
+        bh=g8JnrciyA5hVe9iyiMja39wfKFTI4eghy2XVxEq8voQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=t/s29xuMklvlvsfmHRfDg9OiclbQlbVZX8uChLs/iNDYVHYxBhBhmcB/RTVBN8DrM
+         sg4pdWLQEckaaK6banT+xBdd6RHSBthFqKnhND6G/1OFKtgE+z7J909kFBLzLQWXKQ
+         pqo+UZmD8jNT0P7y8UJ53GCHfD2zkk2UVSkJViy8=
+Date:   Tue, 8 Mar 2022 09:57:57 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
+ whilst still in use
+Message-ID: <Yicalf1I6oBytbse@kroah.com>
+References: <20220307191757.3177139-1-lee.jones@linaro.org>
+ <YiZeB7l49KC2Y5Gz@kroah.com>
+ <YicPXnNFHpoJHcUN@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-0.2 required=5.0 tests=BAYES_40,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YicPXnNFHpoJHcUN@google.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On Tue, Mar 08, 2022 at 08:10:06AM +0000, Lee Jones wrote:
+> On Mon, 07 Mar 2022, Greg KH wrote:
+> 
+> > On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
+> > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
+> > > to vhost_get_vq_desc().  All we have to do here is take the same lock
+> > > during virtqueue clean-up and we mitigate the reported issues.
+> > > 
+> > > Also WARN() as a precautionary measure.  The purpose of this is to
+> > > capture possible future race conditions which may pop up over time.
+> > > 
+> > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
+> > > 
+> > > Cc: <stable@vger.kernel.org>
+> > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > ---
+> > >  drivers/vhost/vhost.c | 10 ++++++++++
+> > >  1 file changed, 10 insertions(+)
+> > > 
+> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > index 59edb5a1ffe28..ef7e371e3e649 100644
+> > > --- a/drivers/vhost/vhost.c
+> > > +++ b/drivers/vhost/vhost.c
+> > > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > >  	int i;
+> > >  
+> > >  	for (i = 0; i < dev->nvqs; ++i) {
+> > > +		/* No workers should run here by design. However, races have
+> > > +		 * previously occurred where drivers have been unable to flush
+> > > +		 * all work properly prior to clean-up.  Without a successful
+> > > +		 * flush the guest will malfunction, but avoiding host memory
+> > > +		 * corruption in those cases does seem preferable.
+> > > +		 */
+> > > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
+> > 
+> > So you are trading one syzbot triggered issue for another one in the
+> > future?  :)
+> > 
+> > If this ever can happen, handle it, but don't log it with a WARN_ON() as
+> > that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
+> > you want that to happen?
+> 
+> No, Syzbot doesn't report warnings, only BUGs and memory corruption.
 
-Czy interesuje Pa=C5=84stwa rozwi=C4=85zanie umo=C5=BCliwiaj=C4=85ce moni=
-torowanie samochod=C3=B3w firmowych oraz optymalizacj=C4=99 koszt=C3=B3w =
-ich utrzymania?=20
+Has it changed?  Last I looked, it did trigger on WARN_* calls, which
+has resulted in a huge number of kernel fixes because of that.
 
+> > And what happens if the mutex is locked _RIGHT_ after you checked it?
+> > You still have a race...
+> 
+> No, we miss a warning that one time.  Memory is still protected.
 
-Pozdrawiam,
-Marcin Chruszcz
+Then don't warn on something that doesn't matter.  This line can be
+dropped as there's nothing anyone can do about it, right?
+
+thanks,
+
+greg k-h
