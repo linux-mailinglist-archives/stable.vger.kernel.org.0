@@ -2,69 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 014DC4D116F
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 09:01:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C5E4D119D
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 09:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344722AbiCHICe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 03:02:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48960 "EHLO
+        id S1344135AbiCHIJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 03:09:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344713AbiCHICd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 03:02:33 -0500
+        with ESMTP id S1344699AbiCHIJ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 03:09:28 -0500
 Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A7E3E5E5
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 00:01:37 -0800 (PST)
-Received: by mail-wr1-x435.google.com with SMTP id t11so27097016wrm.5
-        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 00:01:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70D153D1F6
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 00:08:30 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id t11so27125871wrm.5
+        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 00:08:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=IucybA/BbH72cgwgMkENy2nc0cw2uppzQpsI3A+UQng=;
-        b=n2kvax4T596zRbJNHl3pnQBK56Kh3dAHGIATboCR3y4jygN1ehcf5ApBgDCV5Vb3y2
-         SLWndLQ0RqQWcpJbKcyPuO4ztnaTn3WfZR+tAtBuAeiJ0Y4BNeMp+yu7V3xAAAEvQsfw
-         vGDZbgQA8EuIXMQU+qtoE3wx/BO1VbroSviRdyIUievVZU8k63A/eymNH8QYO7RND78l
-         0P+hi35rqJI6VNdQR07pPSUOTsEeJ7ZspVOX8afsoJi3MTripFjC89dnGdmYHSVLZ1dl
-         3WbZw96mkjwI/2AQL/umBpbHA+/2eq+3Ehftz+AHUwt9F0eWyqjKCErDO6inxcJrERVt
-         OwuA==
+        bh=w2kpbDHbmA0uZN+CsMThxfqb9nbhJ8u8Feprw4xNVCo=;
+        b=H2fvfqR+I6VM2Kk9IJYxRI4A6ijk4Qn7lQFH2W2PR+olehv6klS+VeDxePKtFAVv7S
+         8ygNpmOvYIXEw1Jkyy3vf1JJnxERuP+XaHmS1D4zxXtN2EdyDs7ra39Jt13vr/RQNfP8
+         fHCRtN0Qudi90mb33HhTUycYmfmsCLq+k+OPt/4IbfQvQfL/Z/f2gIPMksMlUZLRgkD8
+         DU4VmMObglStBQIyHpInbQRCEWzwYPwePXiQ0+mePYzxV2j3z475Kofkfj5CBFw6AG0O
+         9pvZkuyTRM9guHFOE+Omp3Pxm3rFlyC8wW4M9fzHgQqGa08mdIaUWy/nC7uUgSRFuYZk
+         XCIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to;
-        bh=IucybA/BbH72cgwgMkENy2nc0cw2uppzQpsI3A+UQng=;
-        b=Ges5rRAMUdwWU/XI08O410mnFQV+5lFx6zolpHe+owTotvCwyof2+phJfXBeABMEkl
-         WFiWJMmEssItxurt9lPY5t7z6oDR93RMmcxJniW4jg9BQTjNmHIhfzj3pXuevH12Twn3
-         y0UfNgScxwoZSWOX1S6Xy1Yi8vjo53tiKsgDowcA5ZETewUUEju9oo7AuoT7Xhk/T+R5
-         0FFtN9W2f9OqeJFL+XqqiziY8UJmHIivPrVJ/xuRIoNav+ZtjQE22tnTrn0n0DegzSqW
-         MqJApU1rWcq8xO65eG+Vmx+C1Je42KOG2mmDee4hKoIL2n6lMStc138eIFWDGdgpiBzv
-         aMmQ==
-X-Gm-Message-State: AOAM531dNUXgAnZhg4jNBwsKAYFpd+JWcPx3RDRa6HJmXRBTMAodCBCW
-        rHKKH7jG4fBDqShvduEggevXSQ==
-X-Google-Smtp-Source: ABdhPJz+6S70Pvi8hGyqht0OJu08Ak+kz7cIlHduA+N2p+09HFTvirJzU5DqlyxwJQXndXnzxWy20w==
-X-Received: by 2002:adf:e7c5:0:b0:1f2:1a3:f1a0 with SMTP id e5-20020adfe7c5000000b001f201a3f1a0mr5098043wrn.21.1646726495571;
-        Tue, 08 Mar 2022 00:01:35 -0800 (PST)
+        bh=w2kpbDHbmA0uZN+CsMThxfqb9nbhJ8u8Feprw4xNVCo=;
+        b=Z3jCL6GT87Wt8d/AuaIiRyAhTULUElXxrBTj34Two/AZa/oBm4kG+ffBUQaWipQPcP
+         1Zp/pWIPvPjge7E9vhIsCZPPpBMFb+1nsG/+K8oFqbEGxGsqROHQSYrR9aGC7cEoR6FO
+         dDJygQsswgU8KgwLn4m9Mrm5YTVlTq8DvN61eRZY7nlU14X4YJ9O+jGWQfkZGxUTluwq
+         6+MHwwGNs2tE0xp3hD0Lw1U+sRC/s+ixumGJsUtyHIZy1anibZXu0sO7mVts8Vk7i8YU
+         1aDW3/twHBvjZchKiip7uWcHh0rSqkAI1F781jD/ZMkXR7O/AirX2iNBJU+F0DvaYPu/
+         R5Ug==
+X-Gm-Message-State: AOAM531X5fs0B/eXRhl/K2qcHJuCnLemYXatrGFA/U5303GwJQTdxEn1
+        QXElx173MpqMgUB86CTtLfHYIg==
+X-Google-Smtp-Source: ABdhPJzxQ/wNPlE0Op8r9v7pQTLfIf/oRM+ZegzSmvEtfz5rbvQrhtQyNtGfUsLEaBrywseYTM9mjA==
+X-Received: by 2002:adf:fd50:0:b0:1f0:7a8e:c922 with SMTP id h16-20020adffd50000000b001f07a8ec922mr11353776wrs.166.1646726908942;
+        Tue, 08 Mar 2022 00:08:28 -0800 (PST)
 Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id bg42-20020a05600c3caa00b00380deeaae72sm1978124wmb.1.2022.03.08.00.01.34
+        by smtp.gmail.com with ESMTPSA id m18-20020a05600c3b1200b003899d242c3asm1461077wms.44.2022.03.08.00.08.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Mar 2022 00:01:35 -0800 (PST)
-Date:   Tue, 8 Mar 2022 08:01:32 +0000
+        Tue, 08 Mar 2022 00:08:28 -0800 (PST)
+Date:   Tue, 8 Mar 2022 08:08:25 +0000
 From:   Lee Jones <lee.jones@linaro.org>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     jasowang@redhat.com, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     mst <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+        kvm <kvm@vger.kernel.org>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        netdev <netdev@vger.kernel.org>, stable@vger.kernel.org,
         syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
 Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
  whilst still in use
-Message-ID: <YicNXOlH8al/Rlk3@google.com>
+Message-ID: <YicO+aF4VhaBYNqK@google.com>
 References: <20220307191757.3177139-1-lee.jones@linaro.org>
- <20220307173439-mutt-send-email-mst@kernel.org>
+ <CACGkMEsjmCNQPjxPjXL0WUfbMg8ARnumEp4yjUxqznMKR1nKSQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220307173439-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CACGkMEsjmCNQPjxPjXL0WUfbMg8ARnumEp4yjUxqznMKR1nKSQ@mail.gmail.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
@@ -75,32 +76,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 07 Mar 2022, Michael S. Tsirkin wrote:
+On Tue, 08 Mar 2022, Jason Wang wrote:
 
-> On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
+> On Tue, Mar 8, 2022 at 3:18 AM Lee Jones <lee.jones@linaro.org> wrote:
+> >
 > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
 > > to vhost_get_vq_desc().  All we have to do here is take the same lock
 > > during virtqueue clean-up and we mitigate the reported issues.
-> 
-> Pls just basically copy the code comment here. this is just confuses.
-> 
+> >
 > > Also WARN() as a precautionary measure.  The purpose of this is to
 > > capture possible future race conditions which may pop up over time.
-> > 
+> >
 > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
-> 
-> And this is a bug we already fixed, right?
-
-Well, this was the bug I set out to fix.
-
-I didn't know your patch was in flight at the time.
-
+> >
 > > Cc: <stable@vger.kernel.org>
 > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  drivers/vhost/vhost.c | 10 ++++++++++
+> >  1 file changed, 10 insertions(+)
+> >
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index 59edb5a1ffe28..ef7e371e3e649 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> >         int i;
+> >
+> >         for (i = 0; i < dev->nvqs; ++i) {
+> > +               /* No workers should run here by design. However, races have
+> > +                * previously occurred where drivers have been unable to flush
+> > +                * all work properly prior to clean-up.  Without a successful
+> > +                * flush the guest will malfunction, but avoiding host memory
+> > +                * corruption in those cases does seem preferable.
+> > +                */
+> > +               WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
+> > +
 > 
-> not really applicable anymore ...
+> I don't get how this can help, the mutex could be grabbed in the
+> middle of the above and below line.
 
-I can remove these if it helps.
+The worst that happens in this slim scenario is we miss a warning.
+The mutexes below will still function as expected and prevent possible
+memory corruption.
+
+> > +               mutex_lock(&dev->vqs[i]->mutex);
+> >                 if (dev->vqs[i]->error_ctx)
+> >                         eventfd_ctx_put(dev->vqs[i]->error_ctx);
+> >                 if (dev->vqs[i]->kick)
+> > @@ -700,6 +709,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> >                 if (dev->vqs[i]->call_ctx.ctx)
+> >                         eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
+> >                 vhost_vq_reset(dev, dev->vqs[i]);
+> > +               mutex_unlock(&dev->vqs[i]->mutex);
+> >         }
+> 
+> I'm not sure it's correct to assume some behaviour of a buggy device.
+> For the device mutex, we use that to protect more than just err/call
+> and vq.
+
+When I authored this, I did so as *the* fix.  However, since the cause
+of today's crash has now been patched, this has become a belt and
+braces solution.  Michael's addition of the WARN() also has the
+benefit of providing us with an early warning system for future
+breakages.  Personally, I think it's kinda neat.
 
 -- 
 Lee Jones [李琼斯]
