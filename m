@@ -2,152 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E85E24D1506
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 11:45:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 485E54D1540
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 11:56:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345930AbiCHKqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 05:46:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57786 "EHLO
+        id S1346036AbiCHK5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 05:57:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345929AbiCHKqd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 05:46:33 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5213941330;
-        Tue,  8 Mar 2022 02:45:37 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 161C01FB;
-        Tue,  8 Mar 2022 02:45:37 -0800 (PST)
-Received: from bogus (e103737-lin.cambridge.arm.com [10.1.197.49])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DBB5C3FA45;
-        Tue,  8 Mar 2022 02:45:34 -0800 (PST)
-Date:   Tue, 8 Mar 2022 10:45:32 +0000
-From:   Sudeep Holla <sudeep.holla@arm.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     Darren Hart <darren@os.amperecomputing.com>,
-        LKML <linux-kernel@vger.kernel.org>, Dietmar.Eggemann@arm.com,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] topology: make core_mask include at least
- cluster_siblings
-Message-ID: <YiczzB92EcShyvLh@bogus>
-References: <f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com>
- <20220308103012.GA31267@willie-the-truck>
+        with ESMTP id S1346020AbiCHK5D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 05:57:03 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 38522434B3
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 02:56:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646736966;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=THPXJELvuxW6inJpizACi6yZwtZMXDw05fIwiYKfyWA=;
+        b=AFna5OAhbefrPrIvyAMsS21MiXx8SjxetTLlJtO9bI72xmqWqMaI5b79ZM33+jUljvqC1M
+        pBbMg9X99dgSA9iIaMFF/rKXC1npNbs8kj8fF3ELqZfXoE0XB6N7V4C+xZdp6txXAMUub7
+        ikLDpw6rKqt7PnnPSKX2THJnKeDDcao=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-503-7LC5Kw1HNjmKXjdJLS8OUw-1; Tue, 08 Mar 2022 05:56:05 -0500
+X-MC-Unique: 7LC5Kw1HNjmKXjdJLS8OUw-1
+Received: by mail-ej1-f72.google.com with SMTP id i14-20020a17090639ce00b006dabe6a112fso4724955eje.13
+        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 02:56:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=THPXJELvuxW6inJpizACi6yZwtZMXDw05fIwiYKfyWA=;
+        b=B4ltueXqMI/CLsdgwPSf8O9S0sqtOC/dc4jBqkkHz+jSvGFkdMrtFgssNSRR4OLTEq
+         F9Em0PcSb1JlD7Hs0q+lpRThpHvvsC4sLIYIL9X9eKGd6Mb7JHDKgETA7hQwxafZrWNZ
+         on09WWKfSJHEKjM7ELVb3mzsO5KCOJm3K/Jr8nD63rAVoqqmO0PALoSDkJAAolgU9Qmk
+         i5zwJQJq+ZKF9HH05phEfyjA3ExGx5N/YmbH0rCLQM7iVizVjrTa8RllYdFWcrrWod/w
+         hi5jqdZUuhXKKwpanbj/cTnPvd0cZcsIAp60QU0D1cSE+q6oxOi29EEdSLWBWZV7XZpV
+         BilQ==
+X-Gm-Message-State: AOAM533Alsf6pg5syfHQiGREJJwh7CcamPPtd51i1fqE3vD0yYrEWsL4
+        ZEOv2nB/s9gdckBOe4VKNjZH15VBlR8EJSaWlbCYWVm8nrYM/03TTgvXIsDXPRjjgNewj7RB7XA
+        jkHgtWjt9lJUBWLDC
+X-Received: by 2002:a17:907:6096:b0:6da:68d2:327f with SMTP id ht22-20020a170907609600b006da68d2327fmr12817791ejc.761.1646736962914;
+        Tue, 08 Mar 2022 02:56:02 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyKGG3Z63udeaeH1lPhQJidMdNIksYDzx/dSa/Eol2gRlzn6bu5TRgyUjAEl+sdkcHMtg9aTg==
+X-Received: by 2002:a17:907:6096:b0:6da:68d2:327f with SMTP id ht22-20020a170907609600b006da68d2327fmr12817773ejc.761.1646736962624;
+        Tue, 08 Mar 2022 02:56:02 -0800 (PST)
+Received: from redhat.com ([2.55.138.228])
+        by smtp.gmail.com with ESMTPSA id u5-20020a170906b10500b006ce6fa4f510sm5668769ejy.165.2022.03.08.02.56.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Mar 2022 02:56:02 -0800 (PST)
+Date:   Tue, 8 Mar 2022 05:55:58 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Lee Jones <lee.jones@linaro.org>, jasowang@redhat.com,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
+ whilst still in use
+Message-ID: <20220308055003-mutt-send-email-mst@kernel.org>
+References: <20220307191757.3177139-1-lee.jones@linaro.org>
+ <YiZeB7l49KC2Y5Gz@kroah.com>
+ <YicPXnNFHpoJHcUN@google.com>
+ <Yicalf1I6oBytbse@kroah.com>
+ <Yicer3yGg5rrdSIs@google.com>
+ <YicolvcbY9VT6AKc@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220308103012.GA31267@willie-the-truck>
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <YicolvcbY9VT6AKc@kroah.com>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 08, 2022 at 10:30:12AM +0000, Will Deacon wrote:
-> On Fri, Mar 04, 2022 at 09:01:36AM -0800, Darren Hart wrote:
-> > Ampere Altra defines CPU clusters in the ACPI PPTT. They share a Snoop
-> > Control Unit, but have no shared CPU-side last level cache.
+On Tue, Mar 08, 2022 at 10:57:42AM +0100, Greg KH wrote:
+> On Tue, Mar 08, 2022 at 09:15:27AM +0000, Lee Jones wrote:
+> > On Tue, 08 Mar 2022, Greg KH wrote:
 > > 
-> > cpu_coregroup_mask() will return a cpumask with weight 1, while
-> > cpu_clustergroup_mask() will return a cpumask with weight 2.
+> > > On Tue, Mar 08, 2022 at 08:10:06AM +0000, Lee Jones wrote:
+> > > > On Mon, 07 Mar 2022, Greg KH wrote:
+> > > > 
+> > > > > On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
+> > > > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
+> > > > > > to vhost_get_vq_desc().  All we have to do here is take the same lock
+> > > > > > during virtqueue clean-up and we mitigate the reported issues.
+> > > > > > 
+> > > > > > Also WARN() as a precautionary measure.  The purpose of this is to
+> > > > > > capture possible future race conditions which may pop up over time.
+> > > > > > 
+> > > > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
+> > > > > > 
+> > > > > > Cc: <stable@vger.kernel.org>
+> > > > > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+> > > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > > > > ---
+> > > > > >  drivers/vhost/vhost.c | 10 ++++++++++
+> > > > > >  1 file changed, 10 insertions(+)
+> > > > > > 
+> > > > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > > > > index 59edb5a1ffe28..ef7e371e3e649 100644
+> > > > > > --- a/drivers/vhost/vhost.c
+> > > > > > +++ b/drivers/vhost/vhost.c
+> > > > > > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > > > > >  	int i;
+> > > > > >  
+> > > > > >  	for (i = 0; i < dev->nvqs; ++i) {
+> > > > > > +		/* No workers should run here by design. However, races have
+> > > > > > +		 * previously occurred where drivers have been unable to flush
+> > > > > > +		 * all work properly prior to clean-up.  Without a successful
+> > > > > > +		 * flush the guest will malfunction, but avoiding host memory
+> > > > > > +		 * corruption in those cases does seem preferable.
+> > > > > > +		 */
+> > > > > > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
+> > > > > 
+> > > > > So you are trading one syzbot triggered issue for another one in the
+> > > > > future?  :)
+> > > > > 
+> > > > > If this ever can happen, handle it, but don't log it with a WARN_ON() as
+> > > > > that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
+> > > > > you want that to happen?
+> > > > 
+> > > > No, Syzbot doesn't report warnings, only BUGs and memory corruption.
+> > > 
+> > > Has it changed?  Last I looked, it did trigger on WARN_* calls, which
+> > > has resulted in a huge number of kernel fixes because of that.
 > > 
-> > As a result, build_sched_domain() will BUG() once per CPU with:
-> > 
-> > BUG: arch topology borken
-> > the CLS domain not a subset of the MC domain
-> > 
-> > The MC level cpumask is then extended to that of the CLS child, and is
-> > later removed entirely as redundant. This sched domain topology is an
-> > improvement over previous topologies, or those built without
-> > SCHED_CLUSTER, particularly for certain latency sensitive workloads.
-> > With the current scheduler model and heuristics, this is a desirable
-> > default topology for Ampere Altra and Altra Max system.
-> > 
-> > Rather than create a custom sched domains topology structure and
-> > introduce new logic in arch/arm64 to detect these systems, update the
-> > core_mask so coregroup is never a subset of clustergroup, extending it
-> > to cluster_siblings if necessary.
-> > 
-> > This has the added benefit over a custom topology of working for both
-> > symmetric and asymmetric topologies. It does not address systems where
-> > the cluster topology is above a populated mc topology, but these are not
-> > considered today and can be addressed separately if and when they
-> > appear.
-> > 
-> > The final sched domain topology for a 2 socket Ampere Altra system is
-> > unchanged with or without CONFIG_SCHED_CLUSTER, and the BUG is avoided:
-> > 
-> > For CPU0:
-> > 
-> > CONFIG_SCHED_CLUSTER=y
-> > CLS  [0-1]
-> > DIE  [0-79]
-> > NUMA [0-159]
-> > 
-> > CONFIG_SCHED_CLUSTER is not set
-> > DIE  [0-79]
-> > NUMA [0-159]
-> > 
-> > Cc: Sudeep Holla <sudeep.holla@arm.com>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > Cc: Will Deacon <will@kernel.org>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> > Cc: Barry Song <song.bao.hua@hisilicon.com>
-> > Cc: Valentin Schneider <valentin.schneider@arm.com>
-> > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-> > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-> > Cc: <stable@vger.kernel.org> # 5.16.x
-> > Suggested-by: Barry Song <song.bao.hua@hisilicon.com>
-> > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> > ---
-> > v1: Drop MC level if coregroup weight == 1
-> > v2: New sd topo in arch/arm64/kernel/smp.c
-> > v3: No new topo, extend core_mask to cluster_siblings
-> > 
-> >  drivers/base/arch_topology.c | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> > 
-> > diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-> > index 976154140f0b..a96f45db928b 100644
-> > --- a/drivers/base/arch_topology.c
-> > +++ b/drivers/base/arch_topology.c
-> > @@ -628,6 +628,14 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
-> >  			core_mask = &cpu_topology[cpu].llc_sibling;
-> >  	}
-> >  
-> > +	/*
-> > +	 * For systems with no shared cpu-side LLC but with clusters defined,
-> > +	 * extend core_mask to cluster_siblings. The sched domain builder will
-> > +	 * then remove MC as redundant with CLS if SCHED_CLUSTER is enabled.
-> > +	 */
-> > +	if (cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
-> > +		core_mask = &cpu_topology[cpu].cluster_sibling;
-> > +
+> > Everything is customisable in syzkaller, so maybe there are specific
+> > builds which panic_on_warn enabled, but none that I'm involved with
+> > do.
 > 
-> Sudeep, Vincent, are you happy with this now?
+> Many systems run with panic-on-warn (i.e. the cloud), as they want to
+> drop a box and restart it if anything goes wrong.
 > 
+> That's why syzbot reports on WARN_* calls.  They should never be
+> reachable by userspace actions.
+> 
+> > Here follows a topical example.  The report above in the Link: tag
+> > comes with a crashlog [0].  In there you can see the WARN() at the
+> > bottom of vhost_dev_cleanup() trigger many times due to a populated
+> > (non-flushed) worker list, before finally tripping the BUG() which
+> > triggers the report:
+> > 
+> > [0] https://syzkaller.appspot.com/text?tag=CrashLog&x=16a61fce700000
+> 
+> Ok, so both happens here.  But don't add a warning for something that
+> can't happen.  Just handle it and move on.  It looks like you are
+> handling it in this code, so please drop the WARN_ON().
+> 
+> thanks,
+> 
+> greg k-h
 
-It looks good to me. Since I don't have much knowledge on scheduler, I asked
-Dietmar to have a look as well just in case if I am missing any other impact.
-For now,
+Hmm. Well this will mean if we ever reintroduce the bug then
+syzkaller will not catch it for us :( And the bug is there,
+it just results in a hard to reproduce error for userspace.
 
-Acked-by: Sudeep Holla <sudeep.holla@arm.com>
+Not sure what to do here. Export panic_on_warn flag to modules
+and check it here?
 
---
-Regards,
-Sudeep
+
+-- 
+MST
+
