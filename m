@@ -2,164 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D859E4D1443
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 11:08:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B97A64D1475
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 11:12:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345644AbiCHKJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 05:09:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39504 "EHLO
+        id S238695AbiCHKMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 05:12:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239927AbiCHKJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 05:09:48 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6236220F7
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 02:08:51 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id bg31-20020a05600c3c9f00b00381590dbb33so1126839wmb.3
-        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 02:08:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=SkUfNfh3Db7trPuKU1cr1xzPGmDu+V01w8HeZZrfZF4=;
-        b=TcEZ7SnCqx+88Ek0cWwzw0I0uG+pFNYXYTSd6/FUBFUNJcDZChkJJ7aym8/zsrh9wP
-         0WJgPgrTgga9nbrft6Qq3nPhOdr+MPh3ve1ACFwiAtZ1rDXFoxerrnct9JfMVDD9vNBu
-         OVt7YNvg58Lpaq4XSGltz3TE2P1VPLaSGGWj0ekHuYkbs1y0QLp2/q2TKPBPjgaBgYZm
-         FndSCehbwzLESjJjkPoLr143+oqKI3+53ODsNc2UrDsJ7JxHh88NLirt+Z0q4CIxGxz3
-         Vghz+IB7ZlQCNmZ0+SdIERYZwTdCaLnVmvnqMTFRhkSMoqNHWVB32uO4XfMp6DyYlqXs
-         OZVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=SkUfNfh3Db7trPuKU1cr1xzPGmDu+V01w8HeZZrfZF4=;
-        b=dzp28wHET1KWwhes1enlttBxXDo6ueXQaj9o7lxwb1uzID0qI7d02Pc1EWZ9sJqvVl
-         7IsSBJsFxMRKsCE3IlVJ/Rjhtoa1+P1dif2Qx5oqFGfwrgAtday4FDtNd+Nc2v4MsVY+
-         UmExNTALMQJVv1vOIveyzNrpTHpOukkgfVyXBngzeiHAKDRVPPQPFnD+YbEiZF8S1geJ
-         u958JY9YQPIfX/amWdxJ9rjdd1uyikAiqpn02X30qVcxBkHQKk6d4+BkYk0S225tNcuq
-         W5erjRoZ3Htd0P7AeQhjBILcC0UdVn/LNdravvOQTo7mhNn5H5gWaoR9dUYYHKhy+mb3
-         9cfg==
-X-Gm-Message-State: AOAM530FrWrRa4qvh99NBdF9HaPJAAPWuVQ46AJqlzpkqPWMVRTRvKYP
-        /UobLwhAX82w9CH4QBxDAgmgM3o5Igigpap5
-X-Google-Smtp-Source: ABdhPJyrzL3jGMmbS7hVKMZbspK5xUkBY1M3etbicBcGEMsABnOdM650d1NvL9CixlA6YyPMGo+S2Q==
-X-Received: by 2002:a1c:6a08:0:b0:388:73a2:1548 with SMTP id f8-20020a1c6a08000000b0038873a21548mr2868053wmc.163.1646734130240;
-        Tue, 08 Mar 2022 02:08:50 -0800 (PST)
-Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id u14-20020adfed4e000000b001e3323611e5sm12978222wro.26.2022.03.08.02.08.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Mar 2022 02:08:49 -0800 (PST)
-Date:   Tue, 8 Mar 2022 10:08:47 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
- whilst still in use
-Message-ID: <YicrL1RXZhXXsA6t@google.com>
-References: <20220307191757.3177139-1-lee.jones@linaro.org>
- <YiZeB7l49KC2Y5Gz@kroah.com>
- <YicPXnNFHpoJHcUN@google.com>
- <Yicalf1I6oBytbse@kroah.com>
- <Yicer3yGg5rrdSIs@google.com>
- <YicolvcbY9VT6AKc@kroah.com>
+        with ESMTP id S233523AbiCHKMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 05:12:41 -0500
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam08on2055.outbound.protection.outlook.com [40.107.102.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B487C42A1F;
+        Tue,  8 Mar 2022 02:11:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=fnzVqeBq48FQJ6B8p3AoMTep+RCaTuqz4nCAoAuWnp4P5SCJO8fb679+WUP4dUZJzgYqhcmLs1ws/saW/g/GKdyZGFtPLxQKPybL0c7KqaBS8xFpz5IkiVyOfdxl4Vkrz65b6RPPB669ciwec9FRdG9gSq7smXFOMS2cXgTSCK8hXQDf92JvttpHnMsccR14oSmX+25tgL6tyL+MzJE2Wtbou5npyW1dkwJVGntFJnGMdqndZqL16hjir+88zV/qznnCUfgWVKQsgb0zlhqTwJOlgt4P8H0Mqj7l/7AyFug2JpKf7w71ed6At441AvnuKrU3m8LvlGEKEIgcG30rxQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=aK2+xt4csagORwC11cdB/zrz6xlio4l+LBiBisUlXMk=;
+ b=iGoAvzcDY69S5qOa8dwivtp2WH+zKQ2aYkTMFYYpxEXP9RXo2R31r+iYd6w1cqCL0BLPQtWkrYqFAqMSF7X6K9BsJpkJ3WwJnrDKTCqSYm5MCWxT2RT2rGtl32mKnb1CRaWYybr2ernZ5+chPBC3u6ch0DFP6rX16GwZ5nQC8NGUVOWDIeizj5KneEKYj4pwwIPziRXfTm4OeVdqnhpVTvaXJpWEmViGaHQY+IcUMTigHSpb9CeyLoHQJ/yhPPNIZprZTuuij1C7SUjdCz7zUsBHxxMaw7jAUJsDb5UeBUwOKJtzRQsFHqYFJnhHFCkwqQpxlb6juKRlArJBsNRYqA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.236) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aK2+xt4csagORwC11cdB/zrz6xlio4l+LBiBisUlXMk=;
+ b=sSmpnjAm63W0CfWr0VfEC5XaoMvO3iIUlkdhgLH3JdSQi7w/XIlC1YgzPu+zVEpJynstDoSh/72ZJaN7at3YBNi71yYhYiJFpwVrrQhdqJHmL714IwH8OXlpXpec09LpFsEtkdiyUZn7IAbpCnzf5azDjQf/2OhatFwABu6UT3+wo7ppvLGXluhJMujrm+9Ii7ytQnMrV3/EZk25ayXrWHe8stivMtrJ++zgGzanSCKSJdw31fDntsoxmk2riX1vHCW4xTxBK+Ju0FbzrtfN5fNwrPt2Vd7ugFj3IX7CQRnv0DKLIykdLyPdfeyzbCeBfRSIw88SU4FmLRnXhPKlLA==
+Received: from MWHPR10CA0070.namprd10.prod.outlook.com (2603:10b6:300:2c::32)
+ by DM5PR1201MB2507.namprd12.prod.outlook.com (2603:10b6:3:e9::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.13; Tue, 8 Mar
+ 2022 10:11:38 +0000
+Received: from CO1NAM11FT026.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:300:2c:cafe::3c) by MWHPR10CA0070.outlook.office365.com
+ (2603:10b6:300:2c::32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.14 via Frontend
+ Transport; Tue, 8 Mar 2022 10:11:37 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.236; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (12.22.5.236) by
+ CO1NAM11FT026.mail.protection.outlook.com (10.13.175.67) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5038.14 via Frontend Transport; Tue, 8 Mar 2022 10:11:37 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by DRHQMAIL109.nvidia.com
+ (10.27.9.19) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 8 Mar
+ 2022 10:11:33 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.9; Tue, 8 Mar 2022
+ 02:11:33 -0800
+Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.9 via Frontend
+ Transport; Tue, 8 Mar 2022 02:11:33 -0800
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>,
+        <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 00/64] 5.4.183-rc1 review
+In-Reply-To: <20220307091639.136830784@linuxfoundation.org>
+References: <20220307091639.136830784@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YicolvcbY9VT6AKc@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Message-ID: <8f372021-f441-49a4-bccc-400ffa45bec4@rnnvmail202.nvidia.com>
+Date:   Tue, 8 Mar 2022 02:11:33 -0800
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b1820306-a449-49db-4d02-08da00ec084c
+X-MS-TrafficTypeDiagnostic: DM5PR1201MB2507:EE_
+X-Microsoft-Antispam-PRVS: <DM5PR1201MB25075D9ED256ADDC1A2BD9DFD9099@DM5PR1201MB2507.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: nzUBo2K6B+PxPbeTUDchO+CP9iF221NRbbxRNd4my3No8NTd/IuMBeZ8LwLTEGzOyVL+sLoCMa0+WE0fUBfmDeAlKq8t45ftgl/8/9ig7/cMQYIDX23fcutGlnGqGHcjgjASaGn9sMYlyh1mtqVd8Du3/QqopOsIHUdMV0yprqAfsiTm7Sm0NWkYCanLMkJtnodbynpWOqYTkhFyFlnUvXm6f5xI4UceyycDNL9hWxjyFcXbNaUxZ5Qjlk5+Krha18lHwbQy5vSGempp+oVDtkRa2QMMSrAhsXNRxb8zpoFh9bBmVDXQ00nc3bgI/RWlEV7xgMYMr9hmRq/LZ52kXBCc+tU5MSW8mQIhMYNy7POVrsFrUsYYLcVm8uxIPzNFGlgeILtAWWAFkoDkTqczijxE6aU3wseuPComhhYhd80NGqiQPZaEUaI++WgHZ+dRqMqtbggz5LpOSsgTDeF5M4jsDTb4awMMPYw+hWVd923k3uHwf1PCGqalaYAiLfFGSzO6nYKj0gOeitR48tpfp3YSmAft27vWz93FGYmbWT52qEzhyQdXM1CBg8pqVL/3pW0gNn3OL15gynnivM8asMoJlUUEiOj+nryQDDiSPcFvTEpq+zQ1C+PER4mUydCUUWLcNm71vHAb8Mfj58LHnlAo/VIuRpNoBmYz2SjiuvVP/kLLMCPvFTGb1HMaYTiZ1dT3sZolKB4pWdlPkuAISFruVrzopHqCrqc+uda1vbugQtT3AVAAyCmtp27rGhmqx8PYQMUdtvQcceyGn60dQje2dGbxTy60OU5RpQ9MOG8=
+X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(40470700004)(46966006)(426003)(336012)(26005)(81166007)(508600001)(40460700003)(8936002)(2906002)(47076005)(31686004)(54906003)(6916009)(316002)(36860700001)(86362001)(82310400004)(186003)(356005)(31696002)(966005)(70206006)(4326008)(8676002)(70586007)(7416002)(5660300002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Mar 2022 10:11:37.6596
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b1820306-a449-49db-4d02-08da00ec084c
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT026.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR1201MB2507
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 08 Mar 2022, Greg KH wrote:
-
-> On Tue, Mar 08, 2022 at 09:15:27AM +0000, Lee Jones wrote:
-> > On Tue, 08 Mar 2022, Greg KH wrote:
-> > 
-> > > On Tue, Mar 08, 2022 at 08:10:06AM +0000, Lee Jones wrote:
-> > > > On Mon, 07 Mar 2022, Greg KH wrote:
-> > > > 
-> > > > > On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
-> > > > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
-> > > > > > to vhost_get_vq_desc().  All we have to do here is take the same lock
-> > > > > > during virtqueue clean-up and we mitigate the reported issues.
-> > > > > > 
-> > > > > > Also WARN() as a precautionary measure.  The purpose of this is to
-> > > > > > capture possible future race conditions which may pop up over time.
-> > > > > > 
-> > > > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
-> > > > > > 
-> > > > > > Cc: <stable@vger.kernel.org>
-> > > > > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
-> > > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > > > > > ---
-> > > > > >  drivers/vhost/vhost.c | 10 ++++++++++
-> > > > > >  1 file changed, 10 insertions(+)
-> > > > > > 
-> > > > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > > > > index 59edb5a1ffe28..ef7e371e3e649 100644
-> > > > > > --- a/drivers/vhost/vhost.c
-> > > > > > +++ b/drivers/vhost/vhost.c
-> > > > > > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
-> > > > > >  	int i;
-> > > > > >  
-> > > > > >  	for (i = 0; i < dev->nvqs; ++i) {
-> > > > > > +		/* No workers should run here by design. However, races have
-> > > > > > +		 * previously occurred where drivers have been unable to flush
-> > > > > > +		 * all work properly prior to clean-up.  Without a successful
-> > > > > > +		 * flush the guest will malfunction, but avoiding host memory
-> > > > > > +		 * corruption in those cases does seem preferable.
-> > > > > > +		 */
-> > > > > > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
-> > > > > 
-> > > > > So you are trading one syzbot triggered issue for another one in the
-> > > > > future?  :)
-> > > > > 
-> > > > > If this ever can happen, handle it, but don't log it with a WARN_ON() as
-> > > > > that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
-> > > > > you want that to happen?
-> > > > 
-> > > > No, Syzbot doesn't report warnings, only BUGs and memory corruption.
-> > > 
-> > > Has it changed?  Last I looked, it did trigger on WARN_* calls, which
-> > > has resulted in a huge number of kernel fixes because of that.
-> > 
-> > Everything is customisable in syzkaller, so maybe there are specific
-> > builds which panic_on_warn enabled, but none that I'm involved with
-> > do.
+On Mon, 07 Mar 2022 10:18:33 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.183 release.
+> There are 64 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Many systems run with panic-on-warn (i.e. the cloud), as they want to
-> drop a box and restart it if anything goes wrong.
+> Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
+> Anything received after that time might be too late.
 > 
-> That's why syzbot reports on WARN_* calls.  They should never be
-> reachable by userspace actions.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.183-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
 > 
-> > Here follows a topical example.  The report above in the Link: tag
-> > comes with a crashlog [0].  In there you can see the WARN() at the
-> > bottom of vhost_dev_cleanup() trigger many times due to a populated
-> > (non-flushed) worker list, before finally tripping the BUG() which
-> > triggers the report:
-> > 
-> > [0] https://syzkaller.appspot.com/text?tag=CrashLog&x=16a61fce700000
+> thanks,
 > 
-> Ok, so both happens here.  But don't add a warning for something that
-> can't happen.  Just handle it and move on.  It looks like you are
-> handling it in this code, so please drop the WARN_ON().
+> greg k-h
 
-Happy to oblige.
+All tests passing for Tegra ...
 
-Let's give Micheal a chance to speak, then I'll fix-up if he agrees.
+Test results for stable-v5.4:
+    10 builds:	10 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    59 tests:	59 pass, 0 fail
 
--- 
-Lee Jones [李琼斯]
-Principal Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Linux version:	5.4.183-rc1-g5adb518895b3
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
