@@ -2,235 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DB9A4D1E58
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 18:17:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5411D4D1E66
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 18:18:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348714AbiCHRSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 12:18:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47484 "EHLO
+        id S235113AbiCHRS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 12:18:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348722AbiCHRSa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 12:18:30 -0500
-Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B051102
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 09:17:30 -0800 (PST)
-Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-2dbfe58670cso209565927b3.3
-        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 09:17:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Hh6AaBiVTRgfkr5a5o3e19bf/1tJeN6ZNyRK5PzJXAQ=;
-        b=hOPx34+OAtf/UYtXpRM5485F6TSKHLfrql5Q/b3CbA231R/2Bm0KxFfyME6IR43zYm
-         A2A4RNddyVN5UsRqkguTcsxAeGQM3Raewmw/HjvyckfPiZqosSSlBqaueXAe9AZivLtQ
-         21oG8haA37BnVQvvUgwNXPQcU4Av4g6d0C6IvTVjNil1dUt9SIZGyH484yefXOmaTxvh
-         xN4RmVZDv+7ZpaSn2kldtORiWjzVp/estmfhLUB6pxbY7eOPHI/mou85VLyXS/+myk8F
-         48rIM7gkhEd7kjS7wf/uTlPurXa9SeJSnH1sZ6GoVueuDagmwmKjEHO7s8vnzLt2CZTW
-         gzNQ==
+        with ESMTP id S1348733AbiCHRSv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 12:18:51 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 93FF51408A
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 09:17:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646759873;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XS0ZDRJdbTaFXTIodebwWZ2Zs2A9XDPYU7p1D6O1mf0=;
+        b=L6+LdnDEHkeu17eCaqv4QDPiEir6zsDnWpdRcEcKx0OiVYGUUPgtyiDQJHQdoWWVsRZIfN
+        PxZDBNEJ8MMTuo44CqBJgsqm/Z1b9/bqRwAuhjfITro8Lspb/tqWJhhYpQx9wJTCufX0tB
+        /RIVmaxlog5ZkC3qYCMJpom+Uz3Z+N4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-670-pEI8lYrSNEG9CeiIvXOFfw-1; Tue, 08 Mar 2022 12:17:52 -0500
+X-MC-Unique: pEI8lYrSNEG9CeiIvXOFfw-1
+Received: by mail-wm1-f70.google.com with SMTP id a26-20020a7bc1da000000b003857205ec7cso1371540wmj.2
+        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 09:17:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Hh6AaBiVTRgfkr5a5o3e19bf/1tJeN6ZNyRK5PzJXAQ=;
-        b=nJqJoQn5LyR/VQ04dK28kUAOMTnv389Ynx846SARFi8If/GQzds1IMK5njqvGKDBOX
-         cLwcdGelXUN04fc0DJg/7BPK1gSw2eC3X7qc42Du+68SjWkEwvEDmSkufr5Q33imS1Dr
-         Yi+zDEtnuYxVUxY/OvFrT7xAIWDVKhXxFBYWAaoKYeAtgmQ96QhskZK2MLZtutBTmIB8
-         VVFv2BP5NyhthkEVMYyAcRYtEVpdUjghKMZAVA9SiAky061N/ymtz0AheEzcOpvsOp16
-         WJ8yNX9kYdoZN6ZmKXgbLFcM+t/SgYvYUYkd2I0DDQ6LCSeMRjEKFz8blhJS7J65UIdi
-         IpRQ==
-X-Gm-Message-State: AOAM530XFPj5TeD0eW8s36NqXEfXH8Kj1xtzHfe1juz2nT6tepIh1pdW
-        DLvG/uk8LbWgEpWyRhDUa/ACsi95zCUITTR/KpxFbQ==
-X-Google-Smtp-Source: ABdhPJxiUIoU7Lx/l5zt1tw4jRmbNc5dYO+GULFWeQs2eA0DFeCA3IJlyTY988bm8xJJioCxrCk5qKbCd+joZ/7de6w=
-X-Received: by 2002:a0d:d187:0:b0:2dc:5d83:217d with SMTP id
- t129-20020a0dd187000000b002dc5d83217dmr13775475ywd.189.1646759849838; Tue, 08
- Mar 2022 09:17:29 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=XS0ZDRJdbTaFXTIodebwWZ2Zs2A9XDPYU7p1D6O1mf0=;
+        b=ARXtLVjf/dRFppRWuurBzAhzgNE+yhyrYDozOk5q0x5Ja4xWJ02obGIdhF1kFEnWEz
+         Mj6ojEhCdeg/sZvQPtRhXVKX1RJIujVC1HcjpgB5n1aVJjJfCCOZ4CmvxOpQBbjBzDZ+
+         Ggkflinf8bbnWLfLt47YWa0vM4Kk3HdlbAGNg24lCPK5bVVNxfvwBhy2przzXcQ7jcK6
+         PLrdBrMvnGvkWXq3+5SqlI1ckxIbYJsxFhgdFTMv5EO4HhRORf0p+w0/n9H5p0dOKWRq
+         ritMbaPLgmUMEOnXOwghMdG2piw87RPvotaBWOZCC7Xfz/xGH95qO1oAQ/XEPyGkESpJ
+         nbog==
+X-Gm-Message-State: AOAM532xGQZAXPWWZmATihWsMU5xQ+Qvj8LDmuAKaCdKYaRYhD5qbwsC
+        OE8Irz/aGscl3vqELm+LHGlzSREtjNa2O7CV22T4T/hkb+W9F2MXbfWtnC5P+sQHCvTB6CIJR7E
+        bO/Ia7Z6JgGPdAqbk
+X-Received: by 2002:a5d:6d88:0:b0:1e3:37c1:3633 with SMTP id l8-20020a5d6d88000000b001e337c13633mr13694524wrs.484.1646759870742;
+        Tue, 08 Mar 2022 09:17:50 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzaK2eVHRi2q7VHFxDpXED+f3vKvPZuHUTcfgXWJzM+PfGD7TWOts3SCW6T6OiVKQsiFqgzBw==
+X-Received: by 2002:a5d:6d88:0:b0:1e3:37c1:3633 with SMTP id l8-20020a5d6d88000000b001e337c13633mr13694505wrs.484.1646759870390;
+        Tue, 08 Mar 2022 09:17:50 -0800 (PST)
+Received: from redhat.com ([2.55.24.184])
+        by smtp.gmail.com with ESMTPSA id u18-20020adfdd52000000b001f04e9f215fsm13950204wrm.53.2022.03.08.09.17.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Mar 2022 09:17:49 -0800 (PST)
+Date:   Tue, 8 Mar 2022 12:17:45 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, jasowang@redhat.com,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
+ whilst still in use
+Message-ID: <20220308120858-mutt-send-email-mst@kernel.org>
+References: <20220307191757.3177139-1-lee.jones@linaro.org>
+ <YiZeB7l49KC2Y5Gz@kroah.com>
+ <YicPXnNFHpoJHcUN@google.com>
+ <Yicalf1I6oBytbse@kroah.com>
+ <Yicer3yGg5rrdSIs@google.com>
+ <YicolvcbY9VT6AKc@kroah.com>
+ <20220308055003-mutt-send-email-mst@kernel.org>
+ <YidBz7SxED2ii1Lh@kroah.com>
+ <20220308071718-mutt-send-email-mst@kernel.org>
+ <YidXT6zP1QN5KZUs@google.com>
 MIME-Version: 1.0
-References: <20220307091636.146155347@linuxfoundation.org>
-In-Reply-To: <20220307091636.146155347@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 8 Mar 2022 22:47:18 +0530
-Message-ID: <CA+G9fYuh6r0+92=0caTC_Ji0wN0MgkVVCPinc0V55hcsJ4kQOw@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/42] 4.14.270-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YidXT6zP1QN5KZUs@google.com>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 7 Mar 2022 at 14:52, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.270 release.
-> There are 42 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 09 Mar 2022 09:16:25 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.270-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Mar 08, 2022 at 01:17:03PM +0000, Lee Jones wrote:
+> On Tue, 08 Mar 2022, Michael S. Tsirkin wrote:
+> 
+> > On Tue, Mar 08, 2022 at 12:45:19PM +0100, Greg KH wrote:
+> > > On Tue, Mar 08, 2022 at 05:55:58AM -0500, Michael S. Tsirkin wrote:
+> > > > On Tue, Mar 08, 2022 at 10:57:42AM +0100, Greg KH wrote:
+> > > > > On Tue, Mar 08, 2022 at 09:15:27AM +0000, Lee Jones wrote:
+> > > > > > On Tue, 08 Mar 2022, Greg KH wrote:
+> > > > > > 
+> > > > > > > On Tue, Mar 08, 2022 at 08:10:06AM +0000, Lee Jones wrote:
+> > > > > > > > On Mon, 07 Mar 2022, Greg KH wrote:
+> > > > > > > > 
+> > > > > > > > > On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
+> > > > > > > > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
+> > > > > > > > > > to vhost_get_vq_desc().  All we have to do here is take the same lock
+> > > > > > > > > > during virtqueue clean-up and we mitigate the reported issues.
+> > > > > > > > > > 
+> > > > > > > > > > Also WARN() as a precautionary measure.  The purpose of this is to
+> > > > > > > > > > capture possible future race conditions which may pop up over time.
+> > > > > > > > > > 
+> > > > > > > > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
+> > > > > > > > > > 
+> > > > > > > > > > Cc: <stable@vger.kernel.org>
+> > > > > > > > > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+> > > > > > > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > > > > > > > > ---
+> > > > > > > > > >  drivers/vhost/vhost.c | 10 ++++++++++
+> > > > > > > > > >  1 file changed, 10 insertions(+)
+> > > > > > > > > > 
+> > > > > > > > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > > > > > > > > index 59edb5a1ffe28..ef7e371e3e649 100644
+> > > > > > > > > > --- a/drivers/vhost/vhost.c
+> > > > > > > > > > +++ b/drivers/vhost/vhost.c
+> > > > > > > > > > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > > > > > > > > >  	int i;
+> > > > > > > > > >  
+> > > > > > > > > >  	for (i = 0; i < dev->nvqs; ++i) {
+> > > > > > > > > > +		/* No workers should run here by design. However, races have
+> > > > > > > > > > +		 * previously occurred where drivers have been unable to flush
+> > > > > > > > > > +		 * all work properly prior to clean-up.  Without a successful
+> > > > > > > > > > +		 * flush the guest will malfunction, but avoiding host memory
+> > > > > > > > > > +		 * corruption in those cases does seem preferable.
+> > > > > > > > > > +		 */
+> > > > > > > > > > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
+> > > > > > > > > 
+> > > > > > > > > So you are trading one syzbot triggered issue for another one in the
+> > > > > > > > > future?  :)
+> > > > > > > > > 
+> > > > > > > > > If this ever can happen, handle it, but don't log it with a WARN_ON() as
+> > > > > > > > > that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
+> > > > > > > > > you want that to happen?
+> > > > > > > > 
+> > > > > > > > No, Syzbot doesn't report warnings, only BUGs and memory corruption.
+> > > > > > > 
+> > > > > > > Has it changed?  Last I looked, it did trigger on WARN_* calls, which
+> > > > > > > has resulted in a huge number of kernel fixes because of that.
+> > > > > > 
+> > > > > > Everything is customisable in syzkaller, so maybe there are specific
+> > > > > > builds which panic_on_warn enabled, but none that I'm involved with
+> > > > > > do.
+> > > > > 
+> > > > > Many systems run with panic-on-warn (i.e. the cloud), as they want to
+> > > > > drop a box and restart it if anything goes wrong.
+> > > > > 
+> > > > > That's why syzbot reports on WARN_* calls.  They should never be
+> > > > > reachable by userspace actions.
+> > > > > 
+> > > > > > Here follows a topical example.  The report above in the Link: tag
+> > > > > > comes with a crashlog [0].  In there you can see the WARN() at the
+> > > > > > bottom of vhost_dev_cleanup() trigger many times due to a populated
+> > > > > > (non-flushed) worker list, before finally tripping the BUG() which
+> > > > > > triggers the report:
+> > > > > > 
+> > > > > > [0] https://syzkaller.appspot.com/text?tag=CrashLog&x=16a61fce700000
+> > > > > 
+> > > > > Ok, so both happens here.  But don't add a warning for something that
+> > > > > can't happen.  Just handle it and move on.  It looks like you are
+> > > > > handling it in this code, so please drop the WARN_ON().
+> > > > > 
+> > > > > thanks,
+> > > > > 
+> > > > > greg k-h
+> > > > 
+> > > > Hmm. Well this will mean if we ever reintroduce the bug then
+> > > > syzkaller will not catch it for us :( And the bug is there,
+> > > > it just results in a hard to reproduce error for userspace.
+> > > 
+> > > Is this an error you can recover from in the kernel?
+> > >  What is userspace
+> > > supposed to know with this information when it sees it?
+> > 
+> > IIUC we are talking about a use after free here since we somehow
+> > managed to have a pointer to the device in a worker while
+> > device is being destroyed.
+> > 
+> > That's the point of the warning as use after free is hard to debug. You
+> > ask can we recover from a use after free? 
+> > 
+> > As regards to the added lock, IIUC it kind of shifts the use after free
+> > window to later and since we zero out some of the memory just before we
+> > free it, it's a bit more likely to recover.  I would still like to see
+> > some more analysis on why the situation is always better than it was
+> > before though.
+> 
+> With the locks in place, the UAF should not occur.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This really depends which UAF. Yes use of vq->private_data is protected
+by a lock inside the VQ.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+However, we are talking about vhost_net_release, which ends up doing
 
-## Build
-* kernel: 4.14.270-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: [None, 'linux-4.14.y']
-* git commit: 5ffa96cabf3ed80e6ade1e0670b39b5803501cf3
-* git describe: v4.14.269-44-g5ffa96cabf3e
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.269-44-g5ffa96cabf3e
+        kfree(n->dev.vqs);
+...
+        kvfree(n);
 
-## Test Regressions (compared to v4.14.269-38-g748cb9eabcfb)
-No test regressions found.
+if someone is holding a pointer to a vq or the device itself at this
+point, no locks that are part of one of said structures will be
+effective in preventing a use after free, and using a lock to delay such
+accesses to this point just might make it more likely there's a use
+after free.
 
-## Metric Regressions (compared to v4.14.269-38-g748cb9eabcfb)
-No metric regressions found.
 
-## Test Fixes (compared to v4.14.269-38-g748cb9eabcfb)
-No test fixes found.
+All of the above is why we didn't rush to apply the locking patch in the
+first place, for all that it seemed to fix the sysboz crash.
 
-## Metric Fixes (compared to v4.14.269-38-g748cb9eabcfb)
-No metric fixes found.
 
-## Test result summary
-total: 83353, pass: 66534, fail: 1002, skip: 13185, xfail: 2632
 
-## Build Summary
-* arm: 280 total, 270 passed, 10 failed
-* arm64: 35 total, 35 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* powerpc: 60 total, 12 passed, 48 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 34 total, 34 passed, 0 failed
+> The issue here is that you have 2 different tasks processing the
+> same area of memory (via pointers to structs).  In these scenarios you
+> should always provide locking and/or reference counting to prevent
+> memory corruption or UAF.
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
+But we should not have 2 tasks doing that, and if we do then lock
+just might be ineffective since the lock itself is released.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Again maybe in this case it makes sense but it needs a more detailed
+analysis to show it's a net win than just "we have two tasks ergo we
+need locking".
+
+> -- 
+> Lee Jones [李琼斯]
+> Principal Technical Lead - Developer Services
+> Linaro.org │ Open source software for Arm SoCs
+> Follow Linaro: Facebook | Twitter | Blog
+
