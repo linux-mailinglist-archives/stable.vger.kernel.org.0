@@ -2,172 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A72394D1598
-	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 12:05:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABA474D15A0
+	for <lists+stable@lfdr.de>; Tue,  8 Mar 2022 12:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344298AbiCHLGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Mar 2022 06:06:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36478 "EHLO
+        id S245454AbiCHLGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Mar 2022 06:06:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345976AbiCHLGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 06:06:03 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2821A43AD5
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 03:05:06 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id r4so5834411lfr.1
-        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 03:05:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0HiFFHplwuG4zm1Rr+rVXkq22q8xtVPCcUR+EBSBuBs=;
-        b=BGr5gudFns+UxCKjsQxhMavcMBe9ynwXAs/M919w79Ifw9WRIjpwGj4F5pQ2vd6aly
-         /HhoIl7QqL2wCGyA9eRHQPlE9TogbzHwCrDLGc9T1w6gbmlPFxUM4f77j9qRk7pRb7ej
-         qZfMJOVeyZPPbv2JLJ3nb2A/sOiWrjJVYtS80J0uHt5rJT99Bs9CC76H8JsnVBlrEZAp
-         /g0K94ZDw5uakcvk+dZjWXFxIks/C2qJf9QVWf7+mhB+dtGkiDEPIZpXfytDq0OR8q61
-         DkXsC7v7eT2HofrRp2KgHHEb0uPWROHHLr7UQ/dipzdBxNYn0R6JQZpqk4VfUeXkLuRL
-         At3A==
+        with ESMTP id S1346206AbiCHLG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Mar 2022 06:06:29 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E7AD341FBA
+        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 03:05:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646737533;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=FCTl0NyGnslmoDNlbPArwT49YkiFqe8KOOW4Ouvu6mc=;
+        b=JApNF+vwIE2ehjQ9htzt2cDu97al+gWoWP+6uworga1DVOOu1HmRXFHgIHa/KlgeQrLhvX
+        q1ZxbAsyWn9fM4/J6e0vwpCCKidbG7Dp+XGWx8bRUT4OHZLD2L/3tz+3Udy0X5gi/BOPAz
+        MJhsw16nAf7pGNXBXHzzWKfyh9j1MMY=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-307-yOgRoAmsMf2cHg5JoLSo5g-1; Tue, 08 Mar 2022 06:05:30 -0500
+X-MC-Unique: yOgRoAmsMf2cHg5JoLSo5g-1
+Received: by mail-ej1-f72.google.com with SMTP id qf24-20020a1709077f1800b006ce8c140d3dso8508729ejc.18
+        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 03:05:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0HiFFHplwuG4zm1Rr+rVXkq22q8xtVPCcUR+EBSBuBs=;
-        b=3CJNEVvKdXGFHZbCCF7RznRlDISnvQN+jBRyeUwI0rdJCGRyQw1cmWz9tTqGQ+RNmW
-         +en035XOOGXuDqW7bC0VlAlzF0W8dg/l/NGrTxSuloetVzkXg86mQcfAWsz7hx5pqz9g
-         rNZCClLaIFBPVZ6TGJu0h6M54zvFAU9GPVizuE2g32FpJHAOS5kMwNU1+9BWGTzAILxz
-         omyI2q4M6SgKSmIediVK839Zb8og5hY2z7RSaJl7ff4CrFJRphKmJoArQ1MeTcXQQfaz
-         TrPyrMHIBUgaoklYELl9cQqiChjVbMFSB7dz20CegPY9npoWQeFDZ+U2xM4k4JfdX3qy
-         +TOQ==
-X-Gm-Message-State: AOAM532sF9SwoSfodP7CuMv2puEoXgXpBhUnQKXX2vXJnorCBjnu/DAX
-        wPySOSM3ta/Fc1uXXJpRsXOSXMrK9q5CqCPvRu43/A==
-X-Google-Smtp-Source: ABdhPJzMSPfYAe3/8DHXx462DQKzkgcDKQrfjbA/wFGR/EONugZQ+vumURU7BkE6gCAGNvWN0MrFXJZkJinJj40S2gg=
-X-Received: by 2002:a05:6512:6ce:b0:448:46c6:b93e with SMTP id
- u14-20020a05651206ce00b0044846c6b93emr996065lff.46.1646737504364; Tue, 08 Mar
- 2022 03:05:04 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=FCTl0NyGnslmoDNlbPArwT49YkiFqe8KOOW4Ouvu6mc=;
+        b=iOOmCqIb/sB9dJ2QRtWwL4ylxuUbgtsluEVUJU4yH/WDCNmo8JLS0H9mVcRTcSbuxP
+         4SCBeqZEwSRC2gIkr+yMrw8I95/clNlwZlpuF5kBxgYhwjzDc3uEG9s1qu4X281rWN05
+         Hnlj9sbXm5B7arq4fglMRgMzfBRjM/hdfJiz9dEOIfg2sHQ1kcTjwaK5Yg1BRS2K8VLQ
+         65a/h5TnKo2RET8UK55MgXObhnxIYHVpa853Nygpwpd3oQIS576WggtayFtewGjTnd3b
+         1s0E/3dJlxiP01EvLBu9icjVG4SPC0XV4SqMKWZkjxDL6Q5j5lbC4gBOpfaugGL3n+4A
+         WBtg==
+X-Gm-Message-State: AOAM5306hGLGaBJR3jXmTZaxkDxionqfhZ3a321g3ahbn9UYymNED6sq
+        yYx8g4KKuLt3iNalX48PXln0pJuqvCsvfO082GC5Mg2/CdSgO7RZQ1u3I2iTV2J+HgQVd6zKIUT
+        q+BiotlIZL5EHOg4b
+X-Received: by 2002:a17:907:2d22:b0:6da:91fe:15a5 with SMTP id gs34-20020a1709072d2200b006da91fe15a5mr13286734ejc.448.1646737528835;
+        Tue, 08 Mar 2022 03:05:28 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwgv7cglanKYuGFfnW0Rf0VAUYwA4cx1PX1P0MLrG9UedzvWygSn4/xGLczSKDMdkoHZTSdZQ==
+X-Received: by 2002:a17:907:2d22:b0:6da:91fe:15a5 with SMTP id gs34-20020a1709072d2200b006da91fe15a5mr13286713ejc.448.1646737528603;
+        Tue, 08 Mar 2022 03:05:28 -0800 (PST)
+Received: from redhat.com ([2.55.138.228])
+        by smtp.gmail.com with ESMTPSA id y12-20020a50eb8c000000b00410f02e577esm7525742edr.7.2022.03.08.03.05.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Mar 2022 03:05:28 -0800 (PST)
+Date:   Tue, 8 Mar 2022 06:05:24 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Lee Jones <lee.jones@linaro.org>, jasowang@redhat.com,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
+ whilst still in use
+Message-ID: <20220308060210-mutt-send-email-mst@kernel.org>
+References: <20220307191757.3177139-1-lee.jones@linaro.org>
+ <YiZeB7l49KC2Y5Gz@kroah.com>
+ <YicPXnNFHpoJHcUN@google.com>
+ <Yicalf1I6oBytbse@kroah.com>
 MIME-Version: 1.0
-References: <f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com>
- <20220308103012.GA31267@willie-the-truck>
-In-Reply-To: <20220308103012.GA31267@willie-the-truck>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Tue, 8 Mar 2022 12:04:53 +0100
-Message-ID: <CAKfTPtDe+i0fwV10m2sX2xkJGBrO8B+RQogDDij8ioJAT5+wAw@mail.gmail.com>
-Subject: Re: [PATCH v3] topology: make core_mask include at least cluster_siblings
-To:     Will Deacon <will@kernel.org>
-Cc:     Darren Hart <darren@os.amperecomputing.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yicalf1I6oBytbse@kroah.com>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 8 Mar 2022 at 11:30, Will Deacon <will@kernel.org> wrote:
->
-> On Fri, Mar 04, 2022 at 09:01:36AM -0800, Darren Hart wrote:
-> > Ampere Altra defines CPU clusters in the ACPI PPTT. They share a Snoop
-> > Control Unit, but have no shared CPU-side last level cache.
-> >
-> > cpu_coregroup_mask() will return a cpumask with weight 1, while
-> > cpu_clustergroup_mask() will return a cpumask with weight 2.
-> >
-> > As a result, build_sched_domain() will BUG() once per CPU with:
-> >
-> > BUG: arch topology borken
-> > the CLS domain not a subset of the MC domain
-> >
-> > The MC level cpumask is then extended to that of the CLS child, and is
-> > later removed entirely as redundant. This sched domain topology is an
-> > improvement over previous topologies, or those built without
-> > SCHED_CLUSTER, particularly for certain latency sensitive workloads.
-> > With the current scheduler model and heuristics, this is a desirable
-> > default topology for Ampere Altra and Altra Max system.
-> >
-> > Rather than create a custom sched domains topology structure and
-> > introduce new logic in arch/arm64 to detect these systems, update the
-> > core_mask so coregroup is never a subset of clustergroup, extending it
-> > to cluster_siblings if necessary.
-> >
-> > This has the added benefit over a custom topology of working for both
-> > symmetric and asymmetric topologies. It does not address systems where
-> > the cluster topology is above a populated mc topology, but these are not
-> > considered today and can be addressed separately if and when they
-> > appear.
-> >
-> > The final sched domain topology for a 2 socket Ampere Altra system is
-> > unchanged with or without CONFIG_SCHED_CLUSTER, and the BUG is avoided:
-> >
-> > For CPU0:
-> >
-> > CONFIG_SCHED_CLUSTER=y
-> > CLS  [0-1]
-> > DIE  [0-79]
-> > NUMA [0-159]
-> >
-> > CONFIG_SCHED_CLUSTER is not set
-> > DIE  [0-79]
-> > NUMA [0-159]
-> >
-> > Cc: Sudeep Holla <sudeep.holla@arm.com>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > Cc: Will Deacon <will@kernel.org>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> > Cc: Barry Song <song.bao.hua@hisilicon.com>
-> > Cc: Valentin Schneider <valentin.schneider@arm.com>
-> > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-> > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-> > Cc: <stable@vger.kernel.org> # 5.16.x
-> > Suggested-by: Barry Song <song.bao.hua@hisilicon.com>
-> > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> > ---
-> > v1: Drop MC level if coregroup weight == 1
-> > v2: New sd topo in arch/arm64/kernel/smp.c
-> > v3: No new topo, extend core_mask to cluster_siblings
-> >
-> >  drivers/base/arch_topology.c | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> >
-> > diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-> > index 976154140f0b..a96f45db928b 100644
-> > --- a/drivers/base/arch_topology.c
-> > +++ b/drivers/base/arch_topology.c
-> > @@ -628,6 +628,14 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
-> >                       core_mask = &cpu_topology[cpu].llc_sibling;
-> >       }
-> >
-> > +     /*
-> > +      * For systems with no shared cpu-side LLC but with clusters defined,
-> > +      * extend core_mask to cluster_siblings. The sched domain builder will
-> > +      * then remove MC as redundant with CLS if SCHED_CLUSTER is enabled.
-> > +      */
-> > +     if (cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
-> > +             core_mask = &cpu_topology[cpu].cluster_sibling;
-> > +
->
-> Sudeep, Vincent, are you happy with this now?
+On Tue, Mar 08, 2022 at 09:57:57AM +0100, Greg KH wrote:
+> > > And what happens if the mutex is locked _RIGHT_ after you checked it?
+> > > You still have a race...
+> > 
+> > No, we miss a warning that one time.  Memory is still protected.
+> 
+> Then don't warn on something that doesn't matter.  This line can be
+> dropped as there's nothing anyone can do about it, right?
 
-I would not say that I'm happy because this solution skews the core
-cpu mask in order to abuse the scheduler so that it will remove a
-wrong but useless level when it will build its domains.
-But this works so as long as the maintainer are happy, I'm fine
+I mean, the reason I wanted the warning is because there's a kernel
+bug, and it will break userspace. warning is just telling us this.
+is the bug reacheable from userspace? if we knew that we won't
+need the lock ...
 
->
-> Will
+-- 
+MST
+
