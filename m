@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 713024D35CB
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 192944D3569
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236498AbiCIQfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:35:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44314 "EHLO
+        id S235352AbiCIQf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:35:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237464AbiCIQas (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:30:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4EA16DACB;
-        Wed,  9 Mar 2022 08:24:40 -0800 (PST)
+        with ESMTP id S237230AbiCIQai (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:30:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B7B15B994;
+        Wed,  9 Mar 2022 08:24:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43BEBB81FF7;
-        Wed,  9 Mar 2022 16:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3A0FC340F3;
-        Wed,  9 Mar 2022 16:24:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 180A8619AC;
+        Wed,  9 Mar 2022 16:24:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B36B7C340F5;
+        Wed,  9 Mar 2022 16:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646843042;
-        bh=36/+4igTpfhkDAFpcO4bC2t5KUkZCKJICtxetdAfry4=;
+        s=k20201202; t=1646843046;
+        bh=l9vur0dL3GUULj6pSN4H0lg8/y0wbvxtMheOvgS9E8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSVEJvHOMHqaPModspSpnDfLEZJHHBH41Q2VIlxGIHIfjsWS6+d6CjJOa0tD02OfH
-         CYAQZYygz9+3oNZCAMo3GzNEHMrcNlcUz8srWy9N0dneKh8hc1Z/KCHl6xZNMYEE2z
-         4pMl6qHbB15+AmVXciwYlKXN2MJLyonwkrhIBSAt9monD/C05R0x78HQoW01A/kSxQ
-         KOPRWhl1QOrnpnY2b3TcnEBekuAQABNtG2uqxID7iFGin7Guinp1I+SnXcHMnGQbuk
-         K6+Vg9tOXfwxWL4tdzPoOYYfExZBH9GCRHIDAOScjV1MYt51u/0Rhfk8nAmTvMyTql
-         BEO5LRAWsk5iw==
+        b=t+pdigbcYPlyMz7UIegrXUPwXk0Ts7exvEAVl9s12FxQqGKabVpi7sgcAw5MFtmBU
+         PQjKSxBROKWh3dxYoADWSvhjrqqrxTX4Y4yvwt979P8wpAX7g3qW0MiFsg+bTWhLi+
+         vvbxgmsqQTOA02FjSfc+abMK4C4k4OTcCag072QA1UIuym/yJfECjMXb5D8Ab/0Saz
+         R9jUhR6TCCpw0DMVxuzY05wawd8P+/kKcbQd3Xk2g6oN6NcJGhBL9QSMm20zgo/hxr
+         MGE+Yu5RFPd6eF+DIvGdTzMfh19MY6sAU/Vn7x2uUlcrzfAMaB1J08cYZg/vxnIstR
+         a9RHHjYTMagxw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinh Nguyen <dinguyen@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        robh+dt@kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 05/19] arm64: dts: agilex: use the compatible "intel,socfpga-agilex-hsotg"
-Date:   Wed,  9 Mar 2022 11:23:22 -0500
-Message-Id: <20220309162337.136773-5-sashal@kernel.org>
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/19] ARM: dts: rockchip: reorder rk322x hmdi clocks
+Date:   Wed,  9 Mar 2022 11:23:23 -0500
+Message-Id: <20220309162337.136773-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220309162337.136773-1-sashal@kernel.org>
 References: <20220309162337.136773-1-sashal@kernel.org>
@@ -55,42 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 268a491aebc25e6dc7c618903b09ac3a2e8af530 ]
+[ Upstream commit be4e65bdffab5f588044325117df77dad7e9c45a ]
 
-The DWC2 USB controller on the Agilex platform does not support clock
-gating, so use the chip specific "intel,socfpga-agilex-hsotg"
-compatible.
+The binding specifies the clock order to "iahb", "isfr", "cec". Reorder
+the clocks accordingly.
 
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Link: https://lore.kernel.org/r/20220210142353.3420859-1-s.hauer@pengutronix.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/intel/socfpga_agilex.dtsi | 4 ++--
+ arch/arm/boot/dts/rk322x.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-index d911d38877e5..19f17bb29e4b 100644
---- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-+++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-@@ -369,7 +369,7 @@ usbphy0: usbphy@0 {
- 		};
- 
- 		usb0: usb@ffb00000 {
--			compatible = "snps,dwc2";
-+			compatible = "intel,socfpga-agilex-hsotg", "snps,dwc2";
- 			reg = <0xffb00000 0x40000>;
- 			interrupts = <0 93 4>;
- 			phys = <&usbphy0>;
-@@ -381,7 +381,7 @@ usb0: usb@ffb00000 {
- 		};
- 
- 		usb1: usb@ffb40000 {
--			compatible = "snps,dwc2";
-+			compatible = "intel,socfpga-agilex-hsotg", "snps,dwc2";
- 			reg = <0xffb40000 0x40000>;
- 			interrupts = <0 94 4>;
- 			phys = <&usbphy0>;
+diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
+index 140e22d74dcf..d393bb481e74 100644
+--- a/arch/arm/boot/dts/rk322x.dtsi
++++ b/arch/arm/boot/dts/rk322x.dtsi
+@@ -635,8 +635,8 @@ hdmi: hdmi@200a0000 {
+ 		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
+ 		assigned-clocks = <&cru SCLK_HDMI_PHY>;
+ 		assigned-clock-parents = <&hdmi_phy>;
+-		clocks = <&cru SCLK_HDMI_HDCP>, <&cru PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_CEC>;
+-		clock-names = "isfr", "iahb", "cec";
++		clocks = <&cru PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_HDCP>, <&cru SCLK_HDMI_CEC>;
++		clock-names = "iahb", "isfr", "cec";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&hdmii2c_xfer &hdmi_hpd &hdmi_cec>;
+ 		resets = <&cru SRST_HDMI_P>;
 -- 
 2.34.1
 
