@@ -2,136 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 291F24D2C92
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 10:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6930F4D2D80
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 11:55:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231862AbiCIJzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 04:55:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37036 "EHLO
+        id S230495AbiCIKz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 05:55:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230522AbiCIJzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 04:55:01 -0500
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED63D0040;
-        Wed,  9 Mar 2022 01:54:02 -0800 (PST)
-Received: by mail-yb1-xb2b.google.com with SMTP id e186so3171987ybc.7;
-        Wed, 09 Mar 2022 01:54:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+14GjQ8VFEaJ8dUWynMaVtyaYThCk9kMBQ49ijA4dTw=;
-        b=VKmwmgf92bzfY8cmDqUGOnt1/KSNzaBsPztW7RcsPFS5ihfrbE3LZXxkU76GStXok+
-         nEtgfYFyngw0vww/JnP9DWYPihbigEDOZbSoCsRUPPrRbhseN0n7E1oXUffK4aszigYa
-         v7TQDrqYjqQGATxbamW4uZ9U6l2jPnM/XbaLGItllOfa1ff9x8jN6uM2BJRP/860pIQp
-         cBk9vMb64VaT36V2KEOhLQmb35S4ZdklzQcZ3KSQZNjcNNmUcel+JVbc3bsS+n+4rV/D
-         aV1SpOk23uiCu/iplJ4XNdkevjYkP7mZrX4cPmw0UYyJISDCeZvji/KEM5SNL9anmot5
-         21LQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+14GjQ8VFEaJ8dUWynMaVtyaYThCk9kMBQ49ijA4dTw=;
-        b=5nrNzkpah+Gs9H/YGV/7SBfBePeYzHN5PpoRju41nCEERz3YrQd3W++r+1KHfxoEKg
-         zSPp7QkzP09CAFNlorlbYTkp6uSUGSsjNuqZdfujc/sc1SAZ4a2f7VhO9PF/RCKncyaE
-         AjA4NLlSIjQwXmLL82nJO5AmVtSKVTZ44xevg+7qEHUxaEefzxBLmqTCoEDt/n2B7JEU
-         O5S1e6glQCQTtUjUY56rIsvdbE9puYqKy/twy/XNH3Vc1GY7mwrdDaXI3uehPe1Y2ZqD
-         gKW83H+yxwYd9rsczcSPj8R7EdWyUCWhtabcoNV7eT924a5oZsjj50WMHDRnprfMmfpF
-         WNyQ==
-X-Gm-Message-State: AOAM530yYYZtPmZfNZ2rsWkhKu4QqBz6NISD/qFlPQUYhzCPs79n3wKc
-        eNEee+yPxtj9W0rjyjoSXQvAyqpTICvwjAcL+WY=
-X-Google-Smtp-Source: ABdhPJxmoGUidQHzeLMAoMH3lomCve4BKJC5Mqd1btsoVspGABW7oWKXkAbRZ8Q344/XkqB1JKs/1Bukd0nOxFFcmvw=
-X-Received: by 2002:a25:7504:0:b0:629:308e:9d95 with SMTP id
- q4-20020a257504000000b00629308e9d95mr12948405ybc.106.1646819641703; Wed, 09
- Mar 2022 01:54:01 -0800 (PST)
+        with ESMTP id S231702AbiCIKz0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 05:55:26 -0500
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458D611D789;
+        Wed,  9 Mar 2022 02:54:22 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 873DC1C0B77; Wed,  9 Mar 2022 11:54:20 +0100 (CET)
+Date:   Wed, 9 Mar 2022 11:54:20 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yongzhi Liu <lyz_cs@pku.edu.cn>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 012/105] dmaengine: shdma: Fix runtime PM imbalance
+ on error
+Message-ID: <20220309105420.GA22677@duo.ucw.cz>
+References: <20220307091644.179885033@linuxfoundation.org>
+ <20220307091644.529997660@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20220307162207.188028559@linuxfoundation.org> <Yid4BNbLm3mStBi2@debian>
- <CADVatmPdzXRU2aTeh-8dfZVmW6YPJwntSDCO8gcGDUJn-qzzAg@mail.gmail.com>
- <CA+G9fYv74gGWQLkEZ4idGYri+F9BFV1+9=bz5L0+aophSzDdVA@mail.gmail.com>
- <YifFMPFMp9gPnjPc@kroah.com> <CADVatmMs_+YN3YAajL95fy98iEgoeb-7qXA_ZJ7K3QsdHGG=oA@mail.gmail.com>
- <8f97b76e-fe64-ad9e-fa46-9874df61c35d@roeck-us.net>
-In-Reply-To: <8f97b76e-fe64-ad9e-fa46-9874df61c35d@roeck-us.net>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Wed, 9 Mar 2022 09:53:25 +0000
-Message-ID: <CADVatmNXDx4-vrsyZBeRs8HHYfS3j8OPpS4CGnhQc=uyijgwvQ@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/256] 5.15.27-rc2 review
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Disposition: inline
+In-Reply-To: <20220307091644.529997660@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 9, 2022 at 12:53 AM Guenter Roeck <linux@roeck-us.net> wrote:
->
-> On 3/8/22 14:27, Sudip Mukherjee wrote:
-> > On Tue, Mar 8, 2022 at 9:05 PM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> >>
-> >> On Tue, Mar 08, 2022 at 11:08:10PM +0530, Naresh Kamboju wrote:
-> >>> Hi Greg,
-> >>>
-> >>> On Tue, 8 Mar 2022 at 21:40, Sudip Mukherjee <sudipm.mukherjee@gmail.com> wrote:
-> >>>>
-> >>>> On Tue, Mar 8, 2022 at 3:36 PM Sudip Mukherjee
-> >>>> <sudipm.mukherjee@gmail.com> wrote:
-> >>>>>
-> >>>>> Hi Greg,
-> >>>>>
-> >>>>> On Mon, Mar 07, 2022 at 05:28:50PM +0100, Greg Kroah-Hartman wrote:
-> >>>>>> This is the start of the stable review cycle for the 5.15.27 release.
-> >>>>>> There are 256 patches in this series, all will be posted as a response
-> >>>>>> to this one.  If anyone has any issues with these being applied, please
-> >>>>>> let me know.
-> >>>>>>
-> >>>>
-> >>>> <snip>
-> >>>>
-> >>>>>
-> >>>>> Mips failures,
-> >>>>>
-> >>>>> allmodconfig, gpr_defconfig and mtx1_defconfig fails with:
-> >>>
-> >
-> > <snip>
-> >
-> >>
-> >> Ah, I'll queue up the revert for that in the morning, thanks for finding
-> >> it.  Odd it doesn't trigger the same issue in 5.16.y.
-> >
-> > ohh.. thats odd. I don't build v5.16.y, so never thought of it.
-> > Just checked a little now, and I was expecting it to be fixed by:
-> > e5b40668e930 ("slip: fix macro redefine warning")
-> > but it still has the build error. I will check tomorrow morning what
-> > is missing in v5.15.y
-> > Please delay the revert till tomorrow afternoon.
-> >
->
-> In case you did not get my other e-mail: You also need commit
-> b81e0c2372e ("block: drop unused includes in <linux/genhd.h>").
 
-Thanks Guenter.
-And, I have now verified that both gpr_defconfig and mtx1_defconfig
-passes after cherry-picking these two commits.
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi!
 
--- 
-Regards
-Sudip
+> From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+>=20
+> [ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
+>=20
+> pm_runtime_get_() increments the runtime PM usage counter even
+> when it returns an error code, thus a matching decrement is needed on
+> the error handling path to keep the counter balanced.
+
+This patch will break things.
+
+Notice that -ret is ignored (checked 4.4 and 5.10), so we don't
+actually abort/return error; we just printk. We'll do two
+pm_runtime_put's after the "fix".
+
+Please drop from -stable.
+
+It was discussed during AUTOSEL review:
+
+Date: Fri, 25 Feb 2022 14:25:10 +0800 (GMT+08:00)
+=46rom: =E5=88=98=E6=B0=B8=E5=BF=97 <lyz_cs@pku.edu.cn>
+To: pavel machek <pavel@denx.de>
+Cc: sasha levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+Subject: Re: [PATCH AUTOSEL 5.16 24/30] dmaengine: shdma: Fix runtime PM
+	imbalance on error
+
+Best regards,
+	                                                        Pavel
+
+> +++ b/drivers/dma/sh/shdma-base.c
+> @@ -115,8 +115,10 @@ static dma_cookie_t shdma_tx_submit(struct dma_async=
+_tx_descriptor *tx)
+>  		ret =3D pm_runtime_get(schan->dev);
+> =20
+>  		spin_unlock_irq(&schan->chan_lock);
+> -		if (ret < 0)
+> +		if (ret < 0) {
+>  			dev_err(schan->dev, "%s(): GET =3D %d\n", __func__, ret);
+> +			pm_runtime_put(schan->dev);
+> +		}
+> =20
+>  		pm_runtime_barrier(schan->dev);
+> =20
+> --=20
+> 2.34.1
+>=20
+>=20
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--jRHKVT23PllUwdXP
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYiiHXAAKCRAw5/Bqldv6
+8ombAJ9B/Wg0wRqXoPkjSCwo7F7TehDIMACfYKFLokbbzHMu0fScRKa2kKDNstA=
+=H7B2
+-----END PGP SIGNATURE-----
+
+--jRHKVT23PllUwdXP--
