@@ -2,160 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA8784D3C6B
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 22:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 971C04D3C73
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 22:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236280AbiCIVzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 16:55:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53050 "EHLO
+        id S238506AbiCIV5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 16:57:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235017AbiCIVzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 16:55:04 -0500
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F0D14ECC1
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 13:54:04 -0800 (PST)
-Received: by mail-lf1-x134.google.com with SMTP id z11so6095517lfh.13
-        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 13:54:04 -0800 (PST)
+        with ESMTP id S238501AbiCIV5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 16:57:05 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 646EC11E3E6
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 13:56:04 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id a5so3442944pfv.2
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 13:56:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=CUMQksGgCdQmcHrJcF66PznC3AjKKF/X4cilDJy65/w=;
-        b=d+gHv8c+vxZcULWVQVZgmkK5hNAQs6Bxjw7N1RsVhrfDlZF7oSU2rRiN85oK+lQjVq
-         fJXUwTPySu5+R6mo42EroOgWo0BOK+OjTerHV+hSZr+8QBPhhaBXZcEbV967exOsMccX
-         WIwQIMmhgp/lyWPrq8NFTZFD209Xd+5mvSQlgunNCXwSuXDXYn84YVgNEZRAd4V2svWu
-         C7K2YASRRhkc4BMI4nqARSOhGX2SegCS0mu0VPIth78rpspBAqWnw+gVrvd3b9N2U/w9
-         TG5HXSdM9WG53grpcyEFaHmeC6aKnwg+sdOmBUOfgFfyH/jysQ7amBkGCxZgbjJalzFu
-         rUvg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=u10yaM/cixh1Zc17efOejXUE5MTPMUQNcP27DwTzjKo=;
+        b=K96T97aW4p6LOd+ue9N3J5c1vtzBp+LhEKa1qUfTHf86mBs/fyreuEUoqXtK9GELVl
+         LEbZfOAD0EDJq69O0FuxGtIjEuAeH+ayfnN143NmzQYSJHEbbp+veus7gJT9HeDAdcWv
+         p36KQuUeQ895v/aoIMIcQR7oYH584MzYb2dMycBWuBwewWlmzUBqlQFquJ/SHw3zDvA1
+         9hPyHQRjHYW2MmR3YriNyQ0dowRyGL3r0BYePITs7G+4u8zeAM1m5sa5Cu2C1PBkQeq9
+         mBVfYwnbubV1/xmG4lMxPS0+JD/pYSmVHZhVjNMNQEmQN3hvnw2gmx8iV0sCe03JB1Xl
+         InTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=CUMQksGgCdQmcHrJcF66PznC3AjKKF/X4cilDJy65/w=;
-        b=xtfRnh3EhpDaerdkPJIu3oOQGZOyJt8vASss2+f1omeJuG2NTuJ1gW7nDpAK9OpT4G
-         N9HteAysiRbcyyBNjjWMquoQhrlCmD9n1aKw3iiMUqYjZzdlWqJ02oJSM5GqPX14QZ18
-         idRGlttgxQexq/fLywiPtYW2SbrqWuxg2O3YKUIJ1S1U7/Za4k4gTYozuf9zXjQPkitf
-         UfDunObUte6fjd2A+W4RIm64C8CJdoKVeEP0k+i2UqrHuCnnbKx1C8MEU/9RkX8IDkQz
-         OLURQpMBRGjpco1EFSmXLQhfcBrcQRkRsYiQ78Kl8hBPRitJIWxAyyKcLe0w8KZmFexI
-         MVjw==
-X-Gm-Message-State: AOAM533OC17usaJvTn+0qTkNWDSFnjj6n/rYIGJkMimrGfxyoLviMoEq
-        ENocDFtzYeHFsnhjQv8E+tWrGm0mGCPy+1XKlOnttw==
-X-Google-Smtp-Source: ABdhPJzCxFT3dV8gojSRQ4YAikZ6dGu6NuaatVUte2DQRtdeETHIEzS6FLUxjVZqUU2RsWwhnDqKYQp3Aem765MNgqc=
-X-Received: by 2002:ac2:5feb:0:b0:448:2707:6bfd with SMTP id
- s11-20020ac25feb000000b0044827076bfdmr1082389lfg.380.1646862842545; Wed, 09
- Mar 2022 13:54:02 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=u10yaM/cixh1Zc17efOejXUE5MTPMUQNcP27DwTzjKo=;
+        b=CEzBtMZxK5X9+7nknidv0i4OSDsEVuAKfqCx1mKx8oN0hq048SIWbwYFCgQuUhzHXG
+         3cMztPdliJPshGDBYEvEMjnEugW46DK/0sJWboYc1VdJHsKaPS3O1Ik0S2SyHDeiKrIr
+         af+E9QJSJDcnSla70bwQ43/wpZk3QKSvjgpDGxjSQfGDjYe9t971CCMC2q2FM2z3bhdJ
+         JZarYyo8c6+3KvnEuieUtdSY9DOjmFEdriQRpLepIFUE/3ZdhkW+HJdZPRt290CNrKO6
+         cqfh1QqVcghKhSnejBlkanv4BymK+6JxjldWSAmhr4vqPO01oi4+/Ml32OJymalym4J7
+         Vz8w==
+X-Gm-Message-State: AOAM5321fhtTNN0ySBetkJWkLTx210QaQO/es36QX3WgNNOe4Y+t/NOY
+        aOXXG5ThqrcCEcy1T7shSOfjKKIvJ2vwtoJN5OM=
+X-Google-Smtp-Source: ABdhPJxE39wbvG6bATXHs/q+kcQfCEobGSnmxVVCf62pwW8YhpRGKiTmtbqXO4n6pbf4CFbPJ8r28A==
+X-Received: by 2002:a63:5110:0:b0:374:2312:1860 with SMTP id f16-20020a635110000000b0037423121860mr1505914pgb.146.1646862963711;
+        Wed, 09 Mar 2022 13:56:03 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f20-20020a056a00229400b004f74434eae4sm4136800pfe.153.2022.03.09.13.56.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Mar 2022 13:56:03 -0800 (PST)
+Message-ID: <62292273.1c69fb81.c9758.aa84@mx.google.com>
+Date:   Wed, 09 Mar 2022 13:56:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220309191633.2307110-1-nathan@kernel.org>
-In-Reply-To: <20220309191633.2307110-1-nathan@kernel.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 9 Mar 2022 13:53:50 -0800
-Message-ID: <CAKwvOdkrgtyE3rU8Xa2B8QQJ1ZErSTB9PDuikPF6=4D4Q80XVQ@mail.gmail.com>
-Subject: Re: [PATCH] arm64: Do not include __READ_ONCE() block in assembly files
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        llvm@lists.linux.dev, stable@vger.kernel.org,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.104-43-g97495999355f
+Subject: stable-rc/queue/5.10 baseline: 103 runs,
+ 2 regressions (v5.10.104-43-g97495999355f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 9, 2022 at 11:19 AM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> When building arm64 defconfig + CONFIG_LTO_CLANG_{FULL,THIN}=y after
-> commit 558c303c9734 ("arm64: Mitigate spectre style branch history side
-> channels"), the following error occurs:
->
->   <instantiation>:4:2: error: invalid fixup for movz/movk instruction
->    mov w0, #ARM_SMCCC_ARCH_WORKAROUND_3
->    ^
->
-> Marc figured out that moving "#include <linux/init.h>" in
-> include/linux/arm-smccc.h into a !__ASSEMBLY__ block resolves it. The
-> full include chain with CONFIG_LTO=y from include/linux/arm-smccc.h:
->
-> include/linux/init.h
-> include/linux/compiler.h
-> arch/arm64/include/asm/rwonce.h
-> arch/arm64/include/asm/alternative-macros.h
-> arch/arm64/include/asm/assembler.h
->
-> The asm/alternative-macros.h include in asm/rwonce.h only happens when
-> CONFIG_LTO is set, which ultimately casues asm/assembler.h to be
-> included before the definition of ARM_SMCCC_ARCH_WORKAROUND_3. As a
-> result, the preprocessor does not expand ARM_SMCCC_ARCH_WORKAROUND_3 in
-> __mitigate_spectre_bhb_fw, which results in the error above.
->
-> Avoid this problem by just avoiding the CONFIG_LTO=y __READ_ONCE() block
-> in asm/rwonce.h with assembly files, as nothing in that block is useful
-> to assembly files, which allows ARM_SMCCC_ARCH_WORKAROUND_3 to be
-> properly expanded with CONFIG_LTO=y builds.
->
-> Cc: stable@vger.kernel.org
-> Fixes: e35123d83ee3 ("arm64: lto: Strengthen READ_ONCE() to acquire when CONFIG_LTO=y")
-> Link: https://lore.kernel.org/r/20220309155716.3988480-1-maz@kernel.org/
-> Reported-by: Marc Zyngier <maz@kernel.org>
-> Acked-by: James Morse <james.morse@arm.com>
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+stable-rc/queue/5.10 baseline: 103 runs, 2 regressions (v5.10.104-43-g97495=
+999355f)
 
-Thanks for taking point on all of the BHB fallout.
+Regressions Summary
+-------------------
 
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
 
-> ---
->
-> This is based on current mainline; if it should be based on a specific
-> arm64 branch, please let me know.
->
-> As 558c303c9734 is going to stable, I marked this for stable as well to
-> avoid breaking Android. I used e35123d83ee3 for the fixes tag to make it
-> clear to the stable team this should only go where that commit is
-> present. If a different fixes tag should be used, please feel free to
-> substitute.
->
->  arch/arm64/include/asm/rwonce.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/arm64/include/asm/rwonce.h b/arch/arm64/include/asm/rwonce.h
-> index 1bce62fa908a..56f7b1d4d54b 100644
-> --- a/arch/arm64/include/asm/rwonce.h
-> +++ b/arch/arm64/include/asm/rwonce.h
-> @@ -5,7 +5,7 @@
->  #ifndef __ASM_RWONCE_H
->  #define __ASM_RWONCE_H
->
-> -#ifdef CONFIG_LTO
-> +#if defined(CONFIG_LTO) && !defined(__ASSEMBLY__)
->
->  #include <linux/compiler_types.h>
->  #include <asm/alternative-macros.h>
-> @@ -66,7 +66,7 @@
->  })
->
->  #endif /* !BUILD_VDSO */
-> -#endif /* CONFIG_LTO */
-> +#endif /* CONFIG_LTO && !__ASSEMBLY__ */
->
->  #include <asm-generic/rwonce.h>
->
->
-> base-commit: 330f4c53d3c2d8b11d86ec03a964b86dc81452f5
-> --
-> 2.35.1
->
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
 
 
--- 
-Thanks,
-~Nick Desaulniers
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.104-43-g97495999355f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.104-43-g97495999355f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      97495999355f97571d40b4f54a5256131e511891 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6228eeedec01f58f29c6297e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
+-43-g97495999355f/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s9=
+05d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
+-43-g97495999355f/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s9=
+05d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6228eeedec01f58f29c62=
+97f
+        new failure (last pass: v5.10.104-43-g417963ee9709) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6228ebc768d3bd7bdfc62973
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
+-43-g97495999355f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
+-43-g97495999355f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6228ebc768d3bd7bdfc62999
+        failing since 1 day (last pass: v5.10.103-56-ge5a40f18f4ce, first f=
+ail: v5.10.103-105-gf074cce6ae0d)
+
+    2022-03-09T18:02:30.672194  /lava-5846834/1/../bin/lava-test-case
+    2022-03-09T18:02:30.683620  <8>[   33.527252] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
