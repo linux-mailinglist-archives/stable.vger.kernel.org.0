@@ -2,105 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E434D2F23
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 13:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C348F4D2F73
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 13:50:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230038AbiCIMgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 07:36:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33778 "EHLO
+        id S232900AbiCIMvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 07:51:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229795AbiCIMgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 07:36:11 -0500
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A387617288D;
-        Wed,  9 Mar 2022 04:35:11 -0800 (PST)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id CC1D51C0B77; Wed,  9 Mar 2022 13:35:09 +0100 (CET)
-Date:   Wed, 9 Mar 2022 13:35:09 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 012/105] dmaengine: shdma: Fix runtime PM imbalance
- on error
-Message-ID: <20220309123509.GA30506@duo.ucw.cz>
-References: <20220307091644.179885033@linuxfoundation.org>
- <20220307091644.529997660@linuxfoundation.org>
- <20220309105420.GA22677@duo.ucw.cz>
- <YiiWduSVDz1yYA9z@kroah.com>
+        with ESMTP id S230167AbiCIMvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 07:51:16 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 88910522F1;
+        Wed,  9 Mar 2022 04:50:17 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4F0261FB;
+        Wed,  9 Mar 2022 04:50:17 -0800 (PST)
+Received: from [192.168.1.10] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1BF143FA4D;
+        Wed,  9 Mar 2022 04:50:14 -0800 (PST)
+Message-ID: <7ac47c67-0b5e-5caa-20bb-a0100a0cb78f@arm.com>
+Date:   Wed, 9 Mar 2022 13:50:07 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
-Content-Disposition: inline
-In-Reply-To: <YiiWduSVDz1yYA9z@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v3] topology: make core_mask include at least
+ cluster_siblings
+Content-Language: en-US
+To:     Darren Hart <darren@os.amperecomputing.com>
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        Will Deacon <will@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        stable@vger.kernel.org
+References: <f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com>
+ <20220308103012.GA31267@willie-the-truck>
+ <CAKfTPtDe+i0fwV10m2sX2xkJGBrO8B+RQogDDij8ioJAT5+wAw@mail.gmail.com>
+ <e91bcc83-37c8-dcca-e088-8b3fcd737b2c@arm.com> <YieXQD7uG0+R5QBq@fedora>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+In-Reply-To: <YieXQD7uG0+R5QBq@fedora>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 08/03/2022 18:49, Darren Hart wrote:
+> On Tue, Mar 08, 2022 at 05:03:07PM +0100, Dietmar Eggemann wrote:
+>> On 08/03/2022 12:04, Vincent Guittot wrote:
+>>> On Tue, 8 Mar 2022 at 11:30, Will Deacon <will@kernel.org> wrote:
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[...]
 
-On Wed 2022-03-09 12:58:46, Greg Kroah-Hartman wrote:
-> On Wed, Mar 09, 2022 at 11:54:20AM +0100, Pavel Machek wrote:
-> > Hi!
-> >=20
-> > > From: Yongzhi Liu <lyz_cs@pku.edu.cn>
-> > >=20
-> > > [ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
-> > >=20
-> > > pm_runtime_get_() increments the runtime PM usage counter even
-> > > when it returns an error code, thus a matching decrement is needed on
-> > > the error handling path to keep the counter balanced.
-> >=20
-> > This patch will break things.
-> >=20
-> > Notice that -ret is ignored (checked 4.4 and 5.10), so we don't
-> > actually abort/return error; we just printk. We'll do two
-> > pm_runtime_put's after the "fix".
-> >=20
-> > Please drop from -stable.
-> >=20
-> > It was discussed during AUTOSEL review:
-> >=20
-> > Date: Fri, 25 Feb 2022 14:25:10 +0800 (GMT+08:00)
-> > From: =E5=88=98=E6=B0=B8=E5=BF=97 <lyz_cs@pku.edu.cn>
-> > To: pavel machek <pavel@denx.de>
-> > Cc: sasha levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-> > Subject: Re: [PATCH AUTOSEL 5.16 24/30] dmaengine: shdma: Fix runtime PM
-> > 	imbalance on error
->=20
-> So 5.15 and 5.16 is ok, but older is not?
+>> IMHO, if core_mask weight is 1, MC will be removed/degenerated anyway.
+>>
+>> This is what I get on my Ampere Altra (I guess I don't have the ACPI
+>> changes which would let to a CLS sched domain):
+>>
+>> # cat /sys/kernel/debug/sched/domains/cpu0/domain*/name
+>> DIE
+>> NUMA
+>> root@oss-altra01:~# zcat /proc/config.gz | grep SCHED_CLUSTER
+>> CONFIG_SCHED_CLUSTER=y
+> 
+> I'd like to follow up on this. Would you share your dmidecode BIOS
+> Information section?
 
-I believe commit is wrong for mainline and all stable releases, and
-author seems to agree. Drop from everywhere.
+# dmidecode -t 0
+# dmidecode 3.2
+Getting SMBIOS data from sysfs.
+SMBIOS 3.2.0 present.
 
-(And sorry for confusion, I concentrate on 5.10/4.19; that's why mail
-was ambiguous).
+Handle 0x0000, DMI type 0, 26 bytes
+BIOS Information
+	Vendor: Ampere(TM)
+	Version: 0.9.20200724
+	Release Date: 2020/07/24
+	ROM Size: 7680 kB
+	Characteristics:
+		PCI is supported
+		BIOS is upgradeable
+		Boot from CD is supported
+		Selectable boot is supported
+		ACPI is supported
+		UEFI is supported
+	BIOS Revision: 5.15
+	Firmware Revision: 0.6
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+> Which kernel version?
 
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature; name="signature.asc"
+v5.17-rc5
 
------BEGIN PGP SIGNATURE-----
+[...]
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYiie/QAKCRAw5/Bqldv6
-8qjOAJ0TyLXjvWsKvnzXpRaKU/dTVC74FgCfVNEdUBsVlOOzCTnrIr5gjsBVDRw=
-=Knv5
------END PGP SIGNATURE-----
+>>> I would not say that I'm happy because this solution skews the core
+>>> cpu mask in order to abuse the scheduler so that it will remove a
+>>> wrong but useless level when it will build its domains.
+>>> But this works so as long as the maintainer are happy, I'm fine
+> 
+> I did explore the other options and they added considerably more
+> complexity without much benefit in my view. I prefer this option which
+> maintains the cpu_topology as described by the platform, and maps it
+> into something that suits the current scheduler abstraction. I agree
+> there is more work to be done here and intend to continue with it.
+> 
+>> I do not have any better idea than this tweak here either in case the
+>> platform can't provide a cleaner setup.
+> 
+> I'd argue The platform is describing itself accurately in ACPI PPTT
+> terms. The topology doesn't fit nicely within the kernel abstractions
+> today. This is an area where I hope to continue to improve things going
+> forward.
 
---oyUTqETQ0mS9luUI--
+I see. And I assume lying about SCU/LLC boundaries in ACPI is not an
+option since it messes up /sys/devices/system/cpu/cpu0/cache/index*/.
+
+[...]
