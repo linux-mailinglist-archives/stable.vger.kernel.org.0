@@ -2,140 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 818D44D298E
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 08:37:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E185D4D2A3F
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 09:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbiCIHiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 02:38:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52710 "EHLO
+        id S229862AbiCIIDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 03:03:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230403AbiCIHiM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 02:38:12 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DCAE1637D0
-        for <stable@vger.kernel.org>; Tue,  8 Mar 2022 23:37:11 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id n2so1248636plf.4
-        for <stable@vger.kernel.org>; Tue, 08 Mar 2022 23:37:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=y31fdhJqWv7VFfQKxaSCUES0KePUfr1IrqQTLzSzdjg=;
-        b=6qZyZW6EgwYRUWDCxuSMnCFuzHXDa77t40XDujmMeoLTKWUwVVIizXmyLDpeYtmTww
-         KBZxp+wD7r4uC6gSnZAwbb2Od5Pr9VUb8yY+WViAGBLzC2sKUAaEA4WlY5cAlc4exvsg
-         c9a5TtXNoYfwrdX6/WDBbr2kWQYf08LcHc9HyE+ZZk42uwbVejZJt2uhD8r+IObOj6+Z
-         wi1ek7ihx0j9I3eJd19ccTA+no+kOls5DhPPuNY67ssqDnBDjLhkozGcSM9BFUeTju3D
-         HP/jlj+CI16V98qMLS1KFmvfpBO1P3e8/1jikQLiRlnE22d2BuZcgLCk/1hcl8xoA5SC
-         oWKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=y31fdhJqWv7VFfQKxaSCUES0KePUfr1IrqQTLzSzdjg=;
-        b=N619TE0/TokhomJ2IVukNmBch5zFiClBtvgj1yJ9HFrlglNLaYOHFxCaaBFpLc9Tmc
-         TAdlr39US87AoPLX9r6mluLbo2gYJ4xime4vHxh+7vnWs5Ji43bkf99G76u2irk7uqDp
-         6MKe7rl1WshVIl7PaZVkNQuruMpUH7m34YY7VCpypPdLjIuh307e+Oewx9w1Fe/IMPqk
-         8AZXbwU+crhmJPtwLwgpzqyPFuf3PBYE0NsBNSMVvjPK0hDlHUOoFvVuFrFoLROCzlD/
-         M1PKwFe9xoBx1xZ9O4pJlW5Dos5Mgo7ChG+BWBJpk7yvzbfdasKAg347GsmC38BaeBma
-         zDmw==
-X-Gm-Message-State: AOAM530pVJ2sWDYs9hFzALoigu3opEmqRq4NkM9QEdWeP4DP2Ou+YWpD
-        mcLuhX+Rz3/fwqU3eHoHkCa2LYyt2NKY/cmzlUo=
-X-Google-Smtp-Source: ABdhPJwPNPasZLhpWFB4EK4osbAybCm5aRr9AI/R6FcfQpEg7ZFCP3LWUWjtuiPZ/Hu0vtLrY7wdfQ==
-X-Received: by 2002:a17:902:b202:b0:151:4f64:e516 with SMTP id t2-20020a170902b20200b001514f64e516mr21785443plr.16.1646811430343;
-        Tue, 08 Mar 2022 23:37:10 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z2-20020aa79902000000b004f75842c97csm1462418pff.209.2022.03.08.23.37.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Mar 2022 23:37:09 -0800 (PST)
-Message-ID: <62285925.1c69fb81.5f7d1.3429@mx.google.com>
-Date:   Tue, 08 Mar 2022 23:37:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231331AbiCIIDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 03:03:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F45314CC97;
+        Wed,  9 Mar 2022 00:02:04 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0792EB81EA0;
+        Wed,  9 Mar 2022 08:02:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A102C340E8;
+        Wed,  9 Mar 2022 08:02:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646812921;
+        bh=Cfr19P9SP1R7zJ9J1a4BDOPpbOGBYdEhzLA2WG9WWJ0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=isNV1LXjqaCsYQBMI6d599yCQUTKjNX37a/8sc2iAFHN5pNR0NL/RrsEgRPeLsiit
+         9D40wPq76w4owzq/8nK6bmcyY8woCl02YeKNNrvYZQrqKQ/hdJYnfWant+LdvnX31F
+         T2VBiMwCFaN7saoRuAcYM6HSQws04TUwJccPzEm/N0LdRHs0usa9mZ56fWB4qQLyH0
+         j5jgLnTzrxvxbBxJ4Rln9iBEcVaZQtAQTXce4YH7GN/xXpq3aLv27dFHSYaWAh5zuG
+         OTNhJjgN6O51RBOlk9KbOHVAWLAl16qDD9NcLAqKjoTBalSR3yG15fJj+Eil3iU5n/
+         Huud267loJ3EQ==
+Date:   Wed, 9 Mar 2022 10:01:17 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     linux-sgx@vger.kernel.org,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Sean Christopherson <seanjc@google.com>,
+        "open list:X86 ARCHITECTURE (32-BIT AND 64-BIT)" 
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v6] x86/sgx: Free backing memory after faulting the
+ enclave page
+Message-ID: <YihezQsQca0RBuxT@iki.fi>
+References: <20220303223859.273187-1-jarkko@kernel.org>
+ <d476aa51-f855-bfb8-0738-3190439a2f72@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Kernel: v5.15.27-41-g5ad72e40dcac
-Subject: stable-rc/linux-5.15.y baseline: 68 runs,
- 1 regressions (v5.15.27-41-g5ad72e40dcac)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d476aa51-f855-bfb8-0738-3190439a2f72@intel.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 68 runs, 1 regressions (v5.15.27-41-g5ad72=
-e40dcac)
+On Tue, Mar 08, 2022 at 11:16:19AM -0800, Reinette Chatre wrote:
+> Hi,
+> 
+> On 3/3/2022 2:38 PM, Jarkko Sakkinen wrote:
+> > There is a limited amount of SGX memory (EPC) on each system.  When that
+> > memory is used up, SGX has its own swapping mechanism which is similar
+> > in concept but totally separate from the core mm/* code.  Instead of
+> > swapping to disk, SGX swaps from EPC to normal RAM.  That normal RAM
+> > comes from a shared memory pseudo-file and can itself be swapped by the
+> > core mm code.  There is a hierarchy like this:
+> > 
+> > 	EPC <-> shmem <-> disk
+> > 
+> > After data is swapped back in from shmem to EPC, the shmem backing
+> > storage needs to be freed.  Currently, the backing shmem is not freed.
+> > This effectively wastes the shmem while the enclave is running.  The
+> > memory is recovered when the enclave is destroyed and the backing
+> > storage freed.
+> > 
+> > Sort this out by freeing memory with shmem_truncate_range(), as soon as
+> > a page is faulted back to the EPC.  In addition, free the memory for
+> > PCMD pages as soon as all PCMD's in a page have been marked as unused
+> > by zeroing its contents.
+> > 
+> > Reported-by: Dave Hansen <dave.hansen@linux.intel.com>
+> > Cc: stable@vger.kernel.org
+> > Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
+> > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+> 
+> I can reliably reproduce the issue this patch aims to solve by creating
+> a virtual machine that has a significant portion of its memory consumed
+> by EPC:
+> 
+> qemu-system-x86_64 -smp 4 -m 4G\
+>  -enable-kvm \
+>  -cpu host,+sgx-provisionkey \
+>  -object memory-backend-ram,size=2G,host-nodes=0,policy=bind,id=node0 \
+>  -object memory-backend-epc,id=mem0,size=1536M,prealloc=on,host-nodes=0,policy=bind \
+>  -numa node,nodeid=0,cpus=0-1,memdev=node0 \
+>  -object memory-backend-ram,size=2G,host-nodes=1,policy=bind,id=node1 \
+>  -object memory-backend-epc,id=mem1,size=1536M,prealloc=on,host-nodes=1,policy=bind \
+>  -numa node,nodeid=1,cpus=2-3,memdev=node1 \
+>  -M sgx-epc.0.memdev=mem0,sgx-epc.0.node=0,sgx-epc.1.memdev=mem1,sgx-epc.1.node=1 \
+>  ...
+> 
+> Before this patch, running the very stressful SGX2 over subscription test case
+> (unclobbered_vdso_oversubscribed_remove) in this environment always triggers 
+> the oom-killer but no amount of tasks killed can save the system
+> with it always ending deadlocked on memory:
+> 
+> [   58.642719] Tasks state (memory values in pages):
+> [   58.644324] [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+> [   58.647237] [    195]     0   195     3153      197    45056        0         -1000 systemd-udevd
+> [   58.650238] [    281]     0   281  1836367        0 10817536        0             0 test_sgx
+> [   58.653088] Out of memory and no killable processes...
+> [   58.654832] Kernel panic - not syncing: System is deadlocked on memory
+> 
+> After applying this patch I was able to run SGX2 selftest
+> unclobbered_vdso_oversubscribed_remove ten times successfully.
+> 
+> Tested-by: Reinette Chatre <reinette.chatre@intel.com>
 
-Regressions Summary
--------------------
+Thank you.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+> Reinette
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.27-41-g5ad72e40dcac/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.27-41-g5ad72e40dcac
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5ad72e40dcac0cb04181911a748786e78a9d37ec =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6228254a98f32b90e2c6297a
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.2=
-7-41-g5ad72e40dcac/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.2=
-7-41-g5ad72e40dcac/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6228254b98f32b90e2c629a0
-        failing since 1 day (last pass: v5.15.26, first fail: v5.15.26-258-=
-g7b9aacd770fa)
-
-    2022-03-09T03:55:39.085205  <8>[   32.604578] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-09T03:55:40.111737  /lava-5843062/1/../bin/lava-test-case
-    2022-03-09T03:55:40.122555  <8>[   33.643371] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+BR, Jarkko
