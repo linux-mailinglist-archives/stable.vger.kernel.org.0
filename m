@@ -2,84 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 474404D304E
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 14:48:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9F94D308D
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 14:51:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229759AbiCINsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 08:48:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49492 "EHLO
+        id S229775AbiCINtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 08:49:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230501AbiCINse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 08:48:34 -0500
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3493700F
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 05:47:31 -0800 (PST)
-Received: by mail-lf1-x142.google.com with SMTP id bu29so3953976lfb.0
-        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 05:47:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=y/WwzOufdV8bFjC2XhKxeIddPBCZMNKZVHLfMOMvj6I=;
-        b=VOjWndeu41u0JlV9na/u7Td3sh/tommvCWdljCL6yQgofMS/sj//fc1k7b4Ud5kV+Q
-         nEXYzfkcoYgmvhHxoi1ZZOqX9Uqbv66t0j+Ao5VGHtMFstGc0Jiv07Lr1F3JmIMFwKdv
-         QVMg9prBNBNtQozUdsDt0+fXOir0Afgelcw9mrGUEVXdBuyTNpn9o42TY2nba2o2G4W8
-         vhzVf+4UT1+176IlI2HJCdxOU23jjhFmXq+RPMJwivyDmBxCTojt71jW6GFdVdJG7lXg
-         3eK7JtBPUr3e2hdvtdFqws2o9H52XMADlW5xFMAe0R/foa0TfuaF44pPqZO/ONSoqQ20
-         iuvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=y/WwzOufdV8bFjC2XhKxeIddPBCZMNKZVHLfMOMvj6I=;
-        b=YeS2PrkxV475SGrZf5BB5RkSDfezwQlkQhPjPTCTwpl5F3LjauBkBo433ipBo7/68+
-         36TjTXS/T+Mu2rxHkeChIa+ZYVw/DKBnaXqiw4Nb0kWGfa2jUJOKhwnu1Nr2uKUnsrfk
-         osZyIomtsZ5QMEyw2vVyEKmB7qJFJFhnz9VwYPqbk+OsGbCVvBgZo3w/n221khdGh2ns
-         GeyVtBrNZb8Oms/iyCy06PNep3f6k7285XlXXSneuEXIc6/LBN6u2xw/XFR+y2jUp4Ld
-         UWQIfZ37Ko5pkXN1Wcu70P59YiGiCUPkEmIlUWr4Vz5ECCkRbWHjboE4Gs8tyuR32qAo
-         CnjA==
-X-Gm-Message-State: AOAM531flHFv8VoETnDDzzQ9cacfN4YOQgJ5oVZblygLIuH/iy2emNYq
-        y38V5ae/McAnERyzZoQkfWYnPzIXeqiIfIkyWAE=
-X-Google-Smtp-Source: ABdhPJyT19wDq7VITFks4I9QSbuhW3GPpGlIgn6PeqlXy1LXdJ6dXGWRHTaYq1PZq4Zh8VyPbWPIN7Db4h5aaLaNtyY=
-X-Received: by 2002:a05:6512:3a8b:b0:448:30d6:a73c with SMTP id
- q11-20020a0565123a8b00b0044830d6a73cmr9040022lfu.393.1646833647338; Wed, 09
- Mar 2022 05:47:27 -0800 (PST)
+        with ESMTP id S232970AbiCINtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 08:49:39 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 43FB914A043
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 05:48:40 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E15AC1688;
+        Wed,  9 Mar 2022 05:48:39 -0800 (PST)
+Received: from [10.1.196.218] (eglon.cambridge.arm.com [10.1.196.218])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6F5B53FA20;
+        Wed,  9 Mar 2022 05:48:39 -0800 (PST)
+Subject: Re: FAILED: patch "[PATCH] arm64: proton-pack: Include unprivileged
+ eBPF status in" failed to apply to 5.4-stable tree
+To:     gregkh@linuxfoundation.org, catalin.marinas@arm.com
+Cc:     stable@vger.kernel.org
+References: <164682752912586@kroah.com>
+From:   James Morse <james.morse@arm.com>
+Message-ID: <d8d13ff7-9951-6120-a992-8e9c5cc6124f@arm.com>
+Date:   Wed, 9 Mar 2022 13:48:31 +0000
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Reply-To: drtracywilliams89@gmail.com
-Sender: modym1332015@gmail.com
-Received: by 2002:aa6:c78f:0:b0:1a3:b8b6:f361 with HTTP; Wed, 9 Mar 2022
- 05:47:26 -0800 (PST)
-From:   "Dr. Tracy Williams" <tracy0wiliams@gmail.com>
-Date:   Wed, 9 Mar 2022 05:47:26 -0800
-X-Google-Sender-Auth: 9pSHDY_drbDBzvk0iFifICVun7A
-Message-ID: <CAKSnB2Zh2_+GmNzqXXOEwWJ23X0w7pzT=WxR-wt-dh37Y5thtQ@mail.gmail.com>
-Subject: From Dr. Tracy Williams.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_40,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+In-Reply-To: <164682752912586@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear,
+Hi Greg,
 
-how are you today,I hope you are doing great. It is my great pleasure
-to contact you,I want to make a new and special friend,I hope you
-don't mind. My name is Tracy Williams
+On 09/03/2022 12:05, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-from the United States, Am a french and English nationality. I will
-give you pictures and more details about my self as soon as i hear
-from you in my email account bellow,
-Here is my email address; drtracywilliams89@gmail.com
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 58c9a5060cb7cd529d49c93954cdafe81c1d642a Mon Sep 17 00:00:00 2001
+> From: James Morse <james.morse@arm.com>
+> Date: Thu, 3 Mar 2022 16:53:56 +0000
+> Subject: [PATCH] arm64: proton-pack: Include unprivileged eBPF status in
+>  Spectre v2 mitigation reporting
+> 
+> The mitigations for Spectre-BHB are only applied when an exception is
+> taken from user-space. The mitigation status is reported via the spectre_v2
+> sysfs vulnerabilities file.
+> 
+> When unprivileged eBPF is enabled the mitigation in the exception vectors
+> can be avoided by an eBPF program.
+> 
+> When unprivileged eBPF is enabled, print a warning and report vulnerable
+> via the sysfs vulnerabilities file.
+
+> diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
+> index d3fbff00993d..6d45c63c6454 100644
+> --- a/arch/arm64/kernel/proton-pack.c
+> +++ b/arch/arm64/kernel/proton-pack.c
+
+Yup, this far back the code lives in cpu_errata.c, as it hadn't been centralised.
+I'll look at what is involved in backporting the whole lot...
 
 
-Please send your reply to my PRIVATE  mail box.
 Thanks,
 
-Tracy Williams.
+James
