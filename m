@@ -2,125 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00F894D303E
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 14:45:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 474404D304E
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 14:48:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231984AbiCINpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 08:45:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38078 "EHLO
+        id S229759AbiCINsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 08:48:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231219AbiCINpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 08:45:33 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 38CAE1470C4
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 05:44:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646833474;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=bOrpY0Vi0WWmfs0zAz7rF3fjdnoSAkRP9rR10Dishvk=;
-        b=HsCkPHWJe6rulhPbmh5GGGng0+ImV6jkKc+QO98CbZu7k2HxMePRI6H2I6jWfSYhKfWIq0
-        +rujH50wNQQbfTv52DxGjzhcu8fSpsijyS52BtefieYxtsi+fdTueFhQoJUhQG8gk9bI3W
-        UJArcbp6a+QCqXdk48mD9xSauhXQj+Y=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-629-dRKhQX-WMeK4w1LWsNzzUw-1; Wed, 09 Mar 2022 08:44:33 -0500
-X-MC-Unique: dRKhQX-WMeK4w1LWsNzzUw-1
-Received: by mail-ed1-f71.google.com with SMTP id cm27-20020a0564020c9b00b004137effc24bso1291634edb.10
-        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 05:44:33 -0800 (PST)
+        with ESMTP id S230501AbiCINse (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 08:48:34 -0500
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3493700F
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 05:47:31 -0800 (PST)
+Received: by mail-lf1-x142.google.com with SMTP id bu29so3953976lfb.0
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 05:47:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=y/WwzOufdV8bFjC2XhKxeIddPBCZMNKZVHLfMOMvj6I=;
+        b=VOjWndeu41u0JlV9na/u7Td3sh/tommvCWdljCL6yQgofMS/sj//fc1k7b4Ud5kV+Q
+         nEXYzfkcoYgmvhHxoi1ZZOqX9Uqbv66t0j+Ao5VGHtMFstGc0Jiv07Lr1F3JmIMFwKdv
+         QVMg9prBNBNtQozUdsDt0+fXOir0Afgelcw9mrGUEVXdBuyTNpn9o42TY2nba2o2G4W8
+         vhzVf+4UT1+176IlI2HJCdxOU23jjhFmXq+RPMJwivyDmBxCTojt71jW6GFdVdJG7lXg
+         3eK7JtBPUr3e2hdvtdFqws2o9H52XMADlW5xFMAe0R/foa0TfuaF44pPqZO/ONSoqQ20
+         iuvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:from:subject:cc:content-transfer-encoding;
-        bh=bOrpY0Vi0WWmfs0zAz7rF3fjdnoSAkRP9rR10Dishvk=;
-        b=UWjVaMxtmACPa8ZkwgXqO+SBmH6GE6Fi5GvYCko5vsA2MvQ+e5chUhwmHlz5SqeUAM
-         eeWGa4swuGWC8ulvlmc57WC8j3Kcu33T+E4fy9VkeE2Nz/Pv+cPLYhWBM4y2BkTXfN42
-         xkGJtKEzekucDegVs+HFwYCcqACVNHtJjXBqXCc2eaE6wCIPzyPZ8gwLDddfTRWd5s9l
-         tAxBnvsiMmt5G0W+mloGizxWiy3EQThuW03zmTLqaNYtlKHLDQTR37vH0cQjm5o8zsTF
-         eT2sILmjvLtGcVd2ZAagfkDz/yjQmPX7rZ40Jjz5BAZppo0no/zVCIG/iAeYYWHcKd10
-         GaXQ==
-X-Gm-Message-State: AOAM531jKloxlC60bHY6vzJWqUDl3IMzP2xJOUxAy5NvaibteubzoJdO
-        mi9C2/TSBtLuvVOlOde0S+Ngr1ssMYJ+LMlWAWbaZm3NohRXtvXavKrPOi+se0vTEk/5RweZr3x
-        VGMQidWZDkuQ6HmKO
-X-Received: by 2002:a17:907:3f9c:b0:6d8:116d:476b with SMTP id hr28-20020a1709073f9c00b006d8116d476bmr17712859ejc.432.1646833471995;
-        Wed, 09 Mar 2022 05:44:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwR7YvWKpo0YOZA80vGQSSWPnXJB07XNcQ7f+poDh0GD++oCwzYhO25RM7PvhDRUado+ZhzpA==
-X-Received: by 2002:a17:907:3f9c:b0:6d8:116d:476b with SMTP id hr28-20020a1709073f9c00b006d8116d476bmr17712835ejc.432.1646833471768;
-        Wed, 09 Mar 2022 05:44:31 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:cdb2:2781:c55:5db0? (2001-1c00-0c1e-bf00-cdb2-2781-0c55-5db0.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:cdb2:2781:c55:5db0])
-        by smtp.gmail.com with ESMTPSA id i2-20020a1709067a4200b006db720b1231sm544572ejo.2.2022.03.09.05.44.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 05:44:31 -0800 (PST)
-Message-ID: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
-Date:   Wed, 9 Mar 2022 14:44:30 +0100
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=y/WwzOufdV8bFjC2XhKxeIddPBCZMNKZVHLfMOMvj6I=;
+        b=YeS2PrkxV475SGrZf5BB5RkSDfezwQlkQhPjPTCTwpl5F3LjauBkBo433ipBo7/68+
+         36TjTXS/T+Mu2rxHkeChIa+ZYVw/DKBnaXqiw4Nb0kWGfa2jUJOKhwnu1Nr2uKUnsrfk
+         osZyIomtsZ5QMEyw2vVyEKmB7qJFJFhnz9VwYPqbk+OsGbCVvBgZo3w/n221khdGh2ns
+         GeyVtBrNZb8Oms/iyCy06PNep3f6k7285XlXXSneuEXIc6/LBN6u2xw/XFR+y2jUp4Ld
+         UWQIfZ37Ko5pkXN1Wcu70P59YiGiCUPkEmIlUWr4Vz5ECCkRbWHjboE4Gs8tyuR32qAo
+         CnjA==
+X-Gm-Message-State: AOAM531flHFv8VoETnDDzzQ9cacfN4YOQgJ5oVZblygLIuH/iy2emNYq
+        y38V5ae/McAnERyzZoQkfWYnPzIXeqiIfIkyWAE=
+X-Google-Smtp-Source: ABdhPJyT19wDq7VITFks4I9QSbuhW3GPpGlIgn6PeqlXy1LXdJ6dXGWRHTaYq1PZq4Zh8VyPbWPIN7Db4h5aaLaNtyY=
+X-Received: by 2002:a05:6512:3a8b:b0:448:30d6:a73c with SMTP id
+ q11-20020a0565123a8b00b0044830d6a73cmr9040022lfu.393.1646833647338; Wed, 09
+ Mar 2022 05:47:27 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Content-Language: en-US
-To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Linux PM <linux-pm@vger.kernel.org>
-From:   Hans de Goede <hdegoede@redhat.com>
-Subject: Many reports of laptops getting hot while suspended with kernels >=
- 5.16.10 || >= 5.17-rc1
-Cc:     stable@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-        Mark Pearson <markpearson@lenovo.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Reply-To: drtracywilliams89@gmail.com
+Sender: modym1332015@gmail.com
+Received: by 2002:aa6:c78f:0:b0:1a3:b8b6:f361 with HTTP; Wed, 9 Mar 2022
+ 05:47:26 -0800 (PST)
+From:   "Dr. Tracy Williams" <tracy0wiliams@gmail.com>
+Date:   Wed, 9 Mar 2022 05:47:26 -0800
+X-Google-Sender-Auth: 9pSHDY_drbDBzvk0iFifICVun7A
+Message-ID: <CAKSnB2Zh2_+GmNzqXXOEwWJ23X0w7pzT=WxR-wt-dh37Y5thtQ@mail.gmail.com>
+Subject: From Dr. Tracy Williams.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_40,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Rafael,
+Hello Dear,
 
-We (Fedora) have been receiving a whole bunch of bug reports about
-laptops getting hot/toasty while suspended with kernels >= 5.16.10
-and this seems to still happen with 5.17-rc7 too.
+how are you today,I hope you are doing great. It is my great pleasure
+to contact you,I want to make a new and special friend,I hope you
+don't mind. My name is Tracy Williams
 
-The following are all bugzilla.redhat.com bug numbers:
-
-   1750910 - Laptop failed to suspend and completely drained the battery
-   2050036 - Framework laptop: 5.16.5 breaks s2idle sleep
-   2053957 - Package c-states never go below C2
-   2056729 - No lid events when closing lid / laptop does not suspend
-   2057909 - Thinkpad X1C 9th in s2idle suspend still draining battery to zero over night , Ap
-   2059668 - HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case ge
-   2059688 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
-
-And one of the bugs has also been mirrored at bugzilla.kernel.org by
-the reporter:
-
- bko215641 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
-
-The common denominator here (besides the kernel version) seems to
-be that these are all Ice or Tiger Lake systems (I did not do
-check this applies 100% to all bugs, but it does see, to be a pattern).
-
-A similar arch-linux report:
-
-https://bbs.archlinux.org/viewtopic.php?id=274292&p=2
-
-Suggest that reverting 
-"ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
-
-which was cherry-picked into 5.16.10 fixes things.
-
-If you want I can create Fedora kernel test-rpms of a recent
-5.16.y with just that one commit reverted and ask users to
-confirm if that helps. Please let me know if doing that woulkd
-be useful ?
-
-Regards,
-
-Hans
+from the United States, Am a french and English nationality. I will
+give you pictures and more details about my self as soon as i hear
+from you in my email account bellow,
+Here is my email address; drtracywilliams89@gmail.com
 
 
+Please send your reply to my PRIVATE  mail box.
+Thanks,
 
-
+Tracy Williams.
