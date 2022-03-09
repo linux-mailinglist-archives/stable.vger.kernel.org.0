@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1252F4D3362
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:21:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B51EC4D32D5
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234683AbiCIQL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:11:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33502 "EHLO
+        id S231432AbiCIQMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:12:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234961AbiCIQIR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076B7186425;
-        Wed,  9 Mar 2022 08:04:54 -0800 (PST)
+        with ESMTP id S236107AbiCIQJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5D130F69;
+        Wed,  9 Mar 2022 08:07:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FA7661666;
-        Wed,  9 Mar 2022 16:04:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79032C340E8;
-        Wed,  9 Mar 2022 16:04:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C4B8B82224;
+        Wed,  9 Mar 2022 16:07:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD1E1C340E8;
+        Wed,  9 Mar 2022 16:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841854;
-        bh=dBM59trElM9mKdvh5X3TAf3lhidiLDUO/YzmBUoNg2U=;
+        s=korg; t=1646842050;
+        bh=Ebe6j7mF1Vi1ha8wvA/CYSV2TTwbIeu1/dDrKYmnmo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5t5+zNJiYw7WGXiPqxB2GJh5HTD5n7KomZqeuDVPkh3JkirnFn36eliPwGfhJHeN
-         WWtSKuBLAC4wdMETOI6fZS9YkD+bElkDCGJnfPlHogEuZlZ/uYAEKa5iIjcVrFS3Nh
-         PYJUUA1d5c4m6Q43wvIWVcfAfoEXVFa6xzeEHU5Y=
+        b=gnCuJNdLd6hi1MAr3O3p3ehNz5mtIMwAjrY9PgTyLeqc0v7ad9t1f8cRhlvgZv13Q
+         SsaCKqtMejAR2aeqpdSLint5CSOLb8kwqrWyajnly5tZPdkwGG4DkWCtTqJaoJiv4Z
+         g+Ho/RwT4CjRWZqE/o78Vk1mm56qEbQYvfcX5zq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 18/18] ARM: fix build error when BPF_SYSCALL is disabled
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 23/43] KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
 Date:   Wed,  9 Mar 2022 17:00:07 +0100
-Message-Id: <20220309155857.087915998@linuxfoundation.org>
+Message-Id: <20220309155900.408984976@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
-References: <20220309155856.552503355@linuxfoundation.org>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+References: <20220309155859.734715884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,31 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
+From: James Morse <james.morse@arm.com>
 
-commit 330f4c53d3c2d8b11d86ec03a964b86dc81452f5 upstream.
+commit 5bdf3437603d4af87f9c7f424b0c8aeed2420745 upstream.
 
-It was missing a semicolon.
+CPUs vulnerable to Spectre-BHB either need to make an SMC-CC firmware
+call from the vectors, or run a sequence of branches. This gets added
+to the hyp vectors. If there is no support for arch-workaround-1 in
+firmware, the indirect vector will be used.
 
-Signed-off-by: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Fixes: 25875aa71dfe ("ARM: include unprivileged BPF status in Spectre V2 reporting").
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+kvm_init_vector_slots() only initialises the two indirect slots if
+the platform is vulnerable to Spectre-v3a. pKVM's hyp_map_vectors()
+only initialises __hyp_bp_vect_base if the platform is vulnerable to
+Spectre-v3a.
+
+As there are about to more users of the indirect vectors, ensure
+their entries in hyp_spectre_vector_selector[] are always initialised,
+and __hyp_bp_vect_base defaults to the regular VA mapping.
+
+The Spectre-v3a check is moved to a helper
+kvm_system_needs_idmapped_vectors(), and merged with the code
+that creates the hyp mappings.
+
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/spectre.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/kvm_host.h |    5 +++++
+ arch/arm64/kvm/arm.c              |    5 +----
+ arch/arm64/kvm/hyp/nvhe/mm.c      |    4 +++-
+ 3 files changed, 9 insertions(+), 5 deletions(-)
 
---- a/arch/arm/kernel/spectre.c
-+++ b/arch/arm/kernel/spectre.c
-@@ -10,7 +10,7 @@ static bool _unprivileged_ebpf_enabled(v
- #ifdef CONFIG_BPF_SYSCALL
- 	return !sysctl_unprivileged_bpf_disabled;
- #else
--	return false
-+	return false;
- #endif
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -711,6 +711,11 @@ static inline void kvm_init_host_cpu_con
+ 	ctxt_sys_reg(cpu_ctxt, MPIDR_EL1) = read_cpuid_mpidr();
  }
  
++static inline bool kvm_system_needs_idmapped_vectors(void)
++{
++	return cpus_have_const_cap(ARM64_SPECTRE_V3A);
++}
++
+ void kvm_arm_vcpu_ptrauth_trap(struct kvm_vcpu *vcpu);
+ 
+ static inline void kvm_arch_hardware_unsetup(void) {}
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -1458,10 +1458,7 @@ static int kvm_init_vector_slots(void)
+ 	base = kern_hyp_va(kvm_ksym_ref(__bp_harden_hyp_vecs));
+ 	kvm_init_vector_slot(base, HYP_VECTOR_SPECTRE_DIRECT);
+ 
+-	if (!cpus_have_const_cap(ARM64_SPECTRE_V3A))
+-		return 0;
+-
+-	if (!has_vhe()) {
++	if (kvm_system_needs_idmapped_vectors() && !has_vhe()) {
+ 		err = create_hyp_exec_mappings(__pa_symbol(__bp_harden_hyp_vecs),
+ 					       __BP_HARDEN_HYP_VECS_SZ, &base);
+ 		if (err)
+--- a/arch/arm64/kvm/hyp/nvhe/mm.c
++++ b/arch/arm64/kvm/hyp/nvhe/mm.c
+@@ -146,8 +146,10 @@ int hyp_map_vectors(void)
+ 	phys_addr_t phys;
+ 	void *bp_base;
+ 
+-	if (!cpus_have_const_cap(ARM64_SPECTRE_V3A))
++	if (!kvm_system_needs_idmapped_vectors()) {
++		__hyp_bp_vect_base = __bp_harden_hyp_vecs;
+ 		return 0;
++	}
+ 
+ 	phys = __hyp_pa(__bp_harden_hyp_vecs);
+ 	bp_base = (void *)__pkvm_create_private_mapping(phys,
 
 
