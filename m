@@ -2,67 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA194D3809
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 674A24D375E
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235297AbiCIRiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 12:38:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41598 "EHLO
+        id S231384AbiCIRju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 12:39:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236622AbiCIRht (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 12:37:49 -0500
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52EA101F05;
-        Wed,  9 Mar 2022 09:36:49 -0800 (PST)
-Received: by mail-ot1-x32f.google.com with SMTP id 17-20020a9d0611000000b005b251571643so2277163otn.2;
-        Wed, 09 Mar 2022 09:36:49 -0800 (PST)
+        with ESMTP id S233187AbiCIRjt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 12:39:49 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F5F6D4D1;
+        Wed,  9 Mar 2022 09:38:49 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id e3so2830691pjm.5;
+        Wed, 09 Mar 2022 09:38:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=TOmGz3bt6vb4hFgw3uud8EFYKeOnqhNNOTXYfsPbvM8=;
-        b=kXKOJmI/+7SU2IuaZRT7arv9r6+bXJEoLbKMxk/7U1plsL9U2xEvqon6DFE8nmJLsL
-         WvM5uhmaiSskJ52iRxNympVi7G4iD1uoZigDk5ySkWDvmI2mQx3xaNK0UUgCvCkrdFQX
-         C2estlXvyz7FC4YSuDp+keLDortAWBA+oicqyZXZyw6l+cw0SOc6FnTRD79gxAP5/mOp
-         f7XwoHlCqyF2ifiXoRujt2dWsNAZ4DoxmOLiPmn2xum5+ubl+kNN5b5SaH54jGkBa0D5
-         L1c2+c9PHg8JPW/ZeiSSUOy1O2pwwtlhvDeK1rYi/ZLmYLAFyklJVy/RnaP+RCiVpQTH
-         YcUw==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=FTzYDUj/DGbZ6gSv4ALHs6dgNbEyczfJFDCnWsWgF6k=;
+        b=B6Pst6kzaQ5MODgn9E8gSlKIRZMeUjYEY5NKJ+wqX4cYG8YIxUTRXj6lUDLSUI5iKP
+         QGt/LjXuB1vsgbqb8cmJxtkVoDH0Ye5BA9li+ytsZIwHCyioEA3jw3h/8n6EUB9cb11A
+         RvR5wYuHNwL1riuuIcZaTMajsGzotzRdocRLdYrMf9FaiL7DBW+nMoKSsTaLJhBCTWGI
+         SG9Ra6qlErwT4O4wNDso+Acg4t8nMoNHSvxDYB45uc8fhWosPhaxpWXrnl1RLUxuO+q7
+         VdnJRNPdy2AZa8wzmaf/Avno3JO/bT+ypdnkZ4z4VdHGGbUbHz+GrthqDmjrf2CNnVVD
+         wa1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=TOmGz3bt6vb4hFgw3uud8EFYKeOnqhNNOTXYfsPbvM8=;
-        b=IKY7lSrw5zdFAEbWluXNHQ25nzCZ0c5A/wHKgeLHkyxPghBym3ouq3PEnTP8MWbCgP
-         ix58LYLw10JhXxOfv4bmefi0208/WW2DB58Rgpq5XXW+YZFIKN993yTJfkscM2A+RqyA
-         rmaHW5yCKSp7/XMpCJUgZFFcWAFZdCa7pTnv5xiLv+ReJIFdmeVa/gniDTucGriAYKwk
-         XSBJzqbdnLO8fbqC2qMAprCrHtgt0NEUzvJ/Ajw0ZpuNys4rTRzSMPDsq/tJQS0SCOq5
-         XdEQwJfZdxthfO/VWYeHElRR/ruGJREHbK+TrOHyeIJ4xNQ5KYg6Rx62OztPz1GocM1X
-         aLfw==
-X-Gm-Message-State: AOAM5306WLQI4IQJVr4sw3aAEZSdTbzf8dqeivjBrjqE6nXT6M1xHBR3
-        OEkAzkMBMs2m3TSTw8f5S9LZUPIbD48=
-X-Google-Smtp-Source: ABdhPJwS4GrbmBgJ4g6TnaE+fn43IecLtUbN0HG7b3PjvdCVu0tBrYWcroJE/vtS77WcKDdU4VGAtA==
-X-Received: by 2002:a05:6830:2012:b0:5b2:4a95:2281 with SMTP id e18-20020a056830201200b005b24a952281mr440571otp.47.1646847409248;
-        Wed, 09 Mar 2022 09:36:49 -0800 (PST)
-Received: from localhost.localdomain ([2804:14c:485:4b69:34e1:d0f:6368:c8ce])
-        by smtp.gmail.com with ESMTPSA id o17-20020a9d5c11000000b005b2611a13edsm1220891otk.61.2022.03.09.09.36.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Mar 2022 09:36:48 -0800 (PST)
-From:   Fabio Estevam <festevam@gmail.com>
-To:     hverkuil-cisco@xs4all.nl
-Cc:     p.zabel@pengutronix.de, linux-media@vger.kernel.org,
-        nicolas.dufresne@collabora.com, ezequiel@collabora.com,
-        kernel@iktek.de, stable@vger.kernel.org,
-        Fabio Estevam <festevam@denx.de>
-Subject: [PATCH v3 2/2] media: coda: Add more H264 levels for CODA960
-Date:   Wed,  9 Mar 2022 14:36:36 -0300
-Message-Id: <20220309173636.1879419-2-festevam@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220309173636.1879419-1-festevam@gmail.com>
-References: <20220309173636.1879419-1-festevam@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=FTzYDUj/DGbZ6gSv4ALHs6dgNbEyczfJFDCnWsWgF6k=;
+        b=1fuMfB0X9Mj2iO3ASGuDX57XwVbx/5yPg9xMvCU6S+4VjoABKlCLAwx9aQSBYnwx65
+         6jMzlnTlMFVG8UHzoIqml4LJ5ataIcx9RY9OghnGcoscwlmmJv2Ei4aokOVIRxlregco
+         Nk0eFadmau0IBuMs6QcT6YkU91kW76utBwQ7bg74vmM1EgsEMf8AinjtrnK4IPTCQP0t
+         9+POLi5mJJaDpNVgm3FKtrFttQpH+t3MxzrjItVOG9orzOPcH3A48gHbRGz0MDbIDTaA
+         xj6lgpruDKyqDNaX12ykylD24X7kC9Opj2+gzMM+pftRAzE4diTE7U/TbkzIwNckU23t
+         xPag==
+X-Gm-Message-State: AOAM533TEhcdaCm5QhSCS1+s64alGht6AA/VSCNkxbtRR/Lu9yWmjSHS
+        QV4n4j8oxoDQwM+xdUhRMknlNp3Ol+s=
+X-Google-Smtp-Source: ABdhPJwE0VeK14ThWnH8OXqHAvNCDa18f215m4dC9m40R6qMSTfh6WR1TPU3DDO73d/LFMwGj6CzjA==
+X-Received: by 2002:a17:90a:2c0b:b0:1be:da5a:b294 with SMTP id m11-20020a17090a2c0b00b001beda5ab294mr564436pjd.9.1646847529107;
+        Wed, 09 Mar 2022 09:38:49 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id 2-20020a17090a034200b001bfc572d018sm164594pjf.48.2022.03.09.09.38.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Mar 2022 09:38:48 -0800 (PST)
+Subject: Re: [PATCH 5.4 00/18] 5.4.184-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220309155856.552503355@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <1ef6fd89-6648-215d-d44e-d577e242276f@gmail.com>
+Date:   Wed, 9 Mar 2022 09:38:40 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -71,62 +77,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+On 3/9/22 7:59 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.184 release.
+> There are 18 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.184-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Add H264 level 1.0, 4.1, 4.2 to the list of supported formats.
-While the hardware does not fully support these levels, it does support
-most of them. The constraints on frame size and pixel formats already
-cover the limitation.
+Russell made me aware of this message of yours:
 
-This fixes negotiation of level on GStreamer 1.17.1.
+https://lore.kernel.org/all/YiiuCMd%2FhLmQ7tfS@kroah.com/
 
-Cc: stable@vger.kernel.org
-Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
-Suggested-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Fabio Estevam <festevam@denx.de>
----
-Changes since v2:
-- Remove 5.0 level and use Phillip's suggestion to get the correct levels
-being reported by v4l2h264enc:
+do you expect to get ARM64 patches for 5.4 (included) and versions
+before and publish those as a different stable tag with those
+specifically? If so, would not it be easier from a logistics point of
+view if ARM, ARM64 and x86 all get BHB mitigations within the same
+stable tag?
 
-                     h264_level 0x00990a67 (menu)   : min=0 max=13 default=11 value=11
-				0: 1
-				5: 2
-				8: 3
-				9: 3.1
-				10: 3.2
-				11: 4
-				12: 4.1
-				13: 4.2
-
- drivers/media/platform/coda/coda-common.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index 280d77f1567c..da8bc1f87ba0 100644
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -2349,12 +2349,15 @@ static void coda_encode_ctrls(struct coda_ctx *ctx)
- 	if (ctx->dev->devtype->product == CODA_960) {
- 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
- 			V4L2_CID_MPEG_VIDEO_H264_LEVEL,
--			V4L2_MPEG_VIDEO_H264_LEVEL_4_0,
--			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
-+			V4L2_MPEG_VIDEO_H264_LEVEL_4_2,
-+			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_1_0) |
-+			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
- 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_0) |
- 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_1) |
- 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_2) |
--			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0)),
-+			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0) |
-+			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_1) |
-+			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_2)),
- 			V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
- 	}
- 	v4l2_ctrl_new_std(&ctx->ctrls, &coda_ctrl_ops,
+Thanks
 -- 
-2.25.1
-
+Florian
