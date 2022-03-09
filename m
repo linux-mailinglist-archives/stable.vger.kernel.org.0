@@ -2,107 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0AE04D30A9
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 14:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA40E4D30C9
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 15:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233407AbiCIN6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 08:58:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54522 "EHLO
+        id S232239AbiCIOGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 09:06:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233375AbiCIN6i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 08:58:38 -0500
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0966225C60;
-        Wed,  9 Mar 2022 05:57:36 -0800 (PST)
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-2db569555d6so23294647b3.12;
-        Wed, 09 Mar 2022 05:57:36 -0800 (PST)
+        with ESMTP id S231383AbiCIOGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 09:06:34 -0500
+Received: from mail-ua1-x929.google.com (mail-ua1-x929.google.com [IPv6:2607:f8b0:4864:20::929])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB201166E15
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 06:05:31 -0800 (PST)
+Received: by mail-ua1-x929.google.com with SMTP id a28so1043651uaf.7
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 06:05:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=xVJHepNq93ePmAbCv1LHbdOWJcqWYQh8v11fr0KUdVw=;
+        b=FWiKqzZbAoxHtfKWSGsDdjhdAaYmVrbzB1SE5LNpciuGIXZP68liRQYi6HD+CUqfe4
+         azF9dzC1duXjpto3C/RThZfa/cLFe9j0UFowySdAJf7OF7D+TjcEcQIM9O0an7r1hgfB
+         GTBoUg91U16usNXjTBbffEvBShufh7HGXhTUMVWI6VNxqR3JfheVJQwqVcXALfXaMR4c
+         LY9PCwI/LgfexwWsEoTY4Pcuvx4TRhlG2lCccmmXTonlDQMqDWSHIIILQ06FUYBh8EmM
+         +05HU2IrnWg0urXghFzIPTUUoIN+0nqZsEGyYyBEsiU5gNN/DEtAicTI3LN4XiYRSfQV
+         DWKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AojWMK2oif5MAyExBuztUEGgT5CpCBKkNqML2H53coE=;
-        b=sCwdIhpSeg4AnnL214Id6GNkvdctQMg8DH11hp5m3beA89LDKmmGUluzpx58KFYIMV
-         PT6OLX1MNTtCLFPTqM4VGmOxOtLB1a/OIifG2hzXUUT1aEzCqVA31sRvxOUvKx/dp7dK
-         KyDhTWwllKdP79RZOBuoZ+uT+O+eOFqbjcXQU6SlfHIk+0Zo/nLjkHOFsTNPb56A7wxg
-         bWjxIEygkIFye9dvznwdtKKG8Z6UzH6OaxEiDvSw8WW1VKaHOpbW9ZPj0Jl/cGNtsOct
-         drPkI8ZKqJD72CMLO62i0u6F/nikrJ/MtwFVZH5y2lpnlKnLL5jRSligOBmFVTgGIeDh
-         oeLw==
-X-Gm-Message-State: AOAM531AK8IhK2qhEQvsID36+bWwhXXOjcebJxtIHqfhFtKOdHFaE9rH
-        SefFW5k3oTVofmjV/bTmD8S4Gpf+87EltcioMK8=
-X-Google-Smtp-Source: ABdhPJy7n3OjUBNLgTmstG3Xov+8NR0eRBe5znJEKbdWmv3iwTWKDLTnWT4gc3IAWOQ9IUlaDC1ZETidp/v/7aE69/I=
-X-Received: by 2002:a81:bd0:0:b0:2dc:184b:e936 with SMTP id
- 199-20020a810bd0000000b002dc184be936mr17044684ywl.7.1646834255177; Wed, 09
- Mar 2022 05:57:35 -0800 (PST)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=xVJHepNq93ePmAbCv1LHbdOWJcqWYQh8v11fr0KUdVw=;
+        b=nx1nlClpZ0O6Uq9hAXEdiYY1gO+nEf95804DqXaIzVPRzei4Qjbh8pgf0NG9Ugq7qS
+         1iY7dgdPF9drn8ooYOWP8J+AxrPzVFUhaUDchserxPY8iqQYDARhuh2b+fCje1Gc20F5
+         9LUu77KlffCjrGh5wR/A+/oP2rDygIU0kLEROOSN+axLvSYYBR/gv1BZibQQxArJnmU1
+         W/uh807Iv2MAnP1cSeVLhmkOmgFkosZOpwQKhS0v/R5g+pVhtz6xmkN7xM0rxCyYjiP9
+         Z/TETHcJrdpYtPVjAnkkgYbFaWKXyCLDzih84sMvfAcdFpUTpLeTxnwcuzvTbaJeCbPf
+         NMHA==
+X-Gm-Message-State: AOAM5324HmmTZpUPkA724imdCSPuhy1peLgPG9ksYwld/4PshHIDoYG4
+        KGj2hrzX+c3wC3eumHpL6pHQlwd3JRSvnGwTRyg=
+X-Google-Smtp-Source: ABdhPJxP5DupTAdpkjvJMpDqTajW9x+phEgb/w0WsrvSkfXdvOUK0GOncnPsIXaVn/qpj9esptEfSJdkHyQqHjD+0RM=
+X-Received: by 2002:ab0:522:0:b0:344:30a7:8dd7 with SMTP id
+ 31-20020ab00522000000b0034430a78dd7mr6846044uax.18.1646834730349; Wed, 09 Mar
+ 2022 06:05:30 -0800 (PST)
 MIME-Version: 1.0
-References: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
-In-Reply-To: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 9 Mar 2022 14:57:24 +0100
-Message-ID: <CAJZ5v0hQifvD+U8q1O7p_5QeicG_On4=CrgNj0RsbPSbkY8Hww@mail.gmail.com>
-Subject: Re: Many reports of laptops getting hot while suspended with kernels
- >= 5.16.10 || >= 5.17-rc1
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Linux PM <linux-pm@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Justin Forbes <jmforbes@linuxtx.org>,
-        Mark Pearson <markpearson@lenovo.com>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>
+Received: by 2002:ab0:4e24:0:0:0:0:0 with HTTP; Wed, 9 Mar 2022 06:05:29 -0800 (PST)
+Reply-To: lilywilliam989@gmail.com
+From:   Lily William <luvmed99@gmail.com>
+Date:   Wed, 9 Mar 2022 06:05:29 -0800
+Message-ID: <CACQSOzq5WYhbsE-Xy0YWYHNutZfaBzVcTuJieYvfvtCwvEu+Kw@mail.gmail.com>
+Subject: Hi Dear,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4900]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [luvmed99[at]gmail.com]
+        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:929 listed in]
+        [list.dnswl.org]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [lilywilliam989[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [luvmed99[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 9, 2022 at 2:44 PM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Hi Rafael,
->
-> We (Fedora) have been receiving a whole bunch of bug reports about
-> laptops getting hot/toasty while suspended with kernels >= 5.16.10
-> and this seems to still happen with 5.17-rc7 too.
->
-> The following are all bugzilla.redhat.com bug numbers:
->
->    1750910 - Laptop failed to suspend and completely drained the battery
->    2050036 - Framework laptop: 5.16.5 breaks s2idle sleep
->    2053957 - Package c-states never go below C2
->    2056729 - No lid events when closing lid / laptop does not suspend
->    2057909 - Thinkpad X1C 9th in s2idle suspend still draining battery to zero over night , Ap
->    2059668 - HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case ge
->    2059688 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
->
-> And one of the bugs has also been mirrored at bugzilla.kernel.org by
-> the reporter:
->
->  bko215641 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
->
-> The common denominator here (besides the kernel version) seems to
-> be that these are all Ice or Tiger Lake systems (I did not do
-> check this applies 100% to all bugs, but it does see, to be a pattern).
->
-> A similar arch-linux report:
->
-> https://bbs.archlinux.org/viewtopic.php?id=274292&p=2
->
-> Suggest that reverting
-> "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
->
-> which was cherry-picked into 5.16.10 fixes things.
+-- 
+Hi Dear,
 
-Thanks for letting me know!
+My name is Lily William, I am from the United States of America. It's my
+pleasure to contact you for a new and special friendship. I will be glad to
+see your reply so we can get to know each other better.
 
-> If you want I can create Fedora kernel test-rpms of a recent
-> 5.16.y with just that one commit reverted and ask users to
-> confirm if that helps. Please let me know if doing that woulkd
-> be useful ?
-
-Yes, it would.
-
-However, it follows from the arch-linux report linked above that
-5.17-rc is fine, so it would be good to also check if reverting that
-commit from 5.17-rc helps.
+Yours
+Lily
