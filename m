@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1B14D3397
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1364D33AD
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234412AbiCIQKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:10:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44578 "EHLO
+        id S234537AbiCIQKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:10:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235375AbiCIQIl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B46618E3FD;
-        Wed,  9 Mar 2022 08:05:47 -0800 (PST)
+        with ESMTP id S234690AbiCIQH4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:07:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171D3A94C5;
+        Wed,  9 Mar 2022 08:04:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5A95B82226;
-        Wed,  9 Mar 2022 16:05:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E25F4C340E8;
-        Wed,  9 Mar 2022 16:05:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2260CB82224;
+        Wed,  9 Mar 2022 16:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625C7C340EF;
+        Wed,  9 Mar 2022 16:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841945;
-        bh=wl6HBnhpwKS+JR4VuT7rhMipb3Fa6aCKKhyiO/sl5rg=;
+        s=korg; t=1646841843;
+        bh=UnvhIlQm44RU2lBhhosbmErjf2hqypuKRtKkNXHH5p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/4w2p4HIGXcrVJDFXYiS6fbW0AtuZrVANmApkvaPvPXe4SKP/F4wfeU02amLwHkx
-         7TizZkz6q924qxD3+UXZ4b9ab+cNMai3eCZnvB22PPo1OV43CwectWrhvhGmpWVC0l
-         Y25JqrukQr1INFuBEAcXqDQX9hLjEdBbkbUdZWkA=
+        b=cLvcNqjbmxc9Ddf1ud2Wx9A1ouwNviiNGgdOFBOklXbTz9TvG0a5M2MR8sBdAYiCU
+         Ir4SAdfVEWXsSHPSkbDRy+4mLV/XsQZypIe9Eyzi1ufWlzVIReaP/Hs6qQ6/UezCbN
+         FzH2zdECzRIHfBgtT1EqQgcrv9YCet/I1GRPWdps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.10 30/43] arm64: entry: Move trampoline macros out of ifdefd section
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 14/18] ARM: early traps initialisation
 Date:   Wed,  9 Mar 2022 17:00:03 +0100
-Message-Id: <20220309155900.113009937@linuxfoundation.org>
+Message-Id: <20220309155856.972592776@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-References: <20220309155859.239810747@linuxfoundation.org>
+In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
+References: <20220309155856.552503355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
 
-commit 13d7a08352a83ef2252aeb464a5e08dfc06b5dfd upstream.
+commit 04e91b7324760a377a725e218b5ee783826d30f5 upstream.
 
-The macros for building the kpti trampoline are all behind
-CONFIG_UNMAP_KERNEL_AT_EL0, and in a region that outputs to the
-.entry.tramp.text section.
+Provide a couple of helpers to copy the vectors and stubs, and also
+to flush the copied vectors and stubs.
 
-Move the macros out so they can be used to generate other kinds of
-trampoline. Only the symbols need to be guarded by
-CONFIG_UNMAP_KERNEL_AT_EL0 and appear in the .entry.tramp.text section.
-
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/arm/kernel/traps.c |   27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -778,12 +778,6 @@ SYM_CODE_END(ret_to_user)
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -799,10 +799,22 @@ static inline void __init kuser_init(voi
+ }
+ #endif
  
- 	.popsection				// .entry.text
++#ifndef CONFIG_CPU_V7M
++static void copy_from_lma(void *vma, void *lma_start, void *lma_end)
++{
++	memcpy(vma, lma_start, lma_end - lma_start);
++}
++
++static void flush_vectors(void *vma, size_t offset, size_t size)
++{
++	unsigned long start = (unsigned long)vma + offset;
++	unsigned long end = start + size;
++
++	flush_icache_range(start, end);
++}
++
+ void __init early_trap_init(void *vectors_base)
+ {
+-#ifndef CONFIG_CPU_V7M
+-	unsigned long vectors = (unsigned long)vectors_base;
+ 	extern char __stubs_start[], __stubs_end[];
+ 	extern char __vectors_start[], __vectors_end[];
+ 	unsigned i;
+@@ -823,17 +835,20 @@ void __init early_trap_init(void *vector
+ 	 * into the vector page, mapped at 0xffff0000, and ensure these
+ 	 * are visible to the instruction stream.
+ 	 */
+-	memcpy((void *)vectors, __vectors_start, __vectors_end - __vectors_start);
+-	memcpy((void *)vectors + 0x1000, __stubs_start, __stubs_end - __stubs_start);
++	copy_from_lma(vectors_base, __vectors_start, __vectors_end);
++	copy_from_lma(vectors_base + 0x1000, __stubs_start, __stubs_end);
  
--#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--/*
-- * Exception vectors trampoline.
-- */
--	.pushsection ".entry.tramp.text", "ax"
--
- 	// Move from tramp_pg_dir to swapper_pg_dir
- 	.macro tramp_map_kernel, tmp
- 	mrs	\tmp, ttbr1_el1
-@@ -879,6 +873,11 @@ alternative_else_nop_endif
- 	.endr
- 	.endm
+ 	kuser_init(vectors_base);
  
-+#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
-+/*
-+ * Exception vectors trampoline.
-+ */
-+	.pushsection ".entry.tramp.text", "ax"
- 	.align	11
- SYM_CODE_START_NOALIGN(tramp_vectors)
- 	generate_tramp_vector
+-	flush_icache_range(vectors, vectors + PAGE_SIZE * 2);
++	flush_vectors(vectors_base, 0, PAGE_SIZE * 2);
++}
+ #else /* ifndef CONFIG_CPU_V7M */
++void __init early_trap_init(void *vectors_base)
++{
+ 	/*
+ 	 * on V7-M there is no need to copy the vector table to a dedicated
+ 	 * memory area. The address is configurable and so a table in the kernel
+ 	 * image can be used.
+ 	 */
+-#endif
+ }
++#endif
 
 
