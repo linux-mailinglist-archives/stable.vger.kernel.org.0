@@ -2,70 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A46204D3D30
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 23:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BD64D3D34
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 23:41:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233488AbiCIWl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 17:41:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45054 "EHLO
+        id S232287AbiCIWmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 17:42:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbiCIWl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 17:41:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB8C12220D;
-        Wed,  9 Mar 2022 14:40:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB97E61C3A;
-        Wed,  9 Mar 2022 22:40:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CFE6C340E8;
-        Wed,  9 Mar 2022 22:40:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646865629;
-        bh=qKJFJE0ylst9VCwNi3R9jMlbmYDqv0ekKnolKkzO0J8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iR6I9vK25qveU36llBpLd6G4GOfTeg0ZJyrtvmQ0/XnYuH88hrkSliPLtbNlYCkwC
-         ZVca7aZWcix+AsJKYPZljLtfxjImoQbNs592naBXzz8F7N7lmsOzauWPH1nmk7exJ9
-         g+YPsByx2uLoyNF0VaalW0D9H8U0S1tHzIn7YJTI=
-Date:   Wed, 9 Mar 2022 23:40:24 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        llvm@lists.linux.dev, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] ARM: Do not use NOCROSSREFS directive with ld.lld
-Message-ID: <Yiks2B/4Ouetagmk@kroah.com>
-References: <20220309220726.1525113-1-nathan@kernel.org>
- <CAHk-=wi23APrArHX7bcrvKBDZYpHXbeyEW7dRsirwoSPCKgqJg@mail.gmail.com>
- <YikqFxHP+Y+lecbX@kroah.com>
- <CAHk-=whAL3L9gTPp5y7-dweM1xrOA+7aCtG9BvbeQk6Gaz-1UA@mail.gmail.com>
+        with ESMTP id S231814AbiCIWmc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 17:42:32 -0500
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF92D12221B
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 14:41:31 -0800 (PST)
+Received: by mail-pg1-x530.google.com with SMTP id q29so2180271pgn.7
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 14:41:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Nozg4XL860miiuriY/WO/7JGKnWoIOFtgCMuO2CcIq0=;
+        b=mSWIXnki5wo6+MfOUd0CLqOrBWy/eZzMbjoQMNDmH8vJUThx5MbZTfXyCs+J7A5oaJ
+         4woSrJIo+iAuMWRAJaoDd8TIig8T+uutKA36wuzuvjpHp6FJkyUo0ESjfwiJukLOou2e
+         9EhJeXZrPeDnk94vB2MKUP8ohISeuoJ+1HWErnC2c1/n263a3eVSIO/d/+Bp+t/NHNb7
+         XF8L0u+FOzJCmeMhdD3is9AgJEHTuBi22jOgzczLcRKwtbs2kyW7NJqG8jeEq55yIv/4
+         /yck21T9s5GNcSd2w4xztg80kze5DLITPH58GkjpyiiIs62lPhyfrGDBn6Df8O6D2nvO
+         noxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Nozg4XL860miiuriY/WO/7JGKnWoIOFtgCMuO2CcIq0=;
+        b=aK2CepVMdthyDDPe909Zu0/2sbcrE2lCwrnmGzk+gZ0PD4Gu0MHlXYF25I/BhBil8Q
+         2PWa4BqxjlQXT3Nj8tP7n6m+wKuvRY9MsYQvaiU+ldH2XK39xUmEdf1C4gqJwGLsrcaM
+         1aYBah9dBTaWbptxGd8AuyvtSHHKrGf3W8RDOPo6Kuvtb0mGpXm4WQRi/lwqSqYmV0kc
+         QwFMOi0DH21SYlIbOuDbHnb9pRjd+aUNfL3Y7+vQaYzUZ2hTjEq5emsZcJ7neT3NeFTf
+         wSScDxKihK0OLxF14X+lf45HalSpNG9s6653BUX94gQilJ6dhWd0etnSmNzJoE5wazEP
+         tbPg==
+X-Gm-Message-State: AOAM532rtAQUMxwcktRo0pkTjPAG+5I0XazCdIYtNO2mypZw+hPDZSnd
+        Bdn4ZNFWPyT7s15YtH5G2TjBruh0tz1ar4T8Xlk=
+X-Google-Smtp-Source: ABdhPJyH1tP6qbWQTcR6d/YlxcnNjcSPcsMS4AB1XE8tP4X82SxxNlJsUFzOYhZQfxtJw+G5aODHng==
+X-Received: by 2002:aa7:830d:0:b0:4f6:ad6b:5757 with SMTP id bk13-20020aa7830d000000b004f6ad6b5757mr1963233pfb.52.1646865691214;
+        Wed, 09 Mar 2022 14:41:31 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q17-20020aa79831000000b004f769d0c323sm659995pfl.100.2022.03.09.14.41.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Mar 2022 14:41:30 -0800 (PST)
+Message-ID: <62292d1a.1c69fb81.41fee.2c4f@mx.google.com>
+Date:   Wed, 09 Mar 2022 14:41:30 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=whAL3L9gTPp5y7-dweM1xrOA+7aCtG9BvbeQk6Gaz-1UA@mail.gmail.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.16
+X-Kernelci-Kernel: v5.16.13-37-g9fad9a86a8b2
+Subject: stable-rc/queue/5.16 baseline: 79 runs,
+ 1 regressions (v5.16.13-37-g9fad9a86a8b2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 09, 2022 at 02:31:24PM -0800, Linus Torvalds wrote:
-> On Wed, Mar 9, 2022 at 2:28 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > What about this one too:
-> >         https://lore.kernel.org/r/20220309191633.2307110-1-nathan@kernel.org
-> >
-> > it should fix a arm64 build with clang.
-> 
-> Heh. That one just came as a pull from Catalin. It's now commit 52c9f93a9c48..
+stable-rc/queue/5.16 baseline: 79 runs, 1 regressions (v5.16.13-37-g9fad9a8=
+6a8b2)
 
-Great!
+Regressions Summary
+-------------------
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
+nel/v5.16.13-37-g9fad9a86a8b2/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.16
+  Describe: v5.16.13-37-g9fad9a86a8b2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9fad9a86a8b2a64845d9dae4e30e0ad86ef970e4 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6228f89efd600f5299c62980
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.13-=
+37-g9fad9a86a8b2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.13-=
+37-g9fad9a86a8b2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6228f89efd600f5299c629a6
+        failing since 1 day (last pass: v5.16.12-85-g060a81f57a12, first fa=
+il: v5.16.12-184-g8f38ca5a2a07)
+
+    2022-03-09T18:57:15.322944  /lava-5847414/1/../bin/lava-test-case   =
+
+ =20
