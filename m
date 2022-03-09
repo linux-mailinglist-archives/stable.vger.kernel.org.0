@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9B14D326F
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:04:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 905734D3291
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:04:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbiCIQCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:02:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38400 "EHLO
+        id S234179AbiCIQCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:02:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234112AbiCIQCK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:02:10 -0500
+        with ESMTP id S234132AbiCIQCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:02:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 973C31795EB;
-        Wed,  9 Mar 2022 08:01:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774C4179A2D;
+        Wed,  9 Mar 2022 08:01:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37BAC61670;
-        Wed,  9 Mar 2022 16:01:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BF6C340E8;
-        Wed,  9 Mar 2022 16:01:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E82CF6166E;
+        Wed,  9 Mar 2022 16:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F03C340E8;
+        Wed,  9 Mar 2022 16:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841669;
-        bh=/sdHsyS+hr3Sal/XN/Ek01i3/VYlSRYBbNSleu30DIE=;
+        s=korg; t=1646841672;
+        bh=rzqdBWxT9hdyPrcwgYhGnVFeo744NwfXD7+4fOLZF78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wA41EZ6SIcQ625MeUuNh/yn8XBBCgagLjEs85bR3v8o/u6726Et1g6ynXaU+WISWv
-         642i3xcE+dvK+QocJo0qm8YwUAF9OLqBn/zV/Mkyblvsu6sFGW91i/GX12UhOfqL2C
-         vlVzSFYvkJkh/C3c1oL+FxU/mz7fpjV+/jdMAU2w=
+        b=1olH44P8MiucOeSDK6sTaDzihobN13IPSmwVBr6NNrSVRSsXgJ+hrCHR+GgVGiIkg
+         OqTFhHlO+v7Mgy7OAnC76sZTrM1j/O/q9kD2wBxHNHQlXgEaUT4aAYnu48HVeqjlMw
+         +zNdvImzpMqCjlRbOpV/xaUyOzyxxolu6mDKOzCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Frank van der Linden <fllinden@amazon.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 06/24] Documentation: refer to config RANDOMIZE_BASE for kernel address-space randomization
-Date:   Wed,  9 Mar 2022 16:59:19 +0100
-Message-Id: <20220309155856.487572808@linuxfoundation.org>
+Subject: [PATCH 4.9 07/24] x86/speculation: Merge one test in spectre_v2_user_select_mitigation()
+Date:   Wed,  9 Mar 2022 16:59:20 +0100
+Message-Id: <20220309155856.516115694@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220309155856.295480966@linuxfoundation.org>
 References: <20220309155856.295480966@linuxfoundation.org>
@@ -54,41 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 82ca67321f55a8d1da6ac3ed611da3c32818bb37 upstream.
+commit a5ce9f2bb665d1d2b31f139a02dbaa2dfbb62fa6 upstream.
 
-The config RANDOMIZE_SLAB does not exist, the authors probably intended to
-refer to the config RANDOMIZE_BASE, which provides kernel address-space
-randomization. They probably just confused SLAB with BASE (these two
-four-letter words coincidentally share three common letters), as they also
-point out the config SLAB_FREELIST_RANDOM as further randomization within
-the same sentence.
+Merge the test whether the CPU supports STIBP into the test which
+determines whether STIBP is required. Thus try to simplify what is
+already an insane logic.
 
-Fix the reference of the config for kernel address-space randomization to
-the config that provides that.
+Remove a superfluous newline in a comment, while at it.
 
-Fixes: 6e88559470f5 ("Documentation: Add section about CPU vulnerabilities for Spectre")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Link: https://lore.kernel.org/r/20211230171940.27558-1-lukas.bulwahn@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-[bwh: Backported to 4.9: adjust filename]
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Anthony Steinhauser <asteinhauser@google.com>
+Link: https://lkml.kernel.org/r/20200615065806.GB14668@zn.tnic
+[fllinden@amazon.com: fixed contextual conflict (comment) for 4.19]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/hw-vuln/spectre.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
---- a/Documentation/hw-vuln/spectre.rst
-+++ b/Documentation/hw-vuln/spectre.rst
-@@ -468,7 +468,7 @@ Spectre variant 2
-    before invoking any firmware code to prevent Spectre variant 2 exploits
-    using the firmware.
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -755,10 +755,12 @@ spectre_v2_user_select_mitigation(enum s
+ 	}
  
--   Using kernel address space randomization (CONFIG_RANDOMIZE_SLAB=y
-+   Using kernel address space randomization (CONFIG_RANDOMIZE_BASE=y
-    and CONFIG_SLAB_FREELIST_RANDOM=y in the kernel configuration) makes
-    attacks on the kernel generally more difficult.
+ 	/*
+-	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
++	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
+ 	 * required.
+ 	 */
+-	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
++	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
++	    !smt_possible ||
++	    spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+ 		return;
  
+ 	/*
+@@ -770,12 +772,6 @@ spectre_v2_user_select_mitigation(enum s
+ 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+ 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+ 
+-	/*
+-	 * If STIBP is not available, clear the STIBP mode.
+-	 */
+-	if (!boot_cpu_has(X86_FEATURE_STIBP))
+-		mode = SPECTRE_V2_USER_NONE;
+-
+ 	spectre_v2_user_stibp = mode;
+ 
+ set_mode:
+@@ -1254,7 +1250,6 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return 0;
+-
+ 		/*
+ 		 * With strict mode for both IBPB and STIBP, the instruction
+ 		 * code paths avoid checking this task flag and instead,
 
 
