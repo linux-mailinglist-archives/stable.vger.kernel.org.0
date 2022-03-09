@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE9424D3294
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:04:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E61204D336A
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:21:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231624AbiCIQDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:03:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40694 "EHLO
+        id S234571AbiCIQKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:10:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234283AbiCIQC5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:02:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF75C17AED1;
-        Wed,  9 Mar 2022 08:01:55 -0800 (PST)
+        with ESMTP id S235404AbiCIQIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57C5413CA25;
+        Wed,  9 Mar 2022 08:05:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DEC961670;
-        Wed,  9 Mar 2022 16:01:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5505AC340E8;
-        Wed,  9 Mar 2022 16:01:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 746B4B82222;
+        Wed,  9 Mar 2022 16:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA40C340E8;
+        Wed,  9 Mar 2022 16:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841714;
-        bh=hUAio2j7eMsQbTwI5mHPWJIU4Rc0iNayJZ8io4YTexw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BhlRp1H4O7VI+W7XdOag1ALyASuYBeBrOtWeymRSjBZHSn86UXiFLgy1N16xKOEQN
-         uNAp2jyGo5NXq0pKFh+s5ac0pVQPZ01hpTFf4CZbgGydM4rSM/0wEFHlsgJWnw5bxv
-         PvG7qnN4BQE/44mScPq0lYsezQkNp2AXn8lQ/xNk=
+        s=korg; t=1646841897;
+        bh=XBybpJyAFe6Gt+30ldIN9wMIK/cXPSF5eZqeyD4Ue+w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZrIFhQ0gQpIET8JG6r1kxFBkQUXbSgF77WZs96hRipcK9iw++Y7YeMY6bcXNZ2ahp
+         abhD39QlkmwFuu4F9vCt4VB5ptKt1V5PqGzSJrWdBiFXWtp5bnpQeXnHquSUoQJNsQ
+         TQybCEaGkInpJtJRgi72X598wZBZD5/3ZG4ACawA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 19/24] ARM: report Spectre v2 status through sysfs
-Date:   Wed,  9 Mar 2022 16:59:32 +0100
-Message-Id: <20220309155856.866390938@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.10 00/43] 5.10.105-rc1 review
+Date:   Wed,  9 Mar 2022 16:59:33 +0100
+Message-Id: <20220309155859.239810747@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.295480966@linuxfoundation.org>
-References: <20220309155856.295480966@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.105-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.105-rc1
+X-KernelTest-Deadline: 2022-03-11T15:59+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -53,344 +61,218 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+This is the start of the stable review cycle for the 5.10.105 release.
+There are 43 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 9dd78194a3722fa6712192cdd4f7032d45112a9a upstream.
+Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+Anything received after that time might be too late.
 
-As per other architectures, add support for reporting the Spectre
-vulnerability status via sysfs CPU.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.105-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-[ preserve res variable and add SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED - gregkh ]
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm/include/asm/spectre.h |   28 ++++++++
- arch/arm/kernel/Makefile       |    2 
- arch/arm/kernel/spectre.c      |   54 +++++++++++++++++
- arch/arm/mm/Kconfig            |    1 
- arch/arm/mm/proc-v7-bugs.c     |  130 +++++++++++++++++++++++++++++++----------
- 5 files changed, 184 insertions(+), 31 deletions(-)
- create mode 100644 arch/arm/include/asm/spectre.h
- create mode 100644 arch/arm/kernel/spectre.c
+thanks,
 
---- /dev/null
-+++ b/arch/arm/include/asm/spectre.h
-@@ -0,0 +1,28 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef __ASM_SPECTRE_H
-+#define __ASM_SPECTRE_H
-+
-+enum {
-+	SPECTRE_UNAFFECTED,
-+	SPECTRE_MITIGATED,
-+	SPECTRE_VULNERABLE,
-+};
-+
-+enum {
-+	__SPECTRE_V2_METHOD_BPIALL,
-+	__SPECTRE_V2_METHOD_ICIALLU,
-+	__SPECTRE_V2_METHOD_SMC,
-+	__SPECTRE_V2_METHOD_HVC,
-+};
-+
-+enum {
-+	SPECTRE_V2_METHOD_BPIALL = BIT(__SPECTRE_V2_METHOD_BPIALL),
-+	SPECTRE_V2_METHOD_ICIALLU = BIT(__SPECTRE_V2_METHOD_ICIALLU),
-+	SPECTRE_V2_METHOD_SMC = BIT(__SPECTRE_V2_METHOD_SMC),
-+	SPECTRE_V2_METHOD_HVC = BIT(__SPECTRE_V2_METHOD_HVC),
-+};
-+
-+void spectre_v2_update_state(unsigned int state, unsigned int methods);
-+
-+#endif
---- a/arch/arm/kernel/Makefile
-+++ b/arch/arm/kernel/Makefile
-@@ -100,4 +100,6 @@ endif
- 
- obj-$(CONFIG_HAVE_ARM_SMCCC)	+= smccc-call.o
- 
-+obj-$(CONFIG_GENERIC_CPU_VULNERABILITIES) += spectre.o
-+
- extra-y := $(head-y) vmlinux.lds
---- /dev/null
-+++ b/arch/arm/kernel/spectre.c
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/cpu.h>
-+#include <linux/device.h>
-+
-+#include <asm/spectre.h>
-+
-+ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	return sprintf(buf, "Mitigation: __user pointer sanitization\n");
-+}
-+
-+static unsigned int spectre_v2_state;
-+static unsigned int spectre_v2_methods;
-+
-+void spectre_v2_update_state(unsigned int state, unsigned int method)
-+{
-+	if (state > spectre_v2_state)
-+		spectre_v2_state = state;
-+	spectre_v2_methods |= method;
-+}
-+
-+ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	const char *method;
-+
-+	if (spectre_v2_state == SPECTRE_UNAFFECTED)
-+		return sprintf(buf, "%s\n", "Not affected");
-+
-+	if (spectre_v2_state != SPECTRE_MITIGATED)
-+		return sprintf(buf, "%s\n", "Vulnerable");
-+
-+	switch (spectre_v2_methods) {
-+	case SPECTRE_V2_METHOD_BPIALL:
-+		method = "Branch predictor hardening";
-+		break;
-+
-+	case SPECTRE_V2_METHOD_ICIALLU:
-+		method = "I-cache invalidation";
-+		break;
-+
-+	case SPECTRE_V2_METHOD_SMC:
-+	case SPECTRE_V2_METHOD_HVC:
-+		method = "Firmware call";
-+		break;
-+
-+	default:
-+		method = "Multiple mitigations";
-+		break;
-+	}
-+
-+	return sprintf(buf, "Mitigation: %s\n", method);
-+}
---- a/arch/arm/mm/Kconfig
-+++ b/arch/arm/mm/Kconfig
-@@ -803,6 +803,7 @@ config CPU_BPREDICT_DISABLE
- 
- config CPU_SPECTRE
- 	bool
-+	select GENERIC_CPU_VULNERABILITIES
- 
- config HARDEN_BRANCH_PREDICTOR
- 	bool "Harden the branch predictor against aliasing attacks" if EXPERT
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -7,8 +7,36 @@
- #include <asm/cp15.h>
- #include <asm/cputype.h>
- #include <asm/proc-fns.h>
-+#include <asm/spectre.h>
- #include <asm/system_misc.h>
- 
-+#ifdef CONFIG_ARM_PSCI
-+#define SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED	1
-+static int __maybe_unused spectre_v2_get_cpu_fw_mitigation_state(void)
-+{
-+	struct arm_smccc_res res;
-+
-+	arm_smccc_1_1_invoke(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
-+			     ARM_SMCCC_ARCH_WORKAROUND_1, &res);
-+
-+	switch ((int)res.a0) {
-+	case SMCCC_RET_SUCCESS:
-+		return SPECTRE_MITIGATED;
-+
-+	case SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED:
-+		return SPECTRE_UNAFFECTED;
-+
-+	default:
-+		return SPECTRE_VULNERABLE;
-+	}
-+}
-+#else
-+static int __maybe_unused spectre_v2_get_cpu_fw_mitigation_state(void)
-+{
-+	return SPECTRE_VULNERABLE;
-+}
-+#endif
-+
- #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- DEFINE_PER_CPU(harden_branch_predictor_fn_t, harden_branch_predictor_fn);
- 
-@@ -37,13 +65,60 @@ static void __maybe_unused call_hvc_arch
- 	arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_WORKAROUND_1, NULL);
- }
- 
--static void cpu_v7_spectre_init(void)
-+static unsigned int spectre_v2_install_workaround(unsigned int method)
- {
- 	const char *spectre_v2_method = NULL;
- 	int cpu = smp_processor_id();
- 
- 	if (per_cpu(harden_branch_predictor_fn, cpu))
--		return;
-+		return SPECTRE_MITIGATED;
-+
-+	switch (method) {
-+	case SPECTRE_V2_METHOD_BPIALL:
-+		per_cpu(harden_branch_predictor_fn, cpu) =
-+			harden_branch_predictor_bpiall;
-+		spectre_v2_method = "BPIALL";
-+		break;
-+
-+	case SPECTRE_V2_METHOD_ICIALLU:
-+		per_cpu(harden_branch_predictor_fn, cpu) =
-+			harden_branch_predictor_iciallu;
-+		spectre_v2_method = "ICIALLU";
-+		break;
-+
-+	case SPECTRE_V2_METHOD_HVC:
-+		per_cpu(harden_branch_predictor_fn, cpu) =
-+			call_hvc_arch_workaround_1;
-+		cpu_do_switch_mm = cpu_v7_hvc_switch_mm;
-+		spectre_v2_method = "hypervisor";
-+		break;
-+
-+	case SPECTRE_V2_METHOD_SMC:
-+		per_cpu(harden_branch_predictor_fn, cpu) =
-+			call_smc_arch_workaround_1;
-+		cpu_do_switch_mm = cpu_v7_smc_switch_mm;
-+		spectre_v2_method = "firmware";
-+		break;
-+	}
-+
-+	if (spectre_v2_method)
-+		pr_info("CPU%u: Spectre v2: using %s workaround\n",
-+			smp_processor_id(), spectre_v2_method);
-+
-+	return SPECTRE_MITIGATED;
-+}
-+#else
-+static unsigned int spectre_v2_install_workaround(unsigned int method)
-+{
-+	pr_info("CPU%u: Spectre V2: workarounds disabled by configuration\n");
-+
-+	return SPECTRE_VULNERABLE;
-+}
-+#endif
-+
-+static void cpu_v7_spectre_v2_init(void)
-+{
-+	unsigned int state, method = 0;
- 
- 	switch (read_cpuid_part()) {
- 	case ARM_CPU_PART_CORTEX_A8:
-@@ -52,29 +127,32 @@ static void cpu_v7_spectre_init(void)
- 	case ARM_CPU_PART_CORTEX_A17:
- 	case ARM_CPU_PART_CORTEX_A73:
- 	case ARM_CPU_PART_CORTEX_A75:
--		per_cpu(harden_branch_predictor_fn, cpu) =
--			harden_branch_predictor_bpiall;
--		spectre_v2_method = "BPIALL";
-+		state = SPECTRE_MITIGATED;
-+		method = SPECTRE_V2_METHOD_BPIALL;
- 		break;
- 
- 	case ARM_CPU_PART_CORTEX_A15:
- 	case ARM_CPU_PART_BRAHMA_B15:
--		per_cpu(harden_branch_predictor_fn, cpu) =
--			harden_branch_predictor_iciallu;
--		spectre_v2_method = "ICIALLU";
-+		state = SPECTRE_MITIGATED;
-+		method = SPECTRE_V2_METHOD_ICIALLU;
- 		break;
- 
--#ifdef CONFIG_ARM_PSCI
- 	default:
- 		/* Other ARM CPUs require no workaround */
--		if (read_cpuid_implementor() == ARM_CPU_IMP_ARM)
-+		if (read_cpuid_implementor() == ARM_CPU_IMP_ARM) {
-+			state = SPECTRE_UNAFFECTED;
- 			break;
-+		}
- 		/* fallthrough */
--		/* Cortex A57/A72 require firmware workaround */
-+	/* Cortex A57/A72 require firmware workaround */
- 	case ARM_CPU_PART_CORTEX_A57:
- 	case ARM_CPU_PART_CORTEX_A72: {
- 		struct arm_smccc_res res;
- 
-+		state = spectre_v2_get_cpu_fw_mitigation_state();
-+		if (state != SPECTRE_MITIGATED)
-+			break;
-+
- 		if (psci_ops.smccc_version == SMCCC_VERSION_1_0)
- 			break;
- 
-@@ -84,10 +162,7 @@ static void cpu_v7_spectre_init(void)
- 					  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
- 			if ((int)res.a0 != 0)
- 				break;
--			per_cpu(harden_branch_predictor_fn, cpu) =
--				call_hvc_arch_workaround_1;
--			cpu_do_switch_mm = cpu_v7_hvc_switch_mm;
--			spectre_v2_method = "hypervisor";
-+			method = SPECTRE_V2_METHOD_HVC;
- 			break;
- 
- 		case PSCI_CONDUIT_SMC:
-@@ -95,28 +170,21 @@ static void cpu_v7_spectre_init(void)
- 					  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
- 			if ((int)res.a0 != 0)
- 				break;
--			per_cpu(harden_branch_predictor_fn, cpu) =
--				call_smc_arch_workaround_1;
--			cpu_do_switch_mm = cpu_v7_smc_switch_mm;
--			spectre_v2_method = "firmware";
-+			method = SPECTRE_V2_METHOD_SMC;
- 			break;
- 
- 		default:
-+			state = SPECTRE_VULNERABLE;
- 			break;
- 		}
- 	}
--#endif
- 	}
- 
--	if (spectre_v2_method)
--		pr_info("CPU%u: Spectre v2: using %s workaround\n",
--			smp_processor_id(), spectre_v2_method);
--}
--#else
--static void cpu_v7_spectre_init(void)
--{
-+	if (state == SPECTRE_MITIGATED)
-+		state = spectre_v2_install_workaround(method);
-+
-+	spectre_v2_update_state(state, method);
- }
--#endif
- 
- static __maybe_unused bool cpu_v7_check_auxcr_set(bool *warned,
- 						  u32 mask, const char *msg)
-@@ -146,16 +214,16 @@ static bool check_spectre_auxcr(bool *wa
- void cpu_v7_ca8_ibe(void)
- {
- 	if (check_spectre_auxcr(this_cpu_ptr(&spectre_warned), BIT(6)))
--		cpu_v7_spectre_init();
-+		cpu_v7_spectre_v2_init();
- }
- 
- void cpu_v7_ca15_ibe(void)
- {
- 	if (check_spectre_auxcr(this_cpu_ptr(&spectre_warned), BIT(0)))
--		cpu_v7_spectre_init();
-+		cpu_v7_spectre_v2_init();
- }
- 
- void cpu_v7_bugs_init(void)
- {
--	cpu_v7_spectre_init();
-+	cpu_v7_spectre_v2_init();
- }
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.105-rc1
+
+Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
+    ARM: fix build error when BPF_SYSCALL is disabled
+
+James Morse <james.morse@arm.com>
+    arm64: proton-pack: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+
+James Morse <james.morse@arm.com>
+    arm64: Use the clearbhb instruction in mitigations
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
+
+James Morse <james.morse@arm.com>
+    arm64: Mitigate spectre style branch history side channels
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
+
+James Morse <james.morse@arm.com>
+    arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2
+
+James Morse <james.morse@arm.com>
+    arm64: Add percpu vectors for EL1
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Add macro for reading symbol addresses from the trampoline
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Add vectors that have the bhb mitigation sequences
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Allow the trampoline text to occupy multiple pages
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Make the kpti trampoline's kpti sequence optional
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Move trampoline macros out of ifdef'd section
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Don't assume tramp_vectors is the start of the vectors
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Move the trampoline data page before the text page
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Free up another register on kpti's tramp_exit path
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Make the trampoline cleanup optional
+
+James Morse <james.morse@arm.com>
+    arm64: spectre: Rename spectre_v4_patch_fw_mitigation_conduit
+
+James Morse <james.morse@arm.com>
+    arm64: entry.S: Add ventry overflow sanity checks
+
+Joey Gouly <joey.gouly@arm.com>
+    arm64: cpufeature: add HWCAP for FEAT_RPRES
+
+Joey Gouly <joey.gouly@arm.com>
+    arm64: cpufeature: add HWCAP for FEAT_AFP
+
+Joey Gouly <joey.gouly@arm.com>
+    arm64: add ID_AA64ISAR2_EL1 sys register
+
+Marc Zyngier <maz@kernel.org>
+    arm64: Add HWCAP for self-synchronising virtual counter
+
+Anshuman Khandual <anshuman.khandual@arm.com>
+    arm64: Add Cortex-A510 CPU part definition
+
+Anshuman Khandual <anshuman.khandual@arm.com>
+    arm64: Add Cortex-X2 CPU part definition
+
+Suzuki K Poulose <suzuki.poulose@arm.com>
+    arm64: Add Neoverse-N2, Cortex-A710 CPU part definition
+
+Hector Martin <marcan@marcan.st>
+    arm64: cputype: Add CPU implementor & types for the Apple M1 cores
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: include unprivileged BPF status in Spectre V2 reporting
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: Spectre-BHB workaround
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: use LOADADDR() to get load address of sections
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: early traps initialisation
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: report Spectre v2 status through sysfs
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Warn about Spectre v2 LFENCE mitigation
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/speculation: Update link to AMD speculation whitepaper
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/speculation: Use generic retpoline by default on AMD
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+
+Peter Zijlstra <peterz@infradead.org>
+    Documentation/hw-vuln: Update spectre doc
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/speculation: Add eIBRS + Retpoline options
+
+Peter Zijlstra (Intel) <peterz@infradead.org>
+    x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
+
+Peter Zijlstra <peterz@infradead.org>
+    x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/hw-vuln/spectre.rst   |  48 ++--
+ Documentation/admin-guide/kernel-parameters.txt |   8 +-
+ Documentation/arm64/cpu-feature-registers.rst   |  29 +-
+ Documentation/arm64/elf_hwcaps.rst              |  12 +
+ Makefile                                        |   4 +-
+ arch/arm/include/asm/assembler.h                |  10 +
+ arch/arm/include/asm/spectre.h                  |  32 +++
+ arch/arm/include/asm/vmlinux.lds.h              |  35 ++-
+ arch/arm/kernel/Makefile                        |   2 +
+ arch/arm/kernel/entry-armv.S                    |  79 +++++-
+ arch/arm/kernel/entry-common.S                  |  24 ++
+ arch/arm/kernel/spectre.c                       |  71 +++++
+ arch/arm/kernel/traps.c                         |  65 ++++-
+ arch/arm/mm/Kconfig                             |  11 +
+ arch/arm/mm/proc-v7-bugs.c                      | 207 +++++++++++---
+ arch/arm64/Kconfig                              |   9 +
+ arch/arm64/include/asm/assembler.h              |  33 +++
+ arch/arm64/include/asm/cpu.h                    |   1 +
+ arch/arm64/include/asm/cpucaps.h                |   3 +-
+ arch/arm64/include/asm/cpufeature.h             |  28 ++
+ arch/arm64/include/asm/cputype.h                |  22 ++
+ arch/arm64/include/asm/fixmap.h                 |   6 +-
+ arch/arm64/include/asm/hwcap.h                  |   3 +
+ arch/arm64/include/asm/insn.h                   |   1 +
+ arch/arm64/include/asm/kvm_asm.h                |   8 +
+ arch/arm64/include/asm/kvm_mmu.h                |   3 +-
+ arch/arm64/include/asm/mmu.h                    |   6 +
+ arch/arm64/include/asm/sections.h               |   5 +
+ arch/arm64/include/asm/spectre.h                |   4 +
+ arch/arm64/include/asm/sysreg.h                 |  18 ++
+ arch/arm64/include/asm/vectors.h                |  73 +++++
+ arch/arm64/include/uapi/asm/hwcap.h             |   3 +
+ arch/arm64/include/uapi/asm/kvm.h               |   5 +
+ arch/arm64/kernel/cpu_errata.c                  |   7 +
+ arch/arm64/kernel/cpufeature.c                  |  28 +-
+ arch/arm64/kernel/cpuinfo.c                     |   4 +
+ arch/arm64/kernel/entry.S                       | 213 ++++++++++----
+ arch/arm64/kernel/proton-pack.c                 | 359 +++++++++++++++++++++++-
+ arch/arm64/kernel/vmlinux.lds.S                 |   2 +-
+ arch/arm64/kvm/arm.c                            |   3 +-
+ arch/arm64/kvm/hyp/hyp-entry.S                  |   4 +
+ arch/arm64/kvm/hyp/smccc_wa.S                   |  75 +++++
+ arch/arm64/kvm/hyp/vhe/switch.c                 |   9 +-
+ arch/arm64/kvm/hypercalls.c                     |  12 +
+ arch/arm64/kvm/psci.c                           |  18 +-
+ arch/arm64/kvm/sys_regs.c                       |   2 +-
+ arch/arm64/mm/mmu.c                             |  12 +-
+ arch/x86/include/asm/cpufeatures.h              |   2 +-
+ arch/x86/include/asm/nospec-branch.h            |  16 +-
+ arch/x86/kernel/cpu/bugs.c                      | 205 ++++++++++----
+ include/linux/arm-smccc.h                       |   5 +
+ include/linux/bpf.h                             |  12 +
+ kernel/sysctl.c                                 |   7 +
+ tools/arch/x86/include/asm/cpufeatures.h        |   2 +-
+ 54 files changed, 1651 insertions(+), 214 deletions(-)
 
 
