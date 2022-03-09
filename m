@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E5A4D376A
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8983C4D3682
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231493AbiCIQev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:34:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48702 "EHLO
+        id S235510AbiCIQfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:35:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238513AbiCIQb2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:31:28 -0500
+        with ESMTP id S238569AbiCIQbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:31:32 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB6581986C7;
-        Wed,  9 Mar 2022 08:25:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5916C199D75;
+        Wed,  9 Mar 2022 08:25:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7388B82222;
-        Wed,  9 Mar 2022 16:25:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972B0C340F5;
-        Wed,  9 Mar 2022 16:25:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA2AEB821FD;
+        Wed,  9 Mar 2022 16:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F267FC340F9;
+        Wed,  9 Mar 2022 16:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646843147;
-        bh=QmAjkaZnhFHuR7kAkoLnEzj2gPYIjIZ2GVveWQKSXBg=;
+        s=k20201202; t=1646843154;
+        bh=nJtRHfaLe5NTL07RaKpu2Xj7ndP+2DVwsE9w+qaCDaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeOhIjVtvWlrb1Yili6uToX6XidgbNpL/u7ddfR12k1v2CPDGuW8BKUsQvAtdsdh/
-         jli0ksxSLBjiXyILmXYuC2EDQrIaLfks7Dv+RCcApA7goG+JGsVuNXY+RIvfECjiCo
-         BDTKK13BVotTCIyN7cvpV3rGiHRAKZ1DM1C67qZHC8FgO/rEgmbIb0CInTmG1hdIiY
-         KSzKgvnQ+eQbe/QPI//qCfXUkZYnGwg4fakPZNFrK6MmvqIgMmqKNjIzxW90TF2Fty
-         YEy0CmZ993uA1Xc0l7eQPVmdzmlfHAon2LmuQAFxwdKErVeh8teLKKa8xJpHRgtShG
-         Lja5jWLc/UsIg==
+        b=AVRVCY4gDjwIT56WAXJo1HIXXGcVsbs4DahHXhvYrh+gzZmogWGGkazFZT1kl5Yfi
+         RZU5Cjc4PzfvPspxfU4vdGCqd84tm8ZST2KUDtzN0bTkbxvNxu+W+M2ON57+tDcDH5
+         R3wZKrjTm1mrYqY4sYsdp69Hl7VeNTTFDPtmetMnpqspyC31Sw+zMpxuJyE8wbCA0Q
+         63DrgSzqE7wO1SbO24xoFYfxhG1t2F0AmDHPy9f2MOW1KuNA60K8PUQxqdE/K6Eqt9
+         s5p49COjSTz/M7cMSYtJYmTVhGzM+abddqaGTQ3pR2I9B/Ir2VO0gMV6SHnFD23kkM
+         mLA4eb1wcjVPA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Braha <julianbraha@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, jarkko@kernel.org,
-        mcroce@microsoft.com, deller@gmx.de, geert@linux-m68k.org,
-        johannes.berg@intel.com, arnd@arndb.de,
-        James.Bottomley@HansenPartnership.com
-Subject: [PATCH AUTOSEL 4.19 07/14] ARM: 9178/1: fix unmet dependency on BITREVERSE for HAVE_ARCH_BITREVERSE
-Date:   Wed,  9 Mar 2022 11:25:00 -0500
-Message-Id: <20220309162508.137035-7-sashal@kernel.org>
+Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Pavel Machek <pavel@denx.de>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, wg@grandegger.com,
+        davem@davemloft.net, kuba@kernel.org, stefan.maetje@esd.eu,
+        mailhol.vincent@wanadoo.fr, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 08/14] can: rcar_canfd: rcar_canfd_channel_probe(): register the CAN device when fully ready
+Date:   Wed,  9 Mar 2022 11:25:01 -0500
+Message-Id: <20220309162508.137035-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220309162508.137035-1-sashal@kernel.org>
 References: <20220309162508.137035-1-sashal@kernel.org>
@@ -59,48 +61,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Braha <julianbraha@gmail.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 11c57c3ba94da74c3446924260e34e0b1950b5d7 ]
+[ Upstream commit c5048a7b2c23ab589f3476a783bd586b663eda5b ]
 
-Resending this to properly add it to the patch tracker - thanks for letting
-me know, Arnd :)
+Register the CAN device only when all the necessary initialization is
+completed. This patch makes sure all the data structures and locks are
+initialized before registering the CAN device.
 
-When ARM is enabled, and BITREVERSE is disabled,
-Kbuild gives the following warning:
-
-WARNING: unmet direct dependencies detected for HAVE_ARCH_BITREVERSE
-  Depends on [n]: BITREVERSE [=n]
-  Selected by [y]:
-  - ARM [=y] && (CPU_32v7M [=n] || CPU_32v7 [=y]) && !CPU_32v6 [=n]
-
-This is because ARM selects HAVE_ARCH_BITREVERSE
-without selecting BITREVERSE, despite
-HAVE_ARCH_BITREVERSE depending on BITREVERSE.
-
-This unmet dependency bug was found by Kismet,
-a static analysis tool for Kconfig. Please advise if this
-is not the appropriate solution.
-
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/all/20220221225935.12300-1-prabhakar.mahadev-lad.rj@bp.renesas.com
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Pavel Machek <pavel@denx.de>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/can/rcar/rcar_canfd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/Kconfig b/lib/Kconfig
-index a3928d4438b5..714ec2f50bb1 100644
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -16,7 +16,6 @@ config BITREVERSE
- config HAVE_ARCH_BITREVERSE
- 	bool
- 	default n
--	depends on BITREVERSE
- 	help
- 	  This option enables the use of hardware bit-reversal instructions on
- 	  architectures which support such operations.
+diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
+index 786d852a70d5..a1634834b640 100644
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1602,15 +1602,15 @@ static int rcar_canfd_channel_probe(struct rcar_canfd_global *gpriv, u32 ch,
+ 
+ 	netif_napi_add(ndev, &priv->napi, rcar_canfd_rx_poll,
+ 		       RCANFD_NAPI_WEIGHT);
++	spin_lock_init(&priv->tx_lock);
++	devm_can_led_init(ndev);
++	gpriv->ch[priv->channel] = priv;
+ 	err = register_candev(ndev);
+ 	if (err) {
+ 		dev_err(&pdev->dev,
+ 			"register_candev() failed, error %d\n", err);
+ 		goto fail_candev;
+ 	}
+-	spin_lock_init(&priv->tx_lock);
+-	devm_can_led_init(ndev);
+-	gpriv->ch[priv->channel] = priv;
+ 	dev_info(&pdev->dev, "device registered (channel %u)\n", priv->channel);
+ 	return 0;
+ 
 -- 
 2.34.1
 
