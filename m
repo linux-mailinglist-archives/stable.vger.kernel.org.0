@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E05974D32E5
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6044D338C
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234799AbiCIQLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:11:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38534 "EHLO
+        id S234908AbiCIQMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:12:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236233AbiCIQJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61E7141E12;
-        Wed,  9 Mar 2022 08:08:31 -0800 (PST)
+        with ESMTP id S234616AbiCIQKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:10:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A83A9948;
+        Wed,  9 Mar 2022 08:09:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A650B82224;
-        Wed,  9 Mar 2022 16:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADF51C340E8;
-        Wed,  9 Mar 2022 16:08:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21022B8222E;
+        Wed,  9 Mar 2022 16:09:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52CB1C340EC;
+        Wed,  9 Mar 2022 16:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646842109;
-        bh=jfh93942woBVQK5LVBaPe5OgFH0pMKYT8YE3uAVPrtQ=;
+        s=korg; t=1646842145;
+        bh=Z5zp1mf8rFmooGBgHSXH5R4zz+cYDH5D/cihGt0NXHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOsoNQYerzdLzqGmb5nr3aV6NZZ0O2TIWzC6PluTa19MjndOAQVjREiiNJlctWOoW
-         VKKcQPqWAnurlw4BYnhMMDjqu4j8ldmBi5CF14+L/USaFqXj/MQfMT8nZjBGlMjkM0
-         jvEqPhCjcVnhI2/LaRcymu3sMtVVPCHo/RDvo7B8=
+        b=kzisaWeNnkQgIk56QjA5Akp0VzSoeFd2laWHI8FO0SLyniRVjBpjZ3fDjQw/EsQdF
+         YqLG53iDvswWX6YCdkViIdF8Y7VJAfJVYy41Oo23IcflgRS5dNG8N2aP9/do66J4Et
+         UC0Yescg1T/Ofgji8ESSpJATWns9LTC8Kv4pLfV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 31/43] arm64: entry: Allow the trampoline text to occupy multiple pages
+        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.16 14/37] arm64: add ID_AA64ISAR2_EL1 sys register
 Date:   Wed,  9 Mar 2022 17:00:15 +0100
-Message-Id: <20220309155900.636768996@linuxfoundation.org>
+Message-Id: <20220309155859.503049666@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
-References: <20220309155859.734715884@linuxfoundation.org>
+In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
+References: <20220309155859.086952723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +58,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Joey Gouly <joey.gouly@arm.com>
 
-commit a9c406e6462ff14956d690de7bbe5131a5677dc9 upstream.
+commit 9e45365f1469ef2b934f9d035975dbc9ad352116 upstream.
 
-Adding a second set of vectors to .entry.tramp.text will make it
-larger than a single 4K page.
+This is a new ID register, introduced in 8.7.
 
-Allow the trampoline text to occupy up to three pages by adding two
-more fixmap slots. Previous changes to tramp_valias allowed it to reach
-beyond a single page.
-
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: Reiji Watanabe <reijiw@google.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211210165432.8106-3-joey.gouly@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/fixmap.h   |    6 ++++--
- arch/arm64/include/asm/sections.h |    5 +++++
- arch/arm64/kernel/entry.S         |    2 +-
- arch/arm64/kernel/vmlinux.lds.S   |    2 +-
- arch/arm64/mm/mmu.c               |   12 +++++++++---
- 5 files changed, 20 insertions(+), 7 deletions(-)
+ arch/arm64/include/asm/cpu.h    |    1 +
+ arch/arm64/include/asm/sysreg.h |   15 +++++++++++++++
+ arch/arm64/kernel/cpufeature.c  |    9 +++++++++
+ arch/arm64/kernel/cpuinfo.c     |    1 +
+ arch/arm64/kvm/sys_regs.c       |    2 +-
+ 5 files changed, 27 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/fixmap.h
-+++ b/arch/arm64/include/asm/fixmap.h
-@@ -62,9 +62,11 @@ enum fixed_addresses {
- #endif /* CONFIG_ACPI_APEI_GHES */
+--- a/arch/arm64/include/asm/cpu.h
++++ b/arch/arm64/include/asm/cpu.h
+@@ -51,6 +51,7 @@ struct cpuinfo_arm64 {
+ 	u64		reg_id_aa64dfr1;
+ 	u64		reg_id_aa64isar0;
+ 	u64		reg_id_aa64isar1;
++	u64		reg_id_aa64isar2;
+ 	u64		reg_id_aa64mmfr0;
+ 	u64		reg_id_aa64mmfr1;
+ 	u64		reg_id_aa64mmfr2;
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -182,6 +182,7 @@
  
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--	FIX_ENTRY_TRAMP_TEXT,
-+	FIX_ENTRY_TRAMP_TEXT3,
-+	FIX_ENTRY_TRAMP_TEXT2,
-+	FIX_ENTRY_TRAMP_TEXT1,
- 	FIX_ENTRY_TRAMP_DATA,
--#define TRAMP_VALIAS		(__fix_to_virt(FIX_ENTRY_TRAMP_TEXT))
-+#define TRAMP_VALIAS		(__fix_to_virt(FIX_ENTRY_TRAMP_TEXT1))
- #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
- 	__end_of_permanent_fixed_addresses,
+ #define SYS_ID_AA64ISAR0_EL1		sys_reg(3, 0, 0, 6, 0)
+ #define SYS_ID_AA64ISAR1_EL1		sys_reg(3, 0, 0, 6, 1)
++#define SYS_ID_AA64ISAR2_EL1		sys_reg(3, 0, 0, 6, 2)
  
---- a/arch/arm64/include/asm/sections.h
-+++ b/arch/arm64/include/asm/sections.h
-@@ -22,4 +22,9 @@ extern char __irqentry_text_start[], __i
- extern char __mmuoff_data_start[], __mmuoff_data_end[];
- extern char __entry_tramp_text_start[], __entry_tramp_text_end[];
+ #define SYS_ID_AA64MMFR0_EL1		sys_reg(3, 0, 0, 7, 0)
+ #define SYS_ID_AA64MMFR1_EL1		sys_reg(3, 0, 0, 7, 1)
+@@ -771,6 +772,20 @@
+ #define ID_AA64ISAR1_GPI_NI			0x0
+ #define ID_AA64ISAR1_GPI_IMP_DEF		0x1
  
-+static inline size_t entry_tramp_text_size(void)
-+{
-+	return __entry_tramp_text_end - __entry_tramp_text_start;
-+}
++/* id_aa64isar2 */
++#define ID_AA64ISAR2_RPRES_SHIFT	4
++#define ID_AA64ISAR2_WFXT_SHIFT		0
 +
- #endif /* __ASM_SECTIONS_H */
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -642,7 +642,7 @@ alternative_else_nop_endif
- 	.endm
- 
- 	.macro tramp_data_page	dst
--	adr	\dst, .entry.tramp.text
-+	adr_l	\dst, .entry.tramp.text
- 	sub	\dst, \dst, PAGE_SIZE
- 	.endm
- 
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -330,7 +330,7 @@ ASSERT(__hibernate_exit_text_end - (__hi
- 	<= SZ_4K, "Hibernate exit text too big or misaligned")
- #endif
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--ASSERT((__entry_tramp_text_end - __entry_tramp_text_start) == PAGE_SIZE,
-+ASSERT((__entry_tramp_text_end - __entry_tramp_text_start) <= 3*PAGE_SIZE,
- 	"Entry trampoline text too big")
- #endif
- #ifdef CONFIG_KVM
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -616,6 +616,8 @@ early_param("rodata", parse_rodata);
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- static int __init map_entry_trampoline(void)
- {
-+	int i;
++#define ID_AA64ISAR2_RPRES_8BIT		0x0
++#define ID_AA64ISAR2_RPRES_12BIT	0x1
++/*
++ * Value 0x1 has been removed from the architecture, and is
++ * reserved, but has not yet been removed from the ARM ARM
++ * as of ARM DDI 0487G.b.
++ */
++#define ID_AA64ISAR2_WFXT_NI		0x0
++#define ID_AA64ISAR2_WFXT_SUPPORTED	0x2
 +
- 	pgprot_t prot = rodata_enabled ? PAGE_KERNEL_ROX : PAGE_KERNEL_EXEC;
- 	phys_addr_t pa_start = __pa_symbol(__entry_tramp_text_start);
+ /* id_aa64pfr0 */
+ #define ID_AA64PFR0_CSV3_SHIFT		60
+ #define ID_AA64PFR0_CSV2_SHIFT		56
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -225,6 +225,10 @@ static const struct arm64_ftr_bits ftr_i
+ 	ARM64_FTR_END,
+ };
  
-@@ -624,11 +626,15 @@ static int __init map_entry_trampoline(v
- 
- 	/* Map only the text into the trampoline page table */
- 	memset(tramp_pg_dir, 0, PGD_SIZE);
--	__create_pgd_mapping(tramp_pg_dir, pa_start, TRAMP_VALIAS, PAGE_SIZE,
--			     prot, __pgd_pgtable_alloc, 0);
-+	__create_pgd_mapping(tramp_pg_dir, pa_start, TRAMP_VALIAS,
-+			     entry_tramp_text_size(), prot,
-+			     __pgd_pgtable_alloc, NO_BLOCK_MAPPINGS);
- 
- 	/* Map both the text and data into the kernel page table */
--	__set_fixmap(FIX_ENTRY_TRAMP_TEXT, pa_start, prot);
-+	for (i = 0; i < DIV_ROUND_UP(entry_tramp_text_size(), PAGE_SIZE); i++)
-+		__set_fixmap(FIX_ENTRY_TRAMP_TEXT1 - i,
-+			     pa_start + i * PAGE_SIZE, prot);
++static const struct arm64_ftr_bits ftr_id_aa64isar2[] = {
++	ARM64_FTR_END,
++};
 +
- 	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
- 		extern char __entry_tramp_data_start[];
+ static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV3_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
+@@ -637,6 +641,7 @@ static const struct __ftr_reg_entry {
+ 	ARM64_FTR_REG(SYS_ID_AA64ISAR0_EL1, ftr_id_aa64isar0),
+ 	ARM64_FTR_REG_OVERRIDE(SYS_ID_AA64ISAR1_EL1, ftr_id_aa64isar1,
+ 			       &id_aa64isar1_override),
++	ARM64_FTR_REG(SYS_ID_AA64ISAR2_EL1, ftr_id_aa64isar2),
  
+ 	/* Op1 = 0, CRn = 0, CRm = 7 */
+ 	ARM64_FTR_REG(SYS_ID_AA64MMFR0_EL1, ftr_id_aa64mmfr0),
+@@ -933,6 +938,7 @@ void __init init_cpu_features(struct cpu
+ 	init_cpu_ftr_reg(SYS_ID_AA64DFR1_EL1, info->reg_id_aa64dfr1);
+ 	init_cpu_ftr_reg(SYS_ID_AA64ISAR0_EL1, info->reg_id_aa64isar0);
+ 	init_cpu_ftr_reg(SYS_ID_AA64ISAR1_EL1, info->reg_id_aa64isar1);
++	init_cpu_ftr_reg(SYS_ID_AA64ISAR2_EL1, info->reg_id_aa64isar2);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR0_EL1, info->reg_id_aa64mmfr0);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR1_EL1, info->reg_id_aa64mmfr1);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR2_EL1, info->reg_id_aa64mmfr2);
+@@ -1151,6 +1157,8 @@ void update_cpu_features(int cpu,
+ 				      info->reg_id_aa64isar0, boot->reg_id_aa64isar0);
+ 	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR1_EL1, cpu,
+ 				      info->reg_id_aa64isar1, boot->reg_id_aa64isar1);
++	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR2_EL1, cpu,
++				      info->reg_id_aa64isar2, boot->reg_id_aa64isar2);
+ 
+ 	/*
+ 	 * Differing PARange support is fine as long as all peripherals and
+@@ -1272,6 +1280,7 @@ u64 __read_sysreg_by_encoding(u32 sys_id
+ 	read_sysreg_case(SYS_ID_AA64MMFR2_EL1);
+ 	read_sysreg_case(SYS_ID_AA64ISAR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64ISAR1_EL1);
++	read_sysreg_case(SYS_ID_AA64ISAR2_EL1);
+ 
+ 	read_sysreg_case(SYS_CNTFRQ_EL0);
+ 	read_sysreg_case(SYS_CTR_EL0);
+--- a/arch/arm64/kernel/cpuinfo.c
++++ b/arch/arm64/kernel/cpuinfo.c
+@@ -391,6 +391,7 @@ static void __cpuinfo_store_cpu(struct c
+ 	info->reg_id_aa64dfr1 = read_cpuid(ID_AA64DFR1_EL1);
+ 	info->reg_id_aa64isar0 = read_cpuid(ID_AA64ISAR0_EL1);
+ 	info->reg_id_aa64isar1 = read_cpuid(ID_AA64ISAR1_EL1);
++	info->reg_id_aa64isar2 = read_cpuid(ID_AA64ISAR2_EL1);
+ 	info->reg_id_aa64mmfr0 = read_cpuid(ID_AA64MMFR0_EL1);
+ 	info->reg_id_aa64mmfr1 = read_cpuid(ID_AA64MMFR1_EL1);
+ 	info->reg_id_aa64mmfr2 = read_cpuid(ID_AA64MMFR2_EL1);
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1525,7 +1525,7 @@ static const struct sys_reg_desc sys_reg
+ 	/* CRm=6 */
+ 	ID_SANITISED(ID_AA64ISAR0_EL1),
+ 	ID_SANITISED(ID_AA64ISAR1_EL1),
+-	ID_UNALLOCATED(6,2),
++	ID_SANITISED(ID_AA64ISAR2_EL1),
+ 	ID_UNALLOCATED(6,3),
+ 	ID_UNALLOCATED(6,4),
+ 	ID_UNALLOCATED(6,5),
 
 
