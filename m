@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD004D32FE
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 595D24D339A
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234541AbiCIQKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:10:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43626 "EHLO
+        id S234596AbiCIQKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:10:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234724AbiCIQH7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:07:59 -0500
+        with ESMTP id S235441AbiCIQIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929F71480C8;
-        Wed,  9 Mar 2022 08:04:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B9B118E43E;
+        Wed,  9 Mar 2022 08:05:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BBB6B82222;
-        Wed,  9 Mar 2022 16:04:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B041BC340E8;
-        Wed,  9 Mar 2022 16:04:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB1F2B82221;
+        Wed,  9 Mar 2022 16:05:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23CBEC340E8;
+        Wed,  9 Mar 2022 16:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841852;
-        bh=YYTxn4Nwrg6CuOgCloYwoSlfT43YKOmCi0fRD30gcL8=;
+        s=korg; t=1646841953;
+        bh=rxrVtqzt8KzhHd7aJFQSaUe6TCVXuDiXrwAXtG1xse4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XGXl3okeoLzEPiskxjwJkLwLfOq5VEnqRBYCDaU7zNKO42kDV0+YogiAmOa5ZkpL1
-         iCD7s1sjDXeok+guEWnXMwQ2eoUG/IAiDdnYGx6vUU/W+/72lqkaWcxocRax1Zar2s
-         0q0wjZ9KsJ/QrgcJDzwSEfJjlcf8lSu+FxTpwYkA=
+        b=JNXUw9TuPgS4KrQe3y3/3p22W7rAsXbEBB4AkvY6Wo+LsM0fna2Vfwx17zxdo0PGW
+         x60h3EEMkwMlBrAegdLk3eJ8jpqbz6bUc02zYauNivxXrVluvaF756SjsFHjr9ievo
+         dveFvyHLUhORMu03dzD8D7ybb1J5jzh1ZISlxMjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 17/18] ARM: include unprivileged BPF status in Spectre V2 reporting
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.10 33/43] arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
 Date:   Wed,  9 Mar 2022 17:00:06 +0100
-Message-Id: <20220309155857.059352644@linuxfoundation.org>
+Message-Id: <20220309155900.198457305@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
-References: <20220309155856.552503355@linuxfoundation.org>
+In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
+References: <20220309155859.239810747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: James Morse <james.morse@arm.com>
 
-commit 25875aa71dfefd1959f07e626c4d285b88b27ac2 upstream.
+commit aff65393fa1401e034656e349abd655cfe272de0 upstream.
 
-The mitigations for Spectre-BHB are only applied when an exception
-is taken, but when unprivileged BPF is enabled, userspace can
-load BPF programs that can be used to exploit the problem.
+kpti is an optional feature, for systems not using kpti a set of
+vectors for the spectre-bhb mitigations is needed.
 
-When unprivileged BPF is enabled, report the vulnerable status via
-the spectre_v2 sysfs file.
+Add another set of vectors, __bp_harden_el1_vectors, that will be
+used if a mitigation is needed and kpti is not in use.
 
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+The EL1 ventries are repeated verbatim as there is no additional
+work needed for entry from EL1.
+
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/spectre.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/arm64/kernel/entry.S |   35 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
 
---- a/arch/arm/kernel/spectre.c
-+++ b/arch/arm/kernel/spectre.c
-@@ -1,9 +1,19 @@
- // SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/bpf.h>
- #include <linux/cpu.h>
- #include <linux/device.h>
- 
- #include <asm/spectre.h>
- 
-+static bool _unprivileged_ebpf_enabled(void)
-+{
-+#ifdef CONFIG_BPF_SYSCALL
-+	return !sysctl_unprivileged_bpf_disabled;
-+#else
-+	return false
-+#endif
-+}
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -819,10 +819,11 @@ alternative_else_nop_endif
+ 	.macro tramp_ventry, vector_start, regsize, kpti
+ 	.align	7
+ 1:
+-	.if	\kpti == 1
+ 	.if	\regsize == 64
+ 	msr	tpidrro_el0, x30	// Restored in kernel_ventry
+ 	.endif
 +
- ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
- 			    char *buf)
- {
-@@ -31,6 +41,9 @@ ssize_t cpu_show_spectre_v2(struct devic
- 	if (spectre_v2_state != SPECTRE_MITIGATED)
- 		return sprintf(buf, "%s\n", "Vulnerable");
++	.if	\kpti == 1
+ 	/*
+ 	 * Defend against branch aliasing attacks by pushing a dummy
+ 	 * entry onto the return stack and using a RET instruction to
+@@ -910,6 +911,38 @@ SYM_DATA_END(__entry_tramp_data_start)
+ #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
  
-+	if (_unprivileged_ebpf_enabled())
-+		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
+ /*
++ * Exception vectors for spectre mitigations on entry from EL1 when
++ * kpti is not in use.
++ */
++	.macro generate_el1_vector
++.Lvector_start\@:
++	kernel_ventry	1, sync_invalid			// Synchronous EL1t
++	kernel_ventry	1, irq_invalid			// IRQ EL1t
++	kernel_ventry	1, fiq_invalid			// FIQ EL1t
++	kernel_ventry	1, error_invalid		// Error EL1t
 +
- 	switch (spectre_v2_methods) {
- 	case SPECTRE_V2_METHOD_BPIALL:
- 		method = "Branch predictor hardening";
++	kernel_ventry	1, sync				// Synchronous EL1h
++	kernel_ventry	1, irq				// IRQ EL1h
++	kernel_ventry	1, fiq_invalid			// FIQ EL1h
++	kernel_ventry	1, error			// Error EL1h
++
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 64, kpti=0
++	.endr
++	.rept 4
++	tramp_ventry	.Lvector_start\@, 32, kpti=0
++	.endr
++	.endm
++
++	.pushsection ".entry.text", "ax"
++	.align	11
++SYM_CODE_START(__bp_harden_el1_vectors)
++	generate_el1_vector
++SYM_CODE_END(__bp_harden_el1_vectors)
++	.popsection
++
++
++/*
+  * Register switch for AArch64. The callee-saved registers need to be saved
+  * and restored. On entry:
+  *   x0 = previous task_struct (must be preserved across the switch)
 
 
