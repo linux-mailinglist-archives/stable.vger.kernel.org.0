@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1806E4D33D7
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8868C4D32F5
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234670AbiCIQLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:11:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44684 "EHLO
+        id S234454AbiCIQHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:07:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234995AbiCIQIU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F1F186471;
-        Wed,  9 Mar 2022 08:04:58 -0800 (PST)
+        with ESMTP id S234564AbiCIQHN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:07:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2EF141FD6;
+        Wed,  9 Mar 2022 08:03:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00063B82231;
-        Wed,  9 Mar 2022 16:04:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E354C340E8;
-        Wed,  9 Mar 2022 16:04:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB52AB82224;
+        Wed,  9 Mar 2022 16:03:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17EBEC340EF;
+        Wed,  9 Mar 2022 16:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841857;
-        bh=gatLyyLi4/uk4jBszPH9iqAzyHrO/4OkvoeFYT6BEfU=;
+        s=korg; t=1646841790;
+        bh=yxgoumT1YLDdhdq5IBgheUbGQSZm44o0PVleM4hr8QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbpfvFhoWfISBgcmQF087A5jloGult0s8CnfeRsWTt5vKMxy/5mAe6Y6m+b58v9nT
-         RPiQUlEP9K0ZKrjuGcTFoUUKRy4X3EVSiUFBU4XB6st/B4MHz5Jxc+XziNziQWWAVA
-         3eJXDTMYy0de0AwGtq66pAWSn4yoEel3jtdvmiSg=
+        b=p/clB6DpbDge5C8iKls60b/T87z4jMWstj9Kc8170AlmcAGRmmqjMt04orSfCUAbr
+         /rCt3LOgPqEohZ70bnEYE264AOg/NJhev5fll9CcToX4dfmbPcQpVqPYmxVgldaIlZ
+         BZyqaO8N1gP4bwStI4aDCiJLxtBcOLk63dEYN91s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 02/18] x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 14/18] ARM: early traps initialisation
 Date:   Wed,  9 Mar 2022 16:59:51 +0100
-Message-Id: <20220309155856.625474606@linuxfoundation.org>
+Message-Id: <20220309155856.578724010@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
-References: <20220309155856.552503355@linuxfoundation.org>
+In-Reply-To: <20220309155856.155540075@linuxfoundation.org>
+References: <20220309155856.155540075@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
 
-commit f8a66d608a3e471e1202778c2a36cbdc96bae73b upstream.
+commit 04e91b7324760a377a725e218b5ee783826d30f5 upstream.
 
-Currently Linux prevents usage of retpoline,amd on !AMD hardware, this
-is unfriendly and gets in the way of testing. Remove this restriction.
+Provide a couple of helpers to copy the vectors and stubs, and also
+to flush the copied vectors and stubs.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Tested-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/r/20211026120310.487348118@infradead.org
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    7 -------
- 1 file changed, 7 deletions(-)
+ arch/arm/kernel/traps.c |   27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -839,13 +839,6 @@ static enum spectre_v2_mitigation_cmd __
- 		return SPECTRE_V2_CMD_AUTO;
- 	}
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -830,10 +830,22 @@ static inline void __init kuser_init(voi
+ }
+ #endif
  
--	if (cmd == SPECTRE_V2_CMD_RETPOLINE_AMD &&
--	    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON &&
--	    boot_cpu_data.x86_vendor != X86_VENDOR_AMD) {
--		pr_err("retpoline,amd selected but CPU is not AMD. Switching to AUTO select\n");
--		return SPECTRE_V2_CMD_AUTO;
--	}
--
- 	spec_v2_print_cond(mitigation_options[i].option,
- 			   mitigation_options[i].secure);
- 	return cmd;
++#ifndef CONFIG_CPU_V7M
++static void copy_from_lma(void *vma, void *lma_start, void *lma_end)
++{
++	memcpy(vma, lma_start, lma_end - lma_start);
++}
++
++static void flush_vectors(void *vma, size_t offset, size_t size)
++{
++	unsigned long start = (unsigned long)vma + offset;
++	unsigned long end = start + size;
++
++	flush_icache_range(start, end);
++}
++
+ void __init early_trap_init(void *vectors_base)
+ {
+-#ifndef CONFIG_CPU_V7M
+-	unsigned long vectors = (unsigned long)vectors_base;
+ 	extern char __stubs_start[], __stubs_end[];
+ 	extern char __vectors_start[], __vectors_end[];
+ 	unsigned i;
+@@ -854,17 +866,20 @@ void __init early_trap_init(void *vector
+ 	 * into the vector page, mapped at 0xffff0000, and ensure these
+ 	 * are visible to the instruction stream.
+ 	 */
+-	memcpy((void *)vectors, __vectors_start, __vectors_end - __vectors_start);
+-	memcpy((void *)vectors + 0x1000, __stubs_start, __stubs_end - __stubs_start);
++	copy_from_lma(vectors_base, __vectors_start, __vectors_end);
++	copy_from_lma(vectors_base + 0x1000, __stubs_start, __stubs_end);
+ 
+ 	kuser_init(vectors_base);
+ 
+-	flush_icache_range(vectors, vectors + PAGE_SIZE * 2);
++	flush_vectors(vectors_base, 0, PAGE_SIZE * 2);
++}
+ #else /* ifndef CONFIG_CPU_V7M */
++void __init early_trap_init(void *vectors_base)
++{
+ 	/*
+ 	 * on V7-M there is no need to copy the vector table to a dedicated
+ 	 * memory area. The address is configurable and so a table in the kernel
+ 	 * image can be used.
+ 	 */
+-#endif
+ }
++#endif
 
 
