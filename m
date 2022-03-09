@@ -2,132 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 393C44D38CD
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 19:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5684D3905
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 19:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235003AbiCIS26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 13:28:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55898 "EHLO
+        id S236525AbiCISlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 13:41:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232406AbiCIS25 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 13:28:57 -0500
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5B831206;
-        Wed,  9 Mar 2022 10:27:57 -0800 (PST)
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-2dbd8777564so33640277b3.0;
-        Wed, 09 Mar 2022 10:27:57 -0800 (PST)
+        with ESMTP id S232677AbiCISlW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 13:41:22 -0500
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 403AB1704FD
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 10:40:23 -0800 (PST)
+Received: by mail-ot1-x32f.google.com with SMTP id s35-20020a0568302aa300b005b2463a41faso2380107otu.10
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 10:40:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=kUWAaoT3ile08MI4chxnqERo8GG6w/0gzaDEsvRM250=;
+        b=OAtGSbEHa44wYcUZNP4X5WlWqTJdMp/QLLWd4Y+5Red4qDKQCfr/PvpGZyZW8Qhdn8
+         sTJN9B1fyCctJwMWdfrjgoVQ+q+4nF9C68x5ES4PHFJbmWbWC01u1aIao42ZQ9wezhfV
+         t/3Dp8s+HLk/2Q0KVeAXHD+jzDaX5XS7DHAjwnev8Mp/a+EbYPemZhQVR+uX1W/L+UOK
+         kLSqrsbOmgFEIeietZjd8MT+FJ0ylqou1ivsc+TxDi9KrWPF4OLJZy4tvQmLhMXy4JIy
+         BWCQOD6oPdaMQCKEUJtfYup4LCcoKawZSSXjL6nByruIj9fO8iDvu1OsVpVAo0kGEghM
+         VsMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=abyW9EPAt1/N2g7LcA6pvtwKR9wcKCKXIM62EVOVNTg=;
-        b=YrQWr5MRlTKtKfiHJOJ/KDZwvgPoPPoGw7IurCuo1JY4ISiyPCaoAkWBNzLvUL4cyg
-         WY06c+xpxnWRflqHFuygmL9vueS2Uyhi64A+v6rIOIdTjCciKF+Q0mmbnZlxemaaN8/y
-         RHcyf1faQGLrTKXKOarmuwxfozXv+LXZ2AVZmfmyJy5tIchAS2m2SVkA8o2Q4nhpoWjJ
-         c+tTV0lvWpXfn1TpL3qBzHf028jYatQnpXKAquEXOEHVRivhlM2AK0kN4Mludd1w4ntZ
-         aRwxUuhaYcku0FS/CVqfG97XAWlX+U1V5/VL+AfwmghLpfQkLxqb/PW+HX2UVYloWeT+
-         GSdg==
-X-Gm-Message-State: AOAM530R7GCq/7yQoeiylpTVraYev5fKHXaUvzAaXKHj+6IYCEDmHZz+
-        XOUWRvXAvphBSQRPRJ4GQ1YDP05w6BEz0TP44TIpgfw1/7c=
-X-Google-Smtp-Source: ABdhPJxl9BcwZnFKR4ckz/GGm2JFpaPyXO9ChA7b1yNGKEZEX9CiJuXw85c12rE55V8JfkQgTQ0xbzXGlD/5zF4jdOg=
-X-Received: by 2002:a81:524c:0:b0:2dc:1a00:1124 with SMTP id
- g73-20020a81524c000000b002dc1a001124mr981662ywb.196.1646850476426; Wed, 09
- Mar 2022 10:27:56 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=kUWAaoT3ile08MI4chxnqERo8GG6w/0gzaDEsvRM250=;
+        b=NMVEiLIVHHGml7molGjbwMYq/cMPC9tTbJbdaSkrSkNSwmk9kNZjHHgdsYVi2ukvbj
+         crYqolKC6eq5z7T+WIcjxSODooSOB0/rcMYy62ZMux6c9GmK4Yt3P7RWi7J/q6yhZAQ/
+         HgC3JoASUr2gS9sQaCqA0RI1YVClf0du4t5WNEsQEUZevryt7/okembaKWAy7fAMhhi4
+         C5fPIx8UmiNR4HMbWlPs1VlKEvaCOtYwxt3B6wWfniZ2Eh7itLdvuJX3D9vQP5n0Duxc
+         6RzJon5LO4Z1hht2+ID0ypfFBbBihCfWlcxaizhP+cOIxzDrMU65gtyfX3mBfVf8UUsJ
+         tPbQ==
+X-Gm-Message-State: AOAM532qmnXi8wMFjDAzdhbhlOYEZnYpGWTyVt4NbN2Oc0vYqR+QKTeD
+        2jL2quhNYO1WTqNBQhdb3/cUzQ==
+X-Google-Smtp-Source: ABdhPJxjObLvRuZOU7BRvitvzfk0dqdAW7F+75UgxDZLmYDD0uEn1qyhVVBAlB5Xj1t+KlzyWXbeVQ==
+X-Received: by 2002:a05:6830:314c:b0:5af:dc8a:d066 with SMTP id c12-20020a056830314c00b005afdc8ad066mr604467ots.28.1646851222563;
+        Wed, 09 Mar 2022 10:40:22 -0800 (PST)
+Received: from [192.168.17.16] ([189.219.74.147])
+        by smtp.gmail.com with ESMTPSA id r23-20020a056830237700b005b2610517c8sm1318483oth.56.2022.03.09.10.40.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Mar 2022 10:40:22 -0800 (PST)
+Message-ID: <2f501345-e847-668e-7ca3-23af49b69224@linaro.org>
+Date:   Wed, 9 Mar 2022 12:40:20 -0600
 MIME-Version: 1.0
-References: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
- <CAJZ5v0hQifvD+U8q1O7p_5QeicG_On4=CrgNj0RsbPSbkY8Hww@mail.gmail.com>
- <ad3b77f8-7e75-1dfa-8ee4-1077336911aa@redhat.com> <CAJZ5v0js8Vr7dW09WGyR_JTn4kMybDhaTWt4yziqwSM+oAXUNA@mail.gmail.com>
-In-Reply-To: <CAJZ5v0js8Vr7dW09WGyR_JTn4kMybDhaTWt4yziqwSM+oAXUNA@mail.gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 9 Mar 2022 19:27:45 +0100
-Message-ID: <CAJZ5v0imJfOp-Uw=tH2dimSQzb-EgHu_yEU_0LScmrQ43t3pbw@mail.gmail.com>
-Subject: Re: Many reports of laptops getting hot while suspended with kernels
- >= 5.16.10 || >= 5.17-rc1
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Justin Forbes <jmforbes@linuxtx.org>,
-        Mark Pearson <markpearson@lenovo.com>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 4.9 00/24] 4.9.306-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220309155856.295480966@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20220309155856.295480966@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 9, 2022 at 5:34 PM Rafael J. Wysocki <rafael@kernel.org> wrote:
->
-> On Wed, Mar 9, 2022 at 5:33 PM Hans de Goede <hdegoede@redhat.com> wrote:
-> >
-> > Hi,
-> >
-> > On 3/9/22 14:57, Rafael J. Wysocki wrote:
-> > > On Wed, Mar 9, 2022 at 2:44 PM Hans de Goede <hdegoede@redhat.com> wrote:
-> > >>
-> > >> Hi Rafael,
-> > >>
-> > >> We (Fedora) have been receiving a whole bunch of bug reports about
-> > >> laptops getting hot/toasty while suspended with kernels >= 5.16.10
-> > >> and this seems to still happen with 5.17-rc7 too.
-> > >>
-> > >> The following are all bugzilla.redhat.com bug numbers:
-> > >>
-> > >>    1750910 - Laptop failed to suspend and completely drained the battery
-> > >>    2050036 - Framework laptop: 5.16.5 breaks s2idle sleep
-> > >>    2053957 - Package c-states never go below C2
-> > >>    2056729 - No lid events when closing lid / laptop does not suspend
-> > >>    2057909 - Thinkpad X1C 9th in s2idle suspend still draining battery to zero over night , Ap
-> > >>    2059668 - HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case ge
-> > >>    2059688 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
-> > >>
-> > >> And one of the bugs has also been mirrored at bugzilla.kernel.org by
-> > >> the reporter:
-> > >>
-> > >>  bko215641 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
-> > >>
-> > >> The common denominator here (besides the kernel version) seems to
-> > >> be that these are all Ice or Tiger Lake systems (I did not do
-> > >> check this applies 100% to all bugs, but it does see, to be a pattern).
-> > >>
-> > >> A similar arch-linux report:
-> > >>
-> > >> https://bbs.archlinux.org/viewtopic.php?id=274292&p=2
-> > >>
-> > >> Suggest that reverting
-> > >> "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
-> > >>
-> > >> which was cherry-picked into 5.16.10 fixes things.
-> > >
-> > > Thanks for letting me know!
-> > >
-> > >> If you want I can create Fedora kernel test-rpms of a recent
-> > >> 5.16.y with just that one commit reverted and ask users to
-> > >> confirm if that helps. Please let me know if doing that woulkd
-> > >> be useful ?
-> > >
-> > > Yes, it would.
-> > >
-> > > However, it follows from the arch-linux report linked above that
-> > > 5.17-rc is fine, so it would be good to also check if reverting that
-> > > commit from 5.17-rc helps.
-> >
-> > Ok, I've done Fedora kernel builds of both 5.16.13 and 5.17-rc7 with
-> > the patch reverted and asked the bug-reporters to test both.
->
-> Thanks!
+Hello!
 
-Also, in the cases where people have not tested 5.17-rc7 without any
-reverts, it would be good to ask them to do so.
+On 09/03/22 09:59, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.306 release.
+> There are 24 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.306-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-I have received another report related to this issue where the problem
-is not present in 5.17-rc7 (see
-https://lore.kernel.org/linux-pm/CAJZ5v0hKXyTtb1Jk=wqNV9_mZKdf3mmwF4bPOcmADyNnTkpMbQ@mail.gmail.com/).
+Regressions found.
 
-It is likely that the commit in question actually depends on some
-other commits that were not backported into 5.16.y.
+The following Arm combinations fail to build:
+- arm-gcc-8-bcm2835_defconfig
+- arm-gcc-8-imx_v6_v7_defconfig
+- arm-gcc-8-omap2plus_defconfig
+- arm-gcc-9-bcm2835_defconfig
+- arm-gcc-9-imx_v6_v7_defconfig
+- arm-gcc-9-omap2plus_defconfig
+- arm-gcc-10-bcm2835_defconfig
+- arm-gcc-10-imx_v6_v7_defconfig
+- arm-gcc-10-omap2plus_defconfig
+- arm-gcc-11-bcm2835_defconfig
+- arm-gcc-11-imx_v6_v7_defconfig
+- arm-gcc-11-omap2plus_defconfig
+
+Messages look like this:
+
+   /builds/linux/arch/arm/kernel/entry-common.S: Assembler messages:
+   /builds/linux/arch/arm/kernel/entry-common.S:155: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/kernel/entry-common.S:164: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/kernel/entry-common.o] Error 1
+   /builds/linux/arch/arm/kernel/entry-armv.S: Assembler messages:
+   /builds/linux/arch/arm/kernel/entry-armv.S:1124: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/kernel/entry-armv.S:1147: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/kernel/entry-armv.S:1170: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/kernel/entry-armv.S:1193: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/kernel/entry-armv.S:1232: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/kernel/entry-armv.o] Error 1
+   /builds/linux/arch/arm/mm/cache-v7.S: Assembler messages:
+   /builds/linux/arch/arm/mm/cache-v7.S:63: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/mm/cache-v7.S:136: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/mm/cache-v7.S:170: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/mm/cache-v7.S:298: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/mm/cache-v7.o] Error 1
+   /builds/linux/arch/arm/mm/tlb-v7.S: Assembler messages:
+   /builds/linux/arch/arm/mm/tlb-v7.S:88: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/mm/tlb-v7.o] Error 1
+   /builds/linux/arch/arm/mm/proc-v7-2level.S: Assembler messages:
+   /builds/linux/arch/arm/mm/proc-v7-2level.S:58: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/mm/proc-v7-2level.S:60: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   /builds/linux/arch/arm/mm/proc-v7.S:61: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+   make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/mm/proc-v7.o] Error 1
+   make[2]: Target '__build' not remade because of errors.
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
