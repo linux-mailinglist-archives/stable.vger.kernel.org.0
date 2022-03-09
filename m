@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37CFA4D32E6
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A19544D3297
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234837AbiCIQMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:12:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33500 "EHLO
+        id S234256AbiCIQDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:03:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235719AbiCIQJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6462818FADF;
-        Wed,  9 Mar 2022 08:06:34 -0800 (PST)
+        with ESMTP id S232725AbiCIQDQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:03:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943D3172E77;
+        Wed,  9 Mar 2022 08:02:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50527B8221D;
-        Wed,  9 Mar 2022 16:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94472C340E8;
-        Wed,  9 Mar 2022 16:06:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2FA11B8221D;
+        Wed,  9 Mar 2022 16:02:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D141C340F3;
+        Wed,  9 Mar 2022 16:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841988;
-        bh=Vq6Ncc2+RgGiJQUsLedhR21yXbke25YcWmkNbJNb698=;
+        s=korg; t=1646841733;
+        bh=zgbSskZyek2/0aDBCozaP6two+Rc50gvBX0vhr4LEkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRTF+2Wxx8gIBazZCWE6LQrt1ZmLYtmv+ioZIb9PXxMnuF9u+Hja9Dwytr61IGjXG
-         ubFNvKJ4/ajKwXKD2yPtGlPJ0ojE1AWze33l9r/5OhhBOoGiRtF/fJy+vUP7j8GJys
-         M/YA7abRXl6lVshxshNU/EgNWjf6yCL5vrA8O95U=
+        b=yCvlEEn7HaRbj6bITm9vgqyd8hQf/9RrLlqgSToMKGI+uW377Ja0a7frjWY5VfoXE
+         QppObbJbLQ28oaSJZrcbup0jTflOm/gso/i1YkwB7VJUpd6dBfhjjCKXzlh7e6YdLF
+         DlY1uKvTBLSo5HbT3YN7PryTMZCl1wlYaYcuTAGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 10/43] ARM: report Spectre v2 status through sysfs
+Subject: [PATCH 4.14 13/18] ARM: report Spectre v2 status through sysfs
 Date:   Wed,  9 Mar 2022 16:59:43 +0100
-Message-Id: <20220309155859.541924587@linuxfoundation.org>
+Message-Id: <20220309155856.486504847@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-References: <20220309155859.239810747@linuxfoundation.org>
+In-Reply-To: <20220309155856.090281301@linuxfoundation.org>
+References: <20220309155856.090281301@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,14 +62,15 @@ vulnerability status via sysfs CPU.
 
 Acked-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+[ preserve res variable and add SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED - gregkh ]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  arch/arm/include/asm/spectre.h |   28 ++++++++
  arch/arm/kernel/Makefile       |    2 
- arch/arm/kernel/spectre.c      |   54 +++++++++++++++
+ arch/arm/kernel/spectre.c      |   54 +++++++++++++++++
  arch/arm/mm/Kconfig            |    1 
- arch/arm/mm/proc-v7-bugs.c     |  141 +++++++++++++++++++++++++++++------------
- 5 files changed, 187 insertions(+), 39 deletions(-)
+ arch/arm/mm/proc-v7-bugs.c     |  130 +++++++++++++++++++++++++++++++----------
+ 5 files changed, 184 insertions(+), 31 deletions(-)
  create mode 100644 arch/arm/include/asm/spectre.h
  create mode 100644 arch/arm/kernel/spectre.c
 
@@ -106,7 +107,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +#endif
 --- a/arch/arm/kernel/Makefile
 +++ b/arch/arm/kernel/Makefile
-@@ -106,4 +106,6 @@ endif
+@@ -101,4 +101,6 @@ endif
  
  obj-$(CONFIG_HAVE_ARM_SMCCC)	+= smccc-call.o
  
@@ -172,7 +173,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +}
 --- a/arch/arm/mm/Kconfig
 +++ b/arch/arm/mm/Kconfig
-@@ -833,6 +833,7 @@ config CPU_BPREDICT_DISABLE
+@@ -829,6 +829,7 @@ config CPU_BPREDICT_DISABLE
  
  config CPU_SPECTRE
  	bool
@@ -182,7 +183,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	bool "Harden the branch predictor against aliasing attacks" if EXPERT
 --- a/arch/arm/mm/proc-v7-bugs.c
 +++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -6,8 +6,35 @@
+@@ -7,8 +7,36 @@
  #include <asm/cp15.h>
  #include <asm/cputype.h>
  #include <asm/proc-fns.h>
@@ -190,6 +191,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #include <asm/system_misc.h>
  
 +#ifdef CONFIG_ARM_PSCI
++#define SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED	1
 +static int __maybe_unused spectre_v2_get_cpu_fw_mitigation_state(void)
 +{
 +	struct arm_smccc_res res;
@@ -218,7 +220,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
  DEFINE_PER_CPU(harden_branch_predictor_fn_t, harden_branch_predictor_fn);
  
-@@ -36,13 +63,60 @@ static void __maybe_unused call_hvc_arch
+@@ -37,13 +65,60 @@ static void __maybe_unused call_hvc_arch
  	arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_WORKAROUND_1, NULL);
  }
  
@@ -281,7 +283,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	switch (read_cpuid_part()) {
  	case ARM_CPU_PART_CORTEX_A8:
-@@ -51,68 +125,57 @@ static void cpu_v7_spectre_init(void)
+@@ -52,29 +127,32 @@ static void cpu_v7_spectre_init(void)
  	case ARM_CPU_PART_CORTEX_A17:
  	case ARM_CPU_PART_CORTEX_A73:
  	case ARM_CPU_PART_CORTEX_A75:
@@ -302,11 +304,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		break;
  
 -#ifdef CONFIG_ARM_PSCI
- 	case ARM_CPU_PART_BRAHMA_B53:
- 		/* Requires no workaround */
-+		state = SPECTRE_UNAFFECTED;
- 		break;
-+
  	default:
  		/* Other ARM CPUs require no workaround */
 -		if (read_cpuid_implementor() == ARM_CPU_IMP_ARM)
@@ -314,26 +311,24 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +			state = SPECTRE_UNAFFECTED;
  			break;
 +		}
-+
- 		fallthrough;
+ 		/* fallthrough */
 -		/* Cortex A57/A72 require firmware workaround */
--	case ARM_CPU_PART_CORTEX_A57:
--	case ARM_CPU_PART_CORTEX_A72: {
--		struct arm_smccc_res res;
- 
--		arm_smccc_1_1_invoke(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
--				     ARM_SMCCC_ARCH_WORKAROUND_1, &res);
--		if ((int)res.a0 != 0)
--			return;
 +	/* Cortex A57/A72 require firmware workaround */
-+	case ARM_CPU_PART_CORTEX_A57:
-+	case ARM_CPU_PART_CORTEX_A72:
+ 	case ARM_CPU_PART_CORTEX_A57:
+ 	case ARM_CPU_PART_CORTEX_A72: {
+ 		struct arm_smccc_res res;
+ 
 +		state = spectre_v2_get_cpu_fw_mitigation_state();
 +		if (state != SPECTRE_MITIGATED)
 +			break;
++
+ 		if (psci_ops.smccc_version == SMCCC_VERSION_1_0)
+ 			break;
  
- 		switch (arm_smccc_1_1_get_conduit()) {
- 		case SMCCC_CONDUIT_HVC:
+@@ -84,10 +162,7 @@ static void cpu_v7_spectre_init(void)
+ 					  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
+ 			if ((int)res.a0 != 0)
+ 				break;
 -			per_cpu(harden_branch_predictor_fn, cpu) =
 -				call_hvc_arch_workaround_1;
 -			cpu_do_switch_mm = cpu_v7_hvc_switch_mm;
@@ -341,7 +336,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +			method = SPECTRE_V2_METHOD_HVC;
  			break;
  
- 		case SMCCC_CONDUIT_SMC:
+ 		case PSCI_CONDUIT_SMC:
+@@ -95,28 +170,21 @@ static void cpu_v7_spectre_init(void)
+ 					  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
+ 			if ((int)res.a0 != 0)
+ 				break;
 -			per_cpu(harden_branch_predictor_fn, cpu) =
 -				call_smc_arch_workaround_1;
 -			cpu_do_switch_mm = cpu_v7_smc_switch_mm;
@@ -355,7 +354,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  	}
 -#endif
--	}
+ 	}
  
 -	if (spectre_v2_method)
 -		pr_info("CPU%u: Spectre v2: using %s workaround\n",
@@ -373,7 +372,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  static __maybe_unused bool cpu_v7_check_auxcr_set(bool *warned,
  						  u32 mask, const char *msg)
-@@ -142,16 +205,16 @@ static bool check_spectre_auxcr(bool *wa
+@@ -146,16 +214,16 @@ static bool check_spectre_auxcr(bool *wa
  void cpu_v7_ca8_ibe(void)
  {
  	if (check_spectre_auxcr(this_cpu_ptr(&spectre_warned), BIT(6)))
