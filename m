@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9426C4D434A
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 10:18:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B84D4D434C
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 10:19:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240153AbiCJJTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 04:19:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37430 "EHLO
+        id S240700AbiCJJTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 04:19:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236217AbiCJJTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 04:19:49 -0500
+        with ESMTP id S236217AbiCJJTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 04:19:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1E9DD46E;
-        Thu, 10 Mar 2022 01:18:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67277124C3B;
+        Thu, 10 Mar 2022 01:18:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 556D9B8251D;
-        Thu, 10 Mar 2022 09:18:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 803C8C340E8;
-        Thu, 10 Mar 2022 09:18:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25BA1B8254A;
+        Thu, 10 Mar 2022 09:18:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C5EC340E8;
+        Thu, 10 Mar 2022 09:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646903926;
-        bh=o/RF3R6Jbu+ZjOfXjIJckekX7JDopQTo0G+jtOlkgSg=;
+        s=korg; t=1646903929;
+        bh=E0/oipbFt9BSDxE+8Eu6f1igEieMOi82a3gQ5A4wr2A=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ArZBgPrqM1SfOapP77287z5PP9Ywe2O3omkoKXTNZ1u1uC6LaIsnNmc6VgNRKRh08
-         8iZZVBEmzUzhk+2a9xpt4cjET2O2ZCd1UmSK/E29fv7SyD+XyIolO6dy0Oh8EJa4Ty
-         EitO38h+p/p1wH7UYaSykmu+2YzDgFX546DBWxzI=
-Date:   Wed, 9 Mar 2022 18:50:56 +0100
+        b=i7LHIE8m0Dp+cBrw8NZkhFHpOcAAT3gkB5qgZSSjwXYFiXWPaO9fqFsrKp0DzN/dm
+         bbgrcPFsoAxeOG+fVLy0wqbgpCX34Lhj+XDxaGaWr2hezzKaCJFoiSQN3ftxXZRAT/
+         oLb0AJBFB93Pm60h0bIRMCWdUfc1EQkZq1gmIDsM=
+Date:   Wed, 9 Mar 2022 19:21:30 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 5.4 00/18] 5.4.184-rc1 review
-Message-ID: <YijpAJfZOyYxUY6o@kroah.com>
-References: <20220309155856.552503355@linuxfoundation.org>
- <1ef6fd89-6648-215d-d44e-d577e242276f@gmail.com>
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+Subject: Re: [PATCH 4.19 00/18] 4.19.234-rc1 review
+Message-ID: <YijwKvDQxJzoYpFR@kroah.com>
+References: <20220309155856.155540075@linuxfoundation.org>
+ <CADVatmMODnr1vQ3VGLOACT16wLEFA6hFrTzY44VdPO2M7gX+iw@mail.gmail.com>
+ <CADVatmMceoHeQqFDEJND_3GmSeQqgefeP0Z9_Zi=UTAVfZ71RQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1ef6fd89-6648-215d-d44e-d577e242276f@gmail.com>
+In-Reply-To: <CADVatmMceoHeQqFDEJND_3GmSeQqgefeP0Z9_Zi=UTAVfZ71RQ@mail.gmail.com>
 X-Spam-Status: No, score=-6.5 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
         DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
         RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -54,48 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 09, 2022 at 09:38:40AM -0800, Florian Fainelli wrote:
-> On 3/9/22 7:59 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.184 release.
-> > There are 18 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.184-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+On Wed, Mar 09, 2022 at 06:15:08PM +0000, Sudip Mukherjee wrote:
+> On Wed, Mar 9, 2022 at 6:08 PM Sudip Mukherjee
+> <sudipm.mukherjee@gmail.com> wrote:
+> >
+> > Hi Greg,
+> >
+> > On Wed, Mar 9, 2022 at 4:03 PM Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > This is the start of the stable review cycle for the 4.19.234 release.
+> > > There are 18 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > >
+> > > Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+> > > Anything received after that time might be too late.
+> >
+> > My tests are still running, but just an initial result for you,
+> >
+> > x86_64 defconfig fails with:
+> > arch/x86/kernel/cpu/bugs.c: In function 'spectre_v2_select_mitigation':
+> > arch/x86/kernel/cpu/bugs.c:973:41: error: implicit declaration of
+> > function 'unprivileged_ebpf_enabled'
+> > [-Werror=implicit-function-declaration]
+> >   973 |         if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
 > 
-> Russell made me aware of this message of yours:
-> 
-> https://lore.kernel.org/all/YiiuCMd%2FhLmQ7tfS@kroah.com/
-> 
-> do you expect to get ARM64 patches for 5.4 (included) and versions
-> before and publish those as a different stable tag with those
-> specifically? If so, would not it be easier from a logistics point of
-> view if ARM, ARM64 and x86 all get BHB mitigations within the same
-> stable tag?
+> And, lots of failures in arm builds also.
+> Error:
+> arch/arm/common/secure_cntvoff.S: Assembler messages:
+> arch/arm/common/secure_cntvoff.S:24: Error: co-processor register
+> expected -- `mcr p15,0,r0,c7,r5,4'
+> arch/arm/common/secure_cntvoff.S:27: Error: co-processor register
+> expected -- `mcr p15,0,r0,c7,r5,4'
+> arch/arm/common/secure_cntvoff.S:29: Error: co-processor register
+> expected -- `mcr p15,0,r0,c7,r5,4'
+> make[1]: *** [scripts/Makefile.build:403:
+> arch/arm/common/secure_cntvoff.o] Error 1
+> make[1]: *** Waiting for unfinished jobs....
+> arch/arm/kernel/entry-common.S: Assembler messages:
+> arch/arm/kernel/entry-common.S:178: Error: co-processor register
+> expected -- `mcr p15,0,r0,c7,r5,4'
+> arch/arm/kernel/entry-common.S:187: Error: co-processor register
+> expected -- `mcr p15,0,r0,c7,r5,4'
+> make[1]: *** [scripts/Makefile.build:403:
+> arch/arm/kernel/entry-common.o] Error 1
+> make[1]: *** Waiting for unfinished jobs....
+> arch/arm/mm/cache-v7.S: Assembler messages:
+> arch/arm/mm/cache-v7.S:64: Error: co-processor register expected --
+> `mcr p15,0,r0,c7,r5,4'
+> arch/arm/mm/cache-v7.S:137: Error: co-processor register expected --
+> `mcr p15,0,r0,c7,r5,4'
+> arch/arm/mm/cache-v7.S:171: Error: co-processor register expected --
+> `mcr p15,0,r0,c7,r5,4'
+> arch/arm/mm/cache-v7.S:299: Error: co-processor register expected --
+> `mcr p15,0,r0,c7,r5,4'
+> make[1]: *** [scripts/Makefile.build:403: arch/arm/mm/cache-v7.o] Error 1
 
-I would have loved to have all three show up in the same stable
-releases, and for some kernels (5.10 and newer) that looks like it will
-happen.  I was not happy with the 5.4 and older backports just yet
-enough to be able to add them to a -rc.
+All clang builds for arm are known to fail, and some arm64 clang builds
+will also fail.  I have seen initial patches for arm64, will let the
+clang developers come up with the arm fix as I have no idea how to
+handle that.  This just mirrors Linus's tree right now :)
 
-Hopefully James and I can work through the issues and have them in a
-kernel soon.
-
-Note, Linus's tree, and these backports, all do break when using clang
-for arm32 and arm64, so that is an issue for many ARM users.  Hopefully
-that can be resolved and when the fixes hit Linus's tree, I'll be glad
-to take them to stable releases.
+Unless this is gcc?
 
 thanks,
 
