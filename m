@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0EF4D3356
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 421E34D3377
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234828AbiCIQMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:12:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43626 "EHLO
+        id S234058AbiCIQMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:12:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235413AbiCIQIu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ACF518E418;
-        Wed,  9 Mar 2022 08:05:52 -0800 (PST)
+        with ESMTP id S236098AbiCIQJg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E30712AD7;
+        Wed,  9 Mar 2022 08:07:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 643B1617A7;
-        Wed,  9 Mar 2022 16:05:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C065C340EF;
-        Wed,  9 Mar 2022 16:05:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 062DBB82220;
+        Wed,  9 Mar 2022 16:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 443E9C340EF;
+        Wed,  9 Mar 2022 16:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841950;
-        bh=yX+SwqC0qS9bi3l69qLS3vC4ItdYeNobtBQQvskQajI=;
+        s=korg; t=1646842044;
+        bh=KCX8P+H2W0agVF1iCpkDtDeNldgE0W8QeXXKrS24w74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RG3mCR70sNSDiYZSqbc8tuMhJ+aXSDlIh8eIiP77SO9TGeJtNjri3pLQcr/cZitZz
-         aV38CQIOfZtK1OsaA1d0DkeXr3CZng3qaQuNCiEXn3VxKDQazGGaA/TtBpSQ2A10eQ
-         vzcewKMZGq800noRGyiVM5e+GYlbv3T7NcvSScUI=
+        b=tI52vrl0ifJF7wF5sHo1Bznb4PmghYHpTEG3Vt1cQvnhuUwhPb5MCi0CwEGV92F91
+         3RuQKGj3TPvTJ/6RjFpKlgWd9+orrwuzNFUrYF/yzt9pIuT1DJZF6AJ+MflESIoZek
+         6DN6yiFSaFxqIY0Hiz63ngSvTwaO81pYQYVQwDzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 5.10 32/43] arm64: entry: Allow the trampoline text to occupy multiple pages
+Subject: [PATCH 5.15 21/43] arm64: entry.S: Add ventry overflow sanity checks
 Date:   Wed,  9 Mar 2022 17:00:05 +0100
-Message-Id: <20220309155900.170191127@linuxfoundation.org>
+Message-Id: <20220309155900.351257001@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-References: <20220309155859.239810747@linuxfoundation.org>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+References: <20220309155859.734715884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,105 +57,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit a9c406e6462ff14956d690de7bbe5131a5677dc9 upstream.
+commit 4330e2c5c04c27bebf89d34e0bc14e6943413067 upstream.
 
-Adding a second set of vectors to .entry.tramp.text will make it
-larger than a single 4K page.
+Subsequent patches add even more code to the ventry slots.
+Ensure kernels that overflow a ventry slot don't get built.
 
-Allow the trampoline text to occupy up to three pages by adding two
-more fixmap slots. Previous changes to tramp_valias allowed it to reach
-beyond a single page.
-
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/fixmap.h   |    6 ++++--
- arch/arm64/include/asm/sections.h |    5 +++++
- arch/arm64/kernel/entry.S         |    2 +-
- arch/arm64/kernel/vmlinux.lds.S   |    2 +-
- arch/arm64/mm/mmu.c               |   12 +++++++++---
- 5 files changed, 20 insertions(+), 7 deletions(-)
+ arch/arm64/kernel/entry.S |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm64/include/asm/fixmap.h
-+++ b/arch/arm64/include/asm/fixmap.h
-@@ -62,9 +62,11 @@ enum fixed_addresses {
- #endif /* CONFIG_ACPI_APEI_GHES */
- 
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--	FIX_ENTRY_TRAMP_TEXT,
-+	FIX_ENTRY_TRAMP_TEXT3,
-+	FIX_ENTRY_TRAMP_TEXT2,
-+	FIX_ENTRY_TRAMP_TEXT1,
- 	FIX_ENTRY_TRAMP_DATA,
--#define TRAMP_VALIAS		(__fix_to_virt(FIX_ENTRY_TRAMP_TEXT))
-+#define TRAMP_VALIAS		(__fix_to_virt(FIX_ENTRY_TRAMP_TEXT1))
- #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
- 	__end_of_permanent_fixed_addresses,
- 
---- a/arch/arm64/include/asm/sections.h
-+++ b/arch/arm64/include/asm/sections.h
-@@ -19,4 +19,9 @@ extern char __irqentry_text_start[], __i
- extern char __mmuoff_data_start[], __mmuoff_data_end[];
- extern char __entry_tramp_text_start[], __entry_tramp_text_end[];
- 
-+static inline size_t entry_tramp_text_size(void)
-+{
-+	return __entry_tramp_text_end - __entry_tramp_text_start;
-+}
-+
- #endif /* __ASM_SECTIONS_H */
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -812,7 +812,7 @@ alternative_else_nop_endif
+@@ -37,6 +37,7 @@
+ 
+ 	.macro kernel_ventry, el:req, ht:req, regsize:req, label:req
+ 	.align 7
++.Lventry_start\@:
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	.if	\el == 0
+ alternative_if ARM64_UNMAP_KERNEL_AT_EL0
+@@ -95,6 +96,7 @@ alternative_else_nop_endif
+ 	mrs	x0, tpidrro_el0
+ #endif
+ 	b	el\el\ht\()_\regsize\()_\label
++.org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
  	.endm
  
- 	.macro tramp_data_page	dst
--	adr	\dst, .entry.tramp.text
-+	adr_l	\dst, .entry.tramp.text
- 	sub	\dst, \dst, PAGE_SIZE
+ 	.macro tramp_alias, dst, sym
+@@ -662,6 +664,7 @@ alternative_else_nop_endif
+ 	add	x30, x30, #(1b - tramp_vectors)
+ 	isb
+ 	ret
++.org 1b + 128	// Did we overflow the ventry slot?
  	.endm
  
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -299,7 +299,7 @@ ASSERT(__hibernate_exit_text_end - (__hi
- 	<= SZ_4K, "Hibernate exit text too big or misaligned")
- #endif
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--ASSERT((__entry_tramp_text_end - __entry_tramp_text_start) == PAGE_SIZE,
-+ASSERT((__entry_tramp_text_end - __entry_tramp_text_start) <= 3*PAGE_SIZE,
- 	"Entry trampoline text too big")
- #endif
- /*
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -592,6 +592,8 @@ early_param("rodata", parse_rodata);
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- static int __init map_entry_trampoline(void)
- {
-+	int i;
-+
- 	pgprot_t prot = rodata_enabled ? PAGE_KERNEL_ROX : PAGE_KERNEL_EXEC;
- 	phys_addr_t pa_start = __pa_symbol(__entry_tramp_text_start);
- 
-@@ -600,11 +602,15 @@ static int __init map_entry_trampoline(v
- 
- 	/* Map only the text into the trampoline page table */
- 	memset(tramp_pg_dir, 0, PGD_SIZE);
--	__create_pgd_mapping(tramp_pg_dir, pa_start, TRAMP_VALIAS, PAGE_SIZE,
--			     prot, __pgd_pgtable_alloc, 0);
-+	__create_pgd_mapping(tramp_pg_dir, pa_start, TRAMP_VALIAS,
-+			     entry_tramp_text_size(), prot,
-+			     __pgd_pgtable_alloc, NO_BLOCK_MAPPINGS);
- 
- 	/* Map both the text and data into the kernel page table */
--	__set_fixmap(FIX_ENTRY_TRAMP_TEXT, pa_start, prot);
-+	for (i = 0; i < DIV_ROUND_UP(entry_tramp_text_size(), PAGE_SIZE); i++)
-+		__set_fixmap(FIX_ENTRY_TRAMP_TEXT1 - i,
-+			     pa_start + i * PAGE_SIZE, prot);
-+
- 	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE)) {
- 		extern char __entry_tramp_data_start[];
- 
+ 	.macro tramp_exit, regsize = 64
 
 
