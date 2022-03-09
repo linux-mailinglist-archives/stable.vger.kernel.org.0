@@ -2,84 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9F94D308D
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 14:51:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A1F4D30A0
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 14:57:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229775AbiCINtj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 08:49:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53240 "EHLO
+        id S233364AbiCIN6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 08:58:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232970AbiCINtj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 08:49:39 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 43FB914A043
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 05:48:40 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E15AC1688;
-        Wed,  9 Mar 2022 05:48:39 -0800 (PST)
-Received: from [10.1.196.218] (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6F5B53FA20;
-        Wed,  9 Mar 2022 05:48:39 -0800 (PST)
-Subject: Re: FAILED: patch "[PATCH] arm64: proton-pack: Include unprivileged
- eBPF status in" failed to apply to 5.4-stable tree
-To:     gregkh@linuxfoundation.org, catalin.marinas@arm.com
-Cc:     stable@vger.kernel.org
-References: <164682752912586@kroah.com>
-From:   James Morse <james.morse@arm.com>
-Message-ID: <d8d13ff7-9951-6120-a992-8e9c5cc6124f@arm.com>
-Date:   Wed, 9 Mar 2022 13:48:31 +0000
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        with ESMTP id S231553AbiCIN6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 08:58:10 -0500
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD85F17C400;
+        Wed,  9 Mar 2022 05:57:10 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 2234B1C0B77; Wed,  9 Mar 2022 14:57:09 +0100 (CET)
+Date:   Wed, 9 Mar 2022 14:57:08 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 012/105] dmaengine: shdma: Fix runtime PM imbalance
+ on error
+Message-ID: <20220309135708.GB30506@duo.ucw.cz>
+References: <20220307091644.179885033@linuxfoundation.org>
+ <20220307091644.529997660@linuxfoundation.org>
+ <20220309105420.GA22677@duo.ucw.cz>
+ <YiiWduSVDz1yYA9z@kroah.com>
+ <20220309123509.GA30506@duo.ucw.cz>
+ <YiiuaHFKuAv30zxW@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <164682752912586@kroah.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+Content-Disposition: inline
+In-Reply-To: <YiiuaHFKuAv30zxW@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-On 09/03/2022 12:05, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+--9zSXsLTf0vkW971A
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 58c9a5060cb7cd529d49c93954cdafe81c1d642a Mon Sep 17 00:00:00 2001
-> From: James Morse <james.morse@arm.com>
-> Date: Thu, 3 Mar 2022 16:53:56 +0000
-> Subject: [PATCH] arm64: proton-pack: Include unprivileged eBPF status in
->  Spectre v2 mitigation reporting
-> 
-> The mitigations for Spectre-BHB are only applied when an exception is
-> taken from user-space. The mitigation status is reported via the spectre_v2
-> sysfs vulnerabilities file.
-> 
-> When unprivileged eBPF is enabled the mitigation in the exception vectors
-> can be avoided by an eBPF program.
-> 
-> When unprivileged eBPF is enabled, print a warning and report vulnerable
-> via the sysfs vulnerabilities file.
+On Wed 2022-03-09 14:40:56, Greg Kroah-Hartman wrote:
+> On Wed, Mar 09, 2022 at 01:35:09PM +0100, Pavel Machek wrote:
+> > On Wed 2022-03-09 12:58:46, Greg Kroah-Hartman wrote:
+> > > On Wed, Mar 09, 2022 at 11:54:20AM +0100, Pavel Machek wrote:
+> > > > Hi!
+> > > >=20
+> > > > > From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+> > > > >=20
+> > > > > [ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
+> > > > >=20
+> > > > > pm_runtime_get_() increments the runtime PM usage counter even
+> > > > > when it returns an error code, thus a matching decrement is neede=
+d on
+> > > > > the error handling path to keep the counter balanced.
+> > > >=20
+> > > > This patch will break things.
+> > > >=20
+> > > > Notice that -ret is ignored (checked 4.4 and 5.10), so we don't
+> > > > actually abort/return error; we just printk. We'll do two
+> > > > pm_runtime_put's after the "fix".
+> > > >=20
+> > > > Please drop from -stable.
+> > > >=20
+> > > > It was discussed during AUTOSEL review:
+> > > >=20
+> > > > Date: Fri, 25 Feb 2022 14:25:10 +0800 (GMT+08:00)
+> > > > From: =E5=88=98=E6=B0=B8=E5=BF=97 <lyz_cs@pku.edu.cn>
+> > > > To: pavel machek <pavel@denx.de>
+> > > > Cc: sasha levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+> > > > Subject: Re: [PATCH AUTOSEL 5.16 24/30] dmaengine: shdma: Fix runti=
+me PM
+> > > > 	imbalance on error
+> > >=20
+> > > So 5.15 and 5.16 is ok, but older is not?
+> >=20
+> > I believe commit is wrong for mainline and all stable releases, and
+> > author seems to agree. Drop from everywhere.
+>=20
+> Is it reverted in Linus's tree yet?
 
-> diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
-> index d3fbff00993d..6d45c63c6454 100644
-> --- a/arch/arm64/kernel/proton-pack.c
-> +++ b/arch/arm64/kernel/proton-pack.c
+It will take you a minute to check.
 
-Yup, this far back the code lives in cpu_errata.c, as it hadn't been centralised.
-I'll look at what is involved in backporting the whole lot...
+Take a look at the patch. There's no return in error path, thus doing
+runtime_put is clearly bogus. Should take you less than minute to
+verify.
 
+Please drop the patch.
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-Thanks,
+--9zSXsLTf0vkW971A
+Content-Type: application/pgp-signature; name="signature.asc"
 
-James
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYiiyNAAKCRAw5/Bqldv6
+8m+pAJ4lljMX3Z/PP5puwxjnFZC6gT6ebgCfREHAvmFbldtMRVR7o+ySTW5UiKc=
+=YSXb
+-----END PGP SIGNATURE-----
+
+--9zSXsLTf0vkW971A--
