@@ -2,112 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B5764D3958
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 19:59:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5554D3A5F
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 20:29:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235046AbiCITAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 14:00:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
+        id S237002AbiCIT1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 14:27:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232102AbiCITAg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 14:00:36 -0500
-Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623709E57D
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 10:59:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646852377; x=1678388377;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=p/eiDETu/mTqfvyDVjzbt5AGoIF2xiYOgPu8BrcsE8U=;
-  b=OwLS3eX+eSFWRiWE9KqAiZqLNLdOFjcZXU8Icd6TjQjkQW2rxJwHE86S
-   wGwLENNvKLLloXN5Jbffl7YsOUXNBpKP5KleEIx5e/D+19gQeGz0v2b0e
-   fEK7EE8uV0eezoy5pSkjVJ7L8oIAc/hKcPrwC496ov9v0cREOIAtp7NzS
-   p1eHr0+6WiX8MB/lZKNjxy35lev/g9giPY7mpHvxHrZ3Haa/W5BN3Ii6Z
-   u2JAfi+hqi5ahVGHxmbKVMBWwl+Qs/x8ZMA9GesJfFYiQ38n7XFqhaueT
-   x0G5P7INEBSBKgIblEzRfe/ejDJ5jdbYFgQ5enX3yaCgQ8SFocbYkPven
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10281"; a="315781998"
-X-IronPort-AV: E=Sophos;i="5.90,168,1643702400"; 
-   d="scan'208";a="315781998"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2022 10:59:36 -0800
-X-IronPort-AV: E=Sophos;i="5.90,168,1643702400"; 
-   d="scan'208";a="554249784"
-Received: from unknown (HELO intel.com) ([10.237.72.65])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2022 10:59:35 -0800
-Date:   Wed, 9 Mar 2022 20:59:59 +0200
-From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 6/8] drm/i915: Fix PSF GV point mask when SAGV is not
- possible
-Message-ID: <20220309185959.GA9439@intel.com>
-References: <20220309164948.10671-1-ville.syrjala@linux.intel.com>
- <20220309164948.10671-7-ville.syrjala@linux.intel.com>
+        with ESMTP id S234429AbiCIT1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 14:27:39 -0500
+X-Greylist: delayed 1281 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 11:26:40 PST
+Received: from gateway24.websitewelcome.com (gateway24.websitewelcome.com [192.185.51.36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DEF8B0EBA
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 11:26:39 -0800 (PST)
+Received: from cm12.websitewelcome.com (cm12.websitewelcome.com [100.42.49.8])
+        by gateway24.websitewelcome.com (Postfix) with ESMTP id 71903AD1D
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 13:05:18 -0600 (CST)
+Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
+        by cmsmtp with SMTP
+        id S1ccnHvz29AGSS1ccnYGhN; Wed, 09 Mar 2022 13:05:18 -0600
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=en7m1+CRbmjrhxJoGwb18dUJTu8IAG17F03NTg7F3T8=; b=Hc7tjH45SgN1jipbwVbpR7TTEn
+        pxV0oDwUk4lrKSy0jMJAAelyIpr7oNrLYlifz/coqqJSSZCERXkLFOYPn62iuF+wKZGpzX1fqUZ1c
+        pDla/g9/p8Sm/e3GeeB2K1VA0iSDg25VXOeHc0Mc6Uqe4JGHIwiDdU1znRj1pyMkd3ObR2UA+5Pxy
+        cF16v6JPN0IUD8AUlXQb5N//Ci7ij1mjwZ5DMsuOsjrM9KNLkzsot5LgMdY/8UXoWhWmDqoky6GjS
+        qj+KJuN0ucjX0GsODEOAKPMmrV2JRnbuE5dstGY08Jw6dFdFYG67qyH6kNcSl8V8mQV4ygBnBMgDP
+        tf8Y60gQ==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:54200)
+        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@roeck-us.net>)
+        id 1nS1cb-0023qO-KB; Wed, 09 Mar 2022 19:05:17 +0000
+Message-ID: <37efd441-7fe4-1aa4-a41b-19d30b652c5c@roeck-us.net>
+Date:   Wed, 9 Mar 2022 11:05:15 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220309164948.10671-7-ville.syrjala@linux.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 00/37] 5.16.14-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220309155859.086952723@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1nS1cb-0023qO-KB
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:54200
+X-Source-Auth: linux@roeck-us.net
+X-Email-Count: 11
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 09, 2022 at 06:49:46PM +0200, Ville Syrjala wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On 3/9/22 08:00, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.14 release.
+> There are 37 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Don't just mask off all the PSF GV points when SAGV gets disabled.
-> This should in fact cause the Pcode to reject the request since
-> at least one PSF point must remain enabled at all times.
-
-Good point, however I think this is not the full fix:
-
-BSpec says:
-
-"At least one GV point of each type must always remain unmasked."
-
-and
-
-"The GV point of each type providing the highest bandwidth 
- for display must always remain unmasked."
-
-So I guess we should then also choose thr PSF GV point with
-the highest bandwidth as well.
-
-Stan
-
-
+> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+> Anything received after that time might be too late.
 > 
-> Cc: stable@vger.kernel.org
-> Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-> Fixes: 192fbfb76744 ("drm/i915: Implement PSF GV point support")
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> ---
->  drivers/gpu/drm/i915/display/intel_bw.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_bw.c b/drivers/gpu/drm/i915/display/intel_bw.c
-> index ad1564ca7269..adf58c58513b 100644
-> --- a/drivers/gpu/drm/i915/display/intel_bw.c
-> +++ b/drivers/gpu/drm/i915/display/intel_bw.c
-> @@ -992,7 +992,8 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
->  	 * cause.
->  	 */
->  	if (!intel_can_enable_sagv(dev_priv, new_bw_state)) {
-> -		allowed_points = BIT(max_bw_point);
-> +		allowed_points &= ADLS_PSF_PT_MASK;
-> +		allowed_points |= BIT(max_bw_point);
->  		drm_dbg_kms(&dev_priv->drm, "No SAGV, using single QGV point %d\n",
->  			    max_bw_point);
->  	}
-> -- 
-> 2.34.1
-> 
+
+Almost all arm builds, all branches from 4.9.y to 5.16.y:
+
+Error log:
+arch/arm/common/secure_cntvoff.S: Assembler messages:
+arch/arm/common/secure_cntvoff.S:24: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+arch/arm/common/secure_cntvoff.S:27: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+arch/arm/common/secure_cntvoff.S:29: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
+
+bisect log:
+
+# bad: [3416254dac79ea26e08dffde371ab1fd3130223c] Linux 5.16.14-rc1
+# good: [6273c309621c9dd61c9c3f6d63f5d56ee2d89c73] Linux 5.16.13
+git bisect start 'HEAD' 'v5.16.13'
+# bad: [4403d69931dbc17659845d2d710602bbe35b4398] KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
+git bisect bad 4403d69931dbc17659845d2d710602bbe35b4398
+# good: [6f0cf3a1eb8b46a5d652a395ba25a59c32a86692] ARM: report Spectre v2 status through sysfs
+git bisect good 6f0cf3a1eb8b46a5d652a395ba25a59c32a86692
+# bad: [87e96a363eb4a62b65bb974a46d518a87153cd1c] arm64: add ID_AA64ISAR2_EL1 sys register
+git bisect bad 87e96a363eb4a62b65bb974a46d518a87153cd1c
+# good: [654f0a73f042662a36155a0cafa30db846ccb5a9] ARM: use LOADADDR() to get load address of sections
+git bisect good 654f0a73f042662a36155a0cafa30db846ccb5a9
+# bad: [91bdae56c40ee6de675fba6ac283311c92c437ce] ARM: include unprivileged BPF status in Spectre V2 reporting
+git bisect bad 91bdae56c40ee6de675fba6ac283311c92c437ce
+# bad: [95ff4cb3b696a581d6166f0d754771bf9af5e27b] ARM: Spectre-BHB workaround
+git bisect bad 95ff4cb3b696a581d6166f0d754771bf9af5e27b
+# first bad commit: [95ff4cb3b696a581d6166f0d754771bf9af5e27b] ARM: Spectre-BHB workaround
+
+Guenter
