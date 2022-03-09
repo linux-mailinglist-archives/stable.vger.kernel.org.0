@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5F844D345A
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:25:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB1B4D34C0
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235766AbiCIQYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:24:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39430 "EHLO
+        id S231771AbiCIQ0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:26:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238393AbiCIQWB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:22:01 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA494E10
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 08:21:01 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1nRz3b-000514-1o; Wed, 09 Mar 2022 17:20:59 +0100
-Received: from [2a0a:edc0:0:900:1d::4e] (helo=lupine)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1nRz3a-003iS3-Mo; Wed, 09 Mar 2022 17:20:57 +0100
-Received: from pza by lupine with local (Exim 4.94.2)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1nRz3Y-000Bo7-Al; Wed, 09 Mar 2022 17:20:56 +0100
-Message-ID: <d75bbdb1fd01f0c1ff89efe1369860cfccc52f5f.camel@pengutronix.de>
-Subject: Re: [PATCH v2 2/2] media: coda: Add more H264 levels for CODA960
-From:   Philipp Zabel <p.zabel@pengutronix.de>
-To:     Fabio Estevam <festevam@gmail.com>, hverkuil-cisco@xs4all.nl
-Cc:     linux-media@vger.kernel.org, nicolas.dufresne@collabora.com,
-        ezequiel@collabora.com, kernel@iktek.de, stable@vger.kernel.org,
-        Fabio Estevam <festevam@denx.de>
-Date:   Wed, 09 Mar 2022 17:20:56 +0100
-In-Reply-To: <20220309143322.1755281-2-festevam@gmail.com>
-References: <20220309143322.1755281-1-festevam@gmail.com>
-         <20220309143322.1755281-2-festevam@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.38.3-1 
+        with ESMTP id S235496AbiCIQZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:25:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489B71520E3;
+        Wed,  9 Mar 2022 08:22:06 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2EE06194A;
+        Wed,  9 Mar 2022 16:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A6ABC340EC;
+        Wed,  9 Mar 2022 16:22:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646842925;
+        bh=ZiVX5ZSqfRDgUmK73Fp+fOWJp8vV4A0a8UtWw7AE76E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iW2CPLHbbqVjD5BHToSXDE8MBBzwA9sfKgYx2zykSDYp8Pwk/YWUDzqM0EitS8Krw
+         Rwgxg6D57coNOdebP8UZiBqG/yYmGh0drtNXJc/N1Qfvi2KuVLDQSSkosi+ZsrQeqF
+         hcazYsZ4gAJ0gtc9DyCD/+rWDDxHBPILy23+cbXgfCSC3MJmWNpI6jN5/V3kc7umgG
+         fVDzDiQBCIcCvigcxvzlhSLu5/CiP0FDWb/V+TKLrfdvUTldePRnPtMemMcG269WwO
+         AoOC0OGjEmyQdUEBDnE7nSzKppwHC3taernY+eICxi8In5ag6+m23MtnY9y6J0B1Ra
+         WgXH9dDgPOysg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Yan Yan <evitayan@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/20] xfrm: Check if_id in xfrm_migrate
+Date:   Wed,  9 Mar 2022 11:21:39 -0500
+Message-Id: <20220309162158.136467-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: p.zabel@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,59 +55,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gTWksIDIwMjItMDMtMDkgYXQgMTE6MzMgLTAzMDAsIEZhYmlvIEVzdGV2YW0gd3JvdGU6Cj4g
-RnJvbTogTmljb2xhcyBEdWZyZXNuZSA8bmljb2xhcy5kdWZyZXNuZUBjb2xsYWJvcmEuY29tPgo+
-IAo+IFRoaXMgYWRkIEgyNjQgbGV2ZWwgNC4xLCA0LjIgYW5kIDUuMCB0byB0aGUgbGlzdCBvZiBz
-dXBwb3J0ZWQKPiBmb3JtYXRzLgo+IFdoaWxlIHRoZSBoYXJkd2FyZSBkb2VzIG5vdCBmdWxseSBz
-dXBwb3J0IHRoZXNlIGxldmVscywgaXQgZG8gc3VwcG9ydAo+IG1vc3Qgb2YgdGhlbS4gVGhlIGNv
-bnN0cmFpbnRzIG9uIGZyYW1lIHNpemUgYW5kIHBpeGVsIGZvcm1hdHMgYWxyZWFkeQo+IGNvdmVy
-IHRoZSBsaW1pdGF0aW9uLgo+IAo+IFRoaXMgZml4ZXMgbmVnb3RpYXRpb24gb2YgbGV2ZWwgb24g
-R1N0cmVhbWVyIDEuMTcuMS4KPiAKPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwo+IEZpeGVz
-OiA0MmE2ODAxMmU2N2MyICgibWVkaWE6IGNvZGE6IGFkZCByZWFkLW9ubHkgaC4yNjQgZGVjb2Rl
-cgo+IHByb2ZpbGUvbGV2ZWwgY29udHJvbHMiKQo+IFNpZ25lZC1vZmYtYnk6IE5pY29sYXMgRHVm
-cmVzbmUgPG5pY29sYXMuZHVmcmVzbmVAY29sbGFib3JhLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBF
-emVxdWllbCBHYXJjaWEgPGV6ZXF1aWVsQGNvbGxhYm9yYS5jb20+Cj4gVGVzdGVkLWJ5OiBQYXNj
-YWwgU3BlY2sgPGtlcm5lbEBpa3Rlay5kZT4KPiBTaWduZWQtb2ZmLWJ5OiBGYWJpbyBFc3RldmFt
-IDxmZXN0ZXZhbUBkZW54LmRlPgo+IC0tLQo+IENoYW5nZXMgc2luY2UgdjE6Cj4gLSBOb25lIC0g
-b25seSBhZGRlZCBQYXNjYWwncyBUZXN0ZWQtYnkgdGFnLgo+IAo+IMKgZHJpdmVycy9tZWRpYS9w
-bGF0Zm9ybS9jb2RhL2NvZGEtY29tbW9uLmMgfCA3ICsrKysrLS0KPiDCoDEgZmlsZSBjaGFuZ2Vk
-LCA1IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvbWVkaWEvcGxhdGZvcm0vY29kYS9jb2RhLWNvbW1vbi5jCj4gYi9kcml2ZXJzL21lZGlhL3Bs
-YXRmb3JtL2NvZGEvY29kYS1jb21tb24uYwo+IGluZGV4IDUzYjJkZDFiMjY4Yy4uZjEyMzRhZDI0
-ZjY1IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vY29kYS9jb2RhLWNvbW1v
-bi5jCj4gKysrIGIvZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9jb2RhL2NvZGEtY29tbW9uLmMKPiBA
-QCAtMjM2NCw3ICsyMzY0LDEwIEBAIHN0YXRpYyB2b2lkIGNvZGFfZW5jb2RlX2N0cmxzKHN0cnVj
-dCBjb2RhX2N0eAo+ICpjdHgpCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgKDEgPDwgVjRMMl9NUEVHX1ZJREVPX0gyNjRfTEVWRUxfM18wKSB8Cj4g
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKDEgPDwg
-VjRMMl9NUEVHX1ZJREVPX0gyNjRfTEVWRUxfM18xKSB8Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKDEgPDwgVjRMMl9NUEVHX1ZJREVPX0gyNjRf
-TEVWRUxfM18yKSB8Cj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCAoMSA8PCBWNEwyX01QRUdfVklERU9fSDI2NF9MRVZFTF80XzApKSwKPiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICgxIDw8IFY0TDJfTVBF
-R19WSURFT19IMjY0X0xFVkVMXzRfMCkgfAo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgKDEgPDwgVjRMMl9NUEVHX1ZJREVPX0gyNjRfTEVWRUxfNF8x
-KSB8Cj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAo
-MSA8PCBWNEwyX01QRUdfVklERU9fSDI2NF9MRVZFTF80XzIpIHwKPiArwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICgxIDw8IFY0TDJfTVBFR19WSURFT19I
-MjY0X0xFVkVMXzVfMCkpLAoKSSBzdGlsbCB0aGluayB0aGlzIGlzIHdyb25nIFsxXSwgdGhlIHZl
-bmRvciBvbmx5IGFkdmVydGlzZXMgc3VwcG9ydCBmb3IKbGV2ZWwgNC4wLiBBdCBsZWFzdCBsZXZl
-bCA1LjAgbXVzdCBiZSBkcm9wcGVkLCBhcyB3ZSBkb24ndCBzdXBwb3J0IHRoZQpmcmFtZSBzaXpl
-IHJlcXVpcmVtZW50LgoKWzFdIGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2FsbC8xMTA5ODBmZWE5
-YzI0ZWU0NDk0ODdiNWQyODgyMmRjY2Y3OTYyNDk0LmNhbWVsQHBlbmd1dHJvbml4LmRlLyN0Cgo+
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoFY0TDJfTVBF
-R19WSURFT19IMjY0X0xFVkVMXzRfMCk7Cj4gwqDCoMKgwqDCoMKgwqDCoH0KPiDCoMKgwqDCoMKg
-wqDCoMKgdjRsMl9jdHJsX25ld19zdGQoJmN0eC0+Y3RybHMsICZjb2RhX2N0cmxfb3BzLAo+IEBA
-IC0yNDM3LDcgKzI0NDAsNyBAQCBzdGF0aWMgdm9pZCBjb2RhX2RlY29kZV9jdHJscyhzdHJ1Y3Qg
-Y29kYV9jdHgKPiAqY3R4KQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgY3R4LT5kZXYtPmRldnR5
-cGUtPnByb2R1Y3QgPT0gQ09EQV83NTQxKQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgbWF4ID0gVjRMMl9NUEVHX1ZJREVPX0gyNjRfTEVWRUxfNF8wOwo+IMKgwqDCoMKgwqDCoMKg
-wqBlbHNlIGlmIChjdHgtPmRldi0+ZGV2dHlwZS0+cHJvZHVjdCA9PSBDT0RBXzk2MCkKPiAtwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgbWF4ID0gVjRMMl9NUEVHX1ZJREVPX0gyNjRfTEVW
-RUxfNF8xOwo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBtYXggPSBWNEwyX01QRUdf
-VklERU9fSDI2NF9MRVZFTF81XzA7CgpJJ20gbm90IHNvIHN1cmUgYWJvdXQgdGhpcyBvbmUsIGJ1
-dCBJIHRoaW5rIGl0IGlzIHdyb25nIGFzIHdlbGwsIGZvcgp0aGUgc2FtZSByZWFzb24uIE5pY29s
-YXMgd2FudGVkIHRvIHJlZHVjZSB0aGlzIHRvIGxldmVsIDQuMiBpbiB2MiBbMl0uCgpbMl0gaHR0
-cHM6Ly9sb3JlLmtlcm5lbC5vcmcvYWxsL2Y0MDlkNGRkYWQwYTM1MmNhN2VjODQ2OTljOTRhNjRl
-NWRiZjA0MDcuY2FtZWxAY29sbGFib3JhLmNvbS8KCnJlZ2FyZHMKUGhpbGlwcAo=
+From: Yan Yan <evitayan@google.com>
+
+[ Upstream commit c1aca3080e382886e2e58e809787441984a2f89b ]
+
+This patch enables distinguishing SAs and SPs based on if_id during
+the xfrm_migrate flow. This ensures support for xfrm interfaces
+throughout the SA/SP lifecycle.
+
+When there are multiple existing SPs with the same direction,
+the same xfrm_selector and different endpoint addresses,
+xfrm_migrate might fail with ENODATA.
+
+Specifically, the code path for performing xfrm_migrate is:
+  Stage 1: find policy to migrate with
+    xfrm_migrate_policy_find(sel, dir, type, net)
+  Stage 2: find and update state(s) with
+    xfrm_migrate_state_find(mp, net)
+  Stage 3: update endpoint address(es) of template(s) with
+    xfrm_policy_migrate(pol, m, num_migrate)
+
+Currently "Stage 1" always returns the first xfrm_policy that
+matches, and "Stage 3" looks for the xfrm_tmpl that matches the
+old endpoint address. Thus if there are multiple xfrm_policy
+with same selector, direction, type and net, "Stage 1" might
+rertun a wrong xfrm_policy and "Stage 3" will fail with ENODATA
+because it cannot find a xfrm_tmpl with the matching endpoint
+address.
+
+The fix is to allow userspace to pass an if_id and add if_id
+to the matching rule in Stage 1 and Stage 2 since if_id is a
+unique ID for xfrm_policy and xfrm_state. For compatibility,
+if_id will only be checked if the attribute is set.
+
+Tested with additions to Android's kernel unit test suite:
+https://android-review.googlesource.com/c/kernel/tests/+/1668886
+
+Signed-off-by: Yan Yan <evitayan@google.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/net/xfrm.h     |  5 +++--
+ net/key/af_key.c       |  2 +-
+ net/xfrm/xfrm_policy.c | 14 ++++++++------
+ net/xfrm/xfrm_state.c  |  7 ++++++-
+ net/xfrm/xfrm_user.c   |  6 +++++-
+ 5 files changed, 23 insertions(+), 11 deletions(-)
+
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 4a2843441caf..0049a7459649 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1668,14 +1668,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	       const struct xfrm_migrate *m, int num_bundles,
+ 	       const struct xfrm_kmaddress *k,
+ 	       const struct xfrm_encap_tmpl *encap);
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id);
+ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ 				      struct xfrm_migrate *m,
+ 				      struct xfrm_encap_tmpl *encap);
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_bundles,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap);
++		 struct xfrm_encap_tmpl *encap, u32 if_id);
+ #endif
+ 
+ int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index ef9b4ac03e7b..d1364b858fdf 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2627,7 +2627,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
+ 	}
+ 
+ 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
+-			    kma ? &k : NULL, net, NULL);
++			    kma ? &k : NULL, net, NULL, 0);
+ 
+  out:
+ 	return err;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index c4a195cb3681..3d0ffd927004 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -4287,7 +4287,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
+ }
+ 
+ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
+-						    u8 dir, u8 type, struct net *net)
++						    u8 dir, u8 type, struct net *net, u32 if_id)
+ {
+ 	struct xfrm_policy *pol, *ret = NULL;
+ 	struct hlist_head *chain;
+@@ -4296,7 +4296,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+ 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
+ 	hlist_for_each_entry(pol, chain, bydst) {
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			priority = ret->priority;
+@@ -4308,7 +4309,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 		if ((pol->priority >= priority) && ret)
+ 			break;
+ 
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			break;
+@@ -4424,7 +4426,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_migrate,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap)
++		 struct xfrm_encap_tmpl *encap, u32 if_id)
+ {
+ 	int i, err, nx_cur = 0, nx_new = 0;
+ 	struct xfrm_policy *pol = NULL;
+@@ -4443,14 +4445,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	}
+ 
+ 	/* Stage 1 - find policy */
+-	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
++	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
+ 		err = -ENOENT;
+ 		goto out;
+ 	}
+ 
+ 	/* Stage 2 - find and update state(s) */
+ 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
+-		if ((x = xfrm_migrate_state_find(mp, net))) {
++		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
+ 			x_cur[nx_cur] = x;
+ 			nx_cur++;
+ 			xc = xfrm_state_migrate(x, mp, encap);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index f5b846a2edcd..37fe22b2e843 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1569,7 +1569,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 	return NULL;
+ }
+ 
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id)
+ {
+ 	unsigned int h;
+ 	struct xfrm_state *x = NULL;
+@@ -1585,6 +1586,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 				continue;
+ 			if (m->reqid && x->props.reqid != m->reqid)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+@@ -1600,6 +1603,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 			if (x->props.mode != m->mode ||
+ 			    x->id.proto != m->proto)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index d0fdfbf4c5f7..a535def86c52 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -2451,6 +2451,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	int n = 0;
+ 	struct net *net = sock_net(skb->sk);
+ 	struct xfrm_encap_tmpl  *encap = NULL;
++	u32 if_id = 0;
+ 
+ 	if (attrs[XFRMA_MIGRATE] == NULL)
+ 		return -EINVAL;
+@@ -2475,7 +2476,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			return 0;
+ 	}
+ 
+-	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
++	if (attrs[XFRMA_IF_ID])
++		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++
++	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
+ 
+ 	kfree(encap);
+ 
+-- 
+2.34.1
 
