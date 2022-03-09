@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6879E4D3772
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:45:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6674D361E
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:43:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232833AbiCIQfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:35:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44888 "EHLO
+        id S236463AbiCIQfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:35:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239437AbiCIQcg (ORCPT
+        with ESMTP id S239438AbiCIQcg (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:32:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B8014F9A0;
-        Wed,  9 Mar 2022 08:27:46 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638281520F0;
+        Wed,  9 Mar 2022 08:27:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01EE8B82252;
-        Wed,  9 Mar 2022 16:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE87C340EC;
-        Wed,  9 Mar 2022 16:27:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8449619C9;
+        Wed,  9 Mar 2022 16:27:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 839DBC340E8;
+        Wed,  9 Mar 2022 16:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646843235;
-        bh=wEoJkZLmzdMrIsHPFU3oRk0kM0mMwx+PzxnxITksLjg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoINKQFdh2IRohMLaWOExmXS3D45+Fg3ET2J5HQdVw/4XEvC7KohwAe9vGSI0+/ab
-         B7FCnuZo3Jwufzqueg1IDyxoQJhIrD45/+ik0G/6cqOOVoXhpqUeHSsH5s2T4nXSUx
-         zSis3WEze1wqovD+8c1YB5PQC5vbVS/Fi3K7aQMJoQL6VMsXtrzNS/NBMRAlmxmr5G
-         bbwCifWmryEUsHsNqQw9rwPS1xC7DaBXZocqCZfjF9xlBU9fmelxwl+Wr4pkWUln5+
-         GZJ7JsHkpk0NU9h8Q5pL+AjxXxR/SzGzkzqkOOcQZObQJoLdh+DFXcL/sOMUeqmeSX
-         bSJ47+ykpQfbg==
+        s=k20201202; t=1646843244;
+        bh=vUJhJg6ldXz1gDP6tMqmE7OSEel0kuH3BqZO7brjH5I=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WDNf79ZjaHk1NsgV3bbvFWLlIJ/5KWKjr3aLH2D7OR9LatKMpeUWWDSR0RD5i80na
+         RnIdZNEjBGvX/iWjVcvn87Su2sggKi/dM/m1lMJCmj/z44gzKC//aeAQx9F7pmAbDU
+         CGAEmyYdONqvy6BgDr4LfWRlSALM01inkJ6VKqaE1gensUGZ5PUKdR9AzBbKWMnOdD
+         BRNm3TTBXPo1HENsLQ6GhvaS61IBxNfgdsZor40VY5S4vGqEr3uAyfMWbuKUjJ90IS
+         w9Js28sIESj4NBy5ZUFyHZgzCzZBR+ZlevHII0Ljd4iVdWtR0UCVOGS/ha8TI8ud/V
+         Ef+VIdr478AQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengming Zhou <zhouchengming@bytedance.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-mm@kvack.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/12] kselftest/vm: fix tests build with old libc
-Date:   Wed,  9 Mar 2022 11:26:17 -0500
-Message-Id: <20220309162618.137226-12-sashal@kernel.org>
+Cc:     Yan Yan <evitayan@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/11] xfrm: Fix xfrm migrate issues when address family changes
+Date:   Wed,  9 Mar 2022 11:27:06 -0500
+Message-Id: <20220309162716.137399-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220309162618.137226-1-sashal@kernel.org>
-References: <20220309162618.137226-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,45 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Zhou <zhouchengming@bytedance.com>
+From: Yan Yan <evitayan@google.com>
 
-[ Upstream commit b773827e361952b3f53ac6fa4c4e39ccd632102e ]
+[ Upstream commit e03c3bba351f99ad932e8f06baa9da1afc418e02 ]
 
-The error message when I build vm tests on debian10 (GLIBC 2.28):
+xfrm_migrate cannot handle address family change of an xfrm_state.
+The symptons are the xfrm_state will be migrated to a wrong address,
+and sending as well as receiving packets wil be broken.
 
-    userfaultfd.c: In function `userfaultfd_pagemap_test':
-    userfaultfd.c:1393:37: error: `MADV_PAGEOUT' undeclared (first use
-    in this function); did you mean `MADV_RANDOM'?
-      if (madvise(area_dst, test_pgsize, MADV_PAGEOUT))
-                                         ^~~~~~~~~~~~
-                                         MADV_RANDOM
+This commit fixes it by breaking the original xfrm_state_clone
+method into two steps so as to update the props.family before
+running xfrm_init_state. As the result, xfrm_state's inner mode,
+outer mode, type and IP header length in xfrm_state_migrate can
+be updated with the new address family.
 
-This patch includes these newer definitions from UAPI linux/mman.h, is
-useful to fix tests build on systems without these definitions in glibc
-sys/mman.h.
+Tested with additions to Android's kernel unit test suite:
+https://android-review.googlesource.com/c/kernel/tests/+/1885354
 
-Link: https://lkml.kernel.org/r/20220227055330.43087-2-zhouchengming@bytedance.com
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Yan Yan <evitayan@google.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/userfaultfd.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/xfrm/xfrm_state.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
-index 1963440f6725..b2c7043c0c30 100644
---- a/tools/testing/selftests/vm/userfaultfd.c
-+++ b/tools/testing/selftests/vm/userfaultfd.c
-@@ -60,6 +60,7 @@
- #include <signal.h>
- #include <poll.h>
- #include <string.h>
-+#include <linux/mman.h>
- #include <sys/mman.h>
- #include <sys/syscall.h>
- #include <sys/ioctl.h>
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 4d19f2ff6e05..73b4e7c0d336 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1238,9 +1238,6 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig)
+ 
+ 	memcpy(&x->mark, &orig->mark, sizeof(x->mark));
+ 
+-	if (xfrm_init_state(x) < 0)
+-		goto error;
+-
+ 	x->props.flags = orig->props.flags;
+ 	x->props.extra_flags = orig->props.extra_flags;
+ 
+@@ -1317,6 +1314,11 @@ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ 	if (!xc)
+ 		return NULL;
+ 
++	xc->props.family = m->new_family;
++
++	if (xfrm_init_state(xc) < 0)
++		goto error;
++
+ 	memcpy(&xc->id.daddr, &m->new_daddr, sizeof(xc->id.daddr));
+ 	memcpy(&xc->props.saddr, &m->new_saddr, sizeof(xc->props.saddr));
+ 
 -- 
 2.34.1
 
