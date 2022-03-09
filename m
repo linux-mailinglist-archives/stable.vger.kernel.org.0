@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 024E64D3317
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DD484D32E3
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbiCIQHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:07:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44782 "EHLO
+        id S234697AbiCIQLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:11:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbiCIQGr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:06:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 892F41409FD;
-        Wed,  9 Mar 2022 08:03:04 -0800 (PST)
+        with ESMTP id S235799AbiCIQJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8882C142359;
+        Wed,  9 Mar 2022 08:06:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55948B8222B;
-        Wed,  9 Mar 2022 16:03:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F18C340E8;
-        Wed,  9 Mar 2022 16:03:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C328961798;
+        Wed,  9 Mar 2022 16:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF27C340E8;
+        Wed,  9 Mar 2022 16:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841782;
-        bh=O/puTpS0vTBgPhZGErm9BWdP2JhT+u4Mnv+wuMe7TjM=;
+        s=korg; t=1646842002;
+        bh=BjhNuDswWhutw0Va1gA9M+7Vl6Iaj6ZmKGq889IWLoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIYHquIQynKdoNzjkXxA0ij+aO0LiK/fdDdHl0BL/+w5XjxSdZYy4JXw8LE67romH
-         hsS5udEX7KTC42J63wK9C2ZjFrc+xsKEB3JoBt4gMZJqBsIBuU5qAkzWregcp+3fAb
-         AAbpjtKtnGYsbLoryZ7nE0fkewsct4dH06pOgtDs=
+        b=DkNy1eKFDnUpWRAkpwFrUC5IqAIa7pryxQTwAtOU5Bpl6v1l6JfNWIayTQ0LQmjsf
+         invSdo/G1bVOtIwTh0rkEomejEvi+0IIiiNc0AXjAgDteAfyOL1cbsZNC5C3wP0zPK
+         s/uQB41ecVKF9LU2QCV0U7kuzPmd0sPDryGIq0Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 11/18] arm/arm64: Provide a wrapper for SMCCC 1.1 calls
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Hector Martin <marcan@marcan.st>
+Subject: [PATCH 5.10 15/43] arm64: cputype: Add CPU implementor & types for the Apple M1 cores
 Date:   Wed,  9 Mar 2022 16:59:48 +0100
-Message-Id: <20220309155856.491838634@linuxfoundation.org>
+Message-Id: <20220309155859.685364689@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.155540075@linuxfoundation.org>
-References: <20220309155856.155540075@linuxfoundation.org>
+In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
+References: <20220309155859.239810747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,92 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Hector Martin <marcan@marcan.st>
 
-commit 541625ac47ce9d0835efaee0fcbaa251b0000a37 upstream.
+commit 11ecdad722daafcac09c4859dddf31b3d46449bc upstream.
 
-SMCCC 1.1 calls may use either HVC or SMC depending on the PSCI
-conduit. Rather than coding this in every call site, provide a macro
-which uses the correct instruction. The macro also handles the case
-where no conduit is configured/available returning a not supported error
-in res, along with returning the conduit used for the call.
+The implementor will be used to condition the FIQ support quirk.
 
-This allow us to remove some duplicated code and will be useful later
-when adding paravirtualized time hypervisor calls.
+The specific CPU types are not used at the moment, but let's add them
+for documentation purposes.
 
-Signed-off-by: Steven Price <steven.price@arm.com>
 Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Hector Martin <marcan@marcan.st>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/arm-smccc.h |   58 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+ arch/arm64/include/asm/cputype.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -311,5 +311,63 @@ asmlinkage void __arm_smccc_hvc(unsigned
- #define SMCCC_RET_NOT_SUPPORTED			-1
- #define SMCCC_RET_NOT_REQUIRED			-2
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -59,6 +59,7 @@
+ #define ARM_CPU_IMP_NVIDIA		0x4E
+ #define ARM_CPU_IMP_FUJITSU		0x46
+ #define ARM_CPU_IMP_HISI		0x48
++#define ARM_CPU_IMP_APPLE		0x61
  
-+/*
-+ * Like arm_smccc_1_1* but always returns SMCCC_RET_NOT_SUPPORTED.
-+ * Used when the SMCCC conduit is not defined. The empty asm statement
-+ * avoids compiler warnings about unused variables.
-+ */
-+#define __fail_smccc_1_1(...)						\
-+	do {								\
-+		__declare_args(__count_args(__VA_ARGS__), __VA_ARGS__);	\
-+		asm ("" __constraints(__count_args(__VA_ARGS__)));	\
-+		if (___res)						\
-+			___res->a0 = SMCCC_RET_NOT_SUPPORTED;		\
-+	} while (0)
+ #define ARM_CPU_PART_AEM_V8		0xD0F
+ #define ARM_CPU_PART_FOUNDATION		0xD00
+@@ -99,6 +100,9 @@
+ 
+ #define HISI_CPU_PART_TSV110		0xD01
+ 
++#define APPLE_CPU_PART_M1_ICESTORM	0x022
++#define APPLE_CPU_PART_M1_FIRESTORM	0x023
 +
-+/*
-+ * arm_smccc_1_1_invoke() - make an SMCCC v1.1 compliant call
-+ *
-+ * This is a variadic macro taking one to eight source arguments, and
-+ * an optional return structure.
-+ *
-+ * @a0-a7: arguments passed in registers 0 to 7
-+ * @res: result values from registers 0 to 3
-+ *
-+ * This macro will make either an HVC call or an SMC call depending on the
-+ * current SMCCC conduit. If no valid conduit is available then -1
-+ * (SMCCC_RET_NOT_SUPPORTED) is returned in @res.a0 (if supplied).
-+ *
-+ * The return value also provides the conduit that was used.
-+ */
-+#define arm_smccc_1_1_invoke(...) ({					\
-+		int method = arm_smccc_1_1_get_conduit();		\
-+		switch (method) {					\
-+		case SMCCC_CONDUIT_HVC:					\
-+			arm_smccc_1_1_hvc(__VA_ARGS__);			\
-+			break;						\
-+		case SMCCC_CONDUIT_SMC:					\
-+			arm_smccc_1_1_smc(__VA_ARGS__);			\
-+			break;						\
-+		default:						\
-+			__fail_smccc_1_1(__VA_ARGS__);			\
-+			method = SMCCC_CONDUIT_NONE;			\
-+			break;						\
-+		}							\
-+		method;							\
-+	})
-+
-+/* Paravirtualised time calls (defined by ARM DEN0057A) */
-+#define ARM_SMCCC_HV_PV_TIME_FEATURES				\
-+	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
-+			   ARM_SMCCC_SMC_64,			\
-+			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
-+			   0x20)
-+
-+#define ARM_SMCCC_HV_PV_TIME_ST					\
-+	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
-+			   ARM_SMCCC_SMC_64,			\
-+			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
-+			   0x21)
-+
- #endif /*__ASSEMBLY__*/
- #endif /*__LINUX_ARM_SMCCC_H*/
+ #define MIDR_CORTEX_A53 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A53)
+ #define MIDR_CORTEX_A57 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A57)
+ #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
+@@ -127,6 +131,8 @@
+ #define MIDR_NVIDIA_CARMEL MIDR_CPU_MODEL(ARM_CPU_IMP_NVIDIA, NVIDIA_CPU_PART_CARMEL)
+ #define MIDR_FUJITSU_A64FX MIDR_CPU_MODEL(ARM_CPU_IMP_FUJITSU, FUJITSU_CPU_PART_A64FX)
+ #define MIDR_HISI_TSV110 MIDR_CPU_MODEL(ARM_CPU_IMP_HISI, HISI_CPU_PART_TSV110)
++#define MIDR_APPLE_M1_ICESTORM MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_ICESTORM)
++#define MIDR_APPLE_M1_FIRESTORM MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_FIRESTORM)
+ 
+ /* Fujitsu Erratum 010001 affects A64FX 1.0 and 1.1, (v0r0 and v1r0) */
+ #define MIDR_FUJITSU_ERRATUM_010001		MIDR_FUJITSU_A64FX
 
 
