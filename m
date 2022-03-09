@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1234D3279
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0E64D328D
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:04:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232799AbiCIQFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:05:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
+        id S234146AbiCIQCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:02:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234190AbiCIQEQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:04:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38BA0A66C2;
-        Wed,  9 Mar 2022 08:02:40 -0800 (PST)
+        with ESMTP id S231624AbiCIQCf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:02:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D900517F6B4;
+        Wed,  9 Mar 2022 08:01:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEBE761666;
-        Wed,  9 Mar 2022 16:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D111AC340EF;
-        Wed,  9 Mar 2022 16:02:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79C51B8222B;
+        Wed,  9 Mar 2022 16:01:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B42C36AF4;
+        Wed,  9 Mar 2022 16:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841759;
-        bh=EbrEZQ50EN7O9KAn4zxvfpRaHNZyBkM467lX/zI6ot8=;
+        s=korg; t=1646841692;
+        bh=YYTxn4Nwrg6CuOgCloYwoSlfT43YKOmCi0fRD30gcL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1MHsMdoBx9HuvNwUb3/2bs5Yb16VLOVxrNaN7nIU9mGYumORPcgNMigC0sJKjEQC
-         Ha5bC0bjMgJTEKAjqqflJRSEWVAGH6eAu+VrqiyrklC42J3mi2dJsWBN+ZjrdMMLlQ
-         M7G/vix9cFMGHyaLJhKr4tbUmtTcTZ3MrU60yNR0=
+        b=jSDJ0leGK7meEE3SaqsGoaaUXgDG08EONKEBD60fkG9acHiU1FZBBReYjuY+A+tM3
+         5AUzPnpr++08pd2HBJbJ+vPvCMjs6WxC6vysi6F6GsiKmJqH+3SZJw8Q5fLC00tUTW
+         Bp4R+Fg7C+t5B12NO0tIekHzqE2RAvSbp3Y6/hT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Frank van der Linden <fllinden@amazon.com>
-Subject: [PATCH 4.14 05/18] Documentation/hw-vuln: Update spectre doc
-Date:   Wed,  9 Mar 2022 16:59:35 +0100
-Message-Id: <20220309155856.252864986@linuxfoundation.org>
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.9 23/24] ARM: include unprivileged BPF status in Spectre V2 reporting
+Date:   Wed,  9 Mar 2022 16:59:36 +0100
+Message-Id: <20220309155856.981196235@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.090281301@linuxfoundation.org>
-References: <20220309155856.090281301@linuxfoundation.org>
+In-Reply-To: <20220309155856.295480966@linuxfoundation.org>
+References: <20220309155856.295480966@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,106 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit 5ad3eb1132453b9795ce5fd4572b1c18b292cca9 upstream.
+commit 25875aa71dfefd1959f07e626c4d285b88b27ac2 upstream.
 
-Update the doc with the new fun.
+The mitigations for Spectre-BHB are only applied when an exception
+is taken, but when unprivileged BPF is enabled, userspace can
+load BPF programs that can be used to exploit the problem.
 
-  [ bp: Massage commit message. ]
+When unprivileged BPF is enabled, report the vulnerable status via
+the spectre_v2 sysfs file.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-[fllinden@amazon.com: backported to 4.14]
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/spectre.rst   |   42 ++++++++++++++++--------
- Documentation/admin-guide/kernel-parameters.txt |    8 +++-
- 2 files changed, 35 insertions(+), 15 deletions(-)
+ arch/arm/kernel/spectre.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/Documentation/admin-guide/hw-vuln/spectre.rst
-+++ b/Documentation/admin-guide/hw-vuln/spectre.rst
-@@ -131,6 +131,19 @@ steer its indirect branch speculations t
- speculative execution's side effects left in level 1 cache to infer the
- victim's data.
+--- a/arch/arm/kernel/spectre.c
++++ b/arch/arm/kernel/spectre.c
+@@ -1,9 +1,19 @@
+ // SPDX-License-Identifier: GPL-2.0-only
++#include <linux/bpf.h>
+ #include <linux/cpu.h>
+ #include <linux/device.h>
  
-+Yet another variant 2 attack vector is for the attacker to poison the
-+Branch History Buffer (BHB) to speculatively steer an indirect branch
-+to a specific Branch Target Buffer (BTB) entry, even if the entry isn't
-+associated with the source address of the indirect branch. Specifically,
-+the BHB might be shared across privilege levels even in the presence of
-+Enhanced IBRS.
+ #include <asm/spectre.h>
+ 
++static bool _unprivileged_ebpf_enabled(void)
++{
++#ifdef CONFIG_BPF_SYSCALL
++	return !sysctl_unprivileged_bpf_disabled;
++#else
++	return false
++#endif
++}
 +
-+Currently the only known real-world BHB attack vector is via
-+unprivileged eBPF. Therefore, it's highly recommended to not enable
-+unprivileged eBPF, especially when eIBRS is used (without retpolines).
-+For a full mitigation against BHB attacks, it's recommended to use
-+retpolines (or eIBRS combined with retpolines).
+ ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
+ 			    char *buf)
+ {
+@@ -31,6 +41,9 @@ ssize_t cpu_show_spectre_v2(struct devic
+ 	if (spectre_v2_state != SPECTRE_MITIGATED)
+ 		return sprintf(buf, "%s\n", "Vulnerable");
+ 
++	if (_unprivileged_ebpf_enabled())
++		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
 +
- Attack scenarios
- ----------------
- 
-@@ -364,13 +377,15 @@ The possible values in this file are:
- 
-   - Kernel status:
- 
--  ====================================  =================================
--  'Not affected'                        The processor is not vulnerable
--  'Vulnerable'                          Vulnerable, no mitigation
--  'Mitigation: Full generic retpoline'  Software-focused mitigation
--  'Mitigation: Full AMD retpoline'      AMD-specific software mitigation
--  'Mitigation: Enhanced IBRS'           Hardware-focused mitigation
--  ====================================  =================================
-+  ========================================  =================================
-+  'Not affected'                            The processor is not vulnerable
-+  'Mitigation: None'                        Vulnerable, no mitigation
-+  'Mitigation: Retpolines'                  Use Retpoline thunks
-+  'Mitigation: LFENCE'                      Use LFENCE instructions
-+  'Mitigation: Enhanced IBRS'               Hardware-focused mitigation
-+  'Mitigation: Enhanced IBRS + Retpolines'  Hardware-focused + Retpolines
-+  'Mitigation: Enhanced IBRS + LFENCE'      Hardware-focused + LFENCE
-+  ========================================  =================================
- 
-   - Firmware status: Show if Indirect Branch Restricted Speculation (IBRS) is
-     used to protect against Spectre variant 2 attacks when calling firmware (x86 only).
-@@ -584,12 +599,13 @@ kernel command line.
- 
- 		Specific mitigations can also be selected manually:
- 
--		retpoline
--					replace indirect branches
--		retpoline,generic
--					google's original retpoline
--		retpoline,amd
--					AMD-specific minimal thunk
-+                retpoline               auto pick between generic,lfence
-+                retpoline,generic       Retpolines
-+                retpoline,lfence        LFENCE; indirect branch
-+                retpoline,amd           alias for retpoline,lfence
-+                eibrs                   enhanced IBRS
-+                eibrs,retpoline         enhanced IBRS + Retpolines
-+                eibrs,lfence            enhanced IBRS + LFENCE
- 
- 		Not specifying this option is equivalent to
- 		spectre_v2=auto.
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4150,8 +4150,12 @@
- 			Specific mitigations can also be selected manually:
- 
- 			retpoline	  - replace indirect branches
--			retpoline,generic - google's original retpoline
--			retpoline,amd     - AMD-specific minimal thunk
-+			retpoline,generic - Retpolines
-+			retpoline,lfence  - LFENCE; indirect branch
-+			retpoline,amd     - alias for retpoline,lfence
-+			eibrs		  - enhanced IBRS
-+			eibrs,retpoline   - enhanced IBRS + Retpolines
-+			eibrs,lfence      - enhanced IBRS + LFENCE
- 
- 			Not specifying this option is equivalent to
- 			spectre_v2=auto.
+ 	switch (spectre_v2_methods) {
+ 	case SPECTRE_V2_METHOD_BPIALL:
+ 		method = "Branch predictor hardening";
 
 
