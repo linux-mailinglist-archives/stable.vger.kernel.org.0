@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5784D3395
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC404D3334
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234832AbiCIQME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:12:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44614 "EHLO
+        id S234617AbiCIQKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:10:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235452AbiCIQIv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A45B18F20F;
-        Wed,  9 Mar 2022 08:05:58 -0800 (PST)
+        with ESMTP id S234881AbiCIQIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D4F5B89C;
+        Wed,  9 Mar 2022 08:04:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AAC46169D;
-        Wed,  9 Mar 2022 16:05:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 777AAC340F5;
-        Wed,  9 Mar 2022 16:05:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11A2BB82233;
+        Wed,  9 Mar 2022 16:04:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59394C340E8;
+        Wed,  9 Mar 2022 16:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841925;
-        bh=eNC2LoRSShxShPBQOu9Ekx31Np/dRyimoxlehhvsvm4=;
+        s=korg; t=1646841874;
+        bh=wBLb1JgeLGCmIlJRSZ+nBqsfFArPm7x3PghLmULm8JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+n53AonqfQZbLzNbUwOP/2qfT9mySH6iW/dt9+2q2afAO51FhdGWea9ZPIZkBpUE
-         2WUatAL0HnpMenkFNGiMpqfzqntSv1SImajVLVpwy3CEqgpZmcv7KBTxq1iv4MjmHX
-         Ml6pLpvzYFsuD6Scm9JU2XHlyeV2I5uxIDV3VkcI=
+        b=eBSy8HqQMzhpnmRSHQWo9pFYHF6bA8LBT3GVqMsrCWinW9QEV8+3aqHH2xNImzM7b
+         hANX0FVOO4vU0Mpe2bH9kBLROxoI7oQeTLGO7aYTwFM0pyYZArZ7dVL+jwxdccMwca
+         wCls1JZ0xTuUWqbcsh7GiMNyK2nvVXXFRSSzboC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.10 24/43] arm64: spectre: Rename spectre_v4_patch_fw_mitigation_conduit
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 08/18] x86/speculation: Update link to AMD speculation whitepaper
 Date:   Wed,  9 Mar 2022 16:59:57 +0100
-Message-Id: <20220309155859.942802365@linuxfoundation.org>
+Message-Id: <20220309155856.799858164@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-References: <20220309155859.239810747@linuxfoundation.org>
+In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
+References: <20220309155856.552503355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 1b33d4860deaecf1d8eec3061b7e7ed7ab0bae8d upstream.
+commit e9b6013a7ce31535b04b02ba99babefe8a8599fa upstream.
 
-The spectre-v4 sequence includes an SMC from the assembly entry code.
-spectre_v4_patch_fw_mitigation_conduit is the patching callback that
-generates an HVC or SMC depending on the SMCCC conduit type.
+Update the link to the "Software Techniques for Managing Speculation
+on AMD Processors" whitepaper.
 
-As this isn't specific to spectre-v4, rename it
-smccc_patch_fw_mitigation_conduit so it can be re-used.
-
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S       |    2 +-
- arch/arm64/kernel/proton-pack.c |    6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ Documentation/admin-guide/hw-vuln/spectre.rst |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -143,7 +143,7 @@ alternative_cb_end
- 	tbnz	\tmp2, #TIF_SSBD, .L__asm_ssbd_skip\@
- 	mov	w0, #ARM_SMCCC_ARCH_WORKAROUND_2
- 	mov	w1, #\state
--alternative_cb	spectre_v4_patch_fw_mitigation_conduit
-+alternative_cb	smccc_patch_fw_mitigation_conduit
- 	nop					// Patched to SMC/HVC #0
- alternative_cb_end
- .L__asm_ssbd_skip\@:
---- a/arch/arm64/kernel/proton-pack.c
-+++ b/arch/arm64/kernel/proton-pack.c
-@@ -571,9 +571,9 @@ void __init spectre_v4_patch_fw_mitigati
-  * Patch a NOP in the Spectre-v4 mitigation code with an SMC/HVC instruction
-  * to call into firmware to adjust the mitigation state.
-  */
--void __init spectre_v4_patch_fw_mitigation_conduit(struct alt_instr *alt,
--						   __le32 *origptr,
--						   __le32 *updptr, int nr_inst)
-+void __init smccc_patch_fw_mitigation_conduit(struct alt_instr *alt,
-+					       __le32 *origptr,
-+					       __le32 *updptr, int nr_inst)
- {
- 	u32 insn;
+--- a/Documentation/admin-guide/hw-vuln/spectre.rst
++++ b/Documentation/admin-guide/hw-vuln/spectre.rst
+@@ -60,8 +60,8 @@ privileged data touched during the specu
+ Spectre variant 1 attacks take advantage of speculative execution of
+ conditional branches, while Spectre variant 2 attacks use speculative
+ execution of indirect branches to leak privileged memory.
+-See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[7] <spec_ref7>`
+-:ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
++See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[6] <spec_ref6>`
++:ref:`[7] <spec_ref7>` :ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
+ 
+ Spectre variant 1 (Bounds Check Bypass)
+ ---------------------------------------
+@@ -746,7 +746,7 @@ AMD white papers:
+ 
+ .. _spec_ref6:
+ 
+-[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/90343-B_SoftwareTechniquesforManagingSpeculation_WP_7-18Update_FNL.pdf>`_.
++[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/Managing-Speculation-on-AMD-Processors.pdf>`_.
+ 
+ ARM white papers:
  
 
 
