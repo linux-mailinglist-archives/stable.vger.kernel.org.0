@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B14F74D37ED
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:45:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D20DD4D37C0
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:45:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234463AbiCIQeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:34:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
+        id S236440AbiCIQf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:35:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236346AbiCIQ3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:29:45 -0500
+        with ESMTP id S236556AbiCIQaC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:30:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF01774866;
-        Wed,  9 Mar 2022 08:23:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4E3A0BC3;
+        Wed,  9 Mar 2022 08:23:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3366F61961;
-        Wed,  9 Mar 2022 16:23:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A68BC340F6;
-        Wed,  9 Mar 2022 16:22:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A9CA6195D;
+        Wed,  9 Mar 2022 16:23:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E9CC3410B;
+        Wed,  9 Mar 2022 16:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646842981;
-        bh=ztggQNCgkWYRyJgw2WTJKBa0/fddztGD/fdjgSay18U=;
+        s=k20201202; t=1646842990;
+        bh=nCbAcrQeQOGTnXsdHXh8Jn0Q4uLhukoXOeCBftdREl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExIBgZ984p3mBN0KpO642+q3n5hh1I7M+GrpEGpPbbG4LmWtvrAzElRutHiiIkvd7
-         3Z+pVsi1WE26Biv7zuexa/KxreltCzZtC3noG8EcJIxOghsHTs4NtqcyDNFO45kUgw
-         cK8NWo3zZaHIzRXzhu2GQpm345WC9C0H3a7ZlQdRmTzLvZCyvh6+vbuG99xUhb97Vn
-         H2c+PcUBsYnxjbWUbqb7cE6GFoQIl/7Vjkp9FcS2JBI9r5NYpRCCXQV5SwX0WVT5JG
-         CP2Lh3e+umJAMaV1E/LkhlVyuW3zSybQs7JLRZ3BuTCOtVS2mkaoZyQQAr4ynbNifn
-         hxmNSHRgGOt2g==
+        b=DOCB0aR7LeeaLxmzgGjujzhNclSiOqZmWeG7rd2OUN8o1Oc/zOpgCpXxZwCcsRiCd
+         ULVAmV3kWVFj3mVwKCr9aFK9DBiUrCh3+vFrysHf+FdwQcwe7cKsg7hdER/yLkBpC8
+         qldbCfCn0WFohj4iU2flE8k08F2HRLmzOHXn5u9coR+7uZKZeO4YUnc+PQaIkhYXdO
+         g5UDDhhtCuw8dlS6dtgxoUK4fmTQI7FpVd9C9NeSQ8dGRAFQ5ajREddqQSKMs7mt/f
+         pZ3t488+FETxx8T+VYL5linwD5YX0LuLdQXaTJ2cM4vLffSIuVK3syUwkPfKY88rZ6
+         pvDdIyEAcETCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 13/20] Input: goodix - workaround Cherry Trail devices with a bogus ACPI Interrupt() resource
-Date:   Wed,  9 Mar 2022 11:21:51 -0500
-Message-Id: <20220309162158.136467-13-sashal@kernel.org>
+Cc:     Golan Ben Ami <golan.ben.ami@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
+        davem@davemloft.net, kuba@kernel.org,
+        mordechay.goodstein@intel.com, miriam.rachel.korenblit@intel.com,
+        ilan.peer@intel.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 14/20] iwlwifi: don't advertise TWT support
+Date:   Wed,  9 Mar 2022 11:21:52 -0500
+Message-Id: <20220309162158.136467-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220309162158.136467-1-sashal@kernel.org>
 References: <20220309162158.136467-1-sashal@kernel.org>
@@ -57,62 +61,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Golan Ben Ami <golan.ben.ami@intel.com>
 
-[ Upstream commit d982992669733dd75520000c6057d8ee0725a363 ]
+[ Upstream commit 1db5fcbba2631277b78d7f8aff99c9607d29f6d8 ]
 
-ACPI/x86 devices with a Cherry Trail SoC should have a GpioInt + a regular
-GPIO ACPI resource in their ACPI tables.
+Some APs misbehave when TWT is used and cause our firmware to crash.
+We don't know a reasonable way to detect and work around this problem
+in the FW yet.  To prevent these crashes, disable TWT in the driver by
+stopping to advertise TWT support.
 
-Some CHT devices have a bug, where the also is bogus interrupt resource
-(likely copied from a previous Bay Trail based generation of the device).
-
-The i2c-core-acpi code will assign the bogus, non-working, interrupt
-resource to client->irq. Add a workaround to fix this up.
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=2043960
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220228111613.363336-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215523
+Signed-off-by: Golan Ben Ami <golan.ben.ami@intel.com>
+[reworded the commit message]
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20220301072926.153969-1-luca@coelho.fi
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/goodix.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c | 3 +--
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c  | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 5fc789f717c8..f6c92365d327 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -782,7 +782,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 	const struct acpi_gpio_mapping *gpio_mapping = NULL;
- 	struct device *dev = &ts->client->dev;
- 	LIST_HEAD(resources);
--	int ret;
-+	int irq, ret;
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+index cbde21e772b1..b862cfbcd6e7 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+@@ -587,8 +587,7 @@ static struct ieee80211_sband_iftype_data iwl_he_capa[] = {
+ 			.has_he = true,
+ 			.he_cap_elem = {
+ 				.mac_cap_info[0] =
+-					IEEE80211_HE_MAC_CAP0_HTC_HE |
+-					IEEE80211_HE_MAC_CAP0_TWT_REQ,
++					IEEE80211_HE_MAC_CAP0_HTC_HE,
+ 				.mac_cap_info[1] =
+ 					IEEE80211_HE_MAC_CAP1_TF_MAC_PAD_DUR_16US |
+ 					IEEE80211_HE_MAC_CAP1_MULTI_TID_AGG_RX_QOS_8,
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 922a7ea0cd24..d2c6fdb70273 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -350,7 +350,6 @@ static const u8 he_if_types_ext_capa_sta[] = {
+ 	 [0] = WLAN_EXT_CAPA1_EXT_CHANNEL_SWITCHING,
+ 	 [2] = WLAN_EXT_CAPA3_MULTI_BSSID_SUPPORT,
+ 	 [7] = WLAN_EXT_CAPA8_OPMODE_NOTIF,
+-	 [9] = WLAN_EXT_CAPA10_TWT_REQUESTER_SUPPORT,
+ };
  
- 	ts->gpio_count = 0;
- 	ts->gpio_int_idx = -1;
-@@ -795,6 +795,20 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 
- 	acpi_dev_free_resource_list(&resources);
- 
-+	/*
-+	 * CHT devices should have a GpioInt + a regular GPIO ACPI resource.
-+	 * Some CHT devices have a bug (where the also is bogus Interrupt
-+	 * resource copied from a previous BYT based generation). i2c-core-acpi
-+	 * will use the non-working Interrupt resource, fix this up.
-+	 */
-+	if (soc_intel_is_cht() && ts->gpio_count == 2 && ts->gpio_int_idx != -1) {
-+		irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
-+		if (irq > 0 && irq != ts->client->irq) {
-+			dev_warn(dev, "Overriding IRQ %d -> %d\n", ts->client->irq, irq);
-+			ts->client->irq = irq;
-+		}
-+	}
-+
- 	if (ts->gpio_count == 2 && ts->gpio_int_idx == 0) {
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
- 		gpio_mapping = acpi_goodix_int_first_gpios;
+ static const struct wiphy_iftype_ext_capab he_iftypes_ext_capa[] = {
 -- 
 2.34.1
 
