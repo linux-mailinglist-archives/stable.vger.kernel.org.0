@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB0E4D331D
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B25A44D3351
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:21:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234515AbiCIQNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:13:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44750 "EHLO
+        id S232171AbiCIQNy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:13:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235123AbiCIQNC (ORCPT
+        with ESMTP id S235124AbiCIQNC (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:13:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21EA154709;
-        Wed,  9 Mar 2022 08:10:15 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7FE151C4E;
+        Wed,  9 Mar 2022 08:10:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40087B82191;
-        Wed,  9 Mar 2022 16:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8919DC340EC;
-        Wed,  9 Mar 2022 16:10:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72A1C617AE;
+        Wed,  9 Mar 2022 16:10:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D0CAC340EC;
+        Wed,  9 Mar 2022 16:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646842212;
-        bh=aznECDtrCLjMhduI5pusl4speT9yyZT4RO1s2dy+4IM=;
+        s=korg; t=1646842215;
+        bh=llzRfa3gvKAL1MFmrxWgQ6xdPHFIoixIwvbvDWmw/dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgNDmsv5GDyEHTGOo4XE7WsGEkZ4lCOru6BT6FNwje2jG1pWcCvOLRI9QmyOwbf8s
-         Xpy0F9TWCfx6sMSjN2qu0qf9WxkYWwLQp7VqwDTqGJlW0k3xrYJaKOHWexkxScjL+1
-         qj47+jx/b0RQvNgOIjzVcpmutjq4m6k2T16UOYUg=
+        b=vT6rUL7PtLsS/gC5LA0wf2UZ8iOogAaxG8WEYEHF+Gp7HHPbW+GcK+WXBAkTf7wvg
+         N2RxPIyekSQSFbqrEtIP+ZuePsT3EwaRl1NmY6a/eBTWevSoEAN8TIgI78gCJIw3pK
+         BPUsCyMCmr64zP7MudUYSyh6veYOHPV9OvPBwAjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 5.16 34/37] KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
-Date:   Wed,  9 Mar 2022 17:00:35 +0100
-Message-Id: <20220309155900.075514145@linuxfoundation.org>
+Subject: [PATCH 5.16 35/37] arm64: Use the clearbhb instruction in mitigations
+Date:   Wed,  9 Mar 2022 17:00:36 +0100
+Message-Id: <20220309155900.103924301@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
 References: <20220309155859.086952723@linuxfoundation.org>
@@ -57,113 +57,259 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit a5905d6af492ee6a4a2205f0d550b3f931b03d03 upstream.
+commit 228a26b912287934789023b4132ba76065d9491c upstream.
 
-KVM allows the guest to discover whether the ARCH_WORKAROUND SMCCC are
-implemented, and to preserve that state during migration through its
-firmware register interface.
+Future CPUs may implement a clearbhb instruction that is sufficient
+to mitigate SpectreBHB. CPUs that implement this instruction, but
+not CSV2.3 must be affected by Spectre-BHB.
 
-Add the necessary boiler plate for SMCCC_ARCH_WORKAROUND_3.
+Add support to use this instruction as the BHB mitigation on CPUs
+that support it. The instruction is in the hint space, so it will
+be treated by a NOP as older CPUs.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/uapi/asm/kvm.h |    5 +++++
- arch/arm64/kvm/hypercalls.c       |   12 ++++++++++++
- arch/arm64/kvm/psci.c             |   18 +++++++++++++++++-
- 3 files changed, 34 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/assembler.h  |   17 +++++++++++++++++
+ arch/arm64/include/asm/cpufeature.h |   13 +++++++++++++
+ arch/arm64/include/asm/insn.h       |    1 +
+ arch/arm64/include/asm/sysreg.h     |    1 +
+ arch/arm64/include/asm/vectors.h    |    7 +++++++
+ arch/arm64/kernel/cpufeature.c      |    1 +
+ arch/arm64/kernel/entry.S           |    8 ++++++++
+ arch/arm64/kernel/image-vars.h      |    1 +
+ arch/arm64/kernel/proton-pack.c     |   29 +++++++++++++++++++++++++++++
+ arch/arm64/kvm/hyp/hyp-entry.S      |    1 +
+ 10 files changed, 79 insertions(+)
 
---- a/arch/arm64/include/uapi/asm/kvm.h
-+++ b/arch/arm64/include/uapi/asm/kvm.h
-@@ -281,6 +281,11 @@ struct kvm_arm_copy_mte_tags {
- #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_REQUIRED	3
- #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_ENABLED     	(1U << 4)
+--- a/arch/arm64/include/asm/assembler.h
++++ b/arch/arm64/include/asm/assembler.h
+@@ -109,6 +109,13 @@
+ 	.endm
  
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3	KVM_REG_ARM_FW_REG(3)
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL		0
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL		1
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED	2
+ /*
++ * Clear Branch History instruction
++ */
++	.macro clearbhb
++	hint	#22
++	.endm
 +
- /* SVE registers */
- #define KVM_REG_ARM64_SVE		(0x15 << KVM_REG_ARM_COPROC_SHIFT)
- 
---- a/arch/arm64/kvm/hypercalls.c
-+++ b/arch/arm64/kvm/hypercalls.c
-@@ -107,6 +107,18 @@ int kvm_hvc_call_handler(struct kvm_vcpu
- 				break;
- 			}
- 			break;
-+		case ARM_SMCCC_ARCH_WORKAROUND_3:
-+			switch (arm64_get_spectre_bhb_state()) {
-+			case SPECTRE_VULNERABLE:
-+				break;
-+			case SPECTRE_MITIGATED:
-+				val[0] = SMCCC_RET_SUCCESS;
-+				break;
-+			case SPECTRE_UNAFFECTED:
-+				val[0] = SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED;
-+				break;
-+			}
-+			break;
- 		case ARM_SMCCC_HV_PV_TIME_FEATURES:
- 			val[0] = SMCCC_RET_SUCCESS;
- 			break;
---- a/arch/arm64/kvm/psci.c
-+++ b/arch/arm64/kvm/psci.c
-@@ -406,7 +406,7 @@ int kvm_psci_call(struct kvm_vcpu *vcpu)
- 
- int kvm_arm_get_fw_num_regs(struct kvm_vcpu *vcpu)
- {
--	return 3;		/* PSCI version and two workaround registers */
-+	return 4;		/* PSCI version and three workaround registers */
++/*
+  * Speculation barrier
+  */
+ 	.macro	sb
+@@ -876,4 +883,14 @@ alternative_cb_end
+ 	ldp	x0, x1, [sp], #16
+ #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+ 	.endm
++
++	.macro mitigate_spectre_bhb_clear_insn
++#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
++alternative_cb	spectre_bhb_patch_clearbhb
++	/* Patched to NOP when not supported */
++	clearbhb
++	isb
++alternative_cb_end
++#endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
++	.endm
+ #endif	/* __ASM_ASSEMBLER_H */
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -653,6 +653,19 @@ static inline bool supports_csv2p3(int s
+ 	return csv2_val == 3;
  }
  
- int kvm_arm_copy_fw_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
-@@ -420,6 +420,9 @@ int kvm_arm_copy_fw_reg_indices(struct k
- 	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2, uindices++))
- 		return -EFAULT;
- 
-+	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3, uindices++))
-+		return -EFAULT;
++static inline bool supports_clearbhb(int scope)
++{
++	u64 isar2;
 +
- 	return 0;
++	if (scope == SCOPE_LOCAL_CPU)
++		isar2 = read_sysreg_s(SYS_ID_AA64ISAR2_EL1);
++	else
++		isar2 = read_sanitised_ftr_reg(SYS_ID_AA64ISAR2_EL1);
++
++	return cpuid_feature_extract_unsigned_field(isar2,
++						    ID_AA64ISAR2_CLEARBHB_SHIFT);
++}
++
+ const struct cpumask *system_32bit_el0_cpumask(void);
+ DECLARE_STATIC_KEY_FALSE(arm64_mismatched_32bit_el0);
+ 
+--- a/arch/arm64/include/asm/insn.h
++++ b/arch/arm64/include/asm/insn.h
+@@ -65,6 +65,7 @@ enum aarch64_insn_hint_cr_op {
+ 	AARCH64_INSN_HINT_PSB  = 0x11 << 5,
+ 	AARCH64_INSN_HINT_TSB  = 0x12 << 5,
+ 	AARCH64_INSN_HINT_CSDB = 0x14 << 5,
++	AARCH64_INSN_HINT_CLEARBHB = 0x16 << 5,
+ 
+ 	AARCH64_INSN_HINT_BTI   = 0x20 << 5,
+ 	AARCH64_INSN_HINT_BTIC  = 0x22 << 5,
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -773,6 +773,7 @@
+ #define ID_AA64ISAR1_GPI_IMP_DEF		0x1
+ 
+ /* id_aa64isar2 */
++#define ID_AA64ISAR2_CLEARBHB_SHIFT	28
+ #define ID_AA64ISAR2_RPRES_SHIFT	4
+ #define ID_AA64ISAR2_WFXT_SHIFT		0
+ 
+--- a/arch/arm64/include/asm/vectors.h
++++ b/arch/arm64/include/asm/vectors.h
+@@ -32,6 +32,12 @@ enum arm64_bp_harden_el1_vectors {
+ 	 * canonical vectors.
+ 	 */
+ 	EL1_VECTOR_BHB_FW,
++
++	/*
++	 * Use the ClearBHB instruction, before branching to the canonical
++	 * vectors.
++	 */
++	EL1_VECTOR_BHB_CLEAR_INSN,
+ #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+ 
+ 	/*
+@@ -43,6 +49,7 @@ enum arm64_bp_harden_el1_vectors {
+ #ifndef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+ #define EL1_VECTOR_BHB_LOOP		-1
+ #define EL1_VECTOR_BHB_FW		-1
++#define EL1_VECTOR_BHB_CLEAR_INSN	-1
+ #endif /* !CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+ 
+ /* The vectors to use on return from EL0. e.g. to remap the kernel */
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -231,6 +231,7 @@ static const struct arm64_ftr_bits ftr_i
+ };
+ 
+ static const struct arm64_ftr_bits ftr_id_aa64isar2[] = {
++	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_HIGHER_SAFE, ID_AA64ISAR2_CLEARBHB_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64ISAR2_RPRES_SHIFT, 4, 0),
+ 	ARM64_FTR_END,
+ };
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -657,6 +657,7 @@ alternative_else_nop_endif
+ #define BHB_MITIGATION_NONE	0
+ #define BHB_MITIGATION_LOOP	1
+ #define BHB_MITIGATION_FW	2
++#define BHB_MITIGATION_INSN	3
+ 
+ 	.macro tramp_ventry, vector_start, regsize, kpti, bhb
+ 	.align	7
+@@ -673,6 +674,11 @@ alternative_else_nop_endif
+ 	__mitigate_spectre_bhb_loop	x30
+ 	.endif // \bhb == BHB_MITIGATION_LOOP
+ 
++	.if	\bhb == BHB_MITIGATION_INSN
++	clearbhb
++	isb
++	.endif // \bhb == BHB_MITIGATION_INSN
++
+ 	.if	\kpti == 1
+ 	/*
+ 	 * Defend against branch aliasing attacks by pushing a dummy
+@@ -749,6 +755,7 @@ SYM_CODE_START_NOALIGN(tramp_vectors)
+ #ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+ 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_LOOP
+ 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_FW
++	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_INSN
+ #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+ 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_NONE
+ SYM_CODE_END(tramp_vectors)
+@@ -811,6 +818,7 @@ SYM_CODE_START(__bp_harden_el1_vectors)
+ #ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+ 	generate_el1_vector	bhb=BHB_MITIGATION_LOOP
+ 	generate_el1_vector	bhb=BHB_MITIGATION_FW
++	generate_el1_vector	bhb=BHB_MITIGATION_INSN
+ #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+ SYM_CODE_END(__bp_harden_el1_vectors)
+ 	.popsection
+--- a/arch/arm64/kernel/image-vars.h
++++ b/arch/arm64/kernel/image-vars.h
+@@ -69,6 +69,7 @@ KVM_NVHE_ALIAS(kvm_compute_final_ctr_el0
+ KVM_NVHE_ALIAS(spectre_bhb_patch_loop_iter);
+ KVM_NVHE_ALIAS(spectre_bhb_patch_loop_mitigation_enable);
+ KVM_NVHE_ALIAS(spectre_bhb_patch_wa3);
++KVM_NVHE_ALIAS(spectre_bhb_patch_clearbhb);
+ 
+ /* Global kernel state accessed by nVHE hyp code. */
+ KVM_NVHE_ALIAS(kvm_vgic_global_state);
+--- a/arch/arm64/kernel/proton-pack.c
++++ b/arch/arm64/kernel/proton-pack.c
+@@ -805,6 +805,7 @@ int arch_prctl_spec_ctrl_get(struct task
+  * - Mitigated by a branchy loop a CPU specific number of times, and listed
+  *   in our "loop mitigated list".
+  * - Mitigated in software by the firmware Spectre v2 call.
++ * - Has the ClearBHB instruction to perform the mitigation.
+  * - Has the 'Exception Clears Branch History Buffer' (ECBHB) feature, so no
+  *   software mitigation in the vectors is needed.
+  * - Has CSV2.3, so is unaffected.
+@@ -820,6 +821,7 @@ enum bhb_mitigation_bits {
+ 	BHB_LOOP,
+ 	BHB_FW,
+ 	BHB_HW,
++	BHB_INSN,
+ };
+ static unsigned long system_bhb_mitigations;
+ 
+@@ -937,6 +939,9 @@ bool is_spectre_bhb_affected(const struc
+ 	if (supports_csv2p3(scope))
+ 		return false;
+ 
++	if (supports_clearbhb(scope))
++		return true;
++
+ 	if (spectre_bhb_loop_affected(scope))
+ 		return true;
+ 
+@@ -984,6 +989,17 @@ void spectre_bhb_enable_mitigation(const
+ 	} else if (supports_ecbhb(SCOPE_LOCAL_CPU)) {
+ 		state = SPECTRE_MITIGATED;
+ 		set_bit(BHB_HW, &system_bhb_mitigations);
++	} else if (supports_clearbhb(SCOPE_LOCAL_CPU)) {
++		/*
++		 * Ensure KVM uses the indirect vector which will have ClearBHB
++		 * added.
++		 */
++		if (!data->slot)
++			data->slot = HYP_VECTOR_INDIRECT;
++
++		this_cpu_set_vectors(EL1_VECTOR_BHB_CLEAR_INSN);
++		state = SPECTRE_MITIGATED;
++		set_bit(BHB_INSN, &system_bhb_mitigations);
+ 	} else if (spectre_bhb_loop_affected(SCOPE_LOCAL_CPU)) {
+ 		/*
+ 		 * Ensure KVM uses the indirect vector which will have the
+@@ -1096,3 +1112,16 @@ void noinstr spectre_bhb_patch_wa3(struc
+ 
+ 	*updptr++ = cpu_to_le32(insn);
  }
- 
-@@ -459,6 +462,17 @@ static int get_kernel_wa_level(u64 regid
- 		case SPECTRE_VULNERABLE:
- 			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_AVAIL;
- 		}
-+		break;
-+	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
-+		switch (arm64_get_spectre_bhb_state()) {
-+		case SPECTRE_VULNERABLE:
-+			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
-+		case SPECTRE_MITIGATED:
-+			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL;
-+		case SPECTRE_UNAFFECTED:
-+			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED;
-+		}
-+		return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
- 	}
- 
- 	return -EINVAL;
-@@ -475,6 +489,7 @@ int kvm_arm_get_fw_reg(struct kvm_vcpu *
- 		break;
- 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
- 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2:
-+	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
- 		val = get_kernel_wa_level(reg->id) & KVM_REG_FEATURE_LEVEL_MASK;
- 		break;
- 	default:
-@@ -520,6 +535,7 @@ int kvm_arm_set_fw_reg(struct kvm_vcpu *
- 	}
- 
- 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
-+	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
- 		if (val & ~KVM_REG_FEATURE_LEVEL_MASK)
- 			return -EINVAL;
- 
++
++/* Patched to NOP when not supported */
++void __init spectre_bhb_patch_clearbhb(struct alt_instr *alt,
++				   __le32 *origptr, __le32 *updptr, int nr_inst)
++{
++	BUG_ON(nr_inst != 2);
++
++	if (test_bit(BHB_INSN, &system_bhb_mitigations))
++		return;
++
++	*updptr++ = cpu_to_le32(aarch64_insn_gen_nop());
++	*updptr++ = cpu_to_le32(aarch64_insn_gen_nop());
++}
+--- a/arch/arm64/kvm/hyp/hyp-entry.S
++++ b/arch/arm64/kvm/hyp/hyp-entry.S
+@@ -213,6 +213,7 @@ SYM_CODE_END(__kvm_hyp_vector)
+ 	.else
+ 	stp	x0, x1, [sp, #-16]!
+ 	mitigate_spectre_bhb_loop	x0
++	mitigate_spectre_bhb_clear_insn
+ 	.endif
+ 	.if \indirect != 0
+ 	alternative_cb  kvm_patch_vector_branch
 
 
