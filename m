@@ -2,106 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 283D64D3AF4
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 21:21:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA2794D3AF8
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 21:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235137AbiCIUWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 15:22:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55616 "EHLO
+        id S235280AbiCIUYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 15:24:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235113AbiCIUWv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 15:22:51 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AB3366BC
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 12:21:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646857311; x=1678393311;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=eh6zljM6wl5zcQMcr53FpmShLHX8Lr9dendslzhPvOw=;
-  b=TB5Q351zw1uLxqX4DRv39E/zYTCOk2lM8f/c1UWcgY79oE/IJnKnmKkz
-   cL5KGyKHjyhp5k/5X971U1wYTyPDM1qM+I1G9BVJeuarenu3YW2a4qSGu
-   6vN3+U5rYwIw9ZoSILdZUz3NzKNrMU2D7Tek0KxKHESyktfQz1x2pm/j6
-   JqofLcH8+FBPTx2RC8aEp7PAB6McCE025Z8IBVWIyhcrR/wrx9In1FVr7
-   OrR9Brj3UjhjYBPWrs+joaFPoGDvEJ3EpNzGgTX2lqul0EwPPB2eCCaE6
-   5/AfJjAf62ih60wGF1qPCYcopyjGEJEqyDD/N80VtODAwGgObgCyxHlYs
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10281"; a="318307454"
-X-IronPort-AV: E=Sophos;i="5.90,168,1643702400"; 
-   d="scan'208";a="318307454"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2022 12:21:51 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,168,1643702400"; 
-   d="scan'208";a="642289394"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.151])
-  by fmsmga002.fm.intel.com with SMTP; 09 Mar 2022 12:21:48 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 09 Mar 2022 22:21:47 +0200
-Date:   Wed, 9 Mar 2022 22:21:47 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 6/8] drm/i915: Fix PSF GV point mask when SAGV is not
- possible
-Message-ID: <YikMW6lE4QwKAHOU@intel.com>
-References: <20220309164948.10671-1-ville.syrjala@linux.intel.com>
- <20220309164948.10671-7-ville.syrjala@linux.intel.com>
- <20220309185959.GA9439@intel.com>
- <Yij7HFOvBiVg+kqD@intel.com>
- <20220309193458.GA9556@intel.com>
+        with ESMTP id S236458AbiCIUYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 15:24:11 -0500
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2156D19D
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 12:23:11 -0800 (PST)
+Received: by mail-io1-xd33.google.com with SMTP id q11so4122534iod.6
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 12:23:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=zccQabmwEaT2zzCzjlHWPhLvWXcYdS/kixyDFxTbt9E=;
+        b=dKc8P3dU7V+pTeaxgT7Sn22F6u8y9/+LzKu8QXIo3MsLta+u+VwWZQ3eaJBCDd1KwY
+         ptWD/P9ffDl/xG6BG6wI7dt6AEkrHrjWPHWWQYRLqLfoQ6psLusH78G5S35um06zd5dA
+         AtQkyAZef0ANQJFAGTfmW3AYkuz29e97gx5IU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=zccQabmwEaT2zzCzjlHWPhLvWXcYdS/kixyDFxTbt9E=;
+        b=zhLwa2gDMVvnyEHZWzIcUofyQUsE7qZtu7Lwz7dwHE7gCkbiUm0A1dmjcTVc1pHmtI
+         I+dRuyBVotH9wkoqNyM9v9set07QBrl/a7xXdxeAhdFmKKF/pSnkcFNmd8xcefkCBn5k
+         89n39O2RXl191urYZTIcjuOdhopVgAYMq2iYGoBdRfYSukPgu8KH0d72us6xquBEYNRA
+         DPSMmCIGsnpUrj8tQ8hKJ7vWbkoiegTxNAekM/xpyn/aJyE4SF8w8PRdNi6V6ztXRlJX
+         p42rOvJXBw0yVZKPhLrSLUwM3UsHap/Qm6XBd/Mo5L9Fbio2qX2va9aQ7UTfK3uFhaCK
+         bPYA==
+X-Gm-Message-State: AOAM530F5s+V1gFvFuQhZnj5ycZIyyPyurcUV/OkOCPdXMQL7SR4j5yi
+        O/AanyVZw3Y6CyncEXO5+cjqiZBgb1J88Q==
+X-Google-Smtp-Source: ABdhPJyjama6xZuzvXm44NwWPOAZhV0Wsht6GwKdBfBcE5IATB2ZFXrePUmqGEWagUdw13rV6yRaZA==
+X-Received: by 2002:a05:6602:14cb:b0:646:3b7d:6aee with SMTP id b11-20020a05660214cb00b006463b7d6aeemr1067170iow.178.1646857390385;
+        Wed, 09 Mar 2022 12:23:10 -0800 (PST)
+Received: from [192.168.1.128] ([71.205.29.0])
+        by smtp.gmail.com with ESMTPSA id e8-20020a056602158800b0064683f99191sm779562iow.39.2022.03.09.12.23.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Mar 2022 12:23:10 -0800 (PST)
+Subject: Re: [PATCH 5.16 00/37] 5.16.14-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20220309155859.086952723@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <1dda6068-728f-a470-7147-e045b62f03fa@linuxfoundation.org>
+Date:   Wed, 9 Mar 2022 13:23:09 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220309193458.GA9556@intel.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 09, 2022 at 09:34:58PM +0200, Lisovskiy, Stanislav wrote:
-> On Wed, Mar 09, 2022 at 09:08:12PM +0200, Ville Syrjälä wrote:
-> > On Wed, Mar 09, 2022 at 08:59:59PM +0200, Lisovskiy, Stanislav wrote:
-> > > On Wed, Mar 09, 2022 at 06:49:46PM +0200, Ville Syrjala wrote:
-> > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > 
-> > > > Don't just mask off all the PSF GV points when SAGV gets disabled.
-> > > > This should in fact cause the Pcode to reject the request since
-> > > > at least one PSF point must remain enabled at all times.
-> > > 
-> > > Good point, however I think this is not the full fix:
-> > > 
-> > > BSpec says:
-> > > 
-> > > "At least one GV point of each type must always remain unmasked."
-> > > 
-> > > and
-> > > 
-> > > "The GV point of each type providing the highest bandwidth 
-> > >  for display must always remain unmasked."
-> > > 
-> > > So I guess we should then also choose thr PSF GV point with
-> > > the highest bandwidth as well.
-> > 
-> > The spec says PSF GV is fast enough to now stall the display data
-> > fetch so we don't need to restrict the PSF points here.
+On 3/9/22 9:00 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.14 release.
+> There are 37 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> But why it asks to ensure that we have the PSF GV of highest bandwidth to
-> stay always unmasked then?
+> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.14-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-I presume so you don't lock the memory bandwdith to some lower
-performance point and hurt all the other things that need
-memory bandwidth. Either that or there is some internal
-implementation detail that simply doesn't work if you try to
-permanently run at a lower performance point.
+Compiled and booted on my test system. No dmesg regressions.
 
--- 
-Ville Syrjälä
-Intel
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
