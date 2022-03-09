@@ -2,56 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CB44D36D3
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:44:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 078E34D3566
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:42:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbiCIQgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:36:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44864 "EHLO
+        id S234979AbiCIQhH convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 9 Mar 2022 11:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239688AbiCIQd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:33:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D88D357B30;
-        Wed,  9 Mar 2022 08:28:59 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FD55619CB;
-        Wed,  9 Mar 2022 16:28:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 988E3C340E8;
-        Wed,  9 Mar 2022 16:28:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646843290;
-        bh=lFLXRhW34vfFCOIYngRiWETJjhBV4ONwtADOaPDllds=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyZJu0co2iO0+a+UgZnjGY3RkQnn4dn2PxGsHhWK6QQ6iJ81ab9Blo7mlOF/rYS5W
-         GJ8RmfROYRJAK173rZGfmhh8umst/VxF7nLBzIliEk0XlQo+fdDonWaA96TxibQFn+
-         7gG0Z/uWfjqz1+xwyaLrGFR0IgKVS1aZPJBUe/58eMCC09QsB3D9BLNxS34hKk1jVa
-         7F6sYbi4pswTxsKPdu6zES/LiX1MClLr1FXEl7+Tl4jyfFo0RQ/bfIe6tofz1ivs18
-         Uh4W/YdTd2Eb/5LRPg0Qh9Rk1KjPJbRs6rKIMXR3sUk+053e9CdwCIpxXQXNzxPQGU
-         UdlDSKGNt6+yQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengming Zhou <zhouchengming@bytedance.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-mm@kvack.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/11] kselftest/vm: fix tests build with old libc
-Date:   Wed,  9 Mar 2022 11:27:16 -0500
-Message-Id: <20220309162716.137399-11-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220309162716.137399-1-sashal@kernel.org>
-References: <20220309162716.137399-1-sashal@kernel.org>
+        with ESMTP id S235286AbiCIQey (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:34:54 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0211A0BF6
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 08:29:53 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1nRzCB-000641-6H; Wed, 09 Mar 2022 17:29:51 +0100
+Received: from [2a0a:edc0:0:900:1d::4e] (helo=lupine)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1nRzCB-003iSZ-5n; Wed, 09 Mar 2022 17:29:50 +0100
+Received: from pza by lupine with local (Exim 4.94.2)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1nRzC9-000BuZ-BC; Wed, 09 Mar 2022 17:29:49 +0100
+Message-ID: <25171f0f4e2712fdcae7b2fc2e7792f8f744db6c.camel@pengutronix.de>
+Subject: Re: [PATCH v2 2/2] media: coda: Add more H264 levels for CODA960
+From:   Philipp Zabel <p.zabel@pengutronix.de>
+To:     Fabio Estevam <festevam@gmail.com>, hverkuil-cisco@xs4all.nl
+Cc:     linux-media@vger.kernel.org, nicolas.dufresne@collabora.com,
+        ezequiel@collabora.com, kernel@iktek.de, stable@vger.kernel.org,
+        Fabio Estevam <festevam@denx.de>
+Date:   Wed, 09 Mar 2022 17:29:49 +0100
+In-Reply-To: <d75bbdb1fd01f0c1ff89efe1369860cfccc52f5f.camel@pengutronix.de>
+References: <20220309143322.1755281-1-festevam@gmail.com>
+         <20220309143322.1755281-2-festevam@gmail.com>
+         <d75bbdb1fd01f0c1ff89efe1369860cfccc52f5f.camel@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.38.3-1 
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,45 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Zhou <zhouchengming@bytedance.com>
+Hi Fabio, Nicolas,
 
-[ Upstream commit b773827e361952b3f53ac6fa4c4e39ccd632102e ]
+On Mi, 2022-03-09 at 17:20 +0100, Philipp Zabel wrote:
+[...]
+> I still think this is wrong [1], the vendor only advertises support
+> for level 4.0. At least level 5.0 must be dropped, as we don't
+> support the frame size requirement.
 
-The error message when I build vm tests on debian10 (GLIBC 2.28):
+Looking at my notes, I've never seen the encoder produce streams with
+levels 1.1, 1.2, 1.3, 2.1, 2.2, or 4.1. Has anybody else?
+Level 4.2 streams can be produced though, just not at realtime speeds.
 
-    userfaultfd.c: In function `userfaultfd_pagemap_test':
-    userfaultfd.c:1393:37: error: `MADV_PAGEOUT' undeclared (first use
-    in this function); did you mean `MADV_RANDOM'?
-      if (madvise(area_dst, test_pgsize, MADV_PAGEOUT))
-                                         ^~~~~~~~~~~~
-                                         MADV_RANDOM
+Also, this encoder control change has no effect unless max is changed
+as well. I think it should look as follows:
 
-This patch includes these newer definitions from UAPI linux/mman.h, is
-useful to fix tests build on systems without these definitions in glibc
-sys/mman.h.
+ 	if (ctx->dev->devtype->product == CODA_960) {
+ 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
+ 			V4L2_CID_MPEG_VIDEO_H264_LEVEL,
+-			V4L2_MPEG_VIDEO_H264_LEVEL_4_0,
+-			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
++			V4L2_MPEG_VIDEO_H264_LEVEL_4_2,
++			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_1_0) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_0) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_1) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_2) |
+-			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0)),
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_2)),
+ 			V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
+ 	}
+ 	v4l2_ctrl_new_std(&ctx->ctrls, &coda_ctrl_ops,
 
-Link: https://lkml.kernel.org/r/20220227055330.43087-2-zhouchengming@bytedance.com
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- tools/testing/selftests/vm/userfaultfd.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
-index d77ed41b2094..1f89d3dd8295 100644
---- a/tools/testing/selftests/vm/userfaultfd.c
-+++ b/tools/testing/selftests/vm/userfaultfd.c
-@@ -60,6 +60,7 @@
- #include <signal.h>
- #include <poll.h>
- #include <string.h>
-+#include <linux/mman.h>
- #include <sys/mman.h>
- #include <sys/syscall.h>
- #include <sys/ioctl.h>
--- 
-2.34.1
-
+regards
+Philipp
