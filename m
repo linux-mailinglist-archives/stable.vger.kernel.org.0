@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DACF4D32C6
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EAB4D3386
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234814AbiCIQMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:12:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
+        id S234919AbiCIQMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:12:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236218AbiCIQJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30857C2E65;
-        Wed,  9 Mar 2022 08:08:12 -0800 (PST)
+        with ESMTP id S234789AbiCIQLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:11:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6664D144F7C;
+        Wed,  9 Mar 2022 08:09:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA374B82220;
-        Wed,  9 Mar 2022 16:08:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32B66C340E8;
-        Wed,  9 Mar 2022 16:08:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1DAB617B2;
+        Wed,  9 Mar 2022 16:09:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC8BEC340E8;
+        Wed,  9 Mar 2022 16:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646842089;
-        bh=aznECDtrCLjMhduI5pusl4speT9yyZT4RO1s2dy+4IM=;
+        s=korg; t=1646842168;
+        bh=25Hk37nJ7k4GM1ojM6Tgufom7M/GqJr5xVZym4GE6GU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WkgfE4G1H91EVU+8QrMQO5mmH1wsliL43iXZI+2NpMhpUgLZaEsZn0FSKnDdCDiVt
-         EyCYNHQuJdcDF4TcP9bo4RAJcZhte+tYyHCHolgoBwKC9RXyHdkpTUYAfXGz1/xqg3
-         w16Es1gojvAHDw/VucHfChqNgpqOLT5bZ2bm6ZuA=
+        b=TIzMCzaBrUQ6NaNUgjTF/Ti+b5Onm0BtaVBxZvNcwCEtEGnWbci76MM/hvRHwB5S8
+         9ojEE6+oQcbh0qOSDZpCOk1oFC2ztLPHiBzGpfS/aS+XOvJFH5G9e1pvHDxf3jD6u4
+         A6Q4ucrDzvQfNVbHLP8YM8Xp1hjnQmsz7Kb/TvXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 38/43] KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
+Subject: [PATCH 5.16 21/37] arm64: entry: Free up another register on kptis tramp_exit path
 Date:   Wed,  9 Mar 2022 17:00:22 +0100
-Message-Id: <20220309155900.834551052@linuxfoundation.org>
+Message-Id: <20220309155859.703697568@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
-References: <20220309155859.734715884@linuxfoundation.org>
+In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
+References: <20220309155859.086952723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,113 +57,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit a5905d6af492ee6a4a2205f0d550b3f931b03d03 upstream.
+commit 03aff3a77a58b5b52a77e00537a42090ad57b80b upstream.
 
-KVM allows the guest to discover whether the ARCH_WORKAROUND SMCCC are
-implemented, and to preserve that state during migration through its
-firmware register interface.
+Kpti stashes x30 in far_el1 while it uses x30 for all its work.
 
-Add the necessary boiler plate for SMCCC_ARCH_WORKAROUND_3.
+Making the vectors a per-cpu data structure will require a second
+register.
+
+Allow tramp_exit two registers before it unmaps the kernel, by
+leaving x30 on the stack, and stashing x29 in far_el1.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/uapi/asm/kvm.h |    5 +++++
- arch/arm64/kvm/hypercalls.c       |   12 ++++++++++++
- arch/arm64/kvm/psci.c             |   18 +++++++++++++++++-
- 3 files changed, 34 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/entry.S |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/include/uapi/asm/kvm.h
-+++ b/arch/arm64/include/uapi/asm/kvm.h
-@@ -281,6 +281,11 @@ struct kvm_arm_copy_mte_tags {
- #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_REQUIRED	3
- #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_ENABLED     	(1U << 4)
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -419,14 +419,16 @@ alternative_else_nop_endif
+ 	ldp	x24, x25, [sp, #16 * 12]
+ 	ldp	x26, x27, [sp, #16 * 13]
+ 	ldp	x28, x29, [sp, #16 * 14]
+-	ldr	lr, [sp, #S_LR]
+-	add	sp, sp, #PT_REGS_SIZE		// restore sp
  
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3	KVM_REG_ARM_FW_REG(3)
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL		0
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL		1
-+#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED	2
+ 	.if	\el == 0
+-alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
++alternative_if_not ARM64_UNMAP_KERNEL_AT_EL0
++	ldr	lr, [sp, #S_LR]
++	add	sp, sp, #PT_REGS_SIZE		// restore sp
++	eret
++alternative_else_nop_endif
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	bne	4f
+-	msr	far_el1, x30
++	msr	far_el1, x29
+ 	tramp_alias	x30, tramp_exit_native
+ 	br	x30
+ 4:
+@@ -434,6 +436,9 @@ alternative_insn eret, nop, ARM64_UNMAP_
+ 	br	x30
+ #endif
+ 	.else
++	ldr	lr, [sp, #S_LR]
++	add	sp, sp, #PT_REGS_SIZE		// restore sp
 +
- /* SVE registers */
- #define KVM_REG_ARM64_SVE		(0x15 << KVM_REG_ARM_COPROC_SHIFT)
+ 	/* Ensure any device/NC reads complete */
+ 	alternative_insn nop, "dmb sy", ARM64_WORKAROUND_1508412
  
---- a/arch/arm64/kvm/hypercalls.c
-+++ b/arch/arm64/kvm/hypercalls.c
-@@ -107,6 +107,18 @@ int kvm_hvc_call_handler(struct kvm_vcpu
- 				break;
- 			}
- 			break;
-+		case ARM_SMCCC_ARCH_WORKAROUND_3:
-+			switch (arm64_get_spectre_bhb_state()) {
-+			case SPECTRE_VULNERABLE:
-+				break;
-+			case SPECTRE_MITIGATED:
-+				val[0] = SMCCC_RET_SUCCESS;
-+				break;
-+			case SPECTRE_UNAFFECTED:
-+				val[0] = SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED;
-+				break;
-+			}
-+			break;
- 		case ARM_SMCCC_HV_PV_TIME_FEATURES:
- 			val[0] = SMCCC_RET_SUCCESS;
- 			break;
---- a/arch/arm64/kvm/psci.c
-+++ b/arch/arm64/kvm/psci.c
-@@ -406,7 +406,7 @@ int kvm_psci_call(struct kvm_vcpu *vcpu)
- 
- int kvm_arm_get_fw_num_regs(struct kvm_vcpu *vcpu)
- {
--	return 3;		/* PSCI version and two workaround registers */
-+	return 4;		/* PSCI version and three workaround registers */
- }
- 
- int kvm_arm_copy_fw_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
-@@ -420,6 +420,9 @@ int kvm_arm_copy_fw_reg_indices(struct k
- 	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2, uindices++))
- 		return -EFAULT;
- 
-+	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3, uindices++))
-+		return -EFAULT;
-+
- 	return 0;
- }
- 
-@@ -459,6 +462,17 @@ static int get_kernel_wa_level(u64 regid
- 		case SPECTRE_VULNERABLE:
- 			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_AVAIL;
- 		}
-+		break;
-+	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
-+		switch (arm64_get_spectre_bhb_state()) {
-+		case SPECTRE_VULNERABLE:
-+			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
-+		case SPECTRE_MITIGATED:
-+			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL;
-+		case SPECTRE_UNAFFECTED:
-+			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED;
-+		}
-+		return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
- 	}
- 
- 	return -EINVAL;
-@@ -475,6 +489,7 @@ int kvm_arm_get_fw_reg(struct kvm_vcpu *
- 		break;
- 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
- 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2:
-+	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
- 		val = get_kernel_wa_level(reg->id) & KVM_REG_FEATURE_LEVEL_MASK;
- 		break;
- 	default:
-@@ -520,6 +535,7 @@ int kvm_arm_set_fw_reg(struct kvm_vcpu *
- 	}
- 
- 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
-+	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
- 		if (val & ~KVM_REG_FEATURE_LEVEL_MASK)
- 			return -EINVAL;
- 
+@@ -674,10 +679,12 @@ alternative_else_nop_endif
+ 	.macro tramp_exit, regsize = 64
+ 	adr	x30, tramp_vectors
+ 	msr	vbar_el1, x30
+-	tramp_unmap_kernel	x30
++	ldr	lr, [sp, #S_LR]
++	tramp_unmap_kernel	x29
+ 	.if	\regsize == 64
+-	mrs	x30, far_el1
++	mrs	x29, far_el1
+ 	.endif
++	add	sp, sp, #PT_REGS_SIZE		// restore sp
+ 	eret
+ 	sb
+ 	.endm
 
 
