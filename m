@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 539B74D3331
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DACF4D32C6
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234926AbiCIQMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:12:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42574 "EHLO
+        id S234814AbiCIQMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:12:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234587AbiCIQLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:11:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820D4142359;
-        Wed,  9 Mar 2022 08:09:26 -0800 (PST)
+        with ESMTP id S236218AbiCIQJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30857C2E65;
+        Wed,  9 Mar 2022 08:08:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AE42617C2;
-        Wed,  9 Mar 2022 16:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DE22C340E8;
-        Wed,  9 Mar 2022 16:09:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA374B82220;
+        Wed,  9 Mar 2022 16:08:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32B66C340E8;
+        Wed,  9 Mar 2022 16:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646842165;
-        bh=Mml45n5zWOY5XUlvrM0ABUbDBgc/vQ9ckQ54OR4R62A=;
+        s=korg; t=1646842089;
+        bh=aznECDtrCLjMhduI5pusl4speT9yyZT4RO1s2dy+4IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JbCRhhEWnofBDWr51pltrPEdqmE5/5oU/gBjB8Ll/GIXSjvQHpd05l2bk3gSIgKFp
-         06iuEvNhIdSIbuW4SA8w4Ziv5iJS430fb3iiAvs9bPjZNlJsZftSDo29lGoGbYtVd2
-         F+3jlVXOqp0981JQ/MRu0zdBLlKzs8pxXfps/fmA=
+        b=WkgfE4G1H91EVU+8QrMQO5mmH1wsliL43iXZI+2NpMhpUgLZaEsZn0FSKnDdCDiVt
+         EyCYNHQuJdcDF4TcP9bo4RAJcZhte+tYyHCHolgoBwKC9RXyHdkpTUYAfXGz1/xqg3
+         w16Es1gojvAHDw/VucHfChqNgpqOLT5bZ2bm6ZuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 5.16 20/37] arm64: entry: Make the trampoline cleanup optional
-Date:   Wed,  9 Mar 2022 17:00:21 +0100
-Message-Id: <20220309155859.674639567@linuxfoundation.org>
+Subject: [PATCH 5.15 38/43] KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
+Date:   Wed,  9 Mar 2022 17:00:22 +0100
+Message-Id: <20220309155900.834551052@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
-References: <20220309155859.086952723@linuxfoundation.org>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+References: <20220309155859.734715884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,62 +57,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit d739da1694a0eaef0358a42b76904b611539b77b upstream.
+commit a5905d6af492ee6a4a2205f0d550b3f931b03d03 upstream.
 
-Subsequent patches will add additional sets of vectors that use
-the same tricks as the kpti vectors to reach the full-fat vectors.
-The full-fat vectors contain some cleanup for kpti that is patched
-in by alternatives when kpti is in use. Once there are additional
-vectors, the cleanup will be needed in more cases.
+KVM allows the guest to discover whether the ARCH_WORKAROUND SMCCC are
+implemented, and to preserve that state during migration through its
+firmware register interface.
 
-But on big/little systems, the cleanup would be harmful if no
-trampoline vector were in use. Instead of forcing CPUs that don't
-need a trampoline vector to use one, make the trampoline cleanup
-optional.
-
-Entry at the top of the vectors will skip the cleanup. The trampoline
-vectors can then skip the first instruction, triggering the cleanup
-to run.
+Add the necessary boiler plate for SMCCC_ARCH_WORKAROUND_3.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm64/include/uapi/asm/kvm.h |    5 +++++
+ arch/arm64/kvm/hypercalls.c       |   12 ++++++++++++
+ arch/arm64/kvm/psci.c             |   18 +++++++++++++++++-
+ 3 files changed, 34 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -40,14 +40,18 @@
- .Lventry_start\@:
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	.if	\el == 0
--alternative_if ARM64_UNMAP_KERNEL_AT_EL0
-+	/*
-+	 * This must be the first instruction of the EL0 vector entries. It is
-+	 * skipped by the trampoline vectors, to trigger the cleanup.
-+	 */
-+	b	.Lskip_tramp_vectors_cleanup\@
- 	.if	\regsize == 64
- 	mrs	x30, tpidrro_el0
- 	msr	tpidrro_el0, xzr
- 	.else
- 	mov	x30, xzr
- 	.endif
--alternative_else_nop_endif
-+.Lskip_tramp_vectors_cleanup\@:
- 	.endif
- #endif
+--- a/arch/arm64/include/uapi/asm/kvm.h
++++ b/arch/arm64/include/uapi/asm/kvm.h
+@@ -281,6 +281,11 @@ struct kvm_arm_copy_mte_tags {
+ #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_REQUIRED	3
+ #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_ENABLED     	(1U << 4)
  
-@@ -661,7 +665,7 @@ alternative_if_not ARM64_WORKAROUND_CAVI
- 	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
- alternative_else_nop_endif
- 	msr	vbar_el1, x30
--	add	x30, x30, #(1b - tramp_vectors)
-+	add	x30, x30, #(1b - tramp_vectors + 4)
- 	isb
- 	ret
- .org 1b + 128	// Did we overflow the ventry slot?
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3	KVM_REG_ARM_FW_REG(3)
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL		0
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL		1
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED	2
++
+ /* SVE registers */
+ #define KVM_REG_ARM64_SVE		(0x15 << KVM_REG_ARM_COPROC_SHIFT)
+ 
+--- a/arch/arm64/kvm/hypercalls.c
++++ b/arch/arm64/kvm/hypercalls.c
+@@ -107,6 +107,18 @@ int kvm_hvc_call_handler(struct kvm_vcpu
+ 				break;
+ 			}
+ 			break;
++		case ARM_SMCCC_ARCH_WORKAROUND_3:
++			switch (arm64_get_spectre_bhb_state()) {
++			case SPECTRE_VULNERABLE:
++				break;
++			case SPECTRE_MITIGATED:
++				val[0] = SMCCC_RET_SUCCESS;
++				break;
++			case SPECTRE_UNAFFECTED:
++				val[0] = SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED;
++				break;
++			}
++			break;
+ 		case ARM_SMCCC_HV_PV_TIME_FEATURES:
+ 			val[0] = SMCCC_RET_SUCCESS;
+ 			break;
+--- a/arch/arm64/kvm/psci.c
++++ b/arch/arm64/kvm/psci.c
+@@ -406,7 +406,7 @@ int kvm_psci_call(struct kvm_vcpu *vcpu)
+ 
+ int kvm_arm_get_fw_num_regs(struct kvm_vcpu *vcpu)
+ {
+-	return 3;		/* PSCI version and two workaround registers */
++	return 4;		/* PSCI version and three workaround registers */
+ }
+ 
+ int kvm_arm_copy_fw_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
+@@ -420,6 +420,9 @@ int kvm_arm_copy_fw_reg_indices(struct k
+ 	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2, uindices++))
+ 		return -EFAULT;
+ 
++	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3, uindices++))
++		return -EFAULT;
++
+ 	return 0;
+ }
+ 
+@@ -459,6 +462,17 @@ static int get_kernel_wa_level(u64 regid
+ 		case SPECTRE_VULNERABLE:
+ 			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_AVAIL;
+ 		}
++		break;
++	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
++		switch (arm64_get_spectre_bhb_state()) {
++		case SPECTRE_VULNERABLE:
++			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
++		case SPECTRE_MITIGATED:
++			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL;
++		case SPECTRE_UNAFFECTED:
++			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED;
++		}
++		return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
+ 	}
+ 
+ 	return -EINVAL;
+@@ -475,6 +489,7 @@ int kvm_arm_get_fw_reg(struct kvm_vcpu *
+ 		break;
+ 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
+ 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2:
++	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
+ 		val = get_kernel_wa_level(reg->id) & KVM_REG_FEATURE_LEVEL_MASK;
+ 		break;
+ 	default:
+@@ -520,6 +535,7 @@ int kvm_arm_set_fw_reg(struct kvm_vcpu *
+ 	}
+ 
+ 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
++	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
+ 		if (val & ~KVM_REG_FEATURE_LEVEL_MASK)
+ 			return -EINVAL;
+ 
 
 
