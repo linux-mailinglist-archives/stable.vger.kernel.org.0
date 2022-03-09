@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EAA84D3302
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF2F4D32DD
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234760AbiCIQLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:11:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46534 "EHLO
+        id S235561AbiCIQNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:13:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236227AbiCIQJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:43 -0500
+        with ESMTP id S234553AbiCIQMO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:12:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D62B9139826;
-        Wed,  9 Mar 2022 08:08:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77FEA149958;
+        Wed,  9 Mar 2022 08:09:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D069B82220;
-        Wed,  9 Mar 2022 16:08:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B536DC340E8;
-        Wed,  9 Mar 2022 16:08:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07919B8221D;
+        Wed,  9 Mar 2022 16:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704DEC340F5;
+        Wed,  9 Mar 2022 16:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646842095;
-        bh=l37UARKIQ5Jo8vDSJTC9HNb2cDupJ6KmhPyrEn/bpO4=;
+        s=korg; t=1646842173;
+        bh=mQatgqh/6NzDSIrRy2F06cmfP6PjNZfpbO5vp69JtKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awCdttT8MOjXH0AHR1TIE/sbi8RYrMrMfa7ky+xYKSQD50yDv72Wnfy212Mtz3bY2
-         w5zali9Co31/iuw+qBBu1Xa2aJNEcuvEQ/jKEKpvdZoDLPD8UPOII36UdG0zE7/u2Z
-         2RPO68cuMdzd7ZqEmHIXOh0pkYBlj3/L3V6wNeT0=
+        b=kJfYD9iFL0TyygUeLbPA7PoDprOUDsq7cnJfQVFtrt61bbYpnYsbFTkPhiU7Qoxn1
+         t5pnQ03iqkRsCkDvhlV4psSWus1k9dsm6l4r0QRhi0CSK5raoV0T39++t24t52VKwC
+         T+N5OhRutkJSveOBxVi7nPmu20NXEut1yb026xzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 40/43] arm64: proton-pack: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+Subject: [PATCH 5.16 23/37] arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
 Date:   Wed,  9 Mar 2022 17:00:24 +0100
-Message-Id: <20220309155900.890647842@linuxfoundation.org>
+Message-Id: <20220309155859.761424884@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
-References: <20220309155859.734715884@linuxfoundation.org>
+In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
+References: <20220309155859.086952723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +57,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit 58c9a5060cb7cd529d49c93954cdafe81c1d642a upstream.
+commit 6c5bf79b69f911560fbf82214c0971af6e58e682 upstream.
 
-The mitigations for Spectre-BHB are only applied when an exception is
-taken from user-space. The mitigation status is reported via the spectre_v2
-sysfs vulnerabilities file.
+Systems using kpti enter and exit the kernel through a trampoline mapping
+that is always mapped, even when the kernel is not. tramp_valias is a macro
+to find the address of a symbol in the trampoline mapping.
 
-When unprivileged eBPF is enabled the mitigation in the exception vectors
-can be avoided by an eBPF program.
+Adding extra sets of vectors will expand the size of the entry.tramp.text
+section to beyond 4K. tramp_valias will be unable to generate addresses
+for symbols beyond 4K as it uses the 12 bit immediate of the add
+instruction.
 
-When unprivileged eBPF is enabled, print a warning and report vulnerable
-via the sysfs vulnerabilities file.
+As there are now two registers available when tramp_alias is called,
+use the extra register to avoid the 4K limit of the 12 bit immediate.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/proton-pack.c |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ arch/arm64/kernel/entry.S |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/arch/arm64/kernel/proton-pack.c
-+++ b/arch/arm64/kernel/proton-pack.c
-@@ -18,6 +18,7 @@
-  */
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -103,9 +103,12 @@
+ .org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
+ 	.endm
  
- #include <linux/arm-smccc.h>
-+#include <linux/bpf.h>
- #include <linux/cpu.h>
- #include <linux/device.h>
- #include <linux/nospec.h>
-@@ -111,6 +112,15 @@ static const char *get_bhb_affected_stri
- 	}
- }
+-	.macro tramp_alias, dst, sym
++	.macro tramp_alias, dst, sym, tmp
+ 	mov_q	\dst, TRAMP_VALIAS
+-	add	\dst, \dst, #(\sym - .entry.tramp.text)
++	adr_l	\tmp, \sym
++	add	\dst, \dst, \tmp
++	adr_l	\tmp, .entry.tramp.text
++	sub	\dst, \dst, \tmp
+ 	.endm
  
-+static bool _unprivileged_ebpf_enabled(void)
-+{
-+#ifdef CONFIG_BPF_SYSCALL
-+	return !sysctl_unprivileged_bpf_disabled;
-+#else
-+	return false;
-+#endif
-+}
-+
- ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
- 			    char *buf)
- {
-@@ -130,6 +140,9 @@ ssize_t cpu_show_spectre_v2(struct devic
- 		v2_str = "CSV2";
- 		fallthrough;
- 	case SPECTRE_MITIGATED:
-+		if (bhb_state == SPECTRE_MITIGATED && _unprivileged_ebpf_enabled())
-+			return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
-+
- 		return sprintf(buf, "Mitigation: %s%s\n", v2_str, bhb_str);
- 	case SPECTRE_VULNERABLE:
- 		fallthrough;
-@@ -1125,3 +1138,16 @@ void __init spectre_bhb_patch_clearbhb(s
- 	*updptr++ = cpu_to_le32(aarch64_insn_gen_nop());
- 	*updptr++ = cpu_to_le32(aarch64_insn_gen_nop());
- }
-+
-+#ifdef CONFIG_BPF_SYSCALL
-+#define EBPF_WARN "Unprivileged eBPF is enabled, data leaks possible via Spectre v2 BHB attacks!\n"
-+void unpriv_ebpf_notify(int new_state)
-+{
-+	if (spectre_v2_state == SPECTRE_VULNERABLE ||
-+	    spectre_bhb_state != SPECTRE_MITIGATED)
-+		return;
-+
-+	if (!new_state)
-+		pr_err("WARNING: %s", EBPF_WARN);
-+}
-+#endif
+ 	/*
+@@ -429,10 +432,10 @@ alternative_else_nop_endif
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	bne	4f
+ 	msr	far_el1, x29
+-	tramp_alias	x30, tramp_exit_native
++	tramp_alias	x30, tramp_exit_native, x29
+ 	br	x30
+ 4:
+-	tramp_alias	x30, tramp_exit_compat
++	tramp_alias	x30, tramp_exit_compat, x29
+ 	br	x30
+ #endif
+ 	.else
+@@ -998,7 +1001,7 @@ alternative_if_not ARM64_UNMAP_KERNEL_AT
+ alternative_else_nop_endif
+ 
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+-	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline
++	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline, tmp=x3
+ 	br	x5
+ #endif
+ SYM_CODE_END(__sdei_asm_handler)
 
 
