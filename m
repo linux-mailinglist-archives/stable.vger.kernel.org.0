@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC284D36C2
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14F74D37ED
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:45:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236577AbiCIQgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:36:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48584 "EHLO
+        id S234463AbiCIQeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:34:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236396AbiCIQ34 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:29:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2022670F4E;
-        Wed,  9 Mar 2022 08:23:01 -0800 (PST)
+        with ESMTP id S236346AbiCIQ3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:29:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF01774866;
+        Wed,  9 Mar 2022 08:23:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E196EB82256;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3366F61961;
+        Wed,  9 Mar 2022 16:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A68BC340F6;
         Wed,  9 Mar 2022 16:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2FCC36AE2;
-        Wed,  9 Mar 2022 16:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646842978;
-        bh=k8jhjV4CJs7IhI95iarqfAAHzfd8JtOKmNL1gm3q48s=;
+        s=k20201202; t=1646842981;
+        bh=ztggQNCgkWYRyJgw2WTJKBa0/fddztGD/fdjgSay18U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jA2i52ZG2U+NpejyI/EWW+NAvF7BcwLaMnAtCiSjJyZmBoGri2dKDqirWJWinxVIM
-         oE2E8Zk+D1688OKxXupitrG9wkizQpqnnqqEe/CWoh2ynm3RElMyUmv3lBKxNBqolx
-         MElpk7J0nH14W/hl2Iik5KJ+OKBJ3+cnhbPrYjEm0sVfx4TvIHjO4JoGtTjBwdfQAo
-         qVwxuvAYfD1KRLjXtAL4CSMSgH8cA3zS4/Rr989Gu6aEYL5XA41EVO0b3xNp5vQiTj
-         0etdx3bgME8tMQT1u4y2EleA3Ce1cvivO7fcHqjMgu8CzxcQSR44PRggwMFnybW3E+
-         50j8htSRqrDpA==
+        b=ExIBgZ984p3mBN0KpO642+q3n5hh1I7M+GrpEGpPbbG4LmWtvrAzElRutHiiIkvd7
+         3Z+pVsi1WE26Biv7zuexa/KxreltCzZtC3noG8EcJIxOghsHTs4NtqcyDNFO45kUgw
+         cK8NWo3zZaHIzRXzhu2GQpm345WC9C0H3a7ZlQdRmTzLvZCyvh6+vbuG99xUhb97Vn
+         H2c+PcUBsYnxjbWUbqb7cE6GFoQIl/7Vjkp9FcS2JBI9r5NYpRCCXQV5SwX0WVT5JG
+         CP2Lh3e+umJAMaV1E/LkhlVyuW3zSybQs7JLRZ3BuTCOtVS2mkaoZyQQAr4ynbNifn
+         hxmNSHRgGOt2g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, 3chas3@gmail.com,
-        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 12/20] atm: firestream: check the return value of ioremap() in fs_init()
-Date:   Wed,  9 Mar 2022 11:21:50 -0500
-Message-Id: <20220309162158.136467-12-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 13/20] Input: goodix - workaround Cherry Trail devices with a bogus ACPI Interrupt() resource
+Date:   Wed,  9 Mar 2022 11:21:51 -0500
+Message-Id: <20220309162158.136467-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220309162158.136467-1-sashal@kernel.org>
 References: <20220309162158.136467-1-sashal@kernel.org>
@@ -58,34 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d4e26aaea7f82ba884dcb4acfe689406bc092dc3 ]
+[ Upstream commit d982992669733dd75520000c6057d8ee0725a363 ]
 
-The function ioremap() in fs_init() can fail, so its return value should
-be checked.
+ACPI/x86 devices with a Cherry Trail SoC should have a GpioInt + a regular
+GPIO ACPI resource in their ACPI tables.
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Some CHT devices have a bug, where the also is bogus interrupt resource
+(likely copied from a previous Bay Trail based generation of the device).
+
+The i2c-core-acpi code will assign the bogus, non-working, interrupt
+resource to client->irq. Add a workaround to fix this up.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=2043960
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220228111613.363336-1-hdegoede@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/firestream.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/touchscreen/goodix.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/atm/firestream.c b/drivers/atm/firestream.c
-index 0ddd611b4277..43a34aee33b8 100644
---- a/drivers/atm/firestream.c
-+++ b/drivers/atm/firestream.c
-@@ -1675,6 +1675,8 @@ static int fs_init(struct fs_dev *dev)
- 	dev->hw_base = pci_resource_start(pci_dev, 0);
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 5fc789f717c8..f6c92365d327 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -782,7 +782,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
+ 	const struct acpi_gpio_mapping *gpio_mapping = NULL;
+ 	struct device *dev = &ts->client->dev;
+ 	LIST_HEAD(resources);
+-	int ret;
++	int irq, ret;
  
- 	dev->base = ioremap(dev->hw_base, 0x1000);
-+	if (!dev->base)
-+		return 1;
+ 	ts->gpio_count = 0;
+ 	ts->gpio_int_idx = -1;
+@@ -795,6 +795,20 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
  
- 	reset_chip (dev);
-   
+ 	acpi_dev_free_resource_list(&resources);
+ 
++	/*
++	 * CHT devices should have a GpioInt + a regular GPIO ACPI resource.
++	 * Some CHT devices have a bug (where the also is bogus Interrupt
++	 * resource copied from a previous BYT based generation). i2c-core-acpi
++	 * will use the non-working Interrupt resource, fix this up.
++	 */
++	if (soc_intel_is_cht() && ts->gpio_count == 2 && ts->gpio_int_idx != -1) {
++		irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
++		if (irq > 0 && irq != ts->client->irq) {
++			dev_warn(dev, "Overriding IRQ %d -> %d\n", ts->client->irq, irq);
++			ts->client->irq = irq;
++		}
++	}
++
+ 	if (ts->gpio_count == 2 && ts->gpio_int_idx == 0) {
+ 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
+ 		gpio_mapping = acpi_goodix_int_first_gpios;
 -- 
 2.34.1
 
