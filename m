@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEBD4D3392
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82BF24D3324
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234573AbiCIQKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:10:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
+        id S234745AbiCIQMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:12:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235170AbiCIQI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:08:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495B918BA47;
-        Wed,  9 Mar 2022 08:05:18 -0800 (PST)
+        with ESMTP id S236183AbiCIQJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA20CB1AAF;
+        Wed,  9 Mar 2022 08:08:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A2B2B82221;
-        Wed,  9 Mar 2022 16:05:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0306C340E8;
-        Wed,  9 Mar 2022 16:05:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 543B6B82220;
+        Wed,  9 Mar 2022 16:08:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3B8C340E8;
+        Wed,  9 Mar 2022 16:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841914;
-        bh=l8kb+JyFkCFG12lhe+TB8NG8sV6PXySdPd9O6zdBpGk=;
+        s=korg; t=1646842081;
+        bh=sCcnUuF8FK5ROo5bLztXlk70IFYHouVroVyN4ACPzSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixpMLcAj/j79MxywwMhmowVLcjlT55c8tiRKLLnjwLM7Z4dtqII8PzXgOeV7Tk2mU
-         U/37yDp4L9fs8quZQVdJxNS7pg+cIMcox0W99jQLnKeuaTi8BEsAfwsi7aZ96RiUzv
-         QR9EVe3ndzl78xiDVwswbcQ9pB/5q62eXwIMdVjw=
+        b=aoHjkKvtVM0Azq9inmm2M24kJGj/ZvGAGr4DKL1F7dw4YGDg5fF6EknUusOTJ9LCP
+         v0+Y/aoP7DBFP5Co+N+WqJYDL2fdl58UMQS5usAN8/cPQUHuO8ECKCUAQHvUOsSKbm
+         XBVSFYilzsVLm/MLJNhc7G5eaL0+GLcrr1SxjFek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Reiji Watanabe <reijiw@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.10 20/43] arm64: add ID_AA64ISAR2_EL1 sys register
+        stable@vger.kernel.org,
+        Alyssa Milburn <alyssa.milburn@linux.intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.15 09/43] x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
 Date:   Wed,  9 Mar 2022 16:59:53 +0100
-Message-Id: <20220309155859.829268867@linuxfoundation.org>
+Message-Id: <20220309155900.008330596@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-References: <20220309155859.239810747@linuxfoundation.org>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+References: <20220309155859.734715884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,138 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joey Gouly <joey.gouly@arm.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 9e45365f1469ef2b934f9d035975dbc9ad352116 upstream.
+commit 0de05d056afdb00eca8c7bbb0c79a3438daf700c upstream.
 
-This is a new ID register, introduced in 8.7.
+The commit
 
-Signed-off-by: Joey Gouly <joey.gouly@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Reiji Watanabe <reijiw@google.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211210165432.8106-3-joey.gouly@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+   44a3918c8245 ("x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting")
+
+added a warning for the "eIBRS + unprivileged eBPF" combination, which
+has been shown to be vulnerable against Spectre v2 BHB-based attacks.
+
+However, there's no warning about the "eIBRS + LFENCE retpoline +
+unprivileged eBPF" combo. The LFENCE adds more protection by shortening
+the speculation window after a mispredicted branch. That makes an attack
+significantly more difficult, even with unprivileged eBPF. So at least
+for now the logic doesn't warn about that combination.
+
+But if you then add SMT into the mix, the SMT attack angle weakens the
+effectiveness of the LFENCE considerably.
+
+So extend the "eIBRS + unprivileged eBPF" warning to also include the
+"eIBRS + LFENCE + unprivileged eBPF + SMT" case.
+
+  [ bp: Massage commit message. ]
+
+Suggested-by: Alyssa Milburn <alyssa.milburn@linux.intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cpu.h    |    1 +
- arch/arm64/include/asm/sysreg.h |   15 +++++++++++++++
- arch/arm64/kernel/cpufeature.c  |    9 +++++++++
- arch/arm64/kernel/cpuinfo.c     |    1 +
- arch/arm64/kvm/sys_regs.c       |    2 +-
- 5 files changed, 27 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c |   27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/cpu.h
-+++ b/arch/arm64/include/asm/cpu.h
-@@ -25,6 +25,7 @@ struct cpuinfo_arm64 {
- 	u64		reg_id_aa64dfr1;
- 	u64		reg_id_aa64isar0;
- 	u64		reg_id_aa64isar1;
-+	u64		reg_id_aa64isar2;
- 	u64		reg_id_aa64mmfr0;
- 	u64		reg_id_aa64mmfr1;
- 	u64		reg_id_aa64mmfr2;
---- a/arch/arm64/include/asm/sysreg.h
-+++ b/arch/arm64/include/asm/sysreg.h
-@@ -175,6 +175,7 @@
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -653,12 +653,27 @@ static inline const char *spectre_v2_mod
  
- #define SYS_ID_AA64ISAR0_EL1		sys_reg(3, 0, 0, 6, 0)
- #define SYS_ID_AA64ISAR1_EL1		sys_reg(3, 0, 0, 6, 1)
-+#define SYS_ID_AA64ISAR2_EL1		sys_reg(3, 0, 0, 6, 2)
+ #define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
+ #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
++#define SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS+LFENCE mitigation and SMT, data leaks possible via Spectre v2 BHB attacks!\n"
  
- #define SYS_ID_AA64MMFR0_EL1		sys_reg(3, 0, 0, 7, 0)
- #define SYS_ID_AA64MMFR1_EL1		sys_reg(3, 0, 0, 7, 1)
-@@ -687,6 +688,20 @@
- #define ID_AA64ISAR1_GPI_NI			0x0
- #define ID_AA64ISAR1_GPI_IMP_DEF		0x1
- 
-+/* id_aa64isar2 */
-+#define ID_AA64ISAR2_RPRES_SHIFT	4
-+#define ID_AA64ISAR2_WFXT_SHIFT		0
+ #ifdef CONFIG_BPF_SYSCALL
+ void unpriv_ebpf_notify(int new_state)
+ {
+-	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && !new_state)
++	if (new_state)
++		return;
 +
-+#define ID_AA64ISAR2_RPRES_8BIT		0x0
-+#define ID_AA64ISAR2_RPRES_12BIT	0x1
-+/*
-+ * Value 0x1 has been removed from the architecture, and is
-+ * reserved, but has not yet been removed from the ARM ARM
-+ * as of ARM DDI 0487G.b.
-+ */
-+#define ID_AA64ISAR2_WFXT_NI		0x0
-+#define ID_AA64ISAR2_WFXT_SUPPORTED	0x2
++	/* Unprivileged eBPF is enabled */
 +
- /* id_aa64pfr0 */
- #define ID_AA64PFR0_CSV3_SHIFT		60
- #define ID_AA64PFR0_CSV2_SHIFT		56
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -205,6 +205,10 @@ static const struct arm64_ftr_bits ftr_i
- 	ARM64_FTR_END,
- };
++	switch (spectre_v2_enabled) {
++	case SPECTRE_V2_EIBRS:
+ 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
++		break;
++	case SPECTRE_V2_EIBRS_LFENCE:
++		if (sched_smt_active())
++			pr_err(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
++		break;
++	default:
++		break;
++	}
+ }
+ #endif
  
-+static const struct arm64_ftr_bits ftr_id_aa64isar2[] = {
-+	ARM64_FTR_END,
-+};
+@@ -1118,6 +1133,10 @@ void cpu_bugs_smt_update(void)
+ {
+ 	mutex_lock(&spec_ctrl_mutex);
+ 
++	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
++	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
++		pr_warn_once(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
 +
- static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV3_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
-@@ -596,6 +600,7 @@ static const struct __ftr_reg_entry {
- 	/* Op1 = 0, CRn = 0, CRm = 6 */
- 	ARM64_FTR_REG(SYS_ID_AA64ISAR0_EL1, ftr_id_aa64isar0),
- 	ARM64_FTR_REG(SYS_ID_AA64ISAR1_EL1, ftr_id_aa64isar1),
-+	ARM64_FTR_REG(SYS_ID_AA64ISAR2_EL1, ftr_id_aa64isar2),
+ 	switch (spectre_v2_user_stibp) {
+ 	case SPECTRE_V2_USER_NONE:
+ 		break;
+@@ -1793,7 +1812,11 @@ static ssize_t spectre_v2_show_state(cha
+ 		return sprintf(buf, "Vulnerable: LFENCE\n");
  
- 	/* Op1 = 0, CRn = 0, CRm = 7 */
- 	ARM64_FTR_REG(SYS_ID_AA64MMFR0_EL1, ftr_id_aa64mmfr0),
-@@ -830,6 +835,7 @@ void __init init_cpu_features(struct cpu
- 	init_cpu_ftr_reg(SYS_ID_AA64DFR1_EL1, info->reg_id_aa64dfr1);
- 	init_cpu_ftr_reg(SYS_ID_AA64ISAR0_EL1, info->reg_id_aa64isar0);
- 	init_cpu_ftr_reg(SYS_ID_AA64ISAR1_EL1, info->reg_id_aa64isar1);
-+	init_cpu_ftr_reg(SYS_ID_AA64ISAR2_EL1, info->reg_id_aa64isar2);
- 	init_cpu_ftr_reg(SYS_ID_AA64MMFR0_EL1, info->reg_id_aa64mmfr0);
- 	init_cpu_ftr_reg(SYS_ID_AA64MMFR1_EL1, info->reg_id_aa64mmfr1);
- 	init_cpu_ftr_reg(SYS_ID_AA64MMFR2_EL1, info->reg_id_aa64mmfr2);
-@@ -1058,6 +1064,8 @@ void update_cpu_features(int cpu,
- 				      info->reg_id_aa64isar0, boot->reg_id_aa64isar0);
- 	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR1_EL1, cpu,
- 				      info->reg_id_aa64isar1, boot->reg_id_aa64isar1);
-+	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR2_EL1, cpu,
-+				      info->reg_id_aa64isar2, boot->reg_id_aa64isar2);
+ 	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+-		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
++		return sprintf(buf, "Vulnerable: eIBRS with unprivileged eBPF\n");
++
++	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
++	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
++		return sprintf(buf, "Vulnerable: eIBRS+LFENCE with unprivileged eBPF and SMT\n");
  
- 	/*
- 	 * Differing PARange support is fine as long as all peripherals and
-@@ -1157,6 +1165,7 @@ static u64 __read_sysreg_by_encoding(u32
- 	read_sysreg_case(SYS_ID_AA64MMFR2_EL1);
- 	read_sysreg_case(SYS_ID_AA64ISAR0_EL1);
- 	read_sysreg_case(SYS_ID_AA64ISAR1_EL1);
-+	read_sysreg_case(SYS_ID_AA64ISAR2_EL1);
- 
- 	read_sysreg_case(SYS_CNTFRQ_EL0);
- 	read_sysreg_case(SYS_CTR_EL0);
---- a/arch/arm64/kernel/cpuinfo.c
-+++ b/arch/arm64/kernel/cpuinfo.c
-@@ -365,6 +365,7 @@ static void __cpuinfo_store_cpu(struct c
- 	info->reg_id_aa64dfr1 = read_cpuid(ID_AA64DFR1_EL1);
- 	info->reg_id_aa64isar0 = read_cpuid(ID_AA64ISAR0_EL1);
- 	info->reg_id_aa64isar1 = read_cpuid(ID_AA64ISAR1_EL1);
-+	info->reg_id_aa64isar2 = read_cpuid(ID_AA64ISAR2_EL1);
- 	info->reg_id_aa64mmfr0 = read_cpuid(ID_AA64MMFR0_EL1);
- 	info->reg_id_aa64mmfr1 = read_cpuid(ID_AA64MMFR1_EL1);
- 	info->reg_id_aa64mmfr2 = read_cpuid(ID_AA64MMFR2_EL1);
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1517,7 +1517,7 @@ static const struct sys_reg_desc sys_reg
- 	/* CRm=6 */
- 	ID_SANITISED(ID_AA64ISAR0_EL1),
- 	ID_SANITISED(ID_AA64ISAR1_EL1),
--	ID_UNALLOCATED(6,2),
-+	ID_SANITISED(ID_AA64ISAR2_EL1),
- 	ID_UNALLOCATED(6,3),
- 	ID_UNALLOCATED(6,4),
- 	ID_UNALLOCATED(6,5),
+ 	return sprintf(buf, "%s%s%s%s%s%s\n",
+ 		       spectre_v2_strings[spectre_v2_enabled],
 
 
