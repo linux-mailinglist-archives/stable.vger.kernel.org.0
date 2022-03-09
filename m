@@ -2,472 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D28754D3311
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A944D3301
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234842AbiCIQMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:12:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
+        id S234800AbiCIQPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:15:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235769AbiCIQJK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:10 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E36141479;
-        Wed,  9 Mar 2022 08:06:40 -0800 (PST)
-Date:   Wed, 09 Mar 2022 16:06:10 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1646841971;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=p9XDSOfBkJW9KT2uV7flb2vyVjv+XayBbqoN39U7/is=;
-        b=sT2qn68SSRkHaABdLML8H0qWnrjD8vKOQsHzvB/Pf081ac5Pk3BscVsz1EiFwA4seZWeAr
-        6IfcEmsLZPEH4UvhclXPuEK3MAkAgDTqAMJ3aE7MH7W8wd/+DGxPPNMvTIb6TVaihDYsLP
-        tDjRHhFthWlpKZHPW1obn9wvJ6lx48IvHkZ/4DYsDXqoKRP3uehlUsafTNKOfn50g9rYQK
-        ITVaNEsFlJ/n7sPmqM2MpzNjYrsTeNMUpZiNeTKlJS6DKGmSRRgqaQjrbClU6JmSpwfCrI
-        HaPRW1MqLVCzB420TafJ858AdDD3XSXcGBfvHPI2NN2ZkCZjP6XBy9awXBe03Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1646841971;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=p9XDSOfBkJW9KT2uV7flb2vyVjv+XayBbqoN39U7/is=;
-        b=KdWWqc+OH6DG5f3Oyj0xNKtrHRqDzBbUhEma/kUV7eXwBBaNhz+fOEuDYqGdxqojeUUDWW
-        we4NN9sOET20REAQ==
-From:   "tip-bot2 for Ross Philipson" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/boot: Fix memremap of setup_indirect structures
-Cc:     Ross Philipson <ross.philipson@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Daniel Kiper <daniel.kiper@oracle.com>,
-        <stable@vger.kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <1645668456-22036-2-git-send-email-ross.philipson@oracle.com>
-References: <1645668456-22036-2-git-send-email-ross.philipson@oracle.com>
+        with ESMTP id S234812AbiCIQM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:12:26 -0500
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95FE14F2A0
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 08:09:47 -0800 (PST)
+Received: by mail-pg1-x52c.google.com with SMTP id q19so2339994pgm.6
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 08:09:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=CSS8Mh6DSdACbV/mllxQeiyeEUJR18E1XDOW5kord1g=;
+        b=SsdQ1VPdsVMqUwKlkF0nZ813zePcgZKZcjQ5GW+K4fQclbxPxOO+aX30vSUZwCrKqo
+         AfUlvHFAKTCac5a8Sof1SiWd9zlUyrhum+ezJbDx/JRbloMRby6lZUfOQ2v7U8mHqc3m
+         E1c7j5XI3mj3iTprXWpTMkuCddwrYsnRW5E/JCRsyWoL6DSLmh925Pi3Uav6mNmTy5wu
+         LhNRvkFZHwRFebsfdjDKj7F9uoQ/nTDVYrX9WohGhXzlzutWcBzYPbWWJYhCGXnTdH+r
+         TFw3FYStv4lo6VHPJZtHQSHNix+Yr8t4Cmm51/o7ftwlUSMkRIDS1kkPS7LjSO6unZpO
+         erfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=CSS8Mh6DSdACbV/mllxQeiyeEUJR18E1XDOW5kord1g=;
+        b=ivSRxgzpKHzexW6JfyOe+KdlFhfcOJ9JT6fZg9N9/ec2cvZJ+nrRwd9r4LjiVDcTn4
+         F6GRFGhYNz+e4iq7Hp3shV+ChcvEmOg4SjRT3SXiPviFgDPmUjBCyha6yQ154Ax31YEp
+         043Q8htIbj1H7ekwnPX2K0qTFVlNNpknTFK8FOlUCEdXIIN+UFol6v8VTMK7xdTRLF3z
+         Up3T0jKKqz+Bxo/bNqdH3xUOiXe9CVWWsoVsafI3MCbx80cwArqXnaRoA0GOGGtMTj5J
+         QoMcTg1nhqMq1z+tBANuo30Rfu4obrsSd/7QC91dt0cmpX3L4FbMAVHqDqnecHk4W1ye
+         JXSg==
+X-Gm-Message-State: AOAM530r57YDpD65cLF043Jklqx8upCaAoGqrqMV+nPyOSAn2t2cdJvk
+        KqcZdkM089uQcKmtXJKLf1TqpWk3qIjWkZMDZbg=
+X-Google-Smtp-Source: ABdhPJyu8YkHtott9J8DeQDOGQFJOj/I572NPPsA2fEr5tNvZ+Fi4dEUeIMK3q6ZZUDET49vUvP1hEX8kuuy8DOjzo0=
+X-Received: by 2002:a05:6a00:1806:b0:4f6:f3e8:b3a0 with SMTP id
+ y6-20020a056a00180600b004f6f3e8b3a0mr427902pfa.43.1646842187287; Wed, 09 Mar
+ 2022 08:09:47 -0800 (PST)
 MIME-Version: 1.0
-Message-ID: <164684197045.16921.8900620444174308462.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Received: by 2002:a05:6a10:6813:0:0:0:0 with HTTP; Wed, 9 Mar 2022 08:09:46
+ -0800 (PST)
+Reply-To: stephenbord61@yahoo.com
+From:   Stephen Bordeaux <jessicawalkert77@gmail.com>
+Date:   Wed, 9 Mar 2022 16:09:46 +0000
+Message-ID: <CAJeHwU+136nLH-+AxSZEy9iSjU2A5-ddO749gHvVy=wJhPVRoQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:52c listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4303]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [jessicawalkert77[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [stephenbord61[at]yahoo.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [jessicawalkert77[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
-
-Commit-ID:     7228918b34615ef6317edcd9a058a057bc54aa32
-Gitweb:        https://git.kernel.org/tip/7228918b34615ef6317edcd9a058a057bc54aa32
-Author:        Ross Philipson <ross.philipson@oracle.com>
-AuthorDate:    Wed, 23 Feb 2022 21:07:35 -05:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 09 Mar 2022 12:49:44 +01:00
-
-x86/boot: Fix memremap of setup_indirect structures
-
-As documented, the setup_indirect structure is nested inside
-the setup_data structures in the setup_data list. The code currently
-accesses the fields inside the setup_indirect structure but only
-the sizeof(struct setup_data) is being memremapped. No crash
-occurred but this is just due to how the area is remapped under the
-covers.
-
-Properly memremap both the setup_data and setup_indirect structures
-in these cases before accessing them.
-
-Fixes: b3c72fc9a78e ("x86/boot: Introduce setup_indirect")
-Signed-off-by: Ross Philipson <ross.philipson@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Daniel Kiper <daniel.kiper@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1645668456-22036-2-git-send-email-ross.philipson@oracle.com
----
- arch/x86/kernel/e820.c     | 41 ++++++++++++++------
- arch/x86/kernel/kdebugfs.c | 37 +++++++++++++-----
- arch/x86/kernel/ksysfs.c   | 77 +++++++++++++++++++++++++++++--------
- arch/x86/kernel/setup.c    | 34 ++++++++++++----
- arch/x86/mm/ioremap.c      | 24 ++++++++++--
- 5 files changed, 166 insertions(+), 47 deletions(-)
-
-diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
-index bc0657f..f267205 100644
---- a/arch/x86/kernel/e820.c
-+++ b/arch/x86/kernel/e820.c
-@@ -995,8 +995,10 @@ early_param("memmap", parse_memmap_opt);
-  */
- void __init e820__reserve_setup_data(void)
- {
-+	struct setup_indirect *indirect;
- 	struct setup_data *data;
--	u64 pa_data;
-+	u64 pa_data, pa_next;
-+	u32 len;
- 
- 	pa_data = boot_params.hdr.setup_data;
- 	if (!pa_data)
-@@ -1004,6 +1006,14 @@ void __init e820__reserve_setup_data(void)
- 
- 	while (pa_data) {
- 		data = early_memremap(pa_data, sizeof(*data));
-+		if (!data) {
-+			pr_warn("e820: failed to memremap setup_data entry\n");
-+			return;
-+		}
-+
-+		len = sizeof(*data);
-+		pa_next = data->next;
-+
- 		e820__range_update(pa_data, sizeof(*data)+data->len, E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
- 
- 		/*
-@@ -1015,18 +1025,27 @@ void __init e820__reserve_setup_data(void)
- 						 sizeof(*data) + data->len,
- 						 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
- 
--		if (data->type == SETUP_INDIRECT &&
--		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
--			e820__range_update(((struct setup_indirect *)data->data)->addr,
--					   ((struct setup_indirect *)data->data)->len,
--					   E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
--			e820__range_update_kexec(((struct setup_indirect *)data->data)->addr,
--						 ((struct setup_indirect *)data->data)->len,
--						 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
-+		if (data->type == SETUP_INDIRECT) {
-+			len += data->len;
-+			early_memunmap(data, sizeof(*data));
-+			data = early_memremap(pa_data, len);
-+			if (!data) {
-+				pr_warn("e820: failed to memremap indirect setup_data\n");
-+				return;
-+			}
-+
-+			indirect = (struct setup_indirect *)data->data;
-+
-+			if (indirect->type != SETUP_INDIRECT) {
-+				e820__range_update(indirect->addr, indirect->len,
-+						   E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
-+				e820__range_update_kexec(indirect->addr, indirect->len,
-+							 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
-+			}
- 		}
- 
--		pa_data = data->next;
--		early_memunmap(data, sizeof(*data));
-+		pa_data = pa_next;
-+		early_memunmap(data, len);
- 	}
- 
- 	e820__update_table(e820_table);
-diff --git a/arch/x86/kernel/kdebugfs.c b/arch/x86/kernel/kdebugfs.c
-index 64b6da9..e2e89be 100644
---- a/arch/x86/kernel/kdebugfs.c
-+++ b/arch/x86/kernel/kdebugfs.c
-@@ -88,11 +88,13 @@ create_setup_data_node(struct dentry *parent, int no,
- 
- static int __init create_setup_data_nodes(struct dentry *parent)
- {
-+	struct setup_indirect *indirect;
- 	struct setup_data_node *node;
- 	struct setup_data *data;
--	int error;
-+	u64 pa_data, pa_next;
- 	struct dentry *d;
--	u64 pa_data;
-+	int error;
-+	u32 len;
- 	int no = 0;
- 
- 	d = debugfs_create_dir("setup_data", parent);
-@@ -112,12 +114,29 @@ static int __init create_setup_data_nodes(struct dentry *parent)
- 			error = -ENOMEM;
- 			goto err_dir;
- 		}
--
--		if (data->type == SETUP_INDIRECT &&
--		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
--			node->paddr = ((struct setup_indirect *)data->data)->addr;
--			node->type  = ((struct setup_indirect *)data->data)->type;
--			node->len   = ((struct setup_indirect *)data->data)->len;
-+		pa_next = data->next;
-+
-+		if (data->type == SETUP_INDIRECT) {
-+			len = sizeof(*data) + data->len;
-+			memunmap(data);
-+			data = memremap(pa_data, len, MEMREMAP_WB);
-+			if (!data) {
-+				kfree(node);
-+				error = -ENOMEM;
-+				goto err_dir;
-+			}
-+
-+			indirect = (struct setup_indirect *)data->data;
-+
-+			if (indirect->type != SETUP_INDIRECT) {
-+				node->paddr = indirect->addr;
-+				node->type  = indirect->type;
-+				node->len   = indirect->len;
-+			} else {
-+				node->paddr = pa_data;
-+				node->type  = data->type;
-+				node->len   = data->len;
-+			}
- 		} else {
- 			node->paddr = pa_data;
- 			node->type  = data->type;
-@@ -125,7 +144,7 @@ static int __init create_setup_data_nodes(struct dentry *parent)
- 		}
- 
- 		create_setup_data_node(d, no, node);
--		pa_data = data->next;
-+		pa_data = pa_next;
- 
- 		memunmap(data);
- 		no++;
-diff --git a/arch/x86/kernel/ksysfs.c b/arch/x86/kernel/ksysfs.c
-index d0a1912..257892f 100644
---- a/arch/x86/kernel/ksysfs.c
-+++ b/arch/x86/kernel/ksysfs.c
-@@ -91,26 +91,41 @@ static int get_setup_data_paddr(int nr, u64 *paddr)
- 
- static int __init get_setup_data_size(int nr, size_t *size)
- {
--	int i = 0;
-+	u64 pa_data = boot_params.hdr.setup_data, pa_next;
-+	struct setup_indirect *indirect;
- 	struct setup_data *data;
--	u64 pa_data = boot_params.hdr.setup_data;
-+	int i = 0;
-+	u32 len;
- 
- 	while (pa_data) {
- 		data = memremap(pa_data, sizeof(*data), MEMREMAP_WB);
- 		if (!data)
- 			return -ENOMEM;
-+		pa_next = data->next;
-+
- 		if (nr == i) {
--			if (data->type == SETUP_INDIRECT &&
--			    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT)
--				*size = ((struct setup_indirect *)data->data)->len;
--			else
-+			if (data->type == SETUP_INDIRECT) {
-+				len = sizeof(*data) + data->len;
-+				memunmap(data);
-+				data = memremap(pa_data, len, MEMREMAP_WB);
-+				if (!data)
-+					return -ENOMEM;
-+
-+				indirect = (struct setup_indirect *)data->data;
-+
-+				if (indirect->type != SETUP_INDIRECT)
-+					*size = indirect->len;
-+				else
-+					*size = data->len;
-+			} else {
- 				*size = data->len;
-+			}
- 
- 			memunmap(data);
- 			return 0;
- 		}
- 
--		pa_data = data->next;
-+		pa_data = pa_next;
- 		memunmap(data);
- 		i++;
- 	}
-@@ -120,9 +135,11 @@ static int __init get_setup_data_size(int nr, size_t *size)
- static ssize_t type_show(struct kobject *kobj,
- 			 struct kobj_attribute *attr, char *buf)
- {
-+	struct setup_indirect *indirect;
-+	struct setup_data *data;
- 	int nr, ret;
- 	u64 paddr;
--	struct setup_data *data;
-+	u32 len;
- 
- 	ret = kobj_to_setup_data_nr(kobj, &nr);
- 	if (ret)
-@@ -135,10 +152,20 @@ static ssize_t type_show(struct kobject *kobj,
- 	if (!data)
- 		return -ENOMEM;
- 
--	if (data->type == SETUP_INDIRECT)
--		ret = sprintf(buf, "0x%x\n", ((struct setup_indirect *)data->data)->type);
--	else
-+	if (data->type == SETUP_INDIRECT) {
-+		len = sizeof(*data) + data->len;
-+		memunmap(data);
-+		data = memremap(paddr, len, MEMREMAP_WB);
-+		if (!data)
-+			return -ENOMEM;
-+
-+		indirect = (struct setup_indirect *)data->data;
-+
-+		ret = sprintf(buf, "0x%x\n", indirect->type);
-+	} else {
- 		ret = sprintf(buf, "0x%x\n", data->type);
-+	}
-+
- 	memunmap(data);
- 	return ret;
- }
-@@ -149,9 +176,10 @@ static ssize_t setup_data_data_read(struct file *fp,
- 				    char *buf,
- 				    loff_t off, size_t count)
- {
-+	struct setup_indirect *indirect;
-+	struct setup_data *data;
- 	int nr, ret = 0;
- 	u64 paddr, len;
--	struct setup_data *data;
- 	void *p;
- 
- 	ret = kobj_to_setup_data_nr(kobj, &nr);
-@@ -165,10 +193,27 @@ static ssize_t setup_data_data_read(struct file *fp,
- 	if (!data)
- 		return -ENOMEM;
- 
--	if (data->type == SETUP_INDIRECT &&
--	    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
--		paddr = ((struct setup_indirect *)data->data)->addr;
--		len = ((struct setup_indirect *)data->data)->len;
-+	if (data->type == SETUP_INDIRECT) {
-+		len = sizeof(*data) + data->len;
-+		memunmap(data);
-+		data = memremap(paddr, len, MEMREMAP_WB);
-+		if (!data)
-+			return -ENOMEM;
-+
-+		indirect = (struct setup_indirect *)data->data;
-+
-+		if (indirect->type != SETUP_INDIRECT) {
-+			paddr = indirect->addr;
-+			len = indirect->len;
-+		} else {
-+			/*
-+			 * Even though this is technically undefined, return
-+			 * the data as though it is a normal setup_data struct.
-+			 * This will at least allow it to be inspected.
-+			 */
-+			paddr += sizeof(*data);
-+			len = data->len;
-+		}
- 	} else {
- 		paddr += sizeof(*data);
- 		len = data->len;
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index f7a132e..90d7e17 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -369,21 +369,41 @@ static void __init parse_setup_data(void)
- 
- static void __init memblock_x86_reserve_range_setup_data(void)
- {
-+	struct setup_indirect *indirect;
- 	struct setup_data *data;
--	u64 pa_data;
-+	u64 pa_data, pa_next;
-+	u32 len;
- 
- 	pa_data = boot_params.hdr.setup_data;
- 	while (pa_data) {
- 		data = early_memremap(pa_data, sizeof(*data));
-+		if (!data) {
-+			pr_warn("setup: failed to memremap setup_data entry\n");
-+			return;
-+		}
-+
-+		len = sizeof(*data);
-+		pa_next = data->next;
-+
- 		memblock_reserve(pa_data, sizeof(*data) + data->len);
- 
--		if (data->type == SETUP_INDIRECT &&
--		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT)
--			memblock_reserve(((struct setup_indirect *)data->data)->addr,
--					 ((struct setup_indirect *)data->data)->len);
-+		if (data->type == SETUP_INDIRECT) {
-+			len += data->len;
-+			early_memunmap(data, sizeof(*data));
-+			data = early_memremap(pa_data, len);
-+			if (!data) {
-+				pr_warn("setup: failed to memremap indirect setup_data\n");
-+				return;
-+			}
- 
--		pa_data = data->next;
--		early_memunmap(data, sizeof(*data));
-+			indirect = (struct setup_indirect *)data->data;
-+
-+			if (indirect->type != SETUP_INDIRECT)
-+				memblock_reserve(indirect->addr, indirect->len);
-+		}
-+
-+		pa_data = pa_next;
-+		early_memunmap(data, len);
- 	}
- }
- 
-diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
-index 026031b..ab666c4 100644
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -615,6 +615,7 @@ static bool memremap_is_efi_data(resource_size_t phys_addr,
- static bool memremap_is_setup_data(resource_size_t phys_addr,
- 				   unsigned long size)
- {
-+	struct setup_indirect *indirect;
- 	struct setup_data *data;
- 	u64 paddr, paddr_next;
- 
-@@ -627,6 +628,10 @@ static bool memremap_is_setup_data(resource_size_t phys_addr,
- 
- 		data = memremap(paddr, sizeof(*data),
- 				MEMREMAP_WB | MEMREMAP_DEC);
-+		if (!data) {
-+			pr_warn("failed to memremap setup_data entry\n");
-+			return false;
-+		}
- 
- 		paddr_next = data->next;
- 		len = data->len;
-@@ -636,10 +641,21 @@ static bool memremap_is_setup_data(resource_size_t phys_addr,
- 			return true;
- 		}
- 
--		if (data->type == SETUP_INDIRECT &&
--		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
--			paddr = ((struct setup_indirect *)data->data)->addr;
--			len = ((struct setup_indirect *)data->data)->len;
-+		if (data->type == SETUP_INDIRECT) {
-+			memunmap(data);
-+			data = memremap(paddr, sizeof(*data) + len,
-+					MEMREMAP_WB | MEMREMAP_DEC);
-+			if (!data) {
-+				pr_warn("failed to memremap indirect setup_data\n");
-+				return false;
-+			}
-+
-+			indirect = (struct setup_indirect *)data->data;
-+
-+			if (indirect->type != SETUP_INDIRECT) {
-+				paddr = indirect->addr;
-+				len = indirect->len;
-+			}
- 		}
- 
- 		memunmap(data);
+Dobr=C3=BD den  Jsem Stephen Bordeaux, pr=C3=A1vn=C3=AD z=C3=A1stupce z adv=
+ok=C3=A1tn=C3=AD
+kancel=C3=A1=C5=99e Bordeaux. Kontaktoval jsem v=C3=A1s ohledn=C4=9B poz=C5=
+=AFstalosti fondu
+zesnul=C3=A9ho Dr. Edwin ve v=C3=BD=C5=A1i 8,5 milionu dolar=C5=AF, kter=C3=
+=A9 maj=C3=AD b=C3=BDt
+repatriov=C3=A1ny na v=C3=A1=C5=A1 =C3=BA=C4=8Det. Nav=C3=ADc v t=C3=A9to t=
+ransakci chci, abyste
+odpov=C4=9Bd=C4=9Bli d=C5=AFv=C4=9Brn=C4=9B.  Stephen Bordeaux
