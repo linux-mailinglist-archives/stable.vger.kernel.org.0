@@ -2,102 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5F14D3AA0
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 20:50:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7D94D3A68
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 20:29:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234660AbiCITvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 14:51:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41048 "EHLO
+        id S235998AbiCITad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 14:30:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238012AbiCITvm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 14:51:42 -0500
-X-Greylist: delayed 1374 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 11:50:43 PST
-Received: from gateway31.websitewelcome.com (gateway31.websitewelcome.com [192.185.143.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE16F205F3
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 11:50:43 -0800 (PST)
-Received: from cm14.websitewelcome.com (cm14.websitewelcome.com [100.42.49.7])
-        by gateway31.websitewelcome.com (Postfix) with ESMTP id 9E181EDFF9
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 13:27:48 -0600 (CST)
-Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
-        by cmsmtp with SMTP
-        id S1yOn0xv2HnotS1yOnOdQL; Wed, 09 Mar 2022 13:27:48 -0600
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=3YPETikwgZf/61jCoqWj0cVi6BGtD6q2kACd4EOhH0A=; b=u6PyuyK3WByUv1ne6OQc+fEH58
-        U5sSA80HLmCvK/uMHiF0GCK0vFUOkLVMnvJhrQMmh53zXDAfR1HAPp2PGpu4Eum7PXMoDGvEk/h0H
-        D7VvnjWsymzb8CV9kho0woFyr4476sOVq5F5Pmg3OtxEcx7XnYrk1IWTxnWwiJzkCjx7IgX5vo/b/
-        Ju0dzrOihPktuqVOEyeEqGwgOBjQo1WE/t/D1jxtNyIMr/pXC9Ys0SRjO6bIEe/dzlpCrmIMaM/tc
-        Kp3HPp21Kha/tz0EHzZ0y7//E2reIcVboAJ+IdVy002kz+TpbqOYWSbQvO/W6zWpBPXnGP5YzrhQJ
-        XJu8zUrw==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:54204)
-        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@roeck-us.net>)
-        id 1nS1yN-002JpO-Qk; Wed, 09 Mar 2022 19:27:47 +0000
-Message-ID: <244cf721-8e68-c540-384a-a8cf24f450e4@roeck-us.net>
-Date:   Wed, 9 Mar 2022 11:27:45 -0800
+        with ESMTP id S232723AbiCITad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 14:30:33 -0500
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD211ECB20
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 11:29:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1646854173; x=1678390173;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=Kw7e/pBmjihSpdh91arsZfe1Ax+j4ThISjfytnKE968=;
+  b=aoYNaOlN3iT2xzMBEOTDsAb5YvtabsewnXAZuL/UKwksdIHtp26O/JVT
+   zuJArgvgIakTfiwtXCD22b2lI1rWKAoyYiq+N/T4jek5Jb1IkrMOOAIBl
+   q2mQUFUnZ03EsK3FTLYA8+axM0570R4Z5zenrnSt8AQGxe9kSsT9SA7U0
+   LgLgtVEZRF/x/xl3qwyr6MmJ/rbzvnaspkf594PzrRiU/Q+aVR+m09Kes
+   xgHDbaa390efSsO7eBb91e+d5D8edPoWoOAEkM5IhUtiaPIHTNFEqsD/e
+   PcZnlG1d6JfJN1vxhs151vgqEI/OFDoTAZxxIJNgBF+Pv4czYpmEPX0zS
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10281"; a="237237939"
+X-IronPort-AV: E=Sophos;i="5.90,168,1643702400"; 
+   d="scan'208";a="237237939"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2022 11:29:33 -0800
+X-IronPort-AV: E=Sophos;i="5.90,168,1643702400"; 
+   d="scan'208";a="510611038"
+Received: from unknown (HELO intel.com) ([10.237.72.65])
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2022 11:29:32 -0800
+Date:   Wed, 9 Mar 2022 21:29:58 +0200
+From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH v2 1/8] drm/i915: Treat SAGV block time 0 as
+ SAGV disabled
+Message-ID: <20220309192958.GA9517@intel.com>
+References: <20220309164948.10671-1-ville.syrjala@linux.intel.com>
+ <20220309164948.10671-2-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.4 00/18] 5.4.184-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220309155856.552503355@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1nS1yN-002JpO-Qk
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:54204
-X-Source-Auth: linux@roeck-us.net
-X-Email-Count: 37
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220309164948.10671-2-ville.syrjala@linux.intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/9/22 07:59, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.184 release.
-> There are 18 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Mar 09, 2022 at 06:49:41PM +0200, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 > 
-> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
-> Anything received after that time might be too late.
+> For modern platforms the spec explicitly states that a
+> SAGV block time of zero means that SAGV is not supported.
+> Let's extend that to all platforms. Supposedly there should
+> be no systems where this isn't true, and it'll allow us to:
+> - use the same code regardless of older vs. newer platform
+> - wm latencies already treat 0 as disabled, so this fits well
+>   with other related code
+> - make it a bit more clear when SAGV is used vs. not
+> - avoid overflows from adding U32_MAX with a u16 wm0 latency value
+>   which could cause us to miscalculate the SAGV watermarks on tgl+
 > 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> ---
+>  drivers/gpu/drm/i915/intel_pm.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+> index 8ee31c9590a7..40a3094e55ca 100644
+> --- a/drivers/gpu/drm/i915/intel_pm.c
+> +++ b/drivers/gpu/drm/i915/intel_pm.c
+> @@ -3696,8 +3696,7 @@ skl_setup_sagv_block_time(struct drm_i915_private *dev_priv)
+>  		MISSING_CASE(DISPLAY_VER(dev_priv));
+>  	}
+>  
+> -	/* Default to an unusable block time */
+> -	dev_priv->sagv_block_time_us = -1;
+> +	dev_priv->sagv_block_time_us = 0;
+>  }
+>  
+>  /*
+> @@ -5644,7 +5643,7 @@ static void skl_compute_plane_wm(const struct intel_crtc_state *crtc_state,
+>  	result->min_ddb_alloc = max(min_ddb_alloc, blocks) + 1;
+>  	result->enable = true;
+>  
+> -	if (DISPLAY_VER(dev_priv) < 12)
+> +	if (DISPLAY_VER(dev_priv) < 12 && dev_priv->sagv_block_time_us)
+>  		result->can_sagv = latency >= dev_priv->sagv_block_time_us;
+>  }
+>  
+> @@ -5677,7 +5676,10 @@ static void tgl_compute_sagv_wm(const struct intel_crtc_state *crtc_state,
+>  	struct drm_i915_private *dev_priv = to_i915(crtc_state->uapi.crtc->dev);
+>  	struct skl_wm_level *sagv_wm = &plane_wm->sagv.wm0;
+>  	struct skl_wm_level *levels = plane_wm->wm;
+> -	unsigned int latency = dev_priv->wm.skl_latency[0] + dev_priv->sagv_block_time_us;
+> +	unsigned int latency = 0;
+> +
+> +	if (dev_priv->sagv_block_time_us)
+> +		latency = dev_priv->sagv_block_time_us + dev_priv->wm.skl_latency[0];
 
-Building i386:defconfig ... failed
---------------
-Error log:
-arch/x86/kernel/cpu/bugs.c: In function 'spectre_v2_select_mitigation':
-arch/x86/kernel/cpu/bugs.c:973:41: error: implicit declaration of function 'unprivileged_ebpf_enabled' [-Werror=implicit-function-declaration]
-   973 |         if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+Should we may be add this to intel_has_sagv? I thought this was supposed to tell,
+if SAGV is supported or not. Should we just call it hear as well, may be..
+Now we kinda making it less obvious. 
+
+Stan
+
+>  
+>  	skl_compute_plane_wm(crtc_state, plane, 0, latency,
+>  			     wm_params, &levels[0],
+> -- 
+> 2.34.1
+> 
