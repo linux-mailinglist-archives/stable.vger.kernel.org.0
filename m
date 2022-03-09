@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8FAE4D329E
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:04:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D37DF4D32F6
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234200AbiCIQDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:03:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40692 "EHLO
+        id S234419AbiCIQHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:07:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234233AbiCIQCx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:02:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2596017F68A;
-        Wed,  9 Mar 2022 08:01:46 -0800 (PST)
+        with ESMTP id S234406AbiCIQFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:05:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E76ED13EF8F;
+        Wed,  9 Mar 2022 08:02:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7930361670;
-        Wed,  9 Mar 2022 16:01:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87A20C340E8;
-        Wed,  9 Mar 2022 16:01:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C41B5B82222;
+        Wed,  9 Mar 2022 16:02:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8DEEC340E8;
+        Wed,  9 Mar 2022 16:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841705;
-        bh=qJAPxXZ2TadZ/iowuZN6KPA8DnNseQ8gqYjoNpsfbrI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6AcernXPWiQAgyevNJdH0+3soD3bnMNJqQCHSdv9p/gh5j2l8k4r/ApQuD/pwKDK
-         KC9M7tPLd49L3dMJgRvyDr60E6r+UnySyExLqQ85vqLCmLX2FrsWMfmSh09U6ttmay
-         CByNGGXGdDV0fqtxVh5g2Q3Z14wf8D+28+qP0fG0=
+        s=korg; t=1646841773;
+        bh=3fQUgmqWeDD+UpGTO6YQJwkMhWwp1kKe/wrEc0SOUAw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=S8/R7RG/KX04QcYHCoMJQWR53JC9lYh0WI9lE1cLRUOcZnu1EPxS3hOY3hQf1QF6K
+         JBg09laSCpz74PugYt7fGztwp1MxjvvdZRT/IyyJM73qCnv16P1iWoLFcOE2c++9IR
+         h0Zw+axd//4K0rLb1bbK7wYwk14R5D/LJ/YuOSTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alyssa Milburn <alyssa.milburn@linux.intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 16/24] x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
-Date:   Wed,  9 Mar 2022 16:59:29 +0100
-Message-Id: <20220309155856.777021461@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.14 00/18] 4.14.271-rc1 review
+Date:   Wed,  9 Mar 2022 16:59:30 +0100
+Message-Id: <20220309155856.090281301@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.295480966@linuxfoundation.org>
-References: <20220309155856.295480966@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.271-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.271-rc1
+X-KernelTest-Deadline: 2022-03-11T15:58+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -56,94 +61,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+This is the start of the stable review cycle for the 4.14.271 release.
+There are 18 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 0de05d056afdb00eca8c7bbb0c79a3438daf700c upstream.
+Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+Anything received after that time might be too late.
 
-The commit
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.271-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-   44a3918c8245 ("x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting")
+thanks,
 
-added a warning for the "eIBRS + unprivileged eBPF" combination, which
-has been shown to be vulnerable against Spectre v2 BHB-based attacks.
+greg k-h
 
-However, there's no warning about the "eIBRS + LFENCE retpoline +
-unprivileged eBPF" combo. The LFENCE adds more protection by shortening
-the speculation window after a mispredicted branch. That makes an attack
-significantly more difficult, even with unprivileged eBPF. So at least
-for now the logic doesn't warn about that combination.
+-------------
+Pseudo-Shortlog of commits:
 
-But if you then add SMT into the mix, the SMT attack angle weakens the
-effectiveness of the LFENCE considerably.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.271-rc1
 
-So extend the "eIBRS + unprivileged eBPF" warning to also include the
-"eIBRS + LFENCE + unprivileged eBPF + SMT" case.
+Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
+    ARM: fix build error when BPF_SYSCALL is disabled
 
-  [ bp: Massage commit message. ]
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: include unprivileged BPF status in Spectre V2 reporting
 
-Suggested-by: Alyssa Milburn <alyssa.milburn@linux.intel.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/cpu/bugs.c |   27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: Spectre-BHB workaround
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -609,12 +609,27 @@ static inline const char *spectre_v2_mod
- 
- #define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
- #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
-+#define SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS+LFENCE mitigation and SMT, data leaks possible via Spectre v2 BHB attacks!\n"
- 
- #ifdef CONFIG_BPF_SYSCALL
- void unpriv_ebpf_notify(int new_state)
- {
--	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && !new_state)
-+	if (new_state)
-+		return;
-+
-+	/* Unprivileged eBPF is enabled */
-+
-+	switch (spectre_v2_enabled) {
-+	case SPECTRE_V2_EIBRS:
- 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
-+		break;
-+	case SPECTRE_V2_EIBRS_LFENCE:
-+		if (sched_smt_active())
-+			pr_err(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
-+		break;
-+	default:
-+		break;
-+	}
- }
- #endif
- 
-@@ -1074,6 +1089,10 @@ void arch_smt_update(void)
- {
- 	mutex_lock(&spec_ctrl_mutex);
- 
-+	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
-+	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
-+		pr_warn_once(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
-+
- 	switch (spectre_v2_user_stibp) {
- 	case SPECTRE_V2_USER_NONE:
- 		break;
-@@ -1700,7 +1719,11 @@ static ssize_t spectre_v2_show_state(cha
- 		return sprintf(buf, "Vulnerable: LFENCE\n");
- 
- 	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
--		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
-+		return sprintf(buf, "Vulnerable: eIBRS with unprivileged eBPF\n");
-+
-+	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
-+	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
-+		return sprintf(buf, "Vulnerable: eIBRS+LFENCE with unprivileged eBPF and SMT\n");
- 
- 	return sprintf(buf, "%s%s%s%s%s%s\n",
- 		       spectre_v2_strings[spectre_v2_enabled],
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: use LOADADDR() to get load address of sections
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: early traps initialisation
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: report Spectre v2 status through sysfs
+
+Mark Rutland <mark.rutland@arm.com>
+    arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
+
+Steven Price <steven.price@arm.com>
+    arm/arm64: Provide a wrapper for SMCCC 1.1 calls
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Warn about Spectre v2 LFENCE mitigation
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/speculation: Update link to AMD speculation whitepaper
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/speculation: Use generic retpoline by default on AMD
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+
+Peter Zijlstra <peterz@infradead.org>
+    Documentation/hw-vuln: Update spectre doc
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/speculation: Add eIBRS + Retpoline options
+
+Peter Zijlstra (Intel) <peterz@infradead.org>
+    x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
+
+Peter Zijlstra <peterz@infradead.org>
+    x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+
+Borislav Petkov <bp@suse.de>
+    x86/speculation: Merge one test in spectre_v2_user_select_mitigation()
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/hw-vuln/spectre.rst   |  48 ++++--
+ Documentation/admin-guide/kernel-parameters.txt |   8 +-
+ Makefile                                        |   4 +-
+ arch/arm/include/asm/assembler.h                |  10 ++
+ arch/arm/include/asm/spectre.h                  |  32 ++++
+ arch/arm/kernel/Makefile                        |   2 +
+ arch/arm/kernel/entry-armv.S                    |  79 ++++++++-
+ arch/arm/kernel/entry-common.S                  |  24 +++
+ arch/arm/kernel/spectre.c                       |  71 ++++++++
+ arch/arm/kernel/traps.c                         |  65 ++++++-
+ arch/arm/kernel/vmlinux-xip.lds.S               |  37 ++--
+ arch/arm/kernel/vmlinux.lds.S                   |  37 ++--
+ arch/arm/mm/Kconfig                             |  11 ++
+ arch/arm/mm/proc-v7-bugs.c                      | 198 +++++++++++++++++++---
+ arch/x86/include/asm/cpufeatures.h              |   2 +-
+ arch/x86/include/asm/nospec-branch.h            |  16 +-
+ arch/x86/kernel/cpu/bugs.c                      | 214 +++++++++++++++++-------
+ drivers/firmware/psci.c                         |  15 ++
+ include/linux/arm-smccc.h                       |  74 ++++++++
+ include/linux/bpf.h                             |  11 ++
+ kernel/sysctl.c                                 |   8 +
+ tools/arch/x86/include/asm/cpufeatures.h        |   2 +-
+ 22 files changed, 822 insertions(+), 146 deletions(-)
 
 
