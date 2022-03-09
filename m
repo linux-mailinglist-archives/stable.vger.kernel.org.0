@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFAB94D33E0
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6861C4D3306
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232292AbiCIQN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:13:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41584 "EHLO
+        id S234536AbiCIQLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:11:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235312AbiCIQNR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:13:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1048816307F;
-        Wed,  9 Mar 2022 08:10:39 -0800 (PST)
+        with ESMTP id S236113AbiCIQJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEFDA344F3;
+        Wed,  9 Mar 2022 08:07:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7B1D617CC;
-        Wed,  9 Mar 2022 16:10:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C71A4C340E8;
-        Wed,  9 Mar 2022 16:10:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D02D61797;
+        Wed,  9 Mar 2022 16:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 770B4C340E8;
+        Wed,  9 Mar 2022 16:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646842230;
-        bh=2izHBbKePMU2Fb3LPgpGusKesTpyD1FWIKNwtBsOrao=;
+        s=korg; t=1646842052;
+        bh=Mml45n5zWOY5XUlvrM0ABUbDBgc/vQ9ckQ54OR4R62A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVsXf8RoxSWzP4N6CkaK1ISdKM4fhXI1W9jJq8mJD3D6+t+K6b4F6Rsf9dDxW/8Gv
-         tndIdTToFVqNXwXIyb7CB87EuQn5GeD1XHYhKvOe80jxccWoyKtQK1imRJ2ewWw03Y
-         SfHfwN/PCfD2QQVQu4HEoAwOpxkKRvBrl2auxECE=
+        b=N5S/6w4Z1bmTl8EMglWEjMt8hNrcWWOfWGTSvcImK1ufoXFeBfKLlskchX4xwmd6R
+         6YjBT3soTFMorupWcB3mnRpaejqpqaV9QAbJMJYrQR7a8jiKwpJvkTbGnuNvncSL01
+         inIgG8eRw7DxGLv24QtBdtW+7tOYjJWOfxY3RtoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.16 07/37] x86/speculation: Warn about Spectre v2 LFENCE mitigation
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 24/43] arm64: entry: Make the trampoline cleanup optional
 Date:   Wed,  9 Mar 2022 17:00:08 +0100
-Message-Id: <20220309155859.302752121@linuxfoundation.org>
+Message-Id: <20220309155900.437614562@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.086952723@linuxfoundation.org>
-References: <20220309155859.086952723@linuxfoundation.org>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+References: <20220309155859.734715884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: James Morse <james.morse@arm.com>
 
-commit eafd987d4a82c7bb5aa12f0e3b4f8f3dea93e678 upstream.
+commit d739da1694a0eaef0358a42b76904b611539b77b upstream.
 
-With:
+Subsequent patches will add additional sets of vectors that use
+the same tricks as the kpti vectors to reach the full-fat vectors.
+The full-fat vectors contain some cleanup for kpti that is patched
+in by alternatives when kpti is in use. Once there are additional
+vectors, the cleanup will be needed in more cases.
 
-  f8a66d608a3e ("x86,bugs: Unconditionally allow spectre_v2=retpoline,amd")
+But on big/little systems, the cleanup would be harmful if no
+trampoline vector were in use. Instead of forcing CPUs that don't
+need a trampoline vector to use one, make the trampoline cleanup
+optional.
 
-it became possible to enable the LFENCE "retpoline" on Intel. However,
-Intel doesn't recommend it, as it has some weaknesses compared to
-retpoline.
+Entry at the top of the vectors will skip the cleanup. The trampoline
+vectors can then skip the first instruction, triggering the cleanup
+to run.
 
-Now AMD doesn't recommend it either.
-
-It can still be left available as a cmdline option. It's faster than
-retpoline but is weaker in certain scenarios -- particularly SMT, but
-even non-SMT may be vulnerable in some cases.
-
-So just unconditionally warn if the user requests it on the cmdline.
-
-  [ bp: Massage commit message. ]
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/kernel/entry.S |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -651,6 +651,7 @@ static inline const char *spectre_v2_mod
- static inline const char *spectre_v2_module_string(void) { return ""; }
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -40,14 +40,18 @@
+ .Lventry_start\@:
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	.if	\el == 0
+-alternative_if ARM64_UNMAP_KERNEL_AT_EL0
++	/*
++	 * This must be the first instruction of the EL0 vector entries. It is
++	 * skipped by the trampoline vectors, to trigger the cleanup.
++	 */
++	b	.Lskip_tramp_vectors_cleanup\@
+ 	.if	\regsize == 64
+ 	mrs	x30, tpidrro_el0
+ 	msr	tpidrro_el0, xzr
+ 	.else
+ 	mov	x30, xzr
+ 	.endif
+-alternative_else_nop_endif
++.Lskip_tramp_vectors_cleanup\@:
+ 	.endif
  #endif
  
-+#define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
- #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
- 
- #ifdef CONFIG_BPF_SYSCALL
-@@ -972,6 +973,7 @@ static void __init spectre_v2_select_mit
- 		break;
- 
- 	case SPECTRE_V2_CMD_RETPOLINE_LFENCE:
-+		pr_err(SPECTRE_V2_LFENCE_MSG);
- 		mode = SPECTRE_V2_LFENCE;
- 		break;
- 
-@@ -1787,6 +1789,9 @@ static char *ibpb_state(void)
- 
- static ssize_t spectre_v2_show_state(char *buf)
- {
-+	if (spectre_v2_enabled == SPECTRE_V2_LFENCE)
-+		return sprintf(buf, "Vulnerable: LFENCE\n");
-+
- 	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
- 		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
- 
+@@ -661,7 +665,7 @@ alternative_if_not ARM64_WORKAROUND_CAVI
+ 	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
+ alternative_else_nop_endif
+ 	msr	vbar_el1, x30
+-	add	x30, x30, #(1b - tramp_vectors)
++	add	x30, x30, #(1b - tramp_vectors + 4)
+ 	isb
+ 	ret
+ .org 1b + 128	// Did we overflow the ventry slot?
 
 
