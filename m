@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB7B4D3372
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96DCD4D33BF
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:23:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234652AbiCIQK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:10:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34902 "EHLO
+        id S234793AbiCIQLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:11:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235648AbiCIQJC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07068141445;
-        Wed,  9 Mar 2022 08:06:23 -0800 (PST)
+        with ESMTP id S236234AbiCIQJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF630141E14;
+        Wed,  9 Mar 2022 08:08:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E42FF61683;
-        Wed,  9 Mar 2022 16:06:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F070CC340E8;
-        Wed,  9 Mar 2022 16:06:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B36161644;
+        Wed,  9 Mar 2022 16:08:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 767E7C340E8;
+        Wed,  9 Mar 2022 16:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841981;
-        bh=KQ/z7MJIjzydCdxJw2qt2ZWgIt4pm1aDURrKJrC2ub0=;
+        s=korg; t=1646842111;
+        bh=Nvdc0gNUxRVbba+YUAyiUFdp6t8kfz07OiJe+ke0X5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDRoFK21774F4vslv22CTUFhuhdhpQs+yF4Q7mDDfZeN4KNmXpH2I5zU3NHcbEKg/
-         3K47jeOe5waE4Jiqp0jvLwuNKpceSERdCjSD185c4lySWWZuiq58cKF9KrzAB6WhZD
-         ZDHInEgBU7zPRE8s6X7qVuBWiQHV1EZN6Ms6E5Vo=
+        b=tzbhmmQHoFhKsxZU4Slt/wrfN0zeNRspkQ8h4gMoK6PQsqcRy4etwI4KZUyEtKKv+
+         VPS51N95/J+TW7/u6AqeByB7ogsTBuGmlYsfSKi8w5X8APy+heFoQ2IWBBfzzco2uI
+         jElYWTyX+uCth057oPp29f3Css8HSKOjUsVnY260=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 5.10 42/43] arm64: proton-pack: Include unprivileged eBPF status in Spectre v2 mitigation reporting
-Date:   Wed,  9 Mar 2022 17:00:15 +0100
-Message-Id: <20220309155900.456787853@linuxfoundation.org>
+Subject: [PATCH 5.15 32/43] arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
+Date:   Wed,  9 Mar 2022 17:00:16 +0100
+Message-Id: <20220309155900.665473650@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-References: <20220309155859.239810747@linuxfoundation.org>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+References: <20220309155859.734715884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +57,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit 58c9a5060cb7cd529d49c93954cdafe81c1d642a upstream.
+commit aff65393fa1401e034656e349abd655cfe272de0 upstream.
 
-The mitigations for Spectre-BHB are only applied when an exception is
-taken from user-space. The mitigation status is reported via the spectre_v2
-sysfs vulnerabilities file.
+kpti is an optional feature, for systems not using kpti a set of
+vectors for the spectre-bhb mitigations is needed.
 
-When unprivileged eBPF is enabled the mitigation in the exception vectors
-can be avoided by an eBPF program.
+Add another set of vectors, __bp_harden_el1_vectors, that will be
+used if a mitigation is needed and kpti is not in use.
 
-When unprivileged eBPF is enabled, print a warning and report vulnerable
-via the sysfs vulnerabilities file.
+The EL1 ventries are repeated verbatim as there is no additional
+work needed for entry from EL1.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/proton-pack.c |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ arch/arm64/kernel/entry.S |   35 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/proton-pack.c
-+++ b/arch/arm64/kernel/proton-pack.c
-@@ -18,6 +18,7 @@
-  */
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -649,10 +649,11 @@ alternative_else_nop_endif
+ 	.macro tramp_ventry, vector_start, regsize, kpti
+ 	.align	7
+ 1:
+-	.if	\kpti == 1
+ 	.if	\regsize == 64
+ 	msr	tpidrro_el0, x30	// Restored in kernel_ventry
+ 	.endif
++
++	.if	\kpti == 1
+ 	/*
+ 	 * Defend against branch aliasing attacks by pushing a dummy
+ 	 * entry onto the return stack and using a RET instruction to
+@@ -740,6 +741,38 @@ SYM_DATA_END(__entry_tramp_data_start)
+ #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
  
- #include <linux/arm-smccc.h>
-+#include <linux/bpf.h>
- #include <linux/cpu.h>
- #include <linux/device.h>
- #include <linux/nospec.h>
-@@ -110,6 +111,15 @@ static const char *get_bhb_affected_stri
- 	}
- }
- 
-+static bool _unprivileged_ebpf_enabled(void)
-+{
-+#ifdef CONFIG_BPF_SYSCALL
-+	return !sysctl_unprivileged_bpf_disabled;
-+#else
-+	return false;
-+#endif
-+}
+ /*
++ * Exception vectors for spectre mitigations on entry from EL1 when
++ * kpti is not in use.
++ */
++	.macro generate_el1_vector
++.Lvector_start\@:
++	kernel_ventry	1, t, 64, sync		// Synchronous EL1t
++	kernel_ventry	1, t, 64, irq		// IRQ EL1t
++	kernel_ventry	1, t, 64, fiq		// FIQ EL1h
++	kernel_ventry	1, t, 64, error		// Error EL1t
 +
- ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
- 			    char *buf)
- {
-@@ -129,6 +139,9 @@ ssize_t cpu_show_spectre_v2(struct devic
- 		v2_str = "CSV2";
- 		fallthrough;
- 	case SPECTRE_MITIGATED:
-+		if (bhb_state == SPECTRE_MITIGATED && _unprivileged_ebpf_enabled())
-+			return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
++	kernel_ventry	1, h, 64, sync		// Synchronous EL1h
++	kernel_ventry	1, h, 64, irq		// IRQ EL1h
++	kernel_ventry	1, h, 64, fiq		// FIQ EL1h
++	kernel_ventry	1, h, 64, error		// Error EL1h
 +
- 		return sprintf(buf, "Mitigation: %s%s\n", v2_str, bhb_str);
- 	case SPECTRE_VULNERABLE:
- 		fallthrough;
-@@ -1108,3 +1121,16 @@ void noinstr spectre_bhb_patch_loop_iter
- 					 AARCH64_INSN_MOVEWIDE_ZERO);
- 	*updptr++ = cpu_to_le32(insn);
- }
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 64, kpti=0
++	.endr
++	.rept 4
++	tramp_ventry	.Lvector_start\@, 32, kpti=0
++	.endr
++	.endm
 +
-+#ifdef CONFIG_BPF_SYSCALL
-+#define EBPF_WARN "Unprivileged eBPF is enabled, data leaks possible via Spectre v2 BHB attacks!\n"
-+void unpriv_ebpf_notify(int new_state)
-+{
-+	if (spectre_v2_state == SPECTRE_VULNERABLE ||
-+	    spectre_bhb_state != SPECTRE_MITIGATED)
-+		return;
++	.pushsection ".entry.text", "ax"
++	.align	11
++SYM_CODE_START(__bp_harden_el1_vectors)
++	generate_el1_vector
++SYM_CODE_END(__bp_harden_el1_vectors)
++	.popsection
 +
-+	if (!new_state)
-+		pr_err("WARNING: %s", EBPF_WARN);
-+}
-+#endif
++
++/*
+  * Register switch for AArch64. The callee-saved registers need to be saved
+  * and restored. On entry:
+  *   x0 = previous task_struct (must be preserved across the switch)
 
 
