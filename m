@@ -2,127 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DAA04D36B0
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:43:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A02234D3647
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237073AbiCIRUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 12:20:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53154 "EHLO
+        id S233061AbiCIRUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 12:20:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237059AbiCIRTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 12:19:32 -0500
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F9F811A1;
-        Wed,  9 Mar 2022 09:18:06 -0800 (PST)
-Received: by mail-ej1-x632.google.com with SMTP id qx21so6528791ejb.13;
-        Wed, 09 Mar 2022 09:18:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Y7oxE4fFKx58NyjRtMtX0xZQenpnJa7HJH2t7nBfbM0=;
-        b=Y1eZY2aSMQF3FYs/zSOiOsjAuhxEUy3agYDVLBR1fosROQdd77++ho6YhSryc8HgIO
-         2NZ3OivbKBedBaRr5X4euD9wNJuBJkWSmUJMR5EWaoO/d00RVVoAq1px9vq5nG7AB9iG
-         YNqYLUnm29T0sRm1cAf99VshmFwYw9qJ9dEXOj3WOdOqaEQydswFveibOfX20uRHVusw
-         2DVTucTJ8jclPEmmjngvT2lA0uanpchns5L2bPumZgI3RmGD9Nu05yn5irnFQcTmsnnA
-         vaM4rfL/MKN4uEVpEQEyeZAl7k1x8Y1cq+3G6N573/vzJMiku6cZQR39usbraCuQqHm7
-         FOmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Y7oxE4fFKx58NyjRtMtX0xZQenpnJa7HJH2t7nBfbM0=;
-        b=pKi45Jl1B2tbIq5qxdPyvxuGCeYfoDW+a1tzUpF0PWBurQk1FTP3pf6AgdE6bsdeU/
-         mmIqEo7hiCHKuENtWtfSoxiQLWiJz1fwOL6/WfZL9kozSr+8/Z1LhC7001T0veXtyPwK
-         9h+9uSQVoHvBmwnHFB+4Ak0bs+mG65KXFrS/ayyxsketXccZHnm3UFrbBX1xzmCGN3Mu
-         /Q8UU3xhKz3yB2a8FXkOYQGWM6OgEVqePXNegcXaoCfsAmaTwRZv/iFNCy9UyO8YNuLZ
-         z6faRdJCX+mguqPkpzxKEWxp8odlhvw/ZPbH9RQ/ExeRC39kkz8saI92z3rJQk7wVy7o
-         vG1A==
-X-Gm-Message-State: AOAM532pzLjUX2v4rHomMOH7pwfsjfMXvBi3pw3KRtVS1KyqZrF3Hmsu
-        LBSuBdu1m6sYxq8Bqmlp0FP9o1W5N9Y9o28AWIQ=
-X-Google-Smtp-Source: ABdhPJyKloDe4ClKvdZSQX8+04jMZcVWIXzwBt1cZ+doTm5lDUCfySKxxaPvCU6hz4fsS3AH406wtEFzZR+rFQ3RzJc=
-X-Received: by 2002:a17:906:2646:b0:6d5:d889:c92b with SMTP id
- i6-20020a170906264600b006d5d889c92bmr736614ejc.696.1646846284996; Wed, 09 Mar
- 2022 09:18:04 -0800 (PST)
+        with ESMTP id S236444AbiCIRTZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 12:19:25 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0211A70CF6
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 09:18:03 -0800 (PST)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nRzwn-0004TJ-JR; Wed, 09 Mar 2022 18:18:01 +0100
+Message-ID: <08548343-0bed-64e7-2aff-f403341c80dd@leemhuis.info>
+Date:   Wed, 9 Mar 2022 18:18:01 +0100
 MIME-Version: 1.0
-References: <20220309143322.1755281-1-festevam@gmail.com> <20220309143322.1755281-2-festevam@gmail.com>
- <d75bbdb1fd01f0c1ff89efe1369860cfccc52f5f.camel@pengutronix.de> <25171f0f4e2712fdcae7b2fc2e7792f8f744db6c.camel@pengutronix.de>
-In-Reply-To: <25171f0f4e2712fdcae7b2fc2e7792f8f744db6c.camel@pengutronix.de>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Wed, 9 Mar 2022 14:17:52 -0300
-Message-ID: <CAOMZO5DTZrcjXFvuXbBJ-x_idXBe5rLTWfbif20ES5oxZ+gMSg@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] media: coda: Add more H264 levels for CODA960
-To:     Philipp Zabel <p.zabel@pengutronix.de>
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        linux-media <linux-media@vger.kernel.org>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>, kernel@iktek.de,
-        stable <stable@vger.kernel.org>, Fabio Estevam <festevam@denx.de>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Re: laptop does not go to suspend anymore with kernel version >
+ 5.16.10
+To:     reinhold.mannsberger@gmx.at, stable@vger.kernel.org
+Cc:     regressions@lists.linux.dev
+References: <4a83b8d3dc68a2bf6c7e988552a213f161b54c3a.camel@gmx.at>
+ <776197b3-cc56-3948-d6e9-68bed82d9730@leemhuis.info>
+ <4249d21e2638af07f43121982cf9dcb73b116ad9.camel@gmx.at>
+Content-Language: en-US
+In-Reply-To: <4249d21e2638af07f43121982cf9dcb73b116ad9.camel@gmx.at>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1646846285;128f9e7d;
+X-HE-SMSGID: 1nRzwn-0004TJ-JR
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Philipp,
+On 09.03.22 17:46, Reinhold Mannsberger wrote:
+> Dear Thorsten!
+> 
+> Thank you for your quick response!
+> 
+> Now that you gave me the advice to check dmesg I found out that the
+> messages are the same with kernel version 5.16.10 and 5.16.12. But - as
+> I described - with kernel version 5.16.10 I had to press the power
+> button to resume from suspend. So I my conclusion that my laptop does
+> not go to suspend ist apparently wrong.
 
-On Wed, Mar 9, 2022 at 1:29 PM Philipp Zabel <p.zabel@pengutronix.de> wrote:
+Good. :-D
 
-> Looking at my notes, I've never seen the encoder produce streams with
-> levels 1.1, 1.2, 1.3, 2.1, 2.2, or 4.1. Has anybody else?
+> In any case you find excerpts
+> from dmesg with both kernel versions attached.
+> 
+> Now there is one thing I really would like to understand. Concluding
+> from the time stamps in dmesg it seems that my laptop goes to suspend
+> only for a moment right before I re-open the lid. Of course I did not
+> close my laptop lid only for 3 seconds - as it could be concluded from
+> the time stamps for "PM: suspend entry (s2idle)" and "PM: suspend exit"
+> - but for a longer period of time. Can you please enlighten me about that?
 
-On my tests, I only saw 3.1 and 3.2 levels.
+I have no idea, I'm just tracking regressions and sadly don't known much
+about this. To me it looks a bit like s2idle is not working properly,
+but I might be totally wrong with that. Maybe google might tell you; or
+some measurements where you check how quickly the batter drains in
+sleep. Oof you ask the PM developers -- but as this is not a regression
+neither the regressions list nor the stable list care, so I guess you do
+it in a separate mail.
 
-> Level 4.2 streams can be produced though, just not at realtime speeds.
->
-> Also, this encoder control change has no effect unless max is changed
-> as well. I think it should look as follows:
->
->         if (ctx->dev->devtype->product == CODA_960) {
->                 v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
->                         V4L2_CID_MPEG_VIDEO_H264_LEVEL,
-> -                       V4L2_MPEG_VIDEO_H264_LEVEL_4_0,
-> -                       ~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
-> +                       V4L2_MPEG_VIDEO_H264_LEVEL_4_2,
-> +                       ~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_1_0) |
-> +                         (1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
->                           (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_0) |
->                           (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_1) |
->                           (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_2) |
-> -                         (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0)),
-> +                         (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0) |
-> +                         (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_2)),
->                         V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
->         }
->         v4l2_ctrl_new_std(&ctx->ctrls, &coda_ctrl_ops,
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
 
-You are right.
+P.S.: As the Linux kernel's regression tracker I'm getting a lot of
+reports on my table. I can only look briefly into most of them and lack
+knowledge about most of the areas they concern. I thus unfortunately
+will sometimes get things wrong or miss something important. I hope
+that's not the case here; if you think it is, don't hesitate to tell me
+in a public reply, it's in everyone's interest to set the public record
+straight.
 
-With Nicolas' original patch I see the following levels being reported:
 
-h264_level 0x00990a67 (menu)   : min=0 max=11 default=11 value=11
-5: 2
-8: 3
-9: 3.1
-10: 3.2
-11: 4
 
-With your proposal I get:
-
- h264_level 0x00990a67 (menu)   : min=0 max=13 default=11 value=11
-0: 1
-5: 2
-8: 3
-9: 3.1
-10: 3.2
-11: 4
-13: 4.2
-
-I will submit a v3 with your proposal.
-
-Thanks
+> Am Mittwoch, dem 09.03.2022 um 07:51 +0100 schrieb Thorsten Leemhuis:
+>> Hi!
+>>
+>> On 08.03.22 19:21, Reinhold Mannsberger wrote:
+>>>
+>>> I am using Linux Mint Xfce 20.3 with kernel version 5.16. I had to use
+>>> kernel 5.16 because with the standard kernel version of Linux mit 20.3
+>>> (which is 5.13) my laptop did not correctly resume, when I closed the
+>>> lid.
+>>>
+>>> With kernel 5.16 my laptop perfectly went to to suspend when I closed
+>>> the lid and it perfectly resumed, when I opened the lid again. This
+>>> means: I had to press the power button once
+>>
+>> That sounds odd to me, as most modern Laptops wake up automatically when
+>> you open the lid. It's unlikely, but maybe that just that started to
+>> work now?
+>>
+>>> when I reopened the lid -
+>>> and then the laptop resumed (to the login screen). This was true until
+>>> kernel version 5.16.10. With kernel version > 5.16.10 my laptop does
+>>> not go into suspend anymore. This means: When I open the lid I am back
+>>> at the login screen immediately (I don't have to press the power button
+>>> anymore).
+>>
+>> You want to check dmesg if the system really didn't go to sleep; it will
+>> likely also provide a hint of what went wrong. Just upload the output
+>> (generated after a fresh start and where you suspend and resume once the
+>> system booted) somewhere and send us a link or sent it as an attachment
+>> in a reply. If that doesn't provide any hints of what might be wrong,
+>> you might need to find the change that introduced the problem using a
+>> bisection.
+>>
+>> HTH, Ciao, Thorsten
+>>
+>>> System information for my laptop:
+>>> ----------------------------------------------------------------------
+>>> System:    Kernel: 5.16.10-051610-generic x86_64 bits: 64 compiler: N/A
+>>> Desktop: Xfce 4.16.0
+>>>            tk: Gtk 3.24.20 wm: xfwm4 dm: LightDM Distro: Linux Mint
+>>> 20.3 Una
+>>>            base: Ubuntu 20.04 focal
+>>> Machine:   Type: Laptop System: HP product: HP ProBook 455 G8 Notebook
+>>> PC v: N/A serial: <filter>
+>>>            Chassis: type: 10 serial: <filter>
+>>>            Mobo: HP model: 8864 v: KBC Version 41.1E.00 serial:
+>>> <filter> UEFI: HP
+>>>            v: T78 Ver. 01.07.00 date: 10/08/2021
+>>> Battery:   ID-1: BAT0 charge: 43.8 Wh condition: 44.5/45.0 Wh (99%)
+>>> volts: 13.0/11.4
+>>>            model: Hewlett-Packard Primary serial: <filter> status:
+>>> Unknown
+>>> CPU:       Topology: 8-Core model: AMD Ryzen 7 5800U with Radeon
+>>> Graphics bits: 64 type: MT MCP
+>>>            arch: Zen 3 L2 cache: 4096 KiB
+>>>            flags: avx avx2 lm nx pae sse sse2 sse3 sse4_1 sse4_2 sse4a
+>>> ssse3 svm bogomips: 60685
+>>>            Speed: 3497 MHz min/max: 1600/1900 MHz Core speeds (MHz): 1:
+>>> 3474 2: 3464 3: 3473
+>>>            4: 3471 5: 4362 6: 4332 7: 3478 8: 3455 9: 3459 10: 3452 11:
+>>> 3462 12: 3468 13: 3468
+>>>            14: 3468 15: 3467 16: 3472
+>>> Graphics:  Device-1: AMD vendor: Hewlett-Packard driver: amdgpu v:
+>>> kernel bus ID: 05:00.0
+>>>            chip ID: 1002:1638
+>>>            Display: x11 server: X.Org 1.20.13 driver: amdgpu,ati
+>>> unloaded: fbdev,modesetting,vesa
+>>>            resolution: 1920x1080~60Hz
+>>>            OpenGL: renderer: AMD RENOIR (DRM 3.44.0 5.16.10-051610-
+>>> generic LLVM 12.0.0)
+>>>            v: 4.6 Mesa 21.2.6 direct render: Yes
+>>> ----------------------------------------------------------------------
+>>>
+>>>
+>>> Best regards,
+>>>
+>>> Reinhold Mannsberger
+>>>
+>>>
+>>>
