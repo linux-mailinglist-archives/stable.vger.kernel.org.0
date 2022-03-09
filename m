@@ -2,193 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C65E14D39EC
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 20:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AEAE4D3A0A
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 20:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233838AbiCITTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 14:19:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
+        id S232638AbiCITU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 14:20:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233951AbiCITTa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 14:19:30 -0500
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062491168F4
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 11:18:26 -0800 (PST)
-Received: by mail-oo1-xc33.google.com with SMTP id w3-20020a4ac183000000b0031d806bbd7eso4029972oop.13
-        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 11:18:25 -0800 (PST)
+        with ESMTP id S232729AbiCITU5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 14:20:57 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8229E27B04
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 11:19:57 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id mv5-20020a17090b198500b001bf2a039831so6164214pjb.5
+        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 11:19:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language
-         :from:to:cc:references:in-reply-to:content-transfer-encoding;
-        bh=RTkHcVtz6Xj+gST8HDWpAZrHsZcT5ReHhL3eO1pEfMs=;
-        b=z4Oq8hg5oMUC/28l4I7mskqErza640vBkufG2k65W2hvzZ7DIoDp3bIAvrMNmm5Cv/
-         slGBQW64NT9dnHPHly3gphqYVHfaBpsn9o/EKnAcayNpZtN4V09r5V5ibuQlNIY062YR
-         KoAEffvGuuHIF/I/Kk3owWwANF2DW1ZrB191OuewOirfI/0ZxbxFx0QJPEQx7rM5Znpz
-         H7eVzsNkZ1+wWexOG7Kfq79Kjk7H1FmFlm3XlENVb5KqGjlLodYVRh8RG0FwRKnwlEFu
-         HiUmlfblpD1d7oViQwfrKtwcg6N35SKPVQE2Npbpskwei4/bvTnzpI4WxHR4lyCuW5ZF
-         idBQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tYSsGnOy1M/Sh/9OWf1xao15bEunDhKt2ftpi1zESms=;
+        b=ISwPHvz9KqexAc96vd9AulOwtOUU8Ki+twmInSd7gpeREMdNm5y75R70IG0dC5iH1y
+         XPpEEw811D7y6UOrxyV+co4QdKDJ4uhVzaCk3xhsDcSLhXfnjPFXIttUn1X/5m6WQA1m
+         wOGnh+vR+x7NnSj2mX6/rRWSrTUEy357c1XDbjruk7De/4/Sz85RSsBjGV6Cj4R1Y0ED
+         Msgc62DtfGlhvz87kbI/H1MOC3xp4FS/daDA4ocT7nmKYP907f6HXlypgbpd08Vhxv3w
+         3hPGYRRWcyu/7by86Fnk5bUgEX6TFC1AMeC2JotaG6Kl/qDhElbYN6NOW3dGhQzNMTxY
+         +KiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:cc:references:in-reply-to
-         :content-transfer-encoding;
-        bh=RTkHcVtz6Xj+gST8HDWpAZrHsZcT5ReHhL3eO1pEfMs=;
-        b=kKP+t1BUEbWIfZo4JvSV6+R5ujHBxrcqvTYCdj4SPES1NvduEwW04xoFhIAvQTaKKl
-         sOzdJikkG9DJe8n9e56AEi2h91qkhuPuEdjvf6EW6mzb4vvMHdVBuuElzahUxbJRTBA/
-         QLYCe++K8CvP03mZuqj7i+US+M4JdCTMUfhAZNF8pEIJn83wmkpZhgyW/N4lWlQwYx7b
-         XVANHtTY8AZO3Osuv0x8RMFY/TPJb1khbRNV2ctWsWe+idEepTiusqBQ0Q1uIQ7Px89V
-         4/PeOBXCmBO25emNXGizoLs3SZfoxKb8FW9zHTCX/Ha9OtxJeAimZ8Mht0Kqysm53/Ua
-         nR7g==
-X-Gm-Message-State: AOAM533QvZNiFDnAsB38Mm4QblvgU7AmcS/ij70uIkMlJFNndgQwqX4T
-        l2QjS9pNfHFUhK6DhdNOfdw86w==
-X-Google-Smtp-Source: ABdhPJzDE/5CGA3LZQsgx1FDGKFVh6iantpGNAhQgr1CqxPTN17zW+Uucq3WVOE6mYNTtMFU5jp3nQ==
-X-Received: by 2002:a4a:907:0:b0:320:f948:a8dc with SMTP id 7-20020a4a0907000000b00320f948a8dcmr591034ooa.61.1646853505295;
-        Wed, 09 Mar 2022 11:18:25 -0800 (PST)
-Received: from [192.168.17.16] ([189.219.74.147])
-        by smtp.gmail.com with ESMTPSA id m21-20020a056820051500b0031d0841b87esm1403489ooj.34.2022.03.09.11.18.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 11:18:24 -0800 (PST)
-Message-ID: <322280c2-8673-949c-ffd4-4e804a030b89@linaro.org>
-Date:   Wed, 9 Mar 2022 13:18:23 -0600
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tYSsGnOy1M/Sh/9OWf1xao15bEunDhKt2ftpi1zESms=;
+        b=5Pd22AMyPiD+WWp9XSLaaqjZ3iVJ0cyOwZzBwdiGQFDJLHyWiFq+Il6sJYbOHnuLGL
+         q9VTejIzj6nV2bpjKVI1FKmduDfABnzVJcVOPIaE4deorjOUwmfytVTgBiLrTuij7F0L
+         nlrEzqiKqHApT5edyQmR7Q/zdLVIqf+pI/QgcjuxAoLPzmS7edgttgJuXHYJ4UiZBRUm
+         dR0xKBy+bI3rD1wDmrNEvIwnMrZkMbzyRI04l94+EFYfZ4JJYK7vslnVHEfTCvpjgD/c
+         v5S72l0NFNwpdUxZJjPMg1irpZLfMn0dGMqrnAQZPpkQu8YMD+rUVIj4lcC4iciXlpCw
+         hdDw==
+X-Gm-Message-State: AOAM532hnpfwSY0xwahvl/DrhSNJvQ6TG58XZRX1XMN7425BweuO0sAd
+        oIRoxOaRAavQ7ITXh2SfML6Nf9ukYHz+n+VSwik=
+X-Google-Smtp-Source: ABdhPJwJulQQvQdvFCnajRtn6BxB/7MK+DYTtQubmi6cAe98vIRM8tUdkZOi6cVzynwi+h+SlfzALw==
+X-Received: by 2002:a17:902:f78d:b0:14d:522e:deb3 with SMTP id q13-20020a170902f78d00b0014d522edeb3mr1067618pln.173.1646853596836;
+        Wed, 09 Mar 2022 11:19:56 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d32-20020a631d60000000b003650a9d8f9asm3023581pgm.33.2022.03.09.11.19.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Mar 2022 11:19:56 -0800 (PST)
+Message-ID: <6228fddc.1c69fb81.21352.7f21@mx.google.com>
+Date:   Wed, 09 Mar 2022 11:19:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 4.9 00/24] 4.9.306-rc1 review
-Content-Language: en-US
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220309155856.295480966@linuxfoundation.org>
- <2f501345-e847-668e-7ca3-23af49b69224@linaro.org>
-In-Reply-To: <2f501345-e847-668e-7ca3-23af49b69224@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.104-43-g417963ee9709
+Subject: stable-rc/queue/5.10 baseline: 101 runs,
+ 1 regressions (v5.10.104-43-g417963ee9709)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+stable-rc/queue/5.10 baseline: 101 runs, 1 regressions (v5.10.104-43-g41796=
+3ee9709)
 
-On 09/03/22 12:40, Daniel Díaz wrote:
-> Hello!
-> 
-> On 09/03/22 09:59, Greg Kroah-Hartman wrote:
->> This is the start of the stable review cycle for the 4.9.306 release.
->> There are 24 patches in this series, all will be posted as a response
->> to this one.  If anyone has any issues with these being applied, please
->> let me know.
->>
->> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
->> Anything received after that time might be too late.
->>
->> The whole patch series can be found in one patch at:
->>     https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.306-rc1.gz
->> or in the git tree and branch at:
->>     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
->> and the diffstat can be found below.
->>
->> thanks,
->>
->> greg k-h
-> 
-> Regressions found.
-> 
-> The following Arm combinations fail to build:
-> - arm-gcc-8-bcm2835_defconfig
-> - arm-gcc-8-imx_v6_v7_defconfig
-> - arm-gcc-8-omap2plus_defconfig
-> - arm-gcc-9-bcm2835_defconfig
-> - arm-gcc-9-imx_v6_v7_defconfig
-> - arm-gcc-9-omap2plus_defconfig
-> - arm-gcc-10-bcm2835_defconfig
-> - arm-gcc-10-imx_v6_v7_defconfig
-> - arm-gcc-10-omap2plus_defconfig
-> - arm-gcc-11-bcm2835_defconfig
-> - arm-gcc-11-imx_v6_v7_defconfig
-> - arm-gcc-11-omap2plus_defconfig
-> 
-> Messages look like this:
-> 
->    /builds/linux/arch/arm/kernel/entry-common.S: Assembler messages:
->    /builds/linux/arch/arm/kernel/entry-common.S:155: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/kernel/entry-common.S:164: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/kernel/entry-common.o] Error 1
->    /builds/linux/arch/arm/kernel/entry-armv.S: Assembler messages:
->    /builds/linux/arch/arm/kernel/entry-armv.S:1124: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/kernel/entry-armv.S:1147: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/kernel/entry-armv.S:1170: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/kernel/entry-armv.S:1193: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/kernel/entry-armv.S:1232: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/kernel/entry-armv.o] Error 1
->    /builds/linux/arch/arm/mm/cache-v7.S: Assembler messages:
->    /builds/linux/arch/arm/mm/cache-v7.S:63: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/mm/cache-v7.S:136: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/mm/cache-v7.S:170: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/mm/cache-v7.S:298: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/mm/cache-v7.o] Error 1
->    /builds/linux/arch/arm/mm/tlb-v7.S: Assembler messages:
->    /builds/linux/arch/arm/mm/tlb-v7.S:88: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/mm/tlb-v7.o] Error 1
->    /builds/linux/arch/arm/mm/proc-v7-2level.S: Assembler messages:
->    /builds/linux/arch/arm/mm/proc-v7-2level.S:58: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/mm/proc-v7-2level.S:60: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    /builds/linux/arch/arm/mm/proc-v7.S:61: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
->    make[2]: *** [/builds/linux/scripts/Makefile.build:407: arch/arm/mm/proc-v7.o] Error 1
->    make[2]: Target '__build' not remade because of errors.
+Regressions Summary
+-------------------
 
-Here's what the bisection throws for this one:
-
-# bad: [2ef7c55895217efa8183111969710960a529d3cd] Linux 4.9.306-rc1
-# good: [41b13534ea8aa554d4e987650e24da5510258752] ARM: use LOADADDR() to get load address of sections
-git bisect start '2ef7c55895217efa8183111969710960a529d3cd' '41b13534ea8aa554d4e987650e24da5510258752'
-# bad: [fd723e642aacb60567beda736ebb062db44b8349] ARM: include unprivileged BPF status in Spectre V2 reporting
-git bisect bad fd723e642aacb60567beda736ebb062db44b8349
-# bad: [d0002ea56072220ddab72bb6e31a32350c01b44e] ARM: Spectre-BHB workaround
-git bisect bad d0002ea56072220ddab72bb6e31a32350c01b44e
-# first bad commit: [d0002ea56072220ddab72bb6e31a32350c01b44e] ARM: Spectre-BHB workaround
-commit d0002ea56072220ddab72bb6e31a32350c01b44e
-Author: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Date:   Thu Feb 10 16:05:45 2022 +0000
-     ARM: Spectre-BHB workaround
-     
-     comomit b9baf5c8c5c356757f4f9d8180b5e9d234065bc3 upstream.
-     
-     Workaround the Spectre BHB issues for Cortex-A15, Cortex-A57,
-     Cortex-A72, Cortex-A73 and Cortex-A75. We also include Brahma B15 as
-     well to be safe, which is affected by Spectre V2 in the same ways as
-     Cortex-A15.
-     
-     Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-     Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-     [changes due to lack of SYSTEM_FREEING_INITMEM - gregkh]
-     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-  arch/arm/include/asm/assembler.h  | 10 +++++
-  arch/arm/include/asm/spectre.h    |  4 ++
-  arch/arm/kernel/entry-armv.S      | 79 ++++++++++++++++++++++++++++++++++++---
-  arch/arm/kernel/entry-common.S    | 24 ++++++++++++
-  arch/arm/kernel/spectre.c         |  4 ++
-  arch/arm/kernel/traps.c           | 38 +++++++++++++++++++
-  arch/arm/kernel/vmlinux-xip.lds.S | 18 +++++++--
-  arch/arm/kernel/vmlinux.lds.S     | 18 +++++++--
-  arch/arm/mm/Kconfig               | 10 +++++
-  arch/arm/mm/proc-v7-bugs.c        | 76 +++++++++++++++++++++++++++++++++++++
-  10 files changed, 269 insertions(+), 12 deletions(-)
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
-Reverting made the build pass.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.104-43-g417963ee9709/plan/baseline/
 
-Greetings!
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.104-43-g417963ee9709
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      417963ee97095a716a0acfee142e233dac32b4df =
 
-Daniel Díaz
-daniel.diaz@linaro.org
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6228c886d057177bd8c62978
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
+-43-g417963ee9709/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
+-43-g417963ee9709/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6228c886d057177bd8c6299e
+        failing since 1 day (last pass: v5.10.103-56-ge5a40f18f4ce, first f=
+ail: v5.10.103-105-gf074cce6ae0d)
+
+    2022-03-09T15:32:08.790821  <8>[   59.922824] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-09T15:32:09.812887  /lava-5845956/1/../bin/lava-test-case   =
+
+ =20
