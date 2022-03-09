@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DD484D32E3
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA2C4D332A
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234697AbiCIQLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:11:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33494 "EHLO
+        id S230166AbiCIQHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:07:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235799AbiCIQJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8882C142359;
-        Wed,  9 Mar 2022 08:06:43 -0800 (PST)
+        with ESMTP id S234449AbiCIQG2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:06:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B9BB14075D;
+        Wed,  9 Mar 2022 08:03:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C328961798;
-        Wed,  9 Mar 2022 16:06:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF27C340E8;
-        Wed,  9 Mar 2022 16:06:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E314B82220;
+        Wed,  9 Mar 2022 16:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7190EC36AE3;
+        Wed,  9 Mar 2022 16:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646842002;
-        bh=BjhNuDswWhutw0Va1gA9M+7Vl6Iaj6ZmKGq889IWLoA=;
+        s=korg; t=1646841784;
+        bh=hgyMPXKpyrjFSr7gjjGkb1FgtZRbJo9afPZLy+xNAuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DkNy1eKFDnUpWRAkpwFrUC5IqAIa7pryxQTwAtOU5Bpl6v1l6JfNWIayTQ0LQmjsf
-         invSdo/G1bVOtIwTh0rkEomejEvi+0IIiiNc0AXjAgDteAfyOL1cbsZNC5C3wP0zPK
-         s/uQB41ecVKF9LU2QCV0U7kuzPmd0sPDryGIq0Y0=
+        b=T+ssiMz13GsD6fz+tWaL+V15VK6T7ny0mzygXl/osUpOBoMlRXSUTinwq5bOJSbEN
+         NL8XEnlUYOcq1i4p9VkGGR5LtnK1QpOnGjqiTLWpkUripRWk8Nx7HahTs4c55r2Vch
+         VTtLAs9DEckZzktUHI7NLjvvxCLMCCwrxDjBmKZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Hector Martin <marcan@marcan.st>
-Subject: [PATCH 5.10 15/43] arm64: cputype: Add CPU implementor & types for the Apple M1 cores
-Date:   Wed,  9 Mar 2022 16:59:48 +0100
-Message-Id: <20220309155859.685364689@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 4.19 12/18] arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
+Date:   Wed,  9 Mar 2022 16:59:49 +0100
+Message-Id: <20220309155856.520597138@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-References: <20220309155859.239810747@linuxfoundation.org>
+In-Reply-To: <20220309155856.155540075@linuxfoundation.org>
+References: <20220309155856.155540075@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 11ecdad722daafcac09c4859dddf31b3d46449bc upstream.
+commit 6b7fe77c334ae59fed9500140e08f4f896b36871 upstream.
 
-The implementor will be used to condition the FIQ support quirk.
+SMCCC callers are currently amassing a collection of enums for the SMCCC
+conduit, and are having to dig into the PSCI driver's internals in order
+to figure out what to do.
 
-The specific CPU types are not used at the moment, but let's add them
-for documentation purposes.
+Let's clean this up, with common SMCCC_CONDUIT_* definitions, and an
+arm_smccc_1_1_get_conduit() helper that abstracts the PSCI driver's
+internal state.
 
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Hector Martin <marcan@marcan.st>
+We can kill off the PSCI_CONDUIT_* definitions once we've migrated users
+over to the new interface.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cputype.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/firmware/psci.c   |   15 +++++++++++++++
+ include/linux/arm-smccc.h |   16 ++++++++++++++++
+ 2 files changed, 31 insertions(+)
 
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -59,6 +59,7 @@
- #define ARM_CPU_IMP_NVIDIA		0x4E
- #define ARM_CPU_IMP_FUJITSU		0x46
- #define ARM_CPU_IMP_HISI		0x48
-+#define ARM_CPU_IMP_APPLE		0x61
+--- a/drivers/firmware/psci.c
++++ b/drivers/firmware/psci.c
+@@ -64,6 +64,21 @@ struct psci_operations psci_ops = {
+ 	.smccc_version = SMCCC_VERSION_1_0,
+ };
  
- #define ARM_CPU_PART_AEM_V8		0xD0F
- #define ARM_CPU_PART_FOUNDATION		0xD00
-@@ -99,6 +100,9 @@
- 
- #define HISI_CPU_PART_TSV110		0xD01
- 
-+#define APPLE_CPU_PART_M1_ICESTORM	0x022
-+#define APPLE_CPU_PART_M1_FIRESTORM	0x023
++enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void)
++{
++	if (psci_ops.smccc_version < SMCCC_VERSION_1_1)
++		return SMCCC_CONDUIT_NONE;
 +
- #define MIDR_CORTEX_A53 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A53)
- #define MIDR_CORTEX_A57 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A57)
- #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
-@@ -127,6 +131,8 @@
- #define MIDR_NVIDIA_CARMEL MIDR_CPU_MODEL(ARM_CPU_IMP_NVIDIA, NVIDIA_CPU_PART_CARMEL)
- #define MIDR_FUJITSU_A64FX MIDR_CPU_MODEL(ARM_CPU_IMP_FUJITSU, FUJITSU_CPU_PART_A64FX)
- #define MIDR_HISI_TSV110 MIDR_CPU_MODEL(ARM_CPU_IMP_HISI, HISI_CPU_PART_TSV110)
-+#define MIDR_APPLE_M1_ICESTORM MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_ICESTORM)
-+#define MIDR_APPLE_M1_FIRESTORM MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_FIRESTORM)
++	switch (psci_ops.conduit) {
++	case PSCI_CONDUIT_SMC:
++		return SMCCC_CONDUIT_SMC;
++	case PSCI_CONDUIT_HVC:
++		return SMCCC_CONDUIT_HVC;
++	default:
++		return SMCCC_CONDUIT_NONE;
++	}
++}
++
+ typedef unsigned long (psci_fn)(unsigned long, unsigned long,
+ 				unsigned long, unsigned long);
+ static psci_fn *invoke_psci_fn;
+--- a/include/linux/arm-smccc.h
++++ b/include/linux/arm-smccc.h
+@@ -89,6 +89,22 @@
  
- /* Fujitsu Erratum 010001 affects A64FX 1.0 and 1.1, (v0r0 and v1r0) */
- #define MIDR_FUJITSU_ERRATUM_010001		MIDR_FUJITSU_A64FX
+ #include <linux/linkage.h>
+ #include <linux/types.h>
++
++enum arm_smccc_conduit {
++	SMCCC_CONDUIT_NONE,
++	SMCCC_CONDUIT_SMC,
++	SMCCC_CONDUIT_HVC,
++};
++
++/**
++ * arm_smccc_1_1_get_conduit()
++ *
++ * Returns the conduit to be used for SMCCCv1.1 or later.
++ *
++ * When SMCCCv1.1 is not present, returns SMCCC_CONDUIT_NONE.
++ */
++enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void);
++
+ /**
+  * struct arm_smccc_res - Result from SMC/HVC call
+  * @a0-a3 result values from registers 0 to 3
 
 
