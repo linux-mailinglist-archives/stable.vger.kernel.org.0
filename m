@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D20DD4D37C0
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C084D35FE
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 18:42:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236440AbiCIQf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:35:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42294 "EHLO
+        id S236638AbiCIQgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:36:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236556AbiCIQaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:30:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4E3A0BC3;
-        Wed,  9 Mar 2022 08:23:11 -0800 (PST)
+        with ESMTP id S236584AbiCIQaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:30:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01D5B0A42;
+        Wed,  9 Mar 2022 08:23:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A9CA6195D;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 485F1B81EE7;
+        Wed,  9 Mar 2022 16:23:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 876D1C36AE3;
         Wed,  9 Mar 2022 16:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E9CC3410B;
-        Wed,  9 Mar 2022 16:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646842990;
-        bh=nCbAcrQeQOGTnXsdHXh8Jn0Q4uLhukoXOeCBftdREl8=;
+        s=k20201202; t=1646842995;
+        bh=74fUNjecR8fdqL28kcqYW3B5dHuRd/wXLz1YjF6Q8wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DOCB0aR7LeeaLxmzgGjujzhNclSiOqZmWeG7rd2OUN8o1Oc/zOpgCpXxZwCcsRiCd
-         ULVAmV3kWVFj3mVwKCr9aFK9DBiUrCh3+vFrysHf+FdwQcwe7cKsg7hdER/yLkBpC8
-         qldbCfCn0WFohj4iU2flE8k08F2HRLmzOHXn5u9coR+7uZKZeO4YUnc+PQaIkhYXdO
-         g5UDDhhtCuw8dlS6dtgxoUK4fmTQI7FpVd9C9NeSQ8dGRAFQ5ajREddqQSKMs7mt/f
-         pZ3t488+FETxx8T+VYL5linwD5YX0LuLdQXaTJ2cM4vLffSIuVK3syUwkPfKY88rZ6
-         pvDdIyEAcETCQ==
+        b=QSgeuGQjd3yJSpiHmgyoApfBNOzIxOm9i6kBXgWJvxDhw7EF7CTicGTzYuKFaTePQ
+         5DKqV4rza+yPFgMdPibnQ1oqebJd4gczxOw9w9q2LXDCHhWZKy9abpDO0rJk2kp3Ke
+         +6pNJS9Jb9oiqVq5Bk1ugJPSlIrPItxsejCso/IRpslUdfQq1vFKA1tSyE6DsIeAKs
+         CzvWe+DXbEs4L4a55z4FMHyVNrxYmv2J30WkBIwJcfWOrcOcXG3ZFrLf7MPTeQpfkJ
+         vSeDqJ80MyNLCGMEPjRLKdhm/pbq0ecSc4RYq1M7MGt8o8FYShPXkI2tWa8RURwG30
+         VQZwxHe5ic1rA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Golan Ben Ami <golan.ben.ami@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, kuba@kernel.org,
-        mordechay.goodstein@intel.com, miriam.rachel.korenblit@intel.com,
-        ilan.peer@intel.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 14/20] iwlwifi: don't advertise TWT support
-Date:   Wed,  9 Mar 2022 11:21:52 -0500
-Message-Id: <20220309162158.136467-14-sashal@kernel.org>
+Cc:     Manasi Navare <manasi.d.navare@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, dri-devel@lists.freedesktop.org,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch
+Subject: [PATCH AUTOSEL 5.10 15/20] drm/vrr: Set VRR capable prop only if it is attached to connector
+Date:   Wed,  9 Mar 2022 11:21:53 -0500
+Message-Id: <20220309162158.136467-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220309162158.136467-1-sashal@kernel.org>
 References: <20220309162158.136467-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,53 +61,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Golan Ben Ami <golan.ben.ami@intel.com>
+From: Manasi Navare <manasi.d.navare@intel.com>
 
-[ Upstream commit 1db5fcbba2631277b78d7f8aff99c9607d29f6d8 ]
+[ Upstream commit 62929726ef0ec72cbbe9440c5d125d4278b99894 ]
 
-Some APs misbehave when TWT is used and cause our firmware to crash.
-We don't know a reasonable way to detect and work around this problem
-in the FW yet.  To prevent these crashes, disable TWT in the driver by
-stopping to advertise TWT support.
+VRR capable property is not attached by default to the connector
+It is attached only if VRR is supported.
+So if the driver tries to call drm core set prop function without
+it being attached that causes NULL dereference.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215523
-Signed-off-by: Golan Ben Ami <golan.ben.ami@intel.com>
-[reworded the commit message]
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/20220301072926.153969-1-luca@coelho.fi
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220225013055.9282-1-manasi.d.navare@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c | 3 +--
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c  | 1 -
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/drm_connector.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
-index cbde21e772b1..b862cfbcd6e7 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
-@@ -587,8 +587,7 @@ static struct ieee80211_sband_iftype_data iwl_he_capa[] = {
- 			.has_he = true,
- 			.he_cap_elem = {
- 				.mac_cap_info[0] =
--					IEEE80211_HE_MAC_CAP0_HTC_HE |
--					IEEE80211_HE_MAC_CAP0_TWT_REQ,
-+					IEEE80211_HE_MAC_CAP0_HTC_HE,
- 				.mac_cap_info[1] =
- 					IEEE80211_HE_MAC_CAP1_TF_MAC_PAD_DUR_16US |
- 					IEEE80211_HE_MAC_CAP1_MULTI_TID_AGG_RX_QOS_8,
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 922a7ea0cd24..d2c6fdb70273 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -350,7 +350,6 @@ static const u8 he_if_types_ext_capa_sta[] = {
- 	 [0] = WLAN_EXT_CAPA1_EXT_CHANNEL_SWITCHING,
- 	 [2] = WLAN_EXT_CAPA3_MULTI_BSSID_SUPPORT,
- 	 [7] = WLAN_EXT_CAPA8_OPMODE_NOTIF,
--	 [9] = WLAN_EXT_CAPA10_TWT_REQUESTER_SUPPORT,
- };
- 
- static const struct wiphy_iftype_ext_capab he_iftypes_ext_capa[] = {
+diff --git a/drivers/gpu/drm/drm_connector.c b/drivers/gpu/drm/drm_connector.c
+index 717c4e7271b0..5163433ac561 100644
+--- a/drivers/gpu/drm/drm_connector.c
++++ b/drivers/gpu/drm/drm_connector.c
+@@ -2155,6 +2155,9 @@ EXPORT_SYMBOL(drm_connector_attach_max_bpc_property);
+ void drm_connector_set_vrr_capable_property(
+ 		struct drm_connector *connector, bool capable)
+ {
++	if (!connector->vrr_capable_property)
++		return;
++
+ 	drm_object_property_set_value(&connector->base,
+ 				      connector->vrr_capable_property,
+ 				      capable);
 -- 
 2.34.1
 
