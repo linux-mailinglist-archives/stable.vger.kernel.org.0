@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E6064D33C1
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:23:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D595A4D33B6
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234388AbiCIQKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:10:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46548 "EHLO
+        id S234825AbiCIQLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234611AbiCIQHv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:07:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2420C143467;
-        Wed,  9 Mar 2022 08:03:55 -0800 (PST)
+        with ESMTP id S236061AbiCIQJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:09:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0780B1470C4;
+        Wed,  9 Mar 2022 08:07:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E04D616EB;
-        Wed,  9 Mar 2022 16:03:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AD70C340EF;
-        Wed,  9 Mar 2022 16:03:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00480B82224;
+        Wed,  9 Mar 2022 16:07:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49AC6C36AE2;
+        Wed,  9 Mar 2022 16:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646841832;
-        bh=T+N54UkHcq4XQeMGrUYj4BrPRFn4vEMXHGGu2ZpC7iw=;
+        s=korg; t=1646842027;
+        bh=QdtSi/Doybz5un3fgzCVDkxmY7jN+aTKxr9KnUbl8UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/Cv9LANE2EifIFrMYPCxJjey9sBNsR6dUKDVHSqCC3++9rU/Rd8DqTGFYUw4e82J
-         SgrMqjanJAcF4PlW7Qh13oaxOBn7oJOesUmXm0DOpwqsI4dHaXKbwlKUYX503i7+4b
-         R3FjE1BOdKrJIA8uGrGPV4DA/GnKAjEeJ1Cp3utk=
+        b=cDlfLmGtL0/Af7Ve/qaPJ+WOkF4zkTtFHcJrZLL2fVdD3QeJp5pi9crXAIKlg4vLL
+         iwlz1AFTb+wdzKh4VYKYYz3t3cZIei+kbu7u4OSp5Cq6N2a19OUjwOcSeO2JKr1ksd
+         A8vud6fmXp98Cps2ld7jGuujtS2R5hsIvisklpTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alyssa Milburn <alyssa.milburn@linux.intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 10/18] x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
-Date:   Wed,  9 Mar 2022 16:59:59 +0100
-Message-Id: <20220309155856.858169146@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 16/43] arm64: Add HWCAP for self-synchronising virtual counter
+Date:   Wed,  9 Mar 2022 17:00:00 +0100
+Message-Id: <20220309155900.208244845@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309155856.552503355@linuxfoundation.org>
-References: <20220309155856.552503355@linuxfoundation.org>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+References: <20220309155859.734715884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +53,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 0de05d056afdb00eca8c7bbb0c79a3438daf700c upstream.
+commit fee29f008aa3f2aff01117f28b57b1145d92cb9b upstream.
 
-The commit
+Since userspace can make use of the CNTVSS_EL0 instruction, expose
+it via a HWCAP.
 
-   44a3918c8245 ("x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting")
-
-added a warning for the "eIBRS + unprivileged eBPF" combination, which
-has been shown to be vulnerable against Spectre v2 BHB-based attacks.
-
-However, there's no warning about the "eIBRS + LFENCE retpoline +
-unprivileged eBPF" combo. The LFENCE adds more protection by shortening
-the speculation window after a mispredicted branch. That makes an attack
-significantly more difficult, even with unprivileged eBPF. So at least
-for now the logic doesn't warn about that combination.
-
-But if you then add SMT into the mix, the SMT attack angle weakens the
-effectiveness of the LFENCE considerably.
-
-So extend the "eIBRS + unprivileged eBPF" warning to also include the
-"eIBRS + LFENCE + unprivileged eBPF + SMT" case.
-
-  [ bp: Massage commit message. ]
-
-Suggested-by: Alyssa Milburn <alyssa.milburn@linux.intel.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Suggested-by: Will Deacon <will@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211017124225.3018098-18-maz@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+ Documentation/arm64/cpu-feature-registers.rst |   12 ++++++++++--
+ Documentation/arm64/elf_hwcaps.rst            |    4 ++++
+ arch/arm64/include/asm/hwcap.h                |    1 +
+ arch/arm64/include/uapi/asm/hwcap.h           |    1 +
+ arch/arm64/kernel/cpufeature.c                |    3 ++-
+ arch/arm64/kernel/cpuinfo.c                   |    1 +
+ 6 files changed, 19 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -610,12 +610,27 @@ static inline const char *spectre_v2_mod
+--- a/Documentation/arm64/cpu-feature-registers.rst
++++ b/Documentation/arm64/cpu-feature-registers.rst
+@@ -235,7 +235,15 @@ infrastructure:
+      | DPB                          | [3-0]   |    y    |
+      +------------------------------+---------+---------+
  
- #define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
- #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
-+#define SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS+LFENCE mitigation and SMT, data leaks possible via Spectre v2 BHB attacks!\n"
- 
- #ifdef CONFIG_BPF_SYSCALL
- void unpriv_ebpf_notify(int new_state)
- {
--	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && !new_state)
-+	if (new_state)
-+		return;
+-  6) ID_AA64MMFR2_EL1 - Memory model feature register 2
++  6) ID_AA64MMFR0_EL1 - Memory model feature register 0
 +
-+	/* Unprivileged eBPF is enabled */
++     +------------------------------+---------+---------+
++     | Name                         |  bits   | visible |
++     +------------------------------+---------+---------+
++     | ECV                          | [63-60] |    y    |
++     +------------------------------+---------+---------+
 +
-+	switch (spectre_v2_enabled) {
-+	case SPECTRE_V2_EIBRS:
- 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
-+		break;
-+	case SPECTRE_V2_EIBRS_LFENCE:
-+		if (sched_smt_active())
-+			pr_err(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
-+		break;
-+	default:
-+		break;
-+	}
- }
- #endif
++  7) ID_AA64MMFR2_EL1 - Memory model feature register 2
  
-@@ -1075,6 +1090,10 @@ void cpu_bugs_smt_update(void)
- {
- 	mutex_lock(&spec_ctrl_mutex);
+      +------------------------------+---------+---------+
+      | Name                         |  bits   | visible |
+@@ -243,7 +251,7 @@ infrastructure:
+      | AT                           | [35-32] |    y    |
+      +------------------------------+---------+---------+
  
-+	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
-+	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
-+		pr_warn_once(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
+-  7) ID_AA64ZFR0_EL1 - SVE feature ID register 0
++  8) ID_AA64ZFR0_EL1 - SVE feature ID register 0
+ 
+      +------------------------------+---------+---------+
+      | Name                         |  bits   | visible |
+--- a/Documentation/arm64/elf_hwcaps.rst
++++ b/Documentation/arm64/elf_hwcaps.rst
+@@ -247,6 +247,10 @@ HWCAP2_MTE
+     Functionality implied by ID_AA64PFR1_EL1.MTE == 0b0010, as described
+     by Documentation/arm64/memory-tagging-extension.rst.
+ 
++HWCAP2_ECV
 +
- 	switch (spectre_v2_user_stibp) {
- 	case SPECTRE_V2_USER_NONE:
- 		break;
-@@ -1711,7 +1730,11 @@ static ssize_t spectre_v2_show_state(cha
- 		return sprintf(buf, "Vulnerable: LFENCE\n");
- 
- 	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
--		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
-+		return sprintf(buf, "Vulnerable: eIBRS with unprivileged eBPF\n");
++    Functionality implied by ID_AA64MMFR0_EL1.ECV == 0b0001.
 +
-+	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
-+	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
-+		return sprintf(buf, "Vulnerable: eIBRS+LFENCE with unprivileged eBPF and SMT\n");
+ 4. Unused AT_HWCAP bits
+ -----------------------
  
- 	return sprintf(buf, "%s%s%s%s%s%s\n",
- 		       spectre_v2_strings[spectre_v2_enabled],
+--- a/arch/arm64/include/asm/hwcap.h
++++ b/arch/arm64/include/asm/hwcap.h
+@@ -105,6 +105,7 @@
+ #define KERNEL_HWCAP_RNG		__khwcap2_feature(RNG)
+ #define KERNEL_HWCAP_BTI		__khwcap2_feature(BTI)
+ #define KERNEL_HWCAP_MTE		__khwcap2_feature(MTE)
++#define KERNEL_HWCAP_ECV		__khwcap2_feature(ECV)
+ 
+ /*
+  * This yields a mask that user programs can use to figure out what
+--- a/arch/arm64/include/uapi/asm/hwcap.h
++++ b/arch/arm64/include/uapi/asm/hwcap.h
+@@ -75,5 +75,6 @@
+ #define HWCAP2_RNG		(1 << 16)
+ #define HWCAP2_BTI		(1 << 17)
+ #define HWCAP2_MTE		(1 << 18)
++#define HWCAP2_ECV		(1 << 19)
+ 
+ #endif /* _UAPI__ASM_HWCAP_H */
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -279,7 +279,7 @@ static const struct arm64_ftr_bits ftr_i
+ };
+ 
+ static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_ECV_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_ECV_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_FGT_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_EXS_SHIFT, 4, 0),
+ 	/*
+@@ -2455,6 +2455,7 @@ static const struct arm64_cpu_capabiliti
+ #ifdef CONFIG_ARM64_MTE
+ 	HWCAP_CAP(SYS_ID_AA64PFR1_EL1, ID_AA64PFR1_MTE_SHIFT, FTR_UNSIGNED, ID_AA64PFR1_MTE, CAP_HWCAP, KERNEL_HWCAP_MTE),
+ #endif /* CONFIG_ARM64_MTE */
++	HWCAP_CAP(SYS_ID_AA64MMFR0_EL1, ID_AA64MMFR0_ECV_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, KERNEL_HWCAP_ECV),
+ 	{},
+ };
+ 
+--- a/arch/arm64/kernel/cpuinfo.c
++++ b/arch/arm64/kernel/cpuinfo.c
+@@ -94,6 +94,7 @@ static const char *const hwcap_str[] = {
+ 	[KERNEL_HWCAP_RNG]		= "rng",
+ 	[KERNEL_HWCAP_BTI]		= "bti",
+ 	[KERNEL_HWCAP_MTE]		= "mte",
++	[KERNEL_HWCAP_ECV]		= "ecv",
+ };
+ 
+ #ifdef CONFIG_COMPAT
 
 
