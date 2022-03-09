@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 270B74D3461
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:25:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC5C4D3459
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234923AbiCIQY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:24:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37368 "EHLO
+        id S235757AbiCIQYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:24:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238164AbiCIQVa (ORCPT
+        with ESMTP id S238172AbiCIQVa (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:21:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4629A149979;
-        Wed,  9 Mar 2022 08:19:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD67D14A050;
+        Wed,  9 Mar 2022 08:20:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1B9EB82221;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51F8BB81EE7;
+        Wed,  9 Mar 2022 16:19:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72883C340EC;
         Wed,  9 Mar 2022 16:19:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1831C340E8;
-        Wed,  9 Mar 2022 16:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646842794;
-        bh=Y/AzchoFpdLn6g8WkJT0uKS4BVm0X//JoewFAWcfMvk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XSV6AM7vzZFLqYyU1n7HWW6ahG9lO2FniA14hp8whdwYWh4c3K2cAKv2FTKJJBzCj
-         B9nWQvn2CiS/hyXrv4nsWBAaWnUY44Kqkc8yaEsgF04VNGzByzm07boG4sh/QZt6mv
-         rzjlrLSqq01qnziQwHsmt2FueQvcdiwT5xiiK0iWEPvf7b2YLqQ3tIfI5HFzuCXEiC
-         Xm6g1QL2KBh/gHCccjSKtHp1wSI9tyuQc6kbr7qCYUs2ZlvZvxPmF55xIr1wtnNqlw
-         Z44tCVTqZfD4VsASYpPbUIXXo5fiqrsGXVCjsdc9K1xMv4zpXF2P2oTqi6VdsmCw5V
-         u+I/f0a+ZPieQ==
+        s=k20201202; t=1646842798;
+        bh=QeYLRFBoECPYmzzp8Vj+LhkrtVbf37tP3iqaNTwtQx0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=b19YGnBjwEmYXbAJg0Ttx4lS0O6kndMfNSviHw2e7nk9N2X0rJKYNa0M+3uZrQyGc
+         H25hZ41rgsVnOIhJvLAWSxeq4RpLnyKTsNf92z+jYilUIj3VXC87zScgO9mgxcHGAn
+         v0WLueYrbN2ZiUnzNabYk7bCvuteqD3g25UuNttcsXe0PmTvgA0VgyM4GSn26jmjSA
+         YHc7faSjztjrKrOwXMtjQpeld42QCXSw+FOcc86M6bcwuPa9ozszr8UR8h9CGHi/fx
+         z2ofO1CEIad6S+/4diUYIZofL7WRnNqO3TBwh889Kyw/E/sWVokupZaN1lS7WV+Sro
+         LJpEjom1vLr4g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        Quentin Schulz <foss+kernel@0leil.net>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        jakob.unterwurzacher@theobroma-systems.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 01/24] arm64: dts: rockchip: fix rk3399-puma-haikou USB OTG mode
-Date:   Wed,  9 Mar 2022 11:19:20 -0500
-Message-Id: <20220309161946.136122-1-sashal@kernel.org>
+Cc:     Yan Yan <evitayan@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/24] xfrm: Check if_id in xfrm_migrate
+Date:   Wed,  9 Mar 2022 11:19:21 -0500
+Message-Id: <20220309161946.136122-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220309161946.136122-1-sashal@kernel.org>
+References: <20220309161946.136122-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,71 +57,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+From: Yan Yan <evitayan@google.com>
 
-[ Upstream commit ed2c66a95c0c5669880aa93d0d34c6e9694b4cbd ]
+[ Upstream commit c1aca3080e382886e2e58e809787441984a2f89b ]
 
-The micro USB3.0 port available on the Haikou evaluation kit for Puma
-RK3399-Q7 SoM supports dual-role model (aka drd or OTG) but its support
-was broken until now because of missing logic around the ID pin.
+This patch enables distinguishing SAs and SPs based on if_id during
+the xfrm_migrate flow. This ensures support for xfrm interfaces
+throughout the SA/SP lifecycle.
 
-This adds proper support for USB OTG on Puma Haikou by "connecting" the
-GPIO used for USB ID to the USB3 controller device.
+When there are multiple existing SPs with the same direction,
+the same xfrm_selector and different endpoint addresses,
+xfrm_migrate might fail with ENODATA.
 
-Cc: Quentin Schulz <foss+kernel@0leil.net>
-Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20220120125156.16217-1-quentin.schulz@theobroma-systems.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Specifically, the code path for performing xfrm_migrate is:
+  Stage 1: find policy to migrate with
+    xfrm_migrate_policy_find(sel, dir, type, net)
+  Stage 2: find and update state(s) with
+    xfrm_migrate_state_find(mp, net)
+  Stage 3: update endpoint address(es) of template(s) with
+    xfrm_policy_migrate(pol, m, num_migrate)
+
+Currently "Stage 1" always returns the first xfrm_policy that
+matches, and "Stage 3" looks for the xfrm_tmpl that matches the
+old endpoint address. Thus if there are multiple xfrm_policy
+with same selector, direction, type and net, "Stage 1" might
+rertun a wrong xfrm_policy and "Stage 3" will fail with ENODATA
+because it cannot find a xfrm_tmpl with the matching endpoint
+address.
+
+The fix is to allow userspace to pass an if_id and add if_id
+to the matching rule in Stage 1 and Stage 2 since if_id is a
+unique ID for xfrm_policy and xfrm_state. For compatibility,
+if_id will only be checked if the attribute is set.
+
+Tested with additions to Android's kernel unit test suite:
+https://android-review.googlesource.com/c/kernel/tests/+/1668886
+
+Signed-off-by: Yan Yan <evitayan@google.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../arm64/boot/dts/rockchip/rk3399-puma-haikou.dts |  1 +
- arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi      | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ include/net/xfrm.h     |  5 +++--
+ net/key/af_key.c       |  2 +-
+ net/xfrm/xfrm_policy.c | 14 ++++++++------
+ net/xfrm/xfrm_state.c  |  7 ++++++-
+ net/xfrm/xfrm_user.c   |  6 +++++-
+ 5 files changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-index 292bb7e80cf3..3ae5d727e367 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-@@ -232,6 +232,7 @@ &usbdrd3_0 {
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 301a164f17e9..358dfe6fefef 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1679,14 +1679,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	       const struct xfrm_migrate *m, int num_bundles,
+ 	       const struct xfrm_kmaddress *k,
+ 	       const struct xfrm_encap_tmpl *encap);
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id);
+ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ 				      struct xfrm_migrate *m,
+ 				      struct xfrm_encap_tmpl *encap);
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_bundles,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap);
++		 struct xfrm_encap_tmpl *encap, u32 if_id);
+ #endif
  
- &usbdrd_dwc3_0 {
- 	dr_mode = "otg";
-+	extcon = <&extcon_usb3>;
- 	status = "okay";
- };
+ int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index de24a7d474df..9bf52a09b5ff 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2623,7 +2623,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
+ 	}
  
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-index fb67db4619ea..002ece51c3ba 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-@@ -25,6 +25,13 @@ module_led: led-0 {
- 		};
- 	};
+ 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
+-			    kma ? &k : NULL, net, NULL);
++			    kma ? &k : NULL, net, NULL, 0);
  
-+	extcon_usb3: extcon-usb3 {
-+		compatible = "linux,extcon-usb-gpio";
-+		id-gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_HIGH>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&usb3_id>;
-+	};
+  out:
+ 	return err;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 37b149f63262..02099d113a0a 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -4259,7 +4259,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
+ }
+ 
+ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
+-						    u8 dir, u8 type, struct net *net)
++						    u8 dir, u8 type, struct net *net, u32 if_id)
+ {
+ 	struct xfrm_policy *pol, *ret = NULL;
+ 	struct hlist_head *chain;
+@@ -4268,7 +4268,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+ 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
+ 	hlist_for_each_entry(pol, chain, bydst) {
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			priority = ret->priority;
+@@ -4280,7 +4281,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 		if ((pol->priority >= priority) && ret)
+ 			break;
+ 
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			break;
+@@ -4396,7 +4398,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_migrate,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap)
++		 struct xfrm_encap_tmpl *encap, u32 if_id)
+ {
+ 	int i, err, nx_cur = 0, nx_new = 0;
+ 	struct xfrm_policy *pol = NULL;
+@@ -4415,14 +4417,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	}
+ 
+ 	/* Stage 1 - find policy */
+-	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
++	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
+ 		err = -ENOENT;
+ 		goto out;
+ 	}
+ 
+ 	/* Stage 2 - find and update state(s) */
+ 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
+-		if ((x = xfrm_migrate_state_find(mp, net))) {
++		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
+ 			x_cur[nx_cur] = x;
+ 			nx_cur++;
+ 			xc = xfrm_state_migrate(x, mp, encap);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 100b4b3723e7..291236d7676f 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1605,7 +1605,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 	return NULL;
+ }
+ 
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id)
+ {
+ 	unsigned int h;
+ 	struct xfrm_state *x = NULL;
+@@ -1621,6 +1622,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 				continue;
+ 			if (m->reqid && x->props.reqid != m->reqid)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+@@ -1636,6 +1639,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 			if (x->props.mode != m->mode ||
+ 			    x->id.proto != m->proto)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index b10f88822c0d..971ae34b9356 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -2607,6 +2607,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	int n = 0;
+ 	struct net *net = sock_net(skb->sk);
+ 	struct xfrm_encap_tmpl  *encap = NULL;
++	u32 if_id = 0;
+ 
+ 	if (attrs[XFRMA_MIGRATE] == NULL)
+ 		return -EINVAL;
+@@ -2631,7 +2632,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			return -ENOMEM;
+ 	}
+ 
+-	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
++	if (attrs[XFRMA_IF_ID])
++		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
 +
- 	clkin_gmac: external-gmac-clock {
- 		compatible = "fixed-clock";
- 		clock-frequency = <125000000>;
-@@ -422,6 +429,13 @@ vcc5v0_host_en: vcc5v0-host-en {
- 			  <4 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
- 		};
- 	};
-+
-+	usb3 {
-+		usb3_id: usb3-id {
-+			rockchip,pins =
-+			  <1 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
-+		};
-+	};
- };
++	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
  
- &sdhci {
+ 	kfree(encap);
+ 
 -- 
 2.34.1
 
