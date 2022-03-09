@@ -2,105 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A944D3301
-	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:17:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE5264D346D
+	for <lists+stable@lfdr.de>; Wed,  9 Mar 2022 17:25:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234800AbiCIQPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 11:15:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
+        id S235387AbiCIQZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 11:25:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234812AbiCIQM0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:12:26 -0500
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95FE14F2A0
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 08:09:47 -0800 (PST)
-Received: by mail-pg1-x52c.google.com with SMTP id q19so2339994pgm.6
-        for <stable@vger.kernel.org>; Wed, 09 Mar 2022 08:09:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=CSS8Mh6DSdACbV/mllxQeiyeEUJR18E1XDOW5kord1g=;
-        b=SsdQ1VPdsVMqUwKlkF0nZ813zePcgZKZcjQ5GW+K4fQclbxPxOO+aX30vSUZwCrKqo
-         AfUlvHFAKTCac5a8Sof1SiWd9zlUyrhum+ezJbDx/JRbloMRby6lZUfOQ2v7U8mHqc3m
-         E1c7j5XI3mj3iTprXWpTMkuCddwrYsnRW5E/JCRsyWoL6DSLmh925Pi3Uav6mNmTy5wu
-         LhNRvkFZHwRFebsfdjDKj7F9uoQ/nTDVYrX9WohGhXzlzutWcBzYPbWWJYhCGXnTdH+r
-         TFw3FYStv4lo6VHPJZtHQSHNix+Yr8t4Cmm51/o7ftwlUSMkRIDS1kkPS7LjSO6unZpO
-         erfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=CSS8Mh6DSdACbV/mllxQeiyeEUJR18E1XDOW5kord1g=;
-        b=ivSRxgzpKHzexW6JfyOe+KdlFhfcOJ9JT6fZg9N9/ec2cvZJ+nrRwd9r4LjiVDcTn4
-         F6GRFGhYNz+e4iq7Hp3shV+ChcvEmOg4SjRT3SXiPviFgDPmUjBCyha6yQ154Ax31YEp
-         043Q8htIbj1H7ekwnPX2K0qTFVlNNpknTFK8FOlUCEdXIIN+UFol6v8VTMK7xdTRLF3z
-         Up3T0jKKqz+Bxo/bNqdH3xUOiXe9CVWWsoVsafI3MCbx80cwArqXnaRoA0GOGGtMTj5J
-         QoMcTg1nhqMq1z+tBANuo30Rfu4obrsSd/7QC91dt0cmpX3L4FbMAVHqDqnecHk4W1ye
-         JXSg==
-X-Gm-Message-State: AOAM530r57YDpD65cLF043Jklqx8upCaAoGqrqMV+nPyOSAn2t2cdJvk
-        KqcZdkM089uQcKmtXJKLf1TqpWk3qIjWkZMDZbg=
-X-Google-Smtp-Source: ABdhPJyu8YkHtott9J8DeQDOGQFJOj/I572NPPsA2fEr5tNvZ+Fi4dEUeIMK3q6ZZUDET49vUvP1hEX8kuuy8DOjzo0=
-X-Received: by 2002:a05:6a00:1806:b0:4f6:f3e8:b3a0 with SMTP id
- y6-20020a056a00180600b004f6f3e8b3a0mr427902pfa.43.1646842187287; Wed, 09 Mar
- 2022 08:09:47 -0800 (PST)
+        with ESMTP id S237900AbiCIQVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 11:21:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6B81451E9;
+        Wed,  9 Mar 2022 08:17:23 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 389296194C;
+        Wed,  9 Mar 2022 16:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ACAEC340E8;
+        Wed,  9 Mar 2022 16:17:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646842641;
+        bh=Uy23ZolzuI1RPojDcKbOT+RVaAD15FgdKsEPlpak3Ic=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eu0cq5nKT9mDIwdLPyvYdQTNAswY1B78OWx2tcL6BIfIwnHkxuSvqApH3+DxXfxJ0
+         TZMrrNRknAoVmgLlpOfD9jnFaa77aQonVMrFsRZno/6vjlyimcwiJKnC2ljQ9fcRr2
+         u0RaBwM4N8JxJKo5RKIlG/lKrcE06LIKurW2lnmVZPhimcl6z8QAAEJFtnrIZMmLrs
+         IEpI9pUDr0YTEgiRksdRgRAroOx4BdBSwcC9u777Cxtk/Ib8YHCs/eENePFztwzbEg
+         GuHclo8r7fzDf8D+4mvKHqJYIlz2GgL80h8hud/Qtjr0IcpDH0Drad27SmhUE5OBkt
+         YHjLzCzzBiGFA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Frank Wunderlich <frank-w@public-files.de>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pgwipeout@gmail.com, cl@rock-chips.com,
+        michael.riesch@wolfvision.net, frattaroli.nicolas@gmail.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 01/27] arm64: dts: rockchip: fix dma-controller node names on rk356x
+Date:   Wed,  9 Mar 2022 11:16:38 -0500
+Message-Id: <20220309161711.135679-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:6813:0:0:0:0 with HTTP; Wed, 9 Mar 2022 08:09:46
- -0800 (PST)
-Reply-To: stephenbord61@yahoo.com
-From:   Stephen Bordeaux <jessicawalkert77@gmail.com>
-Date:   Wed, 9 Mar 2022 16:09:46 +0000
-Message-ID: <CAJeHwU+136nLH-+AxSZEy9iSjU2A5-ddO749gHvVy=wJhPVRoQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:52c listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4303]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [jessicawalkert77[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [stephenbord61[at]yahoo.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [jessicawalkert77[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dobr=C3=BD den  Jsem Stephen Bordeaux, pr=C3=A1vn=C3=AD z=C3=A1stupce z adv=
-ok=C3=A1tn=C3=AD
-kancel=C3=A1=C5=99e Bordeaux. Kontaktoval jsem v=C3=A1s ohledn=C4=9B poz=C5=
-=AFstalosti fondu
-zesnul=C3=A9ho Dr. Edwin ve v=C3=BD=C5=A1i 8,5 milionu dolar=C5=AF, kter=C3=
-=A9 maj=C3=AD b=C3=BDt
-repatriov=C3=A1ny na v=C3=A1=C5=A1 =C3=BA=C4=8Det. Nav=C3=ADc v t=C3=A9to t=
-ransakci chci, abyste
-odpov=C4=9Bd=C4=9Bli d=C5=AFv=C4=9Brn=C4=9B.  Stephen Bordeaux
+From: Frank Wunderlich <frank-w@public-files.de>
+
+[ Upstream commit 2ddd96aadbd0412040ef49eda94549c32de6c92c ]
+
+DMA-Cotrollers defined in rk356x.dtsi do not match the pattern in bindings.
+
+arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dt.yaml:
+  dmac@fe530000: $nodename:0: 'dmac@fe530000' does not match '^dma-controller(@.*)?$'
+	From schema: Documentation/devicetree/bindings/dma/arm,pl330.yaml
+arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dt.yaml:
+  dmac@fe550000: $nodename:0: 'dmac@fe550000' does not match '^dma-controller(@.*)?$'
+	From schema: Documentation/devicetree/bindings/dma/arm,pl330.yaml
+
+This Patch fixes it.
+
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20220123133615.135789-1-linux@fw-web.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm64/boot/dts/rockchip/rk356x.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+index 46d9552f6028..688e3585525a 100644
+--- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+@@ -647,7 +647,7 @@ &i2s1m0_sdo0   &i2s1m0_sdo1
+ 		status = "disabled";
+ 	};
+ 
+-	dmac0: dmac@fe530000 {
++	dmac0: dma-controller@fe530000 {
+ 		compatible = "arm,pl330", "arm,primecell";
+ 		reg = <0x0 0xfe530000 0x0 0x4000>;
+ 		interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
+@@ -658,7 +658,7 @@ dmac0: dmac@fe530000 {
+ 		#dma-cells = <1>;
+ 	};
+ 
+-	dmac1: dmac@fe550000 {
++	dmac1: dma-controller@fe550000 {
+ 		compatible = "arm,pl330", "arm,primecell";
+ 		reg = <0x0 0xfe550000 0x0 0x4000>;
+ 		interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>,
+-- 
+2.34.1
+
