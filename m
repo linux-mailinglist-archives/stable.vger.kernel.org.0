@@ -2,89 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 879324D4742
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 13:50:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 552034D4764
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 13:56:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240113AbiCJMvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 07:51:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47012 "EHLO
+        id S242185AbiCJM4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 07:56:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242130AbiCJMvx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 07:51:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBC0914995D
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 04:50:52 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 595FD6198C
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 12:50:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 242FDC340E8;
-        Thu, 10 Mar 2022 12:50:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646916651;
-        bh=sj8CwLN4pMaDiMg4EMB04ZXcz/3Sp+ATEwhlBlVnBUg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NBtH3AZUTJIcmvCjXdf/r0MBSSqMdb7Kf1clfXp+m21Ty3NhDjdY+4L9iFlaDtKem
-         i1N/ch36hFum2eybZBMmm0OBAsky5MypBjyZy7nRmjWW3cmNmuQ0nkk50ys6/V5Y6F
-         8Vkd0TJKp6+t/JNMUU9bYL+AyyO67A3gROwazyy4=
-Date:   Thu, 10 Mar 2022 13:50:48 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Subject: Re: stable-rc queue/5.4 x86 and i386 gcc-11 builds failed -
- bugs.c:973:41: error: implicit declaration of function
- 'unprivileged_ebpf_enabled'
-Message-ID: <Yin0KPT/rd+TsTae@kroah.com>
-References: <CA+G9fYu5TTXufJUW64=uFTntnB021xvQaO_t5Ay4mcUr-7TYTQ@mail.gmail.com>
+        with ESMTP id S242233AbiCJM4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 07:56:30 -0500
+Received: from iris.vrvis.at (iris.vrvis.at [92.60.8.8])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25585149963;
+        Thu, 10 Mar 2022 04:55:28 -0800 (PST)
+Received: from [10.43.0.34]
+        by iris.vrvis.at with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <valentin@vrvis.at>)
+        id 1nSIKE-000714-3U; Thu, 10 Mar 2022 13:55:26 +0100
+Message-ID: <9dd4a25a-7deb-fcdf-0c05-d37d4c894d86@vrvis.at>
+Date:   Thu, 10 Mar 2022 13:55:25 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYu5TTXufJUW64=uFTntnB021xvQaO_t5Ay4mcUr-7TYTQ@mail.gmail.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Justin Sanders <justin@coraid.com>, linux-block@vger.kernel.org
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <c274db07-9c7d-d857-33ad-4a762819bcdd@vrvis.at>
+ <YinpIKY0HVlJ+TLR@kroah.com> <50ddedf1-5ac3-91c3-0b50-645ceb541071@vrvis.at>
+ <YinufgnQtSeTA18w@kroah.com>
+From:   Valentin Kleibel <valentin@vrvis.at>
+In-Reply-To: <YinufgnQtSeTA18w@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Level: 
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
+Subject: Re: [PATCH] block: aoe: fix page fault in freedev()
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 06:12:15PM +0530, Naresh Kamboju wrote:
-> stable-rc queue/5.4 x86 and i386 gcc-11 builds failed due to following
-> errors / warnings.
+On 10/03/2022 13:26, Greg Kroah-Hartman wrote:
+> On Thu, Mar 10, 2022 at 01:24:38PM +0100, Valentin Kleibel wrote:
+>> On 10/03/2022 13:03, Greg Kroah-Hartman wrote:
+>>>> This patch applies to kernels 5.4 and 5.10.
+>>>
+>>> We need a fix for Linus's tree first before we can backport anything to
+>>> older kernels.  Does this also work there?
+>>
+>> It is fixed in Linus' tree starting with 5.14.
 > 
-> metadata:
->     git_describe: v5.4.183-21-g73e4e04ab074
->     git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues
->     git_sha: 73e4e04ab074c2edbda9422d6b9bfb2dc5779ce3
->     git_short_log: 73e4e04ab074 (\ARM: fix build warning in proc-v7-bugs.c\)
->     target_arch: x86_64
->     toolchain: gcc-11
-> 
-> make --silent --keep-going --jobs=8
-> O=/home/tuxbuild/.cache/tuxmake/builds/1/build ARCH=x86_64
-> CROSS_COMPILE=x86_64-linux-gnu- 'CC=sccache x86_64-linux-gnu-gcc'
-> 'HOSTCC=sccache gcc'
-> /builds/linux/arch/x86/kernel/cpu/bugs.c: In function
-> 'spectre_v2_select_mitigation':
-> /builds/linux/arch/x86/kernel/cpu/bugs.c:973:41: error: implicit
-> declaration of function 'unprivileged_ebpf_enabled'
-> [-Werror=implicit-function-declaration]
->   973 |         if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
->       |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~
-> cc1: some warnings being treated as errors
-> 
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> build link [1] & [2]
+> What commit fixes it there?  Why not just backport that one only?
 
-Should now be fixed.  I'll be pushing out -rc2 in a bit...
+commit 6560ec961a08 (aoe: use blk_mq_alloc_disk and blk_cleanup_disk)
+This commit uses the function blk_cleanup_disk() in freedev() in 
+drivers/block/aoe/aoedev.c which fixes the issue.
+The function was introduced in f525464a8000 (block: add blk_alloc_disk 
+and blk_cleanup_disk APIs):
+void blk_cleanup_disk(struct gendisk *disk)
+{
+	blk_cleanup_queue(disk->queue);
+	put_disk(disk);
+}
+EXPORT_SYMBOL(blk_cleanup_disk);
 
-thanks,
+I tried to backport the fix to the lts kernels without introducing a new 
+API by just adjusting the order of the two function calls.
+Is it preferable to introduce and use the function blk_cleanup_disk()?
 
-greg k-h
+cheers,
+valentin
