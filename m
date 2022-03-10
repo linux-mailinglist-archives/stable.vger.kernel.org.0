@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E4B4D4BCE
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8F354D4BD2
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242963AbiCJOVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:21:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
+        id S238562AbiCJOWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:22:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243937AbiCJOSc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:18:32 -0500
+        with ESMTP id S243148AbiCJOV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:21:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF911693A8;
-        Thu, 10 Mar 2022 06:15:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAAAAB250C;
+        Thu, 10 Mar 2022 06:20:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DAC2B82615;
-        Thu, 10 Mar 2022 14:15:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3CDFC340EB;
-        Thu, 10 Mar 2022 14:15:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D1B0B8254A;
+        Thu, 10 Mar 2022 14:15:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4C5C340E8;
+        Thu, 10 Mar 2022 14:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921706;
-        bh=/sdHsyS+hr3Sal/XN/Ek01i3/VYlSRYBbNSleu30DIE=;
+        s=korg; t=1646921713;
+        bh=z8EgcjSQX1uiEBcBEJS+c1a5iDxnSom+wEXnmvXwijE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAipqprAzDAdDI9Kd1SwlQvA76DlBTCZrEaTEYncuhFZ+5f62nBI0w9u+l99sRpxL
-         p/Tknzf6TLgO4bK8fewEVEZ3SDjLdQl6jBUnuNgC7NKo+6vTsqAh6y6MS/HWvvV+HB
-         7opWGX208YzNGny62nSfXkc7O9kDPxq0HgTx4/+0=
+        b=r7IiA4BH9Zl6lcg4UKtmZlrDektV8GzwfWWXvbOnzk0bq9C0+J67oIpC5vKyw76uq
+         AiJTGxRmdmXYag4Fb2OJbCrbBi4Z4OTLCjFyDnZ7OGsvjPNwOSr0QChhAiqz7hO5kK
+         /YXuXR/KiQ1ASZsc2rHvXBQvUA3qUdGy+4hMEWhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 06/38] Documentation: refer to config RANDOMIZE_BASE for kernel address-space randomization
-Date:   Thu, 10 Mar 2022 15:13:19 +0100
-Message-Id: <20220310140808.323981477@linuxfoundation.org>
+Subject: [PATCH 4.9 08/38] x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+Date:   Thu, 10 Mar 2022 15:13:21 +0100
+Message-Id: <20220310140808.380805567@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140808.136149678@linuxfoundation.org>
 References: <20220310140808.136149678@linuxfoundation.org>
@@ -54,41 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 82ca67321f55a8d1da6ac3ed611da3c32818bb37 upstream.
+commit f8a66d608a3e471e1202778c2a36cbdc96bae73b upstream.
 
-The config RANDOMIZE_SLAB does not exist, the authors probably intended to
-refer to the config RANDOMIZE_BASE, which provides kernel address-space
-randomization. They probably just confused SLAB with BASE (these two
-four-letter words coincidentally share three common letters), as they also
-point out the config SLAB_FREELIST_RANDOM as further randomization within
-the same sentence.
+Currently Linux prevents usage of retpoline,amd on !AMD hardware, this
+is unfriendly and gets in the way of testing. Remove this restriction.
 
-Fix the reference of the config for kernel address-space randomization to
-the config that provides that.
-
-Fixes: 6e88559470f5 ("Documentation: Add section about CPU vulnerabilities for Spectre")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Link: https://lore.kernel.org/r/20211230171940.27558-1-lukas.bulwahn@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-[bwh: Backported to 4.9: adjust filename]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20211026120310.487348118@infradead.org
+[fllinden@amazon.com: backported to 4.19 (no Hygon in 4.19)]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/hw-vuln/spectre.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/Documentation/hw-vuln/spectre.rst
-+++ b/Documentation/hw-vuln/spectre.rst
-@@ -468,7 +468,7 @@ Spectre variant 2
-    before invoking any firmware code to prevent Spectre variant 2 exploits
-    using the firmware.
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -838,12 +838,6 @@ static enum spectre_v2_mitigation_cmd __
+ 		return SPECTRE_V2_CMD_AUTO;
+ 	}
  
--   Using kernel address space randomization (CONFIG_RANDOMIZE_SLAB=y
-+   Using kernel address space randomization (CONFIG_RANDOMIZE_BASE=y
-    and CONFIG_SLAB_FREELIST_RANDOM=y in the kernel configuration) makes
-    attacks on the kernel generally more difficult.
- 
+-	if (cmd == SPECTRE_V2_CMD_RETPOLINE_AMD &&
+-	    boot_cpu_data.x86_vendor != X86_VENDOR_AMD) {
+-		pr_err("retpoline,amd selected but CPU is not AMD. Switching to AUTO select\n");
+-		return SPECTRE_V2_CMD_AUTO;
+-	}
+-
+ 	spec_v2_print_cond(mitigation_options[i].option,
+ 			   mitigation_options[i].secure);
+ 	return cmd;
 
 
