@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5864D49A0
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:51:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA5454D4A53
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232525AbiCJOVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:21:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
+        id S235108AbiCJOWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:22:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244322AbiCJOTJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:19:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0C6172888;
-        Thu, 10 Mar 2022 06:16:03 -0800 (PST)
+        with ESMTP id S244556AbiCJOTk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:19:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31E6B13A1C5;
+        Thu, 10 Mar 2022 06:16:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0C5661C39;
-        Thu, 10 Mar 2022 14:16:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA7CCC340E8;
-        Thu, 10 Mar 2022 14:15:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26789B82615;
+        Thu, 10 Mar 2022 14:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96BB0C340E8;
+        Thu, 10 Mar 2022 14:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921760;
-        bh=tIRJjRTSlbPh8kjeK5uRXo4H5ulTD8w7NIMSEQd1/4M=;
+        s=korg; t=1646921763;
+        bh=QvXUabqW2e72/S9y0yAqLS0m5Evxyk8ez5ZxAIHm2YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rM5eZslWnLbHGCR2nRmXY1rxKTdTenjL2H6uZ5aG3tsSwJFX1e9vsbfIYWp11wosN
-         85y7VtgOz2/sDkNTkjxTBOVlx6qjiDVy/e8fMMaT8XO7H3yt95kBw7LHw+W/s0QB4Y
-         kOlJsyKVv7vmwuzQeo11RkbheZXopsV9xq4rsQDc=
+        b=gWWPs8o+KJyW2VxWrf4TWQr0dbfacY1ynEci/RAy3tPaHsWg5dqnTI0OMuwOLwB9Y
+         NdLtV+qd5gG5FHAl+uHs52GvXZc7g6W0rQRJJi+1y8lhHFzkR926N17E3T0zuvrlWv
+         /JVlGW4jJNyYqGa/qy66HARh+t7UDsk7kZkdg6o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Demi Marie Obenour <demi@invisiblethingslab.com>,
         Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.9 31/38] xen/grant-table: add gnttab_try_end_foreign_access()
-Date:   Thu, 10 Mar 2022 15:13:44 +0100
-Message-Id: <20220310140809.044695427@linuxfoundation.org>
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
+Subject: [PATCH 4.9 32/38] xen/blkfront: dont use gnttab_query_foreign_access() for mapped status
+Date:   Thu, 10 Mar 2022 15:13:45 +0100
+Message-Id: <20220310140809.073321234@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140808.136149678@linuxfoundation.org>
 References: <20220310140808.136149678@linuxfoundation.org>
@@ -57,77 +57,181 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-Commit 6b1775f26a2da2b05a6dc8ec2b5d14e9a4701a1a upstream.
+Commit abf1fd5919d6238ee3bc5eb4a9b6c3947caa6638 upstream.
 
-Add a new grant table function gnttab_try_end_foreign_access(), which
-will remove and free a grant if it is not in use.
+It isn't enough to check whether a grant is still being in use by
+calling gnttab_query_foreign_access(), as a mapping could be realized
+by the other side just after having called that function.
 
-Its main use case is to either free a grant if it is no longer in use,
-or to take some other action if it is still in use. This other action
-can be an error exit, or (e.g. in the case of blkfront persistent grant
-feature) some special handling.
+In case the call was done in preparation of revoking a grant it is
+better to do so via gnttab_end_foreign_access_ref() and check the
+success of that operation instead.
 
-This is CVE-2022-23036, CVE-2022-23038 / part of XSA-396.
+For the ring allocation use alloc_pages_exact() in order to avoid
+high order pages in case of a multi-page ring.
+
+If a grant wasn't unmapped by the backend without persistent grants
+being used, set the device state to "error".
+
+This is CVE-2022-23036 / part of XSA-396.
 
 Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Roger Pau Monné <roger.pau@citrix.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/grant-table.c |   14 ++++++++++++--
- include/xen/grant_table.h |   12 ++++++++++++
- 2 files changed, 24 insertions(+), 2 deletions(-)
+ drivers/block/xen-blkfront.c |   67 +++++++++++++++++++++++++------------------
+ 1 file changed, 39 insertions(+), 28 deletions(-)
 
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -377,11 +377,21 @@ static void gnttab_add_deferred(grant_re
- 	       what, ref, page ? page_to_pfn(page) : -1);
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1266,17 +1266,16 @@ static void blkif_free_ring(struct blkfr
+ 		list_for_each_entry_safe(persistent_gnt, n,
+ 					 &rinfo->grants, node) {
+ 			list_del(&persistent_gnt->node);
+-			if (persistent_gnt->gref != GRANT_INVALID_REF) {
+-				gnttab_end_foreign_access(persistent_gnt->gref,
+-							  0, 0UL);
+-				rinfo->persistent_gnts_c--;
+-			}
++			if (persistent_gnt->gref == GRANT_INVALID_REF ||
++			    !gnttab_try_end_foreign_access(persistent_gnt->gref))
++				continue;
++
++			rinfo->persistent_gnts_c--;
+ 			if (info->feature_persistent)
+ 				__free_page(persistent_gnt->page);
+ 			kfree(persistent_gnt);
+ 		}
+ 	}
+-	BUG_ON(rinfo->persistent_gnts_c != 0);
+ 
+ 	for (i = 0; i < BLK_RING_SIZE(info); i++) {
+ 		/*
+@@ -1333,7 +1332,8 @@ free_shadow:
+ 			rinfo->ring_ref[i] = GRANT_INVALID_REF;
+ 		}
+ 	}
+-	free_pages((unsigned long)rinfo->ring.sring, get_order(info->nr_ring_pages * XEN_PAGE_SIZE));
++	free_pages_exact(rinfo->ring.sring,
++			 info->nr_ring_pages * XEN_PAGE_SIZE);
+ 	rinfo->ring.sring = NULL;
+ 
+ 	if (rinfo->irq)
+@@ -1417,9 +1417,15 @@ static int blkif_get_final_status(enum b
+ 	return BLKIF_RSP_OKAY;
  }
  
-+int gnttab_try_end_foreign_access(grant_ref_t ref)
-+{
-+	int ret = _gnttab_end_foreign_access_ref(ref, 0);
-+
-+	if (ret)
-+		put_free_entry(ref);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_try_end_foreign_access);
-+
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page)
- {
--	if (gnttab_end_foreign_access_ref(ref, readonly)) {
--		put_free_entry(ref);
-+	if (gnttab_try_end_foreign_access(ref)) {
- 		if (page != 0)
- 			put_page(virt_to_page(page));
- 	} else
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -97,10 +97,22 @@ int gnttab_end_foreign_access_ref(grant_
-  * access has been ended, free the given page too.  Access will be ended
-  * immediately iff the grant entry is not in use, otherwise it will happen
-  * some time later.  page may be 0, in which case no freeing will occur.
-+ * Note that the granted page might still be accessed (read or write) by the
-+ * other side after gnttab_end_foreign_access() returns, so even if page was
-+ * specified as 0 it is not allowed to just reuse the page for other
-+ * purposes immediately.
-  */
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page);
- 
+-static bool blkif_completion(unsigned long *id,
+-			     struct blkfront_ring_info *rinfo,
+-			     struct blkif_response *bret)
 +/*
-+ * End access through the given grant reference, iff the grant entry is
-+ * no longer in use.  In case of success ending foreign access, the
-+ * grant reference is deallocated.
-+ * Return 1 if the grant entry was freed, 0 if it is still in use.
++ * Return values:
++ *  1 response processed.
++ *  0 missing further responses.
++ * -1 error while processing.
 + */
-+int gnttab_try_end_foreign_access(grant_ref_t ref);
-+
- int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
++static int blkif_completion(unsigned long *id,
++			    struct blkfront_ring_info *rinfo,
++			    struct blkif_response *bret)
+ {
+ 	int i = 0;
+ 	struct scatterlist *sg;
+@@ -1493,42 +1499,43 @@ static bool blkif_completion(unsigned lo
+ 	}
+ 	/* Add the persistent grant into the list of free grants */
+ 	for (i = 0; i < num_grant; i++) {
+-		if (gnttab_query_foreign_access(s->grants_used[i]->gref)) {
++		if (!gnttab_try_end_foreign_access(s->grants_used[i]->gref)) {
+ 			/*
+ 			 * If the grant is still mapped by the backend (the
+ 			 * backend has chosen to make this grant persistent)
+ 			 * we add it at the head of the list, so it will be
+ 			 * reused first.
+ 			 */
+-			if (!info->feature_persistent)
+-				pr_alert_ratelimited("backed has not unmapped grant: %u\n",
+-						     s->grants_used[i]->gref);
++			if (!info->feature_persistent) {
++				pr_alert("backed has not unmapped grant: %u\n",
++					 s->grants_used[i]->gref);
++				return -1;
++			}
+ 			list_add(&s->grants_used[i]->node, &rinfo->grants);
+ 			rinfo->persistent_gnts_c++;
+ 		} else {
+ 			/*
+-			 * If the grant is not mapped by the backend we end the
+-			 * foreign access and add it to the tail of the list,
+-			 * so it will not be picked again unless we run out of
+-			 * persistent grants.
++			 * If the grant is not mapped by the backend we add it
++			 * to the tail of the list, so it will not be picked
++			 * again unless we run out of persistent grants.
+ 			 */
+-			gnttab_end_foreign_access(s->grants_used[i]->gref, 0, 0UL);
+ 			s->grants_used[i]->gref = GRANT_INVALID_REF;
+ 			list_add_tail(&s->grants_used[i]->node, &rinfo->grants);
+ 		}
+ 	}
+ 	if (s->req.operation == BLKIF_OP_INDIRECT) {
+ 		for (i = 0; i < INDIRECT_GREFS(num_grant); i++) {
+-			if (gnttab_query_foreign_access(s->indirect_grants[i]->gref)) {
+-				if (!info->feature_persistent)
+-					pr_alert_ratelimited("backed has not unmapped grant: %u\n",
+-							     s->indirect_grants[i]->gref);
++			if (!gnttab_try_end_foreign_access(s->indirect_grants[i]->gref)) {
++				if (!info->feature_persistent) {
++					pr_alert("backed has not unmapped grant: %u\n",
++						 s->indirect_grants[i]->gref);
++					return -1;
++				}
+ 				list_add(&s->indirect_grants[i]->node, &rinfo->grants);
+ 				rinfo->persistent_gnts_c++;
+ 			} else {
+ 				struct page *indirect_page;
  
- unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
+-				gnttab_end_foreign_access(s->indirect_grants[i]->gref, 0, 0UL);
+ 				/*
+ 				 * Add the used indirect page back to the list of
+ 				 * available pages for indirect grefs.
+@@ -1610,12 +1617,17 @@ static irqreturn_t blkif_interrupt(int i
+ 		}
+ 
+ 		if (bret.operation != BLKIF_OP_DISCARD) {
++			int ret;
++
+ 			/*
+ 			 * We may need to wait for an extra response if the
+ 			 * I/O request is split in 2
+ 			 */
+-			if (!blkif_completion(&id, rinfo, &bret))
++			ret = blkif_completion(&id, rinfo, &bret);
++			if (!ret)
+ 				continue;
++			if (unlikely(ret < 0))
++				goto err;
+ 		}
+ 
+ 		if (add_id_to_freelist(rinfo, id)) {
+@@ -1717,8 +1729,7 @@ static int setup_blkring(struct xenbus_d
+ 	for (i = 0; i < info->nr_ring_pages; i++)
+ 		rinfo->ring_ref[i] = GRANT_INVALID_REF;
+ 
+-	sring = (struct blkif_sring *)__get_free_pages(GFP_NOIO | __GFP_HIGH,
+-						       get_order(ring_size));
++	sring = alloc_pages_exact(ring_size, GFP_NOIO);
+ 	if (!sring) {
+ 		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
+ 		return -ENOMEM;
+@@ -1728,7 +1739,7 @@ static int setup_blkring(struct xenbus_d
+ 
+ 	err = xenbus_grant_ring(dev, rinfo->ring.sring, info->nr_ring_pages, gref);
+ 	if (err < 0) {
+-		free_pages((unsigned long)sring, get_order(ring_size));
++		free_pages_exact(sring, ring_size);
+ 		rinfo->ring.sring = NULL;
+ 		goto fail;
+ 	}
 
 
