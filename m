@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DBC34D4C0D
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 679B54D4C1B
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243808AbiCJO11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:27:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49516 "EHLO
+        id S244065AbiCJOcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:32:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243735AbiCJO0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:26:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A5B7154D2E;
-        Thu, 10 Mar 2022 06:22:28 -0800 (PST)
+        with ESMTP id S1343938AbiCJOba (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87A9EAC74;
+        Thu, 10 Mar 2022 06:28:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E9EB61B63;
-        Thu, 10 Mar 2022 14:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35177C36AF9;
-        Thu, 10 Mar 2022 14:22:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7257FB82676;
+        Thu, 10 Mar 2022 14:28:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFB50C340E8;
+        Thu, 10 Mar 2022 14:28:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922147;
-        bh=U3EXImq8gUZIXidQsm+kHu1XAwQQbkW0LhGr+JscwNY=;
+        s=korg; t=1646922531;
+        bh=WHsGSOjBm9ueKXa9npS/SWuABsLbuATTUD6ydwapvYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ni7qKHcomFYnswdvoQfPvmVC1rB2HSGYJ2lwgZQFEKiY+2dHJB1o1R9aQQ2hc885N
-         uy79xygd+9UP9v39m938Q0Aj5YD8WID8rRsjWIIF4ZUj1i0bl5Nc7q06mi4zzh4rDc
-         ZN20PexPc4W0uKplRjZBGPzXCIv/uZtvIvAThbGU=
+        b=1X5yTLQxnoLJNdNBY6cb9LdZOzTUDQKc/LKvN5yRqhCdpbxDxKSSWl0rkEWL5eZp3
+         Rklcqj1IgS3rQ1Jt/viKVzP1TuG6WIvbjzWkVPf/jaguSp8hPxH4U9edgjzO3uAjC4
+         sLm/Z6BorSofGtlBWhvxMF+6x0Ecj/w16j8IWGT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 21/33] ARM: Do not use NOCROSSREFS directive with ld.lld
-Date:   Thu, 10 Mar 2022 15:18:48 +0100
-Message-Id: <20220310140808.369034766@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 02/58] x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+Date:   Thu, 10 Mar 2022 15:18:51 +0100
+Message-Id: <20220310140813.055549614@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
-References: <20220310140807.749164737@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 36168e387fa7d0f1fe0cd5cf76c8cea7aee714fa upstream.
+commit f8a66d608a3e471e1202778c2a36cbdc96bae73b upstream.
 
-ld.lld does not support the NOCROSSREFS directive at the moment, which
-breaks the build after commit b9baf5c8c5c3 ("ARM: Spectre-BHB
-workaround"):
+Currently Linux prevents usage of retpoline,amd on !AMD hardware, this
+is unfriendly and gets in the way of testing. Remove this restriction.
 
-  ld.lld: error: ./arch/arm/kernel/vmlinux.lds:34: AT expected, but got NOCROSSREFS
-
-Support for this directive will eventually be implemented, at which
-point a version check can be added. To avoid breaking the build in the
-meantime, just define NOCROSSREFS to nothing when using ld.lld, with a
-link to the issue for tracking.
-
-Cc: stable@vger.kernel.org
-Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1609
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20211026120310.487348118@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/vmlinux.lds.h |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/arch/arm/kernel/vmlinux.lds.h
-+++ b/arch/arm/kernel/vmlinux.lds.h
-@@ -25,6 +25,14 @@
- #define ARM_MMU_DISCARD(x)	x
- #endif
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -882,13 +882,6 @@ static enum spectre_v2_mitigation_cmd __
+ 		return SPECTRE_V2_CMD_AUTO;
+ 	}
  
-+/*
-+ * ld.lld does not support NOCROSSREFS:
-+ * https://github.com/ClangBuiltLinux/linux/issues/1609
-+ */
-+#ifdef CONFIG_LD_IS_LLD
-+#define NOCROSSREFS
-+#endif
-+
- /* Set start/end symbol names to the LMA for the section */
- #define ARM_LMA(sym, section)						\
- 	sym##_start = LOADADDR(section);				\
+-	if (cmd == SPECTRE_V2_CMD_RETPOLINE_AMD &&
+-	    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON &&
+-	    boot_cpu_data.x86_vendor != X86_VENDOR_AMD) {
+-		pr_err("retpoline,amd selected but CPU is not AMD. Switching to AUTO select\n");
+-		return SPECTRE_V2_CMD_AUTO;
+-	}
+-
+ 	spec_v2_print_cond(mitigation_options[i].option,
+ 			   mitigation_options[i].secure);
+ 	return cmd;
 
 
