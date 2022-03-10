@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 976CC4D49DB
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9264D4B5F
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244134AbiCJOcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:32:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51148 "EHLO
+        id S236183AbiCJOc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:32:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343827AbiCJObX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8626DEA29;
-        Thu, 10 Mar 2022 06:27:38 -0800 (PST)
+        with ESMTP id S245289AbiCJOaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C8E179257;
+        Thu, 10 Mar 2022 06:25:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75109B825F3;
-        Thu, 10 Mar 2022 14:27:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81C6C340E8;
-        Thu, 10 Mar 2022 14:27:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A51F261CFB;
+        Thu, 10 Mar 2022 14:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4EBAC340EB;
+        Thu, 10 Mar 2022 14:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922449;
-        bh=Dpe0tk9GNdSgB2qTr+VBTPTKFcv/dNvPbCSODMJpdas=;
+        s=korg; t=1646922349;
+        bh=KXvlQRxJJINV8Dk/CHoR1FjXU3vHLhI/Xfy6EUeIGug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkE7cQAja8zKRw8G4iZYKXal5rhtsQ7iDdRNyqjREE90LaWT0ISVQh9S6tOS5ntjG
-         MQDWKQ/3P/pDQRwZ9F4jmjCu03kRxiTIS6eUlB1VU2Rzao6kY+6Id1lQowfKlcd1PI
-         3sXAG92M8Hjtz34RNb7HAtDlhlFcoVncKccJNRvc=
+        b=1c63Di8R5MuTX8n6jMDYtRCwoNUV4kj6uWc4kLrWLJU3550AHxUVh2SKMBQszjiQM
+         hrWTkGNlIqi/HGDidJuf8n4GdkfdCNLP44Kg6Kypd3czmkqPp3UseT4Smv4cAjoWqY
+         UNEG/AGuOdNWv2AXh2BoIJSpJIhlprtCrPrF42nE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 07/33] x86/speculation: Use generic retpoline by default on AMD
+        stable@vger.kernel.org,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.10 48/58] xen/grant-table: add gnttab_try_end_foreign_access()
 Date:   Thu, 10 Mar 2022 15:19:08 +0100
-Message-Id: <20220310140808.963245222@linuxfoundation.org>
+Message-Id: <20220310140814.236353343@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
-References: <20220310140808.741682643@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 244d00b5dd4755f8df892c86cab35fb2cfd4f14b upstream.
+Commit 6b1775f26a2da2b05a6dc8ec2b5d14e9a4701a1a upstream.
 
-AMD retpoline may be susceptible to speculation. The speculation
-execution window for an incorrect indirect branch prediction using
-LFENCE/JMP sequence may potentially be large enough to allow
-exploitation using Spectre V2.
+Add a new grant table function gnttab_try_end_foreign_access(), which
+will remove and free a grant if it is not in use.
 
-By default, don't use retpoline,lfence on AMD.  Instead, use the
-generic retpoline.
+Its main use case is to either free a grant if it is no longer in use,
+or to take some other action if it is still in use. This other action
+can be an error exit, or (e.g. in the case of blkfront persistent grant
+feature) some special handling.
 
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+This is CVE-2022-23036, CVE-2022-23038 / part of XSA-396.
+
+Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/xen/grant-table.c |   14 ++++++++++++--
+ include/xen/grant_table.h |   12 ++++++++++++
+ 2 files changed, 24 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -898,15 +898,6 @@ static enum spectre_v2_mitigation __init
- 		return SPECTRE_V2_NONE;
- 	}
- 
--	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
--	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
--		if (!boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
--			pr_err("LFENCE not serializing, switching to generic retpoline\n");
--			return SPECTRE_V2_RETPOLINE;
--		}
--		return SPECTRE_V2_LFENCE;
--	}
--
- 	return SPECTRE_V2_RETPOLINE;
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -435,11 +435,21 @@ static void gnttab_add_deferred(grant_re
+ 	       what, ref, page ? page_to_pfn(page) : -1);
  }
  
++int gnttab_try_end_foreign_access(grant_ref_t ref)
++{
++	int ret = _gnttab_end_foreign_access_ref(ref, 0);
++
++	if (ret)
++		put_free_entry(ref);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(gnttab_try_end_foreign_access);
++
+ void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
+ 			       unsigned long page)
+ {
+-	if (gnttab_end_foreign_access_ref(ref, readonly)) {
+-		put_free_entry(ref);
++	if (gnttab_try_end_foreign_access(ref)) {
+ 		if (page != 0)
+ 			put_page(virt_to_page(page));
+ 	} else
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -97,10 +97,22 @@ int gnttab_end_foreign_access_ref(grant_
+  * access has been ended, free the given page too.  Access will be ended
+  * immediately iff the grant entry is not in use, otherwise it will happen
+  * some time later.  page may be 0, in which case no freeing will occur.
++ * Note that the granted page might still be accessed (read or write) by the
++ * other side after gnttab_end_foreign_access() returns, so even if page was
++ * specified as 0 it is not allowed to just reuse the page for other
++ * purposes immediately.
+  */
+ void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
+ 			       unsigned long page);
+ 
++/*
++ * End access through the given grant reference, iff the grant entry is
++ * no longer in use.  In case of success ending foreign access, the
++ * grant reference is deallocated.
++ * Return 1 if the grant entry was freed, 0 if it is still in use.
++ */
++int gnttab_try_end_foreign_access(grant_ref_t ref);
++
+ int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
+ 
+ unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
 
 
