@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B994D4A39
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:53:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9634D4B1F
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbiCJOWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:22:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57316 "EHLO
+        id S244486AbiCJOd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243253AbiCJOVb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:21:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053A1B6D3A;
-        Thu, 10 Mar 2022 06:20:21 -0800 (PST)
+        with ESMTP id S244511AbiCJO3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD41DCCC72;
+        Thu, 10 Mar 2022 06:24:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94F9D61CFD;
-        Thu, 10 Mar 2022 14:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 945DFC36AE2;
-        Thu, 10 Mar 2022 14:20:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D49D8B8266E;
+        Thu, 10 Mar 2022 14:24:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D9C9C340E8;
+        Thu, 10 Mar 2022 14:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922020;
-        bh=hgyMPXKpyrjFSr7gjjGkb1FgtZRbJo9afPZLy+xNAuM=;
+        s=korg; t=1646922242;
+        bh=SDpUFU1TJQ9FPEXZ/2tbgw+vF0p/dqGxte1p0E0q2Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCKvCEYUngvrSFjzT3tQ/u9yt9b5sZRCx2DeoxiESKXAN3DjI8w36OBBeRY5MmJkC
-         aOLkZly8C4pGCH9LuO5npMNsQwUbs+3YPnyfoei3ucr38CDys/JWoNCPYW58oFL5UC
-         lTBu9DTXjy9fy7/84FqqPzbWFuQUrpUo680vUJDk=
+        b=aFoXuWpOIHgM0zrGWrHetoWumN95cYILeXy9lu6JUzicaoCwvrQ9Q+FMaKOJlKJuX
+         PL3Q8JpZcnMaCkSw1lNo5M4IZHZ0g42RYc+2RlBjfVHPsVNTldPkQKbg5GPYgItie6
+         b9hdEt2stj68uxkPGb2mGeCG8k/sgMn1lrFUxT9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.14 12/31] arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 5.10 05/58] x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
 Date:   Thu, 10 Mar 2022 15:18:25 +0100
-Message-Id: <20220310140807.892834978@linuxfoundation.org>
+Message-Id: <20220310140813.026694138@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140807.524313448@linuxfoundation.org>
-References: <20220310140807.524313448@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +55,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 6b7fe77c334ae59fed9500140e08f4f896b36871 upstream.
+commit 44a3918c8245ab10c6c9719dd12e7a8d291980d8 upstream.
 
-SMCCC callers are currently amassing a collection of enums for the SMCCC
-conduit, and are having to dig into the PSCI driver's internals in order
-to figure out what to do.
+With unprivileged eBPF enabled, eIBRS (without retpoline) is vulnerable
+to Spectre v2 BHB-based attacks.
 
-Let's clean this up, with common SMCCC_CONDUIT_* definitions, and an
-arm_smccc_1_1_get_conduit() helper that abstracts the PSCI driver's
-internal state.
+When both are enabled, print a warning message and report it in the
+'spectre_v2' sysfs vulnerabilities file.
 
-We can kill off the PSCI_CONDUIT_* definitions once we've migrated users
-over to the new interface.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+[fllinden@amazon.com: backported to 5.10]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/psci.c   |   15 +++++++++++++++
- include/linux/arm-smccc.h |   16 ++++++++++++++++
- 2 files changed, 31 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |   35 +++++++++++++++++++++++++++++------
+ include/linux/bpf.h        |   12 ++++++++++++
+ kernel/sysctl.c            |    7 +++++++
+ 3 files changed, 48 insertions(+), 6 deletions(-)
 
---- a/drivers/firmware/psci.c
-+++ b/drivers/firmware/psci.c
-@@ -64,6 +64,21 @@ struct psci_operations psci_ops = {
- 	.smccc_version = SMCCC_VERSION_1_0,
- };
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -16,6 +16,7 @@
+ #include <linux/prctl.h>
+ #include <linux/sched/smt.h>
+ #include <linux/pgtable.h>
++#include <linux/bpf.h>
  
-+enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void)
-+{
-+	if (psci_ops.smccc_version < SMCCC_VERSION_1_1)
-+		return SMCCC_CONDUIT_NONE;
+ #include <asm/spec-ctrl.h>
+ #include <asm/cmdline.h>
+@@ -613,6 +614,16 @@ static inline const char *spectre_v2_mod
+ static inline const char *spectre_v2_module_string(void) { return ""; }
+ #endif
+ 
++#define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
 +
-+	switch (psci_ops.conduit) {
-+	case PSCI_CONDUIT_SMC:
-+		return SMCCC_CONDUIT_SMC;
-+	case PSCI_CONDUIT_HVC:
-+		return SMCCC_CONDUIT_HVC;
-+	default:
-+		return SMCCC_CONDUIT_NONE;
-+	}
++#ifdef CONFIG_BPF_SYSCALL
++void unpriv_ebpf_notify(int new_state)
++{
++	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && !new_state)
++		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
++}
++#endif
++
+ static inline bool match_option(const char *arg, int arglen, const char *opt)
+ {
+ 	int len = strlen(opt);
+@@ -957,6 +968,9 @@ static void __init spectre_v2_select_mit
+ 		break;
+ 	}
+ 
++	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
++		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
++
+ 	if (spectre_v2_in_eibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+@@ -1710,6 +1724,20 @@ static char *ibpb_state(void)
+ 	return "";
+ }
+ 
++static ssize_t spectre_v2_show_state(char *buf)
++{
++	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
++		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
++
++	return sprintf(buf, "%s%s%s%s%s%s\n",
++		       spectre_v2_strings[spectre_v2_enabled],
++		       ibpb_state(),
++		       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
++		       stibp_state(),
++		       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
++		       spectre_v2_module_string());
 +}
 +
- typedef unsigned long (psci_fn)(unsigned long, unsigned long,
- 				unsigned long, unsigned long);
- static psci_fn *invoke_psci_fn;
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -89,6 +89,22 @@
+ static ssize_t srbds_show_state(char *buf)
+ {
+ 	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
+@@ -1735,12 +1763,7 @@ static ssize_t cpu_show_common(struct de
+ 		return sprintf(buf, "%s\n", spectre_v1_strings[spectre_v1_mitigation]);
  
- #include <linux/linkage.h>
- #include <linux/types.h>
+ 	case X86_BUG_SPECTRE_V2:
+-		return sprintf(buf, "%s%s%s%s%s%s\n", spectre_v2_strings[spectre_v2_enabled],
+-			       ibpb_state(),
+-			       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
+-			       stibp_state(),
+-			       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
+-			       spectre_v2_module_string());
++		return spectre_v2_show_state(buf);
+ 
+ 	case X86_BUG_SPEC_STORE_BYPASS:
+ 		return sprintf(buf, "%s\n", ssb_strings[ssb_mode]);
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1485,6 +1485,12 @@ struct bpf_prog *bpf_prog_by_id(u32 id);
+ struct bpf_link *bpf_link_by_id(u32 id);
+ 
+ const struct bpf_func_proto *bpf_base_func_proto(enum bpf_func_id func_id);
 +
-+enum arm_smccc_conduit {
-+	SMCCC_CONDUIT_NONE,
-+	SMCCC_CONDUIT_SMC,
-+	SMCCC_CONDUIT_HVC,
-+};
++static inline bool unprivileged_ebpf_enabled(void)
++{
++	return !sysctl_unprivileged_bpf_disabled;
++}
 +
-+/**
-+ * arm_smccc_1_1_get_conduit()
-+ *
-+ * Returns the conduit to be used for SMCCCv1.1 or later.
-+ *
-+ * When SMCCCv1.1 is not present, returns SMCCC_CONDUIT_NONE.
-+ */
-+enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void);
+ #else /* !CONFIG_BPF_SYSCALL */
+ static inline struct bpf_prog *bpf_prog_get(u32 ufd)
+ {
+@@ -1679,6 +1685,12 @@ bpf_base_func_proto(enum bpf_func_id fun
+ {
+ 	return NULL;
+ }
 +
- /**
-  * struct arm_smccc_res - Result from SMC/HVC call
-  * @a0-a3 result values from registers 0 to 3
++static inline bool unprivileged_ebpf_enabled(void)
++{
++	return false;
++}
++
+ #endif /* CONFIG_BPF_SYSCALL */
+ 
+ static inline struct bpf_prog *bpf_prog_get_type(u32 ufd,
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -234,6 +234,10 @@ static int bpf_stats_handler(struct ctl_
+ 	return ret;
+ }
+ 
++void __weak unpriv_ebpf_notify(int new_state)
++{
++}
++
+ static int bpf_unpriv_handler(struct ctl_table *table, int write,
+ 			      void *buffer, size_t *lenp, loff_t *ppos)
+ {
+@@ -251,6 +255,9 @@ static int bpf_unpriv_handler(struct ctl
+ 			return -EPERM;
+ 		*(int *)table->data = unpriv_enable;
+ 	}
++
++	unpriv_ebpf_notify(unpriv_enable);
++
+ 	return ret;
+ }
+ #endif /* CONFIG_BPF_SYSCALL && CONFIG_SYSCTL */
 
 
