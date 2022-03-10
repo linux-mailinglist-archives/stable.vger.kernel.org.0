@@ -2,105 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 457064D5535
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 00:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C27204D554D
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 00:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344597AbiCJXVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 18:21:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44710 "EHLO
+        id S1344664AbiCJX07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 18:26:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236460AbiCJXVl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 18:21:41 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D015C42BD;
-        Thu, 10 Mar 2022 15:20:39 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id 9so6224286pll.6;
-        Thu, 10 Mar 2022 15:20:39 -0800 (PST)
+        with ESMTP id S1344658AbiCJX05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 18:26:57 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0DF8199E2C
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:25:55 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id s8so6395083pfk.12
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:25:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=HCQXqZnIut9hf3K3yfEt3I/KXtDhV5tdHqwOxZZh8pQ=;
-        b=XsZgpiKxfUW2QvJHIgQllPc4w4/AKnbr7LcS30V7YyMqM4vEPhm1YJBqUYyiNobU1o
-         BTwsVjO0MFbOd7GGHW/vQRs7HekmXuKswicNn6Uy97YoPDEPpWwFAPc96hzY6xU8tB5h
-         8/grZqCslpTIdtylUi7AtIYJfNJms7p5oyA1hxnwvzOSXzRk63X+5ncRFx3QauaqGxTs
-         yRvVG/30ZvjCNMk6cmX6h8J8y5cNb72mwQainmsbX6TzfBP80SkNiGmLppowoqefO9jH
-         O+U68DUS7Q/jg4XugdYufGHEgbj42oBfuXj5LqttnI+rUFM11E90fI+Gq4b0rRNLov+b
-         Zr/w==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ejJjmdbNGVk0Ojn9gs31SAw6IuTYvfqq7ug7NCCkkt4=;
+        b=onIx2e9X0TzzdYS9bDwjnzCQL6eZTBbf+XJonIjFE7H559YPkcY+EhmcsSUTYccP7P
+         SJhQkA9/eitkZ6RjDtU8Casbh0s5w49mbQFTWLMchOLcU7UVtTkD54CeHJL02skXriet
+         PElVeFd230TUHFlwda1A5LSJhaSTD+Bxgbibu/IKEXmZ3J+nggAKvfIS3QhoOtknOwKs
+         QKEIoTVTIi/ZmcjBt6AMvlUYOomvLKkOEmN2AJpl/yhf31HAVBpWthxNzm7juMSUt8dw
+         DXE48U7DiDyM87kNgix+yq6u8HeLPvQ6BLJxv/YvFub9TgJMoM1intVwQvSH9rQM+b2Q
+         9MVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=HCQXqZnIut9hf3K3yfEt3I/KXtDhV5tdHqwOxZZh8pQ=;
-        b=boJ24hS3nKWKzvFhqNB4+FpnSnI0jB7o4q/hQAIHe5E++kFmHQ7oHif43maPpGF0XC
-         JWQIU8x6u+/l1vvVvpZH0/kEBCZpBV2xYKsvoMnSoVsKT22Uhk/TZ07wtuaV6RZDVsGb
-         Ig9q1gs8tiIj/RQ16SULTg+EtJIutbSiBth/iA8EwooinvaZhMouJCZ3qb0u9jr04c9W
-         TocYRrBrDz6bcfEVgmdzfGHFjAJJQWGeV0JbEDKT22EkvhHUirCrSXhiHf/3hzuZ8yXv
-         OmNTfXLKHuwANy4ZkFHhkM+Rh+iHZYQWAWzxXXHLMRyCGPN89dDY6Gi47bsYX/glCsRt
-         R+ZQ==
-X-Gm-Message-State: AOAM53017LfbuFGD75x2EX33Zl4sot7gps/9igmiqreeDzH9w8di1Z6a
-        lUM52ajodyyfJObNb4lnsmM=
-X-Google-Smtp-Source: ABdhPJxLnquDCAkl90Ka/W1F68lhh7GdoT7vm1ojAB3jMFDSElSPja+Bh79MGYAgnAHvQnpXljmpwg==
-X-Received: by 2002:a17:90b:1bc5:b0:1bf:1c96:66ac with SMTP id oa5-20020a17090b1bc500b001bf1c9666acmr18307183pjb.167.1646954438703;
-        Thu, 10 Mar 2022 15:20:38 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id m8-20020a17090a158800b001bf2cec0377sm12572596pja.3.2022.03.10.15.20.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 15:20:38 -0800 (PST)
-Subject: Re: [PATCH 5.16 00/53] 5.16.14-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220310140811.832630727@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <3adc4e09-dffb-ff65-455c-ea1ebab3f607@gmail.com>
-Date:   Thu, 10 Mar 2022 15:20:28 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ejJjmdbNGVk0Ojn9gs31SAw6IuTYvfqq7ug7NCCkkt4=;
+        b=jZ2aoBqP2I8Ir+UdtdaKop+M8pRfbMKCz2za9b3+uqweEuCWU3Gk3vBTYPLXrfVhft
+         HkTt0vWDoK/zm5JB3FxkIuNn9qfgHz7ieYfTyflZnN7d+e901osGIoptzHsZ68KZZVBF
+         nlBUoXTys0b6VG9eBVj4jwgQ9qNWub56CbXP/ouBh7tK511sOOucbW20P3IqgkUeMLI6
+         acGZpG8FPG95boyUfIqxpgAe/U717j2YTupui3VuRag64S2TdDUmIZhPDeTm6nP+Yy2O
+         eK+WwYN/JsV1A9Z6UpeNzYZ9NIRk7iDjicKAA2aTU/CydJYJGcu2i4qdbI+c67dq1cF6
+         ewCQ==
+X-Gm-Message-State: AOAM532+gzhmjzcLS7FE/+N80HS1+/6eqAFQonr20W5BGP5y5M7t8vAU
+        o1Xb1E/t/zWKzXL9/6zcxwvc5Q==
+X-Google-Smtp-Source: ABdhPJzv6gLDrKCUJmstikLr5c12MnrtNWMmsWP1SNNEHRV+MGXn9BOQlivb1Lqc4nAFEDZ9B4Opyg==
+X-Received: by 2002:a05:6a02:10a:b0:37f:f691:b094 with SMTP id bg10-20020a056a02010a00b0037ff691b094mr5995278pgb.184.1646954755255;
+        Thu, 10 Mar 2022 15:25:55 -0800 (PST)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id k62-20020a17090a4cc400b001bf0d92e1c7sm6995703pjh.41.2022.03.10.15.25.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Mar 2022 15:25:54 -0800 (PST)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     kuba@kernel.org
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        David Ahern <dsahern@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
+Subject: [PATCH v3] net: ipv6: fix skb_over_panic in __ip6_append_data
+Date:   Thu, 10 Mar 2022 15:25:38 -0800
+Message-Id: <20220310232538.1044947-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <CAF=yD-LrVjvY8wAqZtUTFS8V9ng2AD3jB1DOZvkagPOp3Sbq-g@mail.gmail.com>
+References: <CAF=yD-LrVjvY8wAqZtUTFS8V9ng2AD3jB1DOZvkagPOp3Sbq-g@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220310140811.832630727@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/22 6:09 AM, Greg Kroah-Hartman wrote:
-> Note, I'm sending all the patches again for all of the -rc2 releases as
-> there has been a lot of churn from what was in -rc1 to -rc2.
-> 
-> This is the start of the stable review cycle for the 5.16.14 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.14-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Syzbot found a kernel bug in the ipv6 stack:
+LINK: https://syzkaller.appspot.com/bug?id=205d6f11d72329ab8d62a610c44c5e7e25415580
+The reproducer triggers it by sending a crafted message via sendmmsg()
+call, which triggers skb_over_panic, and crashes the kernel:
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+skbuff: skb_over_panic: text:ffffffff84647fb4 len:65575 put:65575
+head:ffff888109ff0000 data:ffff888109ff0088 tail:0x100af end:0xfec0
+dev:<NULL>
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Update the check that prevents an invalid packet with MTU equall to the
+fregment header size to eat up all the space for payload.
+
+The reproducer can be found here:
+LINK: https://syzkaller.appspot.com/text?tag=ReproC&x=1648c83fb00000
+
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+Cc: David Ahern <dsahern@kernel.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: bpf@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+
+Reported-by: syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+v2: Instead of updating the alloclen add a check that prevents
+    an invalid packet with MTU equall to the fregment header size
+    to eat up all the space for payload.
+    Fix suggested by Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+
+v3: Update existing check outside of the while loop.
+---
+ net/ipv6/ip6_output.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 4788f6b37053..194832663d85 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1476,8 +1476,8 @@ static int __ip6_append_data(struct sock *sk,
+ 		      sizeof(struct frag_hdr) : 0) +
+ 		     rt->rt6i_nfheader_len;
+ 
+-	if (mtu < fragheaderlen ||
+-	    ((mtu - fragheaderlen) & ~7) + fragheaderlen < sizeof(struct frag_hdr))
++	if (mtu <= fragheaderlen ||
++	    ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr))
+ 		goto emsgsize;
+ 
+ 	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
 -- 
-Florian
+2.35.1
+
