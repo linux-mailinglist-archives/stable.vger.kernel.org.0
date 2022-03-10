@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 679B54D4C1B
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5744D4C21
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244065AbiCJOcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:32:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48192 "EHLO
+        id S244675AbiCJOdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343938AbiCJOba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:30 -0500
+        with ESMTP id S245233AbiCJOaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87A9EAC74;
-        Thu, 10 Mar 2022 06:28:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EC91704D0;
+        Thu, 10 Mar 2022 06:25:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7257FB82676;
-        Thu, 10 Mar 2022 14:28:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFB50C340E8;
-        Thu, 10 Mar 2022 14:28:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0638B82676;
+        Thu, 10 Mar 2022 14:25:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4080FC340F5;
+        Thu, 10 Mar 2022 14:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922531;
-        bh=WHsGSOjBm9ueKXa9npS/SWuABsLbuATTUD6ydwapvYs=;
+        s=korg; t=1646922311;
+        bh=RqzeAQhcKiZiQ5wOPHZeqLujTq7UN4gy/nboCZyWHbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1X5yTLQxnoLJNdNBY6cb9LdZOzTUDQKc/LKvN5yRqhCdpbxDxKSSWl0rkEWL5eZp3
-         Rklcqj1IgS3rQ1Jt/viKVzP1TuG6WIvbjzWkVPf/jaguSp8hPxH4U9edgjzO3uAjC4
-         sLm/Z6BorSofGtlBWhvxMF+6x0Ecj/w16j8IWGT4=
+        b=hB2xNvgDCpTrumpjhINTKNtDYM0hJVXoKHUJc+ukIVVUrGH39yche5RNf4lfDteAJ
+         T1JBo944bcTT4SW5uylgyEVCzFMJrKU4j/MeWuSXqNUx8WhKBYqUxDbeVg7AD962Og
+         52kZBwnx8/URmJeoOLrT8q2U7g35WlvIJmESQTTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 02/58] x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
-Date:   Thu, 10 Mar 2022 15:18:51 +0100
-Message-Id: <20220310140813.055549614@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.10 37/58] arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2
+Date:   Thu, 10 Mar 2022 15:18:57 +0100
+Message-Id: <20220310140813.928124989@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
-References: <20220310140812.983088611@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: James Morse <james.morse@arm.com>
 
-commit f8a66d608a3e471e1202778c2a36cbdc96bae73b upstream.
+commit dee435be76f4117410bbd90573a881fd33488f37 upstream.
 
-Currently Linux prevents usage of retpoline,amd on !AMD hardware, this
-is unfriendly and gets in the way of testing. Remove this restriction.
+Speculation attacks against some high-performance processors can
+make use of branch history to influence future speculation as part of
+a spectre-v2 attack. This is not mitigated by CSV2, meaning CPUs that
+previously reported 'Not affected' are now moderately mitigated by CSV2.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Tested-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/r/20211026120310.487348118@infradead.org
+Update the value in /sys/devices/system/cpu/vulnerabilities/spectre_v2
+to also show the state of the BHB mitigation.
+
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    7 -------
- 1 file changed, 7 deletions(-)
+ arch/arm64/include/asm/spectre.h |    2 ++
+ arch/arm64/kernel/proton-pack.c  |   36 ++++++++++++++++++++++++++++++++++--
+ 2 files changed, 36 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -882,13 +882,6 @@ static enum spectre_v2_mitigation_cmd __
- 		return SPECTRE_V2_CMD_AUTO;
- 	}
+--- a/arch/arm64/include/asm/spectre.h
++++ b/arch/arm64/include/asm/spectre.h
+@@ -29,4 +29,6 @@ bool has_spectre_v4(const struct arm64_c
+ void spectre_v4_enable_mitigation(const struct arm64_cpu_capabilities *__unused);
+ void spectre_v4_enable_task_mitigation(struct task_struct *tsk);
  
--	if (cmd == SPECTRE_V2_CMD_RETPOLINE_AMD &&
--	    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON &&
--	    boot_cpu_data.x86_vendor != X86_VENDOR_AMD) {
--		pr_err("retpoline,amd selected but CPU is not AMD. Switching to AUTO select\n");
--		return SPECTRE_V2_CMD_AUTO;
--	}
--
- 	spec_v2_print_cond(mitigation_options[i].option,
- 			   mitigation_options[i].secure);
- 	return cmd;
++enum mitigation_state arm64_get_spectre_bhb_state(void);
++
+ #endif	/* __ASM_SPECTRE_H */
+--- a/arch/arm64/kernel/proton-pack.c
++++ b/arch/arm64/kernel/proton-pack.c
+@@ -94,14 +94,39 @@ static bool spectre_v2_mitigations_off(v
+ 	return ret;
+ }
+ 
++static const char *get_bhb_affected_string(enum mitigation_state bhb_state)
++{
++	switch (bhb_state) {
++	case SPECTRE_UNAFFECTED:
++		return "";
++	default:
++	case SPECTRE_VULNERABLE:
++		return ", but not BHB";
++	case SPECTRE_MITIGATED:
++		return ", BHB";
++	}
++}
++
+ ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
+ 			    char *buf)
+ {
++	enum mitigation_state bhb_state = arm64_get_spectre_bhb_state();
++	const char *bhb_str = get_bhb_affected_string(bhb_state);
++	const char *v2_str = "Branch predictor hardening";
++
+ 	switch (spectre_v2_state) {
+ 	case SPECTRE_UNAFFECTED:
+-		return sprintf(buf, "Not affected\n");
++		if (bhb_state == SPECTRE_UNAFFECTED)
++			return sprintf(buf, "Not affected\n");
++
++		/*
++		 * Platforms affected by Spectre-BHB can't report
++		 * "Not affected" for Spectre-v2.
++		 */
++		v2_str = "CSV2";
++		fallthrough;
+ 	case SPECTRE_MITIGATED:
+-		return sprintf(buf, "Mitigation: Branch predictor hardening\n");
++		return sprintf(buf, "Mitigation: %s%s\n", v2_str, bhb_str);
+ 	case SPECTRE_VULNERABLE:
+ 		fallthrough;
+ 	default:
+@@ -787,3 +812,10 @@ int arch_prctl_spec_ctrl_get(struct task
+ 		return -ENODEV;
+ 	}
+ }
++
++static enum mitigation_state spectre_bhb_state;
++
++enum mitigation_state arm64_get_spectre_bhb_state(void)
++{
++	return spectre_bhb_state;
++}
 
 
