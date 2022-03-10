@@ -2,57 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B710F4D43CA
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 10:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30FCD4D4428
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 11:02:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240930AbiCJJxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 04:53:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32930 "EHLO
+        id S241017AbiCJKDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 05:03:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbiCJJxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 04:53:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0322313AA27;
-        Thu, 10 Mar 2022 01:52:04 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 904F961D1F;
-        Thu, 10 Mar 2022 09:52:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E95C340E8;
-        Thu, 10 Mar 2022 09:52:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646905923;
-        bh=VhDOW2Sr5evNMu3/dbxDxBWBiSMat/vpe3p/uE5RTa0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tbWivgEbyPFhif75Azoc0IBuUnDp9JBuOiiQxb/jp2a+Tp3LC61XwnjQ1QAKK26mh
-         KojH4yWcxDCUF+fmf/zcN3bnPSRzXn36uyhzWHJ6Qv2hnydilUyU3AfwfKqYJGhP/f
-         a259137UzJbbj4tlqvFEx/rQcZcWIx/e+S+qxycw=
-Date:   Thu, 10 Mar 2022 10:51:57 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/18] 4.19.234-rc1 review
-Message-ID: <YinKPfWBqkHH+ycl@kroah.com>
-References: <20220309155856.155540075@linuxfoundation.org>
- <CADVatmMODnr1vQ3VGLOACT16wLEFA6hFrTzY44VdPO2M7gX+iw@mail.gmail.com>
- <CADVatmMceoHeQqFDEJND_3GmSeQqgefeP0Z9_Zi=UTAVfZ71RQ@mail.gmail.com>
- <YijwKvDQxJzoYpFR@kroah.com>
- <CADVatmMkbwBNUhjb-S6=zVhiHi7s2Exqbwq3vXPsNzCutbYR-A@mail.gmail.com>
+        with ESMTP id S241162AbiCJKDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 05:03:06 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7E513D57A;
+        Thu, 10 Mar 2022 02:02:05 -0800 (PST)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nSFcR-0007oo-Nx; Thu, 10 Mar 2022 11:02:03 +0100
+Message-ID: <3f86f46d-947b-8485-bf87-2ebd4477a6c7@leemhuis.info>
+Date:   Thu, 10 Mar 2022 11:02:02 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADVatmMkbwBNUhjb-S6=zVhiHi7s2Exqbwq3vXPsNzCutbYR-A@mail.gmail.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: Many reports of laptops getting hot while suspended with kernels
+ >= 5.16.10 || >= 5.17-rc1
+Content-Language: en-US
+To:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Linux PM <linux-pm@vger.kernel.org>
+Cc:     stable@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+        Mark Pearson <markpearson@lenovo.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
+References: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1646906525;9a6d15ed;
+X-HE-SMSGID: 1nSFcR-0007oo-Nx
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -61,83 +47,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 09:41:18AM +0000, Sudip Mukherjee wrote:
-> On Thu, Mar 10, 2022 at 9:18 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, Mar 09, 2022 at 06:15:08PM +0000, Sudip Mukherjee wrote:
-> > > On Wed, Mar 9, 2022 at 6:08 PM Sudip Mukherjee
-> > > <sudipm.mukherjee@gmail.com> wrote:
-> > > >
-> > > > Hi Greg,
-> > > >
-> > > > On Wed, Mar 9, 2022 at 4:03 PM Greg Kroah-Hartman
-> > > > <gregkh@linuxfoundation.org> wrote:
-> > > > >
-> > > > > This is the start of the stable review cycle for the 4.19.234 release.
-> > > > > There are 18 patches in this series, all will be posted as a response
-> > > > > to this one.  If anyone has any issues with these being applied, please
-> > > > > let me know.
-> > > > >
-> > > > > Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
-> > > > > Anything received after that time might be too late.
-> > > >
-> > > > My tests are still running, but just an initial result for you,
-> > > >
-> > > > x86_64 defconfig fails with:
-> > > > arch/x86/kernel/cpu/bugs.c: In function 'spectre_v2_select_mitigation':
-> > > > arch/x86/kernel/cpu/bugs.c:973:41: error: implicit declaration of
-> > > > function 'unprivileged_ebpf_enabled'
-> > > > [-Werror=implicit-function-declaration]
-> > > >   973 |         if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
-> > >
-> > > And, lots of failures in arm builds also.
-> > > Error:
-> > > arch/arm/common/secure_cntvoff.S: Assembler messages:
-> > > arch/arm/common/secure_cntvoff.S:24: Error: co-processor register
-> > > expected -- `mcr p15,0,r0,c7,r5,4'
-> > > arch/arm/common/secure_cntvoff.S:27: Error: co-processor register
-> > > expected -- `mcr p15,0,r0,c7,r5,4'
-> > > arch/arm/common/secure_cntvoff.S:29: Error: co-processor register
-> > > expected -- `mcr p15,0,r0,c7,r5,4'
-> > > make[1]: *** [scripts/Makefile.build:403:
-> > > arch/arm/common/secure_cntvoff.o] Error 1
-> > > make[1]: *** Waiting for unfinished jobs....
-> > > arch/arm/kernel/entry-common.S: Assembler messages:
-> > > arch/arm/kernel/entry-common.S:178: Error: co-processor register
-> > > expected -- `mcr p15,0,r0,c7,r5,4'
-> > > arch/arm/kernel/entry-common.S:187: Error: co-processor register
-> > > expected -- `mcr p15,0,r0,c7,r5,4'
-> > > make[1]: *** [scripts/Makefile.build:403:
-> > > arch/arm/kernel/entry-common.o] Error 1
-> > > make[1]: *** Waiting for unfinished jobs....
-> > > arch/arm/mm/cache-v7.S: Assembler messages:
-> > > arch/arm/mm/cache-v7.S:64: Error: co-processor register expected --
-> > > `mcr p15,0,r0,c7,r5,4'
-> > > arch/arm/mm/cache-v7.S:137: Error: co-processor register expected --
-> > > `mcr p15,0,r0,c7,r5,4'
-> > > arch/arm/mm/cache-v7.S:171: Error: co-processor register expected --
-> > > `mcr p15,0,r0,c7,r5,4'
-> > > arch/arm/mm/cache-v7.S:299: Error: co-processor register expected --
-> > > `mcr p15,0,r0,c7,r5,4'
-> > > make[1]: *** [scripts/Makefile.build:403: arch/arm/mm/cache-v7.o] Error 1
-> >
-> > All clang builds for arm are known to fail, and some arm64 clang builds
-> > will also fail.  I have seen initial patches for arm64, will let the
-> > clang developers come up with the arm fix as I have no idea how to
-> > handle that.  This just mirrors Linus's tree right now :)
-> >
-> > Unless this is gcc?
+Hi, this is your Linux kernel regression tracker.
+
+On 09.03.22 14:44, Hans de Goede wrote:
 > 
-> This is gcc version 11.2.1 20220301
+> We (Fedora) have been receiving a whole bunch of bug reports about
+> laptops getting hot/toasty while suspended with kernels >= 5.16.10
+> and this seems to still happen with 5.17-rc7 too.
+
+I was about to sent a similar mail, but then I found this one. Thx for
+making my life easier. :-D
+
+But could you do me a big favor and CC the regression mailing list
+(regressions@lists.linux.dev) in case similar situations arise in the
+future? tia!
+
+> The following are all bugzilla.redhat.com bug numbers:
 > 
-> Guenter has also reported the same: "Almost all arm builds, all
-> branches from 4.9.y to 5.16.y:"
+>    1750910 - Laptop failed to suspend and completely drained the battery
+>    2050036 - Framework laptop: 5.16.5 breaks s2idle sleep
+>    2053957 - Package c-states never go below C2
+>    2056729 - No lid events when closing lid / laptop does not suspend
+>    2057909 - Thinkpad X1C 9th in s2idle suspend still draining battery to zero over night , Ap
+>    2059668 - HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case ge
+>    2059688 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
+> 
+> And one of the bugs has also been mirrored at bugzilla.kernel.org by
+> the reporter:
+> 
+>  bko215641 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
 
-Sorry, my email was stalled yesterday.  The fix for this should now be
-in the queue, I'm doing some more build testing right now before I'll
-release -rc2 for all branches.
+Here is another, but it's basically linking to reports you already
+mentioned:
+https://bugzilla.kernel.org/show_bug.cgi?id=215661
 
-thanks,
+> The common denominator here (besides the kernel version) seems to
+> be that these are all Ice or Tiger Lake systems (I did not do
+> check this applies 100% to all bugs, but it does see, to be a pattern).
+> 
+> A similar arch-linux report:
+> 
+> https://bbs.archlinux.org/viewtopic.php?id=274292&p=2
+> 
+> Suggest that reverting 
+> "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
+> 
+> which was cherry-picked into 5.16.10 fixes things.
 
-greg k-h
+From the thread I gather that it looks like 5.17 is not affected; if
+that changes, could anybody please give me a heads up please?
+
+> If you want I can create Fedora kernel test-rpms of a recent
+> 5.16.y with just that one commit reverted and ask users to
+> confirm if that helps. Please let me know if doing that woulkd
+> be useful ?
+
+FWIW: To be sure below issue doesn't fall through the cracks unnoticed,
+I'm adding it to regzbot, my Linux kernel regression tracking bot:
+
+#regzbot ^introduced 4287509b4d21e34dc49266c
+#regzbot ignore-activity
+
+If it turns out this isn't a regression, free free to remove it from the
+tracking by sending a reply to this thread containing a paragraph like
+"#regzbot invalid: reason why this is invalid" (without the quotes).
+
+Reminder for developers: when fixing the issue, please add a 'Link:'
+tags pointing to the report (the mail quoted above) using
+lore.kernel.org/r/, as explained in
+'Documentation/process/submitting-patches.rst' and
+'Documentation/process/5.Posting.rst'. Regzbot needs them to
+automatically connect reports with fixes, but they are useful in
+general, too.
+
+I'm sending this to everyone that got the initial report, to make
+everyone aware of the tracking. I also hope that messages like this
+motivate people to directly get at least the regression mailing list and
+ideally even regzbot involved when dealing with regressions, as messages
+like this wouldn't be needed then. And don't worry, if I need to send
+other mails regarding this regression only relevant for regzbot I'll
+send them to the regressions lists only (with a tag in the subject so
+people can filter them away). With a bit of luck no such messages will
+be needed anyway.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I'm getting a lot of
+reports on my table. I can only look briefly into most of them and lack
+knowledge about most of the areas they concern. I thus unfortunately
+will sometimes get things wrong or miss something important. I hope
+that's not the case here; if you think it is, don't hesitate to tell me
+in a public reply, it's in everyone's interest to set the public record
+straight.
+
+-- 
+Additional information about regzbot:
+
+If you want to know more about regzbot, check out its web-interface, the
+getting start guide, and the references documentation:
+
+https://linux-regtracking.leemhuis.info/regzbot/
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md
+
+The last two documents will explain how you can interact with regzbot
+yourself if your want to.
+
+Hint for reporters: when reporting a regression it's in your interest to
+CC the regression list and tell regzbot about the issue, as that ensures
+the regression makes it onto the radar of the Linux kernel's regression
+tracker -- that's in your interest, as it ensures your report won't fall
+through the cracks unnoticed.
+
+Hint for developers: you normally don't need to care about regzbot once
+it's involved. Fix the issue as you normally would, just remember to
+include 'Link:' tag in the patch descriptions pointing to all reports
+about the issue. This has been expected from developers even before
+regzbot showed up for reasons explained in
+'Documentation/process/submitting-patches.rst' and
+'Documentation/process/5.Posting.rst'.
