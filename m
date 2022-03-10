@@ -2,117 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CEAB4D54F5
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 00:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2BA64D54F8
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 00:04:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344056AbiCJXDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 18:03:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
+        id S1343696AbiCJXFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 18:05:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244176AbiCJXDx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 18:03:53 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F05D8861
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:02:50 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id e13so6215256plh.3
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:02:50 -0800 (PST)
+        with ESMTP id S238055AbiCJXFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 18:05:18 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433DA13C240
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:04:16 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id r12so6198000pla.1
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:04:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        d=linaro.org; s=google;
         h=message-id:date:mime-version:user-agent:subject:content-language:to
          :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=qCMfsAHqhyUTf8fGA4OHhtye0xi2CMmHfA8bKqnUOwU=;
-        b=lTIm6tcynZZZZo+qzBuJkyCnE4SOADxBnvgaYZoo0BfrlKjaT2/ycA5aM4ucCs9DRm
-         A40bsgqfpYfNkXrpTTq+RtdQJ5apjKjPihr+2QKy0dHc+WPb64rottYAyH9KT4fSTJ6f
-         uMLKFM0rtA9ulOVMEihml7zQlcjinPqsnTBTXV2HnNALTSX7gnl0P/LACOnXG13mkmY5
-         9ujpHbi6VUsYBwbdmEBIX9RPuZqNqUnvLM8N36WyjG0EZMeyIBbXs6VshlvPgKns8KI0
-         rgOe+QH+RZyzXYT1LXkaLDu3lxYjZ7nGb26Qh3eQ0AZo6hlqsduUOAI8yyeuOrVIeVdL
-         uwyA==
+        bh=1coxOHy+MiOVkaWgzSw++tkxGlirBpUlCMovtClURhw=;
+        b=CjWfotxA33yOsiAJ7O8Fm3Q6c+I6BF7K7x2OwbbcHiGwT0SPnVY4OXhan3k5QaGlbt
+         WU3LZJ+4LVyE4wxo5yZEYRRY6oVg/CwycFcrLAJA/7Sv9vc+4OPp3aEicV+dmxkIPNu7
+         B9mDme2VHkIEA86cgc3LRs1aJvhXqL+HivHuz8+8IKsulr7JWTB+EfFZ/70pTeYm0l5s
+         jbOQgfW0slhcjisOZ3zLqjDUjedFHxTul8fich1wTn1OV6bH8Bfv3gEdGQUbT/Jx7vRU
+         F+KzSYjRifjUoT98RTyxdS3W93t8RAjJ9ejZEz5cAaZ8uPIByzG/qpEFK88zunFNx8JJ
+         rnvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=qCMfsAHqhyUTf8fGA4OHhtye0xi2CMmHfA8bKqnUOwU=;
-        b=dQWbZYsTE8HnPjnlcz+ZIAR7ZgSgWWLOyDqRs4p7EXmjoKxung88JXdurnpYf3VaEI
-         zb9Ja/OufCC+HoCpp+/TeSAIZqwg8U+u59JRJ4kutskx2bBa0mjDhXwV5tPFy0yTs4vC
-         cJouR3ZzFCjvFmvEcrInhDI4kxI2ZHUzH2cxyzvDXGefY7MfwAlsBFN0XBeYCLE4Lgpx
-         8UYKBQC5ln9PC6s3dU+/nLK4wGRzp9OUqmzoQkE5ougO9CDauyD9Y8ymbNQu/xBDSVJF
-         t63vvBG+JjmkZ6aFaJfu511S8rfvIPPxt5DpE0x0Lc/kHpv5u2pugHAzli/chVSMKIyZ
-         VnoA==
-X-Gm-Message-State: AOAM530mMHgPPw5A+/FU7JiUTT9E1EvxrfqNfJnbioUELaPIqfgeCj9M
-        5NYzB7l8Q/W3Qp6Hq/J+FSsZAA==
-X-Google-Smtp-Source: ABdhPJxkBgTssqHrG0TSK20fB1rNsXucs78oWP3GJVb0mgEcRUQTMz6BAmM8EHaGJfpPH6DEMePBaQ==
-X-Received: by 2002:a17:90b:1941:b0:1bf:5440:d716 with SMTP id nk1-20020a17090b194100b001bf5440d716mr7475224pjb.147.1646953369999;
-        Thu, 10 Mar 2022 15:02:49 -0800 (PST)
-Received: from ?IPV6:2600:380:7676:ce7b:11ac:aee8:fe09:2807? ([2600:380:7676:ce7b:11ac:aee8:fe09:2807])
-        by smtp.gmail.com with ESMTPSA id p10-20020a056a000b4a00b004e12fd48035sm8358038pfo.96.2022.03.10.15.02.48
+        bh=1coxOHy+MiOVkaWgzSw++tkxGlirBpUlCMovtClURhw=;
+        b=2vIFtedYKY8id2qsS/Kn6bsKyWZ047wYDK4D+sUf9iku+f7bpkbHtfBON8NsHjFTRS
+         cgmDvFCclcln0ihj5wwPQYRkLHTsFoVdVBr2qsw2RVMnt8H/EObZRc87K5PzWkSvplrt
+         rid3uNMCoBsj72seuKtEttDySE17JCPzds2xc0PPNBLvh4mQ7BZUXQShBUrfgbWJECni
+         Ja3num9uANFOSNma9diE/CvxdkSSJOQpjgul2M0zC5a1pbJam7bIVW752vPoCZvrCgLk
+         F2gR8NejV+YCEAQtCZQaeoVym0IoBzuHpw6p8sde0hHyi4Z7fISkNa8GTrpF/ZolfTcZ
+         EvFA==
+X-Gm-Message-State: AOAM5300O7raT5JKIRAG8mWGOGg8V+LXr17SMs1cZWIoBgVkk3juGFNA
+        NhrYA1/2gGTIPO+wZzkDYw7XkQ==
+X-Google-Smtp-Source: ABdhPJw8HTIbG6Vtna5RHQ3w0pUmdSBxZ9o7VNzoRIFubitq+l+4KYvfWrG6iZrcHpsFwfLo5jj15A==
+X-Received: by 2002:a17:903:124a:b0:151:99fe:1a10 with SMTP id u10-20020a170903124a00b0015199fe1a10mr7338107plh.87.1646953455727;
+        Thu, 10 Mar 2022 15:04:15 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id rj14-20020a17090b3e8e00b001bf50a8b468sm11740225pjb.51.2022.03.10.15.04.14
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 15:02:49 -0800 (PST)
-Message-ID: <38f7aaf5-2043-b4f4-1fa5-52a7c883772b@kernel.dk>
-Date:   Thu, 10 Mar 2022 16:02:47 -0700
+        Thu, 10 Mar 2022 15:04:15 -0800 (PST)
+Message-ID: <77a44185-c9cd-21f5-125f-b8eec7a66537@linaro.org>
+Date:   Thu, 10 Mar 2022 15:04:14 -0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH] block: check more requests for multiple_queues in
- blk_attempt_plug_merge
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v2] net: ipv6: fix skb_over_panic in __ip6_append_data
 Content-Language: en-US
-To:     Song Liu <song@kernel.org>
-Cc:     linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, stable@vger.kernel.org,
-        Larkin Lowrey <llowrey@nuclearwinter.com>,
-        Wilson Jonathan <i400sjon@gmail.com>,
-        Roger Heflin <rogerheflin@gmail.com>
-References: <20220309064209.4169303-1-song@kernel.org>
- <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
- <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+To:     Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     David Miller <davem@davemloft.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        David Ahern <dsahern@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Network Development <netdev@vger.kernel.org>,
+        bpf <bpf@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com,
+        Willem de Bruijn <willemb@google.com>
+References: <CA+FuTScPUVpyK6WYXrePTg_533VF2wfPww4MOJYa17v0xbLeGQ@mail.gmail.com>
+ <20220310221328.877987-1-tadeusz.struk@linaro.org>
+ <20220310143011.00c21f53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <CAF=yD-LrVjvY8wAqZtUTFS8V9ng2AD3jB1DOZvkagPOp3Sbq-g@mail.gmail.com>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <CAF=yD-LrVjvY8wAqZtUTFS8V9ng2AD3jB1DOZvkagPOp3Sbq-g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/22 3:37 PM, Song Liu wrote:
-> On Thu, Mar 10, 2022 at 2:15 PM Jens Axboe <axboe@kernel.dk> wrote:
+On 3/10/22 14:43, Willem de Bruijn wrote:
+> On Thu, Mar 10, 2022 at 5:30 PM Jakub Kicinski <kuba@kernel.org> wrote:
 >>
->> On 3/8/22 11:42 PM, Song Liu wrote:
->>> RAID arrays check/repair operations benefit a lot from merging requests.
->>> If we only check the previous entry for merge attempt, many merge will be
->>> missed. As a result, significant regression is observed for RAID check
->>> and repair.
->>>
->>> Fix this by checking more than just the previous entry when
->>> plug->multiple_queues == true.
->>>
->>> This improves the check/repair speed of a 20-HDD raid6 from 19 MB/s to
->>> 103 MB/s.
+>> On Thu, 10 Mar 2022 14:13:28 -0800 Tadeusz Struk wrote:
+>>> diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+>>> index 4788f6b37053..6d45112322a0 100644
+>>> --- a/net/ipv6/ip6_output.c
+>>> +++ b/net/ipv6/ip6_output.c
+>>> @@ -1649,6 +1649,16 @@ static int __ip6_append_data(struct sock *sk,
+>>>                        skb->protocol = htons(ETH_P_IPV6);
+>>>                        skb->ip_summed = csummode;
+>>>                        skb->csum = 0;
+>>> +
+>>> +                     /*
+>>> +                      *      Check if there is still room for payload
+>>> +                      */
 >>
->> Do the underlying disks not have an IO scheduler attached? Curious why
->> the merges aren't being done there, would be trivial when the list is
->> flushed out. Because if the perf difference is that big, then other
->> workloads would be suffering they are that sensitive to being within a
->> plug worth of IO.
+>> TBH I think the check is self-explanatory. Not worth a banner comment,
+>> for sure.
+>>
+>>> +                     if (fragheaderlen >= mtu) {
+>>> +                             err = -EMSGSIZE;
+>>> +                             kfree_skb(skb);
+>>> +                             goto error;
+>>> +                     }
+>>
+>> Not sure if Willem prefers this placement, but seems like we can lift
+>> this check out of the loop, as soon as fragheaderlen and mtu are known.
+>>
+>>>                        /* reserve for fragmentation and ipsec header */
+>>>                        skb_reserve(skb, hh_len + sizeof(struct frag_hdr) +
+>>>                                    dst_exthdrlen);
 > 
-> The disks have mq-deadline by default. I also tried kyber, the result
-> is the same. Raid repair work sends IOs to all the HDDs in a
-> round-robin manner. If we only check the previous request, there isn't
-> much opportunity for merge. I guess other workloads may have different
-> behavior?
+> Just updating this boundary check will do?
+> 
+>          if (mtu < fragheaderlen ||
+>              ((mtu - fragheaderlen) & ~7) + fragheaderlen <
+> sizeof(struct frag_hdr))
+>                  goto emsgsize;
 
-Round robin one at the time? I feel like there's something odd or
-suboptimal with the raid rebuild, if it's that sensitive to plug
-merging. Plug merging is mainly meant to reduce the overhead of merging,
-complement what the scheduler would do. If there's a big drop in
-performance just by not getting as efficient merging on the plug side,
-that points to an issue with something else.
+Yes, it will. v3 on its way.
 
 -- 
-Jens Axboe
-
+Thanks,
+Tadeusz
