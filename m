@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 795214D4BF4
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5980B4D4B7E
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:00:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244122AbiCJOcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:32:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50328 "EHLO
+        id S243451AbiCJOWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:22:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244755AbiCJO32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14E25DE2E6;
-        Thu, 10 Mar 2022 06:24:38 -0800 (PST)
+        with ESMTP id S243369AbiCJOVp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:21:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2D0B250C;
+        Thu, 10 Mar 2022 06:20:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2912F61D78;
-        Thu, 10 Mar 2022 14:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B150C36AE5;
-        Thu, 10 Mar 2022 14:24:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEEF2B82670;
+        Thu, 10 Mar 2022 14:20:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E5AAC340EB;
+        Thu, 10 Mar 2022 14:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922252;
-        bh=jr+6+1MnJQNcfljlgg0AAAnKF+/2D+Wgaosbrook0EU=;
+        s=korg; t=1646922029;
+        bh=Yd5n5DSjjVDG87tEbvo0EgJLSt9bMab9/62XTFXxw2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUQ4UbV+o+YSisb1l5MBI8zvA5mONzOJgitXbIYLdMytTnA8PSLPAgTb6CAAjO2uh
-         nLJ2yaM+gXK96yEs/ZHD1t+aiv5UeB6F0Z+O615+qzA88Pru/Vyd61H9RnSGneXAI0
-         QErfzsjfVSUEjBvd2KsrH+Rqa0i984Pe+7Hbc03k=
+        b=UYAulTbk672MnC19J11fdrM8FQFV8jUTHRWv0OsphYQoUPGskJ24NLcCQ3fWeZxG6
+         e8Y5Z+nfhWqm8JEMWoKJ7ORRkQ8QfH9eI2JEVT6lCGbBnakYdRbj4CwvW7Rs3+2zpR
+         7tWbdayWaYneJPGwufqh85FNTaN+XRs9z8E8j650=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 08/58] x86/speculation: Warn about Spectre v2 LFENCE mitigation
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.14 15/31] ARM: use LOADADDR() to get load address of sections
 Date:   Thu, 10 Mar 2022 15:18:28 +0100
-Message-Id: <20220310140813.112529706@linuxfoundation.org>
+Message-Id: <20220310140807.979965576@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140807.524313448@linuxfoundation.org>
+References: <20220310140807.524313448@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
 
-commit eafd987d4a82c7bb5aa12f0e3b4f8f3dea93e678 upstream.
+commit 8d9d651ff2270a632e9dc497b142db31e8911315 upstream.
 
-With:
+Use the linker's LOADADDR() macro to get the load address of the
+sections, and provide a macro to set the start and end symbols.
 
-  f8a66d608a3e ("x86,bugs: Unconditionally allow spectre_v2=retpoline,amd")
-
-it became possible to enable the LFENCE "retpoline" on Intel. However,
-Intel doesn't recommend it, as it has some weaknesses compared to
-retpoline.
-
-Now AMD doesn't recommend it either.
-
-It can still be left available as a cmdline option. It's faster than
-retpoline but is weaker in certain scenarios -- particularly SMT, but
-even non-SMT may be vulnerable in some cases.
-
-So just unconditionally warn if the user requests it on the cmdline.
-
-  [ bp: Massage commit message. ]
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/kernel/vmlinux-xip.lds.S |   19 ++++++++++++-------
+ arch/arm/kernel/vmlinux.lds.S     |   19 ++++++++++++-------
+ 2 files changed, 24 insertions(+), 14 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -614,6 +614,7 @@ static inline const char *spectre_v2_mod
- static inline const char *spectre_v2_module_string(void) { return ""; }
- #endif
+--- a/arch/arm/kernel/vmlinux-xip.lds.S
++++ b/arch/arm/kernel/vmlinux-xip.lds.S
+@@ -13,6 +13,11 @@
+ #include <asm/memory.h>
+ #include <asm/page.h>
  
-+#define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
- #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
- 
- #ifdef CONFIG_BPF_SYSCALL
-@@ -935,6 +936,7 @@ static void __init spectre_v2_select_mit
- 		break;
- 
- 	case SPECTRE_V2_CMD_RETPOLINE_LFENCE:
-+		pr_err(SPECTRE_V2_LFENCE_MSG);
- 		mode = SPECTRE_V2_LFENCE;
- 		break;
- 
-@@ -1717,6 +1719,9 @@ static char *ibpb_state(void)
- 
- static ssize_t spectre_v2_show_state(char *buf)
- {
-+	if (spectre_v2_enabled == SPECTRE_V2_LFENCE)
-+		return sprintf(buf, "Vulnerable: LFENCE\n");
++/* Set start/end symbol names to the LMA for the section */
++#define ARM_LMA(sym, section)						\
++	sym##_start = LOADADDR(section);				\
++	sym##_end = LOADADDR(section) + SIZEOF(section)
 +
- 	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
- 		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
+ #define PROC_INFO							\
+ 	. = ALIGN(4);							\
+ 	VMLINUX_SYMBOL(__proc_info_begin) = .;				\
+@@ -149,19 +154,19 @@ SECTIONS
+ 	 * The vectors and stubs are relocatable code, and the
+ 	 * only thing that matters is their relative offsets
+ 	 */
+-	__vectors_start = .;
++	__vectors_lma = .;
+ 	.vectors 0xffff0000 : AT(__vectors_start) {
+ 		*(.vectors)
+ 	}
+-	. = __vectors_start + SIZEOF(.vectors);
+-	__vectors_end = .;
++	ARM_LMA(__vectors, .vectors);
++	. = __vectors_lma + SIZEOF(.vectors);
+ 
+-	__stubs_start = .;
+-	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_start) {
++	__stubs_lma = .;
++	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_lma) {
+ 		*(.stubs)
+ 	}
+-	. = __stubs_start + SIZEOF(.stubs);
+-	__stubs_end = .;
++	ARM_LMA(__stubs, .stubs);
++	. = __stubs_lma + SIZEOF(.stubs);
+ 
+ 	PROVIDE(vector_fiq_offset = vector_fiq - ADDR(.vectors));
+ 
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -15,6 +15,11 @@
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ 
++/* Set start/end symbol names to the LMA for the section */
++#define ARM_LMA(sym, section)						\
++	sym##_start = LOADADDR(section);				\
++	sym##_end = LOADADDR(section) + SIZEOF(section)
++
+ #define PROC_INFO							\
+ 	. = ALIGN(4);							\
+ 	VMLINUX_SYMBOL(__proc_info_begin) = .;				\
+@@ -170,19 +175,19 @@ SECTIONS
+ 	 * The vectors and stubs are relocatable code, and the
+ 	 * only thing that matters is their relative offsets
+ 	 */
+-	__vectors_start = .;
++	__vectors_lma = .;
+ 	.vectors 0xffff0000 : AT(__vectors_start) {
+ 		*(.vectors)
+ 	}
+-	. = __vectors_start + SIZEOF(.vectors);
+-	__vectors_end = .;
++	ARM_LMA(__vectors, .vectors);
++	. = __vectors_lma + SIZEOF(.vectors);
+ 
+-	__stubs_start = .;
+-	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_start) {
++	__stubs_lma = .;
++	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_lma) {
+ 		*(.stubs)
+ 	}
+-	. = __stubs_start + SIZEOF(.stubs);
+-	__stubs_end = .;
++	ARM_LMA(__stubs, .stubs);
++	. = __stubs_lma + SIZEOF(.stubs);
+ 
+ 	PROVIDE(vector_fiq_offset = vector_fiq - ADDR(.vectors));
  
 
 
