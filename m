@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF10C4D5207
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 20:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB6F4D51DC
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 20:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343607AbiCJTej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 14:34:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47684 "EHLO
+        id S1343633AbiCJTfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 14:35:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234016AbiCJTei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 14:34:38 -0500
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B18014F28F
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 11:33:33 -0800 (PST)
-Received: by mail-io1-xd2e.google.com with SMTP id c23so7714642ioi.4
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 11:33:33 -0800 (PST)
+        with ESMTP id S237702AbiCJTfB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 14:35:01 -0500
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D4A153382
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 11:33:59 -0800 (PST)
+Received: by mail-io1-xd30.google.com with SMTP id d62so7649534iog.13
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 11:33:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxfoundation.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=TjN/XrHvzjuIzLGTgkYjfBEq5EotAmGIX3AzMDA/7ho=;
-        b=MmaRL1Rqa5B1Xw+s7VcY1Iq5XME47wvDCfomjkzn+BsFr4eDHSoVCh11D6CVczFJFX
-         LxLLjAf3pvC58HEX+F8UmHhmwVMCkrVG86s62st8hUxMMWprFzJIgb688m9Eix4G9hu+
-         MvGTRSM8dywO9kFkh45pnh7U907UNzLh//PF0=
+        bh=nXm/nE/YMI/NAjMX3gPi0lN+FNjqkd+Pu3WVT9wyz1c=;
+        b=JLbdaOl9J1cQ7ir1hXzFhm5gIIzdVZ3HkGy5/69s9V0YAgUkpbtMq6+xeSls5qgVnq
+         WARm6xvzO153pfbizzhr2QDkaDiMMuJlWMR9JtVpqvhuv7Bu6rtjHq4yZ4QF1ogL13v7
+         WAb8PUqPlUFxi3NHPcZj4JhfsVE7gqPvAID34=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=TjN/XrHvzjuIzLGTgkYjfBEq5EotAmGIX3AzMDA/7ho=;
-        b=zwxHHrJL/N0sjdfol4XRxT8pzWIuelSVJHFaepISFliMXZ+MALeYHV5kYlWdMGOdgw
-         xjHgYMDqR5IaQrodMaS1lr1/hQpKkdikPj1PSn0uwJm3EKW17XRTsErw91nkQz8X1a6P
-         8e0nPXE3N5wTyDYv+BuinF9l66Z6FycrfU7sOwxQfH1ykNe+cf9TCI7iZ/BZ0wRmvAcx
-         xJ5OALc4i3IX/BHy2sSSRXzUraVnGA9jaTiLnoMu5zU/JydMqBT0g3CuzFRIPwDru8tC
-         XvKnQZXpsLPp/p3OBe84+sZ6baZa8PF+wqRyqDrDLaWs6zwRielJAxIO0Awv3EVXsQ4+
-         bsNA==
-X-Gm-Message-State: AOAM532XYKwTbqHY0rEHZh1SfkIWFS2Ld54Fja5YcR3oJMn0tKBycyrx
-        UR/340xgA7vHENHFbMV8rVG5FA==
-X-Google-Smtp-Source: ABdhPJxQLuEdTlPfh15yh12C/ToZiiTRe88yc4baJoc7tuv+Ma9oBpabV5xTJ/lNRlfySIUjQPCQPQ==
-X-Received: by 2002:a6b:4911:0:b0:646:3a67:397 with SMTP id u17-20020a6b4911000000b006463a670397mr5085659iob.73.1646940812712;
-        Thu, 10 Mar 2022 11:33:32 -0800 (PST)
+        bh=nXm/nE/YMI/NAjMX3gPi0lN+FNjqkd+Pu3WVT9wyz1c=;
+        b=eVv1RLlxKE6GIvhiV7F48bMAEFnvPjE+RATSSOP2EdS/b3v33xGNflUqhxCkEU1sNf
+         8fpeaAtwpU9oWi6lkBK3NAAmvRWbLfb1e5/QvsPv609BC+VRXpw66F8MDND/U8cVhtpH
+         J/XG9U+oMQFRWy3wV38Wii7uF/LM8beZzLKwu0zqI3E1S+LfUfEV++1Qmk70ukENUUPN
+         B0maXVK1RtEFr+xUzEjqCQVEuD4gM+2mWDqZZOBsLghQ/LDxvhy2HHANgotsDRvMCW42
+         Hxle/OlnC2I0+KjooJJSzVkyG9XYVpyVKMUNQ7pTMrf8kDu1zyXMhQL0zb97SC0ly5qW
+         3jqQ==
+X-Gm-Message-State: AOAM532XDJHObSIrAoN/weIRTRxhqlFoJCcgS+KwjIVjnIg0h0l7MbpN
+        NVi+IsDbzECAZD0NhhDoFkFTvw==
+X-Google-Smtp-Source: ABdhPJxBJ0IxCOx3EfWOWZvLJfD3weRVU9D+Y6Mr1oTctaLenTURO3kTlif7LpJ5+yoFMrOEZVNJUA==
+X-Received: by 2002:a5e:d809:0:b0:645:eb2b:d173 with SMTP id l9-20020a5ed809000000b00645eb2bd173mr5002507iok.54.1646940838833;
+        Thu, 10 Mar 2022 11:33:58 -0800 (PST)
 Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id g2-20020a056e021a2200b002c662869cb1sm3270566ile.62.2022.03.10.11.33.31
+        by smtp.gmail.com with ESMTPSA id w10-20020a056e02190a00b002c6637e1a1asm3248778ilu.47.2022.03.10.11.33.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 11:33:32 -0800 (PST)
-Subject: Re: [PATCH 5.10 00/58] 5.10.105-rc2 review
+        Thu, 10 Mar 2022 11:33:58 -0800 (PST)
+Subject: Re: [PATCH 5.4 00/33] 5.4.184-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
@@ -54,30 +54,30 @@ Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
         Shuah Khan <skhan@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140808.741682643@linuxfoundation.org>
 From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <39e21359-c94e-1007-cdc9-af4feeea9204@linuxfoundation.org>
-Date:   Thu, 10 Mar 2022 12:33:31 -0700
+Message-ID: <a9fba17a-ff22-f55e-198c-d697fdbaa577@linuxfoundation.org>
+Date:   Thu, 10 Mar 2022 12:33:57 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/22 7:18 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.105 release.
-> There are 58 patches in this series, all will be posted as a response
+On 3/10/22 7:19 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.184 release.
+> There are 33 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -85,15 +85,16 @@ On 3/10/22 7:18 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.105-rc2.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.184-rc2.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
 > 
 > greg k-h
 > 
+
 Compiled and booted on my test system. No dmesg regressions.
 
 Tested-by: Shuah Khan <skhan@linuxfoundation.org>
