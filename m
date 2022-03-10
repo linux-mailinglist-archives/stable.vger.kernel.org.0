@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0304D4A7F
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 876F44D4A71
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231186AbiCJOYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:24:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57432 "EHLO
+        id S237923AbiCJObo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243746AbiCJOXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:23:13 -0500
+        with ESMTP id S245565AbiCJOaj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D1D6158794;
-        Thu, 10 Mar 2022 06:21:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE4E182BE7;
+        Thu, 10 Mar 2022 06:26:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C674B825A7;
-        Thu, 10 Mar 2022 14:21:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EAE7C340F5;
-        Thu, 10 Mar 2022 14:21:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BE4FB825A7;
+        Thu, 10 Mar 2022 14:26:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C56EEC340F3;
+        Thu, 10 Mar 2022 14:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922071;
-        bh=T/mHRVpyB/klvNBKNmoZm1usKzPz4/NT8r60/gXuNsc=;
+        s=korg; t=1646922386;
+        bh=l8kb+JyFkCFG12lhe+TB8NG8sV6PXySdPd9O6zdBpGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qh1+6HPJAwpLhZerrbYE5m4qhqcGDTakEcjsqBkHe0q82f0z1fq6BLoKBZhoFEjS8
-         yLjkqWNQX++iiTK6BGcsJurTEWUDHKexZufLWE8LQ8K+cs9d6bzs3hkTpY1asyo7yR
-         aVYj+A5V41h76buxqJEeIgwviYXsNjos5rNceGtk=
+        b=QWRUs7ELghAbsWeoFRR+sROWTW8IQAB5nRt4QD1is6bBNTbyU6GlIzdxj9CCDZLPm
+         Ts5S+zuU9kAJRjp9yEkqg5DCFg+48FBdb+XgLx9jfoSagnyLQxKIcD4hpX6oqI9DKE
+         EB5E5eNSnmexYD1W/ycsdPyjOr9mGD8x3V2cnahg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.14 27/31] xen/gntalloc: dont use gnttab_query_foreign_access()
+        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.10 20/58] arm64: add ID_AA64ISAR2_EL1 sys register
 Date:   Thu, 10 Mar 2022 15:18:40 +0100
-Message-Id: <20220310140808.332010211@linuxfoundation.org>
+Message-Id: <20220310140813.450792361@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140807.524313448@linuxfoundation.org>
-References: <20220310140807.524313448@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +58,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Joey Gouly <joey.gouly@arm.com>
 
-Commit d3b6372c5881cb54925212abb62c521df8ba4809 upstream.
+commit 9e45365f1469ef2b934f9d035975dbc9ad352116 upstream.
 
-Using gnttab_query_foreign_access() is unsafe, as it is racy by design.
+This is a new ID register, introduced in 8.7.
 
-The use case in the gntalloc driver is not needed at all. While at it
-replace the call of gnttab_end_foreign_access_ref() with a call of
-gnttab_end_foreign_access(), which is what is really wanted there. In
-case the grant wasn't used due to an allocation failure, just free the
-grant via gnttab_free_grant_reference().
-
-This is CVE-2022-23039 / part of XSA-396.
-
-Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: Reiji Watanabe <reijiw@google.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211210165432.8106-3-joey.gouly@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/gntalloc.c |   25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+ arch/arm64/include/asm/cpu.h    |    1 +
+ arch/arm64/include/asm/sysreg.h |   15 +++++++++++++++
+ arch/arm64/kernel/cpufeature.c  |    9 +++++++++
+ arch/arm64/kernel/cpuinfo.c     |    1 +
+ arch/arm64/kvm/sys_regs.c       |    2 +-
+ 5 files changed, 27 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/gntalloc.c
-+++ b/drivers/xen/gntalloc.c
-@@ -169,20 +169,14 @@ undo:
- 		__del_gref(gref);
- 	}
+--- a/arch/arm64/include/asm/cpu.h
++++ b/arch/arm64/include/asm/cpu.h
+@@ -25,6 +25,7 @@ struct cpuinfo_arm64 {
+ 	u64		reg_id_aa64dfr1;
+ 	u64		reg_id_aa64isar0;
+ 	u64		reg_id_aa64isar1;
++	u64		reg_id_aa64isar2;
+ 	u64		reg_id_aa64mmfr0;
+ 	u64		reg_id_aa64mmfr1;
+ 	u64		reg_id_aa64mmfr2;
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -175,6 +175,7 @@
  
--	/* It's possible for the target domain to map the just-allocated grant
--	 * references by blindly guessing their IDs; if this is done, then
--	 * __del_gref will leave them in the queue_gref list. They need to be
--	 * added to the global list so that we can free them when they are no
--	 * longer referenced.
--	 */
--	if (unlikely(!list_empty(&queue_gref)))
--		list_splice_tail(&queue_gref, &gref_list);
- 	mutex_unlock(&gref_mutex);
- 	return rc;
- }
+ #define SYS_ID_AA64ISAR0_EL1		sys_reg(3, 0, 0, 6, 0)
+ #define SYS_ID_AA64ISAR1_EL1		sys_reg(3, 0, 0, 6, 1)
++#define SYS_ID_AA64ISAR2_EL1		sys_reg(3, 0, 0, 6, 2)
  
- static void __del_gref(struct gntalloc_gref *gref)
- {
-+	unsigned long addr;
+ #define SYS_ID_AA64MMFR0_EL1		sys_reg(3, 0, 0, 7, 0)
+ #define SYS_ID_AA64MMFR1_EL1		sys_reg(3, 0, 0, 7, 1)
+@@ -687,6 +688,20 @@
+ #define ID_AA64ISAR1_GPI_NI			0x0
+ #define ID_AA64ISAR1_GPI_IMP_DEF		0x1
+ 
++/* id_aa64isar2 */
++#define ID_AA64ISAR2_RPRES_SHIFT	4
++#define ID_AA64ISAR2_WFXT_SHIFT		0
 +
- 	if (gref->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
- 		uint8_t *tmp = kmap(gref->page);
- 		tmp[gref->notify.pgoff] = 0;
-@@ -196,21 +190,16 @@ static void __del_gref(struct gntalloc_g
- 	gref->notify.flags = 0;
++#define ID_AA64ISAR2_RPRES_8BIT		0x0
++#define ID_AA64ISAR2_RPRES_12BIT	0x1
++/*
++ * Value 0x1 has been removed from the architecture, and is
++ * reserved, but has not yet been removed from the ARM ARM
++ * as of ARM DDI 0487G.b.
++ */
++#define ID_AA64ISAR2_WFXT_NI		0x0
++#define ID_AA64ISAR2_WFXT_SUPPORTED	0x2
++
+ /* id_aa64pfr0 */
+ #define ID_AA64PFR0_CSV3_SHIFT		60
+ #define ID_AA64PFR0_CSV2_SHIFT		56
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -205,6 +205,10 @@ static const struct arm64_ftr_bits ftr_i
+ 	ARM64_FTR_END,
+ };
  
- 	if (gref->gref_id) {
--		if (gnttab_query_foreign_access(gref->gref_id))
--			return;
--
--		if (!gnttab_end_foreign_access_ref(gref->gref_id, 0))
--			return;
--
--		gnttab_free_grant_reference(gref->gref_id);
-+		if (gref->page) {
-+			addr = (unsigned long)page_to_virt(gref->page);
-+			gnttab_end_foreign_access(gref->gref_id, 0, addr);
-+		} else
-+			gnttab_free_grant_reference(gref->gref_id);
- 	}
++static const struct arm64_ftr_bits ftr_id_aa64isar2[] = {
++	ARM64_FTR_END,
++};
++
+ static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV3_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
+@@ -596,6 +600,7 @@ static const struct __ftr_reg_entry {
+ 	/* Op1 = 0, CRn = 0, CRm = 6 */
+ 	ARM64_FTR_REG(SYS_ID_AA64ISAR0_EL1, ftr_id_aa64isar0),
+ 	ARM64_FTR_REG(SYS_ID_AA64ISAR1_EL1, ftr_id_aa64isar1),
++	ARM64_FTR_REG(SYS_ID_AA64ISAR2_EL1, ftr_id_aa64isar2),
  
- 	gref_size--;
- 	list_del(&gref->next_gref);
+ 	/* Op1 = 0, CRn = 0, CRm = 7 */
+ 	ARM64_FTR_REG(SYS_ID_AA64MMFR0_EL1, ftr_id_aa64mmfr0),
+@@ -830,6 +835,7 @@ void __init init_cpu_features(struct cpu
+ 	init_cpu_ftr_reg(SYS_ID_AA64DFR1_EL1, info->reg_id_aa64dfr1);
+ 	init_cpu_ftr_reg(SYS_ID_AA64ISAR0_EL1, info->reg_id_aa64isar0);
+ 	init_cpu_ftr_reg(SYS_ID_AA64ISAR1_EL1, info->reg_id_aa64isar1);
++	init_cpu_ftr_reg(SYS_ID_AA64ISAR2_EL1, info->reg_id_aa64isar2);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR0_EL1, info->reg_id_aa64mmfr0);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR1_EL1, info->reg_id_aa64mmfr1);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR2_EL1, info->reg_id_aa64mmfr2);
+@@ -1058,6 +1064,8 @@ void update_cpu_features(int cpu,
+ 				      info->reg_id_aa64isar0, boot->reg_id_aa64isar0);
+ 	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR1_EL1, cpu,
+ 				      info->reg_id_aa64isar1, boot->reg_id_aa64isar1);
++	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR2_EL1, cpu,
++				      info->reg_id_aa64isar2, boot->reg_id_aa64isar2);
  
--	if (gref->page)
--		__free_page(gref->page);
--
- 	kfree(gref);
- }
+ 	/*
+ 	 * Differing PARange support is fine as long as all peripherals and
+@@ -1157,6 +1165,7 @@ static u64 __read_sysreg_by_encoding(u32
+ 	read_sysreg_case(SYS_ID_AA64MMFR2_EL1);
+ 	read_sysreg_case(SYS_ID_AA64ISAR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64ISAR1_EL1);
++	read_sysreg_case(SYS_ID_AA64ISAR2_EL1);
  
+ 	read_sysreg_case(SYS_CNTFRQ_EL0);
+ 	read_sysreg_case(SYS_CTR_EL0);
+--- a/arch/arm64/kernel/cpuinfo.c
++++ b/arch/arm64/kernel/cpuinfo.c
+@@ -365,6 +365,7 @@ static void __cpuinfo_store_cpu(struct c
+ 	info->reg_id_aa64dfr1 = read_cpuid(ID_AA64DFR1_EL1);
+ 	info->reg_id_aa64isar0 = read_cpuid(ID_AA64ISAR0_EL1);
+ 	info->reg_id_aa64isar1 = read_cpuid(ID_AA64ISAR1_EL1);
++	info->reg_id_aa64isar2 = read_cpuid(ID_AA64ISAR2_EL1);
+ 	info->reg_id_aa64mmfr0 = read_cpuid(ID_AA64MMFR0_EL1);
+ 	info->reg_id_aa64mmfr1 = read_cpuid(ID_AA64MMFR1_EL1);
+ 	info->reg_id_aa64mmfr2 = read_cpuid(ID_AA64MMFR2_EL1);
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1517,7 +1517,7 @@ static const struct sys_reg_desc sys_reg
+ 	/* CRm=6 */
+ 	ID_SANITISED(ID_AA64ISAR0_EL1),
+ 	ID_SANITISED(ID_AA64ISAR1_EL1),
+-	ID_UNALLOCATED(6,2),
++	ID_SANITISED(ID_AA64ISAR2_EL1),
+ 	ID_UNALLOCATED(6,3),
+ 	ID_UNALLOCATED(6,4),
+ 	ID_UNALLOCATED(6,5),
 
 
