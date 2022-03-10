@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3AB34D49E3
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC9D4D49B1
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:51:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243974AbiCJOcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:32:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48200 "EHLO
+        id S244295AbiCJOdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243799AbiCJO10 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:27:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 488EFCFBB2;
-        Thu, 10 Mar 2022 06:22:38 -0800 (PST)
+        with ESMTP id S245208AbiCJOaO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50D5516BCF1;
+        Thu, 10 Mar 2022 06:25:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A523261CFB;
-        Thu, 10 Mar 2022 14:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1C38C340EB;
-        Thu, 10 Mar 2022 14:22:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70733B8267A;
+        Thu, 10 Mar 2022 14:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFD5C340E8;
+        Thu, 10 Mar 2022 14:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922156;
-        bh=oVZchNMBYQehnyKeJxmujUSCkykKcKMWao8G0T/Rvsw=;
+        s=korg; t=1646922290;
+        bh=9h2i3R524QpBTyblkHBTWgTjpMg6HyF7bRA77J2gV9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=th9bkOcHKgeFdtuXSHa4K4ZifZiBJK2vB+hDGiuNGbUitP2zhaqxlE6TthmK82eWX
-         iUo5igi44zQOhkUTiAAU3rS0Q6rxgnT0++dqqh5sDQ6LM3Ks1BNruGlvTpjsNzE2Qe
-         iVs5LZxJWJyD2Tsw8QBXcClq0O6qZJX33fXS2iyI=
+        b=ry+LvXggiyv3rz4M6DQwC2muDpO41x5Sb/hUv1gcndVlmSZgPQLIILsdI7PjEMdjO
+         bMPoCXmrtzc26spNAg7rni0jXyJj1hpMXFE1xch8qaXwmqBXXrwcVYpZhdhiSEluWW
+         RzRlBYIuzS7deWCjQoQzgm4gwGQI9FML/KBylHmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.19 24/33] xen/grant-table: add gnttab_try_end_foreign_access()
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.10 31/58] arm64: entry: Make the kpti trampolines kpti sequence optional
 Date:   Thu, 10 Mar 2022 15:18:51 +0100
-Message-Id: <20220310140808.454684169@linuxfoundation.org>
+Message-Id: <20220310140813.762278227@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
-References: <20220310140807.749164737@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: James Morse <james.morse@arm.com>
 
-Commit 6b1775f26a2da2b05a6dc8ec2b5d14e9a4701a1a upstream.
+commit c47e4d04ba0f1ea17353d85d45f611277507e07a upstream.
 
-Add a new grant table function gnttab_try_end_foreign_access(), which
-will remove and free a grant if it is not in use.
+Spectre-BHB needs to add sequences to the vectors. Having one global
+set of vectors is a problem for big/little systems where the sequence
+is costly on cpus that are not vulnerable.
 
-Its main use case is to either free a grant if it is no longer in use,
-or to take some other action if it is still in use. This other action
-can be an error exit, or (e.g. in the case of blkfront persistent grant
-feature) some special handling.
+Making the vectors per-cpu in the style of KVM's bh_harden_hyp_vecs
+requires the vectors to be generated by macros.
 
-This is CVE-2022-23036, CVE-2022-23038 / part of XSA-396.
+Make the kpti re-mapping of the kernel optional, so the macros can be
+used without kpti.
 
-Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/grant-table.c |   14 ++++++++++++--
- include/xen/grant_table.h |   12 ++++++++++++
- 2 files changed, 24 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/entry.S |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -436,11 +436,21 @@ static void gnttab_add_deferred(grant_re
- 	       what, ref, page ? page_to_pfn(page) : -1);
- }
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -816,9 +816,10 @@ alternative_else_nop_endif
+ 	sub	\dst, \dst, PAGE_SIZE
+ 	.endm
  
-+int gnttab_try_end_foreign_access(grant_ref_t ref)
-+{
-+	int ret = _gnttab_end_foreign_access_ref(ref, 0);
+-	.macro tramp_ventry, vector_start, regsize
++	.macro tramp_ventry, vector_start, regsize, kpti
+ 	.align	7
+ 1:
++	.if	\kpti == 1
+ 	.if	\regsize == 64
+ 	msr	tpidrro_el0, x30	// Restored in kernel_ventry
+ 	.endif
+@@ -841,9 +842,14 @@ alternative_insn isb, nop, ARM64_WORKARO
+ alternative_if_not ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM
+ 	prfm	plil1strm, [x30, #(1b - \vector_start)]
+ alternative_else_nop_endif
 +
-+	if (ret)
-+		put_free_entry(ref);
+ 	msr	vbar_el1, x30
+-	add	x30, x30, #(1b - \vector_start + 4)
+ 	isb
++	.else
++	ldr	x30, =vectors
++	.endif // \kpti == 1
 +
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_try_end_foreign_access);
-+
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page)
- {
--	if (gnttab_end_foreign_access_ref(ref, readonly)) {
--		put_free_entry(ref);
-+	if (gnttab_try_end_foreign_access(ref)) {
- 		if (page != 0)
- 			put_page(virt_to_page(page));
- 	} else
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -97,10 +97,22 @@ int gnttab_end_foreign_access_ref(grant_
-  * access has been ended, free the given page too.  Access will be ended
-  * immediately iff the grant entry is not in use, otherwise it will happen
-  * some time later.  page may be 0, in which case no freeing will occur.
-+ * Note that the granted page might still be accessed (read or write) by the
-+ * other side after gnttab_end_foreign_access() returns, so even if page was
-+ * specified as 0 it is not allowed to just reuse the page for other
-+ * purposes immediately.
-  */
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page);
++	add	x30, x30, #(1b - \vector_start + 4)
+ 	ret
+ .org 1b + 128	// Did we overflow the ventry slot?
+ 	.endm
+@@ -861,15 +867,15 @@ alternative_else_nop_endif
+ 	sb
+ 	.endm
  
-+/*
-+ * End access through the given grant reference, iff the grant entry is
-+ * no longer in use.  In case of success ending foreign access, the
-+ * grant reference is deallocated.
-+ * Return 1 if the grant entry was freed, 0 if it is still in use.
-+ */
-+int gnttab_try_end_foreign_access(grant_ref_t ref);
-+
- int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
+-	.macro	generate_tramp_vector
++	.macro	generate_tramp_vector,	kpti
+ .Lvector_start\@:
+ 	.space	0x400
  
- unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
+ 	.rept	4
+-	tramp_ventry	.Lvector_start\@, 64
++	tramp_ventry	.Lvector_start\@, 64, \kpti
+ 	.endr
+ 	.rept	4
+-	tramp_ventry	.Lvector_start\@, 32
++	tramp_ventry	.Lvector_start\@, 32, \kpti
+ 	.endr
+ 	.endm
+ 
+@@ -880,7 +886,7 @@ alternative_else_nop_endif
+ 	.pushsection ".entry.tramp.text", "ax"
+ 	.align	11
+ SYM_CODE_START_NOALIGN(tramp_vectors)
+-	generate_tramp_vector
++	generate_tramp_vector	kpti=1
+ SYM_CODE_END(tramp_vectors)
+ 
+ SYM_CODE_START(tramp_exit_native)
 
 
