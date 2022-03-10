@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C56BA4D46C9
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 13:25:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9819F4D46D3
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 13:26:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241876AbiCJM0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 07:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38716 "EHLO
+        id S240800AbiCJM1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 07:27:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237763AbiCJM0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 07:26:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980F663F4;
-        Thu, 10 Mar 2022 04:25:17 -0800 (PST)
+        with ESMTP id S236984AbiCJM1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 07:27:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59BF81480F3;
+        Thu, 10 Mar 2022 04:26:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BA426191A;
-        Thu, 10 Mar 2022 12:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3906C340E8;
-        Thu, 10 Mar 2022 12:25:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13E15B825C4;
+        Thu, 10 Mar 2022 12:26:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 773CEC340E8;
+        Thu, 10 Mar 2022 12:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646915116;
-        bh=vcfAPDoZuzO8dkhCU5Hzdcr2BQ8q0N0ap2jBbaQyyLQ=;
+        s=korg; t=1646915200;
+        bh=j9kbFAFVYrcTjwCyYTeY1V6XjDrPlAA8uuO+/0oacRk=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=v6jRM7Kk5NjMGYnB9QGFFeO3riCbdCt+1XM+OHvkksMt6f1SjgIgmEb38394wLZEm
-         V37Y/Ts6BXso4gwuMlVgblnWv9fyWzcTBcrPKWFRcolL1r7/yqGdrtn5SBe4vBMQaR
-         W5ZPRpmJaF+UjsJCBDqR9VTKBwlSJ2mQyWCYP1sk=
-Date:   Thu, 10 Mar 2022 13:25:12 +0100
+        b=ozVMW2eOCOfrZ2zi8XyEK/zevIbFxjuOusPKicJkb6dBFiaw29irn6QyWsqWRZ++4
+         DFepAH4zX/+6KAV5KVpIszGCkYN4csMQXfFUd/C0R082QO8tE0iEZexxWqYnXMCPZU
+         k00H/458PY5uii1n212X5p25fh/XlyWkztgPpK2Q=
+Date:   Thu, 10 Mar 2022 13:26:38 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/18] 4.19.234-rc1 review
-Message-ID: <YinuKNunDvWWLJs0@kroah.com>
-References: <20220309155856.155540075@linuxfoundation.org>
- <CADVatmMODnr1vQ3VGLOACT16wLEFA6hFrTzY44VdPO2M7gX+iw@mail.gmail.com>
- <Yijw3wz29xNiIhWl@kroah.com>
- <CADVatmMbww0jVS7O9BmtrGzfyBN0hfm8n7QNEdZpiigJGSp20Q@mail.gmail.com>
+To:     Valentin Kleibel <valentin@vrvis.at>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Justin Sanders <justin@coraid.com>, linux-block@vger.kernel.org
+Subject: Re: [PATCH] block: aoe: fix page fault in freedev()
+Message-ID: <YinufgnQtSeTA18w@kroah.com>
+References: <c274db07-9c7d-d857-33ad-4a762819bcdd@vrvis.at>
+ <YinpIKY0HVlJ+TLR@kroah.com>
+ <50ddedf1-5ac3-91c3-0b50-645ceb541071@vrvis.at>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CADVatmMbww0jVS7O9BmtrGzfyBN0hfm8n7QNEdZpiigJGSp20Q@mail.gmail.com>
+In-Reply-To: <50ddedf1-5ac3-91c3-0b50-645ceb541071@vrvis.at>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -60,48 +52,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 09:51:12AM +0000, Sudip Mukherjee wrote:
-> On Thu, Mar 10, 2022 at 9:18 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, Mar 09, 2022 at 06:08:19PM +0000, Sudip Mukherjee wrote:
-> > > Hi Greg,
-> > >
-> > > On Wed, Mar 9, 2022 at 4:03 PM Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 4.19.234 release.
-> > > > There are 18 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
-> > > > Anything received after that time might be too late.
-> > >
-> > > My tests are still running, but just an initial result for you,
-> > >
-> > > x86_64 defconfig fails with:
-> > > arch/x86/kernel/cpu/bugs.c: In function 'spectre_v2_select_mitigation':
-> > > arch/x86/kernel/cpu/bugs.c:973:41: error: implicit declaration of
-> > > function 'unprivileged_ebpf_enabled'
-> > > [-Werror=implicit-function-declaration]
-> > >   973 |         if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
-> >
-> > It's in a .h file, how can it be undefined?  Must be a include path
-> > somewhere, let me dig...
+On Thu, Mar 10, 2022 at 01:24:38PM +0100, Valentin Kleibel wrote:
+> On 10/03/2022 13:03, Greg Kroah-Hartman wrote:
+> > > This patch applies to kernels 5.4 and 5.10.
+> > 
+> > We need a fix for Linus's tree first before we can backport anything to
+> > older kernels.  Does this also work there?
 > 
-> Looks like the problem is that both "static inline bool
-> unprivileged_ebpf_enabled(void)" are in the "#ifdef
-> CONFIG_BPF_SYSCALL" section of include/linux/bpf.h.
-> I think the one returning false should be in the #else section.
+> It is fixed in Linus' tree starting with 5.14.
 
-Ah, good catch!
-
-I've fixed this up for 4.19 and 5.4 now, will do some build tests and
-then push out new -rc2 release for all branches as I think that should
-be all of the reported problems fixed.
-
-Now on to the next new round of build failures!  :)
+What commit fixes it there?  Why not just backport that one only?
 
 thanks,
 
