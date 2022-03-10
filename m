@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4864D4945
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BCF4D4947
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243312AbiCJOQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:16:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
+        id S241595AbiCJOQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:16:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243189AbiCJOQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:16:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35908B2518;
-        Thu, 10 Mar 2022 06:12:47 -0800 (PST)
+        with ESMTP id S243263AbiCJOQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:16:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68D6B8B4B;
+        Thu, 10 Mar 2022 06:12:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1E0861B41;
-        Thu, 10 Mar 2022 14:12:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E76C340E8;
-        Thu, 10 Mar 2022 14:12:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0F6561B36;
+        Thu, 10 Mar 2022 14:12:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07C0C340E8;
+        Thu, 10 Mar 2022 14:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921566;
-        bh=YYTxn4Nwrg6CuOgCloYwoSlfT43YKOmCi0fRD30gcL8=;
+        s=korg; t=1646921570;
+        bh=Z5zp1mf8rFmooGBgHSXH5R4zz+cYDH5D/cihGt0NXHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOq88lZDvEc2eZAOT+Nz1Yyrh1aCF9jLkSjDidwv9hB/8/vsenTvCt5zXC6Etmjor
-         Dn1wDfGwK8Zb0NZFH7iZ7lCvgfMoezpAEn0Q8JYnyPJ5UGnPM0qKqDE3OKyuOEHIml
-         +45yJDhtSwfuyLm9PceQ87iRbi4lIViy56AKDBG8=
+        b=h4m3mHdz4emU1Rgtpn2hErUaHMVgRKCDigCYoESjaZRNo0sQzdvduF3lru7ry3uNW
+         N7F+dw7ZpWab41rxYWGcRBpE27zaAgdYL7118MxIG0ZD1+umt56oy2Xqc+ZPwdb/cR
+         rZQPUNBVNZGiacMBuhxRgRQdgF3u3gBAvjBsYzrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.16 13/53] ARM: include unprivileged BPF status in Spectre V2 reporting
-Date:   Thu, 10 Mar 2022 15:09:18 +0100
-Message-Id: <20220310140812.216049154@linuxfoundation.org>
+        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.16 14/53] arm64: add ID_AA64ISAR2_EL1 sys register
+Date:   Thu, 10 Mar 2022 15:09:19 +0100
+Message-Id: <20220310140812.244659613@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140811.832630727@linuxfoundation.org>
 References: <20220310140811.832630727@linuxfoundation.org>
@@ -53,54 +58,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Joey Gouly <joey.gouly@arm.com>
 
-commit 25875aa71dfefd1959f07e626c4d285b88b27ac2 upstream.
+commit 9e45365f1469ef2b934f9d035975dbc9ad352116 upstream.
 
-The mitigations for Spectre-BHB are only applied when an exception
-is taken, but when unprivileged BPF is enabled, userspace can
-load BPF programs that can be used to exploit the problem.
+This is a new ID register, introduced in 8.7.
 
-When unprivileged BPF is enabled, report the vulnerable status via
-the spectre_v2 sysfs file.
-
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: Reiji Watanabe <reijiw@google.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211210165432.8106-3-joey.gouly@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/spectre.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/arm64/include/asm/cpu.h    |    1 +
+ arch/arm64/include/asm/sysreg.h |   15 +++++++++++++++
+ arch/arm64/kernel/cpufeature.c  |    9 +++++++++
+ arch/arm64/kernel/cpuinfo.c     |    1 +
+ arch/arm64/kvm/sys_regs.c       |    2 +-
+ 5 files changed, 27 insertions(+), 1 deletion(-)
 
---- a/arch/arm/kernel/spectre.c
-+++ b/arch/arm/kernel/spectre.c
-@@ -1,9 +1,19 @@
- // SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/bpf.h>
- #include <linux/cpu.h>
- #include <linux/device.h>
+--- a/arch/arm64/include/asm/cpu.h
++++ b/arch/arm64/include/asm/cpu.h
+@@ -51,6 +51,7 @@ struct cpuinfo_arm64 {
+ 	u64		reg_id_aa64dfr1;
+ 	u64		reg_id_aa64isar0;
+ 	u64		reg_id_aa64isar1;
++	u64		reg_id_aa64isar2;
+ 	u64		reg_id_aa64mmfr0;
+ 	u64		reg_id_aa64mmfr1;
+ 	u64		reg_id_aa64mmfr2;
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -182,6 +182,7 @@
  
- #include <asm/spectre.h>
+ #define SYS_ID_AA64ISAR0_EL1		sys_reg(3, 0, 0, 6, 0)
+ #define SYS_ID_AA64ISAR1_EL1		sys_reg(3, 0, 0, 6, 1)
++#define SYS_ID_AA64ISAR2_EL1		sys_reg(3, 0, 0, 6, 2)
  
-+static bool _unprivileged_ebpf_enabled(void)
-+{
-+#ifdef CONFIG_BPF_SYSCALL
-+	return !sysctl_unprivileged_bpf_disabled;
-+#else
-+	return false
-+#endif
-+}
+ #define SYS_ID_AA64MMFR0_EL1		sys_reg(3, 0, 0, 7, 0)
+ #define SYS_ID_AA64MMFR1_EL1		sys_reg(3, 0, 0, 7, 1)
+@@ -771,6 +772,20 @@
+ #define ID_AA64ISAR1_GPI_NI			0x0
+ #define ID_AA64ISAR1_GPI_IMP_DEF		0x1
+ 
++/* id_aa64isar2 */
++#define ID_AA64ISAR2_RPRES_SHIFT	4
++#define ID_AA64ISAR2_WFXT_SHIFT		0
 +
- ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
- 			    char *buf)
- {
-@@ -31,6 +41,9 @@ ssize_t cpu_show_spectre_v2(struct devic
- 	if (spectre_v2_state != SPECTRE_MITIGATED)
- 		return sprintf(buf, "%s\n", "Vulnerable");
- 
-+	if (_unprivileged_ebpf_enabled())
-+		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
++#define ID_AA64ISAR2_RPRES_8BIT		0x0
++#define ID_AA64ISAR2_RPRES_12BIT	0x1
++/*
++ * Value 0x1 has been removed from the architecture, and is
++ * reserved, but has not yet been removed from the ARM ARM
++ * as of ARM DDI 0487G.b.
++ */
++#define ID_AA64ISAR2_WFXT_NI		0x0
++#define ID_AA64ISAR2_WFXT_SUPPORTED	0x2
 +
- 	switch (spectre_v2_methods) {
- 	case SPECTRE_V2_METHOD_BPIALL:
- 		method = "Branch predictor hardening";
+ /* id_aa64pfr0 */
+ #define ID_AA64PFR0_CSV3_SHIFT		60
+ #define ID_AA64PFR0_CSV2_SHIFT		56
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -225,6 +225,10 @@ static const struct arm64_ftr_bits ftr_i
+ 	ARM64_FTR_END,
+ };
+ 
++static const struct arm64_ftr_bits ftr_id_aa64isar2[] = {
++	ARM64_FTR_END,
++};
++
+ static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV3_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
+@@ -637,6 +641,7 @@ static const struct __ftr_reg_entry {
+ 	ARM64_FTR_REG(SYS_ID_AA64ISAR0_EL1, ftr_id_aa64isar0),
+ 	ARM64_FTR_REG_OVERRIDE(SYS_ID_AA64ISAR1_EL1, ftr_id_aa64isar1,
+ 			       &id_aa64isar1_override),
++	ARM64_FTR_REG(SYS_ID_AA64ISAR2_EL1, ftr_id_aa64isar2),
+ 
+ 	/* Op1 = 0, CRn = 0, CRm = 7 */
+ 	ARM64_FTR_REG(SYS_ID_AA64MMFR0_EL1, ftr_id_aa64mmfr0),
+@@ -933,6 +938,7 @@ void __init init_cpu_features(struct cpu
+ 	init_cpu_ftr_reg(SYS_ID_AA64DFR1_EL1, info->reg_id_aa64dfr1);
+ 	init_cpu_ftr_reg(SYS_ID_AA64ISAR0_EL1, info->reg_id_aa64isar0);
+ 	init_cpu_ftr_reg(SYS_ID_AA64ISAR1_EL1, info->reg_id_aa64isar1);
++	init_cpu_ftr_reg(SYS_ID_AA64ISAR2_EL1, info->reg_id_aa64isar2);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR0_EL1, info->reg_id_aa64mmfr0);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR1_EL1, info->reg_id_aa64mmfr1);
+ 	init_cpu_ftr_reg(SYS_ID_AA64MMFR2_EL1, info->reg_id_aa64mmfr2);
+@@ -1151,6 +1157,8 @@ void update_cpu_features(int cpu,
+ 				      info->reg_id_aa64isar0, boot->reg_id_aa64isar0);
+ 	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR1_EL1, cpu,
+ 				      info->reg_id_aa64isar1, boot->reg_id_aa64isar1);
++	taint |= check_update_ftr_reg(SYS_ID_AA64ISAR2_EL1, cpu,
++				      info->reg_id_aa64isar2, boot->reg_id_aa64isar2);
+ 
+ 	/*
+ 	 * Differing PARange support is fine as long as all peripherals and
+@@ -1272,6 +1280,7 @@ u64 __read_sysreg_by_encoding(u32 sys_id
+ 	read_sysreg_case(SYS_ID_AA64MMFR2_EL1);
+ 	read_sysreg_case(SYS_ID_AA64ISAR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64ISAR1_EL1);
++	read_sysreg_case(SYS_ID_AA64ISAR2_EL1);
+ 
+ 	read_sysreg_case(SYS_CNTFRQ_EL0);
+ 	read_sysreg_case(SYS_CTR_EL0);
+--- a/arch/arm64/kernel/cpuinfo.c
++++ b/arch/arm64/kernel/cpuinfo.c
+@@ -391,6 +391,7 @@ static void __cpuinfo_store_cpu(struct c
+ 	info->reg_id_aa64dfr1 = read_cpuid(ID_AA64DFR1_EL1);
+ 	info->reg_id_aa64isar0 = read_cpuid(ID_AA64ISAR0_EL1);
+ 	info->reg_id_aa64isar1 = read_cpuid(ID_AA64ISAR1_EL1);
++	info->reg_id_aa64isar2 = read_cpuid(ID_AA64ISAR2_EL1);
+ 	info->reg_id_aa64mmfr0 = read_cpuid(ID_AA64MMFR0_EL1);
+ 	info->reg_id_aa64mmfr1 = read_cpuid(ID_AA64MMFR1_EL1);
+ 	info->reg_id_aa64mmfr2 = read_cpuid(ID_AA64MMFR2_EL1);
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1525,7 +1525,7 @@ static const struct sys_reg_desc sys_reg
+ 	/* CRm=6 */
+ 	ID_SANITISED(ID_AA64ISAR0_EL1),
+ 	ID_SANITISED(ID_AA64ISAR1_EL1),
+-	ID_UNALLOCATED(6,2),
++	ID_SANITISED(ID_AA64ISAR2_EL1),
+ 	ID_UNALLOCATED(6,3),
+ 	ID_UNALLOCATED(6,4),
+ 	ID_UNALLOCATED(6,5),
 
 
