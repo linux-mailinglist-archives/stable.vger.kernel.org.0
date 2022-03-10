@@ -2,52 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E55E4D4352
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 10:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 044BF4D431D
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 10:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240712AbiCJJUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 04:20:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38746 "EHLO
+        id S240637AbiCJJHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 04:07:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240734AbiCJJUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 04:20:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAEBE139120;
-        Thu, 10 Mar 2022 01:19:07 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FBD161CCE;
-        Thu, 10 Mar 2022 09:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64449C340EC;
-        Thu, 10 Mar 2022 09:19:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646903946;
-        bh=8laWKTKRqkLZfPp0uyL8zM+IJ5gTOchzQTYuc81Ai5I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sILtbVd3hC/Thm8NlANFN49g3vOqhaWMZUaIde6eCUD/yF39dK/kK4xq03fGhuoEQ
-         5P6UyLBHbuFkpbyBds7jjYD89ywKaBYX6LXy0+4GrjhyyNGCBejZkYmceym5j1rBfk
-         fbga/3SPiLdubBDQbsSrguX6oPvDS6Me2ju99Ejw=
-Date:   Wed, 9 Mar 2022 21:01:48 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.16 00/37] 5.16.14-rc1 review
-Message-ID: <YikHrEtQ5dFz9paK@kroah.com>
-References: <20220309155859.086952723@linuxfoundation.org>
- <37efd441-7fe4-1aa4-a41b-19d30b652c5c@roeck-us.net>
+        with ESMTP id S240621AbiCJJHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 04:07:46 -0500
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D09138588;
+        Thu, 10 Mar 2022 01:06:44 -0800 (PST)
+Received: from quad ([82.142.8.122]) by mrelayeu.kundenserver.de (mreue109
+ [212.227.15.183]) with ESMTPSA (Nemesis) id 1M9npT-1nXRKb378X-005nBf; Thu, 10
+ Mar 2022 10:00:52 +0100
+From:   Laurent Vivier <laurent@vivier.eu>
+To:     linux-kernel@vger.kernel.org
+Cc:     Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        linux-rtc@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-m68k@lists.linux-m68k.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Laurent Vivier <laurent@vivier.eu>, stable@vger.kernel.org
+Subject: [PATCH v15 2/5] tty: goldfish: introduce gf_ioread32()/gf_iowrite32()
+Date:   Thu, 10 Mar 2022 10:00:45 +0100
+Message-Id: <20220310090048.1933020-3-laurent@vivier.eu>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220310090048.1933020-1-laurent@vivier.eu>
+References: <20220310090048.1933020-1-laurent@vivier.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <37efd441-7fe4-1aa4-a41b-19d30b652c5c@roeck-us.net>
-X-Spam-Status: No, score=-6.5 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:z6VvWaMgbVWgHGjT5VEVpvMDtRYjzT4gaVfuJs+Sr1bSIuiz2j0
+ tW3g8E/iSgn9b2ivVYHbbsXO6b/Bz7x+w91vgPBTmjRb+25hoxnRK78xGN80BD3wi83Kuj+
+ 60/c9jw86yLddUGQXsIcUPJcJbQxHYTUr1HOps4Mw6yFMV/NLMCJTr3/Qt0VxmYV3KJD8nu
+ xz9aBxCNCbMoC/MNt9SoA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:bAk46WjY1/c=:8nu3NroU6bDNMJuRnyjolE
+ 7ewStpnvXrFIOAG9eOmlswTuEsO7Vu7HidhvSk9nqcOoDlk6E2WNx50ZUzCY+NBi2E1trBQV+
+ FYk1uQet6HusLh4/wtBNchxdHjgQitLOpfm12pxgD2T3Hg5Nw/ZiHxHwtG1D+tP4tHCJZlLId
+ RMyThOvSlG2fqTMUAMOeEPt5rQXBoYy8HAwWTuWNXD0ZJjTwgj3//ORL89vu8l7OeHLWE5Vew
+ WE+1LS5uE3wjBUA6DFirnNvJCYJU7AUAufVMwG61+k4pPiW13+QuYfGdg5mj3AtFPkVwbu2J+
+ VOzXp5Ugi+IVOPi9LnKa+7GnC9GiSGTehx3RfH2Uk0WVCqIBWS6fLaHKR2WNEdNRJDscbzfPX
+ T4uEA+zLgCvc42NfoS8SeVfhLIsU3DYCYAE2kMeWcZHoMkWuE31JuObnmxCIePcrTMd1wxbnr
+ PiTipDSBNfs8Mb7PoX8GuYsdhw4MRUZnAjIzqRhYnewFcWiFq+5cjfiSp+rjlP3w6OcJRXa0I
+ D46G9J8hXxNYlWzHOj9kGokCH5RppHiSPVZNtw9LiXp/meZc25bj64W92iNvVcISaBf9PlqVd
+ DcRt7yOVDE4hTbNBp+2nLUFYThD1ORTD381WPmApulPtbyKwpuArMrewkAhztz0q3Zg8ReBmE
+ JhWWnmlNgsor/6aTF2VSxLgqcZYmfADHMIHzXKyokZj5TNzQWuWfeg9gLbYtvaIwS0Rg=
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H5,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,55 +62,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 09, 2022 at 11:05:15AM -0800, Guenter Roeck wrote:
-> On 3/9/22 08:00, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.16.14 release.
-> > There are 37 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Almost all arm builds, all branches from 4.9.y to 5.16.y:
-> 
-> Error log:
-> arch/arm/common/secure_cntvoff.S: Assembler messages:
-> arch/arm/common/secure_cntvoff.S:24: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
-> arch/arm/common/secure_cntvoff.S:27: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
-> arch/arm/common/secure_cntvoff.S:29: Error: co-processor register expected -- `mcr p15,0,r0,c7,r5,4'
-> 
-> bisect log:
-> 
-> # bad: [3416254dac79ea26e08dffde371ab1fd3130223c] Linux 5.16.14-rc1
-> # good: [6273c309621c9dd61c9c3f6d63f5d56ee2d89c73] Linux 5.16.13
-> git bisect start 'HEAD' 'v5.16.13'
-> # bad: [4403d69931dbc17659845d2d710602bbe35b4398] KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
-> git bisect bad 4403d69931dbc17659845d2d710602bbe35b4398
-> # good: [6f0cf3a1eb8b46a5d652a395ba25a59c32a86692] ARM: report Spectre v2 status through sysfs
-> git bisect good 6f0cf3a1eb8b46a5d652a395ba25a59c32a86692
-> # bad: [87e96a363eb4a62b65bb974a46d518a87153cd1c] arm64: add ID_AA64ISAR2_EL1 sys register
-> git bisect bad 87e96a363eb4a62b65bb974a46d518a87153cd1c
-> # good: [654f0a73f042662a36155a0cafa30db846ccb5a9] ARM: use LOADADDR() to get load address of sections
-> git bisect good 654f0a73f042662a36155a0cafa30db846ccb5a9
-> # bad: [91bdae56c40ee6de675fba6ac283311c92c437ce] ARM: include unprivileged BPF status in Spectre V2 reporting
-> git bisect bad 91bdae56c40ee6de675fba6ac283311c92c437ce
-> # bad: [95ff4cb3b696a581d6166f0d754771bf9af5e27b] ARM: Spectre-BHB workaround
-> git bisect bad 95ff4cb3b696a581d6166f0d754771bf9af5e27b
-> # first bad commit: [95ff4cb3b696a581d6166f0d754771bf9af5e27b] ARM: Spectre-BHB workaround
-> 
-> Guenter
+Revert
+commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
 
-Wow these are all broken, have I mentioned I hate working on patches in
-embargos?
+and define gf_ioread32()/gf_iowrite32() to be able to use accessors
+defined by the architecture.
 
-I'll look at these in the morning, it's odd that Linus's tree isn't
-showing these same issue, but I might have messed up the arm backports
-somehow.  I did test them on using the multi_v7_defconfig configuration
-and they built for me locally with gcc.  I'll try to see what is
-different here...
+Cc: stable@vger.kernel.org # v5.11+
+Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+---
+ drivers/tty/goldfish.c   | 20 ++++++++++----------
+ include/linux/goldfish.h | 15 +++++++++++----
+ 2 files changed, 21 insertions(+), 14 deletions(-)
 
-thanks,
+diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
+index 5ed19a9857ad..10c13b93ed52 100644
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -61,13 +61,13 @@ static void do_rw_io(struct goldfish_tty *qtty,
+ 	spin_lock_irqsave(&qtty->lock, irq_flags);
+ 	gf_write_ptr((void *)address, base + GOLDFISH_TTY_REG_DATA_PTR,
+ 		     base + GOLDFISH_TTY_REG_DATA_PTR_HIGH);
+-	__raw_writel(count, base + GOLDFISH_TTY_REG_DATA_LEN);
++	gf_iowrite32(count, base + GOLDFISH_TTY_REG_DATA_LEN);
+ 
+ 	if (is_write)
+-		__raw_writel(GOLDFISH_TTY_CMD_WRITE_BUFFER,
++		gf_iowrite32(GOLDFISH_TTY_CMD_WRITE_BUFFER,
+ 		       base + GOLDFISH_TTY_REG_CMD);
+ 	else
+-		__raw_writel(GOLDFISH_TTY_CMD_READ_BUFFER,
++		gf_iowrite32(GOLDFISH_TTY_CMD_READ_BUFFER,
+ 		       base + GOLDFISH_TTY_REG_CMD);
+ 
+ 	spin_unlock_irqrestore(&qtty->lock, irq_flags);
+@@ -142,7 +142,7 @@ static irqreturn_t goldfish_tty_interrupt(int irq, void *dev_id)
+ 	unsigned char *buf;
+ 	u32 count;
+ 
+-	count = __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
++	count = gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
+ 	if (count == 0)
+ 		return IRQ_NONE;
+ 
+@@ -159,7 +159,7 @@ static int goldfish_tty_activate(struct tty_port *port, struct tty_struct *tty)
+ {
+ 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
+ 									port);
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+ 	return 0;
+ }
+ 
+@@ -167,7 +167,7 @@ static void goldfish_tty_shutdown(struct tty_port *port)
+ {
+ 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
+ 									port);
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+ }
+ 
+ static int goldfish_tty_open(struct tty_struct *tty, struct file *filp)
+@@ -202,7 +202,7 @@ static unsigned int goldfish_tty_chars_in_buffer(struct tty_struct *tty)
+ {
+ 	struct goldfish_tty *qtty = &goldfish_ttys[tty->index];
+ 	void __iomem *base = qtty->base;
+-	return __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
++	return gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
+ }
+ 
+ static void goldfish_tty_console_write(struct console *co, const char *b,
+@@ -355,7 +355,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
+ 	 * on Ranchu emulator (qemu2) returns 1 here and
+ 	 * driver will use physical addresses.
+ 	 */
+-	qtty->version = __raw_readl(base + GOLDFISH_TTY_REG_VERSION);
++	qtty->version = gf_ioread32(base + GOLDFISH_TTY_REG_VERSION);
+ 
+ 	/*
+ 	 * Goldfish TTY device on Ranchu emulator (qemu2)
+@@ -374,7 +374,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
+ 
+ 	ret = request_irq(irq, goldfish_tty_interrupt, IRQF_SHARED,
+ 			  "goldfish_tty", qtty);
+@@ -436,7 +436,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
+ #ifdef CONFIG_GOLDFISH_TTY_EARLY_CONSOLE
+ static void gf_early_console_putchar(struct uart_port *port, int ch)
+ {
+-	__raw_writel(ch, port->membase);
++	gf_iowrite32(ch, port->membase);
+ }
+ 
+ static void gf_early_write(struct console *con, const char *s, unsigned int n)
+diff --git a/include/linux/goldfish.h b/include/linux/goldfish.h
+index 12be1601fd84..bcc17f95b906 100644
+--- a/include/linux/goldfish.h
++++ b/include/linux/goldfish.h
+@@ -8,14 +8,21 @@
+ 
+ /* Helpers for Goldfish virtual platform */
+ 
++#ifndef gf_ioread32
++#define gf_ioread32 ioread32
++#endif
++#ifndef gf_iowrite32
++#define gf_iowrite32 iowrite32
++#endif
++
+ static inline void gf_write_ptr(const void *ptr, void __iomem *portl,
+ 				void __iomem *porth)
+ {
+ 	const unsigned long addr = (unsigned long)ptr;
+ 
+-	__raw_writel(lower_32_bits(addr), portl);
++	gf_iowrite32(lower_32_bits(addr), portl);
+ #ifdef CONFIG_64BIT
+-	__raw_writel(upper_32_bits(addr), porth);
++	gf_iowrite32(upper_32_bits(addr), porth);
+ #endif
+ }
+ 
+@@ -23,9 +30,9 @@ static inline void gf_write_dma_addr(const dma_addr_t addr,
+ 				     void __iomem *portl,
+ 				     void __iomem *porth)
+ {
+-	__raw_writel(lower_32_bits(addr), portl);
++	gf_iowrite32(lower_32_bits(addr), portl);
+ #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
+-	__raw_writel(upper_32_bits(addr), porth);
++	gf_iowrite32(upper_32_bits(addr), porth);
+ #endif
+ }
+ 
+-- 
+2.35.1
 
-greg k-h
