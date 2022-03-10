@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3DCB4D4AAF
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:55:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B17A4D4BD4
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244666AbiCJOdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50630 "EHLO
+        id S245231AbiCJOee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343676AbiCJObL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D743187BAB;
-        Thu, 10 Mar 2022 06:27:17 -0800 (PST)
+        with ESMTP id S1344049AbiCJObj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD3CEC5F1;
+        Thu, 10 Mar 2022 06:29:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E932E61D3B;
-        Thu, 10 Mar 2022 14:26:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B050BC340F3;
-        Thu, 10 Mar 2022 14:26:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B8EEB82544;
+        Thu, 10 Mar 2022 14:29:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D53CC340E8;
+        Thu, 10 Mar 2022 14:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922418;
-        bh=EnVmv+AiN0R1W1sI+v3RA0NxLd/Ul4yWb07HWKSxVoU=;
+        s=korg; t=1646922580;
+        bh=Ebe6j7mF1Vi1ha8wvA/CYSV2TTwbIeu1/dDrKYmnmo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRhRcs4fOQXmrPcGFF8loi3UNW3Yb4C76fW42McNPbMdfRe4oM8rybhCNIIUEYQJw
-         7mEK7bePKs4SwItOhJEABg3GE039mXHtBK4FrximOu2cTvFXpofB5dDmqLBL6XHZV8
-         OeTHIV2EZFHlxRnkP5jxBFn5RC4zFnoxrKwtNvGA=
+        b=a4EhFlpvqK31OsHjrQpH6VEOPKGYlfwCFybpTOIWkyI7sFBRNbMK0vBB0e7N92Jit
+         Vf8olXzcoypHNWyQS+t6k76RxCHM2wM2WYhliZR87MtomEd6/RUVq+JH4pOUtmbJ8A
+         J2wbSbkTYU752egWzvLSLkAqMQ9TjTBj2txWXwVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.4 12/33] arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 24/58] KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
 Date:   Thu, 10 Mar 2022 15:19:13 +0100
-Message-Id: <20220310140809.107394999@linuxfoundation.org>
+Message-Id: <20220310140813.679124853@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
-References: <20220310140808.741682643@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: James Morse <james.morse@arm.com>
 
-commit 6b7fe77c334ae59fed9500140e08f4f896b36871 upstream.
+commit 5bdf3437603d4af87f9c7f424b0c8aeed2420745 upstream.
 
-SMCCC callers are currently amassing a collection of enums for the SMCCC
-conduit, and are having to dig into the PSCI driver's internals in order
-to figure out what to do.
+CPUs vulnerable to Spectre-BHB either need to make an SMC-CC firmware
+call from the vectors, or run a sequence of branches. This gets added
+to the hyp vectors. If there is no support for arch-workaround-1 in
+firmware, the indirect vector will be used.
 
-Let's clean this up, with common SMCCC_CONDUIT_* definitions, and an
-arm_smccc_1_1_get_conduit() helper that abstracts the PSCI driver's
-internal state.
+kvm_init_vector_slots() only initialises the two indirect slots if
+the platform is vulnerable to Spectre-v3a. pKVM's hyp_map_vectors()
+only initialises __hyp_bp_vect_base if the platform is vulnerable to
+Spectre-v3a.
 
-We can kill off the PSCI_CONDUIT_* definitions once we've migrated users
-over to the new interface.
+As there are about to more users of the indirect vectors, ensure
+their entries in hyp_spectre_vector_selector[] are always initialised,
+and __hyp_bp_vect_base defaults to the regular VA mapping.
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+The Spectre-v3a check is moved to a helper
+kvm_system_needs_idmapped_vectors(), and merged with the code
+that creates the hyp mappings.
+
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/psci/psci.c |   15 +++++++++++++++
- include/linux/arm-smccc.h    |   16 ++++++++++++++++
- 2 files changed, 31 insertions(+)
+ arch/arm64/include/asm/kvm_host.h |    5 +++++
+ arch/arm64/kvm/arm.c              |    5 +----
+ arch/arm64/kvm/hyp/nvhe/mm.c      |    4 +++-
+ 3 files changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/firmware/psci/psci.c
-+++ b/drivers/firmware/psci/psci.c
-@@ -57,6 +57,21 @@ struct psci_operations psci_ops = {
- 	.smccc_version = SMCCC_VERSION_1_0,
- };
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -711,6 +711,11 @@ static inline void kvm_init_host_cpu_con
+ 	ctxt_sys_reg(cpu_ctxt, MPIDR_EL1) = read_cpuid_mpidr();
+ }
  
-+enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void)
++static inline bool kvm_system_needs_idmapped_vectors(void)
 +{
-+	if (psci_ops.smccc_version < SMCCC_VERSION_1_1)
-+		return SMCCC_CONDUIT_NONE;
-+
-+	switch (psci_ops.conduit) {
-+	case PSCI_CONDUIT_SMC:
-+		return SMCCC_CONDUIT_SMC;
-+	case PSCI_CONDUIT_HVC:
-+		return SMCCC_CONDUIT_HVC;
-+	default:
-+		return SMCCC_CONDUIT_NONE;
-+	}
++	return cpus_have_const_cap(ARM64_SPECTRE_V3A);
 +}
 +
- typedef unsigned long (psci_fn)(unsigned long, unsigned long,
- 				unsigned long, unsigned long);
- static psci_fn *invoke_psci_fn;
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -82,6 +82,22 @@
+ void kvm_arm_vcpu_ptrauth_trap(struct kvm_vcpu *vcpu);
  
- #include <linux/linkage.h>
- #include <linux/types.h>
-+
-+enum arm_smccc_conduit {
-+	SMCCC_CONDUIT_NONE,
-+	SMCCC_CONDUIT_SMC,
-+	SMCCC_CONDUIT_HVC,
-+};
-+
-+/**
-+ * arm_smccc_1_1_get_conduit()
-+ *
-+ * Returns the conduit to be used for SMCCCv1.1 or later.
-+ *
-+ * When SMCCCv1.1 is not present, returns SMCCC_CONDUIT_NONE.
-+ */
-+enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void);
-+
- /**
-  * struct arm_smccc_res - Result from SMC/HVC call
-  * @a0-a3 result values from registers 0 to 3
+ static inline void kvm_arch_hardware_unsetup(void) {}
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -1458,10 +1458,7 @@ static int kvm_init_vector_slots(void)
+ 	base = kern_hyp_va(kvm_ksym_ref(__bp_harden_hyp_vecs));
+ 	kvm_init_vector_slot(base, HYP_VECTOR_SPECTRE_DIRECT);
+ 
+-	if (!cpus_have_const_cap(ARM64_SPECTRE_V3A))
+-		return 0;
+-
+-	if (!has_vhe()) {
++	if (kvm_system_needs_idmapped_vectors() && !has_vhe()) {
+ 		err = create_hyp_exec_mappings(__pa_symbol(__bp_harden_hyp_vecs),
+ 					       __BP_HARDEN_HYP_VECS_SZ, &base);
+ 		if (err)
+--- a/arch/arm64/kvm/hyp/nvhe/mm.c
++++ b/arch/arm64/kvm/hyp/nvhe/mm.c
+@@ -146,8 +146,10 @@ int hyp_map_vectors(void)
+ 	phys_addr_t phys;
+ 	void *bp_base;
+ 
+-	if (!cpus_have_const_cap(ARM64_SPECTRE_V3A))
++	if (!kvm_system_needs_idmapped_vectors()) {
++		__hyp_bp_vect_base = __bp_harden_hyp_vecs;
+ 		return 0;
++	}
+ 
+ 	phys = __hyp_pa(__bp_harden_hyp_vecs);
+ 	bp_base = (void *)__pkvm_create_private_mapping(phys,
 
 
