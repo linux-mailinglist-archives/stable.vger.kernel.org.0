@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FEF14D49C2
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 006F54D4A1A
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:53:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243795AbiCJOey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44578 "EHLO
+        id S239259AbiCJOer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244863AbiCJOeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:34:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA7211C7F3;
-        Thu, 10 Mar 2022 06:31:23 -0800 (PST)
+        with ESMTP id S244921AbiCJOeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:34:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 562B511EF0E;
+        Thu, 10 Mar 2022 06:31:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83BC5B825F3;
-        Thu, 10 Mar 2022 14:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE34C340E8;
-        Thu, 10 Mar 2022 14:31:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD0A61C0A;
+        Thu, 10 Mar 2022 14:31:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD32C340F3;
+        Thu, 10 Mar 2022 14:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922682;
-        bh=CDNfl4IGoyFCsE3oBTqgf51g83179xk1H8jlgFCafWo=;
+        s=korg; t=1646922685;
+        bh=a//jtcByFiHXOCJ+/M4jiKQWdvoAGv/83F2/7HhgSnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2ARQzY5a8SlKBxSJv1XINVLbHlAky0sMNdCOk/Xr3qabXyYSDE5bkb8WgnQvA+45
-         glMUjZ3jlTKl9+wBAdK5Yy03xPQDSonZBTptbFWedcJH9FRTTt7vf9/B2n/mhSWT5P
-         H+IVyYbmTqkq3Phb+dO4/8PG1fukXWMm7r4fPNIY=
+        b=rf7y0MSXcr1TEoaZeCm9B5UvtbUtgyW4G4YbqWf5Mp5qYn6b1yGCz83eXEaXuBs+b
+         Jr4KWp5bF3UjUXqY3dc2n7v5VNpY5z0qNTmW1CF1blC+TOstyiJxiuew2UPQyHQgFN
+         mf52DaJocyzPqWK/w2srGaAWxHG1Ar5azYLy+hG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Demi Marie Obenour <demi@invisiblethingslab.com>,
         Juergen Gross <jgross@suse.com>,
         Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.15 50/58] xen/netfront: dont use gnttab_query_foreign_access() for mapped status
-Date:   Thu, 10 Mar 2022 15:19:39 +0100
-Message-Id: <20220310140814.405218537@linuxfoundation.org>
+Subject: [PATCH 5.15 51/58] xen/scsifront: dont use gnttab_query_foreign_access() for mapped status
+Date:   Thu, 10 Mar 2022 15:19:40 +0100
+Message-Id: <20220310140814.432646258@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
 References: <20220310140812.983088611@linuxfoundation.org>
@@ -57,44 +57,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-Commit 31185df7e2b1d2fa1de4900247a12d7b9c7087eb upstream.
+Commit 33172ab50a53578a95691310f49567c9266968b0 upstream.
 
 It isn't enough to check whether a grant is still being in use by
 calling gnttab_query_foreign_access(), as a mapping could be realized
 by the other side just after having called that function.
 
 In case the call was done in preparation of revoking a grant it is
-better to do so via gnttab_end_foreign_access_ref() and check the
+better to do so via gnttab_try_end_foreign_access() and check the
 success of that operation instead.
 
-This is CVE-2022-23037 / part of XSA-396.
+This is CVE-2022-23038 / part of XSA-396.
 
 Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/xen-scsifront.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -424,14 +424,12 @@ static bool xennet_tx_buf_gc(struct netf
- 			queue->tx_link[id] = TX_LINK_NONE;
- 			skb = queue->tx_skbs[id];
- 			queue->tx_skbs[id] = NULL;
--			if (unlikely(gnttab_query_foreign_access(
--				queue->grant_tx_ref[id]) != 0)) {
-+			if (unlikely(!gnttab_end_foreign_access_ref(
-+				queue->grant_tx_ref[id], GNTMAP_readonly))) {
- 				dev_alert(dev,
- 					  "Grant still in use by backend domain\n");
- 				goto err;
- 			}
--			gnttab_end_foreign_access_ref(
--				queue->grant_tx_ref[id], GNTMAP_readonly);
- 			gnttab_release_grant_reference(
- 				&queue->gref_tx_head, queue->grant_tx_ref[id]);
- 			queue->grant_tx_ref[id] = GRANT_INVALID_REF;
+--- a/drivers/scsi/xen-scsifront.c
++++ b/drivers/scsi/xen-scsifront.c
+@@ -233,12 +233,11 @@ static void scsifront_gnttab_done(struct
+ 		return;
+ 
+ 	for (i = 0; i < shadow->nr_grants; i++) {
+-		if (unlikely(gnttab_query_foreign_access(shadow->gref[i]))) {
++		if (unlikely(!gnttab_try_end_foreign_access(shadow->gref[i]))) {
+ 			shost_printk(KERN_ALERT, info->host, KBUILD_MODNAME
+ 				     "grant still in use by backend\n");
+ 			BUG();
+ 		}
+-		gnttab_end_foreign_access(shadow->gref[i], 0, 0UL);
+ 	}
+ 
+ 	kfree(shadow->sg);
 
 
