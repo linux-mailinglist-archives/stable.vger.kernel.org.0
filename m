@@ -2,136 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2BA64D54F8
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 00:04:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A189D4D5502
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 00:06:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343696AbiCJXFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 18:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47162 "EHLO
+        id S1344526AbiCJXHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 18:07:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238055AbiCJXFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 18:05:18 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433DA13C240
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:04:16 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id r12so6198000pla.1
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:04:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=1coxOHy+MiOVkaWgzSw++tkxGlirBpUlCMovtClURhw=;
-        b=CjWfotxA33yOsiAJ7O8Fm3Q6c+I6BF7K7x2OwbbcHiGwT0SPnVY4OXhan3k5QaGlbt
-         WU3LZJ+4LVyE4wxo5yZEYRRY6oVg/CwycFcrLAJA/7Sv9vc+4OPp3aEicV+dmxkIPNu7
-         B9mDme2VHkIEA86cgc3LRs1aJvhXqL+HivHuz8+8IKsulr7JWTB+EfFZ/70pTeYm0l5s
-         jbOQgfW0slhcjisOZ3zLqjDUjedFHxTul8fich1wTn1OV6bH8Bfv3gEdGQUbT/Jx7vRU
-         F+KzSYjRifjUoT98RTyxdS3W93t8RAjJ9ejZEz5cAaZ8uPIByzG/qpEFK88zunFNx8JJ
-         rnvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=1coxOHy+MiOVkaWgzSw++tkxGlirBpUlCMovtClURhw=;
-        b=2vIFtedYKY8id2qsS/Kn6bsKyWZ047wYDK4D+sUf9iku+f7bpkbHtfBON8NsHjFTRS
-         cgmDvFCclcln0ihj5wwPQYRkLHTsFoVdVBr2qsw2RVMnt8H/EObZRc87K5PzWkSvplrt
-         rid3uNMCoBsj72seuKtEttDySE17JCPzds2xc0PPNBLvh4mQ7BZUXQShBUrfgbWJECni
-         Ja3num9uANFOSNma9diE/CvxdkSSJOQpjgul2M0zC5a1pbJam7bIVW752vPoCZvrCgLk
-         F2gR8NejV+YCEAQtCZQaeoVym0IoBzuHpw6p8sde0hHyi4Z7fISkNa8GTrpF/ZolfTcZ
-         EvFA==
-X-Gm-Message-State: AOAM5300O7raT5JKIRAG8mWGOGg8V+LXr17SMs1cZWIoBgVkk3juGFNA
-        NhrYA1/2gGTIPO+wZzkDYw7XkQ==
-X-Google-Smtp-Source: ABdhPJw8HTIbG6Vtna5RHQ3w0pUmdSBxZ9o7VNzoRIFubitq+l+4KYvfWrG6iZrcHpsFwfLo5jj15A==
-X-Received: by 2002:a17:903:124a:b0:151:99fe:1a10 with SMTP id u10-20020a170903124a00b0015199fe1a10mr7338107plh.87.1646953455727;
-        Thu, 10 Mar 2022 15:04:15 -0800 (PST)
-Received: from [192.168.254.17] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id rj14-20020a17090b3e8e00b001bf50a8b468sm11740225pjb.51.2022.03.10.15.04.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 15:04:15 -0800 (PST)
-Message-ID: <77a44185-c9cd-21f5-125f-b8eec7a66537@linaro.org>
-Date:   Thu, 10 Mar 2022 15:04:14 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v2] net: ipv6: fix skb_over_panic in __ip6_append_data
-Content-Language: en-US
-To:     Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        with ESMTP id S1344520AbiCJXG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 18:06:59 -0500
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 99DBCCEA24
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 15:05:57 -0800 (PST)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-95-j_DIc5ZRPHOyWYg3TK3RZg-1; Thu, 10 Mar 2022 23:05:54 +0000
+X-MC-Unique: j_DIc5ZRPHOyWYg3TK3RZg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.28; Thu, 10 Mar 2022 23:05:53 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.028; Thu, 10 Mar 2022 23:05:53 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Willem de Bruijn' <willemdebruijn.kernel@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Cc:     David Miller <davem@davemloft.net>,
+CC:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        David Miller <davem@davemloft.net>,
         Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        David Ahern <dsahern@kernel.org>,
+        "David Ahern" <dsahern@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        "Daniel Borkmann" <daniel@iogearbox.net>,
         Andrii Nakryiko <andrii@kernel.org>,
         Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        Song Liu <songliubraving@fb.com>, "Yonghong Song" <yhs@fb.com>,
         John Fastabend <john.fastabend@gmail.com>,
         KP Singh <kpsingh@kernel.org>,
         Network Development <netdev@vger.kernel.org>,
         bpf <bpf@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
         stable <stable@vger.kernel.org>,
-        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com,
+        "syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com" 
+        <syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com>,
         Willem de Bruijn <willemb@google.com>
+Subject: RE: [PATCH v2] net: ipv6: fix skb_over_panic in __ip6_append_data
+Thread-Topic: [PATCH v2] net: ipv6: fix skb_over_panic in __ip6_append_data
+Thread-Index: AQHYNNA9n/GFN1e7cUOoZGj2dooiCKy5O9cQ
+Date:   Thu, 10 Mar 2022 23:05:53 +0000
+Message-ID: <6871999c8e8640beae53f230681b3ce2@AcuMS.aculab.com>
 References: <CA+FuTScPUVpyK6WYXrePTg_533VF2wfPww4MOJYa17v0xbLeGQ@mail.gmail.com>
  <20220310221328.877987-1-tadeusz.struk@linaro.org>
  <20220310143011.00c21f53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
  <CAF=yD-LrVjvY8wAqZtUTFS8V9ng2AD3jB1DOZvkagPOp3Sbq-g@mail.gmail.com>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
 In-Reply-To: <CAF=yD-LrVjvY8wAqZtUTFS8V9ng2AD3jB1DOZvkagPOp3Sbq-g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/22 14:43, Willem de Bruijn wrote:
-> On Thu, Mar 10, 2022 at 5:30 PM Jakub Kicinski <kuba@kernel.org> wrote:
->>
->> On Thu, 10 Mar 2022 14:13:28 -0800 Tadeusz Struk wrote:
->>> diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
->>> index 4788f6b37053..6d45112322a0 100644
->>> --- a/net/ipv6/ip6_output.c
->>> +++ b/net/ipv6/ip6_output.c
->>> @@ -1649,6 +1649,16 @@ static int __ip6_append_data(struct sock *sk,
->>>                        skb->protocol = htons(ETH_P_IPV6);
->>>                        skb->ip_summed = csummode;
->>>                        skb->csum = 0;
->>> +
->>> +                     /*
->>> +                      *      Check if there is still room for payload
->>> +                      */
->>
->> TBH I think the check is self-explanatory. Not worth a banner comment,
->> for sure.
->>
->>> +                     if (fragheaderlen >= mtu) {
->>> +                             err = -EMSGSIZE;
->>> +                             kfree_skb(skb);
->>> +                             goto error;
->>> +                     }
->>
->> Not sure if Willem prefers this placement, but seems like we can lift
->> this check out of the loop, as soon as fragheaderlen and mtu are known.
->>
->>>                        /* reserve for fragmentation and ipsec header */
->>>                        skb_reserve(skb, hh_len + sizeof(struct frag_hdr) +
->>>                                    dst_exthdrlen);
-> 
-> Just updating this boundary check will do?
-> 
->          if (mtu < fragheaderlen ||
->              ((mtu - fragheaderlen) & ~7) + fragheaderlen <
-> sizeof(struct frag_hdr))
->                  goto emsgsize;
+RnJvbTogV2lsbGVtIGRlIEJydWlqbg0KPiBTZW50OiAxMCBNYXJjaCAyMDIyIDIyOjQzDQo+IA0K
+PiBPbiBUaHUsIE1hciAxMCwgMjAyMiBhdCA1OjMwIFBNIEpha3ViIEtpY2luc2tpIDxrdWJhQGtl
+cm5lbC5vcmc+IHdyb3RlOg0KPiA+DQo+ID4gT24gVGh1LCAxMCBNYXIgMjAyMiAxNDoxMzoyOCAt
+MDgwMCBUYWRldXN6IFN0cnVrIHdyb3RlOg0KPiA+ID4gZGlmZiAtLWdpdCBhL25ldC9pcHY2L2lw
+Nl9vdXRwdXQuYyBiL25ldC9pcHY2L2lwNl9vdXRwdXQuYw0KPiA+ID4gaW5kZXggNDc4OGY2YjM3
+MDUzLi42ZDQ1MTEyMzIyYTAgMTAwNjQ0DQo+ID4gPiAtLS0gYS9uZXQvaXB2Ni9pcDZfb3V0cHV0
+LmMNCj4gPiA+ICsrKyBiL25ldC9pcHY2L2lwNl9vdXRwdXQuYw0KPiA+ID4gQEAgLTE2NDksNiAr
+MTY0OSwxNiBAQCBzdGF0aWMgaW50IF9faXA2X2FwcGVuZF9kYXRhKHN0cnVjdCBzb2NrICpzaywN
+Cj4gPiA+ICAgICAgICAgICAgICAgICAgICAgICBza2ItPnByb3RvY29sID0gaHRvbnMoRVRIX1Bf
+SVBWNik7DQo+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgc2tiLT5pcF9zdW1tZWQgPSBjc3Vt
+bW9kZTsNCj4gPiA+ICAgICAgICAgICAgICAgICAgICAgICBza2ItPmNzdW0gPSAwOw0KPiA+ID4g
+Kw0KPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIC8qDQo+ID4gPiArICAgICAgICAgICAgICAg
+ICAgICAgICogICAgICBDaGVjayBpZiB0aGVyZSBpcyBzdGlsbCByb29tIGZvciBwYXlsb2FkDQo+
+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICovDQo+ID4NCj4gPiBUQkggSSB0aGluayB0aGUg
+Y2hlY2sgaXMgc2VsZi1leHBsYW5hdG9yeS4gTm90IHdvcnRoIGEgYmFubmVyIGNvbW1lbnQsDQo+
+ID4gZm9yIHN1cmUuDQo+ID4NCj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBpZiAoZnJhZ2hl
+YWRlcmxlbiA+PSBtdHUpIHsNCj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVy
+ciA9IC1FTVNHU0laRTsNCj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGtmcmVl
+X3NrYihza2IpOw0KPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ290byBlcnJv
+cjsNCj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICB9DQo+ID4NCj4gPiBOb3Qgc3VyZSBpZiBX
+aWxsZW0gcHJlZmVycyB0aGlzIHBsYWNlbWVudCwgYnV0IHNlZW1zIGxpa2Ugd2UgY2FuIGxpZnQN
+Cj4gPiB0aGlzIGNoZWNrIG91dCBvZiB0aGUgbG9vcCwgYXMgc29vbiBhcyBmcmFnaGVhZGVybGVu
+IGFuZCBtdHUgYXJlIGtub3duLg0KPiA+DQo+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgLyog
+cmVzZXJ2ZSBmb3IgZnJhZ21lbnRhdGlvbiBhbmQgaXBzZWMgaGVhZGVyICovDQo+ID4gPiAgICAg
+ICAgICAgICAgICAgICAgICAgc2tiX3Jlc2VydmUoc2tiLCBoaF9sZW4gKyBzaXplb2Yoc3RydWN0
+IGZyYWdfaGRyKSArDQo+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZHN0
+X2V4dGhkcmxlbik7DQo+IA0KPiBKdXN0IHVwZGF0aW5nIHRoaXMgYm91bmRhcnkgY2hlY2sgd2ls
+bCBkbz8NCj4gDQo+ICAgICAgICAgaWYgKG10dSA8IGZyYWdoZWFkZXJsZW4gfHwNCj4gICAgICAg
+ICAgICAgKChtdHUgLSBmcmFnaGVhZGVybGVuKSAmIH43KSArIGZyYWdoZWFkZXJsZW4gPA0KPiBz
+aXplb2Yoc3RydWN0IGZyYWdfaGRyKSkNCj4gICAgICAgICAgICAgICAgIGdvdG8gZW1zZ3NpemU7
+DQoNCkJvdGggdGhvc2UgPCBzaG91bGQgYmUgPD0NCg0KQnV0IEkgdGhpbmsgSSdkIGNoZWNrOg0K
+CWlmIChmcmFnaGVhZGVybGVuID49IDEyODAgLSBzaXplb2YgKHN0cnVjdCBmcmFnX2hkcikpDQoJ
+CWdvdG8gZW1zZ3NpemU7DQpmaXJzdCAob3Igb25seSEpDQoNCglEYXZpZA0KDQotDQpSZWdpc3Rl
+cmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtl
+eW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
-Yes, it will. v3 on its way.
-
--- 
-Thanks,
-Tadeusz
