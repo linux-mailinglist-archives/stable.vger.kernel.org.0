@@ -2,174 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 979404D505D
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 18:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766EC4D50BC
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 18:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233996AbiCJR0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 12:26:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59252 "EHLO
+        id S236827AbiCJRj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 12:39:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245078AbiCJR0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 12:26:41 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A98C115E
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 09:25:24 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id c11so5262331pgu.11
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 09:25:24 -0800 (PST)
+        with ESMTP id S238098AbiCJRj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 12:39:56 -0500
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511054CD62
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 09:38:55 -0800 (PST)
+Received: by mail-ot1-x333.google.com with SMTP id j3-20020a9d7683000000b005aeed94f4e9so4565406otl.6
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 09:38:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KX2Ho2OHg1iRmyCWPRV5MYK3vsgr9fYCr0XHLUoSJN4=;
-        b=XAv6QTjAKURc8p4thQdj7mzLNIa66Cyv4v8hsGp/XK7t2PxdQdBYslIL/NbBZQwcU4
-         JIksPcOTklKqQ8odq1XZxsMEh6rSFRVoD2nYm7lgP1cNzVeyd95Yo3t2aM1A87P9G7ay
-         rTLX/bijQeaWM/g0hTJyyrgLUrew/T6OJ+kiuVBaIyTd+mcjxK4R4Eo5JjiMeq+fio1E
-         V9Iuy+r+z37/3NxwSkLrNFCBCkt/ediZiIDTT09bL1E/tsdSeMLZ6FbsAatG8XZbrlSd
-         a7ZscidI8wgzxlWiUBrujOBAIyfZ/SYWyCOLhlPy18ithbgP8z+EbzlIVUJXjPUcWIpQ
-         0w1w==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SS7nrrNHVUaT5n6CRCXmiOuXobp29ColNc9iGvYhPoU=;
+        b=W860HSrEH6X1gW4Zy3kzEe2y2LtS9ojECWxkLzo2l+t9tgStOGe7Vy2L9ba+PqRBa7
+         6d8oeeU3rO1yqshfOqQ2ItFwtWlKG8ytM8pBp4wpUJLHqp+LOlT8XtChDuGY2DM1H2Sk
+         iWZkNLLqo3taaaK0r8wE7mqslSO/ql/Y9sP8oQPCYTxFB/3GaCq+H6lLQOONTalkurCD
+         pp+Uc0PpsDsdlIShrk1IQ50U4A586LzklHw5+pSblvQeh3GXnRnC+QpNhUFb++8S/l4/
+         lARsEWhAwmyZg0x3ziyOor53HxFOcFWjicr4hoKARk29D8eyeAxj7Gj2rR7HhgKQ8yAb
+         ccHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KX2Ho2OHg1iRmyCWPRV5MYK3vsgr9fYCr0XHLUoSJN4=;
-        b=riIC2I4YGytDXZLTHY7pfqXxafq/0YF/LQ5XQWrfhPsFb3GaWbvqRSQGmeOftzVos/
-         pK1Zzu9Iil9FOWbso0QBa04fizpxf87BkHmfvK1REzxoB1gPir/xa9TymAuyUC7o1IoY
-         ZDjMsDtB9ibYBjQfktflxfqvUa26gh5zSbmppD2bJwWOGWC4FKHeVP3eQNvytew0UvPV
-         V7KHtwcPyHihkrA4unZVe7Rr+eUykI8BI6OeDwoiEYZkK4VipFrHMX/Igc+scM6fYpDk
-         KSINm5nmq4NWbe+x6Hp0/H7cWivyaXLTzv6g82HU3M6FFOcfcK0pQSOM+0aPSeK0BXpQ
-         yWfA==
-X-Gm-Message-State: AOAM533Sbr0rgabucEBfMPrMIoQGa3Y6Hvy9su5AH0z8v9mIHS+5OL/s
-        ZRicMr93944bM+5LEdKmADenEfXpTWDlnnAaX4Q=
-X-Google-Smtp-Source: ABdhPJwML/djCMCT82kGYGQjbMI1ve6EdTWNMM6e5g46Ft0zBtNQoW/YzJ8kF7NFFtAzbw2M/V9aeg==
-X-Received: by 2002:a05:6a00:2296:b0:4e1:905f:46b6 with SMTP id f22-20020a056a00229600b004e1905f46b6mr6084464pfe.16.1646933123633;
-        Thu, 10 Mar 2022 09:25:23 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s10-20020a63214a000000b003652f4ee81fsm6027965pgm.69.2022.03.10.09.25.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Mar 2022 09:25:23 -0800 (PST)
-Message-ID: <622a3483.1c69fb81.1836f.ed87@mx.google.com>
-Date:   Thu, 10 Mar 2022 09:25:23 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SS7nrrNHVUaT5n6CRCXmiOuXobp29ColNc9iGvYhPoU=;
+        b=Pidd31x+83xm0ivpBDEJ12x8ldw+qcax5zNGsifAz4fVT3YzRlx209VAurUIttkMMA
+         UEqagkkt3pQYSz6jMS6ShZzH2AXvN5QFQ7tgv3cTByVdT3lOXtsu3X6OqGxyaR+Gp/9t
+         x6zsmY16NNn5akXlVrNWdhqx0t9dHjYNg6JLFPvUC1dXFk7DsFqYCrRDNjhjCb8/1kq9
+         nO47TvvRWreKqKiImKWgeZR8zFYs8MKbk/TChB/zsfFLvZ7/ZTXFZq4jF6TwjjG0jyYV
+         BrlpfD9lZ/RLyDN1JzCSn6EVvarJLJA3cJJPMLe4yzsd+Z1mL95XlBqMKomDUzy+7IBc
+         c9Lw==
+X-Gm-Message-State: AOAM531qnb43t88rab3eIpQdzOQjNOB2M96OQ/TYzzcdjupDboSnQkiZ
+        a69o26PQ418k+nYc+7zZzMXHmHpnOvA=
+X-Google-Smtp-Source: ABdhPJzuACpSwK3ihgkeeGfhJ+o7naVgLkXeG3LUIQ6BUeHdzcRSdSVHnUBg2vrn1gCZZQvWyhwHug==
+X-Received: by 2002:a05:6830:4126:b0:5c9:2a3e:be43 with SMTP id w38-20020a056830412600b005c92a3ebe43mr1289093ott.143.1646933934624;
+        Thu, 10 Mar 2022 09:38:54 -0800 (PST)
+Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com. [209.85.161.41])
+        by smtp.gmail.com with ESMTPSA id c30-20020a056830349e00b005b272587f47sm1903791otu.38.2022.03.10.09.38.54
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Mar 2022 09:38:54 -0800 (PST)
+Received: by mail-oo1-f41.google.com with SMTP id j7-20020a4ad6c7000000b0031c690e4123so7570538oot.11
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 09:38:54 -0800 (PST)
+X-Received: by 2002:a0d:e288:0:b0:2db:f50a:9d10 with SMTP id
+ l130-20020a0de288000000b002dbf50a9d10mr5058002ywe.419.1646933605614; Thu, 10
+ Mar 2022 09:33:25 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.104-57-g6d793b104fe2
-Subject: stable-rc/queue/5.10 baseline: 104 runs,
- 2 regressions (v5.10.104-57-g6d793b104fe2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220308000146.534935-1-tadeusz.struk@linaro.org>
+ <14626165dad64bbaabed58ba7d59e523@AcuMS.aculab.com> <6155b68c-161b-0745-b303-f7e037b56e28@linaro.org>
+ <66463e26-8564-9f58-ce41-9a2843891d1a@kernel.org> <45522c89-a3b4-4b98-232b-9c69470124a3@linaro.org>
+ <ff2e1007-5883-5178-6415-326d6ae69c34@kernel.org> <8fdab42f-171f-53d7-8e0e-b29161c0e3e2@linaro.org>
+ <CA+FuTSeAL7TsdW4t7=G91n3JLuYehUCnDGH4_rHS=vjm1-Nv9Q@mail.gmail.com> <c7608cf0-fda2-1aa6-b0c1-3d4e0b5cad0e@linaro.org>
+In-Reply-To: <c7608cf0-fda2-1aa6-b0c1-3d4e0b5cad0e@linaro.org>
+From:   Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date:   Thu, 10 Mar 2022 12:32:49 -0500
+X-Gmail-Original-Message-ID: <CA+FuTScPUVpyK6WYXrePTg_533VF2wfPww4MOJYa17v0xbLeGQ@mail.gmail.com>
+Message-ID: <CA+FuTScPUVpyK6WYXrePTg_533VF2wfPww4MOJYa17v0xbLeGQ@mail.gmail.com>
+Subject: Re: [PATCH] net: ipv6: fix invalid alloclen in __ip6_append_data
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        David Laight <David.Laight@aculab.com>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com" 
+        <syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 104 runs, 2 regressions (v5.10.104-57-g6d793=
-b104fe2)
+On Thu, Mar 10, 2022 at 11:06 AM Tadeusz Struk <tadeusz.struk@linaro.org> wrote:
+>
+> On 3/10/22 06:39, Willem de Bruijn wrote:
+> > On Wed, Mar 9, 2022 at 4:37 PM Tadeusz Struk <tadeusz.struk@linaro.org> wrote:
+> >>
+> >> On 3/8/22 21:01, David Ahern wrote:
+> >>> On 3/8/22 12:46 PM, Tadeusz Struk wrote:
+> >>>> That fails in the same way:
+> >>>>
+> >>>> skbuff: skb_over_panic: text:ffffffff83e7b48b len:65575 put:65575
+> >>>> head:ffff888101f8a000 data:ffff888101f8a088 tail:0x100af end:0x6c0
+> >>>> dev:<NULL>
+> >>>> ------------[ cut here ]------------
+> >>>> kernel BUG at net/core/skbuff.c:113!
+> >>>> invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+> >>>> CPU: 0 PID: 1852 Comm: repro Not tainted
+> >>>> 5.17.0-rc7-00020-gea4424be1688-dirty #19
+> >>>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35
+> >>>> RIP: 0010:skb_panic+0x173/0x175
+> >>>>
+> >>>> I'm not sure how it supposed to help since it doesn't change the
+> >>>> alloclen at all.
+> >>>
+> >>> alloclen is a function of fraglen and fraglen is a function of datalen.
+> >>
+> >> Ok, but in this case it doesn't affect the alloclen and it still fails.
+> >
+> > This is some kind of non-standard packet that is being constructed. Do
+> > we understand how it is different?
+> >
+> > The .syz reproducer is generally a bit more readable than the .c
+> > equivalent. Though not as much as an strace of the binary, if you
+> > can share that.
+> >
+> > r0 = socket$inet6_icmp_raw(0xa, 0x3, 0x3a)
+> > connect$inet6(r0, &(0x7f0000000040)={0xa, 0x0, 0x0, @dev, 0x6}, 0x1c)
+> > setsockopt$inet6_IPV6_HOPOPTS(r0, 0x29, 0x36,
+> > &(0x7f0000000100)=ANY=[@ANYBLOB="52b3"], 0x5a0)
+> > sendmmsg$inet(r0, &(0x7f00000002c0)=[{{0x0, 0x0,
+> > &(0x7f0000000000)=[{&(0x7f00000000c0)="1d2d", 0xfa5f}], 0x1}}], 0x1,
+> > 0xfe80)
+>
+> Here it is:
+> https://termbin.com/krtr
+> It won't be of much help, I'm afraid, as the offending sendmmsg()
+> call isn't fully printed.
 
-Regressions Summary
--------------------
+Thanks. It does offer some hints on the other two syscalls:
 
-platform                | arch  | lab           | compiler | defconfig     =
-             | regressions
-------------------------+-------+---------------+----------+---------------=
--------------+------------
-rk3399-gru-kevin        | arm64 | lab-collabora | gcc-10   | defconfig+arm6=
-4-chromebook | 1          =
+[pid   644] connect(3, {sa_family=AF_INET6, sin6_port=htons(0),
+sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "fe80::", &sin6_addr),
+sin6_scope_id=if_nametoindex("tunl0")}, 28) = 0
+[pid   644] setsockopt(3, SOL_IPV6, IPV6_HOPOPTS,
+"R\263\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"...,
+1440) = 0
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
-             | 1          =
+IPV6_HOPOPTS is ns_capable CAP_NET_RAW.
 
+So this adds 1440 bytes to opt_nflen, which is included in
+fragheaderlen, causing that to be exactly mtu. This means that the
+payload can never be sent, as each fragment header eats up the entire
+mtu? This is without any transport headers that would only be part of
+the first fragment (which go into opt_flen).
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.104-57-g6d793b104fe2/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.104-57-g6d793b104fe2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6d793b104fe2cca174eb48d314b67f46e75829ab =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-             | regressions
-------------------------+-------+---------------+----------+---------------=
--------------+------------
-rk3399-gru-kevin        | arm64 | lab-collabora | gcc-10   | defconfig+arm6=
-4-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6229fb50b0aace137ec62975
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
--57-g6d793b104fe2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
--57-g6d793b104fe2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6229fb50b0aace137ec6299b
-        failing since 2 days (last pass: v5.10.103-56-ge5a40f18f4ce, first =
-fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-03-10T13:21:12.431794  <8>[   32.790501] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-10T13:21:13.455208  /lava-5851925/1/../bin/lava-test-case   =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-             | regressions
-------------------------+-------+---------------+----------+---------------=
--------------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
-             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6229fe6a091b68e583c6298e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
--57-g6d793b104fe2/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ban=
-anapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.104=
--57-g6d793b104fe2/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ban=
-anapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6229fe6a091b68e583c62=
-98f
-        new failure (last pass: v5.10.104-44-gcb860ee1d45c) =
-
- =20
+If you can maybe catch the error before the skb_put and just return
+EINVAL, we might see whether sendmmsg is relevant or a simple send
+would be equivalent. (not super important, that appears unrelated.)
