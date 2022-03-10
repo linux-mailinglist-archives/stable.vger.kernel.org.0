@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 858D24D4C1E
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5584D4C27
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245428AbiCJOr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:47:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38686 "EHLO
+        id S244725AbiCJOdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344068AbiCJObk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:40 -0500
+        with ESMTP id S1343917AbiCJOb3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 345268F63D;
-        Thu, 10 Mar 2022 06:30:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4BC8E3C76;
+        Thu, 10 Mar 2022 06:28:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A712EB82544;
-        Thu, 10 Mar 2022 14:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A2DC340E8;
-        Thu, 10 Mar 2022 14:30:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 632D1B82544;
+        Thu, 10 Mar 2022 14:28:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F38C340E8;
+        Thu, 10 Mar 2022 14:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922620;
-        bh=iUx/VZAJZIJBMnOjtvNPH0MOwTkKmvTeDE8haWcGsAM=;
+        s=korg; t=1646922491;
+        bh=hcmMPrD/HN9xwyxoEWxYnoKf3Q5krhbZGmA8gMdOtgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUJCSLi5qrEECbyha8Ew4sQlIdm4h/0N7wjLFD6iSQBw53S4g6i5lcknYGEa80IDm
-         EvlR27L9XtaxZDp0hKF2LXhBY1jmCoU6JWup9k0lT3KBjAeixlyOD0uCHwGG+DKUl6
-         Vd5fwQkhINMEuMppAAJ7jWiQLtTEIJxUp6AIwNOk=
+        b=WCEta4gtzYRt/eLXwYR+QwDex85u0di6JhF4IXeoXlJLTuWyf91ZjnONh6G8zU3yi
+         uZwtgDuT4BW7p0gpg15WPLok2NpBjAi1XTs0q4mh0HzxXk2vRPbKMXK48YhcuOnKuQ
+         ojDfKSKJJK7QA023RbER4U4rNAro0cbXQEYK7R6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 35/58] arm64: entry: Add macro for reading symbol addresses from the trampoline
-Date:   Thu, 10 Mar 2022 15:19:24 +0100
-Message-Id: <20220310140813.987233306@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Justin Forbes <jmforbes@linuxtx.org>,
+        Mark Pearson <markpearson@lenovo.com>
+Subject: [PATCH 5.4 33/33] Revert "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
+Date:   Thu, 10 Mar 2022 15:19:34 +0100
+Message-Id: <20220310140809.711995140@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
-References: <20220310140812.983088611@linuxfoundation.org>
+In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
+References: <20220310140808.741682643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,104 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit b28a8eebe81c186fdb1a0078263b30576c8e1f42 upstream.
+This reverts commit 9d09cb110868f027d015fbc6c64ba1e45a69a192 which is
+commit dc0075ba7f387fe4c48a8c674b11ab6f374a6acc upstream.
 
-The trampoline code needs to use the address of symbols in the wider
-kernel, e.g. vectors. PC-relative addressing wouldn't work as the
-trampoline code doesn't run at the address the linker expected.
+It's been reported to cause problems with a number of Fedora and Arch
+Linux users, so drop it for now until that is resolved.
 
-tramp_ventry uses a literal pool, unless CONFIG_RANDOMIZE_BASE is
-set, in which case it uses the data page as a literal pool because
-the data page can be unmapped when running in user-space, which is
-required for CPUs vulnerable to meltdown.
-
-Pull this logic out as a macro, instead of adding a third copy
-of it.
-
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/CAJZ5v0gE52NT=4kN4MkhV3Gx=M5CeMGVHOF0jgTXDb5WwAMs_Q@mail.gmail.com
+Link: https://lore.kernel.org/r/31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Justin Forbes <jmforbes@linuxtx.org>
+Cc: Mark Pearson <markpearson@lenovo.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   37 ++++++++++++++++---------------------
- 1 file changed, 16 insertions(+), 21 deletions(-)
+ drivers/acpi/ec.c    |   10 ----------
+ drivers/acpi/sleep.c |   14 ++++++++++----
+ 2 files changed, 10 insertions(+), 14 deletions(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -646,6 +646,15 @@ alternative_else_nop_endif
- 	sub	\dst, \dst, PAGE_SIZE
- 	.endm
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -2003,16 +2003,6 @@ bool acpi_ec_dispatch_gpe(void)
+ 		return true;
  
-+	.macro tramp_data_read_var	dst, var
-+#ifdef CONFIG_RANDOMIZE_BASE
-+	tramp_data_page		\dst
-+	add	\dst, \dst, #:lo12:__entry_tramp_data_\var
-+	ldr	\dst, [\dst]
-+#else
-+	ldr	\dst, =\var
-+#endif
-+	.endm
- 
- #define BHB_MITIGATION_NONE	0
- #define BHB_MITIGATION_LOOP	1
-@@ -676,13 +685,8 @@ alternative_else_nop_endif
- 	b	.
- 2:
- 	tramp_map_kernel	x30
--#ifdef CONFIG_RANDOMIZE_BASE
--	tramp_data_page		x30
- alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
--	ldr	x30, [x30]
--#else
--	ldr	x30, =vectors
--#endif
-+	tramp_data_read_var	x30, vectors
- alternative_if_not ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM
- 	prfm	plil1strm, [x30, #(1b - \vector_start)]
- alternative_else_nop_endif
-@@ -765,7 +769,12 @@ SYM_CODE_END(tramp_exit_compat)
- 	.pushsection ".rodata", "a"
- 	.align PAGE_SHIFT
- SYM_DATA_START(__entry_tramp_data_start)
-+__entry_tramp_data_vectors:
- 	.quad	vectors
-+#ifdef CONFIG_ARM_SDE_INTERFACE
-+__entry_tramp_data___sdei_asm_handler:
-+	.quad	__sdei_asm_handler
-+#endif /* CONFIG_ARM_SDE_INTERFACE */
- SYM_DATA_END(__entry_tramp_data_start)
- 	.popsection				// .rodata
- #endif /* CONFIG_RANDOMIZE_BASE */
-@@ -932,14 +941,7 @@ SYM_CODE_START(__sdei_asm_entry_trampoli
- 	 * Remember whether to unmap the kernel on exit.
- 	 */
- 1:	str	x4, [x1, #(SDEI_EVENT_INTREGS + S_SDEI_TTBR1)]
+ 	/*
+-	 * Cancel the SCI wakeup and process all pending events in case there
+-	 * are any wakeup ones in there.
+-	 *
+-	 * Note that if any non-EC GPEs are active at this point, the SCI will
+-	 * retrigger after the rearming in acpi_s2idle_wake(), so no events
+-	 * should be missed by canceling the wakeup here.
+-	 */
+-	pm_system_cancel_wakeup();
 -
--#ifdef CONFIG_RANDOMIZE_BASE
--	tramp_data_page		x4
--	add	x4, x4, #:lo12:__sdei_asm_trampoline_next_handler
--	ldr	x4, [x4]
--#else
--	ldr	x4, =__sdei_asm_handler
--#endif
-+	tramp_data_read_var     x4, __sdei_asm_handler
- 	br	x4
- SYM_CODE_END(__sdei_asm_entry_trampoline)
- NOKPROBE(__sdei_asm_entry_trampoline)
-@@ -962,13 +964,6 @@ SYM_CODE_END(__sdei_asm_exit_trampoline)
- NOKPROBE(__sdei_asm_exit_trampoline)
- 	.ltorg
- .popsection		// .entry.tramp.text
--#ifdef CONFIG_RANDOMIZE_BASE
--.pushsection ".rodata", "a"
--SYM_DATA_START(__sdei_asm_trampoline_next_handler)
--	.quad	__sdei_asm_handler
--SYM_DATA_END(__sdei_asm_trampoline_next_handler)
--.popsection		// .rodata
--#endif /* CONFIG_RANDOMIZE_BASE */
- #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
+-	/*
+ 	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
+ 	 * to allow the caller to process events properly after that.
+ 	 */
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -1003,13 +1003,19 @@ static bool acpi_s2idle_wake(void)
+ 		if (acpi_check_wakeup_handlers())
+ 			return true;
  
- /*
+-		/*
+-		 * Check non-EC GPE wakeups and if there are none, cancel the
+-		 * SCI-related wakeup and dispatch the EC GPE.
+-		 */
++		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
+ 		if (acpi_ec_dispatch_gpe())
+ 			return true;
+ 
++		/*
++		 * Cancel the SCI wakeup and process all pending events in case
++		 * there are any wakeup ones in there.
++		 *
++		 * Note that if any non-EC GPEs are active at this point, the
++		 * SCI will retrigger after the rearming below, so no events
++		 * should be missed by canceling the wakeup here.
++		 */
++		pm_system_cancel_wakeup();
+ 		acpi_os_wait_events_complete();
+ 
+ 		/*
 
 
