@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 765DD4D49AF
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:51:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BFE4D49F8
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242851AbiCJObz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:31:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        id S243360AbiCJO0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:26:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244562AbiCJO3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29340D4C81;
-        Thu, 10 Mar 2022 06:24:12 -0800 (PST)
+        with ESMTP id S243592AbiCJOZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:25:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3963B8B6D;
+        Thu, 10 Mar 2022 06:22:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 341E2B82681;
-        Thu, 10 Mar 2022 14:24:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93302C340E8;
-        Thu, 10 Mar 2022 14:24:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3171861B33;
+        Thu, 10 Mar 2022 14:22:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13915C340EB;
+        Thu, 10 Mar 2022 14:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922249;
-        bh=wBLb1JgeLGCmIlJRSZ+nBqsfFArPm7x3PghLmULm8JI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rc1FedPavxYV4057rDk40Q0sf/FQSsRoNCJ3GEPVN63122mz8MKzykbYBqF0NZc+r
-         J0Gxb74Jx9inFCKrBI/Ma7xdABkK1UhiwLLlx1B5S4x1RUG8rjLgrqsIxBs1Y+f+TM
-         7VNr7AYg1cN+VkQHfT93K9+Scj7JFQ8ef1ZEHFZ8=
+        s=korg; t=1646922125;
+        bh=YjuC0JE4Tu32QTqLjVs4svBdoOZj21c0fcUSIJ1dlVk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ytPEKts+Uo8gsqpUdvfsSb/Jf5UgynKGrrV3pE3oCBQB9T5xRUG2SeYZpSo5Va7On
+         y1GAJmez/oLaidSy058tUcEahCxhmkArIvNUR+adbewAhnwHhuKO7S3xmi/Bb12nUE
+         qFVnGW8XnHR+vCAGuuSrvvQFXnD+jHUYdLOrMukc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 07/58] x86/speculation: Update link to AMD speculation whitepaper
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.19 00/33] 4.19.234-rc2 review
 Date:   Thu, 10 Mar 2022 15:18:27 +0100
-Message-Id: <20220310140813.083764120@linuxfoundation.org>
+Message-Id: <20220310140807.749164737@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.234-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.234-rc2
+X-KernelTest-Deadline: 2022-03-12T14:08+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -53,41 +61,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+This is the start of the stable review cycle for the 4.19.234 release.
+There are 33 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit e9b6013a7ce31535b04b02ba99babefe8a8599fa upstream.
+Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
+Anything received after that time might be too late.
 
-Update the link to the "Software Techniques for Managing Speculation
-on AMD Processors" whitepaper.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.234-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- Documentation/admin-guide/hw-vuln/spectre.rst |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+thanks,
 
---- a/Documentation/admin-guide/hw-vuln/spectre.rst
-+++ b/Documentation/admin-guide/hw-vuln/spectre.rst
-@@ -60,8 +60,8 @@ privileged data touched during the specu
- Spectre variant 1 attacks take advantage of speculative execution of
- conditional branches, while Spectre variant 2 attacks use speculative
- execution of indirect branches to leak privileged memory.
--See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[7] <spec_ref7>`
--:ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
-+See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[6] <spec_ref6>`
-+:ref:`[7] <spec_ref7>` :ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
- 
- Spectre variant 1 (Bounds Check Bypass)
- ---------------------------------------
-@@ -746,7 +746,7 @@ AMD white papers:
- 
- .. _spec_ref6:
- 
--[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/90343-B_SoftwareTechniquesforManagingSpeculation_WP_7-18Update_FNL.pdf>`_.
-+[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/Managing-Speculation-on-AMD-Processors.pdf>`_.
- 
- ARM white papers:
- 
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.234-rc2
+
+Juergen Gross <jgross@suse.com>
+    xen/netfront: react properly to failing gnttab_end_foreign_access_ref()
+
+Juergen Gross <jgross@suse.com>
+    xen/gnttab: fix gnttab_end_foreign_access() without page specified
+
+Juergen Gross <jgross@suse.com>
+    xen/pvcalls: use alloc/free_pages_exact()
+
+Juergen Gross <jgross@suse.com>
+    xen/9p: use alloc/free_pages_exact()
+
+Juergen Gross <jgross@suse.com>
+    xen: remove gnttab_query_foreign_access()
+
+Juergen Gross <jgross@suse.com>
+    xen/gntalloc: don't use gnttab_query_foreign_access()
+
+Juergen Gross <jgross@suse.com>
+    xen/scsifront: don't use gnttab_query_foreign_access() for mapped status
+
+Juergen Gross <jgross@suse.com>
+    xen/netfront: don't use gnttab_query_foreign_access() for mapped status
+
+Juergen Gross <jgross@suse.com>
+    xen/blkfront: don't use gnttab_query_foreign_access() for mapped status
+
+Juergen Gross <jgross@suse.com>
+    xen/grant-table: add gnttab_try_end_foreign_access()
+
+Juergen Gross <jgross@suse.com>
+    xen/xenbus: don't let xenbus_grant_ring() remove grants in error case
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: fix build warning in proc-v7-bugs.c
+
+Nathan Chancellor <nathan@kernel.org>
+    ARM: Do not use NOCROSSREFS directive with ld.lld
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: fix co-processor register typo
+
+Sami Tolvanen <samitolvanen@google.com>
+    kbuild: add CONFIG_LD_IS_LLD
+
+Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
+    ARM: fix build error when BPF_SYSCALL is disabled
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: include unprivileged BPF status in Spectre V2 reporting
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: Spectre-BHB workaround
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: use LOADADDR() to get load address of sections
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: early traps initialisation
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: report Spectre v2 status through sysfs
+
+Mark Rutland <mark.rutland@arm.com>
+    arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
+
+Steven Price <steven.price@arm.com>
+    arm/arm64: Provide a wrapper for SMCCC 1.1 calls
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Warn about Spectre v2 LFENCE mitigation
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/speculation: Update link to AMD speculation whitepaper
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/speculation: Use generic retpoline by default on AMD
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+
+Peter Zijlstra <peterz@infradead.org>
+    Documentation/hw-vuln: Update spectre doc
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/speculation: Add eIBRS + Retpoline options
+
+Peter Zijlstra (Intel) <peterz@infradead.org>
+    x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
+
+Peter Zijlstra <peterz@infradead.org>
+    x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+
+Borislav Petkov <bp@suse.de>
+    x86/speculation: Merge one test in spectre_v2_user_select_mitigation()
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/hw-vuln/spectre.rst   |  48 ++++--
+ Documentation/admin-guide/kernel-parameters.txt |   8 +-
+ Makefile                                        |   4 +-
+ arch/arm/include/asm/assembler.h                |  10 ++
+ arch/arm/include/asm/spectre.h                  |  32 ++++
+ arch/arm/kernel/Makefile                        |   2 +
+ arch/arm/kernel/entry-armv.S                    |  79 ++++++++-
+ arch/arm/kernel/entry-common.S                  |  24 +++
+ arch/arm/kernel/spectre.c                       |  71 ++++++++
+ arch/arm/kernel/traps.c                         |  65 ++++++-
+ arch/arm/kernel/vmlinux.lds.h                   |  43 ++++-
+ arch/arm/mm/Kconfig                             |  11 ++
+ arch/arm/mm/proc-v7-bugs.c                      | 201 +++++++++++++++++++---
+ arch/x86/include/asm/cpufeatures.h              |   2 +-
+ arch/x86/include/asm/nospec-branch.h            |  16 +-
+ arch/x86/kernel/cpu/bugs.c                      | 214 +++++++++++++++++-------
+ drivers/block/xen-blkfront.c                    |  63 ++++---
+ drivers/firmware/psci.c                         |  15 ++
+ drivers/net/xen-netfront.c                      |  54 +++---
+ drivers/scsi/xen-scsifront.c                    |   3 +-
+ drivers/xen/gntalloc.c                          |  25 +--
+ drivers/xen/grant-table.c                       |  71 ++++----
+ drivers/xen/pvcalls-front.c                     |   8 +-
+ drivers/xen/xenbus/xenbus_client.c              |  24 ++-
+ include/linux/arm-smccc.h                       |  74 ++++++++
+ include/linux/bpf.h                             |  11 ++
+ include/xen/grant_table.h                       |  19 ++-
+ init/Kconfig                                    |   3 +
+ kernel/sysctl.c                                 |   8 +
+ net/9p/trans_xen.c                              |  14 +-
+ tools/arch/x86/include/asm/cpufeatures.h        |   2 +-
+ 31 files changed, 963 insertions(+), 261 deletions(-)
 
 
