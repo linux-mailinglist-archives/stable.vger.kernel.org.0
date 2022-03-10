@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B004D4BCC
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CC94D4A1E
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:53:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244404AbiCJOdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49666 "EHLO
+        id S243788AbiCJOeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343585AbiCJObD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BDB0187BB4;
-        Thu, 10 Mar 2022 06:27:04 -0800 (PST)
+        with ESMTP id S244655AbiCJOdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:33:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65D87EEA65;
+        Thu, 10 Mar 2022 06:31:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB46761D78;
-        Thu, 10 Mar 2022 14:26:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96BDDC340E8;
-        Thu, 10 Mar 2022 14:26:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70E1961C0A;
+        Thu, 10 Mar 2022 14:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79FAEC340E8;
+        Thu, 10 Mar 2022 14:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922407;
-        bh=u+YGfUV9apuvZVrDnvXJwlZo8kXMTKNOPz6JW4FrGnQ=;
+        s=korg; t=1646922673;
+        bh=iG4dGyVQTtgev5VOsQ8d1I4SvBWcNj19Mn9JiAy+Rwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDpmes/QHLXVvRdmWmvrWCUZPgBcZLoPuROLTeGs2eOk/c3dtdDA9uNhhDj6CBD8e
-         e+AgdcywPMWHbV7E0Qx6QfGtEqiKdESN0eok1gN6mwBlQGf92CT9+pvo5mGc2ZQsH5
-         TbacsaQBZJQ0jzOEDL4hY0nHYp8v+wsDdiHAnv8I=
+        b=mKeP0FQNY25uZ7fhwOUGc7bX92LyMZEUyvaAd4InOnR5DiMYtphbW0ohM/b094qdG
+         LPVbLkGnd1rJwIpES7cNvG533wQBebJn0SGcKTJLzjfAx4aYkSKi5lVEkIiIy0CY4y
+         5EYwGw1a/XCHfIX3n5saHaMEc8N3dWhygaByquLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Anthony Steinhauser <asteinhauser@google.com>,
-        Frank van der Linden <fllinden@amazon.com>
-Subject: [PATCH 5.4 01/33] x86/speculation: Merge one test in spectre_v2_user_select_mitigation()
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.15 13/58] ARM: use LOADADDR() to get load address of sections
 Date:   Thu, 10 Mar 2022 15:19:02 +0100
-Message-Id: <20220310140808.784915283@linuxfoundation.org>
+Message-Id: <20220310140813.364486542@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
-References: <20220310140808.741682643@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,63 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
 
-upstream commit a5ce9f2bb665d1d2b31f139a02dbaa2dfbb62fa6 upstream.
+commit 8d9d651ff2270a632e9dc497b142db31e8911315 upstream.
 
-Merge the test whether the CPU supports STIBP into the test which
-determines whether STIBP is required. Thus try to simplify what is
-already an insane logic.
+Use the linker's LOADADDR() macro to get the load address of the
+sections, and provide a macro to set the start and end symbols.
 
-Remove a superfluous newline in a comment, while at it.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Anthony Steinhauser <asteinhauser@google.com>
-Link: https://lkml.kernel.org/r/20200615065806.GB14668@zn.tnic
-[fllinden@amazon.com: fixed contextual conflict (comment) for 5.4]
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ arch/arm/include/asm/vmlinux.lds.h |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -756,10 +756,12 @@ spectre_v2_user_select_mitigation(enum s
- 	}
+--- a/arch/arm/include/asm/vmlinux.lds.h
++++ b/arch/arm/include/asm/vmlinux.lds.h
+@@ -26,6 +26,11 @@
+ #define ARM_MMU_DISCARD(x)	x
+ #endif
  
- 	/*
--	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
-+	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
- 	 * required.
- 	 */
--	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
-+	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
-+	    !smt_possible ||
-+	    spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
- 		return;
++/* Set start/end symbol names to the LMA for the section */
++#define ARM_LMA(sym, section)						\
++	sym##_start = LOADADDR(section);				\
++	sym##_end = LOADADDR(section) + SIZEOF(section)
++
+ #define PROC_INFO							\
+ 		. = ALIGN(4);						\
+ 		__proc_info_begin = .;					\
+@@ -110,19 +115,19 @@
+  * only thing that matters is their relative offsets
+  */
+ #define ARM_VECTORS							\
+-	__vectors_start = .;						\
++	__vectors_lma = .;						\
+ 	.vectors 0xffff0000 : AT(__vectors_start) {			\
+ 		*(.vectors)						\
+ 	}								\
+-	. = __vectors_start + SIZEOF(.vectors);				\
+-	__vectors_end = .;						\
++	ARM_LMA(__vectors, .vectors);					\
++	. = __vectors_lma + SIZEOF(.vectors);				\
+ 									\
+-	__stubs_start = .;						\
+-	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_start) {		\
++	__stubs_lma = .;						\
++	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_lma) {		\
+ 		*(.stubs)						\
+ 	}								\
+-	. = __stubs_start + SIZEOF(.stubs);				\
+-	__stubs_end = .;						\
++	ARM_LMA(__stubs, .stubs);					\
++	. = __stubs_lma + SIZEOF(.stubs);				\
+ 									\
+ 	PROVIDE(vector_fiq_offset = vector_fiq - ADDR(.vectors));
  
- 	/*
-@@ -771,12 +773,6 @@ spectre_v2_user_select_mitigation(enum s
- 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
- 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
- 
--	/*
--	 * If STIBP is not available, clear the STIBP mode.
--	 */
--	if (!boot_cpu_has(X86_FEATURE_STIBP))
--		mode = SPECTRE_V2_USER_NONE;
--
- 	spectre_v2_user_stibp = mode;
- 
- set_mode:
-@@ -1267,7 +1263,6 @@ static int ib_prctl_set(struct task_stru
- 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
- 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return 0;
--
- 		/*
- 		 * With strict mode for both IBPB and STIBP, the instruction
- 		 * code paths avoid checking this task flag and instead,
 
 
