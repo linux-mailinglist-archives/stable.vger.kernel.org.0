@@ -2,54 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D4214D4B92
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BC04D4B22
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243104AbiCJOVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:21:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40420 "EHLO
+        id S243054AbiCJOV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244047AbiCJOSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:18:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0BC5A6468;
-        Thu, 10 Mar 2022 06:15:24 -0800 (PST)
+        with ESMTP id S243519AbiCJOR6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:17:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAD07160FE4;
+        Thu, 10 Mar 2022 06:14:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A4BD61C7A;
-        Thu, 10 Mar 2022 14:15:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E12CC340E8;
-        Thu, 10 Mar 2022 14:15:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90A41B82615;
+        Thu, 10 Mar 2022 14:14:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55FD1C340E8;
+        Thu, 10 Mar 2022 14:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921718;
-        bh=kR2VHE2A1WiyMIApgLwMVYHS9zTJ+9waZH/a16M0Q2s=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tkuJPFVnBQiCJmTgBiRO2oYFKLtSCprAN6z33S/X0AAYOKONTrxInrSeHqm+/edDf
-         CIpl1EGVOH4He8PosYrSc8tllbhI34HNcsod4HHg7kBXiaO6bppvI6ZjPR5Tx50+pm
-         Ls8SMZ/pjlDKM5zc3Dhdbn+QB9HZTHUIuzxPCDGI=
+        s=korg; t=1646921646;
+        bh=6g3HeBO2zRKzOSmJFIYDEBU/mGaghVue+fBkH7lFoHw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rrvD82SB8HO69FZn2ZMyEXwSO+phRLpKkPu0X5W76rSSaIbobb28b/gKYvYOTH3EQ
+         TnWqNC3cwFdO/cRruzPpYAi2UR9f8cgi85D05dC94cSlRqxdzWh5EnNraBjVJS/okx
+         OFJbr3FMXrdn3wN2FvP4AyswNfFRIA6/afQrdGpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.9 00/38] 4.9.306-rc2 review
-Date:   Thu, 10 Mar 2022 15:13:13 +0100
-Message-Id: <20220310140808.136149678@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wang YanQing <udknight@gmail.com>, dhaval.giani@oracle.com,
+        srinivas.eeda@oracle.com, Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 01/38] x86/speculation: Add RETPOLINE_AMD support to the inline asm CALL_NOSPEC variant
+Date:   Thu, 10 Mar 2022 15:13:14 +0100
+Message-Id: <20220310140808.180700666@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220310140808.136149678@linuxfoundation.org>
+References: <20220310140808.136149678@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.306-rc2.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.306-rc2
-X-KernelTest-Deadline: 2022-03-12T14:08+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,184 +63,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.306 release.
-There are 38 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 
-Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
-Anything received after that time might be too late.
+commit 0cbb76d6285794f30953bfa3ab831714b59dd700 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.306-rc2.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+..so that they match their asm counterpart.
 
-thanks,
+Add the missing ANNOTATE_NOSPEC_ALTERNATIVE in CALL_NOSPEC, while at it.
 
-greg k-h
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wang YanQing <udknight@gmail.com>
+Cc: dhaval.giani@oracle.com
+Cc: srinivas.eeda@oracle.com
+Link: http://lkml.kernel.org/r/c3975665-173e-4d70-8dee-06c926ac26ee@default
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/x86/include/asm/nospec-branch.h |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.306-rc2
-
-Juergen Gross <jgross@suse.com>
-    xen/netfront: react properly to failing gnttab_end_foreign_access_ref()
-
-Juergen Gross <jgross@suse.com>
-    xen/gnttab: fix gnttab_end_foreign_access() without page specified
-
-Juergen Gross <jgross@suse.com>
-    xen: remove gnttab_query_foreign_access()
-
-Juergen Gross <jgross@suse.com>
-    xen/gntalloc: don't use gnttab_query_foreign_access()
-
-Juergen Gross <jgross@suse.com>
-    xen/scsifront: don't use gnttab_query_foreign_access() for mapped status
-
-Juergen Gross <jgross@suse.com>
-    xen/netfront: don't use gnttab_query_foreign_access() for mapped status
-
-Juergen Gross <jgross@suse.com>
-    xen/blkfront: don't use gnttab_query_foreign_access() for mapped status
-
-Juergen Gross <jgross@suse.com>
-    xen/grant-table: add gnttab_try_end_foreign_access()
-
-Juergen Gross <jgross@suse.com>
-    xen/xenbus: don't let xenbus_grant_ring() remove grants in error case
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: fix build warning in proc-v7-bugs.c
-
-WANG Chao <chao.wang@ucloud.cn>
-    x86, modpost: Replace last remnants of RETPOLINE with CONFIG_RETPOLINE
-
-Masahiro Yamada <yamada.masahiro@socionext.com>
-    x86/build: Fix compiler support check for CONFIG_RETPOLINE
-
-Nathan Chancellor <nathan@kernel.org>
-    ARM: Do not use NOCROSSREFS directive with ld.lld
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: fix co-processor register typo
-
-Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
-    ARM: fix build error when BPF_SYSCALL is disabled
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: include unprivileged BPF status in Spectre V2 reporting
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: Spectre-BHB workaround
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: use LOADADDR() to get load address of sections
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: early traps initialisation
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: report Spectre v2 status through sysfs
-
-Mark Rutland <mark.rutland@arm.com>
-    arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
-
-Steven Price <steven.price@arm.com>
-    arm/arm64: Provide a wrapper for SMCCC 1.1 calls
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/speculation: Warn about Spectre v2 LFENCE mitigation
-
-Kim Phillips <kim.phillips@amd.com>
-    x86/speculation: Update link to AMD speculation whitepaper
-
-Kim Phillips <kim.phillips@amd.com>
-    x86/speculation: Use generic retpoline by default on AMD
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
-
-Peter Zijlstra <peterz@infradead.org>
-    Documentation/hw-vuln: Update spectre doc
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/speculation: Add eIBRS + Retpoline options
-
-Peter Zijlstra (Intel) <peterz@infradead.org>
-    x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
-
-Peter Zijlstra <peterz@infradead.org>
-    x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
-
-Borislav Petkov <bp@suse.de>
-    x86/speculation: Merge one test in spectre_v2_user_select_mitigation()
-
-Lukas Bulwahn <lukas.bulwahn@gmail.com>
-    Documentation: refer to config RANDOMIZE_BASE for kernel address-space randomization
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    Documentation: Add swapgs description to the Spectre v1 documentation
-
-Tim Chen <tim.c.chen@linux.intel.com>
-    Documentation: Add section about CPU vulnerabilities for Spectre
-
-Zhenzhong Duan <zhenzhong.duan@oracle.com>
-    x86/retpoline: Remove minimal retpoline support
-
-Zhenzhong Duan <zhenzhong.duan@oracle.com>
-    x86/retpoline: Make CONFIG_RETPOLINE depend on compiler support
-
-Zhenzhong Duan <zhenzhong.duan@oracle.com>
-    x86/speculation: Add RETPOLINE_AMD support to the inline asm CALL_NOSPEC variant
-
-
--------------
-
-Diffstat:
-
- Documentation/hw-vuln/index.rst          |   1 +
- Documentation/hw-vuln/spectre.rst        | 785 +++++++++++++++++++++++++++++++
- Documentation/kernel-parameters.txt      |   8 +-
- Makefile                                 |   4 +-
- arch/arm/include/asm/assembler.h         |  10 +
- arch/arm/include/asm/spectre.h           |  32 ++
- arch/arm/kernel/Makefile                 |   2 +
- arch/arm/kernel/entry-armv.S             |  79 +++-
- arch/arm/kernel/entry-common.S           |  24 +
- arch/arm/kernel/spectre.c                |  71 +++
- arch/arm/kernel/traps.c                  |  65 ++-
- arch/arm/kernel/vmlinux-xip.lds.S        |  45 +-
- arch/arm/kernel/vmlinux.lds.S            |  45 +-
- arch/arm/mm/Kconfig                      |  11 +
- arch/arm/mm/proc-v7-bugs.c               | 199 ++++++--
- arch/x86/Kconfig                         |   4 -
- arch/x86/Makefile                        |  11 +-
- arch/x86/include/asm/cpufeatures.h       |   2 +-
- arch/x86/include/asm/nospec-branch.h     |  41 +-
- arch/x86/kernel/cpu/bugs.c               | 225 ++++++---
- drivers/block/xen-blkfront.c             |  67 +--
- drivers/firmware/psci.c                  |  15 +
- drivers/net/xen-netfront.c               |  54 ++-
- drivers/scsi/xen-scsifront.c             |   3 +-
- drivers/xen/gntalloc.c                   |  25 +-
- drivers/xen/grant-table.c                |  59 ++-
- drivers/xen/xenbus/xenbus_client.c       |  24 +-
- include/linux/arm-smccc.h                |  74 +++
- include/linux/bpf.h                      |  11 +
- include/linux/compiler-gcc.h             |   2 +-
- include/linux/module.h                   |   2 +-
- include/xen/grant_table.h                |  19 +-
- kernel/sysctl.c                          |   8 +
- scripts/mod/modpost.c                    |   2 +-
- tools/arch/x86/include/asm/cpufeatures.h |   2 +-
- 35 files changed, 1763 insertions(+), 268 deletions(-)
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -172,11 +172,15 @@
+  */
+ # define CALL_NOSPEC						\
+ 	ANNOTATE_NOSPEC_ALTERNATIVE				\
+-	ALTERNATIVE(						\
++	ALTERNATIVE_2(						\
+ 	ANNOTATE_RETPOLINE_SAFE					\
+ 	"call *%[thunk_target]\n",				\
+ 	"call __x86_indirect_thunk_%V[thunk_target]\n",		\
+-	X86_FEATURE_RETPOLINE)
++	X86_FEATURE_RETPOLINE,					\
++	"lfence;\n"						\
++	ANNOTATE_RETPOLINE_SAFE					\
++	"call *%[thunk_target]\n",				\
++	X86_FEATURE_RETPOLINE_AMD)
+ # define THUNK_TARGET(addr) [thunk_target] "r" (addr)
+ 
+ #elif defined(CONFIG_X86_32) && defined(CONFIG_RETPOLINE)
+@@ -186,7 +190,8 @@
+  * here, anyway.
+  */
+ # define CALL_NOSPEC						\
+-	ALTERNATIVE(						\
++	ANNOTATE_NOSPEC_ALTERNATIVE				\
++	ALTERNATIVE_2(						\
+ 	ANNOTATE_RETPOLINE_SAFE					\
+ 	"call *%[thunk_target]\n",				\
+ 	"       jmp    904f;\n"					\
+@@ -201,7 +206,11 @@
+ 	"       ret;\n"						\
+ 	"       .align 16\n"					\
+ 	"904:	call   901b;\n",				\
+-	X86_FEATURE_RETPOLINE)
++	X86_FEATURE_RETPOLINE,					\
++	"lfence;\n"						\
++	ANNOTATE_RETPOLINE_SAFE					\
++	"call *%[thunk_target]\n",				\
++	X86_FEATURE_RETPOLINE_AMD)
+ 
+ # define THUNK_TARGET(addr) [thunk_target] "rm" (addr)
+ #else /* No retpoline for C / inline asm */
 
 
