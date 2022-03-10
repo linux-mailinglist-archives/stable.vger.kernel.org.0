@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B17244D4AB7
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B4B4D4AC6
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244157AbiCJOc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:32:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
+        id S243818AbiCJOcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:32:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244973AbiCJO3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32CB5158794;
-        Thu, 10 Mar 2022 06:25:11 -0800 (PST)
+        with ESMTP id S243877AbiCJO15 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:27:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5E9CA0BD5;
+        Thu, 10 Mar 2022 06:22:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4A7F61D7D;
-        Thu, 10 Mar 2022 14:24:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D4FC340E8;
-        Thu, 10 Mar 2022 14:24:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A467061CFB;
+        Thu, 10 Mar 2022 14:22:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4CEC36AE2;
+        Thu, 10 Mar 2022 14:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922299;
-        bh=rxrVtqzt8KzhHd7aJFQSaUe6TCVXuDiXrwAXtG1xse4=;
+        s=korg; t=1646922170;
+        bh=mFLGwyxL60zb3gvRg16qJDVO+v5CSOIO6jNpfVxbb6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iw/L+d4qL9xwlXYgqxofvJkticlbl0p76vrqLO4GoNnoDjOZfLHSEXKYp2B+TzBlC
-         v/YmsDFmUTYp3s4wrgJW0fsBlzYRVGcE9F3W1DebuxbK8EMZ7j5NtPtvzBnZP8Lffo
-         qgusHYZgd/fAuFy4tYefORNgqIMxOmgtUgPc1Zy8=
+        b=yvDII2/e35E7jzBfM7X9W2i1BQP0Jhlgzc7EmKaT1JKrSNkRFu9dzI5wnekL8LFb2
+         cQUet264KYNL7ncmRakYS0F03qF3gYhCqcecyYj1zSBKkpwj5XCJ0Q/eKh43B+JDus
+         vvcmpx9J6cmQ74G8uE4TJUQkc7VYDg5xzsSqjUaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.10 33/58] arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.19 26/33] xen/netfront: dont use gnttab_query_foreign_access() for mapped status
 Date:   Thu, 10 Mar 2022 15:18:53 +0100
-Message-Id: <20220310140813.817865923@linuxfoundation.org>
+Message-Id: <20220310140808.513218261@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
+References: <20220310140807.749164737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit aff65393fa1401e034656e349abd655cfe272de0 upstream.
+Commit 31185df7e2b1d2fa1de4900247a12d7b9c7087eb upstream.
 
-kpti is an optional feature, for systems not using kpti a set of
-vectors for the spectre-bhb mitigations is needed.
+It isn't enough to check whether a grant is still being in use by
+calling gnttab_query_foreign_access(), as a mapping could be realized
+by the other side just after having called that function.
 
-Add another set of vectors, __bp_harden_el1_vectors, that will be
-used if a mitigation is needed and kpti is not in use.
+In case the call was done in preparation of revoking a grant it is
+better to do so via gnttab_end_foreign_access_ref() and check the
+success of that operation instead.
 
-The EL1 ventries are repeated verbatim as there is no additional
-work needed for entry from EL1.
+This is CVE-2022-23037 / part of XSA-396.
 
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   35 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+ drivers/net/xen-netfront.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -819,10 +819,11 @@ alternative_else_nop_endif
- 	.macro tramp_ventry, vector_start, regsize, kpti
- 	.align	7
- 1:
--	.if	\kpti == 1
- 	.if	\regsize == 64
- 	msr	tpidrro_el0, x30	// Restored in kernel_ventry
- 	.endif
-+
-+	.if	\kpti == 1
- 	/*
- 	 * Defend against branch aliasing attacks by pushing a dummy
- 	 * entry onto the return stack and using a RET instruction to
-@@ -910,6 +911,38 @@ SYM_DATA_END(__entry_tramp_data_start)
- #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
- 
- /*
-+ * Exception vectors for spectre mitigations on entry from EL1 when
-+ * kpti is not in use.
-+ */
-+	.macro generate_el1_vector
-+.Lvector_start\@:
-+	kernel_ventry	1, sync_invalid			// Synchronous EL1t
-+	kernel_ventry	1, irq_invalid			// IRQ EL1t
-+	kernel_ventry	1, fiq_invalid			// FIQ EL1t
-+	kernel_ventry	1, error_invalid		// Error EL1t
-+
-+	kernel_ventry	1, sync				// Synchronous EL1h
-+	kernel_ventry	1, irq				// IRQ EL1h
-+	kernel_ventry	1, fiq_invalid			// FIQ EL1h
-+	kernel_ventry	1, error			// Error EL1h
-+
-+	.rept	4
-+	tramp_ventry	.Lvector_start\@, 64, kpti=0
-+	.endr
-+	.rept 4
-+	tramp_ventry	.Lvector_start\@, 32, kpti=0
-+	.endr
-+	.endm
-+
-+	.pushsection ".entry.text", "ax"
-+	.align	11
-+SYM_CODE_START(__bp_harden_el1_vectors)
-+	generate_el1_vector
-+SYM_CODE_END(__bp_harden_el1_vectors)
-+	.popsection
-+
-+
-+/*
-  * Register switch for AArch64. The callee-saved registers need to be saved
-  * and restored. On entry:
-  *   x0 = previous task_struct (must be preserved across the switch)
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -414,14 +414,12 @@ static bool xennet_tx_buf_gc(struct netf
+ 			queue->tx_link[id] = TX_LINK_NONE;
+ 			skb = queue->tx_skbs[id];
+ 			queue->tx_skbs[id] = NULL;
+-			if (unlikely(gnttab_query_foreign_access(
+-				queue->grant_tx_ref[id]) != 0)) {
++			if (unlikely(!gnttab_end_foreign_access_ref(
++				queue->grant_tx_ref[id], GNTMAP_readonly))) {
+ 				dev_alert(dev,
+ 					  "Grant still in use by backend domain\n");
+ 				goto err;
+ 			}
+-			gnttab_end_foreign_access_ref(
+-				queue->grant_tx_ref[id], GNTMAP_readonly);
+ 			gnttab_release_grant_reference(
+ 				&queue->gref_tx_head, queue->grant_tx_ref[id]);
+ 			queue->grant_tx_ref[id] = GRANT_INVALID_REF;
 
 
