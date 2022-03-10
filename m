@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6913E4D5416
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 23:01:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D424D5419
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 23:03:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233519AbiCJWCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 17:02:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45144 "EHLO
+        id S230445AbiCJWDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 17:03:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230445AbiCJWCD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 17:02:03 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BCF5194A9C;
-        Thu, 10 Mar 2022 14:01:01 -0800 (PST)
+        with ESMTP id S242528AbiCJWDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 17:03:18 -0500
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC96D195323;
+        Thu, 10 Mar 2022 14:02:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646949661; x=1678485661;
+  t=1646949736; x=1678485736;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=xJy4aCLQd7LvwROm5jGjIqzY/gyUsh2Y7Oe4o61XLVQ=;
-  b=ZxQwhSqpURoRFXd0VOAbCi0JdWUAcvNOic1nlGupH4O3K5i3TPoQmoFJ
-   FzGIPn6EoeYgasu2Li4ZD20tlvYxs4hE5qX5aIugwyCmdin5MnHtmFBXG
-   eJmfPbB0CKq7/JL+8GnfiSmNEZ+1VEGPgI1JHyNgDqRPbI5lCClRV1Fgz
-   gTg/BYZDobAfM14dID4Og5OfoAUYQ/y3iS5b3v7s+vkDi6AMU2vTAwFeK
-   tApNMATuKHWcUMrELE81/J5JYqth8HxcYrPWLMroTweQDRgFQhtHJCNvE
-   alVVLhyzifGnrfqPPYxgji3wcyuc/1cg0091juIiSPt6t1xX0HH/unfSG
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10282"; a="255340050"
+  bh=Y8q0ybKAkysnwhGHgJ+OG6o1DMS+xAEvEE3u0LB/V4k=;
+  b=j57xBD9vOb9d/5BOtoLFJQLXqdVLg+yj9gtIP2dHcHGhkd2nO4ewN2d1
+   PjSFAQKQG7XYuDl7gQHNpPI+gDC15CPv9R/BLqr8DewwXHhwrPhW/UeSm
+   QLHSjWRpOGXF1v5sIjhUJWEQjem2sB+VUPh3nQWL6S+rWpezQX85jSpro
+   a09EkCMLoQEnuhsML/z0nUE85vVj6Rv563neq3yHzKnDRkxyG5QMbPf8/
+   kMDjTpShMt/Gp2+YCSzdlYRFLg2ORQeBhe7z0nTtUXkzRlw2KamCtYEtF
+   xD0c4TUCyfzlbsK1v2x0fxhg6u5Vf9VkLwU9HgqjIJTX0C/TWV0souudl
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10282"; a="242838935"
 X-IronPort-AV: E=Sophos;i="5.90,171,1643702400"; 
-   d="scan'208";a="255340050"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2022 14:01:00 -0800
+   d="scan'208";a="242838935"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2022 14:02:15 -0800
 X-IronPort-AV: E=Sophos;i="5.90,171,1643702400"; 
-   d="scan'208";a="538649968"
+   d="scan'208";a="578975159"
 Received: from guptapa-mobl1.amr.corp.intel.com ([10.209.31.141])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2022 14:01:00 -0800
-Date:   Thu, 10 Mar 2022 14:00:59 -0800
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2022 14:02:10 -0800
+Date:   Thu, 10 Mar 2022 14:02:09 -0800
 From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 To:     Borislav Petkov <bp@alien8.de>,
         Thomas Gleixner <tglx@linutronix.de>
@@ -47,139 +47,157 @@ Cc:     Ingo Molnar <mingo@redhat.com>,
         antonio.gomez.iglesias@linux.intel.com, neelima.krishnan@intel.com,
         stable@vger.kernel.org, Andrew Cooper <Andrew.Cooper3@citrix.com>,
         Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH v2 1/2] x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
-Message-ID: <5b323e77e251a9c8bcdda498c5cc0095be1e1d3c.1646943780.git.pawan.kumar.gupta@linux.intel.com>
+Subject: [PATCH v2 2/2] x86/tsx: Disable TSX development mode at boot
+Message-ID: <347bd844da3a333a9793c6687d4e4eb3b2419a3e.1646943780.git.pawan.kumar.gupta@linux.intel.com>
 References: <cover.1646943780.git.pawan.kumar.gupta@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 In-Reply-To: <cover.1646943780.git.pawan.kumar.gupta@linux.intel.com>
 X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-tsx_clear_cpuid() uses MSR_TSX_FORCE_ABORT to clear CPUID.RTM and
-CPUID.HLE. Not all CPUs support MSR_TSX_FORCE_ABORT, alternatively use
-MSR_IA32_TSX_CTRL when supported.
+A microcode update on some Intel processors causes all TSX transactions
+to always abort by default [*]. Microcode also added functionality to
+re-enable TSX for development purpose. With this microcode loaded, if
+tsx=on was passed on the cmdline, and TSX development mode was already
+enabled before the kernel boot, it may make the system vulnerable to TSX
+Asynchronous Abort (TAA).
 
-  [ bp: Document how and why TSX gets disabled. ]
+To be on safer side, unconditionally disable TSX development mode at
+boot. If needed, a user can enable it using msr-tools.
 
-Fixes: 293649307ef9 ("x86/tsx: Clear CPUID bits when TSX always force aborts")
-Reported-by: kernel test robot <lkp@intel.com>
+[*] Intel Transactional Synchronization Extension (Intel TSX) Disable Update for Selected Processors
+    https://cdrdv2.intel.com/v1/dl/getContent/643557
+
+Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Suggested-by: Borislav Petkov <bp@alien8.de>
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
 Cc: <stable@vger.kernel.org>
 ---
- arch/x86/kernel/cpu/intel.c |  1 +
- arch/x86/kernel/cpu/tsx.c   | 54 ++++++++++++++++++++++++++++++++-----
- 2 files changed, 48 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/msr-index.h       |  4 +--
+ arch/x86/kernel/cpu/cpu.h              |  1 +
+ arch/x86/kernel/cpu/intel.c            |  4 +++
+ arch/x86/kernel/cpu/tsx.c              | 34 ++++++++++++++++++++++++++
+ tools/arch/x86/include/asm/msr-index.h |  4 +--
+ 5 files changed, 43 insertions(+), 4 deletions(-)
 
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index a4a39c3e0f19..0c2610cde6ea 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -128,9 +128,9 @@
+ #define TSX_CTRL_RTM_DISABLE		BIT(0)	/* Disable RTM feature */
+ #define TSX_CTRL_CPUID_CLEAR		BIT(1)	/* Disable TSX enumeration */
+ 
+-/* SRBDS support */
+ #define MSR_IA32_MCU_OPT_CTRL		0x00000123
+-#define RNGDS_MITG_DIS			BIT(0)
++#define RNGDS_MITG_DIS			BIT(0)	/* SRBDS support */
++#define RTM_ALLOW			BIT(1)	/* TSX development mode */
+ 
+ #define MSR_IA32_SYSENTER_CS		0x00000174
+ #define MSR_IA32_SYSENTER_ESP		0x00000175
+diff --git a/arch/x86/kernel/cpu/cpu.h b/arch/x86/kernel/cpu/cpu.h
+index ee6f23f7587d..628d18062372 100644
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -58,6 +58,7 @@ extern void __init tsx_init(void);
+ extern void tsx_enable(void);
+ extern void tsx_disable(void);
+ extern void tsx_clear_cpuid(void);
++extern bool tsx_dev_mode_disable(void);
+ #else
+ static inline void tsx_init(void) { }
+ #endif /* CONFIG_CPU_SUP_INTEL */
 diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
-index 8321c43554a1..8abf995677a4 100644
+index 8abf995677a4..46cb5a18bd97 100644
 --- a/arch/x86/kernel/cpu/intel.c
 +++ b/arch/x86/kernel/cpu/intel.c
-@@ -722,6 +722,7 @@ static void init_intel(struct cpuinfo_x86 *c)
- 	else if (tsx_ctrl_state == TSX_CTRL_DISABLE)
- 		tsx_disable();
- 	else if (tsx_ctrl_state == TSX_CTRL_RTM_ALWAYS_ABORT)
-+		/* See comment over that function for more details. */
- 		tsx_clear_cpuid();
+@@ -717,6 +717,10 @@ static void init_intel(struct cpuinfo_x86 *c)
  
- 	split_lock_init();
+ 	init_intel_misc_features(c);
+ 
++	/* Boot CPU is handled in tsx_init() */
++	if (c->cpu_index != boot_cpu_data.cpu_index)
++		tsx_dev_mode_disable();
++
+ 	if (tsx_ctrl_state == TSX_CTRL_ENABLE)
+ 		tsx_enable();
+ 	else if (tsx_ctrl_state == TSX_CTRL_DISABLE)
 diff --git a/arch/x86/kernel/cpu/tsx.c b/arch/x86/kernel/cpu/tsx.c
-index 9c7a5f049292..2835fa89fc6f 100644
+index 2835fa89fc6f..513e479bca2e 100644
 --- a/arch/x86/kernel/cpu/tsx.c
 +++ b/arch/x86/kernel/cpu/tsx.c
-@@ -58,7 +58,7 @@ void tsx_enable(void)
- 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
- }
- 
--static bool __init tsx_ctrl_is_supported(void)
-+static bool tsx_ctrl_is_supported(void)
- {
- 	u64 ia32_cap = x86_read_arch_cap_msr();
- 
-@@ -84,6 +84,44 @@ static enum tsx_ctrl_states x86_get_tsx_auto_mode(void)
- 	return TSX_CTRL_ENABLE;
- }
- 
-+/*
-+ * Disabling TSX is not a trivial business.
-+ *
-+ * First of all, there's a CPUID bit: X86_FEATURE_RTM_ALWAYS_ABORT
-+ * which says that TSX is practically disabled (all transactions are
-+ * aborted by default). When that bit is set, the kernel unconditionally
-+ * disables TSX.
-+ *
-+ * In order to do that, however, it needs to dance a bit:
-+ *
-+ * 1. The first method to disable it is through MSR_TSX_FORCE_ABORT and
-+ * the MSR is present only when *two* CPUID bits are set:
-+ *
-+ * - X86_FEATURE_RTM_ALWAYS_ABORT
-+ * - X86_FEATURE_TSX_FORCE_ABORT
-+ *
-+ * 2. The second method is for CPUs which do not have the above-mentioned
-+ * MSR: those use a different MSR - MSR_IA32_TSX_CTRL and disable TSX
-+ * through that one. Those CPUs can also have the initially mentioned
-+ * CPUID bit X86_FEATURE_RTM_ALWAYS_ABORT set and for those the same strategy
-+ * applies: TSX gets disabled unconditionally.
-+ *
-+ * When either of the two methods are present, the kernel disables TSX and
-+ * clears the respective RTM and HLE feature flags.
-+ *
-+ * An additional twist in the whole thing presents late microcode loading
-+ * which, when done, may cause for the X86_FEATURE_RTM_ALWAYS_ABORT CPUID
-+ * bit to be set after the update.
-+ *
-+ * A subsequent hotplug operation on any logical CPU except the BSP will
-+ * cause for the supported CPUID feature bits to get re-detected and, if
-+ * RTM and HLE get cleared all of a sudden, but, userspace did consult
-+ * them before the update, then funny explosions will happen. Long story
-+ * short: the kernel doesn't modify CPUID feature bits after booting.
-+ *
-+ * That's why, this function's call in init_intel() doesn't clear the
-+ * feature flags.
-+ */
- void tsx_clear_cpuid(void)
- {
- 	u64 msr;
-@@ -97,6 +135,10 @@ void tsx_clear_cpuid(void)
- 		rdmsrl(MSR_TSX_FORCE_ABORT, msr);
- 		msr |= MSR_TFA_TSX_CPUID_CLEAR;
- 		wrmsrl(MSR_TSX_FORCE_ABORT, msr);
-+	} else if (tsx_ctrl_is_supported()) {
-+		rdmsrl(MSR_IA32_TSX_CTRL, msr);
-+		msr |= TSX_CTRL_CPUID_CLEAR;
-+		wrmsrl(MSR_IA32_TSX_CTRL, msr);
+@@ -142,11 +142,45 @@ void tsx_clear_cpuid(void)
  	}
  }
  
-@@ -106,13 +148,11 @@ void __init tsx_init(void)
++/*
++ * Disable TSX development mode
++ *
++ * When the microcode released in Feb 2022 is applied, TSX will be disabled by
++ * default on some processors. MSR 0x122 (TSX_CTRL) and MSR 0x123
++ * (IA32_MCU_OPT_CTRL) can be used to re-enable TSX for development, doing so is
++ * not recommended for production deployments. In particular, applying MD_CLEAR
++ * flows for mitigation of the Intel TSX Asynchronous Abort (TAA) transient
++ * execution attack may not be effective on these processors when Intel TSX is
++ * enabled with updated microcode.
++ */
++bool tsx_dev_mode_disable(void)
++{
++	u64 mcu_opt_ctrl;
++
++	/* Check if RTM_ALLOW exists */
++	if (!boot_cpu_has_bug(X86_BUG_TAA) || !tsx_ctrl_is_supported() ||
++	    !boot_cpu_has(X86_FEATURE_SRBDS_CTRL))
++		return false;
++
++	rdmsrl(MSR_IA32_MCU_OPT_CTRL, mcu_opt_ctrl);
++
++	if (mcu_opt_ctrl & RTM_ALLOW) {
++		mcu_opt_ctrl &= ~RTM_ALLOW;
++		wrmsrl(MSR_IA32_MCU_OPT_CTRL, mcu_opt_ctrl);
++		return true;
++	}
++
++	return false;
++}
++
+ void __init tsx_init(void)
+ {
+ 	char arg[5] = {};
  	int ret;
  
++	if (tsx_dev_mode_disable())
++		setup_force_cpu_cap(X86_FEATURE_RTM_ALWAYS_ABORT);
++
  	/*
--	 * Hardware will always abort a TSX transaction if both CPUID bits
--	 * RTM_ALWAYS_ABORT and TSX_FORCE_ABORT are set. In this case, it is
--	 * better not to enumerate CPUID.RTM and CPUID.HLE bits. Clear them
--	 * here.
-+	 * Hardware will always abort a TSX transaction when CPUID
-+	 * RTM_ALWAYS_ABORT is set. In this case, it is better not to enumerate
-+	 * CPUID.RTM and CPUID.HLE bits. Clear them here.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_RTM_ALWAYS_ABORT) &&
--	    boot_cpu_has(X86_FEATURE_TSX_FORCE_ABORT)) {
-+	if (boot_cpu_has(X86_FEATURE_RTM_ALWAYS_ABORT)) {
- 		tsx_ctrl_state = TSX_CTRL_RTM_ALWAYS_ABORT;
- 		tsx_clear_cpuid();
- 		setup_clear_cpu_cap(X86_FEATURE_RTM);
+ 	 * Hardware will always abort a TSX transaction when CPUID
+ 	 * RTM_ALWAYS_ABORT is set. In this case, it is better not to enumerate
+diff --git a/tools/arch/x86/include/asm/msr-index.h b/tools/arch/x86/include/asm/msr-index.h
+index a4a39c3e0f19..0c2610cde6ea 100644
+--- a/tools/arch/x86/include/asm/msr-index.h
++++ b/tools/arch/x86/include/asm/msr-index.h
+@@ -128,9 +128,9 @@
+ #define TSX_CTRL_RTM_DISABLE		BIT(0)	/* Disable RTM feature */
+ #define TSX_CTRL_CPUID_CLEAR		BIT(1)	/* Disable TSX enumeration */
+ 
+-/* SRBDS support */
+ #define MSR_IA32_MCU_OPT_CTRL		0x00000123
+-#define RNGDS_MITG_DIS			BIT(0)
++#define RNGDS_MITG_DIS			BIT(0)	/* SRBDS support */
++#define RTM_ALLOW			BIT(1)	/* TSX development mode */
+ 
+ #define MSR_IA32_SYSENTER_CS		0x00000174
+ #define MSR_IA32_SYSENTER_ESP		0x00000175
 -- 
 2.25.1
 
