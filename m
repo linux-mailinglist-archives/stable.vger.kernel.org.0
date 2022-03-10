@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7DA4D4A7B
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1869D4D4A5E
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237420AbiCJOcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:32:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49730 "EHLO
+        id S231621AbiCJOXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:23:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244412AbiCJO2y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:28:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BFE3D10A5;
-        Thu, 10 Mar 2022 06:23:57 -0800 (PST)
+        with ESMTP id S243330AbiCJOV7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:21:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10780EFFBB;
+        Thu, 10 Mar 2022 06:20:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DF55B82672;
-        Thu, 10 Mar 2022 14:23:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B29DCC340E8;
-        Thu, 10 Mar 2022 14:23:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E67461CF0;
+        Thu, 10 Mar 2022 14:20:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95677C340E8;
+        Thu, 10 Mar 2022 14:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922230;
-        bh=iG4dGyVQTtgev5VOsQ8d1I4SvBWcNj19Mn9JiAy+Rwo=;
+        s=korg; t=1646922042;
+        bh=+KiLqnFc/JOlPhhx2sGptnR9bGJ54+ME3X2f13TPR5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EACZd+laC1OYAHRa7MnhKtmtwsF/b1jPGjhKfyB1J3XDHpBwEXjFIPWz2SfDLgN3K
-         b0asMn5jWG9libXqx0H6er3eJ1WePPDA7gc0T2eLrm5Oa81PkOd9vS+sHJXYWWGHsd
-         L2OGUsvY+p7DgMBuy0O++kKj20eCBqTqy/UEYa0I=
+        b=BSS3kEEVPWJMysWc+16R1ooY0Yk9CY8tJv+9JLJJnpr+CVyNkwWyi5lf98ExeVoYp
+         YzY0nOZsQxsGAwSSQFfTZvX/7tkIN5M0Dt4asXClg6L0Y++E/l50ZgA2mFjEZyp1b3
+         4HOKo5gk1Z9p3meHzsiewQ8ainfWu2Bn72fAvhjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 12/58] ARM: use LOADADDR() to get load address of sections
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 19/31] ARM: fix co-processor register typo
 Date:   Thu, 10 Mar 2022 15:18:32 +0100
-Message-Id: <20220310140813.225153043@linuxfoundation.org>
+Message-Id: <20220310140808.096982909@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140807.524313448@linuxfoundation.org>
+References: <20220310140807.524313448@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit 8d9d651ff2270a632e9dc497b142db31e8911315 upstream.
+commit 33970b031dc4653cc9dc80f2886976706c4c8ef1 upstream.
 
-Use the linker's LOADADDR() macro to get the load address of the
-sections, and provide a macro to set the start and end symbols.
+In the recent Spectre BHB patches, there was a typo that is only
+exposed in certain configurations: mcr p15,0,XX,c7,r5,4 should have
+been mcr p15,0,XX,c7,c5,4
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/vmlinux.lds.h |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ arch/arm/include/asm/assembler.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/include/asm/vmlinux.lds.h
-+++ b/arch/arm/include/asm/vmlinux.lds.h
-@@ -26,6 +26,11 @@
- #define ARM_MMU_DISCARD(x)	x
- #endif
+--- a/arch/arm/include/asm/assembler.h
++++ b/arch/arm/include/asm/assembler.h
+@@ -116,7 +116,7 @@
+ 	.endm
  
-+/* Set start/end symbol names to the LMA for the section */
-+#define ARM_LMA(sym, section)						\
-+	sym##_start = LOADADDR(section);				\
-+	sym##_end = LOADADDR(section) + SIZEOF(section)
-+
- #define PROC_INFO							\
- 		. = ALIGN(4);						\
- 		__proc_info_begin = .;					\
-@@ -110,19 +115,19 @@
-  * only thing that matters is their relative offsets
-  */
- #define ARM_VECTORS							\
--	__vectors_start = .;						\
-+	__vectors_lma = .;						\
- 	.vectors 0xffff0000 : AT(__vectors_start) {			\
- 		*(.vectors)						\
- 	}								\
--	. = __vectors_start + SIZEOF(.vectors);				\
--	__vectors_end = .;						\
-+	ARM_LMA(__vectors, .vectors);					\
-+	. = __vectors_lma + SIZEOF(.vectors);				\
- 									\
--	__stubs_start = .;						\
--	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_start) {		\
-+	__stubs_lma = .;						\
-+	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_lma) {		\
- 		*(.stubs)						\
- 	}								\
--	. = __stubs_start + SIZEOF(.stubs);				\
--	__stubs_end = .;						\
-+	ARM_LMA(__stubs, .stubs);					\
-+	. = __stubs_lma + SIZEOF(.stubs);				\
- 									\
- 	PROVIDE(vector_fiq_offset = vector_fiq - ADDR(.vectors));
+ 	.macro	isb, args
+-	mcr	p15, 0, r0, c7, r5, 4
++	mcr	p15, 0, r0, c7, c5, 4
+ 	.endm
+ #endif
  
 
 
