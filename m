@@ -2,104 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D094D4035
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 05:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9684D4043
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 05:21:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239360AbiCJEUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 23:20:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41616 "EHLO
+        id S239470AbiCJEWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 23:22:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234834AbiCJEUV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 23:20:21 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE4C93A70A;
-        Wed,  9 Mar 2022 20:19:21 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id e3so4016257pjm.5;
-        Wed, 09 Mar 2022 20:19:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=CLW7Cmsp9AO02nYhc7psjKRG3rDi0YIcKLCQA4Dz/NA=;
-        b=E9HIhmZhzD1C/Oc7+g2fnWP48OKFuIjZV0GbABVj4ihwW5yKiYVKer45+cSHu6evfF
-         CDmn/e54dOwe7En2q3vPEGENdoRuPBc3o8t2jY/G3r6Omvs+IMgL+MwJ6tX9pQLnCM48
-         BwkMqLnSUhPzXIRzWLZg6AJ9DN+xr55cKMng6g2TwE47ynIvs5MQwCsn157cwrC9OfG9
-         G03c7YtSdWRQredHjWXwT277i/kwpxwo7Fuob2rCD/1YQGDtG5slc1tWhqmEiBdcg0kH
-         bYf178bgd6VPq2wqr1Fnj2BtASJv0sKtNZRGNp3Ty4sy7yxUFQZmdJLWrL226tLWgW+N
-         Pt9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=CLW7Cmsp9AO02nYhc7psjKRG3rDi0YIcKLCQA4Dz/NA=;
-        b=u67zq7nNqbPEw5kMwE1C8G68Qd0DRcZVlqRrLnyhC+lqTVr5qlnvD0mm1zsOZM5sMY
-         sPKt3P84bYcERAchcHsOD3m3pClMu/9SzMA1rd4nY0LkiSfYb58naq3NaOm5fmLEQ6Le
-         wH2C9wUMFTILs/drNhMHrysjNlCWImUImcDdTCstCLmfBGXQP/0VHS0O7IRtrI2Hf1EY
-         JtTTKclzkB029+DUp9Vh+HrWf6PEe85KNeAoa3Mnji830EqPSmosE0xz5K2DJiOuvupr
-         E7DhBUGZlXiV5oXBNiyIfGrPCTZro1oVHZ/C/LKY3DealCzNXhOb7N0i6xk7oBognI0F
-         DD9Q==
-X-Gm-Message-State: AOAM530cP/2mR9ynOyVM8TA8sNhgM5+h5YYgHxTimG38zt+1QFzCYYrq
-        sIZPvmMJ5IkGS/5lxxiW6KI=
-X-Google-Smtp-Source: ABdhPJz/TWfkKhlhLP8rPyN1to/Spw6SlYjaZU05jEyZtqUEyHnfywp21GyM3fsASd4PDGZlpVhatQ==
-X-Received: by 2002:a17:902:cecc:b0:151:eadc:998d with SMTP id d12-20020a170902cecc00b00151eadc998dmr3203679plg.62.1646885961045;
-        Wed, 09 Mar 2022 20:19:21 -0800 (PST)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id g13-20020a056a000b8d00b004f75395b2b4sm4867479pfj.55.2022.03.09.20.19.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 20:19:20 -0800 (PST)
-Message-ID: <7b53a0f7-0cb7-13a2-078d-dd1662654be3@gmail.com>
-Date:   Wed, 9 Mar 2022 20:19:18 -0800
+        with ESMTP id S235566AbiCJEWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 23:22:18 -0500
+Received: from mx06-san.trellian.com (san.trellian.com [103.224.213.228])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD0E11863B
+        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 20:21:18 -0800 (PST)
+Received: from mx02-mel.trellian.com (mx02-mel.trellian.com [192.168.0.216])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mx06-san.trellian.com (Postfix) with ESMTPS id 7EA99211C8A2;
+        Thu, 10 Mar 2022 15:21:18 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=trellian.com;
+        s=default; t=1646886078;
+        bh=ilMoNQ0qJd9l4fAEtCmwgiFi+2QwIEYn7kLgSuE1axQ=;
+        h=Date:To:Cc:From:Subject;
+        b=5p2zFKPfxniOrFaZxVxN1+Z2oieFpP2ManpFUYRzbHFLVbyMYiS/ROKckSCWKhPGl
+         ARVKev5S/p9CVissWI6CjtvOBhCpYP4TVFycB/6LPv/lgskn9M/RGwOALteph1ECy1
+         irPBaXUn27LDj77ttNYT+f5x2PBJHZnlXMaLfyho=
+Received: from [10.185.50.86] (unknown [10.185.50.86])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by mx02-mel.trellian.com (Postfix) with ESMTPSA id C81A928E16E;
+        Thu, 10 Mar 2022 15:21:16 +1100 (AEDT)
+Message-ID: <f45ff567-6ef7-8a43-a645-4b9ab2e7a8ae@trellian.com>
+Date:   Thu, 10 Mar 2022 15:21:15 +1100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH 5.10 00/43] 5.10.105-rc1 review
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220309155859.239810747@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     regressions@lists.linux.dev
+From:   Ryan Tierney <ryant@trellian.com>
+Subject: kernel BUG at include/linux/swapops.h:204!
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+X-Spamd-Bar: /
+Authentication-Results: mx06-san.trellian.com
+X-Rspamd-Server: mx06-san
+X-Rspamd-Queue-Id: 7EA99211C8A2
+X-Spamd-Result: default: False [0.00 / 20.00];
+         IP_WHITELIST(0.00)[192.168.0.216]
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 3/9/2022 7:59 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.105 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.105-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+SGkgTGludXgga2VybmVsIHRlYW0sDQoNCldlIGhhdmUgaGFkIG11bHRpcGxlIHNlcnZlcnMg
+bG9jayB1cCBvdmVyIHRoZSBjb3Vyc2Ugb2YgYSBmZXcgbW9udGhzIG9uIA0Ka2VybmVsIHZl
+cnNpb24gNS4xMC45Mg0KTG9va2luZyB0byBmaW5kIG91dCBhbnkgaW5mb3JtYXRpb24gdG8g
+aGVscCBtaXRpZ2F0ZSB0aGlzLg0KDQpJJ3ZlIGFsc28gZm91bmQgYSByZWxhdGVkIHJlcG9y
+dCBoZXJlIGJhY2sgaW4gMjAyMTogDQpodHRwczovL2xvcmUua2VybmVsLm9yZy9hbGwvNzU3
+YjY4NGEtNjdiNS05OTliLTdmMmQtYjU1ZmIxYzYxZmQ4QGdvb2dsZS5jb20vVC8NCg0KUGxl
+YXNlIHNlZSB0aGUgc3RhY2sgdHJhY2Ugb2J0YWluZWQgZHVyaW5nIHRoaXMgbG9ja3VwDQoN
+CiAgWzIxMzYxNzIuOTc1ODkyXSAtLS0tLS0tLS0tLS1bIGN1dCBoZXJlIF0tLS0tLS0tLS0t
+LS0NCiAgWzIxMzYxNzIuOTc1ODk2XSBrZXJuZWwgQlVHIGF0IGluY2x1ZGVcL2xpbnV4XC9z
+d2Fwb3BzLmg6MjA0IQ0KICBbMjEzNjE3Mi45ODEyNjhdIGludmFsaWQgb3Bjb2RlOiAwMDAw
+IFsjMV0gU01QIE5PUFRJDQogIFsyMTM2MTcyLjk4NTk4M10gQ1BVOiA0OSBQSUQ6IDE2NzI5
+NDkgQ29tbTogYXB0LWNhY2hlIE5vdCB0YWludGVkIDUuMTAuMC0xMS1hbWQ2NCAjMSBEZWJp
+YW4gNS4xMC45Mi0xDQogIFsyMTM2MTcyLjk5NDk0NF0gSGFyZHdhcmUgbmFtZTogU3VwZXJt
+aWNybyBBUyAtMTExNFMtV04xMFJUXC9IMTJTU1ctTlRSLCBCSU9TIDIuMyAxMFwvMjhcLzIw
+MjENCiAgWzIxMzYxNzMuMDAzMDQyXSBSSVA6IGUwMzA6X19taWdyYXRpb25fZW50cnlfd2Fp
+dCsweGY5XC8weDEwMA0KICBbMjEzNjE3My4wMDg0NDRdIENvZGU6IDBmIDQ1IGMyIDQxIDhi
+IDQwIDM0IDg1IGMwIDc0IDlmIDhkIDUwIDAxIGYwIDQxIDBmIGIxIDUwIDM0IDc1IGYxIDQ4
+IDg5IGVmIGU4IDAzIGUwIGU0IGZmIDY2IDkwIDViIDRjIDg5IGM3IDVkIGU5IDI3IDQ4IGY3
+IGZmIDwwZj4gMGIgMGYgMWYgNDQgMDAgMDAgMGYgMWYgNDQgMDAgMDAgNDkgODkgZjkgNDgg
+OGIgM2UgZTggMDggMzkgZDgNCiAgWzIxMzYxNzMuMDI3Mzk0XSBSU1A6IGUwMmI6ZmZmZmM5
+MDA3NWE0ZmRiOCBFRkxBR1M6IDAwMDEwMjQ2DQogIFsyMTM2MTczLjAzMjc5NV0gUkFYOiAw
+MDBmZmZmZmMwMDAwMDAwIFJCWDogZmZmZjg4ODA3YjBlNjk2OCBSQ1g6IGZmZmZlYTAwMDA2
+YTZmODcNCiAgWzIxMzYxNzMuMDQwMTE0XSBSRFg6IDAwMDAwMDAwMDAwMDAwMDAgUlNJOiBm
+ZmZmODg4MDdiMGU2OTY4IFJESTogZmZmZmZmZmZmY2FjODQwMA0KICBbMjEzNjE3My4wNDc0
+MjldIFJCUDogZmZmZmVhMDAwMWVjMzlhOCBSMDg6IGZmZmZlYTAwMDA2YTZmNDAgUjA5OiBm
+ZmZmODg4MDQ2NzlmMmMwDQogIFsyMTM2MTczLjA1NDc0NV0gUjEwOiAwMDBmZmZmZmZmZmZm
+MDAwIFIxMTogMDAwMDAwMDAwMDAwMDAwMCBSMTI6IGZmZmZjOTAwNzVhNGZlNDANCiAgWzIx
+MzYxNzMuMDYyMDYwXSBSMTM6IDdjMDAwMDAwMDAwMWE5YmQgUjE0OiBmZmYwMDAwMDAwMDAw
+ZmZmIFIxNTogMDAwMDAwMDAwMDAwMDAwMA0KICBbMjEzNjE3My4wNjkzNzhdIEZTOiAgMDAw
+MDdmMmNjN2VlZTgwMCgwMDAwKSBHUzpmZmZmODg4MTE3NDQwMDAwKDAwMDApIGtubEdTOjAw
+MDAwMDAwMDAwMDAwMDANCiAgWzIxMzYxNzMuMDc3NjUxXSBDUzogIGUwMzAgRFM6IDAwMDAg
+RVM6IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDMzDQogIFsyMTM2MTczLjA4MzU3NV0gQ1Iy
+OiAwMDAwN2YyY2M0YjJkZjhjIENSMzogMDAwMDAwMDA4ZDM5NjAwMCBDUjQ6IDAwMDAwMDAw
+MDAwNTA2NjANCiAgWzIxMzYxNzMuMDkwODkzXSBDYWxsIFRyYWNlOg0KICBbMjEzNjE3My4w
+OTM1MjddICBkb19zd2FwX3BhZ2UrMHg2NmZcLzB4OTAwDQogIFsyMTM2MTczLjA5NzM3MF0g
+IGhhbmRsZV9tbV9mYXVsdCsweGQ3ZFwvMHgxYmYwDQogIFsyMTM2MTczLjEwMTU4NF0gID8g
+eGZzX2ZpbGVfcmVhZF9pdGVyKzB4NmVcLzB4ZDAgW3hmc10NCiAgWzIxMzYxNzMuMTA2NDY4
+XSAgZG9fdXNlcl9hZGRyX2ZhdWx0KzB4MWI4XC8weDNmMA0KICBbMjEzNjE3My4xMTA4MzVd
+ICBleGNfcGFnZV9mYXVsdCsweDc4XC8weDE2MA0KICBbMjEzNjE3My4xMTQ3NjZdICA/IGFz
+bV9leGNfcGFnZV9mYXVsdCsweDhcLzB4MzANCiAgWzIxMzYxNzMuMTE5MDM4XSAgYXNtX2V4
+Y19wYWdlX2ZhdWx0KzB4MWVcLzB4MzANCiAgWzIxMzYxNzMuMTIzMjI0XSBSSVA6IGUwMzM6
+MHg3ZjJjYzg5MzBmY2INCiAgWzIxMzYxNzMuMTI2OTc3XSBDb2RlOiA4YiA0NiAwOCA0OCA4
+ZCAxNCA4MCA0OCA4ZCAwNCA1MCA0OCA4ZCA0NCA4NSAwMCA0OCAzOSBjMyA3NCA1YSA4YiA0
+MyAxMCA0OCA4ZCAxNCA4MCA0OCA4ZCAwNCA1MCA0OCA4ZCA1YyA4NSAwMCA0OCAzOSBlYiA3
+NCA0NSA8OGI+IDMzIDRjIDAxIGM2IDBmIGI3IDQ2IGZlIDQ5IDM5IGM0IDc1IGM3IDRjIDg5
+IGUyIDRjIDg5IDQ0IDI0IDA4DQogIFsyMTM2MTczLjE0NTkxOV0gUlNQOiBlMDJiOjAwMDA3
+ZmZkMmEzZjNlODAgRUZMQUdTOiAwMDAxMDIwNg0KICBbMjEzNjE3My4xNTEzMjNdIFJBWDog
+MDAwMDAwMDAwMDAwMDAwNSBSQlg6IDAwMDA3ZjJjYzRiMmRmOGMgUkNYOiAwMDAwMDAwMDAw
+MDAwMDA2DQogIFsyMTM2MTczLjE1ODYzMl0gUkRYOiAwMDAwN2YyY2MzNTFiMmU2IFJTSTog
+MDAwMDdmZmQyYTNmM2ZkMCBSREk6IDAwMDA3ZjJjYzM1MWIyZTYNCiAgWzIxMzYxNzMuMTY1
+OTQ4XSBSQlA6IDAwMDA3ZjJjYzMzOWIwMDAgUjA4OiAwMDAwN2YyY2MzMzliMDAwIFIwOTog
+MDAwMDAwMDAwMDAwMGRlMA0KICBbMjEzNjE3My4xNzMyNjJdIFIxMDogMDAwMDdmMmNjNGM4
+YmM3YyBSMTE6IDAwMDAwMDAwMjA2ZTZmNjggUjEyOiAwMDAwMDAwMDAwMDAwMDA1DQogIFsy
+MTM2MTczLjE4MDU4MF0gUjEzOiAwMDAwN2ZmZDJhM2YzZjIwIFIxNDogMDAwMDdmMmNjNGIw
+ZDQxMCBSMTU6IDAwMDA1NWFiMzc0MGFmMDgNCiAgWzIxMzYxNzMuMTg3ODkyXSBNb2R1bGVz
+IGxpbmtlZCBpbjogeGVuX2FjcGlfcHJvY2Vzc29yIHhlbl9nbnRkZXYgeGVuX2V2dGNobiBi
+aW5mbXRfbWlzYyB4ZW5mcyB4ZW5fcHJpdmNtZCBubHNfYXNjaWkgbmxzX2NwNDM3IHZmYXQg
+ZmF0IGdoYXNoX2NsbXVsbmlfaW50ZWwgYWVzbmlfaW50ZWwgbGliYWVzIGNyeXB0b19zaW1k
+IGNyeXB0ZCBnbHVlX2hlbHBlciB3bWlfYm1vZiBlZmlfcHN0b3JlIHBjc3BrciBhc3QgZHJt
+X3ZyYW1faGVscGVyIGRybV90dG1faGVscGVyIHR0bSBjY3AgZHJtX2ttc19oZWxwZXIgcm5n
+X2NvcmUgcm5kaXNfaG9zdCBjZGNfZXRoZXIgY2VjIHVzYm5ldCBpMmNfYWxnb19iaXQgam95
+ZGV2IG1paSBrMTB0ZW1wIHNwNTEwMF90Y28gd2F0Y2hkb2cgaXBtaV9zc2lmIGV2ZGV2IGJy
+aWRnZSBhY3BpX2lwbWkgaXBtaV9zaSA4MDIxcSBpcG1pX2RldmludGYgZ2FycCBpcG1pX21z
+Z2hhbmRsZXIgc3RwIG1ycCBsbGMgYnV0dG9uIGJvbmRpbmcgbG9vcCBwc21vdXNlIHVoY2lf
+aGNkIG9oY2lfaGNkIGVoY2lfaGNkIGRyYmQgbHJ1X2NhY2hlIGRybSBmdXNlIGNvbmZpZ2Zz
+IGVmaXZhcmZzIGlwX3RhYmxlcyB4X3RhYmxlcyBhdXRvZnM0IHhmcyByYWlkNDU2IGFzeW5j
+X3JhaWQ2X3JlY292IGFzeW5jX21lbWNweSBhc3luY19wcSBhc3luY194b3IgYXN5bmNfdHgg
+eG9yIGhpZF9nZW5lcmljIHVzYmhpZCBoaWQgcmFpZDZfcHEgbGliY3JjMzJjIGNyYzMyY19n
+ZW5lcmljIHJhaWQwIG11bHRpcGF0aCBsaW5lYXIgcmFpZDEgcmFpZDEwIG1kX21vZCBjcmMz
+Ml9wY2xtdWwgY3JjMzJjX2ludGVsIGFoY2kgbGliYWhjaSB4aGNpX3BjaSBudm1lIHhoY2lf
+aGNkIGxpYmF0YSBudm1lX2NvcmUgaTQwZSB0MTBfcGkgdXNiY29yZSBibnh0X2VuIHNjc2lf
+bW9kIGNyY190MTBkaWYgY3JjdDEwZGlmX2dlbmVyaWMgY3JjdDEwZGlmX3BjbG11bCBjcmN0
+MTBkaWZfY29tbW9uIHB0cCB1c2JfY29tbW9uIGkyY19waWl4NCBwcHNfY29yZSB3bWkNCiAg
+WzIxMzYxNzMuMjc0MjYwXSAtLS1bIGVuZCB0cmFjZSAzN2U4YzFhZjdmNmU3ODJhIF0tLS0N
+Cg0K
