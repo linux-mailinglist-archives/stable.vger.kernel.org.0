@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5196E4D4BFB
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6BA24D49D5
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243793AbiCJOew (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42916 "EHLO
+        id S244423AbiCJOf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:35:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245063AbiCJOeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:34:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60FD9131966;
-        Thu, 10 Mar 2022 06:31:37 -0800 (PST)
+        with ESMTP id S245148AbiCJOeQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:34:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15616135722;
+        Thu, 10 Mar 2022 06:31:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 236E3B82544;
-        Thu, 10 Mar 2022 14:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77EBDC36AE3;
-        Thu, 10 Mar 2022 14:31:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31EA561B23;
+        Thu, 10 Mar 2022 14:31:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB2DC340EB;
+        Thu, 10 Mar 2022 14:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922690;
-        bh=2CUaj5w/1CaJn4msAUuMvnxGexmODIXiB6gbyycpz2o=;
+        s=korg; t=1646922693;
+        bh=WW3DOoq91ik363zaWmSo3HAXnnIJnEoktcdQieptd8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rf7F9TXs53bUsmUWilvSVjnJmV4HwGdVKKrpAmKryha1p38gAU8eCI/GYudkMiPXL
-         W896/Zupn5kVwcoFDfXdxSWWtB5trACb2Jdj4nZ3ky4lYBaGsR1kPV3OC2zK/CDHWn
-         DjA81ttynFADwLkO7HhwpZ1woYv8XMvOIWfakaUI=
+        b=vO/FqpAxaq0G+yIOsP1mQzwcgIJWLFFyzduB7Bh6KUHBALm/GWiv0igqH4zb3EI7c
+         fyDhzGOfOpNnyEvY4XVOsAVqXsUnk6owQ2FWTxNWJgiuTcuhclxwvaSPCynhJ23RzB
+         QI/CbVXB84053PjMw0GQZfDvjTTSqjnup6ITna/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        stable@vger.kernel.org,
+        Simon Gaiser <simon@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
         Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.15 53/58] xen: remove gnttab_query_foreign_access()
-Date:   Thu, 10 Mar 2022 15:19:42 +0100
-Message-Id: <20220310140814.488897683@linuxfoundation.org>
+Subject: [PATCH 5.15 54/58] xen/9p: use alloc/free_pages_exact()
+Date:   Thu, 10 Mar 2022 15:19:43 +0100
+Message-Id: <20220310140814.517099150@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
 References: <20220310140812.983088611@linuxfoundation.org>
@@ -55,89 +57,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-Commit 1dbd11ca75fe664d3e54607547771d021f531f59 upstream.
+Commit 5cadd4bb1d7fc9ab201ac14620d1a478357e4ebd upstream.
 
-Remove gnttab_query_foreign_access(), as it is unused and unsafe to
-use.
+Instead of __get_free_pages() and free_pages() use alloc_pages_exact()
+and free_pages_exact(). This is in preparation of a change of
+gnttab_end_foreign_access() which will prohibit use of high-order
+pages.
 
-All previous use cases assumed a grant would not be in use after
-gnttab_query_foreign_access() returned 0. This information is useless
-in best case, as it only refers to a situation in the past, which could
-have changed already.
+By using the local variable "order" instead of ring->intf->ring_order
+in the error path of xen_9pfs_front_alloc_dataring() another bug is
+fixed, as the error path can be entered before ring->intf->ring_order
+is being set.
 
+By using alloc_pages_exact() the size in bytes is specified for the
+allocation, which fixes another bug for the case of
+order < (PAGE_SHIFT - XEN_PAGE_SHIFT).
+
+This is part of CVE-2022-23041 / XSA-396.
+
+Reported-by: Simon Gaiser <simon@invisiblethingslab.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/grant-table.c |   25 -------------------------
- include/xen/grant_table.h |    2 --
- 2 files changed, 27 deletions(-)
+ net/9p/trans_xen.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -133,13 +133,6 @@ struct gnttab_ops {
- 	 * return the frame.
- 	 */
- 	unsigned long (*end_foreign_transfer_ref)(grant_ref_t ref);
--	/*
--	 * Query the status of a grant entry. Ref parameter is reference of
--	 * queried grant entry, return value is the status of queried entry.
--	 * Detailed status(writing/reading) can be gotten from the return value
--	 * by bit operations.
--	 */
--	int (*query_foreign_access)(grant_ref_t ref);
- };
- 
- struct unmap_refs_callback_data {
-@@ -284,22 +277,6 @@ int gnttab_grant_foreign_access(domid_t
- }
- EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access);
- 
--static int gnttab_query_foreign_access_v1(grant_ref_t ref)
--{
--	return gnttab_shared.v1[ref].flags & (GTF_reading|GTF_writing);
--}
--
--static int gnttab_query_foreign_access_v2(grant_ref_t ref)
--{
--	return grstatus[ref] & (GTF_reading|GTF_writing);
--}
--
--int gnttab_query_foreign_access(grant_ref_t ref)
--{
--	return gnttab_interface->query_foreign_access(ref);
--}
--EXPORT_SYMBOL_GPL(gnttab_query_foreign_access);
--
- static int gnttab_end_foreign_access_ref_v1(grant_ref_t ref, int readonly)
- {
- 	u16 flags, nflags;
-@@ -1427,7 +1404,6 @@ static const struct gnttab_ops gnttab_v1
- 	.update_entry			= gnttab_update_entry_v1,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v1,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v1,
--	.query_foreign_access		= gnttab_query_foreign_access_v1,
- };
- 
- static const struct gnttab_ops gnttab_v2_ops = {
-@@ -1439,7 +1415,6 @@ static const struct gnttab_ops gnttab_v2
- 	.update_entry			= gnttab_update_entry_v2,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v2,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v2,
--	.query_foreign_access		= gnttab_query_foreign_access_v2,
- };
- 
- static bool gnttab_need_v2(void)
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -125,8 +125,6 @@ int gnttab_grant_foreign_transfer(domid_
- unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
- unsigned long gnttab_end_foreign_transfer(grant_ref_t ref);
- 
--int gnttab_query_foreign_access(grant_ref_t ref);
--
- /*
-  * operations on reserved batches of grant references
-  */
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -304,9 +304,9 @@ static void xen_9pfs_front_free(struct x
+ 				ref = priv->rings[i].intf->ref[j];
+ 				gnttab_end_foreign_access(ref, 0, 0);
+ 			}
+-			free_pages((unsigned long)priv->rings[i].data.in,
+-				   priv->rings[i].intf->ring_order -
+-				   (PAGE_SHIFT - XEN_PAGE_SHIFT));
++			free_pages_exact(priv->rings[i].data.in,
++				   1UL << (priv->rings[i].intf->ring_order +
++					   XEN_PAGE_SHIFT));
+ 		}
+ 		gnttab_end_foreign_access(priv->rings[i].ref, 0, 0);
+ 		free_page((unsigned long)priv->rings[i].intf);
+@@ -345,8 +345,8 @@ static int xen_9pfs_front_alloc_dataring
+ 	if (ret < 0)
+ 		goto out;
+ 	ring->ref = ret;
+-	bytes = (void *)__get_free_pages(GFP_KERNEL | __GFP_ZERO,
+-			order - (PAGE_SHIFT - XEN_PAGE_SHIFT));
++	bytes = alloc_pages_exact(1UL << (order + XEN_PAGE_SHIFT),
++				  GFP_KERNEL | __GFP_ZERO);
+ 	if (!bytes) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -377,9 +377,7 @@ out:
+ 	if (bytes) {
+ 		for (i--; i >= 0; i--)
+ 			gnttab_end_foreign_access(ring->intf->ref[i], 0, 0);
+-		free_pages((unsigned long)bytes,
+-			   ring->intf->ring_order -
+-			   (PAGE_SHIFT - XEN_PAGE_SHIFT));
++		free_pages_exact(bytes, 1UL << (order + XEN_PAGE_SHIFT));
+ 	}
+ 	gnttab_end_foreign_access(ring->ref, 0, 0);
+ 	free_page((unsigned long)ring->intf);
 
 
