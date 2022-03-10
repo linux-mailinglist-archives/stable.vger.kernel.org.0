@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC5584D4C27
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:02:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A99C4D4C18
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244725AbiCJOdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49728 "EHLO
+        id S245249AbiCJOen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343917AbiCJOb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4BC8E3C76;
-        Thu, 10 Mar 2022 06:28:12 -0800 (PST)
+        with ESMTP id S244532AbiCJOd3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:33:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB79EB142;
+        Thu, 10 Mar 2022 06:31:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 632D1B82544;
-        Thu, 10 Mar 2022 14:28:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F38C340E8;
-        Thu, 10 Mar 2022 14:28:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADC2FB825F3;
+        Thu, 10 Mar 2022 14:31:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29069C36AE2;
+        Thu, 10 Mar 2022 14:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922491;
-        bh=hcmMPrD/HN9xwyxoEWxYnoKf3Q5krhbZGmA8gMdOtgo=;
+        s=korg; t=1646922662;
+        bh=Y2hkDaoiUakx9dbZkCsQCqalWUgehzW7+dpm8ddAJCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCEta4gtzYRt/eLXwYR+QwDex85u0di6JhF4IXeoXlJLTuWyf91ZjnONh6G8zU3yi
-         uZwtgDuT4BW7p0gpg15WPLok2NpBjAi1XTs0q4mh0HzxXk2vRPbKMXK48YhcuOnKuQ
-         ojDfKSKJJK7QA023RbER4U4rNAro0cbXQEYK7R6k=
+        b=rdZbD4VBaQ1yLpfZZSXHArUxiymO7+WmUM6LsC7SEyBSm07oEu5qe99CQKNacjwwR
+         8AA3V05PKmJFjmEzo88xOfC/gE6WNcFhqle4afEqyTF7gWLVA8opWs01C6mZ0BxJzy
+         qOQSyebIlFlKAeOP+b5kGEYDPflUpzzX8zVvfYLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Justin Forbes <jmforbes@linuxtx.org>,
-        Mark Pearson <markpearson@lenovo.com>
-Subject: [PATCH 5.4 33/33] Revert "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
-Date:   Thu, 10 Mar 2022 15:19:34 +0100
-Message-Id: <20220310140809.711995140@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.15 48/58] xen/grant-table: add gnttab_try_end_foreign_access()
+Date:   Thu, 10 Mar 2022 15:19:37 +0100
+Message-Id: <20220310140814.349624102@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
-References: <20220310140808.741682643@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Juergen Gross <jgross@suse.com>
 
-This reverts commit 9d09cb110868f027d015fbc6c64ba1e45a69a192 which is
-commit dc0075ba7f387fe4c48a8c674b11ab6f374a6acc upstream.
+Commit 6b1775f26a2da2b05a6dc8ec2b5d14e9a4701a1a upstream.
 
-It's been reported to cause problems with a number of Fedora and Arch
-Linux users, so drop it for now until that is resolved.
+Add a new grant table function gnttab_try_end_foreign_access(), which
+will remove and free a grant if it is not in use.
 
-Link: https://lore.kernel.org/r/CAJZ5v0gE52NT=4kN4MkhV3Gx=M5CeMGVHOF0jgTXDb5WwAMs_Q@mail.gmail.com
-Link: https://lore.kernel.org/r/31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Reported-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Justin Forbes <jmforbes@linuxtx.org>
-Cc: Mark Pearson <markpearson@lenovo.com>
+Its main use case is to either free a grant if it is no longer in use,
+or to take some other action if it is still in use. This other action
+can be an error exit, or (e.g. in the case of blkfront persistent grant
+feature) some special handling.
+
+This is CVE-2022-23036, CVE-2022-23038 / part of XSA-396.
+
+Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/ec.c    |   10 ----------
- drivers/acpi/sleep.c |   14 ++++++++++----
- 2 files changed, 10 insertions(+), 14 deletions(-)
+ drivers/xen/grant-table.c |   14 ++++++++++++--
+ include/xen/grant_table.h |   12 ++++++++++++
+ 2 files changed, 24 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -2003,16 +2003,6 @@ bool acpi_ec_dispatch_gpe(void)
- 		return true;
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -435,11 +435,21 @@ static void gnttab_add_deferred(grant_re
+ 	       what, ref, page ? page_to_pfn(page) : -1);
+ }
  
- 	/*
--	 * Cancel the SCI wakeup and process all pending events in case there
--	 * are any wakeup ones in there.
--	 *
--	 * Note that if any non-EC GPEs are active at this point, the SCI will
--	 * retrigger after the rearming in acpi_s2idle_wake(), so no events
--	 * should be missed by canceling the wakeup here.
--	 */
--	pm_system_cancel_wakeup();
--
--	/*
- 	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
- 	 * to allow the caller to process events properly after that.
- 	 */
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -1003,13 +1003,19 @@ static bool acpi_s2idle_wake(void)
- 		if (acpi_check_wakeup_handlers())
- 			return true;
++int gnttab_try_end_foreign_access(grant_ref_t ref)
++{
++	int ret = _gnttab_end_foreign_access_ref(ref, 0);
++
++	if (ret)
++		put_free_entry(ref);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(gnttab_try_end_foreign_access);
++
+ void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
+ 			       unsigned long page)
+ {
+-	if (gnttab_end_foreign_access_ref(ref, readonly)) {
+-		put_free_entry(ref);
++	if (gnttab_try_end_foreign_access(ref)) {
+ 		if (page != 0)
+ 			put_page(virt_to_page(page));
+ 	} else
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -104,10 +104,22 @@ int gnttab_end_foreign_access_ref(grant_
+  * access has been ended, free the given page too.  Access will be ended
+  * immediately iff the grant entry is not in use, otherwise it will happen
+  * some time later.  page may be 0, in which case no freeing will occur.
++ * Note that the granted page might still be accessed (read or write) by the
++ * other side after gnttab_end_foreign_access() returns, so even if page was
++ * specified as 0 it is not allowed to just reuse the page for other
++ * purposes immediately.
+  */
+ void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
+ 			       unsigned long page);
  
--		/*
--		 * Check non-EC GPE wakeups and if there are none, cancel the
--		 * SCI-related wakeup and dispatch the EC GPE.
--		 */
-+		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
- 		if (acpi_ec_dispatch_gpe())
- 			return true;
++/*
++ * End access through the given grant reference, iff the grant entry is
++ * no longer in use.  In case of success ending foreign access, the
++ * grant reference is deallocated.
++ * Return 1 if the grant entry was freed, 0 if it is still in use.
++ */
++int gnttab_try_end_foreign_access(grant_ref_t ref);
++
+ int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
  
-+		/*
-+		 * Cancel the SCI wakeup and process all pending events in case
-+		 * there are any wakeup ones in there.
-+		 *
-+		 * Note that if any non-EC GPEs are active at this point, the
-+		 * SCI will retrigger after the rearming below, so no events
-+		 * should be missed by canceling the wakeup here.
-+		 */
-+		pm_system_cancel_wakeup();
- 		acpi_os_wait_events_complete();
- 
- 		/*
+ unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
 
 
