@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0174D4BB7
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BDBD4D4A2E
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244985AbiCJOeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52064 "EHLO
+        id S245228AbiCJOee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245483AbiCJOad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64AE0151368;
-        Thu, 10 Mar 2022 06:26:20 -0800 (PST)
+        with ESMTP id S1344051AbiCJObj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF45B793A6;
+        Thu, 10 Mar 2022 06:29:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78DF561DCE;
-        Thu, 10 Mar 2022 14:26:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B538C340E8;
-        Thu, 10 Mar 2022 14:26:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 580C961C0A;
+        Thu, 10 Mar 2022 14:29:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49189C340E8;
+        Thu, 10 Mar 2022 14:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922376;
-        bh=GjlfoHMOkglagidzH3/LvdIMhfB/hvj/e1m4Bzl2uHw=;
+        s=korg; t=1646922592;
+        bh=XWfPsTF81CkXJlNPj4xrj7j+Msen4QvmkKqcXNCg8eM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rCJFTZdjNODT2+z3Q1UUMz2fes/pqsw3snhO+Cw1vmTaYHrvF2MIQXLCTonkHRmhz
-         oO7o//OQGBzySrbNPSQQoBHQGf3Ev2ZdrYY5e5ptJIQeF3JKvAUveXrDYKl9N8pPGY
-         15EZLpsZWYuS8TZrb4AJvSbPNQZoXXFDhXk47ndM=
+        b=NK6KIY1p+hjTMJ/tvDEzf/vW0PA1MdTMN6xGJeJFQFfOzn1fvm74AX+A0340E7oVt
+         VhvG7pNFbGv7N94aca0l/39bZEkEP3x0UvEwFp/d+AAV9GqP9YLcUTO8kwVvBE2WJp
+         nIHW6V8tEJTdd0GkVW+kcD3ZEcgu5E2bCX7lg1UM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Simon Gaiser <simon@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.10 56/58] xen/gnttab: fix gnttab_end_foreign_access() without page specified
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 27/58] arm64: entry: Move the trampoline data page before the text page
 Date:   Thu, 10 Mar 2022 15:19:16 +0100
-Message-Id: <20220310140814.460961562@linuxfoundation.org>
+Message-Id: <20220310140813.763238441@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,135 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: James Morse <james.morse@arm.com>
 
-Commit 42baefac638f06314298087394b982ead9ec444b upstream.
+commit c091fb6ae059cda563b2a4d93fdbc548ef34e1d6 upstream.
 
-gnttab_end_foreign_access() is used to free a grant reference and
-optionally to free the associated page. In case the grant is still in
-use by the other side processing is being deferred. This leads to a
-problem in case no page to be freed is specified by the caller: the
-caller doesn't know that the page is still mapped by the other side
-and thus should not be used for other purposes.
+The trampoline code has a data page that holds the address of the vectors,
+which is unmapped when running in user-space. This ensures that with
+CONFIG_RANDOMIZE_BASE, the randomised address of the kernel can't be
+discovered until after the kernel has been mapped.
 
-The correct way to handle this situation is to take an additional
-reference to the granted page in case handling is being deferred and
-to drop that reference when the grant reference could be freed
-finally.
+If the trampoline text page is extended to include multiple sets of
+vectors, it will be larger than a single page, making it tricky to
+find the data page without knowing the size of the trampoline text
+pages, which will vary with PAGE_SIZE.
 
-This requires that there are no users of gnttab_end_foreign_access()
-left directly repurposing the granted page after the call, as this
-might result in clobbered data or information leaks via the not yet
-freed grant reference.
+Move the data page to appear before the text page. This allows the
+data page to be found without knowing the size of the trampoline text
+pages. 'tramp_vectors' is used to refer to the beginning of the
+.entry.tramp.text section, do that explicitly.
 
-This is part of CVE-2022-23041 / XSA-396.
-
-Reported-by: Simon Gaiser <simon@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/grant-table.c |   36 +++++++++++++++++++++++++++++-------
- include/xen/grant_table.h |    7 ++++++-
- 2 files changed, 35 insertions(+), 8 deletions(-)
+ arch/arm64/include/asm/fixmap.h |    2 +-
+ arch/arm64/kernel/entry.S       |    9 +++++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -133,6 +133,10 @@ struct gnttab_ops {
- 	 * return the frame.
+--- a/arch/arm64/include/asm/fixmap.h
++++ b/arch/arm64/include/asm/fixmap.h
+@@ -62,8 +62,8 @@ enum fixed_addresses {
+ #endif /* CONFIG_ACPI_APEI_GHES */
+ 
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+-	FIX_ENTRY_TRAMP_DATA,
+ 	FIX_ENTRY_TRAMP_TEXT,
++	FIX_ENTRY_TRAMP_DATA,
+ #define TRAMP_VALIAS		(__fix_to_virt(FIX_ENTRY_TRAMP_TEXT))
+ #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
+ 	__end_of_permanent_fixed_addresses,
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -644,6 +644,11 @@ alternative_else_nop_endif
  	 */
- 	unsigned long (*end_foreign_transfer_ref)(grant_ref_t ref);
-+	/*
-+	 * Read the frame number related to a given grant reference.
-+	 */
-+	unsigned long (*read_frame)(grant_ref_t ref);
- };
+ 	.endm
  
- struct unmap_refs_callback_data {
-@@ -330,6 +334,16 @@ int gnttab_end_foreign_access_ref(grant_
- }
- EXPORT_SYMBOL_GPL(gnttab_end_foreign_access_ref);
- 
-+static unsigned long gnttab_read_frame_v1(grant_ref_t ref)
-+{
-+	return gnttab_shared.v1[ref].frame;
-+}
++	.macro tramp_data_page	dst
++	adr	\dst, .entry.tramp.text
++	sub	\dst, \dst, PAGE_SIZE
++	.endm
 +
-+static unsigned long gnttab_read_frame_v2(grant_ref_t ref)
-+{
-+	return gnttab_shared.v2[ref].full_page.frame;
-+}
-+
- struct deferred_entry {
- 	struct list_head list;
- 	grant_ref_t ref;
-@@ -359,12 +373,9 @@ static void gnttab_handle_deferred(struc
- 		spin_unlock_irqrestore(&gnttab_list_lock, flags);
- 		if (_gnttab_end_foreign_access_ref(entry->ref, entry->ro)) {
- 			put_free_entry(entry->ref);
--			if (entry->page) {
--				pr_debug("freeing g.e. %#x (pfn %#lx)\n",
--					 entry->ref, page_to_pfn(entry->page));
--				put_page(entry->page);
--			} else
--				pr_info("freeing g.e. %#x\n", entry->ref);
-+			pr_debug("freeing g.e. %#x (pfn %#lx)\n",
-+				 entry->ref, page_to_pfn(entry->page));
-+			put_page(entry->page);
- 			kfree(entry);
- 			entry = NULL;
- 		} else {
-@@ -389,9 +400,18 @@ static void gnttab_handle_deferred(struc
- static void gnttab_add_deferred(grant_ref_t ref, bool readonly,
- 				struct page *page)
- {
--	struct deferred_entry *entry = kmalloc(sizeof(*entry), GFP_ATOMIC);
-+	struct deferred_entry *entry;
-+	gfp_t gfp = (in_atomic() || irqs_disabled()) ? GFP_ATOMIC : GFP_KERNEL;
- 	const char *what = KERN_WARNING "leaking";
+ 	.macro tramp_ventry, regsize = 64
+ 	.align	7
+ 1:
+@@ -660,7 +665,7 @@ alternative_else_nop_endif
+ 2:
+ 	tramp_map_kernel	x30
+ #ifdef CONFIG_RANDOMIZE_BASE
+-	adr	x30, tramp_vectors + PAGE_SIZE
++	tramp_data_page		x30
+ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
+ 	ldr	x30, [x30]
+ #else
+@@ -851,7 +856,7 @@ SYM_CODE_START(__sdei_asm_entry_trampoli
+ 1:	str	x4, [x1, #(SDEI_EVENT_INTREGS + S_SDEI_TTBR1)]
  
-+	entry = kmalloc(sizeof(*entry), gfp);
-+	if (!page) {
-+		unsigned long gfn = gnttab_interface->read_frame(ref);
-+
-+		page = pfn_to_page(gfn_to_pfn(gfn));
-+		get_page(page);
-+	}
-+
- 	if (entry) {
- 		unsigned long flags;
- 
-@@ -1404,6 +1424,7 @@ static const struct gnttab_ops gnttab_v1
- 	.update_entry			= gnttab_update_entry_v1,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v1,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v1,
-+	.read_frame			= gnttab_read_frame_v1,
- };
- 
- static const struct gnttab_ops gnttab_v2_ops = {
-@@ -1415,6 +1436,7 @@ static const struct gnttab_ops gnttab_v2
- 	.update_entry			= gnttab_update_entry_v2,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v2,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v2,
-+	.read_frame			= gnttab_read_frame_v2,
- };
- 
- static bool gnttab_need_v2(void)
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -100,7 +100,12 @@ int gnttab_end_foreign_access_ref(grant_
-  * Note that the granted page might still be accessed (read or write) by the
-  * other side after gnttab_end_foreign_access() returns, so even if page was
-  * specified as 0 it is not allowed to just reuse the page for other
-- * purposes immediately.
-+ * purposes immediately. gnttab_end_foreign_access() will take an additional
-+ * reference to the granted page in this case, which is dropped only after
-+ * the grant is no longer in use.
-+ * This requires that multi page allocations for areas subject to
-+ * gnttab_end_foreign_access() are done via alloc_pages_exact() (and freeing
-+ * via free_pages_exact()) in order to avoid high order pages.
-  */
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page);
+ #ifdef CONFIG_RANDOMIZE_BASE
+-	adr	x4, tramp_vectors + PAGE_SIZE
++	tramp_data_page		x4
+ 	add	x4, x4, #:lo12:__sdei_asm_trampoline_next_handler
+ 	ldr	x4, [x4]
+ #else
 
 
