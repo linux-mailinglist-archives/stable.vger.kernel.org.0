@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 355874D490F
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B0294D48BF
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:15:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242750AbiCJOL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:11:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49612 "EHLO
+        id S242819AbiCJOLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:11:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242747AbiCJOLV (ORCPT
+        with ESMTP id S242776AbiCJOLV (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:11:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 963B69A4F5;
-        Thu, 10 Mar 2022 06:10:13 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24079D4F9;
+        Thu, 10 Mar 2022 06:10:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C5AAB824C7;
-        Thu, 10 Mar 2022 14:10:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59DA5C340EB;
-        Thu, 10 Mar 2022 14:10:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90BEEB824C7;
+        Thu, 10 Mar 2022 14:10:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D19BDC340E8;
+        Thu, 10 Mar 2022 14:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921410;
-        bh=WRO3Pdzs1AFeGQSOgBMhxsKfVPh+xNG6g0tpwmNqJkY=;
+        s=korg; t=1646921414;
+        bh=QwlJvWOkklMTHykH22gZQn+3XT4PMhG8ZaiKF4jVX/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzJpfynWOdiMyDxPm25RwZU8/9VF0sxKYu2FS5gp9/XGdLIGgWUIitslYMjIeqSSg
-         kEqqY8d9upsPHOEHZyI9LdBlLSp3iDWlRGJM6rl9bTzjFr2mKIW0A+AbWjDGOkJ6Sv
-         uGVNz4zKF9AhTx2KvZapX33achTMahwjTnoqQSZQ=
+        b=BjO1BV0p/Ns1pCQ2mUT87ok39Xygvd+gdb3KwqLg/OjTUwociIzbvPmylFPynKQ6c
+         LZ6bsu949RTItkHYu5DapYq5KTT0QdTEFFYR7OeQs/NK+DlpRf/d4pKxD3RFi8trcg
+         lfFaR4cuI/nQukjRbNTXKiRoDViPxlUPVQsvdDJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Patrick Colp <patrick.colp@oracle.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.16 02/53] x86/speculation: Add eIBRS + Retpoline options
-Date:   Thu, 10 Mar 2022 15:09:07 +0100
-Message-Id: <20220310140811.906578472@linuxfoundation.org>
+Subject: [PATCH 5.16 03/53] Documentation/hw-vuln: Update spectre doc
+Date:   Thu, 10 Mar 2022 15:09:08 +0100
+Message-Id: <20220310140811.935340298@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140811.832630727@linuxfoundation.org>
 References: <20220310140811.832630727@linuxfoundation.org>
@@ -58,270 +57,111 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1e19da8522c81bf46b335f84137165741e0d82b7 upstream.
+commit 5ad3eb1132453b9795ce5fd4572b1c18b292cca9 upstream.
 
-Thanks to the chaps at VUsec it is now clear that eIBRS is not
-sufficient, therefore allow enabling of retpolines along with eIBRS.
+Update the doc with the new fun.
 
-Add spectre_v2=eibrs, spectre_v2=eibrs,lfence and
-spectre_v2=eibrs,retpoline options to explicitly pick your preferred
-means of mitigation.
+  [ bp: Massage commit message. ]
 
-Since there's new mitigations there's also user visible changes in
-/sys/devices/system/cpu/vulnerabilities/spectre_v2 to reflect these
-new mitigations.
-
-  [ bp: Massage commit message, trim error messages,
-    do more precise eIBRS mode checking. ]
-
-Co-developed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Patrick Colp <patrick.colp@oracle.com>
 Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/nospec-branch.h |    4 -
- arch/x86/kernel/cpu/bugs.c           |  133 +++++++++++++++++++++++++----------
- 2 files changed, 99 insertions(+), 38 deletions(-)
+ Documentation/admin-guide/hw-vuln/spectre.rst   |   44 ++++++++++++++++--------
+ Documentation/admin-guide/kernel-parameters.txt |    8 +++-
+ 2 files changed, 36 insertions(+), 16 deletions(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -190,7 +190,9 @@ enum spectre_v2_mitigation {
- 	SPECTRE_V2_NONE,
- 	SPECTRE_V2_RETPOLINE,
- 	SPECTRE_V2_LFENCE,
--	SPECTRE_V2_IBRS_ENHANCED,
-+	SPECTRE_V2_EIBRS,
-+	SPECTRE_V2_EIBRS_RETPOLINE,
-+	SPECTRE_V2_EIBRS_LFENCE,
- };
+--- a/Documentation/admin-guide/hw-vuln/spectre.rst
++++ b/Documentation/admin-guide/hw-vuln/spectre.rst
+@@ -131,6 +131,19 @@ steer its indirect branch speculations t
+ speculative execution's side effects left in level 1 cache to infer the
+ victim's data.
  
- /* The indirect branch speculation control variants */
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -665,6 +665,9 @@ enum spectre_v2_mitigation_cmd {
- 	SPECTRE_V2_CMD_RETPOLINE,
- 	SPECTRE_V2_CMD_RETPOLINE_GENERIC,
- 	SPECTRE_V2_CMD_RETPOLINE_LFENCE,
-+	SPECTRE_V2_CMD_EIBRS,
-+	SPECTRE_V2_CMD_EIBRS_RETPOLINE,
-+	SPECTRE_V2_CMD_EIBRS_LFENCE,
- };
++Yet another variant 2 attack vector is for the attacker to poison the
++Branch History Buffer (BHB) to speculatively steer an indirect branch
++to a specific Branch Target Buffer (BTB) entry, even if the entry isn't
++associated with the source address of the indirect branch. Specifically,
++the BHB might be shared across privilege levels even in the presence of
++Enhanced IBRS.
++
++Currently the only known real-world BHB attack vector is via
++unprivileged eBPF. Therefore, it's highly recommended to not enable
++unprivileged eBPF, especially when eIBRS is used (without retpolines).
++For a full mitigation against BHB attacks, it's recommended to use
++retpolines (or eIBRS combined with retpolines).
++
+ Attack scenarios
+ ----------------
  
- enum spectre_v2_user_cmd {
-@@ -737,6 +740,13 @@ spectre_v2_parse_user_cmdline(enum spect
- 	return SPECTRE_V2_USER_CMD_AUTO;
- }
+@@ -364,13 +377,15 @@ The possible values in this file are:
  
-+static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
-+{
-+	return (mode == SPECTRE_V2_EIBRS ||
-+		mode == SPECTRE_V2_EIBRS_RETPOLINE ||
-+		mode == SPECTRE_V2_EIBRS_LFENCE);
-+}
-+
- static void __init
- spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- {
-@@ -804,7 +814,7 @@ spectre_v2_user_select_mitigation(enum s
- 	 */
- 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
- 	    !smt_possible ||
--	    spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
-+	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
- 		return;
+   - Kernel status:
  
- 	/*
-@@ -826,7 +836,9 @@ static const char * const spectre_v2_str
- 	[SPECTRE_V2_NONE]			= "Vulnerable",
- 	[SPECTRE_V2_RETPOLINE]			= "Mitigation: Retpolines",
- 	[SPECTRE_V2_LFENCE]			= "Mitigation: LFENCE",
--	[SPECTRE_V2_IBRS_ENHANCED]		= "Mitigation: Enhanced IBRS",
-+	[SPECTRE_V2_EIBRS]			= "Mitigation: Enhanced IBRS",
-+	[SPECTRE_V2_EIBRS_LFENCE]		= "Mitigation: Enhanced IBRS + LFENCE",
-+	[SPECTRE_V2_EIBRS_RETPOLINE]		= "Mitigation: Enhanced IBRS + Retpolines",
- };
+-  ====================================  =================================
+-  'Not affected'                        The processor is not vulnerable
+-  'Vulnerable'                          Vulnerable, no mitigation
+-  'Mitigation: Full generic retpoline'  Software-focused mitigation
+-  'Mitigation: Full AMD retpoline'      AMD-specific software mitigation
+-  'Mitigation: Enhanced IBRS'           Hardware-focused mitigation
+-  ====================================  =================================
++  ========================================  =================================
++  'Not affected'                            The processor is not vulnerable
++  'Mitigation: None'                        Vulnerable, no mitigation
++  'Mitigation: Retpolines'                  Use Retpoline thunks
++  'Mitigation: LFENCE'                      Use LFENCE instructions
++  'Mitigation: Enhanced IBRS'               Hardware-focused mitigation
++  'Mitigation: Enhanced IBRS + Retpolines'  Hardware-focused + Retpolines
++  'Mitigation: Enhanced IBRS + LFENCE'      Hardware-focused + LFENCE
++  ========================================  =================================
  
- static const struct {
-@@ -840,6 +852,9 @@ static const struct {
- 	{ "retpoline,amd",	SPECTRE_V2_CMD_RETPOLINE_LFENCE,  false },
- 	{ "retpoline,lfence",	SPECTRE_V2_CMD_RETPOLINE_LFENCE,  false },
- 	{ "retpoline,generic",	SPECTRE_V2_CMD_RETPOLINE_GENERIC, false },
-+	{ "eibrs",		SPECTRE_V2_CMD_EIBRS,		  false },
-+	{ "eibrs,lfence",	SPECTRE_V2_CMD_EIBRS_LFENCE,	  false },
-+	{ "eibrs,retpoline",	SPECTRE_V2_CMD_EIBRS_RETPOLINE,	  false },
- 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
- };
+   - Firmware status: Show if Indirect Branch Restricted Speculation (IBRS) is
+     used to protect against Spectre variant 2 attacks when calling firmware (x86 only).
+@@ -583,12 +598,13 @@ kernel command line.
  
-@@ -877,15 +892,29 @@ static enum spectre_v2_mitigation_cmd __
+ 		Specific mitigations can also be selected manually:
  
- 	if ((cmd == SPECTRE_V2_CMD_RETPOLINE ||
- 	     cmd == SPECTRE_V2_CMD_RETPOLINE_LFENCE ||
--	     cmd == SPECTRE_V2_CMD_RETPOLINE_GENERIC) &&
-+	     cmd == SPECTRE_V2_CMD_RETPOLINE_GENERIC ||
-+	     cmd == SPECTRE_V2_CMD_EIBRS_LFENCE ||
-+	     cmd == SPECTRE_V2_CMD_EIBRS_RETPOLINE) &&
- 	    !IS_ENABLED(CONFIG_RETPOLINE)) {
--		pr_err("%s selected but not compiled in. Switching to AUTO select\n", mitigation_options[i].option);
-+		pr_err("%s selected but not compiled in. Switching to AUTO select\n",
-+		       mitigation_options[i].option);
-+		return SPECTRE_V2_CMD_AUTO;
-+	}
-+
-+	if ((cmd == SPECTRE_V2_CMD_EIBRS ||
-+	     cmd == SPECTRE_V2_CMD_EIBRS_LFENCE ||
-+	     cmd == SPECTRE_V2_CMD_EIBRS_RETPOLINE) &&
-+	    !boot_cpu_has(X86_FEATURE_IBRS_ENHANCED)) {
-+		pr_err("%s selected but CPU doesn't have eIBRS. Switching to AUTO select\n",
-+		       mitigation_options[i].option);
- 		return SPECTRE_V2_CMD_AUTO;
- 	}
+-		retpoline
+-					replace indirect branches
+-		retpoline,generic
+-					google's original retpoline
+-		retpoline,amd
+-					AMD-specific minimal thunk
++                retpoline               auto pick between generic,lfence
++                retpoline,generic       Retpolines
++                retpoline,lfence        LFENCE; indirect branch
++                retpoline,amd           alias for retpoline,lfence
++                eibrs                   enhanced IBRS
++                eibrs,retpoline         enhanced IBRS + Retpolines
++                eibrs,lfence            enhanced IBRS + LFENCE
  
--	if ((cmd == SPECTRE_V2_CMD_RETPOLINE_LFENCE) &&
-+	if ((cmd == SPECTRE_V2_CMD_RETPOLINE_LFENCE ||
-+	     cmd == SPECTRE_V2_CMD_EIBRS_LFENCE) &&
- 	    !boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
--		pr_err("%s selected, but CPU doesn't have a serializing LFENCE. Switching to AUTO select\n", mitigation_options[i].option);
-+		pr_err("%s selected, but CPU doesn't have a serializing LFENCE. Switching to AUTO select\n",
-+		       mitigation_options[i].option);
- 		return SPECTRE_V2_CMD_AUTO;
- 	}
+ 		Not specifying this option is equivalent to
+ 		spectre_v2=auto.
+@@ -599,7 +615,7 @@ kernel command line.
+ 		spectre_v2=off. Spectre variant 1 mitigations
+ 		cannot be disabled.
  
-@@ -894,6 +923,25 @@ static enum spectre_v2_mitigation_cmd __
- 	return cmd;
- }
+-For spectre_v2_user see :doc:`/admin-guide/kernel-parameters`.
++For spectre_v2_user see Documentation/admin-guide/kernel-parameters.txt
  
-+static enum spectre_v2_mitigation __init spectre_v2_select_retpoline(void)
-+{
-+	if (!IS_ENABLED(CONFIG_RETPOLINE)) {
-+		pr_err("Kernel not compiled with retpoline; no mitigation available!");
-+		return SPECTRE_V2_NONE;
-+	}
-+
-+	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
-+	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
-+		if (!boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
-+			pr_err("LFENCE not serializing, switching to generic retpoline\n");
-+			return SPECTRE_V2_RETPOLINE;
-+		}
-+		return SPECTRE_V2_LFENCE;
-+	}
-+
-+	return SPECTRE_V2_RETPOLINE;
-+}
-+
- static void __init spectre_v2_select_mitigation(void)
- {
- 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
-@@ -914,49 +962,60 @@ static void __init spectre_v2_select_mit
- 	case SPECTRE_V2_CMD_FORCE:
- 	case SPECTRE_V2_CMD_AUTO:
- 		if (boot_cpu_has(X86_FEATURE_IBRS_ENHANCED)) {
--			mode = SPECTRE_V2_IBRS_ENHANCED;
--			/* Force it so VMEXIT will restore correctly */
--			x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
--			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
--			goto specv2_set_mode;
-+			mode = SPECTRE_V2_EIBRS;
-+			break;
- 		}
--		if (IS_ENABLED(CONFIG_RETPOLINE))
--			goto retpoline_auto;
-+
-+		mode = spectre_v2_select_retpoline();
- 		break;
-+
- 	case SPECTRE_V2_CMD_RETPOLINE_LFENCE:
--		if (IS_ENABLED(CONFIG_RETPOLINE))
--			goto retpoline_lfence;
-+		mode = SPECTRE_V2_LFENCE;
- 		break;
-+
- 	case SPECTRE_V2_CMD_RETPOLINE_GENERIC:
--		if (IS_ENABLED(CONFIG_RETPOLINE))
--			goto retpoline_generic;
-+		mode = SPECTRE_V2_RETPOLINE;
- 		break;
-+
- 	case SPECTRE_V2_CMD_RETPOLINE:
--		if (IS_ENABLED(CONFIG_RETPOLINE))
--			goto retpoline_auto;
-+		mode = spectre_v2_select_retpoline();
-+		break;
-+
-+	case SPECTRE_V2_CMD_EIBRS:
-+		mode = SPECTRE_V2_EIBRS;
-+		break;
-+
-+	case SPECTRE_V2_CMD_EIBRS_LFENCE:
-+		mode = SPECTRE_V2_EIBRS_LFENCE;
-+		break;
-+
-+	case SPECTRE_V2_CMD_EIBRS_RETPOLINE:
-+		mode = SPECTRE_V2_EIBRS_RETPOLINE;
- 		break;
- 	}
--	pr_err("Spectre mitigation: kernel not compiled with retpoline; no mitigation available!");
--	return;
+ Mitigation selection guide
+ --------------------------
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5303,8 +5303,12 @@
+ 			Specific mitigations can also be selected manually:
  
--retpoline_auto:
--	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
--	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
--	retpoline_lfence:
--		if (!boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
--			pr_err("Spectre mitigation: LFENCE not serializing, switching to generic retpoline\n");
--			goto retpoline_generic;
--		}
--		mode = SPECTRE_V2_LFENCE;
-+	if (spectre_v2_in_eibrs_mode(mode)) {
-+		/* Force it so VMEXIT will restore correctly */
-+		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
-+		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
-+	}
-+
-+	switch (mode) {
-+	case SPECTRE_V2_NONE:
-+	case SPECTRE_V2_EIBRS:
-+		break;
-+
-+	case SPECTRE_V2_LFENCE:
-+	case SPECTRE_V2_EIBRS_LFENCE:
- 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_LFENCE);
-+		fallthrough;
-+
-+	case SPECTRE_V2_RETPOLINE:
-+	case SPECTRE_V2_EIBRS_RETPOLINE:
- 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE);
--	} else {
--	retpoline_generic:
--		mode = SPECTRE_V2_RETPOLINE;
--		setup_force_cpu_cap(X86_FEATURE_RETPOLINE);
-+		break;
- 	}
+ 			retpoline	  - replace indirect branches
+-			retpoline,generic - google's original retpoline
+-			retpoline,amd     - AMD-specific minimal thunk
++			retpoline,generic - Retpolines
++			retpoline,lfence  - LFENCE; indirect branch
++			retpoline,amd     - alias for retpoline,lfence
++			eibrs		  - enhanced IBRS
++			eibrs,retpoline   - enhanced IBRS + Retpolines
++			eibrs,lfence      - enhanced IBRS + LFENCE
  
--specv2_set_mode:
- 	spectre_v2_enabled = mode;
- 	pr_info("%s\n", spectre_v2_strings[mode]);
- 
-@@ -982,7 +1041,7 @@ specv2_set_mode:
- 	 * the CPU supports Enhanced IBRS, kernel might un-intentionally not
- 	 * enable IBRS around firmware calls.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_IBRS) && mode != SPECTRE_V2_IBRS_ENHANCED) {
-+	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_eibrs_mode(mode)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBRS_FW);
- 		pr_info("Enabling Restricted Speculation for firmware calls\n");
- 	}
-@@ -1691,7 +1750,7 @@ static ssize_t tsx_async_abort_show_stat
- 
- static char *stibp_state(void)
- {
--	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
-+	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
- 		return "";
- 
- 	switch (spectre_v2_user_stibp) {
+ 			Not specifying this option is equivalent to
+ 			spectre_v2=auto.
 
 
