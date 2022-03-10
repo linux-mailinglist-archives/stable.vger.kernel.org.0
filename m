@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0D34D4C1D
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 886A74D4C29
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243402AbiCJOW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:22:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58596 "EHLO
+        id S243960AbiCJOcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:32:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243408AbiCJOVs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:21:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A692EB561C;
-        Thu, 10 Mar 2022 06:20:36 -0800 (PST)
+        with ESMTP id S1343621AbiCJObG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 070F09BBB2;
+        Thu, 10 Mar 2022 06:27:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AC5FB82678;
-        Thu, 10 Mar 2022 14:20:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CED9C340E8;
-        Thu, 10 Mar 2022 14:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E4E9B8267B;
+        Thu, 10 Mar 2022 14:26:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D23C340EB;
+        Thu, 10 Mar 2022 14:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922032;
-        bh=zaaG9f1LUsZJAVT1xkSrbI0gFHTParhDn5YvSeBVte0=;
+        s=korg; t=1646922395;
+        bh=baxK+JmlXBcmFeTDzMr6h4q4h6PlSxvLkBq2vh+AFVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4cnsS7HBRl4wlQdGQpQ27juWkNDt50dHDzqacgVgFiygsP0eOJR+X9cByKCJcmdB
-         +0i5iXidAc69xr3JFcYsVcNeFWbSUklG9/NobEWMzXJ37d7hl3O8hOwyeNAO4an190
-         TcjJum+IdgkdeBCnrTJRzYwPxFxZ0D6TauMs4328=
+        b=1hh1XS3Mmn2PJODMHANLczqP8Dgd7KeAl8Em60iNsUKjO+N5YVHEXZTeF5UANGtKr
+         WTqyHsDF+qOZHGQzwqAKaOH7EUGsPlOpyuTjXrHRv8k+8N40RAASZZmHR4lMJ8kUNu
+         wjfRk5x87rxxogM45YLWtyCl7dAh1swbnS3ne+LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.14 16/31] ARM: Spectre-BHB workaround
-Date:   Thu, 10 Mar 2022 15:18:29 +0100
-Message-Id: <20220310140808.008882877@linuxfoundation.org>
+Subject: [PATCH 5.10 13/58] ARM: Spectre-BHB workaround
+Date:   Thu, 10 Mar 2022 15:18:33 +0100
+Message-Id: <20220310140813.253467897@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140807.524313448@linuxfoundation.org>
-References: <20220310140807.524313448@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,21 +67,20 @@ Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 [changes due to lack of SYSTEM_FREEING_INITMEM - gregkh]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/assembler.h  |   10 ++++
- arch/arm/include/asm/spectre.h    |    4 +
- arch/arm/kernel/entry-armv.S      |   79 +++++++++++++++++++++++++++++++++++---
- arch/arm/kernel/entry-common.S    |   24 +++++++++++
- arch/arm/kernel/spectre.c         |    4 +
- arch/arm/kernel/traps.c           |   38 ++++++++++++++++++
- arch/arm/kernel/vmlinux-xip.lds.S |   18 +++++++-
- arch/arm/kernel/vmlinux.lds.S     |   18 +++++++-
- arch/arm/mm/Kconfig               |   10 ++++
- arch/arm/mm/proc-v7-bugs.c        |   76 ++++++++++++++++++++++++++++++++++++
- 10 files changed, 269 insertions(+), 12 deletions(-)
+ arch/arm/include/asm/assembler.h   |   10 ++++
+ arch/arm/include/asm/spectre.h     |    4 +
+ arch/arm/include/asm/vmlinux.lds.h |   18 +++++++-
+ arch/arm/kernel/entry-armv.S       |   79 ++++++++++++++++++++++++++++++++++---
+ arch/arm/kernel/entry-common.S     |   24 +++++++++++
+ arch/arm/kernel/spectre.c          |    4 +
+ arch/arm/kernel/traps.c            |   38 +++++++++++++++++
+ arch/arm/mm/Kconfig                |   10 ++++
+ arch/arm/mm/proc-v7-bugs.c         |   76 +++++++++++++++++++++++++++++++++++
+ 9 files changed, 254 insertions(+), 9 deletions(-)
 
 --- a/arch/arm/include/asm/assembler.h
 +++ b/arch/arm/include/asm/assembler.h
-@@ -110,6 +110,16 @@
+@@ -107,6 +107,16 @@
  	.endm
  #endif
  
@@ -120,9 +119,38 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +int spectre_bhb_update_vectors(unsigned int method);
 +
  #endif
+--- a/arch/arm/include/asm/vmlinux.lds.h
++++ b/arch/arm/include/asm/vmlinux.lds.h
+@@ -116,11 +116,23 @@
+  */
+ #define ARM_VECTORS							\
+ 	__vectors_lma = .;						\
+-	.vectors 0xffff0000 : AT(__vectors_start) {			\
+-		*(.vectors)						\
++	OVERLAY 0xffff0000 : NOCROSSREFS AT(__vectors_lma) {		\
++		.vectors {						\
++			*(.vectors)					\
++		}							\
++		.vectors.bhb.loop8 {					\
++			*(.vectors.bhb.loop8)				\
++		}							\
++		.vectors.bhb.bpiall {					\
++			*(.vectors.bhb.bpiall)				\
++		}							\
+ 	}								\
+ 	ARM_LMA(__vectors, .vectors);					\
+-	. = __vectors_lma + SIZEOF(.vectors);				\
++	ARM_LMA(__vectors_bhb_loop8, .vectors.bhb.loop8);		\
++	ARM_LMA(__vectors_bhb_bpiall, .vectors.bhb.bpiall);		\
++	. = __vectors_lma + SIZEOF(.vectors) +				\
++		SIZEOF(.vectors.bhb.loop8) +				\
++		SIZEOF(.vectors.bhb.bpiall);				\
+ 									\
+ 	__stubs_lma = .;						\
+ 	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_lma) {		\
 --- a/arch/arm/kernel/entry-armv.S
 +++ b/arch/arm/kernel/entry-armv.S
-@@ -1033,12 +1033,11 @@ vector_\name:
+@@ -1005,12 +1005,11 @@ vector_\name:
  	sub	lr, lr, #\correction
  	.endif
  
@@ -139,7 +167,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	str	lr, [sp, #8]		@ save spsr
  
  	@
-@@ -1059,6 +1058,44 @@ vector_\name:
+@@ -1031,6 +1030,44 @@ vector_\name:
  	movs	pc, lr			@ branch to handler in SVC mode
  ENDPROC(vector_\name)
  
@@ -184,7 +212,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	.align	2
  	@ handler addresses follow this label
  1:
-@@ -1067,6 +1104,10 @@ ENDPROC(vector_\name)
+@@ -1039,6 +1076,10 @@ ENDPROC(vector_\name)
  	.section .stubs, "ax", %progbits
  	@ This must be the first word
  	.word	vector_swi
@@ -195,7 +223,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  vector_rst:
   ARM(	swi	SYS_ERROR0	)
-@@ -1181,8 +1222,10 @@ vector_addrexcptn:
+@@ -1153,8 +1194,10 @@ vector_addrexcptn:
   * FIQ "NMI" handler
   *-----------------------------------------------------------------------------
   * Handle a FIQ using the SVC stack allowing FIQ act like NMI on x86
@@ -207,7 +235,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	vector_stub	fiq, FIQ_MODE, 4
  
  	.long	__fiq_usr			@  0  (USR_26 / USR_32)
-@@ -1215,6 +1258,30 @@ vector_addrexcptn:
+@@ -1187,6 +1230,30 @@ vector_addrexcptn:
  	W(b)	vector_irq
  	W(b)	vector_fiq
  
@@ -240,7 +268,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/arm/kernel/entry-common.S
 +++ b/arch/arm/kernel/entry-common.S
-@@ -152,12 +152,36 @@ ENDPROC(ret_from_fork)
+@@ -163,12 +163,36 @@ ENDPROC(ret_from_fork)
   */
  
  	.align	5
@@ -292,7 +320,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		break;
 --- a/arch/arm/kernel/traps.c
 +++ b/arch/arm/kernel/traps.c
-@@ -33,6 +33,7 @@
+@@ -30,6 +30,7 @@
  #include <linux/atomic.h>
  #include <asm/cacheflush.h>
  #include <asm/exception.h>
@@ -300,7 +328,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #include <asm/unistd.h>
  #include <asm/traps.h>
  #include <asm/ptrace.h>
-@@ -834,6 +835,43 @@ static void flush_vectors(void *vma, siz
+@@ -820,6 +821,43 @@ static void flush_vectors(void *vma, siz
  	flush_icache_range(start, end);
  }
  
@@ -344,67 +372,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  void __init early_trap_init(void *vectors_base)
  {
  	extern char __stubs_start[], __stubs_end[];
---- a/arch/arm/kernel/vmlinux-xip.lds.S
-+++ b/arch/arm/kernel/vmlinux-xip.lds.S
-@@ -155,11 +155,23 @@ SECTIONS
- 	 * only thing that matters is their relative offsets
- 	 */
- 	__vectors_lma = .;
--	.vectors 0xffff0000 : AT(__vectors_start) {
--		*(.vectors)
-+	OVERLAY 0xffff0000 : NOCROSSREFS AT(__vectors_lma) {
-+		.vectors {
-+			*(.vectors)
-+		}
-+		.vectors.bhb.loop8 {
-+			*(.vectors.bhb.loop8)
-+		}
-+		.vectors.bhb.bpiall {
-+			*(.vectors.bhb.bpiall)
-+		}
- 	}
- 	ARM_LMA(__vectors, .vectors);
--	. = __vectors_lma + SIZEOF(.vectors);
-+	ARM_LMA(__vectors_bhb_loop8, .vectors.bhb.loop8);
-+	ARM_LMA(__vectors_bhb_bpiall, .vectors.bhb.bpiall);
-+	. = __vectors_lma + SIZEOF(.vectors) +
-+		SIZEOF(.vectors.bhb.loop8) +
-+		SIZEOF(.vectors.bhb.bpiall);
- 
- 	__stubs_lma = .;
- 	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_lma) {
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -176,11 +176,23 @@ SECTIONS
- 	 * only thing that matters is their relative offsets
- 	 */
- 	__vectors_lma = .;
--	.vectors 0xffff0000 : AT(__vectors_start) {
--		*(.vectors)
-+	OVERLAY 0xffff0000 : NOCROSSREFS AT(__vectors_lma) {
-+		.vectors {
-+			*(.vectors)
-+		}
-+		.vectors.bhb.loop8 {
-+			*(.vectors.bhb.loop8)
-+		}
-+		.vectors.bhb.bpiall {
-+			*(.vectors.bhb.bpiall)
-+		}
- 	}
- 	ARM_LMA(__vectors, .vectors);
--	. = __vectors_lma + SIZEOF(.vectors);
-+	ARM_LMA(__vectors_bhb_loop8, .vectors.bhb.loop8);
-+	ARM_LMA(__vectors_bhb_bpiall, .vectors.bhb.bpiall);
-+	. = __vectors_lma + SIZEOF(.vectors) +
-+		SIZEOF(.vectors.bhb.loop8) +
-+		SIZEOF(.vectors.bhb.bpiall);
- 
- 	__stubs_lma = .;
- 	.stubs ADDR(.vectors) + 0x1000 : AT(__stubs_lma) {
 --- a/arch/arm/mm/Kconfig
 +++ b/arch/arm/mm/Kconfig
-@@ -850,6 +850,16 @@ config HARDEN_BRANCH_PREDICTOR
+@@ -854,6 +854,16 @@ config HARDEN_BRANCH_PREDICTOR
  
  	   If unsure, say Y.
  
@@ -423,7 +393,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	select NEED_KUSER_HELPERS
 --- a/arch/arm/mm/proc-v7-bugs.c
 +++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -186,6 +186,81 @@ static void cpu_v7_spectre_v2_init(void)
+@@ -177,6 +177,81 @@ static void cpu_v7_spectre_v2_init(void)
  	spectre_v2_update_state(state, method);
  }
  
@@ -505,7 +475,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static __maybe_unused bool cpu_v7_check_auxcr_set(bool *warned,
  						  u32 mask, const char *msg)
  {
-@@ -226,4 +301,5 @@ void cpu_v7_ca15_ibe(void)
+@@ -217,4 +292,5 @@ void cpu_v7_ca15_ibe(void)
  void cpu_v7_bugs_init(void)
  {
  	cpu_v7_spectre_v2_init();
