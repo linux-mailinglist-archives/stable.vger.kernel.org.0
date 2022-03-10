@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA194D4904
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49AC94D48AE
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:10:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242888AbiCJOLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:11:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50536 "EHLO
+        id S242774AbiCJOLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:11:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242818AbiCJOLf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:11:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B41419BAEE;
-        Thu, 10 Mar 2022 06:10:31 -0800 (PST)
+        with ESMTP id S242748AbiCJOLK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:11:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 569458B6C7;
+        Thu, 10 Mar 2022 06:10:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0BC6B82674;
-        Thu, 10 Mar 2022 14:10:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18EA0C340EB;
-        Thu, 10 Mar 2022 14:10:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E846461B6B;
+        Thu, 10 Mar 2022 14:10:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1EC8C340E8;
+        Thu, 10 Mar 2022 14:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921428;
-        bh=9FKQXRvhoozs6lErb9ui0TiQ6mi3soKCGtB7BH6ZqiM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=PsaS/cvaT3io84Q4FMZBEtp1UL4CV6mM/vQ4P2CG0OBmCFgQUKYuRmR4grMqLRmZc
-         yGvPA2sEyI+2O2Zqvl/KQgaH+ZarTorr3Tpck3dfFqqkJSWTTDmG4lLPU9RNWP6Sls
-         HPH7l7tSAl+/ibE9Y8AL3RLMyFb40ygtiYDOAGCg=
+        s=korg; t=1646921407;
+        bh=k7IlrheiL20Nj+EcS7MdmaFH9E215/+V3yKYmdcANtE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lwtbhhl6cXQGknaG13S4b//IKZm5JX2dR0WctvGapY6GYQHff3vDg7owEa7LHVdsD
+         GiZ7iziFUXUhQmUbZRADiF7khdQG3buBnMkbZHOeOt5BMwEA5sT/+zp0m0LYnuFiAt
+         usu3M4xfEITHLxRqtieOt+CQ5dSfVhUTiClG4IxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.16 00/53] 5.16.14-rc2 review
-Date:   Thu, 10 Mar 2022 15:09:05 +0100
-Message-Id: <20220310140811.832630727@linuxfoundation.org>
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.16 01/53] x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
+Date:   Thu, 10 Mar 2022 15:09:06 +0100
+Message-Id: <20220310140811.877487822@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220310140811.832630727@linuxfoundation.org>
+References: <20220310140811.832630727@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.14-rc2.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.16.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.16.14-rc2
-X-KernelTest-Deadline: 2022-03-12T14:08+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,265 +57,248 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Note, I'm sending all the patches again for all of the -rc2 releases as
-there has been a lot of churn from what was in -rc1 to -rc2.
-
-This is the start of the stable review cycle for the 5.16.14 release.
-There are 53 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.14-rc2.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.16.14-rc2
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
-
-Juergen Gross <jgross@suse.com>
-    xen/netfront: react properly to failing gnttab_end_foreign_access_ref()
-
-Juergen Gross <jgross@suse.com>
-    xen/gnttab: fix gnttab_end_foreign_access() without page specified
-
-Juergen Gross <jgross@suse.com>
-    xen/pvcalls: use alloc/free_pages_exact()
-
-Juergen Gross <jgross@suse.com>
-    xen/9p: use alloc/free_pages_exact()
-
-Juergen Gross <jgross@suse.com>
-    xen: remove gnttab_query_foreign_access()
-
-Juergen Gross <jgross@suse.com>
-    xen/gntalloc: don't use gnttab_query_foreign_access()
-
-Juergen Gross <jgross@suse.com>
-    xen/scsifront: don't use gnttab_query_foreign_access() for mapped status
-
-Juergen Gross <jgross@suse.com>
-    xen/netfront: don't use gnttab_query_foreign_access() for mapped status
-
-Juergen Gross <jgross@suse.com>
-    xen/blkfront: don't use gnttab_query_foreign_access() for mapped status
-
-Juergen Gross <jgross@suse.com>
-    xen/grant-table: add gnttab_try_end_foreign_access()
-
-Juergen Gross <jgross@suse.com>
-    xen/xenbus: don't let xenbus_grant_ring() remove grants in error case
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: fix build warning in proc-v7-bugs.c
-
-Nathan Chancellor <nathan@kernel.org>
-    arm64: Do not include __READ_ONCE() block in assembly files
-
-Nathan Chancellor <nathan@kernel.org>
-    ARM: Do not use NOCROSSREFS directive with ld.lld
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: fix co-processor register typo
-
-Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
-    ARM: fix build error when BPF_SYSCALL is disabled
-
-James Morse <james.morse@arm.com>
-    arm64: proton-pack: Include unprivileged eBPF status in Spectre v2 mitigation reporting
-
-James Morse <james.morse@arm.com>
-    arm64: Use the clearbhb instruction in mitigations
-
-James Morse <james.morse@arm.com>
-    KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
-
-James Morse <james.morse@arm.com>
-    arm64: Mitigate spectre style branch history side channels
-
-James Morse <james.morse@arm.com>
-    arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2
-
-James Morse <james.morse@arm.com>
-    arm64: Add percpu vectors for EL1
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Add macro for reading symbol addresses from the trampoline
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Add vectors that have the bhb mitigation sequences
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Allow the trampoline text to occupy multiple pages
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Make the kpti trampoline's kpti sequence optional
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Move trampoline macros out of ifdef'd section
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Don't assume tramp_vectors is the start of the vectors
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Move the trampoline data page before the text page
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Free up another register on kpti's tramp_exit path
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Make the trampoline cleanup optional
-
-James Morse <james.morse@arm.com>
-    KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
-
-James Morse <james.morse@arm.com>
-    arm64: spectre: Rename spectre_v4_patch_fw_mitigation_conduit
-
-James Morse <james.morse@arm.com>
-    arm64: entry.S: Add ventry overflow sanity checks
-
-Joey Gouly <joey.gouly@arm.com>
-    arm64: cpufeature: add HWCAP for FEAT_RPRES
-
-Joey Gouly <joey.gouly@arm.com>
-    arm64: cpufeature: add HWCAP for FEAT_AFP
-
-Joey Gouly <joey.gouly@arm.com>
-    arm64: add ID_AA64ISAR2_EL1 sys register
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: include unprivileged BPF status in Spectre V2 reporting
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: Spectre-BHB workaround
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: use LOADADDR() to get load address of sections
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: early traps initialisation
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: report Spectre v2 status through sysfs
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/speculation: Warn about Spectre v2 LFENCE mitigation
-
-Kim Phillips <kim.phillips@amd.com>
-    x86/speculation: Update link to AMD speculation whitepaper
-
-Kim Phillips <kim.phillips@amd.com>
-    x86/speculation: Use generic retpoline by default on AMD
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
-
-Peter Zijlstra <peterz@infradead.org>
-    Documentation/hw-vuln: Update spectre doc
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/speculation: Add eIBRS + Retpoline options
-
-Peter Zijlstra (Intel) <peterz@infradead.org>
-    x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/hw-vuln/spectre.rst   |  50 +--
- Documentation/admin-guide/kernel-parameters.txt |   8 +-
- Documentation/arm64/cpu-feature-registers.rst   |  17 ++
- Documentation/arm64/elf_hwcaps.rst              |   8 +
- Makefile                                        |   4 +-
- arch/arm/include/asm/assembler.h                |  10 +
- arch/arm/include/asm/spectre.h                  |  32 ++
- arch/arm/include/asm/vmlinux.lds.h              |  43 ++-
- arch/arm/kernel/Makefile                        |   2 +
- arch/arm/kernel/entry-armv.S                    |  79 ++++-
- arch/arm/kernel/entry-common.S                  |  24 ++
- arch/arm/kernel/spectre.c                       |  71 +++++
- arch/arm/kernel/traps.c                         |  65 +++-
- arch/arm/mm/Kconfig                             |  11 +
- arch/arm/mm/proc-v7-bugs.c                      | 208 ++++++++++---
- arch/arm64/Kconfig                              |   9 +
- arch/arm64/include/asm/assembler.h              |  53 ++++
- arch/arm64/include/asm/cpu.h                    |   1 +
- arch/arm64/include/asm/cpufeature.h             |  29 ++
- arch/arm64/include/asm/cputype.h                |   8 +
- arch/arm64/include/asm/fixmap.h                 |   6 +-
- arch/arm64/include/asm/hwcap.h                  |   2 +
- arch/arm64/include/asm/insn.h                   |   1 +
- arch/arm64/include/asm/kvm_host.h               |   5 +
- arch/arm64/include/asm/rwonce.h                 |   4 +-
- arch/arm64/include/asm/sections.h               |   5 +
- arch/arm64/include/asm/spectre.h                |   4 +
- arch/arm64/include/asm/sysreg.h                 |  18 ++
- arch/arm64/include/asm/vectors.h                |  73 +++++
- arch/arm64/include/uapi/asm/hwcap.h             |   2 +
- arch/arm64/include/uapi/asm/kvm.h               |   5 +
- arch/arm64/kernel/cpu_errata.c                  |   7 +
- arch/arm64/kernel/cpufeature.c                  |  25 ++
- arch/arm64/kernel/cpuinfo.c                     |   3 +
- arch/arm64/kernel/entry.S                       | 214 +++++++++----
- arch/arm64/kernel/image-vars.h                  |   4 +
- arch/arm64/kernel/proton-pack.c                 | 391 +++++++++++++++++++++++-
- arch/arm64/kernel/vmlinux.lds.S                 |   2 +-
- arch/arm64/kvm/arm.c                            |   5 +-
- arch/arm64/kvm/hyp/hyp-entry.S                  |   9 +
- arch/arm64/kvm/hyp/nvhe/mm.c                    |   4 +-
- arch/arm64/kvm/hyp/vhe/switch.c                 |   9 +-
- arch/arm64/kvm/hypercalls.c                     |  12 +
- arch/arm64/kvm/psci.c                           |  18 +-
- arch/arm64/kvm/sys_regs.c                       |   2 +-
- arch/arm64/mm/mmu.c                             |  12 +-
- arch/arm64/tools/cpucaps                        |   1 +
- arch/x86/include/asm/cpufeatures.h              |   2 +-
- arch/x86/include/asm/nospec-branch.h            |  16 +-
- arch/x86/kernel/alternative.c                   |   8 +-
- arch/x86/kernel/cpu/bugs.c                      | 204 ++++++++++---
- arch/x86/lib/retpoline.S                        |   2 +-
- arch/x86/net/bpf_jit_comp.c                     |   2 +-
- drivers/acpi/ec.c                               |  10 -
- drivers/acpi/sleep.c                            |  14 +-
- drivers/block/xen-blkfront.c                    |  63 ++--
- drivers/net/xen-netfront.c                      |  54 ++--
- drivers/scsi/xen-scsifront.c                    |   3 +-
- drivers/xen/gntalloc.c                          |  25 +-
- drivers/xen/grant-table.c                       |  71 +++--
- drivers/xen/pvcalls-front.c                     |   8 +-
- drivers/xen/xenbus/xenbus_client.c              |  24 +-
- include/linux/arm-smccc.h                       |   5 +
- include/linux/bpf.h                             |  12 +
- include/xen/grant_table.h                       |  19 +-
- kernel/sysctl.c                                 |   7 +
- net/9p/trans_xen.c                              |  14 +-
- tools/arch/x86/include/asm/cpufeatures.h        |   2 +-
- 68 files changed, 1782 insertions(+), 358 deletions(-)
+From: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+
+commit d45476d9832409371537013ebdd8dc1a7781f97a upstream.
+
+The RETPOLINE_AMD name is unfortunate since it isn't necessarily
+AMD only, in fact Hygon also uses it. Furthermore it will likely be
+sufficient for some Intel processors. Therefore rename the thing to
+RETPOLINE_LFENCE to better describe what it is.
+
+Add the spectre_v2=retpoline,lfence option as an alias to
+spectre_v2=retpoline,amd to preserve existing setups. However, the output
+of /sys/devices/system/cpu/vulnerabilities/spectre_v2 will be changed.
+
+  [ bp: Fix typos, massage. ]
+
+Co-developed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/x86/include/asm/cpufeatures.h       |    2 +-
+ arch/x86/include/asm/nospec-branch.h     |   12 ++++++------
+ arch/x86/kernel/alternative.c            |    8 ++++----
+ arch/x86/kernel/cpu/bugs.c               |   29 ++++++++++++++++++-----------
+ arch/x86/lib/retpoline.S                 |    2 +-
+ arch/x86/net/bpf_jit_comp.c              |    2 +-
+ tools/arch/x86/include/asm/cpufeatures.h |    2 +-
+ 7 files changed, 32 insertions(+), 25 deletions(-)
+
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -204,7 +204,7 @@
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+ #define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_AMD	( 7*32+13) /* "" AMD Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -84,7 +84,7 @@
+ #ifdef CONFIG_RETPOLINE
+ 	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+ 		      __stringify(jmp __x86_indirect_thunk_\reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), X86_FEATURE_RETPOLINE_AMD
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), X86_FEATURE_RETPOLINE_LFENCE
+ #else
+ 	jmp	*%\reg
+ #endif
+@@ -94,7 +94,7 @@
+ #ifdef CONFIG_RETPOLINE
+ 	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; call *%\reg), \
+ 		      __stringify(call __x86_indirect_thunk_\reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; call *%\reg), X86_FEATURE_RETPOLINE_AMD
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; call *%\reg), X86_FEATURE_RETPOLINE_LFENCE
+ #else
+ 	call	*%\reg
+ #endif
+@@ -146,7 +146,7 @@ extern retpoline_thunk_t __x86_indirect_
+ 	"lfence;\n"						\
+ 	ANNOTATE_RETPOLINE_SAFE					\
+ 	"call *%[thunk_target]\n",				\
+-	X86_FEATURE_RETPOLINE_AMD)
++	X86_FEATURE_RETPOLINE_LFENCE)
+ 
+ # define THUNK_TARGET(addr) [thunk_target] "r" (addr)
+ 
+@@ -176,7 +176,7 @@ extern retpoline_thunk_t __x86_indirect_
+ 	"lfence;\n"						\
+ 	ANNOTATE_RETPOLINE_SAFE					\
+ 	"call *%[thunk_target]\n",				\
+-	X86_FEATURE_RETPOLINE_AMD)
++	X86_FEATURE_RETPOLINE_LFENCE)
+ 
+ # define THUNK_TARGET(addr) [thunk_target] "rm" (addr)
+ #endif
+@@ -188,8 +188,8 @@ extern retpoline_thunk_t __x86_indirect_
+ /* The Spectre V2 mitigation variants */
+ enum spectre_v2_mitigation {
+ 	SPECTRE_V2_NONE,
+-	SPECTRE_V2_RETPOLINE_GENERIC,
+-	SPECTRE_V2_RETPOLINE_AMD,
++	SPECTRE_V2_RETPOLINE,
++	SPECTRE_V2_LFENCE,
+ 	SPECTRE_V2_IBRS_ENHANCED,
+ };
+ 
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -389,7 +389,7 @@ static int emit_indirect(int op, int reg
+  *
+  *   CALL *%\reg
+  *
+- * It also tries to inline spectre_v2=retpoline,amd when size permits.
++ * It also tries to inline spectre_v2=retpoline,lfence when size permits.
+  */
+ static int patch_retpoline(void *addr, struct insn *insn, u8 *bytes)
+ {
+@@ -407,7 +407,7 @@ static int patch_retpoline(void *addr, s
+ 	BUG_ON(reg == 4);
+ 
+ 	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE) &&
+-	    !cpu_feature_enabled(X86_FEATURE_RETPOLINE_AMD))
++	    !cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE))
+ 		return -1;
+ 
+ 	op = insn->opcode.bytes[0];
+@@ -438,9 +438,9 @@ static int patch_retpoline(void *addr, s
+ 	}
+ 
+ 	/*
+-	 * For RETPOLINE_AMD: prepend the indirect CALL/JMP with an LFENCE.
++	 * For RETPOLINE_LFENCE: prepend the indirect CALL/JMP with an LFENCE.
+ 	 */
+-	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_AMD)) {
++	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
+ 		bytes[i++] = 0x0f;
+ 		bytes[i++] = 0xae;
+ 		bytes[i++] = 0xe8; /* LFENCE */
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -664,7 +664,7 @@ enum spectre_v2_mitigation_cmd {
+ 	SPECTRE_V2_CMD_FORCE,
+ 	SPECTRE_V2_CMD_RETPOLINE,
+ 	SPECTRE_V2_CMD_RETPOLINE_GENERIC,
+-	SPECTRE_V2_CMD_RETPOLINE_AMD,
++	SPECTRE_V2_CMD_RETPOLINE_LFENCE,
+ };
+ 
+ enum spectre_v2_user_cmd {
+@@ -824,8 +824,8 @@ set_mode:
+ 
+ static const char * const spectre_v2_strings[] = {
+ 	[SPECTRE_V2_NONE]			= "Vulnerable",
+-	[SPECTRE_V2_RETPOLINE_GENERIC]		= "Mitigation: Full generic retpoline",
+-	[SPECTRE_V2_RETPOLINE_AMD]		= "Mitigation: Full AMD retpoline",
++	[SPECTRE_V2_RETPOLINE]			= "Mitigation: Retpolines",
++	[SPECTRE_V2_LFENCE]			= "Mitigation: LFENCE",
+ 	[SPECTRE_V2_IBRS_ENHANCED]		= "Mitigation: Enhanced IBRS",
+ };
+ 
+@@ -837,7 +837,8 @@ static const struct {
+ 	{ "off",		SPECTRE_V2_CMD_NONE,		  false },
+ 	{ "on",			SPECTRE_V2_CMD_FORCE,		  true  },
+ 	{ "retpoline",		SPECTRE_V2_CMD_RETPOLINE,	  false },
+-	{ "retpoline,amd",	SPECTRE_V2_CMD_RETPOLINE_AMD,	  false },
++	{ "retpoline,amd",	SPECTRE_V2_CMD_RETPOLINE_LFENCE,  false },
++	{ "retpoline,lfence",	SPECTRE_V2_CMD_RETPOLINE_LFENCE,  false },
+ 	{ "retpoline,generic",	SPECTRE_V2_CMD_RETPOLINE_GENERIC, false },
+ 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
+ };
+@@ -875,13 +876,19 @@ static enum spectre_v2_mitigation_cmd __
+ 	}
+ 
+ 	if ((cmd == SPECTRE_V2_CMD_RETPOLINE ||
+-	     cmd == SPECTRE_V2_CMD_RETPOLINE_AMD ||
++	     cmd == SPECTRE_V2_CMD_RETPOLINE_LFENCE ||
+ 	     cmd == SPECTRE_V2_CMD_RETPOLINE_GENERIC) &&
+ 	    !IS_ENABLED(CONFIG_RETPOLINE)) {
+ 		pr_err("%s selected but not compiled in. Switching to AUTO select\n", mitigation_options[i].option);
+ 		return SPECTRE_V2_CMD_AUTO;
+ 	}
+ 
++	if ((cmd == SPECTRE_V2_CMD_RETPOLINE_LFENCE) &&
++	    !boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
++		pr_err("%s selected, but CPU doesn't have a serializing LFENCE. Switching to AUTO select\n", mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
+ 	spec_v2_print_cond(mitigation_options[i].option,
+ 			   mitigation_options[i].secure);
+ 	return cmd;
+@@ -916,9 +923,9 @@ static void __init spectre_v2_select_mit
+ 		if (IS_ENABLED(CONFIG_RETPOLINE))
+ 			goto retpoline_auto;
+ 		break;
+-	case SPECTRE_V2_CMD_RETPOLINE_AMD:
++	case SPECTRE_V2_CMD_RETPOLINE_LFENCE:
+ 		if (IS_ENABLED(CONFIG_RETPOLINE))
+-			goto retpoline_amd;
++			goto retpoline_lfence;
+ 		break;
+ 	case SPECTRE_V2_CMD_RETPOLINE_GENERIC:
+ 		if (IS_ENABLED(CONFIG_RETPOLINE))
+@@ -935,17 +942,17 @@ static void __init spectre_v2_select_mit
+ retpoline_auto:
+ 	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
+ 	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
+-	retpoline_amd:
++	retpoline_lfence:
+ 		if (!boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
+ 			pr_err("Spectre mitigation: LFENCE not serializing, switching to generic retpoline\n");
+ 			goto retpoline_generic;
+ 		}
+-		mode = SPECTRE_V2_RETPOLINE_AMD;
+-		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_AMD);
++		mode = SPECTRE_V2_LFENCE;
++		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_LFENCE);
+ 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE);
+ 	} else {
+ 	retpoline_generic:
+-		mode = SPECTRE_V2_RETPOLINE_GENERIC;
++		mode = SPECTRE_V2_RETPOLINE;
+ 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE);
+ 	}
+ 
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -34,7 +34,7 @@ SYM_INNER_LABEL(__x86_indirect_thunk_\re
+ 
+ 	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+ 		      __stringify(RETPOLINE \reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), X86_FEATURE_RETPOLINE_AMD
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), X86_FEATURE_RETPOLINE_LFENCE
+ 
+ .endm
+ 
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -394,7 +394,7 @@ static void emit_indirect_jump(u8 **ppro
+ 	u8 *prog = *pprog;
+ 
+ #ifdef CONFIG_RETPOLINE
+-	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_AMD)) {
++	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
+ 		EMIT_LFENCE();
+ 		EMIT2(0xFF, 0xE0 + reg);
+ 	} else if (cpu_feature_enabled(X86_FEATURE_RETPOLINE)) {
+--- a/tools/arch/x86/include/asm/cpufeatures.h
++++ b/tools/arch/x86/include/asm/cpufeatures.h
+@@ -204,7 +204,7 @@
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+ #define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_AMD	( 7*32+13) /* "" AMD Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCEs for Spectre variant 2 */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
 
 
