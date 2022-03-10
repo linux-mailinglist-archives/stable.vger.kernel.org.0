@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC034D49C3
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE2864D4A9D
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244260AbiCJOdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
+        id S244626AbiCJOdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245495AbiCJOad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A0C180D2B;
-        Thu, 10 Mar 2022 06:26:21 -0800 (PST)
+        with ESMTP id S244172AbiCJO2e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:28:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AC34C2E78;
+        Thu, 10 Mar 2022 06:23:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82CDA61CFB;
-        Thu, 10 Mar 2022 14:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 859FAC340EB;
-        Thu, 10 Mar 2022 14:26:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D28ADB82678;
+        Thu, 10 Mar 2022 14:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2801CC340E8;
+        Thu, 10 Mar 2022 14:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922379;
-        bh=UcH8Zzvo0iQZ5Rax9GLIymn0QqKccpjDo791IEfgOr8=;
+        s=korg; t=1646922201;
+        bh=O/puTpS0vTBgPhZGErm9BWdP2JhT+u4Mnv+wuMe7TjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSRFbNo+Vfezvzmok8C4n9rbcFIQ0qnX2K1sRmc9GEbAb0Pr7+33ZMKJgLiSfYVJM
-         1KwaPlXLT045XTcLTKGl2e3/aUj6JqE6rspjEuMvM9m0xajtO3Qz2dfL/JSbCCqUfn
-         NcD0AnO9YBydhl8S6GCaBuJXxfJTNOP3DnJnPGUs=
+        b=ETab7GX5Gyj3ySFWakyMkyDiz2rFdQtoX+cs/s5sJeCOLwztIwxR0N81uP1dAn2qO
+         To0BBFb1gJaOosumL1tSEsZJJi5XXbMVRUCqPuh7WJZR0EkHcahqRG8oUzWLYUdIGe
+         1F3EMBLYcYgqHxn/44H+qEsGL9DWQoe3NKlNrWLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Suzuki Poulose <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.10 18/58] arm64: Add Cortex-A510 CPU part definition
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 11/33] arm/arm64: Provide a wrapper for SMCCC 1.1 calls
 Date:   Thu, 10 Mar 2022 15:18:38 +0100
-Message-Id: <20220310140813.393834618@linuxfoundation.org>
+Message-Id: <20220310140808.079209100@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
+References: <20220310140807.749164737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,44 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Steven Price <steven.price@arm.com>
 
-commit 53960faf2b731dd2f9ed6e1334634b8ba6286850 upstream.
+commit 541625ac47ce9d0835efaee0fcbaa251b0000a37 upstream.
 
-Add the CPU Partnumbers for the new Arm designs.
+SMCCC 1.1 calls may use either HVC or SMC depending on the PSCI
+conduit. Rather than coding this in every call site, provide a macro
+which uses the correct instruction. The macro also handles the case
+where no conduit is configured/available returning a not supported error
+in res, along with returning the conduit used for the call.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Suzuki Poulose <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/1643120437-14352-2-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+This allow us to remove some duplicated code and will be useful later
+when adding paravirtualized time hypervisor calls.
+
+Signed-off-by: Steven Price <steven.price@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cputype.h |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/arm-smccc.h |   58 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -73,6 +73,7 @@
- #define ARM_CPU_PART_CORTEX_A76		0xD0B
- #define ARM_CPU_PART_NEOVERSE_N1	0xD0C
- #define ARM_CPU_PART_CORTEX_A77		0xD0D
-+#define ARM_CPU_PART_CORTEX_A510	0xD46
- #define ARM_CPU_PART_CORTEX_A710	0xD47
- #define ARM_CPU_PART_CORTEX_X2		0xD48
- #define ARM_CPU_PART_NEOVERSE_N2	0xD49
-@@ -116,6 +117,7 @@
- #define MIDR_CORTEX_A76	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
- #define MIDR_NEOVERSE_N1 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N1)
- #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
-+#define MIDR_CORTEX_A510 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A510)
- #define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
- #define MIDR_CORTEX_X2 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_X2)
- #define MIDR_NEOVERSE_N2 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N2)
+--- a/include/linux/arm-smccc.h
++++ b/include/linux/arm-smccc.h
+@@ -311,5 +311,63 @@ asmlinkage void __arm_smccc_hvc(unsigned
+ #define SMCCC_RET_NOT_SUPPORTED			-1
+ #define SMCCC_RET_NOT_REQUIRED			-2
+ 
++/*
++ * Like arm_smccc_1_1* but always returns SMCCC_RET_NOT_SUPPORTED.
++ * Used when the SMCCC conduit is not defined. The empty asm statement
++ * avoids compiler warnings about unused variables.
++ */
++#define __fail_smccc_1_1(...)						\
++	do {								\
++		__declare_args(__count_args(__VA_ARGS__), __VA_ARGS__);	\
++		asm ("" __constraints(__count_args(__VA_ARGS__)));	\
++		if (___res)						\
++			___res->a0 = SMCCC_RET_NOT_SUPPORTED;		\
++	} while (0)
++
++/*
++ * arm_smccc_1_1_invoke() - make an SMCCC v1.1 compliant call
++ *
++ * This is a variadic macro taking one to eight source arguments, and
++ * an optional return structure.
++ *
++ * @a0-a7: arguments passed in registers 0 to 7
++ * @res: result values from registers 0 to 3
++ *
++ * This macro will make either an HVC call or an SMC call depending on the
++ * current SMCCC conduit. If no valid conduit is available then -1
++ * (SMCCC_RET_NOT_SUPPORTED) is returned in @res.a0 (if supplied).
++ *
++ * The return value also provides the conduit that was used.
++ */
++#define arm_smccc_1_1_invoke(...) ({					\
++		int method = arm_smccc_1_1_get_conduit();		\
++		switch (method) {					\
++		case SMCCC_CONDUIT_HVC:					\
++			arm_smccc_1_1_hvc(__VA_ARGS__);			\
++			break;						\
++		case SMCCC_CONDUIT_SMC:					\
++			arm_smccc_1_1_smc(__VA_ARGS__);			\
++			break;						\
++		default:						\
++			__fail_smccc_1_1(__VA_ARGS__);			\
++			method = SMCCC_CONDUIT_NONE;			\
++			break;						\
++		}							\
++		method;							\
++	})
++
++/* Paravirtualised time calls (defined by ARM DEN0057A) */
++#define ARM_SMCCC_HV_PV_TIME_FEATURES				\
++	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
++			   ARM_SMCCC_SMC_64,			\
++			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
++			   0x20)
++
++#define ARM_SMCCC_HV_PV_TIME_ST					\
++	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
++			   ARM_SMCCC_SMC_64,			\
++			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
++			   0x21)
++
+ #endif /*__ASSEMBLY__*/
+ #endif /*__LINUX_ARM_SMCCC_H*/
 
 
