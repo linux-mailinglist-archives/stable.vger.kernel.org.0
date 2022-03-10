@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F36D74D4C17
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A52044D4C13
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244813AbiCJOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49802 "EHLO
+        id S245222AbiCJOed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245676AbiCJOas (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0A1184B7B;
-        Thu, 10 Mar 2022 06:26:39 -0800 (PST)
+        with ESMTP id S1344052AbiCJObj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E51340E6F;
+        Thu, 10 Mar 2022 06:29:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F86FB82676;
-        Thu, 10 Mar 2022 14:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4506C340EB;
-        Thu, 10 Mar 2022 14:26:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3ED0B82544;
+        Thu, 10 Mar 2022 14:29:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F12AC340E8;
+        Thu, 10 Mar 2022 14:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922368;
-        bh=gBicCRT9OVvgDAQ5hBhrDnX8cBLGvxfOndfcHGcsKz4=;
+        s=korg; t=1646922589;
+        bh=25Hk37nJ7k4GM1ojM6Tgufom7M/GqJr5xVZym4GE6GU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oliB1+Jp8m8P1PB5LsyxbVDX3HOnsu0e8OyEi7HoU/8GJOTPNZw6IRvSNF+dVCsUY
-         wiLV2+wkkztIfbzQZYSm4XFoAbcAXloZDlZx90GsJq1vXyZ9nJzGxE7s2JVrx+BMUj
-         i+haHyui1by8Kb9JlcDQju51f3x5kCY04BGYopYE=
+        b=ea5OmG4CBdYY/eVVMD/la/9C+IGVFSjTjfuHdovdSHQF35iE/EZDERNbmsXWFSJdG
+         VtR5hzuhskvQvtooM33jy5A+TyT5NHxmYAnrvHbAAzUtAgZTrPX/zAhTzZ21ezPrFY
+         JQMOn20yBfSQlnSLtLyr6sKrcwKw0/ij6GiEvDRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.10 53/58] xen: remove gnttab_query_foreign_access()
-Date:   Thu, 10 Mar 2022 15:19:13 +0100
-Message-Id: <20220310140814.376092737@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 26/58] arm64: entry: Free up another register on kptis tramp_exit path
+Date:   Thu, 10 Mar 2022 15:19:15 +0100
+Message-Id: <20220310140813.735287550@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: James Morse <james.morse@arm.com>
 
-Commit 1dbd11ca75fe664d3e54607547771d021f531f59 upstream.
+commit 03aff3a77a58b5b52a77e00537a42090ad57b80b upstream.
 
-Remove gnttab_query_foreign_access(), as it is unused and unsafe to
-use.
+Kpti stashes x30 in far_el1 while it uses x30 for all its work.
 
-All previous use cases assumed a grant would not be in use after
-gnttab_query_foreign_access() returned 0. This information is useless
-in best case, as it only refers to a situation in the past, which could
-have changed already.
+Making the vectors a per-cpu data structure will require a second
+register.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Allow tramp_exit two registers before it unmaps the kernel, by
+leaving x30 on the stack, and stashing x29 in far_el1.
+
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/grant-table.c |   25 -------------------------
- include/xen/grant_table.h |    2 --
- 2 files changed, 27 deletions(-)
+ arch/arm64/kernel/entry.S |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -133,13 +133,6 @@ struct gnttab_ops {
- 	 * return the frame.
- 	 */
- 	unsigned long (*end_foreign_transfer_ref)(grant_ref_t ref);
--	/*
--	 * Query the status of a grant entry. Ref parameter is reference of
--	 * queried grant entry, return value is the status of queried entry.
--	 * Detailed status(writing/reading) can be gotten from the return value
--	 * by bit operations.
--	 */
--	int (*query_foreign_access)(grant_ref_t ref);
- };
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -419,14 +419,16 @@ alternative_else_nop_endif
+ 	ldp	x24, x25, [sp, #16 * 12]
+ 	ldp	x26, x27, [sp, #16 * 13]
+ 	ldp	x28, x29, [sp, #16 * 14]
+-	ldr	lr, [sp, #S_LR]
+-	add	sp, sp, #PT_REGS_SIZE		// restore sp
  
- struct unmap_refs_callback_data {
-@@ -284,22 +277,6 @@ int gnttab_grant_foreign_access(domid_t
- }
- EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access);
+ 	.if	\el == 0
+-alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
++alternative_if_not ARM64_UNMAP_KERNEL_AT_EL0
++	ldr	lr, [sp, #S_LR]
++	add	sp, sp, #PT_REGS_SIZE		// restore sp
++	eret
++alternative_else_nop_endif
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	bne	4f
+-	msr	far_el1, x30
++	msr	far_el1, x29
+ 	tramp_alias	x30, tramp_exit_native
+ 	br	x30
+ 4:
+@@ -434,6 +436,9 @@ alternative_insn eret, nop, ARM64_UNMAP_
+ 	br	x30
+ #endif
+ 	.else
++	ldr	lr, [sp, #S_LR]
++	add	sp, sp, #PT_REGS_SIZE		// restore sp
++
+ 	/* Ensure any device/NC reads complete */
+ 	alternative_insn nop, "dmb sy", ARM64_WORKAROUND_1508412
  
--static int gnttab_query_foreign_access_v1(grant_ref_t ref)
--{
--	return gnttab_shared.v1[ref].flags & (GTF_reading|GTF_writing);
--}
--
--static int gnttab_query_foreign_access_v2(grant_ref_t ref)
--{
--	return grstatus[ref] & (GTF_reading|GTF_writing);
--}
--
--int gnttab_query_foreign_access(grant_ref_t ref)
--{
--	return gnttab_interface->query_foreign_access(ref);
--}
--EXPORT_SYMBOL_GPL(gnttab_query_foreign_access);
--
- static int gnttab_end_foreign_access_ref_v1(grant_ref_t ref, int readonly)
- {
- 	u16 flags, nflags;
-@@ -1427,7 +1404,6 @@ static const struct gnttab_ops gnttab_v1
- 	.update_entry			= gnttab_update_entry_v1,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v1,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v1,
--	.query_foreign_access		= gnttab_query_foreign_access_v1,
- };
- 
- static const struct gnttab_ops gnttab_v2_ops = {
-@@ -1439,7 +1415,6 @@ static const struct gnttab_ops gnttab_v2
- 	.update_entry			= gnttab_update_entry_v2,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v2,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v2,
--	.query_foreign_access		= gnttab_query_foreign_access_v2,
- };
- 
- static bool gnttab_need_v2(void)
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -118,8 +118,6 @@ int gnttab_grant_foreign_transfer(domid_
- unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
- unsigned long gnttab_end_foreign_transfer(grant_ref_t ref);
- 
--int gnttab_query_foreign_access(grant_ref_t ref);
--
- /*
-  * operations on reserved batches of grant references
-  */
+@@ -674,10 +679,12 @@ alternative_else_nop_endif
+ 	.macro tramp_exit, regsize = 64
+ 	adr	x30, tramp_vectors
+ 	msr	vbar_el1, x30
+-	tramp_unmap_kernel	x30
++	ldr	lr, [sp, #S_LR]
++	tramp_unmap_kernel	x29
+ 	.if	\regsize == 64
+-	mrs	x30, far_el1
++	mrs	x29, far_el1
+ 	.endif
++	add	sp, sp, #PT_REGS_SIZE		// restore sp
+ 	eret
+ 	sb
+ 	.endm
 
 
