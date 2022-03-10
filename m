@@ -2,151 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BEB04D5469
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 23:14:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7BB14D5470
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 23:15:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236998AbiCJWPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 17:15:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44058 "EHLO
+        id S241920AbiCJWQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 17:16:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240292AbiCJWPF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 17:15:05 -0500
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 494BA197B45
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 14:14:03 -0800 (PST)
-Received: by mail-pg1-x52a.google.com with SMTP id q29so4891590pgn.7
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 14:14:03 -0800 (PST)
+        with ESMTP id S1344351AbiCJWQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 17:16:40 -0500
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E172197B5F
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 14:15:39 -0800 (PST)
+Received: by mail-pg1-x532.google.com with SMTP id 27so5853937pgk.10
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 14:15:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=UzG3xwxvfaLfshaLysPhOgwGVwb5K3wxbNsB2PeYW8Y=;
-        b=xIIfbSPNUV8Ow0wLvcRQdP2Qe7loeLLVXmOTwxDaXkfmDW5jCezViM98w7q1uQr1I2
-         g2Io5NWjZjlegDBMXHuSk+kWVxbfISQOzk7UR0mcoCMj/FP9XMU5QzSH338gEXdaQMm3
-         FXAYA8/XXSntazYo0o5GiyvFgBJ5bUFtmxaHVcpBwZuxVnkcFSokFlDIb88U/Nadisgb
-         0oJnJDk7Jub0KO+awAzgiGlZfGkXRooPIu/ule2CbLNwTSSxC0BqhuV/puIYC3k0Vyfy
-         RyQvzHYY0FabRV9wwYNpG983O9ytwUKxe98ekoHczUocjnhzjEjkhPo1bf/CT3OgdcV4
-         gsVg==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=hnTFWnQJmvbm9LEtFQvI4GpVPQj/z6Hgu7d/5cJgwGU=;
+        b=GRACj0SFaphKhV/+h7K0CBcgmjtW+WehxP7ZAow2XGAC4beO1q+M8D3BP4sziJ809O
+         B/ttj3qNZ3hy9g10Auo2s91jwW/ms8f1uu0YPnSlDdbAO9TquV0X64CgPAybQ3cNGU44
+         udwqkTPbIM28s2aAXSBTNNdbwSrF3TLDb1Pf6MprMyyq1fLT6N59YVVEZY0aNkTwE59q
+         96IaDZqx7uctsRTwmrp6Q9315N+QOxiVgidlwmMDhU4vH289ShcbKdHW9ca0ywaAxmRk
+         smev9fdVuuWYL033r64YsZrL7+IDC5jP9n5QPbYUI0P3LA471jThNwsAlY55FIdqnpxQ
+         g9jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=UzG3xwxvfaLfshaLysPhOgwGVwb5K3wxbNsB2PeYW8Y=;
-        b=0dAD3S2K+k0yaGCAAXHydMUpMZwePhAgwpKKR+TLB6eqgSjggqklhfWV9RgvUpaEZh
-         2KkBqnEpCPjVBOsU68mmKJJCWGx+Z2sEUHaVHc7AzLLPE4TZ9rBtkWKi3224h/usO4mn
-         eCmh2wIv2WH6SpuWkZZsgY6+KtyYWeIGPmfVJEaJJ+ggucF8yMapfzl3FyS4Yu8AB4Og
-         aXRkCp/tFvp706dvWujYtsLj7PdaRFCKeLlypYuGa1woMtnyQWPhuy66W3RdiZPqkxvK
-         EbXxrZUCBxJ03/OlOKH/daE1skIYJsTo8a69o0vVrc6lpHOEnF26RFaOKi25lYvnHo+I
-         cg5w==
-X-Gm-Message-State: AOAM530JJXVOONbipQ8yibbEGuVGRvVAnuznexI/zIF0ZSACGp6QmjKm
-        FFenBCuLozaBwzZcHYwwVvpo/Q==
-X-Google-Smtp-Source: ABdhPJyDPDNCNzaw9MyEiRkIMnm6aKQ+Xl8kK1W11zZDCZEXYzHIEfNaF1f5kgz+ExrcyR7MJSGhAQ==
-X-Received: by 2002:a05:6a00:843:b0:4f7:2830:6d81 with SMTP id q3-20020a056a00084300b004f728306d81mr6965380pfk.76.1646950442784;
-        Thu, 10 Mar 2022 14:14:02 -0800 (PST)
-Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id nn15-20020a17090b38cf00b001bfceefd8cfsm3511915pjb.48.2022.03.10.14.14.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Mar 2022 14:14:02 -0800 (PST)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     davem@davemloft.net
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
-Subject: [PATCH v2] net: ipv6: fix skb_over_panic in __ip6_append_data
-Date:   Thu, 10 Mar 2022 14:13:28 -0800
-Message-Id: <20220310221328.877987-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <CA+FuTScPUVpyK6WYXrePTg_533VF2wfPww4MOJYa17v0xbLeGQ@mail.gmail.com>
-References: <CA+FuTScPUVpyK6WYXrePTg_533VF2wfPww4MOJYa17v0xbLeGQ@mail.gmail.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=hnTFWnQJmvbm9LEtFQvI4GpVPQj/z6Hgu7d/5cJgwGU=;
+        b=UT/PiC0L+tC5D+tcaiDlucDy5fs5iu2ZqatzC5QXDkK+mREEIzHHDj6oBP5uTxM8hu
+         H7m3D937EVLZ1me2xzXo6t62gIZc/QXBdK4/GJ6AGDTIdGE+jtyUNV+p5oL0bUDClhim
+         Il6IQDd0sJifUgQN59f2JWPrpwRhwUf0AfKZbO8HU3d7IXiGlJXl2ZSom0KpDr5p7ffL
+         9yz9hSr+pUUq9+A43tA9Voxc+/Q4r+IbTKvdTWCCsopQZKMfSSE7l0yDjRDY9W5h7kVp
+         EG16cU4s+KUnfe78o2UF3dcBd5CgCIOXF4NEz1R+nlEoQLAy09TTSGzEhv71Nx7CqDwC
+         XdkQ==
+X-Gm-Message-State: AOAM532x04aDCa2F0b/XBom1H2JIcVwxV+3WHwQIiHlfiSBk2iTG7Rin
+        Tsbou0vLTunNOdYbu8/LaSOV5Q==
+X-Google-Smtp-Source: ABdhPJw+pGFGO9T4EDDKaf9lZx4+G5dZFq0/F63AxN+xCER7XgP8Tywk2IfhNk0rJJLPup9XCcORyA==
+X-Received: by 2002:a62:5251:0:b0:4f6:ff68:50c2 with SMTP id g78-20020a625251000000b004f6ff6850c2mr6890521pfb.63.1646950538572;
+        Thu, 10 Mar 2022 14:15:38 -0800 (PST)
+Received: from ?IPV6:2600:380:7676:ce7b:11ac:aee8:fe09:2807? ([2600:380:7676:ce7b:11ac:aee8:fe09:2807])
+        by smtp.gmail.com with ESMTPSA id d4-20020aa78e44000000b004f6aaa184c9sm7740910pfr.71.2022.03.10.14.15.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Mar 2022 14:15:38 -0800 (PST)
+Message-ID: <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
+Date:   Thu, 10 Mar 2022 15:15:35 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH] block: check more requests for multiple_queues in
+ blk_attempt_plug_merge
+Content-Language: en-US
+To:     Song Liu <song@kernel.org>, linux-block@vger.kernel.org,
+        linux-raid@vger.kernel.org
+Cc:     stable@vger.kernel.org, Larkin Lowrey <llowrey@nuclearwinter.com>,
+        Wilson Jonathan <i400sjon@gmail.com>,
+        Roger Heflin <rogerheflin@gmail.com>
+References: <20220309064209.4169303-1-song@kernel.org>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20220309064209.4169303-1-song@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot found a kernel bug in the ipv6 stack:
-LINK: https://syzkaller.appspot.com/bug?id=205d6f11d72329ab8d62a610c44c5e7e25415580
-The reproducer triggers it by sending a crafted message via sendmmsg()
-call, which triggers skb_over_panic, and crashes the kernel:
+On 3/8/22 11:42 PM, Song Liu wrote:
+> RAID arrays check/repair operations benefit a lot from merging requests.
+> If we only check the previous entry for merge attempt, many merge will be
+> missed. As a result, significant regression is observed for RAID check
+> and repair.
+> 
+> Fix this by checking more than just the previous entry when
+> plug->multiple_queues == true.
+> 
+> This improves the check/repair speed of a 20-HDD raid6 from 19 MB/s to
+> 103 MB/s.
 
-skbuff: skb_over_panic: text:ffffffff84647fb4 len:65575 put:65575
-head:ffff888109ff0000 data:ffff888109ff0088 tail:0x100af end:0xfec0
-dev:<NULL>
+Do the underlying disks not have an IO scheduler attached? Curious why
+the merges aren't being done there, would be trivial when the list is
+flushed out. Because if the perf difference is that big, then other
+workloads would be suffering they are that sensitive to being within a
+plug worth of IO.
 
-Add a check that prevents an invalid packet with MTU equall to the
-fregment header size to eat up all the space for payload.
+Between your two approaches, I do greatly prefer the first one though.
 
-The reproducer can be found here:
-LINK: https://syzkaller.appspot.com/text?tag=ReproC&x=1648c83fb00000
-
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-Cc: David Ahern <dsahern@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: bpf@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-
-Reported-by: syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
----
-v2: Instead of updating the alloclen add a check that prevents
-    an invalid packet with MTU equall to the fregment header size
-    to eat up all the space for payload.
-    Fix suggested by Willem de Bruijn <willemdebruijn.kernel@gmail.com>
----
- net/ipv6/ip6_output.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 4788f6b37053..6d45112322a0 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1649,6 +1649,16 @@ static int __ip6_append_data(struct sock *sk,
- 			skb->protocol = htons(ETH_P_IPV6);
- 			skb->ip_summed = csummode;
- 			skb->csum = 0;
-+
-+			/*
-+			 *	Check if there is still room for payload
-+			 */
-+			if (fragheaderlen >= mtu) {
-+				err = -EMSGSIZE;
-+				kfree_skb(skb);
-+				goto error;
-+			}
-+
- 			/* reserve for fragmentation and ipsec header */
- 			skb_reserve(skb, hh_len + sizeof(struct frag_hdr) +
- 				    dst_exthdrlen);
 -- 
-2.35.1
+Jens Axboe
 
