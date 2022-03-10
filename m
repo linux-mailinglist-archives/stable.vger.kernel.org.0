@@ -2,60 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E894D54AB
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 23:37:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAEE4D54BD
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 23:42:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237613AbiCJWid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 17:38:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36386 "EHLO
+        id S1344390AbiCJWnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 17:43:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233362AbiCJWid (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 17:38:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89CBF5F65;
-        Thu, 10 Mar 2022 14:37:29 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50F2BB82902;
-        Thu, 10 Mar 2022 22:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F25B6C340E8;
-        Thu, 10 Mar 2022 22:37:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646951847;
-        bh=O5nu2s34Arb4kXnG4Xq0X7+UxfVtHqzsSPaGy/3wC4k=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=MfyyYt1+TWS5g7wisWkNI2uEq4rV3M0Fyw6gGygomdjOqlsSK+ko3yE2i8LVPVfeh
-         e4AwZzd9qhBjH801j/YeDcMTUK287DsettaMMkuptm11KIL3VTJHTymbtcECX9UNXM
-         msXshqw5cyxORhON2JK2iZmf7rnrNd3jD6PXJsg2pe/SH1qOxNRCxh8KFsoxrrzGIN
-         CDFhVlKKFRXs5MXmovRwNJML3BAeZR8x2RDNyHNlY+52LT56KHsqEpJJ3M987Ewkds
-         lT4Zdc+wK2RanrnSoLqQWmlMDqe2tDdqo+eDuKw56TvzUDxlOWQpuowP+coCMJOLlB
-         rKmywMBCMj3QA==
-Received: by mail-yb1-f174.google.com with SMTP id g1so13792384ybe.4;
-        Thu, 10 Mar 2022 14:37:26 -0800 (PST)
-X-Gm-Message-State: AOAM531K6Z+hUsrDAsRKATvTNFtleytEhlcGUqQmyCP73DZPsHxblSY2
-        Flb4zjeMJs6qHT4gSxvruDdliXK2KwOYfwkAWW4=
-X-Google-Smtp-Source: ABdhPJwvBfYY2TpIsgin8PDJQBVUKLBbtqz9wax7hteqL23GE/VW4aIi3Ja0d0/Lx91Hy9JT+BPlBdWT5VE4qhu36V4=
-X-Received: by 2002:a05:6902:1ca:b0:624:e2a1:2856 with SMTP id
- u10-20020a05690201ca00b00624e2a12856mr5747607ybh.389.1646951845989; Thu, 10
- Mar 2022 14:37:25 -0800 (PST)
+        with ESMTP id S1344398AbiCJWnd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 17:43:33 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A71CB50
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 14:42:31 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id mm23-20020a17090b359700b001bfceefd8c6so3241778pjb.3
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 14:42:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc
+         :references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=H0dJecyPS2t445Yyuaocacfsz4kMpFTNDFKZg5I5Xqo=;
+        b=i2+4Hhkq0ffVuy/voAgJ7Oie2KiFixt/XYRgrrvr6dmSS6Qob5Wmq9eVqbssVG/Prz
+         NZKOO3RZDuV1X5NCn3/n69tAPp9lX1Q8rfhM9oczaPrXHNiLC7k/Aqdn/AuwHiAldis2
+         G2Gz0IpLA0/WkI4mr0CL1pkAmvljkK0MqjH7oZuZ0AeS0C2qPAhHZGoaVoB3Km3j5tE5
+         1PZkCUi8Sjgri2Mi5KBmQGRAzr0wfrySJPF6OjoYKqatacXrXCJsZ0FohWDwgJKVE04B
+         b7XCJdSrDWHSVxF2XGnY6kwky7gCnRwqeHHuDWF3JvOd1hc/hnbHvT62GCX8HpFGNF4G
+         T0jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=H0dJecyPS2t445Yyuaocacfsz4kMpFTNDFKZg5I5Xqo=;
+        b=zq1Zm/0j1qxRa0fepocubh7oJF/sLoK+z7+KbwgFFydQLXRNBNWoG+e+8MFIZ7s6lJ
+         U3Z9OjbNDeEsuozDVaa3+BWWXjdnvoqy+CQRKlAtHuluQAvWJjIArkAwqUa4PFvA5Vcy
+         wN7ORuTowIemUUbaJksWB/7G34uP2NIrttPPVgNUTZOG/8ZOWl6IM2XJLqaGGSf0AYSt
+         awBMOUUyXLFHM3kZ0SWNG3Mw1454CFnE9LAiMziPCXcX3TASjvgWc6VNrvgwukSXHapy
+         wqoh/sgdkybe+hrS5VlKYLqAfONznqUbKSqv09YQFQqqOv+SrsctywSZpXEnLm+0ws/y
+         2AoA==
+X-Gm-Message-State: AOAM530sTwt9p3Cz/K4QttIQlwE5xhPBPP0BPjB7L7oF6KTR42BWa24e
+        2+jMd1jetQ7Fvuhd2FsI4gmx1DQYbhaUzQ==
+X-Google-Smtp-Source: ABdhPJz+HM8Z5oVHOCVhGxstjdd7fA+IbJhbFxh8NNun6SGE5r59isngyOt7OckA9+Vcvc9xTcThVg==
+X-Received: by 2002:a17:902:cccc:b0:14e:e89c:c669 with SMTP id z12-20020a170902cccc00b0014ee89cc669mr7408737ple.58.1646952150727;
+        Thu, 10 Mar 2022 14:42:30 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id y10-20020a63b50a000000b0038088a28ec0sm6504255pge.22.2022.03.10.14.42.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Mar 2022 14:42:30 -0800 (PST)
+Message-ID: <62a9b061-1cf5-dff1-c062-a3961de92dca@linaro.org>
+Date:   Thu, 10 Mar 2022 14:42:29 -0800
 MIME-Version: 1.0
-References: <20220309064209.4169303-1-song@kernel.org> <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
-In-Reply-To: <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
-From:   Song Liu <song@kernel.org>
-Date:   Thu, 10 Mar 2022 14:37:15 -0800
-X-Gmail-Original-Message-ID: <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
-Message-ID: <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
-Subject: Re: [PATCH] block: check more requests for multiple_queues in blk_attempt_plug_merge
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, stable@vger.kernel.org,
-        Larkin Lowrey <llowrey@nuclearwinter.com>,
-        Wilson Jonathan <i400sjon@gmail.com>,
-        Roger Heflin <rogerheflin@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Content-Language: en-US
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     davem@davemloft.net,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        David Ahern <dsahern@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
+References: <CA+FuTScPUVpyK6WYXrePTg_533VF2wfPww4MOJYa17v0xbLeGQ@mail.gmail.com>
+ <20220310221328.877987-1-tadeusz.struk@linaro.org>
+ <20220310143011.00c21f53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: Re: [PATCH v2] net: ipv6: fix skb_over_panic in __ip6_append_data
+In-Reply-To: <20220310143011.00c21f53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -64,36 +87,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 2:15 PM Jens Axboe <axboe@kernel.dk> wrote:
->
-> On 3/8/22 11:42 PM, Song Liu wrote:
-> > RAID arrays check/repair operations benefit a lot from merging requests.
-> > If we only check the previous entry for merge attempt, many merge will be
-> > missed. As a result, significant regression is observed for RAID check
-> > and repair.
-> >
-> > Fix this by checking more than just the previous entry when
-> > plug->multiple_queues == true.
-> >
-> > This improves the check/repair speed of a 20-HDD raid6 from 19 MB/s to
-> > 103 MB/s.
->
-> Do the underlying disks not have an IO scheduler attached? Curious why
-> the merges aren't being done there, would be trivial when the list is
-> flushed out. Because if the perf difference is that big, then other
-> workloads would be suffering they are that sensitive to being within a
-> plug worth of IO.
+On 3/10/22 14:30, Jakub Kicinski wrote:
+>> +
+>> +			/*
+>> +			 *	Check if there is still room for payload
+>> +			 */
+> TBH I think the check is self-explanatory. Not worth a banner comment,
+> for sure.
 
-The disks have mq-deadline by default. I also tried kyber, the result is the
-same. Raid repair work sends IOs to all the HDDs in a round-robin manner.
-If we only check the previous request, there isn't much opportunity for
-merge. I guess other workloads may have different behavior?
+Ok
 
-> Between your two approaches, I do greatly prefer the first one though.
+> 
+>> +			if (fragheaderlen >= mtu) {
+>> +				err = -EMSGSIZE;
+>> +				kfree_skb(skb);
+>> +				goto error;
+>> +			}
+> Not sure if Willem prefers this placement, but seems like we can lift
+> this check out of the loop, as soon as fragheaderlen and mtu are known.
+> 
 
-I also like the first one better. But I am not sure whether it will slow down
-other workloads. We can probably also make the second one cleaner
-with a new variation of blk_start_plug.
+He said to check it before the skb_put() and so I did.
+The fragheaderlen is known early, but mtu can be updated inside the loop
+by ip6_append_data_mtu() so I'm not sure we can do the check before that.
 
+-- 
 Thanks,
-Song
+Tadeusz
