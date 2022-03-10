@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D16704D4B0D
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 874E04D4BB8
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244955AbiCJOeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49796 "EHLO
+        id S237910AbiCJOgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:36:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343925AbiCJOb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:29 -0500
+        with ESMTP id S1344073AbiCJObl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABF0DBD36;
-        Thu, 10 Mar 2022 06:28:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB7AE2C;
+        Thu, 10 Mar 2022 06:30:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC99D61C0A;
-        Thu, 10 Mar 2022 14:28:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EECC340E8;
-        Thu, 10 Mar 2022 14:28:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4544B61B63;
+        Thu, 10 Mar 2022 14:30:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 487F6C340F3;
+        Thu, 10 Mar 2022 14:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922512;
-        bh=oVZchNMBYQehnyKeJxmujUSCkykKcKMWao8G0T/Rvsw=;
+        s=korg; t=1646922623;
+        bh=AxC1teQyuVkVP30iRuUx5rWcdT5vrE/3hwpQ9jN7DcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vErCtK6lGa7kWbr3BVHCSPaSKJuClzg4GXFZqMvmvI/uJ5uj+65w5FjgNhMwTgbMW
-         UAY6MWxguACgEwEWpu+6QF2XR8b9xWiVj6r/vkUmvO3eJ79Hc8/r6ucFWRJ2++eybd
-         +x6+Gc5w5XE1s4wlby7rtNlZMfDvpkwzEz9qUDmM=
+        b=iJrKo/8ruAJJTdY0Ocw9H9J6yI9rU3i5QOxCO0jAGZuzbkM84FCokeOYCXimysQcn
+         5A3/axFVlQ7eOJt73F85pLVvFxDVVMa7B25ZCT/HySnFGT3FUiG+LF3yH5uhzK6qgt
+         q93uWpch6FqInVauspU8AIO+svhB5bqNaoMcOxbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.4 23/33] xen/grant-table: add gnttab_try_end_foreign_access()
-Date:   Thu, 10 Mar 2022 15:19:24 +0100
-Message-Id: <20220310140809.420824002@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 36/58] arm64: Add percpu vectors for EL1
+Date:   Thu, 10 Mar 2022 15:19:25 +0100
+Message-Id: <20220310140814.014662756@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
-References: <20220310140808.741682643@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +53,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: James Morse <james.morse@arm.com>
 
-Commit 6b1775f26a2da2b05a6dc8ec2b5d14e9a4701a1a upstream.
+commit bd09128d16fac3c34b80bd6a29088ac632e8ce09 upstream.
 
-Add a new grant table function gnttab_try_end_foreign_access(), which
-will remove and free a grant if it is not in use.
+The Spectre-BHB workaround adds a firmware call to the vectors. This
+is needed on some CPUs, but not others. To avoid the unaffected CPU in
+a big/little pair from making the firmware call, create per cpu vectors.
 
-Its main use case is to either free a grant if it is no longer in use,
-or to take some other action if it is still in use. This other action
-can be an error exit, or (e.g. in the case of blkfront persistent grant
-feature) some special handling.
+The per-cpu vectors only apply when returning from EL0.
 
-This is CVE-2022-23036, CVE-2022-23038 / part of XSA-396.
+Systems using KPTI can use the canonical 'full-fat' vectors directly at
+EL1, the trampoline exit code will switch to this_cpu_vector on exit to
+EL0. Systems not using KPTI should always use this_cpu_vector.
 
-Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+this_cpu_vector will point at a vector in tramp_vecs or
+__bp_harden_el1_vectors, depending on whether KPTI is in use.
+
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/grant-table.c |   14 ++++++++++++--
- include/xen/grant_table.h |   12 ++++++++++++
- 2 files changed, 24 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/vectors.h |   29 ++++++++++++++++++++++++++++-
+ arch/arm64/kernel/cpufeature.c   |   11 +++++++++++
+ arch/arm64/kernel/entry.S        |   12 ++++++------
+ arch/arm64/kvm/hyp/vhe/switch.c  |    9 +++++++--
+ 4 files changed, 52 insertions(+), 9 deletions(-)
 
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -436,11 +436,21 @@ static void gnttab_add_deferred(grant_re
- 	       what, ref, page ? page_to_pfn(page) : -1);
- }
+--- a/arch/arm64/include/asm/vectors.h
++++ b/arch/arm64/include/asm/vectors.h
+@@ -5,6 +5,15 @@
+ #ifndef __ASM_VECTORS_H
+ #define __ASM_VECTORS_H
  
-+int gnttab_try_end_foreign_access(grant_ref_t ref)
++#include <linux/bug.h>
++#include <linux/percpu.h>
++
++#include <asm/fixmap.h>
++
++extern char vectors[];
++extern char tramp_vectors[];
++extern char __bp_harden_el1_vectors[];
++
+ /*
+  * Note: the order of this enum corresponds to two arrays in entry.S:
+  * tramp_vecs and __bp_harden_el1_vectors. By default the canonical
+@@ -29,6 +38,24 @@ enum arm64_bp_harden_el1_vectors {
+ 	 * Remap the kernel before branching to the canonical vectors.
+ 	 */
+ 	EL1_VECTOR_KPTI,
+-+};
++};
++
++/* The vectors to use on return from EL0. e.g. to remap the kernel */
++DECLARE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector);
++
++#ifndef CONFIG_UNMAP_KERNEL_AT_EL0
++#define TRAMP_VALIAS	0
++#endif
++
++static inline const char *
++arm64_get_bp_hardening_vector(enum arm64_bp_harden_el1_vectors slot)
 +{
-+	int ret = _gnttab_end_foreign_access_ref(ref, 0);
++	if (arm64_kernel_unmapped_at_el0())
++		return (char *)TRAMP_VALIAS + SZ_2K * slot;
 +
-+	if (ret)
-+		put_free_entry(ref);
++	WARN_ON_ONCE(slot == EL1_VECTOR_KPTI);
 +
-+	return ret;
++	return __bp_harden_el1_vectors + SZ_2K * slot;
 +}
-+EXPORT_SYMBOL_GPL(gnttab_try_end_foreign_access);
+ 
+ #endif /* __ASM_VECTORS_H */
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -73,6 +73,8 @@
+ #include <linux/mm.h>
+ #include <linux/cpu.h>
+ #include <linux/kasan.h>
++#include <linux/percpu.h>
 +
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page)
+ #include <asm/cpu.h>
+ #include <asm/cpufeature.h>
+ #include <asm/cpu_ops.h>
+@@ -85,6 +87,7 @@
+ #include <asm/smp.h>
+ #include <asm/sysreg.h>
+ #include <asm/traps.h>
++#include <asm/vectors.h>
+ #include <asm/virt.h>
+ 
+ /* Kernel representation of AT_HWCAP and AT_HWCAP2 */
+@@ -110,6 +113,8 @@ DECLARE_BITMAP(boot_capabilities, ARM64_
+ bool arm64_use_ng_mappings = false;
+ EXPORT_SYMBOL(arm64_use_ng_mappings);
+ 
++DEFINE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector) = vectors;
++
+ /*
+  * Permit PER_LINUX32 and execve() of 32-bit binaries even if not all CPUs
+  * support it?
+@@ -1590,6 +1595,12 @@ kpti_install_ng_mappings(const struct ar
+ 
+ 	int cpu = smp_processor_id();
+ 
++	if (__this_cpu_read(this_cpu_vector) == vectors) {
++		const char *v = arm64_get_bp_hardening_vector(EL1_VECTOR_KPTI);
++
++		__this_cpu_write(this_cpu_vector, v);
++	}
++
+ 	/*
+ 	 * We don't need to rewrite the page-tables if either we've done
+ 	 * it already or we have KASLR enabled and therefore have not
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -38,7 +38,6 @@
+ 	.macro kernel_ventry, el:req, ht:req, regsize:req, label:req
+ 	.align 7
+ .Lventry_start\@:
+-#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	.if	\el == 0
+ 	/*
+ 	 * This must be the first instruction of the EL0 vector entries. It is
+@@ -53,7 +52,6 @@
+ 	.endif
+ .Lskip_tramp_vectors_cleanup\@:
+ 	.endif
+-#endif
+ 
+ 	sub	sp, sp, #PT_REGS_SIZE
+ #ifdef CONFIG_VMAP_STACK
+@@ -712,10 +710,10 @@ alternative_else_nop_endif
+ 	.endm
+ 
+ 	.macro tramp_exit, regsize = 64
+-	adr	x30, tramp_vectors
+-#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+-	add	x30, x30, SZ_4K
+-#endif
++	tramp_data_read_var	x30, this_cpu_vector
++	get_this_cpu_offset x29
++	ldr	x30, [x30, x29]
++
+ 	msr	vbar_el1, x30
+ 	ldr	lr, [sp, #S_LR]
+ 	tramp_unmap_kernel	x29
+@@ -775,6 +773,8 @@ __entry_tramp_data_vectors:
+ __entry_tramp_data___sdei_asm_handler:
+ 	.quad	__sdei_asm_handler
+ #endif /* CONFIG_ARM_SDE_INTERFACE */
++__entry_tramp_data_this_cpu_vector:
++	.quad	this_cpu_vector
+ SYM_DATA_END(__entry_tramp_data_start)
+ 	.popsection				// .rodata
+ #endif /* CONFIG_RANDOMIZE_BASE */
+--- a/arch/arm64/kvm/hyp/vhe/switch.c
++++ b/arch/arm64/kvm/hyp/vhe/switch.c
+@@ -10,6 +10,7 @@
+ #include <linux/kvm_host.h>
+ #include <linux/types.h>
+ #include <linux/jump_label.h>
++#include <linux/percpu.h>
+ #include <uapi/linux/psci.h>
+ 
+ #include <kvm/arm_psci.h>
+@@ -25,6 +26,7 @@
+ #include <asm/debug-monitors.h>
+ #include <asm/processor.h>
+ #include <asm/thread_info.h>
++#include <asm/vectors.h>
+ 
+ /* VHE specific context */
+ DEFINE_PER_CPU(struct kvm_host_data, kvm_host_data);
+@@ -68,7 +70,7 @@ NOKPROBE_SYMBOL(__activate_traps);
+ 
+ static void __deactivate_traps(struct kvm_vcpu *vcpu)
  {
--	if (gnttab_end_foreign_access_ref(ref, readonly)) {
--		put_free_entry(ref);
-+	if (gnttab_try_end_foreign_access(ref)) {
- 		if (page != 0)
- 			put_page(virt_to_page(page));
- 	} else
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -97,10 +97,22 @@ int gnttab_end_foreign_access_ref(grant_
-  * access has been ended, free the given page too.  Access will be ended
-  * immediately iff the grant entry is not in use, otherwise it will happen
-  * some time later.  page may be 0, in which case no freeing will occur.
-+ * Note that the granted page might still be accessed (read or write) by the
-+ * other side after gnttab_end_foreign_access() returns, so even if page was
-+ * specified as 0 it is not allowed to just reuse the page for other
-+ * purposes immediately.
-  */
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page);
+-	extern char vectors[];	/* kernel exception vectors */
++	const char *host_vectors = vectors;
  
-+/*
-+ * End access through the given grant reference, iff the grant entry is
-+ * no longer in use.  In case of success ending foreign access, the
-+ * grant reference is deallocated.
-+ * Return 1 if the grant entry was freed, 0 if it is still in use.
-+ */
-+int gnttab_try_end_foreign_access(grant_ref_t ref);
+ 	___deactivate_traps(vcpu);
+ 
+@@ -82,7 +84,10 @@ static void __deactivate_traps(struct kv
+ 	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_SPECULATIVE_AT));
+ 
+ 	write_sysreg(CPACR_EL1_DEFAULT, cpacr_el1);
+-	write_sysreg(vectors, vbar_el1);
 +
- int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
++	if (!arm64_kernel_unmapped_at_el0())
++		host_vectors = __this_cpu_read(this_cpu_vector);
++	write_sysreg(host_vectors, vbar_el1);
+ }
+ NOKPROBE_SYMBOL(__deactivate_traps);
  
- unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
 
 
