@@ -2,136 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F9684D4043
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 05:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E48DD4D4058
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 05:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239470AbiCJEWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 23:22:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
+        id S234249AbiCJEgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 23:36:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235566AbiCJEWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 23:22:18 -0500
-Received: from mx06-san.trellian.com (san.trellian.com [103.224.213.228])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD0E11863B
-        for <stable@vger.kernel.org>; Wed,  9 Mar 2022 20:21:18 -0800 (PST)
-Received: from mx02-mel.trellian.com (mx02-mel.trellian.com [192.168.0.216])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        with ESMTP id S229769AbiCJEgt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 23:36:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3B28F957D;
+        Wed,  9 Mar 2022 20:35:49 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx06-san.trellian.com (Postfix) with ESMTPS id 7EA99211C8A2;
-        Thu, 10 Mar 2022 15:21:18 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=trellian.com;
-        s=default; t=1646886078;
-        bh=ilMoNQ0qJd9l4fAEtCmwgiFi+2QwIEYn7kLgSuE1axQ=;
-        h=Date:To:Cc:From:Subject;
-        b=5p2zFKPfxniOrFaZxVxN1+Z2oieFpP2ManpFUYRzbHFLVbyMYiS/ROKckSCWKhPGl
-         ARVKev5S/p9CVissWI6CjtvOBhCpYP4TVFycB/6LPv/lgskn9M/RGwOALteph1ECy1
-         irPBaXUn27LDj77ttNYT+f5x2PBJHZnlXMaLfyho=
-Received: from [10.185.50.86] (unknown [10.185.50.86])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by mx02-mel.trellian.com (Postfix) with ESMTPSA id C81A928E16E;
-        Thu, 10 Mar 2022 15:21:16 +1100 (AEDT)
-Message-ID: <f45ff567-6ef7-8a43-a645-4b9ab2e7a8ae@trellian.com>
-Date:   Thu, 10 Mar 2022 15:21:15 +1100
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3511F617D7;
+        Thu, 10 Mar 2022 04:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2DC5C340E8;
+        Thu, 10 Mar 2022 04:35:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646886948;
+        bh=FGEeHKgGa6xAxtUm0UWusuPBT4FNS/qfCOsJTNPDB84=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i58XivLkb4qBdQFmirKpwI9QCTayv8dGXU4cMbiZZzRvvnDqB4HU4AoH/l5QeIZ7I
+         IRHCGSYJD/45vwFtIm4Bh7mUYqJ6y/v11CmBRSULcILxpzdNPGbBZlkJowoMLVrTaJ
+         nbKGH0XA3F8cXZACbJZtcCs39J4M1jpXuaoPgeJp/qydk+NNe11XxFGZt8BFC3OUWQ
+         DWcTCRoqESwhq9+PFbZmRlhfMIuJNPhj6MPVCnWYmNz2nqgjO53u3eAqZxGQz9kfmb
+         ABwQlj9RP+mqrLaDR7+1asC/zmKc3HijP4YG9EXfghKOj0pKfD7vKw4pHroTrcnWd7
+         HJcLHqq1lxLag==
+Date:   Thu, 10 Mar 2022 10:05:44 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 012/105] dmaengine: shdma: Fix runtime PM imbalance
+ on error
+Message-ID: <YimAIPBs4FNlXIs3@matsya>
+References: <20220307091644.179885033@linuxfoundation.org>
+ <20220307091644.529997660@linuxfoundation.org>
+ <20220309105420.GA22677@duo.ucw.cz>
+ <YiiWduSVDz1yYA9z@kroah.com>
+ <20220309123509.GA30506@duo.ucw.cz>
+ <YiiuaHFKuAv30zxW@kroah.com>
+ <20220309135708.GB30506@duo.ucw.cz>
+ <Yii+KtAnZ3XSJtXg@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     stable@vger.kernel.org
-Cc:     regressions@lists.linux.dev
-From:   Ryan Tierney <ryant@trellian.com>
-Subject: kernel BUG at include/linux/swapops.h:204!
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-X-Spamd-Bar: /
-Authentication-Results: mx06-san.trellian.com
-X-Rspamd-Server: mx06-san
-X-Rspamd-Queue-Id: 7EA99211C8A2
-X-Spamd-Result: default: False [0.00 / 20.00];
-         IP_WHITELIST(0.00)[192.168.0.216]
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Yii+KtAnZ3XSJtXg@kroah.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGkgTGludXgga2VybmVsIHRlYW0sDQoNCldlIGhhdmUgaGFkIG11bHRpcGxlIHNlcnZlcnMg
-bG9jayB1cCBvdmVyIHRoZSBjb3Vyc2Ugb2YgYSBmZXcgbW9udGhzIG9uIA0Ka2VybmVsIHZl
-cnNpb24gNS4xMC45Mg0KTG9va2luZyB0byBmaW5kIG91dCBhbnkgaW5mb3JtYXRpb24gdG8g
-aGVscCBtaXRpZ2F0ZSB0aGlzLg0KDQpJJ3ZlIGFsc28gZm91bmQgYSByZWxhdGVkIHJlcG9y
-dCBoZXJlIGJhY2sgaW4gMjAyMTogDQpodHRwczovL2xvcmUua2VybmVsLm9yZy9hbGwvNzU3
-YjY4NGEtNjdiNS05OTliLTdmMmQtYjU1ZmIxYzYxZmQ4QGdvb2dsZS5jb20vVC8NCg0KUGxl
-YXNlIHNlZSB0aGUgc3RhY2sgdHJhY2Ugb2J0YWluZWQgZHVyaW5nIHRoaXMgbG9ja3VwDQoN
-CiAgWzIxMzYxNzIuOTc1ODkyXSAtLS0tLS0tLS0tLS1bIGN1dCBoZXJlIF0tLS0tLS0tLS0t
-LS0NCiAgWzIxMzYxNzIuOTc1ODk2XSBrZXJuZWwgQlVHIGF0IGluY2x1ZGVcL2xpbnV4XC9z
-d2Fwb3BzLmg6MjA0IQ0KICBbMjEzNjE3Mi45ODEyNjhdIGludmFsaWQgb3Bjb2RlOiAwMDAw
-IFsjMV0gU01QIE5PUFRJDQogIFsyMTM2MTcyLjk4NTk4M10gQ1BVOiA0OSBQSUQ6IDE2NzI5
-NDkgQ29tbTogYXB0LWNhY2hlIE5vdCB0YWludGVkIDUuMTAuMC0xMS1hbWQ2NCAjMSBEZWJp
-YW4gNS4xMC45Mi0xDQogIFsyMTM2MTcyLjk5NDk0NF0gSGFyZHdhcmUgbmFtZTogU3VwZXJt
-aWNybyBBUyAtMTExNFMtV04xMFJUXC9IMTJTU1ctTlRSLCBCSU9TIDIuMyAxMFwvMjhcLzIw
-MjENCiAgWzIxMzYxNzMuMDAzMDQyXSBSSVA6IGUwMzA6X19taWdyYXRpb25fZW50cnlfd2Fp
-dCsweGY5XC8weDEwMA0KICBbMjEzNjE3My4wMDg0NDRdIENvZGU6IDBmIDQ1IGMyIDQxIDhi
-IDQwIDM0IDg1IGMwIDc0IDlmIDhkIDUwIDAxIGYwIDQxIDBmIGIxIDUwIDM0IDc1IGYxIDQ4
-IDg5IGVmIGU4IDAzIGUwIGU0IGZmIDY2IDkwIDViIDRjIDg5IGM3IDVkIGU5IDI3IDQ4IGY3
-IGZmIDwwZj4gMGIgMGYgMWYgNDQgMDAgMDAgMGYgMWYgNDQgMDAgMDAgNDkgODkgZjkgNDgg
-OGIgM2UgZTggMDggMzkgZDgNCiAgWzIxMzYxNzMuMDI3Mzk0XSBSU1A6IGUwMmI6ZmZmZmM5
-MDA3NWE0ZmRiOCBFRkxBR1M6IDAwMDEwMjQ2DQogIFsyMTM2MTczLjAzMjc5NV0gUkFYOiAw
-MDBmZmZmZmMwMDAwMDAwIFJCWDogZmZmZjg4ODA3YjBlNjk2OCBSQ1g6IGZmZmZlYTAwMDA2
-YTZmODcNCiAgWzIxMzYxNzMuMDQwMTE0XSBSRFg6IDAwMDAwMDAwMDAwMDAwMDAgUlNJOiBm
-ZmZmODg4MDdiMGU2OTY4IFJESTogZmZmZmZmZmZmY2FjODQwMA0KICBbMjEzNjE3My4wNDc0
-MjldIFJCUDogZmZmZmVhMDAwMWVjMzlhOCBSMDg6IGZmZmZlYTAwMDA2YTZmNDAgUjA5OiBm
-ZmZmODg4MDQ2NzlmMmMwDQogIFsyMTM2MTczLjA1NDc0NV0gUjEwOiAwMDBmZmZmZmZmZmZm
-MDAwIFIxMTogMDAwMDAwMDAwMDAwMDAwMCBSMTI6IGZmZmZjOTAwNzVhNGZlNDANCiAgWzIx
-MzYxNzMuMDYyMDYwXSBSMTM6IDdjMDAwMDAwMDAwMWE5YmQgUjE0OiBmZmYwMDAwMDAwMDAw
-ZmZmIFIxNTogMDAwMDAwMDAwMDAwMDAwMA0KICBbMjEzNjE3My4wNjkzNzhdIEZTOiAgMDAw
-MDdmMmNjN2VlZTgwMCgwMDAwKSBHUzpmZmZmODg4MTE3NDQwMDAwKDAwMDApIGtubEdTOjAw
-MDAwMDAwMDAwMDAwMDANCiAgWzIxMzYxNzMuMDc3NjUxXSBDUzogIGUwMzAgRFM6IDAwMDAg
-RVM6IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDMzDQogIFsyMTM2MTczLjA4MzU3NV0gQ1Iy
-OiAwMDAwN2YyY2M0YjJkZjhjIENSMzogMDAwMDAwMDA4ZDM5NjAwMCBDUjQ6IDAwMDAwMDAw
-MDAwNTA2NjANCiAgWzIxMzYxNzMuMDkwODkzXSBDYWxsIFRyYWNlOg0KICBbMjEzNjE3My4w
-OTM1MjddICBkb19zd2FwX3BhZ2UrMHg2NmZcLzB4OTAwDQogIFsyMTM2MTczLjA5NzM3MF0g
-IGhhbmRsZV9tbV9mYXVsdCsweGQ3ZFwvMHgxYmYwDQogIFsyMTM2MTczLjEwMTU4NF0gID8g
-eGZzX2ZpbGVfcmVhZF9pdGVyKzB4NmVcLzB4ZDAgW3hmc10NCiAgWzIxMzYxNzMuMTA2NDY4
-XSAgZG9fdXNlcl9hZGRyX2ZhdWx0KzB4MWI4XC8weDNmMA0KICBbMjEzNjE3My4xMTA4MzVd
-ICBleGNfcGFnZV9mYXVsdCsweDc4XC8weDE2MA0KICBbMjEzNjE3My4xMTQ3NjZdICA/IGFz
-bV9leGNfcGFnZV9mYXVsdCsweDhcLzB4MzANCiAgWzIxMzYxNzMuMTE5MDM4XSAgYXNtX2V4
-Y19wYWdlX2ZhdWx0KzB4MWVcLzB4MzANCiAgWzIxMzYxNzMuMTIzMjI0XSBSSVA6IGUwMzM6
-MHg3ZjJjYzg5MzBmY2INCiAgWzIxMzYxNzMuMTI2OTc3XSBDb2RlOiA4YiA0NiAwOCA0OCA4
-ZCAxNCA4MCA0OCA4ZCAwNCA1MCA0OCA4ZCA0NCA4NSAwMCA0OCAzOSBjMyA3NCA1YSA4YiA0
-MyAxMCA0OCA4ZCAxNCA4MCA0OCA4ZCAwNCA1MCA0OCA4ZCA1YyA4NSAwMCA0OCAzOSBlYiA3
-NCA0NSA8OGI+IDMzIDRjIDAxIGM2IDBmIGI3IDQ2IGZlIDQ5IDM5IGM0IDc1IGM3IDRjIDg5
-IGUyIDRjIDg5IDQ0IDI0IDA4DQogIFsyMTM2MTczLjE0NTkxOV0gUlNQOiBlMDJiOjAwMDA3
-ZmZkMmEzZjNlODAgRUZMQUdTOiAwMDAxMDIwNg0KICBbMjEzNjE3My4xNTEzMjNdIFJBWDog
-MDAwMDAwMDAwMDAwMDAwNSBSQlg6IDAwMDA3ZjJjYzRiMmRmOGMgUkNYOiAwMDAwMDAwMDAw
-MDAwMDA2DQogIFsyMTM2MTczLjE1ODYzMl0gUkRYOiAwMDAwN2YyY2MzNTFiMmU2IFJTSTog
-MDAwMDdmZmQyYTNmM2ZkMCBSREk6IDAwMDA3ZjJjYzM1MWIyZTYNCiAgWzIxMzYxNzMuMTY1
-OTQ4XSBSQlA6IDAwMDA3ZjJjYzMzOWIwMDAgUjA4OiAwMDAwN2YyY2MzMzliMDAwIFIwOTog
-MDAwMDAwMDAwMDAwMGRlMA0KICBbMjEzNjE3My4xNzMyNjJdIFIxMDogMDAwMDdmMmNjNGM4
-YmM3YyBSMTE6IDAwMDAwMDAwMjA2ZTZmNjggUjEyOiAwMDAwMDAwMDAwMDAwMDA1DQogIFsy
-MTM2MTczLjE4MDU4MF0gUjEzOiAwMDAwN2ZmZDJhM2YzZjIwIFIxNDogMDAwMDdmMmNjNGIw
-ZDQxMCBSMTU6IDAwMDA1NWFiMzc0MGFmMDgNCiAgWzIxMzYxNzMuMTg3ODkyXSBNb2R1bGVz
-IGxpbmtlZCBpbjogeGVuX2FjcGlfcHJvY2Vzc29yIHhlbl9nbnRkZXYgeGVuX2V2dGNobiBi
-aW5mbXRfbWlzYyB4ZW5mcyB4ZW5fcHJpdmNtZCBubHNfYXNjaWkgbmxzX2NwNDM3IHZmYXQg
-ZmF0IGdoYXNoX2NsbXVsbmlfaW50ZWwgYWVzbmlfaW50ZWwgbGliYWVzIGNyeXB0b19zaW1k
-IGNyeXB0ZCBnbHVlX2hlbHBlciB3bWlfYm1vZiBlZmlfcHN0b3JlIHBjc3BrciBhc3QgZHJt
-X3ZyYW1faGVscGVyIGRybV90dG1faGVscGVyIHR0bSBjY3AgZHJtX2ttc19oZWxwZXIgcm5n
-X2NvcmUgcm5kaXNfaG9zdCBjZGNfZXRoZXIgY2VjIHVzYm5ldCBpMmNfYWxnb19iaXQgam95
-ZGV2IG1paSBrMTB0ZW1wIHNwNTEwMF90Y28gd2F0Y2hkb2cgaXBtaV9zc2lmIGV2ZGV2IGJy
-aWRnZSBhY3BpX2lwbWkgaXBtaV9zaSA4MDIxcSBpcG1pX2RldmludGYgZ2FycCBpcG1pX21z
-Z2hhbmRsZXIgc3RwIG1ycCBsbGMgYnV0dG9uIGJvbmRpbmcgbG9vcCBwc21vdXNlIHVoY2lf
-aGNkIG9oY2lfaGNkIGVoY2lfaGNkIGRyYmQgbHJ1X2NhY2hlIGRybSBmdXNlIGNvbmZpZ2Zz
-IGVmaXZhcmZzIGlwX3RhYmxlcyB4X3RhYmxlcyBhdXRvZnM0IHhmcyByYWlkNDU2IGFzeW5j
-X3JhaWQ2X3JlY292IGFzeW5jX21lbWNweSBhc3luY19wcSBhc3luY194b3IgYXN5bmNfdHgg
-eG9yIGhpZF9nZW5lcmljIHVzYmhpZCBoaWQgcmFpZDZfcHEgbGliY3JjMzJjIGNyYzMyY19n
-ZW5lcmljIHJhaWQwIG11bHRpcGF0aCBsaW5lYXIgcmFpZDEgcmFpZDEwIG1kX21vZCBjcmMz
-Ml9wY2xtdWwgY3JjMzJjX2ludGVsIGFoY2kgbGliYWhjaSB4aGNpX3BjaSBudm1lIHhoY2lf
-aGNkIGxpYmF0YSBudm1lX2NvcmUgaTQwZSB0MTBfcGkgdXNiY29yZSBibnh0X2VuIHNjc2lf
-bW9kIGNyY190MTBkaWYgY3JjdDEwZGlmX2dlbmVyaWMgY3JjdDEwZGlmX3BjbG11bCBjcmN0
-MTBkaWZfY29tbW9uIHB0cCB1c2JfY29tbW9uIGkyY19waWl4NCBwcHNfY29yZSB3bWkNCiAg
-WzIxMzYxNzMuMjc0MjYwXSAtLS1bIGVuZCB0cmFjZSAzN2U4YzFhZjdmNmU3ODJhIF0tLS0N
-Cg0K
+On 09-03-22, 15:48, Greg Kroah-Hartman wrote:
+> On Wed, Mar 09, 2022 at 02:57:08PM +0100, Pavel Machek wrote:
+> > On Wed 2022-03-09 14:40:56, Greg Kroah-Hartman wrote:
+> > > On Wed, Mar 09, 2022 at 01:35:09PM +0100, Pavel Machek wrote:
+> > > > On Wed 2022-03-09 12:58:46, Greg Kroah-Hartman wrote:
+> > > > > On Wed, Mar 09, 2022 at 11:54:20AM +0100, Pavel Machek wrote:
+> > > > > > Hi!
+> > > > > > 
+> > > > > > > From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+> > > > > > > 
+> > > > > > > [ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
+> > > > > > > 
+> > > > > > > pm_runtime_get_() increments the runtime PM usage counter even
+> > > > > > > when it returns an error code, thus a matching decrement is needed on
+> > > > > > > the error handling path to keep the counter balanced.
+> > > > > > 
+> > > > > > This patch will break things.
+> > > > > > 
+> > > > > > Notice that -ret is ignored (checked 4.4 and 5.10), so we don't
+> > > > > > actually abort/return error; we just printk. We'll do two
+> > > > > > pm_runtime_put's after the "fix".
+> > > > > > 
+> > > > > > Please drop from -stable.
+> > > > > > 
+> > > > > > It was discussed during AUTOSEL review:
+> > > > > > 
+> > > > > > Date: Fri, 25 Feb 2022 14:25:10 +0800 (GMT+08:00)
+> > > > > > From: 刘永志 <lyz_cs@pku.edu.cn>
+> > > > > > To: pavel machek <pavel@denx.de>
+> > > > > > Cc: sasha levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+> > > > > > Subject: Re: [PATCH AUTOSEL 5.16 24/30] dmaengine: shdma: Fix runtime PM
+> > > > > > 	imbalance on error
+> > > > > 
+> > > > > So 5.15 and 5.16 is ok, but older is not?
+> > > > 
+> > > > I believe commit is wrong for mainline and all stable releases, and
+> > > > author seems to agree. Drop from everywhere.
+> > > 
+> > > Is it reverted in Linus's tree yet?
+> > 
+> > It will take you a minute to check.
+> > 
+> > Take a look at the patch. There's no return in error path, thus doing
+> > runtime_put is clearly bogus. Should take you less than minute to
+> > verify.
+> > 
+> > Please drop the patch.
+> 
+> I want to have it reverted in Linus's tree as well, otherwise that's a
+> regression that people will hit.
+
+I have reverted now, it will be in -next tomorrow and in mainline during
+upcoming merge window
+
+-- 
+~Vinod
