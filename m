@@ -2,46 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7826D4D4D57
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 428C44D4D26
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245489AbiCJPLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 10:11:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37022 "EHLO
+        id S232042AbiCJPfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 10:35:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344760AbiCJPKj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 10:10:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDA66195301;
-        Thu, 10 Mar 2022 07:04:51 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BE186167D;
-        Thu, 10 Mar 2022 15:04:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B86A5C340F3;
-        Thu, 10 Mar 2022 15:04:50 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.95)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1nSKLR-001DZo-Qg;
-        Thu, 10 Mar 2022 10:04:49 -0500
-Message-ID: <20220310150449.656065937@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Thu, 10 Mar 2022 10:04:33 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>
-Subject: [for-linus][PATCH 2/3] tracing/osnoise: Force quiescent states while tracing
-References: <20220310150431.248810778@goodmis.org>
+        with ESMTP id S229704AbiCJPfl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 10:35:41 -0500
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C939158DB3
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 07:34:40 -0800 (PST)
+Received: by mail-pg1-x52f.google.com with SMTP id t14so5025904pgr.3
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 07:34:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JnVrbnHGPATTFsFwp1+qaVSalF1iA8viHFr9EeAz5ts=;
+        b=kxnroBN5N4uesC6U+QdyuICnzuQLFudVLFTkg9cdOVEK0t4uNSXw3qxYh6/DjIEfNR
+         daeU3hyI6qU5+vhUMVkSv27Rqn+xQt/7uM/6BSboQlqK4FXgKXu8WBDoV4hTDI+z0xgy
+         3QwOOoBSW//OYvtgGBsusL0Eoj0r5VQAsDf5nJqY1gtoamBhKvQh54bZnNZY10X/MHF0
+         3wDY1d5r5KT8EVnOaTpQPoZgloiLMmTE78ukHt164cjgjspqXqvDey4EtHEI/rXsG/r+
+         QfOkECkpukj9KeYE4/ofxdOTd9mV3Iv28ldotQThS0lHjPAgTdlFGOGaqND29+NnS9Kk
+         MDGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JnVrbnHGPATTFsFwp1+qaVSalF1iA8viHFr9EeAz5ts=;
+        b=erTr9+tDg8gMQ6GCQyIvDfOPZxymI2Os5mPO/z17g7lGRhu+predwbQsCijlr9Gbc+
+         UbmVjVsmQgp2YP++Thk+UPD7Yk2nQUAR+2SawW25xALqxu1wezibk+tOiNZyW6yn2mr1
+         2dC0FtiwygUmIUPM0MfQFsTUNlNGzHC0cdnsWnYqI7iiMZwIXw/GfjQCyOIMmR0maIf2
+         AaboPLkrzC1p2l36T9UKt0CulZA1AwFjqI9p2FoNxbeUEYV8ijJ9bfFpTd8+75Pz4laI
+         5sZS0q9jUHfQCqiA4zPo50bk7w6tYPxH8qwuO1Mm/44M8gSRcSZzlRGWII/ArixgSmkP
+         DPYg==
+X-Gm-Message-State: AOAM5307Pzr3zGUSV+kShY2mdoAD2GPcaQCqIB5YXflGl9wuxQnxvuBX
+        5TS5ptiwhHeuA/ielY15wEuJb8W4IXYSJVdK0nk=
+X-Google-Smtp-Source: ABdhPJy0hA9IrwwKILwUp9nBi/jbPBXbmE2xGa2lwAytEQCxD7mP50pDWVdbjfoCFmzxc4JAjfWU2Q==
+X-Received: by 2002:a65:6751:0:b0:363:43a5:c7e3 with SMTP id c17-20020a656751000000b0036343a5c7e3mr4501897pgu.46.1646926479983;
+        Thu, 10 Mar 2022 07:34:39 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j6-20020a63b606000000b003808b0ea96fsm5733866pgf.66.2022.03.10.07.34.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Mar 2022 07:34:39 -0800 (PST)
+Message-ID: <622a1a8f.1c69fb81.53d74.dc38@mx.google.com>
+Date:   Thu, 10 Mar 2022 07:34:39 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.183-20-g8a903f3601e4
+Subject: stable-rc/queue/5.4 baseline: 74 runs,
+ 2 regressions (v5.4.183-20-g8a903f3601e4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,84 +70,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+stable-rc/queue/5.4 baseline: 74 runs, 2 regressions (v5.4.183-20-g8a903f36=
+01e4)
 
-At the moment running osnoise on a nohz_full CPU or uncontested FIFO
-priority and a PREEMPT_RCU kernel might have the side effect of
-extending grace periods too much. This will entice RCU to force a
-context switch on the wayward CPU to end the grace period, all while
-introducing unwarranted noise into the tracer. This behaviour is
-unavoidable as overly extending grace periods might exhaust the system's
-memory.
+Regressions Summary
+-------------------
 
-This same exact problem is what extended quiescent states (EQS) were
-created for, conversely, rcu_momentary_dyntick_idle() emulates them by
-performing a zero duration EQS. So let's make use of it.
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-In the common case rcu_momentary_dyntick_idle() is fairly inexpensive:
-atomically incrementing a local per-CPU counter and doing a store. So it
-shouldn't affect osnoise's measurements (which has a 1us granularity),
-so we'll call it unanimously.
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-The uncommon case involve calling rcu_momentary_dyntick_idle() after
-having the osnoise process:
 
- - Receive an expedited quiescent state IPI with preemption disabled or
-   during an RCU critical section. (activates rdp->cpu_no_qs.b.exp
-   code-path).
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.183-20-g8a903f3601e4/plan/baseline/
 
- - Being preempted within in an RCU critical section and having the
-   subsequent outermost rcu_read_unlock() called with interrupts
-   disabled. (t->rcu_read_unlock_special.b.blocked code-path).
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.183-20-g8a903f3601e4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8a903f3601e41b3623450664ca46d8bda20afd37 =
 
-Neither of those are possible at the moment, and are unlikely to be in
-the future given the osnoise's loop design. On top of this, the noise
-generated by the situations described above is unavoidable, and if not
-exposed by rcu_momentary_dyntick_idle() will be eventually seen in
-subsequent rcu_read_unlock() calls or schedule operations.
 
-Link: https://lkml.kernel.org/r/20220307180740.577607-1-nsaenzju@redhat.com
 
-Cc: stable@vger.kernel.org
-Fixes: bce29ac9ce0b ("trace: Add osnoise tracer")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
----
- kernel/trace/trace_osnoise.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+Test Regressions
+---------------- =
 
-diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
-index 2aa3efdca755..5e3c62a08fc0 100644
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1386,6 +1386,26 @@ static int run_osnoise(void)
- 					osnoise_stop_tracing();
- 		}
- 
-+		/*
-+		 * In some cases, notably when running on a nohz_full CPU with
-+		 * a stopped tick PREEMPT_RCU has no way to account for QSs.
-+		 * This will eventually cause unwarranted noise as PREEMPT_RCU
-+		 * will force preemption as the means of ending the current
-+		 * grace period. We avoid this problem by calling
-+		 * rcu_momentary_dyntick_idle(), which performs a zero duration
-+		 * EQS allowing PREEMPT_RCU to end the current grace period.
-+		 * This call shouldn't be wrapped inside an RCU critical
-+		 * section.
-+		 *
-+		 * Note that in non PREEMPT_RCU kernels QSs are handled through
-+		 * cond_resched()
-+		 */
-+		if (IS_ENABLED(CONFIG_PREEMPT_RCU)) {
-+			local_irq_disable();
-+			rcu_momentary_dyntick_idle();
-+			local_irq_enable();
-+		}
-+
- 		/*
- 		 * For the non-preemptive kernel config: let threads runs, if
- 		 * they so wish.
--- 
-2.34.1
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6229e3185337e3b310c6298a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.183-2=
+0-g8a903f3601e4/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.183-2=
+0-g8a903f3601e4/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6229e3185337e3b310c62=
+98b
+        failing since 84 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6229e317a348645295c62975
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.183-2=
+0-g8a903f3601e4/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.183-2=
+0-g8a903f3601e4/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6229e317a348645295c62=
+976
+        failing since 84 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
