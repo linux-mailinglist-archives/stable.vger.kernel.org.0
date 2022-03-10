@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 129054D4B39
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A43F4D4A3F
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244785AbiCJOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        id S244935AbiCJOeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343950AbiCJObb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1009B82F5;
-        Thu, 10 Mar 2022 06:29:08 -0800 (PST)
+        with ESMTP id S244988AbiCJO3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8051B82FA;
+        Thu, 10 Mar 2022 06:25:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55238B825A7;
-        Thu, 10 Mar 2022 14:29:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F223C340E8;
-        Thu, 10 Mar 2022 14:29:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E87961DC6;
+        Thu, 10 Mar 2022 14:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1594FC340E8;
+        Thu, 10 Mar 2022 14:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922546;
-        bh=rKln5HfmJ7CAsIJqUftQHhI05Ko1JEKlKJ2HDsRvn3c=;
+        s=korg; t=1646922308;
+        bh=5MfjfJ6jp8YXTQIQcKBjVhF84Y+Y1og+PNsFWbJtkeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6DyEcpX9RNrwgCr/grd7SetyrN/qJkv6k1DmbVa8Kg7khOQAbE7q8X7FGlX4RYvo
-         C/iyJ0BdmusBtwSEEWWqNckA9jU5ZDGTa59n76c2gUozZa2VxBk5rqaLyEjbO8kzna
-         OtHUN7DXUw0cEcOEoajAZQ1NPEtxhv5rxUbUykgE=
+        b=IaT1Cpd6XtkrVT1YxKeOZ4uAyNMjCyAKw3Jcbcw1oEg+1pWw8DTRLcV2Vi45HDPfw
+         gmMhKvMwOcLtphXGNF1c+yorqtfPqSwX4hQv2K72fsl4HwXYoOcbYl/HlRZ1Inpzsy
+         Z1LrOpNdZi6akWlmNrFgTAHO6UOK+TkkwjyKAP4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Frank van der Linden <fllinden@amazon.com>
-Subject: [PATCH 5.15 06/58] x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
-Date:   Thu, 10 Mar 2022 15:18:55 +0100
-Message-Id: <20220310140813.169073156@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.10 36/58] arm64: Add percpu vectors for EL1
+Date:   Thu, 10 Mar 2022 15:18:56 +0100
+Message-Id: <20220310140813.900663021@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
-References: <20220310140812.983088611@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,150 +53,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: James Morse <james.morse@arm.com>
 
-commit 44a3918c8245ab10c6c9719dd12e7a8d291980d8 upstream.
+commit bd09128d16fac3c34b80bd6a29088ac632e8ce09 upstream.
 
-With unprivileged eBPF enabled, eIBRS (without retpoline) is vulnerable
-to Spectre v2 BHB-based attacks.
+The Spectre-BHB workaround adds a firmware call to the vectors. This
+is needed on some CPUs, but not others. To avoid the unaffected CPU in
+a big/little pair from making the firmware call, create per cpu vectors.
 
-When both are enabled, print a warning message and report it in the
-'spectre_v2' sysfs vulnerabilities file.
+The per-cpu vectors only apply when returning from EL0.
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-[fllinden@amazon.com: backported to 5.15]
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Systems using KPTI can use the canonical 'full-fat' vectors directly at
+EL1, the trampoline exit code will switch to this_cpu_vector on exit to
+EL0. Systems not using KPTI should always use this_cpu_vector.
+
+this_cpu_vector will point at a vector in tramp_vecs or
+__bp_harden_el1_vectors, depending on whether KPTI is in use.
+
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   35 +++++++++++++++++++++++++++++------
- include/linux/bpf.h        |   12 ++++++++++++
- kernel/sysctl.c            |    7 +++++++
- 3 files changed, 48 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/vectors.h |   29 ++++++++++++++++++++++++++++-
+ arch/arm64/kernel/cpufeature.c   |   11 +++++++++++
+ arch/arm64/kernel/entry.S        |   12 ++++++------
+ arch/arm64/kvm/hyp/vhe/switch.c  |    9 +++++++--
+ 4 files changed, 52 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -16,6 +16,7 @@
- #include <linux/prctl.h>
- #include <linux/sched/smt.h>
- #include <linux/pgtable.h>
-+#include <linux/bpf.h>
+--- a/arch/arm64/include/asm/vectors.h
++++ b/arch/arm64/include/asm/vectors.h
+@@ -5,6 +5,15 @@
+ #ifndef __ASM_VECTORS_H
+ #define __ASM_VECTORS_H
  
- #include <asm/spec-ctrl.h>
- #include <asm/cmdline.h>
-@@ -650,6 +651,16 @@ static inline const char *spectre_v2_mod
- static inline const char *spectre_v2_module_string(void) { return ""; }
- #endif
- 
-+#define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
++#include <linux/bug.h>
++#include <linux/percpu.h>
 +
-+#ifdef CONFIG_BPF_SYSCALL
-+void unpriv_ebpf_notify(int new_state)
-+{
-+	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && !new_state)
-+		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
-+}
++#include <asm/fixmap.h>
++
++extern char vectors[];
++extern char tramp_vectors[];
++extern char __bp_harden_el1_vectors[];
++
+ /*
+  * Note: the order of this enum corresponds to two arrays in entry.S:
+  * tramp_vecs and __bp_harden_el1_vectors. By default the canonical
+@@ -29,6 +38,24 @@ enum arm64_bp_harden_el1_vectors {
+ 	 * Remap the kernel before branching to the canonical vectors.
+ 	 */
+ 	EL1_VECTOR_KPTI,
+-+};
++};
++
++/* The vectors to use on return from EL0. e.g. to remap the kernel */
++DECLARE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector);
++
++#ifndef CONFIG_UNMAP_KERNEL_AT_EL0
++#define TRAMP_VALIAS	0
 +#endif
 +
- static inline bool match_option(const char *arg, int arglen, const char *opt)
- {
- 	int len = strlen(opt);
-@@ -994,6 +1005,9 @@ static void __init spectre_v2_select_mit
- 		break;
- 	}
- 
-+	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
-+		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
-+
- 	if (spectre_v2_in_eibrs_mode(mode)) {
- 		/* Force it so VMEXIT will restore correctly */
- 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
-@@ -1780,6 +1794,20 @@ static char *ibpb_state(void)
- 	return "";
- }
- 
-+static ssize_t spectre_v2_show_state(char *buf)
++static inline const char *
++arm64_get_bp_hardening_vector(enum arm64_bp_harden_el1_vectors slot)
 +{
-+	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
-+		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
++	if (arm64_kernel_unmapped_at_el0())
++		return (char *)TRAMP_VALIAS + SZ_2K * slot;
 +
-+	return sprintf(buf, "%s%s%s%s%s%s\n",
-+		       spectre_v2_strings[spectre_v2_enabled],
-+		       ibpb_state(),
-+		       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
-+		       stibp_state(),
-+		       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
-+		       spectre_v2_module_string());
++	WARN_ON_ONCE(slot == EL1_VECTOR_KPTI);
++
++	return __bp_harden_el1_vectors + SZ_2K * slot;
 +}
-+
- static ssize_t srbds_show_state(char *buf)
- {
- 	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
-@@ -1805,12 +1833,7 @@ static ssize_t cpu_show_common(struct de
- 		return sprintf(buf, "%s\n", spectre_v1_strings[spectre_v1_mitigation]);
  
- 	case X86_BUG_SPECTRE_V2:
--		return sprintf(buf, "%s%s%s%s%s%s\n", spectre_v2_strings[spectre_v2_enabled],
--			       ibpb_state(),
--			       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
--			       stibp_state(),
--			       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
--			       spectre_v2_module_string());
-+		return spectre_v2_show_state(buf);
+ #endif /* __ASM_VECTORS_H */
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -65,11 +65,13 @@
+ #include <linux/bsearch.h>
+ #include <linux/cpumask.h>
+ #include <linux/crash_dump.h>
++#include <linux/percpu.h>
+ #include <linux/sort.h>
+ #include <linux/stop_machine.h>
+ #include <linux/types.h>
+ #include <linux/mm.h>
+ #include <linux/cpu.h>
++
+ #include <asm/cpu.h>
+ #include <asm/cpufeature.h>
+ #include <asm/cpu_ops.h>
+@@ -79,6 +81,7 @@
+ #include <asm/processor.h>
+ #include <asm/sysreg.h>
+ #include <asm/traps.h>
++#include <asm/vectors.h>
+ #include <asm/virt.h>
  
- 	case X86_BUG_SPEC_STORE_BYPASS:
- 		return sprintf(buf, "%s\n", ssb_strings[ssb_mode]);
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -1666,6 +1666,12 @@ bool bpf_prog_has_kfunc_call(const struc
- const struct btf_func_model *
- bpf_jit_find_kfunc_model(const struct bpf_prog *prog,
- 			 const struct bpf_insn *insn);
+ /* Kernel representation of AT_HWCAP and AT_HWCAP2 */
+@@ -104,6 +107,8 @@ DECLARE_BITMAP(boot_capabilities, ARM64_
+ bool arm64_use_ng_mappings = false;
+ EXPORT_SYMBOL(arm64_use_ng_mappings);
+ 
++DEFINE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector) = vectors;
 +
-+static inline bool unprivileged_ebpf_enabled(void)
-+{
-+	return !sysctl_unprivileged_bpf_disabled;
-+}
+ /*
+  * Flag to indicate if we have computed the system wide
+  * capabilities based on the boot time active CPUs. This
+@@ -1413,6 +1418,12 @@ kpti_install_ng_mappings(const struct ar
+ 
+ 	int cpu = smp_processor_id();
+ 
++	if (__this_cpu_read(this_cpu_vector) == vectors) {
++		const char *v = arm64_get_bp_hardening_vector(EL1_VECTOR_KPTI);
 +
- #else /* !CONFIG_BPF_SYSCALL */
- static inline struct bpf_prog *bpf_prog_get(u32 ufd)
++		__this_cpu_write(this_cpu_vector, v);
++	}
++
+ 	/*
+ 	 * We don't need to rewrite the page-tables if either we've done
+ 	 * it already or we have KASLR enabled and therefore have not
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -63,7 +63,6 @@
+ 	.macro kernel_ventry, el, label, regsize = 64
+ 	.align 7
+ .Lventry_start\@:
+-#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	.if	\el == 0
+ 	/*
+ 	 * This must be the first instruction of the EL0 vector entries. It is
+@@ -78,7 +77,6 @@
+ 	.endif
+ .Lskip_tramp_vectors_cleanup\@:
+ 	.endif
+-#endif
+ 
+ 	sub	sp, sp, #S_FRAME_SIZE
+ #ifdef CONFIG_VMAP_STACK
+@@ -882,10 +880,10 @@ alternative_else_nop_endif
+ 	.endm
+ 
+ 	.macro tramp_exit, regsize = 64
+-	adr	x30, tramp_vectors
+-#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+-	add	x30, x30, SZ_4K
+-#endif
++	tramp_data_read_var	x30, this_cpu_vector
++	this_cpu_offset x29
++	ldr	x30, [x30, x29]
++
+ 	msr	vbar_el1, x30
+ 	ldr	lr, [sp, #S_LR]
+ 	tramp_unmap_kernel	x29
+@@ -945,6 +943,8 @@ __entry_tramp_data_vectors:
+ __entry_tramp_data___sdei_asm_handler:
+ 	.quad	__sdei_asm_handler
+ #endif /* CONFIG_ARM_SDE_INTERFACE */
++__entry_tramp_data_this_cpu_vector:
++	.quad	this_cpu_vector
+ SYM_DATA_END(__entry_tramp_data_start)
+ 	.popsection				// .rodata
+ #endif /* CONFIG_RANDOMIZE_BASE */
+--- a/arch/arm64/kvm/hyp/vhe/switch.c
++++ b/arch/arm64/kvm/hyp/vhe/switch.c
+@@ -10,6 +10,7 @@
+ #include <linux/kvm_host.h>
+ #include <linux/types.h>
+ #include <linux/jump_label.h>
++#include <linux/percpu.h>
+ #include <uapi/linux/psci.h>
+ 
+ #include <kvm/arm_psci.h>
+@@ -25,6 +26,7 @@
+ #include <asm/debug-monitors.h>
+ #include <asm/processor.h>
+ #include <asm/thread_info.h>
++#include <asm/vectors.h>
+ 
+ const char __hyp_panic_string[] = "HYP panic:\nPS:%08llx PC:%016llx ESR:%08llx\nFAR:%016llx HPFAR:%016llx PAR:%016llx\nVCPU:%p\n";
+ 
+@@ -70,7 +72,7 @@ NOKPROBE_SYMBOL(__activate_traps);
+ 
+ static void __deactivate_traps(struct kvm_vcpu *vcpu)
  {
-@@ -1884,6 +1890,12 @@ bpf_jit_find_kfunc_model(const struct bp
- {
- 	return NULL;
+-	extern char vectors[];	/* kernel exception vectors */
++	const char *host_vectors = vectors;
+ 
+ 	___deactivate_traps(vcpu);
+ 
+@@ -84,7 +86,10 @@ static void __deactivate_traps(struct kv
+ 	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_SPECULATIVE_AT));
+ 
+ 	write_sysreg(CPACR_EL1_DEFAULT, cpacr_el1);
+-	write_sysreg(vectors, vbar_el1);
++
++	if (!arm64_kernel_unmapped_at_el0())
++		host_vectors = __this_cpu_read(this_cpu_vector);
++	write_sysreg(host_vectors, vbar_el1);
  }
-+
-+static inline bool unprivileged_ebpf_enabled(void)
-+{
-+	return false;
-+}
-+
- #endif /* CONFIG_BPF_SYSCALL */
+ NOKPROBE_SYMBOL(__deactivate_traps);
  
- void __bpf_free_used_btfs(struct bpf_prog_aux *aux,
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -228,6 +228,10 @@ static int bpf_stats_handler(struct ctl_
- 	return ret;
- }
- 
-+void __weak unpriv_ebpf_notify(int new_state)
-+{
-+}
-+
- static int bpf_unpriv_handler(struct ctl_table *table, int write,
- 			      void *buffer, size_t *lenp, loff_t *ppos)
- {
-@@ -245,6 +249,9 @@ static int bpf_unpriv_handler(struct ctl
- 			return -EPERM;
- 		*(int *)table->data = unpriv_enable;
- 	}
-+
-+	unpriv_ebpf_notify(unpriv_enable);
-+
- 	return ret;
- }
- #endif /* CONFIG_BPF_SYSCALL && CONFIG_SYSCTL */
 
 
