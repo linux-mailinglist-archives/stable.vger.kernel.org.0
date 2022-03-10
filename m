@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3004F4D49E4
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB0F4D4BCD
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244732AbiCJOdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
+        id S243970AbiCJOeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343870AbiCJOb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADAB2C7EAE;
-        Thu, 10 Mar 2022 06:27:44 -0800 (PST)
+        with ESMTP id S1344058AbiCJObj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DFACC7E7D;
+        Thu, 10 Mar 2022 06:30:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F0B861C0A;
-        Thu, 10 Mar 2022 14:27:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED9FEC340E8;
-        Thu, 10 Mar 2022 14:27:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D3B0B82544;
+        Thu, 10 Mar 2022 14:30:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CD14C340E8;
+        Thu, 10 Mar 2022 14:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922463;
-        bh=YYTxn4Nwrg6CuOgCloYwoSlfT43YKOmCi0fRD30gcL8=;
+        s=korg; t=1646922598;
+        bh=xdJQTRGaTq4mpUn1+PLonlgXKiG2oKDP/uWJOZNH/V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJ5Jv2w+Fp1bsklgCcfrd1qZEwgYUMXqr9UUEVAwuHBtEg7gRJtdUnnwclVvt9aYs
-         yScyBXtlJhJEniKkrZeJ5LpeO6hOdh+EBd8wgeZxTSJg1PhA2fZUgTQUbmv+acVUSW
-         Vc4pgUrL22ogZ2MRxCFj8Z5SrmwN88R0bIyf6c6Q=
+        b=oQBTvHNjRV3EGBxISWVsvLGDObwyCgZL64OMhj8cwoZAS5xbGUljWcn967qj3xc0p
+         Ih89zH5WOtdZt76l2wjv60ESUT06qO6UN3H6CYjKFchb9dOoPWo1NYYT0GTNd1tHXY
+         Wy/EqQ2RFV4RoMhaf2YmgJv1xLAVfNrK449OT6JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 17/33] ARM: include unprivileged BPF status in Spectre V2 reporting
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 29/58] arm64: entry: Dont assume tramp_vectors is the start of the vectors
 Date:   Thu, 10 Mar 2022 15:19:18 +0100
-Message-Id: <20220310140809.250185790@linuxfoundation.org>
+Message-Id: <20220310140813.819596813@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
-References: <20220310140808.741682643@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: James Morse <james.morse@arm.com>
 
-commit 25875aa71dfefd1959f07e626c4d285b88b27ac2 upstream.
+commit ed50da7764535f1e24432ded289974f2bf2b0c5a upstream.
 
-The mitigations for Spectre-BHB are only applied when an exception
-is taken, but when unprivileged BPF is enabled, userspace can
-load BPF programs that can be used to exploit the problem.
+The tramp_ventry macro uses tramp_vectors as the address of the vectors
+when calculating which ventry in the 'full fat' vectors to branch to.
 
-When unprivileged BPF is enabled, report the vulnerable status via
-the spectre_v2 sysfs file.
+While there is one set of tramp_vectors, this will be true.
+Adding multiple sets of vectors will break this assumption.
 
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Move the generation of the vectors to a macro, and pass the start
+of the vectors as an argument to tramp_ventry.
+
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/spectre.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/arm64/kernel/entry.S |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
---- a/arch/arm/kernel/spectre.c
-+++ b/arch/arm/kernel/spectre.c
-@@ -1,9 +1,19 @@
- // SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/bpf.h>
- #include <linux/cpu.h>
- #include <linux/device.h>
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -652,7 +652,7 @@ alternative_else_nop_endif
+ 	sub	\dst, \dst, PAGE_SIZE
+ 	.endm
  
- #include <asm/spectre.h>
+-	.macro tramp_ventry, regsize = 64
++	.macro tramp_ventry, vector_start, regsize
+ 	.align	7
+ 1:
+ 	.if	\regsize == 64
+@@ -675,10 +675,10 @@ alternative_insn isb, nop, ARM64_WORKARO
+ 	ldr	x30, =vectors
+ #endif
+ alternative_if_not ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM
+-	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
++	prfm	plil1strm, [x30, #(1b - \vector_start)]
+ alternative_else_nop_endif
+ 	msr	vbar_el1, x30
+-	add	x30, x30, #(1b - tramp_vectors + 4)
++	add	x30, x30, #(1b - \vector_start + 4)
+ 	isb
+ 	ret
+ .org 1b + 128	// Did we overflow the ventry slot?
+@@ -697,19 +697,21 @@ alternative_else_nop_endif
+ 	sb
+ 	.endm
  
-+static bool _unprivileged_ebpf_enabled(void)
-+{
-+#ifdef CONFIG_BPF_SYSCALL
-+	return !sysctl_unprivileged_bpf_disabled;
-+#else
-+	return false
-+#endif
-+}
+-	.align	11
+-SYM_CODE_START_NOALIGN(tramp_vectors)
++	.macro	generate_tramp_vector
++.Lvector_start\@:
+ 	.space	0x400
+ 
+-	tramp_ventry
+-	tramp_ventry
+-	tramp_ventry
+-	tramp_ventry
+-
+-	tramp_ventry	32
+-	tramp_ventry	32
+-	tramp_ventry	32
+-	tramp_ventry	32
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 64
++	.endr
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 32
++	.endr
++	.endm
 +
- ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
- 			    char *buf)
- {
-@@ -31,6 +41,9 @@ ssize_t cpu_show_spectre_v2(struct devic
- 	if (spectre_v2_state != SPECTRE_MITIGATED)
- 		return sprintf(buf, "%s\n", "Vulnerable");
++	.align	11
++SYM_CODE_START_NOALIGN(tramp_vectors)
++	generate_tramp_vector
+ SYM_CODE_END(tramp_vectors)
  
-+	if (_unprivileged_ebpf_enabled())
-+		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
-+
- 	switch (spectre_v2_methods) {
- 	case SPECTRE_V2_METHOD_BPIALL:
- 		method = "Branch predictor hardening";
+ SYM_CODE_START(tramp_exit_native)
 
 
