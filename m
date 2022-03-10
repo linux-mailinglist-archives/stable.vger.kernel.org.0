@@ -2,92 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1693E4D4113
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 07:22:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D96F54D4151
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 07:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233255AbiCJGXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 01:23:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48792 "EHLO
+        id S239898AbiCJGtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 01:49:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234293AbiCJGXh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 01:23:37 -0500
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E507ECFC;
-        Wed,  9 Mar 2022 22:22:36 -0800 (PST)
-Received: by mail-pf1-x42d.google.com with SMTP id s8so4248340pfk.12;
-        Wed, 09 Mar 2022 22:22:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=1QvrxHVnbuN951iuLJ5i5Z8epnWXoTEiu0JfRkCwdNc=;
-        b=pauh/m4aXdFskskvW2uqn4VO4FEdiv275dFzvGGgPZj1M+B2jiaawooUxtFCYorgLW
-         M4r9zycfjJgFk+EIEnCsxwQaz+OzY4Dp/l5BggCR0X66VWff2dcuGEj1RYb6DHCkXR10
-         mR+LPzascD4moLvPknZn9ObjSp7fJAaaV7kcM0VKIU9ncsClRYsRsLrgWE7yA7T/HgzS
-         jfYa6o/wpPwczaWqNE1NeXWRJpivcuYr/y2Tr4v2nnlOFv/7Buls2dM1/pkLzaE3PTlM
-         95LXQ8jyEg3Js6rAaeZZEjLRuy7Ku6PzsZf86eIk6IuEc1Skmn+oUtItGnTVS0sqCn3v
-         zzXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=1QvrxHVnbuN951iuLJ5i5Z8epnWXoTEiu0JfRkCwdNc=;
-        b=f+xqBPy2c2JphOSxtCpIXVfn4kXfcIf7arbx3/G3Q5uNN10PpxHvEuqWLzm9oRNjTk
-         NRTMJokHrGd0c9xivb1vo/qs1DoArKB5DNxkgMf3e5lIElqGRwWN42zPKahFSdCb7fjZ
-         PsCGBXREb4yVQvCm7/82LUI2044ZkCitM3idQsborEy4LoAt1ULUk6kq+dUzoksDvdCG
-         3GCIP93HFrmruk/NodSAST2Imo82GatmwJbdmStRNpmgTXGKRVAI5Zor6HaBExChsq4x
-         bV9kcgsyPLRDX9PUJpZWwL0cLrBp3bvmxUCd0O2db/AaFisEP/3z8UF6TbHPfBasVp7P
-         h//w==
-X-Gm-Message-State: AOAM5333vSYVrAqKAlFrX+eFXLf3GnNQblFSXgY1T+ZPxY7ctMLDubWH
-        ezw+9bUYbknkUGkip0EWNbg=
-X-Google-Smtp-Source: ABdhPJyCvUa8NQpFHlM0rAOEJiMBlBi0dQ8fZLU0+6GrXUQ3ahIwxnK2e2aNk3bpNWYnUNVmwue1Pw==
-X-Received: by 2002:a65:6201:0:b0:369:4a47:aff1 with SMTP id d1-20020a656201000000b003694a47aff1mr2838506pgv.238.1646893356508;
-        Wed, 09 Mar 2022 22:22:36 -0800 (PST)
-Received: from [192.168.43.80] (subs03-180-214-233-29.three.co.id. [180.214.233.29])
-        by smtp.gmail.com with ESMTPSA id i187-20020a626dc4000000b004f6e0f346e7sm5315733pfc.39.2022.03.09.22.22.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 22:22:35 -0800 (PST)
-Message-ID: <49ee6347-1e2f-8894-627f-f90bc8356f84@gmail.com>
-Date:   Thu, 10 Mar 2022 13:22:30 +0700
+        with ESMTP id S230060AbiCJGtN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 01:49:13 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2C11C1C88;
+        Wed,  9 Mar 2022 22:48:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=9/MWPObrhuNAehUFkhtELAPhI8PUadmLIfcXXSdHpR8=; b=vfKBc687JPz3JbHB+CL8prpzeq
+        Ajp7A6oLRwHE3bBhZvHdO8SZHDJOzT63zsieCLdnUMiVaam39hcyjz7wRSuWAQOTw3X+VZzJcxQy3
+        GrzOgKJA+6XkZHrpG2On0yxrw8yQUzQo4rnt1DeqHUSfuQ/rKpHOyHtphhWPc0IWQcy6FNLZISVDu
+        SpZxjCiZXj2f32cU9ZEjDCTPIgUyt1jFJB6eccuiFmThlfZX+p+PRKd7Miyfoh8LNGjkFOCQOHYoS
+        vSeDxS8ZpshUP4XLfky1T9mM7+EwFlaehO38U5HmNED0EnRp6FZa2rS28Np9l+8EvfcgkwULjVfvk
+        4cfmL0Lw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nSCaq-00BeZX-B4; Thu, 10 Mar 2022 06:48:12 +0000
+Date:   Wed, 9 Mar 2022 22:48:12 -0800
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Song Liu <song@kernel.org>
+Cc:     linux-block@vger.kernel.org, linux-raid@vger.kernel.org,
+        axboe@kernel.dk, stable@vger.kernel.org,
+        Larkin Lowrey <llowrey@nuclearwinter.com>,
+        Wilson Jonathan <i400sjon@gmail.com>,
+        Roger Heflin <rogerheflin@gmail.com>
+Subject: Re: [PATCH] block: check more requests for multiple_queues in
+ blk_attempt_plug_merge
+Message-ID: <YimfLJoWLKnnhLfR@infradead.org>
+References: <20220309064209.4169303-1-song@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH 5.10 00/43] 5.10.105-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220309155859.239810747@linuxfoundation.org>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20220309155859.239810747@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220309064209.4169303-1-song@kernel.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09/03/22 22.59, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.105 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Mar 08, 2022 at 10:42:09PM -0800, Song Liu wrote:
+> RAID arrays check/repair operations benefit a lot from merging requests.
+> If we only check the previous entry for merge attempt, many merge will be
+> missed. As a result, significant regression is observed for RAID check
+> and repair.
 > 
+> Fix this by checking more than just the previous entry when
+> plug->multiple_queues == true.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
-powerpc (ps3_defconfig, gcc 11.2.0).
+But this also means really significant CPU overhead for all other
+workloads.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+> 
+> This improves the check/repair speed of a 20-HDD raid6 from 19 MB/s to
+> 103 MB/s.
 
--- 
-An old man doll... just what I always wanted! - Clara
+What driver uses multiple queues for HDDs?
+
+Can you explain the workload submitted by a md a bit better?  I wonder
+if we can easily do the right thing straight in the md driver.
