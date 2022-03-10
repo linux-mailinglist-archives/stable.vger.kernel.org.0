@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6F74D4B49
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5B94D4B3D
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244661AbiCJOdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50102 "EHLO
+        id S236443AbiCJO0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:26:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244645AbiCJO3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99B0BD7620;
-        Thu, 10 Mar 2022 06:24:22 -0800 (PST)
+        with ESMTP id S243529AbiCJOZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:25:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01BAF94F5;
+        Thu, 10 Mar 2022 06:22:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69E5361D34;
-        Thu, 10 Mar 2022 14:24:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72384C340EB;
-        Thu, 10 Mar 2022 14:24:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ADBD61B63;
+        Thu, 10 Mar 2022 14:22:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F121C340E8;
+        Thu, 10 Mar 2022 14:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922261;
-        bh=YYTxn4Nwrg6CuOgCloYwoSlfT43YKOmCi0fRD30gcL8=;
+        s=korg; t=1646922128;
+        bh=rSTOUX5LUvBCX6WBogDAqooyuvYNrP66hsRf3uWRExc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQKhYMzHDmJWaDcUp6AjKy9NCzAVCjqSxC3CCnGbZrWQoF/wlG+k0GmVz336YX2fo
-         HWQ6+2qa09MnB5gdTl1jg/wzxP8SGEv5f6yjqTMJa7AS4Z66FvE9Ox23VxD7zjAPAG
-         1DGgjukQwruFVwjdCAbRoJmoDos+P5E6xzwXxSvU=
+        b=SAgKYSgKURonAmjkHsHT5TkFzrDKNLN1m87C12SWq7Bu3n0Ho1Sn9TTVD+lKBTw76
+         PrdmdBdxsedPGxGPiSLwN4j0iosI563wblcqMqUS74ontKfQI3LkELC1+vXZJYF0V+
+         PoYI0R9ArEL/fhIOreeg235XjI8jD1OP1DR3oXcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 14/58] ARM: include unprivileged BPF status in Spectre V2 reporting
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.19 07/33] x86/speculation: Use generic retpoline by default on AMD
 Date:   Thu, 10 Mar 2022 15:18:34 +0100
-Message-Id: <20220310140813.281736162@linuxfoundation.org>
+Message-Id: <20220310140807.965113257@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
+References: <20220310140807.749164737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 25875aa71dfefd1959f07e626c4d285b88b27ac2 upstream.
+commit 244d00b5dd4755f8df892c86cab35fb2cfd4f14b upstream.
 
-The mitigations for Spectre-BHB are only applied when an exception
-is taken, but when unprivileged BPF is enabled, userspace can
-load BPF programs that can be used to exploit the problem.
+AMD retpoline may be susceptible to speculation. The speculation
+execution window for an incorrect indirect branch prediction using
+LFENCE/JMP sequence may potentially be large enough to allow
+exploitation using Spectre V2.
 
-When unprivileged BPF is enabled, report the vulnerable status via
-the spectre_v2 sysfs file.
+By default, don't use retpoline,lfence on AMD.  Instead, use the
+generic retpoline.
 
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/spectre.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/arch/arm/kernel/spectre.c
-+++ b/arch/arm/kernel/spectre.c
-@@ -1,9 +1,19 @@
- // SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/bpf.h>
- #include <linux/cpu.h>
- #include <linux/device.h>
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -898,14 +898,6 @@ static enum spectre_v2_mitigation __init
+ 		return SPECTRE_V2_NONE;
+ 	}
  
- #include <asm/spectre.h>
+-	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD) {
+-		if (!boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
+-			pr_err("LFENCE not serializing, switching to generic retpoline\n");
+-			return SPECTRE_V2_RETPOLINE;
+-		}
+-		return SPECTRE_V2_LFENCE;
+-	}
+-
+ 	return SPECTRE_V2_RETPOLINE;
+ }
  
-+static bool _unprivileged_ebpf_enabled(void)
-+{
-+#ifdef CONFIG_BPF_SYSCALL
-+	return !sysctl_unprivileged_bpf_disabled;
-+#else
-+	return false
-+#endif
-+}
-+
- ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
- 			    char *buf)
- {
-@@ -31,6 +41,9 @@ ssize_t cpu_show_spectre_v2(struct devic
- 	if (spectre_v2_state != SPECTRE_MITIGATED)
- 		return sprintf(buf, "%s\n", "Vulnerable");
- 
-+	if (_unprivileged_ebpf_enabled())
-+		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
-+
- 	switch (spectre_v2_methods) {
- 	case SPECTRE_V2_METHOD_BPIALL:
- 		method = "Branch predictor hardening";
 
 
