@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A59204D4B1D
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3AB34D49E3
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244510AbiCJOd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
+        id S243974AbiCJOcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:32:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245076AbiCJOaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE8AA160FE5;
-        Thu, 10 Mar 2022 06:25:24 -0800 (PST)
+        with ESMTP id S243799AbiCJO10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:27:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 488EFCFBB2;
+        Thu, 10 Mar 2022 06:22:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7127761CF0;
-        Thu, 10 Mar 2022 14:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EC78C340E8;
-        Thu, 10 Mar 2022 14:24:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A523261CFB;
+        Thu, 10 Mar 2022 14:22:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1C38C340EB;
+        Thu, 10 Mar 2022 14:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922286;
-        bh=wl6HBnhpwKS+JR4VuT7rhMipb3Fa6aCKKhyiO/sl5rg=;
+        s=korg; t=1646922156;
+        bh=oVZchNMBYQehnyKeJxmujUSCkykKcKMWao8G0T/Rvsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ag0z5Jrx0YoPzdFOQhnYopl2t3PQMyhiJVnQYLbga+fNuf1T49mGV3/nNKXewRUUQ
-         CpxrT7I0J2txEyQ8LdKiAQSwFM64FaFqZsfjTeHxxSJrjEbHWdz5rz1jqgYv0KeyVZ
-         SyxJa76f+Wy2QSW3LWzP7GGPPrnVxLxiHfvbaReQ=
+        b=th9bkOcHKgeFdtuXSHa4K4ZifZiBJK2vB+hDGiuNGbUitP2zhaqxlE6TthmK82eWX
+         iUo5igi44zQOhkUTiAAU3rS0Q6rxgnT0++dqqh5sDQ6LM3Ks1BNruGlvTpjsNzE2Qe
+         iVs5LZxJWJyD2Tsw8QBXcClq0O6qZJX33fXS2iyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.10 30/58] arm64: entry: Move trampoline macros out of ifdefd section
-Date:   Thu, 10 Mar 2022 15:18:50 +0100
-Message-Id: <20220310140813.734626881@linuxfoundation.org>
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.19 24/33] xen/grant-table: add gnttab_try_end_foreign_access()
+Date:   Thu, 10 Mar 2022 15:18:51 +0100
+Message-Id: <20220310140808.454684169@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
+References: <20220310140807.749164737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 13d7a08352a83ef2252aeb464a5e08dfc06b5dfd upstream.
+Commit 6b1775f26a2da2b05a6dc8ec2b5d14e9a4701a1a upstream.
 
-The macros for building the kpti trampoline are all behind
-CONFIG_UNMAP_KERNEL_AT_EL0, and in a region that outputs to the
-.entry.tramp.text section.
+Add a new grant table function gnttab_try_end_foreign_access(), which
+will remove and free a grant if it is not in use.
 
-Move the macros out so they can be used to generate other kinds of
-trampoline. Only the symbols need to be guarded by
-CONFIG_UNMAP_KERNEL_AT_EL0 and appear in the .entry.tramp.text section.
+Its main use case is to either free a grant if it is no longer in use,
+or to take some other action if it is still in use. This other action
+can be an error exit, or (e.g. in the case of blkfront persistent grant
+feature) some special handling.
 
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+This is CVE-2022-23036, CVE-2022-23038 / part of XSA-396.
+
+Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/xen/grant-table.c |   14 ++++++++++++--
+ include/xen/grant_table.h |   12 ++++++++++++
+ 2 files changed, 24 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -778,12 +778,6 @@ SYM_CODE_END(ret_to_user)
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -436,11 +436,21 @@ static void gnttab_add_deferred(grant_re
+ 	       what, ref, page ? page_to_pfn(page) : -1);
+ }
  
- 	.popsection				// .entry.text
++int gnttab_try_end_foreign_access(grant_ref_t ref)
++{
++	int ret = _gnttab_end_foreign_access_ref(ref, 0);
++
++	if (ret)
++		put_free_entry(ref);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(gnttab_try_end_foreign_access);
++
+ void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
+ 			       unsigned long page)
+ {
+-	if (gnttab_end_foreign_access_ref(ref, readonly)) {
+-		put_free_entry(ref);
++	if (gnttab_try_end_foreign_access(ref)) {
+ 		if (page != 0)
+ 			put_page(virt_to_page(page));
+ 	} else
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -97,10 +97,22 @@ int gnttab_end_foreign_access_ref(grant_
+  * access has been ended, free the given page too.  Access will be ended
+  * immediately iff the grant entry is not in use, otherwise it will happen
+  * some time later.  page may be 0, in which case no freeing will occur.
++ * Note that the granted page might still be accessed (read or write) by the
++ * other side after gnttab_end_foreign_access() returns, so even if page was
++ * specified as 0 it is not allowed to just reuse the page for other
++ * purposes immediately.
+  */
+ void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
+ 			       unsigned long page);
  
--#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--/*
-- * Exception vectors trampoline.
-- */
--	.pushsection ".entry.tramp.text", "ax"
--
- 	// Move from tramp_pg_dir to swapper_pg_dir
- 	.macro tramp_map_kernel, tmp
- 	mrs	\tmp, ttbr1_el1
-@@ -879,6 +873,11 @@ alternative_else_nop_endif
- 	.endr
- 	.endm
- 
-+#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
 +/*
-+ * Exception vectors trampoline.
++ * End access through the given grant reference, iff the grant entry is
++ * no longer in use.  In case of success ending foreign access, the
++ * grant reference is deallocated.
++ * Return 1 if the grant entry was freed, 0 if it is still in use.
 + */
-+	.pushsection ".entry.tramp.text", "ax"
- 	.align	11
- SYM_CODE_START_NOALIGN(tramp_vectors)
- 	generate_tramp_vector
++int gnttab_try_end_foreign_access(grant_ref_t ref);
++
+ int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
+ 
+ unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
 
 
