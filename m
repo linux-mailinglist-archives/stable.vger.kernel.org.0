@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C86B4D4999
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:51:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA574D49C9
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244246AbiCJOdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49726 "EHLO
+        id S244963AbiCJOeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343920AbiCJOb3 (ORCPT
+        with ESMTP id S1343923AbiCJOb3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB028E5402;
-        Thu, 10 Mar 2022 06:28:25 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 474DAD95EF;
+        Thu, 10 Mar 2022 06:28:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F956B82544;
-        Thu, 10 Mar 2022 14:28:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA10DC340E8;
-        Thu, 10 Mar 2022 14:28:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D686661C0A;
+        Thu, 10 Mar 2022 14:28:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91F6C340E8;
+        Thu, 10 Mar 2022 14:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922504;
-        bh=Lkj2JTmQcMmKZ3TgT9AHY0CjWLU1osFRNI2CLANMr0g=;
+        s=korg; t=1646922508;
+        bh=5IG58LdHT4xAvpo1TWps4IujYggSLXE7CJz3LAeiwxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzUoV5kUowogskLlHVf8IoKOnEitHL4ebv3Go6bTyTdgn/EJtx8m99aMbUqGUUDxu
-         wKrrrO1cMWv2nCyX056PDWexz7kxPZ+ETFpTnl1ITL2qP1ZCYSX+rYAN6YS3Oc3tkX
-         0FyjwDpSDJyBsGr2cxnr0jBRt9K7qNdD5tOW8PtE=
+        b=a2Hx9S+1ftr7A4s6TptcEyLMAxpf5Yh0UmBqGSjCT8oyi78yLqAk6OIKosv+UviYy
+         CSKI3/0e5CnTcJYyIk8ifIg5bnQYQUHkNcE1GNuHuVw+wdDKbpWEhhmd5Wg0Vy6Z0H
+         6lewHzM3Y1FA0EbhgJFzQKe1FedbqSKxnBwB6zTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 21/33] ARM: fix build warning in proc-v7-bugs.c
-Date:   Thu, 10 Mar 2022 15:19:22 +0100
-Message-Id: <20220310140809.364340265@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.4 22/33] xen/xenbus: dont let xenbus_grant_ring() remove grants in error case
+Date:   Thu, 10 Mar 2022 15:19:23 +0100
+Message-Id: <20220310140809.393007441@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
 References: <20220310140808.741682643@linuxfoundation.org>
@@ -54,36 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Juergen Gross <jgross@suse.com>
 
-commit b1a384d2cbccb1eb3f84765020d25e2c1929706e upstream.
+Commit 3777ea7bac3113005b7180e6b9dadf16d19a5827 upstream.
 
-The kernel test robot discovered that building without
-HARDEN_BRANCH_PREDICTOR issues a warning due to a missing
-argument to pr_info().
+Letting xenbus_grant_ring() tear down grants in the error case is
+problematic, as the other side could already have used these grants.
+Calling gnttab_end_foreign_access_ref() without checking success is
+resulting in an unclear situation for any caller of xenbus_grant_ring()
+as in the error case the memory pages of the ring page might be
+partially mapped. Freeing them would risk unwanted foreign access to
+them, while not freeing them would leak memory.
 
-Add the missing argument.
+In order to remove the need to undo any gnttab_grant_foreign_access()
+calls, use gnttab_alloc_grant_references() to make sure no further
+error can occur in the loop granting access to the ring pages.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 9dd78194a372 ("ARM: report Spectre v2 status through sysfs")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+It should be noted that this way of handling removes leaking of
+grant entries in the error case, too.
+
+This is CVE-2022-23040 / part of XSA-396.
+
+Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/proc-v7-bugs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/xen/xenbus/xenbus_client.c |   24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -109,7 +109,8 @@ static unsigned int spectre_v2_install_w
- #else
- static unsigned int spectre_v2_install_workaround(unsigned int method)
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -366,7 +366,14 @@ int xenbus_grant_ring(struct xenbus_devi
+ 		      unsigned int nr_pages, grant_ref_t *grefs)
  {
--	pr_info("CPU%u: Spectre V2: workarounds disabled by configuration\n");
-+	pr_info("CPU%u: Spectre V2: workarounds disabled by configuration\n",
-+		smp_processor_id());
+ 	int err;
+-	int i, j;
++	unsigned int i;
++	grant_ref_t gref_head;
++
++	err = gnttab_alloc_grant_references(nr_pages, &gref_head);
++	if (err) {
++		xenbus_dev_fatal(dev, err, "granting access to ring page");
++		return err;
++	}
  
- 	return SPECTRE_VULNERABLE;
+ 	for (i = 0; i < nr_pages; i++) {
+ 		unsigned long gfn;
+@@ -376,23 +383,14 @@ int xenbus_grant_ring(struct xenbus_devi
+ 		else
+ 			gfn = virt_to_gfn(vaddr);
+ 
+-		err = gnttab_grant_foreign_access(dev->otherend_id, gfn, 0);
+-		if (err < 0) {
+-			xenbus_dev_fatal(dev, err,
+-					 "granting access to ring page");
+-			goto fail;
+-		}
+-		grefs[i] = err;
++		grefs[i] = gnttab_claim_grant_reference(&gref_head);
++		gnttab_grant_foreign_access_ref(grefs[i], dev->otherend_id,
++						gfn, 0);
+ 
+ 		vaddr = vaddr + XEN_PAGE_SIZE;
+ 	}
+ 
+ 	return 0;
+-
+-fail:
+-	for (j = 0; j < i; j++)
+-		gnttab_end_foreign_access_ref(grefs[j], 0);
+-	return err;
  }
+ EXPORT_SYMBOL_GPL(xenbus_grant_ring);
+ 
 
 
