@@ -2,145 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76EE24D4E13
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 17:07:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE374D4F54
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 17:31:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239309AbiCJQHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 11:07:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
+        id S238403AbiCJQcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 11:32:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240718AbiCJQH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 11:07:29 -0500
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503C9188841
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 08:06:18 -0800 (PST)
-Received: by mail-pg1-x52a.google.com with SMTP id c11so5070583pgu.11
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 08:06:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:content-language:to:cc
-         :references:from:subject:in-reply-to:content-transfer-encoding;
-        bh=vPDslFAB2WX3+89jiOl8aHGYg43S9qtM0t31/Go73nE=;
-        b=k3V0lcgRuAv9K/+lHB10VICnm56R5wMnlGzfUklzmF9p0UV9qKSYyidKibFeSTzT2x
-         tKj7rN1wFW/EZWJDGRenXI2nj/uDIFh5liIn5Tt60CaxkXp5nWeKjH+681f51xaDlLlm
-         L3i3C5dBYYFr9ZxaIMzIo9+KN6qI5r4mnFaXl8Mp7Y4AbKH1kauCgvgrq0xCn4hM/ztH
-         W7jAJHgPGjGt5O52Ri3GSWGdAahrqISrz3v9RwQgTpHNK7WuEAhOr+h6YSh8REfJoDk4
-         rXDPWXOuzYMFYl5jJF7TAF0zPhMxlFhUYH8S53eHIvzfw1XoGEo8wWbQNgB0uCDVv+Me
-         dCmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=vPDslFAB2WX3+89jiOl8aHGYg43S9qtM0t31/Go73nE=;
-        b=7ygzy/fxQ0NNS04Nmpkf4SrhgMKGXfnHJ2iYaoMQrFtp1GEidsSL4mbTlIHgjB1gDe
-         IKbIrJx8jJLdjTfWkJrabLt2jef8hoKWkDz4OCBaUID8E/q1zjUJED6qTXk50tfjeM8t
-         knyqhH4OPw1crkPlLs0yYF+n98WJtboCI94R5ZIr3DdULTrpjD1AfPm5m0LCj9EnZUl5
-         TmExTDSkNhIjM6anH9OR9wnNYDphadrEeo2jkcMv5H+IGt0H8w3//4wfcofQYDKyil95
-         wEWGh7nx51GoPIlLRAfXF7PXXJ6y/5qgDaJbe6T4lyH+lLPJerYswbCrL5omZSY5P7XN
-         yCuA==
-X-Gm-Message-State: AOAM531y+YZ1jWzOU28i5/dYhLyD1++cZ897QP2XKvCVtlasM2I3uHBC
-        r5UoZbLP7QYFjhjf/9qPaeU8mw==
-X-Google-Smtp-Source: ABdhPJyaDcNJcH+wL4U0Rhh+k9fHnNTSq6Fc2Z873WTTA4inyitRWePsEBand1h8+e22kSXNjq+VHA==
-X-Received: by 2002:a63:6a49:0:b0:37c:7a6e:e7a6 with SMTP id f70-20020a636a49000000b0037c7a6ee7a6mr4615349pgc.545.1646928377027;
-        Thu, 10 Mar 2022 08:06:17 -0800 (PST)
-Received: from [192.168.254.17] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id w204-20020a627bd5000000b004f6f70163e8sm7148989pfc.31.2022.03.10.08.06.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 08:06:16 -0800 (PST)
-Message-ID: <c7608cf0-fda2-1aa6-b0c1-3d4e0b5cad0e@linaro.org>
-Date:   Thu, 10 Mar 2022 08:06:15 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc:     David Ahern <dsahern@kernel.org>,
-        David Laight <David.Laight@aculab.com>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com" 
-        <syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com>
-References: <20220308000146.534935-1-tadeusz.struk@linaro.org>
- <14626165dad64bbaabed58ba7d59e523@AcuMS.aculab.com>
- <6155b68c-161b-0745-b303-f7e037b56e28@linaro.org>
- <66463e26-8564-9f58-ce41-9a2843891d1a@kernel.org>
- <45522c89-a3b4-4b98-232b-9c69470124a3@linaro.org>
- <ff2e1007-5883-5178-6415-326d6ae69c34@kernel.org>
- <8fdab42f-171f-53d7-8e0e-b29161c0e3e2@linaro.org>
- <CA+FuTSeAL7TsdW4t7=G91n3JLuYehUCnDGH4_rHS=vjm1-Nv9Q@mail.gmail.com>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: Re: [PATCH] net: ipv6: fix invalid alloclen in __ip6_append_data
-In-Reply-To: <CA+FuTSeAL7TsdW4t7=G91n3JLuYehUCnDGH4_rHS=vjm1-Nv9Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S240771AbiCJQcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 11:32:15 -0500
+X-Greylist: delayed 181 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 10 Mar 2022 08:31:13 PST
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [85.215.255.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0BEE190C20
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 08:31:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1646929509;
+    s=strato-dkim-0002; d=goldelico.com;
+    h=Message-Id:To:Cc:Subject:Date:From:Cc:Date:From:Subject:Sender;
+    bh=C3MEEvCsdntcFwNwoUEd0O6fo1BIx8o+x380PB9R+7M=;
+    b=GOLa/OjKY2zqL4xNZwYxwSSB7+toziQGOiRD3MY7ZkR1ZGMOVcgGIzM1WYOJbJXWEH
+    WAOFL+OUljB4S0o8HMGA+c660JZWi1IVYg28XQHcblXiVxJGkpGNIA+I7PoxsdFRiETk
+    hP0KkClTdS80KkXV7+dq0MztIVs6w4djZCiDnNCS2d9JCzrBBrQHQAlDchRxD77ot7I4
+    uIZgkfuv+NEsf+Hj3Lhe8quMRJ6SUW8buyTClg3JaPYL4fmVbD73fiL2/7RsXvDgAl4R
+    pCoarUPr8/ISQg2jc2tkDfVtz8vHU9Vd6BsybBA+DD36dlThLVnNNRQF5ZnJG5Ox3ULL
+    bTRA==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7gpw91N5y2S3j8N+"
+X-RZG-CLASS-ID: mo00
+Received: from imac.fritz.box
+    by smtp.strato.de (RZmta 47.40.1 SBL|AUTH)
+    with ESMTPSA id 30b171y2AGP80Aq
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+        (Client did not present a certificate);
+    Thu, 10 Mar 2022 17:25:08 +0100 (CET)
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+Content-Type: text/plain;
+        charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.21\))
+Date:   Thu, 10 Mar 2022 17:25:07 +0100
+Subject: [BUG] new MIPS compile error on v5.15.27
+Cc:     stable@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>
+To:     Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, Christoph Hellwig <hch@lst.de>
+Message-Id: <D148EFBD-55E0-449A-AD2A-12C80ABD4FC4@goldelico.com>
+X-Mailer: Apple Mail (2.3445.104.21)
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/22 06:39, Willem de Bruijn wrote:
-> On Wed, Mar 9, 2022 at 4:37 PM Tadeusz Struk <tadeusz.struk@linaro.org> wrote:
->>
->> On 3/8/22 21:01, David Ahern wrote:
->>> On 3/8/22 12:46 PM, Tadeusz Struk wrote:
->>>> That fails in the same way:
->>>>
->>>> skbuff: skb_over_panic: text:ffffffff83e7b48b len:65575 put:65575
->>>> head:ffff888101f8a000 data:ffff888101f8a088 tail:0x100af end:0x6c0
->>>> dev:<NULL>
->>>> ------------[ cut here ]------------
->>>> kernel BUG at net/core/skbuff.c:113!
->>>> invalid opcode: 0000 [#1] PREEMPT SMP KASAN
->>>> CPU: 0 PID: 1852 Comm: repro Not tainted
->>>> 5.17.0-rc7-00020-gea4424be1688-dirty #19
->>>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35
->>>> RIP: 0010:skb_panic+0x173/0x175
->>>>
->>>> I'm not sure how it supposed to help since it doesn't change the
->>>> alloclen at all.
->>>
->>> alloclen is a function of fraglen and fraglen is a function of datalen.
->>
->> Ok, but in this case it doesn't affect the alloclen and it still fails.
-> 
-> This is some kind of non-standard packet that is being constructed. Do
-> we understand how it is different?
-> 
-> The .syz reproducer is generally a bit more readable than the .c
-> equivalent. Though not as much as an strace of the binary, if you
-> can share that.
-> 
-> r0 = socket$inet6_icmp_raw(0xa, 0x3, 0x3a)
-> connect$inet6(r0, &(0x7f0000000040)={0xa, 0x0, 0x0, @dev, 0x6}, 0x1c)
-> setsockopt$inet6_IPV6_HOPOPTS(r0, 0x29, 0x36,
-> &(0x7f0000000100)=ANY=[@ANYBLOB="52b3"], 0x5a0)
-> sendmmsg$inet(r0, &(0x7f00000002c0)=[{{0x0, 0x0,
-> &(0x7f0000000000)=[{&(0x7f00000000c0)="1d2d", 0xfa5f}], 0x1}}], 0x1,
-> 0xfe80)
+upstream commit 277c8cb3e8ac ("MIPS: fix local_{add,sub}_return on =
+MIPS64")
 
-Here it is:
-https://termbin.com/krtr
-It won't be of much help, I'm afraid, as the offending sendmmsg()
-call isn't fully printed.
+was backported to v5.15.27 as
 
--- 
-Thanks,
-Tadeusz
+commit f98371d2ac83 ("MIPS: fix local_{add,sub}_return on MIPS64")
+
+but breaks MIPS build:
+
+In file included from ./arch/mips/include/asm/local.h:8:0,
+                 from ./include/linux/genhd.h:20,
+                 from ./include/linux/blkdev.h:8,
+                 from ./include/linux/blk-cgroup.h:23,
+                 from ./include/linux/writeback.h:14,
+                 from ./include/linux/memcontrol.h:22,
+                 from ./include/net/sock.h:53,
+                 from ./include/linux/tcp.h:19,
+                 from drivers/net/slip/slip.c:91:
+./arch/mips/include/asm/asm.h:68:0: warning: "END" redefined
+ #define END(function)     \
+=20
+In file included from drivers/net/slip/slip.c:88:0:
+drivers/net/slip/slip.h:44:0: note: this is the location of the previous =
+definition
+ #define END             0300  /* indicates end of frame */
+
+Analyses reveals that with the backported MIPS fix there is a new
+#include <asm/asm.h> introduced by ./arch/mips/include/asm/local.h
+which already defines some END macro.
+
+But why does v5.16.x compile fine where
+
+commit a0ecfd10d669c ("MIPS: fix local_{add,sub}_return on MIPS64")
+
+is also present since v5.16.3?
+
+Deeper analyses shows that there is another patch introduced
+in v5.16-rc1 which removed one #include in the above chain and
+therefore does not define END by asm/asm.h:
+
+commit 348332e000697 ("mm: don't include <linux/blk-cgroup.h> in =
+<linux/writeback.h>")
+
+Hence, the MIPS fix should only be applied to branches where
+the mm fix is already present. Or the mm fix should be backported
+as well (if it has no side-effects).
+
+Note: the MIPS fix was apparently not (yet?) applied to v5.10.y or =
+earlier
+even tough the Fixes: 7232311ef14c ("local_t: mips extension")
+would be true.
+
+BR and thanks,
+Nikolaus Schaller
+
