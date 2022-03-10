@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 874E04D4BB8
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B57BC4D4AF9
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237910AbiCJOgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:36:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49562 "EHLO
+        id S244429AbiCJOdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344073AbiCJObl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB7AE2C;
-        Thu, 10 Mar 2022 06:30:24 -0800 (PST)
+        with ESMTP id S1343928AbiCJOb3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6318AE61C3;
+        Thu, 10 Mar 2022 06:28:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4544B61B63;
-        Thu, 10 Mar 2022 14:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 487F6C340F3;
-        Thu, 10 Mar 2022 14:30:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1A6961B18;
+        Thu, 10 Mar 2022 14:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC3FC340EB;
+        Thu, 10 Mar 2022 14:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922623;
-        bh=AxC1teQyuVkVP30iRuUx5rWcdT5vrE/3hwpQ9jN7DcA=;
+        s=korg; t=1646922516;
+        bh=u3MPRhz3LolOEDLh4n9zyf8HGP1wy3l7fXxeuN5Uxtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJrKo/8ruAJJTdY0Ocw9H9J6yI9rU3i5QOxCO0jAGZuzbkM84FCokeOYCXimysQcn
-         5A3/axFVlQ7eOJt73F85pLVvFxDVVMa7B25ZCT/HySnFGT3FUiG+LF3yH5uhzK6qgt
-         q93uWpch6FqInVauspU8AIO+svhB5bqNaoMcOxbs=
+        b=umAZBocdyW/0xAFOxdEK5DlNDnDfuLORV0UyT1U4T9i76Rty684pwLCTgiXSSQIFX
+         hkqSYXz7WdhyrozZ0fBCqv/XTenRyjPpV9eKfjSfZO97YbqAyq2nY1euUcoTwDLYUD
+         /acBp1zZvK/j729w399TPVfDf0trMZ8lAMxcoL3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 36/58] arm64: Add percpu vectors for EL1
+        stable@vger.kernel.org,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
+Subject: [PATCH 5.4 24/33] xen/blkfront: dont use gnttab_query_foreign_access() for mapped status
 Date:   Thu, 10 Mar 2022 15:19:25 +0100
-Message-Id: <20220310140814.014662756@linuxfoundation.org>
+Message-Id: <20220310140809.449265331@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
-References: <20220310140812.983088611@linuxfoundation.org>
+In-Reply-To: <20220310140808.741682643@linuxfoundation.org>
+References: <20220310140808.741682643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,198 +55,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit bd09128d16fac3c34b80bd6a29088ac632e8ce09 upstream.
+Commit abf1fd5919d6238ee3bc5eb4a9b6c3947caa6638 upstream.
 
-The Spectre-BHB workaround adds a firmware call to the vectors. This
-is needed on some CPUs, but not others. To avoid the unaffected CPU in
-a big/little pair from making the firmware call, create per cpu vectors.
+It isn't enough to check whether a grant is still being in use by
+calling gnttab_query_foreign_access(), as a mapping could be realized
+by the other side just after having called that function.
 
-The per-cpu vectors only apply when returning from EL0.
+In case the call was done in preparation of revoking a grant it is
+better to do so via gnttab_end_foreign_access_ref() and check the
+success of that operation instead.
 
-Systems using KPTI can use the canonical 'full-fat' vectors directly at
-EL1, the trampoline exit code will switch to this_cpu_vector on exit to
-EL0. Systems not using KPTI should always use this_cpu_vector.
+For the ring allocation use alloc_pages_exact() in order to avoid
+high order pages in case of a multi-page ring.
 
-this_cpu_vector will point at a vector in tramp_vecs or
-__bp_harden_el1_vectors, depending on whether KPTI is in use.
+If a grant wasn't unmapped by the backend without persistent grants
+being used, set the device state to "error".
 
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+This is CVE-2022-23036 / part of XSA-396.
+
+Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Roger Pau Monné <roger.pau@citrix.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/vectors.h |   29 ++++++++++++++++++++++++++++-
- arch/arm64/kernel/cpufeature.c   |   11 +++++++++++
- arch/arm64/kernel/entry.S        |   12 ++++++------
- arch/arm64/kvm/hyp/vhe/switch.c  |    9 +++++++--
- 4 files changed, 52 insertions(+), 9 deletions(-)
+ drivers/block/xen-blkfront.c |   63 +++++++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 26 deletions(-)
 
---- a/arch/arm64/include/asm/vectors.h
-+++ b/arch/arm64/include/asm/vectors.h
-@@ -5,6 +5,15 @@
- #ifndef __ASM_VECTORS_H
- #define __ASM_VECTORS_H
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1344,7 +1344,8 @@ free_shadow:
+ 			rinfo->ring_ref[i] = GRANT_INVALID_REF;
+ 		}
+ 	}
+-	free_pages((unsigned long)rinfo->ring.sring, get_order(info->nr_ring_pages * XEN_PAGE_SIZE));
++	free_pages_exact(rinfo->ring.sring,
++			 info->nr_ring_pages * XEN_PAGE_SIZE);
+ 	rinfo->ring.sring = NULL;
  
-+#include <linux/bug.h>
-+#include <linux/percpu.h>
-+
-+#include <asm/fixmap.h>
-+
-+extern char vectors[];
-+extern char tramp_vectors[];
-+extern char __bp_harden_el1_vectors[];
-+
- /*
-  * Note: the order of this enum corresponds to two arrays in entry.S:
-  * tramp_vecs and __bp_harden_el1_vectors. By default the canonical
-@@ -29,6 +38,24 @@ enum arm64_bp_harden_el1_vectors {
- 	 * Remap the kernel before branching to the canonical vectors.
- 	 */
- 	EL1_VECTOR_KPTI,
--+};
-+};
-+
-+/* The vectors to use on return from EL0. e.g. to remap the kernel */
-+DECLARE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector);
-+
-+#ifndef CONFIG_UNMAP_KERNEL_AT_EL0
-+#define TRAMP_VALIAS	0
-+#endif
-+
-+static inline const char *
-+arm64_get_bp_hardening_vector(enum arm64_bp_harden_el1_vectors slot)
-+{
-+	if (arm64_kernel_unmapped_at_el0())
-+		return (char *)TRAMP_VALIAS + SZ_2K * slot;
-+
-+	WARN_ON_ONCE(slot == EL1_VECTOR_KPTI);
-+
-+	return __bp_harden_el1_vectors + SZ_2K * slot;
-+}
- 
- #endif /* __ASM_VECTORS_H */
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -73,6 +73,8 @@
- #include <linux/mm.h>
- #include <linux/cpu.h>
- #include <linux/kasan.h>
-+#include <linux/percpu.h>
-+
- #include <asm/cpu.h>
- #include <asm/cpufeature.h>
- #include <asm/cpu_ops.h>
-@@ -85,6 +87,7 @@
- #include <asm/smp.h>
- #include <asm/sysreg.h>
- #include <asm/traps.h>
-+#include <asm/vectors.h>
- #include <asm/virt.h>
- 
- /* Kernel representation of AT_HWCAP and AT_HWCAP2 */
-@@ -110,6 +113,8 @@ DECLARE_BITMAP(boot_capabilities, ARM64_
- bool arm64_use_ng_mappings = false;
- EXPORT_SYMBOL(arm64_use_ng_mappings);
- 
-+DEFINE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector) = vectors;
-+
- /*
-  * Permit PER_LINUX32 and execve() of 32-bit binaries even if not all CPUs
-  * support it?
-@@ -1590,6 +1595,12 @@ kpti_install_ng_mappings(const struct ar
- 
- 	int cpu = smp_processor_id();
- 
-+	if (__this_cpu_read(this_cpu_vector) == vectors) {
-+		const char *v = arm64_get_bp_hardening_vector(EL1_VECTOR_KPTI);
-+
-+		__this_cpu_write(this_cpu_vector, v);
-+	}
-+
- 	/*
- 	 * We don't need to rewrite the page-tables if either we've done
- 	 * it already or we have KASLR enabled and therefore have not
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -38,7 +38,6 @@
- 	.macro kernel_ventry, el:req, ht:req, regsize:req, label:req
- 	.align 7
- .Lventry_start\@:
--#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	.if	\el == 0
- 	/*
- 	 * This must be the first instruction of the EL0 vector entries. It is
-@@ -53,7 +52,6 @@
- 	.endif
- .Lskip_tramp_vectors_cleanup\@:
- 	.endif
--#endif
- 
- 	sub	sp, sp, #PT_REGS_SIZE
- #ifdef CONFIG_VMAP_STACK
-@@ -712,10 +710,10 @@ alternative_else_nop_endif
- 	.endm
- 
- 	.macro tramp_exit, regsize = 64
--	adr	x30, tramp_vectors
--#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
--	add	x30, x30, SZ_4K
--#endif
-+	tramp_data_read_var	x30, this_cpu_vector
-+	get_this_cpu_offset x29
-+	ldr	x30, [x30, x29]
-+
- 	msr	vbar_el1, x30
- 	ldr	lr, [sp, #S_LR]
- 	tramp_unmap_kernel	x29
-@@ -775,6 +773,8 @@ __entry_tramp_data_vectors:
- __entry_tramp_data___sdei_asm_handler:
- 	.quad	__sdei_asm_handler
- #endif /* CONFIG_ARM_SDE_INTERFACE */
-+__entry_tramp_data_this_cpu_vector:
-+	.quad	this_cpu_vector
- SYM_DATA_END(__entry_tramp_data_start)
- 	.popsection				// .rodata
- #endif /* CONFIG_RANDOMIZE_BASE */
---- a/arch/arm64/kvm/hyp/vhe/switch.c
-+++ b/arch/arm64/kvm/hyp/vhe/switch.c
-@@ -10,6 +10,7 @@
- #include <linux/kvm_host.h>
- #include <linux/types.h>
- #include <linux/jump_label.h>
-+#include <linux/percpu.h>
- #include <uapi/linux/psci.h>
- 
- #include <kvm/arm_psci.h>
-@@ -25,6 +26,7 @@
- #include <asm/debug-monitors.h>
- #include <asm/processor.h>
- #include <asm/thread_info.h>
-+#include <asm/vectors.h>
- 
- /* VHE specific context */
- DEFINE_PER_CPU(struct kvm_host_data, kvm_host_data);
-@@ -68,7 +70,7 @@ NOKPROBE_SYMBOL(__activate_traps);
- 
- static void __deactivate_traps(struct kvm_vcpu *vcpu)
- {
--	extern char vectors[];	/* kernel exception vectors */
-+	const char *host_vectors = vectors;
- 
- 	___deactivate_traps(vcpu);
- 
-@@ -82,7 +84,10 @@ static void __deactivate_traps(struct kv
- 	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_SPECULATIVE_AT));
- 
- 	write_sysreg(CPACR_EL1_DEFAULT, cpacr_el1);
--	write_sysreg(vectors, vbar_el1);
-+
-+	if (!arm64_kernel_unmapped_at_el0())
-+		host_vectors = __this_cpu_read(this_cpu_vector);
-+	write_sysreg(host_vectors, vbar_el1);
+ 	if (rinfo->irq)
+@@ -1428,9 +1429,15 @@ static int blkif_get_final_status(enum b
+ 	return BLKIF_RSP_OKAY;
  }
- NOKPROBE_SYMBOL(__deactivate_traps);
  
+-static bool blkif_completion(unsigned long *id,
+-			     struct blkfront_ring_info *rinfo,
+-			     struct blkif_response *bret)
++/*
++ * Return values:
++ *  1 response processed.
++ *  0 missing further responses.
++ * -1 error while processing.
++ */
++static int blkif_completion(unsigned long *id,
++			    struct blkfront_ring_info *rinfo,
++			    struct blkif_response *bret)
+ {
+ 	int i = 0;
+ 	struct scatterlist *sg;
+@@ -1453,7 +1460,7 @@ static bool blkif_completion(unsigned lo
+ 
+ 		/* Wait the second response if not yet here. */
+ 		if (s2->status < REQ_DONE)
+-			return false;
++			return 0;
+ 
+ 		bret->status = blkif_get_final_status(s->status,
+ 						      s2->status);
+@@ -1504,42 +1511,43 @@ static bool blkif_completion(unsigned lo
+ 	}
+ 	/* Add the persistent grant into the list of free grants */
+ 	for (i = 0; i < num_grant; i++) {
+-		if (gnttab_query_foreign_access(s->grants_used[i]->gref)) {
++		if (!gnttab_try_end_foreign_access(s->grants_used[i]->gref)) {
+ 			/*
+ 			 * If the grant is still mapped by the backend (the
+ 			 * backend has chosen to make this grant persistent)
+ 			 * we add it at the head of the list, so it will be
+ 			 * reused first.
+ 			 */
+-			if (!info->feature_persistent)
+-				pr_alert_ratelimited("backed has not unmapped grant: %u\n",
+-						     s->grants_used[i]->gref);
++			if (!info->feature_persistent) {
++				pr_alert("backed has not unmapped grant: %u\n",
++					 s->grants_used[i]->gref);
++				return -1;
++			}
+ 			list_add(&s->grants_used[i]->node, &rinfo->grants);
+ 			rinfo->persistent_gnts_c++;
+ 		} else {
+ 			/*
+-			 * If the grant is not mapped by the backend we end the
+-			 * foreign access and add it to the tail of the list,
+-			 * so it will not be picked again unless we run out of
+-			 * persistent grants.
++			 * If the grant is not mapped by the backend we add it
++			 * to the tail of the list, so it will not be picked
++			 * again unless we run out of persistent grants.
+ 			 */
+-			gnttab_end_foreign_access(s->grants_used[i]->gref, 0, 0UL);
+ 			s->grants_used[i]->gref = GRANT_INVALID_REF;
+ 			list_add_tail(&s->grants_used[i]->node, &rinfo->grants);
+ 		}
+ 	}
+ 	if (s->req.operation == BLKIF_OP_INDIRECT) {
+ 		for (i = 0; i < INDIRECT_GREFS(num_grant); i++) {
+-			if (gnttab_query_foreign_access(s->indirect_grants[i]->gref)) {
+-				if (!info->feature_persistent)
+-					pr_alert_ratelimited("backed has not unmapped grant: %u\n",
+-							     s->indirect_grants[i]->gref);
++			if (!gnttab_try_end_foreign_access(s->indirect_grants[i]->gref)) {
++				if (!info->feature_persistent) {
++					pr_alert("backed has not unmapped grant: %u\n",
++						 s->indirect_grants[i]->gref);
++					return -1;
++				}
+ 				list_add(&s->indirect_grants[i]->node, &rinfo->grants);
+ 				rinfo->persistent_gnts_c++;
+ 			} else {
+ 				struct page *indirect_page;
+ 
+-				gnttab_end_foreign_access(s->indirect_grants[i]->gref, 0, 0UL);
+ 				/*
+ 				 * Add the used indirect page back to the list of
+ 				 * available pages for indirect grefs.
+@@ -1554,7 +1562,7 @@ static bool blkif_completion(unsigned lo
+ 		}
+ 	}
+ 
+-	return true;
++	return 1;
+ }
+ 
+ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
+@@ -1620,12 +1628,17 @@ static irqreturn_t blkif_interrupt(int i
+ 		}
+ 
+ 		if (bret.operation != BLKIF_OP_DISCARD) {
++			int ret;
++
+ 			/*
+ 			 * We may need to wait for an extra response if the
+ 			 * I/O request is split in 2
+ 			 */
+-			if (!blkif_completion(&id, rinfo, &bret))
++			ret = blkif_completion(&id, rinfo, &bret);
++			if (!ret)
+ 				continue;
++			if (unlikely(ret < 0))
++				goto err;
+ 		}
+ 
+ 		if (add_id_to_freelist(rinfo, id)) {
+@@ -1731,8 +1744,7 @@ static int setup_blkring(struct xenbus_d
+ 	for (i = 0; i < info->nr_ring_pages; i++)
+ 		rinfo->ring_ref[i] = GRANT_INVALID_REF;
+ 
+-	sring = (struct blkif_sring *)__get_free_pages(GFP_NOIO | __GFP_HIGH,
+-						       get_order(ring_size));
++	sring = alloc_pages_exact(ring_size, GFP_NOIO);
+ 	if (!sring) {
+ 		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
+ 		return -ENOMEM;
+@@ -1742,7 +1754,7 @@ static int setup_blkring(struct xenbus_d
+ 
+ 	err = xenbus_grant_ring(dev, rinfo->ring.sring, info->nr_ring_pages, gref);
+ 	if (err < 0) {
+-		free_pages((unsigned long)sring, get_order(ring_size));
++		free_pages_exact(sring, ring_size);
+ 		rinfo->ring.sring = NULL;
+ 		goto fail;
+ 	}
+@@ -2720,11 +2732,10 @@ static void purge_persistent_grants(stru
+ 		list_for_each_entry_safe(gnt_list_entry, tmp, &rinfo->grants,
+ 					 node) {
+ 			if (gnt_list_entry->gref == GRANT_INVALID_REF ||
+-			    gnttab_query_foreign_access(gnt_list_entry->gref))
++			    !gnttab_try_end_foreign_access(gnt_list_entry->gref))
+ 				continue;
+ 
+ 			list_del(&gnt_list_entry->node);
+-			gnttab_end_foreign_access(gnt_list_entry->gref, 0, 0UL);
+ 			rinfo->persistent_gnts_c--;
+ 			gnt_list_entry->gref = GRANT_INVALID_REF;
+ 			list_add_tail(&gnt_list_entry->node, &rinfo->grants);
 
 
