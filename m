@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6716D4D4B58
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D57BC4D4B94
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243427AbiCJOWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:22:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43722 "EHLO
+        id S243307AbiCJOVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:21:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244439AbiCJOTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:19:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8574BF528;
-        Thu, 10 Mar 2022 06:16:18 -0800 (PST)
+        with ESMTP id S244250AbiCJOTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:19:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D701704C0;
+        Thu, 10 Mar 2022 06:15:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3266461C7A;
-        Thu, 10 Mar 2022 14:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21DD8C340E8;
-        Thu, 10 Mar 2022 14:15:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE99BB8267B;
+        Thu, 10 Mar 2022 14:15:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E7FC340E8;
+        Thu, 10 Mar 2022 14:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921742;
-        bh=lhCYm36lISKlmiaC/3uFiBZIuFSVw3qpMR4feD6Xf4o=;
+        s=korg; t=1646921745;
+        bh=DzqVsiVDsID/SYy4BDD6YW+JEMYUAwX1RdJngJSgkrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmVb+wN6BI7RGxI3c5gUffkcNdgrGKZMpa2rTRwkFKIqpcH2DZbES7w1pxxDdJPRA
-         DkUkxF0C8n4+vtjseciPyPwsn4sjQIJjL/NLZe4O35QwTx1OkvxTnGZcUTnO/R8ms3
-         UsNsf7JnVDfmpb3ta5lEOUCirOjaKpGvZejEzz68=
+        b=vw8EAkukNP7W1k477R9qRdwOJtICzzwIgaEXbP1rTpw4aHeN+6EvrL7HQkwNSW/KF
+         6JdCW+KRUyL2+WlmD792o19i/2q30pTqMboOo0AWWP0R1X7cx79rmxCaSZ+anvQ595
+         QccIM6sI+b9tNiywf4v+skSZ9KeUwcg4HUgpIPX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 25/38] ARM: fix co-processor register typo
-Date:   Thu, 10 Mar 2022 15:13:38 +0100
-Message-Id: <20220310140808.872936077@linuxfoundation.org>
+Subject: [PATCH 4.9 26/38] ARM: Do not use NOCROSSREFS directive with ld.lld
+Date:   Thu, 10 Mar 2022 15:13:39 +0100
+Message-Id: <20220310140808.900651068@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140808.136149678@linuxfoundation.org>
 References: <20220310140808.136149678@linuxfoundation.org>
@@ -55,34 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 33970b031dc4653cc9dc80f2886976706c4c8ef1 upstream.
+commit 36168e387fa7d0f1fe0cd5cf76c8cea7aee714fa upstream.
 
-In the recent Spectre BHB patches, there was a typo that is only
-exposed in certain configurations: mcr p15,0,XX,c7,r5,4 should have
-been mcr p15,0,XX,c7,c5,4
+ld.lld does not support the NOCROSSREFS directive at the moment, which
+breaks the build after commit b9baf5c8c5c3 ("ARM: Spectre-BHB
+workaround"):
 
-Reported-by: kernel test robot <lkp@intel.com>
+  ld.lld: error: ./arch/arm/kernel/vmlinux.lds:34: AT expected, but got NOCROSSREFS
+
+Support for this directive will eventually be implemented, at which
+point a version check can be added. To avoid breaking the build in the
+meantime, just define NOCROSSREFS to nothing when using ld.lld, with a
+link to the issue for tracking.
+
+Cc: stable@vger.kernel.org
 Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1609
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/assembler.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/kernel/vmlinux-xip.lds.S |    8 ++++++++
+ arch/arm/kernel/vmlinux.lds.S     |    8 ++++++++
+ 2 files changed, 16 insertions(+)
 
---- a/arch/arm/include/asm/assembler.h
-+++ b/arch/arm/include/asm/assembler.h
-@@ -114,7 +114,7 @@
- 	.endm
+--- a/arch/arm/kernel/vmlinux-xip.lds.S
++++ b/arch/arm/kernel/vmlinux-xip.lds.S
+@@ -12,6 +12,14 @@
+ #include <asm/memory.h>
+ #include <asm/page.h>
  
- 	.macro	isb, args
--	mcr	p15, 0, r0, c7, r5, 4
-+	mcr	p15, 0, r0, c7, c5, 4
- 	.endm
- #endif
++/*
++ * ld.lld does not support NOCROSSREFS:
++ * https://github.com/ClangBuiltLinux/linux/issues/1609
++ */
++#ifdef CONFIG_LD_IS_LLD
++#define NOCROSSREFS
++#endif
++
+ /* Set start/end symbol names to the LMA for the section */
+ #define ARM_LMA(sym, section)						\
+ 	sym##_start = LOADADDR(section);				\
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -14,6 +14,14 @@
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
  
++/*
++ * ld.lld does not support NOCROSSREFS:
++ * https://github.com/ClangBuiltLinux/linux/issues/1609
++ */
++#ifdef CONFIG_LD_IS_LLD
++#define NOCROSSREFS
++#endif
++
+ /* Set start/end symbol names to the LMA for the section */
+ #define ARM_LMA(sym, section)						\
+ 	sym##_start = LOADADDR(section);				\
 
 
