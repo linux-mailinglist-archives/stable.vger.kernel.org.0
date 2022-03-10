@@ -2,132 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37B334D44A1
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 11:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 955D24D44AA
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 11:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240229AbiCJKcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 05:32:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57268 "EHLO
+        id S240510AbiCJKdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 05:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbiCJKcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 05:32:00 -0500
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82EA13EF82
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 02:30:59 -0800 (PST)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-2dc28791ecbso52586267b3.4
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 02:30:59 -0800 (PST)
+        with ESMTP id S241453AbiCJKdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 05:33:36 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60DED1039
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 02:32:35 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id p17so4458642plo.9
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 02:32:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=GEIKOgAspd11sCcksbwlQC1hgUyJX16lFrTFDurSqL0=;
-        b=dPd6hyEcvmtuMDfVZVrmJ9pq4L1ctnGz96ODjH+VHv84r7zoI7lclitqyvah9DoWPd
-         XI/zcqWf3jZg0C0bATpo2hYzsh1WdRaRfSoaNJmA7QhnYbjfP9ntQ8lrI1iz+F3gUggQ
-         vS0/32fUU4aOJR0bdcDWjbUtHCWJXrM6EQUPEn0pxukoPGMjP4eAwEI1kiNSyI8GqMDS
-         SVAvulj2wUh70ET3AshyWqdTpGu0SSp5ES/18HBG2AByXD52T6XW/J8QXux5jt90h87c
-         vONbKMa3SyIL2s4YwZz7M5X8Y3ZWOPoKFKo1AoXKTNlV+A5Z3E8B1ANP+HpVdYvFqPRF
-         nrsg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3kHPeSWZye02uNdw8VokCO5nuEz5DMpLh2CFMS9symQ=;
+        b=s8yfm+jUzwvvt9MBU1TqpNYVPFJkgL527/jf31niVXrQMjQYaon+4FjfAVFCwWfzV8
+         Z4EtFcKkoNqDh4pKazjXJpObyy44Gz7QJ8uPQwpi3fUoruWBltvRw1XcaT/pQ7ZF+qkS
+         PXqfgCqArDZ6eEKcWW02sKaB3/6xm9dcALpH581ODeilqmhF16PZaYNxHIr7vwGhI9+w
+         V/u15LoKk/pFwdeWxnsd9Rr0TZTv+KDZLh/UL/pXjX0uVAAnKC0G+KHS3Ng89WKyCwFW
+         YMsUNIXHfs94vzHCLRsd3CSBVRqo5u/iou2h52h0ujE+pjOINHCPpUXWpHjc1Hjsigl/
+         fZxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=GEIKOgAspd11sCcksbwlQC1hgUyJX16lFrTFDurSqL0=;
-        b=QWgai66ofZVSIctA5JpPG2pMoKowIKG9iKw9pOXk2cJ5UcV05TszRR7vqrkF0ToCeR
-         yFXgWn0xFOHEf10ZMD8YSaugaphoyIA/3aVkxtg509nLs2qNSaAKI+JKw9L4TAQklDrr
-         tnQUk2vE+COHKK3EmJtnF7YmVYTJqqWTazcHxAIE0k/s6W3rIuH2O979ROD54nhtLwxg
-         IIl6jLzqDzMF/J8+WseQkItRfUH+zA7324EoXpsBA092boAb0tfa02RALLnfXb64dBXf
-         A0hk7649oiogoWZO+d/UTLxSuG+ga6EbiKWAVEPASYYdRTv9bJ0VKAU024Hx1AmSYsEo
-         rFLw==
-X-Gm-Message-State: AOAM5320M+VfM3ziAXNmsQoNMVD8AxeKcFSGxVqMIpsRCzHUubhjwdAQ
-        czqFuNG1x1XRYuVHvT5TzgQ6w7NcIOqAVjumCjHW/zY0lJGLepCh
-X-Google-Smtp-Source: ABdhPJyxz6RxicR07EAcW/kfCDhQdIURBoEkhQwDSD7HihZjf5U3WcCubUufIBZrJi4JfXwuxZJPVNQ6UFx87k+2eRM=
-X-Received: by 2002:a81:486:0:b0:2d7:7785:3f33 with SMTP id
- 128-20020a810486000000b002d777853f33mr3386035ywe.516.1646908258973; Thu, 10
- Mar 2022 02:30:58 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3kHPeSWZye02uNdw8VokCO5nuEz5DMpLh2CFMS9symQ=;
+        b=xDUb9p7Z/4Bt+0B/ZZp4tfM0+9qEUVPNB6ma+B0HGzk7uR6rxrIABwUGZsF52C3y41
+         7sxAhNXiS04X4tplruud/2H5aX7ZFRC+fw5rj43WN5jp5XHiEBdpJLa+UC3iF3fTP0Go
+         /yJ3cXuMRYcfcqEkwqcg/TVDp1cUMxs7WHuxZ67HQ2R29EiKdcQUfchkgIivmW4Kjptp
+         v/FTQ9a0cm8zzME9l3qiwXOxGO5E8rkIC9MnoIudr0iNoVVQMmi0RH6icDEnDZ2l8+1g
+         gRcGcO7ZjSaQXOe8c1SoyobzRb1i88Ts7TKpxEQ0DLCttbj2/yABip1RhpanOfV+hkCx
+         f9Mg==
+X-Gm-Message-State: AOAM533DEuH6A1mrB222h8+6y1mQTeU2SNbh9qocDl0ZMjow9OaU9JFE
+        Pbl2BqfqszVaztBXAHnNQltUrw4wnf/27gBE9OM=
+X-Google-Smtp-Source: ABdhPJxRkJpD86Csxqd9ShIMSS+SYSnQFdISOKg5Eo1d8Pxn7Ztrouc9QoszPWj8iMXo8Ryu0gBJOw==
+X-Received: by 2002:a17:90a:6001:b0:1bb:83e8:1694 with SMTP id y1-20020a17090a600100b001bb83e81694mr15179908pji.127.1646908354537;
+        Thu, 10 Mar 2022 02:32:34 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e14-20020a056a001a8e00b004f75cf1ab6csm5765960pfv.206.2022.03.10.02.32.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Mar 2022 02:32:34 -0800 (PST)
+Message-ID: <6229d3c2.1c69fb81.67df8.d7d2@mx.google.com>
+Date:   Thu, 10 Mar 2022 02:32:34 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220309155859.734715884@linuxfoundation.org> <b17d6dad-b5b3-6c59-b156-831913f7cd3e@linaro.org>
-In-Reply-To: <b17d6dad-b5b3-6c59-b156-831913f7cd3e@linaro.org>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Thu, 10 Mar 2022 11:30:48 +0100
-Message-ID: <CADYN=9+VTyVCxuMBNfYGdLX+BzOhXPPURy8iaLDywyqmyiBZyw@mail.gmail.com>
-Subject: Re: [PATCH 5.15 00/43] 5.15.28-rc1 review
-To:     =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.16
+X-Kernelci-Kernel: v5.16.13-40-gfeaa4f8b8a32
+Subject: stable-rc/queue/5.16 baseline: 100 runs,
+ 2 regressions (v5.16.13-40-gfeaa4f8b8a32)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 9 Mar 2022 at 22:14, Daniel D=C3=ADaz <daniel.diaz@linaro.org> wrot=
-e:
->
-> Hello!
->
-> On 09/03/22 09:59, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.15.28 release.
-> > There are 43 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >       https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.15.28-rc1.gz
-> > or in the git tree and branch at:
-> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.15.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
->
-> Regressions found.
->
+stable-rc/queue/5.16 baseline: 100 runs, 2 regressions (v5.16.13-40-gfeaa4f=
+8b8a32)
 
-[...]
+Regressions Summary
+-------------------
 
->
->
-> And here's one for Clang (same imx_v4_v5_defconfig config, but with clang=
--11):
->
->    ld.lld: error: ./arch/arm/kernel/vmlinux.lds:117: AT expected, but got=
- NOCROSSREFS
->    >>>  __vectors_lma =3D .; OVERLAY 0xffff0000 : NOCROSSREFS AT(__vector=
-s_lma) { .vectors { *(.vectors) } .vectors.bhb.loop8 { *(.vectors.bhb.loop8=
-) } .vectors.bhb.bpiall { *(.vectors.bhb.bpiall) } } __vectors_start =3D LO=
-ADADDR(.vectors); __vectors_end =3D LOADADDR(.vectors) + SIZEOF(.vectors); =
-__vectors_bhb_loop8_start =3D LOADADDR(.vectors.bhb.loop8); __vectors_bhb_l=
-oop8_end =3D LOADADDR(.vectors.bhb.loop8) + SIZEOF(.vectors.bhb.loop8); __v=
-ectors_bhb_bpiall_start =3D LOADADDR(.vectors.bhb.bpiall); __vectors_bhb_bp=
-iall_end =3D LOADADDR(.vectors.bhb.bpiall) + SIZEOF(.vectors.bhb.bpiall); .=
- =3D __vectors_lma + SIZEOF(.vectors) + SIZEOF(.vectors.bhb.loop8) + SIZEOF=
-(.vectors.bhb.bpiall); __stubs_lma =3D .; .stubs ADDR(.vectors) + 0x1000 : =
-AT(__stubs_lma) { *(.stubs) } __stubs_start =3D LOADADDR(.stubs); __stubs_e=
-nd =3D LOADADDR(.stubs) + SIZEOF(.stubs); . =3D __stubs_lma + SIZEOF(.stubs=
-); PROVIDE(vector_fiq_offset =3D vector_fiq - ADDR(.vectors));
->    >>>                                          ^
->    make[1]: *** [/builds/linux/Makefile:1183: vmlinux] Error 1
+platform            | arch  | lab           | compiler | defconfig         =
+         | regressions
+--------------------+-------+---------------+----------+-------------------=
+---------+------------
+r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
+         | 1          =
 
-Bisection showed patch 8f4782a68faf ("ARM: Spectre-BHB workaround") as
-the faulty patch.
+rk3399-gru-kevin    | arm64 | lab-collabora | gcc-10   | defconfig+arm64-ch=
+romebook | 1          =
 
 
-Cheers,
-Anders
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
+nel/v5.16.13-40-gfeaa4f8b8a32/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.16
+  Describe: v5.16.13-40-gfeaa4f8b8a32
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      feaa4f8b8a32fa375834f45014eacef7c1a47fa3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch  | lab           | compiler | defconfig         =
+         | regressions
+--------------------+-------+---------------+----------+-------------------=
+---------+------------
+r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62299d606d5346108dc62968
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.13-=
+40-gfeaa4f8b8a32/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
+ator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.13-=
+40-gfeaa4f8b8a32/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
+ator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62299d606d5346108dc62=
+969
+        new failure (last pass: v5.16.13-38-ge6347addcf77) =
+
+ =
+
+
+
+platform            | arch  | lab           | compiler | defconfig         =
+         | regressions
+--------------------+-------+---------------+----------+-------------------=
+---------+------------
+rk3399-gru-kevin    | arm64 | lab-collabora | gcc-10   | defconfig+arm64-ch=
+romebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6229a2d32c4dae1ff3c629cc
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.13-=
+40-gfeaa4f8b8a32/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.13-=
+40-gfeaa4f8b8a32/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6229a2d32c4dae1ff3c629f1
+        failing since 2 days (last pass: v5.16.12-85-g060a81f57a12, first f=
+ail: v5.16.12-184-g8f38ca5a2a07)
+
+    2022-03-10T07:03:29.792045  /lava-5849911/1/../bin/lava-test-case
+    2022-03-10T07:03:29.802790  <8>[   33.442859] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
