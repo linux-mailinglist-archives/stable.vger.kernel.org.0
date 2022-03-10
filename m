@@ -2,120 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E48DD4D4058
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 05:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 757924D405A
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 05:39:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234249AbiCJEgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Mar 2022 23:36:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
+        id S239484AbiCJEkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Mar 2022 23:40:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229769AbiCJEgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 23:36:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3B28F957D;
-        Wed,  9 Mar 2022 20:35:49 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3511F617D7;
-        Thu, 10 Mar 2022 04:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2DC5C340E8;
-        Thu, 10 Mar 2022 04:35:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646886948;
-        bh=FGEeHKgGa6xAxtUm0UWusuPBT4FNS/qfCOsJTNPDB84=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i58XivLkb4qBdQFmirKpwI9QCTayv8dGXU4cMbiZZzRvvnDqB4HU4AoH/l5QeIZ7I
-         IRHCGSYJD/45vwFtIm4Bh7mUYqJ6y/v11CmBRSULcILxpzdNPGbBZlkJowoMLVrTaJ
-         nbKGH0XA3F8cXZACbJZtcCs39J4M1jpXuaoPgeJp/qydk+NNe11XxFGZt8BFC3OUWQ
-         DWcTCRoqESwhq9+PFbZmRlhfMIuJNPhj6MPVCnWYmNz2nqgjO53u3eAqZxGQz9kfmb
-         ABwQlj9RP+mqrLaDR7+1asC/zmKc3HijP4YG9EXfghKOj0pKfD7vKw4pHroTrcnWd7
-         HJcLHqq1lxLag==
-Date:   Thu, 10 Mar 2022 10:05:44 +0530
-From:   Vinod Koul <vkoul@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 012/105] dmaengine: shdma: Fix runtime PM imbalance
- on error
-Message-ID: <YimAIPBs4FNlXIs3@matsya>
-References: <20220307091644.179885033@linuxfoundation.org>
- <20220307091644.529997660@linuxfoundation.org>
- <20220309105420.GA22677@duo.ucw.cz>
- <YiiWduSVDz1yYA9z@kroah.com>
- <20220309123509.GA30506@duo.ucw.cz>
- <YiiuaHFKuAv30zxW@kroah.com>
- <20220309135708.GB30506@duo.ucw.cz>
- <Yii+KtAnZ3XSJtXg@kroah.com>
+        with ESMTP id S229769AbiCJEkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Mar 2022 23:40:35 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B01E9FBA56;
+        Wed,  9 Mar 2022 20:39:35 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id r12so3815109pla.1;
+        Wed, 09 Mar 2022 20:39:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=a8muQvZwPBVR4Om9BDcvXjc+/opWxljURQCaJ7P/grw=;
+        b=e8me8YBOrrYdonpQitDroywqvABWtM6u4Gy+PCtpQJ3gQKKOmqbwyyuksjT9JZftbU
+         MvC/eJ4gBjqALhgcfvESjFsYo/FxLAuE5zRWxgE7MFKDzngUX7DPLl1mEQ+rtjp1caUo
+         RTMRfsX0j1h5ZZLrLTR0bbfg0Q9MOk48gHMyoFwKRSeojWfGakqkju1FM2v4U1j9zM02
+         Y5AyURB+hdeJDN7q3wIWUOUS2wQPw/JuFLGulhf4fAnU+7kOqnfWWsCWSAONsZFGxrna
+         lok4uu006AlQQ7XvfVSjKLi4vqGj5nVtz4F6i+6hjNWTm19Gq2PgfIO9KASdjLE8TrtI
+         PKEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=a8muQvZwPBVR4Om9BDcvXjc+/opWxljURQCaJ7P/grw=;
+        b=ouvhMptNZlWvXNNNjkI1FbY4BcD1Kuaa2955SeyHARVUTP0UYCwr50450Mc75ok/i8
+         BuZmFZ2rVj2gBAGx+JURwjnxS8R/uzVZM0As5tB5pT5PmX2NcMC/p5Ui+k2TZZxVCAT5
+         tblvbdrLZtdeOYzhaMcM8cExKvI0vCLwXtcrS2Fyx0R0ewAl6RorBuZ2NZ4Tw/A1mOuy
+         lCjeahartN79UdbJb4lk8Bw3ocRayyK3AW7ojlpog/0rStVsVzdSLmJZidVUfE6mDRhP
+         eY0b/OwXjOY/2NjXbLENvfrm9hp1//PNN5bSxKE+fcnwuUWWp4N3XKLjQyBw5JaeFpgF
+         NsMA==
+X-Gm-Message-State: AOAM5302kny/pVgPDe0fykLAiIIBVCfwvMb+3whucf771GQRDbtez03r
+        wkfI0yIUgEWTMhc2bfGdqxQNB5YFUlQ=
+X-Google-Smtp-Source: ABdhPJx+cNClR/LRJp8d1mNaSQwA4lbIVurtH6brlUPM11CxtMmyl9+jk4Ttwsa/UeaS8aVXGSNERg==
+X-Received: by 2002:a17:902:b945:b0:14e:e5c4:7bcd with SMTP id h5-20020a170902b94500b0014ee5c47bcdmr3082955pls.48.1646887175154;
+        Wed, 09 Mar 2022 20:39:35 -0800 (PST)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id f20-20020a056a00229400b004f74434eae4sm4886499pfe.153.2022.03.09.20.39.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Mar 2022 20:39:34 -0800 (PST)
+Message-ID: <0983e5e1-858b-da3f-b585-ee459ca4301b@gmail.com>
+Date:   Wed, 9 Mar 2022 20:39:32 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Yii+KtAnZ3XSJtXg@kroah.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH 5.15 00/43] 5.15.28-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220309155859.734715884@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220309155859.734715884@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09-03-22, 15:48, Greg Kroah-Hartman wrote:
-> On Wed, Mar 09, 2022 at 02:57:08PM +0100, Pavel Machek wrote:
-> > On Wed 2022-03-09 14:40:56, Greg Kroah-Hartman wrote:
-> > > On Wed, Mar 09, 2022 at 01:35:09PM +0100, Pavel Machek wrote:
-> > > > On Wed 2022-03-09 12:58:46, Greg Kroah-Hartman wrote:
-> > > > > On Wed, Mar 09, 2022 at 11:54:20AM +0100, Pavel Machek wrote:
-> > > > > > Hi!
-> > > > > > 
-> > > > > > > From: Yongzhi Liu <lyz_cs@pku.edu.cn>
-> > > > > > > 
-> > > > > > > [ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
-> > > > > > > 
-> > > > > > > pm_runtime_get_() increments the runtime PM usage counter even
-> > > > > > > when it returns an error code, thus a matching decrement is needed on
-> > > > > > > the error handling path to keep the counter balanced.
-> > > > > > 
-> > > > > > This patch will break things.
-> > > > > > 
-> > > > > > Notice that -ret is ignored (checked 4.4 and 5.10), so we don't
-> > > > > > actually abort/return error; we just printk. We'll do two
-> > > > > > pm_runtime_put's after the "fix".
-> > > > > > 
-> > > > > > Please drop from -stable.
-> > > > > > 
-> > > > > > It was discussed during AUTOSEL review:
-> > > > > > 
-> > > > > > Date: Fri, 25 Feb 2022 14:25:10 +0800 (GMT+08:00)
-> > > > > > From: 刘永志 <lyz_cs@pku.edu.cn>
-> > > > > > To: pavel machek <pavel@denx.de>
-> > > > > > Cc: sasha levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-> > > > > > Subject: Re: [PATCH AUTOSEL 5.16 24/30] dmaengine: shdma: Fix runtime PM
-> > > > > > 	imbalance on error
-> > > > > 
-> > > > > So 5.15 and 5.16 is ok, but older is not?
-> > > > 
-> > > > I believe commit is wrong for mainline and all stable releases, and
-> > > > author seems to agree. Drop from everywhere.
-> > > 
-> > > Is it reverted in Linus's tree yet?
-> > 
-> > It will take you a minute to check.
-> > 
-> > Take a look at the patch. There's no return in error path, thus doing
-> > runtime_put is clearly bogus. Should take you less than minute to
-> > verify.
-> > 
-> > Please drop the patch.
+
+
+On 3/9/2022 7:59 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.28 release.
+> There are 43 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> I want to have it reverted in Linus's tree as well, otherwise that's a
-> regression that people will hit.
+> Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.28-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-I have reverted now, it will be in -next tomorrow and in mainline during
-upcoming merge window
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-~Vinod
+Florian
