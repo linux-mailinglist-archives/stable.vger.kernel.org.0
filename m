@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1BB84D4C1C
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DBC34D4C0D
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243829AbiCJOcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:32:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
+        id S243808AbiCJO11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:27:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244733AbiCJO30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628D9DCE00;
-        Thu, 10 Mar 2022 06:24:34 -0800 (PST)
+        with ESMTP id S243735AbiCJO0x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:26:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A5B7154D2E;
+        Thu, 10 Mar 2022 06:22:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81F7BB82544;
-        Thu, 10 Mar 2022 14:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B31A4C340E8;
-        Thu, 10 Mar 2022 14:24:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E9EB61B63;
+        Thu, 10 Mar 2022 14:22:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35177C36AF9;
+        Thu, 10 Mar 2022 14:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922271;
-        bh=PD8YDBuRBOII3aVAAcFtCX2cx+HFLHuZPpAQYmq1x+Y=;
+        s=korg; t=1646922147;
+        bh=U3EXImq8gUZIXidQsm+kHu1XAwQQbkW0LhGr+JscwNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtiwXKaqZ+uZBDt91hUaHlJDDA90eMjUYS2e7KJpX5D7py3Hn675r0Y4F4N2WYuZK
-         Hr3fkM7qg6lCDcW4RBiFFVlkq5f4mIqBowekXE0d+uBpBK74h5QNwWCsEszZg7t/Dk
-         bn2qT9mxzZjb1gkx10I+k/mQtVT72NCqzKCgpf5c=
+        b=Ni7qKHcomFYnswdvoQfPvmVC1rB2HSGYJ2lwgZQFEKiY+2dHJB1o1R9aQQ2hc885N
+         uy79xygd+9UP9v39m938Q0Aj5YD8WID8rRsjWIIF4ZUj1i0bl5Nc7q06mi4zzh4rDc
+         ZN20PexPc4W0uKplRjZBGPzXCIv/uZtvIvAThbGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.10 25/58] arm64: entry: Make the trampoline cleanup optional
-Date:   Thu, 10 Mar 2022 15:18:45 +0100
-Message-Id: <20220310140813.593477273@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 21/33] ARM: Do not use NOCROSSREFS directive with ld.lld
+Date:   Thu, 10 Mar 2022 15:18:48 +0100
+Message-Id: <20220310140808.369034766@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
+References: <20220310140807.749164737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit d739da1694a0eaef0358a42b76904b611539b77b upstream.
+commit 36168e387fa7d0f1fe0cd5cf76c8cea7aee714fa upstream.
 
-Subsequent patches will add additional sets of vectors that use
-the same tricks as the kpti vectors to reach the full-fat vectors.
-The full-fat vectors contain some cleanup for kpti that is patched
-in by alternatives when kpti is in use. Once there are additional
-vectors, the cleanup will be needed in more cases.
+ld.lld does not support the NOCROSSREFS directive at the moment, which
+breaks the build after commit b9baf5c8c5c3 ("ARM: Spectre-BHB
+workaround"):
 
-But on big/little systems, the cleanup would be harmful if no
-trampoline vector were in use. Instead of forcing CPUs that don't
-need a trampoline vector to use one, make the trampoline cleanup
-optional.
+  ld.lld: error: ./arch/arm/kernel/vmlinux.lds:34: AT expected, but got NOCROSSREFS
 
-Entry at the top of the vectors will skip the cleanup. The trampoline
-vectors can then skip the first instruction, triggering the cleanup
-to run.
+Support for this directive will eventually be implemented, at which
+point a version check can be added. To avoid breaking the build in the
+meantime, just define NOCROSSREFS to nothing when using ld.lld, with a
+link to the issue for tracking.
 
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1609
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm/kernel/vmlinux.lds.h |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -65,14 +65,18 @@
- .Lventry_start\@:
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	.if	\el == 0
--alternative_if ARM64_UNMAP_KERNEL_AT_EL0
-+	/*
-+	 * This must be the first instruction of the EL0 vector entries. It is
-+	 * skipped by the trampoline vectors, to trigger the cleanup.
-+	 */
-+	b	.Lskip_tramp_vectors_cleanup\@
- 	.if	\regsize == 64
- 	mrs	x30, tpidrro_el0
- 	msr	tpidrro_el0, xzr
- 	.else
- 	mov	x30, xzr
- 	.endif
--alternative_else_nop_endif
-+.Lskip_tramp_vectors_cleanup\@:
- 	.endif
+--- a/arch/arm/kernel/vmlinux.lds.h
++++ b/arch/arm/kernel/vmlinux.lds.h
+@@ -25,6 +25,14 @@
+ #define ARM_MMU_DISCARD(x)	x
  #endif
  
-@@ -831,7 +835,7 @@ alternative_if_not ARM64_WORKAROUND_CAVI
- 	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
- alternative_else_nop_endif
- 	msr	vbar_el1, x30
--	add	x30, x30, #(1b - tramp_vectors)
-+	add	x30, x30, #(1b - tramp_vectors + 4)
- 	isb
- 	ret
- .org 1b + 128	// Did we overflow the ventry slot?
++/*
++ * ld.lld does not support NOCROSSREFS:
++ * https://github.com/ClangBuiltLinux/linux/issues/1609
++ */
++#ifdef CONFIG_LD_IS_LLD
++#define NOCROSSREFS
++#endif
++
+ /* Set start/end symbol names to the LMA for the section */
+ #define ARM_LMA(sym, section)						\
+ 	sym##_start = LOADADDR(section);				\
 
 
