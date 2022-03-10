@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC264D4C28
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A77CC4D4C16
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244750AbiCJOd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49600 "EHLO
+        id S236748AbiCJOcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:32:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244277AbiCJO2o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:28:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7838CD327;
-        Thu, 10 Mar 2022 06:23:40 -0800 (PST)
+        with ESMTP id S244236AbiCJO2i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:28:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78E2C7906;
+        Thu, 10 Mar 2022 06:23:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 267F661CEE;
-        Thu, 10 Mar 2022 14:23:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32A28C340E8;
-        Thu, 10 Mar 2022 14:23:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E10D8B82615;
+        Thu, 10 Mar 2022 14:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B513C340E8;
+        Thu, 10 Mar 2022 14:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922204;
-        bh=hgyMPXKpyrjFSr7gjjGkb1FgtZRbJo9afPZLy+xNAuM=;
+        s=korg; t=1646922210;
+        bh=yxgoumT1YLDdhdq5IBgheUbGQSZm44o0PVleM4hr8QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9H+Cn0i4QAr6tRVMGU85GSzMuAmxPBESBlj1zEHIMG5wP9egZvTOTpBmcdJKEyvw
-         W0A2kxZ+ewQuDeFLzI4F96M8eHCscw468xUmbZmaB9O1vfkIUGYNjIngsDaSSRksKS
-         8m1Y9UblGnKLxtmavT20mAOXVyPrh5yHZ+JBUBT0=
+        b=RNMSxsimwp70xhs4XctV+7JrHnmK7350zaDAD7ow74IEpdHSXxAIB7iN2jPrZrmRF
+         Yai3lADtVOKUrhK2sd18CClbmvmn2tTd0ChFeLSwl0ZwlvP1GpCAa9+CiU0ahZC8AP
+         GqDmisMsmtk4Wes8f71WbPFLtPcU2LBgCQzf+g1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.19 12/33] arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
-Date:   Thu, 10 Mar 2022 15:18:39 +0100
-Message-Id: <20220310140808.107537721@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 14/33] ARM: early traps initialisation
+Date:   Thu, 10 Mar 2022 15:18:41 +0100
+Message-Id: <20220310140808.166993548@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
 References: <20220310140807.749164737@linuxfoundation.org>
@@ -55,79 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
 
-commit 6b7fe77c334ae59fed9500140e08f4f896b36871 upstream.
+commit 04e91b7324760a377a725e218b5ee783826d30f5 upstream.
 
-SMCCC callers are currently amassing a collection of enums for the SMCCC
-conduit, and are having to dig into the PSCI driver's internals in order
-to figure out what to do.
+Provide a couple of helpers to copy the vectors and stubs, and also
+to flush the copied vectors and stubs.
 
-Let's clean this up, with common SMCCC_CONDUIT_* definitions, and an
-arm_smccc_1_1_get_conduit() helper that abstracts the PSCI driver's
-internal state.
-
-We can kill off the PSCI_CONDUIT_* definitions once we've migrated users
-over to the new interface.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/psci.c   |   15 +++++++++++++++
- include/linux/arm-smccc.h |   16 ++++++++++++++++
- 2 files changed, 31 insertions(+)
+ arch/arm/kernel/traps.c |   27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
---- a/drivers/firmware/psci.c
-+++ b/drivers/firmware/psci.c
-@@ -64,6 +64,21 @@ struct psci_operations psci_ops = {
- 	.smccc_version = SMCCC_VERSION_1_0,
- };
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -830,10 +830,22 @@ static inline void __init kuser_init(voi
+ }
+ #endif
  
-+enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void)
++#ifndef CONFIG_CPU_V7M
++static void copy_from_lma(void *vma, void *lma_start, void *lma_end)
 +{
-+	if (psci_ops.smccc_version < SMCCC_VERSION_1_1)
-+		return SMCCC_CONDUIT_NONE;
-+
-+	switch (psci_ops.conduit) {
-+	case PSCI_CONDUIT_SMC:
-+		return SMCCC_CONDUIT_SMC;
-+	case PSCI_CONDUIT_HVC:
-+		return SMCCC_CONDUIT_HVC;
-+	default:
-+		return SMCCC_CONDUIT_NONE;
-+	}
++	memcpy(vma, lma_start, lma_end - lma_start);
 +}
 +
- typedef unsigned long (psci_fn)(unsigned long, unsigned long,
- 				unsigned long, unsigned long);
- static psci_fn *invoke_psci_fn;
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -89,6 +89,22 @@
++static void flush_vectors(void *vma, size_t offset, size_t size)
++{
++	unsigned long start = (unsigned long)vma + offset;
++	unsigned long end = start + size;
++
++	flush_icache_range(start, end);
++}
++
+ void __init early_trap_init(void *vectors_base)
+ {
+-#ifndef CONFIG_CPU_V7M
+-	unsigned long vectors = (unsigned long)vectors_base;
+ 	extern char __stubs_start[], __stubs_end[];
+ 	extern char __vectors_start[], __vectors_end[];
+ 	unsigned i;
+@@ -854,17 +866,20 @@ void __init early_trap_init(void *vector
+ 	 * into the vector page, mapped at 0xffff0000, and ensure these
+ 	 * are visible to the instruction stream.
+ 	 */
+-	memcpy((void *)vectors, __vectors_start, __vectors_end - __vectors_start);
+-	memcpy((void *)vectors + 0x1000, __stubs_start, __stubs_end - __stubs_start);
++	copy_from_lma(vectors_base, __vectors_start, __vectors_end);
++	copy_from_lma(vectors_base + 0x1000, __stubs_start, __stubs_end);
  
- #include <linux/linkage.h>
- #include <linux/types.h>
-+
-+enum arm_smccc_conduit {
-+	SMCCC_CONDUIT_NONE,
-+	SMCCC_CONDUIT_SMC,
-+	SMCCC_CONDUIT_HVC,
-+};
-+
-+/**
-+ * arm_smccc_1_1_get_conduit()
-+ *
-+ * Returns the conduit to be used for SMCCCv1.1 or later.
-+ *
-+ * When SMCCCv1.1 is not present, returns SMCCC_CONDUIT_NONE.
-+ */
-+enum arm_smccc_conduit arm_smccc_1_1_get_conduit(void);
-+
- /**
-  * struct arm_smccc_res - Result from SMC/HVC call
-  * @a0-a3 result values from registers 0 to 3
+ 	kuser_init(vectors_base);
+ 
+-	flush_icache_range(vectors, vectors + PAGE_SIZE * 2);
++	flush_vectors(vectors_base, 0, PAGE_SIZE * 2);
++}
+ #else /* ifndef CONFIG_CPU_V7M */
++void __init early_trap_init(void *vectors_base)
++{
+ 	/*
+ 	 * on V7-M there is no need to copy the vector table to a dedicated
+ 	 * memory area. The address is configurable and so a table in the kernel
+ 	 * image can be used.
+ 	 */
+-#endif
+ }
++#endif
 
 
