@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C35664D49EC
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9764D4A77
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244288AbiCJOdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50108 "EHLO
+        id S244372AbiCJOdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244108AbiCJO2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:28:30 -0500
+        with ESMTP id S245041AbiCJO3u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:29:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 258BABDE67;
-        Thu, 10 Mar 2022 06:23:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A886915C9F2;
+        Thu, 10 Mar 2022 06:25:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C91CB81E9E;
-        Thu, 10 Mar 2022 14:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D465C340E8;
-        Thu, 10 Mar 2022 14:23:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43845B825A7;
+        Thu, 10 Mar 2022 14:25:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E60DC340E8;
+        Thu, 10 Mar 2022 14:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922189;
-        bh=ns34xK5Ax7X9DdpK7iJHoh+YVWxk0ZHepyBDIJGlKaI=;
+        s=korg; t=1646922320;
+        bh=CKv9siGuusoENM2DBRrXprlaYHpaPdR7ANqVe2dSUZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tpJarEEpOU8+y8BIrDy8qGSxm+mbAKn7U9VuCqvMQB13NJ1s7rB3j2KFMV0/iRuZY
-         2doWHaQ/72/hxcgTPEbic//ZBEvRRhwjrg+04eMN0x10awt8kMybExrqC2JAAmiRxr
-         y2xv6uvQUURspqV/m+3XlQ1ocJsEWm6N09WyXGQQ=
+        b=0Xi4CsSbief1BCa+XEBg2inAg3Z3XPrqKGCVFl9yVUj2DC2r+RKb17TzIlkK8IZ6x
+         FmwQ/MIxLlvoQItSxcg6gucBliIpL9qvOUlsTvOutNJ6WNEcJNLHE1emAguJn+Yeow
+         m7UrM9biVgU1R+gpAg6okRWLYLLBlzdS3QPwoFSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Simon Gaiser <simon@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.19 32/33] xen/gnttab: fix gnttab_end_foreign_access() without page specified
-Date:   Thu, 10 Mar 2022 15:18:59 +0100
-Message-Id: <20220310140808.690699183@linuxfoundation.org>
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.10 40/58] KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
+Date:   Thu, 10 Mar 2022 15:19:00 +0100
+Message-Id: <20220310140814.012332345@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
-References: <20220310140807.749164737@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,135 +55,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: James Morse <james.morse@arm.com>
 
-Commit 42baefac638f06314298087394b982ead9ec444b upstream.
+commit a5905d6af492ee6a4a2205f0d550b3f931b03d03 upstream.
 
-gnttab_end_foreign_access() is used to free a grant reference and
-optionally to free the associated page. In case the grant is still in
-use by the other side processing is being deferred. This leads to a
-problem in case no page to be freed is specified by the caller: the
-caller doesn't know that the page is still mapped by the other side
-and thus should not be used for other purposes.
+KVM allows the guest to discover whether the ARCH_WORKAROUND SMCCC are
+implemented, and to preserve that state during migration through its
+firmware register interface.
 
-The correct way to handle this situation is to take an additional
-reference to the granted page in case handling is being deferred and
-to drop that reference when the grant reference could be freed
-finally.
+Add the necessary boiler plate for SMCCC_ARCH_WORKAROUND_3.
 
-This requires that there are no users of gnttab_end_foreign_access()
-left directly repurposing the granted page after the call, as this
-might result in clobbered data or information leaks via the not yet
-freed grant reference.
-
-This is part of CVE-2022-23041 / XSA-396.
-
-Reported-by: Simon Gaiser <simon@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/grant-table.c |   36 +++++++++++++++++++++++++++++-------
- include/xen/grant_table.h |    7 ++++++-
- 2 files changed, 35 insertions(+), 8 deletions(-)
+ arch/arm64/include/uapi/asm/kvm.h |    5 +++++
+ arch/arm64/kvm/hypercalls.c       |   12 ++++++++++++
+ arch/arm64/kvm/psci.c             |   18 +++++++++++++++++-
+ 3 files changed, 34 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -134,6 +134,10 @@ struct gnttab_ops {
- 	 * return the frame.
- 	 */
- 	unsigned long (*end_foreign_transfer_ref)(grant_ref_t ref);
-+	/*
-+	 * Read the frame number related to a given grant reference.
-+	 */
-+	unsigned long (*read_frame)(grant_ref_t ref);
- };
+--- a/arch/arm64/include/uapi/asm/kvm.h
++++ b/arch/arm64/include/uapi/asm/kvm.h
+@@ -273,6 +273,11 @@ struct kvm_vcpu_events {
+ #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_REQUIRED	3
+ #define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_ENABLED     	(1U << 4)
  
- struct unmap_refs_callback_data {
-@@ -331,6 +335,16 @@ int gnttab_end_foreign_access_ref(grant_
- }
- EXPORT_SYMBOL_GPL(gnttab_end_foreign_access_ref);
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3	KVM_REG_ARM_FW_REG(3)
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL		0
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL		1
++#define KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED	2
++
+ /* SVE registers */
+ #define KVM_REG_ARM64_SVE		(0x15 << KVM_REG_ARM_COPROC_SHIFT)
  
-+static unsigned long gnttab_read_frame_v1(grant_ref_t ref)
-+{
-+	return gnttab_shared.v1[ref].frame;
-+}
-+
-+static unsigned long gnttab_read_frame_v2(grant_ref_t ref)
-+{
-+	return gnttab_shared.v2[ref].full_page.frame;
-+}
-+
- struct deferred_entry {
- 	struct list_head list;
- 	grant_ref_t ref;
-@@ -360,12 +374,9 @@ static void gnttab_handle_deferred(struc
- 		spin_unlock_irqrestore(&gnttab_list_lock, flags);
- 		if (_gnttab_end_foreign_access_ref(entry->ref, entry->ro)) {
- 			put_free_entry(entry->ref);
--			if (entry->page) {
--				pr_debug("freeing g.e. %#x (pfn %#lx)\n",
--					 entry->ref, page_to_pfn(entry->page));
--				put_page(entry->page);
--			} else
--				pr_info("freeing g.e. %#x\n", entry->ref);
-+			pr_debug("freeing g.e. %#x (pfn %#lx)\n",
-+				 entry->ref, page_to_pfn(entry->page));
-+			put_page(entry->page);
- 			kfree(entry);
- 			entry = NULL;
- 		} else {
-@@ -390,9 +401,18 @@ static void gnttab_handle_deferred(struc
- static void gnttab_add_deferred(grant_ref_t ref, bool readonly,
- 				struct page *page)
+--- a/arch/arm64/kvm/hypercalls.c
++++ b/arch/arm64/kvm/hypercalls.c
+@@ -58,6 +58,18 @@ int kvm_hvc_call_handler(struct kvm_vcpu
+ 				break;
+ 			}
+ 			break;
++		case ARM_SMCCC_ARCH_WORKAROUND_3:
++			switch (arm64_get_spectre_bhb_state()) {
++			case SPECTRE_VULNERABLE:
++				break;
++			case SPECTRE_MITIGATED:
++				val = SMCCC_RET_SUCCESS;
++				break;
++			case SPECTRE_UNAFFECTED:
++				val = SMCCC_ARCH_WORKAROUND_RET_UNAFFECTED;
++				break;
++			}
++			break;
+ 		case ARM_SMCCC_HV_PV_TIME_FEATURES:
+ 			val = SMCCC_RET_SUCCESS;
+ 			break;
+--- a/arch/arm64/kvm/psci.c
++++ b/arch/arm64/kvm/psci.c
+@@ -397,7 +397,7 @@ int kvm_psci_call(struct kvm_vcpu *vcpu)
+ 
+ int kvm_arm_get_fw_num_regs(struct kvm_vcpu *vcpu)
  {
--	struct deferred_entry *entry = kmalloc(sizeof(*entry), GFP_ATOMIC);
-+	struct deferred_entry *entry;
-+	gfp_t gfp = (in_atomic() || irqs_disabled()) ? GFP_ATOMIC : GFP_KERNEL;
- 	const char *what = KERN_WARNING "leaking";
+-	return 3;		/* PSCI version and two workaround registers */
++	return 4;		/* PSCI version and three workaround registers */
+ }
  
-+	entry = kmalloc(sizeof(*entry), gfp);
-+	if (!page) {
-+		unsigned long gfn = gnttab_interface->read_frame(ref);
+ int kvm_arm_copy_fw_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
+@@ -411,6 +411,9 @@ int kvm_arm_copy_fw_reg_indices(struct k
+ 	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2, uindices++))
+ 		return -EFAULT;
+ 
++	if (put_user(KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3, uindices++))
++		return -EFAULT;
 +
-+		page = pfn_to_page(gfn_to_pfn(gfn));
-+		get_page(page);
-+	}
-+
- 	if (entry) {
- 		unsigned long flags;
+ 	return 0;
+ }
  
-@@ -1284,6 +1304,7 @@ static const struct gnttab_ops gnttab_v1
- 	.update_entry			= gnttab_update_entry_v1,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v1,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v1,
-+	.read_frame			= gnttab_read_frame_v1,
- };
+@@ -450,6 +453,17 @@ static int get_kernel_wa_level(u64 regid
+ 		case SPECTRE_VULNERABLE:
+ 			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2_NOT_AVAIL;
+ 		}
++		break;
++	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
++		switch (arm64_get_spectre_bhb_state()) {
++		case SPECTRE_VULNERABLE:
++			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
++		case SPECTRE_MITIGATED:
++			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_AVAIL;
++		case SPECTRE_UNAFFECTED:
++			return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_REQUIRED;
++		}
++		return KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3_NOT_AVAIL;
+ 	}
  
- static const struct gnttab_ops gnttab_v2_ops = {
-@@ -1295,6 +1316,7 @@ static const struct gnttab_ops gnttab_v2
- 	.update_entry			= gnttab_update_entry_v2,
- 	.end_foreign_access_ref		= gnttab_end_foreign_access_ref_v2,
- 	.end_foreign_transfer_ref	= gnttab_end_foreign_transfer_ref_v2,
-+	.read_frame			= gnttab_read_frame_v2,
- };
+ 	return -EINVAL;
+@@ -466,6 +480,7 @@ int kvm_arm_get_fw_reg(struct kvm_vcpu *
+ 		break;
+ 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
+ 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_2:
++	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
+ 		val = get_kernel_wa_level(reg->id) & KVM_REG_FEATURE_LEVEL_MASK;
+ 		break;
+ 	default:
+@@ -511,6 +526,7 @@ int kvm_arm_set_fw_reg(struct kvm_vcpu *
+ 	}
  
- static bool gnttab_need_v2(void)
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -100,7 +100,12 @@ int gnttab_end_foreign_access_ref(grant_
-  * Note that the granted page might still be accessed (read or write) by the
-  * other side after gnttab_end_foreign_access() returns, so even if page was
-  * specified as 0 it is not allowed to just reuse the page for other
-- * purposes immediately.
-+ * purposes immediately. gnttab_end_foreign_access() will take an additional
-+ * reference to the granted page in this case, which is dropped only after
-+ * the grant is no longer in use.
-+ * This requires that multi page allocations for areas subject to
-+ * gnttab_end_foreign_access() are done via alloc_pages_exact() (and freeing
-+ * via free_pages_exact()) in order to avoid high order pages.
-  */
- void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
- 			       unsigned long page);
+ 	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_1:
++	case KVM_REG_ARM_SMCCC_ARCH_WORKAROUND_3:
+ 		if (val & ~KVM_REG_FEATURE_LEVEL_MASK)
+ 			return -EINVAL;
+ 
 
 
