@@ -2,178 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B344D43B2
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 10:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C114D4D43C6
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 10:51:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233322AbiCJJrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 04:47:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
+        id S240902AbiCJJwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 04:52:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230480AbiCJJrh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 04:47:37 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01E513AA08
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 01:46:35 -0800 (PST)
-Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nSFNR-00020U-Df; Thu, 10 Mar 2022 10:46:33 +0100
-Message-ID: <ca725793-3324-1304-5d99-50484fd1e2c2@leemhuis.info>
-Date:   Thu, 10 Mar 2022 10:46:32 +0100
+        with ESMTP id S233237AbiCJJwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 04:52:49 -0500
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0749813AA15;
+        Thu, 10 Mar 2022 01:51:49 -0800 (PST)
+Received: by mail-yb1-xb2c.google.com with SMTP id l2so9781062ybe.8;
+        Thu, 10 Mar 2022 01:51:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rHM4k9qHE05y6ea8wtU5exWoKwljZBPkN0DLGx/Ohgw=;
+        b=niLTOpPRlsHPtgE/EvJEefYFiup4QpN5ukYkwSwyNZNJTeRHhk80EiNtPwwJ9tUtnV
+         ApdKX1gkHTkhPUybhzY15Fb7+drPGiY9RXevCYYIAq/HnVyPP/UpGGN5m4ztry8NNTa/
+         kZje4Jbf337fp8ashmQj7gunS3xSl3arbDXc+nz7ErjDummW9oEa/tO/BpHjyoxl3Aje
+         S8ccGTLA2QoBo0dQMiYV8/IWW3wSL3rajKbT+84+XHPlfpFInMklSKyGw1FzK9v1b1bb
+         Wl92WY+i+9GZXP2+tg4iVCtyVEA4Wgakli3jR7794UVK0fWlUkBvfbjQUM80rfb70M3Y
+         J56g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rHM4k9qHE05y6ea8wtU5exWoKwljZBPkN0DLGx/Ohgw=;
+        b=bKKOyrhOBiZf+/l4fFPmir+KuMPenSTXiay+g3/fkQO3KhRFzRIty3jCmq4tWrK33w
+         sknhxasFcF5bbxmZtR7M+oGI4ZUVybD3l0q6uu9bmE93tB+yzG/PlPzR12J2aHdUCyOj
+         OALGMuumedUFyY+irAvuPQcQeNsOwl6mTxGm9ZLForU4sf3fBhvj/VF/OiEl0NjAaGIg
+         IDrKbhL26kBywUKumKKyxvUcRaapXn+4oPVX2oZfk5oWKPPPHasuX7uUOGdaG0K8L806
+         f1pmsKy5ZSxR/TdOOSuHdkavNgSLQCigaXDZ3BnIh0KbehuwVELFs4leWim5Er+gXSbf
+         jSDw==
+X-Gm-Message-State: AOAM533Zk3EyCx44A/bnCH/aD1VE7SKxmqP073W2x5CN3fkGcx/52lMk
+        l4b0436Vxr+Vc7+lbj25gsX+Ra9dIobu0Nfmtzk=
+X-Google-Smtp-Source: ABdhPJyZWrR7XgK4c+xJLhs09HQxqfmEyaewcW3morQ0vxX23+qrNwpMzGfW08bf4l/e79/kLnT0bf63+Obl78P5Rao=
+X-Received: by 2002:a25:7504:0:b0:629:308e:9d95 with SMTP id
+ q4-20020a257504000000b00629308e9d95mr3190433ybc.106.1646905908227; Thu, 10
+ Mar 2022 01:51:48 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: laptop does not go to suspend anymore with kernel version >
- 5.16.10
-Content-Language: en-US
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-To:     reinhold.mannsberger@gmx.at, stable@vger.kernel.org
-Cc:     regressions@lists.linux.dev
-References: <4a83b8d3dc68a2bf6c7e988552a213f161b54c3a.camel@gmx.at>
- <776197b3-cc56-3948-d6e9-68bed82d9730@leemhuis.info>
- <4249d21e2638af07f43121982cf9dcb73b116ad9.camel@gmx.at>
- <08548343-0bed-64e7-2aff-f403341c80dd@leemhuis.info>
-In-Reply-To: <08548343-0bed-64e7-2aff-f403341c80dd@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1646905596;88fdcf83;
-X-HE-SMSGID: 1nSFNR-00020U-Df
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220309155856.155540075@linuxfoundation.org> <CADVatmMODnr1vQ3VGLOACT16wLEFA6hFrTzY44VdPO2M7gX+iw@mail.gmail.com>
+ <Yijw3wz29xNiIhWl@kroah.com>
+In-Reply-To: <Yijw3wz29xNiIhWl@kroah.com>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Thu, 10 Mar 2022 09:51:12 +0000
+Message-ID: <CADVatmMbww0jVS7O9BmtrGzfyBN0hfm8n7QNEdZpiigJGSp20Q@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/18] 4.19.234-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09.03.22 18:18, Thorsten Leemhuis wrote:
-> On 09.03.22 17:46, Reinhold Mannsberger wrote:
->> Dear Thorsten!
->>
->> Thank you for your quick response!
->>
->> Now that you gave me the advice to check dmesg I found out that the
->> messages are the same with kernel version 5.16.10 and 5.16.12. But - as
->> I described - with kernel version 5.16.10 I had to press the power
->> button to resume from suspend. So I my conclusion that my laptop does
->> not go to suspend ist apparently wrong.
-> Good. :-D
+On Thu, Mar 10, 2022 at 9:18 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Mar 09, 2022 at 06:08:19PM +0000, Sudip Mukherjee wrote:
+> > Hi Greg,
+> >
+> > On Wed, Mar 9, 2022 at 4:03 PM Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > This is the start of the stable review cycle for the 4.19.234 release.
+> > > There are 18 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > >
+> > > Responses should be made by Fri, 11 Mar 2022 15:58:48 +0000.
+> > > Anything received after that time might be too late.
+> >
+> > My tests are still running, but just an initial result for you,
+> >
+> > x86_64 defconfig fails with:
+> > arch/x86/kernel/cpu/bugs.c: In function 'spectre_v2_select_mitigation':
+> > arch/x86/kernel/cpu/bugs.c:973:41: error: implicit declaration of
+> > function 'unprivileged_ebpf_enabled'
+> > [-Werror=implicit-function-declaration]
+> >   973 |         if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+>
+> It's in a .h file, how can it be undefined?  Must be a include path
+> somewhere, let me dig...
 
-Sorry, I might have drawn the wrong conclusions from the data you
-provided, as it seems there is a problem that started with 5.16.10. See
-this thread for details:
+Looks like the problem is that both "static inline bool
+unprivileged_ebpf_enabled(void)" are in the "#ifdef
+CONFIG_BPF_SYSCALL" section of include/linux/bpf.h.
+I think the one returning false should be in the #else section.
 
-https://lore.kernel.org/all/31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com/
 
->> In any case you find excerpts
->> from dmesg with both kernel versions attached.
->>
->> Now there is one thing I really would like to understand. Concluding
->> from the time stamps in dmesg it seems that my laptop goes to suspend
->> only for a moment right before I re-open the lid. Of course I did not
->> close my laptop lid only for 3 seconds - as it could be concluded from
->> the time stamps for "PM: suspend entry (s2idle)" and "PM: suspend exit"
->> - but for a longer period of time. Can you please enlighten me about that?
-> 
-> I have no idea, I'm just tracking regressions and sadly don't known much
-> about this. To me it looks a bit like s2idle is not working properly,
-> but I might be totally wrong with that. Maybe google might tell you; or
-> some measurements where you check how quickly the batter drains in
-> sleep. Oof you ask the PM developers -- but as this is not a regression
-> neither the regressions list nor the stable list care, so I guess you do
-> it in a separate mail.
-> 
-> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-> 
-> P.S.: As the Linux kernel's regression tracker I'm getting a lot of
-> reports on my table. I can only look briefly into most of them and lack
-> knowledge about most of the areas they concern. I thus unfortunately
-> will sometimes get things wrong or miss something important. I hope
-> that's not the case here; if you think it is, don't hesitate to tell me
-> in a public reply, it's in everyone's interest to set the public record
-> straight.
-> 
-> 
-> 
->> Am Mittwoch, dem 09.03.2022 um 07:51 +0100 schrieb Thorsten Leemhuis:
->>> Hi!
->>>
->>> On 08.03.22 19:21, Reinhold Mannsberger wrote:
->>>>
->>>> I am using Linux Mint Xfce 20.3 with kernel version 5.16. I had to use
->>>> kernel 5.16 because with the standard kernel version of Linux mit 20.3
->>>> (which is 5.13) my laptop did not correctly resume, when I closed the
->>>> lid.
->>>>
->>>> With kernel 5.16 my laptop perfectly went to to suspend when I closed
->>>> the lid and it perfectly resumed, when I opened the lid again. This
->>>> means: I had to press the power button once
->>>
->>> That sounds odd to me, as most modern Laptops wake up automatically when
->>> you open the lid. It's unlikely, but maybe that just that started to
->>> work now?
->>>
->>>> when I reopened the lid -
->>>> and then the laptop resumed (to the login screen). This was true until
->>>> kernel version 5.16.10. With kernel version > 5.16.10 my laptop does
->>>> not go into suspend anymore. This means: When I open the lid I am back
->>>> at the login screen immediately (I don't have to press the power button
->>>> anymore).
->>>
->>> You want to check dmesg if the system really didn't go to sleep; it will
->>> likely also provide a hint of what went wrong. Just upload the output
->>> (generated after a fresh start and where you suspend and resume once the
->>> system booted) somewhere and send us a link or sent it as an attachment
->>> in a reply. If that doesn't provide any hints of what might be wrong,
->>> you might need to find the change that introduced the problem using a
->>> bisection.
->>>
->>> HTH, Ciao, Thorsten
->>>
->>>> System information for my laptop:
->>>> ----------------------------------------------------------------------
->>>> System:    Kernel: 5.16.10-051610-generic x86_64 bits: 64 compiler: N/A
->>>> Desktop: Xfce 4.16.0
->>>>            tk: Gtk 3.24.20 wm: xfwm4 dm: LightDM Distro: Linux Mint
->>>> 20.3 Una
->>>>            base: Ubuntu 20.04 focal
->>>> Machine:   Type: Laptop System: HP product: HP ProBook 455 G8 Notebook
->>>> PC v: N/A serial: <filter>
->>>>            Chassis: type: 10 serial: <filter>
->>>>            Mobo: HP model: 8864 v: KBC Version 41.1E.00 serial:
->>>> <filter> UEFI: HP
->>>>            v: T78 Ver. 01.07.00 date: 10/08/2021
->>>> Battery:   ID-1: BAT0 charge: 43.8 Wh condition: 44.5/45.0 Wh (99%)
->>>> volts: 13.0/11.4
->>>>            model: Hewlett-Packard Primary serial: <filter> status:
->>>> Unknown
->>>> CPU:       Topology: 8-Core model: AMD Ryzen 7 5800U with Radeon
->>>> Graphics bits: 64 type: MT MCP
->>>>            arch: Zen 3 L2 cache: 4096 KiB
->>>>            flags: avx avx2 lm nx pae sse sse2 sse3 sse4_1 sse4_2 sse4a
->>>> ssse3 svm bogomips: 60685
->>>>            Speed: 3497 MHz min/max: 1600/1900 MHz Core speeds (MHz): 1:
->>>> 3474 2: 3464 3: 3473
->>>>            4: 3471 5: 4362 6: 4332 7: 3478 8: 3455 9: 3459 10: 3452 11:
->>>> 3462 12: 3468 13: 3468
->>>>            14: 3468 15: 3467 16: 3472
->>>> Graphics:  Device-1: AMD vendor: Hewlett-Packard driver: amdgpu v:
->>>> kernel bus ID: 05:00.0
->>>>            chip ID: 1002:1638
->>>>            Display: x11 server: X.Org 1.20.13 driver: amdgpu,ati
->>>> unloaded: fbdev,modesetting,vesa
->>>>            resolution: 1920x1080~60Hz
->>>>            OpenGL: renderer: AMD RENOIR (DRM 3.44.0 5.16.10-051610-
->>>> generic LLVM 12.0.0)
->>>>            v: 4.6 Mesa 21.2.6 direct render: Yes
->>>> ----------------------------------------------------------------------
->>>>
->>>>
->>>> Best regards,
->>>>
->>>> Reinhold Mannsberger
->>>>
->>>>
->>>>
-> 
-> 
+-- 
+Regards
+Sudip
