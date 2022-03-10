@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7394D4C09
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C5754D4C1A
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243258AbiCJOVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:21:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43466 "EHLO
+        id S243092AbiCJO0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:26:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243616AbiCJOSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:18:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E22160FF0;
-        Thu, 10 Mar 2022 06:14:24 -0800 (PST)
+        with ESMTP id S243503AbiCJOZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:25:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B958B7C7D;
+        Thu, 10 Mar 2022 06:22:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 967DE61B6B;
-        Thu, 10 Mar 2022 14:14:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A60ABC340EB;
-        Thu, 10 Mar 2022 14:14:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29E5E61CEF;
+        Thu, 10 Mar 2022 14:21:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E5D4C340E8;
+        Thu, 10 Mar 2022 14:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921662;
-        bh=iYMuhddysstvIfw0kTZMQ+L1I5XrW+hAdLtOqnTgSXE=;
+        s=korg; t=1646922109;
+        bh=cam9jz1lhBQ1bzbDOOb5/sES4ZWRJgbU5/7XX53WJgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3n+2pqStT4JrVdqQjX/QhIkbhMA3QzVHsqx5qfxrt4yXwR2P2TDxGV33eE11cb6X
-         K+eUn+cBNCxO8ALPToO/oKJATjg96RPV0wClUdFNEaO4IH21AsNy83tWBbvJCWU8cD
-         vyxpgNkSdYnHfrUQDq3fKYmHshjKJDILTvulg0ps=
+        b=FfGPR7nTCLN/sUtzVCxnoXyfRT1TO/26ZsnQ//J9pm/S7V2b/d1PZ+H+r7KK4FSxg
+         s4rG9fieNXJfVlJ0GGZxw1JgsjZwlzkCjyV8C/V5JEPTY2g+BKbOB/+MUBDQYSmrAE
+         jvSg33J/I6e4+OR0eWPFpWhTmdPvDruS9xuSbEhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 14/38] x86/speculation: Update link to AMD speculation whitepaper
-Date:   Thu, 10 Mar 2022 15:13:27 +0100
-Message-Id: <20220310140808.552893100@linuxfoundation.org>
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 4.19 01/33] x86/speculation: Merge one test in spectre_v2_user_select_mitigation()
+Date:   Thu, 10 Mar 2022 15:18:28 +0100
+Message-Id: <20220310140807.793272491@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140808.136149678@linuxfoundation.org>
-References: <20220310140808.136149678@linuxfoundation.org>
+In-Reply-To: <20220310140807.749164737@linuxfoundation.org>
+References: <20220310140807.749164737@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,43 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit e9b6013a7ce31535b04b02ba99babefe8a8599fa upstream.
+commit a5ce9f2bb665d1d2b31f139a02dbaa2dfbb62fa6 upstream.
 
-Update the link to the "Software Techniques for Managing Speculation
-on AMD Processors" whitepaper.
+Merge the test whether the CPU supports STIBP into the test which
+determines whether STIBP is required. Thus try to simplify what is
+already an insane logic.
 
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Remove a superfluous newline in a comment, while at it.
+
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[bwh: Backported to 4.9: adjust filename]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: Anthony Steinhauser <asteinhauser@google.com>
+Link: https://lkml.kernel.org/r/20200615065806.GB14668@zn.tnic
+[fllinden@amazon.com: fixed contextual conflict (comment) for 4.19]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/hw-vuln/spectre.rst |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
---- a/Documentation/hw-vuln/spectre.rst
-+++ b/Documentation/hw-vuln/spectre.rst
-@@ -60,8 +60,8 @@ privileged data touched during the specu
- Spectre variant 1 attacks take advantage of speculative execution of
- conditional branches, while Spectre variant 2 attacks use speculative
- execution of indirect branches to leak privileged memory.
--See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[7] <spec_ref7>`
--:ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
-+See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[6] <spec_ref6>`
-+:ref:`[7] <spec_ref7>` :ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -756,10 +756,12 @@ spectre_v2_user_select_mitigation(enum s
+ 	}
  
- Spectre variant 1 (Bounds Check Bypass)
- ---------------------------------------
-@@ -746,7 +746,7 @@ AMD white papers:
+ 	/*
+-	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
++	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
+ 	 * required.
+ 	 */
+-	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
++	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
++	    !smt_possible ||
++	    spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+ 		return;
  
- .. _spec_ref6:
+ 	/*
+@@ -771,12 +773,6 @@ spectre_v2_user_select_mitigation(enum s
+ 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+ 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
  
--[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/90343-B_SoftwareTechniquesforManagingSpeculation_WP_7-18Update_FNL.pdf>`_.
-+[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/Managing-Speculation-on-AMD-Processors.pdf>`_.
+-	/*
+-	 * If STIBP is not available, clear the STIBP mode.
+-	 */
+-	if (!boot_cpu_has(X86_FEATURE_STIBP))
+-		mode = SPECTRE_V2_USER_NONE;
+-
+ 	spectre_v2_user_stibp = mode;
  
- ARM white papers:
- 
+ set_mode:
+@@ -1255,7 +1251,6 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return 0;
+-
+ 		/*
+ 		 * With strict mode for both IBPB and STIBP, the instruction
+ 		 * code paths avoid checking this task flag and instead,
 
 
