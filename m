@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A52044D4C13
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 262784D4C25
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245222AbiCJOed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
+        id S240368AbiCJOeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344052AbiCJObj (ORCPT
+        with ESMTP id S1344056AbiCJObj (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E51340E6F;
-        Thu, 10 Mar 2022 06:29:51 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99235888D6;
+        Thu, 10 Mar 2022 06:29:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3ED0B82544;
-        Thu, 10 Mar 2022 14:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F12AC340E8;
-        Thu, 10 Mar 2022 14:29:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A6AEB81E9E;
+        Thu, 10 Mar 2022 14:29:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C65C340E8;
+        Thu, 10 Mar 2022 14:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922589;
-        bh=25Hk37nJ7k4GM1ojM6Tgufom7M/GqJr5xVZym4GE6GU=;
+        s=korg; t=1646922596;
+        bh=mQatgqh/6NzDSIrRy2F06cmfP6PjNZfpbO5vp69JtKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ea5OmG4CBdYY/eVVMD/la/9C+IGVFSjTjfuHdovdSHQF35iE/EZDERNbmsXWFSJdG
-         VtR5hzuhskvQvtooM33jy5A+TyT5NHxmYAnrvHbAAzUtAgZTrPX/zAhTzZ21ezPrFY
-         JQMOn20yBfSQlnSLtLyr6sKrcwKw0/ij6GiEvDRU=
+        b=VKLvek6NIE+x3RAno/Y68e9bFOQrEhZRL6AFuGvK3pOY/tpBZMIrmV3O//v/NlbTW
+         5M+OfDb2EnF3hN69OhA35eQ12JTEecViGcaJ4d81u/KUSvj+scqwY5dTQXxTtlEu6W
+         hZCPglWYfq44IE8oioL7v4xcz1gU43DbOiY3cmGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 26/58] arm64: entry: Free up another register on kptis tramp_exit path
-Date:   Thu, 10 Mar 2022 15:19:15 +0100
-Message-Id: <20220310140813.735287550@linuxfoundation.org>
+Subject: [PATCH 5.15 28/58] arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
+Date:   Thu, 10 Mar 2022 15:19:17 +0100
+Message-Id: <20220310140813.791334948@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
 References: <20220310140812.983088611@linuxfoundation.org>
@@ -57,71 +57,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit 03aff3a77a58b5b52a77e00537a42090ad57b80b upstream.
+commit 6c5bf79b69f911560fbf82214c0971af6e58e682 upstream.
 
-Kpti stashes x30 in far_el1 while it uses x30 for all its work.
+Systems using kpti enter and exit the kernel through a trampoline mapping
+that is always mapped, even when the kernel is not. tramp_valias is a macro
+to find the address of a symbol in the trampoline mapping.
 
-Making the vectors a per-cpu data structure will require a second
-register.
+Adding extra sets of vectors will expand the size of the entry.tramp.text
+section to beyond 4K. tramp_valias will be unable to generate addresses
+for symbols beyond 4K as it uses the 12 bit immediate of the add
+instruction.
 
-Allow tramp_exit two registers before it unmaps the kernel, by
-leaving x30 on the stack, and stashing x29 in far_el1.
+As there are now two registers available when tramp_alias is called,
+use the extra register to avoid the 4K limit of the 12 bit immediate.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ arch/arm64/kernel/entry.S |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -419,14 +419,16 @@ alternative_else_nop_endif
- 	ldp	x24, x25, [sp, #16 * 12]
- 	ldp	x26, x27, [sp, #16 * 13]
- 	ldp	x28, x29, [sp, #16 * 14]
--	ldr	lr, [sp, #S_LR]
--	add	sp, sp, #PT_REGS_SIZE		// restore sp
+@@ -103,9 +103,12 @@
+ .org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
+ 	.endm
  
- 	.if	\el == 0
--alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
-+alternative_if_not ARM64_UNMAP_KERNEL_AT_EL0
-+	ldr	lr, [sp, #S_LR]
-+	add	sp, sp, #PT_REGS_SIZE		// restore sp
-+	eret
-+alternative_else_nop_endif
+-	.macro tramp_alias, dst, sym
++	.macro tramp_alias, dst, sym, tmp
+ 	mov_q	\dst, TRAMP_VALIAS
+-	add	\dst, \dst, #(\sym - .entry.tramp.text)
++	adr_l	\tmp, \sym
++	add	\dst, \dst, \tmp
++	adr_l	\tmp, .entry.tramp.text
++	sub	\dst, \dst, \tmp
+ 	.endm
+ 
+ 	/*
+@@ -429,10 +432,10 @@ alternative_else_nop_endif
  #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
  	bne	4f
--	msr	far_el1, x30
-+	msr	far_el1, x29
- 	tramp_alias	x30, tramp_exit_native
+ 	msr	far_el1, x29
+-	tramp_alias	x30, tramp_exit_native
++	tramp_alias	x30, tramp_exit_native, x29
  	br	x30
  4:
-@@ -434,6 +436,9 @@ alternative_insn eret, nop, ARM64_UNMAP_
+-	tramp_alias	x30, tramp_exit_compat
++	tramp_alias	x30, tramp_exit_compat, x29
  	br	x30
  #endif
  	.else
-+	ldr	lr, [sp, #S_LR]
-+	add	sp, sp, #PT_REGS_SIZE		// restore sp
-+
- 	/* Ensure any device/NC reads complete */
- 	alternative_insn nop, "dmb sy", ARM64_WORKAROUND_1508412
+@@ -998,7 +1001,7 @@ alternative_if_not ARM64_UNMAP_KERNEL_AT
+ alternative_else_nop_endif
  
-@@ -674,10 +679,12 @@ alternative_else_nop_endif
- 	.macro tramp_exit, regsize = 64
- 	adr	x30, tramp_vectors
- 	msr	vbar_el1, x30
--	tramp_unmap_kernel	x30
-+	ldr	lr, [sp, #S_LR]
-+	tramp_unmap_kernel	x29
- 	.if	\regsize == 64
--	mrs	x30, far_el1
-+	mrs	x29, far_el1
- 	.endif
-+	add	sp, sp, #PT_REGS_SIZE		// restore sp
- 	eret
- 	sb
- 	.endm
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+-	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline
++	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline, tmp=x3
+ 	br	x5
+ #endif
+ SYM_CODE_END(__sdei_asm_handler)
 
 
