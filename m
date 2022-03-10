@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E72354D4A86
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 924FC4D4A8E
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245235AbiCJOef (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        id S244808AbiCJOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344050AbiCJObj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95A3DD5;
-        Thu, 10 Mar 2022 06:29:47 -0800 (PST)
+        with ESMTP id S245684AbiCJOat (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2510186229;
+        Thu, 10 Mar 2022 06:26:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DFF5B82544;
-        Thu, 10 Mar 2022 14:29:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAEA6C340E8;
-        Thu, 10 Mar 2022 14:29:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FBEFB82544;
+        Thu, 10 Mar 2022 14:26:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A530DC340E8;
+        Thu, 10 Mar 2022 14:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922586;
-        bh=Mml45n5zWOY5XUlvrM0ABUbDBgc/vQ9ckQ54OR4R62A=;
+        s=korg; t=1646922371;
+        bh=WW3DOoq91ik363zaWmSo3HAXnnIJnEoktcdQieptd8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pq1wHvuQoc8vVDopslzBiTx8vBbt0umuK4kPCn1qr7DnctYh25nC96jN0G0lbJfXt
-         IGOUK16PuTYKKo4iFzU3cwl6jkalkgbvY65MUMQRHebQgZFgIoUi/Gc/55uKKrUkEu
-         eypYl3Kx/JkDBhyAThy6xhlRquE9EW4l6jahkkMo=
+        b=mwLt5TjtBc3XMoeOIRfuvAl8ZNj4QT6gcxuzoKbN3YbJ1q7Et1Tl/kvd441KCkRAi
+         tupnjvjZpWa/8XCACLtyxssybqHiZLU2LgtjOYSN0KMYc4LnE6mJcJF2CNAIBQiAoD
+         4gGaKQB6Z87+xNNu+dcpXAJjAKALC64M9amvQWAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 25/58] arm64: entry: Make the trampoline cleanup optional
+        Simon Gaiser <simon@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.10 54/58] xen/9p: use alloc/free_pages_exact()
 Date:   Thu, 10 Mar 2022 15:19:14 +0100
-Message-Id: <20220310140813.707556926@linuxfoundation.org>
+Message-Id: <20220310140814.404593818@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
-References: <20220310140812.983088611@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit d739da1694a0eaef0358a42b76904b611539b77b upstream.
+Commit 5cadd4bb1d7fc9ab201ac14620d1a478357e4ebd upstream.
 
-Subsequent patches will add additional sets of vectors that use
-the same tricks as the kpti vectors to reach the full-fat vectors.
-The full-fat vectors contain some cleanup for kpti that is patched
-in by alternatives when kpti is in use. Once there are additional
-vectors, the cleanup will be needed in more cases.
+Instead of __get_free_pages() and free_pages() use alloc_pages_exact()
+and free_pages_exact(). This is in preparation of a change of
+gnttab_end_foreign_access() which will prohibit use of high-order
+pages.
 
-But on big/little systems, the cleanup would be harmful if no
-trampoline vector were in use. Instead of forcing CPUs that don't
-need a trampoline vector to use one, make the trampoline cleanup
-optional.
+By using the local variable "order" instead of ring->intf->ring_order
+in the error path of xen_9pfs_front_alloc_dataring() another bug is
+fixed, as the error path can be entered before ring->intf->ring_order
+is being set.
 
-Entry at the top of the vectors will skip the cleanup. The trampoline
-vectors can then skip the first instruction, triggering the cleanup
-to run.
+By using alloc_pages_exact() the size in bytes is specified for the
+allocation, which fixes another bug for the case of
+order < (PAGE_SHIFT - XEN_PAGE_SHIFT).
 
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+This is part of CVE-2022-23041 / XSA-396.
+
+Reported-by: Simon Gaiser <simon@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/9p/trans_xen.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -40,14 +40,18 @@
- .Lventry_start\@:
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	.if	\el == 0
--alternative_if ARM64_UNMAP_KERNEL_AT_EL0
-+	/*
-+	 * This must be the first instruction of the EL0 vector entries. It is
-+	 * skipped by the trampoline vectors, to trigger the cleanup.
-+	 */
-+	b	.Lskip_tramp_vectors_cleanup\@
- 	.if	\regsize == 64
- 	mrs	x30, tpidrro_el0
- 	msr	tpidrro_el0, xzr
- 	.else
- 	mov	x30, xzr
- 	.endif
--alternative_else_nop_endif
-+.Lskip_tramp_vectors_cleanup\@:
- 	.endif
- #endif
- 
-@@ -661,7 +665,7 @@ alternative_if_not ARM64_WORKAROUND_CAVI
- 	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
- alternative_else_nop_endif
- 	msr	vbar_el1, x30
--	add	x30, x30, #(1b - tramp_vectors)
-+	add	x30, x30, #(1b - tramp_vectors + 4)
- 	isb
- 	ret
- .org 1b + 128	// Did we overflow the ventry slot?
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -304,9 +304,9 @@ static void xen_9pfs_front_free(struct x
+ 				ref = priv->rings[i].intf->ref[j];
+ 				gnttab_end_foreign_access(ref, 0, 0);
+ 			}
+-			free_pages((unsigned long)priv->rings[i].data.in,
+-				   priv->rings[i].intf->ring_order -
+-				   (PAGE_SHIFT - XEN_PAGE_SHIFT));
++			free_pages_exact(priv->rings[i].data.in,
++				   1UL << (priv->rings[i].intf->ring_order +
++					   XEN_PAGE_SHIFT));
+ 		}
+ 		gnttab_end_foreign_access(priv->rings[i].ref, 0, 0);
+ 		free_page((unsigned long)priv->rings[i].intf);
+@@ -345,8 +345,8 @@ static int xen_9pfs_front_alloc_dataring
+ 	if (ret < 0)
+ 		goto out;
+ 	ring->ref = ret;
+-	bytes = (void *)__get_free_pages(GFP_KERNEL | __GFP_ZERO,
+-			order - (PAGE_SHIFT - XEN_PAGE_SHIFT));
++	bytes = alloc_pages_exact(1UL << (order + XEN_PAGE_SHIFT),
++				  GFP_KERNEL | __GFP_ZERO);
+ 	if (!bytes) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -377,9 +377,7 @@ out:
+ 	if (bytes) {
+ 		for (i--; i >= 0; i--)
+ 			gnttab_end_foreign_access(ring->intf->ref[i], 0, 0);
+-		free_pages((unsigned long)bytes,
+-			   ring->intf->ring_order -
+-			   (PAGE_SHIFT - XEN_PAGE_SHIFT));
++		free_pages_exact(bytes, 1UL << (order + XEN_PAGE_SHIFT));
+ 	}
+ 	gnttab_end_foreign_access(ring->ref, 0, 0);
+ 	free_page((unsigned long)ring->intf);
 
 
