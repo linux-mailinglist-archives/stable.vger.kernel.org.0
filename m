@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC7A44D4A0B
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:52:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 716D64D4B48
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244718AbiCJOdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:33:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49606 "EHLO
+        id S244458AbiCJOeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:34:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245576AbiCJOak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:30:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F96182BF0;
-        Thu, 10 Mar 2022 06:26:29 -0800 (PST)
+        with ESMTP id S1344048AbiCJObj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C76EC5E1;
+        Thu, 10 Mar 2022 06:29:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2A6561D22;
-        Thu, 10 Mar 2022 14:25:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC134C340EB;
-        Thu, 10 Mar 2022 14:25:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0E3061C0A;
+        Thu, 10 Mar 2022 14:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB22C340E8;
+        Thu, 10 Mar 2022 14:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922358;
-        bh=a//jtcByFiHXOCJ+/M4jiKQWdvoAGv/83F2/7HhgSnI=;
+        s=korg; t=1646922573;
+        bh=KCX8P+H2W0agVF1iCpkDtDeNldgE0W8QeXXKrS24w74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGVT5G0iETcXpobsHXZ2VGnOf6Jg28YuPLKP/oC4lCLPo6SoAyJYYNzosD7N6xXk4
-         OInQZ9vxxWIo35/NeC0u/4gJ2ECMBbnrNN5Umxu9SV7HGS9ZHVtZ28XcredMbreUBv
-         Hg/cJkDQf5IDjZkbyigFitBozh58+qAjvOsgiMIE=
+        b=XiiJY71jaV9yhaYb5DWMR5jsEP1FsPUCpHxnz4Atlp+i3y/gRI9ucFAxcleWdmv6t
+         jsDxQatjFxguAmdcka/u6/J8XatB8xwI4yId5P+12hT8UMM78ZBtrS11qg3iGPXMX5
+         j0d4oLlN6wRxGy2AzP6nETphVBegmI981Gwn/98s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.10 51/58] xen/scsifront: dont use gnttab_query_foreign_access() for mapped status
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.15 22/58] arm64: entry.S: Add ventry overflow sanity checks
 Date:   Thu, 10 Mar 2022 15:19:11 +0100
-Message-Id: <20220310140814.320833025@linuxfoundation.org>
+Message-Id: <20220310140813.622418677@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-References: <20220310140812.869208747@linuxfoundation.org>
+In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
+References: <20220310140812.983088611@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: James Morse <james.morse@arm.com>
 
-Commit 33172ab50a53578a95691310f49567c9266968b0 upstream.
+commit 4330e2c5c04c27bebf89d34e0bc14e6943413067 upstream.
 
-It isn't enough to check whether a grant is still being in use by
-calling gnttab_query_foreign_access(), as a mapping could be realized
-by the other side just after having called that function.
+Subsequent patches add even more code to the ventry slots.
+Ensure kernels that overflow a ventry slot don't get built.
 
-In case the call was done in preparation of revoking a grant it is
-better to do so via gnttab_try_end_foreign_access() and check the
-success of that operation instead.
-
-This is CVE-2022-23038 / part of XSA-396.
-
-Reported-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/xen-scsifront.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm64/kernel/entry.S |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/scsi/xen-scsifront.c
-+++ b/drivers/scsi/xen-scsifront.c
-@@ -233,12 +233,11 @@ static void scsifront_gnttab_done(struct
- 		return;
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -37,6 +37,7 @@
  
- 	for (i = 0; i < shadow->nr_grants; i++) {
--		if (unlikely(gnttab_query_foreign_access(shadow->gref[i]))) {
-+		if (unlikely(!gnttab_try_end_foreign_access(shadow->gref[i]))) {
- 			shost_printk(KERN_ALERT, info->host, KBUILD_MODNAME
- 				     "grant still in use by backend\n");
- 			BUG();
- 		}
--		gnttab_end_foreign_access(shadow->gref[i], 0, 0UL);
- 	}
+ 	.macro kernel_ventry, el:req, ht:req, regsize:req, label:req
+ 	.align 7
++.Lventry_start\@:
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	.if	\el == 0
+ alternative_if ARM64_UNMAP_KERNEL_AT_EL0
+@@ -95,6 +96,7 @@ alternative_else_nop_endif
+ 	mrs	x0, tpidrro_el0
+ #endif
+ 	b	el\el\ht\()_\regsize\()_\label
++.org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
+ 	.endm
  
- 	kfree(shadow->sg);
+ 	.macro tramp_alias, dst, sym
+@@ -662,6 +664,7 @@ alternative_else_nop_endif
+ 	add	x30, x30, #(1b - tramp_vectors)
+ 	isb
+ 	ret
++.org 1b + 128	// Did we overflow the ventry slot?
+ 	.endm
+ 
+ 	.macro tramp_exit, regsize = 64
 
 
