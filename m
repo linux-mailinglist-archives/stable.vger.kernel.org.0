@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4274E4D4A25
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E33AA4D4A6B
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:54:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242957AbiCJOVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:21:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40266 "EHLO
+        id S243432AbiCJOWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:22:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243708AbiCJOSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:18:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BFA163D6F;
-        Thu, 10 Mar 2022 06:14:35 -0800 (PST)
+        with ESMTP id S243725AbiCJOSU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:18:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0341164D28;
+        Thu, 10 Mar 2022 06:14:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13F56B825A7;
-        Thu, 10 Mar 2022 14:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505D5C340E8;
-        Thu, 10 Mar 2022 14:14:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71AAE61B36;
+        Thu, 10 Mar 2022 14:14:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F746C340E8;
+        Thu, 10 Mar 2022 14:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921652;
-        bh=gzER/rtF+lYiIgmsa+QygKlUJbf9PTMWtZtRvs2hWTM=;
+        s=korg; t=1646921655;
+        bh=B8Kqgr1X+xDFQnu3Mxsih+Dcynf9OwVEriW613XzwTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wp8CDyr84IXSAifxQgRapygi6+yBBfV4CovNZeVwykgISAPTmNeKllgUwLwhFNqcd
-         H6cKSbHlI0OGrUgQj3sLy6RRdqclrwWsaDBm/QPk+YKE9670tNAGrdpyD/KWw+4AD0
-         oIhgm3Bj9HVePkNY/iP3UkcBsu/RDiaubTxlKsuQ=
+        b=TGPao9fSUwUorJ3+XYRpU+iNpnRSJGM2Ck1+k41TrWce+Dt/NNO8wvv7taHYiEwWw
+         RWD3FPQsReosXVR5hYRgO+PG3KamFDKLBTwexaSH3ICAszxI4eNKB8TYxe8kCk2QdU
+         fk+bmoGhjiJFRxWOgIFkQ39TNkzpSPx4Szu76Ub0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
         Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         Frank van der Linden <fllinden@amazon.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 11/38] Documentation/hw-vuln: Update spectre doc
-Date:   Thu, 10 Mar 2022 15:13:24 +0100
-Message-Id: <20220310140808.466551509@linuxfoundation.org>
+Subject: [PATCH 4.9 12/38] x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+Date:   Thu, 10 Mar 2022 15:13:25 +0100
+Message-Id: <20220310140808.495542009@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140808.136149678@linuxfoundation.org>
 References: <20220310140808.136149678@linuxfoundation.org>
@@ -57,108 +56,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 5ad3eb1132453b9795ce5fd4572b1c18b292cca9 upstream.
+commit 44a3918c8245ab10c6c9719dd12e7a8d291980d8 upstream.
 
-Update the doc with the new fun.
+With unprivileged eBPF enabled, eIBRS (without retpoline) is vulnerable
+to Spectre v2 BHB-based attacks.
 
-  [ bp: Massage commit message. ]
+When both are enabled, print a warning message and report it in the
+'spectre_v2' sysfs vulnerabilities file.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 [fllinden@amazon.com: backported to 4.19]
 Signed-off-by: Frank van der Linden <fllinden@amazon.com>
-[bwh: Backported to 4.9: adjust filenames]
+[bwh: Backported to 4.9: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/hw-vuln/spectre.rst   |   42 ++++++++++++++++++++++++------------
- Documentation/kernel-parameters.txt |    8 +++++-
- 2 files changed, 35 insertions(+), 15 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |   35 +++++++++++++++++++++++++++++------
+ include/linux/bpf.h        |   11 +++++++++++
+ kernel/sysctl.c            |    8 ++++++++
+ 3 files changed, 48 insertions(+), 6 deletions(-)
 
---- a/Documentation/hw-vuln/spectre.rst
-+++ b/Documentation/hw-vuln/spectre.rst
-@@ -131,6 +131,19 @@ steer its indirect branch speculations t
- speculative execution's side effects left in level 1 cache to infer the
- victim's data.
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -30,6 +30,7 @@
+ #include <asm/cacheflush.h>
+ #include <asm/intel-family.h>
+ #include <asm/e820.h>
++#include <linux/bpf.h>
  
-+Yet another variant 2 attack vector is for the attacker to poison the
-+Branch History Buffer (BHB) to speculatively steer an indirect branch
-+to a specific Branch Target Buffer (BTB) entry, even if the entry isn't
-+associated with the source address of the indirect branch. Specifically,
-+the BHB might be shared across privilege levels even in the presence of
-+Enhanced IBRS.
+ #include "cpu.h"
+ 
+@@ -606,6 +607,16 @@ static inline const char *spectre_v2_mod
+ static inline const char *spectre_v2_module_string(void) { return ""; }
+ #endif
+ 
++#define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
 +
-+Currently the only known real-world BHB attack vector is via
-+unprivileged eBPF. Therefore, it's highly recommended to not enable
-+unprivileged eBPF, especially when eIBRS is used (without retpolines).
-+For a full mitigation against BHB attacks, it's recommended to use
-+retpolines (or eIBRS combined with retpolines).
++#ifdef CONFIG_BPF_SYSCALL
++void unpriv_ebpf_notify(int new_state)
++{
++	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && !new_state)
++		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
++}
++#endif
 +
- Attack scenarios
- ----------------
+ static inline bool match_option(const char *arg, int arglen, const char *opt)
+ {
+ 	int len = strlen(opt);
+@@ -949,6 +960,9 @@ static void __init spectre_v2_select_mit
+ 		break;
+ 	}
  
-@@ -364,13 +377,15 @@ The possible values in this file are:
++	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
++		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
++
+ 	if (spectre_v2_in_eibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+@@ -1686,6 +1700,20 @@ static char *ibpb_state(void)
+ 	return "";
+ }
  
-   - Kernel status:
++static ssize_t spectre_v2_show_state(char *buf)
++{
++	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
++		return sprintf(buf, "Vulnerable: Unprivileged eBPF enabled\n");
++
++	return sprintf(buf, "%s%s%s%s%s%s\n",
++		       spectre_v2_strings[spectre_v2_enabled],
++		       ibpb_state(),
++		       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
++		       stibp_state(),
++		       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
++		       spectre_v2_module_string());
++}
++
+ static ssize_t srbds_show_state(char *buf)
+ {
+ 	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
+@@ -1708,12 +1736,7 @@ static ssize_t cpu_show_common(struct de
+ 		return sprintf(buf, "%s\n", spectre_v1_strings[spectre_v1_mitigation]);
  
--  ====================================  =================================
--  'Not affected'                        The processor is not vulnerable
--  'Vulnerable'                          Vulnerable, no mitigation
--  'Mitigation: Full generic retpoline'  Software-focused mitigation
--  'Mitigation: Full AMD retpoline'      AMD-specific software mitigation
--  'Mitigation: Enhanced IBRS'           Hardware-focused mitigation
--  ====================================  =================================
-+  ========================================  =================================
-+  'Not affected'                            The processor is not vulnerable
-+  'Mitigation: None'                        Vulnerable, no mitigation
-+  'Mitigation: Retpolines'                  Use Retpoline thunks
-+  'Mitigation: LFENCE'                      Use LFENCE instructions
-+  'Mitigation: Enhanced IBRS'               Hardware-focused mitigation
-+  'Mitigation: Enhanced IBRS + Retpolines'  Hardware-focused + Retpolines
-+  'Mitigation: Enhanced IBRS + LFENCE'      Hardware-focused + LFENCE
-+  ========================================  =================================
+ 	case X86_BUG_SPECTRE_V2:
+-		return sprintf(buf, "%s%s%s%s%s%s\n", spectre_v2_strings[spectre_v2_enabled],
+-			       ibpb_state(),
+-			       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
+-			       stibp_state(),
+-			       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
+-			       spectre_v2_module_string());
++		return spectre_v2_show_state(buf);
  
-   - Firmware status: Show if Indirect Branch Restricted Speculation (IBRS) is
-     used to protect against Spectre variant 2 attacks when calling firmware (x86 only).
-@@ -584,12 +599,13 @@ kernel command line.
+ 	case X86_BUG_SPEC_STORE_BYPASS:
+ 		return sprintf(buf, "%s\n", ssb_strings[ssb_mode]);
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -295,6 +295,11 @@ static inline void bpf_long_memcpy(void
  
- 		Specific mitigations can also be selected manually:
+ /* verify correctness of eBPF program */
+ int bpf_check(struct bpf_prog **fp, union bpf_attr *attr);
++
++static inline bool unprivileged_ebpf_enabled(void)
++{
++	return !sysctl_unprivileged_bpf_disabled;
++}
+ #else
+ static inline void bpf_register_prog_type(struct bpf_prog_type_list *tl)
+ {
+@@ -322,6 +327,12 @@ static inline struct bpf_prog *bpf_prog_
+ {
+ 	return ERR_PTR(-EOPNOTSUPP);
+ }
++
++static inline bool unprivileged_ebpf_enabled(void)
++{
++	return false;
++}
++
+ #endif /* CONFIG_BPF_SYSCALL */
  
--		retpoline
--					replace indirect branches
--		retpoline,generic
--					google's original retpoline
--		retpoline,amd
--					AMD-specific minimal thunk
-+                retpoline               auto pick between generic,lfence
-+                retpoline,generic       Retpolines
-+                retpoline,lfence        LFENCE; indirect branch
-+                retpoline,amd           alias for retpoline,lfence
-+                eibrs                   enhanced IBRS
-+                eibrs,retpoline         enhanced IBRS + Retpolines
-+                eibrs,lfence            enhanced IBRS + LFENCE
+ /* verifier prototypes for helper functions called from eBPF programs */
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -222,6 +222,11 @@ static int sysrq_sysctl_handler(struct c
+ #endif
  
- 		Not specifying this option is equivalent to
- 		spectre_v2=auto.
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -4174,8 +4174,12 @@ bytes respectively. Such letter suffixes
- 			Specific mitigations can also be selected manually:
- 
- 			retpoline	  - replace indirect branches
--			retpoline,generic - google's original retpoline
--			retpoline,amd     - AMD-specific minimal thunk
-+			retpoline,generic - Retpolines
-+			retpoline,lfence  - LFENCE; indirect branch
-+			retpoline,amd     - alias for retpoline,lfence
-+			eibrs		  - enhanced IBRS
-+			eibrs,retpoline   - enhanced IBRS + Retpolines
-+			eibrs,lfence      - enhanced IBRS + LFENCE
- 
- 			Not specifying this option is equivalent to
- 			spectre_v2=auto.
+ #ifdef CONFIG_BPF_SYSCALL
++
++void __weak unpriv_ebpf_notify(int new_state)
++{
++}
++
+ static int bpf_unpriv_handler(struct ctl_table *table, int write,
+                              void *buffer, size_t *lenp, loff_t *ppos)
+ {
+@@ -239,6 +244,9 @@ static int bpf_unpriv_handler(struct ctl
+ 			return -EPERM;
+ 		*(int *)table->data = unpriv_enable;
+ 	}
++
++	unpriv_ebpf_notify(unpriv_enable);
++
+ 	return ret;
+ }
+ #endif
 
 
