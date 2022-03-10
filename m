@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D57BC4D4B94
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 474344D4B65
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 15:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243307AbiCJOVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:21:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46466 "EHLO
+        id S243015AbiCJOVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:21:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244250AbiCJOTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:19:04 -0500
+        with ESMTP id S244472AbiCJOTY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:19:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D701704C0;
-        Thu, 10 Mar 2022 06:15:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BB1C1CBF;
+        Thu, 10 Mar 2022 06:16:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE99BB8267B;
-        Thu, 10 Mar 2022 14:15:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E7FC340E8;
-        Thu, 10 Mar 2022 14:15:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDB5CB82676;
+        Thu, 10 Mar 2022 14:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C607FC340EB;
+        Thu, 10 Mar 2022 14:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646921745;
-        bh=DzqVsiVDsID/SYy4BDD6YW+JEMYUAwX1RdJngJSgkrg=;
+        s=korg; t=1646921748;
+        bh=DvEI6aRgVGSp13qeZIvZaOfCgzZ25LrHDBt0QKYNd0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vw8EAkukNP7W1k477R9qRdwOJtICzzwIgaEXbP1rTpw4aHeN+6EvrL7HQkwNSW/KF
-         6JdCW+KRUyL2+WlmD792o19i/2q30pTqMboOo0AWWP0R1X7cx79rmxCaSZ+anvQ595
-         QccIM6sI+b9tNiywf4v+skSZ9KeUwcg4HUgpIPX4=
+        b=iTU4MddBPFYOTzKHtSSh7tvmjaa95J9H0E1cYUvTussJZkGPp49zF++eGM4io5ySK
+         C/5vNe3K0tUvY8NfK2+RO+oYBaUQ+DkOwRaN98YlEcwpkJlD7T9JHysMZGFeBreDRS
+         S70RR7Ml1B3rIRxpfxEM86xOsHVf/RwCPmFlWTUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 26/38] ARM: Do not use NOCROSSREFS directive with ld.lld
-Date:   Thu, 10 Mar 2022 15:13:39 +0100
-Message-Id: <20220310140808.900651068@linuxfoundation.org>
+        stable@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 27/38] x86/build: Fix compiler support check for CONFIG_RETPOLINE
+Date:   Thu, 10 Mar 2022 15:13:40 +0100
+Message-Id: <20220310140808.928982540@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310140808.136149678@linuxfoundation.org>
 References: <20220310140808.136149678@linuxfoundation.org>
@@ -53,65 +60,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit 36168e387fa7d0f1fe0cd5cf76c8cea7aee714fa upstream.
+commit 25896d073d8a0403b07e6dec56f58e6c33678207 upstream.
 
-ld.lld does not support the NOCROSSREFS directive at the moment, which
-breaks the build after commit b9baf5c8c5c3 ("ARM: Spectre-BHB
-workaround"):
+It is troublesome to add a diagnostic like this to the Makefile
+parse stage because the top-level Makefile could be parsed with
+a stale include/config/auto.conf.
 
-  ld.lld: error: ./arch/arm/kernel/vmlinux.lds:34: AT expected, but got NOCROSSREFS
+Once you are hit by the error about non-retpoline compiler, the
+compilation still breaks even after disabling CONFIG_RETPOLINE.
 
-Support for this directive will eventually be implemented, at which
-point a version check can be added. To avoid breaking the build in the
-meantime, just define NOCROSSREFS to nothing when using ld.lld, with a
-link to the issue for tracking.
+The easiest fix is to move this check to the "archprepare" like
+this commit did:
 
-Cc: stable@vger.kernel.org
-Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1609
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  829fe4aa9ac1 ("x86: Allow generating user-space headers without a compiler")
+
+Reported-by: Meelis Roos <mroos@linux.ee>
+Tested-by: Meelis Roos <mroos@linux.ee>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Fixes: 4cd24de3a098 ("x86/retpoline: Make CONFIG_RETPOLINE depend on compiler support")
+Link: http://lkml.kernel.org/r/1543991239-18476-1-git-send-email-yamada.masahiro@socionext.com
+Link: https://lkml.org/lkml/2018/12/4/206
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[bwh: Backported to 4.9: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/vmlinux-xip.lds.S |    8 ++++++++
- arch/arm/kernel/vmlinux.lds.S     |    8 ++++++++
- 2 files changed, 16 insertions(+)
+ arch/x86/Makefile |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/arch/arm/kernel/vmlinux-xip.lds.S
-+++ b/arch/arm/kernel/vmlinux-xip.lds.S
-@@ -12,6 +12,14 @@
- #include <asm/memory.h>
- #include <asm/page.h>
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -221,9 +221,6 @@ ifdef CONFIG_RETPOLINE
+     RETPOLINE_CFLAGS_CLANG := -mretpoline-external-thunk
  
-+/*
-+ * ld.lld does not support NOCROSSREFS:
-+ * https://github.com/ClangBuiltLinux/linux/issues/1609
-+ */
-+#ifdef CONFIG_LD_IS_LLD
-+#define NOCROSSREFS
-+#endif
-+
- /* Set start/end symbol names to the LMA for the section */
- #define ARM_LMA(sym, section)						\
- 	sym##_start = LOADADDR(section);				\
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -14,6 +14,14 @@
- #include <asm/page.h>
- #include <asm/pgtable.h>
+     RETPOLINE_CFLAGS += $(call cc-option,$(RETPOLINE_CFLAGS_GCC),$(call cc-option,$(RETPOLINE_CFLAGS_CLANG)))
+-    ifeq ($(RETPOLINE_CFLAGS),)
+-      $(error You are building kernel with non-retpoline compiler, please update your compiler.)
+-    endif
+     KBUILD_CFLAGS += $(RETPOLINE_CFLAGS)
+ endif
  
-+/*
-+ * ld.lld does not support NOCROSSREFS:
-+ * https://github.com/ClangBuiltLinux/linux/issues/1609
-+ */
-+#ifdef CONFIG_LD_IS_LLD
-+#define NOCROSSREFS
-+#endif
-+
- /* Set start/end symbol names to the LMA for the section */
- #define ARM_LMA(sym, section)						\
- 	sym##_start = LOADADDR(section);				\
+@@ -240,6 +237,13 @@ archprepare:
+ ifeq ($(CONFIG_KEXEC_FILE),y)
+ 	$(Q)$(MAKE) $(build)=arch/x86/purgatory arch/x86/purgatory/kexec-purgatory.c
+ endif
++ifdef CONFIG_RETPOLINE
++ifeq ($(RETPOLINE_CFLAGS),)
++	@echo "You are building kernel with non-retpoline compiler." >&2
++	@echo "Please update your compiler." >&2
++	@false
++endif
++endif
+ 
+ ###
+ # Kernel objects
 
 
