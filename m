@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 262784D4C25
-	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:02:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D754D4C14
+	for <lists+stable@lfdr.de>; Thu, 10 Mar 2022 16:01:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240368AbiCJOeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 09:34:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49482 "EHLO
+        id S244192AbiCJOdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 09:33:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344056AbiCJObj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:39 -0500
+        with ESMTP id S1343567AbiCJObD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 09:31:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99235888D6;
-        Thu, 10 Mar 2022 06:29:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B9F90260;
+        Thu, 10 Mar 2022 06:27:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A6AEB81E9E;
-        Thu, 10 Mar 2022 14:29:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C65C340E8;
-        Thu, 10 Mar 2022 14:29:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 738D8B8267A;
+        Thu, 10 Mar 2022 14:26:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9C2EC340E8;
+        Thu, 10 Mar 2022 14:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646922596;
-        bh=mQatgqh/6NzDSIrRy2F06cmfP6PjNZfpbO5vp69JtKg=;
+        s=korg; t=1646922399;
+        bh=Onl24IHa01ENjY4Di4IqG6DGSCjo9r2zGSIqYKmut+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKLvek6NIE+x3RAno/Y68e9bFOQrEhZRL6AFuGvK3pOY/tpBZMIrmV3O//v/NlbTW
-         5M+OfDb2EnF3hN69OhA35eQ12JTEecViGcaJ4d81u/KUSvj+scqwY5dTQXxTtlEu6W
-         hZCPglWYfq44IE8oioL7v4xcz1gU43DbOiY3cmGA=
+        b=jQdSSGrSShz3UvMZFr6ubNB1GhDvxfDuMItsYk7MCk5dDWEqUdgBtvAj/Wg0Kwpa2
+         +KgrdomSfy4TYZlEolgMNjSd3UdViYHuzwcmForAaXkBVzTnK478VS7p01eo6Rrf4X
+         LplHu1zRxJK0ErUaq2HKe/jcf+MGAvqhLwIhY01o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.15 28/58] arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
-Date:   Thu, 10 Mar 2022 15:19:17 +0100
-Message-Id: <20220310140813.791334948@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Justin Forbes <jmforbes@linuxtx.org>,
+        Mark Pearson <markpearson@lenovo.com>
+Subject: [PATCH 5.10 58/58] Revert "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
+Date:   Thu, 10 Mar 2022 15:19:18 +0100
+Message-Id: <20220310140814.516821164@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220310140812.983088611@linuxfoundation.org>
-References: <20220310140812.983088611@linuxfoundation.org>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+References: <20220310140812.869208747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 6c5bf79b69f911560fbf82214c0971af6e58e682 upstream.
+This reverts commit 48e413087de1bc688ad732839efc0a5627f38d34 which is
+commit dc0075ba7f387fe4c48a8c674b11ab6f374a6acc upstream.
 
-Systems using kpti enter and exit the kernel through a trampoline mapping
-that is always mapped, even when the kernel is not. tramp_valias is a macro
-to find the address of a symbol in the trampoline mapping.
+It's been reported to cause problems with a number of Fedora and Arch
+Linux users, so drop it for now until that is resolved.
 
-Adding extra sets of vectors will expand the size of the entry.tramp.text
-section to beyond 4K. tramp_valias will be unable to generate addresses
-for symbols beyond 4K as it uses the 12 bit immediate of the add
-instruction.
-
-As there are now two registers available when tramp_alias is called,
-use the extra register to avoid the 4K limit of the 12 bit immediate.
-
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/CAJZ5v0gE52NT=4kN4MkhV3Gx=M5CeMGVHOF0jgTXDb5WwAMs_Q@mail.gmail.com
+Link: https://lore.kernel.org/r/31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Justin Forbes <jmforbes@linuxtx.org>
+Cc: Mark Pearson <markpearson@lenovo.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/acpi/ec.c    |   10 ----------
+ drivers/acpi/sleep.c |   14 ++++++++++----
+ 2 files changed, 10 insertions(+), 14 deletions(-)
 
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -103,9 +103,12 @@
- .org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
- 	.endm
- 
--	.macro tramp_alias, dst, sym
-+	.macro tramp_alias, dst, sym, tmp
- 	mov_q	\dst, TRAMP_VALIAS
--	add	\dst, \dst, #(\sym - .entry.tramp.text)
-+	adr_l	\tmp, \sym
-+	add	\dst, \dst, \tmp
-+	adr_l	\tmp, .entry.tramp.text
-+	sub	\dst, \dst, \tmp
- 	.endm
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -2065,16 +2065,6 @@ bool acpi_ec_dispatch_gpe(void)
+ 		return true;
  
  	/*
-@@ -429,10 +432,10 @@ alternative_else_nop_endif
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	bne	4f
- 	msr	far_el1, x29
--	tramp_alias	x30, tramp_exit_native
-+	tramp_alias	x30, tramp_exit_native, x29
- 	br	x30
- 4:
--	tramp_alias	x30, tramp_exit_compat
-+	tramp_alias	x30, tramp_exit_compat, x29
- 	br	x30
- #endif
- 	.else
-@@ -998,7 +1001,7 @@ alternative_if_not ARM64_UNMAP_KERNEL_AT
- alternative_else_nop_endif
+-	 * Cancel the SCI wakeup and process all pending events in case there
+-	 * are any wakeup ones in there.
+-	 *
+-	 * Note that if any non-EC GPEs are active at this point, the SCI will
+-	 * retrigger after the rearming in acpi_s2idle_wake(), so no events
+-	 * should be missed by canceling the wakeup here.
+-	 */
+-	pm_system_cancel_wakeup();
+-
+-	/*
+ 	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
+ 	 * to allow the caller to process events properly after that.
+ 	 */
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -1012,15 +1012,21 @@ static bool acpi_s2idle_wake(void)
+ 			return true;
+ 		}
  
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline
-+	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline, tmp=x3
- 	br	x5
- #endif
- SYM_CODE_END(__sdei_asm_handler)
+-		/*
+-		 * Check non-EC GPE wakeups and if there are none, cancel the
+-		 * SCI-related wakeup and dispatch the EC GPE.
+-		 */
++		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
+ 		if (acpi_ec_dispatch_gpe()) {
+ 			pm_pr_dbg("ACPI non-EC GPE wakeup\n");
+ 			return true;
+ 		}
+ 
++		/*
++		 * Cancel the SCI wakeup and process all pending events in case
++		 * there are any wakeup ones in there.
++		 *
++		 * Note that if any non-EC GPEs are active at this point, the
++		 * SCI will retrigger after the rearming below, so no events
++		 * should be missed by canceling the wakeup here.
++		 */
++		pm_system_cancel_wakeup();
+ 		acpi_os_wait_events_complete();
+ 
+ 		/*
 
 
