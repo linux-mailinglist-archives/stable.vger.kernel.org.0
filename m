@@ -2,66 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE2014D5D15
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 09:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 815CC4D5D1D
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 09:17:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbiCKIP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 03:15:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
+        id S229666AbiCKIQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 03:16:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbiCKIPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 03:15:25 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86351017DD
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 00:14:21 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id lj8-20020a17090b344800b001bfaa46bca3so7343412pjb.2
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 00:14:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=vjht4VjT0qP1PrjcnyRToI5pLA60dRVnlKZQmWleY/U=;
-        b=oI4ar1HB51LBrLmbj/wtrBaWW6l4roM7ESsTGMRB9dhN2Hcp29WpYsyZY9rWS9EwxH
-         abeTHaIOijZcALiFhzhJ5F83AIFNnYHMsdRURSoj4fxWQAoGv6uxuLT+ac26072g9mhb
-         s0V8ep9BdbVbe4ESy0g5oO0jF/UarS3a4063M=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=vjht4VjT0qP1PrjcnyRToI5pLA60dRVnlKZQmWleY/U=;
-        b=mabaW16m/PMxCrdDx1HX/JR+KaIacPuox0WaHmRIDx8h3PRlUiiP2dcqOkaBT+AgFn
-         T3c/q4snk3vUAWT35Zf8tV+aCfbfwYkFnN61/TFuzbrWtCrhiNStOuOHix3NQC+7tKRA
-         SJu39suhxxM4o6m3qbSmwv6Y0ZZssLHALZ7VcQ0jP0zp34HCTVP9DfAtnSfEHtAhS2Xe
-         Sgwzyp78G2mO+SwCFQEYvfV+FX3SHTW1wQy1UxhQh048iuxkzPjrgTXCDbhKD+UMGoj4
-         nlki4MTbxrzqZUd73VpGPno9FGu5qLoEOXN1bAs7QS9hUHUh04WSSvzD/oizPaVinWQT
-         NFcA==
-X-Gm-Message-State: AOAM532KlC+YW/SjlQ56EaenMxkEhyPmugjpL88osQSEUw9r6nAt+r8G
-        mJaGWfv/NetA9vJIoZGSULKx1w==
-X-Google-Smtp-Source: ABdhPJz/saDmNql9Jq1CQ7il2FyVSQ7Bh16oUvFbLTU8pS5XMo0dn0zdMXb1+6ruIfhTQsBNccvZGA==
-X-Received: by 2002:a17:90a:e2cc:b0:1bf:711f:11e7 with SMTP id fr12-20020a17090ae2cc00b001bf711f11e7mr20407339pjb.40.1646986461176;
-        Fri, 11 Mar 2022 00:14:21 -0800 (PST)
-Received: from 5fcf59323384 ([203.221.136.13])
-        by smtp.gmail.com with ESMTPSA id c5-20020a056a00248500b004f6b5ddcc65sm9862257pfv.199.2022.03.11.00.14.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Mar 2022 00:14:20 -0800 (PST)
-Date:   Fri, 11 Mar 2022 08:14:11 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S229509AbiCKIQj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 03:16:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05D831160C7;
+        Fri, 11 Mar 2022 00:15:37 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83AD561E63;
+        Fri, 11 Mar 2022 08:15:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70DE1C340EC;
+        Fri, 11 Mar 2022 08:15:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646986535;
+        bh=Iy/G/Foji6mXoDcKLyQZoWt4ppLWj8ZYrSAxvKK4R/Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Vt06PZiUDED7WJIsHIk7uNxIpDfhoDIqYN/PAAio5bsA0GtJoJGTjU9FtOxYmtk9r
+         Dfv1Tx8IoTBQrmpS+78pR/B/l9e4iW/W9VhPjMMgSZjPS8YoQ9S9wPNjMQoFdjEu8i
+         7qlGXabZ09mxaF9/V61k4eSNmKCkUkpkl3oLUFgg=
+Date:   Fri, 11 Mar 2022 09:15:32 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.16 00/53] 5.16.14-rc2 review
-Message-ID: <20220311081411.GA7@5fcf59323384>
-References: <20220310140811.832630727@linuxfoundation.org>
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: Re: [PATCH 5.16 29/37] arm64: entry: Add vectors that have the bhb
+ mitigation sequences
+Message-ID: <YisFJPSqqWy8GABY@kroah.com>
+References: <20220309155859.086952723@linuxfoundation.org>
+ <20220309155859.932269331@linuxfoundation.org>
+ <20220310232729.GA16308@amd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220310140811.832630727@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+In-Reply-To: <20220310232729.GA16308@amd>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,35 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 03:09:05PM +0100, Greg Kroah-Hartman wrote:
-> Note, I'm sending all the patches again for all of the -rc2 releases as
-> there has been a lot of churn from what was in -rc1 to -rc2.
+On Fri, Mar 11, 2022 at 12:27:29AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> This is the start of the stable review cycle for the 5.16.14 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> > From: James Morse <james.morse@arm.com>
+> > 
+> > commit ba2689234be92024e5635d30fe744f4853ad97db upstream.
+> > 
+> > Some CPUs affected by Spectre-BHB need a sequence of branches, or a
+> > firmware call to be run before any indirect branch. This needs to go
+> > in the vectors. No CPU needs both.
+> > 
+> > While this can be patched in, it would run on all CPUs as there is a
+> > single set of vectors. If only one part of a big/little combination is
+> > affected, the unaffected CPUs have to run the mitigation too.
+> 
+> This adds build error. Same problem is in 5.10.
+> 
+> > --- /dev/null
+> > +++ b/arch/arm64/include/asm/vectors.h
+> > @@ -0,0 +1,34 @@
+> ...
+> > +/*
+> > + * Note: the order of this enum corresponds to two arrays in entry.S:
+> > + * tramp_vecs and __bp_harden_el1_vectors. By default the canonical
+> > + * 'full fat' vectors are used directly.
+> > + */
+> > +enum arm64_bp_harden_el1_vectors {
+> > +#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+> > +	/*
+> > +	 * Perform the BHB loop mitigation, before branching to the canonical
+> > +	 * vectors.
+> > +	 */
+> > +	EL1_VECTOR_BHB_LOOP,
+> > +
+> > +	/*
+> > +	 * Make the SMC call for firmware mitigation, before branching to the
+> > +	 * canonical vectors.
+> > +	 */
+> > +	EL1_VECTOR_BHB_FW,
+> > +#endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+> > +
+> > +	/*
+> > +	 * Remap the kernel before branching to the canonical vectors.
+> > +	 */
+> > +	EL1_VECTOR_KPTI,
+> > ++};
+> > +
+> 
+> 
+> Note "++". Following patch fixes this up, but it is still a trap for
+> people trying to bisect.
 
-Hi Greg,
+Ick, ok, will try to fix up, thanks for finding this.
 
-5.16.14-rc2 tested.
-
-Run tested on:
-- Allwinner H6 (Tanix TX6)
-- Intel Tiger Lake x86_64 (nuc11 i7-1165G7)
-
-In addition - build tested on:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos
-
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+greg k-h
