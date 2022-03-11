@@ -2,121 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1B684D67EB
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 18:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 110FF4D67ED
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 18:44:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345912AbiCKRok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 12:44:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48302 "EHLO
+        id S1349784AbiCKRpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 12:45:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237361AbiCKRok (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 12:44:40 -0500
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EEA311E3F8
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 09:43:37 -0800 (PST)
-Received: by mail-pl1-x642.google.com with SMTP id h5so6881763plf.7
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 09:43:37 -0800 (PST)
+        with ESMTP id S1346629AbiCKRpQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 12:45:16 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6938711E3F8
+        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 09:44:11 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id n18so5569490plg.5
+        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 09:44:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=XtI1f9sWRZ2UC78GPu4V47vwU7sGdDfWHDLuspgulf8=;
-        b=k/1VHWKm2a7h6CcVPdWuUe7RF0/qBKQL8mnbOgpSJ0HhqYlZ5k1MkIeomwcUJYobyX
-         JWf4OcEpwez1lQB0aMt9LZ6uz/8DEV7OJ0fhcL26JIAcCPDDnKxcZq+3S44XkTUuuQsJ
-         InJ6+b3V2VFWcUGZglPI0CetFKDZ3xM2Om7InygP+Q1se93PaJSNllHb38lI772zL5iP
-         jwSXMRKQuLwVH9Bp3mm/d6lOzLXqTefvqwf4i+b+65xffasnT/EKwtun2F0JGcKlrMgr
-         33NkUIMERWaQdqxPuj+I0B0DEwvqsO8cEF6A6yicumzuexSJJGyLKa4zzGfYK0VJyHT/
-         9NIw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xQewVKIhY2r0v+IHm0AF/AsV/VszfDdNiAbw9A3Tc8g=;
+        b=R7fJWpI+lQlaMnm0sz7WZDOcW/aYqqgyFH8nNPjw34z9G7xXYmIrlLnYsVCC/hb7p3
+         51Q1Nd90p9ueDY6LkES53YFOb+JjGasQ/k4+tN1NNvn4yP1XMQS3gCgEvoEiqunTcGL8
+         BHoqUn0dfzzDkVMeYNPwNUs+nr6uLe8Rx8t331FKJGZmWertuqnLK96x9+BazmDQY0Ih
+         g5vqjEWaSRMpiEKx5KmDAUg5W2zVilxHxNV2rd3wCcY76agQ9euscoLj5aDpa+7g3wtG
+         T6uZK28F6TfHjGrpTTQwXDC7tp+tpWWzznUZA9D4O4qSCylI++QjOWc9i2xoK2opG6R3
+         BfpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=XtI1f9sWRZ2UC78GPu4V47vwU7sGdDfWHDLuspgulf8=;
-        b=HvuLf1jAi9QD37UDWLwAUUrgGwk/K9EziBvL6As9kz98k+5fzOja3NBZXJ0G29Z2i/
-         tBKbUa3YODnc0rmYn4/WRkcBIndb0wtbJUnsDs5VkT//rqA6GNL/UpyTpkvcPE7uKlms
-         6Unho5Vc2zZBkGKtVgrQJZZdcOyvJD+BZwwCXTBlXFSKeRtFPCa9i3jYU4TBqR82pqv7
-         4qCcHAFTgTwXi2DE5IKN8SJGt4LXdqk0qt1friU138p1zEGv8sbqVqEEOLN1R0T3Ze06
-         AzRrcNJ4BfKW3sv5zGxjoprlm7L2NbVWpxCw7rWxHqsyixusMf3nUboclYhldM0MI3QS
-         tP/g==
-X-Gm-Message-State: AOAM531ElWwgkHdKBzgZZUSMMQ6J6ZQGDBzh8ZOHN8jPj8COdVZpmWJw
-        XyuQ0r5i1aXMTIwpNpetyqUqrKn3VvfZrZiAb8k=
-X-Google-Smtp-Source: ABdhPJwW7p9hQNe1qmgetk9U/sL85xgPFVOQMA1fx3LGINYtpEQsO+IG0A+5pJGhHf+tCAoEVetGS5S9PHuJuI1Diro=
-X-Received: by 2002:a17:90b:2243:b0:1c3:40b:547 with SMTP id
- hk3-20020a17090b224300b001c3040b0547mr6501988pjb.69.1647020616590; Fri, 11
- Mar 2022 09:43:36 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xQewVKIhY2r0v+IHm0AF/AsV/VszfDdNiAbw9A3Tc8g=;
+        b=gx+VxTeyvMsKWD3e8LbMd75fnEYsFMAvwukBwhHJMIoaGtf67eU7Wh8QCW+1v5MeON
+         ELS0uvEyXEg7SwCT7hPJi4PdEIC3UQvoCr+7TcgNl2UBEMXDl42AAnCDncoCcb74YCaj
+         ClRYOJtfP986vyoGF79oBqWA3fjD4eAUNdDB8MJp8+TWmPRfub6l5VVGgb7nwANcLQYV
+         yeEdt6z6nsnSgWDFE8oj6LHrc93Nm7SJS7gO8zSxBuTF/0Z3usZa3hNRBu9E6KHcGVEz
+         tbSev7tce7AwDmPsur8I9t/1bU8LTvWtRwqj+CzTuPVeu6prFl07Lg6OciwIHKA/b6/m
+         Mkpg==
+X-Gm-Message-State: AOAM533idJl2Ebt+HHE2TQ8q7shN9rf9d4DkqaxvsWLakNE/hFALiVcd
+        zBAJD6GFB8x9tZpZ8bBil4jlLQPKXYeQWNAeVtQ=
+X-Google-Smtp-Source: ABdhPJxQH2w4fd3kaYrZnFkl1zFjmc480Ewloo15P05FebDG376Xs0PdH4cDvNybKMDnV0W/vX/Lbw==
+X-Received: by 2002:a17:902:728d:b0:151:dcc8:9f86 with SMTP id d13-20020a170902728d00b00151dcc89f86mr10879143pll.76.1647020649256;
+        Fri, 11 Mar 2022 09:44:09 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p10-20020a637f4a000000b00373a2760775sm9315476pgn.2.2022.03.11.09.44.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Mar 2022 09:44:08 -0800 (PST)
+Message-ID: <622b8a68.1c69fb81.45847.7d76@mx.google.com>
+Date:   Fri, 11 Mar 2022 09:44:08 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Sender: drzandhazz@gmail.com
-Received: by 2002:ac4:d346:0:b0:4a1:dfd8:3e14 with HTTP; Fri, 11 Mar 2022
- 09:43:35 -0800 (PST)
-From:   MRS AMINATA ZONGO <mrsaminatazongo@gmail.com>
-Date:   Fri, 11 Mar 2022 18:43:35 +0100
-X-Google-Sender-Auth: kg3hA2iBfIPJju-jYpm6FwPVFxo
-Message-ID: <CAEaXoG-bqWzgijUUqN6z8bshuepx6BfDhGJpdu=fjwJ9z9cgYw@mail.gmail.com>
-Subject: ATTENTION PLEASE,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.2 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,HK_NAME_FM_MR_MRS,
-        LOTS_OF_MONEY,MILLION_HUNDRED,MILLION_USD,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,SUBJ_ATTENTION,
-        T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:642 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5002]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [drzandhazz[at]gmail.com]
-        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 MILLION_HUNDRED BODY: Million "One to Nine" Hundred
-        *  0.0 MILLION_USD BODY: Talks about millions of dollars
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  0.0 HK_NAME_FM_MR_MRS No description available.
-        *  0.3 SUBJ_ATTENTION ATTENTION in Subject
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.6 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *****
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.270-31-g223a2e117a9e
+Subject: stable-rc/queue/4.14 baseline: 48 runs,
+ 1 regressions (v4.14.270-31-g223a2e117a9e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ATTENTION PLEASE,
+stable-rc/queue/4.14 baseline: 48 runs, 1 regressions (v4.14.270-31-g223a2e=
+117a9e)
 
-I am  Mrs Aminata Zongo, a personal Accountant/Executive board of
-Directors working with United bank for African Burkina Faso (UBA). I
-have an interesting business proposal for you that will be of immense
-benefit to both of us. Although this may be hard for you to believe,
-we stand to gain a huge amount  between us in a matter of days. Please
-grant me the benefit of doubt and hear me out. I need you to signify
-your interest by replying to my mail.
+Regressions Summary
+-------------------
 
-Honestly, i have business transaction worth the sum of
-(US$8,200,000.00) Eight Million two hundred thousand united state
-dollars to transfer to you through proper documentation in position of
-your own Account.
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-Most importantly, I will need you to promise to keep whatever you
-learn from me between us even if you decide not to go along with me. I
-will make more details available to you on receipt of a positive
-response from you.
 
-This transaction is risk-free; please urgently confirm your
-willingness and interest to assist in this deal, I am in good faith
-and with trust waiting for your Urgent respond and maximum cooperation
-for more details.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.270-31-g223a2e117a9e/plan/baseline/
 
-Best Regards,
-Mrs Aminata Zongo.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.270-31-g223a2e117a9e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      223a2e117a9e692969ef5d2e3ff53f195d10afc8 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/622b53cf0101fc24fec62968
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.270=
+-31-g223a2e117a9e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
+8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.270=
+-31-g223a2e117a9e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
+8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/622b53cf0101fc24fec62=
+969
+        failing since 26 days (last pass: v4.14.266-18-g18b83990eba9, first=
+ fail: v4.14.266-28-g7d44cfe0255d) =
+
+ =20
