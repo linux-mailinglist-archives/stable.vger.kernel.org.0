@@ -2,95 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 583794D6035
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 11:56:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2393E4D6051
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 12:02:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231485AbiCKK5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 05:57:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60480 "EHLO
+        id S1344542AbiCKLCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 06:02:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343750AbiCKK5F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 05:57:05 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 143CA1B5120;
-        Fri, 11 Mar 2022 02:56:03 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id s11so7528790pfu.13;
-        Fri, 11 Mar 2022 02:56:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=6mMYXI3tVLpKUr8rwkLfSzKZwrbEoOdHBqCd++KoYUE=;
-        b=jWrGoRWGamloR60nHXKPZo7Ztwps9oByzyY2J3XRJStnDsdG0TgTq8LsV619gDJxAi
-         grRRW/5w1fHzmffjtqRHuKAfD/ewzFJBD9A7uXXubcSNeRIeARPqP5vwZNdCuAMuCjJM
-         bddOt/CxGD+RPMT74QeiBFFRHW/9icwI8MhCnwHYQlVoJM/ErBUDc2tdQ8kU12POykmk
-         SqB9LVkdQZAOOPOl5zzjfdeIhBUx5N3EfZoOugAABjHXDW2iqhzoR96UXhwzwvwgFUEb
-         Iu9+v0SEhDwd8o2P/AYJpGXCnwH16thfZIpK5/18ilIQBVwZ9YmLpZZ+HEU6TDiIjqJo
-         k0fA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=6mMYXI3tVLpKUr8rwkLfSzKZwrbEoOdHBqCd++KoYUE=;
-        b=5dZ7bG7UjHCVem/iENs0GDR5LhIv9z/K7syxjFX6/gdJGPByBKICg8aE9X4p76LcmI
-         TRXnbdwSvMTUR5v0FsKRGEc4JA94STe1gDEb/x0zQi1j7DO6DrlNr8lOT/I4DyCFpdyj
-         7AfspM68cxQ8YIZF9qPCYPRumByQKmnsVTj9DVF+KSUUeBwb2TOzeb2SZmLY5GYdwqfH
-         dClf6rofv6j0neKjtkZHH3aEj3XaP0bPhbfwngF2ontf0gJg95wCIQDtMY2noIDU1D5S
-         X/b3jp5vbKu3JgK9tF08WqTgO7UKP8gWEUYHhnOVWmXDWO4PfdhLiYAi9ZVM/FyFE481
-         koDQ==
-X-Gm-Message-State: AOAM532umbqQ2YrarC1LaRVM5+WryooSnWY9ElW+uqN2rqTtHXhQwszK
-        fTOkAa15QskirQVGgNEQbW4=
-X-Google-Smtp-Source: ABdhPJzu+kk6aPcsBpgOyLuU4+r31SmDeNomcx6g4SJ4ZrvL5GtLtNdU5NzYtstnVa+/MzWXl6M4VA==
-X-Received: by 2002:a65:49cc:0:b0:372:a079:cb3a with SMTP id t12-20020a6549cc000000b00372a079cb3amr7778906pgs.222.1646996162573;
-        Fri, 11 Mar 2022 02:56:02 -0800 (PST)
-Received: from [192.168.43.80] (subs03-180-214-233-87.three.co.id. [180.214.233.87])
-        by smtp.gmail.com with ESMTPSA id mr4-20020a17090b238400b001bf80eb1baasm8744659pjb.14.2022.03.11.02.55.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 11 Mar 2022 02:56:02 -0800 (PST)
-Message-ID: <97aba7b9-d8ff-327e-933f-95ba8a976d23@gmail.com>
-Date:   Fri, 11 Mar 2022 17:55:56 +0700
+        with ESMTP id S241160AbiCKLCc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 06:02:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC5B1B2AE2;
+        Fri, 11 Mar 2022 03:01:28 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 428C761B2F;
+        Fri, 11 Mar 2022 11:01:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9CDC340E9;
+        Fri, 11 Mar 2022 11:01:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646996487;
+        bh=WiS8TFyl/W92NuxiVeODXrPccKzqss0V2XRtmVhD8TE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QIxqBIALnpDhZVBYU0mf8I7yQctxSclEcQezLH5iOKwrEjTn4KekASdmXhZQV+W52
+         p4t6gUMCFlvhL/pbKsw860/qwzVRl5eqdyXO62F4bRanJWo9UXvTkv+UJAaGyhnMwz
+         +TUqzoruIsnEFdThg8tPiaU/9aPY8466r+dtEG4Y=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.4.184
+Date:   Fri, 11 Mar 2022 12:01:23 +0100
+Message-Id: <16469964833629@kroah.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.16 00/53] 5.16.14-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220310140811.832630727@linuxfoundation.org>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20220310140811.832630727@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/03/22 21.09, Greg Kroah-Hartman wrote:
-> Note, I'm sending all the patches again for all of the -rc2 releases as
-> there has been a lot of churn from what was in -rc1 to -rc2.
-> 
-> This is the start of the stable review cycle for the 5.16.14 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
+I'm announcing the release of the 5.4.184 kernel.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0)
-and powerpc (ps3_defconfig, gcc 11.2.0).
+All users of the 5.4 kernel series must upgrade.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
--- 
-An old man doll... just what I always wanted! - Clara
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/admin-guide/hw-vuln/spectre.rst   |   48 +++--
+ Documentation/admin-guide/kernel-parameters.txt |    8 
+ Makefile                                        |    2 
+ arch/arm/include/asm/assembler.h                |   10 +
+ arch/arm/include/asm/spectre.h                  |   32 +++
+ arch/arm/kernel/Makefile                        |    2 
+ arch/arm/kernel/entry-armv.S                    |   79 ++++++++
+ arch/arm/kernel/entry-common.S                  |   24 ++
+ arch/arm/kernel/spectre.c                       |   71 +++++++
+ arch/arm/kernel/traps.c                         |   65 ++++++-
+ arch/arm/kernel/vmlinux.lds.h                   |   43 +++-
+ arch/arm/mm/Kconfig                             |   11 +
+ arch/arm/mm/proc-v7-bugs.c                      |  200 +++++++++++++++++++---
+ arch/x86/include/asm/cpufeatures.h              |    2 
+ arch/x86/include/asm/nospec-branch.h            |   16 +
+ arch/x86/kernel/cpu/bugs.c                      |  216 +++++++++++++++++-------
+ drivers/acpi/ec.c                               |   10 -
+ drivers/acpi/sleep.c                            |   14 +
+ drivers/block/xen-blkfront.c                    |   63 ++++---
+ drivers/firmware/psci/psci.c                    |   15 +
+ drivers/net/xen-netfront.c                      |   54 +++---
+ drivers/scsi/xen-scsifront.c                    |    3 
+ drivers/xen/gntalloc.c                          |   25 --
+ drivers/xen/grant-table.c                       |   71 ++++---
+ drivers/xen/pvcalls-front.c                     |    8 
+ drivers/xen/xenbus/xenbus_client.c              |   24 +-
+ include/linux/arm-smccc.h                       |   74 ++++++++
+ include/linux/bpf.h                             |   12 +
+ include/xen/grant_table.h                       |   19 +-
+ kernel/sysctl.c                                 |    8 
+ net/9p/trans_xen.c                              |   14 -
+ tools/arch/x86/include/asm/cpufeatures.h        |    2 
+ 32 files changed, 969 insertions(+), 276 deletions(-)
+
+Borislav Petkov (1):
+      x86/speculation: Merge one test in spectre_v2_user_select_mitigation()
+
+Emmanuel Gil Peyrot (1):
+      ARM: fix build error when BPF_SYSCALL is disabled
+
+Greg Kroah-Hartman (2):
+      Revert "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
+      Linux 5.4.184
+
+Josh Poimboeuf (3):
+      x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+      x86/speculation: Warn about Spectre v2 LFENCE mitigation
+      x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
+
+Juergen Gross (11):
+      xen/xenbus: don't let xenbus_grant_ring() remove grants in error case
+      xen/grant-table: add gnttab_try_end_foreign_access()
+      xen/blkfront: don't use gnttab_query_foreign_access() for mapped status
+      xen/netfront: don't use gnttab_query_foreign_access() for mapped status
+      xen/scsifront: don't use gnttab_query_foreign_access() for mapped status
+      xen/gntalloc: don't use gnttab_query_foreign_access()
+      xen: remove gnttab_query_foreign_access()
+      xen/9p: use alloc/free_pages_exact()
+      xen/pvcalls: use alloc/free_pages_exact()
+      xen/gnttab: fix gnttab_end_foreign_access() without page specified
+      xen/netfront: react properly to failing gnttab_end_foreign_access_ref()
+
+Kim Phillips (2):
+      x86/speculation: Use generic retpoline by default on AMD
+      x86/speculation: Update link to AMD speculation whitepaper
+
+Mark Rutland (1):
+      arm/arm64: smccc/psci: add arm_smccc_1_1_get_conduit()
+
+Nathan Chancellor (1):
+      ARM: Do not use NOCROSSREFS directive with ld.lld
+
+Peter Zijlstra (3):
+      x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+      x86/speculation: Add eIBRS + Retpoline options
+      Documentation/hw-vuln: Update spectre doc
+
+Peter Zijlstra (Intel) (1):
+      x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
+
+Russell King (Oracle) (7):
+      ARM: report Spectre v2 status through sysfs
+      ARM: early traps initialisation
+      ARM: use LOADADDR() to get load address of sections
+      ARM: Spectre-BHB workaround
+      ARM: include unprivileged BPF status in Spectre V2 reporting
+      ARM: fix co-processor register typo
+      ARM: fix build warning in proc-v7-bugs.c
+
+Steven Price (1):
+      arm/arm64: Provide a wrapper for SMCCC 1.1 calls
+
