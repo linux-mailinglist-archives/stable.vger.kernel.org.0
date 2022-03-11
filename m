@@ -2,148 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FF04D6098
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 12:30:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F754D60C1
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 12:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348247AbiCKLbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 06:31:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50954 "EHLO
+        id S242726AbiCKLnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 06:43:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348241AbiCKLbs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 06:31:48 -0500
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9532F1BAF25;
-        Fri, 11 Mar 2022 03:30:45 -0800 (PST)
-Received: by mail-wm1-x331.google.com with SMTP id p184-20020a1c29c1000000b0037f76d8b484so5147529wmp.5;
-        Fri, 11 Mar 2022 03:30:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :content-transfer-encoding:user-agent:mime-version;
-        bh=xcObS0WVWrfqu8mNkyOQ0nV3EjvWd6c1AXYqGZ5XTGM=;
-        b=G/ovJ8o7B7A6xufyjF5fvop2+MiKH68Hunofh0IQfHdgYx4O+S94ydSYTJseJpB8OD
-         cj9xnP1RWxH4tLPfxF9MxMj7LuQGo61/OZyEn1WESP0humM8CNpS2pP/4yE9fD46vXDO
-         2OVp8jMshWPMhFL2JNKiN7rlvL9k0+r8vaVjfrdWQUgEjRAus1lmU62pX//j59Um/JRc
-         ixQolU7Y0vu+7Ogj5zWgV/tiC5OQ2N/f5pSUIGsYrP7wxN1aTMMDJDWtIEAMpbWGuxu7
-         2ApuYCH3GXJHQX0qLVO9aWBeiggL+MKdbAjNqXN4lap6vaSvHOhZLMrQz0r2+ksxaC7u
-         meoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:content-transfer-encoding:user-agent:mime-version;
-        bh=xcObS0WVWrfqu8mNkyOQ0nV3EjvWd6c1AXYqGZ5XTGM=;
-        b=qvZL9aBLScjaXH9krPgiXdfV/ciiPIJgreJ0Z0dqgho6NAUAA4OGNodkF7G1cXg/uh
-         JGNCmIEwqymVCyic4HlziAYPIuljFgBWosL/EMdq3HJCtg8kJ6t1NerLwFLjmiGfePO2
-         4lrCorBXBeDKVfTzwQu0xN5SpP89MEYGKnJukXxxWanN/gdnp+CAtL1lPOEEkBw9vTJq
-         haswhjlENQzQahs4ub0arLrmkgNM9IAuLhP+WCpDSTClv0/u9dLefXK69H+appVxhbjW
-         NQqjWriZn7vP3oShxBu1usvBn+GqxhuRHdzlLf82vwoC72BOH/C7jDnALI9dYd4JmFxZ
-         1U1g==
-X-Gm-Message-State: AOAM533OSBQ6bTDKXuoe2PFKQQ5zeozwcqFLmBtqTK+G30TKNy5VbhvF
-        0dECFbYm+zdt8cPr/t7W6yUOTu9S9cjfTQ==
-X-Google-Smtp-Source: ABdhPJyIkAGEaqTeLRriLCxzh1Z2kjz7sQFDGRATMQMjTWLvzHz86P5OrYTJ/hfKD/DVkMdc4SQNAQ==
-X-Received: by 2002:a7b:c4c9:0:b0:389:9348:9ade with SMTP id g9-20020a7bc4c9000000b0038993489ademr15144015wmk.70.1646998243913;
-        Fri, 11 Mar 2022 03:30:43 -0800 (PST)
-Received: from www.Debian-Testing-WilsonJTR4 ([213.31.80.52])
-        by smtp.gmail.com with ESMTPSA id i8-20020a7bc948000000b003898dfd7990sm7589712wml.29.2022.03.11.03.30.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Mar 2022 03:30:43 -0800 (PST)
-Message-ID: <0d4088b987437788846b7d69879189f4870b90c6.camel@gmail.com>
-Subject: Re: [PATCH] block: check more requests for multiple_queues in
- blk_attempt_plug_merge
-From:   Wilson Jonathan <i400sjon@gmail.com>
-To:     Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, stable@vger.kernel.org,
-        Larkin Lowrey <llowrey@nuclearwinter.com>,
-        Roger Heflin <rogerheflin@gmail.com>
-Date:   Fri, 11 Mar 2022 11:30:42 +0000
-In-Reply-To: <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
-References: <20220309064209.4169303-1-song@kernel.org>
-         <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
-         <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.43.2-2 
+        with ESMTP id S232676AbiCKLnf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 06:43:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C46BDE89;
+        Fri, 11 Mar 2022 03:42:31 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE32261C5E;
+        Fri, 11 Mar 2022 11:42:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90BC7C340E9;
+        Fri, 11 Mar 2022 11:42:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646998950;
+        bh=5CvOYnGLJwEtyKF2QV/xv7ZYt39LVP/J1z80OCjr3NQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oGehODKlzAIsI2hTz5UUgswcyU2KhqGXevN+De2Cr1JcSjDobAWgm0hLDnakGgcdG
+         H344G/Y4BR/DloUgC/gBHmq5VuW2jA+UV92yZ/Zb5gify9nLXG1q0uwi5G/xBADZ1y
+         icGMaEdnq+J/0d40jLbUBB/IAgh7Na+kLIYmmXQ0=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.15.28
+Date:   Fri, 11 Mar 2022 12:42:26 +0100
+Message-Id: <1646998946149237@kroah.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2022-03-10 at 14:37 -0800, Song Liu wrote:
-> On Thu, Mar 10, 2022 at 2:15 PM Jens Axboe <axboe@kernel.dk> wrote:
-> >=20
-> > On 3/8/22 11:42 PM, Song Liu wrote:
-> > > RAID arrays check/repair operations benefit a lot from merging
-> > > requests.
-> > > If we only check the previous entry for merge attempt, many merge
-> > > will be
-> > > missed. As a result, significant regression is observed for RAID
-> > > check
-> > > and repair.
-> > >=20
-> > > Fix this by checking more than just the previous entry when
-> > > plug->multiple_queues =3D=3D true.
-> > >=20
-> > > This improves the check/repair speed of a 20-HDD raid6 from 19
-> > > MB/s to
-> > > 103 MB/s.
-> >=20
-> > Do the underlying disks not have an IO scheduler attached? Curious
-> > why
-> > the merges aren't being done there, would be trivial when the list
-> > is
-> > flushed out. Because if the perf difference is that big, then other
-> > workloads would be suffering they are that sensitive to being
-> > within a
-> > plug worth of IO.
->=20
-> The disks have mq-deadline by default. I also tried kyber, the result
-> is the
-> same. Raid repair work sends IOs to all the HDDs in a round-robin
-> manner.
-> If we only check the previous request, there isn't much opportunity
-> for
-> merge. I guess other workloads may have different behavior?
->=20
-> > Between your two approaches, I do greatly prefer the first one
-> > though.
->=20
-> I also like the first one better. But I am not sure whether it will
-> slow down
-> other workloads. We can probably also make the second one cleaner
-> with a new variation of blk_start_plug.
+I'm announcing the release of the 5.15.28 kernel.
 
-As a matter of note and purely anecdotal: Before the raid "check" slow
-down/regression my system would be responsive but delayed (opening a
-program or opening the xface application menu or switching a file in
-VLC would take longer than normal, fractions of seconds to a second but
-slugish and notacable) and with the regression that slow down went from
-annoying to unbearable.=C2=A0
+All users of the 5.15 kernel series must upgrade.
 
-The slowdowns (in programs and menus and file changes) also *seems* to
-get worse (in both pre & post regression) the longer the check has been
-running and the slower a run naturally gets (I assume as the check
-moves from the outer portion of the disk to the inner portion?) and the
-lower the KB's reported in cat /proc/mdstat/.
+The updated 5.15.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.15.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-In the post regression situation it wasn't just that the check was
-taking much longer and was much slower it was also that it slowed down
-everything else to the point that it was painful to try and use the
-computer as it was so much less responsive (multiple seconds for
-anything to load/run/swtch; even web pages). A laggy annoyance had
-become an actual hindrance.=C2=A0
+thanks,
 
-I have no idea why the speed of the "check" would seemingly affect the
-apparent responsiveness of the computer and why it would appear that
-the slower the check the slower the responsiveness.=20
+greg k-h
 
->=20
-> Thanks,
-> Song
+------------
+
+ Documentation/admin-guide/hw-vuln/spectre.rst   |   48 +-
+ Documentation/admin-guide/kernel-parameters.txt |    8 
+ Documentation/arm64/cpu-feature-registers.rst   |   29 +
+ Documentation/arm64/elf_hwcaps.rst              |   12 
+ Makefile                                        |    2 
+ arch/arm/include/asm/assembler.h                |   10 
+ arch/arm/include/asm/spectre.h                  |   32 +
+ arch/arm/include/asm/vmlinux.lds.h              |   43 ++
+ arch/arm/kernel/Makefile                        |    2 
+ arch/arm/kernel/entry-armv.S                    |   79 ++++
+ arch/arm/kernel/entry-common.S                  |   24 +
+ arch/arm/kernel/spectre.c                       |   71 ++++
+ arch/arm/kernel/traps.c                         |   65 +++
+ arch/arm/mm/Kconfig                             |   11 
+ arch/arm/mm/proc-v7-bugs.c                      |  208 ++++++++++--
+ arch/arm64/Kconfig                              |    9 
+ arch/arm64/include/asm/assembler.h              |   53 +++
+ arch/arm64/include/asm/cpu.h                    |    1 
+ arch/arm64/include/asm/cpufeature.h             |   29 +
+ arch/arm64/include/asm/cputype.h                |   14 
+ arch/arm64/include/asm/fixmap.h                 |    6 
+ arch/arm64/include/asm/hwcap.h                  |    3 
+ arch/arm64/include/asm/insn.h                   |    1 
+ arch/arm64/include/asm/kvm_host.h               |    5 
+ arch/arm64/include/asm/rwonce.h                 |    4 
+ arch/arm64/include/asm/sections.h               |    5 
+ arch/arm64/include/asm/spectre.h                |    4 
+ arch/arm64/include/asm/sysreg.h                 |   18 +
+ arch/arm64/include/asm/vectors.h                |   73 ++++
+ arch/arm64/include/uapi/asm/hwcap.h             |    3 
+ arch/arm64/include/uapi/asm/kvm.h               |    5 
+ arch/arm64/kernel/cpu_errata.c                  |    7 
+ arch/arm64/kernel/cpufeature.c                  |   28 +
+ arch/arm64/kernel/cpuinfo.c                     |    4 
+ arch/arm64/kernel/entry.S                       |  214 +++++++++----
+ arch/arm64/kernel/image-vars.h                  |    4 
+ arch/arm64/kernel/proton-pack.c                 |  391 +++++++++++++++++++++++-
+ arch/arm64/kernel/vmlinux.lds.S                 |    2 
+ arch/arm64/kvm/arm.c                            |    5 
+ arch/arm64/kvm/hyp/hyp-entry.S                  |    9 
+ arch/arm64/kvm/hyp/nvhe/mm.c                    |    4 
+ arch/arm64/kvm/hyp/vhe/switch.c                 |    9 
+ arch/arm64/kvm/hypercalls.c                     |   12 
+ arch/arm64/kvm/psci.c                           |   18 +
+ arch/arm64/kvm/sys_regs.c                       |    2 
+ arch/arm64/mm/mmu.c                             |   12 
+ arch/arm64/tools/cpucaps                        |    1 
+ arch/x86/include/asm/cpufeatures.h              |    2 
+ arch/x86/include/asm/nospec-branch.h            |   16 
+ arch/x86/kernel/cpu/bugs.c                      |  205 +++++++++---
+ arch/x86/lib/retpoline.S                        |    2 
+ drivers/acpi/ec.c                               |   10 
+ drivers/acpi/sleep.c                            |   14 
+ drivers/block/xen-blkfront.c                    |   63 ++-
+ drivers/net/slip/slip.h                         |    2 
+ drivers/net/xen-netfront.c                      |   54 ++-
+ drivers/scsi/xen-scsifront.c                    |    3 
+ drivers/xen/gntalloc.c                          |   25 -
+ drivers/xen/grant-table.c                       |   71 ++--
+ drivers/xen/pvcalls-front.c                     |    8 
+ drivers/xen/xenbus/xenbus_client.c              |   24 -
+ include/linux/arm-smccc.h                       |    5 
+ include/linux/bpf.h                             |   12 
+ include/xen/grant_table.h                       |   19 +
+ kernel/sysctl.c                                 |    7 
+ net/9p/trans_xen.c                              |   14 
+ tools/arch/x86/include/asm/cpufeatures.h        |    2 
+ 67 files changed, 1799 insertions(+), 358 deletions(-)
+
+Anshuman Khandual (1):
+      arm64: Add Cortex-X2 CPU part definition
+
+Emmanuel Gil Peyrot (1):
+      ARM: fix build error when BPF_SYSCALL is disabled
+
+Greg Kroah-Hartman (2):
+      Revert "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
+      Linux 5.15.28
+
+Huang Pei (1):
+      slip: fix macro redefine warning
+
+James Morse (20):
+      arm64: entry.S: Add ventry overflow sanity checks
+      arm64: spectre: Rename spectre_v4_patch_fw_mitigation_conduit
+      KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
+      arm64: entry: Make the trampoline cleanup optional
+      arm64: entry: Free up another register on kpti's tramp_exit path
+      arm64: entry: Move the trampoline data page before the text page
+      arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
+      arm64: entry: Don't assume tramp_vectors is the start of the vectors
+      arm64: entry: Move trampoline macros out of ifdef'd section
+      arm64: entry: Make the kpti trampoline's kpti sequence optional
+      arm64: entry: Allow the trampoline text to occupy multiple pages
+      arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
+      arm64: entry: Add vectors that have the bhb mitigation sequences
+      arm64: entry: Add macro for reading symbol addresses from the trampoline
+      arm64: Add percpu vectors for EL1
+      arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2
+      arm64: Mitigate spectre style branch history side channels
+      KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
+      arm64: Use the clearbhb instruction in mitigations
+      arm64: proton-pack: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+
+Joey Gouly (3):
+      arm64: add ID_AA64ISAR2_EL1 sys register
+      arm64: cpufeature: add HWCAP for FEAT_AFP
+      arm64: cpufeature: add HWCAP for FEAT_RPRES
+
+Josh Poimboeuf (3):
+      x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+      x86/speculation: Warn about Spectre v2 LFENCE mitigation
+      x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
+
+Juergen Gross (11):
+      xen/xenbus: don't let xenbus_grant_ring() remove grants in error case
+      xen/grant-table: add gnttab_try_end_foreign_access()
+      xen/blkfront: don't use gnttab_query_foreign_access() for mapped status
+      xen/netfront: don't use gnttab_query_foreign_access() for mapped status
+      xen/scsifront: don't use gnttab_query_foreign_access() for mapped status
+      xen/gntalloc: don't use gnttab_query_foreign_access()
+      xen: remove gnttab_query_foreign_access()
+      xen/9p: use alloc/free_pages_exact()
+      xen/pvcalls: use alloc/free_pages_exact()
+      xen/gnttab: fix gnttab_end_foreign_access() without page specified
+      xen/netfront: react properly to failing gnttab_end_foreign_access_ref()
+
+Kim Phillips (2):
+      x86/speculation: Use generic retpoline by default on AMD
+      x86/speculation: Update link to AMD speculation whitepaper
+
+Marc Zyngier (1):
+      arm64: Add HWCAP for self-synchronising virtual counter
+
+Nathan Chancellor (2):
+      ARM: Do not use NOCROSSREFS directive with ld.lld
+      arm64: Do not include __READ_ONCE() block in assembly files
+
+Peter Zijlstra (3):
+      x86,bugs: Unconditionally allow spectre_v2=retpoline,amd
+      x86/speculation: Add eIBRS + Retpoline options
+      Documentation/hw-vuln: Update spectre doc
+
+Peter Zijlstra (Intel) (1):
+      x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
+
+Russell King (Oracle) (7):
+      ARM: report Spectre v2 status through sysfs
+      ARM: early traps initialisation
+      ARM: use LOADADDR() to get load address of sections
+      ARM: Spectre-BHB workaround
+      ARM: include unprivileged BPF status in Spectre V2 reporting
+      ARM: fix co-processor register typo
+      ARM: fix build warning in proc-v7-bugs.c
+
+Suzuki K Poulose (1):
+      arm64: Add Neoverse-N2, Cortex-A710 CPU part definition
 
