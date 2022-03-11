@@ -2,66 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B10934D6103
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 12:53:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 508394D6113
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 12:56:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239127AbiCKLxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 06:53:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
+        id S242969AbiCKL46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 06:56:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233234AbiCKLxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 06:53:49 -0500
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB594D60E
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 03:52:45 -0800 (PST)
-Received: by mail-yb1-xb31.google.com with SMTP id x200so16626954ybe.6
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 03:52:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=vcfCQf2ipBXym0WGWa/TPLq262jF+MOIdkhc8cIElBc=;
-        b=qT6Ctf9FHvk5UXjURmdbs62M1JDay7M+EVARQ2dkMVVf+RhXGnyAClPHGmYONCKgow
-         INFKIBS3t7CwxZsdD/OeaAinCjIdI9blsmY/P5ICQv3iQaCppBePlntLQlpJNwjVGddz
-         Pi32uihRrfaFX6oxskxTdjd1f6+nJHG67qwGL4g3/xbfPn7sCZ2EeXmFLjg2xeB3Vj0p
-         QSjouGtbY9EYf7pU3UveTOT7zcaotD5rK7zgiVv+dYk9oTQtcaKEakM6MvUJxoKTS2S7
-         UDpZQSws0lcYUrYNO17coAtjXj2nFB6O+D6sqV1RhifF5q72MDMNArDfGDq7WM2bkiVB
-         oPbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=vcfCQf2ipBXym0WGWa/TPLq262jF+MOIdkhc8cIElBc=;
-        b=YLdzSuVxxYaLqqmJ+V2QbTTzJ6KHE1NFGiUBQtCRljCD8MaoqzR9Pre0e1/KdQHm9N
-         pv7I9ylxTWKbeOHctB4lxXqXgwj8jsnB3GNY1il0sU0SVL0rAc5GXM4gCKV/3lr0EI6Z
-         v4KxpMR5xGRJQGy/IaWcgw6gTQ1tsd4bhmk07+k9X+03owiyFmsE1j5PKFlaLpoMlLhK
-         y96qIUCDFU9wjSS2eK8nfu2zvB2lZY6E6gBl6et+z46kfsmKYBqgdhWHswe1bA4h3XGm
-         xKVmd6RZnpuCR3QU+8PmKYHpBbVmT3Vd8PgVC/ln4um1TXWyABZQFe2ncblcmlGDaHbm
-         Hrqw==
-X-Gm-Message-State: AOAM533ZiYUAt5uQtNup1rIyk2rkMG3eYzjcCodee0b+I6JqvxZZVlaG
-        J38Bu75zZq2SpT0qW7MGf/jqIEGvTnEpNDIJtgLDzg==
-X-Google-Smtp-Source: ABdhPJz/cuI5oGeD+7slacIT8yD/BzgUoTMLR5eYU9e7xyrQS31gC2q8RtTsPCwh4VJ0sXH2N3uPpHsFU23FwhMiVVs=
-X-Received: by 2002:a25:da91:0:b0:628:aa84:f69e with SMTP id
- n139-20020a25da91000000b00628aa84f69emr8246947ybf.603.1646999564536; Fri, 11
- Mar 2022 03:52:44 -0800 (PST)
+        with ESMTP id S238106AbiCKL45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 06:56:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5EDC10708B;
+        Fri, 11 Mar 2022 03:55:54 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52AED61D13;
+        Fri, 11 Mar 2022 11:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 564ABC340E9;
+        Fri, 11 Mar 2022 11:55:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1646999753;
+        bh=k5OXGMl+D8vYAl28+w6codL2CoiyZ4ETbJQkUt9XGCA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=G6priS1Eq+KZ2Hye7tPG5E7M0Gw6Ffr2ga5fmeO+ZL2CE1/0omEcAC73bA+mpDBLU
+         GbffYIpmqx5atxfkyqGnw+bcpRlNQqIYN3aVSUiNAA0oX7zHwojGjU3EyMPzzki34V
+         0CjQzB4q6M9a6RTD2eBRNXNYn+bndIIktX0Aok7w=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.16.14
+Date:   Fri, 11 Mar 2022 12:55:49 +0100
+Message-Id: <164699974918063@kroah.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <20220310140812.869208747@linuxfoundation.org>
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 11 Mar 2022 17:22:33 +0530
-Message-ID: <CA+G9fYsV1RA=jfBqG88NsZhdouCsB7=xg2Oq78AAL5_vUhObjw@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/58] 5.10.105-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,180 +49,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 10 Mar 2022 at 19:54, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.105 release.
-> There are 58 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.105-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+I'm announcing the release of the 5.16.14 kernel.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+All users of the 5.16 kernel series must upgrade.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The updated 5.16.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.16.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-## Build
-* kernel: 5.10.105-rc2
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: 222eae85893657f02832253fe1c164f7d0b2c88c
-* git describe: v5.10.104-59-g222eae858936
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.104-59-g222eae858936
+thanks,
 
-## Test Regressions (compared to v5.10.104-43-ge5e4a8f0fb6e)
-No test regressions found.
+greg k-h
 
-## Metric Regressions (compared to v5.10.104-43-ge5e4a8f0fb6e)
-No metric regressions found.
+------------
 
-## Test Fixes (compared to v5.10.104-43-ge5e4a8f0fb6e)
-No test fixes found.
+ Documentation/admin-guide/hw-vuln/spectre.rst   |   50 ++-
+ Documentation/admin-guide/kernel-parameters.txt |    8 
+ Documentation/arm64/cpu-feature-registers.rst   |   17 +
+ Documentation/arm64/elf_hwcaps.rst              |    8 
+ Makefile                                        |    2 
+ arch/arm/include/asm/assembler.h                |   10 
+ arch/arm/include/asm/spectre.h                  |   32 +
+ arch/arm/include/asm/vmlinux.lds.h              |   43 ++
+ arch/arm/kernel/Makefile                        |    2 
+ arch/arm/kernel/entry-armv.S                    |   79 ++++
+ arch/arm/kernel/entry-common.S                  |   24 +
+ arch/arm/kernel/spectre.c                       |   71 ++++
+ arch/arm/kernel/traps.c                         |   65 +++
+ arch/arm/mm/Kconfig                             |   11 
+ arch/arm/mm/proc-v7-bugs.c                      |  208 ++++++++++--
+ arch/arm64/Kconfig                              |    9 
+ arch/arm64/include/asm/assembler.h              |   53 +++
+ arch/arm64/include/asm/cpu.h                    |    1 
+ arch/arm64/include/asm/cpufeature.h             |   29 +
+ arch/arm64/include/asm/cputype.h                |    8 
+ arch/arm64/include/asm/fixmap.h                 |    6 
+ arch/arm64/include/asm/hwcap.h                  |    2 
+ arch/arm64/include/asm/insn.h                   |    1 
+ arch/arm64/include/asm/kvm_host.h               |    5 
+ arch/arm64/include/asm/rwonce.h                 |    4 
+ arch/arm64/include/asm/sections.h               |    5 
+ arch/arm64/include/asm/spectre.h                |    4 
+ arch/arm64/include/asm/sysreg.h                 |   18 +
+ arch/arm64/include/asm/vectors.h                |   73 ++++
+ arch/arm64/include/uapi/asm/hwcap.h             |    2 
+ arch/arm64/include/uapi/asm/kvm.h               |    5 
+ arch/arm64/kernel/cpu_errata.c                  |    7 
+ arch/arm64/kernel/cpufeature.c                  |   25 +
+ arch/arm64/kernel/cpuinfo.c                     |    3 
+ arch/arm64/kernel/entry.S                       |  214 +++++++++----
+ arch/arm64/kernel/image-vars.h                  |    4 
+ arch/arm64/kernel/proton-pack.c                 |  391 +++++++++++++++++++++++-
+ arch/arm64/kernel/vmlinux.lds.S                 |    2 
+ arch/arm64/kvm/arm.c                            |    5 
+ arch/arm64/kvm/hyp/hyp-entry.S                  |    9 
+ arch/arm64/kvm/hyp/nvhe/mm.c                    |    4 
+ arch/arm64/kvm/hyp/vhe/switch.c                 |    9 
+ arch/arm64/kvm/hypercalls.c                     |   12 
+ arch/arm64/kvm/psci.c                           |   18 +
+ arch/arm64/kvm/sys_regs.c                       |    2 
+ arch/arm64/mm/mmu.c                             |   12 
+ arch/arm64/tools/cpucaps                        |    1 
+ arch/x86/include/asm/cpufeatures.h              |    2 
+ arch/x86/include/asm/nospec-branch.h            |   16 
+ arch/x86/kernel/alternative.c                   |    8 
+ arch/x86/kernel/cpu/bugs.c                      |  204 +++++++++---
+ arch/x86/lib/retpoline.S                        |    2 
+ arch/x86/net/bpf_jit_comp.c                     |    2 
+ drivers/acpi/ec.c                               |   10 
+ drivers/acpi/sleep.c                            |   14 
+ drivers/block/xen-blkfront.c                    |   63 ++-
+ drivers/net/xen-netfront.c                      |   54 ++-
+ drivers/scsi/xen-scsifront.c                    |    3 
+ drivers/xen/gntalloc.c                          |   25 -
+ drivers/xen/grant-table.c                       |   71 ++--
+ drivers/xen/pvcalls-front.c                     |    8 
+ drivers/xen/xenbus/xenbus_client.c              |   24 -
+ include/linux/arm-smccc.h                       |    5 
+ include/linux/bpf.h                             |   12 
+ include/xen/grant_table.h                       |   19 +
+ kernel/sysctl.c                                 |    7 
+ net/9p/trans_xen.c                              |   14 
+ tools/arch/x86/include/asm/cpufeatures.h        |    2 
+ 68 files changed, 1781 insertions(+), 357 deletions(-)
 
-## Metric Fixes (compared to v5.10.104-43-ge5e4a8f0fb6e)
-No metric fixes found.
+Emmanuel Gil Peyrot (1):
+      ARM: fix build error when BPF_SYSCALL is disabled
 
-## Test result summary
-total: 103231, pass: 87446, fail: 919, skip: 13751, xfail: 1115
+Greg Kroah-Hartman (2):
+      Revert "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
+      Linux 5.16.14
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 291 total, 291 passed, 0 failed
-* arm64: 41 total, 41 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 40 total, 40 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 46 passed, 14 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 41 total, 41 passed, 0 failed
+James Morse (20):
+      arm64: entry.S: Add ventry overflow sanity checks
+      arm64: spectre: Rename spectre_v4_patch_fw_mitigation_conduit
+      KVM: arm64: Allow indirect vectors to be used without SPECTRE_V3A
+      arm64: entry: Make the trampoline cleanup optional
+      arm64: entry: Free up another register on kpti's tramp_exit path
+      arm64: entry: Move the trampoline data page before the text page
+      arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
+      arm64: entry: Don't assume tramp_vectors is the start of the vectors
+      arm64: entry: Move trampoline macros out of ifdef'd section
+      arm64: entry: Make the kpti trampoline's kpti sequence optional
+      arm64: entry: Allow the trampoline text to occupy multiple pages
+      arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
+      arm64: entry: Add vectors that have the bhb mitigation sequences
+      arm64: entry: Add macro for reading symbol addresses from the trampoline
+      arm64: Add percpu vectors for EL1
+      arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2
+      arm64: Mitigate spectre style branch history side channels
+      KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
+      arm64: Use the clearbhb instruction in mitigations
+      arm64: proton-pack: Include unprivileged eBPF status in Spectre v2 mitigation reporting
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
+Joey Gouly (3):
+      arm64: add ID_AA64ISAR2_EL1 sys register
+      arm64: cpufeature: add HWCAP for FEAT_AFP
+      arm64: cpufeature: add HWCAP for FEAT_RPRES
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Josh Poimboeuf (3):
+      x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting
+      x86/speculation: Warn about Spectre v2 LFENCE mitigation
+      x86/speculation: Warn about eIBRS + LFENCE + Unprivileged eBPF + SMT
+
+Juergen Gross (11):
+      xen/xenbus: don't let xenbus_grant_ring() remove grants in error case
+      xen/grant-table: add gnttab_try_end_foreign_access()
+      xen/blkfront: don't use gnttab_query_foreign_access() for mapped status
+      xen/netfront: don't use gnttab_query_foreign_access() for mapped status
+      xen/scsifront: don't use gnttab_query_foreign_access() for mapped status
+      xen/gntalloc: don't use gnttab_query_foreign_access()
+      xen: remove gnttab_query_foreign_access()
+      xen/9p: use alloc/free_pages_exact()
+      xen/pvcalls: use alloc/free_pages_exact()
+      xen/gnttab: fix gnttab_end_foreign_access() without page specified
+      xen/netfront: react properly to failing gnttab_end_foreign_access_ref()
+
+Kim Phillips (2):
+      x86/speculation: Use generic retpoline by default on AMD
+      x86/speculation: Update link to AMD speculation whitepaper
+
+Nathan Chancellor (2):
+      ARM: Do not use NOCROSSREFS directive with ld.lld
+      arm64: Do not include __READ_ONCE() block in assembly files
+
+Peter Zijlstra (2):
+      x86/speculation: Add eIBRS + Retpoline options
+      Documentation/hw-vuln: Update spectre doc
+
+Peter Zijlstra (Intel) (1):
+      x86/speculation: Rename RETPOLINE_AMD to RETPOLINE_LFENCE
+
+Russell King (Oracle) (7):
+      ARM: report Spectre v2 status through sysfs
+      ARM: early traps initialisation
+      ARM: use LOADADDR() to get load address of sections
+      ARM: Spectre-BHB workaround
+      ARM: include unprivileged BPF status in Spectre V2 reporting
+      ARM: fix co-processor register typo
+      ARM: fix build warning in proc-v7-bugs.c
+
