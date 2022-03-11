@@ -2,110 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 626C14D56FB
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 01:52:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03ADD4D5703
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 01:57:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235560AbiCKAxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 19:53:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
+        id S233551AbiCKA5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 19:57:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231319AbiCKAxG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 19:53:06 -0500
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B82C2627
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 16:52:03 -0800 (PST)
-Received: by mail-vs1-xe43.google.com with SMTP id v62so7981824vsv.1
-        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 16:52:03 -0800 (PST)
+        with ESMTP id S232881AbiCKA5s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 19:57:48 -0500
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE3181A3604;
+        Thu, 10 Mar 2022 16:56:46 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id q7-20020a7bce87000000b00382255f4ca9so6590910wmj.2;
+        Thu, 10 Mar 2022 16:56:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=kf6+WbIZoJRh7hvBUZmpwsMxdAt4zH6vZV7TMCPAjZU=;
-        b=Dfgxsj78LvakzbilkqpELJpncHCY0nJ4PtC0DCI/RKHVdWBESlhsNFEfWOeMJMeKqb
-         9tpfX9/JmA7Omrz9E1HaLYaJxLgnFf8lJVKXST3VXzjnlNaK2Sl6p/Gsv7pqTIlY/KNs
-         jWmaArQxPGvrhTB0tQaOfYOt6JKjUExc9ggjv05BrKn24ORthL6IHbx2d5EO3OaKJdMD
-         bMSRi3O+0YMjP3cLfjPZokOz5IaPYd5eJuYaYvcJ35WrdhH/WE4qDoc3y8qwqpZBTK68
-         jxbPCkcIzOGa2GHUeJtUFp/nVsh1Yj97D6CdOTrfOPoT/VYsJY2WfWYk85LiqguEwFQP
-         mEXw==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=arlN1T8xScWpujBipjQ/WuveNzL1sgp98ejFbHOQoZw=;
+        b=GotwGQv+CPNN+7EgWbzhA7Gg5qnTBS0bbk3/Iyg8joKuOUlIvMxXSvR0Wv//jgDsaF
+         uZXGSfL2lnnYsf969lSETRYz/Yvi+mS8S6E/qzb22k8BBXubQ2m2tI/LXME1BwjYI3yu
+         yfXXsxf+//emSsu5bSvSM5QTv4dt6UhMVjQueh0P8SMRkneKIe4bMDRhtN/+xZgPYRw5
+         ITKvctpxicWGEt0HqRiImrIRvUEIcidQmeE6DGbyhSG9r4AD1agelgMJzTOCiS+mFF+J
+         GTJwDGctl5KI+MY4n+O8OgrGBJDfcOLRGwR/PCotPr1fvfbtXOGPKaEWdZH1ZSwr6Cjm
+         3uzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=kf6+WbIZoJRh7hvBUZmpwsMxdAt4zH6vZV7TMCPAjZU=;
-        b=jCLUCHuK/G+H58ePXAVO3XTECLrxwT+PFD5kQIAPIkrX9BS2xf8o+TILaAaeUHmMe4
-         zevPgDhoJj+qnIIAQNiY9SVROEvk6i0NeEKcT46dKmXO+l8HIsTiNJ6u3SPcY8gbT3V5
-         sRUIBAAi/3JARpkqNsRdCMdB06DrqSiw3WmlzKZGVuWA5QKsPgv2JrVgZZMv+I8jxTx6
-         FYkjI8S3dwX+V8+bTDW16zQBeCZPMqQAsBAYkKmA+bEaL7n3e1c72GCnGqUegjbaW/AS
-         dvmxQfKwtUg7+N14rxuf4PZ26Mx4lSPXjI3b6OtsRCiHFjfbBh4qR2j+5tYlStDD5GLZ
-         /eLA==
-X-Gm-Message-State: AOAM530pGd3iMEr2RzNWPBf9k4UwDRSFOpoxPli7FAxJ5cNsABIwmGv7
-        g4ZGolclnbTYRZILAx30AigTM7DsyRO7XPxrYYs=
-X-Google-Smtp-Source: ABdhPJxQOFK8niGnIg3IvgmXFoWzP0HcUOU7FWOZ6CkPMin9yLLSAq4Bm2l5jYp/4kwg7n14iHoSG5o+fIXsXSF42C8=
-X-Received: by 2002:a67:6f87:0:b0:322:79bc:2603 with SMTP id
- k129-20020a676f87000000b0032279bc2603mr3927006vsc.19.1646959922295; Thu, 10
- Mar 2022 16:52:02 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=arlN1T8xScWpujBipjQ/WuveNzL1sgp98ejFbHOQoZw=;
+        b=B/rrLbrTOAlBPCIDp3F9QnO4BieaYQ6uBb6X4GMZEpASmAGI3LuKjHZe1a/OAHLBE2
+         BJs5aoRKK5N+mNUg2Rd+X2So0ysg1fze2fcyzPtPbAMEe0JW5CAtNZdaMKQgHC+BwAS7
+         l/8CeH9Om1VJVYsrgwsMMzjGJmWn6qFm4QoNJrGzRtWzxev9cnNPj8gijZJrfOTIG5Mt
+         jrKxBEgZTfU5RrNHep5nSZ1h4KXcZRwBuWOEszIV7WPXqNmfGSgJAb7W66Enjn4wi9Uk
+         260E3Rh8PxU/JtXOJBDByLL1+42+PfvxWhIjDx5jcw+7b7L72TUipJS7NmDhGkOVfdAp
+         anWA==
+X-Gm-Message-State: AOAM531iodpB3XXH25iGDHX/jAOnLG/EI+Ycm+caPWGdEQqF/vNB+N39
+        8iFfpagXm/6r0qCdcAGjFkw=
+X-Google-Smtp-Source: ABdhPJxqX5NdwYh+IQDZktyCaJmXe5rUFG0Btr3+u36XQGEF/oAY5tGWtykbYmuj7nLWMKsTydryCQ==
+X-Received: by 2002:a05:600c:19cc:b0:389:d0a8:d3ab with SMTP id u12-20020a05600c19cc00b00389d0a8d3abmr8537563wmq.57.1646960205111;
+        Thu, 10 Mar 2022 16:56:45 -0800 (PST)
+Received: from [192.168.2.202] (p5487b56d.dip0.t-ipconnect.de. [84.135.181.109])
+        by smtp.gmail.com with ESMTPSA id o7-20020a5d6707000000b001f067c7b47fsm8525427wru.27.2022.03.10.16.56.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Mar 2022 16:56:44 -0800 (PST)
+Message-ID: <09f244d8-2601-5828-3ba8-c429a887ba4c@gmail.com>
+Date:   Fri, 11 Mar 2022 01:56:41 +0100
 MIME-Version: 1.0
-Sender: aliamohamed495@gmail.com
-Received: by 2002:a05:612c:10ce:b0:286:ddff:89a1 with HTTP; Thu, 10 Mar 2022
- 16:52:01 -0800 (PST)
-From:   "Mrs.Karen Olsen" <mrskarenolsen5@gmail.com>
-Date:   Fri, 11 Mar 2022 00:52:01 +0000
-X-Google-Sender-Auth: xNdllunaP5MtLwCo3qSzNF1hU2U
-Message-ID: <CAFe_VbU68rcKD2Xd0VRuUFrdsrxShVvqEipDuGad48cYzCfCww@mail.gmail.com>
-Subject: Mrs.Karen Olsen
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,HK_NAME_FM_MR_MRS,LOTS_OF_MONEY,MILLION_HUNDRED,
-        MONEY_FRAUD_5,NA_DOLLARS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_MONEY_PERCENT,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] ACPI: battery: Add device HID and quirk for Microsoft
+ Surface Go 3
+Content-Language: en-US
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20220213154920.142816-1-luzmaximilian@gmail.com>
+From:   Maximilian Luz <luzmaximilian@gmail.com>
+In-Reply-To: <20220213154920.142816-1-luzmaximilian@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please I need your help,
+On 2/13/22 16:49, Maximilian Luz wrote:
+> For some reason, the Microsoft Surface Go 3 uses the standard ACPI
+> interface for battery information, but does not use the standard PNP0C0A
+> HID. Instead it uses MSHW0146 as identifier. Add that ID to the driver
+> as this seems to work well.
+> 
+> Additionally, the power state is not updated immediately after the AC
+> has been (un-)plugged, so add the respective quirk for that.
+> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 
-
-Please forgive me for stressing you with my predicaments as I know
-that this letter may come to you as a big surprise. Actually, I came
-across your E-mail from my personal search afterward. I decided to
-email you directly believing that you will be honest to fulfil my
-final wish before I die.
-
-Meanwhile, I am Mrs.Karen Olsen, 62 years old,I am suffering from a
-long time cancer and from all indication my condition is really
-deteriorating as my doctors have confirmed and courageously advised me
-that I may not live beyond two months from now for the reason that my
-tumour has reached a critical stage which has defiled all forms of
-medical treatment.
-
-As a matter of fact,  I registered as a nurse by profession while my
-husband was dealing on Gold Dust and Gold Dore Bars till his sudden
-death the year 2017 then I took over his business till date. In fact,
-at this moment I have a deposit sum of eight million five hundred
-thousand US dollars [$8,500,000.00] with one of the leading bank  but
-unfortunately I cannot visit the bank since I m critically sick and
-powerless to do anything myself but my bank account officer advised me
-to assign any of my trustworthy relative, friends or partner with
-authorization letter to stand as the recipient of my money but
-sorrowfully I don t have any reliable relative and no child.
-
-Therefore, I want you to receive the money and take 30% to take care
-of yourself and family while 70% should be used basically on
-humanitarian purposes mostly to orphanages, Motherless babies home,
-less privileged and disable citizens and widows around the world. and
-as soon as I receive your response I shall send you my pictures,
-banking records and with full contacts of my banking institution to If
-you are interested in carrying out this task please contact me for
-more details
-
-
-Hope to hear from you soon.
-
-Yours Faithfully
-
-Mrs.Karen Olsen
+Hi, any comments/status on this?
