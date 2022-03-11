@@ -2,86 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B06AB4D6A11
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 00:26:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 272E14D6AD6
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 00:27:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229586AbiCKWoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 17:44:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49112 "EHLO
+        id S230093AbiCKWxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 17:53:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229673AbiCKWob (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 17:44:31 -0500
-Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FBABE034;
-        Fri, 11 Mar 2022 14:20:05 -0800 (PST)
-Received: from [192.168.0.3] (ip5f5aef8b.dynamic.kabel-deutschland.de [95.90.239.139])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        with ESMTP id S231134AbiCKWx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 17:53:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD592A2D22;
+        Fri, 11 Mar 2022 14:27:04 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id CCD1E61EA1927;
-        Fri, 11 Mar 2022 22:41:56 +0100 (CET)
-Message-ID: <11a4c611-ed0c-789f-b5d0-8a127539daf1@molgen.mpg.de>
-Date:   Fri, 11 Mar 2022 22:41:56 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH] block: check more requests for multiple_queues in
- blk_attempt_plug_merge
-Content-Language: en-US
-To:     Song Liu <song@kernel.org>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        linux-raid@vger.kernel.org, stable@vger.kernel.org,
-        Larkin Lowrey <llowrey@nuclearwinter.com>,
-        Wilson Jonathan <i400sjon@gmail.com>,
-        Roger Heflin <rogerheflin@gmail.com>
-References: <20220309064209.4169303-1-song@kernel.org>
- <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
- <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
- <38f7aaf5-2043-b4f4-1fa5-52a7c883772b@kernel.dk>
- <CAPhsuW7zdYZqxaJ7SOWdnVOx-cASSoXS4OwtWVbms_jOHNh=Kw@mail.gmail.com>
- <2b437948-ba2a-c59c-1059-e937ea8636bd@kernel.dk>
- <84310ba2-a413-22f4-1349-59a09f4851a1@kernel.dk>
- <CAPhsuW492+zrVCyckgct_ju+5V_2grn4-s--TU2QVA7pkYtyzA@mail.gmail.com>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-In-Reply-To: <CAPhsuW492+zrVCyckgct_ju+5V_2grn4-s--TU2QVA7pkYtyzA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85D4261FC2;
+        Fri, 11 Mar 2022 21:50:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E80C340E9;
+        Fri, 11 Mar 2022 21:50:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1647035447;
+        bh=lrV3uCZ5NHfYfQQwQ2f2CkQe/gUbL/G0yWuGUiBnZNk=;
+        h=Date:To:From:Subject:From;
+        b=Iu5BXsGcqfJ3+UGWzSXM4d45KNLiYhCz/j+IxkXhSsePTGbQCXJhaw11Ft0Xap0hy
+         FnCgUNXj2JJZC2qdms5Kh1C2XUHLP1nKHh0/ARAVrbJ8T+DNKNS2VVcK6dpY0rv9h/
+         UXIdjeG2ToL1ZWvVK+1GFjeIM3MgkReuVDkB6/CY=
+Date:   Fri, 11 Mar 2022 13:50:47 -0800
+To:     mm-commits@vger.kernel.org, vbabka@suse.cz, surenb@google.com,
+        stable@vger.kernel.org, sfr@canb.auug.org.au, rientjes@google.com,
+        nadav.amit@gmail.com, minchan@kernel.org, mhocko@suse.com,
+        quic_charante@quicinc.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-madvise-return-correct-bytes-advised-with-process_madvise.patch added to -mm tree
+Message-Id: <20220311215047.C9E80C340E9@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Song,
+
+The patch titled
+     Subject: mm: madvise: return correct bytes advised with process_madvise
+has been added to the -mm tree.  Its filename is
+     mm-madvise-return-correct-bytes-advised-with-process_madvise.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-madvise-return-correct-bytes-advised-with-process_madvise.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-madvise-return-correct-bytes-advised-with-process_madvise.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Charan Teja Kalla <quic_charante@quicinc.com>
+Subject: mm: madvise: return correct bytes advised with process_madvise
+
+Patch series "mm: madvise: return correct bytes processed with
+process_madvise", v2.  With the process_madvise(), always choose to return
+non zero processed bytes over an error.  This can help the user to know on
+which VMA, passed in the 'struct iovec' vector list, is failed to advise
+thus can take the decission of retrying/skipping on that VMA.
 
 
-Am 11.03.22 um 17:59 schrieb Song Liu:
+This patch (of 2):
 
-> On Fri, Mar 11, 2022 at 6:16 AM Jens Axboe <axboe@kernel.dk> wrote:
->>
->> On 3/10/22 5:07 PM, Jens Axboe wrote:
->>> In any case, just doing larger reads would likely help quite a bit, but
->>> would still be nice to get to the bottom of why we're not seeing the
->>> level of merging we expect.
->>
->> Song, can you try this one? It'll do the dispatch in a somewhat saner
->> fashion, bundling identical queues. And we'll keep iterating the plug
->> list for a merge if we have multiple disks, until we've seen a queue
->> match and checked.
-> 
-> This one works great! We are seeing 99% read request merge and
-> 500kB+ average read size. The original patch in this thread only got
-> 88% and 34kB for these two metrics.
+The process_madvise() system call returns error even after processing some
+VMA's passed in the 'struct iovec' vector list which leaves the user
+confused to know where to restart the advise next.  It is also against
+this syscall man page[1] documentation where it mentions that "return
+value may be less than the total number of requested bytes, if an error
+occurred after some iovec elements were already processed.".
 
-Nice. I am curious, how these metrics can be obtained?
+Consider a user passed 10 VMA's in the 'struct iovec' vector list of which
+9 are processed but one.  Then it just returns the error caused on that
+failed VMA despite the first 9 VMA's processed, leaving the user confused
+about on which VMA it is failed.  Returning the number of bytes processed
+here can help the user to know which VMA it is failed on and thus can
+retry/skip the advise on that VMA.
 
-[…]
+[1]https://man7.org/linux/man-pages/man2/process_madvise.2.html.
 
+Link: https://lkml.kernel.org/r/cover.1647008754.git.quic_charante@quicinc.com
+Link: https://lkml.kernel.org/r/125b61a0edcee5c2db8658aed9d06a43a19ccafc.1647008754.git.quic_charante@quicinc.com
+Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
+Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Kind regards,
+ mm/madvise.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Paul
+--- a/mm/madvise.c~mm-madvise-return-correct-bytes-advised-with-process_madvise
++++ a/mm/madvise.c
+@@ -1435,8 +1435,7 @@ SYSCALL_DEFINE5(process_madvise, int, pi
+ 		iov_iter_advance(&iter, iovec.iov_len);
+ 	}
+ 
+-	if (ret == 0)
+-		ret = total_len - iov_iter_count(&iter);
++	ret = (total_len - iov_iter_count(&iter)) ? : ret;
+ 
+ release_mm:
+ 	mmput(mm);
+_
+
+Patches currently in -mm which might be from quic_charante@quicinc.com are
+
+mm-vmscan-fix-documentation-for-page_check_references.patch
+mm-madvise-return-correct-bytes-advised-with-process_madvise.patch
+mm-madvise-skip-unmapped-vma-holes-passed-to-process_madvise.patch
+
