@@ -2,112 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D48424D64A3
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 16:31:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 187864D6549
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 16:53:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349284AbiCKPcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 10:32:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47276 "EHLO
+        id S1349974AbiCKPyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 10:54:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245374AbiCKPcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 10:32:15 -0500
-Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0CD71B8CB5;
-        Fri, 11 Mar 2022 07:31:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1647012671; x=1678548671;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version;
-  bh=RMMRc4l/DMGvaxhGwtRQMf5EeR3IlqrnnLrpu8bbrak=;
-  b=WzqIFtBhcXIggjeehhHaEQVuhhi8jKTqMAIrAJoziPqTuWQR5r75229M
-   ATZntzVNx1bp8+Nx58vCjnEFYJwGo9rOuLmkjxVGLEOcErdC/tqfQRbGu
-   bgff4I17h1SqFWPb+QikvSbO/XPDQM2DwJaxmbtpXN6EgoJlg/SWJ0vHK
-   o=;
-Received: from unknown (HELO ironmsg01-sd.qualcomm.com) ([10.53.140.141])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 11 Mar 2022 07:31:11 -0800
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg01-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2022 07:31:10 -0800
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.15; Fri, 11 Mar 2022 07:31:10 -0800
-Received: from hu-charante-hyd.qualcomm.com (10.80.80.8) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.15; Fri, 11 Mar 2022 07:31:05 -0800
-From:   Charan Teja Kalla <quic_charante@quicinc.com>
-To:     <akpm@linux-foundation.org>, <surenb@google.com>, <vbabka@suse.cz>,
-        <rientjes@google.com>, <sfr@canb.auug.org.au>,
-        <edgararriaga@google.com>, <minchan@kernel.org>,
-        <nadav.amit@gmail.com>, <mhocko@suse.com>
-CC:     <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        Charan Teja Kalla <quic_charante@quicinc.com>,
-        "# 5 . 10+" <stable@vger.kernel.org>
-Subject: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to process_madvise
-Date:   Fri, 11 Mar 2022 20:59:06 +0530
-Message-ID: <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <cover.1647008754.git.quic_charante@quicinc.com>
-References: <cover.1647008754.git.quic_charante@quicinc.com>
+        with ESMTP id S1350566AbiCKPyP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 10:54:15 -0500
+Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A58D9ECC57;
+        Fri, 11 Mar 2022 07:53:11 -0800 (PST)
+Received: by mail-yb1-f175.google.com with SMTP id l2so17819717ybe.8;
+        Fri, 11 Mar 2022 07:53:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=FEtrVBpJ9DBkNlbjxVJR5SHVgIP3hXEvRRRjSXbn5+4=;
+        b=N4HcMhA1dOsjtmB6aWz1HIPAMT3s+zwJ0qkHV9mZA1fcHOO9GIi3NRu2iUOsb+OnD8
+         zq2vkKL6ALVTFFBfmSkizHvGeLyjl79p0MOJGCPi49dh9jPXtcrZZMbkgktEC2zYStAY
+         DJbWsxs1zxTf2EPYATHgu2Zsejynkb8JQ7TurJ2lPnDUBMpTjuC+1saDNvRkMP02xgJs
+         WApW8JgWmk3BrH8IENLUfbKRt2MDpluSW1SuKYPyppP66rYk9xs6Tf6j0lMrS0X/uoH4
+         HOGSZJR6065KTiZijC9U+uWMqSEiFyllikMmZBDM7JfZ36oX6TP7mAllJpei49SXsndx
+         VguQ==
+X-Gm-Message-State: AOAM530b6mTLt5TJlIAJRW/WZxMq7cFM5MUskPkYuw5RDh3kSCDUjDGC
+        +45FwwGEIZ5COpjt6g/wjVW+q6Arq/WaJ0dUrLs=
+X-Google-Smtp-Source: ABdhPJxU3SRPSOiwueLKQjDEtPITtq/dfRJ1NV9l2AVmzq8xiqXtHR1a4E/0K4VPjjN0/g7BtgqFri/2EM9XXP4vgnw=
+X-Received: by 2002:a25:d7c2:0:b0:628:9d06:457b with SMTP id
+ o185-20020a25d7c2000000b006289d06457bmr8462316ybg.137.1647013990912; Fri, 11
+ Mar 2022 07:53:10 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20220311081111.159639-1-zhengzucheng@huawei.com>
+In-Reply-To: <20220311081111.159639-1-zhengzucheng@huawei.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Fri, 11 Mar 2022 16:52:59 +0100
+Message-ID: <CAJZ5v0jponp=ijVx6W=eNEGrfTKh0KbGmOQG_V0P-Mq366559g@mail.gmail.com>
+Subject: Re: [PATCH] cpufreq: fix cpufreq_get() can't get correct CPU frequency
+To:     z00314508 <zhengzucheng@huawei.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Len Brown <len.brown@intel.com>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The process_madvise() system call is expected to skip holes in vma
-passed through 'struct iovec' vector list. But do_madvise, which
-process_madvise() calls for each vma, returns ENOMEM in case of unmapped
-holes, despite the VMA is processed.
-Thus process_madvise() should treat ENOMEM as expected and consider the
-VMA passed to as processed and continue processing other vma's in the
-vector list. Returning -ENOMEM to user, despite the VMA is processed,
-will be unable to figure out where to start the next madvise.
+On Fri, Mar 11, 2022 at 9:11 AM z00314508 <zhengzucheng@huawei.com> wrote:
+>
+> From: Zucheng Zheng <zhengzucheng@huawei.com>
+>
+> On some specific platforms, the cpufreq driver does not define
+> cpufreq_driver.get() routine (eg:x86 intel_pstate driver), as a
 
-Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
-Cc: <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
----
-Changes in V2:
-  -- Fixed handling of ENOMEM by process_madvise().
-  -- Patch doesn't exist in V1.
+I guess you mean the cpufreq driver ->get callback.
 
- mm/madvise.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+No, intel_pstate doesn't implement it, because it cannot reliably
+return the current CPU frequency.
 
-diff --git a/mm/madvise.c b/mm/madvise.c
-index e97e6a9..14fb76d 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -1426,9 +1426,16 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
- 
- 	while (iov_iter_count(&iter)) {
- 		iovec = iov_iter_iovec(&iter);
-+		/*
-+		 * do_madvise returns ENOMEM if unmapped holes are present
-+		 * in the passed VMA. process_madvise() is expected to skip
-+		 * unmapped holes passed to it in the 'struct iovec' list
-+		 * and not fail because of them. Thus treat -ENOMEM return
-+		 * from do_madvise as valid and continue processing.
-+		 */
- 		ret = do_madvise(mm, (unsigned long)iovec.iov_base,
- 					iovec.iov_len, behavior);
--		if (ret < 0)
-+		if (ret < 0 && ret != -ENOMEM)
- 			break;
- 		iov_iter_advance(&iter, iovec.iov_len);
- 	}
--- 
-2.7.4
+> result, the cpufreq_get() can't get the correct CPU frequency.
 
+No, it can't, if intel_pstate is the driver, but what's the problem?
+This function is only called in one place in the kernel and not on x8
+even.
+
+> Modern x86 processors include the hardware needed to accurately
+> calculate frequency over an interval -- APERF, MPERF and the TSC.
+
+You can compute the average frequency over an interval, but ->get is
+expected to return the actual current frequency at the time call time.
+
+> Here we use arch_freq_get_on_cpu() in preference to any driver
+> driver-specific cpufreq_driver.get() routine to get CPU frequency.
+>
+> Fixes: f8475cef9008 ("x86: use common aperfmperf_khz_on_cpu() to calculate KHz using APERF/MPERF")
+
+No kidding.
+
+> Signed-off-by: Zucheng Zheng <zhengzucheng@huawei.com>
+> ---
+>  drivers/cpufreq/cpufreq.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+> index 80f535cc8a75..d777257b4454 100644
+> --- a/drivers/cpufreq/cpufreq.c
+> +++ b/drivers/cpufreq/cpufreq.c
+> @@ -1806,10 +1806,14 @@ unsigned int cpufreq_get(unsigned int cpu)
+>  {
+>         struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
+>         unsigned int ret_freq = 0;
+> +       unsigned int freq;
+>
+>         if (policy) {
+>                 down_read(&policy->rwsem);
+> -               if (cpufreq_driver->get)
+> +               freq = arch_freq_get_on_cpu(policy->cpu);
+> +               if (freq)
+> +                       ret_freq = freq;
+> +               else if (cpufreq_driver->get)
+
+Again, what problem exactly does this address?
+
+>                         ret_freq = __cpufreq_get(policy);
+>                 up_read(&policy->rwsem);
+>
+> --
