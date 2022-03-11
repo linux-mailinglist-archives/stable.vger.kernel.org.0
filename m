@@ -2,62 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3565D4D66CE
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 17:50:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E9A4D66F8
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 17:59:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234435AbiCKQvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 11:51:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
+        id S1350413AbiCKRAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 12:00:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232319AbiCKQvX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 11:51:23 -0500
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97672137760
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 08:50:19 -0800 (PST)
-Received: by mail-il1-x12f.google.com with SMTP id b5so6357520ilj.9
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 08:50:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ymA+6mCJYGMm2ZR+53gTtLVtpYlTJ9i4YwC5coR1lBA=;
-        b=SRIgw24pU1WF/jptBz3HtzmL6+ptSml8dBLG3pgomgfrWXp2A+fed/wr3ZACFISdWS
-         i+wb0M/xkCrB/XLZ/odNfdyMBLZLRN7ILcnZ8tx5MoFSHsrxsFky+Rcf5qah/9KMLRwJ
-         O82ujsXsgzh/Tji/TL8u5f8oQqQadVze+Ly/A=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ymA+6mCJYGMm2ZR+53gTtLVtpYlTJ9i4YwC5coR1lBA=;
-        b=xYfMrh43Fh8jWinxDJf2PYijb6Ba+QPQOloGnU5DJWODBniTYLFOrNZo/VkwbWEBoy
-         oBnR/q6xeGcvWjheZ5HPT9Q8x0jrYxOATAbJ8vFG/fuy08njRtFY3sWGMMsQGJwdjSsH
-         AR3wfzwUtuappvBXI6MrNvA1kNs0P899YCx7dzQhcxX9nChWf8sTLgCrjY2S8uORUEJc
-         1ckOkFfwUQuHDjgQaremoS7VpOugtc39dgp5K6O4+D1WpfaUdYa6Puz2it3fDEj9aYh2
-         VlNGBONbtsY07t3+mfJwGg2u7hoAD7sP6YDijbI67SP9tBChXJSGQ0ZThYuNGMMNv+hD
-         Dcrg==
-X-Gm-Message-State: AOAM53028Dk3YsnFDi1PqSDmhSGXkuc5wkN+i5OB5jsVQqlp1WA9gKGl
-        /58V+zhMPXw0JaBOSukiJaWRrd0LxT/lGyhyd/uqYrmoi8/5OA==
-X-Google-Smtp-Source: ABdhPJy4EX1GTP2f6hhtItj3a8ei2yhrsXbFlAHp+5sqmgzoD98LYp1ZTZMvSy1WRQtTTyJsNSm/AVlpRo9zLsmacLI=
-X-Received: by 2002:a92:6907:0:b0:2bc:4b18:e671 with SMTP id
- e7-20020a926907000000b002bc4b18e671mr7917537ilc.299.1647017418855; Fri, 11
- Mar 2022 08:50:18 -0800 (PST)
+        with ESMTP id S1350414AbiCKRAW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 12:00:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7045694B8;
+        Fri, 11 Mar 2022 08:59:18 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E63C61D85;
+        Fri, 11 Mar 2022 16:59:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6251C340EE;
+        Fri, 11 Mar 2022 16:59:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647017957;
+        bh=TfUoDniLNAUWpN5c0ZvcL19CsqAGIJipVHp+JX8IZYU=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=IGNZyrBivI/tTqZCSj1SnNnLybgw7ILcz/GOPJIbv9s5TofQZKuRam1jdoh8quoAH
+         RpfhJqKAOuD+BMhM98wO11QJaJCPGonkuOORU0/BvxI/Cm4Y/5+NLoASTIy1tIrCId
+         1UPuuHbLLcwa7If6D3lkZj0Dc4vjDL0GPjeZzh1zASE22jHf5EfN2pv0ViRm52ePDk
+         hF/Tt9Ob0GO16bmDuA7zZAWSdjYkAdFOVMpzzHJStzsoIqYVP/obqTM+ArqCqytbpd
+         HAIxODjbQgivDWVj8xIhAc7chRx3TxvHcKeIdo6vSpQ8l2FFUkl0+pICp1EZYxF0TP
+         euJFwelKIZxmw==
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-2dc348dab52so100167267b3.6;
+        Fri, 11 Mar 2022 08:59:17 -0800 (PST)
+X-Gm-Message-State: AOAM532Z4Mk9g0rl+RDeGxH38EjAA1flOcSiVIVwutt5yD1yF8lUS6Z2
+        xNIUNh4nc3qoUljz2rKooBBuS2oQZJkWfmxP7ko=
+X-Google-Smtp-Source: ABdhPJyjs53YNBDzki/gNd5IjlxDqN3gpH+kRPQ8Tg0rq78PB5ym7q5nPhRgFnuoO2cOP4YEesEHrF0VH/xjHrloqiw=
+X-Received: by 2002:a81:23ce:0:b0:2dc:b20:cc73 with SMTP id
+ j197-20020a8123ce000000b002dc0b20cc73mr9213650ywj.130.1647017956691; Fri, 11
+ Mar 2022 08:59:16 -0800 (PST)
 MIME-Version: 1.0
-References: <20220209050947.2119465-1-gwendal@chromium.org>
- <9ba46bf0894bdee52bc3ebca4527d115ebf067a6.camel@linux.intel.com>
- <CAPUE2utMOYJobCEj3ZzPfdovRJVXVhNJg3CFHCNt0Jq=w68ovA@mail.gmail.com>
- <80a7df19f77246450a1a89693d095035881f42b7.camel@linux.intel.com>
- <CAPUE2uubb6Xbdx9qUSdm3P9ZGmaVcG+6wCgJ_hQ2OEZSYKcJag@mail.gmail.com> <64bc4222d1a1b8129c889f63f57eaeb2cca52770.camel@linux.intel.com>
-In-Reply-To: <64bc4222d1a1b8129c889f63f57eaeb2cca52770.camel@linux.intel.com>
-From:   Gwendal Grignou <gwendal@chromium.org>
-Date:   Fri, 11 Mar 2022 08:50:07 -0800
-Message-ID: <CAPUE2uv=yvQq5n8Sp+gK2sb1uUCn0YbwwSXgi+D7JwN5CBfVVA@mail.gmail.com>
-Subject: Re: [PATCH] HID: intel-ish-hid: Use dma_alloc_coherent for firmware update
-To:     srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc:     jikos@kernel.org, linux-input@vger.kernel.org,
-        stable@vger.kernel.org
+References: <20220309064209.4169303-1-song@kernel.org> <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
+ <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
+ <38f7aaf5-2043-b4f4-1fa5-52a7c883772b@kernel.dk> <CAPhsuW7zdYZqxaJ7SOWdnVOx-cASSoXS4OwtWVbms_jOHNh=Kw@mail.gmail.com>
+ <2b437948-ba2a-c59c-1059-e937ea8636bd@kernel.dk> <84310ba2-a413-22f4-1349-59a09f4851a1@kernel.dk>
+In-Reply-To: <84310ba2-a413-22f4-1349-59a09f4851a1@kernel.dk>
+From:   Song Liu <song@kernel.org>
+Date:   Fri, 11 Mar 2022 08:59:05 -0800
+X-Gmail-Original-Message-ID: <CAPhsuW492+zrVCyckgct_ju+5V_2grn4-s--TU2QVA7pkYtyzA@mail.gmail.com>
+Message-ID: <CAPhsuW492+zrVCyckgct_ju+5V_2grn4-s--TU2QVA7pkYtyzA@mail.gmail.com>
+Subject: Re: [PATCH] block: check more requests for multiple_queues in blk_attempt_plug_merge
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org,
+        linux-raid <linux-raid@vger.kernel.org>, stable@vger.kernel.org,
+        Larkin Lowrey <llowrey@nuclearwinter.com>,
+        Wilson Jonathan <i400sjon@gmail.com>,
+        Roger Heflin <rogerheflin@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -66,255 +67,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 4, 2022 at 10:05 AM srinivas pandruvada
-<srinivas.pandruvada@linux.intel.com> wrote:
->
-> On Thu, 2022-02-10 at 10:34 -0800, Gwendal Grignou wrote:
-> > On Wed, Feb 9, 2022 at 6:51 PM srinivas pandruvada
-> > <srinivas.pandruvada@linux.intel.com> wrote:
-> > >
-> > > On Wed, 2022-02-09 at 16:59 -0800, Gwendal Grignou wrote:
-> > > > On Wed, Feb 9, 2022 at 10:52 AM srinivas pandruvada
-> > > > <srinivas.pandruvada@linux.intel.com> wrote:
-> > > > >
-> > > > > On Tue, 2022-02-08 at 21:09 -0800, Gwendal Grignou wrote:
-> > > > > > Allocating memory with kmalloc and GPF_DMA32 is not allowed,
-> > > > > > the
-> > > > > > allocator will ignore the attribute.
-> > > > > >
-> > > > > Looks like there is new error flow added here for this flag.
-> > > > > Is this just removing GFP_DMA32 not enough?
-> > > > It was already ignored. It is not enough and I don't know why
-> > > > since
-> > > > the virtual and physical addresses are in the same range:
-> > > >
-> > > > With using kmalloc/dma_single_sync:
-> > > > 5.10 (firmware not loading)
-> > > > [    3.837996] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
-> > > > kmalloc/dma_map_single: v:0xffff91531ae88000,
-> > > > phy:0x0000000085afe000
-> > > > [    3.838003] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
-> > > > xfer_mode=dma offset=0x00000000 size=0x4000 is_last=0
-> > > > ddr_phys_addr=0x0000000085afe000
-> > > > ...
-> > > >
-> > > > 4.19 (firmware loading)
-> > > > [    3.878300] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
-> > > > kmalloc/dma_map_single: v:0xffff88c145480000,
-> > > > phy:0x0000000085480000
-> > > > [    3.878322] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
-> > > > xfer_mode=dma offset=0x00000000 size=0x4000 is_last=0
-> > > > ddr_phys_addr=0x0000000085480000
-> > > > ...
-> > > >
-> > > > I also considered flushing the CPU cache before the
-> > > > dma_sync_single_for_device call, and calling
-> > > > dma_sync_single_for_cpu()
-> > > > after loader_cl_send() to be allowed to write into the buffer
-> > > > again.
-> > > > But these did not help either.
-> > > >
-> > > > But using dma_alloc_coherent() clearly works and its simpler API
-> > > > makes
-> > > That is OK.
-> > >
-> > > > it more appropriate for the task at hand.
-> > > >
-> > > > For reference, the same log when using dma_alloc_coherent().
-> > > > [    3.779723] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
-> > > > dma_alloc_coherent: v:0xffff9beb81048000, phy:0x0000000001048000
-> > > > [    3.779731] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
-> > > > xfer_mode=dma offset=0x00000000 size=0x4000 is_last=0
-> > > > ddr_phys_addr=0x0000000001048000
-> > > > ...
-> > > >
-> > > > >
-> > > > > > Instead, use dma_alloc_coherent() API as we allocate a small
-> > > > > > amount
-> > > > > > of
-> > > > > > memory to transfer firmware fragment to the ISH.
-> > > > > >
-> > > > > > On Arcada chromebook, after the patch the warning:
-> > > > > > "Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0xcc0
-> > > > > > (GFP_KERNEL).  Fix your code!"
-> > > > > > is gone. The ISH firmware is loaded properly and we can
-> > > > > > interact
-> > > > > > with
-> > > > > > the ISH:
-> > > > > > > ectool  --name cros_ish version
-> > > > > > ...
-> > > > > > Build info:    arcada_ish_v2.0.3661+3c1a1c1ae0 2022-02-08
-> > > > > > 05:37:47
-> > > > > > @localhost
-> > > > > > Tool version:  v2.0.12300-900b03ec7f 2022-02-08 10:01:48
-> > > > > > @localhost
-> > > > > >
-> > > > > > Fixes: commit 91b228107da3 ("HID: intel-ish-hid: ISH firmware
-> > > > > > loader
-> > > > > > client driver")
-> > > > > > Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-> > > > > > Cc: stable@vger.kernel.org
-> > > > > > ---
-> > > > > >  drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 29 +++--------
-> > > > > > ----
-> > > > > > ----
-> > > > > > --
-> > > > > >  1 file changed, 3 insertions(+), 26 deletions(-)
-> > > > > >
-> > > > > > diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> > > > > > b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> > > > > > index e24988586710..16aa030af845 100644
-> > > > > > --- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> > > > > > +++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> > > > > > @@ -661,21 +661,12 @@ static int
-> > > > > > ish_fw_xfer_direct_dma(struct
-> > > > > > ishtp_cl_data *client_data,
-> > > > > >          */
-> > > > > >         payload_max_size &= ~(L1_CACHE_BYTES - 1);
-> > > > > >
-> > > > > > -       dma_buf = kmalloc(payload_max_size, GFP_KERNEL |
-> > > > > > GFP_DMA32);
-> > > > > > +       dma_buf = dma_alloc_coherent(devc, payload_max_size,
-> > > > > > &dma_buf_phy, GFP_KERNEL);
-> > > > > >         if (!dma_buf) {
-> > > > > >                 client_data->flag_retry = true;
-> > > > > >                 return -ENOMEM;
-> > > > > >         }
-> > > > > >
-> > > > > > -       dma_buf_phy = dma_map_single(devc, dma_buf,
-> > > > > > payload_max_size,
-> > > > > > -                                    DMA_TO_DEVICE);
-> > > > > > -       if (dma_mapping_error(devc, dma_buf_phy)) {
-> > > > > > -               dev_err(cl_data_to_dev(client_data), "DMA map
-> > > > > > failed\n");
-> > > > > > -               client_data->flag_retry = true;
-> > > > > > -               rv = -ENOMEM;
-> > > > > > -               goto end_err_dma_buf_release;
-> > > > > > -       }
-> > > > > > -
-> > > > > >         ldr_xfer_dma_frag.fragment.hdr.command =
-> > > > > > LOADER_CMD_XFER_FRAGMENT;
-> > > > > >         ldr_xfer_dma_frag.fragment.xfer_mode =
-> > > > > > LOADER_XFER_MODE_DIRECT_DMA;
-> > > > > >         ldr_xfer_dma_frag.ddr_phys_addr = (u64)dma_buf_phy;
-> > > > > > @@ -695,14 +686,7 @@ static int ish_fw_xfer_direct_dma(struct
-> > > > > > ishtp_cl_data *client_data,
-> > > > > >                 ldr_xfer_dma_frag.fragment.size =
-> > > > > > fragment_size;
-> > > > > >                 memcpy(dma_buf, &fw->data[fragment_offset],
-> > > > > > fragment_size);
-> > > > > >
-> > > > > > -               dma_sync_single_for_device(devc, dma_buf_phy,
-> > > > > > -                                          payload_max_size,
-> > > > > > -                                          DMA_TO_DEVICE);
-> > > > > > -
-> > > > > Any reason for removal of sync?
-> > > > It is not needed since we are using dma_alloc_coherent(). From
-> > > > [1]:
-> > > > """
-> > > > void *
-> > > > dma_alloc_coherent(struct device *dev, size_t size,
-> > > >    dma_addr_t *dma_handle, gfp_t flag)
-> > > >
-> > > > Consistent memory is memory for which a write by either the
-> > > > device or
-> > > > the processor can immediately be read by the processor or device
-> > > > without having to worry about caching effects.  (You may however
-> > > > need
-> > > > to make sure to flush the processor's write buffers before
-> > > > telling
-> > > > devices to read that memory.)
-> > > >
-> > > > This routine allocates a region of <size> bytes of consistent
-> > > > memory.
-> > > > """'
-> > > >
-> > >  I checked with some dma folks. This call may still be required for
-> > > some device. Most likely not as this is on chip device.
-> > > What happens if you leave this call? I worry for regression on some
-> > > old
-> > > systems.
-> I couldn't find any Chrome device to experiment.
-> Please try with "swiotlb=force" and if it works, then this if fine to
-> take the patch as is.
-It works. Used an "arcada" [from dmidecode]
-System Information
-        Manufacturer: Dell Inc.
-        Product Name: Arcada
+Hi Jens,
 
-Added "swiotlb=force" to the kernel command line using
-'/usr/share/vboot/bin/make_dev_ssd.sh -i  /dev/nvme0n1 --partitions 4
---edit_config`.
-Check with 'cat /proc/cmdline' the option is added and tested multiple
-reboot and shutdown/power on.
+On Fri, Mar 11, 2022 at 6:16 AM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 3/10/22 5:07 PM, Jens Axboe wrote:
+> > In any case, just doing larger reads would likely help quite a bit, but
+> > would still be nice to get to the bottom of why we're not seeing the
+> > level of merging we expect.
+>
+> Song, can you try this one? It'll do the dispatch in a somewhat saner
+> fashion, bundling identical queues. And we'll keep iterating the plug
+> list for a merge if we have multiple disks, until we've seen a queue
+> match and checked.
 
-Gwendal.
+This one works great! We are seeing 99% read request merge and
+500kB+ average read size. The original patch in this thread only got
+88% and 34kB for these two metrics.
 
->
-> Thanks,
-> Srinivas
->
-> > I truly believe this call is unnecessary: From the docs, dma_sync_...
-> > is only for streaming DMA mappings, not for coherent memory. Another
-> > link here:
-> > http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/341712.html
-> > Looking at older drivers, for instance exec_drive_command() in
-> > driver/block/mtip32xx/mtip32xx.c, there are no dma_sync_ between
-> > dma_alloc_ and dma_free_.
-> > In a simple driver - drivers/scsi/advansys.c - that only uses
-> > coherent
-> > DMA memory, no dma_sync calls are used.
-> > As long as we have a memory barrier before sending the packet
-> > downstream, we are covered. I rebooted my machine in a loop without
-> > error overnight.
-> >
-> > Gwendal.
-> >
-> > >
-> > > Thanks,
-> > > Srinivas
-> > >
-> > >
-> > >
-> > > > > Thanks,
-> > > > > Srinivas
-> > > > >
-> > > > > > -               /*
-> > > > > > -                * Flush cache here because the
-> > > > > > dma_sync_single_for_device()
-> > > > > > -                * does not do for x86.
-> > > > > > -                */
-> > > > > > +               /* Flush cache to be sure the data is in main
-> > > > > > memory.
-> > > > > > */
-> > > > > >                 clflush_cache_range(dma_buf,
-> > > > > > payload_max_size);
-> > > > > >
-> > > > > >                 dev_dbg(cl_data_to_dev(client_data),
-> > > > > > @@ -725,15 +709,8 @@ static int ish_fw_xfer_direct_dma(struct
-> > > > > > ishtp_cl_data *client_data,
-> > > > > >                 fragment_offset += fragment_size;
-> > > > > >         }
-> > > > > >
-> > > > > > -       dma_unmap_single(devc, dma_buf_phy, payload_max_size,
-> > > > > > DMA_TO_DEVICE);
-> > > > > > -       kfree(dma_buf);
-> > > > > > -       return 0;
-> > > > > > -
-> > > > > >  end_err_resp_buf_release:
-> > > > > > -       /* Free ISH buffer if not done already, in error case
-> > > > > > */
-> > > > > > -       dma_unmap_single(devc, dma_buf_phy, payload_max_size,
-> > > > > > DMA_TO_DEVICE);
-> > > > > > -end_err_dma_buf_release:
-> > > > > > -       kfree(dma_buf);
-> > > > > > +       dma_free_coherent(devc, payload_max_size, dma_buf,
-> > > > > > dma_buf_phy);
-> > > > > >         return rv;
-> > > > > >  }
-> > > > > >
-> > > > >
-> > > >
-> > > > [1]https://www.kernel.org/doc/Documentation/DMA-API.txt
-> > >
->
+Thanks,
+Song
+
+[...]
