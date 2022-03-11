@@ -2,225 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5528B4D695A
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 21:19:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A64BD4D6AA2
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 00:27:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351178AbiCKUUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 15:20:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53312 "EHLO
+        id S229972AbiCKWxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 17:53:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351189AbiCKUUK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 15:20:10 -0500
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4931ACA25
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 12:19:04 -0800 (PST)
-Received: by mail-oi1-x229.google.com with SMTP id o83so3166595oif.0
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 12:19:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=byy3khpUB/C66OcuZpBogrh1vBdJYZWOahv4ARsAqeU=;
-        b=JsI+MgGwcNWNo5mFTmDhFQFX43IPSGP8AHmpadTTq1/jegWXkSYGxRbyYSNd2GGAfZ
-         QJL9ePsqy1+pQCjIkYOKeRZF/4ou56BLTl43xcIPQgKVuLYTvOOSpWVMBXvPzi3iVcEE
-         M9OokvdpojzL0W3mpYKQGxN00uuF3MValP5LkZwv7tBK8MbHNCEdcUSp8EyQgNvmdObM
-         dV8uEHfL0A+kbdg4/kBwvllnMdB0q6LY78GBq99WSqCsQB+n/5bFK7oLoh//RzZWPskK
-         DuBKl43ZqA2bbLdc1tjjtMkwJymKeQrW5rKztLf0fnJNsCRRE5EUHhDiGz2DbwyIRrvz
-         mrcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=byy3khpUB/C66OcuZpBogrh1vBdJYZWOahv4ARsAqeU=;
-        b=cBF7ubI6iJbNjdV6n1XSzi61WnEehiqhRTm10fljFqGY5Jy/jeC32wiRMivWxvPlhM
-         0ChBVmk4/U6ivc/NZ7Dd7D55i+s6rVE0mRHVH3aArI0zFq3n7zRfWukHcxLNnhS0rAuI
-         /QrES49HvhXI3hUQgk32WIQQ9mqip/axpKG2Tr72svWhg+y7sicr02AGY7yuAx03/KlY
-         0J9xJ/wBu6cFoTGARxitSnc3cutGF9T6Fy857T2AxzU9fO7vzDHsM64BN45FenYHT9T4
-         ezh/dW1/087du/pwpVQdVeymlWZF5IdOTVZ3t4vWOoq0YCzVUs5CIHA1XNp7PV3xiA6g
-         HsNg==
-X-Gm-Message-State: AOAM531KPOVXUOKJywMufJFC2rpCqxMGvRRcvVOb2Kj3am+Uef3LpZH+
-        ts22B06Wg+RWFwtbGH6L+LMrMw==
-X-Google-Smtp-Source: ABdhPJwiCKmAYCnvMQUHkha6DRmgbP0TH7H+cC730Evh2nxJN9gacFfI6shVehimGVsKyYdMWq24uQ==
-X-Received: by 2002:a05:6808:1406:b0:2d9:a01a:4bcb with SMTP id w6-20020a056808140600b002d9a01a4bcbmr7858798oiv.242.1647029943809;
-        Fri, 11 Mar 2022 12:19:03 -0800 (PST)
-Received: from builder.lan ([2600:1700:a0:3dc8:3697:f6ff:fe85:aac9])
-        by smtp.gmail.com with ESMTPSA id r41-20020a056870582900b000d6cbaf589esm3887680oap.40.2022.03.11.12.19.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Mar 2022 12:19:02 -0800 (PST)
-Date:   Fri, 11 Mar 2022 14:19:00 -0600
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3 11/11] rpmsg: Fix kfree() of static memory on setting
- driver_override
-Message-ID: <YiuutCsuf4j192cJ@builder.lan>
-References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
- <20220227135329.145862-5-krzysztof.kozlowski@canonical.com>
+        with ESMTP id S229990AbiCKWwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 17:52:54 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC851E5A78;
+        Fri, 11 Mar 2022 14:30:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1647037809; x=1678573809;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=vCX4Tq+5vgwzmrQISBpCllic9QrJEJFaWH+I9HyERkQ=;
+  b=T1Z/zE7AZjLPFkcAAbDxP4DJ/rMCdnn7xZbSzRP5hzuMExSowHZFHz9y
+   UIJwjFCmdhMXcMy+j1ArMTBmqbiGBLuoVAJh/zsXIoumne516ZD7+JnMw
+   hQHOHDI11f9SOWITQcZ9mfZqnYk0NHCCagEgtN4tD1joVasUSbG5SsFLT
+   2WV8f8yeeW5JMFyu+8V9jGHc4+Jht+M8kawsDKXXvW7LITrw+hkQZO5VB
+   2P6WBOfoM8jOsRA0dKp3ezKExjHlK41s5eNWSTHoe5qjdWR7nSWTgPD0C
+   s805ofdnUoo/0AKdjTg1dVAaFBFu3sq67vLFT0/bDHJeZM2w6Va6fy3bC
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10283"; a="235609086"
+X-IronPort-AV: E=Sophos;i="5.90,174,1643702400"; 
+   d="scan'208";a="235609086"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2022 13:22:42 -0800
+X-IronPort-AV: E=Sophos;i="5.90,174,1643702400"; 
+   d="scan'208";a="645060179"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.8])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2022 13:22:42 -0800
+Message-ID: <99f75c8b2a127ead50a4a264bf1387cbc64970a8.camel@linux.intel.com>
+Subject: Re: [PATCH] HID: intel-ish-hid: Use dma_alloc_coherent for firmware
+ update
+From:   srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     Gwendal Grignou <gwendal@chromium.org>, jikos@kernel.org
+Cc:     linux-input@vger.kernel.org, stable@vger.kernel.org
+Date:   Fri, 11 Mar 2022 13:22:42 -0800
+In-Reply-To: <20220209050947.2119465-1-gwendal@chromium.org>
+References: <20220209050947.2119465-1-gwendal@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220227135329.145862-5-krzysztof.kozlowski@canonical.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun 27 Feb 07:53 CST 2022, Krzysztof Kozlowski wrote:
-
-> The driver_override field from platform driver should not be initialized
-> from static memory (string literal) because the core later kfree() it,
-> for example when driver_override is set via sysfs.
+On Tue, 2022-02-08 at 21:09 -0800, Gwendal Grignou wrote:
+> Allocating memory with kmalloc and GPF_DMA32 is not allowed, the
+> allocator will ignore the attribute.
 > 
-> Use dedicated helper to set driver_override properly.
+> Instead, use dma_alloc_coherent() API as we allocate a small amount of
+> memory to transfer firmware fragment to the ISH.
 > 
-> Fixes: 950a7388f02b ("rpmsg: Turn name service into a stand alone driver")
-> Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Regards,
-Bjorn
+> On Arcada chromebook, after the patch the warning:
+> "Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0xcc0
+> (GFP_KERNEL).  Fix your code!"
+> is gone. The ISH firmware is loaded properly and we can interact with
+> the ISH:
+> > ectool  --name cros_ish version
+> ...
+> Build info:    arcada_ish_v2.0.3661+3c1a1c1ae0 2022-02-08 05:37:47
+> @localhost
+> Tool version:  v2.0.12300-900b03ec7f 2022-02-08 10:01:48 @localhost
+> 
+> Fixes: commit 91b228107da3 ("HID: intel-ish-hid: ISH firmware loader
+> client driver")
+> Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+> Cc: stable@vger.kernel.org
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
 > ---
->  drivers/rpmsg/rpmsg_core.c     |  3 ++-
->  drivers/rpmsg/rpmsg_internal.h | 13 +++++++++++--
->  drivers/rpmsg/rpmsg_ns.c       | 14 ++++++++++++--
->  include/linux/rpmsg.h          |  6 ++++--
->  4 files changed, 29 insertions(+), 7 deletions(-)
+>  drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 29 +++------------------
+>  1 file changed, 3 insertions(+), 26 deletions(-)
 > 
-> diff --git a/drivers/rpmsg/rpmsg_core.c b/drivers/rpmsg/rpmsg_core.c
-> index d9e612f4f0f2..6e2bf2742973 100644
-> --- a/drivers/rpmsg/rpmsg_core.c
-> +++ b/drivers/rpmsg/rpmsg_core.c
-> @@ -397,7 +397,8 @@ field##_store(struct device *dev, struct device_attribute *attr,	\
->  	      const char *buf, size_t sz)				\
->  {									\
->  	struct rpmsg_device *rpdev = to_rpmsg_device(dev);		\
-> -	char *new, *old;						\
-> +	const char *old;						\
-> +	char *new;							\
->  									\
->  	new = kstrndup(buf, sz, GFP_KERNEL);				\
->  	if (!new)							\
-> diff --git a/drivers/rpmsg/rpmsg_internal.h b/drivers/rpmsg/rpmsg_internal.h
-> index b1245d3ed7c6..31345d6e9a7e 100644
-> --- a/drivers/rpmsg/rpmsg_internal.h
-> +++ b/drivers/rpmsg/rpmsg_internal.h
-> @@ -92,10 +92,19 @@ int rpmsg_release_channel(struct rpmsg_device *rpdev,
->   */
->  static inline int rpmsg_chrdev_register_device(struct rpmsg_device *rpdev)
->  {
-> +	int ret;
-> +
->  	strcpy(rpdev->id.name, "rpmsg_chrdev");
-> -	rpdev->driver_override = "rpmsg_chrdev";
-> +	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-> +				  "rpmsg_chrdev", strlen("rpmsg_chrdev"));
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = rpmsg_register_device(rpdev);
-> +	if (ret)
-> +		kfree(rpdev->driver_override);
->  
-> -	return rpmsg_register_device(rpdev);
-> +	return ret;
->  }
->  
->  #endif
-> diff --git a/drivers/rpmsg/rpmsg_ns.c b/drivers/rpmsg/rpmsg_ns.c
-> index 762ff1ae279f..95a51543f5ad 100644
-> --- a/drivers/rpmsg/rpmsg_ns.c
-> +++ b/drivers/rpmsg/rpmsg_ns.c
-> @@ -20,12 +20,22 @@
->   */
->  int rpmsg_ns_register_device(struct rpmsg_device *rpdev)
->  {
-> +	int ret;
-> +
->  	strcpy(rpdev->id.name, "rpmsg_ns");
-> -	rpdev->driver_override = "rpmsg_ns";
-> +	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-> +				  "rpmsg_ns", strlen("rpmsg_ns"));
-> +	if (ret)
-> +		return ret;
-> +
->  	rpdev->src = RPMSG_NS_ADDR;
->  	rpdev->dst = RPMSG_NS_ADDR;
->  
-> -	return rpmsg_register_device(rpdev);
-> +	ret = rpmsg_register_device(rpdev);
-> +	if (ret)
-> +		kfree(rpdev->driver_override);
-> +
-> +	return ret;
->  }
->  EXPORT_SYMBOL(rpmsg_ns_register_device);
->  
-> diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h
-> index 02fa9116cd60..20c8cd1cde21 100644
-> --- a/include/linux/rpmsg.h
-> +++ b/include/linux/rpmsg.h
-> @@ -41,7 +41,9 @@ struct rpmsg_channel_info {
->   * rpmsg_device - device that belong to the rpmsg bus
->   * @dev: the device struct
->   * @id: device id (used to match between rpmsg drivers and devices)
-> - * @driver_override: driver name to force a match
-> + * @driver_override: driver name to force a match; do not set directly,
-> + *                   because core frees it; use driver_set_override() to
-> + *                   set or clear it.
->   * @src: local address
->   * @dst: destination address
->   * @ept: the rpmsg endpoint of this channel
-> @@ -51,7 +53,7 @@ struct rpmsg_channel_info {
->  struct rpmsg_device {
->  	struct device dev;
->  	struct rpmsg_device_id id;
-> -	char *driver_override;
-> +	const char *driver_override;
->  	u32 src;
->  	u32 dst;
->  	struct rpmsg_endpoint *ept;
-> -- 
-> 2.32.0
-> 
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> index e24988586710..16aa030af845 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> @@ -661,21 +661,12 @@ static int ish_fw_xfer_direct_dma(struct
+> ishtp_cl_data *client_data,
+>          */
+>         payload_max_size &= ~(L1_CACHE_BYTES - 1);
+>  
+> -       dma_buf = kmalloc(payload_max_size, GFP_KERNEL | GFP_DMA32);
+> +       dma_buf = dma_alloc_coherent(devc, payload_max_size,
+> &dma_buf_phy, GFP_KERNEL);
+>         if (!dma_buf) {
+>                 client_data->flag_retry = true;
+>                 return -ENOMEM;
+>         }
+>  
+> -       dma_buf_phy = dma_map_single(devc, dma_buf, payload_max_size,
+> -                                    DMA_TO_DEVICE);
+> -       if (dma_mapping_error(devc, dma_buf_phy)) {
+> -               dev_err(cl_data_to_dev(client_data), "DMA map
+> failed\n");
+> -               client_data->flag_retry = true;
+> -               rv = -ENOMEM;
+> -               goto end_err_dma_buf_release;
+> -       }
+> -
+>         ldr_xfer_dma_frag.fragment.hdr.command =
+> LOADER_CMD_XFER_FRAGMENT;
+>         ldr_xfer_dma_frag.fragment.xfer_mode =
+> LOADER_XFER_MODE_DIRECT_DMA;
+>         ldr_xfer_dma_frag.ddr_phys_addr = (u64)dma_buf_phy;
+> @@ -695,14 +686,7 @@ static int ish_fw_xfer_direct_dma(struct
+> ishtp_cl_data *client_data,
+>                 ldr_xfer_dma_frag.fragment.size = fragment_size;
+>                 memcpy(dma_buf, &fw->data[fragment_offset],
+> fragment_size);
+>  
+> -               dma_sync_single_for_device(devc, dma_buf_phy,
+> -                                          payload_max_size,
+> -                                          DMA_TO_DEVICE);
+> -
+> -               /*
+> -                * Flush cache here because the
+> dma_sync_single_for_device()
+> -                * does not do for x86.
+> -                */
+> +               /* Flush cache to be sure the data is in main memory.
+> */
+>                 clflush_cache_range(dma_buf, payload_max_size);
+>  
+>                 dev_dbg(cl_data_to_dev(client_data),
+> @@ -725,15 +709,8 @@ static int ish_fw_xfer_direct_dma(struct
+> ishtp_cl_data *client_data,
+>                 fragment_offset += fragment_size;
+>         }
+>  
+> -       dma_unmap_single(devc, dma_buf_phy, payload_max_size,
+> DMA_TO_DEVICE);
+> -       kfree(dma_buf);
+> -       return 0;
+> -
+>  end_err_resp_buf_release:
+> -       /* Free ISH buffer if not done already, in error case */
+> -       dma_unmap_single(devc, dma_buf_phy, payload_max_size,
+> DMA_TO_DEVICE);
+> -end_err_dma_buf_release:
+> -       kfree(dma_buf);
+> +       dma_free_coherent(devc, payload_max_size, dma_buf,
+> dma_buf_phy);
+>         return rv;
+>  }
+>  
+
+
