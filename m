@@ -2,146 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD8044D61EA
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 14:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7494D623C
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 14:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348693AbiCKNBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 08:01:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48186 "EHLO
+        id S1348840AbiCKNTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 08:19:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348697AbiCKNB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 08:01:29 -0500
-Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8431C0256;
-        Fri, 11 Mar 2022 05:00:24 -0800 (PST)
-Received: from [192.168.0.7] (ip5f5ae8da.dynamic.kabel-deutschland.de [95.90.232.218])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 7C54061EA1927;
-        Fri, 11 Mar 2022 14:00:21 +0100 (CET)
-Message-ID: <a805fbcd-7246-1fe4-038d-2859ad072c72@molgen.mpg.de>
-Date:   Fri, 11 Mar 2022 14:00:20 +0100
+        with ESMTP id S235260AbiCKNTx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 08:19:53 -0500
+Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4A3D1C2324
+        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 05:18:49 -0800 (PST)
+Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-2e2ca8d7812so31171977b3.13
+        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 05:18:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Jooav3gkAzytXZ4ozRbElu7aQEsuPBo3emdtriXSigs=;
+        b=Olg8X0qN+UJw10Vij0ENqb4oR3rK069IBtRVHIYohIlCfEphEpTuTv7BlFKEpCaAnI
+         l9bqDKQ3+XfuGZz10KnLKKzP7LAk9JbivROL91SnVFDveJ1rCWD56j+dyi27hOW8QlBr
+         fJGUh7+Mk8j+sgw/HnkZbEbJE8K3vao8T45y9LuE9Q4XBM/KlRTw1upCvcT1+tbWbtmh
+         BUAyiOOFJJ9PGIjW7wIg87WaDfeMFt67lo908U8aQwsXRFgH8XdVuNt3uCvMyJ1U2GJD
+         OTyOP8E4euHdf81+0xynObQq2Cd3b8qzKvIlDyzCl7TjWqlFnb4HbpaUWhVac+9KptGh
+         UicA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Jooav3gkAzytXZ4ozRbElu7aQEsuPBo3emdtriXSigs=;
+        b=hd6BOeY5pAHWs6r1N0+9mMGx07Q8M5DByymjfz+Zcqa9GCctJ8cjGeuh/2/ys2jXKb
+         FUcUbqjogXmsEdcAg2x2MtPDz+eBYaLWoArpIDwDOikrqqUV73MzrcawxWkrKk5WRorT
+         irSIOJu7umHodtAxxF5/zmwnwb49NirPaCdCGlbzKiGhGYJWBSZ5EEZCtGs098Dex1iV
+         FoFn0UIFQe1P8VMbTCYYg0SgP41mTCo+uiK26isflcyRe7PG6g/9LOE3z3bvyx2R64d3
+         1113mWIV5PupSpT41XlDqJHrRxOr5Znz+VDmdUZbzc/CeTRUdZ9j/Xr/NKArs5UmrS/M
+         QLmQ==
+X-Gm-Message-State: AOAM530bBSTXKn7Z0nTSl2zqvzBvSxKnykzGEI6YoF5f+g1W7PBBTU5p
+        8BHx7bhhWTB7DPVr+8hEs82EBiXrMGabdK53EsF37iMMSuOFugEB
+X-Google-Smtp-Source: ABdhPJwQhGvesL21xyLIVbpSkpw1hcw0Z6Yj8fscB8xnje1d0/y0aD30r2JO4NyMG5z31RG6kG8TcYdvLTzBwDjrUMs=
+X-Received: by 2002:a81:e90c:0:b0:2db:d63e:56ff with SMTP id
+ d12-20020a81e90c000000b002dbd63e56ffmr8398712ywm.60.1647004728880; Fri, 11
+ Mar 2022 05:18:48 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [EXT] Re: [PATCH v2 net-next 1/2] bnx2x: Utilize firmware
- 7.13.21.0
-Content-Language: en-US
-To:     Manish Chopra <manishc@marvell.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Ariel Elior <aelior@marvell.com>,
-        Alok Prasad <palok@marvell.com>,
-        Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "it+netdev@molgen.mpg.de" <it+netdev@molgen.mpg.de>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-References: <20211217165552.746-1-manishc@marvell.com>
- <ea05bcab-fe72-4bc2-3337-460888b2c44e@molgen.mpg.de>
- <BY3PR18MB46129282EBA1F699583134A4AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <e884cf16-3f98-e9a7-ce96-9028592246cc@molgen.mpg.de>
- <BY3PR18MB4612BC158A048053BAC7A30EAB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <CAHk-=wjN22EeVLviARu=amf1+422U2iswCC6cz7cN8h+S9=-Jg@mail.gmail.com>
- <BY3PR18MB4612C2FFE05879E30BAD91D7AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <CAHk-=whXCf43ieh79fujcF=u3Ow1byRvWp+Lt5+v3vumA+V0yA@mail.gmail.com>
- <BY3PR18MB46124F3F575F9F7D1980E76BAB0C9@BY3PR18MB4612.namprd18.prod.outlook.com>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-In-Reply-To: <BY3PR18MB46124F3F575F9F7D1980E76BAB0C9@BY3PR18MB4612.namprd18.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220310140807.524313448@linuxfoundation.org>
+In-Reply-To: <20220310140807.524313448@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 11 Mar 2022 18:48:37 +0530
+Message-ID: <CA+G9fYto1WF=inNRFHx1LzRuEY0AYig4Oc0WHLG5RBWjGzaZew@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/31] 4.14.271-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Manish,
+On Thu, 10 Mar 2022 at 19:51, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.271 release.
+> There are 31 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.271-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 4.14.271-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.14.y
+* git commit: f497d213f361b7d7eb4a85da0eda9c11136cd0b5
+* git describe: v4.14.270-32-gf497d213f361
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
+.270-32-gf497d213f361
+
+## Test Regressions (compared to v4.14.270-19-g310a15e6f2b1)
+No test regressions found.
+
+## Metric Regressions (compared to v4.14.270-19-g310a15e6f2b1)
+No metric regressions found.
 
 
-As a side note, it’d be great if you could use an email client, better 
-supporting quoting.
+## Test Fixes (compared to v4.14.270-19-g310a15e6f2b1)
+No test fixes found.
 
+## Metric Fixes (compared to v4.14.270-19-g310a15e6f2b1)
+No metric fixes found.
 
-Am 11.03.22 um 13:11 schrieb Manish Chopra:
->> -----Original Message-----
->> From: Linus Torvalds <torvalds@linux-foundation.org>
->> Sent: Thursday, March 10, 2022 3:48 AM
+## Test result summary
+total: 79275, pass: 63622, fail: 969, skip: 12538, xfail: 2146
 
-[…]
+## Build Summary
+* arm: 280 total, 270 passed, 10 failed
+* arm64: 35 total, 35 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 22 total, 22 passed, 0 failed
+* powerpc: 60 total, 12 passed, 48 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 34 total, 34 passed, 0 failed
 
->> On Wed, Mar 9, 2022 at 11:46 AM Manish Chopra <manishc@marvell.com>
->> wrote:
->>>
->>> This has not changed anything functionally from driver/device perspective,
->>> FW is still being loaded only when device is opened.
->>> bnx2x_init_firmware() [I guess, perhaps the name is misleading] just
->>> request_firmware() to prepare the metadata to be used when device will be
->>> opened.
->>
->> So how do you explain the report by Paul Menzel that things used to work and
->> no longer work now?
-> 
-> The issue which Paul mentioned had to do with "/lib/firmware/bnx2x/*
-> file not found" when driver probes, which was introduced by the patch
-> in subject, And the commit e13ad1443684 ("bnx2x: fix driver load from
-> initrd") fixes this issue. So things should work as it is with the
-> mentioned fixed commit.
-No, your statement is incorrect. I already corrected it in a previous 
-reply. The commit you mentioned was backported to 5.10.103. As we used 
-that version, your commit was present.
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
 
-> The only discussion led by this problem now is why the
-> request_firmware() was moved early on [from open() to probe()] by the
-> patch in subject. I explained the intention to do this in my earlier
-> emails and let me add more details below -
-> 
-> Note that we have just moved request_firmware() logic, *not*
-> something significant which has to do with actual FW loading or
-> device initialization from the FW file data which could cause
-> significant functional change for this device/driver, FW load/init
-> part still stays in open flow.
-> 
-> Before the patch in subject, driver used to only work with
-> fixed/specific FW version file whose version was statically known to
-> the driver function at probe() time to take some decision to fail the
-> function probe early in the system if the function is supposed to run
-> with a FW version which is not the same version loaded on the device
-> by another PF (different ENV). Now when we sent this new FW patch (in
-> subject) then we got feedback from community to maintain backward
-> compatibility with older FW versions as well and we did it in same v2
-> patch legitimately, just that now we can work with both older or
-> newer FW file so we need this run time FW version information to
-> cache (based on request_firmware() return success value for an old FW
-> file or new FW file) which will be used in follow up probe() flows to
-> decide the function probe failure early If there could be FW version
-> mismatches against the loaded FW on the device by other PFs already
-> 
-> So we need to understand why we should not call request_firmware() in
-> probe or at least what's really harmful in doing that in probe() if
-> some of the follow up probe flows needs some of the metadata info
-> (like the run time FW versions info in this case which we get based
-> on request_firmware() return value), we could avoid this but we don't
-> want to add some ugly/unsuitable file APIs checks to know which FW
-> version file is available on the file system if there is already an
-> API request_firmware() available for this to be used.
-Your patches broke loading the driver, and as a result – as seen from 
-the pastes I provided – the network devices were not functional.
-
-> Please let us know. Thanks.
-> 
->> You can't do request_firmware() early. When you actually then push the
->> firmware to the device is immaterial - but request_firmware() has to be done
->> after the system is up and running.
-
-
-Kind regards,
-
-Paul
+--
+Linaro LKFT
+https://lkft.linaro.org
