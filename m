@@ -2,134 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 110FF4D67ED
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 18:44:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E07424D6870
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 19:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349784AbiCKRpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 12:45:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
+        id S242495AbiCKSbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 13:31:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346629AbiCKRpQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 12:45:16 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6938711E3F8
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 09:44:11 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id n18so5569490plg.5
-        for <stable@vger.kernel.org>; Fri, 11 Mar 2022 09:44:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xQewVKIhY2r0v+IHm0AF/AsV/VszfDdNiAbw9A3Tc8g=;
-        b=R7fJWpI+lQlaMnm0sz7WZDOcW/aYqqgyFH8nNPjw34z9G7xXYmIrlLnYsVCC/hb7p3
-         51Q1Nd90p9ueDY6LkES53YFOb+JjGasQ/k4+tN1NNvn4yP1XMQS3gCgEvoEiqunTcGL8
-         BHoqUn0dfzzDkVMeYNPwNUs+nr6uLe8Rx8t331FKJGZmWertuqnLK96x9+BazmDQY0Ih
-         g5vqjEWaSRMpiEKx5KmDAUg5W2zVilxHxNV2rd3wCcY76agQ9euscoLj5aDpa+7g3wtG
-         T6uZK28F6TfHjGrpTTQwXDC7tp+tpWWzznUZA9D4O4qSCylI++QjOWc9i2xoK2opG6R3
-         BfpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xQewVKIhY2r0v+IHm0AF/AsV/VszfDdNiAbw9A3Tc8g=;
-        b=gx+VxTeyvMsKWD3e8LbMd75fnEYsFMAvwukBwhHJMIoaGtf67eU7Wh8QCW+1v5MeON
-         ELS0uvEyXEg7SwCT7hPJi4PdEIC3UQvoCr+7TcgNl2UBEMXDl42AAnCDncoCcb74YCaj
-         ClRYOJtfP986vyoGF79oBqWA3fjD4eAUNdDB8MJp8+TWmPRfub6l5VVGgb7nwANcLQYV
-         yeEdt6z6nsnSgWDFE8oj6LHrc93Nm7SJS7gO8zSxBuTF/0Z3usZa3hNRBu9E6KHcGVEz
-         tbSev7tce7AwDmPsur8I9t/1bU8LTvWtRwqj+CzTuPVeu6prFl07Lg6OciwIHKA/b6/m
-         Mkpg==
-X-Gm-Message-State: AOAM533idJl2Ebt+HHE2TQ8q7shN9rf9d4DkqaxvsWLakNE/hFALiVcd
-        zBAJD6GFB8x9tZpZ8bBil4jlLQPKXYeQWNAeVtQ=
-X-Google-Smtp-Source: ABdhPJxQH2w4fd3kaYrZnFkl1zFjmc480Ewloo15P05FebDG376Xs0PdH4cDvNybKMDnV0W/vX/Lbw==
-X-Received: by 2002:a17:902:728d:b0:151:dcc8:9f86 with SMTP id d13-20020a170902728d00b00151dcc89f86mr10879143pll.76.1647020649256;
-        Fri, 11 Mar 2022 09:44:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p10-20020a637f4a000000b00373a2760775sm9315476pgn.2.2022.03.11.09.44.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Mar 2022 09:44:08 -0800 (PST)
-Message-ID: <622b8a68.1c69fb81.45847.7d76@mx.google.com>
-Date:   Fri, 11 Mar 2022 09:44:08 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230313AbiCKSbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 13:31:13 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742FD1BB723;
+        Fri, 11 Mar 2022 10:30:09 -0800 (PST)
+Date:   Fri, 11 Mar 2022 18:30:05 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1647023407;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qr1P/2r6c3vLw0HKkU1SXJnnH56QlvpCoESrvPJot4E=;
+        b=wlIY+x6G4xt4Jd9VMZc+ZCXp21wg0kDERLHQ/LVR332JQQJt+jcjxNO1/Dxai7oyAHfn93
+        b/oDLzVHoTrn8XRFXTw2FVqc3R75+ZqfVdZaYmJeTtS4w8AhoGxp5r3llKgamIiy77Zr9O
+        hxqyhA85Ti3HbnZjeIZnumdK/tkyCKXrzfoZ8JdopytvyDKUnSM1lhEzOhPBefHdaZ7r5v
+        5dBUgooez7tXMLUEVkFQ8toCj5KMrhyBCRmT6Lji/E68O0+v0kqsuYWk0jtS+FpUPkjwpE
+        DfZr+npRVf4xcAHadAeeYIv7II6u/LJY49Np09+LZn1CiefxabPdsfMSsegbag==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1647023407;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qr1P/2r6c3vLw0HKkU1SXJnnH56QlvpCoESrvPJot4E=;
+        b=SiQZHKHvw7QfwbjgL1rxgXgv7jxi1DObR4d+LllTUonpuPwiW49sHQ3NgaNNQg2K9KaH9W
+        a7AnNWikmd648sDw==
+From:   "tip-bot2 for Li Huafei" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/traps: Mark do_int3() NOKPROBE_SYMBOL
+Cc:     Li Huafei <lihuafei1@huawei.com>, Borislav Petkov <bp@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        <stable@vger.kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20220310120915.63349-1-lihuafei1@huawei.com>
+References: <20220310120915.63349-1-lihuafei1@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.270-31-g223a2e117a9e
-Subject: stable-rc/queue/4.14 baseline: 48 runs,
- 1 regressions (v4.14.270-31-g223a2e117a9e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <164702340572.16921.5012171249214992963.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 48 runs, 1 regressions (v4.14.270-31-g223a2e=
-117a9e)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     a365a65f9ca1ceb9cf1ac29db4a4f51df7c507ad
+Gitweb:        https://git.kernel.org/tip/a365a65f9ca1ceb9cf1ac29db4a4f51df7c507ad
+Author:        Li Huafei <lihuafei1@huawei.com>
+AuthorDate:    Thu, 10 Mar 2022 20:09:15 +08:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 11 Mar 2022 19:19:30 +01:00
 
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+x86/traps: Mark do_int3() NOKPROBE_SYMBOL
 
+Since kprobe_int3_handler() is called in do_int3(), probing do_int3()
+can cause a breakpoint recursion and crash the kernel. Therefore,
+do_int3() should be marked as NOKPROBE_SYMBOL.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.270-31-g223a2e117a9e/plan/baseline/
+Fixes: 21e28290b317 ("x86/traps: Split int3 handler up")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220310120915.63349-1-lihuafei1@huawei.com
+---
+ arch/x86/kernel/traps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.270-31-g223a2e117a9e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      223a2e117a9e692969ef5d2e3ff53f195d10afc8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/622b53cf0101fc24fec62968
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.270=
--31-g223a2e117a9e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
-8b-odroidc1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.270=
--31-g223a2e117a9e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
-8b-odroidc1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/622b53cf0101fc24fec62=
-969
-        failing since 26 days (last pass: v4.14.266-18-g18b83990eba9, first=
- fail: v4.14.266-28-g7d44cfe0255d) =
-
- =20
+diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
+index c9d566d..8143693 100644
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -659,6 +659,7 @@ static bool do_int3(struct pt_regs *regs)
+ 
+ 	return res == NOTIFY_STOP;
+ }
++NOKPROBE_SYMBOL(do_int3);
+ 
+ static void do_int3_user(struct pt_regs *regs)
+ {
