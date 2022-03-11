@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1204D61D0
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 13:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD8044D61EA
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 14:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348673AbiCKMxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 07:53:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
+        id S1348693AbiCKNBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 08:01:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348674AbiCKMxs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 07:53:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9872C3CA51;
-        Fri, 11 Mar 2022 04:52:43 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S1348697AbiCKNB3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 08:01:29 -0500
+Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8431C0256;
+        Fri, 11 Mar 2022 05:00:24 -0800 (PST)
+Received: from [192.168.0.7] (ip5f5ae8da.dynamic.kabel-deutschland.de [95.90.232.218])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 345E761DC6;
-        Fri, 11 Mar 2022 12:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04605C340E9;
-        Fri, 11 Mar 2022 12:52:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647003162;
-        bh=yVLn41c5+OmAhF07C0IcMA+qxMjUL7G9BKfqUwoeRAY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Le2TVtCAmYRijW+sXgghJUa040dd7jMokcAAbnZ1XIPesWGY4pvu2B7I2pS4+RNd3
-         U3IFw5aqVCkyBBxaCHv4JH489D9nNwUey3lKtBCVvP/5DpGRbx17u8mMjRchwSQnlW
-         SyCUg6GltebRxgq4RlroZvTFOHUqNtNgcLmIbJDk=
-Date:   Fri, 11 Mar 2022 13:52:39 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 7C54061EA1927;
+        Fri, 11 Mar 2022 14:00:21 +0100 (CET)
+Message-ID: <a805fbcd-7246-1fe4-038d-2859ad072c72@molgen.mpg.de>
+Date:   Fri, 11 Mar 2022 14:00:20 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [EXT] Re: [PATCH v2 net-next 1/2] bnx2x: Utilize firmware
+ 7.13.21.0
+Content-Language: en-US
 To:     Manish Chopra <manishc@marvell.com>
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
         "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
         Ariel Elior <aelior@marvell.com>,
         Alok Prasad <palok@marvell.com>,
         Prabhakar Kushwaha <pkushwaha@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
+        Greg KH <gregkh@linuxfoundation.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "it+netdev@molgen.mpg.de" <it+netdev@molgen.mpg.de>,
         "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-Subject: Re: [EXT] Re: [PATCH v2 net-next 1/2] bnx2x: Utilize firmware
- 7.13.21.0
-Message-ID: <YitGFzeRHyzksYH4@kroah.com>
 References: <20211217165552.746-1-manishc@marvell.com>
  <ea05bcab-fe72-4bc2-3337-460888b2c44e@molgen.mpg.de>
  <BY3PR18MB46129282EBA1F699583134A4AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
@@ -54,77 +50,98 @@ References: <20211217165552.746-1-manishc@marvell.com>
  <BY3PR18MB4612C2FFE05879E30BAD91D7AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
  <CAHk-=whXCf43ieh79fujcF=u3Ow1byRvWp+Lt5+v3vumA+V0yA@mail.gmail.com>
  <BY3PR18MB46124F3F575F9F7D1980E76BAB0C9@BY3PR18MB4612.namprd18.prod.outlook.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
 In-Reply-To: <BY3PR18MB46124F3F575F9F7D1980E76BAB0C9@BY3PR18MB4612.namprd18.prod.outlook.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 11, 2022 at 12:11:45PM +0000, Manish Chopra wrote:
-> > -----Original Message-----
-> > From: Linus Torvalds <torvalds@linux-foundation.org>
-> > Sent: Thursday, March 10, 2022 3:48 AM
-> > To: Manish Chopra <manishc@marvell.com>
-> > Cc: Paul Menzel <pmenzel@molgen.mpg.de>; kuba@kernel.org;
-> > netdev@vger.kernel.org; Ariel Elior <aelior@marvell.com>; Alok Prasad
-> > <palok@marvell.com>; Prabhakar Kushwaha <pkushwaha@marvell.com>;
-> > David S. Miller <davem@davemloft.net>; Greg KH
-> > <gregkh@linuxfoundation.org>; stable@vger.kernel.org;
-> > it+netdev@molgen.mpg.de; regressions@lists.linux.dev
-> > Subject: Re: [EXT] Re: [PATCH v2 net-next 1/2] bnx2x: Utilize firmware
-> > 7.13.21.0
-> > 
-> > On Wed, Mar 9, 2022 at 11:46 AM Manish Chopra <manishc@marvell.com>
-> > wrote:
-> > >
-> > > This has not changed anything functionally from driver/device perspective,
-> > FW is still being loaded only when device is opened.
-> > > bnx2x_init_firmware() [I guess, perhaps the name is misleading] just
-> > request_firmware() to prepare the metadata to be used when device will be
-> > opened.
-> > 
-> > So how do you explain the report by Paul Menzel that things used to work and
-> > no longer work now?
-> > 
+Dear Manish,
+
+
+As a side note, it’d be great if you could use an email client, better 
+supporting quoting.
+
+
+Am 11.03.22 um 13:11 schrieb Manish Chopra:
+>> -----Original Message-----
+>> From: Linus Torvalds <torvalds@linux-foundation.org>
+>> Sent: Thursday, March 10, 2022 3:48 AM
+
+[…]
+
+>> On Wed, Mar 9, 2022 at 11:46 AM Manish Chopra <manishc@marvell.com>
+>> wrote:
+>>>
+>>> This has not changed anything functionally from driver/device perspective,
+>>> FW is still being loaded only when device is opened.
+>>> bnx2x_init_firmware() [I guess, perhaps the name is misleading] just
+>>> request_firmware() to prepare the metadata to be used when device will be
+>>> opened.
+>>
+>> So how do you explain the report by Paul Menzel that things used to work and
+>> no longer work now?
 > 
-> The issue which Paul mentioned had to do with "/lib/firmware/bnx2x/* file not found" when driver probes, which was introduced by the patch in subject,
-> And the commit e13ad1443684 ("bnx2x: fix driver load from initrd") fixes this issue. So things should work as it is with the mentioned fixed commit.
-> The only discussion led by this problem now is why the request_firmware() was moved early on [from open() to probe()] by the patch in subject.
-> I explained the intention to do this in my earlier emails and let me add more details below - 
+> The issue which Paul mentioned had to do with "/lib/firmware/bnx2x/*
+> file not found" when driver probes, which was introduced by the patch
+> in subject, And the commit e13ad1443684 ("bnx2x: fix driver load from
+> initrd") fixes this issue. So things should work as it is with the
+> mentioned fixed commit.
+No, your statement is incorrect. I already corrected it in a previous 
+reply. The commit you mentioned was backported to 5.10.103. As we used 
+that version, your commit was present.
+
+> The only discussion led by this problem now is why the
+> request_firmware() was moved early on [from open() to probe()] by the
+> patch in subject. I explained the intention to do this in my earlier
+> emails and let me add more details below -
 > 
-> Note that we have just moved request_firmware() logic, *not* something significant which has to do with actual FW loading or device initialization from the
-> FW file data which could cause significant functional change for this device/driver, FW load/init part still stays in open flow.
+> Note that we have just moved request_firmware() logic, *not*
+> something significant which has to do with actual FW loading or
+> device initialization from the FW file data which could cause
+> significant functional change for this device/driver, FW load/init
+> part still stays in open flow.
 > 
-> Before the patch in subject, driver used to only work with fixed/specific FW version file whose version was statically known to the driver function at probe() time to take
-> some decision to fail the function probe early in the system if the function is supposed to run with a FW version which is not the same version loaded on the device by another PF (different ENV).
-> Now when we sent this new FW patch (in subject) then we got feedback from community to maintain backward compatibility with older FW versions as well and we did it in same v2 patch legitimately,
-> just that now we can work with both older or newer FW file so we need this run time FW version information to cache (based on request_firmware() return success value for an old FW file or new FW file)
-> which will be used in follow up probe() flows to decide the function probe failure early If there could be FW version mismatches against the loaded FW on the device by other PFs already
+> Before the patch in subject, driver used to only work with
+> fixed/specific FW version file whose version was statically known to
+> the driver function at probe() time to take some decision to fail the
+> function probe early in the system if the function is supposed to run
+> with a FW version which is not the same version loaded on the device
+> by another PF (different ENV). Now when we sent this new FW patch (in
+> subject) then we got feedback from community to maintain backward
+> compatibility with older FW versions as well and we did it in same v2
+> patch legitimately, just that now we can work with both older or
+> newer FW file so we need this run time FW version information to
+> cache (based on request_firmware() return success value for an old FW
+> file or new FW file) which will be used in follow up probe() flows to
+> decide the function probe failure early If there could be FW version
+> mismatches against the loaded FW on the device by other PFs already
 > 
-> So we need to understand why we should not call request_firmware() in probe or at least what's really harmful in doing that in probe() if some of the follow up probe flows needs
-> some of the metadata info (like the run time FW versions info in this case which we get based on request_firmware() return value), we could avoid this but we don't want
-> to add some ugly/unsuitable file APIs checks to know which FW version file is available on the file system if there is already an API request_firmware() available for this to be used.
-> 
+> So we need to understand why we should not call request_firmware() in
+> probe or at least what's really harmful in doing that in probe() if
+> some of the follow up probe flows needs some of the metadata info
+> (like the run time FW versions info in this case which we get based
+> on request_firmware() return value), we could avoid this but we don't
+> want to add some ugly/unsuitable file APIs checks to know which FW
+> version file is available on the file system if there is already an
+> API request_firmware() available for this to be used.
+Your patches broke loading the driver, and as a result – as seen from 
+the pastes I provided – the network devices were not functional.
+
 > Please let us know. Thanks.
+> 
+>> You can't do request_firmware() early. When you actually then push the
+>> firmware to the device is immaterial - but request_firmware() has to be done
+>> after the system is up and running.
 
-I think you are asking "why can't we call request_firmware() at probe
-time?", right?
 
-If so, try it and see why it fails.  Build the driver into the kernel
-image, do not use an initramfs, and see what happens.
+Kind regards,
 
-Again, wait until open() to call it, then you have a working userspace,
-including a filesystem where the firmware actually will be.  Before
-then, you might not.
-
-thanks,
-
-greg k-h
+Paul
