@@ -2,88 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03ADD4D5703
-	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 01:57:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25ACA4D574D
+	for <lists+stable@lfdr.de>; Fri, 11 Mar 2022 02:22:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233551AbiCKA5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Mar 2022 19:57:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58982 "EHLO
+        id S242389AbiCKBXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Mar 2022 20:23:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232881AbiCKA5s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 19:57:48 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE3181A3604;
-        Thu, 10 Mar 2022 16:56:46 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id q7-20020a7bce87000000b00382255f4ca9so6590910wmj.2;
-        Thu, 10 Mar 2022 16:56:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=arlN1T8xScWpujBipjQ/WuveNzL1sgp98ejFbHOQoZw=;
-        b=GotwGQv+CPNN+7EgWbzhA7Gg5qnTBS0bbk3/Iyg8joKuOUlIvMxXSvR0Wv//jgDsaF
-         uZXGSfL2lnnYsf969lSETRYz/Yvi+mS8S6E/qzb22k8BBXubQ2m2tI/LXME1BwjYI3yu
-         yfXXsxf+//emSsu5bSvSM5QTv4dt6UhMVjQueh0P8SMRkneKIe4bMDRhtN/+xZgPYRw5
-         ITKvctpxicWGEt0HqRiImrIRvUEIcidQmeE6DGbyhSG9r4AD1agelgMJzTOCiS+mFF+J
-         GTJwDGctl5KI+MY4n+O8OgrGBJDfcOLRGwR/PCotPr1fvfbtXOGPKaEWdZH1ZSwr6Cjm
-         3uzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=arlN1T8xScWpujBipjQ/WuveNzL1sgp98ejFbHOQoZw=;
-        b=B/rrLbrTOAlBPCIDp3F9QnO4BieaYQ6uBb6X4GMZEpASmAGI3LuKjHZe1a/OAHLBE2
-         BJs5aoRKK5N+mNUg2Rd+X2So0ysg1fze2fcyzPtPbAMEe0JW5CAtNZdaMKQgHC+BwAS7
-         l/8CeH9Om1VJVYsrgwsMMzjGJmWn6qFm4QoNJrGzRtWzxev9cnNPj8gijZJrfOTIG5Mt
-         jrKxBEgZTfU5RrNHep5nSZ1h4KXcZRwBuWOEszIV7WPXqNmfGSgJAb7W66Enjn4wi9Uk
-         260E3Rh8PxU/JtXOJBDByLL1+42+PfvxWhIjDx5jcw+7b7L72TUipJS7NmDhGkOVfdAp
-         anWA==
-X-Gm-Message-State: AOAM531iodpB3XXH25iGDHX/jAOnLG/EI+Ycm+caPWGdEQqF/vNB+N39
-        8iFfpagXm/6r0qCdcAGjFkw=
-X-Google-Smtp-Source: ABdhPJxqX5NdwYh+IQDZktyCaJmXe5rUFG0Btr3+u36XQGEF/oAY5tGWtykbYmuj7nLWMKsTydryCQ==
-X-Received: by 2002:a05:600c:19cc:b0:389:d0a8:d3ab with SMTP id u12-20020a05600c19cc00b00389d0a8d3abmr8537563wmq.57.1646960205111;
-        Thu, 10 Mar 2022 16:56:45 -0800 (PST)
-Received: from [192.168.2.202] (p5487b56d.dip0.t-ipconnect.de. [84.135.181.109])
-        by smtp.gmail.com with ESMTPSA id o7-20020a5d6707000000b001f067c7b47fsm8525427wru.27.2022.03.10.16.56.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 16:56:44 -0800 (PST)
-Message-ID: <09f244d8-2601-5828-3ba8-c429a887ba4c@gmail.com>
-Date:   Fri, 11 Mar 2022 01:56:41 +0100
+        with ESMTP id S238672AbiCKBXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Mar 2022 20:23:06 -0500
+Received: from gateway31.websitewelcome.com (gateway31.websitewelcome.com [192.185.144.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39DCFF65DC
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 17:22:04 -0800 (PST)
+Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
+        by gateway31.websitewelcome.com (Postfix) with ESMTP id 3002FF6BBB
+        for <stable@vger.kernel.org>; Thu, 10 Mar 2022 19:01:31 -0600 (CST)
+Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
+        by cmsmtp with SMTP
+        id STesnzPqW22u3STetnhJdP; Thu, 10 Mar 2022 19:01:31 -0600
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=F635WDa9mw83VC7jJh9Ir4RKOSJhWy/95LD4x8fUSpQ=; b=o4DhMG6jAWVdeYybOVhTqorXv7
+        f06qHehYJaNw6zBLf2HIr6E573D//byhhh4NwgI8URvhfdIV2qg2buM6X+lBjy/F+LyROmrYw2kZW
+        u8PwUdjENk5CdqVUwpzXFOsAvL0u7IRkW8GA0jfLf48APHjz6kxemsBajcyxQtr1l/ZZFMgc8tXn2
+        O3LJOI6i3JJnWzpg16OYKMu9vUX9n3wwtT/e65hHeuqljudI4BSoPwU25XBxQAd4vfm4q8dQpHZe8
+        iJJ0FoC7QI4xPEhLrMj6Gj0dpybeUdm2rzA69w6x3VfRLqnVLeEq+W/TqpEHLdgcdJxXjoCnJXeZl
+        vAptyDsQ==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57426 helo=localhost)
+        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@roeck-us.net>)
+        id 1nSTes-001lza-AG; Fri, 11 Mar 2022 01:01:30 +0000
+Date:   Thu, 10 Mar 2022 17:01:29 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.14 00/31] 4.14.271-rc2 review
+Message-ID: <20220311010129.GA3881529@roeck-us.net>
+References: <20220310140807.524313448@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH] ACPI: battery: Add device HID and quirk for Microsoft
- Surface Go 3
-Content-Language: en-US
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20220213154920.142816-1-luzmaximilian@gmail.com>
-From:   Maximilian Luz <luzmaximilian@gmail.com>
-In-Reply-To: <20220213154920.142816-1-luzmaximilian@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220310140807.524313448@linuxfoundation.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1nSTes-001lza-AG
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57426
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 18
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/13/22 16:49, Maximilian Luz wrote:
-> For some reason, the Microsoft Surface Go 3 uses the standard ACPI
-> interface for battery information, but does not use the standard PNP0C0A
-> HID. Instead it uses MSHW0146 as identifier. Add that ID to the driver
-> as this seems to work well.
+On Thu, Mar 10, 2022 at 03:18:13PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.271 release.
+> There are 31 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Additionally, the power state is not updated immediately after the AC
-> has been (un-)plugged, so add the respective quirk for that.
+> Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
+> Anything received after that time might be too late.
 > 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Build results:
+	total: 168 pass: 168 fail: 0
+Qemu test results:
+	total: 424 pass: 424 fail: 0
 
-Hi, any comments/status on this?
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
