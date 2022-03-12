@@ -2,108 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA744D6A6C
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 00:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3F54D6B85
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 01:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229624AbiCKWo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 17:44:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49394 "EHLO
+        id S229901AbiCLArv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 19:47:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbiCKWoV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 17:44:21 -0500
+        with ESMTP id S229891AbiCLArt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 19:47:49 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A579C5E157;
-        Fri, 11 Mar 2022 14:40:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDE127ED8A;
+        Fri, 11 Mar 2022 16:46:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 604C9B80EE0;
-        Fri, 11 Mar 2022 22:40:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65ACC340E9;
-        Fri, 11 Mar 2022 22:40:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647038422;
-        bh=edOeCCGPidsfDBta24UEYMa+thqJbgXW3F+tYAjMV38=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=VrnWZOKoLwD0hxybT0jAHa2JNb1l6NsPOnrQGfKb0xmWhjH+IA+rkJCPYu/bXzixb
-         YeO7kOcNOBXVy+3aHD1tSw99WdDOLiXtqL76Li3tQhNIvW0XaNA5xMVriz5CiDfbU8
-         KiVZM05waHJHgFDX2Dl+tS8IW248Pda4Z+bdxgSvzWkmms/FNqzhkdbhCn1k+k2G0f
-         7R+2xLNVNgOIV0vyfZr8Thz/3OWfcHXuauaXrTxjq4WTxHblWPA9tuTGeZc3H964kJ
-         oa/pfyTY+f7JFLm9GS7tRZlihFXns41Kr38xPKo+2O07kmfJEgICj4ySLUQ4v9XK5j
-         gn9X/wfszx9yA==
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-2dbd8777564so109970897b3.0;
-        Fri, 11 Mar 2022 14:40:22 -0800 (PST)
-X-Gm-Message-State: AOAM530iApPMdwl+xJok8nlFdg9S/j0SMo6gywNmJrTRHG3cNvbxCcgg
-        op1IOq8cqn5XowIpeWFBYb7nciBbLNzaIr7IbxE=
-X-Google-Smtp-Source: ABdhPJwC/f7TuYoXOvpNtGSwGatK99lRZca8plSgnId5Q0KVNB/jut3lyLb3jr6fZyOpB4fJxzANJy1VJktVfo0a/9A=
-X-Received: by 2002:a81:7814:0:b0:2ca:287c:6c2e with SMTP id
- t20-20020a817814000000b002ca287c6c2emr10183626ywc.211.1647038421914; Fri, 11
- Mar 2022 14:40:21 -0800 (PST)
-MIME-Version: 1.0
-References: <20220309064209.4169303-1-song@kernel.org> <9516f407-bb91-093b-739d-c32bda1b5d8d@kernel.dk>
- <CAPhsuW5zX96VaBMu-o=JUqDz2KLRBcNFM_gEsT=tHjeYqrngSQ@mail.gmail.com>
- <38f7aaf5-2043-b4f4-1fa5-52a7c883772b@kernel.dk> <CAPhsuW7zdYZqxaJ7SOWdnVOx-cASSoXS4OwtWVbms_jOHNh=Kw@mail.gmail.com>
- <2b437948-ba2a-c59c-1059-e937ea8636bd@kernel.dk> <84310ba2-a413-22f4-1349-59a09f4851a1@kernel.dk>
- <CAPhsuW492+zrVCyckgct_ju+5V_2grn4-s--TU2QVA7pkYtyzA@mail.gmail.com> <11a4c611-ed0c-789f-b5d0-8a127539daf1@molgen.mpg.de>
-In-Reply-To: <11a4c611-ed0c-789f-b5d0-8a127539daf1@molgen.mpg.de>
-From:   Song Liu <song@kernel.org>
-Date:   Fri, 11 Mar 2022 14:40:10 -0800
-X-Gmail-Original-Message-ID: <CAPhsuW4yZBEj1ObEV0b0O7yFYs5VqAeYBCgc39qL2dOp4FBeFw@mail.gmail.com>
-Message-ID: <CAPhsuW4yZBEj1ObEV0b0O7yFYs5VqAeYBCgc39qL2dOp4FBeFw@mail.gmail.com>
-Subject: Re: [PATCH] block: check more requests for multiple_queues in blk_attempt_plug_merge
-To:     Paul Menzel <pmenzel@molgen.mpg.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        linux-raid <linux-raid@vger.kernel.org>, stable@vger.kernel.org,
-        Larkin Lowrey <llowrey@nuclearwinter.com>,
-        Wilson Jonathan <i400sjon@gmail.com>,
-        Roger Heflin <rogerheflin@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id 862A6B80E97;
+        Sat, 12 Mar 2022 00:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40408C340E9;
+        Sat, 12 Mar 2022 00:46:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1647046002;
+        bh=uk7EeWrbjIc8MIB1xzo/DOo2tXWPrFMwx6EmzSwnHLw=;
+        h=Date:To:From:Subject:From;
+        b=yXqVIE4gjSsN6neyH/mA3s9JxbkZdenltqqJsb65AjsUVEs4gqhLRrp6wtLFPILLq
+         KgEHHQmcRe+IotgjeLxVnHLNLXNJnvRjXHXnUQVK+iOrVkYQoUtsQj98c7mghbIw0i
+         +kryFqpI8/2wPGJc1AJ3rX6w48bhFJBiEseB/8KA=
+Date:   Fri, 11 Mar 2022 16:46:41 -0800
+To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
+        oleg@redhat.com, Liam.Howlett@oracle.com, hughd@google.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mempolicy-mbind_range-set_policy-after-vma_merge.patch added to -mm tree
+Message-Id: <20220312004642.40408C340E9@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 11, 2022 at 1:42 PM Paul Menzel <pmenzel@molgen.mpg.de> wrote:
->
-> Dear Song,
->
->
-> Am 11.03.22 um 17:59 schrieb Song Liu:
->
-> > On Fri, Mar 11, 2022 at 6:16 AM Jens Axboe <axboe@kernel.dk> wrote:
-> >>
-> >> On 3/10/22 5:07 PM, Jens Axboe wrote:
-> >>> In any case, just doing larger reads would likely help quite a bit, but
-> >>> would still be nice to get to the bottom of why we're not seeing the
-> >>> level of merging we expect.
-> >>
-> >> Song, can you try this one? It'll do the dispatch in a somewhat saner
-> >> fashion, bundling identical queues. And we'll keep iterating the plug
-> >> list for a merge if we have multiple disks, until we've seen a queue
-> >> match and checked.
-> >
-> > This one works great! We are seeing 99% read request merge and
-> > 500kB+ average read size. The original patch in this thread only got
-> > 88% and 34kB for these two metrics.
->
-> Nice. I am curious, how these metrics can be obtained?
->
 
-We can use tools as iostat:
-iostat -mx 2
-Device            r/s     w/s     rMB/s     wMB/s   rrqm/s   wrqm/s
-%rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
-sdb           3176.50    1.00    100.57      0.00 22503.00     0.00
-87.63   0.00   10.22    3.50  32.46    32.42     4.00   0.24  76.60
-sdi           3167.00    1.00    100.57      0.00 22512.50     0.00
-87.67   0.00   11.58    4.00  36.68    32.52     4.00   0.24  77.55
+The patch titled
+     Subject: mempolicy: mbind_range() set_policy() after vma_merge()
+has been added to the -mm tree.  Its filename is
+     mempolicy-mbind_range-set_policy-after-vma_merge.patch
 
-The two metrics we used here are %rrqm and rareq-sz.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mempolicy-mbind_range-set_policy-after-vma_merge.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mempolicy-mbind_range-set_policy-after-vma_merge.patch
 
-Thanks,
-Song
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Hugh Dickins <hughd@google.com>
+Subject: mempolicy: mbind_range() set_policy() after vma_merge()
+
+v2.6.34 commit 9d8cebd4bcd7 ("mm: fix mbind vma merge problem") introduced
+vma_merge() to mbind_range(); but unlike madvise, mlock and mprotect, it
+put a "continue" to next vma where its precedents go to update flags on
+current vma before advancing: that left vma with the wrong setting in the
+infamous vma_merge() case 8.
+
+v3.10 commit 1444f92c8498 ("mm: merging memory blocks resets mempolicy")
+tried to fix that in vma_adjust(), without fully understanding the issue.
+
+v3.11 commit 3964acd0dbec ("mm: mempolicy: fix mbind_range() &&
+vma_adjust() interaction") reverted that, and went about the fix in the
+right way, but chose to optimize out an unnecessary mpol_dup() with a
+prior mpol_equal() test.  But on tmpfs, that also pessimized out the vital
+call to its ->set_policy(), leaving the new mbind unenforced.
+
+The user visible effect was that the pages got allocated on the local
+node (happened to be 0), after the mbind() caller had specifically
+asked for them to be allocated on node 1.  There was not any page
+migration involved in the case reported: the pages simply got allocated
+on the wrong node.
+
+Just delete that optimization now (though it could be made conditional on
+vma not having a set_policy).  Also remove the "next" variable: it turned
+out to be blameless, but also pointless.
+
+Link: https://lkml.kernel.org/r/319e4db9-64ae-4bca-92f0-ade85d342ff@google.com
+Fixes: 3964acd0dbec ("mm: mempolicy: fix mbind_range() && vma_adjust() interaction")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/mempolicy.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+--- a/mm/mempolicy.c~mempolicy-mbind_range-set_policy-after-vma_merge
++++ a/mm/mempolicy.c
+@@ -786,7 +786,6 @@ static int vma_replace_policy(struct vm_
+ static int mbind_range(struct mm_struct *mm, unsigned long start,
+ 		       unsigned long end, struct mempolicy *new_pol)
+ {
+-	struct vm_area_struct *next;
+ 	struct vm_area_struct *prev;
+ 	struct vm_area_struct *vma;
+ 	int err = 0;
+@@ -801,8 +800,7 @@ static int mbind_range(struct mm_struct
+ 	if (start > vma->vm_start)
+ 		prev = vma;
+ 
+-	for (; vma && vma->vm_start < end; prev = vma, vma = next) {
+-		next = vma->vm_next;
++	for (; vma && vma->vm_start < end; prev = vma, vma = vma->vm_next) {
+ 		vmstart = max(start, vma->vm_start);
+ 		vmend   = min(end, vma->vm_end);
+ 
+@@ -817,10 +815,6 @@ static int mbind_range(struct mm_struct
+ 				 anon_vma_name(vma));
+ 		if (prev) {
+ 			vma = prev;
+-			next = vma->vm_next;
+-			if (mpol_equal(vma_policy(vma), new_pol))
+-				continue;
+-			/* vma_merge() joined vma && vma->next, case 8 */
+ 			goto replace;
+ 		}
+ 		if (vma->vm_start != vmstart) {
+_
+
+Patches currently in -mm which might be from hughd@google.com are
+
+mm-fs-delete-pf_swapwrite.patch
+mm-__isolate_lru_page_prepare-in-isolate_migratepages_block.patch
+tmpfs-support-for-file-creation-time-fix.patch
+shmem-mapping_set_exiting-to-help-mapped-resilience.patch
+tmpfs-do-not-allocate-pages-on-read.patch
+mm-_install_special_mapping-apply-vm_locked_clear_mask.patch
+mempolicy-mbind_range-set_policy-after-vma_merge.patch
+mm-thp-refix-__split_huge_pmd_locked-for-migration-pmd.patch
+mm-thp-clearpagedoublemap-in-first-page_add_file_rmap.patch
+mm-delete-__clearpagewaiters.patch
+mm-filemap_unaccount_folio-large-skip-mapcount-fixup.patch
+mm-thp-fix-nr_file_mapped-accounting-in-page__file_rmap.patch
+mm-warn-on-deleting-redirtied-only-if-accounted.patch
+mm-unmap_mapping_range_tree-with-i_mmap_rwsem-shared.patch
+
