@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EA44D6E50
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:09:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5244D6E52
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229958AbiCLLKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Mar 2022 06:10:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58758 "EHLO
+        id S230058AbiCLLQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Mar 2022 06:16:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbiCLLKp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:10:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBBBA1BE8A
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:09:39 -0800 (PST)
+        with ESMTP id S229575AbiCLLQS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:16:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BD96D4D5
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:15:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71A13B82E28
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:09:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFFEC340ED;
-        Sat, 12 Mar 2022 11:09:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18C99B82DE2
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:15:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13862C340EB;
+        Sat, 12 Mar 2022 11:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647083377;
-        bh=8BokdGzOAWwWQgKSNC+skWkkbkqD0MizSG1M3NoCd7E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZBEtiBGspieZnU8crI49xWKmqXIFFfqOEe6yFygfnpQK+NJ6UOqN9IWae8m72EW5R
-         9rViKhBtjuXzbTJ+ArJeYLchLJq9JNgDNV1xj2X3WHNVViWOHuM+xP6Kx+7ICER4aQ
-         8wyzdGTPtZHas8ccNnQycXxH/lIYhYFJ2ib0m5OE=
-Date:   Sat, 12 Mar 2022 12:09:33 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     James Morse <james.morse@arm.com>
-Cc:     stable@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
-        Marc Zyngier <maz@kernel.org>,
-        Alexandru Elisei <alexandru.elisei@arm.com>
-Subject: Re: [stable:PATCH] KVM: arm64: Reset PMC_EL0 to avoid a panic() on
- systems with no PMU
-Message-ID: <Yix/bcdSsMGvY/aw@kroah.com>
-References: <20220308162939.603335-1-james.morse@arm.com>
+        s=korg; t=1647083709;
+        bh=X0u+A8+S4EDYNfsozpTT0efbAMBPcFw4vu03HYOAYZc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=NDw1uVKQ6uQg3pG0NxGR3H4ElrQvqrjeOpA/oMvYWcVHIOxpiyL0K0O8DPYgoSvLL
+         5VkvD8yzGuHJxSezeoj3gsAtuSS8HBo6njnWpPCRDoEstgH3td8b0Q+hu1Jnpe5i3c
+         FKZ8SZajxSpa73ktff4WbHSviF5hLhJFDcq2l5Ho=
+Subject: FAILED: patch "[PATCH] swiotlb: fix info leak with DMA_FROM_DEVICE" failed to apply to 5.10-stable tree
+To:     pasic@linux.ibm.com, hch@lst.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 12 Mar 2022 12:15:01 +0100
+Message-ID: <1647083701130155@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220308162939.603335-1-james.morse@arm.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -52,49 +47,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 08, 2022 at 04:29:39PM +0000, James Morse wrote:
-> The logic in commit 2a5f1b67ec57 "KVM: arm64: Don't access PMCR_EL0 when no
-> PMU is available" relies on an empty reset handler being benign.  This was
-> not the case in earlier kernel versions, so the stable backport of this
-> patch is causing problems.
-> 
-> KVMs behaviour in this area changed over time. In particular, prior to commit
-> 03fdfb269009 ("KVM: arm64: Don't write junk to sysregs on reset"), an empty
-> reset handler will trigger a warning, as the guest registers have been
-> poisoned.
-> Prior to commit 20589c8cc47d ("arm/arm64: KVM: Don't panic on failure to
-> properly reset system registers"), this warning was a panic().
-> 
-> Instead of reverting the backport, make it write 0 to the sys_reg[] array.
-> This keeps the reset logic happy, and the dodgy value can't be seen by
-> the guest as it can't request the emulation.
-> 
-> The original bug was accessing the PMCR_EL0 register on CPUs that don't
-> implement that feature. There is no known silicon that does this, but
-> v4.9's ACPI support is unable to find the PMU, so triggers this code:
-> 
-> | Kernel panic - not syncing: Didn't reset vcpu_sys_reg(24)
-> | CPU: 1 PID: 3055 Comm: lkvm Not tainted 4.9.302-00032-g64e078a56789 #13476
-> | Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Jul 30 2018
-> | Call trace:
-> | [<ffff00000808b4b0>] dump_backtrace+0x0/0x1a0
-> | [<ffff00000808b664>] show_stack+0x14/0x20
-> | [<ffff0000088f0e18>] dump_stack+0x98/0xb8
-> | [<ffff0000088eef08>] panic+0x118/0x274
-> | [<ffff0000080b50e0>] access_actlr+0x0/0x20
-> | [<ffff0000080b2620>] kvm_reset_vcpu+0x5c/0xac
-> | [<ffff0000080ac688>] kvm_arch_vcpu_ioctl+0x3e4/0x490
-> | [<ffff0000080a382c>] kvm_vcpu_ioctl+0x5b8/0x720
-> | [<ffff000008201e44>] do_vfs_ioctl+0x2f4/0x884
-> | [<ffff00000820244c>] SyS_ioctl+0x78/0x9c
-> | [<ffff000008083a9c>] __sys_trace_return+0x0/0x4
-> 
-> Cc: <stable@vger.kernel.org> # < v5.3 with 2a5f1b67ec57 backported
-> Signed-off-by: James Morse <james.morse@arm.com>
-> ---
->  arch/arm64/kvm/sys_regs.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
 
-Now queued up for 4.9, 4.14, and 4.19 kernels, thanks!
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ddbd89deb7d32b1fbb879f48d68fda1a8ac58e8e Mon Sep 17 00:00:00 2001
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Fri, 11 Feb 2022 02:12:52 +0100
+Subject: [PATCH] swiotlb: fix info leak with DMA_FROM_DEVICE
+
+The problem I'm addressing was discovered by the LTP test covering
+cve-2018-1000204.
+
+A short description of what happens follows:
+1) The test case issues a command code 00 (TEST UNIT READY) via the SG_IO
+   interface with: dxfer_len == 524288, dxdfer_dir == SG_DXFER_FROM_DEV
+   and a corresponding dxferp. The peculiar thing about this is that TUR
+   is not reading from the device.
+2) In sg_start_req() the invocation of blk_rq_map_user() effectively
+   bounces the user-space buffer. As if the device was to transfer into
+   it. Since commit a45b599ad808 ("scsi: sg: allocate with __GFP_ZERO in
+   sg_build_indirect()") we make sure this first bounce buffer is
+   allocated with GFP_ZERO.
+3) For the rest of the story we keep ignoring that we have a TUR, so the
+   device won't touch the buffer we prepare as if the we had a
+   DMA_FROM_DEVICE type of situation. My setup uses a virtio-scsi device
+   and the  buffer allocated by SG is mapped by the function
+   virtqueue_add_split() which uses DMA_FROM_DEVICE for the "in" sgs (here
+   scatter-gather and not scsi generics). This mapping involves bouncing
+   via the swiotlb (we need swiotlb to do virtio in protected guest like
+   s390 Secure Execution, or AMD SEV).
+4) When the SCSI TUR is done, we first copy back the content of the second
+   (that is swiotlb) bounce buffer (which most likely contains some
+   previous IO data), to the first bounce buffer, which contains all
+   zeros.  Then we copy back the content of the first bounce buffer to
+   the user-space buffer.
+5) The test case detects that the buffer, which it zero-initialized,
+  ain't all zeros and fails.
+
+One can argue that this is an swiotlb problem, because without swiotlb
+we leak all zeros, and the swiotlb should be transparent in a sense that
+it does not affect the outcome (if all other participants are well
+behaved).
+
+Copying the content of the original buffer into the swiotlb buffer is
+the only way I can think of to make swiotlb transparent in such
+scenarios. So let's do just that if in doubt, but allow the driver
+to tell us that the whole mapped buffer is going to be overwritten,
+in which case we can preserve the old behavior and avoid the performance
+impact of the extra bounce.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
+index 1887d92e8e92..17706dc91ec9 100644
+--- a/Documentation/core-api/dma-attributes.rst
++++ b/Documentation/core-api/dma-attributes.rst
+@@ -130,3 +130,11 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
+ subsystem that the buffer is fully accessible at the elevated privilege
+ level (and ideally inaccessible or at least read-only at the
+ lesser-privileged levels).
++
++DMA_ATTR_OVERWRITE
++------------------
++
++This is a hint to the DMA-mapping subsystem that the device is expected to
++overwrite the entire mapped size, thus the caller does not require any of the
++previous buffer contents to be preserved. This allows bounce-buffering
++implementations to optimise DMA_FROM_DEVICE transfers.
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index dca2b1355bb1..6150d11a607e 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -61,6 +61,14 @@
+  */
+ #define DMA_ATTR_PRIVILEGED		(1UL << 9)
+ 
++/*
++ * This is a hint to the DMA-mapping subsystem that the device is expected
++ * to overwrite the entire mapped size, thus the caller does not require any
++ * of the previous buffer contents to be preserved. This allows
++ * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
++ */
++#define DMA_ATTR_OVERWRITE		(1UL << 10)
++
+ /*
+  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
+  * be given to a device to use as a DMA source or target.  It is specific to a
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index f1e7ea160b43..bfc56cb21705 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -628,7 +628,8 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
+ 		mem->slots[index + i].orig_addr = slot_addr(orig_addr, i);
+ 	tlb_addr = slot_addr(mem->start, index) + offset;
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+-	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
++	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
++	    dir == DMA_BIDIRECTIONAL))
+ 		swiotlb_bounce(dev, tlb_addr, mapping_size, DMA_TO_DEVICE);
+ 	return tlb_addr;
+ }
+
