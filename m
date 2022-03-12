@@ -2,160 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3F54D6B85
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 01:46:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B65244D6BA6
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 02:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229901AbiCLArv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 19:47:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51406 "EHLO
+        id S229513AbiCLBXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 20:23:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229891AbiCLArt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 19:47:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDE127ED8A;
-        Fri, 11 Mar 2022 16:46:44 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 862A6B80E97;
-        Sat, 12 Mar 2022 00:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40408C340E9;
-        Sat, 12 Mar 2022 00:46:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1647046002;
-        bh=uk7EeWrbjIc8MIB1xzo/DOo2tXWPrFMwx6EmzSwnHLw=;
-        h=Date:To:From:Subject:From;
-        b=yXqVIE4gjSsN6neyH/mA3s9JxbkZdenltqqJsb65AjsUVEs4gqhLRrp6wtLFPILLq
-         KgEHHQmcRe+IotgjeLxVnHLNLXNJnvRjXHXnUQVK+iOrVkYQoUtsQj98c7mghbIw0i
-         +kryFqpI8/2wPGJc1AJ3rX6w48bhFJBiEseB/8KA=
-Date:   Fri, 11 Mar 2022 16:46:41 -0800
-To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
-        oleg@redhat.com, Liam.Howlett@oracle.com, hughd@google.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mempolicy-mbind_range-set_policy-after-vma_merge.patch added to -mm tree
-Message-Id: <20220312004642.40408C340E9@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229464AbiCLBXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 20:23:13 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3498B240D22;
+        Fri, 11 Mar 2022 17:22:09 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id n2so9049721plf.4;
+        Fri, 11 Mar 2022 17:22:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=pWYgEiBYOYawrjVkjtKlGXVa4e5QOFCJd9hcRju3xX8=;
+        b=moq0CsNcU+qKSsYEfwlsZME/d0xeg2VImMpQvGWcgnw4lydi31sRzzliSC+IorfqVP
+         c/50WG7e9LzvmQscmvJrxtlibnPTVXJ2PY5D4vjMVlOhuo1ciQswUDNmFgXsIfuqP/VK
+         AH+mWLxHNcpCce6Yq71uiNOw3jJTe4ASulQRj28qzkaQsFyo1iF7YHc/BCfOl7dlU7JU
+         06yehRMh5CjK0PCDnhDC6JyIofTgWjU9piX1gH8zFuVWhITM/9Blq/ld371G3Cy3vHIn
+         y/qnlLgDwpmlxtu+ifaSMhl73NwVTaJNSnlA0x7WbbvMYiddYmJW5h8dVhWs3vv6AsXI
+         zD5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=pWYgEiBYOYawrjVkjtKlGXVa4e5QOFCJd9hcRju3xX8=;
+        b=NW6sxnIlXcaOFmnmr6aBsgEkxM7/IJeXd/B3YYnSxkRUBcNRZaOhdeR91dRFpq284U
+         fa//40zcFHIjaQGnazVQDu2fdakWPoZsS1QuqnmOnsomqk31/KUQ8S+coGmvmQNrmzo8
+         OF/52MloQtUGV1qd3/ZuxoUxIGZbQHp5yTIxPUgUFpaeycP08VoSJGx3Y1x4qx5HEEL2
+         ywmE4xyYxUQSV5Z0qmUlC2oEW4DgfSh27En1cckXsn2FYMw/lENuq94OFfNBVp6ItL4S
+         e9T2EQ4aCvT/NWLGD2tSq27JygKL6SMO81Bq3cS2aXY5gRfj6M2rZBK+n9nQyprmZkgm
+         eYGQ==
+X-Gm-Message-State: AOAM531ceOsl4jAMlOnLy51moZDoO6FzVi5g3fgqfD9t9vajTPRxmqHa
+        nx2G2iVdh3Xe6VdJjLDdsuvysyF3gzq9153HKyTPTA==
+X-Google-Smtp-Source: ABdhPJzMD/iAf/t5t7VBM78cI6NgpFald40ejgQ12V8mvmtW8bmH8VTRa1loakC28Lac2gBNMNjvHw==
+X-Received: by 2002:a17:90b:3b8c:b0:1bf:8841:41e6 with SMTP id pc12-20020a17090b3b8c00b001bf884141e6mr24321386pjb.242.1647048127677;
+        Fri, 11 Mar 2022 17:22:07 -0800 (PST)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id 16-20020a17090a19d000b001c1c6b25cb2sm6086556pjj.26.2022.03.11.17.22.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Mar 2022 17:22:06 -0800 (PST)
+Message-ID: <622bf5be.1c69fb81.65cb0.f8d7@mx.google.com>
+Date:   Fri, 11 Mar 2022 17:22:06 -0800 (PST)
+X-Google-Original-Date: Sat, 12 Mar 2022 01:22:04 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
+Subject: RE: [PATCH 5.10 00/58] 5.10.105-rc2 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 10 Mar 2022 15:18:20 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.10.105 release.
+> There are 58 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.105-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-The patch titled
-     Subject: mempolicy: mbind_range() set_policy() after vma_merge()
-has been added to the -mm tree.  Its filename is
-     mempolicy-mbind_range-set_policy-after-vma_merge.patch
-
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mempolicy-mbind_range-set_policy-after-vma_merge.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mempolicy-mbind_range-set_policy-after-vma_merge.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Hugh Dickins <hughd@google.com>
-Subject: mempolicy: mbind_range() set_policy() after vma_merge()
-
-v2.6.34 commit 9d8cebd4bcd7 ("mm: fix mbind vma merge problem") introduced
-vma_merge() to mbind_range(); but unlike madvise, mlock and mprotect, it
-put a "continue" to next vma where its precedents go to update flags on
-current vma before advancing: that left vma with the wrong setting in the
-infamous vma_merge() case 8.
-
-v3.10 commit 1444f92c8498 ("mm: merging memory blocks resets mempolicy")
-tried to fix that in vma_adjust(), without fully understanding the issue.
-
-v3.11 commit 3964acd0dbec ("mm: mempolicy: fix mbind_range() &&
-vma_adjust() interaction") reverted that, and went about the fix in the
-right way, but chose to optimize out an unnecessary mpol_dup() with a
-prior mpol_equal() test.  But on tmpfs, that also pessimized out the vital
-call to its ->set_policy(), leaving the new mbind unenforced.
-
-The user visible effect was that the pages got allocated on the local
-node (happened to be 0), after the mbind() caller had specifically
-asked for them to be allocated on node 1.  There was not any page
-migration involved in the case reported: the pages simply got allocated
-on the wrong node.
-
-Just delete that optimization now (though it could be made conditional on
-vma not having a set_policy).  Also remove the "next" variable: it turned
-out to be blameless, but also pointless.
-
-Link: https://lkml.kernel.org/r/319e4db9-64ae-4bca-92f0-ade85d342ff@google.com
-Fixes: 3964acd0dbec ("mm: mempolicy: fix mbind_range() && vma_adjust() interaction")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/mempolicy.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
-
---- a/mm/mempolicy.c~mempolicy-mbind_range-set_policy-after-vma_merge
-+++ a/mm/mempolicy.c
-@@ -786,7 +786,6 @@ static int vma_replace_policy(struct vm_
- static int mbind_range(struct mm_struct *mm, unsigned long start,
- 		       unsigned long end, struct mempolicy *new_pol)
- {
--	struct vm_area_struct *next;
- 	struct vm_area_struct *prev;
- 	struct vm_area_struct *vma;
- 	int err = 0;
-@@ -801,8 +800,7 @@ static int mbind_range(struct mm_struct
- 	if (start > vma->vm_start)
- 		prev = vma;
- 
--	for (; vma && vma->vm_start < end; prev = vma, vma = next) {
--		next = vma->vm_next;
-+	for (; vma && vma->vm_start < end; prev = vma, vma = vma->vm_next) {
- 		vmstart = max(start, vma->vm_start);
- 		vmend   = min(end, vma->vm_end);
- 
-@@ -817,10 +815,6 @@ static int mbind_range(struct mm_struct
- 				 anon_vma_name(vma));
- 		if (prev) {
- 			vma = prev;
--			next = vma->vm_next;
--			if (mpol_equal(vma_policy(vma), new_pol))
--				continue;
--			/* vma_merge() joined vma && vma->next, case 8 */
- 			goto replace;
- 		}
- 		if (vma->vm_start != vmstart) {
-_
-
-Patches currently in -mm which might be from hughd@google.com are
-
-mm-fs-delete-pf_swapwrite.patch
-mm-__isolate_lru_page_prepare-in-isolate_migratepages_block.patch
-tmpfs-support-for-file-creation-time-fix.patch
-shmem-mapping_set_exiting-to-help-mapped-resilience.patch
-tmpfs-do-not-allocate-pages-on-read.patch
-mm-_install_special_mapping-apply-vm_locked_clear_mask.patch
-mempolicy-mbind_range-set_policy-after-vma_merge.patch
-mm-thp-refix-__split_huge_pmd_locked-for-migration-pmd.patch
-mm-thp-clearpagedoublemap-in-first-page_add_file_rmap.patch
-mm-delete-__clearpagewaiters.patch
-mm-filemap_unaccount_folio-large-skip-mapcount-fixup.patch
-mm-thp-fix-nr_file_mapped-accounting-in-page__file_rmap.patch
-mm-warn-on-deleting-redirtied-only-if-accounted.patch
-mm-unmap_mapping_range_tree-with-i_mmap_rwsem-shared.patch
+5.10.105-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
