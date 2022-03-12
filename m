@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 860B54D6E53
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3154D6E54
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:15:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229793AbiCLLQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Mar 2022 06:16:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51908 "EHLO
+        id S229575AbiCLLQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Mar 2022 06:16:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbiCLLQV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:16:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C69374DF5
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:15:16 -0800 (PST)
+        with ESMTP id S229633AbiCLLQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:16:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14C147938D
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:15:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1AF2CE02C1
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:15:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A77C340EB;
-        Sat, 12 Mar 2022 11:15:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A903860C3E
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:15:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05C04C340F3;
+        Sat, 12 Mar 2022 11:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647083713;
-        bh=giCuEP661mjgJ/IgL2vpUKt1S5TPg9O20V895pEl+jk=;
+        s=korg; t=1647083718;
+        bh=N3ren4pgB9WCs60rSyyTubz7XagltcxQURseGtXHXt4=;
         h=Subject:To:Cc:From:Date:From;
-        b=1ZW7fRQkvjyL7q0zKTQeVjIIZXLD8/mDCl6T4wQSLxRK76Yl5eeuzmZZOWnW/yddV
-         1jNh2Ng8GMwR2zm0M74xGqbRZg8/V7/yCeV2yF5+7x+H6oWn/wFWjcfHc6y+KkAdAS
-         zEFYEsYPagn+RMIOu2/FHideH8luRUxySs5SHiow=
-Subject: FAILED: patch "[PATCH] swiotlb: fix info leak with DMA_FROM_DEVICE" failed to apply to 5.4-stable tree
+        b=WlWT0qzS7t6zzETw+DqUq7zu/66gX1JiBh0ZLiR2y5GQNLzngmLKSpigpkfLZ77W6
+         WEFFBbiK+Rrm/618dT1TTxKNASd3u+7QRvdqiHaGOu+BBNsJODjJlJbEbZDCgDJmVF
+         LMaR2n9I2XN+nRxhAFRn1OXE5292o/m4EcUYj2Cs=
+Subject: FAILED: patch "[PATCH] swiotlb: fix info leak with DMA_FROM_DEVICE" failed to apply to 4.19-stable tree
 To:     pasic@linux.ibm.com, hch@lst.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 12 Mar 2022 12:15:02 +0100
-Message-ID: <1647083702129@kroah.com>
+Date:   Sat, 12 Mar 2022 12:15:03 +0100
+Message-ID: <164708370359223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
