@@ -2,176 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6FA4D6E5B
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0215A4D6E60
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230417AbiCLLQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Mar 2022 06:16:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54220 "EHLO
+        id S230507AbiCLLSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Mar 2022 06:18:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229983AbiCLLQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:16:55 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0395A1472
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:15:49 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 28DBCCE02C1
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:15:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 297F1C340EB;
-        Sat, 12 Mar 2022 11:15:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647083746;
-        bh=DCB4ylOt0CF7t7j+jqUfhMG/yB1MgJQWMYWPbEnzGRk=;
-        h=Subject:To:Cc:From:Date:From;
-        b=OgLzarSZtcJ26ro9a0pWZ4+winZRp10wjwDnBNpA2jtrDFiObGtinJv5+/YRcEn/J
-         cQxPCYt+jULP7Bgjsp7i9X8sgueNws3zNNpmeBRzwn9OykjA/dSU6pohObmFf7IVUo
-         9ltAR95m3lA1jOheMcb6pN32j07ZRJf72kkjGxC4=
-Subject: FAILED: patch "[PATCH] swiotlb: rework "fix info leak with DMA_FROM_DEVICE"" failed to apply to 4.9-stable tree
-To:     pasic@linux.ibm.com, hch@lst.de, torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 12 Mar 2022 12:15:16 +0100
-Message-ID: <164708371682182@kroah.com>
+        with ESMTP id S230424AbiCLLSJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:18:09 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD1F108546
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:17:04 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id 9so9750142pll.6
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:17:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Exg2jCwXUobyL0mgWMM//dcOyVJO5Tg4H3teLqO2EqI=;
+        b=suFlGSqjUb3oZpPuRcchv9og9jMgo3jfAko+jL86OwSZ4ei7YIhMMbZlQfBG5AYPWn
+         sGUtZB3VX0cfHyi3DOKP2O0Te/IOHAecjFlejrUdjQU2eJ2WbWSKpbkFT+3MGIMvQ1TR
+         YKtjE3inkQtrVkov4k2L5UrVxcFcOULBkTnCiCZk1ADjWtE/PYJeZOHMPncv4zRmMk8z
+         5irPZIyrcbnf9fziECDcfxO++ueM+75PB4Tp8/LcXolHneph0YACjDHS+2XQgk9duKXS
+         SH9GiWd3BLZp7TO+aWJZ2FObx4H4wVi7jlALXL0PBwDJ4shCApyz7WCn8gYmwRqgel/i
+         SeRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Exg2jCwXUobyL0mgWMM//dcOyVJO5Tg4H3teLqO2EqI=;
+        b=MOvVcn5GVT4sAHpUIXjr7kEXVAnvwqsKhH5s0cDhpDL/eEqe3hAXGQXu2zgpPrDzno
+         TSEzSmvcyW6VCNGph3u2+63vvZ8raj34YM7nKgbnDp2K3fBs/FdM/b5s2gpoFL8IWllg
+         aKp0S0h9S4au5Qy/hFMjungOYF1KKgxqxGEhrik9po0UJfWplayB+RhFrVl2m2Qdr7hz
+         T+TzZYpPKUGwR5kxfVYXkQDHtZPsSUYotsIbU9cTpNvqkQOkrVI0kzVgLdAH1kJ+i/k9
+         Y/yH3h7EsPLMSkA6ZuNyHc2v81Y6fW2fXrzJpO2/NcAt9TJHKw0yiw/Yys/Lg6E/0Jmh
+         hHtQ==
+X-Gm-Message-State: AOAM532yiCk73FAeGDPmtICi23me14Nf979NcIPp/v1o/seHlnLcr7rf
+        uSYABv+NuvvOTJ1KoxlfS3EQry19KpYVwHy3x0A=
+X-Google-Smtp-Source: ABdhPJyxQz+LSJ27EboazIUUeRLX5ufqH3XJvsNSFOmwUBaJZODPQj4QKpH++Nwk75JhzLbWB7qUoA==
+X-Received: by 2002:a17:903:2288:b0:153:4103:5436 with SMTP id b8-20020a170903228800b0015341035436mr5179726plh.62.1647083823791;
+        Sat, 12 Mar 2022 03:17:03 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h5-20020a056a001a4500b004f731e23491sm14557369pfv.7.2022.03.12.03.17.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Mar 2022 03:17:03 -0800 (PST)
+Message-ID: <622c812f.1c69fb81.affac.4d29@mx.google.com>
+Date:   Sat, 12 Mar 2022 03:17:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.16.y
+X-Kernelci-Kernel: v5.16.13-54-g8a3839d7a6f3
+Subject: stable-rc/linux-5.16.y baseline: 84 runs,
+ 1 regressions (v5.16.13-54-g8a3839d7a6f3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.16.y baseline: 84 runs, 1 regressions (v5.16.13-54-g8a383=
+9d7a6f3)
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From aa6f8dcbab473f3a3c7454b74caa46d36cdc5d13 Mon Sep 17 00:00:00 2001
-From: Halil Pasic <pasic@linux.ibm.com>
-Date: Sat, 5 Mar 2022 18:07:14 +0100
-Subject: [PATCH] swiotlb: rework "fix info leak with DMA_FROM_DEVICE"
-
-Unfortunately, we ended up merging an old version of the patch "fix info
-leak with DMA_FROM_DEVICE" instead of merging the latest one. Christoph
-(the swiotlb maintainer), he asked me to create an incremental fix
-(after I have pointed this out the mix up, and asked him for guidance).
-So here we go.
-
-The main differences between what we got and what was agreed are:
-* swiotlb_sync_single_for_device is also required to do an extra bounce
-* We decided not to introduce DMA_ATTR_OVERWRITE until we have exploiters
-* The implantation of DMA_ATTR_OVERWRITE is flawed: DMA_ATTR_OVERWRITE
-  must take precedence over DMA_ATTR_SKIP_CPU_SYNC
-
-Thus this patch removes DMA_ATTR_OVERWRITE, and makes
-swiotlb_sync_single_for_device() bounce unconditionally (that is, also
-when dir == DMA_TO_DEVICE) in order do avoid synchronising back stale
-data from the swiotlb buffer.
-
-Let me note, that if the size used with dma_sync_* API is less than the
-size used with dma_[un]map_*, under certain circumstances we may still
-end up with swiotlb not being transparent. In that sense, this is no
-perfect fix either.
-
-To get this bullet proof, we would have to bounce the entire
-mapping/bounce buffer. For that we would have to figure out the starting
-address, and the size of the mapping in
-swiotlb_sync_single_for_device(). While this does seem possible, there
-seems to be no firm consensus on how things are supposed to work.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
-Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
-index 17706dc91ec9..1887d92e8e92 100644
---- a/Documentation/core-api/dma-attributes.rst
-+++ b/Documentation/core-api/dma-attributes.rst
-@@ -130,11 +130,3 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
- subsystem that the buffer is fully accessible at the elevated privilege
- level (and ideally inaccessible or at least read-only at the
- lesser-privileged levels).
--
--DMA_ATTR_OVERWRITE
+Regressions Summary
 -------------------
--
--This is a hint to the DMA-mapping subsystem that the device is expected to
--overwrite the entire mapped size, thus the caller does not require any of the
--previous buffer contents to be preserved. This allows bounce-buffering
--implementations to optimise DMA_FROM_DEVICE transfers.
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index 6150d11a607e..dca2b1355bb1 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -61,14 +61,6 @@
-  */
- #define DMA_ATTR_PRIVILEGED		(1UL << 9)
- 
--/*
-- * This is a hint to the DMA-mapping subsystem that the device is expected
-- * to overwrite the entire mapped size, thus the caller does not require any
-- * of the previous buffer contents to be preserved. This allows
-- * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
-- */
--#define DMA_ATTR_OVERWRITE		(1UL << 10)
--
- /*
-  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
-  * be given to a device to use as a DMA source or target.  It is specific to a
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index bfc56cb21705..6db1c475ec82 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -627,10 +627,14 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
- 	for (i = 0; i < nr_slots(alloc_size + offset); i++)
- 		mem->slots[index + i].orig_addr = slot_addr(orig_addr, i);
- 	tlb_addr = slot_addr(mem->start, index) + offset;
--	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
--	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
--	    dir == DMA_BIDIRECTIONAL))
--		swiotlb_bounce(dev, tlb_addr, mapping_size, DMA_TO_DEVICE);
-+	/*
-+	 * When dir == DMA_FROM_DEVICE we could omit the copy from the orig
-+	 * to the tlb buffer, if we knew for sure the device will
-+	 * overwirte the entire current content. But we don't. Thus
-+	 * unconditional bounce may prevent leaking swiotlb content (i.e.
-+	 * kernel memory) to user-space.
-+	 */
-+	swiotlb_bounce(dev, tlb_addr, mapping_size, DMA_TO_DEVICE);
- 	return tlb_addr;
- }
- 
-@@ -697,10 +701,13 @@ void swiotlb_tbl_unmap_single(struct device *dev, phys_addr_t tlb_addr,
- void swiotlb_sync_single_for_device(struct device *dev, phys_addr_t tlb_addr,
- 		size_t size, enum dma_data_direction dir)
- {
--	if (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL)
--		swiotlb_bounce(dev, tlb_addr, size, DMA_TO_DEVICE);
--	else
--		BUG_ON(dir != DMA_FROM_DEVICE);
-+	/*
-+	 * Unconditional bounce is necessary to avoid corruption on
-+	 * sync_*_for_cpu or dma_ummap_* when the device didn't overwrite
-+	 * the whole lengt of the bounce buffer.
-+	 */
-+	swiotlb_bounce(dev, tlb_addr, size, DMA_TO_DEVICE);
-+	BUG_ON(!valid_dma_direction(dir));
- }
- 
- void swiotlb_sync_single_for_cpu(struct device *dev, phys_addr_t tlb_addr,
 
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.16.y/ker=
+nel/v5.16.13-54-g8a3839d7a6f3/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.16.y
+  Describe: v5.16.13-54-g8a3839d7a6f3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8a3839d7a6f38d700fead63c3976116e5172ba62 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/622c4e97f81263e8e3c629d6
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
+3-54-g8a3839d7a6f3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
+3-54-g8a3839d7a6f3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/622c4e97f81263e8e3c629fb
+        failing since 5 days (last pass: v5.16.12, first fail: v5.16.12-166=
+-g373826da847f)
+
+    2022-03-12T07:40:51.874866  <8>[   32.621217] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-12T07:40:52.898118  /lava-5864366/1/../bin/lava-test-case
+    2022-03-12T07:40:52.908814  <8>[   33.656455] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
