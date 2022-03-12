@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0890D4D6E46
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:01:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A2774D6E47
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:01:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbiCLLCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Mar 2022 06:02:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59584 "EHLO
+        id S230329AbiCLLCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Mar 2022 06:02:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230190AbiCLLCU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:02:20 -0500
+        with ESMTP id S230190AbiCLLCa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:02:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66C601680B2
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:01:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEC5181E46
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:01:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EADEE60B2A
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:01:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED730C340EB;
-        Sat, 12 Mar 2022 11:01:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95CCB60B2A
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A38EEC340EB;
+        Sat, 12 Mar 2022 11:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647082874;
-        bh=dEIhdRUNFGkKTlO/saPri6M6cV5qU/IDFGBrvM0pUPk=;
+        s=korg; t=1647082883;
+        bh=n+rlpOAeVBxUYw6Zc+1ONd0BIy3Ek02rqifDs2IUgW0=;
         h=Subject:To:Cc:From:Date:From;
-        b=bDqbig2WTHv7jgCRf/eCpvQCAaJ8xKF5EUDYFNLXQiF97y4plPwL3wStKA7GLobsi
-         QGjZYzD/vwGnjHZUY1gc6AxYwdNvxUQDo8p/oqSrPpUHCCP29vcYdPkodP6a7yoRJw
-         D9qjz/6R/KSNUtXxIlpxigl1UvBKSvh3oOEUAA+c=
-Subject: FAILED: patch "[PATCH] fuse: fix pipe buffer lifetime for direct_io" failed to apply to 4.9-stable tree
+        b=GPXrUS1XyF5oJmYGQRu0yRUc3Tq1xXBlFXQ+3flvvEGkgHRqKtuEkrG5upcTMiXH1
+         g8fAPgLLZSKmSrPh4S+gK9JPWqT1UFnKjGDire3t45PLvMjNprI8fx23TAPOBANbYW
+         kMHvkX+WF7UNN88KUFZLfwzzBonzl/ZCsJak3aAg=
+Subject: FAILED: patch "[PATCH] fuse: fix pipe buffer lifetime for direct_io" failed to apply to 4.19-stable tree
 To:     mszeredi@redhat.com, jannh@google.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 12 Mar 2022 12:01:10 +0100
-Message-ID: <1647082870246213@kroah.com>
+Date:   Sat, 12 Mar 2022 12:01:11 +0100
+Message-ID: <1647082871227245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
