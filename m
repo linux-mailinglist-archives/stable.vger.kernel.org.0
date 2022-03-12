@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABD64D6D5E
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 09:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B74854D6D66
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 09:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231301AbiCLICI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Mar 2022 03:02:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46480 "EHLO
+        id S231325AbiCLICY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Mar 2022 03:02:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbiCLICI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 03:02:08 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D02AF1C60F7;
-        Sat, 12 Mar 2022 00:01:02 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id n15so9534916plh.2;
-        Sat, 12 Mar 2022 00:01:02 -0800 (PST)
+        with ESMTP id S231322AbiCLICN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 03:02:13 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4887E1C60F4;
+        Sat, 12 Mar 2022 00:01:06 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id rm8-20020a17090b3ec800b001c55791fdb1so2360365pjb.1;
+        Sat, 12 Mar 2022 00:01:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=aJ14arsAul3SlLt5mlCzJmi9KKQVjgoCLUM8tJyemVY=;
-        b=Rx0qKg3baqW/uNf8ysd4E/DRmNDFNzF6LEYtmukVJ3oV8H0UEDJjdnqPZeLu836L+s
-         Scu+YSLf1W26bk6SiFNLTMyUSynsX/14rAvQ8aeL5cafvxulb7iTABFmkJiskSKAfEx7
-         JJ/yPkI+dj8bP9twRnIUoz6kw7XosrRWZD6GUzNUlGyBtqH3ROy5FgPLmMZv8orHqjr9
-         zZBqAN2gQxmyPFo9yCutkvjuKM2eUx0nf7p5pC67VTFNvGCKDzYbDgusVNU43U11R+v8
-         ieh+ak9dD03iySRInaPpPc6dL6PtSDFTw2TLY7ynr91m4FJbcS4ohHaTGHdDG6sqQlE9
-         wDYA==
+        bh=i1vvPwlpfuQTivIygVJ0iEU+hr/Vo/mRbffopkdNd3M=;
+        b=b4GOHk3KU5ITlaxZK//kEcv5lR2uVvCeC7UVGUgeQDeaUSLcngDarBfdwsyRV/KK+L
+         CWtyUCjjfh00toPB1p4qdpcgukw4AaEaaZKkwKrZPeqTner6kIIJZVCcRpuI4vzMqiw+
+         vNgmAA1DXjYxiNPli+vlSkvnafIuhyu29/NXmYfOhgVh1uyDxNEy/aX6rZy8OxsxbR1w
+         9yr9jLuc4/owObnvKOJjsEP6sMx/gAISG8ZZQ1H0SXUG7U2+j0BqvISOwAAXnu5gs51L
+         /F1fllaDdAgna73VanGgiWQuUAB35JvRntWQG+qrUyVo+4x/IFLL9pCaMuHX2LNeFzWs
+         YdVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=aJ14arsAul3SlLt5mlCzJmi9KKQVjgoCLUM8tJyemVY=;
-        b=Y70p1i0B+Cqp3i9mkXLMGC1DUv6N1INf2Jp0ei9OJJtLpjqtdqViz1dk3nE1hwhcS+
-         QlCKCnbdKGxpOvCH54SrhmYsJqPymA8CxvO8H2Ls3zK5hYhYWUdKfqJJNIjvPFHKWcF5
-         cjCXVqoSe/p5hSwUHIWoPBE4WrwFF/PtxMtR8BJiiAs1uYoyU/QJbq6HMBWDeDwgLf/u
-         ZSRn6a6vAcY6XUz9+XyzQMUQgeRsja+o/HAuQl1ymBOu6+qihj2ojk/t/ikS0RLg75Al
-         KUkyxXfqQlmFNSWKeAA0dMw1cgxP/EmR/s0wqw4aECGUWzgrWApFWNRkcoojHUCBNoFD
-         Cdqw==
-X-Gm-Message-State: AOAM5315azHNII175/e4D2D5emRErKtjYjgDvkcCGkrXg7IlnpAyY01I
-        I9QwvQIy57IS76ew1B7aGF+o4vNTi9wzEw==
-X-Google-Smtp-Source: ABdhPJyp2t3Ou5Q9cha/XqAUvJCGqRao8Ahz2XT5Cr7Sfta/1FzGxYP6hFEQ7Ze/GExzTvr62RIBHw==
-X-Received: by 2002:a17:903:41c8:b0:151:bf44:ba9d with SMTP id u8-20020a17090341c800b00151bf44ba9dmr14022641ple.160.1647072061976;
-        Sat, 12 Mar 2022 00:01:01 -0800 (PST)
+        bh=i1vvPwlpfuQTivIygVJ0iEU+hr/Vo/mRbffopkdNd3M=;
+        b=aiEYnRs1jCeTZaDY+HwyyaYP9Q1lbPq7UKryngBSJ6ojE5tt4rKJY2s60Fiui3kDLg
+         ucBBKtVDU6mRleiNtJ+SUWJieCHSlR0BPjjowjTh25n1kKfswIExuoHrtLNxFaTvxLff
+         dQmL6lX33MfqL2rI78tVfJ9Bfs8BA+dJQxz6wi2apB6kX2cdNAwydBlCNrjdEOK42I8c
+         +db+U5Kjc7IYC7M3xUpusbFzyXFv8j/6vKu/PcOgLpd5gWOZm6PD7c3c8VBTj0rSFOe6
+         aZlln64yx0BfW/SB9hX9NVm1fAknx1vfmDTrrFR6ommkNRSoWIbPgxABoFguUYgNZMSl
+         f4jg==
+X-Gm-Message-State: AOAM533W1GhyYwElgMC+Y11RX0rvG+C37wrXeEeR3LsOj9ZO9fMQN5K1
+        sIHWvnBSFTBF3q9ZLa8DADYD8vMwH5Y4IQ==
+X-Google-Smtp-Source: ABdhPJy8RhZ5FEu0HXcHH4ppavZ15gdvvKVvGwlfgb3RDMzCeW3xxHAWswIlWB/+4DPlirg+BxscmA==
+X-Received: by 2002:a17:90b:3ec8:b0:1c5:68d3:1883 with SMTP id rm8-20020a17090b3ec800b001c568d31883mr4642895pjb.201.1647072065449;
+        Sat, 12 Mar 2022 00:01:05 -0800 (PST)
 Received: from ubuntu.mate (subs02-180-214-232-88.three.co.id. [180.214.232.88])
-        by smtp.gmail.com with ESMTPSA id x33-20020a056a0018a100b004f71b6a8698sm13025141pfh.169.2022.03.12.00.00.59
+        by smtp.gmail.com with ESMTPSA id x33-20020a056a0018a100b004f71b6a8698sm13025141pfh.169.2022.03.12.00.01.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Mar 2022 00:01:01 -0800 (PST)
+        Sat, 12 Mar 2022 00:01:04 -0800 (PST)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     linux-doc@vger.kernel.org
 Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
@@ -54,9 +54,9 @@ Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
         Sasha Levin <sashal@kernel.org>,
         Jonathan Corbet <corbet@lwn.net>, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] Documentation: make option lists subsection of "Procedure for submitting patches to the -stable tree" in stable-kernel-rules.rst
-Date:   Sat, 12 Mar 2022 15:00:40 +0700
-Message-Id: <20220312080043.37581-2-bagasdotme@gmail.com>
+Subject: [PATCH 2/4] Documentation: update stable review cycle documentation
+Date:   Sat, 12 Mar 2022 15:00:41 +0700
+Message-Id: <20220312080043.37581-3-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220312080043.37581-1-bagasdotme@gmail.com>
 References: <20220312080043.37581-1-bagasdotme@gmail.com>
@@ -72,13 +72,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The table of contents generated for stable-kernel-rules.rst contains
-"For all other submissions..." section, that includes options
-subsections. These options subsections should have been subsections of
-"Procedure for submitting patches..." section. Remove the redundant
-section.
+In recent times, the review cycle for stable releases have been changed.
+In particular, there is release candidate phase between ACKing patches
+and new stable release. Also, in case of failed submissions (fail to
+apply to stable tree), manual backport (Option 3) have to be submitted
+instead.
 
-Also, convert note about security patches to use `.. note::` block.
+Update the release cycle documentation on stable-kernel-rules.rst to
+reflect the above.
 
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Sasha Levin <sashal@kernel.org>
@@ -87,30 +88,49 @@ Cc: stable@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- Documentation/process/stable-kernel-rules.rst | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ Documentation/process/stable-kernel-rules.rst | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/Documentation/process/stable-kernel-rules.rst b/Documentation/process/stable-kernel-rules.rst
-index 003c865e9c2..d8ce4c0c775 100644
+index d8ce4c0c775..c0c87d87f7d 100644
 --- a/Documentation/process/stable-kernel-rules.rst
 +++ b/Documentation/process/stable-kernel-rules.rst
-@@ -35,12 +35,13 @@ Rules on what kind of patches are accepted, and which ones are not, into the
- Procedure for submitting patches to the -stable tree
- ----------------------------------------------------
+@@ -139,6 +139,9 @@ Following the submission:
+    days, according to the developer's schedules.
+  - If accepted, the patch will be added to the -stable queue, for review by
+    other developers and by the relevant subsystem maintainer.
++ - Some submitted patches may fail to apply to -stable tree. When this is the
++   case, the maintainer will reply to the sender requesting the backport.
++   If no backport is made, the submission will be ignored.
  
-- - Security patches should not be handled (solely) by the -stable review
-+.. note::
-+
-+   Security patches should not be handled (solely) by the -stable review
-    process but should follow the procedures in
-    :ref:`Documentation/admin-guide/security-bugs.rst <securitybugs>`.
  
--For all other submissions, choose one of the following procedures
-------------------------------------------------------------------
-+There are three options:
- 
- .. _option_1:
- 
+ Review cycle
+@@ -147,13 +150,22 @@ Review cycle
+  - When the -stable maintainers decide for a review cycle, the patches will be
+    sent to the review committee, and the maintainer of the affected area of
+    the patch (unless the submitter is the maintainer of the area) and CC: to
+-   the linux-kernel mailing list.
++   the linux-kernel mailing list. Patches are prefixed with either ``[PATCH
++   AUTOSEL]`` (for automatically selected patches) or ``[PATCH MANUALSEL]``
++   for manually backported patches.
+  - The review committee has 48 hours in which to ACK or NAK the patch.
+  - If the patch is rejected by a member of the committee, or linux-kernel
+    members object to the patch, bringing up issues that the maintainers and
+    members did not realize, the patch will be dropped from the queue.
+- - At the end of the review cycle, the ACKed patches will be added to the
+-   latest -stable release, and a new -stable release will happen.
++ - The ACKed patches will be posted again as part of release candidate (-rc)
++   to be tested by developers and users willing to test (testers). When
++   testing all went OK, they can give Tested-by: tag for the -rc. Usually
++   only one -rc release is made, however if there are any outstanding
++   issues, some patches may be modified or dropped or additional patches may
++   be queued. Additional -rc releases are then released and tested until no
++   issues are found.
++ - At the end of the review cycle, the new -stable release will be released
++   containing all the queued and tested patches.
+  - Security patches will be accepted into the -stable tree directly from the
+    security kernel team, and not go through the normal review cycle.
+    Contact the kernel security team for more details on this procedure.
 -- 
 An old man doll... just what I always wanted! - Clara
 
