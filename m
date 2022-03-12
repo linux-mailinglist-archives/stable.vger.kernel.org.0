@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5244D6E52
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:15:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 860B54D6E53
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:15:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230058AbiCLLQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Mar 2022 06:16:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51536 "EHLO
+        id S229793AbiCLLQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Mar 2022 06:16:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbiCLLQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:16:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BD96D4D5
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:15:12 -0800 (PST)
+        with ESMTP id S229575AbiCLLQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:16:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C69374DF5
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:15:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18C99B82DE2
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:15:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13862C340EB;
-        Sat, 12 Mar 2022 11:15:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C1AF2CE02C1
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 11:15:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A77C340EB;
+        Sat, 12 Mar 2022 11:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647083709;
-        bh=X0u+A8+S4EDYNfsozpTT0efbAMBPcFw4vu03HYOAYZc=;
+        s=korg; t=1647083713;
+        bh=giCuEP661mjgJ/IgL2vpUKt1S5TPg9O20V895pEl+jk=;
         h=Subject:To:Cc:From:Date:From;
-        b=NDw1uVKQ6uQg3pG0NxGR3H4ElrQvqrjeOpA/oMvYWcVHIOxpiyL0K0O8DPYgoSvLL
-         5VkvD8yzGuHJxSezeoj3gsAtuSS8HBo6njnWpPCRDoEstgH3td8b0Q+hu1Jnpe5i3c
-         FKZ8SZajxSpa73ktff4WbHSviF5hLhJFDcq2l5Ho=
-Subject: FAILED: patch "[PATCH] swiotlb: fix info leak with DMA_FROM_DEVICE" failed to apply to 5.10-stable tree
+        b=1ZW7fRQkvjyL7q0zKTQeVjIIZXLD8/mDCl6T4wQSLxRK76Yl5eeuzmZZOWnW/yddV
+         1jNh2Ng8GMwR2zm0M74xGqbRZg8/V7/yCeV2yF5+7x+H6oWn/wFWjcfHc6y+KkAdAS
+         zEFYEsYPagn+RMIOu2/FHideH8luRUxySs5SHiow=
+Subject: FAILED: patch "[PATCH] swiotlb: fix info leak with DMA_FROM_DEVICE" failed to apply to 5.4-stable tree
 To:     pasic@linux.ibm.com, hch@lst.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 12 Mar 2022 12:15:01 +0100
-Message-ID: <1647083701130155@kroah.com>
+Date:   Sat, 12 Mar 2022 12:15:02 +0100
+Message-ID: <1647083702129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
