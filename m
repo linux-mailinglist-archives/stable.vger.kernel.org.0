@@ -2,97 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B65244D6BA6
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 02:22:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C897A4D6BB2
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 02:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229513AbiCLBXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Mar 2022 20:23:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52548 "EHLO
+        id S229889AbiCLBlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Mar 2022 20:41:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229464AbiCLBXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 20:23:13 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3498B240D22;
-        Fri, 11 Mar 2022 17:22:09 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id n2so9049721plf.4;
-        Fri, 11 Mar 2022 17:22:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=pWYgEiBYOYawrjVkjtKlGXVa4e5QOFCJd9hcRju3xX8=;
-        b=moq0CsNcU+qKSsYEfwlsZME/d0xeg2VImMpQvGWcgnw4lydi31sRzzliSC+IorfqVP
-         c/50WG7e9LzvmQscmvJrxtlibnPTVXJ2PY5D4vjMVlOhuo1ciQswUDNmFgXsIfuqP/VK
-         AH+mWLxHNcpCce6Yq71uiNOw3jJTe4ASulQRj28qzkaQsFyo1iF7YHc/BCfOl7dlU7JU
-         06yehRMh5CjK0PCDnhDC6JyIofTgWjU9piX1gH8zFuVWhITM/9Blq/ld371G3Cy3vHIn
-         y/qnlLgDwpmlxtu+ifaSMhl73NwVTaJNSnlA0x7WbbvMYiddYmJW5h8dVhWs3vv6AsXI
-         zD5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=pWYgEiBYOYawrjVkjtKlGXVa4e5QOFCJd9hcRju3xX8=;
-        b=NW6sxnIlXcaOFmnmr6aBsgEkxM7/IJeXd/B3YYnSxkRUBcNRZaOhdeR91dRFpq284U
-         fa//40zcFHIjaQGnazVQDu2fdakWPoZsS1QuqnmOnsomqk31/KUQ8S+coGmvmQNrmzo8
-         OF/52MloQtUGV1qd3/ZuxoUxIGZbQHp5yTIxPUgUFpaeycP08VoSJGx3Y1x4qx5HEEL2
-         ywmE4xyYxUQSV5Z0qmUlC2oEW4DgfSh27En1cckXsn2FYMw/lENuq94OFfNBVp6ItL4S
-         e9T2EQ4aCvT/NWLGD2tSq27JygKL6SMO81Bq3cS2aXY5gRfj6M2rZBK+n9nQyprmZkgm
-         eYGQ==
-X-Gm-Message-State: AOAM531ceOsl4jAMlOnLy51moZDoO6FzVi5g3fgqfD9t9vajTPRxmqHa
-        nx2G2iVdh3Xe6VdJjLDdsuvysyF3gzq9153HKyTPTA==
-X-Google-Smtp-Source: ABdhPJzMD/iAf/t5t7VBM78cI6NgpFald40ejgQ12V8mvmtW8bmH8VTRa1loakC28Lac2gBNMNjvHw==
-X-Received: by 2002:a17:90b:3b8c:b0:1bf:8841:41e6 with SMTP id pc12-20020a17090b3b8c00b001bf884141e6mr24321386pjb.242.1647048127677;
-        Fri, 11 Mar 2022 17:22:07 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id 16-20020a17090a19d000b001c1c6b25cb2sm6086556pjj.26.2022.03.11.17.22.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Mar 2022 17:22:06 -0800 (PST)
-Message-ID: <622bf5be.1c69fb81.65cb0.f8d7@mx.google.com>
-Date:   Fri, 11 Mar 2022 17:22:06 -0800 (PST)
-X-Google-Original-Date: Sat, 12 Mar 2022 01:22:04 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220310140812.869208747@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 00/58] 5.10.105-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229447AbiCLBlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Mar 2022 20:41:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE31724FE7C;
+        Fri, 11 Mar 2022 17:40:11 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ED9561620;
+        Sat, 12 Mar 2022 01:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AAC2DC340EE;
+        Sat, 12 Mar 2022 01:40:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647049210;
+        bh=SL14ucMY0664sEX8YQjuCnVMCkZwZLl/4EypFG6lkho=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=jiTaJjfyU6oBcSgFN9FuCROZR2v8qVMKIjRljXUpk6hPqvXi/39rt/AY/igBOOHjU
+         TjsouEcQWrUXSHbWo6j+YR2K5eZkX+iFkQM0/Vai6BREwIQvrCNkO6BKYUvgOHoEFx
+         oAEioDTKGZonPqCcL2ojfX5DxaR10ISar7pqIEbBAjXBhk+uLovlmoiEcB99jgRhQq
+         FXQULQVp2NCRPeMSPAAT3cdtHTNhObiIvUK59aDADzQ1Gz7kCnyII0rGzTrmT0hhIc
+         ySZYLdRwNZ8Z0zuQE1MFPQ1Rw37Ex9VlwD16DD3UqpcRk4ZnfT1N7nhbyhSG7QVEmn
+         tukMpaI//POFA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 83303E6D3DD;
+        Sat, 12 Mar 2022 01:40:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v3] net: ipv6: fix skb_over_panic in __ip6_append_data
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164704921053.16208.7597460524504713837.git-patchwork-notify@kernel.org>
+Date:   Sat, 12 Mar 2022 01:40:10 +0000
+References: <20220310232538.1044947-1-tadeusz.struk@linaro.org>
+In-Reply-To: <20220310232538.1044947-1-tadeusz.struk@linaro.org>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     kuba@kernel.org, willemdebruijn.kernel@gmail.com,
+        davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 10 Mar 2022 15:18:20 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.105 release.
-> There are 58 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 12 Mar 2022 14:07:58 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.105-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Hello:
 
-5.10.105-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+This patch was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu, 10 Mar 2022 15:25:38 -0800 you wrote:
+> Syzbot found a kernel bug in the ipv6 stack:
+> LINK: https://syzkaller.appspot.com/bug?id=205d6f11d72329ab8d62a610c44c5e7e25415580
+> The reproducer triggers it by sending a crafted message via sendmmsg()
+> call, which triggers skb_over_panic, and crashes the kernel:
+> 
+> skbuff: skb_over_panic: text:ffffffff84647fb4 len:65575 put:65575
+> head:ffff888109ff0000 data:ffff888109ff0088 tail:0x100af end:0xfec0
+> dev:<NULL>
+> 
+> [...]
+
+Here is the summary with links:
+  - [v3] net: ipv6: fix skb_over_panic in __ip6_append_data
+    https://git.kernel.org/netdev/net/c/5e34af4142ff
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
