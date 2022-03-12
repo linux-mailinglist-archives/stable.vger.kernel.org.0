@@ -2,67 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0215A4D6E60
-	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 12:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFFD4D6ECC
+	for <lists+stable@lfdr.de>; Sat, 12 Mar 2022 14:11:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230507AbiCLLSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Mar 2022 06:18:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57714 "EHLO
+        id S229993AbiCLNMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Mar 2022 08:12:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230424AbiCLLSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 06:18:09 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD1F108546
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:17:04 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id 9so9750142pll.6
-        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 03:17:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Exg2jCwXUobyL0mgWMM//dcOyVJO5Tg4H3teLqO2EqI=;
-        b=suFlGSqjUb3oZpPuRcchv9og9jMgo3jfAko+jL86OwSZ4ei7YIhMMbZlQfBG5AYPWn
-         sGUtZB3VX0cfHyi3DOKP2O0Te/IOHAecjFlejrUdjQU2eJ2WbWSKpbkFT+3MGIMvQ1TR
-         YKtjE3inkQtrVkov4k2L5UrVxcFcOULBkTnCiCZk1ADjWtE/PYJeZOHMPncv4zRmMk8z
-         5irPZIyrcbnf9fziECDcfxO++ueM+75PB4Tp8/LcXolHneph0YACjDHS+2XQgk9duKXS
-         SH9GiWd3BLZp7TO+aWJZ2FObx4H4wVi7jlALXL0PBwDJ4shCApyz7WCn8gYmwRqgel/i
-         SeRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Exg2jCwXUobyL0mgWMM//dcOyVJO5Tg4H3teLqO2EqI=;
-        b=MOvVcn5GVT4sAHpUIXjr7kEXVAnvwqsKhH5s0cDhpDL/eEqe3hAXGQXu2zgpPrDzno
-         TSEzSmvcyW6VCNGph3u2+63vvZ8raj34YM7nKgbnDp2K3fBs/FdM/b5s2gpoFL8IWllg
-         aKp0S0h9S4au5Qy/hFMjungOYF1KKgxqxGEhrik9po0UJfWplayB+RhFrVl2m2Qdr7hz
-         T+TzZYpPKUGwR5kxfVYXkQDHtZPsSUYotsIbU9cTpNvqkQOkrVI0kzVgLdAH1kJ+i/k9
-         Y/yH3h7EsPLMSkA6ZuNyHc2v81Y6fW2fXrzJpO2/NcAt9TJHKw0yiw/Yys/Lg6E/0Jmh
-         hHtQ==
-X-Gm-Message-State: AOAM532yiCk73FAeGDPmtICi23me14Nf979NcIPp/v1o/seHlnLcr7rf
-        uSYABv+NuvvOTJ1KoxlfS3EQry19KpYVwHy3x0A=
-X-Google-Smtp-Source: ABdhPJyxQz+LSJ27EboazIUUeRLX5ufqH3XJvsNSFOmwUBaJZODPQj4QKpH++Nwk75JhzLbWB7qUoA==
-X-Received: by 2002:a17:903:2288:b0:153:4103:5436 with SMTP id b8-20020a170903228800b0015341035436mr5179726plh.62.1647083823791;
-        Sat, 12 Mar 2022 03:17:03 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h5-20020a056a001a4500b004f731e23491sm14557369pfv.7.2022.03.12.03.17.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Mar 2022 03:17:03 -0800 (PST)
-Message-ID: <622c812f.1c69fb81.affac.4d29@mx.google.com>
-Date:   Sat, 12 Mar 2022 03:17:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229681AbiCLNME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Mar 2022 08:12:04 -0500
+Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F649235875
+        for <stable@vger.kernel.org>; Sat, 12 Mar 2022 05:10:58 -0800 (PST)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 001DB5C0098;
+        Sat, 12 Mar 2022 08:10:54 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 12 Mar 2022 08:10:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; bh=kOtvz2k18IzVoH02/bqs/g5FdJ3leY8d1uUIsd
+        FYmXk=; b=eQ3h3yW9FLQgpGuRCgv3l/DwTHulBsHfNZolPV7XVStPYejF8rpof+
+        B+q57R9BW2ld1YO6HWSL6gE8TA13OpLfEpBDTm9AOnvBPnkie6MQHWYSWZap2Jzd
+        Ihj4efVdh8WbpfzLIRZdBK5BZhXFCruotKWAX6tvd9CA9j3SdktwRipwLJvUecjq
+        2VCNamnPZHRsiiEche1I0qYxRwT6C6k8yhmauiQgYa07Hq5wsmZn0Zu62TJYXvK7
+        ygrceHLxlFOHO5LJ3VrnzUU6v4AHZk9RZ1ATBuCs1J4tnr8ttCqMF8d47pbqdBtO
+        1fs0d4sR5UvdOOfM9RKXUr1aQlIpawBg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=kOtvz2k18IzVoH02/
+        bqs/g5FdJ3leY8d1uUIsdFYmXk=; b=dXQhJ0rploR52nngTlkkyIKfUol4elJrY
+        kT4ay2WIAqBOanEcSrPVQjPZsDVHdxf8VRWA7EGylZxZZen655ZPYA9/lrh9FurA
+        Yj9yEJUYmQwwmt7wTiLN3tg4a9avfHdmlPdIyYwk7xyZ+KR4Wv6e/1sgR9qDkPic
+        9LuZBY4HZ7o73c6QdP6V/x0alV6f+g7eNpIbueStvaNmepMzVu8Uxz9jLODWPY59
+        GEplqKkFwEljz/TB+oMCehK2K2+0o06+HVpF+eyzKGb6E3bBpvHd16aPQ2GIaQ5d
+        B4Qh6YycVAZ8sgcrxYc+iKgo81r/0z2cF4NWqNfK/YphGxdE2N8oQ==
+X-ME-Sender: <xms:3pssYtm8ps423gPUT4H1J2AhtkgbeTOR-e_Yr2cgBZS5vMUFqiMALg>
+    <xme:3pssYo16q1gzO07WU5Mdbzxqd_FipGQOs53w4FdR1fE4FCISZV4G0GQx2xSjtJz3z
+    _v39aL50MGoPA>
+X-ME-Received: <xmr:3pssYjo0eggeWFmK4kfhActiEruJLEH3mMOPHURj4rCMkIXIprqgaDOlAMLhEkGBXb3VUK6yOqXIjfCWbnGCe7mfSzl-rLXR>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddvgedggeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:3pssYtnETx2CJHwql2u7M7etb-wNEaYueLR6NbgO9waaMX32huYrxA>
+    <xmx:3pssYr2KIQic4CEfBYChzvmMJqJEPWIVVVQLaX9u535utCSZrdu-tw>
+    <xmx:3pssYst8EOZbDQrc2ka_BfBGIGOqd5py4ZS7pjqLQXmXQO87N1sWww>
+    <xmx:3pssYmSOhd6zcksaVpTT1d3sVMS_yg0Ux6CC88rJquh6mcFMkoKebw>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 12 Mar 2022 08:10:53 -0500 (EST)
+Date:   Sat, 12 Mar 2022 14:10:51 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Sven Eckelmann <sven@narfation.org>
+Cc:     stable@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
+Subject: Re: [PATCH 4.9 0/2] batman-adv: Fixes for stable/linux-4.9.y
+Message-ID: <Yiyb2yeRFTfFiEsc@kroah.com>
+References: <20220309164542.408824-1-sven@narfation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.16.y
-X-Kernelci-Kernel: v5.16.13-54-g8a3839d7a6f3
-Subject: stable-rc/linux-5.16.y baseline: 84 runs,
- 1 regressions (v5.16.13-54-g8a3839d7a6f3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220309164542.408824-1-sven@narfation.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,72 +79,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.16.y baseline: 84 runs, 1 regressions (v5.16.13-54-g8a383=
-9d7a6f3)
+On Wed, Mar 09, 2022 at 05:45:40PM +0100, Sven Eckelmann wrote:
+> Hi,
+> 
+> following two patches were backported "automatically" applied in
+> 4.14.y, 4.19.y, 5.4.y, 5.10.y, 5.5.y and 5.16.y. But they failed
+> to apply cleanly in v4.9.y due to some changes in the patch context
+> and one missing function in the older batman-adv version.
+> 
+> These problems were now fixed manually.
+> 
+> Kind regards,
+> 	Sven
+> 
+> Sven Eckelmann (2):
+>   batman-adv: Request iflink once in batadv-on-batadv check
+>   batman-adv: Don't expect inter-netns unique iflink indices
+> 
+>  net/batman-adv/hard-interface.c | 13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
+> 
+> -- 
+> 2.30.2
+> 
 
-Regressions Summary
--------------------
+Both now queued up, thanks.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.16.y/ker=
-nel/v5.16.13-54-g8a3839d7a6f3/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.16.y
-  Describe: v5.16.13-54-g8a3839d7a6f3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8a3839d7a6f38d700fead63c3976116e5172ba62 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/622c4e97f81263e8e3c629d6
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
-3-54-g8a3839d7a6f3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
-3-54-g8a3839d7a6f3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/622c4e97f81263e8e3c629fb
-        failing since 5 days (last pass: v5.16.12, first fail: v5.16.12-166=
--g373826da847f)
-
-    2022-03-12T07:40:51.874866  <8>[   32.621217] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-12T07:40:52.898118  /lava-5864366/1/../bin/lava-test-case
-    2022-03-12T07:40:52.908814  <8>[   33.656455] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+greg k-h
