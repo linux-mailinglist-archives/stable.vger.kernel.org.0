@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 190244D8300
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31E144D8465
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236738AbiCNMMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34816 "EHLO
+        id S232267AbiCNMYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:24:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242473AbiCNMKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:10:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7708F193F3;
-        Mon, 14 Mar 2022 05:08:29 -0700 (PDT)
+        with ESMTP id S243926AbiCNMVY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B2713CE1;
+        Mon, 14 Mar 2022 05:18:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D27896130F;
-        Mon, 14 Mar 2022 12:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C38A7C340E9;
-        Mon, 14 Mar 2022 12:08:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AECCB80DF2;
+        Mon, 14 Mar 2022 12:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82EFC340ED;
+        Mon, 14 Mar 2022 12:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259708;
-        bh=/gwCmlsi5Q06s9CqoiM/ulAmAa9EkDtF9xcqhREj8NM=;
+        s=korg; t=1647260304;
+        bh=5+Ft8NqKxW8P9GQwxVhJpiNyjBI1KpvTOwGzitr6tus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZ2kAYsZWn5pGBpEMTOGlyOGug1JtEFIp1uW7+pqTdKtyHXafWNyZGzTY/34kQlZj
-         6WwLccZ+5+JHLgo2SLT7gQxITSzk021s6Prgs3SMrzFid3GWp/KtBSZMFOfIsy+4/r
-         husk1lPFUwdw4+oooPQ5x/wjqqTmQQ1qk/MV/E6c=
+        b=Q6JZWC94C6eeUGXfk1b/DJBMIN0ksZ8cC9vR09lhXJDtTHEnH0N6x1jLVe1+f4PK7
+         kovJqKA7AZ/ZxTtoi5LoQ1Ze9VRxz1M0lE5K5f+btdYO22Vm6cdA1whVBoVS5DXtzj
+         mp8+vqjyt7PkO1i1rFjS3Htv+Y6fRYL0WlcP37ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 070/110] tracing: Ensure trace buffer is at least 4096 bytes large
-Date:   Mon, 14 Mar 2022 12:54:12 +0100
-Message-Id: <20220314112744.989605523@linuxfoundation.org>
+Subject: [PATCH 5.16 070/121] x86/kvm: Dont use pv tlb/ipi/sched_yield if on 1 vCPU
+Date:   Mon, 14 Mar 2022 12:54:13 +0100
+Message-Id: <20220314112746.077423912@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 7acf3a127bb7c65ff39099afd78960e77b2ca5de ]
+[ Upstream commit ec756e40e271866f951d77c5e923d8deb6002b15 ]
 
-Booting the kernel with 'trace_buf_size=1' give a warning at
-boot during the ftrace selftests:
+Inspired by commit 3553ae5690a (x86/kvm: Don't use pvqspinlock code if
+only 1 vCPU), on a VM with only 1 vCPU, there is no need to enable
+pv tlb/ipi/sched_yield and we can save the memory for __pv_cpu_mask.
 
-[    0.892809] Running postponed tracer tests:
-[    0.892893] Testing tracer function:
-[    0.901899] Callback from call_rcu_tasks_trace() invoked.
-[    0.983829] Callback from call_rcu_tasks_rude() invoked.
-[    1.072003] .. bad ring buffer .. corrupted trace buffer ..
-[    1.091944] Callback from call_rcu_tasks() invoked.
-[    1.097695] PASSED
-[    1.097701] Testing dynamic ftrace: .. filter failed count=0 ..FAILED!
-[    1.353474] ------------[ cut here ]------------
-[    1.353478] WARNING: CPU: 0 PID: 1 at kernel/trace/trace.c:1951 run_tracer_selftest+0x13c/0x1b0
-
-Therefore enforce a minimum of 4096 bytes to make the selftest pass.
-
-Link: https://lkml.kernel.org/r/20220214134456.1751749-1-svens@linux.ibm.com
-
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1645171838-2855-1-git-send-email-wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/x86/kernel/kvm.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 86fb77c2ace5..01002656f1ae 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1496,10 +1496,12 @@ static int __init set_buf_size(char *str)
- 	if (!str)
- 		return 0;
- 	buf_size = memparse(str, &str);
--	/* nr_entries can not be zero */
--	if (buf_size == 0)
--		return 0;
--	trace_buf_size = buf_size;
-+	/*
-+	 * nr_entries can not be zero and the startup
-+	 * tests require some buffer space. Therefore
-+	 * ensure we have at least 4096 bytes of buffer.
-+	 */
-+	trace_buf_size = max(4096UL, buf_size);
- 	return 1;
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 59abbdad7729..ff3db164e52c 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -462,19 +462,22 @@ static bool pv_tlb_flush_supported(void)
+ {
+ 	return (kvm_para_has_feature(KVM_FEATURE_PV_TLB_FLUSH) &&
+ 		!kvm_para_has_hint(KVM_HINTS_REALTIME) &&
+-		kvm_para_has_feature(KVM_FEATURE_STEAL_TIME));
++		kvm_para_has_feature(KVM_FEATURE_STEAL_TIME) &&
++		(num_possible_cpus() != 1));
  }
- __setup("trace_buf_size=", set_buf_size);
+ 
+ static bool pv_ipi_supported(void)
+ {
+-	return kvm_para_has_feature(KVM_FEATURE_PV_SEND_IPI);
++	return (kvm_para_has_feature(KVM_FEATURE_PV_SEND_IPI) &&
++	       (num_possible_cpus() != 1));
+ }
+ 
+ static bool pv_sched_yield_supported(void)
+ {
+ 	return (kvm_para_has_feature(KVM_FEATURE_PV_SCHED_YIELD) &&
+ 		!kvm_para_has_hint(KVM_HINTS_REALTIME) &&
+-	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME));
++	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME) &&
++	    (num_possible_cpus() != 1));
+ }
+ 
+ #define KVM_IPI_CLUSTER_SIZE	(2 * BITS_PER_LONG)
 -- 
 2.34.1
 
