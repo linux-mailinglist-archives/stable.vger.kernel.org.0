@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 389504D8431
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E93FA4D8346
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241631AbiCNMXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:23:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
+        id S241120AbiCNMM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242757AbiCNMTi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3DE50067;
-        Mon, 14 Mar 2022 05:14:41 -0700 (PDT)
+        with ESMTP id S242231AbiCNMJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F2F25E89;
+        Mon, 14 Mar 2022 05:06:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABB5FB80D24;
-        Mon, 14 Mar 2022 12:14:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE3CAC340ED;
-        Mon, 14 Mar 2022 12:14:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 299D4612FD;
+        Mon, 14 Mar 2022 12:06:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40EAAC340E9;
+        Mon, 14 Mar 2022 12:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260070;
-        bh=J+Mcl10zyPpXgAkuHU6RkLOihHsQk3ZLF8tcHkwuWgM=;
+        s=korg; t=1647259613;
+        bh=3FhezaPON0nLfiY9z9jFopos8vB+LldRGOfGCo24UzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBsgJsIrSFBgjPMSEYEJiShDWqmAjyuAzmgWFwJesMBkvcr8SHgsaBTLC1Oo2L5f7
-         eBvlt9DqiFrtfLkkXT8hKBXUc9nRw7c//aYu9GSTVb2YxyIkrlFu+8CuhV752oPIGg
-         ZeNpuWJ0bpg3VrfSZcQc9EpuGzCbH7xwQFReCvYE=
+        b=kRcvR7/wPkkRCNZsSOhAqt4KJ0ja8CXjpRE8l+jOEc8Yh5T/0RJMLolUxNIqoJnqt
+         qryezP0efjumEXXKiSBZ2mkMle3KzuKPiVVz7qV6+xLnsyKHCKkuqk2stAwDRM2ipj
+         OoAjiYdC3iiJSmHBWvsZzjmoPVUwh9b05vD5/ftA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 047/121] net/mlx5e: Lag, Only handle events from highest priority multipath entry
-Date:   Mon, 14 Mar 2022 12:53:50 +0100
-Message-Id: <20220314112745.440328160@linuxfoundation.org>
+Subject: [PATCH 5.15 049/110] sctp: fix kernel-infoleak for SCTP sockets
+Date:   Mon, 14 Mar 2022 12:53:51 +0100
+Message-Id: <20220314112744.405643096@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +59,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ad11c4f1d8fd1f03639460e425a36f7fd0ea83f5 ]
+[ Upstream commit 633593a808980f82d251d0ca89730d8bb8b0220c ]
 
-There could be multiple multipath entries but changing the port affinity
-for each one doesn't make much sense and there should be a default one.
-So only track the entry with lowest priority value.
-The commit doesn't affect existing users with a single entry.
+syzbot reported a kernel infoleak [1] of 4 bytes.
 
-Fixes: 544fe7c2e654 ("net/mlx5e: Activate HW multipath and handle port affinity based on FIB events")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+After analysis, it turned out r->idiag_expires is not initialized
+if inet_sctp_diag_fill() calls inet_diag_msg_common_fill()
+
+Make sure to clear idiag_timer/idiag_retrans/idiag_expires
+and let inet_diag_msg_sctpasoc_fill() fill them again if needed.
+
+[1]
+
+BUG: KMSAN: kernel-infoleak in instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+BUG: KMSAN: kernel-infoleak in copyout lib/iov_iter.c:154 [inline]
+BUG: KMSAN: kernel-infoleak in _copy_to_iter+0x6ef/0x25a0 lib/iov_iter.c:668
+ instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+ copyout lib/iov_iter.c:154 [inline]
+ _copy_to_iter+0x6ef/0x25a0 lib/iov_iter.c:668
+ copy_to_iter include/linux/uio.h:162 [inline]
+ simple_copy_to_iter+0xf3/0x140 net/core/datagram.c:519
+ __skb_datagram_iter+0x2d5/0x11b0 net/core/datagram.c:425
+ skb_copy_datagram_iter+0xdc/0x270 net/core/datagram.c:533
+ skb_copy_datagram_msg include/linux/skbuff.h:3696 [inline]
+ netlink_recvmsg+0x669/0x1c80 net/netlink/af_netlink.c:1977
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ __sys_recvfrom+0x795/0xa10 net/socket.c:2097
+ __do_sys_recvfrom net/socket.c:2115 [inline]
+ __se_sys_recvfrom net/socket.c:2111 [inline]
+ __x64_sys_recvfrom+0x19d/0x210 net/socket.c:2111
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:737 [inline]
+ slab_alloc_node mm/slub.c:3247 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4975
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1158 [inline]
+ netlink_dump+0x3e5/0x16c0 net/netlink/af_netlink.c:2248
+ __netlink_dump_start+0xcf8/0xe90 net/netlink/af_netlink.c:2373
+ netlink_dump_start include/linux/netlink.h:254 [inline]
+ inet_diag_handler_cmd+0x2e7/0x400 net/ipv4/inet_diag.c:1341
+ sock_diag_rcv_msg+0x24a/0x620
+ netlink_rcv_skb+0x40c/0x7e0 net/netlink/af_netlink.c:2494
+ sock_diag_rcv+0x63/0x80 net/core/sock_diag.c:277
+ netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
+ netlink_unicast+0x1093/0x1360 net/netlink/af_netlink.c:1343
+ netlink_sendmsg+0x14d9/0x1720 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ sock_write_iter+0x594/0x690 net/socket.c:1061
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_write+0x52c/0x1500 fs/read_write.c:851
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Bytes 68-71 of 2508 are uninitialized
+Memory access of size 2508 starts at ffff888114f9b000
+Data copied to user address 00007f7fe09ff2e0
+
+CPU: 1 PID: 3478 Comm: syz-executor306 Not tainted 5.17.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 8f840e47f190 ("sctp: add the sctp_diag.c file")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Vlad Yasevich <vyasevich@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/20220310001145.297371-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ net/sctp/diag.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c
-index 1ca01a5b6cdd..626aa60b6099 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c
-@@ -126,6 +126,10 @@ static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
- 		return;
+diff --git a/net/sctp/diag.c b/net/sctp/diag.c
+index 034e2c74497d..d9c6d8f30f09 100644
+--- a/net/sctp/diag.c
++++ b/net/sctp/diag.c
+@@ -61,10 +61,6 @@ static void inet_diag_msg_sctpasoc_fill(struct inet_diag_msg *r,
+ 		r->idiag_timer = SCTP_EVENT_TIMEOUT_T3_RTX;
+ 		r->idiag_retrans = asoc->rtx_data_chunks;
+ 		r->idiag_expires = jiffies_to_msecs(t3_rtx->expires - jiffies);
+-	} else {
+-		r->idiag_timer = 0;
+-		r->idiag_retrans = 0;
+-		r->idiag_expires = 0;
+ 	}
+ }
+ 
+@@ -144,13 +140,14 @@ static int inet_sctp_diag_fill(struct sock *sk, struct sctp_association *asoc,
+ 	r = nlmsg_data(nlh);
+ 	BUG_ON(!sk_fullsock(sk));
+ 
++	r->idiag_timer = 0;
++	r->idiag_retrans = 0;
++	r->idiag_expires = 0;
+ 	if (asoc) {
+ 		inet_diag_msg_sctpasoc_fill(r, sk, asoc);
+ 	} else {
+ 		inet_diag_msg_common_fill(r, sk);
+ 		r->idiag_state = sk->sk_state;
+-		r->idiag_timer = 0;
+-		r->idiag_retrans = 0;
  	}
  
-+	/* Handle multipath entry with lower priority value */
-+	if (mp->mfi && mp->mfi != fi && fi->fib_priority >= mp->mfi->fib_priority)
-+		return;
-+
- 	/* Handle add/replace event */
- 	nhs = fib_info_num_path(fi);
- 	if (nhs == 1) {
-@@ -135,12 +139,13 @@ static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
- 			int i = mlx5_lag_dev_get_netdev_idx(ldev, nh_dev);
- 
- 			if (i < 0)
--				i = MLX5_LAG_NORMAL_AFFINITY;
--			else
--				++i;
-+				return;
- 
-+			i++;
- 			mlx5_lag_set_port_affinity(ldev, i);
- 		}
-+
-+		mp->mfi = fi;
- 		return;
- 	}
- 
+ 	if (inet_diag_msg_attrs_fill(sk, skb, r, ext, user_ns, net_admin))
 -- 
 2.34.1
 
