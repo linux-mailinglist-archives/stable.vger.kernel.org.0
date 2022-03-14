@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E144D8465
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8B94D8338
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232267AbiCNMYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:24:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51434 "EHLO
+        id S241168AbiCNMM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243926AbiCNMVY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B2713CE1;
-        Mon, 14 Mar 2022 05:18:27 -0700 (PDT)
+        with ESMTP id S242484AbiCNMKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:10:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4EC2018A;
+        Mon, 14 Mar 2022 05:08:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AECCB80DF2;
-        Mon, 14 Mar 2022 12:18:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82EFC340ED;
-        Mon, 14 Mar 2022 12:18:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7A0FDCE1268;
+        Mon, 14 Mar 2022 12:08:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFB24C340EC;
+        Mon, 14 Mar 2022 12:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260304;
-        bh=5+Ft8NqKxW8P9GQwxVhJpiNyjBI1KpvTOwGzitr6tus=;
+        s=korg; t=1647259713;
+        bh=vIPXqAjDyhWI4A6J1UsnGGCoO+/UCR49RtAaOfr2sCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q6JZWC94C6eeUGXfk1b/DJBMIN0ksZ8cC9vR09lhXJDtTHEnH0N6x1jLVe1+f4PK7
-         kovJqKA7AZ/ZxTtoi5LoQ1Ze9VRxz1M0lE5K5f+btdYO22Vm6cdA1whVBoVS5DXtzj
-         mp8+vqjyt7PkO1i1rFjS3Htv+Y6fRYL0WlcP37ss=
+        b=hQNJMXYk3pmXMOo2MDQawVqGY0V7xiWkAXA0S10EC56zwqoa1P4d9E3xBEU1DtKru
+         5aUOHPH8deDZsnTpWZHvIxCQULdplPic/uooXOgrkkE3bR+TXCtgBmztBh6puSWi6c
+         dSo+xHRq1n2pp+UaE57RXI6Lhle03BEmmizYEuhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 070/121] x86/kvm: Dont use pv tlb/ipi/sched_yield if on 1 vCPU
+Subject: [PATCH 5.15 071/110] tracing/osnoise: Make osnoise_main to sleep for microseconds
 Date:   Mon, 14 Mar 2022 12:54:13 +0100
-Message-Id: <20220314112746.077423912@linuxfoundation.org>
+Message-Id: <20220314112745.017200899@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-[ Upstream commit ec756e40e271866f951d77c5e923d8deb6002b15 ]
+[ Upstream commit dd990352f01ee9a6c6eee152e5d11c021caccfe4 ]
 
-Inspired by commit 3553ae5690a (x86/kvm: Don't use pvqspinlock code if
-only 1 vCPU), on a VM with only 1 vCPU, there is no need to enable
-pv tlb/ipi/sched_yield and we can save the memory for __pv_cpu_mask.
+osnoise's runtime and period are in the microseconds scale, but it is
+currently sleeping in the millisecond's scale. This behavior roots in the
+usage of hwlat as the skeleton for osnoise.
 
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1645171838-2855-1-git-send-email-wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Make osnoise to sleep in the microseconds scale. Also, move the sleep to
+a specialized function.
+
+Link: https://lkml.kernel.org/r/302aa6c7bdf2d131719b22901905e9da122a11b2.1645197336.git.bristot@kernel.org
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kvm.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/trace/trace_osnoise.c | 53 ++++++++++++++++++++++--------------
+ 1 file changed, 32 insertions(+), 21 deletions(-)
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 59abbdad7729..ff3db164e52c 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -462,19 +462,22 @@ static bool pv_tlb_flush_supported(void)
- {
- 	return (kvm_para_has_feature(KVM_FEATURE_PV_TLB_FLUSH) &&
- 		!kvm_para_has_hint(KVM_HINTS_REALTIME) &&
--		kvm_para_has_feature(KVM_FEATURE_STEAL_TIME));
-+		kvm_para_has_feature(KVM_FEATURE_STEAL_TIME) &&
-+		(num_possible_cpus() != 1));
- }
+diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
+index 65a518649997..fc491d0aee5a 100644
+--- a/kernel/trace/trace_osnoise.c
++++ b/kernel/trace/trace_osnoise.c
+@@ -1249,6 +1249,37 @@ static int run_osnoise(void)
+ static struct cpumask osnoise_cpumask;
+ static struct cpumask save_cpumask;
  
- static bool pv_ipi_supported(void)
++/*
++ * osnoise_sleep - sleep until the next period
++ */
++static void osnoise_sleep(void)
++{
++	u64 interval;
++	ktime_t wake_time;
++
++	mutex_lock(&interface_lock);
++	interval = osnoise_data.sample_period - osnoise_data.sample_runtime;
++	mutex_unlock(&interface_lock);
++
++	/*
++	 * differently from hwlat_detector, the osnoise tracer can run
++	 * without a pause because preemption is on.
++	 */
++	if (!interval) {
++		/* Let synchronize_rcu_tasks() make progress */
++		cond_resched_tasks_rcu_qs();
++		return;
++	}
++
++	wake_time = ktime_add_us(ktime_get(), interval);
++	__set_current_state(TASK_INTERRUPTIBLE);
++
++	while (schedule_hrtimeout_range(&wake_time, 0, HRTIMER_MODE_ABS)) {
++		if (kthread_should_stop())
++			break;
++	}
++}
++
+ /*
+  * osnoise_main - The osnoise detection kernel thread
+  *
+@@ -1257,30 +1288,10 @@ static struct cpumask save_cpumask;
+  */
+ static int osnoise_main(void *data)
  {
--	return kvm_para_has_feature(KVM_FEATURE_PV_SEND_IPI);
-+	return (kvm_para_has_feature(KVM_FEATURE_PV_SEND_IPI) &&
-+	       (num_possible_cpus() != 1));
- }
+-	u64 interval;
  
- static bool pv_sched_yield_supported(void)
- {
- 	return (kvm_para_has_feature(KVM_FEATURE_PV_SCHED_YIELD) &&
- 		!kvm_para_has_hint(KVM_HINTS_REALTIME) &&
--	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME));
-+	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME) &&
-+	    (num_possible_cpus() != 1));
- }
+ 	while (!kthread_should_stop()) {
+-
+ 		run_osnoise();
+-
+-		mutex_lock(&interface_lock);
+-		interval = osnoise_data.sample_period - osnoise_data.sample_runtime;
+-		mutex_unlock(&interface_lock);
+-
+-		do_div(interval, USEC_PER_MSEC);
+-
+-		/*
+-		 * differently from hwlat_detector, the osnoise tracer can run
+-		 * without a pause because preemption is on.
+-		 */
+-		if (interval < 1) {
+-			/* Let synchronize_rcu_tasks() make progress */
+-			cond_resched_tasks_rcu_qs();
+-			continue;
+-		}
+-
+-		if (msleep_interruptible(interval))
+-			break;
++		osnoise_sleep();
+ 	}
  
- #define KVM_IPI_CLUSTER_SIZE	(2 * BITS_PER_LONG)
+ 	return 0;
 -- 
 2.34.1
 
