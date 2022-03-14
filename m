@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8B94D8338
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9184D8464
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241168AbiCNMM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49016 "EHLO
+        id S241228AbiCNMYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:24:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242484AbiCNMKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:10:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4EC2018A;
-        Mon, 14 Mar 2022 05:08:37 -0700 (PDT)
+        with ESMTP id S243927AbiCNMVY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 885F013CE3;
+        Mon, 14 Mar 2022 05:18:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7A0FDCE1268;
-        Mon, 14 Mar 2022 12:08:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFB24C340EC;
-        Mon, 14 Mar 2022 12:08:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D20460DBB;
+        Mon, 14 Mar 2022 12:18:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E5E9C340E9;
+        Mon, 14 Mar 2022 12:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259713;
-        bh=vIPXqAjDyhWI4A6J1UsnGGCoO+/UCR49RtAaOfr2sCw=;
+        s=korg; t=1647260309;
+        bh=q+lhG1LbNNKewQbXq+2r/4a0Q5Up4I/iuuciJ9Y6sGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQNJMXYk3pmXMOo2MDQawVqGY0V7xiWkAXA0S10EC56zwqoa1P4d9E3xBEU1DtKru
-         5aUOHPH8deDZsnTpWZHvIxCQULdplPic/uooXOgrkkE3bR+TXCtgBmztBh6puSWi6c
-         dSo+xHRq1n2pp+UaE57RXI6Lhle03BEmmizYEuhg=
+        b=fkvkhLruCmAGlcmSZHYckWMyCt8KkM1oCvo46Fos0ltRUSDJ7WnNq33jFgMJG3yDO
+         Xr8KHp5ay/nZmr4mZ2OcxFm5z72QbBPiiZdLl+XWxDizGUzGDSZ3Xi/+hM61ZcvNyH
+         JXzGX5sKzjEoqPUaCu+CTEgcLxad9HcaUzwdzmHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/110] tracing/osnoise: Make osnoise_main to sleep for microseconds
-Date:   Mon, 14 Mar 2022 12:54:13 +0100
-Message-Id: <20220314112745.017200899@linuxfoundation.org>
+Subject: [PATCH 5.16 071/121] drivers: hamradio: 6pack: fix UAF bug caused by mod_timer()
+Date:   Mon, 14 Mar 2022 12:54:14 +0100
+Message-Id: <20220314112746.104980888@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@kernel.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit dd990352f01ee9a6c6eee152e5d11c021caccfe4 ]
+[ Upstream commit efe4186e6a1b54bf38b9e05450d43b0da1fd7739 ]
 
-osnoise's runtime and period are in the microseconds scale, but it is
-currently sleeping in the millisecond's scale. This behavior roots in the
-usage of hwlat as the skeleton for osnoise.
+When a 6pack device is detaching, the sixpack_close() will act to cleanup
+necessary resources. Although del_timer_sync() in sixpack_close()
+won't return if there is an active timer, one could use mod_timer() in
+sp_xmit_on_air() to wake up timer again by calling userspace syscall such
+as ax25_sendmsg(), ax25_connect() and ax25_ioctl().
 
-Make osnoise to sleep in the microseconds scale. Also, move the sleep to
-a specialized function.
+This unexpected waked handler, sp_xmit_on_air(), realizes nothing about
+the undergoing cleanup and may still call pty_write() to use driver layer
+resources that have already been released.
 
-Link: https://lkml.kernel.org/r/302aa6c7bdf2d131719b22901905e9da122a11b2.1645197336.git.bristot@kernel.org
+One of the possible race conditions is shown below:
 
-Cc: Ingo Molnar <mingo@redhat.com>
-Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+      (USE)                      |      (FREE)
+ax25_sendmsg()                   |
+ ax25_queue_xmit()               |
+  ...                            |
+  sp_xmit()                      |
+   sp_encaps()                   | sixpack_close()
+    sp_xmit_on_air()             |  del_timer_sync(&sp->tx_t)
+     mod_timer(&sp->tx_t,...)    |  ...
+                                 |  unregister_netdev()
+                                 |  ...
+     (wait a while)              | tty_release()
+                                 |  tty_release_struct()
+                                 |   release_tty()
+    sp_xmit_on_air()             |    tty_kref_put(tty_struct) //FREE
+     pty_write(tty_struct) //USE |    ...
+
+The corresponding fail log is shown below:
+===============================================================
+BUG: KASAN: use-after-free in __run_timers.part.0+0x170/0x470
+Write of size 8 at addr ffff88800a652ab8 by task swapper/2/0
+...
+Call Trace:
+  ...
+  queue_work_on+0x3f/0x50
+  pty_write+0xcd/0xe0pty_write+0xcd/0xe0
+  sp_xmit_on_air+0xb2/0x1f0
+  call_timer_fn+0x28/0x150
+  __run_timers.part.0+0x3c2/0x470
+  run_timer_softirq+0x3b/0x80
+  __do_softirq+0xf1/0x380
+  ...
+
+This patch reorders the del_timer_sync() after the unregister_netdev()
+to avoid UAF bugs. Because the unregister_netdev() is well synchronized,
+it flushs out any pending queues, waits the refcount of net_device
+decreases to zero and removes net_device from kernel. There is not any
+running routines after executing unregister_netdev(). Therefore, we could
+not arouse timer from userspace again.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_osnoise.c | 53 ++++++++++++++++++++++--------------
- 1 file changed, 32 insertions(+), 21 deletions(-)
+ drivers/net/hamradio/6pack.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
-index 65a518649997..fc491d0aee5a 100644
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1249,6 +1249,37 @@ static int run_osnoise(void)
- static struct cpumask osnoise_cpumask;
- static struct cpumask save_cpumask;
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 8a19a06b505d..ff2bb3d80fac 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -668,11 +668,11 @@ static void sixpack_close(struct tty_struct *tty)
+ 	 */
+ 	netif_stop_queue(sp->dev);
  
-+/*
-+ * osnoise_sleep - sleep until the next period
-+ */
-+static void osnoise_sleep(void)
-+{
-+	u64 interval;
-+	ktime_t wake_time;
++	unregister_netdev(sp->dev);
 +
-+	mutex_lock(&interface_lock);
-+	interval = osnoise_data.sample_period - osnoise_data.sample_runtime;
-+	mutex_unlock(&interface_lock);
-+
-+	/*
-+	 * differently from hwlat_detector, the osnoise tracer can run
-+	 * without a pause because preemption is on.
-+	 */
-+	if (!interval) {
-+		/* Let synchronize_rcu_tasks() make progress */
-+		cond_resched_tasks_rcu_qs();
-+		return;
-+	}
-+
-+	wake_time = ktime_add_us(ktime_get(), interval);
-+	__set_current_state(TASK_INTERRUPTIBLE);
-+
-+	while (schedule_hrtimeout_range(&wake_time, 0, HRTIMER_MODE_ABS)) {
-+		if (kthread_should_stop())
-+			break;
-+	}
-+}
-+
- /*
-  * osnoise_main - The osnoise detection kernel thread
-  *
-@@ -1257,30 +1288,10 @@ static struct cpumask save_cpumask;
-  */
- static int osnoise_main(void *data)
- {
--	u64 interval;
+ 	del_timer_sync(&sp->tx_t);
+ 	del_timer_sync(&sp->resync_t);
  
- 	while (!kthread_should_stop()) {
+-	unregister_netdev(sp->dev);
 -
- 		run_osnoise();
--
--		mutex_lock(&interface_lock);
--		interval = osnoise_data.sample_period - osnoise_data.sample_runtime;
--		mutex_unlock(&interface_lock);
--
--		do_div(interval, USEC_PER_MSEC);
--
--		/*
--		 * differently from hwlat_detector, the osnoise tracer can run
--		 * without a pause because preemption is on.
--		 */
--		if (interval < 1) {
--			/* Let synchronize_rcu_tasks() make progress */
--			cond_resched_tasks_rcu_qs();
--			continue;
--		}
--
--		if (msleep_interruptible(interval))
--			break;
-+		osnoise_sleep();
- 	}
- 
- 	return 0;
+ 	/* Free all 6pack frame buffers after unreg. */
+ 	kfree(sp->rbuff);
+ 	kfree(sp->xbuff);
 -- 
 2.34.1
 
