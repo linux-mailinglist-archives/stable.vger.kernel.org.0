@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C49974D822B
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 099A04D82C2
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240154AbiCNMBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:01:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39490 "EHLO
+        id S240552AbiCNMLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:11:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240200AbiCNMAr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:00:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FC2648E70;
-        Mon, 14 Mar 2022 04:58:51 -0700 (PDT)
+        with ESMTP id S242306AbiCNMJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A1626ADB;
+        Mon, 14 Mar 2022 05:07:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6280A6120D;
-        Mon, 14 Mar 2022 11:58:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31DDAC340E9;
-        Mon, 14 Mar 2022 11:58:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5ABA5B80DEC;
+        Mon, 14 Mar 2022 12:07:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AB9C340E9;
+        Mon, 14 Mar 2022 12:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259111;
-        bh=MAIlccY/RJd+CCFZzl14X9+ucrvVWEJotG4GzCGGkX8=;
+        s=korg; t=1647259620;
+        bh=rg6mB/XZeyc4/94kQYCm4veWrHrTIgQhki3atHfiu7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2eTnrXTxpVJmQqLvBCJ3Y2R09nM7ppD+wcA76qqbcJ1/oR73TrNBPqgJFjJBGa6QO
-         SVLTvNaY1irLoD7gHW4ruAtdXgWWinoYm/XCZPww/KqFsKbUC4ZwkUXQbap19ekDMy
-         Z0WOt1VyFRawHeYzI1LjXyciWde2J/nxBzdRnz6M=
+        b=lt1LJ11zVOHvfNz135VdE1eXlp60KDPZHfPJ5XYhaP+ELjpUY0CqOTu9b0obWfRz3
+         kfZvex04kU+PTUHo6xi34lZIIYCr/f8EL5/nZaVSemZFhQxDZWro7Hqr/Fa/KHTecG
+         weL4TnJGF36SWijsWHp+jGgqRzrvUahGp2ZQsSz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Liam Merwick <liam.merwick@oracle.com>
-Subject: [PATCH 5.4 42/43] x86/mm/pat: Dont flush cache if hardware enforces cache coherency across encryption domnains
+        stable@vger.kernel.org, Erico Nunes <nunes.erico@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 051/110] net: phy: meson-gxl: improve link-up behavior
 Date:   Mon, 14 Mar 2022 12:53:53 +0100
-Message-Id: <20220314112735.599916628@linuxfoundation.org>
+Message-Id: <20220314112744.461533566@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 75d1cc0e05af579301ce4e49cf6399be4b4e6e76 upstream.
+[ Upstream commit 2c87c6f9fbddc5b84d67b2fa3f432fcac6d99d93 ]
 
-In some hardware implementations, coherency between the encrypted and
-unencrypted mappings of the same physical page is enforced. In such a
-system, it is not required for software to flush the page from all CPU
-caches in the system prior to changing the value of the C-bit for the
-page. So check that bit before flushing the cache.
+Sometimes the link comes up but no data flows. This patch fixes
+this behavior. It's not clear what's the root cause of the issue.
 
- [ bp: Massage commit message. ]
+According to the tests one other link-up issue remains.
+In very rare cases the link isn't even reported as up.
 
-Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200917212038.5090-3-krish.sadhukhan@oracle.com
-Signed-off-by: Liam Merwick <liam.merwick@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 84c8f773d2dc ("net: phy: meson-gxl: remove the use of .ack_callback()")
+Tested-by: Erico Nunes <nunes.erico@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/e3473452-a1f9-efcf-5fdd-02b6f44c3fcd@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pageattr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/meson-gxl.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/arch/x86/mm/pageattr.c
-+++ b/arch/x86/mm/pageattr.c
-@@ -1967,7 +1967,7 @@ static int __set_memory_enc_dec(unsigned
- 	/*
- 	 * Before changing the encryption attribute, we need to flush caches.
- 	 */
--	cpa_flush(&cpa, 1);
-+	cpa_flush(&cpa, !this_cpu_has(X86_FEATURE_SME_COHERENT));
+diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
+index c49062ad72c6..73f7962a37d3 100644
+--- a/drivers/net/phy/meson-gxl.c
++++ b/drivers/net/phy/meson-gxl.c
+@@ -243,7 +243,13 @@ static irqreturn_t meson_gxl_handle_interrupt(struct phy_device *phydev)
+ 	    irq_status == INTSRC_ENERGY_DETECT)
+ 		return IRQ_HANDLED;
  
- 	ret = __change_page_attr_set_clr(&cpa, 1);
+-	phy_trigger_machine(phydev);
++	/* Give PHY some time before MAC starts sending data. This works
++	 * around an issue where network doesn't come up properly.
++	 */
++	if (!(irq_status & INTSRC_LINK_DOWN))
++		phy_queue_state_machine(phydev, msecs_to_jiffies(100));
++	else
++		phy_trigger_machine(phydev);
  
+ 	return IRQ_HANDLED;
+ }
+-- 
+2.34.1
+
 
 
