@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58E134D82D6
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA7F04D8455
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240715AbiCNMLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
+        id S241960AbiCNMXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242788AbiCNMKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:10:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C752FFD8;
-        Mon, 14 Mar 2022 05:09:41 -0700 (PDT)
+        with ESMTP id S243733AbiCNMVL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6536B3630D;
+        Mon, 14 Mar 2022 05:16:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E0326130D;
-        Mon, 14 Mar 2022 12:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BB79C340EC;
-        Mon, 14 Mar 2022 12:09:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3ED60919;
+        Mon, 14 Mar 2022 12:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6598C340E9;
+        Mon, 14 Mar 2022 12:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259780;
-        bh=nK0fHhUPWtbyhA90lBEgj/JeM/L8D0Uaf85ZTdj+OQ8=;
+        s=korg; t=1647260209;
+        bh=46/45yPv03Vd7wdgIs0qyefA6DBhuuWV8uHgW4390cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IrAyqss/n6dCN9gcOqXtEHoEKdqADVti7fLkVwq53URpBLE4Y51Qszy/0FkugprHc
-         NehWa5i2IBHc0Crobw4cwpP3mbsQGetz6QJMfV4y8W8L6sK21xGDbc7k5TiKYpf1lr
-         VgMscDKj6CahxDgJZtIn37KwSLBnGOs9nz0U0zmo=
+        b=V6hxRWcgrI8QfXRpKMuIMf2VC6k1X7WAYwVmzvt3Mxysfwh8qXfFXjsmKrcn7vDHC
+         WHcWj0/qZzNo88hgSatSHycrwFaFz5VHg7uX7tLeIEe8NFgQB+B5LknOc2R0frVRaL
+         Fa9PbF7Mgqos22z8u5PA1OdFE0Xsc1sQTdjxotRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Andrei Vagin <avagin@gmail.com>
-Subject: [PATCH 5.15 088/110] KVM: x86/mmu: kvm_faultin_pfn has to return false if pfh is returned
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jean-Pierre=20Andr=C3=A9?= <jean-pierre.andre@wanadoo.fr>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.16 087/121] fuse: fix fileattr op failure
 Date:   Mon, 14 Mar 2022 12:54:30 +0100
-Message-Id: <20220314112745.487207310@linuxfoundation.org>
+Message-Id: <20220314112746.547149171@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@gmail.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit a7cc099f2ec3117678adeb69749bef7e9dde3148 upstream.
+commit a679a61520d8a7b0211a1da990404daf5cc80b72 upstream.
 
-This looks like a typo in 8f32d5e563cb. This change didn't intend to do
-any functional changes.
+The fileattr API conversion broke lsattr on ntfs3g.
 
-The problem was caught by gVisor tests.
+Previously the ioctl(... FS_IOC_GETFLAGS) returned an EINVAL error, but
+after the conversion the error returned by the fuse filesystem was not
+propagated back to the ioctl() system call, resulting in success being
+returned with bogus values.
 
-Fixes: 8f32d5e563cb ("KVM: x86/mmu: allow kvm_faultin_pfn to return page fault handling code")
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Message-Id: <20211015163221.472508-1-avagin@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fix by checking for outarg.result in fuse_priv_ioctl(), just as generic
+ioctl code does.
+
+Reported-by: Jean-Pierre André <jean-pierre.andre@wanadoo.fr>
+Fixes: 72227eac177d ("fuse: convert to fileattr")
+Cc: <stable@vger.kernel.org> # v5.13
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/fuse/ioctl.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -3967,6 +3967,7 @@ static bool kvm_faultin_pfn(struct kvm_v
+--- a/fs/fuse/ioctl.c
++++ b/fs/fuse/ioctl.c
+@@ -394,9 +394,12 @@ static int fuse_priv_ioctl(struct inode
+ 	args.out_args[1].value = ptr;
  
- 	*pfn = __gfn_to_pfn_memslot(slot, gfn, false, NULL,
- 				    write, writable, hva);
-+	return false;
+ 	err = fuse_simple_request(fm, &args);
+-	if (!err && outarg.flags & FUSE_IOCTL_RETRY)
+-		err = -EIO;
+-
++	if (!err) {
++		if (outarg.result < 0)
++			err = outarg.result;
++		else if (outarg.flags & FUSE_IOCTL_RETRY)
++			err = -EIO;
++	}
+ 	return err;
+ }
  
- out_retry:
- 	*r = RET_PF_RETRY;
 
 
