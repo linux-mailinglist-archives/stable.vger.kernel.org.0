@@ -2,102 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E10AE4D8E90
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 22:12:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B6B4D8EA9
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 22:30:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245227AbiCNVNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 17:13:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59258 "EHLO
+        id S243364AbiCNVbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 17:31:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235370AbiCNVNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 17:13:07 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2763DA66;
-        Mon, 14 Mar 2022 14:11:57 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id s8so16141079pfk.12;
-        Mon, 14 Mar 2022 14:11:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Y4FlVNs2QdYZ1hne9SFHL7s6tiC0DTzsD4q8fehyHAk=;
-        b=KCpsYH6/c6Jp29jpMKE4KyHqYxxKhJaIadavFbMEYpu2qfW6zFbq5MkfuHiWME/0Jq
-         zb+pv1ToRhrXK5AZZqXoUMoSq9L1TEMtw46pX0XoZJ8Vbc5iOUIHZRBLz5yE7G9GXZt4
-         7jdkA2kVOlAyrHRx00gUZgQTZBK3mO/2w5Njl/aZN51oWB6IldRHTnjgsI8s03wyyeEr
-         LBOC/WzarxZN4+pn1VH1Sfnx76D27goRmK9f2WEAYM+53ooBDwyromWLVgVMWR5Y/eUQ
-         FTJ3hBq7Ag/UZnMUO6aOOfHp15fjDhr0jCeNK8kXsUlInS2oGTcFWP19+erNNtoobpVu
-         g+ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Y4FlVNs2QdYZ1hne9SFHL7s6tiC0DTzsD4q8fehyHAk=;
-        b=ocVAwPvF+8BbrBH8JLJgfeNcnSoP6mjoCqee0SoeV6Z5ux0tm4St0GCsWlfP+bPlMj
-         ckHJPYaTDX52sPlU5hep3PmfYzAHEwrgEpjseGczfIe+LoVNwu2KmxcJ6EOdMXoLk2iG
-         ogiPqbKlws3TGw3yRHQ3GwIEFuX2SDHsoikbSJr8Hdb2XNSnEW+XJgWUCB3NJ+goXOPT
-         7SoKxoBWm7AuNRSGLqEdCj0bVOwIukKxd8LNeAYIlmDuuobKjIxbKVob4kvqMQ0JSECk
-         diC/FJWXHyFlc7wiwEP3ek1OOxh1m0wGKFWpS8PNYXNIdjOt4BUpNuKG/GhC0BuqN988
-         Qsjg==
-X-Gm-Message-State: AOAM531N94feSrZZHjzwMXMPfHtYwRYF4aMJ3/x+dShTx4fLhBuSvbGU
-        Wei4v+UNy20f+Bro4A+YOHI=
-X-Google-Smtp-Source: ABdhPJwjO6+KuWIBJz0ZWJ/b8scvSG2dIKVsqBfV6hSwW83HBbtmn+CbWdYH5QClaSHMCOsYGjyOKQ==
-X-Received: by 2002:a63:874a:0:b0:37c:7fab:50fe with SMTP id i71-20020a63874a000000b0037c7fab50femr21406280pge.93.1647292316827;
-        Mon, 14 Mar 2022 14:11:56 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id g6-20020a056a001a0600b004f7bd56cc08sm6866624pfv.123.2022.03.14.14.11.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Mar 2022 14:11:56 -0700 (PDT)
-Subject: Re: [PATCH 5.4 00/43] 5.4.185-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220314112734.415677317@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <6ff98fb1-4850-f6c1-ac15-72aca681882f@gmail.com>
-Date:   Mon, 14 Mar 2022 14:11:52 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S236574AbiCNVbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 17:31:11 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC732C101;
+        Mon, 14 Mar 2022 14:30:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1647293401; x=1678829401;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ED1u3tWaXJ8g75RmNW25zxasQx4Y53p5hPpG0scngmM=;
+  b=QdXFsF9PDTTk+qaYTNsACiMeKCp8UwXMXbU/brrks5v2xCIKXBDcZOK6
+   yTDlRpmaT33vz/Kj6HhPdrYuQrEo8Vy/nMbmEVmprZONbOQbMqxukv/Gn
+   9KnHZeMaN14FFlB7zSCXJlU5WGXfcUdEPACoZXPhnp/N5oq98tqi+lQUd
+   V2bO5nMCFfFrfTKwQsC4KjV8q3kiCzYZmSCwqemqIAfPuGEUpqBowFTCm
+   RKx2vDPs1q8nd1Gjmm1AarlbD8t2qlyD7Es5w9UgAfAExOMdiX+FpGSln
+   g58DhIEn718TKCgMC4uHr3JZZIi4NBWHLMZiQhkkjp23DJlJXkOkCuVdN
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10286"; a="280915022"
+X-IronPort-AV: E=Sophos;i="5.90,181,1643702400"; 
+   d="scan'208";a="280915022"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2022 14:30:01 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,181,1643702400"; 
+   d="scan'208";a="580273053"
+Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
+  by orsmga001.jf.intel.com with ESMTP; 14 Mar 2022 14:29:56 -0700
+Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1nTsGJ-000AFK-F1; Mon, 14 Mar 2022 21:29:55 +0000
+Date:   Tue, 15 Mar 2022 05:29:41 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Darren Hart <darren@os.amperecomputing.com>
+Cc:     kbuild-all@lists.01.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Will Deacon <will@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] arch_topology: Swap MC & CLS SD mask if MC weight==1 &
+Message-ID: <202203150553.QRvgHFHm-lkp@intel.com>
+References: <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/14/22 4:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.185 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.185-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Hi Dietmar,
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+I love your patch! Perhaps something to improve:
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+[auto build test WARNING on driver-core/driver-core-testing]
+[also build test WARNING on v5.17-rc8 next-20220310]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/0day-ci/linux/commits/Dietmar-Eggemann/arch_topology-Swap-MC-CLS-SD-mask-if-MC-weight-1/20220315-004742
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git 4a248f85b3dd8e010ff8335755c927130e9b0764
+config: arm-defconfig (https://download.01.org/0day-ci/archive/20220315/202203150553.QRvgHFHm-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 11.2.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/0day-ci/linux/commit/7528fb2ea1e30038ee1dcc48df9d413502977895
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Dietmar-Eggemann/arch_topology-Swap-MC-CLS-SD-mask-if-MC-weight-1/20220315-004742
+        git checkout 7528fb2ea1e30038ee1dcc48df9d413502977895
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=arm SHELL=/bin/bash drivers/base/
+
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/base/arch_topology.c:617:23: warning: no previous prototype for '_cpu_coregroup_mask' [-Wmissing-prototypes]
+     617 | const struct cpumask *_cpu_coregroup_mask(int cpu)
+         |                       ^~~~~~~~~~~~~~~~~~~
+>> drivers/base/arch_topology.c:634:23: warning: no previous prototype for '_cpu_clustergroup_mask' [-Wmissing-prototypes]
+     634 | const struct cpumask *_cpu_clustergroup_mask(int cpu)
+         |                       ^~~~~~~~~~~~~~~~~~~~~~
+
+
+vim +/_cpu_coregroup_mask +617 drivers/base/arch_topology.c
+
+   616	
+ > 617	const struct cpumask *_cpu_coregroup_mask(int cpu)
+   618	{
+   619		const cpumask_t *core_mask = cpumask_of_node(cpu_to_node(cpu));
+   620	
+   621		/* Find the smaller of NUMA, core or LLC siblings */
+   622		if (cpumask_subset(&cpu_topology[cpu].core_sibling, core_mask)) {
+   623			/* not numa in package, lets use the package siblings */
+   624			core_mask = &cpu_topology[cpu].core_sibling;
+   625		}
+   626		if (cpu_topology[cpu].llc_id != -1) {
+   627			if (cpumask_subset(&cpu_topology[cpu].llc_sibling, core_mask))
+   628				core_mask = &cpu_topology[cpu].llc_sibling;
+   629		}
+   630	
+   631		return core_mask;
+   632	}
+   633	
+ > 634	const struct cpumask *_cpu_clustergroup_mask(int cpu)
+   635	{
+   636		return &cpu_topology[cpu].cluster_sibling;
+   637	}
+   638	
+
+---
+0-DAY CI Kernel Test Service
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
