@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8959F4D8216
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32B764D83F4
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240046AbiCNL7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:59:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37734 "EHLO
+        id S241111AbiCNMW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240016AbiCNL5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:57:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7968CDECF;
-        Mon, 14 Mar 2022 04:56:44 -0700 (PDT)
+        with ESMTP id S242064AbiCNMSn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4993C457AB;
+        Mon, 14 Mar 2022 05:13:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32327B80DC2;
-        Mon, 14 Mar 2022 11:56:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6571EC340EC;
-        Mon, 14 Mar 2022 11:56:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DE8B60919;
+        Mon, 14 Mar 2022 12:13:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A60EC340E9;
+        Mon, 14 Mar 2022 12:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259002;
-        bh=BxB5mmRZXkePyvGp3InA7vMTjJDsDYTbvSyMWQC9K5k=;
+        s=korg; t=1647260011;
+        bh=p4EKcTt07OqmThVWmyMD0BmzwIgGQvP1W3AY+ND+VVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsWUGxBktu+KN1wh1KmitaRZz2XCJo4R4cWFZU1Nz/HZTThk6ZhyXQoySsK0kh8kj
-         iQP8Q9FFIHgrBCNo0knVieGggWmG7H+3C3NbWes3/N9y+Fmpje/4AkbbSJOfUDobyn
-         jrl+Yk2OVmYpQMbokYUI+IRaceezP0VclAs6yUCQ=
+        b=ArBb7i1IBpAtFPDcboTBpsnQXVMq0KTA6tH3TTRMz3f85KQdPg3i0Aw63ML7oMfeg
+         RnhvbjOFio0rt3S9Ttmau3DonoXjgnpDTEKTHPdGkWtN+gbWL4wMCVehkLYjbdsms+
+         IjvQjQUbieSHA9mcVIO7OTP5qTEh1NLTlE59BEIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Paul Durrant <paul@xen.org>,
-        Michael Brown <mbrown@fensystems.co.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/43] Revert "xen-netback: Check for hotplug-status existence before watching"
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 032/121] ARM: dts: aspeed: Fix AST2600 quad spi group
 Date:   Mon, 14 Mar 2022 12:53:35 +0100
-Message-Id: <20220314112735.097061304@linuxfoundation.org>
+Message-Id: <20220314112745.025960220@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,61 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit e8240addd0a3919e0fd7436416afe9aa6429c484 ]
+[ Upstream commit 2f6edb6bcb2f3f41d876e0eba2ba97f87a0296ea ]
 
-This reverts commit 2afeec08ab5c86ae21952151f726bfe184f6b23d.
+Requesting quad mode for the FMC resulted in an error:
 
-The reasoning in the commit was wrong - the code expected to setup the
-watch even if 'hotplug-status' didn't exist. In fact, it relied on the
-watch being fired the first time - to check if maybe 'hotplug-status' is
-already set to 'connected'. Not registering a watch for non-existing
-path (which is the case if hotplug script hasn't been executed yet),
-made the backend not waiting for the hotplug script to execute. This in
-turns, made the netfront think the interface is fully operational, while
-in fact it was not (the vif interface on xen-netback side might not be
-configured yet).
+  &fmc {
+         status = "okay";
+ +       pinctrl-names = "default";
+ +       pinctrl-0 = <&pinctrl_fwqspi_default>'
 
-This was a workaround for 'hotplug-status' erroneously being removed.
-But since that is reverted now, the workaround is not necessary either.
+[    0.742963] aspeed-g6-pinctrl 1e6e2000.syscon:pinctrl: invalid function FWQSPID in map table
+￼
 
-More discussion at
-https://lore.kernel.org/xen-devel/afedd7cb-a291-e773-8b0d-4db9b291fa98@ipxe.org/T/#u
+This is because the quad mode pins are a group of pins, not a function.
 
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Reviewed-by: Michael Brown <mbrown@fensystems.co.uk>
-Link: https://lore.kernel.org/r/20220222001817.2264967-2-marmarek@invisiblethingslab.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+After applying this patch we can request the pins and the QSPI data
+lines are muxed:
+
+ # cat /sys/kernel/debug/pinctrl/1e6e2000.syscon\:pinctrl-aspeed-g6-pinctrl/pinmux-pins |grep 1e620000.spi
+ pin 196 (AE12): device 1e620000.spi function FWSPID group FWQSPID
+ pin 197 (AF12): device 1e620000.spi function FWSPID group FWQSPID
+ pin 240 (Y1): device 1e620000.spi function FWSPID group FWQSPID
+ pin 241 (Y2): device 1e620000.spi function FWSPID group FWQSPID
+ pin 242 (Y3): device 1e620000.spi function FWSPID group FWQSPID
+ pin 243 (Y4): device 1e620000.spi function FWSPID group FWQSPID
+
+Fixes: f510f04c8c83 ("ARM: dts: aspeed: Add AST2600 pinmux nodes")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au
+Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/xenbus.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
-index 0fe0fbd83ce4..44e353dd2ba1 100644
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -980,15 +980,11 @@ static void connect(struct backend_info *be)
- 	xenvif_carrier_on(be->vif);
+diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+index 6dde51c2aed3..e4775bbceecc 100644
+--- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
++++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+@@ -118,7 +118,7 @@ pinctrl_fwspid_default: fwspid_default {
+ 	};
  
- 	unregister_hotplug_status_watch(be);
--	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
--		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
--					   NULL, hotplug_status_changed,
--					   "%s/%s", dev->nodename,
--					   "hotplug-status");
--		if (err)
--			goto err;
-+	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
-+				   hotplug_status_changed,
-+				   "%s/%s", dev->nodename, "hotplug-status");
-+	if (!err)
- 		be->have_hotplug_status_watch = 1;
--	}
- 
- 	netif_tx_wake_all_queues(be->vif->dev);
+ 	pinctrl_fwqspid_default: fwqspid_default {
+-		function = "FWQSPID";
++		function = "FWSPID";
+ 		groups = "FWQSPID";
+ 	};
  
 -- 
 2.34.1
