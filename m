@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B47374D8333
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B014D4D8415
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238252AbiCNMMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49216 "EHLO
+        id S234950AbiCNMWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242433AbiCNMJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B709613F2A;
-        Mon, 14 Mar 2022 05:08:13 -0700 (PDT)
+        with ESMTP id S243356AbiCNMUe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:20:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D333B54190;
+        Mon, 14 Mar 2022 05:15:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E8A66135D;
-        Mon, 14 Mar 2022 12:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BA59C340E9;
-        Mon, 14 Mar 2022 12:08:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD3F8B80DF4;
+        Mon, 14 Mar 2022 12:15:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13AC2C340EC;
+        Mon, 14 Mar 2022 12:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259688;
-        bh=iBZFQFF1FJIeniL1ICzMmlQooXPv2YUfr1yxhVTgtuY=;
+        s=korg; t=1647260151;
+        bh=WJulgjcHdOlBuDGWLD209+QllLpMieV0m3t5lXXmYO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyuzAzAlIqhYG/a2+aUoaDXs9pvInkCV5RDJOssgrio4CBQvP3+8C39Aar/WEuIYj
-         5q0L5a+J0/Wn+A8o66RE1ampUdSxE4o2uPpO6XfBmBSc5/hzXNX76PdX4VOHEGw2hO
-         wn5JrSsapwpmFXzZTzRC0/yj6+1LlYECZRzSOzC0=
+        b=gEghXoJgQBwRP2MA8jIw4bHJLE7Xfhi2ayqLzyRTrWgNmnGn6gmo4qoywiNUZsRjr
+         9IyNnUSZGc7OgEHIB5R/3ZdjkeD1hJHe6OIr6v0XRfRFTmFXk7wjAbSf+imu6omUdy
+         7DiPr873/5XKDfqIeKWxWe4+xkcRp9BZlnEqKVgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Shreeya Patel <shreeya.patel@collabora.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/110] gpio: Return EPROBE_DEFER if gc->to_irq is NULL
+Subject: [PATCH 5.16 064/121] KVM: Fix lockdep false negative during host resume
 Date:   Mon, 14 Mar 2022 12:54:07 +0100
-Message-Id: <20220314112744.849259089@linuxfoundation.org>
+Message-Id: <20220314112745.912517994@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,70 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreeya Patel <shreeya.patel@collabora.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit ae42f9288846353982e2eab181fb41e7fd8bf60f ]
+[ Upstream commit 4cb9a998b1ce25fad74a82f5a5c45a4ef40de337 ]
 
-We are racing the registering of .to_irq when probing the
-i2c driver. This results in random failure of touchscreen
-devices.
+I saw the below splatting after the host suspended and resumed.
 
-Following explains the race condition better.
+   WARNING: CPU: 0 PID: 2943 at kvm/arch/x86/kvm/../../../virt/kvm/kvm_main.c:5531 kvm_resume+0x2c/0x30 [kvm]
+   CPU: 0 PID: 2943 Comm: step_after_susp Tainted: G        W IOE     5.17.0-rc3+ #4
+   RIP: 0010:kvm_resume+0x2c/0x30 [kvm]
+   Call Trace:
+    <TASK>
+    syscore_resume+0x90/0x340
+    suspend_devices_and_enter+0xaee/0xe90
+    pm_suspend.cold+0x36b/0x3c2
+    state_store+0x82/0xf0
+    kernfs_fop_write_iter+0x1b6/0x260
+    new_sync_write+0x258/0x370
+    vfs_write+0x33f/0x510
+    ksys_write+0xc9/0x160
+    do_syscall_64+0x3b/0xc0
+    entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-[gpio driver] gpio driver registers gpio chip
-[gpio consumer] gpio is acquired
-[gpio consumer] gpiod_to_irq() fails with -ENXIO
-[gpio driver] gpio driver registers irqchip
-gpiod_to_irq works at this point, but -ENXIO is fatal
+lockdep_is_held() can return -1 when lockdep is disabled which triggers
+this warning. Let's use lockdep_assert_not_held() which can detect
+incorrect calls while holding a lock and it also avoids false negatives
+when lockdep is disabled.
 
-We could see the following errors in dmesg logs when gc->to_irq is NULL
-
-[2.101857] i2c_hid i2c-FTS3528:00: HID over i2c has not been provided an Int IRQ
-[2.101953] i2c_hid: probe of i2c-FTS3528:00 failed with error -22
-
-To avoid this situation, defer probing until to_irq is registered.
-Returning -EPROBE_DEFER would be the first step towards avoiding
-the failure of devices due to the race in registration of .to_irq.
-Final solution to this issue would be to avoid using gc irq members
-until they are fully initialized.
-
-This issue has been reported many times in past and people have been
-using workarounds like changing the pinctrl_amd to built-in instead
-of loading it as a module or by adding a softdep for pinctrl_amd into
-the config file.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209413
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1644920142-81249-1-git-send-email-wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ virt/kvm/kvm_main.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 9e151413f51a..358f0ad9d0f8 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3116,6 +3116,16 @@ int gpiod_to_irq(const struct gpio_desc *desc)
- 
- 		return retirq;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 71ddc7a8bc30..6ae9e04d0585 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -5347,9 +5347,7 @@ static int kvm_suspend(void)
+ static void kvm_resume(void)
+ {
+ 	if (kvm_usage_count) {
+-#ifdef CONFIG_LOCKDEP
+-		WARN_ON(lockdep_is_held(&kvm_count_lock));
+-#endif
++		lockdep_assert_not_held(&kvm_count_lock);
+ 		hardware_enable_nolock(NULL);
  	}
-+#ifdef CONFIG_GPIOLIB_IRQCHIP
-+	if (gc->irq.chip) {
-+		/*
-+		 * Avoid race condition with other code, which tries to lookup
-+		 * an IRQ before the irqchip has been properly registered,
-+		 * i.e. while gpiochip is still being brought up.
-+		 */
-+		return -EPROBE_DEFER;
-+	}
-+#endif
- 	return -ENXIO;
  }
- EXPORT_SYMBOL_GPL(gpiod_to_irq);
 -- 
 2.34.1
 
