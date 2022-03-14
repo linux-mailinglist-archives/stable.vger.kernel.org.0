@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC624D844E
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58FCB4D838A
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241483AbiCNMWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50618 "EHLO
+        id S241125AbiCNMQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:16:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243626AbiCNMVF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B5F54FA5;
-        Mon, 14 Mar 2022 05:16:30 -0700 (PDT)
+        with ESMTP id S241165AbiCNMPk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:15:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54C633A30;
+        Mon, 14 Mar 2022 05:11:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86EF7608C4;
-        Mon, 14 Mar 2022 12:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90AF8C340E9;
-        Mon, 14 Mar 2022 12:16:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC2E6135F;
+        Mon, 14 Mar 2022 12:11:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BB9DC340E9;
+        Mon, 14 Mar 2022 12:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260190;
-        bh=dVGoPrrWRTVHA4L6rhMCbLqZZdospTvDe05WnMPVvFI=;
+        s=korg; t=1647259903;
+        bh=TBDJK16kFd2upjhzw3U9Q3kmrcZse9TAUeChV4SpIHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NtiqJ63sYxe1yOsuMCUs1nSeZ8aGGyhCuZn+BK99bTn6IxYJ8Yo9q2PZo8sd5xTNG
-         9o82BkcBav8kZ9REmriEmfrXwP6m+KZXkV1mPu3kdel+OFBBgyiNOaihbUDFaPAVYi
-         XPRNYFs/gwxnL+V4295A0KMozaXsS/nPdrUQr4uE=
+        b=y5nBG5CD5szrX0Ax9s290WhU0fDVHL8u4IssCnPjHh5gQpkkyGUjDOZmPbOOccWaV
+         iGyStNnyLvptVfxqZjvrFreWHYeyFJ6EzPdS2TGIpiZfw311wPQ50b2SJ43HdVoRwb
+         vRatGDO/bXZFKAFDeFkXumTBEJ2L3+kUyE5XIFik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 082/121] tracing/osnoise: Make osnoise_main to sleep for microseconds
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 083/110] tracing/osnoise: Force quiescent states while tracing
 Date:   Mon, 14 Mar 2022 12:54:25 +0100
-Message-Id: <20220314112746.409684021@linuxfoundation.org>
+Message-Id: <20220314112745.346824548@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,103 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@kernel.org>
+From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
 
-[ Upstream commit dd990352f01ee9a6c6eee152e5d11c021caccfe4 ]
+commit caf4c86bf136845982c5103b2661751b40c474c0 upstream.
 
-osnoise's runtime and period are in the microseconds scale, but it is
-currently sleeping in the millisecond's scale. This behavior roots in the
-usage of hwlat as the skeleton for osnoise.
+At the moment running osnoise on a nohz_full CPU or uncontested FIFO
+priority and a PREEMPT_RCU kernel might have the side effect of
+extending grace periods too much. This will entice RCU to force a
+context switch on the wayward CPU to end the grace period, all while
+introducing unwarranted noise into the tracer. This behaviour is
+unavoidable as overly extending grace periods might exhaust the system's
+memory.
 
-Make osnoise to sleep in the microseconds scale. Also, move the sleep to
-a specialized function.
+This same exact problem is what extended quiescent states (EQS) were
+created for, conversely, rcu_momentary_dyntick_idle() emulates them by
+performing a zero duration EQS. So let's make use of it.
 
-Link: https://lkml.kernel.org/r/302aa6c7bdf2d131719b22901905e9da122a11b2.1645197336.git.bristot@kernel.org
+In the common case rcu_momentary_dyntick_idle() is fairly inexpensive:
+atomically incrementing a local per-CPU counter and doing a store. So it
+shouldn't affect osnoise's measurements (which has a 1us granularity),
+so we'll call it unanimously.
 
-Cc: Ingo Molnar <mingo@redhat.com>
-Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+The uncommon case involve calling rcu_momentary_dyntick_idle() after
+having the osnoise process:
+
+ - Receive an expedited quiescent state IPI with preemption disabled or
+   during an RCU critical section. (activates rdp->cpu_no_qs.b.exp
+   code-path).
+
+ - Being preempted within in an RCU critical section and having the
+   subsequent outermost rcu_read_unlock() called with interrupts
+   disabled. (t->rcu_read_unlock_special.b.blocked code-path).
+
+Neither of those are possible at the moment, and are unlikely to be in
+the future given the osnoise's loop design. On top of this, the noise
+generated by the situations described above is unavoidable, and if not
+exposed by rcu_momentary_dyntick_idle() will be eventually seen in
+subsequent rcu_read_unlock() calls or schedule operations.
+
+Link: https://lkml.kernel.org/r/20220307180740.577607-1-nsaenzju@redhat.com
+
+Cc: stable@vger.kernel.org
+Fixes: bce29ac9ce0b ("trace: Add osnoise tracer")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_osnoise.c | 53 ++++++++++++++++++++++--------------
- 1 file changed, 32 insertions(+), 21 deletions(-)
+ kernel/trace/trace_osnoise.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
-index b58674e8644a..58c788b0ca27 100644
 --- a/kernel/trace/trace_osnoise.c
 +++ b/kernel/trace/trace_osnoise.c
-@@ -1437,6 +1437,37 @@ static int run_osnoise(void)
- static struct cpumask osnoise_cpumask;
- static struct cpumask save_cpumask;
+@@ -1196,6 +1196,26 @@ static int run_osnoise(void)
+ 		}
  
-+/*
-+ * osnoise_sleep - sleep until the next period
-+ */
-+static void osnoise_sleep(void)
-+{
-+	u64 interval;
-+	ktime_t wake_time;
+ 		/*
++		 * In some cases, notably when running on a nohz_full CPU with
++		 * a stopped tick PREEMPT_RCU has no way to account for QSs.
++		 * This will eventually cause unwarranted noise as PREEMPT_RCU
++		 * will force preemption as the means of ending the current
++		 * grace period. We avoid this problem by calling
++		 * rcu_momentary_dyntick_idle(), which performs a zero duration
++		 * EQS allowing PREEMPT_RCU to end the current grace period.
++		 * This call shouldn't be wrapped inside an RCU critical
++		 * section.
++		 *
++		 * Note that in non PREEMPT_RCU kernels QSs are handled through
++		 * cond_resched()
++		 */
++		if (IS_ENABLED(CONFIG_PREEMPT_RCU)) {
++			local_irq_disable();
++			rcu_momentary_dyntick_idle();
++			local_irq_enable();
++		}
 +
-+	mutex_lock(&interface_lock);
-+	interval = osnoise_data.sample_period - osnoise_data.sample_runtime;
-+	mutex_unlock(&interface_lock);
-+
-+	/*
-+	 * differently from hwlat_detector, the osnoise tracer can run
-+	 * without a pause because preemption is on.
-+	 */
-+	if (!interval) {
-+		/* Let synchronize_rcu_tasks() make progress */
-+		cond_resched_tasks_rcu_qs();
-+		return;
-+	}
-+
-+	wake_time = ktime_add_us(ktime_get(), interval);
-+	__set_current_state(TASK_INTERRUPTIBLE);
-+
-+	while (schedule_hrtimeout_range(&wake_time, 0, HRTIMER_MODE_ABS)) {
-+		if (kthread_should_stop())
-+			break;
-+	}
-+}
-+
- /*
-  * osnoise_main - The osnoise detection kernel thread
-  *
-@@ -1445,30 +1476,10 @@ static struct cpumask save_cpumask;
-  */
- static int osnoise_main(void *data)
- {
--	u64 interval;
- 
- 	while (!kthread_should_stop()) {
--
- 		run_osnoise();
--
--		mutex_lock(&interface_lock);
--		interval = osnoise_data.sample_period - osnoise_data.sample_runtime;
--		mutex_unlock(&interface_lock);
--
--		do_div(interval, USEC_PER_MSEC);
--
--		/*
--		 * differently from hwlat_detector, the osnoise tracer can run
--		 * without a pause because preemption is on.
--		 */
--		if (interval < 1) {
--			/* Let synchronize_rcu_tasks() make progress */
--			cond_resched_tasks_rcu_qs();
--			continue;
--		}
--
--		if (msleep_interruptible(interval))
--			break;
-+		osnoise_sleep();
- 	}
- 
- 	return 0;
--- 
-2.34.1
-
++		/*
+ 		 * For the non-preemptive kernel config: let threads runs, if
+ 		 * they so wish.
+ 		 */
 
 
