@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD80D4D810A
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:37:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C52B64D80E3
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:35:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239216AbiCNLij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:38:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38092 "EHLO
+        id S239054AbiCNLgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:36:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235080AbiCNLhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:37:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A42BB424A0;
-        Mon, 14 Mar 2022 04:36:11 -0700 (PDT)
+        with ESMTP id S239070AbiCNLgE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:36:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6E041F89;
+        Mon, 14 Mar 2022 04:34:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D127461172;
-        Mon, 14 Mar 2022 11:36:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65270C340E9;
-        Mon, 14 Mar 2022 11:36:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3160061073;
+        Mon, 14 Mar 2022 11:34:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3DEC340E9;
+        Mon, 14 Mar 2022 11:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257770;
-        bh=ZYB/bkridebpmK6z9O2fU4zZFulBHJqPbq0vDm66a1A=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VJgCG27LD9zyF9hIPZHzCOycOeu346cNPNGJR6bn/N62LM6IZHazU92EJ1aKVDh0/
-         T3Y8S1qLvSBRFy1Q8LiAXLbDAUxBaXoXmn3AeY32WYUksW22548UNmmGXI8Z9HK/tp
-         Pstn+IfhOGD0VWDxP1kVZ1A7W//R6gwh4tMkitBM=
+        s=korg; t=1647257693;
+        bh=+PzydsWgRvTQyto62/lDWNeq3+GlRRXHAruNmIsF+50=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QnKUX6q7rM8+0Ld6EmeNZqLskHcHDA/minyLAJU5HxySFxW+l0EtmScNLNWxM37wj
+         EEzWo/szajpuAcxcduKTMS6+Xjt9l9Vd7NBoyAteyPpCZHUJ0S4Aq4BQek3LP/uaKv
+         ZlEIkb30LDSASZn1ED8Md6Vow3H2hMNtOOdRZvhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.14 00/23] 4.14.272-rc1 review
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 12/20] tracing: Ensure trace buffer is at least 4096 bytes large
 Date:   Mon, 14 Mar 2022 12:34:13 +0100
-Message-Id: <20220314112731.050583127@linuxfoundation.org>
+Message-Id: <20220314112730.862533003@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220314112730.388955049@linuxfoundation.org>
+References: <20220314112730.388955049@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.272-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.272-rc1
-X-KernelTest-Deadline: 2022-03-16T11:27+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -62,128 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.272 release.
-There are 23 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Sven Schnelle <svens@linux.ibm.com>
 
-Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 7acf3a127bb7c65ff39099afd78960e77b2ca5de ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.272-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+Booting the kernel with 'trace_buf_size=1' give a warning at
+boot during the ftrace selftests:
 
-thanks,
+[    0.892809] Running postponed tracer tests:
+[    0.892893] Testing tracer function:
+[    0.901899] Callback from call_rcu_tasks_trace() invoked.
+[    0.983829] Callback from call_rcu_tasks_rude() invoked.
+[    1.072003] .. bad ring buffer .. corrupted trace buffer ..
+[    1.091944] Callback from call_rcu_tasks() invoked.
+[    1.097695] PASSED
+[    1.097701] Testing dynamic ftrace: .. filter failed count=0 ..FAILED!
+[    1.353474] ------------[ cut here ]------------
+[    1.353478] WARNING: CPU: 0 PID: 1 at kernel/trace/trace.c:1951 run_tracer_selftest+0x13c/0x1b0
 
-greg k-h
+Therefore enforce a minimum of 4096 bytes to make the selftest pass.
 
--------------
-Pseudo-Shortlog of commits:
+Link: https://lkml.kernel.org/r/20220214134456.1751749-1-svens@linux.ibm.com
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.272-rc1
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ kernel/trace/trace.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Qu Wenruo <wqu@suse.com>
-    btrfs: unlock newly allocated extent buffer after error
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 12bee7043be6..90e0fd5621da 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1077,10 +1077,12 @@ static int __init set_buf_size(char *str)
+ 	if (!str)
+ 		return 0;
+ 	buf_size = memparse(str, &str);
+-	/* nr_entries can not be zero */
+-	if (buf_size == 0)
+-		return 0;
+-	trace_buf_size = buf_size;
++	/*
++	 * nr_entries can not be zero and the startup
++	 * tests require some buffer space. Therefore
++	 * ensure we have at least 4096 bytes of buffer.
++	 */
++	trace_buf_size = max(4096UL, buf_size);
+ 	return 1;
+ }
+ __setup("trace_buf_size=", set_buf_size);
+-- 
+2.34.1
 
-Josh Triplett <josh@joshtriplett.org>
-    ext4: add check to prevent attempting to resize an fs with sparse_super2
-
-Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-    ARM: fix Thumb2 regression with Spectre BHB
-
-Michael S. Tsirkin <mst@redhat.com>
-    virtio: acknowledge all features before access
-
-Michael S. Tsirkin <mst@redhat.com>
-    virtio: unexport virtio_finalize_features
-
-James Morse <james.morse@arm.com>
-    KVM: arm64: Reset PMC_EL0 to avoid a panic() on systems with no PMU
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    staging: gdm724x: fix use after free in gdm_lte_rx()
-
-Randy Dunlap <rdunlap@infradead.org>
-    ARM: Spectre-BHB: provide empty stub for non-config
-
-Mike Kravetz <mike.kravetz@oracle.com>
-    selftests/memfd: clean up mapping in mfd_fail_write
-
-Sven Schnelle <svens@linux.ibm.com>
-    tracing: Ensure trace buffer is at least 4096 bytes large
-
-Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-    Revert "xen-netback: Check for hotplug-status existence before watching"
-
-Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-    Revert "xen-netback: remove 'hotplug-status' once it has served its purpose"
-
-suresh kumar <suresh2514@gmail.com>
-    net-sysfs: add check for netdevice being present to speed_show
-
-Eric Dumazet <edumazet@google.com>
-    sctp: fix kernel-infoleak for SCTP sockets
-
-Mark Featherston <mark@embeddedTS.com>
-    gpio: ts4900: Do not set DAT and OE together
-
-Pavel Skripkin <paskripkin@gmail.com>
-    NFC: port100: fix use-after-free in port100_send_complete
-
-Mohammad Kabat <mohammadkab@nvidia.com>
-    net/mlx5: Fix size field in bufferx_reg struct
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: Fix NULL pointer dereference in ax25_kill_by_device
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    net: ethernet: lpc_eth: Handle error for clk_enable
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    net: ethernet: ti: cpts: Handle error for clk_enable
-
-Miaoqian Lin <linmq006@gmail.com>
-    ethernet: Fix error handling in xemaclite_of_probe
-
-Tom Rix <trix@redhat.com>
-    qed: return status of qed_iov_get_link
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    net: qlogic: check the return value of dma_alloc_coherent() in qed_vf_hw_prepare()
-
-
--------------
-
-Diffstat:
-
- Makefile                                      |  4 +--
- arch/arm/include/asm/spectre.h                |  6 ++++
- arch/arm/kernel/entry-armv.S                  |  4 +--
- arch/arm64/kvm/sys_regs.c                     |  4 ++-
- drivers/gpio/gpio-ts4900.c                    | 24 ++++++++++++----
- drivers/net/ethernet/nxp/lpc_eth.c            |  5 +++-
- drivers/net/ethernet/qlogic/qed/qed_sriov.c   | 18 +++++++-----
- drivers/net/ethernet/qlogic/qed/qed_vf.c      |  7 +++++
- drivers/net/ethernet/ti/cpts.c                |  4 ++-
- drivers/net/ethernet/xilinx/xilinx_emaclite.c |  4 ++-
- drivers/net/xen-netback/xenbus.c              | 13 ++++-----
- drivers/nfc/port100.c                         |  2 ++
- drivers/staging/gdm724x/gdm_lte.c             |  5 ++--
- drivers/virtio/virtio.c                       | 40 ++++++++++++++-------------
- fs/btrfs/extent-tree.c                        |  1 +
- fs/ext4/resize.c                              |  5 ++++
- include/linux/mlx5/mlx5_ifc.h                 |  4 +--
- include/linux/virtio.h                        |  1 -
- include/linux/virtio_config.h                 |  3 +-
- kernel/trace/trace.c                          | 10 ++++---
- net/ax25/af_ax25.c                            |  7 +++++
- net/core/net-sysfs.c                          |  2 +-
- net/sctp/sctp_diag.c                          |  9 ++----
- tools/testing/selftests/memfd/memfd_test.c    |  1 +
- 24 files changed, 119 insertions(+), 64 deletions(-)
 
 
