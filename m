@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A71464D83F7
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C664D8235
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241253AbiCNMW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50856 "EHLO
+        id S239943AbiCNMB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:01:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241773AbiCNMSX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6A26427;
-        Mon, 14 Mar 2022 05:12:51 -0700 (PDT)
+        with ESMTP id S240190AbiCNMBM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:01:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F7949907;
+        Mon, 14 Mar 2022 04:59:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96702B80DE1;
-        Mon, 14 Mar 2022 12:12:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 003EFC340E9;
-        Mon, 14 Mar 2022 12:12:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A2D36125F;
+        Mon, 14 Mar 2022 11:59:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3FB2C340E9;
+        Mon, 14 Mar 2022 11:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259969;
-        bh=t1emTD1hQqRTM2s+FLqtKL1MLVKlmYxN8zFn0YVOEuQ=;
+        s=korg; t=1647259150;
+        bh=Czacs4a0HNoyCzz3djoGpfkLqmfEuBMgYT/S+PMiQNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+dLvZH5nPZd+jiOF9pbSBabUkIPO0+ne5yuxkqz0pZhYQ2EEbNjQssu1Q2OVn/v3
-         x5thiqYLHJNLtm6dHiUf+Ji228KE9G/DhZ5W3iMwlWrPYqogJXk3gpAtnlLQP5zcHt
-         /KyzqjqjlFQCQHEd7CBxRScBsgFoqZtHuxeIIYds=
+        b=E7sx8eAhRylvyWXDIZpOm8q+k/dxHrjuB3Mq5gljsuWOcqNM6hD5U3vfVXN/XsKTy
+         k+FYEd7oJU4FHuflBzL9zMuW/hcvSePJ8kwpJgCr1IiDBubbaNPBbVBp9uCXmnnxYJ
+         cAxMfoepxhb5UxXFmyWxEvURhiiiI3Quc0hkSZr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 003/121] HID: elo: Revert USB reference counting
-Date:   Mon, 14 Mar 2022 12:53:06 +0100
-Message-Id: <20220314112744.219863098@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 14/71] net: dsa: mt7530: fix incorrect test in mt753x_phylink_validate()
+Date:   Mon, 14 Mar 2022 12:53:07 +0100
+Message-Id: <20220314112738.333857641@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit ac89895213d8950dba6ab342863a0959f73142a7 ]
+[ Upstream commit e5417cbf7ab5df1632e68fe7d9e6331fc0e7dbd6 ]
 
-Commit 817b8b9c539 ("HID: elo: fix memory leak in elo_probe") introduced
-memory leak on error path, but more importantly the whole USB reference
-counting is not needed at all in the first place, as the driver itself
-doesn't change the reference counting in any way, and the associated
-usb_device is guaranteed to be kept around by USB core as long as the
-driver binding exists.
+Discussing one of the tests in mt753x_phylink_validate() with Landen
+Chao confirms that the "||" should be "&&". Fix this.
 
-Reported-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: fbf42729d0e ("HID: elo: update the reference count of the usb device structure")
-Fixes: 817b8b9c539 ("HID: elo: fix memory leak in elo_probe")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/E1nRCF0-00CiXD-7q@rmk-PC.armlinux.org.uk
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-elo.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/net/dsa/mt7530.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-elo.c b/drivers/hid/hid-elo.c
-index 9b42b0cdeef0..2876cb6a7dca 100644
---- a/drivers/hid/hid-elo.c
-+++ b/drivers/hid/hid-elo.c
-@@ -228,7 +228,6 @@ static int elo_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct elo_priv *priv;
- 	int ret;
--	struct usb_device *udev;
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 1f642fdbf214..5ee8809bc271 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -2342,7 +2342,7 @@ mt753x_phylink_validate(struct dsa_switch *ds, int port,
  
- 	if (!hid_is_usb(hdev))
- 		return -EINVAL;
-@@ -238,8 +237,7 @@ static int elo_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return -ENOMEM;
+ 	phylink_set_port_modes(mask);
  
- 	INIT_DELAYED_WORK(&priv->work, elo_work);
--	udev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
--	priv->usbdev = usb_get_dev(udev);
-+	priv->usbdev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
- 
- 	hid_set_drvdata(hdev, priv);
- 
-@@ -262,7 +260,6 @@ static int elo_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	return 0;
- err_free:
--	usb_put_dev(udev);
- 	kfree(priv);
- 	return ret;
- }
-@@ -271,8 +268,6 @@ static void elo_remove(struct hid_device *hdev)
- {
- 	struct elo_priv *priv = hid_get_drvdata(hdev);
- 
--	usb_put_dev(priv->usbdev);
--
- 	hid_hw_stop(hdev);
- 	cancel_delayed_work_sync(&priv->work);
- 	kfree(priv);
+-	if (state->interface != PHY_INTERFACE_MODE_TRGMII ||
++	if (state->interface != PHY_INTERFACE_MODE_TRGMII &&
+ 	    !phy_interface_mode_is_8023z(state->interface)) {
+ 		phylink_set(mask, 10baseT_Half);
+ 		phylink_set(mask, 10baseT_Full);
 -- 
 2.34.1
 
