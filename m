@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 277F44D7E66
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 10:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B25F4D7E64
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 10:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237916AbiCNJZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 05:25:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37110 "EHLO
+        id S237913AbiCNJZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 05:25:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231899AbiCNJZ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 05:25:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92572B197
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 02:24:47 -0700 (PDT)
+        with ESMTP id S231899AbiCNJZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 05:25:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0507C2B197
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 02:24:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4518860916
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 09:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB06C340E9;
-        Mon, 14 Mar 2022 09:24:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9347460916
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 09:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8392CC340EC;
+        Mon, 14 Mar 2022 09:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647249886;
-        bh=AgeUCg/QA7PLHvFidg9JXn7nGbLYW7vuOBG0lQU7ZLo=;
+        s=korg; t=1647249878;
+        bh=ryemIzlKbiY6PaSFjtJ3CB+I2DRypYY4hPKr3KYs4xM=;
         h=Subject:To:Cc:From:Date:From;
-        b=GTW3GJCOwfDgbAV4Zq1UxoqeaWrWVg8sCbXnFzLNYOrwlbZmU/uo92mxRoz7JTPJH
-         IcTmDoRGt63eytWZCYrUaPjiKHRAIyWiYgaS9hw4d8To8lA35smZu8F5xF5Vis66AU
-         hcFt61rVqypv3CGjMFwgXrI6x5edyXUEzEfVuKHI=
-Subject: FAILED: patch "[PATCH] esp: Fix possible buffer overflow in ESP transformation" failed to apply to 4.19-stable tree
+        b=lbW/hf9LBUcJJRhdiOjRfHjVSMpdY3Pg3urqu+UbGAa9J8ob8ZkG8xpot5FfA3f4N
+         0Xwe4HArOyYbdJjZIlI+mG7iEAIgfmByC17O7ijFEseayhl5CfTWF3Q7082ptEMj3a
+         R5qT4iErQ8O6wSFHF7C4+F2LrTDgW941Xi4B6oUE=
+Subject: FAILED: patch "[PATCH] esp: Fix possible buffer overflow in ESP transformation" failed to apply to 4.14-stable tree
 To:     steffen.klassert@secunet.com, sec@valis.email
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 14 Mar 2022 10:24:34 +0100
-Message-ID: <164724987424249@kroah.com>
+Message-ID: <16472498745560@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
