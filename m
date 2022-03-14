@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D974D835C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 315734D8456
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240978AbiCNMMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55568 "EHLO
+        id S241963AbiCNMXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242861AbiCNMLI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:11:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40ECA32EFC;
-        Mon, 14 Mar 2022 05:09:59 -0700 (PDT)
+        with ESMTP id S243799AbiCNMVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0B7049F83;
+        Mon, 14 Mar 2022 05:17:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7FF561314;
-        Mon, 14 Mar 2022 12:09:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABCAFC340F4;
-        Mon, 14 Mar 2022 12:09:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9949BB80DC0;
+        Mon, 14 Mar 2022 12:17:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB94EC340E9;
+        Mon, 14 Mar 2022 12:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259792;
-        bh=H5PrVNJ9RgkeRrsR7UrsrQ5G4Bj6FAhEeIAnrs3d6CU=;
+        s=korg; t=1647260221;
+        bh=iPLPLA7IMxm/yNnObmx+1b1e4pzUaWU5IeYMucuip24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPxJIz31RV0Vvw/84Pv5UrrwQV1Iu93datJx1KgEBMc2wgi80Fw8gSO/NWBFiSG6v
-         sGSRW3UpkKcvSMGy3M5Qlvb0N2kYerZvLOtyXPzQAkn/ezOAkAqw0ewvTmihxu6/eO
-         NSdN4JITYAYIdYpMoL6tIJM4OS2egpcWgbZS8d7k=
+        b=JuRALm8qa02uSeevSnA1S/bx+wUYcpjnlVyx8zZzHW2s7S+v4f/22b9oU4fMAaAb/
+         uEqKljCrTA+AAiCmRrQ07UjUPt7aUNLU0IKJXVWRgMLqaPwWR/tr5T4PJjvA/uNfqy
+         pLuSRKnw0PGuznGYMplz3fKQGR0FDth0azbxelww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 091/110] net/mlx5: Fix offloading with ESWITCH_IPV4_TTL_MODIFY_ENABLE
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.16 090/121] staging: gdm724x: fix use after free in gdm_lte_rx()
 Date:   Mon, 14 Mar 2022 12:54:33 +0100
-Message-Id: <20220314112745.570049869@linuxfoundation.org>
+Message-Id: <20220314112746.629986870@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dima Chumak <dchumak@nvidia.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 39bab83b119faac4bf7f07173a42ed35be95147e upstream.
+commit fc7f750dc9d102c1ed7bbe4591f991e770c99033 upstream.
 
-Only prio 1 is supported for nic mode when there is no ignore flow level
-support in firmware. But for switchdev mode, which supports fixed number
-of statically pre-allocated prios, this restriction is not relevant so
-it can be relaxed.
+The netif_rx_ni() function frees the skb so we can't dereference it to
+save the skb->len.
 
-Fixes: d671e109bd85 ("net/mlx5: Fix tc max supported prio for nic mode")
-Signed-off-by: Dima Chumak <dchumak@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 61e121047645 ("staging: gdm7240: adding LTE USB driver")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220228074331.GA13685@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/staging/gdm724x/gdm_lte.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
-@@ -121,9 +121,6 @@ u32 mlx5_chains_get_nf_ft_chain(struct m
+diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
+index 493ed4821515..0d8d8fed283d 100644
+--- a/drivers/staging/gdm724x/gdm_lte.c
++++ b/drivers/staging/gdm724x/gdm_lte.c
+@@ -76,14 +76,15 @@ static void tx_complete(void *arg)
  
- u32 mlx5_chains_get_prio_range(struct mlx5_fs_chains *chains)
+ static int gdm_lte_rx(struct sk_buff *skb, struct nic *nic, int nic_type)
  {
--	if (!mlx5_chains_prios_supported(chains))
--		return 1;
--
- 	if (mlx5_chains_ignore_flow_level_supported(chains))
- 		return UINT_MAX;
+-	int ret;
++	int ret, len;
  
++	len = skb->len + ETH_HLEN;
+ 	ret = netif_rx_ni(skb);
+ 	if (ret == NET_RX_DROP) {
+ 		nic->stats.rx_dropped++;
+ 	} else {
+ 		nic->stats.rx_packets++;
+-		nic->stats.rx_bytes += skb->len + ETH_HLEN;
++		nic->stats.rx_bytes += len;
+ 	}
+ 
+ 	return 0;
+-- 
+2.35.1
+
 
 
