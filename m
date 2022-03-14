@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E3C64D847A
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A07244D847D
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241287AbiCNMYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:24:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49010 "EHLO
+        id S241296AbiCNMYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:24:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243961AbiCNMVZ (ORCPT
+        with ESMTP id S243962AbiCNMVZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D0913D47;
-        Mon, 14 Mar 2022 05:19:38 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E982413D4A;
+        Mon, 14 Mar 2022 05:19:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7C5BB80DF6;
-        Mon, 14 Mar 2022 12:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 079C5C340E9;
-        Mon, 14 Mar 2022 12:19:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 643EA60B04;
+        Mon, 14 Mar 2022 12:19:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47AD8C340E9;
+        Mon, 14 Mar 2022 12:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260375;
-        bh=yMZ/o/Z9AaWrbnYeggMSBdhryGgzxhbFKPYHZNO4BFA=;
+        s=korg; t=1647260378;
+        bh=Oo27dpLiqZ3PTtHat/NkqpMWmU206kpSLhFIsj6g4OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OysTmPC+Ug+zusT7EeBgUdlLdkcDrwXYzRQlCV89Tx84ho9pSSunaKYaviu6IYhbV
-         bJ4duC7Qw/71u25vxCsLQ7iASpHriOQzldNApRGTf8yhLmjz9PkR3eNuPeBU+mrOd5
-         bwdncXKyMlnfvpIcBPv9bP4no6KSDnPfLVSwvusU=
+        b=ASnQA3IYJ1c/gbIiqm6cTQlCB/pFjzKdOp7qLKD2txTFp9azXR45DzeoLm+IKi8lG
+         nQ3jbzYHYVN37byC/AQ/CFkpdZg0a7sq6LAmYALcaxQDDLdixlyTJtf3vt/3njfAVl
+         ouKdnjYv2O1qCNUHtbF4rPZubaSfUEZOLWzGnMvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Philipson <ross.philipson@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Daniel Kiper <daniel.kiper@oracle.com>
-Subject: [PATCH 5.16 114/121] x86/boot: Add setup_indirect support in early_memremap_is_setup_data()
-Date:   Mon, 14 Mar 2022 12:54:57 +0100
-Message-Id: <20220314112747.289569251@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>
+Subject: [PATCH 5.16 115/121] x86/module: Fix the paravirt vs alternative order
+Date:   Mon, 14 Mar 2022 12:54:58 +0100
+Message-Id: <20220314112747.322871288@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
 References: <20220314112744.120491875@linuxfoundation.org>
@@ -54,82 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Philipson <ross.philipson@oracle.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 445c1470b6ef96440e7cfc42dfc160f5004fd149 upstream.
+commit 5adf349439d29f92467e864f728dfc23180f3ef9 upstream.
 
-The x86 boot documentation describes the setup_indirect structures and
-how they are used. Only one of the two functions in ioremap.c that needed
-to be modified to be aware of the introduction of setup_indirect
-functionality was updated. Adds comparable support to the other function
-where it was missing.
+Ever since commit
 
-Fixes: b3c72fc9a78e ("x86/boot: Introduce setup_indirect")
-Signed-off-by: Ross Philipson <ross.philipson@oracle.com>
+  4e6292114c74 ("x86/paravirt: Add new features for paravirt patching")
+
+there is an ordering dependency between patching paravirt ops and
+patching alternatives, the module loader still violates this.
+
+Fixes: 4e6292114c74 ("x86/paravirt: Add new features for paravirt patching")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Daniel Kiper <daniel.kiper@oracle.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1645668456-22036-3-git-send-email-ross.philipson@oracle.com
+Link: https://lore.kernel.org/r/20220303112825.068773913@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/ioremap.c |   33 +++++++++++++++++++++++++++++++--
- 1 file changed, 31 insertions(+), 2 deletions(-)
+ arch/x86/kernel/module.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -676,22 +676,51 @@ static bool memremap_is_setup_data(resou
- static bool __init early_memremap_is_setup_data(resource_size_t phys_addr,
- 						unsigned long size)
- {
-+	struct setup_indirect *indirect;
- 	struct setup_data *data;
- 	u64 paddr, paddr_next;
+--- a/arch/x86/kernel/module.c
++++ b/arch/x86/kernel/module.c
+@@ -273,6 +273,14 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 			retpolines = s;
+ 	}
  
- 	paddr = boot_params.hdr.setup_data;
- 	while (paddr) {
--		unsigned int len;
-+		unsigned int len, size;
++	/*
++	 * See alternative_instructions() for the ordering rules between the
++	 * various patching types.
++	 */
++	if (para) {
++		void *pseg = (void *)para->sh_addr;
++		apply_paravirt(pseg, pseg + para->sh_size);
++	}
+ 	if (retpolines) {
+ 		void *rseg = (void *)retpolines->sh_addr;
+ 		apply_retpolines(rseg, rseg + retpolines->sh_size);
+@@ -290,11 +298,6 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 					    tseg, tseg + text->sh_size);
+ 	}
  
- 		if (phys_addr == paddr)
- 			return true;
+-	if (para) {
+-		void *pseg = (void *)para->sh_addr;
+-		apply_paravirt(pseg, pseg + para->sh_size);
+-	}
+-
+ 	/* make jump label nops */
+ 	jump_label_apply_nops(me);
  
- 		data = early_memremap_decrypted(paddr, sizeof(*data));
-+		if (!data) {
-+			pr_warn("failed to early memremap setup_data entry\n");
-+			return false;
-+		}
-+
-+		size = sizeof(*data);
- 
- 		paddr_next = data->next;
- 		len = data->len;
- 
--		early_memunmap(data, sizeof(*data));
-+		if ((phys_addr > paddr) && (phys_addr < (paddr + len))) {
-+			early_memunmap(data, sizeof(*data));
-+			return true;
-+		}
-+
-+		if (data->type == SETUP_INDIRECT) {
-+			size += len;
-+			early_memunmap(data, sizeof(*data));
-+			data = early_memremap_decrypted(paddr, size);
-+			if (!data) {
-+				pr_warn("failed to early memremap indirect setup_data\n");
-+				return false;
-+			}
-+
-+			indirect = (struct setup_indirect *)data->data;
-+
-+			if (indirect->type != SETUP_INDIRECT) {
-+				paddr = indirect->addr;
-+				len = indirect->len;
-+			}
-+		}
-+
-+		early_memunmap(data, size);
- 
- 		if ((phys_addr > paddr) && (phys_addr < (paddr + len)))
- 			return true;
 
 
