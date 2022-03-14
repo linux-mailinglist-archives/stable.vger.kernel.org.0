@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C8114D825C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 807634D841B
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240294AbiCNMD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:03:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42162 "EHLO
+        id S241435AbiCNMWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240308AbiCNMDf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:03:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE0D4B87E;
-        Mon, 14 Mar 2022 05:01:05 -0700 (PDT)
+        with ESMTP id S243277AbiCNMUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:20:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91CE433E0F;
+        Mon, 14 Mar 2022 05:15:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B01B16112C;
-        Mon, 14 Mar 2022 12:01:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86D10C340EC;
-        Mon, 14 Mar 2022 12:01:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CEC6B80D24;
+        Mon, 14 Mar 2022 12:15:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00189C340EC;
+        Mon, 14 Mar 2022 12:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259265;
-        bh=0fYqO3/Kwmdjf5miuWSFOMXV9YAehpSgs/ABHv008Co=;
+        s=korg; t=1647260138;
+        bh=de/fJyuH3RGrHDzpAuLijxAzuusZcZ4269Yz32/9bI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0th/j6recGs+zkR2tpB6HNuIjxIu2d1ShV6r61vZsL/AmQfpAayS74zgnC7rezIMb
-         IrIYrUYgnzXyHh2HBqKeH4l30NJ8fu5phCucRgBynjyH/i065YkFBkUuJSN0GPXws7
-         /b+fTCTUkwsHahNZ0VDmGxFF520PeK3S58xUkCak=
+        b=KDnFwciD32UO9re1cjC8v6qKkyOL9qmMNEPKOgo2uBRl4LRKjHIgZMgE4v8Ba4ZEQ
+         Pdy7La24z52oQEI3GOnbPRcAU0uuYG00Rk3Dpw7Rh0O9P3ASiXSgENO179Vcw+Zs7N
+         3hnkwoun2Tsqpvbw1DUTHaNypKdy7ocpcPOpJNx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 37/71] selftests/bpf: Add test for bpf_timer overwriting crash
+Subject: [PATCH 5.16 027/121] smsc95xx: Ignore -ENODEV errors when device is unplugged
 Date:   Mon, 14 Mar 2022 12:53:30 +0100
-Message-Id: <20220314112738.971061305@linuxfoundation.org>
+Message-Id: <20220314112744.887299991@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit a7e75016a0753c24d6c995bc02501ae35368e333 ]
+[ Upstream commit c70c453abcbf3ecbaadd4c3236a5119b8da365cf ]
 
-Add a test that validates that timer value is not overwritten when doing
-a copy_map_value call in the kernel. Without the prior fix, this test
-triggers a crash.
+According to Documentation/driver-api/usb/URB.rst when a device
+is unplugged usb_submit_urb() returns -ENODEV.
 
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
+This error code propagates all the way up to usbnet_read_cmd() and
+usbnet_write_cmd() calls inside the smsc95xx.c driver during
+Ethernet cable unplug, unbind or reboot.
+
+This causes the following errors to be shown on reboot, for example:
+
+ci_hdrc ci_hdrc.1: remove, state 1
+usb usb2: USB disconnect, device number 1
+usb 2-1: USB disconnect, device number 2
+usb 2-1.1: USB disconnect, device number 3
+smsc95xx 2-1.1:1.0 eth1: unregister 'smsc95xx' usb-ci_hdrc.1-1.1, smsc95xx USB 2.0 Ethernet
+smsc95xx 2-1.1:1.0 eth1: Failed to read reg index 0x00000114: -19
+smsc95xx 2-1.1:1.0 eth1: Error reading MII_ACCESS
+smsc95xx 2-1.1:1.0 eth1: __smsc95xx_mdio_read: MII is busy
+smsc95xx 2-1.1:1.0 eth1: Failed to read reg index 0x00000114: -19
+smsc95xx 2-1.1:1.0 eth1: Error reading MII_ACCESS
+smsc95xx 2-1.1:1.0 eth1: __smsc95xx_mdio_read: MII is busy
+smsc95xx 2-1.1:1.0 eth1: hardware isn't capable of remote wakeup
+usb 2-1.4: USB disconnect, device number 4
+ci_hdrc ci_hdrc.1: USB bus 2 deregistered
+ci_hdrc ci_hdrc.0: remove, state 4
+usb usb1: USB disconnect, device number 1
+ci_hdrc ci_hdrc.0: USB bus 1 deregistered
+imx2-wdt 30280000.watchdog: Device shutdown: Expect reboot!
+reboot: Restarting system
+
+Ignore the -ENODEV errors inside __smsc95xx_mdio_read() and
+__smsc95xx_phy_wait_not_busy() and do not print error messages
+when -ENODEV is returned.
+
+Fixes: a049a30fc27c ("net: usb: Correct PHY handling of smsc95xx")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/timer_crash.c    | 32 +++++++++++
- .../testing/selftests/bpf/progs/timer_crash.c | 54 +++++++++++++++++++
- 2 files changed, 86 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
- create mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
+ drivers/net/usb/smsc95xx.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-new file mode 100644
-index 000000000000..f74b82305da8
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <test_progs.h>
-+#include "timer_crash.skel.h"
+diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
+index bc1e3dd67c04..a0f29482294d 100644
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -84,9 +84,10 @@ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
+ 	ret = fn(dev, USB_VENDOR_REQUEST_READ_REGISTER, USB_DIR_IN
+ 		 | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 		 0, index, &buf, 4);
+-	if (unlikely(ret < 0)) {
+-		netdev_warn(dev->net, "Failed to read reg index 0x%08x: %d\n",
+-			    index, ret);
++	if (ret < 0) {
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Failed to read reg index 0x%08x: %d\n",
++				    index, ret);
+ 		return ret;
+ 	}
+ 
+@@ -116,7 +117,7 @@ static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
+ 	ret = fn(dev, USB_VENDOR_REQUEST_WRITE_REGISTER, USB_DIR_OUT
+ 		 | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 		 0, index, &buf, 4);
+-	if (unlikely(ret < 0))
++	if (ret < 0 && ret != -ENODEV)
+ 		netdev_warn(dev->net, "Failed to write reg index 0x%08x: %d\n",
+ 			    index, ret);
+ 
+@@ -159,6 +160,9 @@ static int __must_check __smsc95xx_phy_wait_not_busy(struct usbnet *dev,
+ 	do {
+ 		ret = __smsc95xx_read_reg(dev, MII_ADDR, &val, in_pm);
+ 		if (ret < 0) {
++			/* Ignore -ENODEV error during disconnect() */
++			if (ret == -ENODEV)
++				return 0;
+ 			netdev_warn(dev->net, "Error reading MII_ACCESS\n");
+ 			return ret;
+ 		}
+@@ -194,7 +198,8 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
+ 	addr = mii_address_cmd(phy_id, idx, MII_READ_ | MII_BUSY_);
+ 	ret = __smsc95xx_write_reg(dev, MII_ADDR, addr, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error writing MII_ADDR\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error writing MII_ADDR\n");
+ 		goto done;
+ 	}
+ 
+@@ -206,7 +211,8 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
+ 
+ 	ret = __smsc95xx_read_reg(dev, MII_DATA, &val, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error reading MII_DATA\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error reading MII_DATA\n");
+ 		goto done;
+ 	}
+ 
+@@ -214,6 +220,10 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
+ 
+ done:
+ 	mutex_unlock(&dev->phy_mutex);
 +
-+enum {
-+	MODE_ARRAY,
-+	MODE_HASH,
-+};
-+
-+static void test_timer_crash_mode(int mode)
-+{
-+	struct timer_crash *skel;
-+
-+	skel = timer_crash__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
-+		return;
-+	skel->bss->pid = getpid();
-+	skel->bss->crash_map = mode;
-+	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
-+		goto end;
-+	usleep(1);
-+end:
-+	timer_crash__destroy(skel);
-+}
-+
-+void test_timer_crash(void)
-+{
-+	if (test__start_subtest("array"))
-+		test_timer_crash_mode(MODE_ARRAY);
-+	if (test__start_subtest("hash"))
-+		test_timer_crash_mode(MODE_HASH);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
-new file mode 100644
-index 000000000000..f8f7944e70da
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/timer_crash.c
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <vmlinux.h>
-+#include <bpf/bpf_tracing.h>
-+#include <bpf/bpf_helpers.h>
-+
-+struct map_elem {
-+	struct bpf_timer timer;
-+	struct bpf_spin_lock lock;
-+};
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_ARRAY);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} amap SEC(".maps");
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} hmap SEC(".maps");
-+
-+int pid = 0;
-+int crash_map = 0; /* 0 for amap, 1 for hmap */
-+
-+SEC("fentry/do_nanosleep")
-+int sys_enter(void *ctx)
-+{
-+	struct map_elem *e, value = {};
-+	void *map = crash_map ? (void *)&hmap : (void *)&amap;
-+
-+	if (bpf_get_current_task_btf()->tgid != pid)
++	/* Ignore -ENODEV error during disconnect() */
++	if (ret == -ENODEV)
 +		return 0;
-+
-+	*(void **)&value = (void *)0xdeadcaf3;
-+
-+	bpf_map_update_elem(map, &(int){0}, &value, 0);
-+	/* For array map, doing bpf_map_update_elem will do a
-+	 * check_and_free_timer_in_array, which will trigger the crash if timer
-+	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
-+	 */
-+	if (crash_map == 1) {
-+		e = bpf_map_lookup_elem(map, &(int){0});
-+		if (!e)
-+			return 0;
-+		bpf_timer_cancel(&e->timer);
-+	}
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
+ 	return ret;
+ }
+ 
+@@ -235,7 +245,8 @@ static void __smsc95xx_mdio_write(struct usbnet *dev, int phy_id,
+ 	val = regval;
+ 	ret = __smsc95xx_write_reg(dev, MII_DATA, val, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error writing MII_DATA\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error writing MII_DATA\n");
+ 		goto done;
+ 	}
+ 
+@@ -243,7 +254,8 @@ static void __smsc95xx_mdio_write(struct usbnet *dev, int phy_id,
+ 	addr = mii_address_cmd(phy_id, idx, MII_WRITE_ | MII_BUSY_);
+ 	ret = __smsc95xx_write_reg(dev, MII_ADDR, addr, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error writing MII_ADDR\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error writing MII_ADDR\n");
+ 		goto done;
+ 	}
+ 
 -- 
 2.34.1
 
