@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6FA54D83F1
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D69874D82A8
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:05:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237084AbiCNMWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51274 "EHLO
+        id S240469AbiCNMGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:06:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242759AbiCNMTi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2C43C72F;
-        Mon, 14 Mar 2022 05:14:42 -0700 (PDT)
+        with ESMTP id S240556AbiCNMFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C8BB47AF3;
+        Mon, 14 Mar 2022 05:02:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54A81B80DEB;
-        Mon, 14 Mar 2022 12:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE1A9C340E9;
-        Mon, 14 Mar 2022 12:14:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 836A2612FB;
+        Mon, 14 Mar 2022 12:02:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 851D1C340E9;
+        Mon, 14 Mar 2022 12:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260079;
-        bh=o1qmkW3ZoAZBrUFAtR437fZ26gI3ph1x0mg6GeiVfAg=;
+        s=korg; t=1647259351;
+        bh=jSQBdgjmG/0puOUtBTQLeaUF/iDNY/kxEsrAKEP7R2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zAScQ5yjNmBaUK+zOAkWDtZBHeI6+p5p9c/jjqOoe/gcthY38xpxpj0pmvbWPy/2u
-         IHNUkADb6t0ZVZh5K3thV5B3+mtHvl8WiX05Jf7lYF9UZh/giQYxfbD9ilRJ8v6Ntt
-         5Q43DuNRhf+9D/u6T1Kj0e8N7aTBD8w1wIvGnrn0=
+        b=s1SbI+Wj+UyFgzxrwXqoo0z8wsXP5WF1oR2w9l/dWrj7tS77yz4hlKr469KGzwFNV
+         ZgDV1lpQ7tmVKzPcyXVtZiEH8Y+wDemrOCOQ3fypKgVZl8SP3ToRavyJOlxrCXwARZ
+         YuODNLWJqqV5dSNTeL2VtsMnUqFHxhZqgOLKK//s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
-Subject: [PATCH 5.16 049/121] NFC: port100: fix use-after-free in port100_send_complete
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 59/71] watch_queue, pipe: Free watchqueue state after clearing pipe ring
 Date:   Mon, 14 Mar 2022 12:53:52 +0100
-Message-Id: <20220314112745.495119683@linuxfoundation.org>
+Message-Id: <20220314112739.582363593@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit f80cfe2f26581f188429c12bd937eb905ad3ac7b ]
+commit db8facfc9fafacefe8a835416a6b77c838088f8b upstream.
 
-Syzbot reported UAF in port100_send_complete(). The root case is in
-missing usb_kill_urb() calls on error handling path of ->probe function.
+In free_pipe_info(), free the watchqueue state after clearing the pipe
+ring as each pipe ring descriptor has a release function, and in the
+case of a notification message, this is watch_queue_pipe_buf_release()
+which tries to mark the allocation bitmap that was previously released.
 
-port100_send_complete() accesses devm allocated memory which will be
-freed on probe failure. We should kill this urbs before returning an
-error from probe function to prevent reported use-after-free
+Fix this by moving the put of the pipe's ref on the watch queue to after
+the ring has been cleared.  We still need to call watch_queue_clear()
+before doing that to make sure that the pipe is disconnected from any
+notification sources first.
 
-Fail log:
-
-BUG: KASAN: use-after-free in port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
-Read of size 1 at addr ffff88801bb59540 by task ksoftirqd/2/26
-...
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
- port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
- __usb_hcd_giveback_urb+0x2b0/0x5c0 drivers/usb/core/hcd.c:1670
-
-...
-
-Allocated by task 1255:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:45 [inline]
- set_alloc_info mm/kasan/common.c:436 [inline]
- ____kasan_kmalloc mm/kasan/common.c:515 [inline]
- ____kasan_kmalloc mm/kasan/common.c:474 [inline]
- __kasan_kmalloc+0xa6/0xd0 mm/kasan/common.c:524
- alloc_dr drivers/base/devres.c:116 [inline]
- devm_kmalloc+0x96/0x1d0 drivers/base/devres.c:823
- devm_kzalloc include/linux/device.h:209 [inline]
- port100_probe+0x8a/0x1320 drivers/nfc/port100.c:1502
-
-Freed by task 1255:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:45
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:366 [inline]
- ____kasan_slab_free+0xff/0x140 mm/kasan/common.c:328
- kasan_slab_free include/linux/kasan.h:236 [inline]
- __cache_free mm/slab.c:3437 [inline]
- kfree+0xf8/0x2b0 mm/slab.c:3794
- release_nodes+0x112/0x1a0 drivers/base/devres.c:501
- devres_release_all+0x114/0x190 drivers/base/devres.c:530
- really_probe+0x626/0xcc0 drivers/base/dd.c:670
-
-Reported-and-tested-by: syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
-Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20220308185007.6987-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/port100.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/pipe.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
-index d7db1a0e6be1..00d8ea6dcb5d 100644
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1612,7 +1612,9 @@ static int port100_probe(struct usb_interface *interface,
- 	nfc_digital_free_device(dev->nfc_digital_dev);
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -830,10 +830,8 @@ void free_pipe_info(struct pipe_inode_in
+ 	int i;
  
- error:
-+	usb_kill_urb(dev->in_urb);
- 	usb_free_urb(dev->in_urb);
-+	usb_kill_urb(dev->out_urb);
- 	usb_free_urb(dev->out_urb);
- 	usb_put_dev(dev->udev);
+ #ifdef CONFIG_WATCH_QUEUE
+-	if (pipe->watch_queue) {
++	if (pipe->watch_queue)
+ 		watch_queue_clear(pipe->watch_queue);
+-		put_watch_queue(pipe->watch_queue);
+-	}
+ #endif
  
--- 
-2.34.1
-
+ 	(void) account_pipe_buffers(pipe->user, pipe->nr_accounted, 0);
+@@ -843,6 +841,10 @@ void free_pipe_info(struct pipe_inode_in
+ 		if (buf->ops)
+ 			pipe_buf_release(pipe, buf);
+ 	}
++#ifdef CONFIG_WATCH_QUEUE
++	if (pipe->watch_queue)
++		put_watch_queue(pipe->watch_queue);
++#endif
+ 	if (pipe->tmp_page)
+ 		__free_page(pipe->tmp_page);
+ 	kfree(pipe->bufs);
 
 
