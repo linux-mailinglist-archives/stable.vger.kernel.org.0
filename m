@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D23D4D8305
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3ACD4D8297
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:04:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240775AbiCNMML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35336 "EHLO
+        id S240438AbiCNMFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:05:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242221AbiCNMJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2318C50B04;
-        Mon, 14 Mar 2022 05:06:54 -0700 (PDT)
+        with ESMTP id S229979AbiCNMFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A1114004;
+        Mon, 14 Mar 2022 05:02:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABEB76130C;
-        Mon, 14 Mar 2022 12:06:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E2EAC340EC;
-        Mon, 14 Mar 2022 12:06:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD8EF61298;
+        Mon, 14 Mar 2022 12:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6649C340EC;
+        Mon, 14 Mar 2022 12:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259597;
-        bh=YeTe//0SAgavio9Xw86XZZ+I6TczDnfWm8tRimdCf7o=;
+        s=korg; t=1647259328;
+        bh=mdDHg2z5cqERmmM8M2jduxHMSN8p3o1lU+HcDbiVjn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRkdJVa1Qv/ZNWSZsiTwP1k38v/cmLT+TNXrMJpGsgp6S1jkpTDFxbpLwquk+l1MV
-         5Iom95mdcBrl5jrGgB9z8GEHZfvz+qrZ6luwAGvVjnjbssgFYVO3qraX8yWn/wGT9r
-         vFU5QqWe73JSaeNk2nunLCvDYpcmOrWmj7AvpicM=
+        b=Rp2Y/eAmleORap4t3gCGAWPMonkpa1OHH+/A/Sx713PRdHl8GtpZyXwncGV9uUVpD
+         AGjhudf3sdDWz4BOSwz9/s+VGw5fKnizxCTRIsNiiLy428NxGUWwocp2V5cXG2BEOd
+         F/HtyQLjDMqtofo/xYYaeC1R+yqAsBDLZiZj/I6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 045/110] selftests: pmtu.sh: Kill nettest processes launched in subshell.
+        stable@vger.kernel.org, Rong Chen <rong.chen@amlogic.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 54/71] mmc: meson: Fix usage of meson_mmc_post_req()
 Date:   Mon, 14 Mar 2022 12:53:47 +0100
-Message-Id: <20220314112744.295152342@linuxfoundation.org>
+Message-Id: <20220314112739.442781304@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Rong Chen <rong.chen@amlogic.com>
 
-[ Upstream commit 94a4a4fe4c696413932eed8bdec46574de9576b8 ]
+commit f0d2f15362f02444c5d7ffd5a5eb03e4aa54b685 upstream.
 
-When using "run_cmd <command> &", then "$!" refers to the PID of the
-subshell used to run <command>, not the command itself. Therefore
-nettest_pids actually doesn't contain the list of the nettest commands
-running in the background. So cleanup() can't kill them and the nettest
-processes run until completion (fortunately they have a 5s timeout).
+Currently meson_mmc_post_req() is called in meson_mmc_request() right
+after meson_mmc_start_cmd(). This could lead to DMA unmapping before the request
+is actually finished.
 
-Fix this by defining a new command for running processes in the
-background, for which "$!" really refers to the PID of the command run.
+To fix, don't call meson_mmc_post_req() until meson_mmc_request_done().
 
-Also, double quote variables on the modified lines, to avoid shellcheck
-warnings.
-
-Fixes: ece1278a9b81 ("selftests: net: add ESP-in-UDP PMTU test")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Rong Chen <rong.chen@amlogic.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: 79ed05e329c3 ("mmc: meson-gx: add support for descriptor chain mode")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220216124239.4007667-1-rong.chen@amlogic.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/pmtu.sh | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/mmc/host/meson-gx-mmc.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
-index 2e8972573d91..694732e4b344 100755
---- a/tools/testing/selftests/net/pmtu.sh
-+++ b/tools/testing/selftests/net/pmtu.sh
-@@ -374,6 +374,16 @@ run_cmd() {
- 	return $rc
+--- a/drivers/mmc/host/meson-gx-mmc.c
++++ b/drivers/mmc/host/meson-gx-mmc.c
+@@ -173,6 +173,8 @@ struct meson_host {
+ 	int irq;
+ 
+ 	bool vqmmc_enabled;
++	bool needs_pre_post_req;
++
+ };
+ 
+ #define CMD_CFG_LENGTH_MASK GENMASK(8, 0)
+@@ -652,6 +654,8 @@ static void meson_mmc_request_done(struc
+ 	struct meson_host *host = mmc_priv(mmc);
+ 
+ 	host->cmd = NULL;
++	if (host->needs_pre_post_req)
++		meson_mmc_post_req(mmc, mrq, 0);
+ 	mmc_request_done(host->mmc, mrq);
  }
  
-+run_cmd_bg() {
-+	cmd="$*"
-+
-+	if [ "$VERBOSE" = "1" ]; then
-+		printf "    COMMAND: %s &\n" "${cmd}"
-+	fi
-+
-+	$cmd 2>&1 &
-+}
-+
- # Find the auto-generated name for this namespace
- nsname() {
- 	eval echo \$NS_$1
-@@ -670,10 +680,10 @@ setup_nettest_xfrm() {
- 	[ ${1} -eq 6 ] && proto="-6" || proto=""
- 	port=${2}
+@@ -869,7 +873,7 @@ static int meson_mmc_validate_dram_acces
+ static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
+ {
+ 	struct meson_host *host = mmc_priv(mmc);
+-	bool needs_pre_post_req = mrq->data &&
++	host->needs_pre_post_req = mrq->data &&
+ 			!(mrq->data->host_cookie & SD_EMMC_PRE_REQ_DONE);
  
--	run_cmd ${ns_a} nettest ${proto} -q -D -s -x -p ${port} -t 5 &
-+	run_cmd_bg "${ns_a}" nettest "${proto}" -q -D -s -x -p "${port}" -t 5
- 	nettest_pids="${nettest_pids} $!"
+ 	/*
+@@ -885,22 +889,19 @@ static void meson_mmc_request(struct mmc
+ 		}
+ 	}
  
--	run_cmd ${ns_b} nettest ${proto} -q -D -s -x -p ${port} -t 5 &
-+	run_cmd_bg "${ns_b}" nettest "${proto}" -q -D -s -x -p "${port}" -t 5
- 	nettest_pids="${nettest_pids} $!"
+-	if (needs_pre_post_req) {
++	if (host->needs_pre_post_req) {
+ 		meson_mmc_get_transfer_mode(mmc, mrq);
+ 		if (!meson_mmc_desc_chain_mode(mrq->data))
+-			needs_pre_post_req = false;
++			host->needs_pre_post_req = false;
+ 	}
+ 
+-	if (needs_pre_post_req)
++	if (host->needs_pre_post_req)
+ 		meson_mmc_pre_req(mmc, mrq);
+ 
+ 	/* Stop execution */
+ 	writel(0, host->regs + SD_EMMC_START);
+ 
+ 	meson_mmc_start_cmd(mmc, mrq->sbc ?: mrq->cmd);
+-
+-	if (needs_pre_post_req)
+-		meson_mmc_post_req(mmc, mrq, 0);
  }
  
--- 
-2.34.1
-
+ static void meson_mmc_read_resp(struct mmc_host *mmc, struct mmc_command *cmd)
 
 
