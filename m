@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC25F4D81FE
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:58:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 271104D83DC
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239973AbiCNL64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:58:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38458 "EHLO
+        id S233763AbiCNMWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239919AbiCNL6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:58:41 -0400
+        with ESMTP id S242521AbiCNMTH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA2A1263F;
-        Mon, 14 Mar 2022 04:57:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 075804F460;
+        Mon, 14 Mar 2022 05:14:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70945B80DE9;
-        Mon, 14 Mar 2022 11:57:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C7EC340E9;
-        Mon, 14 Mar 2022 11:57:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4321B80DBF;
+        Mon, 14 Mar 2022 12:14:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB52C340EC;
+        Mon, 14 Mar 2022 12:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259049;
-        bh=BJLscQoASiELmC3c/HXzyyG7UYUhMnCpwAGax45/sOM=;
+        s=korg; t=1647260054;
+        bh=sFF5kOSFIYhuLY8fRw2uLPZeHATbtnDGZk9fWhUpgkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdTFnKXQSgxratl3m7O0LncNMaxxHhRdoPT29vG8UBaJUEVzmC2QXzsaypWsKlVHM
-         68YSKosnwjRTf1yvHHHR6aJsp/u8ssP4AFzgCXvtDfDJwfA8eawJ+SHwl5TDQbETYz
-         vX6mOGJpnL/umuciIYKJiVzRt32kduGQcOx2uaVQ=
+        b=mYdWbMfR6t75m9eXoAGAbMWzO78jR5g/1IDIlX8Fi1pTVw0eDCUTDGLK/sgV0XxqK
+         IVgGd81MNau1DqFDPE9Z0YKiwnQUQYzMeYHQr4JdGtyjHYL9MSA4M9C3B4W6LnzuFB
+         +90YgCHhAlWGhMRw1sXD49HP4/xPzitbxBra386k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Emil Renner Berthing <kernel@esmil.dk>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.4 34/43] riscv: Fix auipc+jalr relocation range checks
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 042/121] net: ethernet: lpc_eth: Handle error for clk_enable
 Date:   Mon, 14 Mar 2022 12:53:45 +0100
-Message-Id: <20220314112735.377230465@linuxfoundation.org>
+Message-Id: <20220314112745.302151330@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <kernel@esmil.dk>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 0966d385830de3470b7131db8e86c0c5bc9c52dc upstream.
+[ Upstream commit 2169b79258c8be803d2595d6456b1e77129fe154 ]
 
-RISC-V can do PC-relative jumps with a 32bit range using the following
-two instructions:
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-	auipc	t0, imm20	; t0 = PC + imm20 * 2^12
-	jalr	ra, t0, imm12	; ra = PC + 4, PC = t0 + imm12
-
-Crucially both the 20bit immediate imm20 and the 12bit immediate imm12
-are treated as two's-complement signed values. For this reason the
-immediates are usually calculated like this:
-
-	imm20 = (offset + 0x800) >> 12
-	imm12 = offset & 0xfff
-
-..where offset is the signed offset from the auipc instruction. When
-the 11th bit of offset is 0 the addition of 0x800 doesn't change the top
-20 bits and imm12 considered positive. When the 11th bit is 1 the carry
-of the addition by 0x800 means imm20 is one higher, but since imm12 is
-then considered negative the two's complement representation means it
-all cancels out nicely.
-
-However, this addition by 0x800 (2^11) means an offset greater than or
-equal to 2^31 - 2^11 would overflow so imm20 is considered negative and
-result in a backwards jump. Similarly the lower range of offset is also
-moved down by 2^11 and hence the true 32bit range is
-
-	[-2^31 - 2^11, 2^31 - 2^11)
-
-Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
-Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/module.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/nxp/lpc_eth.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/module.c
-+++ b/arch/riscv/kernel/module.c
-@@ -13,6 +13,19 @@
- #include <asm/pgtable.h>
- #include <asm/sections.h>
- 
-+/*
-+ * The auipc+jalr instruction pair can reach any PC-relative offset
-+ * in the range [-2^31 - 2^11, 2^31 - 2^11)
-+ */
-+static bool riscv_insn_valid_32bit_offset(ptrdiff_t val)
-+{
-+#ifdef CONFIG_32BIT
-+	return true;
-+#else
-+	return (-(1L << 31) - (1L << 11)) <= val && val < ((1L << 31) - (1L << 11));
-+#endif
-+}
-+
- static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index bc39558fe82b..756f97dce85b 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1471,6 +1471,7 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
  {
- 	if (v != (u32)v) {
-@@ -95,7 +108,7 @@ static int apply_r_riscv_pcrel_hi20_rela
- 	ptrdiff_t offset = (void *)v - (void *)location;
- 	s32 hi20;
+ 	struct net_device *ndev = platform_get_drvdata(pdev);
+ 	struct netdata_local *pldat;
++	int ret;
  
--	if (offset != (s32)offset) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
-@@ -197,10 +210,9 @@ static int apply_r_riscv_call_plt_rela(s
- 				       Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
+ 	if (device_may_wakeup(&pdev->dev))
+ 		disable_irq_wake(ndev->irq);
+@@ -1480,7 +1481,9 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
+ 			pldat = netdev_priv(ndev);
  
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		/* Only emit the plt entry if offset over 32-bit range */
- 		if (IS_ENABLED(CONFIG_MODULE_SECTIONS)) {
- 			offset = module_emit_plt_entry(me, v);
-@@ -224,10 +236,9 @@ static int apply_r_riscv_call_rela(struc
- 				   Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
+ 			/* Enable interface clock */
+-			clk_enable(pldat->clk);
++			ret = clk_enable(pldat->clk);
++			if (ret)
++				return ret;
  
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
+ 			/* Reset and initialize */
+ 			__lpc_eth_reset(pldat);
+-- 
+2.34.1
+
 
 
