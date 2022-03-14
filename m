@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC7A4D8429
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4EA4D834F
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241569AbiCNMXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49808 "EHLO
+        id S240936AbiCNMMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243908AbiCNMVX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 640CBDFC7;
-        Mon, 14 Mar 2022 05:17:58 -0700 (PDT)
+        with ESMTP id S242471AbiCNMKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:10:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C03B17A91;
+        Mon, 14 Mar 2022 05:08:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F231860C6D;
-        Mon, 14 Mar 2022 12:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB273C340EC;
-        Mon, 14 Mar 2022 12:17:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99F39B80DF2;
+        Mon, 14 Mar 2022 12:08:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 632A7C340E9;
+        Mon, 14 Mar 2022 12:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260277;
-        bh=4Fma61kxyBtoEpmgucDXrTf9L5hhilvU5ts6daQFQuc=;
+        s=korg; t=1647259704;
+        bh=onYlknSgLwbgYWqir8BhpYuP5iyE2EdA/Jrp4+PEz4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tr6w9XO1oy3OJ1lq0R83gU4YZVuRmQ0iStTZNh3OcppNRl/6duuVT3MO4jmgFpwH7
-         DwNkyVPYJsZUJz7AMadUBa9NbW8f8/HePsxq2+nIzkgHKl3Z2ZdqHbpv1jazEEClSb
-         xH6BLIGXrWBmHzQzQBhFTSAoLU940TZJ7m/CTOh8=
+        b=nlMHU1UmaWvY3cFtrr2+WTFw82XDMYp+tMlRDttTfkTLnIFuK2g0lE7jNneo6bGjN
+         UVvLrF6kbHau0kqfgjE34ped/8CElsgH11ziVOzzDm/mfaCZqF32nC+tcDqMD+XVyI
+         pb7boUyuvjVPArrL9rzeq0J1BFCwSf92aeqm3t7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Niels Dossche <niels.dossche@ugent.be>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 067/121] spi: rockchip: terminate dma transmission when slave abort
-Date:   Mon, 14 Mar 2022 12:54:10 +0100
-Message-Id: <20220314112745.994984753@linuxfoundation.org>
+Subject: [PATCH 5.15 069/110] ipv6: prevent a possible race condition with lifetimes
+Date:   Mon, 14 Mar 2022 12:54:11 +0100
+Message-Id: <20220314112744.961724588@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Lin <jon.lin@rock-chips.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 80808768e41324d2e23de89972b5406c1020e6e4 ]
+[ Upstream commit 6c0d8833a605e195ae219b5042577ce52bf71fff ]
 
-After slave abort, all DMA should be stopped, or it will affect the
-next transmission and maybe abort again.
+valid_lft, prefered_lft and tstamp are always accessed under the lock
+"lock" in other places. Reading these without taking the lock may result
+in inconsistencies regarding the calculation of the valid and preferred
+variables since decisions are taken on these fields for those variables.
 
-Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
-Link: https://lore.kernel.org/r/20220216014028.8123-3-jon.lin@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Niels Dossche <niels.dossche@ugent.be>
+Link: https://lore.kernel.org/r/20220223131954.6570-1-niels.dossche@ugent.be
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv6/addrconf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 4f65ba3dd19c..c6a1bb09be05 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -585,6 +585,12 @@ static int rockchip_spi_slave_abort(struct spi_controller *ctlr)
- {
- 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index e852bbc839dd..1fe27807e471 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -5000,6 +5000,7 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
+ 	    nla_put_s32(skb, IFA_TARGET_NETNSID, args->netnsid))
+ 		goto error;
  
-+	if (atomic_read(&rs->state) & RXDMA)
-+		dmaengine_terminate_sync(ctlr->dma_rx);
-+	if (atomic_read(&rs->state) & TXDMA)
-+		dmaengine_terminate_sync(ctlr->dma_tx);
-+	atomic_set(&rs->state, 0);
-+	spi_enable_chip(rs, false);
- 	rs->slave_abort = true;
- 	spi_finalize_current_transfer(ctlr);
++	spin_lock_bh(&ifa->lock);
+ 	if (!((ifa->flags&IFA_F_PERMANENT) &&
+ 	      (ifa->prefered_lft == INFINITY_LIFE_TIME))) {
+ 		preferred = ifa->prefered_lft;
+@@ -5021,6 +5022,7 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
+ 		preferred = INFINITY_LIFE_TIME;
+ 		valid = INFINITY_LIFE_TIME;
+ 	}
++	spin_unlock_bh(&ifa->lock);
  
+ 	if (!ipv6_addr_any(&ifa->peer_addr)) {
+ 		if (nla_put_in6_addr(skb, IFA_LOCAL, &ifa->addr) < 0 ||
 -- 
 2.34.1
 
