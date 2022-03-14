@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABB54D842C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE5BE4D826A
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241587AbiCNMXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
+        id S240245AbiCNMDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:03:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241974AbiCNMSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:39 -0400
+        with ESMTP id S240621AbiCNMDW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:03:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606E53B54F;
-        Mon, 14 Mar 2022 05:13:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA9D2B182;
+        Mon, 14 Mar 2022 05:00:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99F0D604F5;
-        Mon, 14 Mar 2022 12:13:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A42FCC340E9;
-        Mon, 14 Mar 2022 12:13:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6632E61260;
+        Mon, 14 Mar 2022 12:00:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 306C6C340E9;
+        Mon, 14 Mar 2022 12:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259997;
-        bh=lGPb0eTPAC6Pfa3pqaF5GqG7LBkpa0wzfQC8LFD6BxY=;
+        s=korg; t=1647259231;
+        bh=YMYnOjNNfhNjUlC61X8qNNM2OgJ0OqDWeEDZ4qw2yJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCO3mXDt3Lbet3J8iT3i4tkFKng7f8iqTupIu0WUYS8Y5GoqgG8mnJXOOXspVp/LN
-         Asv6mU+RG6kilB9ARxmUKTLkZ9iySE0vj6q/QNPKDYYKvJNmYGkh98TYtDfpUD2iyl
-         yB/XwWT8BMA/fBQ74lkAAe1tjlnJbqVbn8o1os0Q=
+        b=lmYF62sHUcY4Z6fHoMBDtErtk2BbgnwRbmEiLC6njs1AOjTks2EbQs/HMCEGBwcKK
+         SYl7LLrFWT4PXx3S1ELOoXLiThVWY8B4UCz57M13kuT8QdUUqVDxTvXDHCxxXc8HDk
+         KXsqvG7mJgIMoPHM6fRUrthO2AF9WNOyekfGmZS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Min <zhang.min9@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 020/121] vdpa: fix use-after-free on vp_vdpa_remove
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 30/71] NFC: port100: fix use-after-free in port100_send_complete
 Date:   Mon, 14 Mar 2022 12:53:23 +0100
-Message-Id: <20220314112744.692628352@linuxfoundation.org>
+Message-Id: <20220314112738.775459963@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Min <zhang.min9@zte.com.cn>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit eb057b44dbe35ae14527830236a92f51de8f9184 ]
+[ Upstream commit f80cfe2f26581f188429c12bd937eb905ad3ac7b ]
 
-When vp_vdpa driver is unbind, vp_vdpa is freed in vdpa_unregister_device
-and then vp_vdpa->mdev.pci_dev is dereferenced in vp_modern_remove,
-triggering use-after-free.
+Syzbot reported UAF in port100_send_complete(). The root case is in
+missing usb_kill_urb() calls on error handling path of ->probe function.
 
-Call Trace of unbinding driver free vp_vdpa :
-do_syscall_64
-  vfs_write
-    kernfs_fop_write_iter
-      device_release_driver_internal
-        pci_device_remove
-          vp_vdpa_remove
-            vdpa_unregister_device
-              kobject_release
-                device_release
-                  kfree
+port100_send_complete() accesses devm allocated memory which will be
+freed on probe failure. We should kill this urbs before returning an
+error from probe function to prevent reported use-after-free
 
-Call Trace of dereference vp_vdpa->mdev.pci_dev:
-vp_modern_remove
-  pci_release_selected_regions
-    pci_release_region
-      pci_resource_len
-        pci_resource_end
-          (dev)->resource[(bar)].end
+Fail log:
 
-Signed-off-by: Zhang Min <zhang.min9@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Link: https://lore.kernel.org/r/20220301091059.46869-1-wang.yi59@zte.com.cn
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Fixes: 64b9f64f80a6 ("vdpa: introduce virtio pci driver")
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+BUG: KASAN: use-after-free in port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
+Read of size 1 at addr ffff88801bb59540 by task ksoftirqd/2/26
+...
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
+ port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
+ __usb_hcd_giveback_urb+0x2b0/0x5c0 drivers/usb/core/hcd.c:1670
+
+...
+
+Allocated by task 1255:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:45 [inline]
+ set_alloc_info mm/kasan/common.c:436 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:515 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:474 [inline]
+ __kasan_kmalloc+0xa6/0xd0 mm/kasan/common.c:524
+ alloc_dr drivers/base/devres.c:116 [inline]
+ devm_kmalloc+0x96/0x1d0 drivers/base/devres.c:823
+ devm_kzalloc include/linux/device.h:209 [inline]
+ port100_probe+0x8a/0x1320 drivers/nfc/port100.c:1502
+
+Freed by task 1255:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+ kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+ ____kasan_slab_free mm/kasan/common.c:366 [inline]
+ ____kasan_slab_free+0xff/0x140 mm/kasan/common.c:328
+ kasan_slab_free include/linux/kasan.h:236 [inline]
+ __cache_free mm/slab.c:3437 [inline]
+ kfree+0xf8/0x2b0 mm/slab.c:3794
+ release_nodes+0x112/0x1a0 drivers/base/devres.c:501
+ devres_release_all+0x114/0x190 drivers/base/devres.c:530
+ really_probe+0x626/0xcc0 drivers/base/dd.c:670
+
+Reported-and-tested-by: syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
+Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20220308185007.6987-1-paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/virtio_pci/vp_vdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nfc/port100.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-index e3ff7875e123..fab161961160 100644
---- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-+++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-@@ -525,8 +525,8 @@ static void vp_vdpa_remove(struct pci_dev *pdev)
- {
- 	struct vp_vdpa *vp_vdpa = pci_get_drvdata(pdev);
+diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
+index 1caebefb25ff..2ae1474faede 100644
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -1609,7 +1609,9 @@ static int port100_probe(struct usb_interface *interface,
+ 	nfc_digital_free_device(dev->nfc_digital_dev);
  
--	vdpa_unregister_device(&vp_vdpa->vdpa);
- 	vp_modern_remove(&vp_vdpa->mdev);
-+	vdpa_unregister_device(&vp_vdpa->vdpa);
- }
+ error:
++	usb_kill_urb(dev->in_urb);
+ 	usb_free_urb(dev->in_urb);
++	usb_kill_urb(dev->out_urb);
+ 	usb_free_urb(dev->out_urb);
+ 	usb_put_dev(dev->udev);
  
- static struct pci_driver vp_vdpa_driver = {
 -- 
 2.34.1
 
