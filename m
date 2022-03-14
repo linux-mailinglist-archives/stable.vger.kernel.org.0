@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B66D4D83C4
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E881F4D8264
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232673AbiCNMVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:21:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49562 "EHLO
+        id S240279AbiCNMDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:03:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241282AbiCNMRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:17:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ACB33615B;
-        Mon, 14 Mar 2022 05:12:14 -0700 (PDT)
+        with ESMTP id S240295AbiCNMC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:02:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9981148E41;
+        Mon, 14 Mar 2022 04:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC08461315;
-        Mon, 14 Mar 2022 12:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA05C340E9;
-        Mon, 14 Mar 2022 12:12:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD202B80DED;
+        Mon, 14 Mar 2022 11:59:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00D5C340E9;
+        Mon, 14 Mar 2022 11:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259933;
-        bh=RpuEEhblVS7oeVMwXLKhwEPjAiZgZESDzNGYsLkFL/c=;
+        s=korg; t=1647259188;
+        bh=D82nbj2TMthY/ASTcn3PArLP1YPK01VBcgmjf+IpPO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0CnPijFfoTAiKbWCmO62hfc3OIn1pb8Mj2THxoKm/F/W6e+YXpYObygAx41vSLP0
-         6EPtBzTPTYvsl4/ztk6zI4Jyonj15Uh1kGxaJQsaCNHakgfZDzr1GwODSc9iHbS6fe
-         RGP3xx6RN19MHdkc1UmvAl+DY0IRWyPT8iCRSnaw=
+        b=aTdk1zkXPBGmsYeJN2YGk0x0GEVshRsuJqTTCQHysH8mszbYBi6JjkpJ/Z/4nQxcs
+         EGIOXazYF0diMxptWzV+/XxXQa4PvBkacGus/Es7Evt7/qnBWHoLWksgmQ1wPjNk0m
+         y/9aFh0rxHFy0zQO3AKc+MBl9fzSSxdE3v1p28JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Jon Maloy <jmaloy@redhat.com>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 012/121] tipc: fix kernel panic when enabling bearer
+Subject: [PATCH 5.10 22/71] ethernet: Fix error handling in xemaclite_of_probe
 Date:   Mon, 14 Mar 2022 12:53:15 +0100
-Message-Id: <20220314112744.468877112@linuxfoundation.org>
+Message-Id: <20220314112738.554526378@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,104 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit be4977b847f5d5cedb64d50eaaf2218c3a55a3a3 ]
+[ Upstream commit b19ab4b38b06aae12442b2de95ccf58b5dc53584 ]
 
-When enabling a bearer on a node, a kernel panic is observed:
+This node pointer is returned by of_parse_phandle() with refcount
+incremented in this function. Calling of_node_put() to avoid the
+refcount leak. As the remove function do.
 
-[    4.498085] RIP: 0010:tipc_mon_prep+0x4e/0x130 [tipc]
-...
-[    4.520030] Call Trace:
-[    4.520689]  <IRQ>
-[    4.521236]  tipc_link_build_proto_msg+0x375/0x750 [tipc]
-[    4.522654]  tipc_link_build_state_msg+0x48/0xc0 [tipc]
-[    4.524034]  __tipc_node_link_up+0xd7/0x290 [tipc]
-[    4.525292]  tipc_rcv+0x5da/0x730 [tipc]
-[    4.526346]  ? __netif_receive_skb_core+0xb7/0xfc0
-[    4.527601]  tipc_l2_rcv_msg+0x5e/0x90 [tipc]
-[    4.528737]  __netif_receive_skb_list_core+0x20b/0x260
-[    4.530068]  netif_receive_skb_list_internal+0x1bf/0x2e0
-[    4.531450]  ? dev_gro_receive+0x4c2/0x680
-[    4.532512]  napi_complete_done+0x6f/0x180
-[    4.533570]  virtnet_poll+0x29c/0x42e [virtio_net]
-...
-
-The node in question is receiving activate messages in another
-thread after changing bearer status to allow message sending/
-receiving in current thread:
-
-         thread 1           |              thread 2
-         --------           |              --------
-                            |
-tipc_enable_bearer()        |
-  test_and_set_bit_lock()   |
-    tipc_bearer_xmit_skb()  |
-                            | tipc_l2_rcv_msg()
-                            |   tipc_rcv()
-                            |     __tipc_node_link_up()
-                            |       tipc_link_build_state_msg()
-                            |         tipc_link_build_proto_msg()
-                            |           tipc_mon_prep()
-                            |           {
-                            |             ...
-                            |             // null-pointer dereference
-                            |             u16 gen = mon->dom_gen;
-                            |             ...
-                            |           }
-  // Not being executed yet |
-  tipc_mon_create()         |
-  {                         |
-    ...                     |
-    // allocate             |
-    mon = kzalloc();        |
-    ...                     |
-  }                         |
-
-Monitoring pointer in thread 2 is dereferenced before monitoring data
-is allocated in thread 1. This causes kernel panic.
-
-This commit fixes it by allocating the monitoring data before enabling
-the bearer to receive messages.
-
-Fixes: 35c55c9877f8 ("tipc: add neighbor monitoring framework")
-Reported-by: Shuang Li <shuali@redhat.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5cdaaa12866e ("net: emaclite: adding MDIO and phy lib support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220308024751.2320-1-linmq006@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bearer.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 60bc74b76adc..1cb5907d90d8 100644
---- a/net/tipc/bearer.c
-+++ b/net/tipc/bearer.c
-@@ -352,16 +352,18 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 		goto rejected;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+index 962831cdde4d..4bd44fbc6ecf 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -1187,7 +1187,7 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
+ 	if (rc) {
+ 		dev_err(dev,
+ 			"Cannot register network device, aborting\n");
+-		goto error;
++		goto put_node;
  	}
  
--	test_and_set_bit_lock(0, &b->up);
--	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
--	if (skb)
--		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
--
-+	/* Create monitoring data before accepting activate messages */
- 	if (tipc_mon_create(net, bearer_id)) {
- 		bearer_disable(net, b);
-+		kfree_skb(skb);
- 		return -ENOMEM;
- 	}
+ 	dev_info(dev,
+@@ -1195,6 +1195,8 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
+ 		 (unsigned int __force)ndev->mem_start, lp->base_addr, ndev->irq);
+ 	return 0;
  
-+	test_and_set_bit_lock(0, &b->up);
-+	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
-+	if (skb)
-+		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
-+
- 	pr_info("Enabled bearer <%s>, priority %u\n", name, prio);
- 
- 	return res;
++put_node:
++	of_node_put(lp->phy_node);
+ error:
+ 	free_netdev(ndev);
+ 	return rc;
 -- 
 2.34.1
 
