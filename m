@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1728C4D8167
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73EB24D817A
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:44:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232165AbiCNLmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:42:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41564 "EHLO
+        id S234570AbiCNLmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:42:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239575AbiCNLl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:41:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10233434BC;
-        Mon, 14 Mar 2022 04:39:32 -0700 (PDT)
+        with ESMTP id S239637AbiCNLmS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:42:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915A763AC;
+        Mon, 14 Mar 2022 04:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1A1D6118B;
-        Mon, 14 Mar 2022 11:39:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A719FC340EC;
-        Mon, 14 Mar 2022 11:39:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A063E61188;
+        Mon, 14 Mar 2022 11:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20B0C340EC;
+        Mon, 14 Mar 2022 11:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257970;
-        bh=HQDzt7DRnstbuSIZ9hqLQDqQhgyT8/fAxqbSn2TWsus=;
+        s=korg; t=1647257976;
+        bh=U5DHcUcxX8FAjNZdWFN5814xFjfJkZy9jDYKBuhOVQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uetaO+0n2pIRdIm0SMrBOYIKiXkwOppEVONNeyWV1ND7WvS7T4YNks97lavsgNQib
-         q6FI++L2BY0/iXUI/2YTm06APtpkU3oDe9hGSnKmeLHdArQPPQk6gwN4MWlIqcdfxk
-         pjTjGfVyKpYZYrHJU2AnWdIKWy2bRov/nCXGvLI0=
+        b=ShRDmxa+MuctUM9Eqlafl8Hf1Pu7pajZNLnD0pxerQrCtPPbOv5wTGCYu+NdZoOs6
+         09+p2zk7JcDIjgERH1Z80oI1t0ND9P1YuCH9uiMCryQUe52Battpyli6Jlpvr0BM0R
+         1a66xoT8PsSn8Q11UH19B+Nd5I/uoFdBUsoJx4p4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 4.19 23/30] virtio: unexport virtio_finalize_features
-Date:   Mon, 14 Mar 2022 12:34:41 +0100
-Message-Id: <20220314112732.449033983@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        "Halil Pasic" <pasic@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 4.19 24/30] virtio: acknowledge all features before access
+Date:   Mon, 14 Mar 2022 12:34:42 +0100
+Message-Id: <20220314112732.477285418@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
 References: <20220314112731.785042288@linuxfoundation.org>
@@ -56,48 +56,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael S. Tsirkin <mst@redhat.com>
 
-commit 838d6d3461db0fdbf33fc5f8a69c27b50b4a46da upstream.
+commit 4fa59ede95195f267101a1b8916992cf3f245cdb upstream.
 
-virtio_finalize_features is only used internally within virtio.
-No reason to export it.
+The feature negotiation was designed in a way that
+makes it possible for devices to know which config
+fields will be accessed by drivers.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+This is broken since commit 404123c2db79 ("virtio: allow drivers to
+validate features") with fallout in at least block and net.  We have a
+partial work-around in commit 2f9a174f918e ("virtio: write back
+F_VERSION_1 before validate") which at least lets devices find out which
+format should config space have, but this is a partial fix: guests
+should not access config space without acknowledging features since
+otherwise we'll never be able to change the config space format.
+
+To fix, split finalize_features from virtio_finalize_features and
+call finalize_features with all feature bits before validation,
+and then - if validation changed any bits - once again after.
+
+Since virtio_finalize_features no longer writes out features
+rename it to virtio_features_ok - since that is what it does:
+checks that features are ok with the device.
+
+As a side effect, this also reduces the amount of hypervisor accesses -
+we now only acknowledge features once unless we are clearing any
+features when validating (which is uncommon).
+
+IRC I think that this was more or less always the intent in the spec but
+unfortunately the way the spec is worded does not say this explicitly, I
+plan to address this at the spec level, too.
+
 Acked-by: Jason Wang <jasowang@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
+Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
+Cc: "Halil Pasic" <pasic@linux.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio.c |    3 +--
- include/linux/virtio.h  |    1 -
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/virtio/virtio.c       |   39 +++++++++++++++++++++------------------
+ include/linux/virtio_config.h |    3 ++-
+ 2 files changed, 23 insertions(+), 19 deletions(-)
 
 --- a/drivers/virtio/virtio.c
 +++ b/drivers/virtio/virtio.c
-@@ -165,7 +165,7 @@ void virtio_add_status(struct virtio_dev
+@@ -165,14 +165,11 @@ void virtio_add_status(struct virtio_dev
  }
  EXPORT_SYMBOL_GPL(virtio_add_status);
  
--int virtio_finalize_features(struct virtio_device *dev)
-+static int virtio_finalize_features(struct virtio_device *dev)
+-static int virtio_finalize_features(struct virtio_device *dev)
++/* Do some validation, then set FEATURES_OK */
++static int virtio_features_ok(struct virtio_device *dev)
  {
- 	int ret = dev->config->finalize_features(dev);
+-	int ret = dev->config->finalize_features(dev);
  	unsigned status;
-@@ -185,7 +185,6 @@ int virtio_finalize_features(struct virt
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(virtio_finalize_features);
  
- static int virtio_dev_probe(struct device *_d)
- {
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -151,7 +151,6 @@ void virtio_break_device(struct virtio_d
- void virtio_config_changed(struct virtio_device *dev);
- void virtio_config_disable(struct virtio_device *dev);
- void virtio_config_enable(struct virtio_device *dev);
--int virtio_finalize_features(struct virtio_device *dev);
- #ifdef CONFIG_PM_SLEEP
- int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
+-	if (ret)
+-		return ret;
+-
+ 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+ 		return 0;
+ 
+@@ -221,17 +218,6 @@ static int virtio_dev_probe(struct devic
+ 		driver_features_legacy = driver_features;
+ 	}
+ 
+-	/*
+-	 * Some devices detect legacy solely via F_VERSION_1. Write
+-	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
+-	 * these when needed.
+-	 */
+-	if (drv->validate && !virtio_legacy_is_little_endian()
+-			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
+-		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+-		dev->config->finalize_features(dev);
+-	}
+-
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
+@@ -242,13 +228,26 @@ static int virtio_dev_probe(struct devic
+ 		if (device_features & (1ULL << i))
+ 			__virtio_set_bit(dev, i);
+ 
++	err = dev->config->finalize_features(dev);
++	if (err)
++		goto err;
++
+ 	if (drv->validate) {
++		u64 features = dev->features;
++
+ 		err = drv->validate(dev);
+ 		if (err)
+ 			goto err;
++
++		/* Did validation change any features? Then write them again. */
++		if (features != dev->features) {
++			err = dev->config->finalize_features(dev);
++			if (err)
++				goto err;
++		}
+ 	}
+ 
+-	err = virtio_finalize_features(dev);
++	err = virtio_features_ok(dev);
+ 	if (err)
+ 		goto err;
+ 
+@@ -412,7 +411,11 @@ int virtio_device_restore(struct virtio_
+ 	/* We have a driver! */
+ 	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+ 
+-	ret = virtio_finalize_features(dev);
++	ret = dev->config->finalize_features(dev);
++	if (ret)
++		goto err;
++
++	ret = virtio_features_ok(dev);
+ 	if (ret)
+ 		goto err;
+ 
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -51,8 +51,9 @@ struct irq_affinity;
+  *	Returns the first 32 feature bits (all we currently need).
+  * @finalize_features: confirm what device features we'll be using.
+  *	vdev: the virtio_device
+- *	This gives the final feature bits for the device: it can change
++ *	This sends the driver feature bits to the device: it can change
+  *	the dev->feature bits if it wants.
++ * Note: despite the name this can be called any number of times.
+  *	Returns 0 on success or error status
+  * @bus_name: return the bus name associated with the device
+  *	vdev: the virtio_device
 
 
