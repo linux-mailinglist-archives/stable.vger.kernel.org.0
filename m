@@ -2,155 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19CFC4D9000
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 00:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CFB54D909C
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 00:49:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244106AbiCNXD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 19:03:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52902 "EHLO
+        id S240148AbiCNXua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 19:50:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238795AbiCNXD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 19:03:29 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 148513A5E7;
-        Mon, 14 Mar 2022 16:02:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1647298938; x=1678834938;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=t7C/pcYibGXzuw1c7KT4Go7pZLQBu1j2wb9INd1xCZM=;
-  b=TXWzrIinVGabdNU8yziLIBVl0joTOxV+usC9itSaefyR8RrDrxozn2ru
-   OvhOkD/LkL5U4BakdXJJA9mCSw3uMvgVODaUaoKqT7jRurobZwwGtBhHi
-   vkqaB7JN91VGExDTfI5kvnUrZaKFd11cS4rHwGf0jKAuFSCP3fwYBF/RA
-   5hI39HtmS48lkCNZykQAHLjlXc6gOWzKiNtIdaXxnHpvhvKzhYee+9Nqd
-   WCnuVmhiRH6QA4L5LQPCZmHgwEFZ7UCD/DJR+wJ1wtM3hNFLSN3i4ReY8
-   zzlYTT2Vp5dIMhamZGIMap7apFZaVyim0+4e/qmb3nZqrFQZHVSKxHqeG
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10286"; a="236769721"
-X-IronPort-AV: E=Sophos;i="5.90,181,1643702400"; 
-   d="scan'208";a="236769721"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2022 16:02:17 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,181,1643702400"; 
-   d="scan'208";a="515638274"
-Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
-  by orsmga006.jf.intel.com with ESMTP; 14 Mar 2022 16:02:13 -0700
-Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1nTthc-000AJg-BB; Mon, 14 Mar 2022 23:02:12 +0000
-Date:   Tue, 15 Mar 2022 07:02:09 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Darren Hart <darren@os.amperecomputing.com>
-Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Will Deacon <will@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] arch_topology: Swap MC & CLS SD mask if MC weight==1 &
-Message-ID: <202203150659.T51bnDgz-lkp@intel.com>
-References: <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
+        with ESMTP id S231495AbiCNXu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 19:50:29 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C7C6286F9
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 16:49:18 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id a5so16743549pfv.2
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 16:49:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1j5D87Vu4GXUWPoRuraZy8AnwFCnQbp995LXrErmIvY=;
+        b=k/NDTN8uNglzK3mvCxXSgNO3ZQ2L9G9WWWNVVIbXD6+n1equTqa5eF5OrY6jPIH6NC
+         ia9ikPRc+HNCFtuqmMD1mDGow9eL7MP9NyDeiZO2gr6ZW6gjEKptkDLn8viPVi5hADI1
+         7DzPjsQw+A6AxcKzt4lETJPIi+RuRZQj+9Rqb1mW8bF4tUPDOKTmEMbLhIEnTY1adqHm
+         TGgqoz5J4Jl50k0sNIJR0Ekjs/ul0VtKh07ZCvBho77GLf8UQgJgS3hTWmvyPZICzqDZ
+         l2D2o2pKRWP+nAzh/h6m7kAfabhzeV8TecVvz7+clRIPUcLdHim6ltt8uqEeer8pL1/5
+         MOag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1j5D87Vu4GXUWPoRuraZy8AnwFCnQbp995LXrErmIvY=;
+        b=4mcayWvU09LQ3k6FQ15b2Hda9PNJPRxnZZvrWl/4cC4aryD6nIhSSIGft5Pg6sN+uf
+         tJuiQwhJUX4X4r5B82ccOruVDQm9frMyf1MkGKGqlW46dRT33JEdDWriZh0bm8XqDAP+
+         RiAMc5TWdJQxMxgX/rMaPtezJLijoJflwvn3UwOnoL94RKWCaZDph6247qBh28px5EhG
+         5D7KkHtWCeEpnuVxgb1Ry4gbVJwVEiMUT5MC4MXP09q+jwkJP1AGqtKl1hqxIqHI/+GW
+         MKq1p9JQtdjEofXROOVLk49FCDBxgBdGHNx9nMYBPtoH3hb+0+VqI65gC1GA1+gF2NYU
+         BYaA==
+X-Gm-Message-State: AOAM533IDJrTO7zJoK685te2kLYgs4+lZv2HuUgIyrLsMgUSadoe6+ZG
+        9MikF/yVjQ7hGLmlaosnJo9RoWpp2+sVwRcoCEw=
+X-Google-Smtp-Source: ABdhPJzDAG1szD/LCGR5NYQIVQobOjbYIZXJgpLFhdMYXIy1eHZjtTLmR3NsA/lFnLb8mxftX4p7uQ==
+X-Received: by 2002:a62:7a10:0:b0:4f6:9396:ddde with SMTP id v16-20020a627a10000000b004f69396dddemr25671483pfc.82.1647301757804;
+        Mon, 14 Mar 2022 16:49:17 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e11-20020a17090a280b00b001bf23a472c7sm621232pjd.17.2022.03.14.16.49.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Mar 2022 16:49:17 -0700 (PDT)
+Message-ID: <622fd47d.1c69fb81.ac994.2518@mx.google.com>
+Date:   Mon, 14 Mar 2022 16:49:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.234-30-g4401d649cac2
+Subject: stable-rc/linux-4.19.y baseline: 94 runs,
+ 3 regressions (v4.19.234-30-g4401d649cac2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Dietmar,
+stable-rc/linux-4.19.y baseline: 94 runs, 3 regressions (v4.19.234-30-g4401=
+d649cac2)
 
-I love your patch! Perhaps something to improve:
+Regressions Summary
+-------------------
 
-[auto build test WARNING on driver-core/driver-core-testing]
-[also build test WARNING on v5.17-rc8 next-20220310]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+platform             | arch   | lab           | compiler | defconfig       =
+             | regressions
+---------------------+--------+---------------+----------+-----------------=
+-------------+------------
+hp-x360-14-G1-sona   | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...=
+6-chromebook | 1          =
 
-url:    https://github.com/0day-ci/linux/commits/Dietmar-Eggemann/arch_topology-Swap-MC-CLS-SD-mask-if-MC-weight-1/20220315-004742
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git 4a248f85b3dd8e010ff8335755c927130e9b0764
-config: riscv-randconfig-r042-20220314 (https://download.01.org/0day-ci/archive/20220315/202203150659.T51bnDgz-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project 3e4950d7fa78ac83f33bbf1658e2f49a73719236)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # install riscv cross compiling tool for clang build
-        # apt-get install binutils-riscv64-linux-gnu
-        # https://github.com/0day-ci/linux/commit/7528fb2ea1e30038ee1dcc48df9d413502977895
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Dietmar-Eggemann/arch_topology-Swap-MC-CLS-SD-mask-if-MC-weight-1/20220315-004742
-        git checkout 7528fb2ea1e30038ee1dcc48df9d413502977895
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=riscv SHELL=/bin/bash drivers/base/
+meson-gxbb-nanopi-k2 | arm64  | lab-baylibre  | gcc-10   | defconfig       =
+             | 1          =
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
->> drivers/base/arch_topology.c:617:23: warning: no previous prototype for function '_cpu_coregroup_mask' [-Wmissing-prototypes]
-   const struct cpumask *_cpu_coregroup_mask(int cpu)
-                         ^
-   drivers/base/arch_topology.c:617:7: note: declare 'static' if the function is not intended to be used outside of this translation unit
-   const struct cpumask *_cpu_coregroup_mask(int cpu)
-         ^
-   static 
->> drivers/base/arch_topology.c:634:23: warning: no previous prototype for function '_cpu_clustergroup_mask' [-Wmissing-prototypes]
-   const struct cpumask *_cpu_clustergroup_mask(int cpu)
-                         ^
-   drivers/base/arch_topology.c:634:7: note: declare 'static' if the function is not intended to be used outside of this translation unit
-   const struct cpumask *_cpu_clustergroup_mask(int cpu)
-         ^
-   static 
-   2 warnings generated.
+rk3399-gru-kevin     | arm64  | lab-collabora | gcc-10   | defconfig+arm64-=
+chromebook   | 1          =
 
 
-vim +/_cpu_coregroup_mask +617 drivers/base/arch_topology.c
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.234-30-g4401d649cac2/plan/baseline/
 
-   616	
- > 617	const struct cpumask *_cpu_coregroup_mask(int cpu)
-   618	{
-   619		const cpumask_t *core_mask = cpumask_of_node(cpu_to_node(cpu));
-   620	
-   621		/* Find the smaller of NUMA, core or LLC siblings */
-   622		if (cpumask_subset(&cpu_topology[cpu].core_sibling, core_mask)) {
-   623			/* not numa in package, lets use the package siblings */
-   624			core_mask = &cpu_topology[cpu].core_sibling;
-   625		}
-   626		if (cpu_topology[cpu].llc_id != -1) {
-   627			if (cpumask_subset(&cpu_topology[cpu].llc_sibling, core_mask))
-   628				core_mask = &cpu_topology[cpu].llc_sibling;
-   629		}
-   630	
-   631		return core_mask;
-   632	}
-   633	
- > 634	const struct cpumask *_cpu_clustergroup_mask(int cpu)
-   635	{
-   636		return &cpu_topology[cpu].cluster_sibling;
-   637	}
-   638	
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.234-30-g4401d649cac2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4401d649cac2c3bf2cca0caf51a27f17b4f8bc26 =
 
----
-0-DAY CI Kernel Test Service
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+             | regressions
+---------------------+--------+---------------+----------+-----------------=
+-------------+------------
+hp-x360-14-G1-sona   | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...=
+6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/622fa15b2b0d591672c62995
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+34-30-g4401d649cac2/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-colla=
+bora/baseline-hp-x360-14-G1-sona.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+34-30-g4401d649cac2/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-colla=
+bora/baseline-hp-x360-14-G1-sona.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/622fa15b2b0d591672c62=
+996
+        new failure (last pass: v4.19.233-34-g7603caa5cc11) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+             | regressions
+---------------------+--------+---------------+----------+-----------------=
+-------------+------------
+meson-gxbb-nanopi-k2 | arm64  | lab-baylibre  | gcc-10   | defconfig       =
+             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/622fa492253c98839ec62976
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+34-30-g4401d649cac2/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
+-nanopi-k2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+34-30-g4401d649cac2/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
+-nanopi-k2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/622fa492253c98839ec62=
+977
+        new failure (last pass: v4.19.234) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+             | regressions
+---------------------+--------+---------------+----------+-----------------=
+-------------+------------
+rk3399-gru-kevin     | arm64  | lab-collabora | gcc-10   | defconfig+arm64-=
+chromebook   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/622fa029d59881cc6cc629d8
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+34-30-g4401d649cac2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+34-30-g4401d649cac2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/622fa029d59881cc6cc629fe
+        failing since 8 days (last pass: v4.19.232, first fail: v4.19.232-4=
+5-g5da8d73687e7)
+
+    2022-03-14T20:05:49.046116  /lava-5878105/1/../bin/lava-test-case   =
+
+ =20
