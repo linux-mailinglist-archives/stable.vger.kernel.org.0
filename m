@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D27CE4D8231
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:00:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E23044D82E1
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240047AbiCNMBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42390 "EHLO
+        id S240823AbiCNMLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:11:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239994AbiCNMA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:00:58 -0400
+        with ESMTP id S242232AbiCNMJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E524926B;
-        Mon, 14 Mar 2022 04:58:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09ECE50B0E;
+        Mon, 14 Mar 2022 05:06:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3838A61251;
-        Mon, 14 Mar 2022 11:58:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 438F3C340EC;
-        Mon, 14 Mar 2022 11:58:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB58E61319;
+        Mon, 14 Mar 2022 12:06:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0120AC340E9;
+        Mon, 14 Mar 2022 12:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259120;
-        bh=z/rfUC3bs5xUQF7MrxppmBBSox12yeRXfJM/e/xowDQ=;
+        s=korg; t=1647259600;
+        bh=YfpmRIDi6jRVe/IYxm/SbOg5cyruW3iEv4Tg+KggpLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6L/MWMQzHs7tzoVLMW/gZI6Yd+y8mwNOBB0LucwfuliAk3q3pXlPkKAY5shyTn9E
-         KHY0BGCNM8KrpbgFoQdxW/+gYd5P0DJOzyk3mRvH/rb7nOwWw5A1BD5ieJ8IgA4nrR
-         wH5Ro6sTp8OLVm5GYhQSBxyy6vsq+EwQcqXb9UYY=
+        b=10/UpRbBENrQtegLjmJMzXe+vq4yBqTi4VYzrVssHNfEKdJId/ElWShL8DgNnx3+t
+         kZ/ZQvdQMJZeG2XHzthft12TDX7N8rBQ7T/IhQZ373tlRVOM+yY6t9rXB5Mr+KLc/q
+         Yg+NU54Gao8ve6rq7bL1eyu0UfPRPdD6herUJ36c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Halil Pasic" <pasic@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.4 37/43] virtio: acknowledge all features before access
+        stable@vger.kernel.org, Mark Featherston <mark@embeddedTS.com>,
+        Kris Bahnsen <kris@embeddedTS.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 046/110] gpio: ts4900: Do not set DAT and OE together
 Date:   Mon, 14 Mar 2022 12:53:48 +0100
-Message-Id: <20220314112735.460634266@linuxfoundation.org>
+Message-Id: <20220314112744.322917468@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,140 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Mark Featherston <mark@embeddedTS.com>
 
-commit 4fa59ede95195f267101a1b8916992cf3f245cdb upstream.
+[ Upstream commit 03fe003547975680fdb9ff5ab0e41cb68276c4f2 ]
 
-The feature negotiation was designed in a way that
-makes it possible for devices to know which config
-fields will be accessed by drivers.
+This works around an issue with the hardware where both OE and
+DAT are exposed in the same register. If both are updated
+simultaneously, the harware makes no guarantees that OE or DAT
+will actually change in any given order and may result in a
+glitch of a few ns on a GPIO pin when changing direction and value
+in a single write.
 
-This is broken since commit 404123c2db79 ("virtio: allow drivers to
-validate features") with fallout in at least block and net.  We have a
-partial work-around in commit 2f9a174f918e ("virtio: write back
-F_VERSION_1 before validate") which at least lets devices find out which
-format should config space have, but this is a partial fix: guests
-should not access config space without acknowledging features since
-otherwise we'll never be able to change the config space format.
+Setting direction to input now only affects OE bit. Setting
+direction to output updates DAT first, then OE.
 
-To fix, split finalize_features from virtio_finalize_features and
-call finalize_features with all feature bits before validation,
-and then - if validation changed any bits - once again after.
-
-Since virtio_finalize_features no longer writes out features
-rename it to virtio_features_ok - since that is what it does:
-checks that features are ok with the device.
-
-As a side effect, this also reduces the amount of hypervisor accesses -
-we now only acknowledge features once unless we are clearing any
-features when validating (which is uncommon).
-
-IRC I think that this was more or less always the intent in the spec but
-unfortunately the way the spec is worded does not say this explicitly, I
-plan to address this at the spec level, too.
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
-Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
-Cc: "Halil Pasic" <pasic@linux.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c6686322d74 ("gpio: add Technologic I2C-FPGA gpio support")
+Signed-off-by: Mark Featherston <mark@embeddedTS.com>
+Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio.c       |   38 +++++++++++++++++++++-----------------
- include/linux/virtio_config.h |    3 ++-
- 2 files changed, 23 insertions(+), 18 deletions(-)
+ drivers/gpio/gpio-ts4900.c | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -167,14 +167,12 @@ void virtio_add_status(struct virtio_dev
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
--static int virtio_finalize_features(struct virtio_device *dev)
-+/* Do some validation, then set FEATURES_OK */
-+static int virtio_features_ok(struct virtio_device *dev)
+diff --git a/drivers/gpio/gpio-ts4900.c b/drivers/gpio/gpio-ts4900.c
+index d885032cf814..d918d2df4de2 100644
+--- a/drivers/gpio/gpio-ts4900.c
++++ b/drivers/gpio/gpio-ts4900.c
+@@ -1,7 +1,7 @@
+ /*
+  * Digital I/O driver for Technologic Systems I2C FPGA Core
+  *
+- * Copyright (C) 2015 Technologic Systems
++ * Copyright (C) 2015, 2018 Technologic Systems
+  * Copyright (C) 2016 Savoir-Faire Linux
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -55,19 +55,33 @@ static int ts4900_gpio_direction_input(struct gpio_chip *chip,
  {
--	int ret = dev->config->finalize_features(dev);
- 	unsigned status;
- 
- 	might_sleep();
--	if (ret)
--		return ret;
- 
- 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
- 		return 0;
-@@ -224,17 +222,6 @@ static int virtio_dev_probe(struct devic
- 		driver_features_legacy = driver_features;
- 	}
+ 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
  
 -	/*
--	 * Some devices detect legacy solely via F_VERSION_1. Write
--	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
--	 * these when needed.
--	 */
--	if (drv->validate && !virtio_legacy_is_little_endian()
--			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
--		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
--		dev->config->finalize_features(dev);
--	}
--
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
-@@ -245,13 +232,26 @@ static int virtio_dev_probe(struct devic
- 		if (device_features & (1ULL << i))
- 			__virtio_set_bit(dev, i);
+-	 * This will clear the output enable bit, the other bits are
+-	 * dontcare when this is cleared
++	/* Only clear the OE bit here, requires a RMW. Prevents potential issue
++	 * with OE and data getting to the physical pin at different times.
+ 	 */
+-	return regmap_write(priv->regmap, offset, 0);
++	return regmap_update_bits(priv->regmap, offset, TS4900_GPIO_OE, 0);
+ }
  
-+	err = dev->config->finalize_features(dev);
-+	if (err)
-+		goto err;
+ static int ts4900_gpio_direction_output(struct gpio_chip *chip,
+ 					unsigned int offset, int value)
+ {
+ 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
++	unsigned int reg;
+ 	int ret;
+ 
++	/* If changing from an input to an output, we need to first set the
++	 * proper data bit to what is requested and then set OE bit. This
++	 * prevents a glitch that can occur on the IO line
++	 */
++	regmap_read(priv->regmap, offset, &reg);
++	if (!(reg & TS4900_GPIO_OE)) {
++		if (value)
++			reg = TS4900_GPIO_OUT;
++		else
++			reg &= ~TS4900_GPIO_OUT;
 +
- 	if (drv->validate) {
-+		u64 features = dev->features;
++		regmap_write(priv->regmap, offset, reg);
++	}
 +
- 		err = drv->validate(dev);
- 		if (err)
- 			goto err;
-+
-+		/* Did validation change any features? Then write them again. */
-+		if (features != dev->features) {
-+			err = dev->config->finalize_features(dev);
-+			if (err)
-+				goto err;
-+		}
- 	}
- 
--	err = virtio_finalize_features(dev);
-+	err = virtio_features_ok(dev);
- 	if (err)
- 		goto err;
- 
-@@ -416,7 +416,11 @@ int virtio_device_restore(struct virtio_
- 	/* We have a driver! */
- 	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
- 
--	ret = virtio_finalize_features(dev);
-+	ret = dev->config->finalize_features(dev);
-+	if (ret)
-+		goto err;
-+
-+	ret = virtio_features_ok(dev);
- 	if (ret)
- 		goto err;
- 
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -56,8 +56,9 @@ struct irq_affinity;
-  *	Returns the first 64 feature bits (all we currently need).
-  * @finalize_features: confirm what device features we'll be using.
-  *	vdev: the virtio_device
-- *	This gives the final feature bits for the device: it can change
-+ *	This sends the driver feature bits to the device: it can change
-  *	the dev->feature bits if it wants.
-+ * Note: despite the name this can be called any number of times.
-  *	Returns 0 on success or error status
-  * @bus_name: return the bus name associated with the device (optional)
-  *	vdev: the virtio_device
+ 	if (value)
+ 		ret = regmap_write(priv->regmap, offset, TS4900_GPIO_OE |
+ 							 TS4900_GPIO_OUT);
+-- 
+2.34.1
+
 
 
