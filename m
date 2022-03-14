@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4419C4D82CB
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 186494D81DE
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240666AbiCNMLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
+        id S239780AbiCNL5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:57:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241458AbiCNMIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D31C04DF71;
-        Mon, 14 Mar 2022 05:05:18 -0700 (PDT)
+        with ESMTP id S239802AbiCNL47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:56:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC696A191;
+        Mon, 14 Mar 2022 04:55:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8ED5B80DEC;
-        Mon, 14 Mar 2022 12:05:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C284C36AE7;
-        Mon, 14 Mar 2022 12:05:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6231060FF3;
+        Mon, 14 Mar 2022 11:55:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C56C340E9;
+        Mon, 14 Mar 2022 11:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259514;
-        bh=uwf9dzxIwUnSO09Hn6uEZGOvmjnlWBgALoym4KdSelM=;
+        s=korg; t=1647258948;
+        bh=rmqWh++bmnolqTwUgqq50Pxu7vO0BZugPXX67ZgUons=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2pOQYh5PpjHOAxQ2n6H5XmyLit3xjRq56/fYTb9Au8W+C3zaC+0ptrz6ZmscT/8uR
-         sMfyFTKCJiToobQ0cyX+PDTJtMqBIERN+vwEMCT2lExXzzIfM3O4EWqkCgVNaiLALd
-         lpssy/VWiBdPiaGJuJK8vUorv2S+qNtI7GQ876AU=
+        b=rlHsdb2I51rKadhUYfwgfKalYpE0XR/p96k0DGOYFinsBFMURHWmGcHPALSXnE1DD
+         2ZYLtvaANfXjy5KhUpZwJ6YVuGeHyNThV9E8jcCbck+vATte2WdID1sqdVmI4xGVp3
+         +I2NrG/tYT7mSAYSshyNHJ/TLXM0ePyeqZTWH+zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 024/110] gpiolib: acpi: Convert ACPI value of debounce to microseconds
+Subject: [PATCH 5.4 15/43] selftests: pmtu.sh: Kill tcpdump processes launched by subshell.
 Date:   Mon, 14 Mar 2022 12:53:26 +0100
-Message-Id: <20220314112743.710609916@linuxfoundation.org>
+Message-Id: <20220314112734.846774844@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
+References: <20220314112734.415677317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,76 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 660c619b9d7ccd28648ee3766cdbe94ec7b27402 ]
+[ Upstream commit 18dfc667550fe9c032a6dcc3402b50e691e18029 ]
 
-It appears that GPIO ACPI library uses ACPI debounce values directly.
-However, the GPIO library APIs expect the debounce timeout to be in
-microseconds.
+The cleanup() function takes care of killing processes launched by the
+test functions. It relies on variables like ${tcpdump_pids} to get the
+relevant PIDs. But tests are run in their own subshell, so updated
+*_pids values are invisible to other shells. Therefore cleanup() never
+sees any process to kill:
 
-Convert ACPI value of debounce to microseconds.
+$ ./tools/testing/selftests/net/pmtu.sh -t pmtu_ipv4_exception
+TEST: ipv4: PMTU exceptions                                         [ OK ]
+TEST: ipv4: PMTU exceptions - nexthop objects                       [ OK ]
 
-While at it, document this detail where it is appropriate.
+$ pgrep -af tcpdump
+6084 tcpdump -s 0 -i veth_A-R1 -w pmtu_ipv4_exception_veth_A-R1.pcap
+6085 tcpdump -s 0 -i veth_R1-A -w pmtu_ipv4_exception_veth_R1-A.pcap
+6086 tcpdump -s 0 -i veth_R1-B -w pmtu_ipv4_exception_veth_R1-B.pcap
+6087 tcpdump -s 0 -i veth_B-R1 -w pmtu_ipv4_exception_veth_B-R1.pcap
+6088 tcpdump -s 0 -i veth_A-R2 -w pmtu_ipv4_exception_veth_A-R2.pcap
+6089 tcpdump -s 0 -i veth_R2-A -w pmtu_ipv4_exception_veth_R2-A.pcap
+6090 tcpdump -s 0 -i veth_R2-B -w pmtu_ipv4_exception_veth_R2-B.pcap
+6091 tcpdump -s 0 -i veth_B-R2 -w pmtu_ipv4_exception_veth_B-R2.pcap
+6228 tcpdump -s 0 -i veth_A-R1 -w pmtu_ipv4_exception_veth_A-R1.pcap
+6229 tcpdump -s 0 -i veth_R1-A -w pmtu_ipv4_exception_veth_R1-A.pcap
+6230 tcpdump -s 0 -i veth_R1-B -w pmtu_ipv4_exception_veth_R1-B.pcap
+6231 tcpdump -s 0 -i veth_B-R1 -w pmtu_ipv4_exception_veth_B-R1.pcap
+6232 tcpdump -s 0 -i veth_A-R2 -w pmtu_ipv4_exception_veth_A-R2.pcap
+6233 tcpdump -s 0 -i veth_R2-A -w pmtu_ipv4_exception_veth_R2-A.pcap
+6234 tcpdump -s 0 -i veth_R2-B -w pmtu_ipv4_exception_veth_R2-B.pcap
+6235 tcpdump -s 0 -i veth_B-R2 -w pmtu_ipv4_exception_veth_B-R2.pcap
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215664
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Fixes: 8dcb7a15a585 ("gpiolib: acpi: Take into account debounce settings")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Fix this by running cleanup() in the context of the test subshell.
+Now that each test cleans the environment after completion, there's no
+need for calling cleanup() again when the next test starts. So let's
+drop it from the setup() function. This is okay because cleanup() is
+also called when pmtu.sh starts, so even the first test starts in a
+clean environment.
+
+Also, use tcpdump's immediate mode. Otherwise it might not have time to
+process buffered packets, resulting in missing packets or even empty
+pcap files for short tests.
+
+Note: PAUSE_ON_FAIL is still evaluated before cleanup(), so one can
+still inspect the test environment upon failure when using -p.
+
+Fixes: a92a0a7b8e7c ("selftests: pmtu: Simplify cleanup and namespace names")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-acpi.c |  6 ++++--
- drivers/gpio/gpiolib.c      | 10 ++++++++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/pmtu.sh | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index d040c72fea58..4c2e32c38acc 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -311,7 +311,8 @@ static struct gpio_desc *acpi_request_own_gpiod(struct gpio_chip *chip,
- 	if (IS_ERR(desc))
- 		return desc;
+diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
+index 3429767cadcd..88be9083b923 100755
+--- a/tools/testing/selftests/net/pmtu.sh
++++ b/tools/testing/selftests/net/pmtu.sh
+@@ -579,7 +579,6 @@ setup_routing() {
+ setup() {
+ 	[ "$(id -u)" -ne 0 ] && echo "  need to run as root" && return $ksft_skip
  
--	ret = gpio_set_debounce_timeout(desc, agpio->debounce_timeout);
-+	/* ACPI uses hundredths of milliseconds units */
-+	ret = gpio_set_debounce_timeout(desc, agpio->debounce_timeout * 10);
- 	if (ret)
- 		dev_warn(chip->parent,
- 			 "Failed to set debounce-timeout for pin 0x%04X, err %d\n",
-@@ -1052,7 +1053,8 @@ int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int ind
- 			if (ret < 0)
- 				return ret;
+-	cleanup
+ 	for arg do
+ 		eval setup_${arg} || { echo "  ${arg} not supported"; return 1; }
+ 	done
+@@ -590,7 +589,7 @@ trace() {
  
--			ret = gpio_set_debounce_timeout(desc, info.debounce);
-+			/* ACPI uses hundredths of milliseconds units */
-+			ret = gpio_set_debounce_timeout(desc, info.debounce * 10);
- 			if (ret)
- 				return ret;
+ 	for arg do
+ 		[ "${ns_cmd}" = "" ] && ns_cmd="${arg}" && continue
+-		${ns_cmd} tcpdump -s 0 -i "${arg}" -w "${name}_${arg}.pcap" 2> /dev/null &
++		${ns_cmd} tcpdump --immediate-mode -s 0 -i "${arg}" -w "${name}_${arg}.pcap" 2> /dev/null &
+ 		tcpdump_pids="${tcpdump_pids} $!"
+ 		ns_cmd=
+ 	done
+@@ -1182,6 +1181,10 @@ run_test() {
  
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index d1b9b721218f..9e151413f51a 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2186,6 +2186,16 @@ static int gpio_set_bias(struct gpio_desc *desc)
- 	return gpio_set_config_with_argument_optional(desc, bias, arg);
- }
+ 	unset IFS
  
-+/**
-+ * gpio_set_debounce_timeout() - Set debounce timeout
-+ * @desc:	GPIO descriptor to set the debounce timeout
-+ * @debounce:	Debounce timeout in microseconds
-+ *
-+ * The function calls the certain GPIO driver to set debounce timeout
-+ * in the hardware.
-+ *
-+ * Returns 0 on success, or negative error code otherwise.
-+ */
- int gpio_set_debounce_timeout(struct gpio_desc *desc, unsigned int debounce)
- {
- 	return gpio_set_config_with_argument_optional(desc,
++	# Since cleanup() relies on variables modified by this subshell, it
++	# has to run in this context.
++	trap cleanup EXIT
++
+ 	if [ "$VERBOSE" = "1" ]; then
+ 		printf "\n##########################################################################\n\n"
+ 	fi
 -- 
 2.34.1
 
