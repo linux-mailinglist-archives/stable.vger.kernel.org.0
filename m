@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6584D814D
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A254D8176
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:44:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232556AbiCNLlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42572 "EHLO
+        id S239478AbiCNLo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:44:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239532AbiCNLlU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:41:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7343FBD1;
-        Mon, 14 Mar 2022 04:39:01 -0700 (PDT)
+        with ESMTP id S239527AbiCNLmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:42:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624E23BA4E;
+        Mon, 14 Mar 2022 04:40:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EBBF6111A;
-        Mon, 14 Mar 2022 11:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01C97C340E9;
-        Mon, 14 Mar 2022 11:38:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0942CB80DC4;
+        Mon, 14 Mar 2022 11:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 667D9C340EC;
+        Mon, 14 Mar 2022 11:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257929;
-        bh=zdlidbozNq+pZLyr3omJ8QWIYyPM65fVnDx4hXkLRVk=;
+        s=korg; t=1647258009;
+        bh=cLHQDXAZOpyLaLgN179kv4tfiwa3d6XUTCrpezCTBoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lBIWSWwsNYT681P0Rx2L6k4Q5ZN7NlCc+ZeBIzGGtPHhJDHHAxmkAmhM7nbbn2Do
-         rptdu4mNOypTGCyrSQ+OlOrpRtwOU8En6WC1GxNRIohTXhUJmbBzfNdbe/6vQVK2HX
-         WqoeQu3s5+buI3SHODA5n8WCgk08dZGt98rN3Lw8=
+        b=U1fHlND19THm0CdVVZsYheUk+NgsQYyDqmqj57KEVtPkOiHw6XjSMyGVc0RpdSdCy
+         FfU+EPgBTHqdtnJCZUb6lirnvfQQRG00WOKQDzvzBf2JTXn0pbuMNg4nUc6n8F5ABb
+         7C3HHVnBlK4hTds/oGlnGgOkL7FHCcnkdNMNkjS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Emil Renner Berthing <kernel@esmil.dk>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 4.19 21/30] riscv: Fix auipc+jalr relocation range checks
-Date:   Mon, 14 Mar 2022 12:34:39 +0100
-Message-Id: <20220314112732.385774544@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>
+Subject: [PATCH 4.19 22/30] KVM: arm64: Reset PMC_EL0 to avoid a panic() on systems with no PMU
+Date:   Mon, 14 Mar 2022 12:34:40 +0100
+Message-Id: <20220314112732.412975093@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
 References: <20220314112731.785042288@linuxfoundation.org>
@@ -53,100 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <kernel@esmil.dk>
+From: James Morse <james.morse@arm.com>
 
-commit 0966d385830de3470b7131db8e86c0c5bc9c52dc upstream.
+The logic in commit 2a5f1b67ec57 "KVM: arm64: Don't access PMCR_EL0 when no
+PMU is available" relies on an empty reset handler being benign.  This was
+not the case in earlier kernel versions, so the stable backport of this
+patch is causing problems.
 
-RISC-V can do PC-relative jumps with a 32bit range using the following
-two instructions:
+KVMs behaviour in this area changed over time. In particular, prior to commit
+03fdfb269009 ("KVM: arm64: Don't write junk to sysregs on reset"), an empty
+reset handler will trigger a warning, as the guest registers have been
+poisoned.
+Prior to commit 20589c8cc47d ("arm/arm64: KVM: Don't panic on failure to
+properly reset system registers"), this warning was a panic().
 
-	auipc	t0, imm20	; t0 = PC + imm20 * 2^12
-	jalr	ra, t0, imm12	; ra = PC + 4, PC = t0 + imm12
+Instead of reverting the backport, make it write 0 to the sys_reg[] array.
+This keeps the reset logic happy, and the dodgy value can't be seen by
+the guest as it can't request the emulation.
 
-Crucially both the 20bit immediate imm20 and the 12bit immediate imm12
-are treated as two's-complement signed values. For this reason the
-immediates are usually calculated like this:
+The original bug was accessing the PMCR_EL0 register on CPUs that don't
+implement that feature. There is no known silicon that does this, but
+v4.9's ACPI support is unable to find the PMU, so triggers this code:
 
-	imm20 = (offset + 0x800) >> 12
-	imm12 = offset & 0xfff
+| Kernel panic - not syncing: Didn't reset vcpu_sys_reg(24)
+| CPU: 1 PID: 3055 Comm: lkvm Not tainted 4.9.302-00032-g64e078a56789 #13476
+| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Jul 30 2018
+| Call trace:
+| [<ffff00000808b4b0>] dump_backtrace+0x0/0x1a0
+| [<ffff00000808b664>] show_stack+0x14/0x20
+| [<ffff0000088f0e18>] dump_stack+0x98/0xb8
+| [<ffff0000088eef08>] panic+0x118/0x274
+| [<ffff0000080b50e0>] access_actlr+0x0/0x20
+| [<ffff0000080b2620>] kvm_reset_vcpu+0x5c/0xac
+| [<ffff0000080ac688>] kvm_arch_vcpu_ioctl+0x3e4/0x490
+| [<ffff0000080a382c>] kvm_vcpu_ioctl+0x5b8/0x720
+| [<ffff000008201e44>] do_vfs_ioctl+0x2f4/0x884
+| [<ffff00000820244c>] SyS_ioctl+0x78/0x9c
+| [<ffff000008083a9c>] __sys_trace_return+0x0/0x4
 
-..where offset is the signed offset from the auipc instruction. When
-the 11th bit of offset is 0 the addition of 0x800 doesn't change the top
-20 bits and imm12 considered positive. When the 11th bit is 1 the carry
-of the addition by 0x800 means imm20 is one higher, but since imm12 is
-then considered negative the two's complement representation means it
-all cancels out nicely.
-
-However, this addition by 0x800 (2^11) means an offset greater than or
-equal to 2^31 - 2^11 would overflow so imm20 is considered negative and
-result in a backwards jump. Similarly the lower range of offset is also
-moved down by 2^11 and hence the true 32bit range is
-
-	[-2^31 - 2^11, 2^31 - 2^11)
-
-Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
-Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: <stable@vger.kernel.org> # < v5.3 with 2a5f1b67ec57 backported
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/module.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ arch/arm64/kvm/sys_regs.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/module.c
-+++ b/arch/riscv/kernel/module.c
-@@ -21,6 +21,19 @@
- #include <asm/pgtable.h>
- #include <asm/sections.h>
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -620,8 +620,10 @@ static void reset_pmcr(struct kvm_vcpu *
+ 	u64 pmcr, val;
  
-+/*
-+ * The auipc+jalr instruction pair can reach any PC-relative offset
-+ * in the range [-2^31 - 2^11, 2^31 - 2^11)
-+ */
-+static bool riscv_insn_valid_32bit_offset(ptrdiff_t val)
-+{
-+#ifdef CONFIG_32BIT
-+	return true;
-+#else
-+	return (-(1L << 31) - (1L << 11)) <= val && val < ((1L << 31) - (1L << 11));
-+#endif
-+}
-+
- static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
- {
- 	if (v != (u32)v) {
-@@ -103,7 +116,7 @@ static int apply_r_riscv_pcrel_hi20_rela
- 	ptrdiff_t offset = (void *)v - (void *)location;
- 	s32 hi20;
+ 	/* No PMU available, PMCR_EL0 may UNDEF... */
+-	if (!kvm_arm_support_pmu_v3())
++	if (!kvm_arm_support_pmu_v3()) {
++		vcpu_sys_reg(vcpu, PMCR_EL0) = 0;
+ 		return;
++	}
  
--	if (offset != (s32)offset) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
-@@ -205,10 +218,9 @@ static int apply_r_riscv_call_plt_rela(s
- 				       Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
- 
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		/* Only emit the plt entry if offset over 32-bit range */
- 		if (IS_ENABLED(CONFIG_MODULE_SECTIONS)) {
- 			offset = module_emit_plt_entry(me, v);
-@@ -232,10 +244,9 @@ static int apply_r_riscv_call_rela(struc
- 				   Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
- 
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
+ 	pmcr = read_sysreg(pmcr_el0);
+ 	/*
 
 
