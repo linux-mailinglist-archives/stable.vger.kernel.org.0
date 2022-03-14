@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21114D814A
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF7C4D812C
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:38:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239570AbiCNLmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:42:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43058 "EHLO
+        id S230105AbiCNLjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:39:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232165AbiCNLmG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:42:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 834A248303;
-        Mon, 14 Mar 2022 04:39:36 -0700 (PDT)
+        with ESMTP id S239316AbiCNLhx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:37:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5715842EE1;
+        Mon, 14 Mar 2022 04:36:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED289B80D96;
-        Mon, 14 Mar 2022 11:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BFB6C340E9;
-        Mon, 14 Mar 2022 11:39:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5DBD61129;
+        Mon, 14 Mar 2022 11:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E4F6C340EC;
+        Mon, 14 Mar 2022 11:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257957;
-        bh=KEam3vhPVA6p6R9OrQaWfRPkiJLYvrfBks84jOACUpQ=;
+        s=korg; t=1647257791;
+        bh=bIiw19ivmrt3zkmlqmSxh3r6RyKaLJMvUfkbSicxUTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzpyjiYJtfF5mMunRzNDtUpeesLxtUdG2PEZvMUW3p3lnJjCGFD43zsms5e4oOkO3
-         wXo27ceHwmLl0PH1S8HlaNNQpFc7vcOBNoUxvBoxkEDd08y/2/NV6wo/98qb1thjI5
-         SCWejIaUhODFP75eefa2B/Ogzb2goF2Ql73pkvhk=
+        b=0UZxnS+fqLFD0ulGh6Lm62cR2vL7G7GoW+XuLebL/WDRPT5Yb1xG0i8SMrQIYNNW6
+         DeiJ+OGzHy1rpbAlS5mvcqfW8OaptGDj0cFpF6eoj+7BZ+ieXdDkUc2RneNtShewZN
+         /SugBng5XidyUxRAlBik+Wls/ma3UpUgUfmkXTbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 08/30] NFC: port100: fix use-after-free in port100_send_complete
-Date:   Mon, 14 Mar 2022 12:34:26 +0100
-Message-Id: <20220314112732.023900342@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 14/23] tracing: Ensure trace buffer is at least 4096 bytes large
+Date:   Mon, 14 Mar 2022 12:34:27 +0100
+Message-Id: <20220314112731.471476744@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
-References: <20220314112731.785042288@linuxfoundation.org>
+In-Reply-To: <20220314112731.050583127@linuxfoundation.org>
+References: <20220314112731.050583127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,84 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit f80cfe2f26581f188429c12bd937eb905ad3ac7b ]
+[ Upstream commit 7acf3a127bb7c65ff39099afd78960e77b2ca5de ]
 
-Syzbot reported UAF in port100_send_complete(). The root case is in
-missing usb_kill_urb() calls on error handling path of ->probe function.
+Booting the kernel with 'trace_buf_size=1' give a warning at
+boot during the ftrace selftests:
 
-port100_send_complete() accesses devm allocated memory which will be
-freed on probe failure. We should kill this urbs before returning an
-error from probe function to prevent reported use-after-free
+[    0.892809] Running postponed tracer tests:
+[    0.892893] Testing tracer function:
+[    0.901899] Callback from call_rcu_tasks_trace() invoked.
+[    0.983829] Callback from call_rcu_tasks_rude() invoked.
+[    1.072003] .. bad ring buffer .. corrupted trace buffer ..
+[    1.091944] Callback from call_rcu_tasks() invoked.
+[    1.097695] PASSED
+[    1.097701] Testing dynamic ftrace: .. filter failed count=0 ..FAILED!
+[    1.353474] ------------[ cut here ]------------
+[    1.353478] WARNING: CPU: 0 PID: 1 at kernel/trace/trace.c:1951 run_tracer_selftest+0x13c/0x1b0
 
-Fail log:
+Therefore enforce a minimum of 4096 bytes to make the selftest pass.
 
-BUG: KASAN: use-after-free in port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
-Read of size 1 at addr ffff88801bb59540 by task ksoftirqd/2/26
-...
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
- port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
- __usb_hcd_giveback_urb+0x2b0/0x5c0 drivers/usb/core/hcd.c:1670
+Link: https://lkml.kernel.org/r/20220214134456.1751749-1-svens@linux.ibm.com
 
-...
-
-Allocated by task 1255:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:45 [inline]
- set_alloc_info mm/kasan/common.c:436 [inline]
- ____kasan_kmalloc mm/kasan/common.c:515 [inline]
- ____kasan_kmalloc mm/kasan/common.c:474 [inline]
- __kasan_kmalloc+0xa6/0xd0 mm/kasan/common.c:524
- alloc_dr drivers/base/devres.c:116 [inline]
- devm_kmalloc+0x96/0x1d0 drivers/base/devres.c:823
- devm_kzalloc include/linux/device.h:209 [inline]
- port100_probe+0x8a/0x1320 drivers/nfc/port100.c:1502
-
-Freed by task 1255:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:45
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:366 [inline]
- ____kasan_slab_free+0xff/0x140 mm/kasan/common.c:328
- kasan_slab_free include/linux/kasan.h:236 [inline]
- __cache_free mm/slab.c:3437 [inline]
- kfree+0xf8/0x2b0 mm/slab.c:3794
- release_nodes+0x112/0x1a0 drivers/base/devres.c:501
- devres_release_all+0x114/0x190 drivers/base/devres.c:530
- really_probe+0x626/0xcc0 drivers/base/dd.c:670
-
-Reported-and-tested-by: syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
-Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20220308185007.6987-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/port100.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
-index 0f37acec98ab..bc680b8be133 100644
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1618,7 +1618,9 @@ static int port100_probe(struct usb_interface *interface,
- 	nfc_digital_free_device(dev->nfc_digital_dev);
- 
- error:
-+	usb_kill_urb(dev->in_urb);
- 	usb_free_urb(dev->in_urb);
-+	usb_kill_urb(dev->out_urb);
- 	usb_free_urb(dev->out_urb);
- 	usb_put_dev(dev->udev);
- 
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index c1da2a4a629a..c728acb6b14c 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1118,10 +1118,12 @@ static int __init set_buf_size(char *str)
+ 	if (!str)
+ 		return 0;
+ 	buf_size = memparse(str, &str);
+-	/* nr_entries can not be zero */
+-	if (buf_size == 0)
+-		return 0;
+-	trace_buf_size = buf_size;
++	/*
++	 * nr_entries can not be zero and the startup
++	 * tests require some buffer space. Therefore
++	 * ensure we have at least 4096 bytes of buffer.
++	 */
++	trace_buf_size = max(4096UL, buf_size);
+ 	return 1;
+ }
+ __setup("trace_buf_size=", set_buf_size);
 -- 
 2.34.1
 
