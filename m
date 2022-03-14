@@ -2,42 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8175C4D7D34
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:05:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81E424D7D3F
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:07:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237571AbiCNIG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 04:06:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33174 "EHLO
+        id S237461AbiCNIIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 04:08:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239408AbiCNIFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:05:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF84E1D0CE
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 01:04:11 -0700 (PDT)
+        with ESMTP id S237899AbiCNIIC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:08:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304C3443F7;
+        Mon, 14 Mar 2022 01:06:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B3D161206
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 08:04:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2287C340E9;
-        Mon, 14 Mar 2022 08:04:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE9EB80BE7;
+        Mon, 14 Mar 2022 08:06:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 145AAC340E9;
+        Mon, 14 Mar 2022 08:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647245050;
-        bh=2f62XjVOGYN77+KCov77aMxQKFaY67/rz5VcGJUMoVk=;
-        h=Subject:To:Cc:From:Date:From;
-        b=IEB56Gsv5iHhbQHWzgMWutqKCJ2xgoshANbgdU6Cv296JcAFbzD0d5UdsLA61U+Tb
-         xzC5Bt8efaat+ffXxVQLXkbbsGT0uJMNP3y3CTXAVfIO60+Tsar6qtoQoBmtZ3H7Do
-         hBk9v5/wnvmzRlD8FqQpHUc+uYJ+p3NYCBkn2SdE=
-Subject: FAILED: patch "[PATCH] x86/module: Fix the paravirt vs alternative order" failed to apply to 5.15-stable tree
-To:     peterz@infradead.org, bp@suse.de, mbenes@suse.cz,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Mar 2022 09:04:06 +0100
-Message-ID: <1647245046133115@kroah.com>
+        s=korg; t=1647245175;
+        bh=gb7LFv9e2vRdyKjuKd26Rvil+QCxagd9WC/7n/TYZAg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yq6711oJFJjBjOj6CYAbE53+aSvGy45cd1euulJAqKCaiH91Z4uVgmB5rdVe48/eD
+         KTNSS2vKZvW1FcRhcN5QeniQvGD+1YET0IeT8XST9R4m+K+1F63pF5yucx6QhY3Kvs
+         qNrlqbj8H6Fz3EvPM5j4WxKb5XPOCsJwwatmMV3k=
+Date:   Mon, 14 Mar 2022 09:06:12 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Zhao Gongyi <zhaogongyi@huawei.com>,
+        Zhang Qiao <zhangqiao22@huawei.com>,
+        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>
+Subject: Re: [PATCH 4.19 01/34] cgroup/cpuset: Fix a race between
+ cpuset_attach() and cpu hotplug
+Message-ID: <Yi73dKB10LBTGb+S@kroah.com>
+References: <20220228172207.090703467@linuxfoundation.org>
+ <20220228172208.566431934@linuxfoundation.org>
+ <20220308151232.GA21752@blackbody.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220308151232.GA21752@blackbody.suse.cz>
 X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -48,66 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 08, 2022 at 04:12:32PM +0100, Michal Koutný wrote:
+> Hello.
+> 
+> On Mon, Feb 28, 2022 at 06:24:07PM +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> > [...]
+> >      cpuset_attach()				cpu hotplug
+> >     ---------------------------            ----------------------
+> >     down_write(cpuset_rwsem)
+> >     guarantee_online_cpus() // (load cpus_attach)
+> > 					sched_cpu_deactivate
+> > 					  set_cpu_active()
+> > 					  // will change cpu_active_mask
+> >     set_cpus_allowed_ptr(cpus_attach)
+> >       __set_cpus_allowed_ptr_locked()
+> >        // (if the intersection of cpus_attach and
+> >          cpu_active_mask is empty, will return -EINVAL)
+> >     up_write(cpuset_rwsem)
+> > [...]
+> > --- a/kernel/cgroup/cpuset.c
+> > +++ b/kernel/cgroup/cpuset.c
+> > @@ -1528,6 +1528,7 @@ static void cpuset_attach(struct cgroup_
+> >  	cgroup_taskset_first(tset, &css);
+> >  	cs = css_cs(css);
+> >  
+> > +	cpus_read_lock();
+> >  	mutex_lock(&cpuset_mutex);
+> 
+> This backport (and possible older kernels) looks suspicious since it comes
+> before commit d74b27d63a8b ("cgroup/cpuset: Change cpuset_rwsem and
+> hotplug lock order") v5.4-rc1~176^2~30 when the locking order was:
+> cpuset lock, cpus lock.
+> 
+> At the same time it also comes before commit 710da3c8ea7d ("sched/core:
+> Prevent race condition between cpuset and __sched_setscheduler()")
+> v5.4-rc1~176^2~27 when neither __sched_setscheduler() cared and this
+> race is similar. (The swapped locking may still conflict with
+> rebuild_sched_domains() before d74b27d63a8b.)
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Thanks for noticing this.  What do you recommend to do to resolve this?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 5adf349439d29f92467e864f728dfc23180f3ef9 Mon Sep 17 00:00:00 2001
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Thu, 3 Mar 2022 12:23:23 +0100
-Subject: [PATCH] x86/module: Fix the paravirt vs alternative order
-
-Ever since commit
-
-  4e6292114c74 ("x86/paravirt: Add new features for paravirt patching")
-
-there is an ordering dependency between patching paravirt ops and
-patching alternatives, the module loader still violates this.
-
-Fixes: 4e6292114c74 ("x86/paravirt: Add new features for paravirt patching")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220303112825.068773913@infradead.org
-
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index 95fa745e310a..96d7c27b7093 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -273,6 +273,14 @@ int module_finalize(const Elf_Ehdr *hdr,
- 			retpolines = s;
- 	}
- 
-+	/*
-+	 * See alternative_instructions() for the ordering rules between the
-+	 * various patching types.
-+	 */
-+	if (para) {
-+		void *pseg = (void *)para->sh_addr;
-+		apply_paravirt(pseg, pseg + para->sh_size);
-+	}
- 	if (retpolines) {
- 		void *rseg = (void *)retpolines->sh_addr;
- 		apply_retpolines(rseg, rseg + retpolines->sh_size);
-@@ -290,11 +298,6 @@ int module_finalize(const Elf_Ehdr *hdr,
- 					    tseg, tseg + text->sh_size);
- 	}
- 
--	if (para) {
--		void *pseg = (void *)para->sh_addr;
--		apply_paravirt(pseg, pseg + para->sh_size);
--	}
--
- 	/* make jump label nops */
- 	jump_label_apply_nops(me);
- 
-
