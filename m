@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E424D7D3F
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3814D7D53
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:09:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237461AbiCNIIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 04:08:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43348 "EHLO
+        id S237626AbiCNIKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 04:10:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237899AbiCNIIC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:08:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304C3443F7;
-        Mon, 14 Mar 2022 01:06:22 -0700 (PDT)
+        with ESMTP id S237597AbiCNIKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:10:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB2E23EA8D;
+        Mon, 14 Mar 2022 01:08:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE9EB80BE7;
-        Mon, 14 Mar 2022 08:06:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 145AAC340E9;
-        Mon, 14 Mar 2022 08:06:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647245175;
-        bh=gb7LFv9e2vRdyKjuKd26Rvil+QCxagd9WC/7n/TYZAg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yq6711oJFJjBjOj6CYAbE53+aSvGy45cd1euulJAqKCaiH91Z4uVgmB5rdVe48/eD
-         KTNSS2vKZvW1FcRhcN5QeniQvGD+1YET0IeT8XST9R4m+K+1F63pF5yucx6QhY3Kvs
-         qNrlqbj8H6Fz3EvPM5j4WxKb5XPOCsJwwatmMV3k=
-Date:   Mon, 14 Mar 2022 09:06:12 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Zhao Gongyi <zhaogongyi@huawei.com>,
-        Zhang Qiao <zhangqiao22@huawei.com>,
-        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>
-Subject: Re: [PATCH 4.19 01/34] cgroup/cpuset: Fix a race between
- cpuset_attach() and cpu hotplug
-Message-ID: <Yi73dKB10LBTGb+S@kroah.com>
-References: <20220228172207.090703467@linuxfoundation.org>
- <20220228172208.566431934@linuxfoundation.org>
- <20220308151232.GA21752@blackbody.suse.cz>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8717B6120E;
+        Mon, 14 Mar 2022 08:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8152C340EE;
+        Mon, 14 Mar 2022 08:08:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647245330;
+        bh=i0tqRLWwHkIcHdHsjVnbUaxEIivvKa02E341WSxRgCQ=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=bXKvVS9qMgQuBuVwd9GE7Icau+ZGa9IWq/vT/qs/ZMPB3Smjvh7C8ax7+7GUSfoKN
+         hqZTOff7+I/ufJFKvvzqLoG5EwUT8cmYf/VIhslaL9bBWDdyiNqBZNgR5SdhPPFKTx
+         G5oBSE32AC1N8UFVy03N+5WHrNpnrIu9sKZqBFlfcmGZYIO/o5ii8p6jGbu34ykPmF
+         Z/cz7cuieBIQY7hBcQR58g4a5I/C1YPAEVB4i0/fNwMLFsfR4RS5IEMDbiyegDDOLt
+         mMsWS1uRtdAoRM1uUFaS6y003mPreELVe/xKML2fnySg69UeSGw5viKjCKUA8kjAro
+         nm1HdiZM59uDg==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Pkshih <pkshih@realtek.com>
+Cc:     Larry Finger <Larry.Finger@lwfinger.net>,
+        "linux-wireless\@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] rtw88: Fix missing support for Realtek 8821CE RFE Type 6
+References: <20220313164358.30426-1-Larry.Finger@lwfinger.net>
+        <9ae5780119e24142bffd855d915a5e92@realtek.com>
+Date:   Mon, 14 Mar 2022 10:08:48 +0200
+In-Reply-To: <9ae5780119e24142bffd855d915a5e92@realtek.com> (Pkshih's message
+        of "Mon, 14 Mar 2022 00:21:45 +0000")
+Message-ID: <87y21dot0v.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220308151232.GA21752@blackbody.suse.cz>
+Content-Type: text/plain
 X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -57,46 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 08, 2022 at 04:12:32PM +0100, Michal Koutný wrote:
-> Hello.
-> 
-> On Mon, Feb 28, 2022 at 06:24:07PM +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > [...]
-> >      cpuset_attach()				cpu hotplug
-> >     ---------------------------            ----------------------
-> >     down_write(cpuset_rwsem)
-> >     guarantee_online_cpus() // (load cpus_attach)
-> > 					sched_cpu_deactivate
-> > 					  set_cpu_active()
-> > 					  // will change cpu_active_mask
-> >     set_cpus_allowed_ptr(cpus_attach)
-> >       __set_cpus_allowed_ptr_locked()
-> >        // (if the intersection of cpus_attach and
-> >          cpu_active_mask is empty, will return -EINVAL)
-> >     up_write(cpuset_rwsem)
-> > [...]
-> > --- a/kernel/cgroup/cpuset.c
-> > +++ b/kernel/cgroup/cpuset.c
-> > @@ -1528,6 +1528,7 @@ static void cpuset_attach(struct cgroup_
-> >  	cgroup_taskset_first(tset, &css);
-> >  	cs = css_cs(css);
-> >  
-> > +	cpus_read_lock();
-> >  	mutex_lock(&cpuset_mutex);
-> 
-> This backport (and possible older kernels) looks suspicious since it comes
-> before commit d74b27d63a8b ("cgroup/cpuset: Change cpuset_rwsem and
-> hotplug lock order") v5.4-rc1~176^2~30 when the locking order was:
-> cpuset lock, cpus lock.
-> 
-> At the same time it also comes before commit 710da3c8ea7d ("sched/core:
-> Prevent race condition between cpuset and __sched_setscheduler()")
-> v5.4-rc1~176^2~27 when neither __sched_setscheduler() cared and this
-> race is similar. (The swapped locking may still conflict with
-> rebuild_sched_domains() before d74b27d63a8b.)
+Pkshih <pkshih@realtek.com> writes:
 
-Thanks for noticing this.  What do you recommend to do to resolve this?
+>> -----Original Message-----
+>> From: Larry Finger <Larry.Finger@lwfinger.net>
+>> Sent: Monday, March 14, 2022 12:44 AM
+>> To: kvalo@kernel.org
+>> Cc: linux-wireless@vger.kernel.org; Larry Finger
+>> <Larry.Finger@lwfinger.net>; Pkshih <pkshih@realtek.com>;
+>> stable@vger.kernel.org
+>> Subject: [PATCH] rtw88: Fix missing support for Realtek 8821CE RFE Type 6
+>> 
+>> The rtl8821ce with RFE Type 6 behaves the same as ones with RFE Type 0.
+>> 
+>> This change has been tested in the repo at git://GitHub.com/lwfinger/rtw88.git.
+>> It fixes commit 769a29ce2af4 ("rtw88: 8821c: add basic functions").
+>> 
+>> Fixes: 769a29ce2af4 ("rtw88: 8821c: add basic functions").
+>> Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+>> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+>> Cc: stable@vger.kernel.org # 5.9+
+>> ---
+>> Kalle,
+>> 
+>> This patch file was prepared a couple of months ago, but apparently not submitted
+>> then. It should be applied as soon as possible.
+>> 
+>> Larry
+>
+> Hi Larry,
+>
+> This patch has been merged [1]. The git link of wireless driver next has been
+> changed [2]. That may be the reason you can't find the patch.
+>
+> [1]
+> https://lore.kernel.org/all/164364407205.21641.13263478436415544062.kvalo@kernel.org/
+> [2] git://git.kernel.org/pub/scm/linux/kernel/git/wireless/wireless-next.git
 
-thanks,
+So the commit id is:
 
-greg k-h
+e109e3617e5d rtw88: rtw8821c: enable rfe 6 devices
+
+And the commit should be in v5.18-rc1, which is most likely released in
+three weeks.
+
+-- 
+https://patchwork.kernel.org/project/linux-wireless/list/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
