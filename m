@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DCD04D8422
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFCF4D8364
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241511AbiCNMW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49520 "EHLO
+        id S241454AbiCNMN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:13:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243865AbiCNMVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:20 -0400
+        with ESMTP id S240734AbiCNMLe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:11:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A28FC2;
-        Mon, 14 Mar 2022 05:17:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85F833A39;
+        Mon, 14 Mar 2022 05:10:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 545D8B80DC0;
-        Mon, 14 Mar 2022 12:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F0E7C340E9;
-        Mon, 14 Mar 2022 12:17:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA87B80DF4;
+        Mon, 14 Mar 2022 12:10:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CFADC340EC;
+        Mon, 14 Mar 2022 12:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260246;
-        bh=yzg5IR4VRVT8Va/TUPQgbSNe9TTJ0bz1xg2lEhxVHlc=;
+        s=korg; t=1647259822;
+        bh=/ysTpHMR/qo7lmvua99zXU/quYDGz2gZ/U7+mWVtzZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kp0aN0M6Kt9/WjCegyiqmdh9xNlYmKlCuGALB/jrlIpy08fofOesOcn0y9Ge3vl6P
-         jrMmAIk+wCvYSuumqggm+3v9Px026qL7hmyzF940pUd0QyZ+HFvB9J2qZbJkGFfjUs
-         834skQU2BxBNv79AT5WgYW/Sex/kKczV0ki0JNJI=
+        b=SGd6PzOzZMgZL1EZQ9RbUPyk28chcQ9n2dQdg/pfjIQS8u+aCMXLUy0BMk4srhHco
+         RVmn6XuXWER3sTACK1HlXiKbQQvcTxP1H3ADselaQyCpqXA+2uMlfC5kw4ifSkpW4/
+         kGt6BRUbIetaXWTg0adl1xJMVfpDXNSxTVV2oWAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.16 095/121] tracing/osnoise: Force quiescent states while tracing
-Date:   Mon, 14 Mar 2022 12:54:38 +0100
-Message-Id: <20220314112746.765514018@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 097/110] watch_queue: Fix the alloc bitmap size to reflect notes allocated
+Date:   Mon, 14 Mar 2022 12:54:39 +0100
+Message-Id: <20220314112745.733992680@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,85 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+From: David Howells <dhowells@redhat.com>
 
-commit caf4c86bf136845982c5103b2661751b40c474c0 upstream.
+commit 3b4c0371928c17af03e8397ac842346624017ce6 upstream.
 
-At the moment running osnoise on a nohz_full CPU or uncontested FIFO
-priority and a PREEMPT_RCU kernel might have the side effect of
-extending grace periods too much. This will entice RCU to force a
-context switch on the wayward CPU to end the grace period, all while
-introducing unwarranted noise into the tracer. This behaviour is
-unavoidable as overly extending grace periods might exhaust the system's
-memory.
+Currently, watch_queue_set_size() sets the number of notes available in
+wqueue->nr_notes according to the number of notes allocated, but sets
+the size of the bitmap to the unrounded number of notes originally asked
+for.
 
-This same exact problem is what extended quiescent states (EQS) were
-created for, conversely, rcu_momentary_dyntick_idle() emulates them by
-performing a zero duration EQS. So let's make use of it.
+Fix this by setting the bitmap size to the number of notes we're
+actually going to make available (ie. the number allocated).
 
-In the common case rcu_momentary_dyntick_idle() is fairly inexpensive:
-atomically incrementing a local per-CPU counter and doing a store. So it
-shouldn't affect osnoise's measurements (which has a 1us granularity),
-so we'll call it unanimously.
-
-The uncommon case involve calling rcu_momentary_dyntick_idle() after
-having the osnoise process:
-
- - Receive an expedited quiescent state IPI with preemption disabled or
-   during an RCU critical section. (activates rdp->cpu_no_qs.b.exp
-   code-path).
-
- - Being preempted within in an RCU critical section and having the
-   subsequent outermost rcu_read_unlock() called with interrupts
-   disabled. (t->rcu_read_unlock_special.b.blocked code-path).
-
-Neither of those are possible at the moment, and are unlikely to be in
-the future given the osnoise's loop design. On top of this, the noise
-generated by the situations described above is unavoidable, and if not
-exposed by rcu_momentary_dyntick_idle() will be eventually seen in
-subsequent rcu_read_unlock() calls or schedule operations.
-
-Link: https://lkml.kernel.org/r/20220307180740.577607-1-nsaenzju@redhat.com
-
-Cc: stable@vger.kernel.org
-Fixes: bce29ac9ce0b ("trace: Add osnoise tracer")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_osnoise.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ kernel/watch_queue.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1388,6 +1388,26 @@ static int run_osnoise(void)
- 		}
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -244,6 +244,7 @@ long watch_queue_set_size(struct pipe_in
+ 		goto error;
+ 	}
  
- 		/*
-+		 * In some cases, notably when running on a nohz_full CPU with
-+		 * a stopped tick PREEMPT_RCU has no way to account for QSs.
-+		 * This will eventually cause unwarranted noise as PREEMPT_RCU
-+		 * will force preemption as the means of ending the current
-+		 * grace period. We avoid this problem by calling
-+		 * rcu_momentary_dyntick_idle(), which performs a zero duration
-+		 * EQS allowing PREEMPT_RCU to end the current grace period.
-+		 * This call shouldn't be wrapped inside an RCU critical
-+		 * section.
-+		 *
-+		 * Note that in non PREEMPT_RCU kernels QSs are handled through
-+		 * cond_resched()
-+		 */
-+		if (IS_ENABLED(CONFIG_PREEMPT_RCU)) {
-+			local_irq_disable();
-+			rcu_momentary_dyntick_idle();
-+			local_irq_enable();
-+		}
-+
-+		/*
- 		 * For the non-preemptive kernel config: let threads runs, if
- 		 * they so wish.
- 		 */
++	nr_notes = nr_pages * WATCH_QUEUE_NOTES_PER_PAGE;
+ 	ret = pipe_resize_ring(pipe, roundup_pow_of_two(nr_notes));
+ 	if (ret < 0)
+ 		goto error;
+@@ -269,7 +270,7 @@ long watch_queue_set_size(struct pipe_in
+ 	wqueue->notes = pages;
+ 	wqueue->notes_bitmap = bitmap;
+ 	wqueue->nr_pages = nr_pages;
+-	wqueue->nr_notes = nr_pages * WATCH_QUEUE_NOTES_PER_PAGE;
++	wqueue->nr_notes = nr_notes;
+ 	return 0;
+ 
+ error_p:
 
 
