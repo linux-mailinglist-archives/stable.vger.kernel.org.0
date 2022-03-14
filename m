@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2E54D80F0
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:35:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4D44D810E
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239097AbiCNLgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34608 "EHLO
+        id S239276AbiCNLio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239123AbiCNLg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:36:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E51427FD;
-        Mon, 14 Mar 2022 04:35:15 -0700 (PDT)
+        with ESMTP id S239568AbiCNLiT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:38:19 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB5FF41FBD;
+        Mon, 14 Mar 2022 04:37:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74A1B61142;
-        Mon, 14 Mar 2022 11:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64E77C340F9;
-        Mon, 14 Mar 2022 11:35:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5D091CE1173;
+        Mon, 14 Mar 2022 11:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E650C340E9;
+        Mon, 14 Mar 2022 11:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257714;
-        bh=7/3gVYu8SRpTnyppvzM+I2mjyROx9eSEuZlbhyzkf90=;
+        s=korg; t=1647257826;
+        bh=DukOERrgY7W2qjp0NFrPdDOW+s7KMFmhQuk9nzXJRyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1z+w5o8Sw5Z5mPyxZMu/8uhgZv9tVD7H/T6NRVqEXxdzjdKZphASrO2mG0qcu09qh
-         3aIpuue/G81F8iB3MQF246kwy+49PyrR45OPyjoK6UZOVlx5lzoRSnL+0+sjk3D9UR
-         YRjZRCM6b5KxMrBtK0IG8HFAyXRT+9MJrenNTw5U=
+        b=Jy9kDqkr35baFVZLsd9qHXEHwxJgv3XPB3VSNAwzlkfdN8FT3CUXx8d82t7bCnREO
+         1koXYF1rpPzCzU1nAwKUgpJ3kCpoMolBQtffC1+pQBQryPzkiMS57OghbBlDI+f2rR
+         cilKqVXDGz6mxPyxOfK5fy7cglsRA9w/LB8en4uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 18/20] batman-adv: Dont expect inter-netns unique iflink indices
+        stable@vger.kernel.org, Thomas Osterried <thomas@osterried.de>,
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/23] ax25: Fix NULL pointer dereference in ax25_kill_by_device
 Date:   Mon, 14 Mar 2022 12:34:19 +0100
-Message-Id: <20220314112731.033894102@linuxfoundation.org>
+Message-Id: <20220314112731.239296257@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112730.388955049@linuxfoundation.org>
-References: <20220314112730.388955049@linuxfoundation.org>
+In-Reply-To: <20220314112731.050583127@linuxfoundation.org>
+References: <20220314112731.050583127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 6c1f41afc1dbe59d9d3c8bb0d80b749c119aa334 upstream.
+[ Upstream commit 71171ac8eb34ce7fe6b3267dce27c313ab3cb3ac ]
 
-The ifindex doesn't have to be unique for multiple network namespaces on
-the same machine.
+When two ax25 devices attempted to establish connection, the requester use ax25_create(),
+ax25_bind() and ax25_connect() to initiate connection. The receiver use ax25_rcv() to
+accept connection and use ax25_create_cb() in ax25_rcv() to create ax25_cb, but the
+ax25_cb->sk is NULL. When the receiver is detaching, a NULL pointer dereference bug
+caused by sock_hold(sk) in ax25_kill_by_device() will happen. The corresponding
+fail log is shown below:
 
-  $ ip netns add test1
-  $ ip -net test1 link add dummy1 type dummy
-  $ ip netns add test2
-  $ ip -net test2 link add dummy2 type dummy
+===============================================================
+BUG: KASAN: null-ptr-deref in ax25_device_event+0xfd/0x290
+Call Trace:
+...
+ax25_device_event+0xfd/0x290
+raw_notifier_call_chain+0x5e/0x70
+dev_close_many+0x174/0x220
+unregister_netdevice_many+0x1f7/0xa60
+unregister_netdevice_queue+0x12f/0x170
+unregister_netdev+0x13/0x20
+mkiss_close+0xcd/0x140
+tty_ldisc_release+0xc0/0x220
+tty_release_struct+0x17/0xa0
+tty_release+0x62d/0x670
+...
 
-  $ ip -net test1 link show dev dummy1
-  6: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 96:81:55:1e:dd:85 brd ff:ff:ff:ff:ff:ff
-  $ ip -net test2 link show dev dummy2
-  6: dummy2: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 5a:3c:af:35:07:c3 brd ff:ff:ff:ff:ff:ff
+This patch add condition check in ax25_kill_by_device(). If s->sk is
+NULL, it will goto if branch to kill device.
 
-But the batman-adv code to walk through the various layers of virtual
-interfaces uses this assumption because dev_get_iflink handles it
-internally and doesn't return the actual netns of the iflink. And
-dev_get_iflink only documents the situation where ifindex == iflink for
-physical devices.
-
-But only checking for dev->netdev_ops->ndo_get_iflink is also not an option
-because ipoib_get_iflink implements it even when it sometimes returns an
-iflink != ifindex and sometimes iflink == ifindex. The caller must
-therefore make sure itself to check both netns and iflink + ifindex for
-equality. Only when they are equal, a "physical" interface was detected
-which should stop the traversal. On the other hand, vxcan_get_iflink can
-also return 0 in case there was currently no valid peer. In this case, it
-is still necessary to stop.
-
-Fixes: b7eddd0b3950 ("batman-adv: prevent using any virtual device created on batman-adv as hard-interface")
-Fixes: 5ed4a460a1d3 ("batman-adv: additional checks for virtual interfaces on top of WiFi")
-Reported-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.9 backported: drop modification of non-existing batadv_get_real_netdevice. ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4e0f718daf97 ("ax25: improve the incomplete fix to avoid UAF and NPD bugs")
+Reported-by: Thomas Osterried <thomas@osterried.de>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/hard-interface.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/ax25/af_ax25.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -163,13 +163,15 @@ static bool batadv_is_on_batman_iface(co
- 		return true;
- 
- 	iflink = dev_get_iflink(net_dev);
--
--	/* no more parents..stop recursion */
--	if (iflink == 0 || iflink == net_dev->ifindex)
-+	if (iflink == 0)
- 		return false;
- 
- 	parent_net = batadv_getlink_net(net_dev, net);
- 
-+	/* iflink to itself, most likely physical device */
-+	if (net == parent_net && iflink == net_dev->ifindex)
-+		return false;
-+
- 	/* recurse over the parent device */
- 	parent_dev = __dev_get_by_index((struct net *)parent_net, iflink);
- 	/* if we got a NULL parent_dev there is something broken.. */
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index 36d2e1dfa1e6..466f9e3883c8 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -90,6 +90,13 @@ static void ax25_kill_by_device(struct net_device *dev)
+ 	ax25_for_each(s, &ax25_list) {
+ 		if (s->ax25_dev == ax25_dev) {
+ 			sk = s->sk;
++			if (!sk) {
++				spin_unlock_bh(&ax25_list_lock);
++				s->ax25_dev = NULL;
++				ax25_disconnect(s, ENETUNREACH);
++				spin_lock_bh(&ax25_list_lock);
++				goto again;
++			}
+ 			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
+-- 
+2.34.1
+
 
 
