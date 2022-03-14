@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E09ED4D83EE
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FCDC4D82C6
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240826AbiCNMWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50806 "EHLO
+        id S239076AbiCNML2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:11:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242372AbiCNMS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA12A4B84F;
-        Mon, 14 Mar 2022 05:14:06 -0700 (PDT)
+        with ESMTP id S241402AbiCNMIl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5B14D617;
+        Mon, 14 Mar 2022 05:05:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E6D0B80DE1;
-        Mon, 14 Mar 2022 12:13:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFF1C340E9;
-        Mon, 14 Mar 2022 12:13:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3450C61333;
+        Mon, 14 Mar 2022 12:05:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EE97C340E9;
+        Mon, 14 Mar 2022 12:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260037;
-        bh=+E5woosn/ZbFLikndWdbKLVKptItEm0e3E0i3Z+4g/Y=;
+        s=korg; t=1647259507;
+        bh=phEX2o4kGjcEwrUXdZwA2/tdOklVcHKaImRgkEMmqPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wPmMm4hkK2yJadkwxKDeW6Y6e4nyRi3FXoHW68tvJQ/EJj66WH1lCtMdLn10ssCdw
-         RCrweHb4QunqFz885arU0WQlDu5V7vAL/oW57T+Tf6jiLTXZYwHFl9AMtznPume5li
-         6kgUbDe2drpLLa1b1Gfj7nMoVs8oifrfBfqkPrfE=
+        b=yOXEb62JPovkAmxlDkwDGmzOKuplRHDVH8qHVdx5sv63imAqnT0q7U/S+aJft+tiR
+         34DuZ3m0ft8CzWzrBjtdY5gVwBEhTQy+y07PC8zN8UiQ5e0FgYKoWNpHSVr6me1CIz
+         av66Jj4DjR4ahI4xqcadOKDcnFpWjQuAPNEO3SFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 021/121] isdn: hfcpci: check the return value of dma_set_mask() in setup_hw()
+Subject: [PATCH 5.15 022/110] qed: return status of qed_iov_get_link
 Date:   Mon, 14 Mar 2022 12:53:24 +0100
-Message-Id: <20220314112744.720289318@linuxfoundation.org>
+Message-Id: <20220314112743.655806943@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit d0aeb0d4a3f7d2a0df7e9545892bbeede8f2ac7e ]
+[ Upstream commit d9dc0c84ad2d4cc911ba252c973d1bf18d5eb9cf ]
 
-The function dma_set_mask() in setup_hw() can fail, so its return value
-should be checked.
+Clang static analysis reports this issue
+qed_sriov.c:4727:19: warning: Assigned value is
+  garbage or undefined
+  ivi->max_tx_rate = tx_rate ? tx_rate : link.speed;
+                   ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+link is only sometimes set by the call to qed_iov_get_link()
+qed_iov_get_link fails without setting link or returning
+status.  So change the decl to return status.
+
+Fixes: 73390ac9d82b ("qed*: support ndo_get_vf_config")
+Signed-off-by: Tom Rix <trix@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcpci.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
-index bd087cca1c1d..af17459c1a5c 100644
---- a/drivers/isdn/hardware/mISDN/hfcpci.c
-+++ b/drivers/isdn/hardware/mISDN/hfcpci.c
-@@ -2005,7 +2005,11 @@ setup_hw(struct hfc_pci *hc)
- 	}
- 	/* Allocate memory for FIFOS */
- 	/* the memory needs to be on a 32k boundary within the first 4G */
--	dma_set_mask(&hc->pdev->dev, 0xFFFF8000);
-+	if (dma_set_mask(&hc->pdev->dev, 0xFFFF8000)) {
-+		printk(KERN_WARNING
-+		       "HFC-PCI: No usable DMA configuration!\n");
-+		return -EIO;
-+	}
- 	buffer = dma_alloc_coherent(&hc->pdev->dev, 0x8000, &hc->hw.dmahandle,
- 				    GFP_KERNEL);
- 	/* We silently assume the address is okay if nonzero */
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+index ed2b6fe5a78d..998378ce9983 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -3778,11 +3778,11 @@ bool qed_iov_mark_vf_flr(struct qed_hwfn *p_hwfn, u32 *p_disabled_vfs)
+ 	return found;
+ }
+ 
+-static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
+-			     u16 vfid,
+-			     struct qed_mcp_link_params *p_params,
+-			     struct qed_mcp_link_state *p_link,
+-			     struct qed_mcp_link_capabilities *p_caps)
++static int qed_iov_get_link(struct qed_hwfn *p_hwfn,
++			    u16 vfid,
++			    struct qed_mcp_link_params *p_params,
++			    struct qed_mcp_link_state *p_link,
++			    struct qed_mcp_link_capabilities *p_caps)
+ {
+ 	struct qed_vf_info *p_vf = qed_iov_get_vf_info(p_hwfn,
+ 						       vfid,
+@@ -3790,7 +3790,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
+ 	struct qed_bulletin_content *p_bulletin;
+ 
+ 	if (!p_vf)
+-		return;
++		return -EINVAL;
+ 
+ 	p_bulletin = p_vf->bulletin.p_virt;
+ 
+@@ -3800,6 +3800,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
+ 		__qed_vf_get_link_state(p_hwfn, p_link, p_bulletin);
+ 	if (p_caps)
+ 		__qed_vf_get_link_caps(p_hwfn, p_caps, p_bulletin);
++	return 0;
+ }
+ 
+ static int
+@@ -4658,6 +4659,7 @@ static int qed_get_vf_config(struct qed_dev *cdev,
+ 	struct qed_public_vf_info *vf_info;
+ 	struct qed_mcp_link_state link;
+ 	u32 tx_rate;
++	int ret;
+ 
+ 	/* Sanitize request */
+ 	if (IS_VF(cdev))
+@@ -4671,7 +4673,9 @@ static int qed_get_vf_config(struct qed_dev *cdev,
+ 
+ 	vf_info = qed_iov_get_public_vf_info(hwfn, vf_id, true);
+ 
+-	qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
++	ret = qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
++	if (ret)
++		return ret;
+ 
+ 	/* Fill information about VF */
+ 	ivi->vf = vf_id;
 -- 
 2.34.1
 
