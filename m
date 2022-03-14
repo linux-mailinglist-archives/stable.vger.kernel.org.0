@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB504D81D6
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E09ED4D83EE
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239863AbiCNL45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:56:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35664 "EHLO
+        id S240826AbiCNMWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239813AbiCNL4o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:56:44 -0400
+        with ESMTP id S242372AbiCNMS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD5C65DA;
-        Mon, 14 Mar 2022 04:55:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA12A4B84F;
+        Mon, 14 Mar 2022 05:14:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6321B80DE1;
-        Mon, 14 Mar 2022 11:55:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3A56C36AED;
-        Mon, 14 Mar 2022 11:55:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E6D0B80DE1;
+        Mon, 14 Mar 2022 12:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFF1C340E9;
+        Mon, 14 Mar 2022 12:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647258932;
-        bh=t36RsXQeqEGKrpyuVG4PjsX7Di0UiLb6ay+foi3JY3I=;
+        s=korg; t=1647260037;
+        bh=+E5woosn/ZbFLikndWdbKLVKptItEm0e3E0i3Z+4g/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2OTiIrMLYhCkSx/EueONjRhmBxmmaz15yuFD3V1LFxGf6YapOoY36IMf+VuPEMHL
-         xif/O4WIj+vYsD7TUXiQW9klqVpA7vBjJqjIqHkMZdU/XSwLy0nJKNZlAMV6F3NhqA
-         ReXXMgzIeAdfdBqC5QKkRDit7JIM9AmkeGnvrBEY=
+        b=wPmMm4hkK2yJadkwxKDeW6Y6e4nyRi3FXoHW68tvJQ/EJj66WH1lCtMdLn10ssCdw
+         RCrweHb4QunqFz885arU0WQlDu5V7vAL/oW57T+Tf6jiLTXZYwHFl9AMtznPume5li
+         6kgUbDe2drpLLa1b1Gfj7nMoVs8oifrfBfqkPrfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohammad Kabat <mohammadkab@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/43] net/mlx5: Fix size field in bufferx_reg struct
-Date:   Mon, 14 Mar 2022 12:53:23 +0100
-Message-Id: <20220314112734.763642642@linuxfoundation.org>
+Subject: [PATCH 5.16 021/121] isdn: hfcpci: check the return value of dma_set_mask() in setup_hw()
+Date:   Mon, 14 Mar 2022 12:53:24 +0100
+Message-Id: <20220314112744.720289318@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammad Kabat <mohammadkab@nvidia.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit ac77998b7ac3044f0509b097da9637184598980d ]
+[ Upstream commit d0aeb0d4a3f7d2a0df7e9545892bbeede8f2ac7e ]
 
-According to HW spec the field "size" should be 16 bits
-in bufferx register.
+The function dma_set_mask() in setup_hw() can fail, so its return value
+should be checked.
 
-Fixes: e281682bf294 ("net/mlx5_core: HW data structs/types definitions cleanup")
-Signed-off-by: Mohammad Kabat <mohammadkab@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mlx5/mlx5_ifc.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcpci.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 641a01bc5f6f..031022e32635 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -8975,8 +8975,8 @@ struct mlx5_ifc_bufferx_reg_bits {
- 	u8         reserved_at_0[0x6];
- 	u8         lossy[0x1];
- 	u8         epsb[0x1];
--	u8         reserved_at_8[0xc];
--	u8         size[0xc];
-+	u8         reserved_at_8[0x8];
-+	u8         size[0x10];
- 
- 	u8         xoff_threshold[0x10];
- 	u8         xon_threshold[0x10];
+diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
+index bd087cca1c1d..af17459c1a5c 100644
+--- a/drivers/isdn/hardware/mISDN/hfcpci.c
++++ b/drivers/isdn/hardware/mISDN/hfcpci.c
+@@ -2005,7 +2005,11 @@ setup_hw(struct hfc_pci *hc)
+ 	}
+ 	/* Allocate memory for FIFOS */
+ 	/* the memory needs to be on a 32k boundary within the first 4G */
+-	dma_set_mask(&hc->pdev->dev, 0xFFFF8000);
++	if (dma_set_mask(&hc->pdev->dev, 0xFFFF8000)) {
++		printk(KERN_WARNING
++		       "HFC-PCI: No usable DMA configuration!\n");
++		return -EIO;
++	}
+ 	buffer = dma_alloc_coherent(&hc->pdev->dev, 0x8000, &hc->hw.dmahandle,
+ 				    GFP_KERNEL);
+ 	/* We silently assume the address is okay if nonzero */
 -- 
 2.34.1
 
