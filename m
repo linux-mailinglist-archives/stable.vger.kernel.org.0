@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16ED94D8351
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A958D4D8434
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240931AbiCNMMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48186 "EHLO
+        id S241651AbiCNMXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242325AbiCNMJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:51 -0400
+        with ESMTP id S242866AbiCNMTt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 054F213FA5;
-        Mon, 14 Mar 2022 05:07:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EEAA50B37;
+        Mon, 14 Mar 2022 05:14:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3D7E61361;
-        Mon, 14 Mar 2022 12:07:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B41C340E9;
-        Mon, 14 Mar 2022 12:07:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3A42608C4;
+        Mon, 14 Mar 2022 12:14:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A01E7C340EC;
+        Mon, 14 Mar 2022 12:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259626;
-        bh=0fYqO3/Kwmdjf5miuWSFOMXV9YAehpSgs/ABHv008Co=;
+        s=korg; t=1647260085;
+        bh=YeTe//0SAgavio9Xw86XZZ+I6TczDnfWm8tRimdCf7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1n3iZ+TT2G4Ag3IzOKEZ9Memm/MlZ2Ni1zclnA4l9lMLsCoklq+zLxFSN3HOsqyB
-         YcfORjaYWDgTLHV5ulwLbaTm392jjO5Pc5fTZdkZ90uNG4bGyApBfcSq7AfVy8DI6a
-         lXLOc1ZHG2fGN0HxE3neYA8Ng2nLfK9iM1yXyJ+I=
+        b=j9aoYKLPn2xkkXddZ3CmF1F2TQEj+xao1TZrJEwJ69UWh9tIpH1K+MqYRjjEzffiO
+         69+RlnODEaL1IZ7Piq2fyFp+3M/F2KTsUQO5tOmZOktQB05mG/Ln8CO7YSSvabMAF0
+         8znOhQKsKTtDkKV5hi89grMkCePjl4Stxo17qDxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 052/110] selftests/bpf: Add test for bpf_timer overwriting crash
+Subject: [PATCH 5.16 051/121] selftests: pmtu.sh: Kill nettest processes launched in subshell.
 Date:   Mon, 14 Mar 2022 12:53:54 +0100
-Message-Id: <20220314112744.489149113@linuxfoundation.org>
+Message-Id: <20220314112745.550881854@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit a7e75016a0753c24d6c995bc02501ae35368e333 ]
+[ Upstream commit 94a4a4fe4c696413932eed8bdec46574de9576b8 ]
 
-Add a test that validates that timer value is not overwritten when doing
-a copy_map_value call in the kernel. Without the prior fix, this test
-triggers a crash.
+When using "run_cmd <command> &", then "$!" refers to the PID of the
+subshell used to run <command>, not the command itself. Therefore
+nettest_pids actually doesn't contain the list of the nettest commands
+running in the background. So cleanup() can't kill them and the nettest
+processes run until completion (fortunately they have a 5s timeout).
 
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
+Fix this by defining a new command for running processes in the
+background, for which "$!" really refers to the PID of the command run.
+
+Also, double quote variables on the modified lines, to avoid shellcheck
+warnings.
+
+Fixes: ece1278a9b81 ("selftests: net: add ESP-in-UDP PMTU test")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/timer_crash.c    | 32 +++++++++++
- .../testing/selftests/bpf/progs/timer_crash.c | 54 +++++++++++++++++++
- 2 files changed, 86 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
- create mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
+ tools/testing/selftests/net/pmtu.sh | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-new file mode 100644
-index 000000000000..f74b82305da8
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <test_progs.h>
-+#include "timer_crash.skel.h"
+diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
+index 2e8972573d91..694732e4b344 100755
+--- a/tools/testing/selftests/net/pmtu.sh
++++ b/tools/testing/selftests/net/pmtu.sh
+@@ -374,6 +374,16 @@ run_cmd() {
+ 	return $rc
+ }
+ 
++run_cmd_bg() {
++	cmd="$*"
 +
-+enum {
-+	MODE_ARRAY,
-+	MODE_HASH,
-+};
++	if [ "$VERBOSE" = "1" ]; then
++		printf "    COMMAND: %s &\n" "${cmd}"
++	fi
 +
-+static void test_timer_crash_mode(int mode)
-+{
-+	struct timer_crash *skel;
-+
-+	skel = timer_crash__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
-+		return;
-+	skel->bss->pid = getpid();
-+	skel->bss->crash_map = mode;
-+	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
-+		goto end;
-+	usleep(1);
-+end:
-+	timer_crash__destroy(skel);
++	$cmd 2>&1 &
 +}
 +
-+void test_timer_crash(void)
-+{
-+	if (test__start_subtest("array"))
-+		test_timer_crash_mode(MODE_ARRAY);
-+	if (test__start_subtest("hash"))
-+		test_timer_crash_mode(MODE_HASH);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
-new file mode 100644
-index 000000000000..f8f7944e70da
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/timer_crash.c
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <vmlinux.h>
-+#include <bpf/bpf_tracing.h>
-+#include <bpf/bpf_helpers.h>
-+
-+struct map_elem {
-+	struct bpf_timer timer;
-+	struct bpf_spin_lock lock;
-+};
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_ARRAY);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} amap SEC(".maps");
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} hmap SEC(".maps");
-+
-+int pid = 0;
-+int crash_map = 0; /* 0 for amap, 1 for hmap */
-+
-+SEC("fentry/do_nanosleep")
-+int sys_enter(void *ctx)
-+{
-+	struct map_elem *e, value = {};
-+	void *map = crash_map ? (void *)&hmap : (void *)&amap;
-+
-+	if (bpf_get_current_task_btf()->tgid != pid)
-+		return 0;
-+
-+	*(void **)&value = (void *)0xdeadcaf3;
-+
-+	bpf_map_update_elem(map, &(int){0}, &value, 0);
-+	/* For array map, doing bpf_map_update_elem will do a
-+	 * check_and_free_timer_in_array, which will trigger the crash if timer
-+	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
-+	 */
-+	if (crash_map == 1) {
-+		e = bpf_map_lookup_elem(map, &(int){0});
-+		if (!e)
-+			return 0;
-+		bpf_timer_cancel(&e->timer);
-+	}
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
+ # Find the auto-generated name for this namespace
+ nsname() {
+ 	eval echo \$NS_$1
+@@ -670,10 +680,10 @@ setup_nettest_xfrm() {
+ 	[ ${1} -eq 6 ] && proto="-6" || proto=""
+ 	port=${2}
+ 
+-	run_cmd ${ns_a} nettest ${proto} -q -D -s -x -p ${port} -t 5 &
++	run_cmd_bg "${ns_a}" nettest "${proto}" -q -D -s -x -p "${port}" -t 5
+ 	nettest_pids="${nettest_pids} $!"
+ 
+-	run_cmd ${ns_b} nettest ${proto} -q -D -s -x -p ${port} -t 5 &
++	run_cmd_bg "${ns_b}" nettest "${proto}" -q -D -s -x -p "${port}" -t 5
+ 	nettest_pids="${nettest_pids} $!"
+ }
+ 
 -- 
 2.34.1
 
