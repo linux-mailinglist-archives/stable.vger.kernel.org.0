@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A46A4D83E7
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5A704D82D9
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236635AbiCNMWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51612 "EHLO
+        id S240750AbiCNMLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242428AbiCNMTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:00 -0400
+        with ESMTP id S242004AbiCNMJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7C24E3AA;
-        Mon, 14 Mar 2022 05:14:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDBF6506DA;
+        Mon, 14 Mar 2022 05:06:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8EF960B09;
-        Mon, 14 Mar 2022 12:14:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E27D3C340E9;
-        Mon, 14 Mar 2022 12:14:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BDDF612FF;
+        Mon, 14 Mar 2022 12:06:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E729C340E9;
+        Mon, 14 Mar 2022 12:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260051;
-        bh=ZLHV/ijyzxqyLndfEsqIgFthJJDTK+xbOtWlHN6N4qk=;
+        s=korg; t=1647259586;
+        bh=Eb3QsL3Gokqu+VNIPcIeAZHx3c4CIYro4yhWODlIKHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/IhsISbBUSkiUbxg8Q06iVjB1djpB43tYECrvqSHUa9+UjTdZgDoT3FPgcFn30Dk
-         7orQnyPQQFx0bZfqWyX3GG4XlAamhjwvDpt44ogJ+Xor+6msTe1gZpqw4pv5L4qPg2
-         8h+n2kMmD0a9c5wYPXj4vmE3zpLQy0cK7qm5R0Eo=
+        b=mWfaHR5QOyD/FuJZ3No/98Iy/YaRcVTdcPA5SIvLirsxxWyBzbv05U2jJd6jvPKwy
+         FjQY819C7KkkQYyohzhMeuAOl7H0DO9liMjxkpduXGh6VvHbw0AXgT6oSg6ERYnzpO
+         SisRgbU5Jr8x6Pu3wf8hr6qtbwkZT4xq0/I7r+6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 041/121] net: ethernet: ti: cpts: Handle error for clk_enable
+Subject: [PATCH 5.15 042/110] net/mlx5e: Lag, Only handle events from highest priority multipath entry
 Date:   Mon, 14 Mar 2022 12:53:44 +0100
-Message-Id: <20220314112745.274647273@linuxfoundation.org>
+Message-Id: <20220314112744.212409403@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit 6babfc6e6fab068018c36e8f6605184b8c0b349d ]
+[ Upstream commit ad11c4f1d8fd1f03639460e425a36f7fd0ea83f5 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+There could be multiple multipath entries but changing the port affinity
+for each one doesn't make much sense and there should be a default one.
+So only track the entry with lowest priority value.
+The commit doesn't affect existing users with a single entry.
 
-Fixes: 8a2c9a5ab4b9 ("net: ethernet: ti: cpts: rework initialization/deinitialization")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 544fe7c2e654 ("net/mlx5e: Activate HW multipath and handle port affinity based on FIB events")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/cpts.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/cpts.c b/drivers/net/ethernet/ti/cpts.c
-index dc70a6bfaa6a..92ca739fac01 100644
---- a/drivers/net/ethernet/ti/cpts.c
-+++ b/drivers/net/ethernet/ti/cpts.c
-@@ -568,7 +568,9 @@ int cpts_register(struct cpts *cpts)
- 	for (i = 0; i < CPTS_MAX_EVENTS; i++)
- 		list_add(&cpts->pool_data[i].list, &cpts->pool);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
+index 30282d86e6b9..cb0a48d374a3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
+@@ -126,6 +126,10 @@ static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
+ 		return;
+ 	}
  
--	clk_enable(cpts->refclk);
-+	err = clk_enable(cpts->refclk);
-+	if (err)
-+		return err;
++	/* Handle multipath entry with lower priority value */
++	if (mp->mfi && mp->mfi != fi && fi->fib_priority >= mp->mfi->fib_priority)
++		return;
++
+ 	/* Handle add/replace event */
+ 	nhs = fib_info_num_path(fi);
+ 	if (nhs == 1) {
+@@ -135,12 +139,13 @@ static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
+ 			int i = mlx5_lag_dev_get_netdev_idx(ldev, nh_dev);
  
- 	cpts_write32(cpts, CPTS_EN, control);
- 	cpts_write32(cpts, TS_PEND_EN, int_enable);
+ 			if (i < 0)
+-				i = MLX5_LAG_NORMAL_AFFINITY;
+-			else
+-				++i;
++				return;
+ 
++			i++;
+ 			mlx5_lag_set_port_affinity(ldev, i);
+ 		}
++
++		mp->mfi = fi;
+ 		return;
+ 	}
+ 
 -- 
 2.34.1
 
