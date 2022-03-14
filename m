@@ -2,73 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4450E4D7907
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 01:58:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0574D796C
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 03:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233285AbiCNA7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Mar 2022 20:59:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58906 "EHLO
+        id S231920AbiCNCox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Mar 2022 22:44:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234506AbiCNA7X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Mar 2022 20:59:23 -0400
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742B727CD3
-        for <stable@vger.kernel.org>; Sun, 13 Mar 2022 17:58:15 -0700 (PDT)
-Received: by mail-vs1-xe2f.google.com with SMTP id z85so15403363vsz.5
-        for <stable@vger.kernel.org>; Sun, 13 Mar 2022 17:58:15 -0700 (PDT)
+        with ESMTP id S231851AbiCNCou (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Mar 2022 22:44:50 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1151B5F99
+        for <stable@vger.kernel.org>; Sun, 13 Mar 2022 19:43:42 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id mr24-20020a17090b239800b001bf0a375440so16078490pjb.4
+        for <stable@vger.kernel.org>; Sun, 13 Mar 2022 19:43:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=kNGXZsmGpqnHiykoKGX/IVm8clsDWOdGnrsEFmWjOqk=;
-        b=mT1U82KQ3ImpJwAFsUnlNTZYyCTXcE/HIwf5cIvg4CInVOFZhB5FRSbE4bHCGxmwle
-         xr+h663csbZGmJlt/tmZDYsXjZde0vImA7OTrsa0jTgYy5b7DXagGVRgHnFvgUwx9bFw
-         /YbkRaE+QPbFH5L4pVlEUl5DrB8Tvnye6ZPJSZia0Ga+bpXqYUd2JZVOyBxMWLp6Lp9w
-         4cVcI0r4+rRNaOaq43jh11MNJjyj+Gw42OXC1BfB3yYW0Xp6gnueeeLotjrN6Ptv6lbG
-         2i+WRgwspnhEdILAvfWdq0NIiVdqKSMcWKNv1YZluzNmkrBSF/SnSiTUttJHQs0HudVi
-         L5tA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/rUDk1qicao6wh9t8+JYmuwM1yliRFiG1tXW6QlAoJo=;
+        b=1H5HBOkXy0MApNisK0Mo0m6MePETChCLkGWixhfjUOAxRMbwLNpz+pge8zpFmvuD4v
+         zfXzcLBOiBdDM93rr2E5mL/XEzlBdPqOl/DJNMgji7ry+sg9X4PVOZRSKKw0nBUmJKin
+         sounKUnfVNzK4SmMmpMEJhGBMNY31nKSPt5JjS+i2HkQsveOyVKpyt1xrrPZ5gis3hwf
+         UoIkw32vAl88cJZ2svqZqxC2pTCctjuK8WfGYycz9+nmpxHU3q83g2avsnGeBMiDZtbR
+         gpwlG3MK4nOS6YVskJoSCrQmMKoRvtDjGeOMltXozf5pUZg5MpyYuj/+Kusj5XgQAQpn
+         flkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=kNGXZsmGpqnHiykoKGX/IVm8clsDWOdGnrsEFmWjOqk=;
-        b=STRZYrIe+UN+wp8WYNrDG7NT+SOHk7OKMisc06iimo78FhrW1G/PoiafM/t1w0w1hm
-         4Jzl3/SqMcT0Hk/XfARUnw6IQHLwuOSiJAxIwmOXc05YLXDy48AS9Cyu6ndXbi6yi7fs
-         9t+IplH3D4cCbx4w1ISfMKv8Qd83xJ/7hsI0Y7lEOLktAKmPerfhDk1KxIdwvV5fQaj7
-         vmqjDndsNpJFAOMa8etdXl77Ydca6U4nNYF7ryDgKx/naqJDUZOjmpEeGcNMuyK9CuSF
-         ZwyFcqnpLN9i1vIpOD/p1idg4wofEdQEM8jPibmNAtMGGo2ON2pQvFMKJAcgZ+7g/AcE
-         PfpQ==
-X-Gm-Message-State: AOAM5312AR8fudeOHPZucc69eVmh35QyCb53aKr1p2SISbsZoc8Rtc6c
-        hk71ISPpa8VCarwJ4x0YYj0SAE4lQW2X24DtZw0=
-X-Google-Smtp-Source: ABdhPJwN8COiByPoPr9onQALRHVJPqn35Vc6qr2GHCuXGZAQIFWb0ZBxlYA5XkC4B1AFCosDNvvroVBapL+cfRYwLRI=
-X-Received: by 2002:a05:6102:2338:b0:320:9221:a7b2 with SMTP id
- b24-20020a056102233800b003209221a7b2mr8488341vsa.55.1647219494528; Sun, 13
- Mar 2022 17:58:14 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/rUDk1qicao6wh9t8+JYmuwM1yliRFiG1tXW6QlAoJo=;
+        b=smh5TyRN88TBp9ysYaPiWhau54SnHI2MQcRLzgPmsQOVcXAQybME3Tdc8nZrWUv37U
+         OD9E61qRSDI8iEi4S6jrashO9svmOPcXVVR5yOvzrJFAFxtW47fB61ufPb7g5fF6SQoq
+         Gw02NMXUf53wwtsa1tFa9oOTa7XnwgNju70IkENHgTW9yp6iNZoUZ5d1ziPCs76+lPcO
+         SjOVmZHll4SZtBxnZ1KpOTan99hqIMKsSThiooUiY7IoRv+7P6BV8eIUZr0J6Q+761kn
+         nAAGInmdzYo3h4Z7DJKtPmbbz3hAs2w4ht8hIulYTym8HPLf3bvSU51R3NHngLFGAQgy
+         8oaw==
+X-Gm-Message-State: AOAM532it6FTJABNxH7HOjAYCnQZC4KWd3lFNzJXSRRf9k7gkQX/AWLB
+        FkQ7rmE2v1rtKDSwSwVxUxCNO67/P3vxW/m3D+A=
+X-Google-Smtp-Source: ABdhPJyurFHqNDXZ+lJ5agE4f0wfy+uw5CVnW5J6hMswLV2J03inS42yoi1GzlqEHMGmipm3OhTv/A==
+X-Received: by 2002:a17:90b:3a8f:b0:1bf:ccc:59bc with SMTP id om15-20020a17090b3a8f00b001bf0ccc59bcmr22865207pjb.234.1647225821414;
+        Sun, 13 Mar 2022 19:43:41 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d16-20020a056a00245000b004f7728a4346sm13905752pfj.79.2022.03.13.19.43.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Mar 2022 19:43:41 -0700 (PDT)
+Message-ID: <622eabdd.1c69fb81.c3867.368d@mx.google.com>
+Date:   Sun, 13 Mar 2022 19:43:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Sender: johnmalacky041@gmail.com
-Received: by 2002:a05:612c:10d2:b0:29d:8fc5:6009 with HTTP; Sun, 13 Mar 2022
- 17:58:14 -0700 (PDT)
-From:   "Mrs. Latifa Mohamad Rassim" <rassimlatifa400@gmail.com>
-Date:   Sun, 13 Mar 2022 17:58:14 -0700
-X-Google-Sender-Auth: OGEsekFJRhkGBozBQ-dKAe465os
-Message-ID: <CAG8ouFko9iKZKvF+kTzk+X3407A4L4J0-xArk6a5FTLr6djQZQ@mail.gmail.com>
-Subject: PLEASE CONFIRM YOUR EMAIL TO PROCEED.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=3.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,
-        T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ***
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.16.y
+X-Kernelci-Kernel: v5.16.14
+Subject: stable/linux-5.16.y baseline: 66 runs, 1 regressions (v5.16.14)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good evening from here this evening my dear, how are you doing today?
-My name is Mrs.  Latifa Rassim Mohamad from Saudi Arabia, I have
-something very important and serious i will like to discuss with you
-privately, so i hope this is your private email?
+stable/linux-5.16.y baseline: 66 runs, 1 regressions (v5.16.14)
 
-Mrs. Latifa Rassim Mohamad.
+Regressions Summary
+-------------------
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.16.y/kernel=
+/v5.16.14/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.16.y
+  Describe: v5.16.14
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      3cfa7ce38ae6c2c8e57201e2978178c42051defb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/622e75b01eaae0fd60c6297a
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.16.y/v5.16.14/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.16.y/v5.16.14/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/622e75b01eaae0fd60c629a0
+        failing since 4 days (last pass: v5.16.10, first fail: v5.16.13)
+
+    2022-03-13T22:52:06.982927  <8>[   32.517814] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-13T22:52:08.006040  /lava-5872537/1/../bin/lava-test-case   =
+
+ =20
