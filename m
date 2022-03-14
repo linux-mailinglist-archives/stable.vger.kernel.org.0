@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3091F4D820F
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:58:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBBB4D8288
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:04:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239834AbiCNL7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:59:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36698 "EHLO
+        id S240379AbiCNMFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:05:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239884AbiCNL5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:57:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971E313F52;
-        Mon, 14 Mar 2022 04:56:33 -0700 (PDT)
+        with ESMTP id S240385AbiCNMFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDF9488BC;
+        Mon, 14 Mar 2022 05:01:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36D306112C;
-        Mon, 14 Mar 2022 11:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9BCCC340F4;
-        Mon, 14 Mar 2022 11:56:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4310B80DC2;
+        Mon, 14 Mar 2022 12:01:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E49C340E9;
+        Mon, 14 Mar 2022 12:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647258992;
-        bh=LifRiThbtJzMmdTf0+XH3zzZRhAM1u0Nj2cU5JFV2dY=;
+        s=korg; t=1647259303;
+        bh=nHvW5rVPVOcGyFr0loHYgzmKepP2LxF/KCYMrToru7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dLiZtRhPThIiQKZML8MJjlzD0bMOR6jGDB9wVeBL6E9BqqRh1ntSER+JysNUWv/T
-         1qgKUNA5T5vgJswhL7j4FCAghwQgHsV86EXPZvTtdNK+w3FqTLtYpEf/2oH/bebQnN
-         JoGSrkrGO3la4m64SvLr7snTIdzCmR6SqWIgq+6c=
+        b=wO3Kc55bcLqXyX2CqDN/3ms+PWWym7KYoLXh9q+wtxUC0pJVhSv4mZJoE5fcF68S3
+         rwt9gf8RkTuYyw9J107y0SRqo4XXhA/JqrTpa/cx3z318Id391W1+XxSfBXSFqhD6R
+         hpyg0Iwyh9kmIJLkRSRMwN9xnN3hNA6aILp9FemE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, suresh kumar <suresh2514@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/43] net-sysfs: add check for netdevice being present to speed_show
+Subject: [PATCH 5.10 40/71] net-sysfs: add check for netdevice being present to speed_show
 Date:   Mon, 14 Mar 2022 12:53:33 +0100
-Message-Id: <20220314112735.040356766@linuxfoundation.org>
+Message-Id: <20220314112739.054120064@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -112,10 +112,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index bcad7028bbf4..ad45f13a0370 100644
+index 99303897b7bb..989b3f7ee85f 100644
 --- a/net/core/net-sysfs.c
 +++ b/net/core/net-sysfs.c
-@@ -212,7 +212,7 @@ static ssize_t speed_show(struct device *dev,
+@@ -213,7 +213,7 @@ static ssize_t speed_show(struct device *dev,
  	if (!rtnl_trylock())
  		return restart_syscall();
  
