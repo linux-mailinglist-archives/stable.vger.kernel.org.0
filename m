@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0B8A4D7B73
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 08:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8175C4D7D34
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236268AbiCNHWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 03:22:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54426 "EHLO
+        id S237571AbiCNIG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 04:06:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235155AbiCNHWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 03:22:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39A240933;
-        Mon, 14 Mar 2022 00:21:37 -0700 (PDT)
+        with ESMTP id S239408AbiCNIFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:05:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF84E1D0CE
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 01:04:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 755B9B80CD7;
-        Mon, 14 Mar 2022 07:21:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8245C340F4;
-        Mon, 14 Mar 2022 07:21:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B3D161206
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 08:04:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2287C340E9;
+        Mon, 14 Mar 2022 08:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647242495;
-        bh=cmodLFZPuWoM/tYXSod9U1Ip4syNnDutYRJzhdbZAmM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lMesE4T6Eo5luaxvASTR+ZVE800zgPs/O7rXOZbAx1TbVwaxOx7xGESJK4AuiXqnv
-         kaZAryZdghW2xyFAK+nc8HeGvUDpDr8cIRImrz9916Web5WBNixFPb6e5qW4raai4e
-         ReE+XHhToQBSszfNRwVV9szg1OtlTsl7xhfmQT88=
-Date:   Mon, 14 Mar 2022 08:21:30 +0100
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc:     Daniel Suchy <danny@danysek.cz>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "rafael.richter@gin.de" <rafael.richter@gin.de>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: patch problem - mv88e6xxx: flush switchdev FDB workqueue
-Message-ID: <Yi7s+vh3GBTVtDN2@kroah.com>
-References: <ccf51795-5821-203d-348e-295aabbdc735@danysek.cz>
- <20220313141030.ztwhuhfwxjfzi5nb@skbuf>
- <Yi7i+pebGu0NoIsF@kroah.com>
+        s=korg; t=1647245050;
+        bh=2f62XjVOGYN77+KCov77aMxQKFaY67/rz5VcGJUMoVk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=IEB56Gsv5iHhbQHWzgMWutqKCJ2xgoshANbgdU6Cv296JcAFbzD0d5UdsLA61U+Tb
+         xzC5Bt8efaat+ffXxVQLXkbbsGT0uJMNP3y3CTXAVfIO60+Tsar6qtoQoBmtZ3H7Do
+         hBk9v5/wnvmzRlD8FqQpHUc+uYJ+p3NYCBkn2SdE=
+Subject: FAILED: patch "[PATCH] x86/module: Fix the paravirt vs alternative order" failed to apply to 5.15-stable tree
+To:     peterz@infradead.org, bp@suse.de, mbenes@suse.cz,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 14 Mar 2022 09:04:06 +0100
+Message-ID: <1647245046133115@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yi7i+pebGu0NoIsF@kroah.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -56,53 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 14, 2022 at 07:38:50AM +0100, gregkh@linuxfoundation.org wrote:
-> On Sun, Mar 13, 2022 at 02:10:31PM +0000, Vladimir Oltean wrote:
-> > Hi Daniel,
-> > 
-> > On Sun, Mar 13, 2022 at 03:03:07PM +0100, Daniel Suchy wrote:
-> > > Hello,
-> > > 
-> > > I noticed boot problems on my Turris Omnia (with Marvell 88E6176 switch
-> > > chip) after "net: dsa: mv88e6xxx: flush switchdev FDB workqueue before
-> > > removing VLAN" commit https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=2566a89b9e163b2fcd104d6005e0149f197b8a48
-> > > 
-> > > Within logs I catched hung kernel tasks (see below), at least first is
-> > > related to DSA subsystem.
-> > > 
-> > > When I revert this patch, everything works as expected and without any
-> > > issues.
-> > > 
-> > > In my setup, I have few vlans on affected switch (i'm using ifupdown2 v3.0
-> > > with iproute2 5.16 for configuration).
-> > > 
-> > > It seems your this patch introduces some new problem (at least for 5.15
-> > > kernels). I suggest revert this patch.
-> > > 
-> > > - Daniel
-> > 
-> > Oh wow, I'm terribly sorry. Yes, this patch shouldn't have been
-> > backported to kernel 5.15 and below, but I guess I missed the
-> > backport notification email and forgot to tell Greg about this.
-> > Patch "net: dsa: mv88e6xxx: flush switchdev FDB workqueue before
-> > removing VLAN" needs to be immediately reverted from these trees.
-> > 
-> > Greg, to avoid this from happening in the future, would something like
-> > this work? Is this parsed in some way?
-> > 
-> > Depends-on: 0faf890fc519 ("net: dsa: drop rtnl_lock from dsa_slave_switchdev_event_work") # which first appeared in v5.16
-> 
-> The "Fixes:" tag will solve this, please just use that in the future.
 
-Ah, you did have a fixes tag here, so then use the way to say "you also
-need to add another patch here" by adding the sha to the line for the
-stable tree:
-	cc: stable@vger.kernel.org # 0faf890fc519
-
-So, should I just backport that commit instead?  The "Fixes:" line says
-this needs to be backported to 4.14, which is why I added it to these
-trees.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 5adf349439d29f92467e864f728dfc23180f3ef9 Mon Sep 17 00:00:00 2001
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Thu, 3 Mar 2022 12:23:23 +0100
+Subject: [PATCH] x86/module: Fix the paravirt vs alternative order
+
+Ever since commit
+
+  4e6292114c74 ("x86/paravirt: Add new features for paravirt patching")
+
+there is an ordering dependency between patching paravirt ops and
+patching alternatives, the module loader still violates this.
+
+Fixes: 4e6292114c74 ("x86/paravirt: Add new features for paravirt patching")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220303112825.068773913@infradead.org
+
+diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
+index 95fa745e310a..96d7c27b7093 100644
+--- a/arch/x86/kernel/module.c
++++ b/arch/x86/kernel/module.c
+@@ -273,6 +273,14 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 			retpolines = s;
+ 	}
+ 
++	/*
++	 * See alternative_instructions() for the ordering rules between the
++	 * various patching types.
++	 */
++	if (para) {
++		void *pseg = (void *)para->sh_addr;
++		apply_paravirt(pseg, pseg + para->sh_size);
++	}
+ 	if (retpolines) {
+ 		void *rseg = (void *)retpolines->sh_addr;
+ 		apply_retpolines(rseg, rseg + retpolines->sh_size);
+@@ -290,11 +298,6 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 					    tseg, tseg + text->sh_size);
+ 	}
+ 
+-	if (para) {
+-		void *pseg = (void *)para->sh_addr;
+-		apply_paravirt(pseg, pseg + para->sh_size);
+-	}
+-
+ 	/* make jump label nops */
+ 	jump_label_apply_nops(me);
+ 
+
