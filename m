@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CECE4D81F9
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A7B4D8295
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239924AbiCNL6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:58:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38258 "EHLO
+        id S240425AbiCNMFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:05:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240229AbiCNL6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:58:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 207AFAE42;
-        Mon, 14 Mar 2022 04:57:26 -0700 (PDT)
+        with ESMTP id S240371AbiCNMFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:13 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE4081F628;
+        Mon, 14 Mar 2022 05:02:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8DC161252;
-        Mon, 14 Mar 2022 11:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2641DC340E9;
-        Mon, 14 Mar 2022 11:57:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 311C0CE1268;
+        Mon, 14 Mar 2022 12:02:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01714C340E9;
+        Mon, 14 Mar 2022 12:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259045;
-        bh=DUzAqXFVs+VEJAglzezlHMzIIGQMuDImC47ZVQ5Z6Zk=;
+        s=korg; t=1647259320;
+        bh=2z3sHLbs3i+JwZqjq1YXDQcvL9PzzebynVKwSZ/U2TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1VtqRbF70k3TPModvs2axplt2SWDpQ72LWmYvKmoN7cxX9Pv6L/haMO09rKvenBv
-         HqFxTbS/+Z0JR5M+w74TR5FAnrSy9pbA4xH5XiNUivuR80THvDQ16d9KQLZX6qCdDZ
-         E8IpF5Pe0pZpzVltrGFv5SRr1u40Ct/fiKPy1i4I=
+        b=T39nAuN1io4XezrKyjB447WLBevhjBGT+6z/Aor2YrEIN/Aat9PWMub8mYz5kkZm/
+         SvXlQE7MYuNqw25MTqjX+1XNhkzPv0z+LBLmHsWNUEcvxQ7GdFtvqKiJ+5rPjGZshr
+         oyZObRRTLuS1wpuZdyfAK/5d0lELr2z0VO8RqWDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rong Chen <rong.chen@amlogic.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 33/43] mmc: meson: Fix usage of meson_mmc_post_req()
-Date:   Mon, 14 Mar 2022 12:53:44 +0100
-Message-Id: <20220314112735.349285589@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.10 52/71] staging: gdm724x: fix use after free in gdm_lte_rx()
+Date:   Mon, 14 Mar 2022 12:53:45 +0100
+Message-Id: <20220314112739.386426374@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rong Chen <rong.chen@amlogic.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f0d2f15362f02444c5d7ffd5a5eb03e4aa54b685 upstream.
+commit fc7f750dc9d102c1ed7bbe4591f991e770c99033 upstream.
 
-Currently meson_mmc_post_req() is called in meson_mmc_request() right
-after meson_mmc_start_cmd(). This could lead to DMA unmapping before the request
-is actually finished.
+The netif_rx_ni() function frees the skb so we can't dereference it to
+save the skb->len.
 
-To fix, don't call meson_mmc_post_req() until meson_mmc_request_done().
-
-Signed-off-by: Rong Chen <rong.chen@amlogic.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Fixes: 79ed05e329c3 ("mmc: meson-gx: add support for descriptor chain mode")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220216124239.4007667-1-rong.chen@amlogic.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 61e121047645 ("staging: gdm7240: adding LTE USB driver")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220228074331.GA13685@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-gx-mmc.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/staging/gdm724x/gdm_lte.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -174,6 +174,8 @@ struct meson_host {
- 	int irq;
+--- a/drivers/staging/gdm724x/gdm_lte.c
++++ b/drivers/staging/gdm724x/gdm_lte.c
+@@ -76,14 +76,15 @@ static void tx_complete(void *arg)
  
- 	bool vqmmc_enabled;
-+	bool needs_pre_post_req;
-+
- };
- 
- #define CMD_CFG_LENGTH_MASK GENMASK(8, 0)
-@@ -655,6 +657,8 @@ static void meson_mmc_request_done(struc
- 	struct meson_host *host = mmc_priv(mmc);
- 
- 	host->cmd = NULL;
-+	if (host->needs_pre_post_req)
-+		meson_mmc_post_req(mmc, mrq, 0);
- 	mmc_request_done(host->mmc, mrq);
- }
- 
-@@ -872,7 +876,7 @@ static int meson_mmc_validate_dram_acces
- static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
+ static int gdm_lte_rx(struct sk_buff *skb, struct nic *nic, int nic_type)
  {
- 	struct meson_host *host = mmc_priv(mmc);
--	bool needs_pre_post_req = mrq->data &&
-+	host->needs_pre_post_req = mrq->data &&
- 			!(mrq->data->host_cookie & SD_EMMC_PRE_REQ_DONE);
+-	int ret;
++	int ret, len;
  
- 	/*
-@@ -888,22 +892,19 @@ static void meson_mmc_request(struct mmc
- 		}
++	len = skb->len + ETH_HLEN;
+ 	ret = netif_rx_ni(skb);
+ 	if (ret == NET_RX_DROP) {
+ 		nic->stats.rx_dropped++;
+ 	} else {
+ 		nic->stats.rx_packets++;
+-		nic->stats.rx_bytes += skb->len + ETH_HLEN;
++		nic->stats.rx_bytes += len;
  	}
  
--	if (needs_pre_post_req) {
-+	if (host->needs_pre_post_req) {
- 		meson_mmc_get_transfer_mode(mmc, mrq);
- 		if (!meson_mmc_desc_chain_mode(mrq->data))
--			needs_pre_post_req = false;
-+			host->needs_pre_post_req = false;
- 	}
- 
--	if (needs_pre_post_req)
-+	if (host->needs_pre_post_req)
- 		meson_mmc_pre_req(mmc, mrq);
- 
- 	/* Stop execution */
- 	writel(0, host->regs + SD_EMMC_START);
- 
- 	meson_mmc_start_cmd(mmc, mrq->sbc ?: mrq->cmd);
--
--	if (needs_pre_post_req)
--		meson_mmc_post_req(mmc, mrq, 0);
- }
- 
- static void meson_mmc_read_resp(struct mmc_host *mmc, struct mmc_command *cmd)
+ 	return 0;
 
 
