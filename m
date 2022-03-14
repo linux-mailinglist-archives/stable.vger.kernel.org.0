@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FCB4D838A
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:15:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AE594D838F
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:15:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241125AbiCNMQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:16:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59358 "EHLO
+        id S241191AbiCNMQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:16:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241165AbiCNMPk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:15:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54C633A30;
-        Mon, 14 Mar 2022 05:11:44 -0700 (PDT)
+        with ESMTP id S241131AbiCNMQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:16:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CCEB3464A;
+        Mon, 14 Mar 2022 05:11:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC2E6135F;
-        Mon, 14 Mar 2022 12:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BB9DC340E9;
-        Mon, 14 Mar 2022 12:11:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11255B80DFB;
+        Mon, 14 Mar 2022 12:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74180C340E9;
+        Mon, 14 Mar 2022 12:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259903;
-        bh=TBDJK16kFd2upjhzw3U9Q3kmrcZse9TAUeChV4SpIHA=;
+        s=korg; t=1647259908;
+        bh=xlF0zVmafoR0uanVI4UamdWKtIxsBLEAJoBaZ0jV1NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y5nBG5CD5szrX0Ax9s290WhU0fDVHL8u4IssCnPjHh5gQpkkyGUjDOZmPbOOccWaV
-         iGyStNnyLvptVfxqZjvrFreWHYeyFJ6EzPdS2TGIpiZfw311wPQ50b2SJ43HdVoRwb
-         vRatGDO/bXZFKAFDeFkXumTBEJ2L3+kUyE5XIFik=
+        b=0+GnAndS6jo9iMi2vhL94IO5Y1Rh4kB7GZftv+hAWrYK7Oqz/dAVqA8lrY3vXh6LJ
+         9XBFU1+f65hdT4cQPKigyzXi1da8xTTC3Hqt8Yt/FjgRyqkXiQWb/n+nwr9o/LDf5C
+         2zg2cIGE9j7AufdN9wyP498rLy1j2Dm30H6godWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 083/110] tracing/osnoise: Force quiescent states while tracing
-Date:   Mon, 14 Mar 2022 12:54:25 +0100
-Message-Id: <20220314112745.346824548@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>
+Subject: [PATCH 5.15 084/110] arm64: dts: marvell: armada-37xx: Remap IO space to bus address 0x0
+Date:   Mon, 14 Mar 2022 12:54:26 +0100
+Message-Id: <20220314112745.374958362@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
 References: <20220314112743.029192918@linuxfoundation.org>
@@ -56,85 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit caf4c86bf136845982c5103b2661751b40c474c0 upstream.
+commit a1cc1697bb56cdf880ad4d17b79a39ef2c294bc9 upstream.
 
-At the moment running osnoise on a nohz_full CPU or uncontested FIFO
-priority and a PREEMPT_RCU kernel might have the side effect of
-extending grace periods too much. This will entice RCU to force a
-context switch on the wayward CPU to end the grace period, all while
-introducing unwarranted noise into the tracer. This behaviour is
-unavoidable as overly extending grace periods might exhaust the system's
-memory.
+Legacy and old PCI I/O based cards do not support 32-bit I/O addressing.
 
-This same exact problem is what extended quiescent states (EQS) were
-created for, conversely, rcu_momentary_dyntick_idle() emulates them by
-performing a zero duration EQS. So let's make use of it.
+Since commit 64f160e19e92 ("PCI: aardvark: Configure PCIe resources from
+'ranges' DT property") kernel can set different PCIe address on CPU and
+different on the bus for the one A37xx address mapping without any firmware
+support in case the bus address does not conflict with other A37xx mapping.
 
-In the common case rcu_momentary_dyntick_idle() is fairly inexpensive:
-atomically incrementing a local per-CPU counter and doing a store. So it
-shouldn't affect osnoise's measurements (which has a 1us granularity),
-so we'll call it unanimously.
+So remap I/O space to the bus address 0x0 to enable support for old legacy
+I/O port based cards which have hardcoded I/O ports in low address space.
 
-The uncommon case involve calling rcu_momentary_dyntick_idle() after
-having the osnoise process:
+Note that DDR on A37xx is mapped to bus address 0x0. And mapping of I/O
+space can be set to address 0x0 too because MEM space and I/O space are
+separate and so do not conflict.
 
- - Receive an expedited quiescent state IPI with preemption disabled or
-   during an RCU critical section. (activates rdp->cpu_no_qs.b.exp
-   code-path).
+Remapping IO space on Turris Mox to different address is not possible to
+due bootloader bug.
 
- - Being preempted within in an RCU critical section and having the
-   subsequent outermost rcu_read_unlock() called with interrupts
-   disabled. (t->rcu_read_unlock_special.b.blocked code-path).
-
-Neither of those are possible at the moment, and are unlikely to be in
-the future given the osnoise's loop design. On top of this, the noise
-generated by the situations described above is unavoidable, and if not
-exposed by rcu_momentary_dyntick_idle() will be eventually seen in
-subsequent rcu_read_unlock() calls or schedule operations.
-
-Link: https://lkml.kernel.org/r/20220307180740.577607-1-nsaenzju@redhat.com
-
-Cc: stable@vger.kernel.org
-Fixes: bce29ac9ce0b ("trace: Add osnoise tracer")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 76f6386b25cc ("arm64: dts: marvell: Add Aardvark PCIe support for Armada 3700")
+Cc: stable@vger.kernel.org # 64f160e19e92 ("PCI: aardvark: Configure PCIe resources from 'ranges' DT property")
+Cc: stable@vger.kernel.org # 514ef1e62d65 ("arm64: dts: marvell: armada-37xx: Extend PCIe MEM space")
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_osnoise.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts |    7 ++++++-
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi           |    2 +-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1196,6 +1196,26 @@ static int run_osnoise(void)
- 		}
- 
- 		/*
-+		 * In some cases, notably when running on a nohz_full CPU with
-+		 * a stopped tick PREEMPT_RCU has no way to account for QSs.
-+		 * This will eventually cause unwarranted noise as PREEMPT_RCU
-+		 * will force preemption as the means of ending the current
-+		 * grace period. We avoid this problem by calling
-+		 * rcu_momentary_dyntick_idle(), which performs a zero duration
-+		 * EQS allowing PREEMPT_RCU to end the current grace period.
-+		 * This call shouldn't be wrapped inside an RCU critical
-+		 * section.
-+		 *
-+		 * Note that in non PREEMPT_RCU kernels QSs are handled through
-+		 * cond_resched()
-+		 */
-+		if (IS_ENABLED(CONFIG_PREEMPT_RCU)) {
-+			local_irq_disable();
-+			rcu_momentary_dyntick_idle();
-+			local_irq_enable();
-+		}
-+
-+		/*
- 		 * For the non-preemptive kernel config: let threads runs, if
- 		 * they so wish.
- 		 */
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -139,7 +139,9 @@
+ 	/*
+ 	 * U-Boot port for Turris Mox has a bug which always expects that "ranges" DT property
+ 	 * contains exactly 2 ranges with 3 (child) address cells, 2 (parent) address cells and
+-	 * 2 size cells and also expects that the second range starts at 16 MB offset. If these
++	 * 2 size cells and also expects that the second range starts at 16 MB offset. Also it
++	 * expects that first range uses same address for PCI (child) and CPU (parent) cells (so
++	 * no remapping) and that this address is the lowest from all specified ranges. If these
+ 	 * conditions are not met then U-Boot crashes during loading kernel DTB file. PCIe address
+ 	 * space is 128 MB long, so the best split between MEM and IO is to use fixed 16 MB window
+ 	 * for IO and the rest 112 MB (64+32+16) for MEM, despite that maximal IO size is just 64 kB.
+@@ -148,6 +150,9 @@
+ 	 * https://source.denx.de/u-boot/u-boot/-/commit/cb2ddb291ee6fcbddd6d8f4ff49089dfe580f5d7
+ 	 * https://source.denx.de/u-boot/u-boot/-/commit/c64ac3b3185aeb3846297ad7391fc6df8ecd73bf
+ 	 * https://source.denx.de/u-boot/u-boot/-/commit/4a82fca8e330157081fc132a591ebd99ba02ee33
++	 * Bug related to requirement of same child and parent addresses for first range is fixed
++	 * in U-Boot version 2022.04 by following commit:
++	 * https://source.denx.de/u-boot/u-boot/-/commit/1fd54253bca7d43d046bba4853fe5fafd034bc17
+ 	 */
+ 	#address-cells = <3>;
+ 	#size-cells = <2>;
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -497,7 +497,7 @@
+ 			 * (totaling 127 MiB) for MEM.
+ 			 */
+ 			ranges = <0x82000000 0 0xe8000000   0 0xe8000000   0 0x07f00000   /* Port 0 MEM */
+-				  0x81000000 0 0xefff0000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
++				  0x81000000 0 0x00000000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
+ 			interrupt-map-mask = <0 0 0 7>;
+ 			interrupt-map = <0 0 0 1 &pcie_intc 0>,
+ 					<0 0 0 2 &pcie_intc 1>,
 
 
