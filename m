@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB654D8153
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C6584D814D
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231800AbiCNLlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:41:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42730 "EHLO
+        id S232556AbiCNLlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239451AbiCNLlO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:41:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402EF42EDC;
-        Mon, 14 Mar 2022 04:38:47 -0700 (PDT)
+        with ESMTP id S239532AbiCNLlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:41:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7343FBD1;
+        Mon, 14 Mar 2022 04:39:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C70BAB80DC4;
-        Mon, 14 Mar 2022 11:38:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05DFC340E9;
-        Mon, 14 Mar 2022 11:38:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EBBF6111A;
+        Mon, 14 Mar 2022 11:38:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01C97C340E9;
+        Mon, 14 Mar 2022 11:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257925;
-        bh=hQR1vmxhLrsNDgFOU9IOnII1ioQCHXZWxcL4PozHUBc=;
+        s=korg; t=1647257929;
+        bh=zdlidbozNq+pZLyr3omJ8QWIYyPM65fVnDx4hXkLRVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJjtTQlnH7XJAHQx4/XaiuVTvoUEQQ0ypL++Rk+s4KexuQ+fA0PNVM/L7Bs3bP0t7
-         0QfpibGUiVJBFChXatn1K/NmW7eFQPJ0IpH+0P8FqRGz/mJ22phhISU/dUBOYGUN/H
-         V2kns66doygF3PT7wwdQQVjqt1kMmPKEfIU6qdiM=
+        b=2lBIWSWwsNYT681P0Rx2L6k4Q5ZN7NlCc+ZeBIzGGtPHhJDHHAxmkAmhM7nbbn2Do
+         rptdu4mNOypTGCyrSQ+OlOrpRtwOU8En6WC1GxNRIohTXhUJmbBzfNdbe/6vQVK2HX
+         WqoeQu3s5+buI3SHODA5n8WCgk08dZGt98rN3Lw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott McNutt <scott.mcnutt@siriusxm.com>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 20/30] net: macb: Fix lost RX packet wakeup race in NAPI receive
-Date:   Mon, 14 Mar 2022 12:34:38 +0100
-Message-Id: <20220314112732.358689964@linuxfoundation.org>
+        stable@vger.kernel.org, Emil Renner Berthing <kernel@esmil.dk>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 4.19 21/30] riscv: Fix auipc+jalr relocation range checks
+Date:   Mon, 14 Mar 2022 12:34:39 +0100
+Message-Id: <20220314112732.385774544@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
 References: <20220314112731.785042288@linuxfoundation.org>
@@ -55,81 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Emil Renner Berthing <kernel@esmil.dk>
 
-commit 0bf476fc3624e3a72af4ba7340d430a91c18cd67 upstream.
+commit 0966d385830de3470b7131db8e86c0c5bc9c52dc upstream.
 
-There is an oddity in the way the RSR register flags propagate to the
-ISR register (and the actual interrupt output) on this hardware: it
-appears that RSR register bits only result in ISR being asserted if the
-interrupt was actually enabled at the time, so enabling interrupts with
-RSR bits already set doesn't trigger an interrupt to be raised. There
-was already a partial fix for this race in the macb_poll function where
-it checked for RSR bits being set and re-triggered NAPI receive.
-However, there was a still a race window between checking RSR and
-actually enabling interrupts, where a lost wakeup could happen. It's
-necessary to check again after enabling interrupts to see if RSR was set
-just prior to the interrupt being enabled, and re-trigger receive in that
-case.
+RISC-V can do PC-relative jumps with a 32bit range using the following
+two instructions:
 
-This issue was noticed in a point-to-point UDP request-response protocol
-which periodically saw timeouts or abnormally high response times due to
-received packets not being processed in a timely fashion. In many
-applications, more packets arriving, including TCP retransmissions, would
-cause the original packet to be processed, thus masking the issue.
+	auipc	t0, imm20	; t0 = PC + imm20 * 2^12
+	jalr	ra, t0, imm12	; ra = PC + 4, PC = t0 + imm12
 
-Fixes: 02f7a34f34e3 ("net: macb: Re-enable RX interrupt only when RX is done")
+Crucially both the 20bit immediate imm20 and the 12bit immediate imm12
+are treated as two's-complement signed values. For this reason the
+immediates are usually calculated like this:
+
+	imm20 = (offset + 0x800) >> 12
+	imm12 = offset & 0xfff
+
+..where offset is the signed offset from the auipc instruction. When
+the 11th bit of offset is 0 the addition of 0x800 doesn't change the top
+20 bits and imm12 considered positive. When the 11th bit is 1 the carry
+of the addition by 0x800 means imm20 is one higher, but since imm12 is
+then considered negative the two's complement representation means it
+all cancels out nicely.
+
+However, this addition by 0x800 (2^11) means an offset greater than or
+equal to 2^31 - 2^11 would overflow so imm20 is considered negative and
+result in a backwards jump. Similarly the lower range of offset is also
+moved down by 2^11 and hence the true 32bit range is
+
+	[-2^31 - 2^11, 2^31 - 2^11)
+
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
 Cc: stable@vger.kernel.org
-Co-developed-by: Scott McNutt <scott.mcnutt@siriusxm.com>
-Signed-off-by: Scott McNutt <scott.mcnutt@siriusxm.com>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c |   25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/module.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1269,7 +1269,14 @@ static int macb_poll(struct napi_struct
- 	if (work_done < budget) {
- 		napi_complete_done(napi, work_done);
+--- a/arch/riscv/kernel/module.c
++++ b/arch/riscv/kernel/module.c
+@@ -21,6 +21,19 @@
+ #include <asm/pgtable.h>
+ #include <asm/sections.h>
  
--		/* Packets received while interrupts were disabled */
-+		/* RSR bits only seem to propagate to raise interrupts when
-+		 * interrupts are enabled at the time, so if bits are already
-+		 * set due to packets received while interrupts were disabled,
-+		 * they will not cause another interrupt to be generated when
-+		 * interrupts are re-enabled.
-+		 * Check for this case here. This has been seen to happen
-+		 * around 30% of the time under heavy network load.
-+		 */
- 		status = macb_readl(bp, RSR);
- 		if (status) {
- 			if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
-@@ -1277,6 +1284,22 @@ static int macb_poll(struct napi_struct
- 			napi_reschedule(napi);
- 		} else {
- 			queue_writel(queue, IER, bp->rx_intr_mask);
++/*
++ * The auipc+jalr instruction pair can reach any PC-relative offset
++ * in the range [-2^31 - 2^11, 2^31 - 2^11)
++ */
++static bool riscv_insn_valid_32bit_offset(ptrdiff_t val)
++{
++#ifdef CONFIG_32BIT
++	return true;
++#else
++	return (-(1L << 31) - (1L << 11)) <= val && val < ((1L << 31) - (1L << 11));
++#endif
++}
 +
-+			/* In rare cases, packets could have been received in
-+			 * the window between the check above and re-enabling
-+			 * interrupts. Therefore, a double-check is required
-+			 * to avoid losing a wakeup. This can potentially race
-+			 * with the interrupt handler doing the same actions
-+			 * if an interrupt is raised just after enabling them,
-+			 * but this should be harmless.
-+			 */
-+			status = macb_readl(bp, RSR);
-+			if (unlikely(status)) {
-+				queue_writel(queue, IDR, bp->rx_intr_mask);
-+				if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
-+					queue_writel(queue, ISR, MACB_BIT(RCOMP));
-+				napi_schedule(napi);
-+			}
- 		}
- 	}
+ static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
+ {
+ 	if (v != (u32)v) {
+@@ -103,7 +116,7 @@ static int apply_r_riscv_pcrel_hi20_rela
+ 	ptrdiff_t offset = (void *)v - (void *)location;
+ 	s32 hi20;
  
+-	if (offset != (s32)offset) {
++	if (!riscv_insn_valid_32bit_offset(offset)) {
+ 		pr_err(
+ 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
+ 		  me->name, (long long)v, location);
+@@ -205,10 +218,9 @@ static int apply_r_riscv_call_plt_rela(s
+ 				       Elf_Addr v)
+ {
+ 	ptrdiff_t offset = (void *)v - (void *)location;
+-	s32 fill_v = offset;
+ 	u32 hi20, lo12;
+ 
+-	if (offset != fill_v) {
++	if (!riscv_insn_valid_32bit_offset(offset)) {
+ 		/* Only emit the plt entry if offset over 32-bit range */
+ 		if (IS_ENABLED(CONFIG_MODULE_SECTIONS)) {
+ 			offset = module_emit_plt_entry(me, v);
+@@ -232,10 +244,9 @@ static int apply_r_riscv_call_rela(struc
+ 				   Elf_Addr v)
+ {
+ 	ptrdiff_t offset = (void *)v - (void *)location;
+-	s32 fill_v = offset;
+ 	u32 hi20, lo12;
+ 
+-	if (offset != fill_v) {
++	if (!riscv_insn_valid_32bit_offset(offset)) {
+ 		pr_err(
+ 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
+ 		  me->name, (long long)v, location);
 
 
