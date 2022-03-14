@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91AF44D8479
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A8614D8478
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238054AbiCNMYd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241284AbiCNMYd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Mar 2022 08:24:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49238 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243952AbiCNMVZ (ORCPT
+        with ESMTP id S243957AbiCNMVZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B12713D41;
-        Mon, 14 Mar 2022 05:19:31 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E07D13D45;
+        Mon, 14 Mar 2022 05:19:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF9FAB80DF5;
-        Mon, 14 Mar 2022 12:19:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5D24C340EC;
-        Mon, 14 Mar 2022 12:19:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D8E6608C4;
+        Mon, 14 Mar 2022 12:19:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82331C340E9;
+        Mon, 14 Mar 2022 12:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260368;
-        bh=biVQO26JNhnpkhW6bbPtwyeL1122P5bPQiLIBuM1CHQ=;
+        s=korg; t=1647260372;
+        bh=eFpa8pjJJG9srWqOtE6cT5zheTL9nDd5I6JxvyX1VSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYJg1yQ1+5/QRk73AL70nIGbzbF0ByrdVIFwoHjcxEp4s/KG3wJwbD1JbKaxdHtBI
-         zHnTALWDCCEqeUmEiKEwam6xLEMSAa+ML7XpTeKTJMpOSIWvX8bP6q/aEbK0AiH0VQ
-         U+EbyCAPbvmryB6hp7MuFobPcU9BIUkcCD3DrWZ4=
+        b=NVeD4nR3l5gxL+r8ac+xzK6gWJRR0JuQmwZJkBrGv78+nEyH5OK5aNjBRuq3zRVnh
+         hcKLlrEqMQ0qgG5i4r4VIJyNVDybqsiQqKihepBX5Y+W/9RdYN61KnIYTiSU+RMRoU
+         Fxm4Pm7m+BsWJAWArvNp68ppbIlV3ct/GL2DxQ8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.16 112/121] watch_queue: Make comment about setting ->defunct more accurate
-Date:   Mon, 14 Mar 2022 12:54:55 +0100
-Message-Id: <20220314112747.234658959@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Philipson <ross.philipson@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Daniel Kiper <daniel.kiper@oracle.com>
+Subject: [PATCH 5.16 113/121] x86/boot: Fix memremap of setup_indirect structures
+Date:   Mon, 14 Mar 2022 12:54:56 +0100
+Message-Id: <20220314112747.262391105@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
 References: <20220314112744.120491875@linuxfoundation.org>
@@ -54,37 +54,393 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Ross Philipson <ross.philipson@oracle.com>
 
-commit 4edc0760412b0c4ecefc7e02cb855b310b122825 upstream.
+commit 7228918b34615ef6317edcd9a058a057bc54aa32 upstream.
 
-watch_queue_clear() has a comment stating that setting ->defunct to true
-preventing new additions as well as preventing notifications.  Whilst
-the latter is true, the first bit is superfluous since at the time this
-function is called, the pipe cannot be accessed to add new event
-sources.
+As documented, the setup_indirect structure is nested inside
+the setup_data structures in the setup_data list. The code currently
+accesses the fields inside the setup_indirect structure but only
+the sizeof(struct setup_data) is being memremapped. No crash
+occurred but this is just due to how the area is remapped under the
+covers.
 
-Remove the "new additions" bit from the comment.
+Properly memremap both the setup_data and setup_indirect structures
+in these cases before accessing them.
 
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b3c72fc9a78e ("x86/boot: Introduce setup_indirect")
+Signed-off-by: Ross Philipson <ross.philipson@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Daniel Kiper <daniel.kiper@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1645668456-22036-2-git-send-email-ross.philipson@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/watch_queue.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/e820.c     |   41 +++++++++++++++++------
+ arch/x86/kernel/kdebugfs.c |   35 +++++++++++++++-----
+ arch/x86/kernel/ksysfs.c   |   77 +++++++++++++++++++++++++++++++++++----------
+ arch/x86/kernel/setup.c    |   34 +++++++++++++++----
+ arch/x86/mm/ioremap.c      |   24 +++++++++++---
+ 5 files changed, 165 insertions(+), 46 deletions(-)
 
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -569,7 +569,7 @@ void watch_queue_clear(struct watch_queu
- 	rcu_read_lock();
- 	spin_lock_bh(&wqueue->lock);
+--- a/arch/x86/kernel/e820.c
++++ b/arch/x86/kernel/e820.c
+@@ -995,8 +995,10 @@ early_param("memmap", parse_memmap_opt);
+  */
+ void __init e820__reserve_setup_data(void)
+ {
++	struct setup_indirect *indirect;
+ 	struct setup_data *data;
+-	u64 pa_data;
++	u64 pa_data, pa_next;
++	u32 len;
  
--	/* Prevent new additions and prevent notifications from happening */
-+	/* Prevent new notifications from being stored. */
- 	wqueue->defunct = true;
+ 	pa_data = boot_params.hdr.setup_data;
+ 	if (!pa_data)
+@@ -1004,6 +1006,14 @@ void __init e820__reserve_setup_data(voi
  
- 	while (!hlist_empty(&wqueue->watches)) {
+ 	while (pa_data) {
+ 		data = early_memremap(pa_data, sizeof(*data));
++		if (!data) {
++			pr_warn("e820: failed to memremap setup_data entry\n");
++			return;
++		}
++
++		len = sizeof(*data);
++		pa_next = data->next;
++
+ 		e820__range_update(pa_data, sizeof(*data)+data->len, E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
+ 
+ 		/*
+@@ -1015,18 +1025,27 @@ void __init e820__reserve_setup_data(voi
+ 						 sizeof(*data) + data->len,
+ 						 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
+ 
+-		if (data->type == SETUP_INDIRECT &&
+-		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
+-			e820__range_update(((struct setup_indirect *)data->data)->addr,
+-					   ((struct setup_indirect *)data->data)->len,
+-					   E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
+-			e820__range_update_kexec(((struct setup_indirect *)data->data)->addr,
+-						 ((struct setup_indirect *)data->data)->len,
+-						 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
++		if (data->type == SETUP_INDIRECT) {
++			len += data->len;
++			early_memunmap(data, sizeof(*data));
++			data = early_memremap(pa_data, len);
++			if (!data) {
++				pr_warn("e820: failed to memremap indirect setup_data\n");
++				return;
++			}
++
++			indirect = (struct setup_indirect *)data->data;
++
++			if (indirect->type != SETUP_INDIRECT) {
++				e820__range_update(indirect->addr, indirect->len,
++						   E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
++				e820__range_update_kexec(indirect->addr, indirect->len,
++							 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
++			}
+ 		}
+ 
+-		pa_data = data->next;
+-		early_memunmap(data, sizeof(*data));
++		pa_data = pa_next;
++		early_memunmap(data, len);
+ 	}
+ 
+ 	e820__update_table(e820_table);
+--- a/arch/x86/kernel/kdebugfs.c
++++ b/arch/x86/kernel/kdebugfs.c
+@@ -88,11 +88,13 @@ create_setup_data_node(struct dentry *pa
+ 
+ static int __init create_setup_data_nodes(struct dentry *parent)
+ {
++	struct setup_indirect *indirect;
+ 	struct setup_data_node *node;
+ 	struct setup_data *data;
+-	int error;
++	u64 pa_data, pa_next;
+ 	struct dentry *d;
+-	u64 pa_data;
++	int error;
++	u32 len;
+ 	int no = 0;
+ 
+ 	d = debugfs_create_dir("setup_data", parent);
+@@ -112,12 +114,29 @@ static int __init create_setup_data_node
+ 			error = -ENOMEM;
+ 			goto err_dir;
+ 		}
++		pa_next = data->next;
+ 
+-		if (data->type == SETUP_INDIRECT &&
+-		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
+-			node->paddr = ((struct setup_indirect *)data->data)->addr;
+-			node->type  = ((struct setup_indirect *)data->data)->type;
+-			node->len   = ((struct setup_indirect *)data->data)->len;
++		if (data->type == SETUP_INDIRECT) {
++			len = sizeof(*data) + data->len;
++			memunmap(data);
++			data = memremap(pa_data, len, MEMREMAP_WB);
++			if (!data) {
++				kfree(node);
++				error = -ENOMEM;
++				goto err_dir;
++			}
++
++			indirect = (struct setup_indirect *)data->data;
++
++			if (indirect->type != SETUP_INDIRECT) {
++				node->paddr = indirect->addr;
++				node->type  = indirect->type;
++				node->len   = indirect->len;
++			} else {
++				node->paddr = pa_data;
++				node->type  = data->type;
++				node->len   = data->len;
++			}
+ 		} else {
+ 			node->paddr = pa_data;
+ 			node->type  = data->type;
+@@ -125,7 +144,7 @@ static int __init create_setup_data_node
+ 		}
+ 
+ 		create_setup_data_node(d, no, node);
+-		pa_data = data->next;
++		pa_data = pa_next;
+ 
+ 		memunmap(data);
+ 		no++;
+--- a/arch/x86/kernel/ksysfs.c
++++ b/arch/x86/kernel/ksysfs.c
+@@ -91,26 +91,41 @@ static int get_setup_data_paddr(int nr,
+ 
+ static int __init get_setup_data_size(int nr, size_t *size)
+ {
+-	int i = 0;
++	u64 pa_data = boot_params.hdr.setup_data, pa_next;
++	struct setup_indirect *indirect;
+ 	struct setup_data *data;
+-	u64 pa_data = boot_params.hdr.setup_data;
++	int i = 0;
++	u32 len;
+ 
+ 	while (pa_data) {
+ 		data = memremap(pa_data, sizeof(*data), MEMREMAP_WB);
+ 		if (!data)
+ 			return -ENOMEM;
++		pa_next = data->next;
++
+ 		if (nr == i) {
+-			if (data->type == SETUP_INDIRECT &&
+-			    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT)
+-				*size = ((struct setup_indirect *)data->data)->len;
+-			else
++			if (data->type == SETUP_INDIRECT) {
++				len = sizeof(*data) + data->len;
++				memunmap(data);
++				data = memremap(pa_data, len, MEMREMAP_WB);
++				if (!data)
++					return -ENOMEM;
++
++				indirect = (struct setup_indirect *)data->data;
++
++				if (indirect->type != SETUP_INDIRECT)
++					*size = indirect->len;
++				else
++					*size = data->len;
++			} else {
+ 				*size = data->len;
++			}
+ 
+ 			memunmap(data);
+ 			return 0;
+ 		}
+ 
+-		pa_data = data->next;
++		pa_data = pa_next;
+ 		memunmap(data);
+ 		i++;
+ 	}
+@@ -120,9 +135,11 @@ static int __init get_setup_data_size(in
+ static ssize_t type_show(struct kobject *kobj,
+ 			 struct kobj_attribute *attr, char *buf)
+ {
++	struct setup_indirect *indirect;
++	struct setup_data *data;
+ 	int nr, ret;
+ 	u64 paddr;
+-	struct setup_data *data;
++	u32 len;
+ 
+ 	ret = kobj_to_setup_data_nr(kobj, &nr);
+ 	if (ret)
+@@ -135,10 +152,20 @@ static ssize_t type_show(struct kobject
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	if (data->type == SETUP_INDIRECT)
+-		ret = sprintf(buf, "0x%x\n", ((struct setup_indirect *)data->data)->type);
+-	else
++	if (data->type == SETUP_INDIRECT) {
++		len = sizeof(*data) + data->len;
++		memunmap(data);
++		data = memremap(paddr, len, MEMREMAP_WB);
++		if (!data)
++			return -ENOMEM;
++
++		indirect = (struct setup_indirect *)data->data;
++
++		ret = sprintf(buf, "0x%x\n", indirect->type);
++	} else {
+ 		ret = sprintf(buf, "0x%x\n", data->type);
++	}
++
+ 	memunmap(data);
+ 	return ret;
+ }
+@@ -149,9 +176,10 @@ static ssize_t setup_data_data_read(stru
+ 				    char *buf,
+ 				    loff_t off, size_t count)
+ {
++	struct setup_indirect *indirect;
++	struct setup_data *data;
+ 	int nr, ret = 0;
+ 	u64 paddr, len;
+-	struct setup_data *data;
+ 	void *p;
+ 
+ 	ret = kobj_to_setup_data_nr(kobj, &nr);
+@@ -165,10 +193,27 @@ static ssize_t setup_data_data_read(stru
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	if (data->type == SETUP_INDIRECT &&
+-	    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
+-		paddr = ((struct setup_indirect *)data->data)->addr;
+-		len = ((struct setup_indirect *)data->data)->len;
++	if (data->type == SETUP_INDIRECT) {
++		len = sizeof(*data) + data->len;
++		memunmap(data);
++		data = memremap(paddr, len, MEMREMAP_WB);
++		if (!data)
++			return -ENOMEM;
++
++		indirect = (struct setup_indirect *)data->data;
++
++		if (indirect->type != SETUP_INDIRECT) {
++			paddr = indirect->addr;
++			len = indirect->len;
++		} else {
++			/*
++			 * Even though this is technically undefined, return
++			 * the data as though it is a normal setup_data struct.
++			 * This will at least allow it to be inspected.
++			 */
++			paddr += sizeof(*data);
++			len = data->len;
++		}
+ 	} else {
+ 		paddr += sizeof(*data);
+ 		len = data->len;
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -368,21 +368,41 @@ static void __init parse_setup_data(void
+ 
+ static void __init memblock_x86_reserve_range_setup_data(void)
+ {
++	struct setup_indirect *indirect;
+ 	struct setup_data *data;
+-	u64 pa_data;
++	u64 pa_data, pa_next;
++	u32 len;
+ 
+ 	pa_data = boot_params.hdr.setup_data;
+ 	while (pa_data) {
+ 		data = early_memremap(pa_data, sizeof(*data));
++		if (!data) {
++			pr_warn("setup: failed to memremap setup_data entry\n");
++			return;
++		}
++
++		len = sizeof(*data);
++		pa_next = data->next;
++
+ 		memblock_reserve(pa_data, sizeof(*data) + data->len);
+ 
+-		if (data->type == SETUP_INDIRECT &&
+-		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT)
+-			memblock_reserve(((struct setup_indirect *)data->data)->addr,
+-					 ((struct setup_indirect *)data->data)->len);
++		if (data->type == SETUP_INDIRECT) {
++			len += data->len;
++			early_memunmap(data, sizeof(*data));
++			data = early_memremap(pa_data, len);
++			if (!data) {
++				pr_warn("setup: failed to memremap indirect setup_data\n");
++				return;
++			}
++
++			indirect = (struct setup_indirect *)data->data;
++
++			if (indirect->type != SETUP_INDIRECT)
++				memblock_reserve(indirect->addr, indirect->len);
++		}
+ 
+-		pa_data = data->next;
+-		early_memunmap(data, sizeof(*data));
++		pa_data = pa_next;
++		early_memunmap(data, len);
+ 	}
+ }
+ 
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -615,6 +615,7 @@ static bool memremap_is_efi_data(resourc
+ static bool memremap_is_setup_data(resource_size_t phys_addr,
+ 				   unsigned long size)
+ {
++	struct setup_indirect *indirect;
+ 	struct setup_data *data;
+ 	u64 paddr, paddr_next;
+ 
+@@ -627,6 +628,10 @@ static bool memremap_is_setup_data(resou
+ 
+ 		data = memremap(paddr, sizeof(*data),
+ 				MEMREMAP_WB | MEMREMAP_DEC);
++		if (!data) {
++			pr_warn("failed to memremap setup_data entry\n");
++			return false;
++		}
+ 
+ 		paddr_next = data->next;
+ 		len = data->len;
+@@ -636,10 +641,21 @@ static bool memremap_is_setup_data(resou
+ 			return true;
+ 		}
+ 
+-		if (data->type == SETUP_INDIRECT &&
+-		    ((struct setup_indirect *)data->data)->type != SETUP_INDIRECT) {
+-			paddr = ((struct setup_indirect *)data->data)->addr;
+-			len = ((struct setup_indirect *)data->data)->len;
++		if (data->type == SETUP_INDIRECT) {
++			memunmap(data);
++			data = memremap(paddr, sizeof(*data) + len,
++					MEMREMAP_WB | MEMREMAP_DEC);
++			if (!data) {
++				pr_warn("failed to memremap indirect setup_data\n");
++				return false;
++			}
++
++			indirect = (struct setup_indirect *)data->data;
++
++			if (indirect->type != SETUP_INDIRECT) {
++				paddr = indirect->addr;
++				len = indirect->len;
++			}
+ 		}
+ 
+ 		memunmap(data);
 
 
