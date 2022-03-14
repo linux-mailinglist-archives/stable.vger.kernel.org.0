@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC4E14D8256
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 441B74D8332
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240277AbiCNMDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42164 "EHLO
+        id S240991AbiCNMMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240667AbiCNMDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:03:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD0A4B42A;
-        Mon, 14 Mar 2022 05:00:41 -0700 (PDT)
+        with ESMTP id S241434AbiCNMIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17F34D9F6;
+        Mon, 14 Mar 2022 05:05:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09560612DF;
-        Mon, 14 Mar 2022 12:00:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3D0BC36AF3;
-        Mon, 14 Mar 2022 12:00:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42D87B80DF2;
+        Mon, 14 Mar 2022 12:05:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33CFAC340ED;
+        Mon, 14 Mar 2022 12:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259240;
-        bh=YfpmRIDi6jRVe/IYxm/SbOg5cyruW3iEv4Tg+KggpLQ=;
+        s=korg; t=1647259510;
+        bh=PLkxFWAuJPB2flzQRtes2vC27qTt7IiTYtVEtYcftUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCujLUexWtlmH1USnY5ghyM/poXVs6yoS390fZyXwluK7V1n20s5NYAgijr0ZxDjo
-         BmkecdqV9kTSt7OPed0ebyLmcLHH2MKnHRq3JP2ujOxW415YKPp0igMso8uVwBnw4L
-         eyuQXfZjY4xAWaQy57W3IZB47B43kPsGAzVJq17k=
+        b=f2ozqY7Z9DSR+4rNhcRKBPuyvLp+aHcTkv3KULo9sTQQpcyYYjAyY1Iebvbpum0+r
+         Azs6MWciFtVKnq6Lyyd61BXQz3lpq25vdry/q+fhY/edUKMrosS2FukJTqiia7KLJZ
+         YX3GEx7CTKENT9xoT4162ddgZY8ugFBzDYIaiB/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Featherston <mark@embeddedTS.com>,
-        Kris Bahnsen <kris@embeddedTS.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 32/71] gpio: ts4900: Do not set DAT and OE together
+Subject: [PATCH 5.15 023/110] smsc95xx: Ignore -ENODEV errors when device is unplugged
 Date:   Mon, 14 Mar 2022 12:53:25 +0100
-Message-Id: <20220314112738.832032873@linuxfoundation.org>
+Message-Id: <20220314112743.683391099@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Featherston <mark@embeddedTS.com>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit 03fe003547975680fdb9ff5ab0e41cb68276c4f2 ]
+[ Upstream commit c70c453abcbf3ecbaadd4c3236a5119b8da365cf ]
 
-This works around an issue with the hardware where both OE and
-DAT are exposed in the same register. If both are updated
-simultaneously, the harware makes no guarantees that OE or DAT
-will actually change in any given order and may result in a
-glitch of a few ns on a GPIO pin when changing direction and value
-in a single write.
+According to Documentation/driver-api/usb/URB.rst when a device
+is unplugged usb_submit_urb() returns -ENODEV.
 
-Setting direction to input now only affects OE bit. Setting
-direction to output updates DAT first, then OE.
+This error code propagates all the way up to usbnet_read_cmd() and
+usbnet_write_cmd() calls inside the smsc95xx.c driver during
+Ethernet cable unplug, unbind or reboot.
 
-Fixes: 9c6686322d74 ("gpio: add Technologic I2C-FPGA gpio support")
-Signed-off-by: Mark Featherston <mark@embeddedTS.com>
-Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+This causes the following errors to be shown on reboot, for example:
+
+ci_hdrc ci_hdrc.1: remove, state 1
+usb usb2: USB disconnect, device number 1
+usb 2-1: USB disconnect, device number 2
+usb 2-1.1: USB disconnect, device number 3
+smsc95xx 2-1.1:1.0 eth1: unregister 'smsc95xx' usb-ci_hdrc.1-1.1, smsc95xx USB 2.0 Ethernet
+smsc95xx 2-1.1:1.0 eth1: Failed to read reg index 0x00000114: -19
+smsc95xx 2-1.1:1.0 eth1: Error reading MII_ACCESS
+smsc95xx 2-1.1:1.0 eth1: __smsc95xx_mdio_read: MII is busy
+smsc95xx 2-1.1:1.0 eth1: Failed to read reg index 0x00000114: -19
+smsc95xx 2-1.1:1.0 eth1: Error reading MII_ACCESS
+smsc95xx 2-1.1:1.0 eth1: __smsc95xx_mdio_read: MII is busy
+smsc95xx 2-1.1:1.0 eth1: hardware isn't capable of remote wakeup
+usb 2-1.4: USB disconnect, device number 4
+ci_hdrc ci_hdrc.1: USB bus 2 deregistered
+ci_hdrc ci_hdrc.0: remove, state 4
+usb usb1: USB disconnect, device number 1
+ci_hdrc ci_hdrc.0: USB bus 1 deregistered
+imx2-wdt 30280000.watchdog: Device shutdown: Expect reboot!
+reboot: Restarting system
+
+Ignore the -ENODEV errors inside __smsc95xx_mdio_read() and
+__smsc95xx_phy_wait_not_busy() and do not print error messages
+when -ENODEV is returned.
+
+Fixes: a049a30fc27c ("net: usb: Correct PHY handling of smsc95xx")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-ts4900.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/net/usb/smsc95xx.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpio/gpio-ts4900.c b/drivers/gpio/gpio-ts4900.c
-index d885032cf814..d918d2df4de2 100644
---- a/drivers/gpio/gpio-ts4900.c
-+++ b/drivers/gpio/gpio-ts4900.c
-@@ -1,7 +1,7 @@
- /*
-  * Digital I/O driver for Technologic Systems I2C FPGA Core
-  *
-- * Copyright (C) 2015 Technologic Systems
-+ * Copyright (C) 2015, 2018 Technologic Systems
-  * Copyright (C) 2016 Savoir-Faire Linux
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -55,19 +55,33 @@ static int ts4900_gpio_direction_input(struct gpio_chip *chip,
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
+diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
+index 026e7487c45b..eb0d325e92b7 100644
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -84,9 +84,10 @@ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
+ 	ret = fn(dev, USB_VENDOR_REQUEST_READ_REGISTER, USB_DIR_IN
+ 		 | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 		 0, index, &buf, 4);
+-	if (unlikely(ret < 0)) {
+-		netdev_warn(dev->net, "Failed to read reg index 0x%08x: %d\n",
+-			    index, ret);
++	if (ret < 0) {
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Failed to read reg index 0x%08x: %d\n",
++				    index, ret);
+ 		return ret;
+ 	}
  
--	/*
--	 * This will clear the output enable bit, the other bits are
--	 * dontcare when this is cleared
-+	/* Only clear the OE bit here, requires a RMW. Prevents potential issue
-+	 * with OE and data getting to the physical pin at different times.
- 	 */
--	return regmap_write(priv->regmap, offset, 0);
-+	return regmap_update_bits(priv->regmap, offset, TS4900_GPIO_OE, 0);
+@@ -116,7 +117,7 @@ static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
+ 	ret = fn(dev, USB_VENDOR_REQUEST_WRITE_REGISTER, USB_DIR_OUT
+ 		 | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 		 0, index, &buf, 4);
+-	if (unlikely(ret < 0))
++	if (ret < 0 && ret != -ENODEV)
+ 		netdev_warn(dev->net, "Failed to write reg index 0x%08x: %d\n",
+ 			    index, ret);
+ 
+@@ -159,6 +160,9 @@ static int __must_check __smsc95xx_phy_wait_not_busy(struct usbnet *dev,
+ 	do {
+ 		ret = __smsc95xx_read_reg(dev, MII_ADDR, &val, in_pm);
+ 		if (ret < 0) {
++			/* Ignore -ENODEV error during disconnect() */
++			if (ret == -ENODEV)
++				return 0;
+ 			netdev_warn(dev->net, "Error reading MII_ACCESS\n");
+ 			return ret;
+ 		}
+@@ -194,7 +198,8 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
+ 	addr = mii_address_cmd(phy_id, idx, MII_READ_ | MII_BUSY_);
+ 	ret = __smsc95xx_write_reg(dev, MII_ADDR, addr, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error writing MII_ADDR\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error writing MII_ADDR\n");
+ 		goto done;
+ 	}
+ 
+@@ -206,7 +211,8 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
+ 
+ 	ret = __smsc95xx_read_reg(dev, MII_DATA, &val, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error reading MII_DATA\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error reading MII_DATA\n");
+ 		goto done;
+ 	}
+ 
+@@ -214,6 +220,10 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
+ 
+ done:
+ 	mutex_unlock(&dev->phy_mutex);
++
++	/* Ignore -ENODEV error during disconnect() */
++	if (ret == -ENODEV)
++		return 0;
+ 	return ret;
  }
  
- static int ts4900_gpio_direction_output(struct gpio_chip *chip,
- 					unsigned int offset, int value)
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
-+	unsigned int reg;
- 	int ret;
+@@ -235,7 +245,8 @@ static void __smsc95xx_mdio_write(struct usbnet *dev, int phy_id,
+ 	val = regval;
+ 	ret = __smsc95xx_write_reg(dev, MII_DATA, val, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error writing MII_DATA\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error writing MII_DATA\n");
+ 		goto done;
+ 	}
  
-+	/* If changing from an input to an output, we need to first set the
-+	 * proper data bit to what is requested and then set OE bit. This
-+	 * prevents a glitch that can occur on the IO line
-+	 */
-+	regmap_read(priv->regmap, offset, &reg);
-+	if (!(reg & TS4900_GPIO_OE)) {
-+		if (value)
-+			reg = TS4900_GPIO_OUT;
-+		else
-+			reg &= ~TS4900_GPIO_OUT;
-+
-+		regmap_write(priv->regmap, offset, reg);
-+	}
-+
- 	if (value)
- 		ret = regmap_write(priv->regmap, offset, TS4900_GPIO_OE |
- 							 TS4900_GPIO_OUT);
+@@ -243,7 +254,8 @@ static void __smsc95xx_mdio_write(struct usbnet *dev, int phy_id,
+ 	addr = mii_address_cmd(phy_id, idx, MII_WRITE_ | MII_BUSY_);
+ 	ret = __smsc95xx_write_reg(dev, MII_ADDR, addr, in_pm);
+ 	if (ret < 0) {
+-		netdev_warn(dev->net, "Error writing MII_ADDR\n");
++		if (ret != -ENODEV)
++			netdev_warn(dev->net, "Error writing MII_ADDR\n");
+ 		goto done;
+ 	}
+ 
 -- 
 2.34.1
 
