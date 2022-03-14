@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B16114D843C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD4D4D82CA
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241678AbiCNMX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:23:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49804 "EHLO
+        id S240699AbiCNMHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242995AbiCNMT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BBC852B28;
-        Mon, 14 Mar 2022 05:15:10 -0700 (PDT)
+        with ESMTP id S240645AbiCNMHP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:07:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208F2237D2;
+        Mon, 14 Mar 2022 05:03:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F129B80DE1;
-        Mon, 14 Mar 2022 12:15:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF7EC340E9;
-        Mon, 14 Mar 2022 12:15:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 70477CE1269;
+        Mon, 14 Mar 2022 12:03:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E56E8C340ED;
+        Mon, 14 Mar 2022 12:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260107;
-        bh=i7xv0jglIHn4FUUINh7I6a5MJYZqrXrWYxEtF5hnFLA=;
+        s=korg; t=1647259405;
+        bh=M8ax33quUGmZY4WEvx5nH5KNIApyPzylG8aYXe9hmrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UKHfBtLIEXa4yeAnW0LCaEH8y2Gx3j5p++PAWy7/QaM8b6X5UJkecKVVcYFBjnQOd
-         NUyN1Bkc/564IQBeyAmCvkXOnHZK6hUWtvELouJM4gU8f6l54y0ne/Vw0eSUvYTNpV
-         36dXZiiuLyPLso8By/1Ql3f6bVnLT0AHQsfcaDKo=
+        b=2rDjuS9qALkvtndk7dyM85glRuO2/KJOh6XDN7tmbsdl6SR7qTDw20ndbsSDxt6qe
+         9U0XP5wdICQEnlRJrV39C/jo08p42Twqp5MBJ3d/qfWWy2D+Z1HaEMR8qEHZ1OA37+
+         Pc1rGX9LqcGlDGYztAYQytS+y1LkVg9iSvja/2lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Peter Robinson <pbrobinson@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 058/121] net: bcmgenet: Dont claim WOL when its not available
-Date:   Mon, 14 Mar 2022 12:54:01 +0100
-Message-Id: <20220314112745.745078143@linuxfoundation.org>
+        stable@vger.kernel.org, Josh Triplett <josh@joshtriplett.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 69/71] ext4: add check to prevent attempting to resize an fs with sparse_super2
+Date:   Mon, 14 Mar 2022 12:54:02 +0100
+Message-Id: <20220314112739.869914303@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Josh Triplett <josh@joshtriplett.org>
 
-[ Upstream commit 00b022f8f876a3a036b0df7f971001bef6398605 ]
+commit b1489186cc8391e0c1e342f9fbc3eedf6b944c61 upstream.
 
-Some of the bcmgenet platforms don't correctly support WOL, yet
-ethtool returns:
+The in-kernel ext4 resize code doesn't support filesystem with the
+sparse_super2 feature. It fails with errors like this and doesn't finish
+the resize:
+EXT4-fs (loop0): resizing filesystem from 16640 to 7864320 blocks
+EXT4-fs warning (device loop0): verify_reserved_gdb:760: reserved GDT 2 missing grp 1 (32770)
+EXT4-fs warning (device loop0): ext4_resize_fs:2111: error (-22) occurred during file system resize
+EXT4-fs (loop0): resized filesystem to 2097152
 
-"Supports Wake-on: gsf"
+To reproduce:
+mkfs.ext4 -b 4096 -I 256 -J size=32 -E resize=$((256*1024*1024)) -O sparse_super2 ext4.img 65M
+truncate -s 30G ext4.img
+mount ext4.img /mnt
+python3 -c 'import fcntl, os, struct ; fd = os.open("/mnt", os.O_RDONLY | os.O_DIRECTORY) ; fcntl.ioctl(fd, 0x40086610, struct.pack("Q", 30 * 1024 * 1024 * 1024 // 4096), False) ; os.close(fd)'
+dmesg | tail
+e2fsck ext4.img
 
-which is false.
+The userspace resize2fs tool has a check for this case: it checks if the
+filesystem has sparse_super2 set and if the kernel provides
+/sys/fs/ext4/features/sparse_super2. However, the former check requires
+manually reading and parsing the filesystem superblock.
 
-Ideally if there isn't a wol_irq, or there is something else that
-keeps the device from being able to wakeup it should display:
+Detect this case in ext4_resize_begin and error out early with a clear
+error message.
 
-"Supports Wake-on: d"
-
-This patch checks whether the device can wakup, before using the
-hard-coded supported flags. This corrects the ethtool reporting, as
-well as the WOL configuration because ethtool verifies that the mode
-is supported before attempting it.
-
-Fixes: c51de7f3976b ("net: bcmgenet: add Wake-on-LAN support code")
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220310045535.224450-1-jeremy.linton@arm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Link: https://lore.kernel.org/r/74b8ae78405270211943cd7393e65586c5faeed1.1623093259.git.josh@joshtriplett.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/ext4/resize.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-index e31a5a397f11..f55d9d9c01a8 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -40,6 +40,13 @@
- void bcmgenet_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
-+	struct device *kdev = &priv->pdev->dev;
-+
-+	if (!device_can_wakeup(kdev)) {
-+		wol->supported = 0;
-+		wol->wolopts = 0;
-+		return;
-+	}
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -74,6 +74,11 @@ int ext4_resize_begin(struct super_block
+ 		return -EPERM;
+ 	}
  
- 	wol->supported = WAKE_MAGIC | WAKE_MAGICSECURE | WAKE_FILTER;
- 	wol->wolopts = priv->wolopts;
--- 
-2.34.1
-
++	if (ext4_has_feature_sparse_super2(sb)) {
++		ext4_msg(sb, KERN_ERR, "Online resizing not supported with sparse_super2");
++		return -EOPNOTSUPP;
++	}
++
+ 	if (test_and_set_bit_lock(EXT4_FLAGS_RESIZING,
+ 				  &EXT4_SB(sb)->s_ext4_flags))
+ 		ret = -EBUSY;
 
 
