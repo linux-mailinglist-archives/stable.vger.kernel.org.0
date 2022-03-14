@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C40B94D840C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5FAD4D832A
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241403AbiCNMWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49856 "EHLO
+        id S240995AbiCNMMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243111AbiCNMUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:20:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF17532EF;
-        Mon, 14 Mar 2022 05:15:22 -0700 (PDT)
+        with ESMTP id S242404AbiCNMJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C378C65CB;
+        Mon, 14 Mar 2022 05:07:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3461AB80DF9;
-        Mon, 14 Mar 2022 12:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 874B8C340E9;
-        Mon, 14 Mar 2022 12:15:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F186B80DF0;
+        Mon, 14 Mar 2022 12:07:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A24BC340E9;
+        Mon, 14 Mar 2022 12:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260121;
-        bh=JBPr/rPbzcPLmnBAoTrT+TQGTKe/Dlplch0UpYgnThQ=;
+        s=korg; t=1647259673;
+        bh=Mqf59jWgVyICVi1MOdIXW8LT3afhn1KB7de9lEOHhq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcSdZ9CUAe60P3GoAWVt51rO5ARNSP4d6bEnBum+b7pnagZpnB2lMFG7RA7xPWHWi
-         D4bo/XEBWKdWPVKhj78Dkh0SvRezAQWrR283DnJSmPam2Y8aXS6fYkEbJnUHEgokaE
-         OLn8oSqHjn6sgk2lGpVkWIufHiaF9bk4N1XfCWGo=
+        b=C7sfSzWnExZQA9A390an7hdnVzqmP2bqwg0KmRno68o1DRAx/byXfkFVCu5QV2Wcg
+         cnRMqnjOdxpy7biu5iaPa0me0NgyiAU3f7Ek9MwaDtDd5xKrhLw58JTcTT9/FjivKa
+         3VtcJU6scEGfkRTNJSbVkOJukC+SbhUaxLJJdoy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 061/121] swiotlb: fix info leak with DMA_FROM_DEVICE
+        stable@vger.kernel.org, suresh kumar <suresh2514@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 062/110] net-sysfs: add check for netdevice being present to speed_show
 Date:   Mon, 14 Mar 2022 12:54:04 +0100
-Message-Id: <20220314112745.828288490@linuxfoundation.org>
+Message-Id: <20220314112744.766252682@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,109 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: suresh kumar <suresh2514@gmail.com>
 
-[ Upstream commit ddbd89deb7d32b1fbb879f48d68fda1a8ac58e8e ]
+[ Upstream commit 4224cfd7fb6523f7a9d1c8bb91bb5df1e38eb624 ]
 
-The problem I'm addressing was discovered by the LTP test covering
-cve-2018-1000204.
+When bringing down the netdevice or system shutdown, a panic can be
+triggered while accessing the sysfs path because the device is already
+removed.
 
-A short description of what happens follows:
-1) The test case issues a command code 00 (TEST UNIT READY) via the SG_IO
-   interface with: dxfer_len == 524288, dxdfer_dir == SG_DXFER_FROM_DEV
-   and a corresponding dxferp. The peculiar thing about this is that TUR
-   is not reading from the device.
-2) In sg_start_req() the invocation of blk_rq_map_user() effectively
-   bounces the user-space buffer. As if the device was to transfer into
-   it. Since commit a45b599ad808 ("scsi: sg: allocate with __GFP_ZERO in
-   sg_build_indirect()") we make sure this first bounce buffer is
-   allocated with GFP_ZERO.
-3) For the rest of the story we keep ignoring that we have a TUR, so the
-   device won't touch the buffer we prepare as if the we had a
-   DMA_FROM_DEVICE type of situation. My setup uses a virtio-scsi device
-   and the  buffer allocated by SG is mapped by the function
-   virtqueue_add_split() which uses DMA_FROM_DEVICE for the "in" sgs (here
-   scatter-gather and not scsi generics). This mapping involves bouncing
-   via the swiotlb (we need swiotlb to do virtio in protected guest like
-   s390 Secure Execution, or AMD SEV).
-4) When the SCSI TUR is done, we first copy back the content of the second
-   (that is swiotlb) bounce buffer (which most likely contains some
-   previous IO data), to the first bounce buffer, which contains all
-   zeros.  Then we copy back the content of the first bounce buffer to
-   the user-space buffer.
-5) The test case detects that the buffer, which it zero-initialized,
-  ain't all zeros and fails.
+    [  755.549084] mlx5_core 0000:12:00.1: Shutdown was called
+    [  756.404455] mlx5_core 0000:12:00.0: Shutdown was called
+    ...
+    [  757.937260] BUG: unable to handle kernel NULL pointer dereference at           (null)
+    [  758.031397] IP: [<ffffffff8ee11acb>] dma_pool_alloc+0x1ab/0x280
 
-One can argue that this is an swiotlb problem, because without swiotlb
-we leak all zeros, and the swiotlb should be transparent in a sense that
-it does not affect the outcome (if all other participants are well
-behaved).
+    crash> bt
+    ...
+    PID: 12649  TASK: ffff8924108f2100  CPU: 1   COMMAND: "amsd"
+    ...
+     #9 [ffff89240e1a38b0] page_fault at ffffffff8f38c778
+        [exception RIP: dma_pool_alloc+0x1ab]
+        RIP: ffffffff8ee11acb  RSP: ffff89240e1a3968  RFLAGS: 00010046
+        RAX: 0000000000000246  RBX: ffff89243d874100  RCX: 0000000000001000
+        RDX: 0000000000000000  RSI: 0000000000000246  RDI: ffff89243d874090
+        RBP: ffff89240e1a39c0   R8: 000000000001f080   R9: ffff8905ffc03c00
+        R10: ffffffffc04680d4  R11: ffffffff8edde9fd  R12: 00000000000080d0
+        R13: ffff89243d874090  R14: ffff89243d874080  R15: 0000000000000000
+        ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+    #10 [ffff89240e1a39c8] mlx5_alloc_cmd_msg at ffffffffc04680f3 [mlx5_core]
+    #11 [ffff89240e1a3a18] cmd_exec at ffffffffc046ad62 [mlx5_core]
+    #12 [ffff89240e1a3ab8] mlx5_cmd_exec at ffffffffc046b4fb [mlx5_core]
+    #13 [ffff89240e1a3ae8] mlx5_core_access_reg at ffffffffc0475434 [mlx5_core]
+    #14 [ffff89240e1a3b40] mlx5e_get_fec_caps at ffffffffc04a7348 [mlx5_core]
+    #15 [ffff89240e1a3bb0] get_fec_supported_advertised at ffffffffc04992bf [mlx5_core]
+    #16 [ffff89240e1a3c08] mlx5e_get_link_ksettings at ffffffffc049ab36 [mlx5_core]
+    #17 [ffff89240e1a3ce8] __ethtool_get_link_ksettings at ffffffff8f25db46
+    #18 [ffff89240e1a3d48] speed_show at ffffffff8f277208
+    #19 [ffff89240e1a3dd8] dev_attr_show at ffffffff8f0b70e3
+    #20 [ffff89240e1a3df8] sysfs_kf_seq_show at ffffffff8eedbedf
+    #21 [ffff89240e1a3e18] kernfs_seq_show at ffffffff8eeda596
+    #22 [ffff89240e1a3e28] seq_read at ffffffff8ee76d10
+    #23 [ffff89240e1a3e98] kernfs_fop_read at ffffffff8eedaef5
+    #24 [ffff89240e1a3ed8] vfs_read at ffffffff8ee4e3ff
+    #25 [ffff89240e1a3f08] sys_read at ffffffff8ee4f27f
+    #26 [ffff89240e1a3f50] system_call_fastpath at ffffffff8f395f92
 
-Copying the content of the original buffer into the swiotlb buffer is
-the only way I can think of to make swiotlb transparent in such
-scenarios. So let's do just that if in doubt, but allow the driver
-to tell us that the whole mapped buffer is going to be overwritten,
-in which case we can preserve the old behavior and avoid the performance
-impact of the extra bounce.
+    crash> net_device.state ffff89443b0c0000
+      state = 0x5  (__LINK_STATE_START| __LINK_STATE_NOCARRIER)
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+To prevent this scenario, we also make sure that the netdevice is present.
+
+Signed-off-by: suresh kumar <suresh2514@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/core-api/dma-attributes.rst | 8 ++++++++
- include/linux/dma-mapping.h               | 8 ++++++++
- kernel/dma/swiotlb.c                      | 3 ++-
- 3 files changed, 18 insertions(+), 1 deletion(-)
+ net/core/net-sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
-index 1887d92e8e92..17706dc91ec9 100644
---- a/Documentation/core-api/dma-attributes.rst
-+++ b/Documentation/core-api/dma-attributes.rst
-@@ -130,3 +130,11 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
- subsystem that the buffer is fully accessible at the elevated privilege
- level (and ideally inaccessible or at least read-only at the
- lesser-privileged levels).
-+
-+DMA_ATTR_OVERWRITE
-+------------------
-+
-+This is a hint to the DMA-mapping subsystem that the device is expected to
-+overwrite the entire mapped size, thus the caller does not require any of the
-+previous buffer contents to be preserved. This allows bounce-buffering
-+implementations to optimise DMA_FROM_DEVICE transfers.
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index dca2b1355bb1..6150d11a607e 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -61,6 +61,14 @@
-  */
- #define DMA_ATTR_PRIVILEGED		(1UL << 9)
+diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
+index d7f9ee830d34..9e5657f63245 100644
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -213,7 +213,7 @@ static ssize_t speed_show(struct device *dev,
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
  
-+/*
-+ * This is a hint to the DMA-mapping subsystem that the device is expected
-+ * to overwrite the entire mapped size, thus the caller does not require any
-+ * of the previous buffer contents to be preserved. This allows
-+ * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
-+ */
-+#define DMA_ATTR_OVERWRITE		(1UL << 10)
-+
- /*
-  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
-  * be given to a device to use as a DMA source or target.  It is specific to a
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 8e840fbbed7c..d958b1201092 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -582,7 +582,8 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
- 		mem->slots[index + i].orig_addr = slot_addr(orig_addr, i);
- 	tlb_addr = slot_addr(mem->start, index) + offset;
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
--	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
-+	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
-+	    dir == DMA_BIDIRECTIONAL))
- 		swiotlb_bounce(dev, tlb_addr, mapping_size, DMA_TO_DEVICE);
- 	return tlb_addr;
- }
+-	if (netif_running(netdev)) {
++	if (netif_running(netdev) && netif_device_present(netdev)) {
+ 		struct ethtool_link_ksettings cmd;
+ 
+ 		if (!__ethtool_get_link_ksettings(netdev, &cmd))
 -- 
 2.34.1
 
