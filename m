@@ -2,137 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC194D7FE9
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 11:34:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91D734D8003
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 11:39:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235000AbiCNKfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 06:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43640 "EHLO
+        id S234281AbiCNKkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 06:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234128AbiCNKfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 06:35:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5988913CC4;
-        Mon, 14 Mar 2022 03:34:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D396B80D91;
-        Mon, 14 Mar 2022 10:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDA60C340E9;
-        Mon, 14 Mar 2022 10:34:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647254047;
-        bh=ceK23KhbfArf02xnhKEUu0OSDxVRcDa0LB7v48ZAFLI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ensrQicJT7ADxJeyo8j5kC8vU2EXiXwg5vCCJ3k1M0pJk5P8/kjjfOoVwIJvPy608
-         +I6TyWLWeQJaKrhU5gjbporenurnGpC8HbpUw8ZjghJMmcxJnQzeAWl0vZ8aswC1dL
-         fT9rcf7hnkxJ3ykoUqHsG5H0DTa3PYo9nxdLtPrLLJFHWj5uB8SaA5//COuGcmRXCu
-         iSFXBbRK7bb6dHFYGIiwwSj5aDowdK01AX9iZKLQEHwSmV5MnHTAx4GoyYOuGyDrDg
-         dyh2pm2l8+ppKKpLwqzbaMzKY41kc534Be7jDbVf5qShAGYd36lrP9kiJmqcIlVE8M
-         k+pgNpygBhMGw==
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <maz@kernel.org>)
-        id 1nTi1d-00EJct-GL; Mon, 14 Mar 2022 10:34:05 +0000
+        with ESMTP id S238396AbiCNKku (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 06:40:50 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 709A73ED38
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 03:39:41 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id g20so19160796edw.6
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 03:39:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=XtI1f9sWRZ2UC78GPu4V47vwU7sGdDfWHDLuspgulf8=;
+        b=TrGxX4WzPMzNp1SpE8YV9fjOOgRQZjwPouP0P3eheMgrgyAysPsRm+XPXzBlZnpzgi
+         95V2ife1VdV7ASoV8xa62H0rLA4dzuYaDGRWyyoslPkjF1ah5WrOYWRVn2Zl5pR4I0zx
+         XlbpFgswU9dTIcfQ/rYTLXNUbL/atal9etWWe9kD6yOSWKiZGyBAQo+EaRFvGjtxNkep
+         nLeS7SSNLvWomlMYHZnRWeuVy7QEjSBPnuGewb1eoOBSlMCn5/bOFSoVu4OHUOddE18Z
+         S58tKK2kI5ZSJ0Wz6Uzlq+2RDADav2PQM9eQAseR6LQHE5ZWUlXIn2onsXfejiSrHC1X
+         uiFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=XtI1f9sWRZ2UC78GPu4V47vwU7sGdDfWHDLuspgulf8=;
+        b=ZUr8BHZ43HKGkwndZ3MyX2m6/EoTg7jSq+dSvKdUXeFDGc/NLuq9bnYihLirRoEq5e
+         Pmm3pBZjpbN4tQ49brzO4j7wasBGflyxS3n6ZUycIZQWx9QewTXuHogrmhpGY0QdRstC
+         n6TeBrJWZVejI0kB4k0sNJeg7GBWKPKxUhIDfwu3xcnrGAzktEheMQ3nRNndt0QIT/0n
+         E1GuhWMc7gGf2BSOfJoGeja+ES5mgR77r/EOofWGucM9Pgvh/jfBZjS4DLZzgnJ3rx3L
+         HdhYmxMnYV/20sklhhJu16e49Sh/G6tYWUvTXunyKX8AJmDTYaQ+QBQ7lebiIYtmdo5Z
+         NgVQ==
+X-Gm-Message-State: AOAM530ltlX3kSJuova+yimxSUFCRPdtnPmx1HwkbZCdNJJGbqEnd7KW
+        jfn2Wts9EzddvaYw8ffoHjnwTohQtUY7EF8KXug=
+X-Google-Smtp-Source: ABdhPJy2r3qw0GUBBURBtcJrXeYDMSglrxabRmt29vacI6g9CH96B8UAQ5uyDgfRqnVnmqguPuU0nvpKyRCC2qGkNGY=
+X-Received: by 2002:a05:6402:1d4d:b0:416:c489:b784 with SMTP id
+ dz13-20020a0564021d4d00b00416c489b784mr16326323edb.304.1647254380004; Mon, 14
+ Mar 2022 03:39:40 -0700 (PDT)
 MIME-Version: 1.0
-Date:   Mon, 14 Mar 2022 10:34:05 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     "A. Wilcox" <awilfox@adelielinux.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [BUG] arm64/m1: Accessing SYS_ID_AA64ISAR2_EL1 causes early boot
- failure on 5.15.28, 5.16.14, 5.17
-In-Reply-To: <2498FEAE-DE38-46C5-A50A-93396BB0938A@adelielinux.org>
-References: <32EA0FE1-5254-4A41-B684-AA2DEC021110@adelielinux.org>
- <Yi7iRSHaFGsYup1p@kroah.com>
- <1f0b74caa45a1d73af68eab8dcc15485@misterjones.org>
- <2498FEAE-DE38-46C5-A50A-93396BB0938A@adelielinux.org>
-User-Agent: Roundcube Webmail/1.4.13
-Message-ID: <907327093697278cd816aafec9e20b3e@kernel.org>
-X-Sender: maz@kernel.org
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: awilfox@adelielinux.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Sender: justinyakmissbintuchrag@gmail.com
+Received: by 2002:a17:907:628b:0:0:0:0 with HTTP; Mon, 14 Mar 2022 03:39:39
+ -0700 (PDT)
+From:   MRS AMINATA ZONGO <mrsaminatazongo@gmail.com>
+Date:   Mon, 14 Mar 2022 11:39:39 +0100
+X-Google-Sender-Auth: NgWDTD0eQ8ghM16BpVLJS94D9pM
+Message-ID: <CAOYdoqjYW5ty-jxVFiffWjeDQjz3hH5ZJnz-LJjhfEYq0sx1RA@mail.gmail.com>
+Subject: ATTENTION PLEASE,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_80,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,LOTS_OF_MONEY,
+        MILLION_HUNDRED,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        SUBJ_ALL_CAPS,SUBJ_ATTENTION,T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_MONEY autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:541 listed in]
+        [list.dnswl.org]
+        *  2.0 BAYES_80 BODY: Bayes spam probability is 80 to 95%
+        *      [score: 0.8513]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [justinyakmissbintuchrag[at]gmail.com]
+        *  0.2 MILLION_HUNDRED BODY: Million "One to Nine" Hundred
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.5 SUBJ_ATTENTION ATTENTION in Subject
+        *  2.6 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-{switching email address]
+ATTENTION PLEASE,
 
-On 2022-03-14 10:03, A. Wilcox wrote:
-> On Mar 14, 2022, at 4:08 AM, Marc Zyngier <maz@misterjones.org> wrote:
->> On 2022-03-14 06:35, Greg KH wrote:
->>> On Sun, Mar 13, 2022 at 10:59:01PM -0500, A. Wilcox wrote:
->>>> Hello,
->>>> I’ve been testing kernel updates for the Adélie Linux distribution’s
->>>> ARM64 port using a Parallels VM on a MacBook Pro (13-inch, M1, 
->>>> 2020).
->>>> When the kernel attempts to access SYS_ID_AA64ISAR2_EL1, it causes a
->>>> fault as seen here booting 5.17.0-rc8:
->> 
->> […]
->> 
->>>> This is because detection of the clearbhb instruction support 
->>>> requires
->>>> accessing SYS_ID_AA64ISAR2_EL1. Commenting out the two uses of
->>>> supports_clearbhb in the kernel now yields a successful boot.
->>>> Qemu developers seem to have found this issue as well[1] when trying 
->>>> to
->>>> boot 5.17 using HVF, the Apple Hypervisor Framework. This seems to 
->>>> be
->>>> some sort of platform quirk on M1, or at least in HVF on M1. I’m not
->>>> sure what the best workaround would be for this. 
->>>> SYS_ID_AA64ISAR2_EL1
->>>> seems to be something added in ARMv8.7, so perhaps access to it 
->>>> could be
->>>> gated on that.
->>>> Unfortunately, this code was just added to 5.15.28 and 5.16.14, so
->>>> stable no longer boots on Parallels VM on M1. I am unsure if this
->>>> affects physical boot on Apple M1 or not.
->>> What commit causes this problem?  It sounds like you narrowed this 
->>> down
->>> already, right?
->> 
->> This really is a Parallels bug. These kernels run fine on bare metal
->> M1 and in KVM. QEMU was affected as well, and that was fixed in their
->> HVF handling. HVF itself is fine.
->> 
->> So this should be punted back to the hypervisor vendor for not 
->> properly
->> implementing the architecture (no ID register is allowed to UNDEF).
-> 
-> Thanks, I wasn’t able to test native boot.  Since this is a bug in the
-> hypervisor, I’ll notify them in the morning.
+I am  Mrs Aminata Zongo, a personal Accountant/Executive board of
+Directors working with United bank for African Burkina Faso (UBA). I
+have an interesting business proposal for you that will be of immense
+benefit to both of us. Although this may be hard for you to believe,
+we stand to gain a huge amount  between us in a matter of days. Please
+grant me the benefit of doubt and hear me out. I need you to signify
+your interest by replying to my mail.
 
-Great, thanks.
+Honestly, i have business transaction worth the sum of
+(US$8,200,000.00) Eight Million two hundred thousand united state
+dollars to transfer to you through proper documentation in position of
+your own Account.
 
-> For those of us stuck with Parallels, I’ll assume reverting of these
-> three commits in my own build is the best way forward until it’s
-> fixed.  The M1 isn’t going to grow new instruction support in the
-> meantime, so I don’t see a whole lot of harm in it - but the other
-> mitigations in .28 seem useful.
+Most importantly, I will need you to promise to keep whatever you
+learn from me between us even if you decide not to go along with me. I
+will make more details available to you on receipt of a positive
+response from you.
 
-As a *very* short term solution, that's probably the right thing to do.
+This transaction is risk-free; please urgently confirm your
+willingness and interest to assist in this deal, I am in good faith
+and with trust waiting for your Urgent respond and maximum cooperation
+for more details.
 
-However, this register is bound to grow new uses over time, and 
-disabling
-these features in a distro kernel is going to impact all users, unless
-your particular kernel build is strictly limited to M1.
-
-Thanks,
-
-         M.
--- 
-Jazz is not dead. It just smells funny...
+Best Regards,
+Mrs Aminata Zongo.
