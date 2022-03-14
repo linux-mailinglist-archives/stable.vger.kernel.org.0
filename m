@@ -2,228 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 853264D87BC
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 16:07:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 257BB4D87F8
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 16:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233681AbiCNPIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 11:08:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47776 "EHLO
+        id S237681AbiCNPXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 11:23:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231613AbiCNPIV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 11:08:21 -0400
-Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E72743AD2;
-        Mon, 14 Mar 2022 08:07:10 -0700 (PDT)
-Received: from [192.168.0.3] (ip5f5ae91c.dynamic.kabel-deutschland.de [95.90.233.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id B56D261E6478B;
-        Mon, 14 Mar 2022 16:07:08 +0100 (CET)
-Message-ID: <9513e74e-c682-d891-a5de-c9a82c5cf9d3@molgen.mpg.de>
-Date:   Mon, 14 Mar 2022 16:07:08 +0100
+        with ESMTP id S231531AbiCNPXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 11:23:45 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B736D140D7;
+        Mon, 14 Mar 2022 08:22:34 -0700 (PDT)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nTmWm-0006nk-I1; Mon, 14 Mar 2022 16:22:32 +0100
+Message-ID: <a8a62dd3-fe45-9745-f332-9815ecef52f7@leemhuis.info>
+Date:   Mon, 14 Mar 2022 16:22:31 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [EXT] Re: [PATCH v2 net-next 1/2] bnx2x: Utilize firmware
- 7.13.21.0
+ Thunderbird/91.5.0
+Subject: Re: [PATCH] PCI: xgene: Revert "PCI: xgene: Use inbound resources for
+ setup"
 Content-Language: en-US
-To:     Manish Chopra <manishc@marvell.com>
-Cc:     Donald Buczek <buczek@molgen.mpg.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        Ariel Elior <aelior@marvell.com>,
-        Alok Prasad <palok@marvell.com>,
-        Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        it+netdev@molgen.mpg.de, regressions@lists.linux.dev
-References: <20211217165552.746-1-manishc@marvell.com>
- <ea05bcab-fe72-4bc2-3337-460888b2c44e@molgen.mpg.de>
- <BY3PR18MB46129282EBA1F699583134A4AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <e884cf16-3f98-e9a7-ce96-9028592246cc@molgen.mpg.de>
- <BY3PR18MB4612BC158A048053BAC7A30EAB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <CAHk-=wjN22EeVLviARu=amf1+422U2iswCC6cz7cN8h+S9=-Jg@mail.gmail.com>
- <BY3PR18MB4612C2FFE05879E30BAD91D7AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <CAHk-=whXCf43ieh79fujcF=u3Ow1byRvWp+Lt5+v3vumA+V0yA@mail.gmail.com>
- <BY3PR18MB46124F3F575F9F7D1980E76BAB0C9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <0dafa9d7-9c79-f367-a343-8ad38f7bde07@molgen.mpg.de>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-In-Reply-To: <0dafa9d7-9c79-f367-a343-8ad38f7bde07@molgen.mpg.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Marc Zyngier <maz@kernel.org>, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     kernel-team@android.com, Rob Herring <robh@kernel.org>,
+        Toan Le <toan@os.amperecomputing.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?Q?St=c3=a9phane_Graber?= <stgraber@ubuntu.com>,
+        dann frazier <dann.frazier@canonical.com>,
+        stable@vger.kernel.org
+References: <20220314144429.1947610-1-maz@kernel.org>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20220314144429.1947610-1-maz@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1647271354;1d5d7c18;
+X-HE-SMSGID: 1nTmWm-0006nk-I1
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Use Jakub’s current address]
-
-Dear Manish,
-
-
-Am 14.03.22 um 15:36 schrieb Donald Buczek:
-
-> On 3/11/22 1:11 PM, Manish Chopra wrote:
->>> -----Original Message-----
->>> From: Linus Torvalds <torvalds@linux-foundation.org>
->>> Sent: Thursday, March 10, 2022 3:48 AM
-
-[…]
-
->>> On Wed, Mar 9, 2022 at 11:46 AM Manish Chopra wrote:
->>>>
->>>> This has not changed anything functionally from driver/device 
->>>> perspective,
->>> FW is still being loaded only when device is opened.
->>>> bnx2x_init_firmware() [I guess, perhaps the name is misleading] just
->>> request_firmware() to prepare the metadata to be used when device 
->>> will be opened.
->>>
->>> So how do you explain the report by Paul Menzel that things used to 
->>> work and no longer work now?
->>>
->>
->> The issue which Paul mentioned had to do with "/lib/firmware/bnx2x/* 
->> file not found" when driver probes, which was introduced by the patch 
->> in subject,
->> And the commit e13ad1443684 ("bnx2x: fix driver load from initrd") 
->> fixes this issue. So things should work as it is with the mentioned 
->> fixed commit.
->> The only discussion led by this problem now is why the 
->> request_firmware() was moved early on [from open() to probe()] by the 
->> patch in subject.
->> I explained the intention to do this in my earlier emails and let me 
->> add more details below -
->>
->> Note that we have just moved request_firmware() logic, *not* something 
->> significant which has to do with actual FW loading or device 
->> initialization from the
->> FW file data which could cause significant functional change for this 
->> device/driver, FW load/init part still stays in open flow.
->>
->> Before the patch in subject, driver used to only work with 
->> fixed/specific FW version file whose version was statically known to 
->> the driver function at probe() time to take
->> some decision to fail the function probe early in the system if the 
->> function is supposed to run with a FW version which is not the same 
->> version loaded on the device by another PF (different ENV).
->> Now when we sent this new FW patch (in subject) then we got feedback 
->> from community to maintain backward compatibility with older FW 
->> versions as well and we did it in same v2 patch legitimately,
->> just that now we can work with both older or newer FW file so we need 
->> this run time FW version information to cache (based on 
->> request_firmware() return success value for an old FW file or new FW 
->> file)
->> which will be used in follow up probe() flows to decide the function 
->> probe failure early If there could be FW version mismatches against 
->> the loaded FW on the device by other PFs already
+On 14.03.22 15:44, Marc Zyngier wrote:
+> Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+> killed PCIe on my XGene-1 box (a Mustang board). The machine itself
+> is still alive, but half of its storage (over NVMe) is gone, and the
+> NVMe driver just times out.
 > 
-> There might be something more wrong with the patch in the subject: The 
-> usability of the ports from a single card (with older firmware?) now 
-> depends on the order the ports are enabled (first port enabled is 
-> working, second port enabled is not working, driver complaining about a 
-> firmware mismatch).
+> Note that this machine boots with a device tree provided by the
+> UEFI firmware (2016 vintage), which could well be non conformant
+> with the spec, hence the breakage.
 > 
-> In the following examples, the driver was not built-in to the kernel but 
-> loaded from the root filesystem instead, so there is no initramfs 
-> related problem here.
+> With the patch reverted, the box boots 5.17-rc8 with flying colors.
 > 
-> For the records:
-> 
-> root@ira:~# dmesg|grep bnx2x
-> [   18.749871] bnx2x 0000:45:00.0: msix capability found
-> [   18.766534] bnx2x 0000:45:00.0: part number 394D4342-31373735-31314131-473331
-> [   18.799198] bnx2x 0000:45:00.0: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
-> [   18.807638] bnx2x 0000:45:00.1: msix capability found
-> [   18.824509] bnx2x 0000:45:00.1: part number 394D4342-31373735-31314131-473331
-> [   18.857171] bnx2x 0000:45:00.1: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
-> [   18.865619] bnx2x 0000:46:00.0: msix capability found
-> [   18.882636] bnx2x 0000:46:00.0: part number 394D4342-31373735-31314131-473331
-> [   18.915196] bnx2x 0000:46:00.0: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
-> [   18.923636] bnx2x 0000:46:00.1: msix capability found
-> [   18.940505] bnx2x 0000:46:00.1: part number 394D4342-31373735-31314131-473331
-> [   18.973167] bnx2x 0000:46:00.1: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
-> [   46.480660] bnx2x 0000:45:00.0 net04: renamed from eth4
-> [   46.494677] bnx2x 0000:45:00.1 net05: renamed from eth5
-> [   46.508544] bnx2x 0000:46:00.0 net06: renamed from eth6
-> [   46.524641] bnx2x 0000:46:00.1 net07: renamed from eth7
-> root@ira:~# ls /lib/firmware/bnx2x/
-> bnx2x-e1-6.0.34.0.fw   bnx2x-e1-7.13.1.0.fw   bnx2x-e1-7.8.2.0.fw     
-> bnx2x-e1h-7.12.30.0.fw  bnx2x-e1h-7.8.19.0.fw  bnx2x-e2-7.10.51.0.fw  bnx2x-e2-7.8.17.0.fw
-> bnx2x-e1-6.2.5.0.fw    bnx2x-e1-7.13.11.0.fw  bnx2x-e1h-6.0.34.0.fw   
-> bnx2x-e1h-7.13.1.0.fw   bnx2x-e1h-7.8.2.0.fw   bnx2x-e2-7.12.30.0.fw  bnx2x-e2-7.8.19.0.fw
-> bnx2x-e1-6.2.9.0.fw    bnx2x-e1-7.13.15.0.fw  bnx2x-e1h-6.2.5.0.fw    
-> bnx2x-e1h-7.13.11.0.fw  bnx2x-e2-6.0.34.0.fw   bnx2x-e2-7.13.1.0.fw   bnx2x-e2-7.8.2.0.fw
-> bnx2x-e1-7.0.20.0.fw   bnx2x-e1-7.13.21.0.fw  bnx2x-e1h-6.2.9.0.fw    
-> bnx2x-e1h-7.13.15.0.fw  bnx2x-e2-6.2.5.0.fw    bnx2x-e2-7.13.11.0.fw
-> bnx2x-e1-7.0.23.0.fw   bnx2x-e1-7.2.16.0.fw   bnx2x-e1h-7.0.20.0.fw   
-> bnx2x-e1h-7.13.21.0.fw  bnx2x-e2-6.2.9.0.fw    bnx2x-e2-7.13.15.0.fw
-> bnx2x-e1-7.0.29.0.fw   bnx2x-e1-7.2.51.0.fw   bnx2x-e1h-7.0.23.0.fw   
-> bnx2x-e1h-7.2.16.0.fw   bnx2x-e2-7.0.20.0.fw   bnx2x-e2-7.13.21.0.fw
-> bnx2x-e1-7.10.51.0.fw  bnx2x-e1-7.8.17.0.fw   bnx2x-e1h-7.0.29.0.fw   
-> bnx2x-e1h-7.2.51.0.fw   bnx2x-e2-7.0.23.0.fw   bnx2x-e2-7.2.16.0.fw
-> bnx2x-e1-7.12.30.0.fw  bnx2x-e1-7.8.19.0.fw   bnx2x-e1h-7.10.51.0.fw  
-> bnx2x-e1h-7.8.17.0.fw   bnx2x-e2-7.0.29.0.fw   bnx2x-e2-7.2.51.0.fw
-> 
-> Now with v5.10.95, the first kernel of the series which includes 
-> fdcfabd0952d ("bnx2x: Utilize firmware 7.13.21.0") and later:
-> 
-> root@ira:~# dmesg -w &
-> [...]
-> root@ira:~# ip link set net04 up
-> [   88.504536] bnx2x 0000:45:00.0 net04: using MSI-X  IRQs: sp 47  fp[0] 49 ... fp[7] 56
-> root@ira:~# ip link set net05 up
-> [   90.825820] bnx2x: [bnx2x_compare_fw_ver:2380(net05)]bnx2x with FW 120d07 was already loaded which mismatches my 150d07 FW. Aborting
-> RTNETLINK answers: Device or resource busy
-> root@ira:~# ip link set net04 down
-> root@ira:~# ip link set net05 down
-> root@ira:~# ip link set net05 up
-> [  114.462448] bnx2x 0000:45:00.1 net05: using MSI-X  IRQs: sp 58  fp[0] 60 ... fp[7] 67
-> root@ira:~# ip link set net04 up
-> [  117.247763] bnx2x: [bnx2x_compare_fw_ver:2380(net04)]bnx2x with FW 120d07 was already loaded which mismatches my 150d07 FW. Aborting
-> RTNETLINK answers: Device or resource busy
-> 
-> With v5.10.94, both ports work fine:
-> 
-> root@ira:~# dmesg -w &
-> [...]
-> root@ira:~# ip link set net04 up
-> [  133.126647] bnx2x 0000:45:00.0 net04: using MSI-X  IRQs: sp 47  fp[0] 49 ... fp[7] 56
-> root@ira:~# ip link set net05 up
-> [  136.215169] bnx2x 0000:45:00.1 net05: using MSI-X  IRQs: sp 58  fp[0] 60 ... fp[7] 67
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: Toan Le <toan@os.amperecomputing.com>
+> Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+> Cc: Krzysztof Wilczyński <kw@linux.com>
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: Stéphane Graber <stgraber@ubuntu.com>
+> Cc: dann frazier <dann.frazier@canonical.com>
+> Cc: Thorsten Leemhuis <regressions@leemhuis.info>
 
-One additional note, that it’s totally unclear to us, where FW version 
-120d07 in the error message comes from. It maps to 7.13.18.0, which is 
-nowhere to be found and too new to be on the cards EEPROM, which should 
-be from 2013 or so.
+Feel free to drop me there. But could you please instead add a 'Link:'
+tag pointing to the report for anyone wanting to look into the backstory
+in the future, as explained in
+'Documentation/process/submitting-patches.rst' and
+'Documentation/process/5.Posting.rst'? E.g. like this:
 
+"Link: https://lore.kernel.org/r/Yf2wTLjmcRj%2BAbDv@xps13.dannf/"
 
-Kind regards,
+FWIW, I care for another reason: I'm tracking this regression with
+regzbot, my regression tracking bot. Proper "Link:" tags allow the bot
+to connect regression reports with fixes being posted or applied to
+resolve the regression -- which makes regression tracking a whole lot
+easier.
 
-Paul
+While at it, let me tell regzbot about this thread:
+#regzbot ^backmonitor:
+https://lore.kernel.org/r/Yf2wTLjmcRj%2BAbDv@xps13.dannf/
 
+> Cc: stable@vger.kernel.org>
 
->> So we need to understand why we should not call request_firmware() in 
->> probe or at least what's really harmful in doing that in probe() if 
->> some of the follow up probe flows needs
->> some of the metadata info (like the run time FW versions info in this 
->> case which we get based on request_firmware() return value), we could 
->> avoid this but we don't want
->> to add some ugly/unsuitable file APIs checks to know which FW version 
->> file is available on the file system if there is already an API 
->> request_firmware() available for this to be used.
->>
->> Please let us know. Thanks.
->>
->>> You can't do request_firmware() early. When you actually then push the
->>> firmware to the device is immaterial - but request_firmware() has to 
->>> be done
->>> after the system is up and running.
->>>
->>>                   Linus
+Typo, missing a "<"
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I'm getting a lot of
+reports on my table. I can only look briefly into most of them and lack
+knowledge about most of the areas they concern. I thus unfortunately
+will sometimes get things wrong or miss something important. I hope
+that's not the case here; if you think it is, don't hesitate to tell me
+in a public reply, it's in everyone's interest to set the public record
+straight.
+
+-- 
+Additional information about regzbot:
+
+If you want to know more about regzbot, check out its web-interface, the
+getting start guide, and the references documentation:
+
+https://linux-regtracking.leemhuis.info/regzbot/
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md
+
+The last two documents will explain how you can interact with regzbot
+yourself if your want to.
+
+Hint for reporters: when reporting a regression it's in your interest to
+CC the regression list and tell regzbot about the issue, as that ensures
+the regression makes it onto the radar of the Linux kernel's regression
+tracker -- that's in your interest, as it ensures your report won't fall
+through the cracks unnoticed.
+
+Hint for developers: you normally don't need to care about regzbot once
+it's involved. Fix the issue as you normally would, just remember to
+include 'Link:' tag in the patch descriptions pointing to all reports
+about the issue. This has been expected from developers even before
+regzbot showed up for reasons explained in
+'Documentation/process/submitting-patches.rst' and
+'Documentation/process/5.Posting.rst'.
