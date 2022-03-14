@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FE434D845E
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C62604D846F
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241193AbiCNMYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:24:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
+        id S241265AbiCNMYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243937AbiCNMVZ (ORCPT
+        with ESMTP id S243943AbiCNMVZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F242E13D01;
-        Mon, 14 Mar 2022 05:18:51 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AEE13D04;
+        Mon, 14 Mar 2022 05:18:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5637B80DF5;
-        Mon, 14 Mar 2022 12:18:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB723C340E9;
-        Mon, 14 Mar 2022 12:18:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2285660C70;
+        Mon, 14 Mar 2022 12:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704ADC340E9;
+        Mon, 14 Mar 2022 12:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260329;
-        bh=7qTVnw2yRQESL+5rhUTjec37rFEutZCM+G5pVePxMA8=;
+        s=korg; t=1647260333;
+        bh=GHcjVNVFmexWPprva3YoZ+5Onj0yOw5uwvJRTbQR+mQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aTeqRmwSix0IJbCjUhCwYnDIG0WQmm+aZvQHzNRj1WwiKBGsH8dZ4wnzIgng7WJVa
-         iYQ3VMD5oQJw+77v7dgW3drCyw5VRAc+ZIGTCd5Nx9ssatwdunJrANodc3OeyIXfn4
-         8xr1rOE6mMQH0q3TNBidVTsx4fr9AS1WvWZDBpLU=
+        b=OXKRYkl5ejURaVosBp08IKiEnQ7NcsOrUcSpivWicz7eRPkap7ZHKOruOYBer6BsB
+         v+T7jfHrlJn3/e/ZkdPVCy74s9nzQvtNE5uJVc4qPYcFUwceEB47VNgn2f2o4qXdv7
+         7aKYUMCbh9D6SJqenfWUKR04aaR/wbou5O4zSSD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
-        Borislav Petkov <bp@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: [PATCH 5.16 117/121] x86/traps: Mark do_int3() NOKPROBE_SYMBOL
-Date:   Mon, 14 Mar 2022 12:55:00 +0100
-Message-Id: <20220314112747.377386421@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Lyude Paul <lyude@redhat.com>, Sam Ravnborg <sam@ravnborg.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 5.16 118/121] drm/panel: Select DRM_DP_HELPER for DRM_PANEL_EDP
+Date:   Mon, 14 Mar 2022 12:55:01 +0100
+Message-Id: <20220314112747.405722135@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
 References: <20220314112744.120491875@linuxfoundation.org>
@@ -54,34 +59,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-commit a365a65f9ca1ceb9cf1ac29db4a4f51df7c507ad upstream.
+commit 3755d35ee1d2454b20b8a1e20d790e56201678a4 upstream.
 
-Since kprobe_int3_handler() is called in do_int3(), probing do_int3()
-can cause a breakpoint recursion and crash the kernel. Therefore,
-do_int3() should be marked as NOKPROBE_SYMBOL.
+As reported in [1], DRM_PANEL_EDP depends on DRM_DP_HELPER. Select
+the option to fix the build failure. The error message is shown
+below.
 
-Fixes: 21e28290b317 ("x86/traps: Split int3 handler up")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220310120915.63349-1-lihuafei1@huawei.com
+  arm-linux-gnueabihf-ld: drivers/gpu/drm/panel/panel-edp.o: in function
+    `panel_edp_probe': panel-edp.c:(.text+0xb74): undefined reference to
+    `drm_panel_dp_aux_backlight'
+  make[1]: *** [/builds/linux/Makefile:1222: vmlinux] Error 1
+
+The issue has been reported before, when DisplayPort helpers were
+hidden behind the option CONFIG_DRM_KMS_HELPER. [2]
+
+v2:
+	* fix and expand commit description (Arnd)
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 9d6366e743f3 ("drm: fb_helper: improve CONFIG_FB dependency")
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://lore.kernel.org/dri-devel/CA+G9fYvN0NyaVkRQmA1O6rX7H8PPaZrUAD7=RDy33QY9rUU-9g@mail.gmail.com/ # [1]
+Link: https://lore.kernel.org/all/20211117062704.14671-1-rdunlap@infradead.org/ # [2]
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: dri-devel@lists.freedesktop.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20220203093922.20754-1-tzimmermann@suse.de
+Signed-off-by: Dave Airlie <airlied@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/traps.c |    1 +
+ drivers/gpu/drm/panel/Kconfig |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -659,6 +659,7 @@ static bool do_int3(struct pt_regs *regs
- 
- 	return res == NOTIFY_STOP;
- }
-+NOKPROBE_SYMBOL(do_int3);
- 
- static void do_int3_user(struct pt_regs *regs)
- {
+--- a/drivers/gpu/drm/panel/Kconfig
++++ b/drivers/gpu/drm/panel/Kconfig
+@@ -95,6 +95,7 @@ config DRM_PANEL_EDP
+ 	depends on PM
+ 	select VIDEOMODE_HELPERS
+ 	select DRM_DP_AUX_BUS
++	select DRM_DP_HELPER
+ 	help
+ 	  DRM panel driver for dumb eDP panels that need at most a regulator and
+ 	  a GPIO to be powered up. Optionally a backlight can be attached so
 
 
