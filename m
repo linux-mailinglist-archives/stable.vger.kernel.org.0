@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D7F34D829F
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E72BF4D8437
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240458AbiCNMGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
+        id S241670AbiCNMXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240621AbiCNMGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:06:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB88EBC2F;
-        Mon, 14 Mar 2022 05:02:55 -0700 (PDT)
+        with ESMTP id S242914AbiCNMTx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7425517C5;
+        Mon, 14 Mar 2022 05:14:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3074961251;
-        Mon, 14 Mar 2022 12:02:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23622C340E9;
-        Mon, 14 Mar 2022 12:02:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1521160929;
+        Mon, 14 Mar 2022 12:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D8C1C340E9;
+        Mon, 14 Mar 2022 12:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259374;
-        bh=qrjcQzJJwJt0h45ZjSQPyEjka1WJolCH3qzCphW+dps=;
+        s=korg; t=1647260094;
+        bh=eIr6ZTJRrWrCrkryosiWHob+tuFrPxc3tw/2su8Mjnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYfGh1aNkj1abHawqXcsfab6tFGrniPBAXgCHRp7UjxbcSymYRp5PiteLgFE2V1mw
-         36IhSJYFAAXpdK27n+hq4ZzeY6Bdxl9iMgsSCPFNBECaWHl13rR8aOrBANW87IN8cN
-         mVV1Zq7ZAsV0NWV8ZiT/c6fyj9T/yOCVkogpxqCg=
+        b=z43ssyyJfdcFbb4H7w2Kb4R7+5fUJdzVu+76+tBepq1asOuOl7CE/zODM/Q2zSAr7
+         cPrPPrqBehCLk5Wy9yNkLmB+b5DxTmhZQkP5FZ8+zInylr5Ohn0FU/ZQvEHcOU62YA
+         +A/hTsIS2BgYm+5UKZGyGrftJBMc+HC43kl2TZWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 64/71] watch_queue: Fix lack of barrier/sync/lock between post and read
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 054/121] gianfar: ethtool: Fix refcount leak in gfar_get_ts_info
 Date:   Mon, 14 Mar 2022 12:53:57 +0100
-Message-Id: <20220314112739.730907012@linuxfoundation.org>
+Message-Id: <20220314112745.634906408@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 2ed147f015af2b48f41c6f0b6746aa9ea85c19f3 upstream.
+[ Upstream commit 2ac5b58e645c66932438bb021cb5b52097ce70b0 ]
 
-There's nothing to synchronise post_one_notification() versus
-pipe_read().  Whilst posting is done under pipe->rd_wait.lock, the
-reader only takes pipe->mutex which cannot bar notification posting as
-that may need to be made from contexts that cannot sleep.
+The of_find_compatible_node() function returns a node pointer with
+refcount incremented, We should use of_node_put() on it when done
+Add the missing of_node_put() to release the refcount.
 
-Fix this by setting pipe->head with a barrier in post_one_notification()
-and reading pipe->head with a barrier in pipe_read().
-
-If that's not sufficient, the rd_wait.lock will need to be taken,
-possibly in a ->confirm() op so that it only applies to notifications.
-The lock would, however, have to be dropped before copy_page_to_iter()
-is invoked.
-
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7349a74ea75c ("net: ethernet: gianfar_ethtool: get phc index through drvdata")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Link: https://lore.kernel.org/r/20220310015313.14938-1-linmq006@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pipe.c            |    3 ++-
- kernel/watch_queue.c |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/gianfar_ethtool.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -252,7 +252,8 @@ pipe_read(struct kiocb *iocb, struct iov
- 	 */
- 	was_full = pipe_full(pipe->head, pipe->tail, pipe->max_usage);
- 	for (;;) {
--		unsigned int head = pipe->head;
-+		/* Read ->head with a barrier vs post_one_notification() */
-+		unsigned int head = smp_load_acquire(&pipe->head);
- 		unsigned int tail = pipe->tail;
- 		unsigned int mask = pipe->ring_size - 1;
- 
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -113,7 +113,7 @@ static bool post_one_notification(struct
- 	buf->offset = offset;
- 	buf->len = len;
- 	buf->flags = PIPE_BUF_FLAG_WHOLE;
--	pipe->head = head + 1;
-+	smp_store_release(&pipe->head, head + 1); /* vs pipe_read() */
- 
- 	if (!test_and_clear_bit(note, wqueue->notes_bitmap)) {
- 		spin_unlock_irq(&pipe->rd_wait.lock);
+diff --git a/drivers/net/ethernet/freescale/gianfar_ethtool.c b/drivers/net/ethernet/freescale/gianfar_ethtool.c
+index 7b32ed29bf4c..8c17fe5d66ed 100644
+--- a/drivers/net/ethernet/freescale/gianfar_ethtool.c
++++ b/drivers/net/ethernet/freescale/gianfar_ethtool.c
+@@ -1460,6 +1460,7 @@ static int gfar_get_ts_info(struct net_device *dev,
+ 	ptp_node = of_find_compatible_node(NULL, NULL, "fsl,etsec-ptp");
+ 	if (ptp_node) {
+ 		ptp_dev = of_find_device_by_node(ptp_node);
++		of_node_put(ptp_node);
+ 		if (ptp_dev)
+ 			ptp = platform_get_drvdata(ptp_dev);
+ 	}
+-- 
+2.34.1
+
 
 
