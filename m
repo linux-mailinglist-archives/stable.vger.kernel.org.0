@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5FAD4D832A
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 034144D8350
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240995AbiCNMMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35318 "EHLO
+        id S241037AbiCNMMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242404AbiCNMJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C378C65CB;
-        Mon, 14 Mar 2022 05:07:55 -0700 (PDT)
+        with ESMTP id S242417AbiCNMJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98EBDF3C;
+        Mon, 14 Mar 2022 05:08:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F186B80DF0;
-        Mon, 14 Mar 2022 12:07:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A24BC340E9;
-        Mon, 14 Mar 2022 12:07:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C89AB80DED;
+        Mon, 14 Mar 2022 12:07:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13075C340E9;
+        Mon, 14 Mar 2022 12:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259673;
-        bh=Mqf59jWgVyICVi1MOdIXW8LT3afhn1KB7de9lEOHhq4=;
+        s=korg; t=1647259678;
+        bh=3xAnkSXnjA5wk2NRB8COP0R/p2itWDdP61y6JWt5ymo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7sfSzWnExZQA9A390an7hdnVzqmP2bqwg0KmRno68o1DRAx/byXfkFVCu5QV2Wcg
-         cnRMqnjOdxpy7biu5iaPa0me0NgyiAU3f7Ek9MwaDtDd5xKrhLw58JTcTT9/FjivKa
-         3VtcJU6scEGfkRTNJSbVkOJukC+SbhUaxLJJdoy8=
+        b=q6S3YlSkFNbuzp5vD9psHEP1B8DwxJfiNB705yr2m30jJxdVpm9jEYgTUpAQbnLF+
+         Dg7lS36uVp9+dpAjCTKZP5JopM+A1Q6ROtLeN87a6SMDb4G1h/1xC79kJAB94ZMTRp
+         CpJgs53pqgqxLbesTvRP2I0UNHPUMZimfqW92uJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, suresh kumar <suresh2514@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Vikash Chandola <vikash.chandola@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 062/110] net-sysfs: add check for netdevice being present to speed_show
-Date:   Mon, 14 Mar 2022 12:54:04 +0100
-Message-Id: <20220314112744.766252682@linuxfoundation.org>
+Subject: [PATCH 5.15 063/110] hwmon: (pmbus) Clear pmbus fault/warning bits after read
+Date:   Mon, 14 Mar 2022 12:54:05 +0100
+Message-Id: <20220314112744.793840497@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
 References: <20220314112743.029192918@linuxfoundation.org>
@@ -54,76 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: suresh kumar <suresh2514@gmail.com>
+From: Vikash Chandola <vikash.chandola@linux.intel.com>
 
-[ Upstream commit 4224cfd7fb6523f7a9d1c8bb91bb5df1e38eb624 ]
+[ Upstream commit 35f165f08950a876f1b95a61d79c93678fba2fd6 ]
 
-When bringing down the netdevice or system shutdown, a panic can be
-triggered while accessing the sysfs path because the device is already
-removed.
+Almost all fault/warning bits in pmbus status registers remain set even
+after fault/warning condition are removed. As per pmbus specification
+these faults must be cleared by user.
+Modify hwmon behavior to clear fault/warning bit after fetching data if
+fault/warning bit was set. This allows to get fresh data in next read.
 
-    [  755.549084] mlx5_core 0000:12:00.1: Shutdown was called
-    [  756.404455] mlx5_core 0000:12:00.0: Shutdown was called
-    ...
-    [  757.937260] BUG: unable to handle kernel NULL pointer dereference at           (null)
-    [  758.031397] IP: [<ffffffff8ee11acb>] dma_pool_alloc+0x1ab/0x280
-
-    crash> bt
-    ...
-    PID: 12649  TASK: ffff8924108f2100  CPU: 1   COMMAND: "amsd"
-    ...
-     #9 [ffff89240e1a38b0] page_fault at ffffffff8f38c778
-        [exception RIP: dma_pool_alloc+0x1ab]
-        RIP: ffffffff8ee11acb  RSP: ffff89240e1a3968  RFLAGS: 00010046
-        RAX: 0000000000000246  RBX: ffff89243d874100  RCX: 0000000000001000
-        RDX: 0000000000000000  RSI: 0000000000000246  RDI: ffff89243d874090
-        RBP: ffff89240e1a39c0   R8: 000000000001f080   R9: ffff8905ffc03c00
-        R10: ffffffffc04680d4  R11: ffffffff8edde9fd  R12: 00000000000080d0
-        R13: ffff89243d874090  R14: ffff89243d874080  R15: 0000000000000000
-        ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-    #10 [ffff89240e1a39c8] mlx5_alloc_cmd_msg at ffffffffc04680f3 [mlx5_core]
-    #11 [ffff89240e1a3a18] cmd_exec at ffffffffc046ad62 [mlx5_core]
-    #12 [ffff89240e1a3ab8] mlx5_cmd_exec at ffffffffc046b4fb [mlx5_core]
-    #13 [ffff89240e1a3ae8] mlx5_core_access_reg at ffffffffc0475434 [mlx5_core]
-    #14 [ffff89240e1a3b40] mlx5e_get_fec_caps at ffffffffc04a7348 [mlx5_core]
-    #15 [ffff89240e1a3bb0] get_fec_supported_advertised at ffffffffc04992bf [mlx5_core]
-    #16 [ffff89240e1a3c08] mlx5e_get_link_ksettings at ffffffffc049ab36 [mlx5_core]
-    #17 [ffff89240e1a3ce8] __ethtool_get_link_ksettings at ffffffff8f25db46
-    #18 [ffff89240e1a3d48] speed_show at ffffffff8f277208
-    #19 [ffff89240e1a3dd8] dev_attr_show at ffffffff8f0b70e3
-    #20 [ffff89240e1a3df8] sysfs_kf_seq_show at ffffffff8eedbedf
-    #21 [ffff89240e1a3e18] kernfs_seq_show at ffffffff8eeda596
-    #22 [ffff89240e1a3e28] seq_read at ffffffff8ee76d10
-    #23 [ffff89240e1a3e98] kernfs_fop_read at ffffffff8eedaef5
-    #24 [ffff89240e1a3ed8] vfs_read at ffffffff8ee4e3ff
-    #25 [ffff89240e1a3f08] sys_read at ffffffff8ee4f27f
-    #26 [ffff89240e1a3f50] system_call_fastpath at ffffffff8f395f92
-
-    crash> net_device.state ffff89443b0c0000
-      state = 0x5  (__LINK_STATE_START| __LINK_STATE_NOCARRIER)
-
-To prevent this scenario, we also make sure that the netdevice is present.
-
-Signed-off-by: suresh kumar <suresh2514@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vikash Chandola <vikash.chandola@linux.intel.com>
+Link: https://lore.kernel.org/r/20220222131253.2426834-1-vikash.chandola@linux.intel.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pmbus/pmbus_core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index d7f9ee830d34..9e5657f63245 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -213,7 +213,7 @@ static ssize_t speed_show(struct device *dev,
- 	if (!rtnl_trylock())
- 		return restart_syscall();
+diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
+index 776ee2237be2..ac2fbee1ba9c 100644
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -911,6 +911,11 @@ static int pmbus_get_boolean(struct i2c_client *client, struct pmbus_boolean *b,
+ 		pmbus_update_sensor_data(client, s2);
  
--	if (netif_running(netdev)) {
-+	if (netif_running(netdev) && netif_device_present(netdev)) {
- 		struct ethtool_link_ksettings cmd;
+ 	regval = status & mask;
++	if (regval) {
++		ret = pmbus_write_byte_data(client, page, reg, regval);
++		if (ret)
++			goto unlock;
++	}
+ 	if (s1 && s2) {
+ 		s64 v1, v2;
  
- 		if (!__ethtool_get_link_ksettings(netdev, &cmd))
 -- 
 2.34.1
 
