@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 680894D814E
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA434D8157
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239154AbiCNLld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:41:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44032 "EHLO
+        id S239481AbiCNLlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:41:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239490AbiCNLlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:41:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C144C49686;
-        Mon, 14 Mar 2022 04:39:04 -0700 (PDT)
+        with ESMTP id S239486AbiCNLla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:41:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBDB496B9;
+        Mon, 14 Mar 2022 04:39:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 355F661170;
-        Mon, 14 Mar 2022 11:38:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 020D1C340E9;
-        Mon, 14 Mar 2022 11:38:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC4E4B80DB7;
+        Mon, 14 Mar 2022 11:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 210A4C340E9;
+        Mon, 14 Mar 2022 11:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257933;
-        bh=8kPz8I0Jy7OekAVkb5pKKDLra9sVIDHd+jIlGka8EYI=;
+        s=korg; t=1647257938;
+        bh=gKeliq3fg57rfc2CraoSKQcTegs0MvIYlV2XGTYuXDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOntNCU4b8BIj8VJZxUsCdVCsxE9X5PM54na7ju5Po47NH2IcjryEzwsuT3ab65sn
-         dFi6cH6R9mWsjyx8fFsjLgDhYESPHbAhsYoSDbwL+oqWTiafg+PsQA/thxxv+aDiUz
-         mKBJzO99x7CPy/DFASEp8TZp0vuSCacMB4fHaP70=
+        b=0fciaNtHd+S/ZtFJSJpn+QB+EVwu75Uy3SgkCA0kTrErPvM8nfYMVVaGAYSn9ADVV
+         mQYz5yCnFeQwHhrU0VqoXJe5hOBpd8EJ5mm0Jjv9m71HmHXNgTsWCYUHyQSDkJahCx
+         +KYjIgsImv2J8NO/T48Gcpax70+seDDAaN99Ff6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/30] ethernet: Fix error handling in xemaclite_of_probe
-Date:   Mon, 14 Mar 2022 12:34:21 +0100
-Message-Id: <20220314112731.884416596@linuxfoundation.org>
+Subject: [PATCH 4.19 04/30] net: ethernet: ti: cpts: Handle error for clk_enable
+Date:   Mon, 14 Mar 2022 12:34:22 +0100
+Message-Id: <20220314112731.913713180@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
 References: <20220314112731.785042288@linuxfoundation.org>
@@ -54,46 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit b19ab4b38b06aae12442b2de95ccf58b5dc53584 ]
+[ Upstream commit 6babfc6e6fab068018c36e8f6605184b8c0b349d ]
 
-This node pointer is returned by of_parse_phandle() with refcount
-incremented in this function. Calling of_node_put() to avoid the
-refcount leak. As the remove function do.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Fixes: 5cdaaa12866e ("net: emaclite: adding MDIO and phy lib support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220308024751.2320-1-linmq006@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8a2c9a5ab4b9 ("net: ethernet: ti: cpts: rework initialization/deinitialization")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c | 4 +++-
+ drivers/net/ethernet/ti/cpts.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index edb2215f9993..23a4f9061072 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -1173,7 +1173,7 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 	if (rc) {
- 		dev_err(dev,
- 			"Cannot register network device, aborting\n");
--		goto error;
-+		goto put_node;
- 	}
+diff --git a/drivers/net/ethernet/ti/cpts.c b/drivers/net/ethernet/ti/cpts.c
+index 10b301e79086..01cc92f6a1f8 100644
+--- a/drivers/net/ethernet/ti/cpts.c
++++ b/drivers/net/ethernet/ti/cpts.c
+@@ -445,7 +445,9 @@ int cpts_register(struct cpts *cpts)
+ 	for (i = 0; i < CPTS_MAX_EVENTS; i++)
+ 		list_add(&cpts->pool_data[i].list, &cpts->pool);
  
- 	dev_info(dev,
-@@ -1181,6 +1181,8 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 		 (unsigned int __force)ndev->mem_start, lp->base_addr, ndev->irq);
- 	return 0;
+-	clk_enable(cpts->refclk);
++	err = clk_enable(cpts->refclk);
++	if (err)
++		return err;
  
-+put_node:
-+	of_node_put(lp->phy_node);
- error:
- 	free_netdev(ndev);
- 	return rc;
+ 	cpts_write32(cpts, CPTS_EN, control);
+ 	cpts_write32(cpts, TS_PEND_EN, int_enable);
 -- 
 2.34.1
 
