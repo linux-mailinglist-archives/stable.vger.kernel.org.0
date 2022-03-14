@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6CDF4D8245
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66FB84D82E0
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240187AbiCNMCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:02:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
+        id S240849AbiCNMLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:11:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240151AbiCNMB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:01:57 -0400
+        with ESMTP id S241935AbiCNMJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B05B49F03;
-        Mon, 14 Mar 2022 04:59:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB40F21E28;
+        Mon, 14 Mar 2022 05:06:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B16F3B80DEB;
-        Mon, 14 Mar 2022 11:59:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F58CC340E9;
-        Mon, 14 Mar 2022 11:59:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 050C8B80DF2;
+        Mon, 14 Mar 2022 12:06:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18651C340EC;
+        Mon, 14 Mar 2022 12:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259167;
-        bh=tlfAzj95ogoP59pLLyQyntAK5OM6zcOaEu3StMhc7GM=;
+        s=korg; t=1647259575;
+        bh=gGTai23t9U7lsssfYkhc6pfjBUzlubnpioPn2KQ35D4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jllImPEzMmvZwgTDzh+9UnYwJz4rUS2x4SPhmyNHWSLHenrs5uYlUC9BkE+EgoNwK
-         FY/SVy9Y48PYyRC73isdCHnhD5VFKFOQ+g9h9V7+mk/9BC9ZWxvzWUvNzf61bYeuul
-         7msFMFmQBWkzCgpnuucIZIwn0fSnGrtXua2xKUJM=
+        b=NmstQpoM8U7iEskX+Ss7umRqVo8GR7Vl6UoLPG+F30ILd9nTdO8PrXD/8uGaFF7Sj
+         qZCrT3P1hH+GpvWjq1we0KcM4SNcw5bXHaUBlMKfRa2zHVC1Pikd0OAZXB6sk4710D
+         tv0P6nX1jXLsN59czrLAz3Ej562pq5nYohVE6MlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/71] ice: Align macro names to the specification
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 009/110] arm64: dts: armada-3720-turris-mox: Add missing ethernet0 alias
 Date:   Mon, 14 Mar 2022 12:53:11 +0100
-Message-Id: <20220314112738.442613555@linuxfoundation.org>
+Message-Id: <20220314112743.293082993@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,214 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit d6730a871e68f10c786cdee59aebd6f92d49d249 ]
+[ Upstream commit a0e897d1b36793fe0ab899f2fe93dff25c82f418 ]
 
-For get PHY abilities AQ, the specification defines "report modes"
-as "with media", "without media" and "active configuration". For
-clarity, rename macros to align with the specification.
+U-Boot uses ethernet* aliases for setting MAC addresses. Therefore define
+also alias for ethernet0.
 
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_adminq_cmd.h | 10 +++++-----
- drivers/net/ethernet/intel/ice/ice_common.c     | 13 +++++++------
- drivers/net/ethernet/intel/ice/ice_ethtool.c    | 12 ++++++------
- drivers/net/ethernet/intel/ice/ice_main.c       | 12 ++++++------
- 4 files changed, 24 insertions(+), 23 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_adminq_cmd.h b/drivers/net/ethernet/intel/ice/ice_adminq_cmd.h
-index b06fbe99d8e9..b6dd8f81d699 100644
---- a/drivers/net/ethernet/intel/ice/ice_adminq_cmd.h
-+++ b/drivers/net/ethernet/intel/ice/ice_adminq_cmd.h
-@@ -870,11 +870,11 @@ struct ice_aqc_get_phy_caps {
- 	 * 01b - Report topology capabilities
- 	 * 10b - Report SW configured
- 	 */
--#define ICE_AQC_REPORT_MODE_S		1
--#define ICE_AQC_REPORT_MODE_M		(3 << ICE_AQC_REPORT_MODE_S)
--#define ICE_AQC_REPORT_NVM_CAP		0
--#define ICE_AQC_REPORT_TOPO_CAP		BIT(1)
--#define ICE_AQC_REPORT_SW_CFG		BIT(2)
-+#define ICE_AQC_REPORT_MODE_S			1
-+#define ICE_AQC_REPORT_MODE_M			(3 << ICE_AQC_REPORT_MODE_S)
-+#define ICE_AQC_REPORT_TOPO_CAP_NO_MEDIA	0
-+#define ICE_AQC_REPORT_TOPO_CAP_MEDIA		BIT(1)
-+#define ICE_AQC_REPORT_ACTIVE_CFG		BIT(2)
- 	__le32 reserved1;
- 	__le32 addr_high;
- 	__le32 addr_low;
-diff --git a/drivers/net/ethernet/intel/ice/ice_common.c b/drivers/net/ethernet/intel/ice/ice_common.c
-index 2b0d0373ab2c..ecdc467c4f6f 100644
---- a/drivers/net/ethernet/intel/ice/ice_common.c
-+++ b/drivers/net/ethernet/intel/ice/ice_common.c
-@@ -193,7 +193,7 @@ ice_aq_get_phy_caps(struct ice_port_info *pi, bool qual_mods, u8 report_mode,
- 	ice_debug(hw, ICE_DBG_LINK, "   module_type[2] = 0x%x\n",
- 		  pcaps->module_type[2]);
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index 04da07ae4420..1eddf31d8bd8 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -18,6 +18,7 @@ / {
  
--	if (!status && report_mode == ICE_AQC_REPORT_TOPO_CAP) {
-+	if (!status && report_mode == ICE_AQC_REPORT_TOPO_CAP_MEDIA) {
- 		pi->phy.phy_type_low = le64_to_cpu(pcaps->phy_type_low);
- 		pi->phy.phy_type_high = le64_to_cpu(pcaps->phy_type_high);
- 		memcpy(pi->phy.link_info.module_type, &pcaps->module_type,
-@@ -924,7 +924,8 @@ enum ice_status ice_init_hw(struct ice_hw *hw)
- 
- 	/* Initialize port_info struct with PHY capabilities */
- 	status = ice_aq_get_phy_caps(hw->port_info, false,
--				     ICE_AQC_REPORT_TOPO_CAP, pcaps, NULL);
-+				     ICE_AQC_REPORT_TOPO_CAP_MEDIA, pcaps,
-+				     NULL);
- 	devm_kfree(ice_hw_to_dev(hw), pcaps);
- 	if (status)
- 		goto err_unroll_sched;
-@@ -2682,7 +2683,7 @@ enum ice_status ice_update_link_info(struct ice_port_info *pi)
- 		if (!pcaps)
- 			return ICE_ERR_NO_MEMORY;
- 
--		status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP,
-+		status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP_MEDIA,
- 					     pcaps, NULL);
- 
- 		devm_kfree(ice_hw_to_dev(hw), pcaps);
-@@ -2842,8 +2843,8 @@ ice_set_fc(struct ice_port_info *pi, u8 *aq_failures, bool ena_auto_link_update)
- 		return ICE_ERR_NO_MEMORY;
- 
- 	/* Get the current PHY config */
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_SW_CFG, pcaps,
--				     NULL);
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_ACTIVE_CFG,
-+				     pcaps, NULL);
- 	if (status) {
- 		*aq_failures = ICE_SET_FC_AQ_FAIL_GET;
- 		goto out;
-@@ -2989,7 +2990,7 @@ ice_cfg_phy_fec(struct ice_port_info *pi, struct ice_aqc_set_phy_cfg_data *cfg,
- 	if (!pcaps)
- 		return ICE_ERR_NO_MEMORY;
- 
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP, pcaps,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP_MEDIA, pcaps,
- 				     NULL);
- 	if (status)
- 		goto out;
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 14eba9bc174d..be02f8f4d854 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -1081,7 +1081,7 @@ ice_get_fecparam(struct net_device *netdev, struct ethtool_fecparam *fecparam)
- 	if (!caps)
- 		return -ENOMEM;
- 
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP_MEDIA,
- 				     caps, NULL);
- 	if (status) {
- 		err = -EAGAIN;
-@@ -1976,7 +1976,7 @@ ice_get_link_ksettings(struct net_device *netdev,
- 		return -ENOMEM;
- 
- 	status = ice_aq_get_phy_caps(vsi->port_info, false,
--				     ICE_AQC_REPORT_SW_CFG, caps, NULL);
-+				     ICE_AQC_REPORT_ACTIVE_CFG, caps, NULL);
- 	if (status) {
- 		err = -EIO;
- 		goto done;
-@@ -2013,7 +2013,7 @@ ice_get_link_ksettings(struct net_device *netdev,
- 		ethtool_link_ksettings_add_link_mode(ks, advertising, FEC_RS);
- 
- 	status = ice_aq_get_phy_caps(vsi->port_info, false,
--				     ICE_AQC_REPORT_TOPO_CAP, caps, NULL);
-+				     ICE_AQC_REPORT_TOPO_CAP_MEDIA, caps, NULL);
- 	if (status) {
- 		err = -EIO;
- 		goto done;
-@@ -2225,7 +2225,7 @@ ice_set_link_ksettings(struct net_device *netdev,
- 		return -ENOMEM;
- 
- 	/* Get the PHY capabilities based on media */
--	status = ice_aq_get_phy_caps(p, false, ICE_AQC_REPORT_TOPO_CAP,
-+	status = ice_aq_get_phy_caps(p, false, ICE_AQC_REPORT_TOPO_CAP_MEDIA,
- 				     abilities, NULL);
- 	if (status) {
- 		err = -EAGAIN;
-@@ -2954,7 +2954,7 @@ ice_get_pauseparam(struct net_device *netdev, struct ethtool_pauseparam *pause)
- 		return;
- 
- 	/* Get current PHY config */
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_SW_CFG, pcaps,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_ACTIVE_CFG, pcaps,
- 				     NULL);
- 	if (status)
- 		goto out;
-@@ -3021,7 +3021,7 @@ ice_set_pauseparam(struct net_device *netdev, struct ethtool_pauseparam *pause)
- 		return -ENOMEM;
- 
- 	/* Get current PHY config */
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_SW_CFG, pcaps,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_ACTIVE_CFG, pcaps,
- 				     NULL);
- 	if (status) {
- 		kfree(pcaps);
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 6c75df216fa7..20c9d55f3adc 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -726,7 +726,7 @@ void ice_print_link_msg(struct ice_vsi *vsi, bool isup)
- 	}
- 
- 	status = ice_aq_get_phy_caps(vsi->port_info, false,
--				     ICE_AQC_REPORT_SW_CFG, caps, NULL);
-+				     ICE_AQC_REPORT_ACTIVE_CFG, caps, NULL);
- 	if (status)
- 		netdev_info(vsi->netdev, "Get phy capability failed.\n");
- 
-@@ -1645,7 +1645,7 @@ static int ice_force_phys_link_state(struct ice_vsi *vsi, bool link_up)
- 	if (!pcaps)
- 		return -ENOMEM;
- 
--	retcode = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_SW_CFG, pcaps,
-+	retcode = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_ACTIVE_CFG, pcaps,
- 				      NULL);
- 	if (retcode) {
- 		dev_err(dev, "Failed to get phy capabilities, VSI %d error %d\n",
-@@ -1705,7 +1705,7 @@ static int ice_init_nvm_phy_type(struct ice_port_info *pi)
- 	if (!pcaps)
- 		return -ENOMEM;
- 
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_NVM_CAP, pcaps,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP_NO_MEDIA, pcaps,
- 				     NULL);
- 
- 	if (status) {
-@@ -1821,7 +1821,7 @@ static int ice_init_phy_user_cfg(struct ice_port_info *pi)
- 	if (!pcaps)
- 		return -ENOMEM;
- 
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP, pcaps,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP_MEDIA, pcaps,
- 				     NULL);
- 	if (status) {
- 		dev_err(ice_pf_to_dev(pf), "Get PHY capability failed.\n");
-@@ -1900,7 +1900,7 @@ static int ice_configure_phy(struct ice_vsi *vsi)
- 		return -ENOMEM;
- 
- 	/* Get current PHY config */
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_SW_CFG, pcaps,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_ACTIVE_CFG, pcaps,
- 				     NULL);
- 	if (status) {
- 		dev_err(dev, "Failed to get PHY configuration, VSI %d error %s\n",
-@@ -1918,7 +1918,7 @@ static int ice_configure_phy(struct ice_vsi *vsi)
- 
- 	/* Use PHY topology as baseline for configuration */
- 	memset(pcaps, 0, sizeof(*pcaps));
--	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP, pcaps,
-+	status = ice_aq_get_phy_caps(pi, false, ICE_AQC_REPORT_TOPO_CAP_MEDIA, pcaps,
- 				     NULL);
- 	if (status) {
- 		dev_err(dev, "Failed to get PHY topology, VSI %d error %s\n",
+ 	aliases {
+ 		spi0 = &spi0;
++		ethernet0 = &eth0;
+ 		ethernet1 = &eth1;
+ 		mmc0 = &sdhci0;
+ 		mmc1 = &sdhci1;
 -- 
 2.34.1
 
