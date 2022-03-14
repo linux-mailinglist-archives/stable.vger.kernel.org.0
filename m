@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 186494D81DE
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A87014D843E
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239780AbiCNL5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:57:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36124 "EHLO
+        id S241686AbiCNMX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239802AbiCNL47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:56:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC696A191;
-        Mon, 14 Mar 2022 04:55:49 -0700 (PDT)
+        with ESMTP id S243004AbiCNMUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:20:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 382F652E18;
+        Mon, 14 Mar 2022 05:15:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6231060FF3;
-        Mon, 14 Mar 2022 11:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C56C340E9;
-        Mon, 14 Mar 2022 11:55:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C67D1B80D24;
+        Mon, 14 Mar 2022 12:15:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D6AC340E9;
+        Mon, 14 Mar 2022 12:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647258948;
-        bh=rmqWh++bmnolqTwUgqq50Pxu7vO0BZugPXX67ZgUons=;
+        s=korg; t=1647260110;
+        bh=RsFZTWnfjmpT6i3ems5I0UMcIWdeQ2t770YuUzve0og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rlHsdb2I51rKadhUYfwgfKalYpE0XR/p96k0DGOYFinsBFMURHWmGcHPALSXnE1DD
-         2ZYLtvaANfXjy5KhUpZwJ6YVuGeHyNThV9E8jcCbck+vATte2WdID1sqdVmI4xGVp3
-         +I2NrG/tYT7mSAYSshyNHJ/TLXM0ePyeqZTWH+zg=
+        b=kjcEMa4z9bSWgpdmAiAKGRHch06w4mVvg7VvQIK8inRiDanMUSZr77v/BMeF1DtaR
+         2x7u2JPDRNsxlFrT2t96moIUMCQ33C1bm6BMMXi822ybdavaE/JeduVFVUskN1LGF6
+         MQikQBBDERkw5A4+3gDfgUmVsIZmSa9VbFxuBr+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, valis <sec@valis.email>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/43] selftests: pmtu.sh: Kill tcpdump processes launched by subshell.
+Subject: [PATCH 5.16 023/121] esp: Fix possible buffer overflow in ESP transformation
 Date:   Mon, 14 Mar 2022 12:53:26 +0100
-Message-Id: <20220314112734.846774844@linuxfoundation.org>
+Message-Id: <20220314112744.776782376@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-[ Upstream commit 18dfc667550fe9c032a6dcc3402b50e691e18029 ]
+[ Upstream commit ebe48d368e97d007bfeb76fcb065d6cfc4c96645 ]
 
-The cleanup() function takes care of killing processes launched by the
-test functions. It relies on variables like ${tcpdump_pids} to get the
-relevant PIDs. But tests are run in their own subshell, so updated
-*_pids values are invisible to other shells. Therefore cleanup() never
-sees any process to kill:
+The maximum message size that can be send is bigger than
+the  maximum site that skb_page_frag_refill can allocate.
+So it is possible to write beyond the allocated buffer.
 
-$ ./tools/testing/selftests/net/pmtu.sh -t pmtu_ipv4_exception
-TEST: ipv4: PMTU exceptions                                         [ OK ]
-TEST: ipv4: PMTU exceptions - nexthop objects                       [ OK ]
+Fix this by doing a fallback to COW in that case.
 
-$ pgrep -af tcpdump
-6084 tcpdump -s 0 -i veth_A-R1 -w pmtu_ipv4_exception_veth_A-R1.pcap
-6085 tcpdump -s 0 -i veth_R1-A -w pmtu_ipv4_exception_veth_R1-A.pcap
-6086 tcpdump -s 0 -i veth_R1-B -w pmtu_ipv4_exception_veth_R1-B.pcap
-6087 tcpdump -s 0 -i veth_B-R1 -w pmtu_ipv4_exception_veth_B-R1.pcap
-6088 tcpdump -s 0 -i veth_A-R2 -w pmtu_ipv4_exception_veth_A-R2.pcap
-6089 tcpdump -s 0 -i veth_R2-A -w pmtu_ipv4_exception_veth_R2-A.pcap
-6090 tcpdump -s 0 -i veth_R2-B -w pmtu_ipv4_exception_veth_R2-B.pcap
-6091 tcpdump -s 0 -i veth_B-R2 -w pmtu_ipv4_exception_veth_B-R2.pcap
-6228 tcpdump -s 0 -i veth_A-R1 -w pmtu_ipv4_exception_veth_A-R1.pcap
-6229 tcpdump -s 0 -i veth_R1-A -w pmtu_ipv4_exception_veth_R1-A.pcap
-6230 tcpdump -s 0 -i veth_R1-B -w pmtu_ipv4_exception_veth_R1-B.pcap
-6231 tcpdump -s 0 -i veth_B-R1 -w pmtu_ipv4_exception_veth_B-R1.pcap
-6232 tcpdump -s 0 -i veth_A-R2 -w pmtu_ipv4_exception_veth_A-R2.pcap
-6233 tcpdump -s 0 -i veth_R2-A -w pmtu_ipv4_exception_veth_R2-A.pcap
-6234 tcpdump -s 0 -i veth_R2-B -w pmtu_ipv4_exception_veth_R2-B.pcap
-6235 tcpdump -s 0 -i veth_B-R2 -w pmtu_ipv4_exception_veth_B-R2.pcap
+v2:
 
-Fix this by running cleanup() in the context of the test subshell.
-Now that each test cleans the environment after completion, there's no
-need for calling cleanup() again when the next test starts. So let's
-drop it from the setup() function. This is okay because cleanup() is
-also called when pmtu.sh starts, so even the first test starts in a
-clean environment.
+Avoid get get_order() costs as suggested by Linus Torvalds.
 
-Also, use tcpdump's immediate mode. Otherwise it might not have time to
-process buffered packets, resulting in missing packets or even empty
-pcap files for short tests.
-
-Note: PAUSE_ON_FAIL is still evaluated before cleanup(), so one can
-still inspect the test environment upon failure when using -p.
-
-Fixes: a92a0a7b8e7c ("selftests: pmtu: Simplify cleanup and namespace names")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
+Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
+Reported-by: valis <sec@valis.email>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/pmtu.sh | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ include/net/esp.h | 2 ++
+ net/ipv4/esp4.c   | 5 +++++
+ net/ipv6/esp6.c   | 5 +++++
+ 3 files changed, 12 insertions(+)
 
-diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
-index 3429767cadcd..88be9083b923 100755
---- a/tools/testing/selftests/net/pmtu.sh
-+++ b/tools/testing/selftests/net/pmtu.sh
-@@ -579,7 +579,6 @@ setup_routing() {
- setup() {
- 	[ "$(id -u)" -ne 0 ] && echo "  need to run as root" && return $ksft_skip
+diff --git a/include/net/esp.h b/include/net/esp.h
+index 9c5637d41d95..90cd02ff77ef 100644
+--- a/include/net/esp.h
++++ b/include/net/esp.h
+@@ -4,6 +4,8 @@
  
--	cleanup
- 	for arg do
- 		eval setup_${arg} || { echo "  ${arg} not supported"; return 1; }
- 	done
-@@ -590,7 +589,7 @@ trace() {
+ #include <linux/skbuff.h>
  
- 	for arg do
- 		[ "${ns_cmd}" = "" ] && ns_cmd="${arg}" && continue
--		${ns_cmd} tcpdump -s 0 -i "${arg}" -w "${name}_${arg}.pcap" 2> /dev/null &
-+		${ns_cmd} tcpdump --immediate-mode -s 0 -i "${arg}" -w "${name}_${arg}.pcap" 2> /dev/null &
- 		tcpdump_pids="${tcpdump_pids} $!"
- 		ns_cmd=
- 	done
-@@ -1182,6 +1181,10 @@ run_test() {
- 
- 	unset IFS
- 
-+	# Since cleanup() relies on variables modified by this subshell, it
-+	# has to run in this context.
-+	trap cleanup EXIT
++#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
 +
- 	if [ "$VERBOSE" = "1" ]; then
- 		printf "\n##########################################################################\n\n"
- 	fi
+ struct ip_esp_hdr;
+ 
+ static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index e1b1d080e908..70e6c87fbe3d 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -446,6 +446,7 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
++	unsigned int allocsz;
+ 
+ 	/* this is non-NULL only with TCP/UDP Encapsulation */
+ 	if (x->encap) {
+@@ -455,6 +456,10 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 			return err;
+ 	}
+ 
++	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
++	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++		goto cow;
++
+ 	if (!skb_cloned(skb)) {
+ 		if (tailen <= skb_tailroom(skb)) {
+ 			nfrags = 1;
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 883b53fd7846..b7b573085bd5 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -483,6 +483,7 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
++	unsigned int allocsz;
+ 
+ 	if (x->encap) {
+ 		int err = esp6_output_encap(x, skb, esp);
+@@ -491,6 +492,10 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 			return err;
+ 	}
+ 
++	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
++	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++		goto cow;
++
+ 	if (!skb_cloned(skb)) {
+ 		if (tailen <= skb_tailroom(skb)) {
+ 			nfrags = 1;
 -- 
 2.34.1
 
