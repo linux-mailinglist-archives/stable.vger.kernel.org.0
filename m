@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F74E4D830B
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F894D824F
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:01:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240792AbiCNMMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59816 "EHLO
+        id S240226AbiCNMCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:02:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241622AbiCNMI6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F26C04F9DC;
-        Mon, 14 Mar 2022 05:05:40 -0700 (PDT)
+        with ESMTP id S240175AbiCNMCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:02:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3151D4A3DB;
+        Mon, 14 Mar 2022 04:59:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53381B80DF0;
-        Mon, 14 Mar 2022 12:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0C80C340E9;
-        Mon, 14 Mar 2022 12:05:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF50EB80DF1;
+        Mon, 14 Mar 2022 11:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E912BC340E9;
+        Mon, 14 Mar 2022 11:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259537;
-        bh=t1emTD1hQqRTM2s+FLqtKL1MLVKlmYxN8zFn0YVOEuQ=;
+        s=korg; t=1647259139;
+        bh=XfZD/pgXWAsOqMP5ZbvJMo/ZKvgsQooaT19ZGToxEn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n63v3IE53q0r5/xA5zPa6ZtjoHA0NSnP7PzzrQjbq6ANM6FXW4IkRrpam0VXauEH7
-         WsawqQ7AK5E/VeegM+iyLoXANqwUG7JSE3woNkiO8xczff3xShax6d4ykH+ObJL64B
-         PXOCaSoGJeCl//yh/MaKUm24W0fv6cppv0UDD1PA=
+        b=gtCklClFZknDrY9ZupCUasRBVahJH+kNXpgu4OHsTWahmF6XdExB1QeAIxTFh0Yij
+         YoQ9bL8Zz6ql7O0H3iRjTdDPOftoGRgLCWBXjoj5HZ3MM8im9xJapKmFPWf4EtxLXY
+         3jnjvEHHZaMHWQ0aXwgzlJF/54Q40gwH8rOpgzaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 003/110] HID: elo: Revert USB reference counting
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 12/71] qed: return status of qed_iov_get_link
 Date:   Mon, 14 Mar 2022 12:53:05 +0100
-Message-Id: <20220314112743.127452645@linuxfoundation.org>
+Message-Id: <20220314112738.278211179@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit ac89895213d8950dba6ab342863a0959f73142a7 ]
+[ Upstream commit d9dc0c84ad2d4cc911ba252c973d1bf18d5eb9cf ]
 
-Commit 817b8b9c539 ("HID: elo: fix memory leak in elo_probe") introduced
-memory leak on error path, but more importantly the whole USB reference
-counting is not needed at all in the first place, as the driver itself
-doesn't change the reference counting in any way, and the associated
-usb_device is guaranteed to be kept around by USB core as long as the
-driver binding exists.
+Clang static analysis reports this issue
+qed_sriov.c:4727:19: warning: Assigned value is
+  garbage or undefined
+  ivi->max_tx_rate = tx_rate ? tx_rate : link.speed;
+                   ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Reported-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: fbf42729d0e ("HID: elo: update the reference count of the usb device structure")
-Fixes: 817b8b9c539 ("HID: elo: fix memory leak in elo_probe")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+link is only sometimes set by the call to qed_iov_get_link()
+qed_iov_get_link fails without setting link or returning
+status.  So change the decl to return status.
+
+Fixes: 73390ac9d82b ("qed*: support ndo_get_vf_config")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-elo.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hid/hid-elo.c b/drivers/hid/hid-elo.c
-index 9b42b0cdeef0..2876cb6a7dca 100644
---- a/drivers/hid/hid-elo.c
-+++ b/drivers/hid/hid-elo.c
-@@ -228,7 +228,6 @@ static int elo_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct elo_priv *priv;
- 	int ret;
--	struct usb_device *udev;
- 
- 	if (!hid_is_usb(hdev))
- 		return -EINVAL;
-@@ -238,8 +237,7 @@ static int elo_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return -ENOMEM;
- 
- 	INIT_DELAYED_WORK(&priv->work, elo_work);
--	udev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
--	priv->usbdev = usb_get_dev(udev);
-+	priv->usbdev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
- 
- 	hid_set_drvdata(hdev, priv);
- 
-@@ -262,7 +260,6 @@ static int elo_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	return 0;
- err_free:
--	usb_put_dev(udev);
- 	kfree(priv);
- 	return ret;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+index b8dc5c4591ef..ef0ad4cf82e6 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -3778,11 +3778,11 @@ bool qed_iov_mark_vf_flr(struct qed_hwfn *p_hwfn, u32 *p_disabled_vfs)
+ 	return found;
  }
-@@ -271,8 +268,6 @@ static void elo_remove(struct hid_device *hdev)
- {
- 	struct elo_priv *priv = hid_get_drvdata(hdev);
  
--	usb_put_dev(priv->usbdev);
--
- 	hid_hw_stop(hdev);
- 	cancel_delayed_work_sync(&priv->work);
- 	kfree(priv);
+-static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
+-			     u16 vfid,
+-			     struct qed_mcp_link_params *p_params,
+-			     struct qed_mcp_link_state *p_link,
+-			     struct qed_mcp_link_capabilities *p_caps)
++static int qed_iov_get_link(struct qed_hwfn *p_hwfn,
++			    u16 vfid,
++			    struct qed_mcp_link_params *p_params,
++			    struct qed_mcp_link_state *p_link,
++			    struct qed_mcp_link_capabilities *p_caps)
+ {
+ 	struct qed_vf_info *p_vf = qed_iov_get_vf_info(p_hwfn,
+ 						       vfid,
+@@ -3790,7 +3790,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
+ 	struct qed_bulletin_content *p_bulletin;
+ 
+ 	if (!p_vf)
+-		return;
++		return -EINVAL;
+ 
+ 	p_bulletin = p_vf->bulletin.p_virt;
+ 
+@@ -3800,6 +3800,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
+ 		__qed_vf_get_link_state(p_hwfn, p_link, p_bulletin);
+ 	if (p_caps)
+ 		__qed_vf_get_link_caps(p_hwfn, p_caps, p_bulletin);
++	return 0;
+ }
+ 
+ static int
+@@ -4658,6 +4659,7 @@ static int qed_get_vf_config(struct qed_dev *cdev,
+ 	struct qed_public_vf_info *vf_info;
+ 	struct qed_mcp_link_state link;
+ 	u32 tx_rate;
++	int ret;
+ 
+ 	/* Sanitize request */
+ 	if (IS_VF(cdev))
+@@ -4671,7 +4673,9 @@ static int qed_get_vf_config(struct qed_dev *cdev,
+ 
+ 	vf_info = qed_iov_get_public_vf_info(hwfn, vf_id, true);
+ 
+-	qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
++	ret = qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
++	if (ret)
++		return ret;
+ 
+ 	/* Fill information about VF */
+ 	ivi->vf = vf_id;
 -- 
 2.34.1
 
