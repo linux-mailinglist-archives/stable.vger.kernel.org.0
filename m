@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F0D74D8920
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 17:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DAE24D88F7
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 17:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243033AbiCNQbq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 12:31:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60148 "EHLO
+        id S242963AbiCNQWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 12:22:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243073AbiCNQbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 12:31:41 -0400
+        with ESMTP id S241710AbiCNQWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 12:22:45 -0400
+X-Greylist: delayed 392 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Mar 2022 09:21:35 PDT
 Received: from sender4-of-o53.zoho.com (sender4-of-o53.zoho.com [136.143.188.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C645E220CF
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 09:30:27 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1647274494; cv=none; 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E915912A8A;
+        Mon, 14 Mar 2022 09:21:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1647274883; cv=none; 
         d=zohomail.com; s=zohoarc; 
-        b=axCrQtr+KDzg7MysSAuV72E38IwSKOOG8tldIxi0Jt4KJuGQ/MB2oU5Efb8Oi7TXQx2P0Y9qbmuuOYXlF9fCQMOQIlIFRolN36iA5y4fP4LXe9wZrzbHFEPoCDxvGo/GNAstHc0AwiAgM3c04Uz/WxebHVuNE23810Eo9SnBn/g=
+        b=mx2smIOGeo5ZjY9eOcc/bCGdqHmQUFR59CYhROKVr38Nz2LvTY2tlis1je8oqqd0yKOSOFIb3ccss3/zksRXDdKtAaOBo/XLyWQhKc0FI7PRZRUokt/E+aIaO2UpJtn/Jc9cWCIQjfKdC3m2Hs3FsvkoWmMtC9tuSTWyaiOAWL4=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1647274494; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=SYTvhP0m/Gx6FXYlVdSO0C6zDPWvwPEWDnbNrpmJslc=; 
-        b=VirgvikMNoWtvfDuPCoT8IPdy/QRh1eZv2gM5IyiCt2ghxSZCEZiQzoaLodMb39FZXYwwoRrkS+Z+AvA/dK0X8MDCGrt+At1XeNYY3sjHZ6qNbR3ppoVZ/pMZbFIgy/V+JqiMzHUpp+3f91GO49CBg/Egns34g77vgUOPo3nCAE=
+        t=1647274883; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=exLHJy/o8u0v5+P+IbvaTX55kBTxm+CYnLzbshyskLQ=; 
+        b=iu4CwdmaeduL2TpUU/4fmKpgv8MJPLw2fzJSYQWr8mAlm8rCvRkNK66DdfEJZm91T/tobqETRn5aHHl1E93mkmUiQO5P4CQ0lVuaGa/HncCx5cAnlJrVARbX7KtCYMeLLfEiPaSCv97zYhpzKcFmzP6e6C5OdAkU2OZ1jFJo+tY=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
         dkim=pass  header.i=anirudhrb.com;
         spf=pass  smtp.mailfrom=mail@anirudhrb.com;
         dmarc=pass header.from=<mail@anirudhrb.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1647274494;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1647274883;
         s=zoho; d=anirudhrb.com; i=mail@anirudhrb.com;
         h=Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To:Message-Id:Reply-To;
-        bh=SYTvhP0m/Gx6FXYlVdSO0C6zDPWvwPEWDnbNrpmJslc=;
-        b=sDoZhSh1QgIfwPKqQ6/oLh5/4Q5FuTJDCj5LQYB14um6TzQBe158uvdUbG86LgH0
-        GDLejfH9A3vpQgjpAPgGOB1qqrmVIMBXuoZAgeoIi7nU+noXLk7N7fO48M9gKwna5Ts
-        Q5HpTQfbFndOH6sn9v4DTRApoivsYLxmvsKa36x0=
+        bh=exLHJy/o8u0v5+P+IbvaTX55kBTxm+CYnLzbshyskLQ=;
+        b=Kp+VnZ/0dusGp1M2OtccWhO6EKsLdjYBJFIL/BZh8jjtp9YNmAP+tnXWoYmaAUKN
+        woajBDaQEecsACvn6Cbb+hH5wnmXnCikCQ98aMfwNtGyIiDPLHnWWG4AW0DC9hwsn8G
+        aNrn8rPwsei/avKj+9tmYYtJK3Lht9mc2R/UUizw=
 Received: from anirudhrb.com (49.207.221.223 [49.207.221.223]) by mx.zohomail.com
-        with SMTPS id 1647274491104743.6587593231992; Mon, 14 Mar 2022 09:14:51 -0700 (PDT)
-Date:   Mon, 14 Mar 2022 21:44:43 +0530
+        with SMTPS id 1647274843303560.9949108171496; Mon, 14 Mar 2022 09:20:43 -0700 (PDT)
+Date:   Mon, 14 Mar 2022 21:50:36 +0530
 From:   Anirudh Rayabharam <mail@anirudhrb.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>, jasowang@redhat.com
-Subject: Re: [PATCH 5.15 015/110] vhost: fix hung thread due to erroneous
+Subject: Re: [PATCH 5.16 017/121] vhost: fix hung thread due to erroneous
  iotlb entries
-Message-ID: <Yi9p8xsrWV+GD9c3@anirudhrb.com>
-References: <20220314112743.029192918@linuxfoundation.org>
- <20220314112743.460512435@linuxfoundation.org>
+Message-ID: <Yi9rVI7AhOnkBIx2@anirudhrb.com>
+References: <20220314112744.120491875@linuxfoundation.org>
+ <20220314112744.608703877@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220314112743.460512435@linuxfoundation.org>
+In-Reply-To: <20220314112744.608703877@linuxfoundation.org>
 X-ZohoMailClient: External
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mon, Mar 14, 2022 at 12:53:17PM +0100, Greg Kroah-Hartman wrote:
+On Mon, Mar 14, 2022 at 12:53:20PM +0100, Greg Kroah-Hartman wrote:
 > From: Anirudh Rayabharam <mail@anirudhrb.com>
 > 
 > [ Upstream commit e2ae38cf3d91837a493cb2093c87700ff3cbe667 ]
@@ -72,7 +72,7 @@ Linus' tree yet.
 
 [1]: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=linux-next&id=95932ab2ea07b79cdb33121e2f40ccda9e6a73b5
 
-	- Anirudh.
+    - Anirudh.
 > 
 > In vhost_iotlb_add_range_ctx(), range size can overflow to 0 when
 > start is 0 and last is ULONG_MAX. One instance where it can happen
