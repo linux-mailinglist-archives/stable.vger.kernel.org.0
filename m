@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A091F4D8313
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F06DD4D824B
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:01:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240812AbiCNMMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58254 "EHLO
+        id S240281AbiCNMCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240968AbiCNMIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 013652AE02;
-        Mon, 14 Mar 2022 05:04:12 -0700 (PDT)
+        with ESMTP id S240227AbiCNMCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:02:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C3B49F8D;
+        Mon, 14 Mar 2022 04:59:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45D1D6130D;
-        Mon, 14 Mar 2022 12:04:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20DD0C340E9;
-        Mon, 14 Mar 2022 12:04:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E62FEB80DEE;
+        Mon, 14 Mar 2022 11:59:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0E1C36AE2;
+        Mon, 14 Mar 2022 11:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259451;
-        bh=bqsgv4wYRlRAXFN2jwy/To0VbWXSYoahODxLG/Pqnl0=;
+        s=korg; t=1647259171;
+        bh=VM6X274W0Wr5DIKP2FKOnktiZ+KuYhPqpw5G1T/twVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3SH04pEZK0e+deVykMjji5sJ7xu/ZK+fgy//QqpUgt+kqOVUgtveDv6sFjYPLYra
-         ss+hUYAhFxbFaNxYoJvi2sPKWAgkkDGjUz8Ly30MqUqr2inwaPaZR+jjm/EstijnFY
-         oHc0/4XuJvu97STG/Rk839hy0arp0sIT7GEQcj0k=
+        b=zQ7vQbCxG2htyoZelnCnSiLZqDXKbCojBK35L00jFkvGkmW3dVbx/H6CRL2Z+1gR3
+         FWIKt8knGgr3uXa7+ehwvoCEE/KRkru3G8t/qjRGE3vxmiiSuMHbieB+OvpLETdT4D
+         HEp9BuQAstQi7odbSDl3U1OFFHhiKLiyxQIR/sNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Jon Maloy <jmaloy@redhat.com>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 010/110] tipc: fix kernel panic when enabling bearer
+Subject: [PATCH 5.10 19/71] ice: Remove unnecessary checker loop
 Date:   Mon, 14 Mar 2022 12:53:12 +0100
-Message-Id: <20220314112743.320738039@linuxfoundation.org>
+Message-Id: <20220314112738.469709253@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,104 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
 
-[ Upstream commit be4977b847f5d5cedb64d50eaaf2218c3a55a3a3 ]
+[ Upstream commit fd3dc1655eda6173566d56eaeb54f27ab4c9e33c ]
 
-When enabling a bearer on a node, a kernel panic is observed:
+The loop checking for PF VSI doesn't make any sense. The VSI type
+backing the netdev passed to ice_set_link_ksettings will always be
+of type ICE_PF_VSI. Remove it.
 
-[    4.498085] RIP: 0010:tipc_mon_prep+0x4e/0x130 [tipc]
-...
-[    4.520030] Call Trace:
-[    4.520689]  <IRQ>
-[    4.521236]  tipc_link_build_proto_msg+0x375/0x750 [tipc]
-[    4.522654]  tipc_link_build_state_msg+0x48/0xc0 [tipc]
-[    4.524034]  __tipc_node_link_up+0xd7/0x290 [tipc]
-[    4.525292]  tipc_rcv+0x5da/0x730 [tipc]
-[    4.526346]  ? __netif_receive_skb_core+0xb7/0xfc0
-[    4.527601]  tipc_l2_rcv_msg+0x5e/0x90 [tipc]
-[    4.528737]  __netif_receive_skb_list_core+0x20b/0x260
-[    4.530068]  netif_receive_skb_list_internal+0x1bf/0x2e0
-[    4.531450]  ? dev_gro_receive+0x4c2/0x680
-[    4.532512]  napi_complete_done+0x6f/0x180
-[    4.533570]  virtnet_poll+0x29c/0x42e [virtio_net]
-...
-
-The node in question is receiving activate messages in another
-thread after changing bearer status to allow message sending/
-receiving in current thread:
-
-         thread 1           |              thread 2
-         --------           |              --------
-                            |
-tipc_enable_bearer()        |
-  test_and_set_bit_lock()   |
-    tipc_bearer_xmit_skb()  |
-                            | tipc_l2_rcv_msg()
-                            |   tipc_rcv()
-                            |     __tipc_node_link_up()
-                            |       tipc_link_build_state_msg()
-                            |         tipc_link_build_proto_msg()
-                            |           tipc_mon_prep()
-                            |           {
-                            |             ...
-                            |             // null-pointer dereference
-                            |             u16 gen = mon->dom_gen;
-                            |             ...
-                            |           }
-  // Not being executed yet |
-  tipc_mon_create()         |
-  {                         |
-    ...                     |
-    // allocate             |
-    mon = kzalloc();        |
-    ...                     |
-  }                         |
-
-Monitoring pointer in thread 2 is dereferenced before monitoring data
-is allocated in thread 1. This causes kernel panic.
-
-This commit fixes it by allocating the monitoring data before enabling
-the bearer to receive messages.
-
-Fixes: 35c55c9877f8 ("tipc: add neighbor monitoring framework")
-Reported-by: Shuang Li <shuali@redhat.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bearer.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 443f8e5b9477..36b466cfd9e1 100644
---- a/net/tipc/bearer.c
-+++ b/net/tipc/bearer.c
-@@ -352,16 +352,18 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 		goto rejected;
- 	}
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index be02f8f4d854..300fd5d0ff32 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -2189,8 +2189,8 @@ ice_set_link_ksettings(struct net_device *netdev,
+ 	struct ethtool_link_ksettings safe_ks, copy_ks;
+ 	struct ice_aqc_get_phy_caps_data *abilities;
+ 	u8 autoneg, timeout = TEST_SET_BITS_TIMEOUT;
+-	u16 adv_link_speed, curr_link_speed, idx;
+ 	struct ice_aqc_set_phy_cfg_data config;
++	u16 adv_link_speed, curr_link_speed;
+ 	struct ice_pf *pf = np->vsi->back;
+ 	struct ice_port_info *p;
+ 	u8 autoneg_changed = 0;
+@@ -2205,14 +2205,6 @@ ice_set_link_ksettings(struct net_device *netdev,
+ 	if (!p)
+ 		return -EOPNOTSUPP;
  
--	test_and_set_bit_lock(0, &b->up);
--	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
--	if (skb)
--		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
+-	/* Check if this is LAN VSI */
+-	ice_for_each_vsi(pf, idx)
+-		if (pf->vsi[idx]->type == ICE_VSI_PF) {
+-			if (np->vsi != pf->vsi[idx])
+-				return -EOPNOTSUPP;
+-			break;
+-		}
 -
-+	/* Create monitoring data before accepting activate messages */
- 	if (tipc_mon_create(net, bearer_id)) {
- 		bearer_disable(net, b);
-+		kfree_skb(skb);
- 		return -ENOMEM;
- 	}
- 
-+	test_and_set_bit_lock(0, &b->up);
-+	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
-+	if (skb)
-+		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
-+
- 	pr_info("Enabled bearer <%s>, priority %u\n", name, prio);
- 
- 	return res;
+ 	if (p->phy.media_type != ICE_MEDIA_BASET &&
+ 	    p->phy.media_type != ICE_MEDIA_FIBER &&
+ 	    p->phy.media_type != ICE_MEDIA_BACKPLANE &&
 -- 
 2.34.1
 
