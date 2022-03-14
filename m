@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E87D4D81F6
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8264D8325
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239848AbiCNL6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:58:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38130 "EHLO
+        id S241082AbiCNMMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240184AbiCNL6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:58:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F33AC9FCB;
-        Mon, 14 Mar 2022 04:57:12 -0700 (PDT)
+        with ESMTP id S242610AbiCNMKV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:10:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C5DE2B242;
+        Mon, 14 Mar 2022 05:09:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A147EB80DE2;
-        Mon, 14 Mar 2022 11:57:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CCF7C340E9;
-        Mon, 14 Mar 2022 11:57:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A100DCE1269;
+        Mon, 14 Mar 2022 12:09:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2DE7C340E9;
+        Mon, 14 Mar 2022 12:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259030;
-        bh=53SuvHqLsdQdV5lGsvyqBuQ/n38DdwjVCycIDj9374k=;
+        s=korg; t=1647259749;
+        bh=HWox8W0DnIRCyYED+rSsjxVe2Di18lInjdfTY3Byvck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4E0A99EwixVGe7p+WkN6t7Oti65q3BtCT0KTFUi9whMW5gMRgZQe2THs6N/f5lvW
-         yAeUA9RwrzOi/50BiWc+BfVD9tjA9W8TpOMp3Fvg0GLPd6rSpRT8O4LKr9bZE+SZ3J
-         b6sDS8s9g1f3YEBzD6HmO4RpZXTIANhvUNX60Bns=
+        b=pEndiGnzLmuL78zoj4hA64cznU5fGUkMqDW+A+wtialVnLX+25n+/buJYVy0XxV6L
+         ssg8X7JO78C9/eEgFxDnHEDHjYL07rx5XENVCB32J/6N1JEChtPtpIHz8jaVtOr/5U
+         VE4DHIdgNv6kIyEnDL+3HgPcKKXeQPN1z4okhqx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.4 30/43] fuse: fix pipe buffer lifetime for direct_io
+        stable@vger.kernel.org, Thomas Osterried <thomas@osterried.de>,
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 039/110] ax25: Fix NULL pointer dereference in ax25_kill_by_device
 Date:   Mon, 14 Mar 2022 12:53:41 +0100
-Message-Id: <20220314112735.266119159@linuxfoundation.org>
+Message-Id: <20220314112744.129475785@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 0c4bcfdecb1ac0967619ee7ff44871d93c08c909 upstream.
+[ Upstream commit 71171ac8eb34ce7fe6b3267dce27c313ab3cb3ac ]
 
-In FOPEN_DIRECT_IO mode, fuse_file_write_iter() calls
-fuse_direct_write_iter(), which normally calls fuse_direct_io(), which then
-imports the write buffer with fuse_get_user_pages(), which uses
-iov_iter_get_pages() to grab references to userspace pages instead of
-actually copying memory.
+When two ax25 devices attempted to establish connection, the requester use ax25_create(),
+ax25_bind() and ax25_connect() to initiate connection. The receiver use ax25_rcv() to
+accept connection and use ax25_create_cb() in ax25_rcv() to create ax25_cb, but the
+ax25_cb->sk is NULL. When the receiver is detaching, a NULL pointer dereference bug
+caused by sock_hold(sk) in ax25_kill_by_device() will happen. The corresponding
+fail log is shown below:
 
-On the filesystem device side, these pages can then either be read to
-userspace (via fuse_dev_read()), or splice()d over into a pipe using
-fuse_dev_splice_read() as pipe buffers with &nosteal_pipe_buf_ops.
+===============================================================
+BUG: KASAN: null-ptr-deref in ax25_device_event+0xfd/0x290
+Call Trace:
+...
+ax25_device_event+0xfd/0x290
+raw_notifier_call_chain+0x5e/0x70
+dev_close_many+0x174/0x220
+unregister_netdevice_many+0x1f7/0xa60
+unregister_netdevice_queue+0x12f/0x170
+unregister_netdev+0x13/0x20
+mkiss_close+0xcd/0x140
+tty_ldisc_release+0xc0/0x220
+tty_release_struct+0x17/0xa0
+tty_release+0x62d/0x670
+...
 
-This is wrong because after fuse_dev_do_read() unlocks the FUSE request,
-the userspace filesystem can mark the request as completed, causing write()
-to return. At that point, the userspace filesystem should no longer have
-access to the pipe buffer.
+This patch add condition check in ax25_kill_by_device(). If s->sk is
+NULL, it will goto if branch to kill device.
 
-Fix by copying pages coming from the user address space to new pipe
-buffers.
-
-Reported-by: Jann Horn <jannh@google.com>
-Fixes: c3021629a0d8 ("fuse: support splice() reading from fuse device")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4e0f718daf97 ("ax25: improve the incomplete fix to avoid UAF and NPD bugs")
+Reported-by: Thomas Osterried <thomas@osterried.de>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c    |   12 +++++++++++-
- fs/fuse/file.c   |    1 +
- fs/fuse/fuse_i.h |    1 +
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ net/ax25/af_ax25.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -933,7 +933,17 @@ static int fuse_copy_page(struct fuse_co
- 
- 	while (count) {
- 		if (cs->write && cs->pipebufs && page) {
--			return fuse_ref_page(cs, page, offset, count);
-+			/*
-+			 * Can't control lifetime of pipe buffers, so always
-+			 * copy user pages.
-+			 */
-+			if (cs->req->args->user_pages) {
-+				err = fuse_copy_fill(cs);
-+				if (err)
-+					return err;
-+			} else {
-+				return fuse_ref_page(cs, page, offset, count);
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index ea3431ac46a1..735f29512163 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -87,6 +87,13 @@ static void ax25_kill_by_device(struct net_device *dev)
+ 	ax25_for_each(s, &ax25_list) {
+ 		if (s->ax25_dev == ax25_dev) {
+ 			sk = s->sk;
++			if (!sk) {
++				spin_unlock_bh(&ax25_list_lock);
++				s->ax25_dev = NULL;
++				ax25_disconnect(s, ENETUNREACH);
++				spin_lock_bh(&ax25_list_lock);
++				goto again;
 +			}
- 		} else if (!cs->len) {
- 			if (cs->move_pages && page &&
- 			    offset == 0 && count == PAGE_SIZE) {
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1433,6 +1433,7 @@ static int fuse_get_user_pages(struct fu
- 			(PAGE_SIZE - ret) & (PAGE_SIZE - 1);
- 	}
- 
-+	ap->args.user_pages = true;
- 	if (write)
- 		ap->args.in_pages = 1;
- 	else
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -248,6 +248,7 @@ struct fuse_args {
- 	bool nocreds:1;
- 	bool in_pages:1;
- 	bool out_pages:1;
-+	bool user_pages:1;
- 	bool out_argvar:1;
- 	bool page_zeroing:1;
- 	bool page_replace:1;
+ 			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
+-- 
+2.34.1
+
 
 
