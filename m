@@ -2,72 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 354304D888D
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 16:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9F94D889C
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 16:55:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242765AbiCNPwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 11:52:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59252 "EHLO
+        id S242796AbiCNP4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 11:56:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242763AbiCNPws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 11:52:48 -0400
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 268F033E14
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 08:51:38 -0700 (PDT)
-Received: by mail-lf1-x12a.google.com with SMTP id n19so27914832lfh.8
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 08:51:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=GO6DO22NyOz74pRKEaDBeavTF5IzNMteCDkoxNllIjs=;
-        b=C+MtGX9CMvggkG1qaBzQ7cD7DzChnpKOxlIfkKuGP5QvXmw69IBulUXax1WvA1adD3
-         ddIMSnABoXDU2in9nYP4VXGeuIrxOGyP6u6nm81HlypZko7oyfWnQWOi4xdB4H3fDGO3
-         Au802GbTgksVMv+cI84WSDkhpI8RES1YS8dJ8KGY3NLhIZnrsA1z+nPcJLmWiScSPsOQ
-         3xbzgxQM9hrQSglBU6iUTGp07lNUv+EQWD0ji/zAJAA1vFeNcWq8GVWFu+Fz4KubEVoh
-         Dd7tMx7xJDYZu5277JvRIlAepC2jprlPO74GXQEACdusmjs0E41lmYPnq5mrtWNg7giG
-         NlTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=GO6DO22NyOz74pRKEaDBeavTF5IzNMteCDkoxNllIjs=;
-        b=60pl6cbsFd2u8Q/2fEjnXTNRDpbUH6WMBQLHkPLBLvETQlXFsOPM5Pk+xHthmMRFeu
-         Dh8sDXKFNigfih1L3/qyxdLxgqn5VE1wYncIIRZA4EQelO0H3QAhr8dOexb34fDv/HHG
-         eusieyEXKLRMNuiYUmNEwOr/LwVyGxBQQg7naNsyvR2gmBzIn6oflmaWQ8rG1hV9W5CG
-         +JesusCHWgtWF8ZBjbBOHzPU4Nd+1FC6GG5xylNENfphOSCT54tTKhaxpIR98Q1ftlCn
-         J3QwOsDeYZCmnGLr9Or0SXU4ghzXXn+5OeIqLs0iaegOic7VlYZ9RVW5tSO8Ju/Rdj6z
-         b/mg==
-X-Gm-Message-State: AOAM531GHWPUA8j9NJ1Elb5VooMBbc2U6a4R6DBGMCeOfp43gebq+xRB
-        yMK2PFG4rg3c5UWJ8OB0rJ6feHY3FlamdtRRxdoVkyh+AJY=
-X-Google-Smtp-Source: ABdhPJx1ExVE9qufvJAbY8tN7OfqPeyUdY8cYDJaBjP79yF9JHq/eJYG89IfJxx7LaUUQS2SzHYyxnTDJwTT8d7GQQ4=
-X-Received: by 2002:a05:6512:e98:b0:448:8053:d34a with SMTP id
- bi24-20020a0565120e9800b004488053d34amr7045193lfb.680.1647273095785; Mon, 14
- Mar 2022 08:51:35 -0700 (PDT)
+        with ESMTP id S242605AbiCNP4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 11:56:30 -0400
+Received: from ssl.serverraum.org (ssl.serverraum.org [176.9.125.105])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF4E3ED3E;
+        Mon, 14 Mar 2022 08:55:19 -0700 (PDT)
+Received: from mwalle01.kontron.local. (unknown [213.135.10.150])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id CF79C2222E;
+        Mon, 14 Mar 2022 16:55:14 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1647273317;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bESQLLsW9UA6Y/GBZonv6IQcBfHiM3XWrdn1bAk3zJM=;
+        b=ufRCp9RjbPdcTjoSyh7FiO1rs4CJiG0W0oAlrdrAN3rY9R80dZqjzva0a8TIibYhHmTi6V
+        0tu/SFedIcGQD1gXbGr6tzo+w8mMQ/zHw7/wpbtR2mGSOPobA5KROdsO9JzKTx4/SJBWId
+        dsXQsC+PCF5GzyJEMPvGUMVBHcFXLmk=
+From:   Michael Walle <michael@walle.cc>
+To:     marcelo.jimenez@gmail.com
+Cc:     achant@google.com, brgl@bgdev.pl, edmondchung@google.com,
+        geert@linux-m68k.org, linus.walleij@linaro.org,
+        linux-gpio@vger.kernel.org, regressions@lists.linux.dev,
+        sfr@canb.auug.org.au, stable@vger.kernel.org,
+        tanzilli@acmesystems.it, treding@nvidia.com, vidyas@nvidia.com,
+        willmcvicker@google.com,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Lars Povlsen <lars.povlsen@microchip.com>,
+        Michael Walle <michael@walle.cc>
+Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
+Date:   Mon, 14 Mar 2022 16:55:09 +0100
+Message-Id: <20220314155509.552218-1-michael@walle.cc>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
+References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
 MIME-Version: 1.0
-References: <20201211141656.24915-1-mw@semihalf.com> <CAPDyKFqsSO+f9iG8vccwXZXDDNHgLEg7bfUe-KfHn2C-ZnOU4A@mail.gmail.com>
- <20220314154033.4x74zscayee32rrj@pali>
-In-Reply-To: <20220314154033.4x74zscayee32rrj@pali>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Mon, 14 Mar 2022 16:51:25 +0100
-Message-ID: <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
-Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
-To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        Ziji Hu <huziji@marvell.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Grzegorz Jaszczyk <jaz@semihalf.com>,
-        Tomasz Nowicki <tn@semihalf.com>,
-        Kostya Porotchkin <kostap@marvell.com>,
-        Alex Leibovich <alexl@marvell.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,83 +59,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Pali,
+Hi,
 
+> Some GPIO lines have stopped working after the patch
+> commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+> 
+> And this has supposedly been fixed in the following patches
+> commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
+> commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
+> 
+> But an erratic behavior where some GPIO lines work while others do not work
+> has been introduced.
+> 
+> This patch reverts those changes so that the sysfs-gpio interface works
+> properly again.
+> 
+> Signed-off-by: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
 
-pon., 14 mar 2022 o 16:40 Pali Roh=C3=A1r <pali@kernel.org> napisa=C5=82(a)=
-:
->
-> On Monday 11 January 2021 19:06:24 Ulf Hansson wrote:
-> > On Fri, 11 Dec 2020 at 15:17, Marcin Wojtas <mw@semihalf.com> wrote:
-> > >
-> > > From: Alex Leibovich <alexl@marvell.com>
-> > >
-> > > Automatic Clock Gating is a feature used for the power
-> > > consumption optimisation. It turned out that
-> > > during early init phase it may prevent the stable voltage
-> > > switch to 1.8V - due to that on some platfroms an endless
-> > > printout in dmesg can be observed:
-> > > "mmc1: 1.8V regulator output did not became stable"
-> > > Fix the problem by disabling the ACG at very beginning
-> > > of the sdhci_init and let that be enabled later.
-> > >
-> > > Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC core f=
-unctionality")
-> > > Signed-off-by: Alex Leibovich <alexl@marvell.com>
-> > > Signed-off-by: Marcin Wojtas <mw@semihalf.com>
-> > > Cc: stable@vger.kernel.org
-> >
-> > Applied for fixes (by fixing the typos), thanks!
->
-> Hello!
->
-> Is not this patch address same issue which was fixed by patch which was
-> merged earlier?
->
-> bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying 1.8V regulator warning")
-> https://lore.kernel.org/linux-mmc/CAPDyKFqAsvgAjfL-c9ukFNWeGJmufQosR2Eg9S=
-KjXMVpNitdkA@mail.gmail.com/
->
+This breaks the pinctrl-microchip-sgpio driver as far as I can see.
 
-This indeed look similar. This fix was originally developed for CN913x
-platform without the mentioned patch (I'm wondering if it would also
-suffice to fix A3k board's problem). Anyway, I don't think we have an
-issue here, as everything seems to work fine on top of mainline Linux
-with both changes.
+I tried to debug it and this is what I have discovered so far:
+ (1) the sgpio driver will use the gpio_stub_drv for its child nodes.
+     Looks like a workaround, see [1].
+ (2) these will have an empty gpio range
+ (3) with the changes of this patch, pinctrl_gpio_request() will now
+     be called and will fail with -EPROBE_DEFER.
 
-Best regards,
-Marcin
+I'm not exactly sure what to do here. Saravana Kannan once suggested
+to use devm_of_platform_populate() to probe the child nodes [2]. But
+I haven't found any other driver doing that.
 
-> > Kind regards
-> > Uffe
-> >
-> >
-> > > ---
-> > >  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
-> > >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-=
-xenon.c
-> > > index c67611fdaa8a..4b05f6fdefb4 100644
-> > > --- a/drivers/mmc/host/sdhci-xenon.c
-> > > +++ b/drivers/mmc/host/sdhci-xenon.c
-> > > @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sdhci_host *=
-host,
-> > >         /* Disable tuning request and auto-retuning again */
-> > >         xenon_retune_setup(host);
-> > >
-> > > -       xenon_set_acg(host, true);
-> > > +       /*
-> > > +        * The ACG should be turned off at the early init time, in or=
-der
-> > > +        * to solve a possile issues with the 1.8V regulator stabiliz=
-ation.
-> > > +        * The feature is enabled in later stage.
-> > > +        */
-> > > +       xenon_set_acg(host, false);
-> > >
-> > >         xenon_set_sdclk_off_idle(host, sdhc_id, false);
-> > >
-> > > --
-> > > 2.29.0
-> > >
+Also, I'm not sure if there are any other other driver which get
+broken by this. I.e. ones falling into the gpio_stub_drv category.
+
+[1] https://lore.kernel.org/lkml/20210122193600.1415639-1-saravanak@google.com/
+[2] https://lore.kernel.org/lkml/CAGETcx9PiX==mLxB9PO8Myyk6u2vhPVwTMsA5NkD-ywH5xhusw@mail.gmail.com/
+
+-michael
+
+NB. this patch doesn't contain a Fixes tag. Was this on purpose?
