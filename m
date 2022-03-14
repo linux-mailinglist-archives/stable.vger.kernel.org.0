@@ -2,56 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD9F94D889C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 16:55:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0D74D8920
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 17:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242796AbiCNP4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 11:56:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40886 "EHLO
+        id S243033AbiCNQbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 12:31:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242605AbiCNP4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 11:56:30 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [176.9.125.105])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF4E3ED3E;
-        Mon, 14 Mar 2022 08:55:19 -0700 (PDT)
-Received: from mwalle01.kontron.local. (unknown [213.135.10.150])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id CF79C2222E;
-        Mon, 14 Mar 2022 16:55:14 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1647273317;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bESQLLsW9UA6Y/GBZonv6IQcBfHiM3XWrdn1bAk3zJM=;
-        b=ufRCp9RjbPdcTjoSyh7FiO1rs4CJiG0W0oAlrdrAN3rY9R80dZqjzva0a8TIibYhHmTi6V
-        0tu/SFedIcGQD1gXbGr6tzo+w8mMQ/zHw7/wpbtR2mGSOPobA5KROdsO9JzKTx4/SJBWId
-        dsXQsC+PCF5GzyJEMPvGUMVBHcFXLmk=
-From:   Michael Walle <michael@walle.cc>
-To:     marcelo.jimenez@gmail.com
-Cc:     achant@google.com, brgl@bgdev.pl, edmondchung@google.com,
-        geert@linux-m68k.org, linus.walleij@linaro.org,
-        linux-gpio@vger.kernel.org, regressions@lists.linux.dev,
-        sfr@canb.auug.org.au, stable@vger.kernel.org,
-        tanzilli@acmesystems.it, treding@nvidia.com, vidyas@nvidia.com,
-        willmcvicker@google.com,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Michael Walle <michael@walle.cc>
-Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-Date:   Mon, 14 Mar 2022 16:55:09 +0100
-Message-Id: <20220314155509.552218-1-michael@walle.cc>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
-References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
+        with ESMTP id S243073AbiCNQbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 12:31:41 -0400
+Received: from sender4-of-o53.zoho.com (sender4-of-o53.zoho.com [136.143.188.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C645E220CF
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 09:30:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1647274494; cv=none; 
+        d=zohomail.com; s=zohoarc; 
+        b=axCrQtr+KDzg7MysSAuV72E38IwSKOOG8tldIxi0Jt4KJuGQ/MB2oU5Efb8Oi7TXQx2P0Y9qbmuuOYXlF9fCQMOQIlIFRolN36iA5y4fP4LXe9wZrzbHFEPoCDxvGo/GNAstHc0AwiAgM3c04Uz/WxebHVuNE23810Eo9SnBn/g=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+        t=1647274494; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=SYTvhP0m/Gx6FXYlVdSO0C6zDPWvwPEWDnbNrpmJslc=; 
+        b=VirgvikMNoWtvfDuPCoT8IPdy/QRh1eZv2gM5IyiCt2ghxSZCEZiQzoaLodMb39FZXYwwoRrkS+Z+AvA/dK0X8MDCGrt+At1XeNYY3sjHZ6qNbR3ppoVZ/pMZbFIgy/V+JqiMzHUpp+3f91GO49CBg/Egns34g77vgUOPo3nCAE=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+        dkim=pass  header.i=anirudhrb.com;
+        spf=pass  smtp.mailfrom=mail@anirudhrb.com;
+        dmarc=pass header.from=<mail@anirudhrb.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1647274494;
+        s=zoho; d=anirudhrb.com; i=mail@anirudhrb.com;
+        h=Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To:Message-Id:Reply-To;
+        bh=SYTvhP0m/Gx6FXYlVdSO0C6zDPWvwPEWDnbNrpmJslc=;
+        b=sDoZhSh1QgIfwPKqQ6/oLh5/4Q5FuTJDCj5LQYB14um6TzQBe158uvdUbG86LgH0
+        GDLejfH9A3vpQgjpAPgGOB1qqrmVIMBXuoZAgeoIi7nU+noXLk7N7fO48M9gKwna5Ts
+        Q5HpTQfbFndOH6sn9v4DTRApoivsYLxmvsKa36x0=
+Received: from anirudhrb.com (49.207.221.223 [49.207.221.223]) by mx.zohomail.com
+        with SMTPS id 1647274491104743.6587593231992; Mon, 14 Mar 2022 09:14:51 -0700 (PDT)
+Date:   Mon, 14 Mar 2022 21:44:43 +0530
+From:   Anirudh Rayabharam <mail@anirudhrb.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com
+Subject: Re: [PATCH 5.15 015/110] vhost: fix hung thread due to erroneous
+ iotlb entries
+Message-ID: <Yi9p8xsrWV+GD9c3@anirudhrb.com>
+References: <20220314112743.029192918@linuxfoundation.org>
+ <20220314112743.460512435@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220314112743.460512435@linuxfoundation.org>
+X-ZohoMailClient: External
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,42 +62,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-> Some GPIO lines have stopped working after the patch
-> commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+Mon, Mar 14, 2022 at 12:53:17PM +0100, Greg Kroah-Hartman wrote:
+> From: Anirudh Rayabharam <mail@anirudhrb.com>
 > 
-> And this has supposedly been fixed in the following patches
-> commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
-> commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
+> [ Upstream commit e2ae38cf3d91837a493cb2093c87700ff3cbe667 ]
+
+This breaks batching of IOTLB messages. [1] fixes it but hasn't landed in
+Linus' tree yet.
+
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=linux-next&id=95932ab2ea07b79cdb33121e2f40ccda9e6a73b5
+
+	- Anirudh.
 > 
-> But an erratic behavior where some GPIO lines work while others do not work
-> has been introduced.
+> In vhost_iotlb_add_range_ctx(), range size can overflow to 0 when
+> start is 0 and last is ULONG_MAX. One instance where it can happen
+> is when userspace sends an IOTLB message with iova=size=uaddr=0
+> (vhost_process_iotlb_msg). So, an entry with size = 0, start = 0,
+> last = ULONG_MAX ends up in the iotlb. Next time a packet is sent,
+> iotlb_access_ok() loops indefinitely due to that erroneous entry.
 > 
-> This patch reverts those changes so that the sysfs-gpio interface works
-> properly again.
+> 	Call Trace:
+> 	 <TASK>
+> 	 iotlb_access_ok+0x21b/0x3e0 drivers/vhost/vhost.c:1340
+> 	 vq_meta_prefetch+0xbc/0x280 drivers/vhost/vhost.c:1366
+> 	 vhost_transport_do_send_pkt+0xe0/0xfd0 drivers/vhost/vsock.c:104
+> 	 vhost_worker+0x23d/0x3d0 drivers/vhost/vhost.c:372
+> 	 kthread+0x2e9/0x3a0 kernel/kthread.c:377
+> 	 ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+> 	 </TASK>
 > 
-> Signed-off-by: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
-
-This breaks the pinctrl-microchip-sgpio driver as far as I can see.
-
-I tried to debug it and this is what I have discovered so far:
- (1) the sgpio driver will use the gpio_stub_drv for its child nodes.
-     Looks like a workaround, see [1].
- (2) these will have an empty gpio range
- (3) with the changes of this patch, pinctrl_gpio_request() will now
-     be called and will fail with -EPROBE_DEFER.
-
-I'm not exactly sure what to do here. Saravana Kannan once suggested
-to use devm_of_platform_populate() to probe the child nodes [2]. But
-I haven't found any other driver doing that.
-
-Also, I'm not sure if there are any other other driver which get
-broken by this. I.e. ones falling into the gpio_stub_drv category.
-
-[1] https://lore.kernel.org/lkml/20210122193600.1415639-1-saravanak@google.com/
-[2] https://lore.kernel.org/lkml/CAGETcx9PiX==mLxB9PO8Myyk6u2vhPVwTMsA5NkD-ywH5xhusw@mail.gmail.com/
-
--michael
-
-NB. this patch doesn't contain a Fixes tag. Was this on purpose?
+> Reported by syzbot at:
+> 	https://syzkaller.appspot.com/bug?extid=0abd373e2e50d704db87
+> 
+> To fix this, do two things:
+> 
+> 1. Return -EINVAL in vhost_chr_write_iter() when userspace asks to map
+>    a range with size 0.
+> 2. Fix vhost_iotlb_add_range_ctx() to handle the range [0, ULONG_MAX]
+>    by splitting it into two entries.
+> 
+> Fixes: 0bbe30668d89e ("vhost: factor out IOTLB")
+> Reported-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
+> Tested-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
+> Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+> Link: https://lore.kernel.org/r/20220305095525.5145-1-mail@anirudhrb.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/vhost/iotlb.c | 11 +++++++++++
+>  drivers/vhost/vhost.c |  5 +++++
+>  2 files changed, 16 insertions(+)
+> 
+> diff --git a/drivers/vhost/iotlb.c b/drivers/vhost/iotlb.c
+> index 670d56c879e5..40b098320b2a 100644
+> --- a/drivers/vhost/iotlb.c
+> +++ b/drivers/vhost/iotlb.c
+> @@ -57,6 +57,17 @@ int vhost_iotlb_add_range_ctx(struct vhost_iotlb *iotlb,
+>  	if (last < start)
+>  		return -EFAULT;
+>  
+> +	/* If the range being mapped is [0, ULONG_MAX], split it into two entries
+> +	 * otherwise its size would overflow u64.
+> +	 */
+> +	if (start == 0 && last == ULONG_MAX) {
+> +		u64 mid = last / 2;
+> +
+> +		vhost_iotlb_add_range_ctx(iotlb, start, mid, addr, perm, opaque);
+> +		addr += mid + 1;
+> +		start = mid + 1;
+> +	}
+> +
+>  	if (iotlb->limit &&
+>  	    iotlb->nmaps == iotlb->limit &&
+>  	    iotlb->flags & VHOST_IOTLB_FLAG_RETIRE) {
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 59edb5a1ffe2..55475fd59fb7 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1170,6 +1170,11 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+>  		goto done;
+>  	}
+>  
+> +	if (msg.size == 0) {
+> +		ret = -EINVAL;
+> +		goto done;
+> +	}
+> +
+>  	if (dev->msg_handler)
+>  		ret = dev->msg_handler(dev, &msg);
+>  	else
+> -- 
+> 2.34.1
+> 
+> 
+> 
