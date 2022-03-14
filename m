@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 054034D82EE
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 981934D822D
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:00:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240756AbiCNMLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:11:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49086 "EHLO
+        id S240104AbiCNMAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:00:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242292AbiCNMJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A111D26558;
-        Mon, 14 Mar 2022 05:07:02 -0700 (PDT)
+        with ESMTP id S240013AbiCNMA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:00:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB62C4889D;
+        Mon, 14 Mar 2022 04:58:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2E92B80DED;
-        Mon, 14 Mar 2022 12:06:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48CF0C340E9;
-        Mon, 14 Mar 2022 12:06:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDF726112C;
+        Mon, 14 Mar 2022 11:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBB6C340E9;
+        Mon, 14 Mar 2022 11:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259616;
-        bh=i7xv0jglIHn4FUUINh7I6a5MJYZqrXrWYxEtF5hnFLA=;
+        s=korg; t=1647259107;
+        bh=kDWoLuWgZbLNWaa6/v39LlhzFzcWPnnk35/x3JNIiTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsP2ODDZfTww0d0Op/XUZl0cVg45FWqxFjfxbNuXZuFsE02yAvmqBPoaOyqanExn1
-         pWAvY/DRJNldsSqENMGWBs230Ni3+CAVL1b9syghAqSrYKD9O++SPOCkBKoE+UMDEU
-         SCB4VHnJZOPpO1yHG6Mb4Zu2GdvQXK21pypj5L5g=
+        b=zt0xP2udjWvlKPR0pQWe/McSEYI43w5kfQtdiZILLytBkqaTgWmW247GrsWyaiUO0
+         WBD4YQjHbWI8exoCWrYTZtv4GRzlvk0Xfow8ZmzTEOjJsY6nc5qpIUKDy2+qXMpne3
+         MMi7ti+XPrZljT3wm/1E2Sw/HteRx3aW7t+8frw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Peter Robinson <pbrobinson@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/110] net: bcmgenet: Dont claim WOL when its not available
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Liam Merwick <liam.merwick@oracle.com>
+Subject: [PATCH 5.4 41/43] x86/cpu: Add hardware-enforced cache coherency as a CPUID feature
 Date:   Mon, 14 Mar 2022 12:53:52 +0100
-Message-Id: <20220314112744.433400772@linuxfoundation.org>
+Message-Id: <20220314112735.572374391@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
+References: <20220314112734.415677317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Krish Sadhukhan <krish.sadhukhan@oracle.com>
 
-[ Upstream commit 00b022f8f876a3a036b0df7f971001bef6398605 ]
+commit 5866e9205b47a983a77ebc8654949f696342f2ab upstream.
 
-Some of the bcmgenet platforms don't correctly support WOL, yet
-ethtool returns:
+In some hardware implementations, coherency between the encrypted and
+unencrypted mappings of the same physical page is enforced. In such a system,
+it is not required for software to flush the page from all CPU caches in the
+system prior to changing the value of the C-bit for a page. This hardware-
+enforced cache coherency is indicated by EAX[10] in CPUID leaf 0x8000001f.
 
-"Supports Wake-on: gsf"
+ [ bp: Use one of the free slots in word 3. ]
 
-which is false.
-
-Ideally if there isn't a wol_irq, or there is something else that
-keeps the device from being able to wakeup it should display:
-
-"Supports Wake-on: d"
-
-This patch checks whether the device can wakup, before using the
-hard-coded supported flags. This corrects the ethtool reporting, as
-well as the WOL configuration because ethtool verifies that the mode
-is supported before attempting it.
-
-Fixes: c51de7f3976b ("net: bcmgenet: add Wake-on-LAN support code")
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220310045535.224450-1-jeremy.linton@arm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200917212038.5090-2-krish.sadhukhan@oracle.com
+Signed-off-by: Liam Merwick <liam.merwick@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/include/asm/cpufeatures.h |    2 +-
+ arch/x86/kernel/cpu/scattered.c    |    1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-index e31a5a397f11..f55d9d9c01a8 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -40,6 +40,13 @@
- void bcmgenet_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
-+	struct device *kdev = &priv->pdev->dev;
-+
-+	if (!device_can_wakeup(kdev)) {
-+		wol->supported = 0;
-+		wol->wolopts = 0;
-+		return;
-+	}
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -96,7 +96,7 @@
+ #define X86_FEATURE_SYSCALL32		( 3*32+14) /* "" syscall in IA32 userspace */
+ #define X86_FEATURE_SYSENTER32		( 3*32+15) /* "" sysenter in IA32 userspace */
+ #define X86_FEATURE_REP_GOOD		( 3*32+16) /* REP microcode works well */
+-/* free					( 3*32+17) */
++#define X86_FEATURE_SME_COHERENT	( 3*32+17) /* "" AMD hardware-enforced cache coherency */
+ #define X86_FEATURE_LFENCE_RDTSC	( 3*32+18) /* "" LFENCE synchronizes RDTSC */
+ #define X86_FEATURE_ACC_POWER		( 3*32+19) /* AMD Accumulated Power Mechanism */
+ #define X86_FEATURE_NOPL		( 3*32+20) /* The NOPL (0F 1F) instructions */
+--- a/arch/x86/kernel/cpu/scattered.c
++++ b/arch/x86/kernel/cpu/scattered.c
+@@ -41,6 +41,7 @@ static const struct cpuid_bit cpuid_bits
+ 	{ X86_FEATURE_MBA,		CPUID_EBX,  6, 0x80000008, 0 },
+ 	{ X86_FEATURE_SME,		CPUID_EAX,  0, 0x8000001f, 0 },
+ 	{ X86_FEATURE_SEV,		CPUID_EAX,  1, 0x8000001f, 0 },
++	{ X86_FEATURE_SME_COHERENT,	CPUID_EAX, 10, 0x8000001f, 0 },
+ 	{ 0, 0, 0, 0, 0 }
+ };
  
- 	wol->supported = WAKE_MAGIC | WAKE_MAGICSECURE | WAKE_FILTER;
- 	wol->wolopts = priv->wolopts;
--- 
-2.34.1
-
 
 
