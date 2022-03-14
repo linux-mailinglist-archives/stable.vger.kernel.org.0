@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 981934D822D
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:00:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6FA54D83F1
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240104AbiCNMAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:00:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41478 "EHLO
+        id S237084AbiCNMWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240013AbiCNMA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:00:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB62C4889D;
-        Mon, 14 Mar 2022 04:58:34 -0700 (PDT)
+        with ESMTP id S242759AbiCNMTi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2C43C72F;
+        Mon, 14 Mar 2022 05:14:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDF726112C;
-        Mon, 14 Mar 2022 11:58:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBB6C340E9;
-        Mon, 14 Mar 2022 11:58:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54A81B80DEB;
+        Mon, 14 Mar 2022 12:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE1A9C340E9;
+        Mon, 14 Mar 2022 12:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259107;
-        bh=kDWoLuWgZbLNWaa6/v39LlhzFzcWPnnk35/x3JNIiTI=;
+        s=korg; t=1647260079;
+        bh=o1qmkW3ZoAZBrUFAtR437fZ26gI3ph1x0mg6GeiVfAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zt0xP2udjWvlKPR0pQWe/McSEYI43w5kfQtdiZILLytBkqaTgWmW247GrsWyaiUO0
-         WBD4YQjHbWI8exoCWrYTZtv4GRzlvk0Xfow8ZmzTEOjJsY6nc5qpIUKDy2+qXMpne3
-         MMi7ti+XPrZljT3wm/1E2Sw/HteRx3aW7t+8frw0=
+        b=zAScQ5yjNmBaUK+zOAkWDtZBHeI6+p5p9c/jjqOoe/gcthY38xpxpj0pmvbWPy/2u
+         IHNUkADb6t0ZVZh5K3thV5B3+mtHvl8WiX05Jf7lYF9UZh/giQYxfbD9ilRJ8v6Ntt
+         5Q43DuNRhf+9D/u6T1Kj0e8N7aTBD8w1wIvGnrn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Liam Merwick <liam.merwick@oracle.com>
-Subject: [PATCH 5.4 41/43] x86/cpu: Add hardware-enforced cache coherency as a CPUID feature
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
+Subject: [PATCH 5.16 049/121] NFC: port100: fix use-after-free in port100_send_complete
 Date:   Mon, 14 Mar 2022 12:53:52 +0100
-Message-Id: <20220314112735.572374391@linuxfoundation.org>
+Message-Id: <20220314112745.495119683@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 5866e9205b47a983a77ebc8654949f696342f2ab upstream.
+[ Upstream commit f80cfe2f26581f188429c12bd937eb905ad3ac7b ]
 
-In some hardware implementations, coherency between the encrypted and
-unencrypted mappings of the same physical page is enforced. In such a system,
-it is not required for software to flush the page from all CPU caches in the
-system prior to changing the value of the C-bit for a page. This hardware-
-enforced cache coherency is indicated by EAX[10] in CPUID leaf 0x8000001f.
+Syzbot reported UAF in port100_send_complete(). The root case is in
+missing usb_kill_urb() calls on error handling path of ->probe function.
 
- [ bp: Use one of the free slots in word 3. ]
+port100_send_complete() accesses devm allocated memory which will be
+freed on probe failure. We should kill this urbs before returning an
+error from probe function to prevent reported use-after-free
 
-Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200917212038.5090-2-krish.sadhukhan@oracle.com
-Signed-off-by: Liam Merwick <liam.merwick@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fail log:
+
+BUG: KASAN: use-after-free in port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
+Read of size 1 at addr ffff88801bb59540 by task ksoftirqd/2/26
+...
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
+ port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
+ __usb_hcd_giveback_urb+0x2b0/0x5c0 drivers/usb/core/hcd.c:1670
+
+...
+
+Allocated by task 1255:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:45 [inline]
+ set_alloc_info mm/kasan/common.c:436 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:515 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:474 [inline]
+ __kasan_kmalloc+0xa6/0xd0 mm/kasan/common.c:524
+ alloc_dr drivers/base/devres.c:116 [inline]
+ devm_kmalloc+0x96/0x1d0 drivers/base/devres.c:823
+ devm_kzalloc include/linux/device.h:209 [inline]
+ port100_probe+0x8a/0x1320 drivers/nfc/port100.c:1502
+
+Freed by task 1255:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+ kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+ ____kasan_slab_free mm/kasan/common.c:366 [inline]
+ ____kasan_slab_free+0xff/0x140 mm/kasan/common.c:328
+ kasan_slab_free include/linux/kasan.h:236 [inline]
+ __cache_free mm/slab.c:3437 [inline]
+ kfree+0xf8/0x2b0 mm/slab.c:3794
+ release_nodes+0x112/0x1a0 drivers/base/devres.c:501
+ devres_release_all+0x114/0x190 drivers/base/devres.c:530
+ really_probe+0x626/0xcc0 drivers/base/dd.c:670
+
+Reported-and-tested-by: syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
+Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20220308185007.6987-1-paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    2 +-
- arch/x86/kernel/cpu/scattered.c    |    1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/nfc/port100.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -96,7 +96,7 @@
- #define X86_FEATURE_SYSCALL32		( 3*32+14) /* "" syscall in IA32 userspace */
- #define X86_FEATURE_SYSENTER32		( 3*32+15) /* "" sysenter in IA32 userspace */
- #define X86_FEATURE_REP_GOOD		( 3*32+16) /* REP microcode works well */
--/* free					( 3*32+17) */
-+#define X86_FEATURE_SME_COHERENT	( 3*32+17) /* "" AMD hardware-enforced cache coherency */
- #define X86_FEATURE_LFENCE_RDTSC	( 3*32+18) /* "" LFENCE synchronizes RDTSC */
- #define X86_FEATURE_ACC_POWER		( 3*32+19) /* AMD Accumulated Power Mechanism */
- #define X86_FEATURE_NOPL		( 3*32+20) /* The NOPL (0F 1F) instructions */
---- a/arch/x86/kernel/cpu/scattered.c
-+++ b/arch/x86/kernel/cpu/scattered.c
-@@ -41,6 +41,7 @@ static const struct cpuid_bit cpuid_bits
- 	{ X86_FEATURE_MBA,		CPUID_EBX,  6, 0x80000008, 0 },
- 	{ X86_FEATURE_SME,		CPUID_EAX,  0, 0x8000001f, 0 },
- 	{ X86_FEATURE_SEV,		CPUID_EAX,  1, 0x8000001f, 0 },
-+	{ X86_FEATURE_SME_COHERENT,	CPUID_EAX, 10, 0x8000001f, 0 },
- 	{ 0, 0, 0, 0, 0 }
- };
+diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
+index d7db1a0e6be1..00d8ea6dcb5d 100644
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -1612,7 +1612,9 @@ static int port100_probe(struct usb_interface *interface,
+ 	nfc_digital_free_device(dev->nfc_digital_dev);
  
+ error:
++	usb_kill_urb(dev->in_urb);
+ 	usb_free_urb(dev->in_urb);
++	usb_kill_urb(dev->out_urb);
+ 	usb_free_urb(dev->out_urb);
+ 	usb_put_dev(dev->udev);
+ 
+-- 
+2.34.1
+
 
 
