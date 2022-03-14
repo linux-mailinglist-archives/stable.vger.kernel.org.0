@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B9F4D8310
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8A34D82B3
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:05:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240802AbiCNMMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48704 "EHLO
+        id S240524AbiCNMG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:06:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242355AbiCNMJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9262715E;
-        Mon, 14 Mar 2022 05:07:19 -0700 (PDT)
+        with ESMTP id S240649AbiCNMG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:06:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B701263E;
+        Mon, 14 Mar 2022 05:03:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED626130D;
-        Mon, 14 Mar 2022 12:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D89FC340E9;
-        Mon, 14 Mar 2022 12:07:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 906B1B80DEB;
+        Mon, 14 Mar 2022 12:02:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3692C340E9;
+        Mon, 14 Mar 2022 12:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259638;
-        bh=2o1LoqJAtWoL5H0rIhGX0s5a1sOKR+z79T2uz71pT8A=;
+        s=korg; t=1647259378;
+        bh=biVQO26JNhnpkhW6bbPtwyeL1122P5bPQiLIBuM1CHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hf96/YFAnrlnO0EHA8dRH8J/gT5bO21Uw/slO7FHhjcTPa9XbakqM7DG8mJzyfUZf
-         1P3Pb4YGCR75twjE8OzNs44dO7Qaju2iODgO0q1mCXYcRhB6BN3BdjwlmmJ7aJWZ/H
-         1u3AJ5BGKC36CfK2h5SwPWHKpaitpM9Zu/HmPR9Q=
+        b=KNgoaeBjT9uvF63gEMUXmeIq7Pt65X8a1ZOARaELOcd5lC/k3H0lmCnog2BOY64Ik
+         WuvjLbz+o2oShL77Q9CADpgYEUmJ8xKbTyVzDuujN97MUfVb2MNby2JHcey1plM/pp
+         Oda2qqgrobIt61YYlt+rqciNNJyj73W1jf9cyALg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 055/110] pinctrl: tigerlake: Revert "Add Alder Lake-M ACPI ID"
-Date:   Mon, 14 Mar 2022 12:53:57 +0100
-Message-Id: <20220314112744.571590223@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 65/71] watch_queue: Make comment about setting ->defunct more accurate
+Date:   Mon, 14 Mar 2022 12:53:58 +0100
+Message-Id: <20220314112739.758174190@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 6f66db29e2415cbe8759c48584f9cae19b3c2651 ]
+commit 4edc0760412b0c4ecefc7e02cb855b310b122825 upstream.
 
-It appears that last minute change moved ACPI ID of Alder Lake-M
-to the INTC1055, which is already in the driver.
+watch_queue_clear() has a comment stating that setting ->defunct to true
+preventing new additions as well as preventing notifications.  Whilst
+the latter is true, the first bit is superfluous since at the time this
+function is called, the pipe cannot be accessed to add new event
+sources.
 
-This ID on the other hand will be used elsewhere.
+Remove the "new additions" bit from the comment.
 
-This reverts commit 258435a1c8187f559549e515d2f77fa0b57bcd27.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/intel/pinctrl-tigerlake.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/watch_queue.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-tigerlake.c b/drivers/pinctrl/intel/pinctrl-tigerlake.c
-index 0bcd19597e4a..3ddaeffc0415 100644
---- a/drivers/pinctrl/intel/pinctrl-tigerlake.c
-+++ b/drivers/pinctrl/intel/pinctrl-tigerlake.c
-@@ -749,7 +749,6 @@ static const struct acpi_device_id tgl_pinctrl_acpi_match[] = {
- 	{ "INT34C5", (kernel_ulong_t)&tgllp_soc_data },
- 	{ "INT34C6", (kernel_ulong_t)&tglh_soc_data },
- 	{ "INTC1055", (kernel_ulong_t)&tgllp_soc_data },
--	{ "INTC1057", (kernel_ulong_t)&tgllp_soc_data },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, tgl_pinctrl_acpi_match);
--- 
-2.34.1
-
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -569,7 +569,7 @@ void watch_queue_clear(struct watch_queu
+ 	rcu_read_lock();
+ 	spin_lock_bh(&wqueue->lock);
+ 
+-	/* Prevent new additions and prevent notifications from happening */
++	/* Prevent new notifications from being stored. */
+ 	wqueue->defunct = true;
+ 
+ 	while (!hlist_empty(&wqueue->watches)) {
 
 
