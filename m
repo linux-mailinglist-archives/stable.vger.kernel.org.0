@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 099A04D82C2
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B24AD4D82AA
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240552AbiCNMLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:11:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49544 "EHLO
+        id S240420AbiCNMGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:06:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242306AbiCNMJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A1626ADB;
-        Mon, 14 Mar 2022 05:07:04 -0700 (PDT)
+        with ESMTP id S240572AbiCNMFv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7405A49254;
+        Mon, 14 Mar 2022 05:02:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5ABA5B80DEC;
-        Mon, 14 Mar 2022 12:07:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AB9C340E9;
-        Mon, 14 Mar 2022 12:06:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 242F9B80CDE;
+        Mon, 14 Mar 2022 12:02:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B7E1C340E9;
+        Mon, 14 Mar 2022 12:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259620;
-        bh=rg6mB/XZeyc4/94kQYCm4veWrHrTIgQhki3atHfiu7o=;
+        s=korg; t=1647259355;
+        bh=AUqtvabMwOT8H1tChuw/4DbeorIaoD6A+b5KC2+sjwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lt1LJ11zVOHvfNz135VdE1eXlp60KDPZHfPJ5XYhaP+ELjpUY0CqOTu9b0obWfRz3
-         kfZvex04kU+PTUHo6xi34lZIIYCr/f8EL5/nZaVSemZFhQxDZWro7Hqr/Fa/KHTecG
-         weL4TnJGF36SWijsWHp+jGgqRzrvUahGp2ZQsSz4=
+        b=rKL/TphBMrgtrdbfZaBHDED+NO+RiPW9Lsunxis4MtBi3UowW0UodK+HdPP6MWmtn
+         hQjfPJKC0xCUHG9hkqpzNjZ7XlKZRelh0AF+mRenchyKqHWaGlgs1ls0i72Vel5SQ8
+         C+sgF1OcOvpvgSWECXNUyW2wHeDdo47I/HsmMFiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erico Nunes <nunes.erico@gmail.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 051/110] net: phy: meson-gxl: improve link-up behavior
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 60/71] watch_queue: Fix to release page in ->release()
 Date:   Mon, 14 Mar 2022 12:53:53 +0100
-Message-Id: <20220314112744.461533566@linuxfoundation.org>
+Message-Id: <20220314112739.610601388@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 2c87c6f9fbddc5b84d67b2fa3f432fcac6d99d93 ]
+commit c1853fbadcba1497f4907971e7107888e0714c81 upstream.
 
-Sometimes the link comes up but no data flows. This patch fixes
-this behavior. It's not clear what's the root cause of the issue.
+When a pipe ring descriptor points to a notification message, the
+refcount on the backing page is incremented by the generic get function,
+but the release function, which marks the bitmap, doesn't drop the page
+ref.
 
-According to the tests one other link-up issue remains.
-In very rare cases the link isn't even reported as up.
+Fix this by calling generic_pipe_buf_release() at the end of
+watch_queue_pipe_buf_release().
 
-Fixes: 84c8f773d2dc ("net: phy: meson-gxl: remove the use of .ack_callback()")
-Tested-by: Erico Nunes <nunes.erico@gmail.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/e3473452-a1f9-efcf-5fdd-02b6f44c3fcd@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/meson-gxl.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ kernel/watch_queue.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
-index c49062ad72c6..73f7962a37d3 100644
---- a/drivers/net/phy/meson-gxl.c
-+++ b/drivers/net/phy/meson-gxl.c
-@@ -243,7 +243,13 @@ static irqreturn_t meson_gxl_handle_interrupt(struct phy_device *phydev)
- 	    irq_status == INTSRC_ENERGY_DETECT)
- 		return IRQ_HANDLED;
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -54,6 +54,7 @@ static void watch_queue_pipe_buf_release
+ 	bit += page->index;
  
--	phy_trigger_machine(phydev);
-+	/* Give PHY some time before MAC starts sending data. This works
-+	 * around an issue where network doesn't come up properly.
-+	 */
-+	if (!(irq_status & INTSRC_LINK_DOWN))
-+		phy_queue_state_machine(phydev, msecs_to_jiffies(100));
-+	else
-+		phy_trigger_machine(phydev);
- 
- 	return IRQ_HANDLED;
+ 	set_bit(bit, wqueue->notes_bitmap);
++	generic_pipe_buf_release(pipe, buf);
  }
--- 
-2.34.1
-
+ 
+ // No try_steal function => no stealing
 
 
