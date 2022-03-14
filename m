@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 686F64D82E4
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A43154D81DA
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240880AbiCNMLn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:11:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32956 "EHLO
+        id S239903AbiCNL5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241535AbiCNMIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71B074EF70;
-        Mon, 14 Mar 2022 05:05:30 -0700 (PDT)
+        with ESMTP id S239901AbiCNL5d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:57:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D599065D5;
+        Mon, 14 Mar 2022 04:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B1616130F;
-        Mon, 14 Mar 2022 12:05:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29757C340E9;
-        Mon, 14 Mar 2022 12:05:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 897FEB80DE7;
+        Mon, 14 Mar 2022 11:56:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CD1C340F6;
+        Mon, 14 Mar 2022 11:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259524;
-        bh=p4EKcTt07OqmThVWmyMD0BmzwIgGQvP1W3AY+ND+VVw=;
+        s=korg; t=1647258970;
+        bh=l6Ptax5zkqbAg7M7R3uEW8fiuql9E2IUiMxC3rOUSpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6i8l4NhiMB/kHjKp21jh8SJ2E8D7qa2RRNOIMt1LTLu5+zl45MNz4gfMWJYB09r8
-         XEjArXiFfIN8gC09WXrj//H2BvCIBRLaS+NMDBBtaDuuTT8dhG4sruVDWx7eCDvZLE
-         ru79FdnYpFQbyfdCSIBJ7Rllyu77DVBT5/5fDnP4=
+        b=1EddiIIramcGaxaur1bj7QDC3fAMZmqWr717+LuBg7FhCH3KRdXTo6Q7vIE2gkoOo
+         3qs9mWTiImrWHuMMFOszHTS8Spkkjfi1DnkqXbLbFfFh6tzBCmRfqsIZQK40nWVxtf
+         B6fJiLZD7ZZfVUWMZW5Kz7L5tmkS7HUn44pYXhBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/110] ARM: dts: aspeed: Fix AST2600 quad spi group
-Date:   Mon, 14 Mar 2022 12:53:29 +0100
-Message-Id: <20220314112743.793035407@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 19/43] sctp: fix kernel-infoleak for SCTP sockets
+Date:   Mon, 14 Mar 2022 12:53:30 +0100
+Message-Id: <20220314112734.957673523@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
+References: <20220314112734.415677317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +59,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 2f6edb6bcb2f3f41d876e0eba2ba97f87a0296ea ]
+[ Upstream commit 633593a808980f82d251d0ca89730d8bb8b0220c ]
 
-Requesting quad mode for the FMC resulted in an error:
+syzbot reported a kernel infoleak [1] of 4 bytes.
 
-  &fmc {
-         status = "okay";
- +       pinctrl-names = "default";
- +       pinctrl-0 = <&pinctrl_fwqspi_default>'
+After analysis, it turned out r->idiag_expires is not initialized
+if inet_sctp_diag_fill() calls inet_diag_msg_common_fill()
 
-[    0.742963] aspeed-g6-pinctrl 1e6e2000.syscon:pinctrl: invalid function FWQSPID in map table
-￼
+Make sure to clear idiag_timer/idiag_retrans/idiag_expires
+and let inet_diag_msg_sctpasoc_fill() fill them again if needed.
 
-This is because the quad mode pins are a group of pins, not a function.
+[1]
 
-After applying this patch we can request the pins and the QSPI data
-lines are muxed:
+BUG: KMSAN: kernel-infoleak in instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+BUG: KMSAN: kernel-infoleak in copyout lib/iov_iter.c:154 [inline]
+BUG: KMSAN: kernel-infoleak in _copy_to_iter+0x6ef/0x25a0 lib/iov_iter.c:668
+ instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+ copyout lib/iov_iter.c:154 [inline]
+ _copy_to_iter+0x6ef/0x25a0 lib/iov_iter.c:668
+ copy_to_iter include/linux/uio.h:162 [inline]
+ simple_copy_to_iter+0xf3/0x140 net/core/datagram.c:519
+ __skb_datagram_iter+0x2d5/0x11b0 net/core/datagram.c:425
+ skb_copy_datagram_iter+0xdc/0x270 net/core/datagram.c:533
+ skb_copy_datagram_msg include/linux/skbuff.h:3696 [inline]
+ netlink_recvmsg+0x669/0x1c80 net/netlink/af_netlink.c:1977
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ __sys_recvfrom+0x795/0xa10 net/socket.c:2097
+ __do_sys_recvfrom net/socket.c:2115 [inline]
+ __se_sys_recvfrom net/socket.c:2111 [inline]
+ __x64_sys_recvfrom+0x19d/0x210 net/socket.c:2111
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
- # cat /sys/kernel/debug/pinctrl/1e6e2000.syscon\:pinctrl-aspeed-g6-pinctrl/pinmux-pins |grep 1e620000.spi
- pin 196 (AE12): device 1e620000.spi function FWSPID group FWQSPID
- pin 197 (AF12): device 1e620000.spi function FWSPID group FWQSPID
- pin 240 (Y1): device 1e620000.spi function FWSPID group FWQSPID
- pin 241 (Y2): device 1e620000.spi function FWSPID group FWQSPID
- pin 242 (Y3): device 1e620000.spi function FWSPID group FWQSPID
- pin 243 (Y4): device 1e620000.spi function FWSPID group FWQSPID
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:737 [inline]
+ slab_alloc_node mm/slub.c:3247 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4975
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1158 [inline]
+ netlink_dump+0x3e5/0x16c0 net/netlink/af_netlink.c:2248
+ __netlink_dump_start+0xcf8/0xe90 net/netlink/af_netlink.c:2373
+ netlink_dump_start include/linux/netlink.h:254 [inline]
+ inet_diag_handler_cmd+0x2e7/0x400 net/ipv4/inet_diag.c:1341
+ sock_diag_rcv_msg+0x24a/0x620
+ netlink_rcv_skb+0x40c/0x7e0 net/netlink/af_netlink.c:2494
+ sock_diag_rcv+0x63/0x80 net/core/sock_diag.c:277
+ netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
+ netlink_unicast+0x1093/0x1360 net/netlink/af_netlink.c:1343
+ netlink_sendmsg+0x14d9/0x1720 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ sock_write_iter+0x594/0x690 net/socket.c:1061
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_write+0x52c/0x1500 fs/read_write.c:851
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: f510f04c8c83 ("ARM: dts: aspeed: Add AST2600 pinmux nodes")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au
-Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Bytes 68-71 of 2508 are uninitialized
+Memory access of size 2508 starts at ffff888114f9b000
+Data copied to user address 00007f7fe09ff2e0
+
+CPU: 1 PID: 3478 Comm: syz-executor306 Not tainted 5.17.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 8f840e47f190 ("sctp: add the sctp_diag.c file")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Vlad Yasevich <vyasevich@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/20220310001145.297371-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/diag.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-index 6dde51c2aed3..e4775bbceecc 100644
---- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-@@ -118,7 +118,7 @@ pinctrl_fwspid_default: fwspid_default {
- 	};
+diff --git a/net/sctp/diag.c b/net/sctp/diag.c
+index 7921e77fa55a..5a918e74bb82 100644
+--- a/net/sctp/diag.c
++++ b/net/sctp/diag.c
+@@ -61,10 +61,6 @@ static void inet_diag_msg_sctpasoc_fill(struct inet_diag_msg *r,
+ 		r->idiag_timer = SCTP_EVENT_TIMEOUT_T3_RTX;
+ 		r->idiag_retrans = asoc->rtx_data_chunks;
+ 		r->idiag_expires = jiffies_to_msecs(t3_rtx->expires - jiffies);
+-	} else {
+-		r->idiag_timer = 0;
+-		r->idiag_retrans = 0;
+-		r->idiag_expires = 0;
+ 	}
+ }
  
- 	pinctrl_fwqspid_default: fwqspid_default {
--		function = "FWQSPID";
-+		function = "FWSPID";
- 		groups = "FWQSPID";
- 	};
+@@ -144,13 +140,14 @@ static int inet_sctp_diag_fill(struct sock *sk, struct sctp_association *asoc,
+ 	r = nlmsg_data(nlh);
+ 	BUG_ON(!sk_fullsock(sk));
  
++	r->idiag_timer = 0;
++	r->idiag_retrans = 0;
++	r->idiag_expires = 0;
+ 	if (asoc) {
+ 		inet_diag_msg_sctpasoc_fill(r, sk, asoc);
+ 	} else {
+ 		inet_diag_msg_common_fill(r, sk);
+ 		r->idiag_state = sk->sk_state;
+-		r->idiag_timer = 0;
+-		r->idiag_retrans = 0;
+ 	}
+ 
+ 	if (inet_diag_msg_attrs_fill(sk, skb, r, ext, user_ns, net_admin))
 -- 
 2.34.1
 
