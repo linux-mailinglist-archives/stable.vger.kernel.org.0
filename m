@@ -2,156 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D4E4D7AD8
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 07:36:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 942CD4D7ADD
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 07:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236376AbiCNGhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 02:37:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55076 "EHLO
+        id S236414AbiCNGig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 02:38:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234712AbiCNGhQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 02:37:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B335B3DA62;
-        Sun, 13 Mar 2022 23:36:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C82DB80D31;
-        Mon, 14 Mar 2022 06:36:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F1DBC340E9;
-        Mon, 14 Mar 2022 06:35:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647239759;
-        bh=aVbMMJ1VfcBoCh49NksJD25dn7TRfZkkdfsctr9Rksk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Aru3va/n2U+njsRxdLOvUFJlsAvi5y8kJNpNjBf92aPhJdBJWJRsZVYqGKMzAIg0O
-         z8aWP5tMyjJ1506b1I4jkA36MDxAvIc0i37dPntESDwCVPzNAdzKyxo8VoMlF59ZDc
-         7riUO/IBWVgf3FFmdsdhI1NSgaYjrI8YkdP9qysU=
-Date:   Mon, 14 Mar 2022 07:35:49 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "A. Wilcox" <awilfox@adelielinux.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [BUG] arm64/m1: Accessing SYS_ID_AA64ISAR2_EL1 causes early boot
- failure on 5.15.28, 5.16.14, 5.17
-Message-ID: <Yi7iRSHaFGsYup1p@kroah.com>
-References: <32EA0FE1-5254-4A41-B684-AA2DEC021110@adelielinux.org>
+        with ESMTP id S229787AbiCNGif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 02:38:35 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00BD4403E7;
+        Sun, 13 Mar 2022 23:37:26 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id s11so13388318pfu.13;
+        Sun, 13 Mar 2022 23:37:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=iMJcv9ubCLFaXCjQftcG68FsrXlS8RsUXhTzNLm32HA=;
+        b=bWop7XSVxqRKr17UzCTLL4YmEzaWVfR/gAAvsfWVV30KLp/TPoTZUGTsx3uXcNTq5m
+         2+n98f48BV9TVMSUWrC7V5eHp1Wv0oY6+KQlrbfj6tmXTfJ7SfIg8e6qWD/8yFhibgia
+         w87vsgP6we7r/FeySUqP+a28J+IHhyLamBgOjUWIN3wYlYGKVUPAoQHYTtbwvdDyVz/Q
+         XX1W0MUiv9qLU3dbfT/jPratHDFV1Psftc9nkrNTRQIfJxCdzmtbC0CZD3sP2tMBq84u
+         O99y45etVTO21mFFncbnN1zsmM0R7nty8iNIDCWsruA8aDtGeop4kqAHzAkWOfPIxM5u
+         xAOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=iMJcv9ubCLFaXCjQftcG68FsrXlS8RsUXhTzNLm32HA=;
+        b=clpAruSUWC6KzVnUWi8EKq7FejZ8qJKEMV3JlrMg/R4rwzYDPug7cPL71dcqZmZ6wF
+         8iXpd7dQ1UcujJqGZi+EOoYvyAHJ3IUsMhFK17AScKgKojzBDmiKPkmseWIO4gfrTxl2
+         VRd9iRxlV7JMXXEnxS1NJo5NtWblItlbMVigvKCJwcTDCC/6X9vaUct2omLGdyd98WNR
+         M/sSffk7AuXje4oGZU9njbkWlBbZQEdwEh8FRE3YOa9vgtGHjqGD0R+fANaw7a3+cIRW
+         Yic1nNy6Kcaya77AsxpCm1f6/JI1Qf1sBcYeOi5uaZaS5Fe5QL1Y07WqdrxQe1nf6HNx
+         0fgw==
+X-Gm-Message-State: AOAM532ZCimWBIrc4tErMNhn+JLqhKX4UOPRzDysF1pM2Xj6fR3w6sV6
+        pAZ8JtFLWgi0E0QZUE3JlxTo5fmmYyUy9w==
+X-Google-Smtp-Source: ABdhPJz99X1JFaMwku7p3h3zlJyKIVqq/vJNpuKo2Ws/ONDHTb8XGmjKm+FC59eOi2WtF5nQisBAug==
+X-Received: by 2002:a05:6a00:1586:b0:4f7:56e2:7a8e with SMTP id u6-20020a056a00158600b004f756e27a8emr22202718pfk.70.1647239846378;
+        Sun, 13 Mar 2022 23:37:26 -0700 (PDT)
+Received: from [192.168.43.80] (subs32-116-206-28-42.three.co.id. [116.206.28.42])
+        by smtp.gmail.com with ESMTPSA id hg1-20020a17090b300100b001bf70e72794sm19604724pjb.40.2022.03.13.23.37.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 13 Mar 2022 23:37:25 -0700 (PDT)
+Message-ID: <4611d0fb-c8a2-8f23-ad6d-9c28b216a105@gmail.com>
+Date:   Mon, 14 Mar 2022 13:37:21 +0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <32EA0FE1-5254-4A41-B684-AA2DEC021110@adelielinux.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 2/4] Documentation: update stable review cycle
+ documentation
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-doc@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220312080043.37581-1-bagasdotme@gmail.com>
+ <20220312080043.37581-3-bagasdotme@gmail.com> <YixqnPTe0Wr6E1G3@kroah.com>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <YixqnPTe0Wr6E1G3@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 13, 2022 at 10:59:01PM -0500, A. Wilcox wrote:
-> Hello,
+On 12/03/22 16.40, Greg Kroah-Hartman wrote:
+>> diff --git a/Documentation/process/stable-kernel-rules.rst b/Documentation/process/stable-kernel-rules.rst
+>> index d8ce4c0c775..c0c87d87f7d 100644
+>> --- a/Documentation/process/stable-kernel-rules.rst
+>> +++ b/Documentation/process/stable-kernel-rules.rst
+>> @@ -139,6 +139,9 @@ Following the submission:
+>>      days, according to the developer's schedules.
+>>    - If accepted, the patch will be added to the -stable queue, for review by
+>>      other developers and by the relevant subsystem maintainer.
+>> + - Some submitted patches may fail to apply to -stable tree. When this is the
+>> +   case, the maintainer will reply to the sender requesting the backport.
 > 
-> I’ve been testing kernel updates for the Adélie Linux distribution’s ARM64 port using a Parallels VM on a MacBook Pro (13-inch, M1, 2020).  When the kernel attempts to access SYS_ID_AA64ISAR2_EL1, it causes a fault as seen here booting 5.17.0-rc8:
+> This is tricky, as yes, most of the time this happens, but there are
+> exceptions.  I would just leave this out for now as I don't think it
+> helps anyone, right?
 > 
-> 
-> [    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410f0000]
-> [    0.000000] Linux version 5.17.0-rc8-easy (awilcox@adelie-m1) (gcc (Adelie 8.3.0) 8.3.0, GNU ld (GNU Binutils) 2.32) #1 SMP Sun Mar 13 22:19:54 CDT 2022
-> [    0.000000] Machine model: Parallels ARM Virtual Machine
-> [    0.000000] earlycon: pl11 at MMIO 0x0000000002110000 (options '')
-> [    0.000000] printk: bootconsole [pl11] enabled
-> [    0.000000] efi: EFI v2.70 by EDK II
-> [    0.000000] ------------[ cut here ]------------
-> [    0.000000] kernel BUG at arch/arm64/kernel/traps.c:498!
-> [    0.000000] Internal error: Oops - BUG: 0 [#1] SMP
-> [    0.000000] Modules linked in:
-> [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.17.0-rc8-easy #1
-> [    0.000000] Hardware name: Parallels ARM Virtual Machine (DT)
-> [    0.000000] pstate: 004000c5 (nzcv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> [    0.000000] pc : do_undefinstr+0x4d0/0x5b0
-> [    0.000000] lr : do_undefinstr+0x21c/0x5b0
-> [    0.000000] sp : ffff800009763c00
-> [    0.000000] x29: ffff800009763c00 x28: ffff800009773680 x27: ffff8000093d0108
-> [    0.000000] x26: 0000000000000000 x25: ffff8000093d0108 x24: ffff8000091e5098
-> [    0.000000] x23: 00000000404000c5 x22: ffff8000080805e8 x21: 0000000138cfd000
-> [    0.000000] x20: ffff800009763c90 x19: ffff8000091e5098 x18: 0000000000000010
-> [    0.000000] x17: 000000000000036f x16: 0000000000014000 x15: 0000000400000000
-> [    0.000000] x14: 000000000000036f x13: 0000000400000000 x12: 000000000000036f
-> [    0.000000] x11: 0000000400000000 x10: 00000000005b0000 x9 : 000000013fa50000
-> [    0.000000] x8 : 0000000400000000 x7 : 0000000000000003 x6 : 0000000000000000
-> [    0.000000] x5 : 0000000000000000 x4 : ffff800009911108 x3 : 0000000000000000
-> [    0.000000] x2 : ffff800009775ac0 x1 : ffff800009911108 x0 : 00000000404000c5
-> [    0.000000] Call trace:
-> [    0.000000]  do_undefinstr+0x4d0/0x5b0
-> [    0.000000]  el1_undef+0x2c/0x48
-> [    0.000000]  el1h_64_sync_handler+0x8c/0xd0
-> [    0.000000]  el1h_64_sync+0x78/0x7c
-> [    0.000000]  __cpuinfo_store_cpu+0x70/0x230
-> [    0.000000]  cpuinfo_store_boot_cpu+0x28/0x54
-> [    0.000000]  smp_prepare_boot_cpu+0x2c/0x38
-> [    0.000000]  start_kernel+0x490/0x918
-> [    0.000000]  __primary_switched+0xc0/0xc8
-> [    0.000000] Code: 54fff641 17ffffa6 a9025bf5 f9001bf7 (d4210000) 
-> [    0.000000] ---[ end trace 0000000000000000 ]---
-> 
-> 
-> Disabling the access of SYS_ID_AA64ISAR2_EL1 in __cpuinfo_store_cpu causes failure a bit later on; this trace is taken from a 5.15.28 tree:
-> 
-> 
-> [    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410f0000]
-> [    0.000000] Linux version 5.15.28-mc1-easy (awilcox@adelie-m1) (gcc (Adelie 8.3.0) 8.3.0, GNU ld (GNU Binutils) 2.32) #1 SMP Sun Mar 13 21:17:53 CDT 2022
-> [    0.000000] Machine model: Parallels ARM Virtual Machine
-> [    0.000000] earlycon: pl11 at MMIO 0x0000000002110000 (options '')
-> [    0.000000] printk: bootconsole [pl11] enabled
-> [    0.000000] efi: EFI v2.70 by EDK II
-> [    0.000000] ------------[ cut here ]------------
-> [    0.000000] kernel BUG at arch/arm64/kernel/traps.c:498!
-> [    0.000000] Internal error: Oops - BUG: 0 [#1] SMP
-> [    0.000000] Modules linked in:
-> [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.28-mc1-easy #1
-> [    0.000000] Hardware name: Parallels ARM Virtual Machine (DT)
-> [    0.000000] pstate: 004000c5 (nzcv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> [    0.000000] pc : do_undefinstr+0x4d0/0x5b0
-> [    0.000000] lr : do_undefinstr+0x21c/0x5b0
-> [    0.000000] sp : ffff8000097b3b30
-> [    0.000000] x29: ffff8000097b3b30 x28: ffff8000097c3740 x27: 0000000000000020
-> [    0.000000] x26: ffff800008e737b8 x25: ffff80000995f540 x24: ffff8000092595d8
-> [    0.000000] x23: 00000000804000c5 x22: ffff800008126340 x21: 0000000138d6b000
-> [    0.000000] x20: ffff8000097b3bc0 x19: ffff800009258b58 x18: 0000000000000010
-> [    0.000000] x17: 000000000000036f x16: 0000000000014000 x15: 0000000000000025
-> [    0.000000] x14: ffff8000097b3a40 x13: 00000000ffffffea x12: ffff800009808ea8
-> [    0.000000] x11: 0000000000000003 x10: ffff8000097fce68 x9 : ffff8000097fcec0
-> [    0.000000] x8 : 000000000000bfe8 x7 : c0000000fffff7ff x6 : 0000000000000001
-> [    0.000000] x5 : 0000000000000000 x4 : ffff80000995f108 x3 : 0000000000000000
-> [    0.000000] x2 : ffff8000097c5b38 x1 : ffff80000995f108 x0 : 00000000804000c5
-> [    0.000000] Call trace:
-> [    0.000000]  do_undefinstr+0x4d0/0x5b0
-> [    0.000000]  el1_undef+0x2c/0x48
-> [    0.000000]  el1h_64_sync_handler+0x8c/0xd0
-> [    0.000000]  el1h_64_sync+0x78/0x7c
-> [    0.000000]  is_spectre_bhb_affected+0x38/0xb8
-> [    0.000000]  update_cpu_capabilities+0x74/0x128
-> [    0.000000]  init_cpu_features+0x250/0x274
-> [    0.000000]  cpuinfo_store_boot_cpu+0x48/0x54
-> [    0.000000]  smp_prepare_boot_cpu+0x2c/0x38
-> [    0.000000]  start_kernel+0x4c0/0x948
-> [    0.000000]  __primary_switched+0xbc/0xc4
-> [    0.000000] Code: 54fff641 17ffffa6 a9025bf5 f9001bf7 (d4210000) 
-> [    0.000000] lrng_drng: ChaCha20 core initialized with first seeding
-> [    0.000000] ---[ end trace 921bf73327f0869a ]—
-> 
-> 
-> This is because detection of the clearbhb instruction support requires accessing SYS_ID_AA64ISAR2_EL1.  Commenting out the two uses of supports_clearbhb in the kernel now yields a successful boot.
-> 
-> Qemu developers seem to have found this issue as well[1] when trying to boot 5.17 using HVF, the Apple Hypervisor Framework.  This seems to be some sort of platform quirk on M1, or at least in HVF on M1.  I’m not sure what the best workaround would be for this.  SYS_ID_AA64ISAR2_EL1 seems to be something added in ARMv8.7, so perhaps access to it could be gated on that.  
-> 
-> Unfortunately, this code was just added to 5.15.28 and 5.16.14, so stable no longer boots on Parallels VM on M1.  I am unsure if this affects physical boot on Apple M1 or not.
 
-What commit causes this problem?  It sounds like you narrowed this down
-already, right?
+I think wording on option 3 needs to mention backport. Something like: "Option 3
+is especially useful if the upstream patch needs to be backported (e.g. needs
+special handling due to changed APIs)".
 
-thanks,
+>> @@ -147,13 +150,22 @@ Review cycle
+>>    - When the -stable maintainers decide for a review cycle, the patches will be
+>>      sent to the review committee, and the maintainer of the affected area of
+>>      the patch (unless the submitter is the maintainer of the area) and CC: to
+>> -   the linux-kernel mailing list.
+>> +   the linux-kernel mailing list. Patches are prefixed with either ``[PATCH
+>> +   AUTOSEL]`` (for automatically selected patches) or ``[PATCH MANUALSEL]``
+>> +   for manually backported patches.
+> 
+> These two prefixes are different and not part of the review cycle for
+> the normal releases.  So that shouldn't go into this list.  Perhaps a
+> different section?
+> 
 
-greg k-h
+I think these prefixes **are** part of review cycle; in fact these patches
+which get ACKed will be part of -rc for stable release.
+
+>>    - The review committee has 48 hours in which to ACK or NAK the patch.
+>>    - If the patch is rejected by a member of the committee, or linux-kernel
+>>      members object to the patch, bringing up issues that the maintainers and
+>>      members did not realize, the patch will be dropped from the queue.
+>> - - At the end of the review cycle, the ACKed patches will be added to the
+>> -   latest -stable release, and a new -stable release will happen.
+>> + - The ACKed patches will be posted again as part of release candidate (-rc)
+> 
+> Is this the first place we call it "-rc"?
+
+Yes.
+> 
+>> +   to be tested by developers and users willing to test (testers). When
+> 
+> No need for "(testers)".
+> 
+
+So we can just say "developers and testers", right?
+
+>> +   testing all went OK, they can give Tested-by: tag for the -rc. Usually
+> 
+> "testing all went OK" is a bit ackward.  How about this wording instead:
+> 	Responses to the -rc releases can be done on the mailing list by
+> 	sending a "Tested-by:" email with any other testing information
+> 	desired.  The "Tested-by:" tags will be collected and added to
+> 	the release commit.
+> 
+
+OK, will apply.
+
+-- 
+An old man doll... just what I always wanted! - Clara
