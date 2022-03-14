@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA5614D82A3
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E7A4D83D2
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:20:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240622AbiCNMGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:06:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
+        id S241152AbiCNMVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240555AbiCNMFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:20 -0400
+        with ESMTP id S242066AbiCNMSn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF73846173;
-        Mon, 14 Mar 2022 05:02:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0FF945AC1;
+        Mon, 14 Mar 2022 05:13:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15FDCB80D24;
-        Mon, 14 Mar 2022 12:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5446AC340ED;
-        Mon, 14 Mar 2022 12:02:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70591B80DEB;
+        Mon, 14 Mar 2022 12:13:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D58C340E9;
+        Mon, 14 Mar 2022 12:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259347;
-        bh=qlgUNIR5LdJ8E/CVar6iRKrlBhipwT0fC3JfdrsqBjQ=;
+        s=korg; t=1647260008;
+        bh=XfB8JnrX5fpv0Y1HPLUFgDi9OI3o3e1hxuP3xLUFmbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4t0/nGf0awnKW5A8PWRTwNZput64heNzgMNzFXuXX6eCrDhBuwJZcWzcwsUTz998
-         lqwyNwjhWivKZvqF9HP5NiZZnuKrJDBq6xsw/tG0R65E+3tkcIODQOmAQpou8k5Hfs
-         ZvANbyWmoKtPG7f3Uo6gDahe5fkONEZ1s3WnVRyI=
+        b=CSGvaEey2X+4/c55ATP2o647cpaZiFTDNapzJYFHOuDt2NYStrrPtSpA7x+z8wwqW
+         L0nt2hHwSVEr6jHYWAswi4XMeDvhJbWal1h6c50GCNwK4OFH1KwHac+/eWNQ+lK9PU
+         KwhEQxK9np1ICZODnHvx9NLt1oKQxvWO0D39VnZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vikash Chandola <vikash.chandola@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 41/71] hwmon: (pmbus) Clear pmbus fault/warning bits after read
+Subject: [PATCH 5.16 031/121] net: dsa: mt7530: fix incorrect test in mt753x_phylink_validate()
 Date:   Mon, 14 Mar 2022 12:53:34 +0100
-Message-Id: <20220314112739.082070941@linuxfoundation.org>
+Message-Id: <20220314112744.998508983@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikash Chandola <vikash.chandola@linux.intel.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 35f165f08950a876f1b95a61d79c93678fba2fd6 ]
+[ Upstream commit e5417cbf7ab5df1632e68fe7d9e6331fc0e7dbd6 ]
 
-Almost all fault/warning bits in pmbus status registers remain set even
-after fault/warning condition are removed. As per pmbus specification
-these faults must be cleared by user.
-Modify hwmon behavior to clear fault/warning bit after fetching data if
-fault/warning bit was set. This allows to get fresh data in next read.
+Discussing one of the tests in mt753x_phylink_validate() with Landen
+Chao confirms that the "||" should be "&&". Fix this.
 
-Signed-off-by: Vikash Chandola <vikash.chandola@linux.intel.com>
-Link: https://lore.kernel.org/r/20220222131253.2426834-1-vikash.chandola@linux.intel.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/E1nRCF0-00CiXD-7q@rmk-PC.armlinux.org.uk
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/pmbus_core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/dsa/mt7530.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index b0e2820a2d57..71798fde2ef0 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -898,6 +898,11 @@ static int pmbus_get_boolean(struct i2c_client *client, struct pmbus_boolean *b,
- 		pmbus_update_sensor_data(client, s2);
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index fb59efc7f926..14bf1828cbba 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -2928,7 +2928,7 @@ mt753x_phylink_validate(struct dsa_switch *ds, int port,
  
- 	regval = status & mask;
-+	if (regval) {
-+		ret = pmbus_write_byte_data(client, page, reg, regval);
-+		if (ret)
-+			goto unlock;
-+	}
- 	if (s1 && s2) {
- 		s64 v1, v2;
+ 	phylink_set_port_modes(mask);
  
+-	if (state->interface != PHY_INTERFACE_MODE_TRGMII ||
++	if (state->interface != PHY_INTERFACE_MODE_TRGMII &&
+ 	    !phy_interface_mode_is_8023z(state->interface)) {
+ 		phylink_set(mask, 10baseT_Half);
+ 		phylink_set(mask, 10baseT_Full);
 -- 
 2.34.1
 
