@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D1784D818F
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA814D8174
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239603AbiCNLmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41556 "EHLO
+        id S239532AbiCNLms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:42:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239499AbiCNLmo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:42:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F28048E4A;
-        Mon, 14 Mar 2022 04:40:08 -0700 (PDT)
+        with ESMTP id S239568AbiCNLme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:42:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FF649F1A;
+        Mon, 14 Mar 2022 04:39:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B00F8B80DC5;
-        Mon, 14 Mar 2022 11:39:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 235C9C340ED;
-        Mon, 14 Mar 2022 11:39:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FA906111A;
+        Mon, 14 Mar 2022 11:39:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 316E7C340E9;
+        Mon, 14 Mar 2022 11:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257991;
-        bh=B1z0Mk94B58dvtoO7oaPtiKJAWq3VcQAheMFkCCZn2A=;
+        s=korg; t=1647257995;
+        bh=gw27gFzAhBnBV+UypLRu5IfxJHjufI1qJ25YslvMYZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggMy4RYbwaghHjh9kSOTMV5JCMzbcVbMDD8XEsFACwfYQK8a6XzyGCLHfbuC8qM4b
-         DIZnd+5uPx6A5Cas5NcePRAq6QYfh+ZK9s1i9fOdrtZzkT0jSEPUOeDuVUFZYf4FTd
-         ZyHHniWs4toRqhEugejI0hv/tFG78EmxxfMUNiLU=
+        b=BqQyGPwg/PMm1TPDKlxrNIZlcMY5GzwgPPUVqWY/DZohacJSYiwORUGGkY7UIKWJr
+         7/Q0S9qwVaaLc8DvUHgnop2+FpYtXqx8JlRt60cUC6Sl7dxhdLl6vRHBDYT/7ZWDD+
+         HO07/uaRlrAkz6P3ehLDervOvzmslIoi3dwbXNaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        Denis Efremov <denis.e.efremov@oracle.com>
-Subject: [PATCH 4.19 27/30] btrfs: unlock newly allocated extent buffer after error
-Date:   Mon, 14 Mar 2022 12:34:45 +0100
-Message-Id: <20220314112732.559680874@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 4.19 28/30] sched/topology: Make sched_init_numa() use a set for the deduplicating sort
+Date:   Mon, 14 Mar 2022 12:34:46 +0100
+Message-Id: <20220314112732.587290871@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
 References: <20220314112731.785042288@linuxfoundation.org>
@@ -54,97 +55,258 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-commit 19ea40dddf1833db868533958ca066f368862211 upstream.
+commit 620a6dc40754dc218f5b6389b5d335e9a107fd29 upstream.
 
-[BUG]
-There is a bug report that injected ENOMEM error could leave a tree
-block locked while we return to user-space:
+The deduplicating sort in sched_init_numa() assumes that the first line in
+the distance table contains all unique values in the entire table. I've
+been trying to pen what this exactly means for the topology, but it's not
+straightforward. For instance, topology.c uses this example:
 
-  BTRFS info (device loop0): enabling ssd optimizations
-  FAULT_INJECTION: forcing a failure.
-  name failslab, interval 1, probability 0, space 0, times 0
-  CPU: 0 PID: 7579 Comm: syz-executor Not tainted 5.15.0-rc1 #16
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-   __dump_stack lib/dump_stack.c:88 [inline]
-   dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
-   fail_dump lib/fault-inject.c:52 [inline]
-   should_fail+0x13c/0x160 lib/fault-inject.c:146
-   should_failslab+0x5/0x10 mm/slab_common.c:1328
-   slab_pre_alloc_hook.constprop.99+0x4e/0xc0 mm/slab.h:494
-   slab_alloc_node mm/slub.c:3120 [inline]
-   slab_alloc mm/slub.c:3214 [inline]
-   kmem_cache_alloc+0x44/0x280 mm/slub.c:3219
-   btrfs_alloc_delayed_extent_op fs/btrfs/delayed-ref.h:299 [inline]
-   btrfs_alloc_tree_block+0x38c/0x670 fs/btrfs/extent-tree.c:4833
-   __btrfs_cow_block+0x16f/0x7d0 fs/btrfs/ctree.c:415
-   btrfs_cow_block+0x12a/0x300 fs/btrfs/ctree.c:570
-   btrfs_search_slot+0x6b0/0xee0 fs/btrfs/ctree.c:1768
-   btrfs_insert_empty_items+0x80/0xf0 fs/btrfs/ctree.c:3905
-   btrfs_new_inode+0x311/0xa60 fs/btrfs/inode.c:6530
-   btrfs_create+0x12b/0x270 fs/btrfs/inode.c:6783
-   lookup_open+0x660/0x780 fs/namei.c:3282
-   open_last_lookups fs/namei.c:3352 [inline]
-   path_openat+0x465/0xe20 fs/namei.c:3557
-   do_filp_open+0xe3/0x170 fs/namei.c:3588
-   do_sys_openat2+0x357/0x4a0 fs/open.c:1200
-   do_sys_open+0x87/0xd0 fs/open.c:1216
-   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-   do_syscall_64+0x34/0xb0 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x46ae99
-  Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48
-  89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d
-  01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-  RSP: 002b:00007f46711b9c48 EFLAGS: 00000246 ORIG_RAX: 0000000000000055
-  RAX: ffffffffffffffda RBX: 000000000078c0a0 RCX: 000000000046ae99
-  RDX: 0000000000000000 RSI: 00000000000000a1 RDI: 0000000020005800
-  RBP: 00007f46711b9c80 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000017
-  R13: 0000000000000000 R14: 000000000078c0a0 R15: 00007ffc129da6e0
+  node   0   1   2   3
+    0:  10  20  20  30
+    1:  20  10  20  20
+    2:  20  20  10  20
+    3:  30  20  20  10
 
-  ================================================
-  WARNING: lock held when returning to user space!
-  5.15.0-rc1 #16 Not tainted
-  ------------------------------------------------
-  syz-executor/7579 is leaving the kernel with locks still held!
-  1 lock held by syz-executor/7579:
-   #0: ffff888104b73da8 (btrfs-tree-01/1){+.+.}-{3:3}, at:
-  __btrfs_tree_lock+0x2e/0x1a0 fs/btrfs/locking.c:112
+  0 ----- 1
+  |     / |
+  |   /   |
+  | /     |
+  2 ----- 3
 
-[CAUSE]
-In btrfs_alloc_tree_block(), after btrfs_init_new_buffer(), the new
-extent buffer @buf is locked, but if later operations like adding
-delayed tree ref fail, we just free @buf without unlocking it,
-resulting above warning.
+Which works out just fine. However, if we swap nodes 0 and 1:
 
-[FIX]
-Unlock @buf in out_free_buf: label.
+  1 ----- 0
+  |     / |
+  |   /   |
+  | /     |
+  2 ----- 3
 
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CACkBjsZ9O6Zr0KK1yGn=1rQi6Crh1yeCRdTSBxx9R99L4xdn-Q@mail.gmail.com/
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Denis Efremov <denis.e.efremov@oracle.com>
+we get this distance table:
+
+  node   0  1  2  3
+    0:  10 20 20 20
+    1:  20 10 20 30
+    2:  20 20 10 20
+    3:  20 30 20 10
+
+Which breaks the deduplicating sort (non-representative first line). In
+this case this would just be a renumbering exercise, but it so happens that
+we can have a deduplicating sort that goes through the whole table in O(n²)
+at the extra cost of a temporary memory allocation (i.e. any form of set).
+
+The ACPI spec (SLIT) mentions distances are encoded on 8 bits. Following
+this, implement the set as a 256-bits bitmap. Should this not be
+satisfactory (i.e. we want to support 32-bit values), then we'll have to go
+for some other sparse set implementation.
+
+This has the added benefit of letting us allocate just the right amount of
+memory for sched_domains_numa_distance[], rather than an arbitrary
+(nr_node_ids + 1).
+
+Note: DT binding equivalent (distance-map) decodes distances as 32-bit
+values.
+
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210122123943.1217-2-valentin.schneider@arm.com
+Signed-off-by: dann frazier <dann.frazier@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/topology.h |    1 
+ kernel/sched/topology.c  |   99 ++++++++++++++++++++++-------------------------
+ 2 files changed, 49 insertions(+), 51 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -8327,6 +8327,7 @@ struct extent_buffer *btrfs_alloc_tree_b
- out_free_delayed:
- 	btrfs_free_delayed_extent_op(extent_op);
- out_free_buf:
-+	btrfs_tree_unlock(buf);
- 	free_extent_buffer(buf);
- out_free_reserved:
- 	btrfs_free_reserved_extent(fs_info, ins.objectid, ins.offset, 0);
+--- a/include/linux/topology.h
++++ b/include/linux/topology.h
+@@ -47,6 +47,7 @@ int arch_update_cpu_topology(void);
+ /* Conform to ACPI 2.0 SLIT distance definitions */
+ #define LOCAL_DISTANCE		10
+ #define REMOTE_DISTANCE		20
++#define DISTANCE_BITS           8
+ #ifndef node_distance
+ #define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : REMOTE_DISTANCE)
+ #endif
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1322,66 +1322,58 @@ static void init_numa_topology_type(void
+ 	}
+ }
+ 
++
++#define NR_DISTANCE_VALUES (1 << DISTANCE_BITS)
++
+ void sched_init_numa(void)
+ {
+-	int next_distance, curr_distance = node_distance(0, 0);
+ 	struct sched_domain_topology_level *tl;
+-	int level = 0;
+-	int i, j, k;
+-
+-	sched_domains_numa_distance = kzalloc(sizeof(int) * (nr_node_ids + 1), GFP_KERNEL);
+-	if (!sched_domains_numa_distance)
+-		return;
+-
+-	/* Includes NUMA identity node at level 0. */
+-	sched_domains_numa_distance[level++] = curr_distance;
+-	sched_domains_numa_levels = level;
++	unsigned long *distance_map;
++	int nr_levels = 0;
++	int i, j;
+ 
+ 	/*
+ 	 * O(nr_nodes^2) deduplicating selection sort -- in order to find the
+ 	 * unique distances in the node_distance() table.
+-	 *
+-	 * Assumes node_distance(0,j) includes all distances in
+-	 * node_distance(i,j) in order to avoid cubic time.
+ 	 */
+-	next_distance = curr_distance;
++	distance_map = bitmap_alloc(NR_DISTANCE_VALUES, GFP_KERNEL);
++	if (!distance_map)
++		return;
++
++	bitmap_zero(distance_map, NR_DISTANCE_VALUES);
+ 	for (i = 0; i < nr_node_ids; i++) {
+ 		for (j = 0; j < nr_node_ids; j++) {
+-			for (k = 0; k < nr_node_ids; k++) {
+-				int distance = node_distance(i, k);
++			int distance = node_distance(i, j);
+ 
+-				if (distance > curr_distance &&
+-				    (distance < next_distance ||
+-				     next_distance == curr_distance))
+-					next_distance = distance;
+-
+-				/*
+-				 * While not a strong assumption it would be nice to know
+-				 * about cases where if node A is connected to B, B is not
+-				 * equally connected to A.
+-				 */
+-				if (sched_debug() && node_distance(k, i) != distance)
+-					sched_numa_warn("Node-distance not symmetric");
+-
+-				if (sched_debug() && i && !find_numa_distance(distance))
+-					sched_numa_warn("Node-0 not representative");
++			if (distance < LOCAL_DISTANCE || distance >= NR_DISTANCE_VALUES) {
++				sched_numa_warn("Invalid distance value range");
++				return;
+ 			}
+-			if (next_distance != curr_distance) {
+-				sched_domains_numa_distance[level++] = next_distance;
+-				sched_domains_numa_levels = level;
+-				curr_distance = next_distance;
+-			} else break;
++
++			bitmap_set(distance_map, distance, 1);
+ 		}
++	}
++	/*
++	 * We can now figure out how many unique distance values there are and
++	 * allocate memory accordingly.
++	 */
++	nr_levels = bitmap_weight(distance_map, NR_DISTANCE_VALUES);
+ 
+-		/*
+-		 * In case of sched_debug() we verify the above assumption.
+-		 */
+-		if (!sched_debug())
+-			break;
++	sched_domains_numa_distance = kcalloc(nr_levels, sizeof(int), GFP_KERNEL);
++	if (!sched_domains_numa_distance) {
++		bitmap_free(distance_map);
++		return;
+ 	}
+ 
++	for (i = 0, j = 0; i < nr_levels; i++, j++) {
++		j = find_next_bit(distance_map, NR_DISTANCE_VALUES, j);
++		sched_domains_numa_distance[i] = j;
++	}
++
++	bitmap_free(distance_map);
++
+ 	/*
+-	 * 'level' contains the number of unique distances
++	 * 'nr_levels' contains the number of unique distances
+ 	 *
+ 	 * The sched_domains_numa_distance[] array includes the actual distance
+ 	 * numbers.
+@@ -1390,15 +1382,15 @@ void sched_init_numa(void)
+ 	/*
+ 	 * Here, we should temporarily reset sched_domains_numa_levels to 0.
+ 	 * If it fails to allocate memory for array sched_domains_numa_masks[][],
+-	 * the array will contain less then 'level' members. This could be
++	 * the array will contain less then 'nr_levels' members. This could be
+ 	 * dangerous when we use it to iterate array sched_domains_numa_masks[][]
+ 	 * in other functions.
+ 	 *
+-	 * We reset it to 'level' at the end of this function.
++	 * We reset it to 'nr_levels' at the end of this function.
+ 	 */
+ 	sched_domains_numa_levels = 0;
+ 
+-	sched_domains_numa_masks = kzalloc(sizeof(void *) * level, GFP_KERNEL);
++	sched_domains_numa_masks = kzalloc(sizeof(void *) * nr_levels, GFP_KERNEL);
+ 	if (!sched_domains_numa_masks)
+ 		return;
+ 
+@@ -1406,7 +1398,7 @@ void sched_init_numa(void)
+ 	 * Now for each level, construct a mask per node which contains all
+ 	 * CPUs of nodes that are that many hops away from us.
+ 	 */
+-	for (i = 0; i < level; i++) {
++	for (i = 0; i < nr_levels; i++) {
+ 		sched_domains_numa_masks[i] =
+ 			kzalloc(nr_node_ids * sizeof(void *), GFP_KERNEL);
+ 		if (!sched_domains_numa_masks[i])
+@@ -1414,12 +1406,17 @@ void sched_init_numa(void)
+ 
+ 		for (j = 0; j < nr_node_ids; j++) {
+ 			struct cpumask *mask = kzalloc(cpumask_size(), GFP_KERNEL);
++			int k;
++
+ 			if (!mask)
+ 				return;
+ 
+ 			sched_domains_numa_masks[i][j] = mask;
+ 
+ 			for_each_node(k) {
++				if (sched_debug() && (node_distance(j, k) != node_distance(k, j)))
++					sched_numa_warn("Node-distance not symmetric");
++
+ 				if (node_distance(j, k) > sched_domains_numa_distance[i])
+ 					continue;
+ 
+@@ -1431,7 +1428,7 @@ void sched_init_numa(void)
+ 	/* Compute default topology size */
+ 	for (i = 0; sched_domain_topology[i].mask; i++);
+ 
+-	tl = kzalloc((i + level + 1) *
++	tl = kzalloc((i + nr_levels) *
+ 			sizeof(struct sched_domain_topology_level), GFP_KERNEL);
+ 	if (!tl)
+ 		return;
+@@ -1454,7 +1451,7 @@ void sched_init_numa(void)
+ 	/*
+ 	 * .. and append 'j' levels of NUMA goodness.
+ 	 */
+-	for (j = 1; j < level; i++, j++) {
++	for (j = 1; j < nr_levels; i++, j++) {
+ 		tl[i] = (struct sched_domain_topology_level){
+ 			.mask = sd_numa_mask,
+ 			.sd_flags = cpu_numa_flags,
+@@ -1466,8 +1463,8 @@ void sched_init_numa(void)
+ 
+ 	sched_domain_topology = tl;
+ 
+-	sched_domains_numa_levels = level;
+-	sched_max_numa_distance = sched_domains_numa_distance[level - 1];
++	sched_domains_numa_levels = nr_levels;
++	sched_max_numa_distance = sched_domains_numa_distance[nr_levels - 1];
+ 
+ 	init_numa_topology_type();
+ }
 
 
