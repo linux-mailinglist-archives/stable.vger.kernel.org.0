@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A881C4D82A0
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DCB14D83FA
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240525AbiCNMGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:06:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35336 "EHLO
+        id S241164AbiCNMW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240596AbiCNMF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A903960C5;
-        Mon, 14 Mar 2022 05:02:46 -0700 (PDT)
+        with ESMTP id S242892AbiCNMTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5480650E3D;
+        Mon, 14 Mar 2022 05:14:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41EA4612DD;
-        Mon, 14 Mar 2022 12:02:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9DF5C340E9;
-        Mon, 14 Mar 2022 12:02:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43F4AB80DF4;
+        Mon, 14 Mar 2022 12:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C9EC340E9;
+        Mon, 14 Mar 2022 12:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259365;
-        bh=/ysTpHMR/qo7lmvua99zXU/quYDGz2gZ/U7+mWVtzZo=;
+        s=korg; t=1647260088;
+        bh=YfpmRIDi6jRVe/IYxm/SbOg5cyruW3iEv4Tg+KggpLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1TbWC5MqJcVNhqcLflTkzzXdhVE8DofZnVU75smSlnqZRtav138/oRPo9IrAdil+
-         m5q/lSghRIyumYZS8F3MCNsbRvGZazMJVO1qpcRuIfuvDaHyiIb7/ClWjnrky12+62
-         fyKWkeNn/I7m5x5AoNI7W7hLK1kKD90S+Hx3T1TY=
+        b=OFaqFpgmxR5LuLZN23sp23QD0BDQATthzeWoHo90VqksMxL41ncptDhN+6j1cFwze
+         t5Bz9ysET6wyP++H0/Q9w5iWf+lKK0yQWxcD4jIX9YJvHekdM9bGlr9Hk3AiAYjG4B
+         Cj2uUlTS9OmMPCgqFyXzQLhXkMtbKQ770PM4bKBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 62/71] watch_queue: Fix the alloc bitmap size to reflect notes allocated
+        stable@vger.kernel.org, Mark Featherston <mark@embeddedTS.com>,
+        Kris Bahnsen <kris@embeddedTS.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 052/121] gpio: ts4900: Do not set DAT and OE together
 Date:   Mon, 14 Mar 2022 12:53:55 +0100
-Message-Id: <20220314112739.666040961@linuxfoundation.org>
+Message-Id: <20220314112745.579079298@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Mark Featherston <mark@embeddedTS.com>
 
-commit 3b4c0371928c17af03e8397ac842346624017ce6 upstream.
+[ Upstream commit 03fe003547975680fdb9ff5ab0e41cb68276c4f2 ]
 
-Currently, watch_queue_set_size() sets the number of notes available in
-wqueue->nr_notes according to the number of notes allocated, but sets
-the size of the bitmap to the unrounded number of notes originally asked
-for.
+This works around an issue with the hardware where both OE and
+DAT are exposed in the same register. If both are updated
+simultaneously, the harware makes no guarantees that OE or DAT
+will actually change in any given order and may result in a
+glitch of a few ns on a GPIO pin when changing direction and value
+in a single write.
 
-Fix this by setting the bitmap size to the number of notes we're
-actually going to make available (ie. the number allocated).
+Setting direction to input now only affects OE bit. Setting
+direction to output updates DAT first, then OE.
 
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c6686322d74 ("gpio: add Technologic I2C-FPGA gpio support")
+Signed-off-by: Mark Featherston <mark@embeddedTS.com>
+Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/watch_queue.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-ts4900.c | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -244,6 +244,7 @@ long watch_queue_set_size(struct pipe_in
- 		goto error;
- 	}
+diff --git a/drivers/gpio/gpio-ts4900.c b/drivers/gpio/gpio-ts4900.c
+index d885032cf814..d918d2df4de2 100644
+--- a/drivers/gpio/gpio-ts4900.c
++++ b/drivers/gpio/gpio-ts4900.c
+@@ -1,7 +1,7 @@
+ /*
+  * Digital I/O driver for Technologic Systems I2C FPGA Core
+  *
+- * Copyright (C) 2015 Technologic Systems
++ * Copyright (C) 2015, 2018 Technologic Systems
+  * Copyright (C) 2016 Savoir-Faire Linux
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -55,19 +55,33 @@ static int ts4900_gpio_direction_input(struct gpio_chip *chip,
+ {
+ 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
  
-+	nr_notes = nr_pages * WATCH_QUEUE_NOTES_PER_PAGE;
- 	ret = pipe_resize_ring(pipe, roundup_pow_of_two(nr_notes));
- 	if (ret < 0)
- 		goto error;
-@@ -269,7 +270,7 @@ long watch_queue_set_size(struct pipe_in
- 	wqueue->notes = pages;
- 	wqueue->notes_bitmap = bitmap;
- 	wqueue->nr_pages = nr_pages;
--	wqueue->nr_notes = nr_pages * WATCH_QUEUE_NOTES_PER_PAGE;
-+	wqueue->nr_notes = nr_notes;
- 	return 0;
+-	/*
+-	 * This will clear the output enable bit, the other bits are
+-	 * dontcare when this is cleared
++	/* Only clear the OE bit here, requires a RMW. Prevents potential issue
++	 * with OE and data getting to the physical pin at different times.
+ 	 */
+-	return regmap_write(priv->regmap, offset, 0);
++	return regmap_update_bits(priv->regmap, offset, TS4900_GPIO_OE, 0);
+ }
  
- error_p:
+ static int ts4900_gpio_direction_output(struct gpio_chip *chip,
+ 					unsigned int offset, int value)
+ {
+ 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
++	unsigned int reg;
+ 	int ret;
+ 
++	/* If changing from an input to an output, we need to first set the
++	 * proper data bit to what is requested and then set OE bit. This
++	 * prevents a glitch that can occur on the IO line
++	 */
++	regmap_read(priv->regmap, offset, &reg);
++	if (!(reg & TS4900_GPIO_OE)) {
++		if (value)
++			reg = TS4900_GPIO_OUT;
++		else
++			reg &= ~TS4900_GPIO_OUT;
++
++		regmap_write(priv->regmap, offset, reg);
++	}
++
+ 	if (value)
+ 		ret = regmap_write(priv->regmap, offset, TS4900_GPIO_OE |
+ 							 TS4900_GPIO_OUT);
+-- 
+2.34.1
+
 
 
