@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFE14D8102
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:36:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 617AB4D80D8
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:35:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239203AbiCNLhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:37:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38288 "EHLO
+        id S239093AbiCNLgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:36:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239235AbiCNLha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:37:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9155743384;
-        Mon, 14 Mar 2022 04:36:07 -0700 (PDT)
+        with ESMTP id S239097AbiCNLgP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:36:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927A5427C2;
+        Mon, 14 Mar 2022 04:35:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2419961152;
-        Mon, 14 Mar 2022 11:36:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 080F1C340E9;
-        Mon, 14 Mar 2022 11:36:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F0D4B80D96;
+        Mon, 14 Mar 2022 11:35:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85955C340E9;
+        Mon, 14 Mar 2022 11:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257766;
-        bh=PCU4tjgH5YRyVf2otL/ejdTi5bLTC8Gb0liGsC8OrOo=;
+        s=korg; t=1647257701;
+        bh=boM+X7Jtz7xEMxABclzXsyS0I01CPMFAo2H06POull4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8VC4lSJuhT1wsWnuV+2Ynm2psttPO0SeE57wWbdnwHdt4zRuTSjnbigo3zCTHjh9
-         EfOHgPf0wtFPNf3k+RGEYkn0C1gR/HgY+a7N6yUmKdIyN6wHECr7Fotk7gHDcXCQXu
-         Qpw2VmtzaZvHBKfOWS8+bV6xga3ce/nZyd2sTZBU=
+        b=QoaEfVrD0lmEzZ872mOfJKzl9HPn+Hhc73Be01QnqH9vcYPpWoyG/XLTAz67ExL/G
+         PN1u7Ars8snpeo7jcuyKZQ1VDwNabUleMDQnN//8Rg6PTrt9Ndc79QdS9z5XccArSa
+         1PzGdPnOOUom0Os/wKeHxa48vHL+SC0sGxjMTh60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/23] net: qlogic: check the return value of dma_alloc_coherent() in qed_vf_hw_prepare()
-Date:   Mon, 14 Mar 2022 12:34:14 +0100
-Message-Id: <20220314112731.095604657@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel@lists.infradead.org, patches@armlinux.org.uk,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 14/20] ARM: Spectre-BHB: provide empty stub for non-config
+Date:   Mon, 14 Mar 2022 12:34:15 +0100
+Message-Id: <20220314112730.919781602@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112731.050583127@linuxfoundation.org>
-References: <20220314112731.050583127@linuxfoundation.org>
+In-Reply-To: <20220314112730.388955049@linuxfoundation.org>
+References: <20220314112730.388955049@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,49 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit e0058f0fa80f6e09c4d363779c241c45a3c56b94 ]
+commit 68453767131a5deec1e8f9ac92a9042f929e585d upstream.
 
-The function dma_alloc_coherent() in qed_vf_hw_prepare() can fail, so
-its return value should be checked.
+When CONFIG_GENERIC_CPU_VULNERABILITIES is not set, references
+to spectre_v2_update_state() cause a build error, so provide an
+empty stub for that function when the Kconfig option is not set.
 
-Fixes: 1408cc1fa48c ("qed: Introduce VFs")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes this build error:
+
+  arm-linux-gnueabi-ld: arch/arm/mm/proc-v7-bugs.o: in function `cpu_v7_bugs_init':
+  proc-v7-bugs.c:(.text+0x52): undefined reference to `spectre_v2_update_state'
+  arm-linux-gnueabi-ld: proc-v7-bugs.c:(.text+0x82): undefined reference to `spectre_v2_update_state'
+
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: patches@armlinux.org.uk
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_vf.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/include/asm/spectre.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_vf.c b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-index 693f2a039383..848a6574c0b2 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_vf.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-@@ -539,6 +539,9 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
- 						    p_iov->bulletin.size,
- 						    &p_iov->bulletin.phys,
- 						    GFP_KERNEL);
-+	if (!p_iov->bulletin.p_virt)
-+		goto free_pf2vf_reply;
-+
- 	DP_VERBOSE(p_hwfn, QED_MSG_IOV,
- 		   "VF's bulletin Board [%p virt 0x%llx phys 0x%08x bytes]\n",
- 		   p_iov->bulletin.p_virt,
-@@ -578,6 +581,10 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
+--- a/arch/arm/include/asm/spectre.h
++++ b/arch/arm/include/asm/spectre.h
+@@ -25,7 +25,13 @@ enum {
+ 	SPECTRE_V2_METHOD_LOOP8 = BIT(__SPECTRE_V2_METHOD_LOOP8),
+ };
  
- 	return rc;
++#ifdef CONFIG_GENERIC_CPU_VULNERABILITIES
+ void spectre_v2_update_state(unsigned int state, unsigned int methods);
++#else
++static inline void spectre_v2_update_state(unsigned int state,
++					   unsigned int methods)
++{}
++#endif
  
-+free_pf2vf_reply:
-+	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
-+			  sizeof(union pfvf_tlvs),
-+			  p_iov->pf2vf_reply, p_iov->pf2vf_reply_phys);
- free_vf2pf_request:
- 	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
- 			  sizeof(union vfpf_tlvs),
--- 
-2.34.1
-
+ int spectre_bhb_update_vectors(unsigned int method);
+ 
 
 
