@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF2A4D8341
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D86F4D82BF
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233732AbiCNMMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48746 "EHLO
+        id S229712AbiCNMHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:07:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242369AbiCNMJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC071E3C7;
-        Mon, 14 Mar 2022 05:07:31 -0700 (PDT)
+        with ESMTP id S240654AbiCNMHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:07:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1565A21273;
+        Mon, 14 Mar 2022 05:03:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0818261343;
-        Mon, 14 Mar 2022 12:07:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D666CC340E9;
-        Mon, 14 Mar 2022 12:07:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF914B80DEC;
+        Mon, 14 Mar 2022 12:03:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DA14C340EC;
+        Mon, 14 Mar 2022 12:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259650;
-        bh=VuQiuhjqnRPF2PUIDPbSzKC6E5XqH+TQgrvnuZSt+Ko=;
+        s=korg; t=1647259397;
+        bh=hA2jntMUiHHrRBMInAefEI/HQkp7b7Hah6h12nd58Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8vpeLbytLUkDB/+ydEPLfl/75asjfRisc7tHlLxmIOuX0sjPSnV+vQkVZZsgPgGX
-         McVieawyfIwlSbpYVgvrMLKglDgO2nVwthTE6GtTVAOv8GK4s6SpvSdFjl6qdpd2Wv
-         1/shBFhZu9l0RPtnSrrb7SUEx9+4lLOA7kPwVgI4=
+        b=h0VyDgonE43aLw5IYotoWftRwLQ66F5wLF9UbwSlW2PaKoP0OMFsWsPbdJ1xzlb1a
+         tZZ1hkfP6S9thwk+SkJjyAdvqN9m+c3+6ATP72qkwQDiRZupubsB2P/nwOM/wCbSiL
+         uUzYwmy5pmz3rl2J0CbvffawVHnVK6YpATwD/Jvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 058/110] spi: rockchip: Fix error in getting num-cs property
-Date:   Mon, 14 Mar 2022 12:54:00 +0100
-Message-Id: <20220314112744.655203719@linuxfoundation.org>
+        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
+        Borislav Petkov <bp@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [PATCH 5.10 68/71] x86/traps: Mark do_int3() NOKPROBE_SYMBOL
+Date:   Mon, 14 Mar 2022 12:54:01 +0100
+Message-Id: <20220314112739.842180777@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Lin <jon.lin@rock-chips.com>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 9382df0a98aad5bbcd4d634790305a1d786ad224 ]
+commit a365a65f9ca1ceb9cf1ac29db4a4f51df7c507ad upstream.
 
-Get num-cs u32 from dts of_node property rather than u16.
+Since kprobe_int3_handler() is called in do_int3(), probing do_int3()
+can cause a breakpoint recursion and crash the kernel. Therefore,
+do_int3() should be marked as NOKPROBE_SYMBOL.
 
-Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
-Link: https://lore.kernel.org/r/20220216014028.8123-2-jon.lin@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 21e28290b317 ("x86/traps: Split int3 handler up")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220310120915.63349-1-lihuafei1@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-rockchip.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/kernel/traps.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 553b6b9d0222..4f65ba3dd19c 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -654,7 +654,7 @@ static int rockchip_spi_probe(struct platform_device *pdev)
- 	struct spi_controller *ctlr;
- 	struct resource *mem;
- 	struct device_node *np = pdev->dev.of_node;
--	u32 rsd_nsecs;
-+	u32 rsd_nsecs, num_cs;
- 	bool slave_mode;
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -651,6 +651,7 @@ static bool do_int3(struct pt_regs *regs
  
- 	slave_mode = of_property_read_bool(np, "spi-slave");
-@@ -764,8 +764,9 @@ static int rockchip_spi_probe(struct platform_device *pdev)
- 		 * rk spi0 has two native cs, spi1..5 one cs only
- 		 * if num-cs is missing in the dts, default to 1
- 		 */
--		if (of_property_read_u16(np, "num-cs", &ctlr->num_chipselect))
--			ctlr->num_chipselect = 1;
-+		if (of_property_read_u32(np, "num-cs", &num_cs))
-+			num_cs = 1;
-+		ctlr->num_chipselect = num_cs;
- 		ctlr->use_gpio_descriptors = true;
- 	}
- 	ctlr->dev.of_node = pdev->dev.of_node;
--- 
-2.34.1
-
+ 	return res == NOTIFY_STOP;
+ }
++NOKPROBE_SYMBOL(do_int3);
+ 
+ static void do_int3_user(struct pt_regs *regs)
+ {
 
 
