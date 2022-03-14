@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F3C4D820C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:58:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DAAE4D83C6
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:20:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240029AbiCNL7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:59:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
+        id S233439AbiCNMVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:21:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240150AbiCNL7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:59:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407E960CE;
-        Mon, 14 Mar 2022 04:57:47 -0700 (PDT)
+        with ESMTP id S241303AbiCNMRL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:17:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0194B369E0;
+        Mon, 14 Mar 2022 05:12:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FFBAB80DED;
-        Mon, 14 Mar 2022 11:57:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDA77C340EC;
-        Mon, 14 Mar 2022 11:57:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70F7261315;
+        Mon, 14 Mar 2022 12:12:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3190EC340E9;
+        Mon, 14 Mar 2022 12:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259065;
-        bh=eKf7exku32BFrG4wg8xA9kLRTfuahP7jg3a2aAF6vEo=;
+        s=korg; t=1647259936;
+        bh=YGDCMuwrUahh+Ocfj5rpl5YvgAJSu76Qii8l0ri9tGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AF7a9HBUGDVYNE4Fu4vETLZJnu+xpOKh7Ce0ZxAjQNGtE5l6EQ0EW7VsFmqMO3sBw
-         nYMsTGjWz4bDyKhaH3P7vkxfqLkqncLjHfRF/cs9KkReTbuR2xVTn9UNeXq5j5IneN
-         2eiH3J5xi1DoOmdAs+CppYhI3PuBKZzT1sbGg6FQ=
+        b=d//OdAmPBZxCsmJU3n5/oZBVmHI+r39mlt3qpnxFi2kDFETQpGJgO2Qmaq+up7I1N
+         TkjW+zqkqM9FWWF8uV7X5AUcBY9GYwBO/7Cs/dpMHVHTl8V2YrQZNhIJXBMEZvm8gP
+         pIgLy3wxxaHpT7IbC5ZIq8Ewwv7fI6aP03s4J5vE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/43] qed: return status of qed_iov_get_link
+Subject: [PATCH 5.16 013/121] vdpa/mlx5: add validation for VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command
 Date:   Mon, 14 Mar 2022 12:53:16 +0100
-Message-Id: <20220314112734.570383560@linuxfoundation.org>
+Message-Id: <20220314112744.496974287@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
 
-[ Upstream commit d9dc0c84ad2d4cc911ba252c973d1bf18d5eb9cf ]
+[ Upstream commit ed0f849fc3a63ed2ddf5e72cdb1de3bdbbb0f8eb ]
 
-Clang static analysis reports this issue
-qed_sriov.c:4727:19: warning: Assigned value is
-  garbage or undefined
-  ivi->max_tx_rate = tx_rate ? tx_rate : link.speed;
-                   ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When control vq receives a VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command
+request from the driver, presently there is no validation against the
+number of queue pairs to configure, or even if multiqueue had been
+negotiated or not is unverified. This may lead to kernel panic due to
+uninitialized resource for the queues were there any bogus request
+sent down by untrusted driver. Tie up the loose ends there.
 
-link is only sometimes set by the call to qed_iov_get_link()
-qed_iov_get_link fails without setting link or returning
-status.  So change the decl to return status.
-
-Fixes: 73390ac9d82b ("qed*: support ndo_get_vf_config")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 52893733f2c5 ("vdpa/mlx5: Add multiqueue support")
+Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Link: https://lore.kernel.org/r/1642206481-30721-4-git-send-email-si-wei.liu@oracle.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_sriov.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-index fb9c3ca5d36c..5e8f8eb916e6 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -3801,11 +3801,11 @@ bool qed_iov_mark_vf_flr(struct qed_hwfn *p_hwfn, u32 *p_disabled_vfs)
- 	return found;
- }
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index ef6da39ccb3f..7b4ab7cfc359 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1571,11 +1571,27 @@ static virtio_net_ctrl_ack handle_ctrl_mq(struct mlx5_vdpa_dev *mvdev, u8 cmd)
  
--static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
--			     u16 vfid,
--			     struct qed_mcp_link_params *p_params,
--			     struct qed_mcp_link_state *p_link,
--			     struct qed_mcp_link_capabilities *p_caps)
-+static int qed_iov_get_link(struct qed_hwfn *p_hwfn,
-+			    u16 vfid,
-+			    struct qed_mcp_link_params *p_params,
-+			    struct qed_mcp_link_state *p_link,
-+			    struct qed_mcp_link_capabilities *p_caps)
- {
- 	struct qed_vf_info *p_vf = qed_iov_get_vf_info(p_hwfn,
- 						       vfid,
-@@ -3813,7 +3813,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
- 	struct qed_bulletin_content *p_bulletin;
+ 	switch (cmd) {
+ 	case VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET:
++		/* This mq feature check aligns with pre-existing userspace
++		 * implementation.
++		 *
++		 * Without it, an untrusted driver could fake a multiqueue config
++		 * request down to a non-mq device that may cause kernel to
++		 * panic due to uninitialized resources for extra vqs. Even with
++		 * a well behaving guest driver, it is not expected to allow
++		 * changing the number of vqs on a non-mq device.
++		 */
++		if (!MLX5_FEATURE(mvdev, VIRTIO_NET_F_MQ))
++			break;
++
+ 		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov, (void *)&mq, sizeof(mq));
+ 		if (read != sizeof(mq))
+ 			break;
  
- 	if (!p_vf)
--		return;
-+		return -EINVAL;
- 
- 	p_bulletin = p_vf->bulletin.p_virt;
- 
-@@ -3823,6 +3823,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
- 		__qed_vf_get_link_state(p_hwfn, p_link, p_bulletin);
- 	if (p_caps)
- 		__qed_vf_get_link_caps(p_hwfn, p_caps, p_bulletin);
-+	return 0;
- }
- 
- static int
-@@ -4684,6 +4685,7 @@ static int qed_get_vf_config(struct qed_dev *cdev,
- 	struct qed_public_vf_info *vf_info;
- 	struct qed_mcp_link_state link;
- 	u32 tx_rate;
-+	int ret;
- 
- 	/* Sanitize request */
- 	if (IS_VF(cdev))
-@@ -4697,7 +4699,9 @@ static int qed_get_vf_config(struct qed_dev *cdev,
- 
- 	vf_info = qed_iov_get_public_vf_info(hwfn, vf_id, true);
- 
--	qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
-+	ret = qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
-+	if (ret)
-+		return ret;
- 
- 	/* Fill information about VF */
- 	ivi->vf = vf_id;
+ 		newqps = mlx5vdpa16_to_cpu(mvdev, mq.virtqueue_pairs);
++		if (newqps < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
++		    newqps > mlx5_vdpa_max_qps(mvdev->max_vqs))
++			break;
++
+ 		if (ndev->cur_num_vqs == 2 * newqps) {
+ 			status = VIRTIO_NET_OK;
+ 			break;
 -- 
 2.34.1
 
