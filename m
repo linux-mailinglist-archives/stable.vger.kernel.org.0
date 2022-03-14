@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35D024D81E3
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ABB54D842C
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239765AbiCNL4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:56:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35500 "EHLO
+        id S241587AbiCNMXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238323AbiCNL4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:56:38 -0400
+        with ESMTP id S241974AbiCNMSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C76D65C1;
-        Mon, 14 Mar 2022 04:55:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606E53B54F;
+        Mon, 14 Mar 2022 05:13:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0CA560FF3;
-        Mon, 14 Mar 2022 11:55:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DABBC340E9;
-        Mon, 14 Mar 2022 11:55:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99F0D604F5;
+        Mon, 14 Mar 2022 12:13:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A42FCC340E9;
+        Mon, 14 Mar 2022 12:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647258928;
-        bh=X4C+EAnv+5PsvS5bhnuMIuDGUfEfKplyG40If4A0F78=;
+        s=korg; t=1647259997;
+        bh=lGPb0eTPAC6Pfa3pqaF5GqG7LBkpa0wzfQC8LFD6BxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMPXsoK9M12Pgol0cpmzTlJ6ziuF7APLLLiRqapZgpQWjxbzPHRv9mnnimfx/RGRm
-         HT3Z+sKWI/MdipDf95GhPYsqdRsOS9wu0nvZzyzqN5foVZBKkgLALA1ARrKuggEftX
-         C79oja/LDVVDwJATgjAwmZv1JRmnOvxYO9hVpPU4=
+        b=uCO3mXDt3Lbet3J8iT3i4tkFKng7f8iqTupIu0WUYS8Y5GoqgG8mnJXOOXspVp/LN
+         Asv6mU+RG6kilB9ARxmUKTLkZ9iySE0vj6q/QNPKDYYKvJNmYGkh98TYtDfpUD2iyl
+         yB/XwWT8BMA/fBQ74lkAAe1tjlnJbqVbn8o1os0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Osterried <thomas@osterried.de>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Zhang Min <zhang.min9@zte.com.cn>,
+        Yi Wang <wang.yi59@zte.com.cn>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/43] ax25: Fix NULL pointer dereference in ax25_kill_by_device
-Date:   Mon, 14 Mar 2022 12:53:22 +0100
-Message-Id: <20220314112734.736241254@linuxfoundation.org>
+Subject: [PATCH 5.16 020/121] vdpa: fix use-after-free on vp_vdpa_remove
+Date:   Mon, 14 Mar 2022 12:53:23 +0100
+Message-Id: <20220314112744.692628352@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
-References: <20220314112734.415677317@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Zhang Min <zhang.min9@zte.com.cn>
 
-[ Upstream commit 71171ac8eb34ce7fe6b3267dce27c313ab3cb3ac ]
+[ Upstream commit eb057b44dbe35ae14527830236a92f51de8f9184 ]
 
-When two ax25 devices attempted to establish connection, the requester use ax25_create(),
-ax25_bind() and ax25_connect() to initiate connection. The receiver use ax25_rcv() to
-accept connection and use ax25_create_cb() in ax25_rcv() to create ax25_cb, but the
-ax25_cb->sk is NULL. When the receiver is detaching, a NULL pointer dereference bug
-caused by sock_hold(sk) in ax25_kill_by_device() will happen. The corresponding
-fail log is shown below:
+When vp_vdpa driver is unbind, vp_vdpa is freed in vdpa_unregister_device
+and then vp_vdpa->mdev.pci_dev is dereferenced in vp_modern_remove,
+triggering use-after-free.
 
-===============================================================
-BUG: KASAN: null-ptr-deref in ax25_device_event+0xfd/0x290
-Call Trace:
-...
-ax25_device_event+0xfd/0x290
-raw_notifier_call_chain+0x5e/0x70
-dev_close_many+0x174/0x220
-unregister_netdevice_many+0x1f7/0xa60
-unregister_netdevice_queue+0x12f/0x170
-unregister_netdev+0x13/0x20
-mkiss_close+0xcd/0x140
-tty_ldisc_release+0xc0/0x220
-tty_release_struct+0x17/0xa0
-tty_release+0x62d/0x670
-...
+Call Trace of unbinding driver free vp_vdpa :
+do_syscall_64
+  vfs_write
+    kernfs_fop_write_iter
+      device_release_driver_internal
+        pci_device_remove
+          vp_vdpa_remove
+            vdpa_unregister_device
+              kobject_release
+                device_release
+                  kfree
 
-This patch add condition check in ax25_kill_by_device(). If s->sk is
-NULL, it will goto if branch to kill device.
+Call Trace of dereference vp_vdpa->mdev.pci_dev:
+vp_modern_remove
+  pci_release_selected_regions
+    pci_release_region
+      pci_resource_len
+        pci_resource_end
+          (dev)->resource[(bar)].end
 
-Fixes: 4e0f718daf97 ("ax25: improve the incomplete fix to avoid UAF and NPD bugs")
-Reported-by: Thomas Osterried <thomas@osterried.de>
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Zhang Min <zhang.min9@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Link: https://lore.kernel.org/r/20220301091059.46869-1-wang.yi59@zte.com.cn
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 64b9f64f80a6 ("vdpa: introduce virtio pci driver")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 184af6da0def..093b73c454d2 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -87,6 +87,13 @@ static void ax25_kill_by_device(struct net_device *dev)
- 	ax25_for_each(s, &ax25_list) {
- 		if (s->ax25_dev == ax25_dev) {
- 			sk = s->sk;
-+			if (!sk) {
-+				spin_unlock_bh(&ax25_list_lock);
-+				s->ax25_dev = NULL;
-+				ax25_disconnect(s, ENETUNREACH);
-+				spin_lock_bh(&ax25_list_lock);
-+				goto again;
-+			}
- 			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index e3ff7875e123..fab161961160 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -525,8 +525,8 @@ static void vp_vdpa_remove(struct pci_dev *pdev)
+ {
+ 	struct vp_vdpa *vp_vdpa = pci_get_drvdata(pdev);
+ 
+-	vdpa_unregister_device(&vp_vdpa->vdpa);
+ 	vp_modern_remove(&vp_vdpa->mdev);
++	vdpa_unregister_device(&vp_vdpa->vdpa);
+ }
+ 
+ static struct pci_driver vp_vdpa_driver = {
 -- 
 2.34.1
 
