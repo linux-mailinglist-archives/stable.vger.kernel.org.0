@@ -2,141 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F734D816F
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:44:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EAFD4D8198
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:47:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240769AbiCNLo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:44:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40910 "EHLO
+        id S233500AbiCNLqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:46:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239587AbiCNLmh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:42:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FA6B488A2;
-        Mon, 14 Mar 2022 04:40:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72FA261170;
-        Mon, 14 Mar 2022 11:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74B26C340EC;
-        Mon, 14 Mar 2022 11:40:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647258005;
-        bh=pVanl608lm9vBB9wPqPyFibFmrjbxufCym3Ml+FPZr0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fj6eRojMF6H3N14WRSdI1x1uCBsO1ieDZvdeGo4EASQ1prKM9TozVF+xBJkB8Lx+O
-         zo9Pvh4fQDKptREeUoaxC/zeKHkrNza4jwRXucMsHzzlAO1J92p5RHHRXYFpPXLQ0z
-         2Uww+ocY+8up1xV6x6g7oei5eWRNqOjzbcN//YW8=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Anatoly Pugachev <matorola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 4.19 30/30] ia64: ensure proper NUMA distance and possible map initialization
-Date:   Mon, 14 Mar 2022 12:34:48 +0100
-Message-Id: <20220314112732.641129681@linuxfoundation.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
-References: <20220314112731.785042288@linuxfoundation.org>
-User-Agent: quilt/0.66
+        with ESMTP id S239655AbiCNLqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:46:17 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC54313D06;
+        Mon, 14 Mar 2022 04:45:00 -0700 (PDT)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nTj8D-0006gm-A0; Mon, 14 Mar 2022 12:44:57 +0100
+Message-ID: <9e4ea11e-7d00-d2c4-7f80-862f0cbe96db@leemhuis.info>
+Date:   Mon, 14 Mar 2022 12:44:56 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Content-Language: en-US
+To:     Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Stephane Poignant <stephane.poignant@proton.ch>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Regression in 5.10.67: "iwlwifi: pcie: free RBs during configure"
+ causes rx lockups with BAR_FRAME_RELEASE on AX200/AX201 when using 802.11ax
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1647258300;dc212ae5;
+X-HE-SMSGID: 1nTj8D-0006gm-A0
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+Hi, this is your Linux kernel regression tracker.
 
-commit b22a8f7b4bde4e4ab73b64908ffd5d90ecdcdbfd upstream.
+I noticed a regression report in bugzilla.kernel.org that afaics nobody
+acted upon since it was reported more than ten days ago (it afaifcs only
+later became clear this is a regression), that's why I decided to
+forward it to the lists and a few relevant people to the CC. To quote
+from https://bugzilla.kernel.org/show_bug.cgi?id=215660:
 
-John Paul reported a warning about bogus NUMA distance values spurred by
-commit:
+>  Stephane Poignant 2022-03-04 17:24:49 UTC
+> 
+> Created attachment 300529 [details]
+> lspci and ethtool outputs on reproducing systems
+> 
+> Context:
+> - dense enterprise deployment, 10 lightweight aps (Aruba) on one office floor, up to 125 concurrent users total, up to 25 user per AP
+> - the wireless network supports 802.11n, 802.11ac and 802.11ax in 5 GHz band
+> - authentication is wpa2-psk
+> - client devices consists in a variety of endpoints (laptops, cell phones, tablets, smart devices), running various versions of Mac OSX, Linux, Windows, Android or IOS.
+> - certain clients supports only 20Mhz, HT protection kicks in and turns off on APs as those clients are moving around. Consequently ht_operation_mode fluctuates between 4 and 6 even when staying on the same AP.
+> - the issue affects various laptops with Intel AX200 or AX201 chipsets, running Debian or Ubuntu with a recent kernel >= 5.10
+> - see attached file devices.txt for detailed information on the different laptops we have reproduced the issue on
+> 
+> 
+> Steps to reproduce:
+> - appears sometimes, but not always, after the iwlwifi STA roams from one AP to another
+> - seen more often when ht_operation_mode changes between 4 and 6 (but not sufficient to trigger the issue)
+> - STA deassociates from current AP and associates to the new one successfully
+> - connectivity works on the new AP for a short period of time, usually between 30s and 1 minute
+> - then suddenly, the Rx path breaks. No more received frame visible on the STA wireless interface. AP reports that frames are retransmitted and not acknowledged by STA.
+> - the Tx path keeps working. Frames sent by STA to AP are received and visible on the network
+> - in this state each inbound frame appears to trigger iwl_pcie_rx_handle_rb with cmd BAR_FRAME_RELEASE (seqnum is always the same):
+> 
+> Mar  4 12:44:32 debian kernel: [15884.715812] iwlwifi 0000:00:14.3: iwl_pcie_rx_handle Q 0: HW = 338, SW = 337
+> Mar  4 12:44:32 debian kernel: [15884.715819] iwlwifi 0000:00:14.3: iwl_pcie_get_rxb Got virtual RB ID 1348
+> Mar  4 12:44:32 debian kernel: [15884.715831] iwlwifi 0000:00:14.3: iwl_pcie_rx_handle_rb Q 0: cmd at offset 0: BAR_FRAME_RELEASE (00.c2, seq 0xbfff)
+> Mar  4 12:44:32 debian kernel: [15884.715838] iwlwifi 0000:00:14.3: iwl_mvm_release_frames_from_notif Frame release notification for BAID 14, NSSN 169
+> Mar  4 12:44:32 debian kernel: [15884.715843] iwlwifi 0000:00:14.3: iwl_pcie_rx_handle_rb Q 0: RB end marker at offset 64
+> Mar  4 12:44:32 debian kernel: [15884.715852] iwlwifi 0000:00:14.3: iwl_pcie_restock_bd Assigned virtual RB ID 1348 to queue 0 index 334
+> 
+> - those events do not appear during normal operation (or very rarely)
+> 
+> 
+> Temporary resolution:
+> - in most cases, the STA remains in this state until Wifi is restarted or until it roams to another AP
+> - while in that state, it may happens (rarely) that a few frame are received with very high latency, then the next ones are lost, for instance:
+> 
+> [1646398334.114200] From 10.200.2.67 icmp_seq=148 Destination Host Unreachable
+> [1646398334.114242] From 10.200.2.67 icmp_seq=149 Destination Host Unreachable
+> [1646398334.114251] From 10.200.2.67 icmp_seq=150 Destination Host Unreachable
+> [1646398336.365181] 64 bytes from 10.200.2.1: icmp_seq=151 ttl=64 time=2251 ms
+> [1646398336.365237] 64 bytes from 10.200.2.1: icmp_seq=152 ttl=64 time=1227 ms
+> [1646398336.365250] 64 bytes from 10.200.2.1: icmp_seq=153 ttl=64 time=203 ms
+> [1646398375.042236] From 10.200.2.67 icmp_seq=188 Destination Host Unreachable
+> [1646398375.042291] From 10.200.2.67 icmp_seq=189 Destination Host Unreachable
+> [1646398375.042303] From 10.200.2.67 icmp_seq=190 Destination Host Unreachable
+> 
+> 
+> Workaround:
+> - disable_11ax=1 prevents the problem from happening
+> [...]
 
-  620a6dc40754 ("sched/topology: Make sched_init_numa() use a set for the deduplicating sort")
+>  Stephane Poignant 2022-03-10 14:48:39 UTC
+> 
+> Did some further testing with vanilla kernel.
+> 5.10.66 and older DO NOT reproduce the issue.
+> 5.10.67 and newer DO reproduce.
+> 
+> I see the following changes according to changelog:
+> iwlwifi: mvm: Fix scan channel flags settings
+> iwlwifi: fw: correctly limit to monitor dump
+> iwlwifi: mvm: fix access to BSS elements
+> iwlwifi: mvm: avoid static queue number aliasing
+> iwlwifi: mvm: fix a memory leak in iwl_mvm_mac_ctxt_beacon_changed
+> iwlwifi: pcie: free RBs during configure
+> 
+> Suspecting the one related with queues but no strong opinion atm.
+> 
+> [reply] [−] Comment 6 Stephane Poignant 2022-03-11 10:18:29 UTC
+> 
+> Ok so after some further testing, turned out that after commenting the following lines in file drivers/net/wireless/intel/iwlwifi/pcie/trans.c:
+> 
+> 	/* free all first - we might be reconfigured for a different size */
+> 	iwl_pcie_free_rbs_pool(trans);
+> 
+> Which were introduced by the following commit:
+> iwlwifi: pcie: free RBs during configure
+> https://lore.kernel.org/all/iwlwifi.20210802170640.42d7c93279c4.I07f74e65aab0e3d965a81206fcb289dc92d74878@changeid/
+> 
+> Then i'm no longer able to reproduce. Tested in vanilla 5.10.67, vanilla 5.10.88 and 5.10.92 with Debian patches.
+> 
 
-In this case, the afflicted machine comes up with a reported 256 possible
-nodes, all of which are 0 distance away from one another.  This was
-previously silently ignored, but is now caught by the aforementioned
-commit.
+Could somebody take a look into this? Or was this discussed somewhere
+else already? Or even fixed?
 
-The culprit is ia64's node_possible_map which remains unchanged from its
-initialization value of NODE_MASK_ALL.  In John's case, the machine
-doesn't have any SRAT nor SLIT table, but AIUI the possible map remains
-untouched regardless of what ACPI tables end up being parsed.  Thus,
-!online && possible nodes remain with a bogus distance of 0 (distances \in
-[0, 9] are "reserved and have no meaning" as per the ACPI spec).
+Anyway, to get this tracked:
 
-Follow x86 / drivers/base/arch_numa's example and set the possible map to
-the parsed map, which in this case seems to be the online map.
+#regzbot introduced: 608c8359c567b4a04dedbe
+#regzbot from: Stephane Poignant <stephane.poignant@proton.ch>
+#regzbot title: wireless: iwlwifi: regression in 5.10.67 due to
+"iwlwifi: pcie: free RBs during configure"
+#regzbot link: https://bugzilla.kernel.org/show_bug.cgi?id=215660
 
-Link: http://lore.kernel.org/r/255d6b5d-194e-eb0e-ecdd-97477a534441@physik.fu-berlin.de
-Link: https://lkml.kernel.org/r/20210318130617.896309-1-valentin.schneider@arm.com
-Fixes: 620a6dc40754 ("sched/topology: Make sched_init_numa() use a set for the deduplicating sort")
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Tested-by: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Anatoly Pugachev <matorola@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[ dannf: minor context adjustment in arch/ia64/kernel/acpi.c ]
-Signed-off-by: dann frazier <dann.frazier@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/ia64/kernel/acpi.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
 
---- a/arch/ia64/kernel/acpi.c
-+++ b/arch/ia64/kernel/acpi.c
-@@ -537,7 +537,8 @@ void __init acpi_numa_fixup(void)
- 	if (srat_num_cpus == 0) {
- 		node_set_online(0);
- 		node_cpuid[0].phys_id = hard_smp_processor_id();
--		return;
-+		slit_distance(0, 0) = LOCAL_DISTANCE;
-+		goto out;
- 	}
- 
- 	/*
-@@ -580,7 +581,7 @@ void __init acpi_numa_fixup(void)
- 			for (j = 0; j < MAX_NUMNODES; j++)
- 				node_distance(i, j) = i == j ? LOCAL_DISTANCE :
- 							REMOTE_DISTANCE;
--		return;
-+		goto out;
- 	}
- 
- 	memset(numa_slit, -1, sizeof(numa_slit));
-@@ -605,6 +606,8 @@ void __init acpi_numa_fixup(void)
- 		printk("\n");
- 	}
- #endif
-+out:
-+	node_possible_map = node_online_map;
- }
- #endif				/* CONFIG_ACPI_NUMA */
- 
+P.S.: As the Linux kernel's regression tracker I'm getting a lot of
+reports on my table. I can only look briefly into most of them and lack
+knowledge about most of the areas they concern. I thus unfortunately
+will sometimes get things wrong or miss something important. I hope
+that's not the case here; if you think it is, don't hesitate to tell me
+in a public reply, it's in everyone's interest to set the public record
+straight.
 
+-- 
+Additional information about regzbot:
 
+If you want to know more about regzbot, check out its web-interface, the
+getting start guide, and the references documentation:
+
+https://linux-regtracking.leemhuis.info/regzbot/
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md
+
+The last two documents will explain how you can interact with regzbot
+yourself if your want to.
+
+Hint for reporters: when reporting a regression it's in your interest to
+CC the regression list and tell regzbot about the issue, as that ensures
+the regression makes it onto the radar of the Linux kernel's regression
+tracker -- that's in your interest, as it ensures your report won't fall
+through the cracks unnoticed.
+
+Hint for developers: you normally don't need to care about regzbot once
+it's involved. Fix the issue as you normally would, just remember to
+include 'Link:' tag in the patch descriptions pointing to all reports
+about the issue. This has been expected from developers even before
+regzbot showed up for reasons explained in
+'Documentation/process/submitting-patches.rst' and
+'Documentation/process/5.Posting.rst'.
