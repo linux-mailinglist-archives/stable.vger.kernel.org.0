@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBBB4D8288
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47E594D82F3
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240379AbiCNMFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:05:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58588 "EHLO
+        id S240540AbiCNMLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:11:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240385AbiCNMFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:02 -0400
+        with ESMTP id S241739AbiCNMJF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDF9488BC;
-        Mon, 14 Mar 2022 05:01:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B939F13E20;
+        Mon, 14 Mar 2022 05:05:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4310B80DC2;
-        Mon, 14 Mar 2022 12:01:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E49C340E9;
-        Mon, 14 Mar 2022 12:01:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BA2BB80CDE;
+        Mon, 14 Mar 2022 12:05:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 062A0C340E9;
+        Mon, 14 Mar 2022 12:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259303;
-        bh=nHvW5rVPVOcGyFr0loHYgzmKepP2LxF/KCYMrToru7U=;
+        s=korg; t=1647259547;
+        bh=OlviiWjCZnCp4fS4Y+J4V867PlNstT+4dtqiI6xxmUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wO3Kc55bcLqXyX2CqDN/3ms+PWWym7KYoLXh9q+wtxUC0pJVhSv4mZJoE5fcF68S3
-         rwt9gf8RkTuYyw9J107y0SRqo4XXhA/JqrTpa/cx3z318Id391W1+XxSfBXSFqhD6R
-         hpyg0Iwyh9kmIJLkRSRMwN9xnN3hNA6aILp9FemE=
+        b=LlFI7/u8d4dGuR3D7LaKLFVH8mrELnIjUzxEeQHncJ7wNY9GF+Xz1z/WW+BFWIkJN
+         ZictjV2WVsaSdGn9J/KAdtHYZUEGES8CLvn8GyhMVO5MMDHFKrIdJAUxXwUqf3iBf9
+         U6gu0AuYLDFClXz37f+/dGxzq/qrmVkkMdvkOq7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, suresh kumar <suresh2514@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 40/71] net-sysfs: add check for netdevice being present to speed_show
+        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
+        Jonathan Toppins <jtoppins@redhat.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 031/110] ice: Fix error with handling of bonding MTU
 Date:   Mon, 14 Mar 2022 12:53:33 +0100
-Message-Id: <20220314112739.054120064@linuxfoundation.org>
+Message-Id: <20220314112743.905792634@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,76 +56,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: suresh kumar <suresh2514@gmail.com>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-[ Upstream commit 4224cfd7fb6523f7a9d1c8bb91bb5df1e38eb624 ]
+[ Upstream commit 97b0129146b1544bbb0773585327896da3bb4e0a ]
 
-When bringing down the netdevice or system shutdown, a panic can be
-triggered while accessing the sysfs path because the device is already
-removed.
+When a bonded interface is destroyed, .ndo_change_mtu can be called
+during the tear-down process while the RTNL lock is held.  This is a
+problem since the auxiliary driver linked to the LAN driver needs to be
+notified of the MTU change, and this requires grabbing a device_lock on
+the auxiliary_device's dev.  Currently this is being attempted in the
+same execution context as the call to .ndo_change_mtu which is causing a
+dead-lock.
 
-    [  755.549084] mlx5_core 0000:12:00.1: Shutdown was called
-    [  756.404455] mlx5_core 0000:12:00.0: Shutdown was called
-    ...
-    [  757.937260] BUG: unable to handle kernel NULL pointer dereference at           (null)
-    [  758.031397] IP: [<ffffffff8ee11acb>] dma_pool_alloc+0x1ab/0x280
+Move the notification of the changed MTU to a separate execution context
+(watchdog service task) and eliminate the "before" notification.
 
-    crash> bt
-    ...
-    PID: 12649  TASK: ffff8924108f2100  CPU: 1   COMMAND: "amsd"
-    ...
-     #9 [ffff89240e1a38b0] page_fault at ffffffff8f38c778
-        [exception RIP: dma_pool_alloc+0x1ab]
-        RIP: ffffffff8ee11acb  RSP: ffff89240e1a3968  RFLAGS: 00010046
-        RAX: 0000000000000246  RBX: ffff89243d874100  RCX: 0000000000001000
-        RDX: 0000000000000000  RSI: 0000000000000246  RDI: ffff89243d874090
-        RBP: ffff89240e1a39c0   R8: 000000000001f080   R9: ffff8905ffc03c00
-        R10: ffffffffc04680d4  R11: ffffffff8edde9fd  R12: 00000000000080d0
-        R13: ffff89243d874090  R14: ffff89243d874080  R15: 0000000000000000
-        ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-    #10 [ffff89240e1a39c8] mlx5_alloc_cmd_msg at ffffffffc04680f3 [mlx5_core]
-    #11 [ffff89240e1a3a18] cmd_exec at ffffffffc046ad62 [mlx5_core]
-    #12 [ffff89240e1a3ab8] mlx5_cmd_exec at ffffffffc046b4fb [mlx5_core]
-    #13 [ffff89240e1a3ae8] mlx5_core_access_reg at ffffffffc0475434 [mlx5_core]
-    #14 [ffff89240e1a3b40] mlx5e_get_fec_caps at ffffffffc04a7348 [mlx5_core]
-    #15 [ffff89240e1a3bb0] get_fec_supported_advertised at ffffffffc04992bf [mlx5_core]
-    #16 [ffff89240e1a3c08] mlx5e_get_link_ksettings at ffffffffc049ab36 [mlx5_core]
-    #17 [ffff89240e1a3ce8] __ethtool_get_link_ksettings at ffffffff8f25db46
-    #18 [ffff89240e1a3d48] speed_show at ffffffff8f277208
-    #19 [ffff89240e1a3dd8] dev_attr_show at ffffffff8f0b70e3
-    #20 [ffff89240e1a3df8] sysfs_kf_seq_show at ffffffff8eedbedf
-    #21 [ffff89240e1a3e18] kernfs_seq_show at ffffffff8eeda596
-    #22 [ffff89240e1a3e28] seq_read at ffffffff8ee76d10
-    #23 [ffff89240e1a3e98] kernfs_fop_read at ffffffff8eedaef5
-    #24 [ffff89240e1a3ed8] vfs_read at ffffffff8ee4e3ff
-    #25 [ffff89240e1a3f08] sys_read at ffffffff8ee4f27f
-    #26 [ffff89240e1a3f50] system_call_fastpath at ffffffff8f395f92
-
-    crash> net_device.state ffff89443b0c0000
-      state = 0x5  (__LINK_STATE_START| __LINK_STATE_NOCARRIER)
-
-To prevent this scenario, we also make sure that the netdevice is present.
-
-Signed-off-by: suresh kumar <suresh2514@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 348048e724a0e ("ice: Implement iidc operations")
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
+Tested-by: Jonathan Toppins <jtoppins@redhat.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice.h      |  1 +
+ drivers/net/ethernet/intel/ice/ice_main.c | 29 +++++++++++------------
+ 2 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index 99303897b7bb..989b3f7ee85f 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -213,7 +213,7 @@ static ssize_t speed_show(struct device *dev,
- 	if (!rtnl_trylock())
- 		return restart_syscall();
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index 387322615e08..f23a741e30bf 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -398,6 +398,7 @@ enum ice_pf_flags {
+ 	ICE_FLAG_MDD_AUTO_RESET_VF,
+ 	ICE_FLAG_LINK_LENIENT_MODE_ENA,
+ 	ICE_FLAG_PLUG_AUX_DEV,
++	ICE_FLAG_MTU_CHANGED,
+ 	ICE_PF_FLAGS_NBITS		/* must be last */
+ };
  
--	if (netif_running(netdev)) {
-+	if (netif_running(netdev) && netif_device_present(netdev)) {
- 		struct ethtool_link_ksettings cmd;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 8a0c928853e6..d6ee62ae4480 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2146,6 +2146,17 @@ static void ice_service_task(struct work_struct *work)
+ 	if (test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
+ 		ice_plug_aux_dev(pf);
  
- 		if (!__ethtool_get_link_ksettings(netdev, &cmd))
++	if (test_and_clear_bit(ICE_FLAG_MTU_CHANGED, pf->flags)) {
++		struct iidc_event *event;
++
++		event = kzalloc(sizeof(*event), GFP_KERNEL);
++		if (event) {
++			set_bit(IIDC_EVENT_AFTER_MTU_CHANGE, event->type);
++			ice_send_event_to_aux(pf, event);
++			kfree(event);
++		}
++	}
++
+ 	ice_clean_adminq_subtask(pf);
+ 	ice_check_media_subtask(pf);
+ 	ice_check_for_hang_subtask(pf);
+@@ -6532,7 +6543,6 @@ static int ice_change_mtu(struct net_device *netdev, int new_mtu)
+ 	struct ice_netdev_priv *np = netdev_priv(netdev);
+ 	struct ice_vsi *vsi = np->vsi;
+ 	struct ice_pf *pf = vsi->back;
+-	struct iidc_event *event;
+ 	u8 count = 0;
+ 	int err = 0;
+ 
+@@ -6567,14 +6577,6 @@ static int ice_change_mtu(struct net_device *netdev, int new_mtu)
+ 		return -EBUSY;
+ 	}
+ 
+-	event = kzalloc(sizeof(*event), GFP_KERNEL);
+-	if (!event)
+-		return -ENOMEM;
+-
+-	set_bit(IIDC_EVENT_BEFORE_MTU_CHANGE, event->type);
+-	ice_send_event_to_aux(pf, event);
+-	clear_bit(IIDC_EVENT_BEFORE_MTU_CHANGE, event->type);
+-
+ 	netdev->mtu = (unsigned int)new_mtu;
+ 
+ 	/* if VSI is up, bring it down and then back up */
+@@ -6582,21 +6584,18 @@ static int ice_change_mtu(struct net_device *netdev, int new_mtu)
+ 		err = ice_down(vsi);
+ 		if (err) {
+ 			netdev_err(netdev, "change MTU if_down err %d\n", err);
+-			goto event_after;
++			return err;
+ 		}
+ 
+ 		err = ice_up(vsi);
+ 		if (err) {
+ 			netdev_err(netdev, "change MTU if_up err %d\n", err);
+-			goto event_after;
++			return err;
+ 		}
+ 	}
+ 
+ 	netdev_dbg(netdev, "changed MTU to %d\n", new_mtu);
+-event_after:
+-	set_bit(IIDC_EVENT_AFTER_MTU_CHANGE, event->type);
+-	ice_send_event_to_aux(pf, event);
+-	kfree(event);
++	set_bit(ICE_FLAG_MTU_CHANGED, pf->flags);
+ 
+ 	return err;
+ }
 -- 
 2.34.1
 
