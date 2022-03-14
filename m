@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DAAE4D83C6
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7170B4D8328
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233439AbiCNMVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60148 "EHLO
+        id S241006AbiCNMMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241303AbiCNMRL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:17:11 -0400
+        with ESMTP id S241097AbiCNMIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0194B369E0;
-        Mon, 14 Mar 2022 05:12:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626C63136D;
+        Mon, 14 Mar 2022 05:04:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70F7261315;
-        Mon, 14 Mar 2022 12:12:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3190EC340E9;
-        Mon, 14 Mar 2022 12:12:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E411C612FC;
+        Mon, 14 Mar 2022 12:04:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4726C340E9;
+        Mon, 14 Mar 2022 12:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259936;
-        bh=YGDCMuwrUahh+Ocfj5rpl5YvgAJSu76Qii8l0ri9tGM=;
+        s=korg; t=1647259469;
+        bh=moZZ85LDf9khSYKSwiQkuRWcmP/GMvfFbmMPYnMwabY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d//OdAmPBZxCsmJU3n5/oZBVmHI+r39mlt3qpnxFi2kDFETQpGJgO2Qmaq+up7I1N
-         TkjW+zqkqM9FWWF8uV7X5AUcBY9GYwBO/7Cs/dpMHVHTl8V2YrQZNhIJXBMEZvm8gP
-         pIgLy3wxxaHpT7IbC5ZIq8Ewwv7fI6aP03s4J5vE=
+        b=NYKgjzAyV/RHrKf/DnEN6Hqb9QW2N+c95Yeu0TsVA8WunVM90ntd9pFJuLP7jv3/d
+         MW8YkECiF8fU7sMhESvw94JGVIg2ge7QJDlhv6MBjvfoBrilTkFPtbSTR8JOmCx1iA
+         ra5dA9yblh4/GgZD6j0HGgFUseb1OKcJNEyvz4+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 013/121] vdpa/mlx5: add validation for VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command
+Subject: [PATCH 5.15 014/110] mISDN: Fix memory leak in dsp_pipeline_build()
 Date:   Mon, 14 Mar 2022 12:53:16 +0100
-Message-Id: <20220314112744.496974287@linuxfoundation.org>
+Message-Id: <20220314112743.432024701@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Si-Wei Liu <si-wei.liu@oracle.com>
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
 
-[ Upstream commit ed0f849fc3a63ed2ddf5e72cdb1de3bdbbb0f8eb ]
+[ Upstream commit c6a502c2299941c8326d029cfc8a3bc8a4607ad5 ]
 
-When control vq receives a VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command
-request from the driver, presently there is no validation against the
-number of queue pairs to configure, or even if multiqueue had been
-negotiated or not is unverified. This may lead to kernel panic due to
-uninitialized resource for the queues were there any bogus request
-sent down by untrusted driver. Tie up the loose ends there.
+dsp_pipeline_build() allocates dup pointer by kstrdup(cfg),
+but then it updates dup variable by strsep(&dup, "|").
+As a result when it calls kfree(dup), the dup variable contains NULL.
 
-Fixes: 52893733f2c5 ("vdpa/mlx5: Add multiqueue support")
-Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-Link: https://lore.kernel.org/r/1642206481-30721-4-git-send-email-si-wei.liu@oracle.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Eli Cohen <elic@nvidia.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Found by Linux Driver Verification project (linuxtesting.org) with SVACE.
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Fixes: 960366cf8dbb ("Add mISDN DSP")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/isdn/mISDN/dsp_pipeline.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index ef6da39ccb3f..7b4ab7cfc359 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1571,11 +1571,27 @@ static virtio_net_ctrl_ack handle_ctrl_mq(struct mlx5_vdpa_dev *mvdev, u8 cmd)
+diff --git a/drivers/isdn/mISDN/dsp_pipeline.c b/drivers/isdn/mISDN/dsp_pipeline.c
+index e11ca6bbc7f4..c3b2c99b5cd5 100644
+--- a/drivers/isdn/mISDN/dsp_pipeline.c
++++ b/drivers/isdn/mISDN/dsp_pipeline.c
+@@ -192,7 +192,7 @@ void dsp_pipeline_destroy(struct dsp_pipeline *pipeline)
+ int dsp_pipeline_build(struct dsp_pipeline *pipeline, const char *cfg)
+ {
+ 	int found = 0;
+-	char *dup, *tok, *name, *args;
++	char *dup, *next, *tok, *name, *args;
+ 	struct dsp_element_entry *entry, *n;
+ 	struct dsp_pipeline_entry *pipeline_entry;
+ 	struct mISDN_dsp_element *elem;
+@@ -203,10 +203,10 @@ int dsp_pipeline_build(struct dsp_pipeline *pipeline, const char *cfg)
+ 	if (!list_empty(&pipeline->list))
+ 		_dsp_pipeline_destroy(pipeline);
  
- 	switch (cmd) {
- 	case VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET:
-+		/* This mq feature check aligns with pre-existing userspace
-+		 * implementation.
-+		 *
-+		 * Without it, an untrusted driver could fake a multiqueue config
-+		 * request down to a non-mq device that may cause kernel to
-+		 * panic due to uninitialized resources for extra vqs. Even with
-+		 * a well behaving guest driver, it is not expected to allow
-+		 * changing the number of vqs on a non-mq device.
-+		 */
-+		if (!MLX5_FEATURE(mvdev, VIRTIO_NET_F_MQ))
-+			break;
-+
- 		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov, (void *)&mq, sizeof(mq));
- 		if (read != sizeof(mq))
- 			break;
- 
- 		newqps = mlx5vdpa16_to_cpu(mvdev, mq.virtqueue_pairs);
-+		if (newqps < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
-+		    newqps > mlx5_vdpa_max_qps(mvdev->max_vqs))
-+			break;
-+
- 		if (ndev->cur_num_vqs == 2 * newqps) {
- 			status = VIRTIO_NET_OK;
- 			break;
+-	dup = kstrdup(cfg, GFP_ATOMIC);
++	dup = next = kstrdup(cfg, GFP_ATOMIC);
+ 	if (!dup)
+ 		return 0;
+-	while ((tok = strsep(&dup, "|"))) {
++	while ((tok = strsep(&next, "|"))) {
+ 		if (!strlen(tok))
+ 			continue;
+ 		name = strsep(&tok, "(");
 -- 
 2.34.1
 
