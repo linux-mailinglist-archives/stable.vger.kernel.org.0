@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8ED4D8101
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:36:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E1F4D80E2
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:35:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbiCNLhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37570 "EHLO
+        id S236577AbiCNLf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239202AbiCNLhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:37:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49768433AB;
-        Mon, 14 Mar 2022 04:36:01 -0700 (PDT)
+        with ESMTP id S239072AbiCNLfz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:35:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14085424B6;
+        Mon, 14 Mar 2022 04:34:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2FD161130;
-        Mon, 14 Mar 2022 11:36:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC80C340E9;
-        Mon, 14 Mar 2022 11:35:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6329B80DC1;
+        Mon, 14 Mar 2022 11:34:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1168AC340E9;
+        Mon, 14 Mar 2022 11:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257760;
-        bh=4XBQmzxSlgqVq4uzJLDJWX8OONLIQaibjMk869vL9As=;
+        s=korg; t=1647257680;
+        bh=hGVLVLeA8FynuEFnSnERRxt926NlxzuJnStotvekel8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WpNuHz6wmCXj1PTN+L/Pw0AuVPUmJT8wAiSOFS6HYkGfqMZJDJxvVMQA5a1mjv6XU
-         uT2CHIJ2vUiI9VVkddNBMXjBrN5FsAP+Ma+KdiUf+9LXjGgnHBHUKmlgcvPlS7Kdfv
-         WTEcv6+lIfRYTPyNoduq2P1EqeFaezBx4a2zdTWc=
+        b=jH2817/iLY3vQs4qmLYNW5jhaiAZlu4XphrPF1xgoKOzRihIiW8FDsl5uTcVmWI8G
+         m6svdqi5VG3G0zHeDP90hIqPaVEXqCFrnCYk7mTA4UNjI1wNPmU6Njp+jtYw4iM2ta
+         2RULoCvcVxNYQWG7vczNdbrYktRamyp8J3ZVSgGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Vlad Yasevich <vyasevich@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, suresh kumar <suresh2514@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/20] sctp: fix kernel-infoleak for SCTP sockets
-Date:   Mon, 14 Mar 2022 12:34:10 +0100
-Message-Id: <20220314112730.777399486@linuxfoundation.org>
+Subject: [PATCH 4.9 10/20] net-sysfs: add check for netdevice being present to speed_show
+Date:   Mon, 14 Mar 2022 12:34:11 +0100
+Message-Id: <20220314112730.805998272@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112730.388955049@linuxfoundation.org>
 References: <20220314112730.388955049@linuxfoundation.org>
@@ -59,126 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: suresh kumar <suresh2514@gmail.com>
 
-[ Upstream commit 633593a808980f82d251d0ca89730d8bb8b0220c ]
+[ Upstream commit 4224cfd7fb6523f7a9d1c8bb91bb5df1e38eb624 ]
 
-syzbot reported a kernel infoleak [1] of 4 bytes.
+When bringing down the netdevice or system shutdown, a panic can be
+triggered while accessing the sysfs path because the device is already
+removed.
 
-After analysis, it turned out r->idiag_expires is not initialized
-if inet_sctp_diag_fill() calls inet_diag_msg_common_fill()
+    [  755.549084] mlx5_core 0000:12:00.1: Shutdown was called
+    [  756.404455] mlx5_core 0000:12:00.0: Shutdown was called
+    ...
+    [  757.937260] BUG: unable to handle kernel NULL pointer dereference at           (null)
+    [  758.031397] IP: [<ffffffff8ee11acb>] dma_pool_alloc+0x1ab/0x280
 
-Make sure to clear idiag_timer/idiag_retrans/idiag_expires
-and let inet_diag_msg_sctpasoc_fill() fill them again if needed.
+    crash> bt
+    ...
+    PID: 12649  TASK: ffff8924108f2100  CPU: 1   COMMAND: "amsd"
+    ...
+     #9 [ffff89240e1a38b0] page_fault at ffffffff8f38c778
+        [exception RIP: dma_pool_alloc+0x1ab]
+        RIP: ffffffff8ee11acb  RSP: ffff89240e1a3968  RFLAGS: 00010046
+        RAX: 0000000000000246  RBX: ffff89243d874100  RCX: 0000000000001000
+        RDX: 0000000000000000  RSI: 0000000000000246  RDI: ffff89243d874090
+        RBP: ffff89240e1a39c0   R8: 000000000001f080   R9: ffff8905ffc03c00
+        R10: ffffffffc04680d4  R11: ffffffff8edde9fd  R12: 00000000000080d0
+        R13: ffff89243d874090  R14: ffff89243d874080  R15: 0000000000000000
+        ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+    #10 [ffff89240e1a39c8] mlx5_alloc_cmd_msg at ffffffffc04680f3 [mlx5_core]
+    #11 [ffff89240e1a3a18] cmd_exec at ffffffffc046ad62 [mlx5_core]
+    #12 [ffff89240e1a3ab8] mlx5_cmd_exec at ffffffffc046b4fb [mlx5_core]
+    #13 [ffff89240e1a3ae8] mlx5_core_access_reg at ffffffffc0475434 [mlx5_core]
+    #14 [ffff89240e1a3b40] mlx5e_get_fec_caps at ffffffffc04a7348 [mlx5_core]
+    #15 [ffff89240e1a3bb0] get_fec_supported_advertised at ffffffffc04992bf [mlx5_core]
+    #16 [ffff89240e1a3c08] mlx5e_get_link_ksettings at ffffffffc049ab36 [mlx5_core]
+    #17 [ffff89240e1a3ce8] __ethtool_get_link_ksettings at ffffffff8f25db46
+    #18 [ffff89240e1a3d48] speed_show at ffffffff8f277208
+    #19 [ffff89240e1a3dd8] dev_attr_show at ffffffff8f0b70e3
+    #20 [ffff89240e1a3df8] sysfs_kf_seq_show at ffffffff8eedbedf
+    #21 [ffff89240e1a3e18] kernfs_seq_show at ffffffff8eeda596
+    #22 [ffff89240e1a3e28] seq_read at ffffffff8ee76d10
+    #23 [ffff89240e1a3e98] kernfs_fop_read at ffffffff8eedaef5
+    #24 [ffff89240e1a3ed8] vfs_read at ffffffff8ee4e3ff
+    #25 [ffff89240e1a3f08] sys_read at ffffffff8ee4f27f
+    #26 [ffff89240e1a3f50] system_call_fastpath at ffffffff8f395f92
 
-[1]
+    crash> net_device.state ffff89443b0c0000
+      state = 0x5  (__LINK_STATE_START| __LINK_STATE_NOCARRIER)
 
-BUG: KMSAN: kernel-infoleak in instrument_copy_to_user include/linux/instrumented.h:121 [inline]
-BUG: KMSAN: kernel-infoleak in copyout lib/iov_iter.c:154 [inline]
-BUG: KMSAN: kernel-infoleak in _copy_to_iter+0x6ef/0x25a0 lib/iov_iter.c:668
- instrument_copy_to_user include/linux/instrumented.h:121 [inline]
- copyout lib/iov_iter.c:154 [inline]
- _copy_to_iter+0x6ef/0x25a0 lib/iov_iter.c:668
- copy_to_iter include/linux/uio.h:162 [inline]
- simple_copy_to_iter+0xf3/0x140 net/core/datagram.c:519
- __skb_datagram_iter+0x2d5/0x11b0 net/core/datagram.c:425
- skb_copy_datagram_iter+0xdc/0x270 net/core/datagram.c:533
- skb_copy_datagram_msg include/linux/skbuff.h:3696 [inline]
- netlink_recvmsg+0x669/0x1c80 net/netlink/af_netlink.c:1977
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- __sys_recvfrom+0x795/0xa10 net/socket.c:2097
- __do_sys_recvfrom net/socket.c:2115 [inline]
- __se_sys_recvfrom net/socket.c:2111 [inline]
- __x64_sys_recvfrom+0x19d/0x210 net/socket.c:2111
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+To prevent this scenario, we also make sure that the netdevice is present.
 
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:737 [inline]
- slab_alloc_node mm/slub.c:3247 [inline]
- __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4975
- kmalloc_reserve net/core/skbuff.c:354 [inline]
- __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
- alloc_skb include/linux/skbuff.h:1158 [inline]
- netlink_dump+0x3e5/0x16c0 net/netlink/af_netlink.c:2248
- __netlink_dump_start+0xcf8/0xe90 net/netlink/af_netlink.c:2373
- netlink_dump_start include/linux/netlink.h:254 [inline]
- inet_diag_handler_cmd+0x2e7/0x400 net/ipv4/inet_diag.c:1341
- sock_diag_rcv_msg+0x24a/0x620
- netlink_rcv_skb+0x40c/0x7e0 net/netlink/af_netlink.c:2494
- sock_diag_rcv+0x63/0x80 net/core/sock_diag.c:277
- netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
- netlink_unicast+0x1093/0x1360 net/netlink/af_netlink.c:1343
- netlink_sendmsg+0x14d9/0x1720 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg net/socket.c:725 [inline]
- sock_write_iter+0x594/0x690 net/socket.c:1061
- do_iter_readv_writev+0xa7f/0xc70
- do_iter_write+0x52c/0x1500 fs/read_write.c:851
- vfs_writev fs/read_write.c:924 [inline]
- do_writev+0x645/0xe00 fs/read_write.c:967
- __do_sys_writev fs/read_write.c:1040 [inline]
- __se_sys_writev fs/read_write.c:1037 [inline]
- __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Bytes 68-71 of 2508 are uninitialized
-Memory access of size 2508 starts at ffff888114f9b000
-Data copied to user address 00007f7fe09ff2e0
-
-CPU: 1 PID: 3478 Comm: syz-executor306 Not tainted 5.17.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 8f840e47f190 ("sctp: add the sctp_diag.c file")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/20220310001145.297371-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: suresh kumar <suresh2514@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sctp_diag.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ net/core/net-sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sctp/sctp_diag.c b/net/sctp/sctp_diag.c
-index e8f56b7c5afb..a044964fa802 100644
---- a/net/sctp/sctp_diag.c
-+++ b/net/sctp/sctp_diag.c
-@@ -45,10 +45,6 @@ static void inet_diag_msg_sctpasoc_fill(struct inet_diag_msg *r,
- 		r->idiag_timer = SCTP_EVENT_TIMEOUT_T3_RTX;
- 		r->idiag_retrans = asoc->rtx_data_chunks;
- 		r->idiag_expires = jiffies_to_msecs(t3_rtx->expires - jiffies);
--	} else {
--		r->idiag_timer = 0;
--		r->idiag_retrans = 0;
--		r->idiag_expires = 0;
- 	}
- }
+diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
+index 3fb5d8ecc849..e42df58b8876 100644
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -198,7 +198,7 @@ static ssize_t speed_show(struct device *dev,
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
  
-@@ -128,13 +124,14 @@ static int inet_sctp_diag_fill(struct sock *sk, struct sctp_association *asoc,
- 	r = nlmsg_data(nlh);
- 	BUG_ON(!sk_fullsock(sk));
+-	if (netif_running(netdev)) {
++	if (netif_running(netdev) && netif_device_present(netdev)) {
+ 		struct ethtool_link_ksettings cmd;
  
-+	r->idiag_timer = 0;
-+	r->idiag_retrans = 0;
-+	r->idiag_expires = 0;
- 	if (asoc) {
- 		inet_diag_msg_sctpasoc_fill(r, sk, asoc);
- 	} else {
- 		inet_diag_msg_common_fill(r, sk);
- 		r->idiag_state = sk->sk_state;
--		r->idiag_timer = 0;
--		r->idiag_retrans = 0;
- 	}
- 
- 	if (inet_diag_msg_attrs_fill(sk, skb, r, ext, user_ns, net_admin))
+ 		if (!__ethtool_get_link_ksettings(netdev, &cmd))
 -- 
 2.34.1
 
