@@ -2,543 +2,1067 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 741874D8532
+	by mail.lfdr.de (Postfix) with ESMTP id CD8044D8533
 	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230509AbiCNMsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:48:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53994 "EHLO
+        id S231509AbiCNMsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:48:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234819AbiCNMrm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:47:42 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D5465A59E;
-        Mon, 14 Mar 2022 05:39:45 -0700 (PDT)
-Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nTjzD-0000dE-1V; Mon, 14 Mar 2022 13:39:43 +0100
-Message-ID: <ad06e7b6-19f5-c499-314b-a3b4a0e27089@leemhuis.info>
-Date:   Mon, 14 Mar 2022 13:39:42 +0100
+        with ESMTP id S242248AbiCNMs1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:48:27 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B4AA17A84
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 05:44:57 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id t5so14252669pfg.4
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 05:44:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=WNsiCCdsODk425AImgQdXxJcVAupMsL/CmRc/teYn7Y=;
+        b=uY0EYooJYlYe2G4ZD+hoWGtJIpjggbUuKk27cRRrouFPqPCEvWsLYplLkSRsolZGOS
+         dGfaTROEMJSe3Qrra5bB4jC6jDICpobH1e28GYh2nSKseK/U6Ppr7+j3M/Mqce3FapS0
+         ugvKSge2dIx6aS7OfIVQk1rLPb1QI5tHWNTYVsfZqPwE/jz1gmnTF1vrfoA81Bk7WKYv
+         tc03iAg3Q1vZO6sr9kRKOzsk3VdWMV3U6ONrDgZFKI1YZoRmgX68akvYELorVLfUTwr/
+         vleeEotTT4+29JLKvNWLpWlC4pLY+PaFcBQBjogL2RCcejjJOMIo3YmZSYvugLs1svIw
+         B4Iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=WNsiCCdsODk425AImgQdXxJcVAupMsL/CmRc/teYn7Y=;
+        b=6gw/1OvtUKbGUtrf34JW6tGj8EMKlXCRkCRwZGvjku8twuAIHPYVQYPXXsMmyHmXjL
+         j6xzVStH7/WG0XwfyJHvwNHwyRXxIRp+9QkW2ypONODqreWIKb/rM0uUwFVM7kKixcBI
+         G2MqD8aRuQi5H9hFqrWqccwKPwPPAX9I5gWFmBJpFWXI7muG46krn3eXcye5xzus4b6f
+         GvFKyVEa2IO6qLnIdH/aaThPSGHJkqTSvLIXfe9r7ClAjUFhLHu2nwOUL6KLAGG/dTOD
+         A/6uBFLu3VgDBHxnbKfaQI/1rySYrUe8dR+wFdPzst2BjF2oN+HB70rhtASpsapFOXtU
+         PW0g==
+X-Gm-Message-State: AOAM532fFBTy8Y0mFVnjcMDkBVn0gwa2EZ4VHEFmcKPTAlXC9kbXOz9V
+        maU/Bx/cT45CZ0rp0l2sV31kTEbvhXN75jSD1nU=
+X-Google-Smtp-Source: ABdhPJx0yBG6AYi1w2wUigQe4ENGJmZSnigDLnvdJVcUdGjNPmLhid+fS1XCwU6j+3IFtHQ7Ul/D8A==
+X-Received: by 2002:a63:6c49:0:b0:380:a069:c537 with SMTP id h70-20020a636c49000000b00380a069c537mr19692132pgc.393.1647261896156;
+        Mon, 14 Mar 2022 05:44:56 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u25-20020a62ed19000000b004f140515d56sm19852291pfh.46.2022.03.14.05.44.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Mar 2022 05:44:55 -0700 (PDT)
+Message-ID: <622f38c7.1c69fb81.bb28c.2df3@mx.google.com>
+Date:   Mon, 14 Mar 2022 05:44:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: Bisected regression: 4287509b4d21 causes HP Spectre 14t-ea100 to
- overheat while suspended #forregzbot
-Content-Language: en-US
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-To:     Philippe Troin <phil@fifi.org>
-Cc:     linux-kernel@vger.kernel.org,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-References: <e1b3112fd6c8c889408915e9a849301d13acf2f1.camel@fifi.org>
- <6c119f2e-1bf8-60b8-ce32-113a30d29152@leemhuis.info>
-In-Reply-To: <6c119f2e-1bf8-60b8-ce32-113a30d29152@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1647261585;3876a0ea;
-X-HE-SMSGID: 1nTjzD-0000dE-1V
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Kernel: v4.9.305-28-g6dd559c8a7de
+Subject: stable-rc/queue/4.9 build: 168 builds: 3 failed, 165 passed, 2 errors,
+ 27 warnings (v4.9.305-28-g6dd559c8a7de)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-TWIMC: this mail is primarily send for documentation purposes and for
-regzbot, my Linux kernel regression tracking bot. These mails usually
-contain '#forregzbot' in the subject, to make them easy to spot and filter.
+stable-rc/queue/4.9 build: 168 builds: 3 failed, 165 passed, 2 errors, 27 w=
+arnings (v4.9.305-28-g6dd559c8a7de)
 
-Just for the record: this should be fixed in 5.16.14
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.305-28-g6dd559c8a7de/
 
-#regzbot fixed-by: cf6eae0facc6022
+Tree: stable-rc
+Branch: queue/4.9
+Git Describe: v4.9.305-28-g6dd559c8a7de
+Git Commit: 6dd559c8a7de22107bd8bcfea390f4e66a299c2c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
 
-Ciao, Thorsten
+Build Failures Detected:
 
-On 09.03.22 09:03, Thorsten Leemhuis wrote:
-> [TLDR: I'm adding the regression report below to regzbot, the Linux
-> kernel regression tracking bot; all text you find below is compiled from
-> a few templates paragraphs you might have encountered already already
-> from similar mails.]
-> 
-> Hi, this is your Linux kernel regression tracker.
-> 
-> On 09.03.22 04:50, Philippe Troin wrote:
->> Linux 5.16.9 was working fine, but starting with 5.16.10 my main laptop
->> has been overheating while suspended.
->> I've also tried 5.16.11, 5.16.12 and 5.16.13 and they also show the
->> same issue (overheating while suspended).
->>
->> I could not spot any difference between the dmesg messages issued
->> during suspend between a working version (5.16.9) and the the broken
->> ones (5.16.1[0-3]).
->>
->> I've bisected the regression down to commit 4287509b4d21
->> https://lore.kernel.org/lkml/20220214092510.074083242@linuxfoundation.org/
->>
->> I have also tried reverting that change on top of 5.16.12, and the
->> overheating behavior is gone.
->>
->> lspci and other details below.
->>
->> Phil.
-> 
-> Thanks for the report.
-> 
-> CCing the stable and the regression mailing list
-> 
-> To be sure below issue doesn't fall through the cracks unnoticed, I'm
-> adding it to regzbot, my Linux kernel regression tracking bot:
-> 
-> #regzbot ^introduced 4287509b4d21
-> #regzbot title HP Spectre 14t-ea100 overheats while suspended
-> #regzbot ignore-activity
-> 
-> If it turns out this isn't a regression, free free to remove it from the
-> tracking by sending a reply to this thread containing a paragraph like
-> "#regzbot invalid: reason why this is invalid" (without the quotes).
-> 
-> Reminder for developers: when fixing the issue, please add a 'Link:'
-> tags pointing to the report (the mail quoted above) using
-> lore.kernel.org/r/, as explained in
-> 'Documentation/process/submitting-patches.rst' and
-> 'Documentation/process/5.Posting.rst'. Regzbot needs them to
-> automatically connect reports with fixes, but they are useful in
-> general, too.
-> 
-> I'm sending this to everyone that got the initial report, to make
-> everyone aware of the tracking. I also hope that messages like this
-> motivate people to directly get at least the regression mailing list and
-> ideally even regzbot involved when dealing with regressions, as messages
-> like this wouldn't be needed then. And don't worry, if I need to send
-> other mails regarding this regression only relevant for regzbot I'll
-> send them to the regressions lists only (with a tag in the subject so
-> people can filter them away). With a bit of luck no such messages will
-> be needed anyway.
-> 
-> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-> 
-> P.S.: As the Linux kernel's regression tracker I'm getting a lot of
-> reports on my table. I can only look briefly into most of them and lack
-> knowledge about most of the areas they concern. I thus unfortunately
-> will sometimes get things wrong or miss something important. I hope
-> that's not the case here; if you think it is, don't hesitate to tell me
-> in a public reply, it's in everyone's interest to set the public record
-> straight.
-> 
-> 
-> 
->> The laptop is a HP Spectre x360 Convertible 14t-ea100.
->>
->> CPU (/proc/cpuinfo): 11th Gen Intel(R) Core(TM) i7-1195G7 @ 2.90GHz
->>
->> # lspci -v
->> 0000:00:00.0 Host bridge: Intel Corporation 11th Gen Core Processor Host Bridge/DRAM Registers (rev 02)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IOMMU group 0
->> 	Capabilities: [e0] Vendor Specific Information: Len=14 <?>
->> 	Kernel modules: igen6_edac
->>
->> 0000:00:02.0 VGA compatible controller: Intel Corporation TigerLake-LP GT2 [Iris Xe Graphics] (rev 03) (prog-if 00 [VGA controller])
->> 	DeviceName:  Onboard IGD
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IRQ 159, IOMMU group 1
->> 	Memory at 603e000000 (64-bit, non-prefetchable) [size=16M]
->> 	Memory at 4000000000 (64-bit, prefetchable) [size=256M]
->> 	I/O ports at 3000 [size=64]
->> 	Expansion ROM at 000c0000 [virtual] [disabled] [size=128K]
->> 	Capabilities: [40] Vendor Specific Information: Len=0c <?>
->> 	Capabilities: [70] Express Root Complex Integrated Endpoint, MSI 00
->> 	Capabilities: [ac] MSI: Enable+ Count=1/1 Maskable+ 64bit-
->> 	Capabilities: [d0] Power Management version 2
->> 	Capabilities: [100] Process Address Space ID (PASID)
->> 	Capabilities: [200] Address Translation Service (ATS)
->> 	Capabilities: [300] Page Request Interface (PRI)
->> 	Capabilities: [320] Single Root I/O Virtualization (SR-IOV)
->> 	Kernel driver in use: i915
->> 	Kernel modules: i915
->>
->> 0000:00:04.0 Signal processing controller: Intel Corporation TigerLake-LP Dynamic Tuning Processor Participant (rev 02)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: fast devsel, IRQ 16, IOMMU group 2
->> 	Memory at 603f240000 (64-bit, non-prefetchable) [size=128K]
->> 	Capabilities: [90] MSI: Enable- Count=1/1 Maskable- 64bit-
->> 	Capabilities: [d0] Power Management version 3
->> 	Capabilities: [e0] Vendor Specific Information: Len=0c <?>
->> 	Kernel driver in use: proc_thermal
->> 	Kernel modules: processor_thermal_device_pci_legacy
->>
->> 0000:00:07.0 PCI bridge: Intel Corporation Tiger Lake-LP Thunderbolt 4 PCI Express Root Port #0 (rev 02) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 124, IOMMU group 3
->> 	Bus: primary=00, secondary=01, subordinate=2b, sec-latency=0
->> 	I/O behind bridge: 00004000-00004fff [size=4K]
->> 	Memory behind bridge: 7a000000-861fffff [size=194M]
->> 	Prefetchable memory behind bridge: 0000006020000000-000000603bffffff [size=448M]
->> 	Capabilities: [40] Express Root Port (Slot+), MSI 00
->> 	Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
->> 	Capabilities: [90] Subsystem: Hewlett-Packard Company Device 89da
->> 	Capabilities: [a0] Power Management version 3
->> 	Capabilities: [100] Null
->> 	Capabilities: [220] Access Control Services
->> 	Capabilities: [a00] Downstream Port Containment
->> 	Kernel driver in use: pcieport
->>
->> 0000:00:07.1 PCI bridge: Intel Corporation Tiger Lake-LP Thunderbolt 4 PCI Express Root Port #1 (rev 02) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 125, IOMMU group 4
->> 	Bus: primary=00, secondary=2c, subordinate=56, sec-latency=0
->> 	I/O behind bridge: 00005000-00005fff [size=4K]
->> 	Memory behind bridge: 6c000000-781fffff [size=194M]
->> 	Prefetchable memory behind bridge: 0000006000000000-000000601bffffff [size=448M]
->> 	Capabilities: [40] Express Root Port (Slot+), MSI 00
->> 	Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
->> 	Capabilities: [90] Subsystem: Hewlett-Packard Company Device 89da
->> 	Capabilities: [a0] Power Management version 3
->> 	Capabilities: [100] Null
->> 	Capabilities: [220] Access Control Services
->> 	Capabilities: [a00] Downstream Port Containment
->> 	Kernel driver in use: pcieport
->>
->> 0000:00:08.0 System peripheral: Intel Corporation GNA Scoring Accelerator module (rev 02)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: fast devsel, IRQ 255, IOMMU group 5
->> 	Memory at 603f2a2000 (64-bit, non-prefetchable) [disabled] [size=4K]
->> 	Capabilities: [90] MSI: Enable- Count=1/1 Maskable- 64bit-
->> 	Capabilities: [a0] Vendor Specific Information: Len=14 <?>
->> 	Capabilities: [dc] Power Management version 2
->> 	Capabilities: [f0] PCI Advanced Features
->>
->> 0000:00:0d.0 USB controller: Intel Corporation Tiger Lake-LP Thunderbolt 4 USB Controller (rev 02) (prog-if 30 [XHCI])
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, medium devsel, latency 0, IRQ 127, IOMMU group 6
->> 	Memory at 603f280000 (64-bit, non-prefetchable) [size=64K]
->> 	Capabilities: [70] Power Management version 2
->> 	Capabilities: [80] MSI: Enable+ Count=1/8 Maskable- 64bit+
->> 	Capabilities: [90] Vendor Specific Information: Len=14 <?>
->> 	Capabilities: [b0] Vendor Specific Information: Len=00 <?>
->> 	Kernel driver in use: xhci_hcd
->>
->> 0000:00:0d.2 USB controller: Intel Corporation Tiger Lake-LP Thunderbolt 4 NHI #0 (rev 02) (prog-if 40 [USB4 Host Interface])
->> 	Subsystem: Device 2222:1111
->> 	Flags: bus master, fast devsel, latency 0, IRQ 16, IOMMU group 6
->> 	Memory at 603f200000 (64-bit, non-prefetchable) [size=256K]
->> 	Memory at 603f2a1000 (64-bit, non-prefetchable) [size=4K]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [88] MSI: Enable- Count=1/1 Maskable- 64bit+
->> 	Capabilities: [a0] MSI-X: Enable+ Count=16 Masked-
->> 	Kernel driver in use: thunderbolt
->> 	Kernel modules: thunderbolt
->>
->> 0000:00:0e.0 RAID bus controller: Intel Corporation Volume Management Device NVMe RAID Controller
->> 	Subsystem: Intel Corporation Device 0000
->> 	Flags: bus master, fast devsel, latency 0, IOMMU group 7
->> 	Memory at 603c000000 (64-bit, non-prefetchable) [size=32M]
->> 	Memory at 6a000000 (32-bit, non-prefetchable) [size=32M]
->> 	Memory at 603f100000 (64-bit, non-prefetchable) [size=1M]
->> 	Capabilities: [80] MSI-X: Enable+ Count=19 Masked-
->> 	Capabilities: [90] Express Root Complex Integrated Endpoint, MSI 00
->> 	Capabilities: [e0] Power Management version 3
->> 	Kernel driver in use: vmd
->> 	Kernel modules: vmd
->>
->> 0000:00:12.0 Serial controller: Intel Corporation Tiger Lake-LP Integrated Sensor Hub (rev 30) (prog-if 00 [8250])
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IRQ 16, IOMMU group 8
->> 	Memory at 603f270000 (64-bit, non-prefetchable) [size=64K]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [90] Vendor Specific Information: Len=14 <?>
->> 	Kernel driver in use: intel_ish_ipc
->> 	Kernel modules: intel_ish_ipc
->>
->> 0000:00:14.0 USB controller: Intel Corporation Tiger Lake-LP USB 3.2 Gen 2x1 xHCI Host Controller (rev 30) (prog-if 30 [XHCI])
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, medium devsel, latency 0, IRQ 128, IOMMU group 9
->> 	Memory at 603f260000 (64-bit, non-prefetchable) [size=64K]
->> 	Capabilities: [70] Power Management version 2
->> 	Capabilities: [80] MSI: Enable+ Count=1/8 Maskable- 64bit+
->> 	Capabilities: [90] Vendor Specific Information: Len=14 <?>
->> 	Capabilities: [b0] Vendor Specific Information: Len=00 <?>
->> 	Kernel driver in use: xhci_hcd
->>
->> 0000:00:14.2 RAM memory: Intel Corporation Tiger Lake-LP Shared SRAM (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: fast devsel, IOMMU group 9
->> 	Memory at 603f298000 (64-bit, non-prefetchable) [disabled] [size=16K]
->> 	Memory at 603f2a0000 (64-bit, non-prefetchable) [disabled] [size=4K]
->> 	Capabilities: [80] Power Management version 3
->>
->> 0000:00:14.3 Network controller: Intel Corporation Wi-Fi 6 AX201 (rev 30)
->> 	DeviceName: Intel Wi-Fi 6 AX201
->> 	Subsystem: Intel Corporation Device 0074
->> 	Flags: bus master, fast devsel, latency 0, IRQ 19, IOMMU group 10
->> 	Memory at 603f294000 (64-bit, non-prefetchable) [size=16K]
->> 	Capabilities: [c8] Power Management version 3
->> 	Capabilities: [d0] MSI: Enable- Count=1/1 Maskable- 64bit+
->> 	Capabilities: [40] Express Root Complex Integrated Endpoint, MSI 00
->> 	Capabilities: [80] MSI-X: Enable+ Count=16 Masked-
->> 	Capabilities: [100] Latency Tolerance Reporting
->> 	Capabilities: [164] Vendor Specific Information: ID=0010 Rev=0 Len=014 <?>
->> 	Kernel driver in use: iwlwifi
->> 	Kernel modules: iwlwifi
->>
->> 0000:00:15.0 Serial bus controller: Intel Corporation Tiger Lake-LP Serial IO I2C Controller #0 (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IRQ 27, IOMMU group 11
->> 	Memory at 4017000000 (64-bit, non-prefetchable) [virtual] [size=4K]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [90] Vendor Specific Information: Len=14 <?>
->> 	Kernel driver in use: intel-lpss
->>
->> 0000:00:15.1 Serial bus controller: Intel Corporation Tiger Lake-LP Serial IO I2C Controller #1 (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IRQ 40, IOMMU group 11
->> 	Memory at 4017001000 (64-bit, non-prefetchable) [virtual] [size=4K]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [90] Vendor Specific Information: Len=14 <?>
->> 	Kernel driver in use: intel-lpss
->>
->> 0000:00:16.0 Communication controller: Intel Corporation Tiger Lake-LP Management Engine Interface (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IRQ 186, IOMMU group 12
->> 	Memory at 603f29d000 (64-bit, non-prefetchable) [size=4K]
->> 	Capabilities: [50] Power Management version 3
->> 	Capabilities: [8c] MSI: Enable+ Count=1/1 Maskable- 64bit+
->> 	Capabilities: [a4] Vendor Specific Information: Len=14 <?>
->> 	Kernel driver in use: mei_me
->> 	Kernel modules: mei_me
->>
->> 0000:00:1c.0 PCI bridge: Intel Corporation Tigerlake PCH-LP PCI Express Root Port #6 (rev 30) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 126, IOMMU group 13
->> 	Bus: primary=00, secondary=57, subordinate=57, sec-latency=0
->> 	I/O behind bridge: [disabled]
->> 	Memory behind bridge: 86300000-863fffff [size=1M]
->> 	Prefetchable memory behind bridge: [disabled]
->> 	Capabilities: [40] Express Root Port (Slot-), MSI 00
->> 	Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
->> 	Capabilities: [90] Subsystem: Hewlett-Packard Company Device 89db
->> 	Capabilities: [a0] Power Management version 3
->> 	Capabilities: [100] Advanced Error Reporting
->> 	Capabilities: [220] Access Control Services
->> 	Capabilities: [150] Precision Time Measurement
->> 	Capabilities: [200] L1 PM Substates
->> 	Capabilities: [a30] Secondary PCI Express
->> 	Capabilities: [a00] Downstream Port Containment
->> 	Kernel driver in use: pcieport
->>
->> 0000:00:1d.0 System peripheral: Intel Corporation Device 09ab
->> 	Subsystem: Hewlett-Packard Company Device 89da
->> 	Flags: fast devsel, IOMMU group 14
->>
->> 0000:00:1f.0 ISA bridge: Intel Corporation Tiger Lake-LP LPC Controller (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IOMMU group 15
->>
->> 0000:00:1f.3 Multimedia audio controller: Intel Corporation Tiger Lake-LP Smart Sound Technology Audio Controller (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89da
->> 	Flags: bus master, fast devsel, latency 32, IRQ 197, IOMMU group 15
->> 	Memory at 603f290000 (64-bit, non-prefetchable) [size=16K]
->> 	Memory at 603f000000 (64-bit, non-prefetchable) [size=1M]
->> 	Capabilities: [50] Power Management version 3
->> 	Capabilities: [80] Vendor Specific Information: Len=14 <?>
->> 	Capabilities: [60] MSI: Enable+ Count=1/1 Maskable- 64bit+
->> 	Kernel driver in use: sof-audio-pci-intel-tgl
->> 	Kernel modules: snd_hda_intel, snd_sof_pci_intel_tgl
->>
->> 0000:00:1f.4 SMBus: Intel Corporation Tiger Lake-LP SMBus Controller (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: medium devsel, IRQ 16, IOMMU group 15
->> 	Memory at 603f29c000 (64-bit, non-prefetchable) [size=256]
->> 	I/O ports at efa0 [size=32]
->> 	Kernel driver in use: i801_smbus
->> 	Kernel modules: i2c_i801
->>
->> 0000:00:1f.5 Serial bus controller: Intel Corporation Tiger Lake-LP SPI Controller (rev 30)
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: fast devsel, IOMMU group 15
->> 	Memory at 68400000 (32-bit, non-prefetchable) [size=4K]
->>
->> 0000:2c:00.0 PCI bridge: Intel Corporation Thunderbolt 4 Bridge [Goshen Ridge 2020] (rev 03) (prog-if 00 [Normal decode])
->> 	Physical Slot: 0-1
->> 	Flags: bus master, fast devsel, latency 0, IRQ 16, IOMMU group 17
->> 	Bus: primary=2c, secondary=2d, subordinate=56, sec-latency=0
->> 	I/O behind bridge: 00005000-00005fff [size=4K]
->> 	Memory behind bridge: 6c000000-781fffff [size=194M]
->> 	Prefetchable memory behind bridge: 0000006000000000-000000601bffffff [size=448M]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [88] MSI: Enable- Count=1/1 Maskable- 64bit+
->> 	Capabilities: [ac] Subsystem: Intel Corporation Device 0000
->> 	Capabilities: [c0] Express Upstream Port, MSI 00
->> 	Capabilities: [50] Capability ID 0x15 [0000]
->> 	Capabilities: [100] Device Serial Number c2-d5-04-18-86-b7-d0-00
->> 	Capabilities: [200] Advanced Error Reporting
->> 	Capabilities: [300] Virtual Channel
->> 	Capabilities: [400] Power Budgeting <?>
->> 	Capabilities: [500] Vendor Specific Information: ID=1234 Rev=1 Len=100 <?>
->> 	Capabilities: [600] Vendor Specific Information: ID=8086 Rev=2 Len=04c <?>
->> 	Capabilities: [700] Secondary PCI Express
->> 	Capabilities: [800] Latency Tolerance Reporting
->> 	Capabilities: [a00] L1 PM Substates
->> 	Capabilities: [b00] Precision Time Measurement
->> 	Kernel driver in use: pcieport
->>
->> 0000:2d:00.0 PCI bridge: Intel Corporation Thunderbolt 4 Bridge [Goshen Ridge 2020] (rev 03) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 16, IOMMU group 18
->> 	Bus: primary=2d, secondary=2e, subordinate=2e, sec-latency=0
->> 	I/O behind bridge: 00005000-00005fff [size=4K]
->> 	Memory behind bridge: 6c000000-6c0fffff [size=1M]
->> 	Prefetchable memory behind bridge: 0000006000000000-00000060000fffff [size=1M]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [88] MSI: Enable- Count=1/1 Maskable- 64bit+
->> 	Capabilities: [ac] Subsystem: Intel Corporation Device 0000
->> 	Capabilities: [c0] Express Downstream Port (Slot+), MSI 00
->> 	Capabilities: [50] Capability ID 0x15 [0000]
->> 	Capabilities: [100] Device Serial Number c2-d5-04-18-86-b7-d0-00
->> 	Capabilities: [200] Advanced Error Reporting
->> 	Capabilities: [300] Virtual Channel
->> 	Capabilities: [400] Power Budgeting <?>
->> 	Capabilities: [500] Vendor Specific Information: ID=1234 Rev=1 Len=100 <?>
->> 	Capabilities: [600] Vendor Specific Information: ID=8086 Rev=2 Len=04c <?>
->> 	Capabilities: [700] Secondary PCI Express
->> 	Capabilities: [900] Access Control Services
->> 	Capabilities: [c00] Designated Vendor-Specific: Vendor=8086 ID=0006 Rev=0 Len=16 <?>
->> 	Kernel driver in use: pcieport
->>
->> 0000:2d:01.0 PCI bridge: Intel Corporation Thunderbolt 4 Bridge [Goshen Ridge 2020] (rev 03) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 198, IOMMU group 19
->> 	Bus: primary=2d, secondary=2f, subordinate=3b, sec-latency=0
->> 	I/O behind bridge: [disabled]
->> 	Memory behind bridge: 6c100000-700fffff [size=64M]
->> 	Prefetchable memory behind bridge: 0000006000100000-00000060095fffff [size=149M]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [88] MSI: Enable+ Count=1/1 Maskable- 64bit+
->> 	Capabilities: [ac] Subsystem: Intel Corporation Device 0000
->> 	Capabilities: [c0] Express Downstream Port (Slot+), MSI 00
->> 	Capabilities: [50] Capability ID 0x15 [0000]
->> 	Capabilities: [100] Device Serial Number c2-d5-04-18-86-b7-d0-00
->> 	Capabilities: [200] Advanced Error Reporting
->> 	Capabilities: [300] Virtual Channel
->> 	Capabilities: [400] Power Budgeting <?>
->> 	Capabilities: [500] Vendor Specific Information: ID=1234 Rev=1 Len=100 <?>
->> 	Capabilities: [600] Vendor Specific Information: ID=8086 Rev=2 Len=04c <?>
->> 	Capabilities: [700] Secondary PCI Express
->> 	Capabilities: [900] Access Control Services
->> 	Capabilities: [c00] Designated Vendor-Specific: Vendor=8086 ID=0006 Rev=0 Len=16 <?>
->> 	Kernel driver in use: pcieport
->>
->> 0000:2d:02.0 PCI bridge: Intel Corporation Thunderbolt 4 Bridge [Goshen Ridge 2020] (rev 03) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 199, IOMMU group 20
->> 	Bus: primary=2d, secondary=3c, subordinate=48, sec-latency=0
->> 	I/O behind bridge: [disabled]
->> 	Memory behind bridge: 70100000-740fffff [size=64M]
->> 	Prefetchable memory behind bridge: 0000006009600000-0000006012afffff [size=149M]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [88] MSI: Enable+ Count=1/1 Maskable- 64bit+
->> 	Capabilities: [ac] Subsystem: Intel Corporation Device 0000
->> 	Capabilities: [c0] Express Downstream Port (Slot+), MSI 00
->> 	Capabilities: [50] Capability ID 0x15 [0000]
->> 	Capabilities: [100] Device Serial Number c2-d5-04-18-86-b7-d0-00
->> 	Capabilities: [200] Advanced Error Reporting
->> 	Capabilities: [300] Virtual Channel
->> 	Capabilities: [400] Power Budgeting <?>
->> 	Capabilities: [500] Vendor Specific Information: ID=1234 Rev=1 Len=100 <?>
->> 	Capabilities: [600] Vendor Specific Information: ID=8086 Rev=2 Len=04c <?>
->> 	Capabilities: [700] Secondary PCI Express
->> 	Capabilities: [900] Access Control Services
->> 	Capabilities: [c00] Designated Vendor-Specific: Vendor=8086 ID=0006 Rev=0 Len=16 <?>
->> 	Kernel driver in use: pcieport
->>
->> 0000:2d:03.0 PCI bridge: Intel Corporation Thunderbolt 4 Bridge [Goshen Ridge 2020] (rev 03) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 200, IOMMU group 21
->> 	Bus: primary=2d, secondary=49, subordinate=55, sec-latency=0
->> 	I/O behind bridge: [disabled]
->> 	Memory behind bridge: 74100000-780fffff [size=64M]
->> 	Prefetchable memory behind bridge: 0000006012b00000-000000601befffff [size=148M]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [88] MSI: Enable+ Count=1/1 Maskable- 64bit+
->> 	Capabilities: [ac] Subsystem: Intel Corporation Device 0000
->> 	Capabilities: [c0] Express Downstream Port (Slot+), MSI 00
->> 	Capabilities: [50] Capability ID 0x15 [0000]
->> 	Capabilities: [100] Device Serial Number c2-d5-04-18-86-b7-d0-00
->> 	Capabilities: [200] Advanced Error Reporting
->> 	Capabilities: [300] Virtual Channel
->> 	Capabilities: [400] Power Budgeting <?>
->> 	Capabilities: [500] Vendor Specific Information: ID=1234 Rev=1 Len=100 <?>
->> 	Capabilities: [600] Vendor Specific Information: ID=8086 Rev=2 Len=04c <?>
->> 	Capabilities: [700] Secondary PCI Express
->> 	Capabilities: [900] Access Control Services
->> 	Capabilities: [c00] Designated Vendor-Specific: Vendor=8086 ID=0006 Rev=0 Len=16 <?>
->> 	Kernel driver in use: pcieport
->>
->> 0000:2d:04.0 PCI bridge: Intel Corporation Thunderbolt 4 Bridge [Goshen Ridge 2020] (rev 03) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 16, IOMMU group 22
->> 	Bus: primary=2d, secondary=56, subordinate=56, sec-latency=0
->> 	I/O behind bridge: [disabled]
->> 	Memory behind bridge: 78100000-781fffff [size=1M]
->> 	Prefetchable memory behind bridge: 000000601bf00000-000000601bffffff [size=1M]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [88] MSI: Enable- Count=1/1 Maskable- 64bit+
->> 	Capabilities: [ac] Subsystem: Intel Corporation Device 0000
->> 	Capabilities: [c0] Express Downstream Port (Slot+), MSI 00
->> 	Capabilities: [50] Capability ID 0x15 [0000]
->> 	Capabilities: [100] Device Serial Number c2-d5-04-18-86-b7-d0-00
->> 	Capabilities: [200] Advanced Error Reporting
->> 	Capabilities: [300] Virtual Channel
->> 	Capabilities: [400] Power Budgeting <?>
->> 	Capabilities: [500] Vendor Specific Information: ID=1234 Rev=1 Len=100 <?>
->> 	Capabilities: [600] Vendor Specific Information: ID=8086 Rev=2 Len=04c <?>
->> 	Capabilities: [700] Secondary PCI Express
->> 	Capabilities: [900] Access Control Services
->> 	Capabilities: [c00] Designated Vendor-Specific: Vendor=8086 ID=0006 Rev=0 Len=16 <?>
->> 	Kernel driver in use: pcieport
->>
->> 0000:57:00.0 Unassigned class [ff00]: Realtek Semiconductor Co., Ltd. RTS525A PCI Express Card Reader (rev 01)
->> 	DeviceName: Realtek PCIE CardReader
->> 	Subsystem: Hewlett-Packard Company Device 89db
->> 	Flags: bus master, fast devsel, latency 0, IRQ 149, IOMMU group 16
->> 	Memory at 86300000 (32-bit, non-prefetchable) [size=4K]
->> 	Capabilities: [80] Power Management version 3
->> 	Capabilities: [90] MSI: Enable+ Count=1/1 Maskable- 64bit+
->> 	Capabilities: [b0] Express Endpoint, MSI 00
->> 	Capabilities: [100] Advanced Error Reporting
->> 	Capabilities: [148] Device Serial Number 00-00-00-01-00-4c-e0-00
->> 	Capabilities: [158] Latency Tolerance Reporting
->> 	Capabilities: [160] L1 PM Substates
->> 	Kernel driver in use: rtsx_pci
->> 	Kernel modules: rtsx_pci
->>
->> 10000:e0:1d.0 PCI bridge: Intel Corporation Tiger Lake-LP PCI Express Root Port #9 (rev 30) (prog-if 00 [Normal decode])
->> 	Flags: bus master, fast devsel, latency 0, IRQ 148, IOMMU group 7
->> 	Bus: primary=00, secondary=e1, subordinate=e1, sec-latency=0
->> 	I/O behind bridge: [disabled]
->> 	Memory behind bridge: 6a000000-6a0fffff [size=1M]
->> 	Prefetchable memory behind bridge: [disabled]
->> 	Capabilities: [40] Express Root Port (Slot-), MSI 00
->> 	Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
->> 	Capabilities: [90] Subsystem: Hewlett-Packard Company Device 89db
->> 	Capabilities: [a0] Power Management version 3
->> 	Capabilities: [100] Advanced Error Reporting
->> 	Capabilities: [220] Access Control Services
->> 	Capabilities: [150] Precision Time Measurement
->> 	Capabilities: [200] L1 PM Substates
->> 	Capabilities: [a30] Secondary PCI Express
->> 	Capabilities: [a00] Downstream Port Containment
->> 	Kernel driver in use: pcieport
->>
->> 10000:e1:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983 (prog-if 02 [NVM Express])
->> 	Subsystem: Samsung Electronics Co Ltd SSD 970 EVO Plus 1TB
->> 	Flags: bus master, fast devsel, latency 0, IRQ -2147483648, NUMA node 0, IOMMU group 7
->> 	Memory at 6a000000 (64-bit, non-prefetchable) [size=16K]
->> 	Capabilities: [40] Power Management version 3
->> 	Capabilities: [50] MSI: Enable- Count=1/32 Maskable- 64bit+
->> 	Capabilities: [70] Express Endpoint, MSI 00
->> 	Capabilities: [b0] MSI-X: Enable+ Count=33 Masked-
->> 	Capabilities: [100] Advanced Error Reporting
->> 	Capabilities: [148] Device Serial Number 00-00-00-00-00-00-00-00
->> 	Capabilities: [158] Power Budgeting <?>
->> 	Capabilities: [168] Secondary PCI Express
->> 	Capabilities: [188] Latency Tolerance Reporting
->> 	Capabilities: [190] L1 PM Substates
->> 	Kernel driver in use: nvme
->> 	Kernel modules: nvme
->>
-> 
+arm:
+    rpc_defconfig: (gcc-10) FAIL
+
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+    mini2440_defconfig (gcc-10): 1 warning
+    rpc_defconfig (gcc-10): 2 errors
+    s3c2410_defconfig (gcc-10): 1 warning
+
+i386:
+    i386_defconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
+
+mips:
+
+x86_64:
+    allnoconfig (gcc-10): 5 warnings
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 5 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
+
+Errors summary:
+
+    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
+
+Warnings summary:
+
+    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    6    ld: warning: creating DT_TEXTREL in a PIE
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    2    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    2    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c2=
+4xx_uart_dt_match=E2=80=99 assumed to have one element
+    2    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+
+Section mismatches summary:
+
+    2    WARNING: modpost: Found 1 section mismatch(es).
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+5 warnings, 0 section mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---
+For more info write to <info@kernelci.org>
