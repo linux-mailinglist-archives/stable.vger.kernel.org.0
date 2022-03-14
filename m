@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B764D83F4
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB6A4D8315
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241111AbiCNMW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
+        id S234947AbiCNMMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242064AbiCNMSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4993C457AB;
-        Mon, 14 Mar 2022 05:13:33 -0700 (PDT)
+        with ESMTP id S242101AbiCNMJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF04024BF8;
+        Mon, 14 Mar 2022 05:06:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DE8B60919;
-        Mon, 14 Mar 2022 12:13:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A60EC340E9;
-        Mon, 14 Mar 2022 12:13:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E759612FD;
+        Mon, 14 Mar 2022 12:06:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED76EC340ED;
+        Mon, 14 Mar 2022 12:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260011;
-        bh=p4EKcTt07OqmThVWmyMD0BmzwIgGQvP1W3AY+ND+VVw=;
+        s=korg; t=1647259583;
+        bh=ch4D18rnxIrYNmJUCXmQxy+VD/VhstF+pdh7cobO6P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ArBb7i1IBpAtFPDcboTBpsnQXVMq0KTA6tH3TTRMz3f85KQdPg3i0Aw63ML7oMfeg
-         RnhvbjOFio0rt3S9Ttmau3DonoXjgnpDTEKTHPdGkWtN+gbWL4wMCVehkLYjbdsms+
-         IjvQjQUbieSHA9mcVIO7OTP5qTEh1NLTlE59BEIc=
+        b=epFosccXFbjUY0y8+EjU1m0y/HDx+sjTkKtio5MqJ0DJ8YyxniuIvS903cUNm8nL6
+         97fJo0xV/WBA4hUCrFaR+Z+HBUhWolNWI5Kj6TY5qC7kktqP9R1F0uSMqaz0WCctBD
+         FnlKvpLmdEZ8JHgZWFwGKRWNWC7orko47L2p3rsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 032/121] ARM: dts: aspeed: Fix AST2600 quad spi group
+        stable@vger.kernel.org, Grzegorz Siwik <grzegorz.siwik@intel.com>,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 033/110] ice: Fix curr_link_speed advertised speed
 Date:   Mon, 14 Mar 2022 12:53:35 +0100
-Message-Id: <20220314112745.025960220@linuxfoundation.org>
+Message-Id: <20220314112743.961788194@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
 
-[ Upstream commit 2f6edb6bcb2f3f41d876e0eba2ba97f87a0296ea ]
+[ Upstream commit ad35ffa252af67d4cc7c744b9377a2b577748e3f ]
 
-Requesting quad mode for the FMC resulted in an error:
+Change curr_link_speed advertised speed, due to
+link_info.link_speed is not equal phy.curr_user_speed_req.
+Without this patch it is impossible to set advertised
+speed to same as link_speed.
 
-  &fmc {
-         status = "okay";
- +       pinctrl-names = "default";
- +       pinctrl-0 = <&pinctrl_fwqspi_default>'
+Testing Hints: Try to set advertised speed
+to 25G only with 25G default link (use ethtool -s 0x80000000)
 
-[    0.742963] aspeed-g6-pinctrl 1e6e2000.syscon:pinctrl: invalid function FWQSPID in map table
-￼
-
-This is because the quad mode pins are a group of pins, not a function.
-
-After applying this patch we can request the pins and the QSPI data
-lines are muxed:
-
- # cat /sys/kernel/debug/pinctrl/1e6e2000.syscon\:pinctrl-aspeed-g6-pinctrl/pinmux-pins |grep 1e620000.spi
- pin 196 (AE12): device 1e620000.spi function FWSPID group FWQSPID
- pin 197 (AF12): device 1e620000.spi function FWSPID group FWQSPID
- pin 240 (Y1): device 1e620000.spi function FWSPID group FWQSPID
- pin 241 (Y2): device 1e620000.spi function FWSPID group FWQSPID
- pin 242 (Y3): device 1e620000.spi function FWSPID group FWQSPID
- pin 243 (Y4): device 1e620000.spi function FWSPID group FWQSPID
-
-Fixes: f510f04c8c83 ("ARM: dts: aspeed: Add AST2600 pinmux nodes")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au
-Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 48cb27f2fd18 ("ice: Implement handlers for ethtool PHY/link operations")
+Signed-off-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi | 2 +-
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-index 6dde51c2aed3..e4775bbceecc 100644
---- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-@@ -118,7 +118,7 @@ pinctrl_fwspid_default: fwspid_default {
- 	};
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index c451cf401e63..38c2d9a5574a 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -2275,7 +2275,7 @@ ice_set_link_ksettings(struct net_device *netdev,
+ 		goto done;
+ 	}
  
- 	pinctrl_fwqspid_default: fwqspid_default {
--		function = "FWQSPID";
-+		function = "FWSPID";
- 		groups = "FWQSPID";
- 	};
+-	curr_link_speed = pi->phy.link_info.link_speed;
++	curr_link_speed = pi->phy.curr_user_speed_req;
+ 	adv_link_speed = ice_ksettings_find_adv_link_speed(ks);
  
+ 	/* If speed didn't get set, set it to what it currently is.
 -- 
 2.34.1
 
