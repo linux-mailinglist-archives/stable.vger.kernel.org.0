@@ -2,103 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 815934D80D4
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:34:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 406F94D80DE
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239049AbiCNLfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57352 "EHLO
+        id S239041AbiCNLfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:35:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239035AbiCNLfI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:35:08 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F05342486;
-        Mon, 14 Mar 2022 04:33:52 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id q13so13237064plk.12;
-        Mon, 14 Mar 2022 04:33:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=xJJVf4XEMS36RF5BbkvFmc1p0vno0lmSqAoaojk+slA=;
-        b=PHPEp2SKy9JooD3Aftbg0qeiKDQRQUX/ARYN1xjsX0tgRSiBwubEkLn3uB4OT5ahh9
-         cGf+l5rHd7iSPGDzTuK3Bm7z3cmy2mWruG3B+a3K8BucByQbZSH/7wJyt8nZ5tNVgxLo
-         6TS5xdTpb9nx2JaL0gbb0/ikCmgNNQnBFpeLAy1Dp6XPgkTWkQnvR1jh4cLl4mYUFpga
-         VHCBh3idXBfkvmEVA17siKwqAZPY1Ga0GdZJSp1Q4FoWadHV9hDkjh8n5an+AlqdeOqn
-         X6h8bnwWz6TLNdsPw7NcX4hr13TOhxx5F953CufuBCAzz+LSXLutS9AMxcnt3T9KpKpK
-         woSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=xJJVf4XEMS36RF5BbkvFmc1p0vno0lmSqAoaojk+slA=;
-        b=0TktoOJNyeGQMNQSu0zeIPkxHrYjwzqwivR0lVvTUlPYEqkC28oRMviy3yo1h7YXFS
-         aXyjQAqwN/j2v1lMoW2h8gi3fm9T3hFGydonabkgfsKrMgcDjOuwSUIdVE9fxIYSwNq6
-         +ZbRiTYo/RBppGGGWcxjSvaQmNny4bvZIZaSpee1et9iVYy39Gc4wbW4n3yzyIdETJcC
-         H025IB62avjF9xOec4qtX+/Ui75y7BTpCTRGvN8E2LDRX6xNEr83/3EvV6f581SPHEHa
-         5wNtPNnApxnHaP7r6aDasY0gjhmkWlJXzKNOLr5ltRxZqC6ybyhYgrE8qo2BNjIlkU5p
-         NuoQ==
-X-Gm-Message-State: AOAM533wEpNhBDuQrZYYaPF4/zIcWbZ9bX23v/2zcnftcK6hkKjvKtTU
-        saFVN1Zy7eLVOs2UQnR+ACgl23VCraQ63A==
-X-Google-Smtp-Source: ABdhPJzJP9uVr7dX011F6jFGipnvelTk+3P07bcB2Cn2YFKJ4ur9c+h3c15aMRP1gV9Kn0yvEESgWA==
-X-Received: by 2002:a17:902:7805:b0:151:b8ec:202b with SMTP id p5-20020a170902780500b00151b8ec202bmr23074862pll.111.1647257631606;
-        Mon, 14 Mar 2022 04:33:51 -0700 (PDT)
-Received: from ubuntu.mate (subs02-180-214-232-74.three.co.id. [180.214.232.74])
-        by smtp.gmail.com with ESMTPSA id 3-20020a17090a030300b001c17851b6a1sm13608117pje.28.2022.03.14.04.33.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Mar 2022 04:33:51 -0700 (PDT)
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     linux-doc@vger.kernel.org
-Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 5/5] Documentation: update stable tree link
-Date:   Mon, 14 Mar 2022 18:33:29 +0700
-Message-Id: <20220314113329.485372-6-bagasdotme@gmail.com>
+        with ESMTP id S236577AbiCNLfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:35:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F773EAB6;
+        Mon, 14 Mar 2022 04:34:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 403ADB80DB9;
+        Mon, 14 Mar 2022 11:34:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 438E3C340E9;
+        Mon, 14 Mar 2022 11:34:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647257670;
+        bh=5P1AInnTFtcNIO11S7NULQT4EovUwJSAepKTNAIVgWo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=yUOBbt+roezK5QuMcgmJrYkdtkoP7i5giF3vWly8vlcimRjqH6dMBr1wWX3oVnzt0
+         jgi6RbK+D3ij1R+0/uxMYUsgEEUld+RdYJn53a4sqpfcvmowoxjw6x/UbWdiaiX5Re
+         vac5BNXp9MKSkA3fkllhEcKw70mju5/37rGIGGZE=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.9 00/20] 4.9.307-rc1 review
+Date:   Mon, 14 Mar 2022 12:34:01 +0100
+Message-Id: <20220314112730.388955049@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314113329.485372-1-bagasdotme@gmail.com>
-References: <20220314113329.485372-1-bagasdotme@gmail.com>
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.307-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.307-rc1
+X-KernelTest-Deadline: 2022-03-16T11:27+00:00
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The link to stable tree is redirected to
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git. Update
-accordingly.
+This is the start of the stable review cycle for the 4.9.307 release.
+There are 20 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
----
- Documentation/process/stable-kernel-rules.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
+Anything received after that time might be too late.
 
-diff --git a/Documentation/process/stable-kernel-rules.rst b/Documentation/process/stable-kernel-rules.rst
-index c494914622e..a9a479fba90 100644
---- a/Documentation/process/stable-kernel-rules.rst
-+++ b/Documentation/process/stable-kernel-rules.rst
-@@ -178,7 +178,7 @@ Trees
-  - The finalized and tagged releases of all stable kernels can be found
-    in separate branches per version at:
- 
--	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-+	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
- 
-  - The release candidate of all stable kernel versions can be found at:
- 
--- 
-An old man doll... just what I always wanted! - Clara
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.307-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.307-rc1
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: unlock newly allocated extent buffer after error
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: fix Thumb2 regression with Spectre BHB
+
+Sven Eckelmann <sven@narfation.org>
+    batman-adv: Don't expect inter-netns unique iflink indices
+
+Sven Eckelmann <sven@narfation.org>
+    batman-adv: Request iflink once in batadv-on-batadv check
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Reset PMC_EL0 to avoid a panic() on systems with no PMU
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    staging: gdm724x: fix use after free in gdm_lte_rx()
+
+Randy Dunlap <rdunlap@infradead.org>
+    ARM: Spectre-BHB: provide empty stub for non-config
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    selftests/memfd: clean up mapping in mfd_fail_write
+
+Sven Schnelle <svens@linux.ibm.com>
+    tracing: Ensure trace buffer is at least 4096 bytes large
+
+Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+    Revert "xen-netback: Check for hotplug-status existence before watching"
+
+suresh kumar <suresh2514@gmail.com>
+    net-sysfs: add check for netdevice being present to speed_show
+
+Eric Dumazet <edumazet@google.com>
+    sctp: fix kernel-infoleak for SCTP sockets
+
+Mark Featherston <mark@embeddedTS.com>
+    gpio: ts4900: Do not set DAT and OE together
+
+Pavel Skripkin <paskripkin@gmail.com>
+    NFC: port100: fix use-after-free in port100_send_complete
+
+Mohammad Kabat <mohammadkab@nvidia.com>
+    net/mlx5: Fix size field in bufferx_reg struct
+
+Duoming Zhou <duoming@zju.edu.cn>
+    ax25: Fix NULL pointer dereference in ax25_kill_by_device
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    net: ethernet: lpc_eth: Handle error for clk_enable
+
+Miaoqian Lin <linmq006@gmail.com>
+    ethernet: Fix error handling in xemaclite_of_probe
+
+Tom Rix <trix@redhat.com>
+    qed: return status of qed_iov_get_link
+
+Jia-Ju Bai <baijiaju1990@gmail.com>
+    net: qlogic: check the return value of dma_alloc_coherent() in qed_vf_hw_prepare()
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                      |  4 ++--
+ arch/arm/include/asm/spectre.h                |  6 ++++++
+ arch/arm/kernel/entry-armv.S                  |  4 ++--
+ arch/arm64/kvm/sys_regs.c                     |  4 +++-
+ drivers/gpio/gpio-ts4900.c                    | 24 +++++++++++++++++++-----
+ drivers/net/ethernet/nxp/lpc_eth.c            |  5 ++++-
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c   | 18 +++++++++++-------
+ drivers/net/ethernet/qlogic/qed/qed_vf.c      |  7 +++++++
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c |  4 +++-
+ drivers/net/xen-netback/xenbus.c              | 12 ++++--------
+ drivers/nfc/port100.c                         |  2 ++
+ drivers/staging/gdm724x/gdm_lte.c             |  5 +++--
+ fs/btrfs/extent-tree.c                        |  1 +
+ include/linux/mlx5/mlx5_ifc.h                 |  4 ++--
+ kernel/trace/trace.c                          | 10 ++++++----
+ net/ax25/af_ax25.c                            |  7 +++++++
+ net/batman-adv/hard-interface.c               | 13 ++++++++-----
+ net/core/net-sysfs.c                          |  2 +-
+ net/sctp/sctp_diag.c                          |  9 +++------
+ tools/testing/selftests/memfd/memfd_test.c    |  1 +
+ 20 files changed, 95 insertions(+), 47 deletions(-)
+
 
