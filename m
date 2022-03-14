@@ -2,79 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90D234D7DF1
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:58:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58AE54D7ECB
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 10:39:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237051AbiCNI7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 04:59:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36936 "EHLO
+        id S236656AbiCNJkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 05:40:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237728AbiCNI7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:59:15 -0400
-Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04EEB19C26
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 01:58:03 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 910253201DE2;
-        Mon, 14 Mar 2022 04:57:59 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Mon, 14 Mar 2022 04:58:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; bh=SkSeyKPTWI05v6N1wjcspJUWw5vwrJoOrI3Bts
-        E89Cw=; b=IJbCJoN7FaftU3vo+8r2vXvDnikuONWU8Xslz0ZtQYtcCg988WimUa
-        aN5tM3CKA+9XqhWIoCs/beIicL3fXavvVnBQvJJUfhLqVXVgwU/U30vPMG5DD8fh
-        eP+gnslgWJFkVWEsaSyreJSy+x1n8KuSBhTuw0LeY/62kwI9s/V37oQr+R6OoE+y
-        oeJCp6VskLXnqIu4/LiJkJuJY9pI9/G5k5k4YrAddlIBRAZfBMONg4mQmasse9bJ
-        RRQsVTuFUFY4NVY7HD25VZISz+FHeqmk7goQz8ui4F9oKBvIeyUpn+9Z8Pesj8V/
-        DejQZzhqH2LsOsVXU31mgjtSg3rEUT4g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=SkSeyKPTWI05v6N1w
-        jcspJUWw5vwrJoOrI3BtsE89Cw=; b=iczvQOFdimZq9ENNrM5W8crkjKOz6AnTr
-        L++0ceEPiKye1UM3xsaduOWksYz+e8L/Zr8P8Z0LXzxkconIlkZjagg+DmDcWjTZ
-        FU9ydgrtxRiInPP2tA7m+PQ2nI+7vCQTZ0bmCjNvt+DEs90chM/Q8cWx0INPbqyU
-        raIWsr8eWG3449pqIQScitt13jVR89at5MwwIOzmWWXsMkYsth7PdeNEcLXMdcNQ
-        rUzg2yAU+14Ss+6MxiFi/rVzC/zJ7mjAMjutKLX/ji4nXaRVTSCur1P07lqRsMcN
-        NFzOK44zbIk16VZC5SBUXC9VnDNeMqJpdI1+FLdgFaiTgXPU10rmA==
-X-ME-Sender: <xms:lgMvYs1LJZoj-Vd55XGG7esLWSje5QdX1pJZmhsgN_jPsYbTXkvaxA>
-    <xme:lgMvYnGQ7RKhsinSu2v_QKy05VdIjcBkfzkQQYd5NO6v6Zdgw17-bDFpvoc4LDQ3v
-    ZynrmyC2g4eJg>
-X-ME-Received: <xmr:lgMvYk5eeJxgtksEIrqzuNSbqJ2FVjy9ip2hGqkHdLaszC_IOYKdXHPFLNK_l0eyzGR_wWdBpjVkYngqrE-onRAMImMQ9S4G>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddvjedguddvhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepfeejvd
-    euudejgfdvleelueejgfejgeeiffdufeffvdeufedtjefhtdfghfegkeejnecuffhomhgr
-    ihhnpehoshdrohhpvghnpdhkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpe
-    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:lgMvYl2nxZzkMOvS_VHZqPfQtPdBta2rzUAv4gEqN9W-yXslJ-gDVw>
-    <xmx:lgMvYvGUhYDRsvVFesJtopBwivjZnYBzF5TOhMf6J39FE0rOpd7rQw>
-    <xmx:lgMvYu-Mw4nl4UtmdDwjqVC8e66Hs4wM0px5_4A4LD1ei4uoHBP-ng>
-    <xmx:lwMvYk4-YVJy30W5d5s3Mq2JWYIVlikVeXVJx3v2y_Z5DmedcXP_Dw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 14 Mar 2022 04:57:58 -0400 (EDT)
-Date:   Mon, 14 Mar 2022 09:57:55 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     stable@vger.kernel.org,
-        Ext4 Developers List <linux-ext4@vger.kernel.org>,
-        Josh Triplett <josh@joshtriplett.org>
-Subject: Re: [PATCH STABLE 5.10 5.4 4.19 4.14] ext4: add check to prevent
- attempting to resize an fs with sparse_super2
-Message-ID: <Yi8Dk80To2px9XVy@kroah.com>
-References: <20220313044449.1260655-1-tytso@mit.edu>
+        with ESMTP id S232717AbiCNJkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 05:40:21 -0400
+X-Greylist: delayed 1823 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Mar 2022 02:39:10 PDT
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A42F81CFC4;
+        Mon, 14 Mar 2022 02:39:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=misterjones.org; s=dkim20211231; h=Content-Transfer-Encoding:Content-Type:
+        Message-ID:References:In-Reply-To:Subject:Cc:To:From:Date:MIME-Version:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=W6hA5uboJeNKWm9S/YhbgP1yFsg53zZeeTZz0HBXZ24=; b=tUdS10g3hHpgWYXp6qMtkuqPC9
+        4b8Mt9MqhqXEfDHG5LlDtoPXsF/vwfCpj6zJGriJY0/jlMATm3ERM0hZj/b5if5/hOOgcEcUkSecv
+        PfrhOw45Xq2EcyzGoRnrfSzTrFxORQ5jFJV639NZM/0xAGloxOZv2Oww5ZN+z6zPIeSsYCOYwVlgK
+        W09wC7HrqT85hr1jM9Irwn3+HvQDrMnsfXIKnzz7HxYLRArahrY36ukeJevs/tILQjNjTjDjc9oN7
+        0TwHqX6JEPtzHyaGZVgNPxJu6LbFIWub2aHe9/2mKxfxkQNUD2Cf4AP2HPQAYqDb87maABqFuLkQN
+        GFIKtw8Q==;
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@misterjones.org>)
+        id 1nTgh0-00EIQa-Ux; Mon, 14 Mar 2022 09:08:43 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220313044449.1260655-1-tytso@mit.edu>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+Date:   Mon, 14 Mar 2022 09:08:42 +0000
+From:   Marc Zyngier <maz@misterjones.org>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        "A. Wilcox" <awilfox@adelielinux.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [BUG] arm64/m1: Accessing SYS_ID_AA64ISAR2_EL1 causes early boot
+ failure on 5.15.28, 5.16.14, 5.17
+In-Reply-To: <Yi7iRSHaFGsYup1p@kroah.com>
+References: <32EA0FE1-5254-4A41-B684-AA2DEC021110@adelielinux.org>
+ <Yi7iRSHaFGsYup1p@kroah.com>
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <1f0b74caa45a1d73af68eab8dcc15485@misterjones.org>
+X-Sender: maz@misterjones.org
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, awilfox@adelielinux.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@misterjones.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -82,43 +62,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 12, 2022 at 11:44:49PM -0500, Theodore Ts'o wrote:
-> From: Josh Triplett <josh@joshtriplett.org>
-> 
-> commit b1489186cc8391e0c1e342f9fbc3eedf6b944c61 upstream.
-> 
-> The in-kernel ext4 resize code doesn't support filesystem with the
-> sparse_super2 feature. It fails with errors like this and doesn't
-> finish the resize:
-> 
-> EXT4-fs (loop0): resizing filesystem from 16640 to 7864320 blocks
-> EXT4-fs warning (device loop0): verify_reserved_gdb:760: reserved GDT 2 missing grp 1 (32770)
-> EXT4-fs warning (device loop0): ext4_resize_fs:2111: error (-22) occurred during file system resize
-> EXT4-fs (loop0): resized filesystem to 2097152
-> 
-> To reproduce:
-> mkfs.ext4 -b 4096 -I 256 -J size=32 -E resize=$((256*1024*1024)) -O sparse_super2 ext4.img 65M
-> truncate -s 30G ext4.img
-> mount ext4.img /mnt
-> python3 -c 'import fcntl, os, struct ; fd = os.open("/mnt", os.O_RDONLY | os.O_DIRECTORY) ; fcntl.ioctl(fd, 0x40086610, struct.pack("Q", 30 * 1024 * 1024 * 1024 // 4096), False) ; os.close(fd)'
-> dmesg | tail
-> e2fsck ext4.img
-> 
-> The userspace resize2fs tool has a check for this case: it checks if
-> the filesystem has sparse_super2 set and if the kernel provides
-> /sys/fs/ext4/features/sparse_super2. However, the former check
-> requires manually reading and parsing the filesystem superblock.
-> 
-> Detect this case in ext4_resize_begin and error out early with a clear
-> error message.
-> 
-> Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-> Link: https://lore.kernel.org/r/74b8ae78405270211943cd7393e65586c5faeed1.1623093259.git.josh@joshtriplett.org
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> ---
->  fs/ext4/resize.c | 5 +++++
->  1 file changed, 5 insertions(+)
+On 2022-03-14 06:35, Greg KH wrote:
+> On Sun, Mar 13, 2022 at 10:59:01PM -0500, A. Wilcox wrote:
+>> Hello,
+>> 
+>> I’ve been testing kernel updates for the Adélie Linux distribution’s 
+>> ARM64 port using a Parallels VM on a MacBook Pro (13-inch, M1, 2020).  
+>> When the kernel attempts to access SYS_ID_AA64ISAR2_EL1, it causes a 
+>> fault as seen here booting 5.17.0-rc8:
 
-Now queued up, thanks.
+[...]
 
-greg k-h
+>> This is because detection of the clearbhb instruction support requires 
+>> accessing SYS_ID_AA64ISAR2_EL1.  Commenting out the two uses of 
+>> supports_clearbhb in the kernel now yields a successful boot.
+>> 
+>> Qemu developers seem to have found this issue as well[1] when trying 
+>> to boot 5.17 using HVF, the Apple Hypervisor Framework.  This seems to 
+>> be some sort of platform quirk on M1, or at least in HVF on M1.  I’m 
+>> not sure what the best workaround would be for this.  
+>> SYS_ID_AA64ISAR2_EL1 seems to be something added in ARMv8.7, so 
+>> perhaps access to it could be gated on that.
+>> 
+>> Unfortunately, this code was just added to 5.15.28 and 5.16.14, so 
+>> stable no longer boots on Parallels VM on M1.  I am unsure if this 
+>> affects physical boot on Apple M1 or not.
+> 
+> What commit causes this problem?  It sounds like you narrowed this down
+> already, right?
+
+This really is a Parallels bug. These kernels run fine on bare metal
+M1 and in KVM. QEMU was affected as well, and that was fixed in their
+HVF handling. HVF itself is fine.
+
+So this should be punted back to the hypervisor vendor for not properly
+implementing the architecture (no ID register is allowed to UNDEF).
+
+         M.
+-- 
+Who you jivin' with that Cosmik Debris?
