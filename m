@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB064D8447
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 407AC4D8396
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241109AbiCNMWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49046 "EHLO
+        id S236085AbiCNMRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:17:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243459AbiCNMUk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:20:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B305468B;
-        Mon, 14 Mar 2022 05:16:05 -0700 (PDT)
+        with ESMTP id S241201AbiCNMQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:16:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56CD34640;
+        Mon, 14 Mar 2022 05:11:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 10565CE1232;
-        Mon, 14 Mar 2022 12:16:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BDC0C36AE3;
-        Mon, 14 Mar 2022 12:16:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5590F61314;
+        Mon, 14 Mar 2022 12:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5123CC340E9;
+        Mon, 14 Mar 2022 12:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260162;
-        bh=jakVvKjtUdQUJVcNt9eTW1GmyK7Gj6ycAC5BLjlTLr0=;
+        s=korg; t=1647259916;
+        bh=mo801uHHEfDLZc/7aHW6NVL1hnApRqaiyqkRPNxVjVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJSvxLervxN3a8tczXM/qCVd2m5RMiKjjCY+rJZxzNPXzCI0Yo20vGu6XK4h3j+gF
-         KWO2jWp7osLH10khNJSGMcLhzVlgqFIo78EfvMyclusPhdlDs4j5Cq7wtrzELrWxSZ
-         UyufoeI/5dBhBvlVvi6ed60Apn62Iv6yW1REiLF0=
+        b=JOfeJKqdXCbzvTMPFIzVxGWBzK89507EoR/9riHfBRA9/4F5mBEIXDn1lepcpNzJy
+         9+PSO1aXu/X+zrqr42MLs1z5/uD/rh5/4wPs/HEogE7+fwVHCwvQ7OBbW6cKYIjF75
+         D6TX9aqppVhF5xXN0LCPkSopZTL6zSlQ/oyRJiFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 075/121] PCI: Mark all AMD Navi10 and Navi14 GPU ATS as broken
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.15 076/110] fuse: fix pipe buffer lifetime for direct_io
 Date:   Mon, 14 Mar 2022 12:54:18 +0100
-Message-Id: <20220314112746.214869174@linuxfoundation.org>
+Message-Id: <20220314112745.155205350@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,88 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 3f1271b54edcc692da5a3663f2aa2a64781f9bc3 ]
+commit 0c4bcfdecb1ac0967619ee7ff44871d93c08c909 upstream.
 
-There are enough VBIOS escapes without the proper workaround that some
-users still hit this.  Microsoft never productized ATS on Windows so OEM
-platforms that were Windows-only didn't always validate ATS.
+In FOPEN_DIRECT_IO mode, fuse_file_write_iter() calls
+fuse_direct_write_iter(), which normally calls fuse_direct_io(), which then
+imports the write buffer with fuse_get_user_pages(), which uses
+iov_iter_get_pages() to grab references to userspace pages instead of
+actually copying memory.
 
-The advantages of ATS are not worth it compared to the potential
-instabilities on harvested boards.  Disable ATS on all Navi10 and Navi14
-boards.
+On the filesystem device side, these pages can then either be read to
+userspace (via fuse_dev_read()), or splice()d over into a pipe using
+fuse_dev_splice_read() as pipe buffers with &nosteal_pipe_buf_ops.
 
-Symptoms include:
+This is wrong because after fuse_dev_do_read() unlocks the FUSE request,
+the userspace filesystem can mark the request as completed, causing write()
+to return. At that point, the userspace filesystem should no longer have
+access to the pipe buffer.
 
-  amdgpu 0000:07:00.0: AMD-Vi: Event logged [IO_PAGE_FAULT domain=0x0007 address=0xffffc02000 flags=0x0000]
-  AMD-Vi: Event logged [IO_PAGE_FAULT device=07:00.0 domain=0x0007 address=0xffffc02000 flags=0x0000]
-  [drm:amdgpu_job_timedout [amdgpu]] *ERROR* ring sdma0 timeout, signaled seq=6047, emitted seq=6049
-  amdgpu 0000:07:00.0: amdgpu: GPU reset begin!
-  amdgpu 0000:07:00.0: amdgpu: GPU reset succeeded, trying to resume
-  amdgpu 0000:07:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring sdma0 test failed (-110)
-  [drm:amdgpu_device_ip_resume_phase2 [amdgpu]] *ERROR* resume of IP block <sdma_v4_0> failed -110
-  amdgpu 0000:07:00.0: amdgpu: GPU reset(1) failed
+Fix by copying pages coming from the user address space to new pipe
+buffers.
 
-Related commits:
-
-  e8946a53e2a6 ("PCI: Mark AMD Navi14 GPU ATS as broken")
-  a2da5d8cc0b0 ("PCI: Mark AMD Raven iGPU ATS as broken in some platforms")
-  45beb31d3afb ("PCI: Mark AMD Navi10 GPU rev 0x00 ATS as broken")
-  5e89cd303e3a ("PCI: Mark AMD Navi14 GPU rev 0xc5 ATS as broken")
-  d28ca864c493 ("PCI: Mark AMD Stoney Radeon R7 GPU ATS as broken")
-  9b44b0b09dec ("PCI: Mark AMD Stoney GPU ATS as broken")
-
-[bhelgaas: add symptoms and related commits]
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1760
-Link: https://lore.kernel.org/r/20220222160801.841643-1-alexander.deucher@amd.com
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Acked-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Fixes: c3021629a0d8 ("fuse: support splice() reading from fuse device")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ fs/fuse/dev.c    |   12 +++++++++++-
+ fs/fuse/file.c   |    1 +
+ fs/fuse/fuse_i.h |    1 +
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 20a932690738..db864bf634a3 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5344,11 +5344,6 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SERVERWORKS, 0x0422, quirk_no_ext_tags);
-  */
- static void quirk_amd_harvest_no_ats(struct pci_dev *pdev)
- {
--	if ((pdev->device == 0x7312 && pdev->revision != 0x00) ||
--	    (pdev->device == 0x7340 && pdev->revision != 0xc5) ||
--	    (pdev->device == 0x7341 && pdev->revision != 0x00))
--		return;
--
- 	if (pdev->device == 0x15d8) {
- 		if (pdev->revision == 0xcf &&
- 		    pdev->subsystem_vendor == 0xea50 &&
-@@ -5370,10 +5365,19 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x98e4, quirk_amd_harvest_no_ats);
- /* AMD Iceland dGPU */
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x6900, quirk_amd_harvest_no_ats);
- /* AMD Navi10 dGPU */
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7310, quirk_amd_harvest_no_ats);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7312, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7318, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7319, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x731a, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x731b, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x731e, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x731f, quirk_amd_harvest_no_ats);
- /* AMD Navi14 dGPU */
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7340, quirk_amd_harvest_no_ats);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7341, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7347, quirk_amd_harvest_no_ats);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x734f, quirk_amd_harvest_no_ats);
- /* AMD Raven platform iGPU */
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x15d8, quirk_amd_harvest_no_ats);
- #endif /* CONFIG_PCI_ATS */
--- 
-2.34.1
-
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -941,7 +941,17 @@ static int fuse_copy_page(struct fuse_co
+ 
+ 	while (count) {
+ 		if (cs->write && cs->pipebufs && page) {
+-			return fuse_ref_page(cs, page, offset, count);
++			/*
++			 * Can't control lifetime of pipe buffers, so always
++			 * copy user pages.
++			 */
++			if (cs->req->args->user_pages) {
++				err = fuse_copy_fill(cs);
++				if (err)
++					return err;
++			} else {
++				return fuse_ref_page(cs, page, offset, count);
++			}
+ 		} else if (!cs->len) {
+ 			if (cs->move_pages && page &&
+ 			    offset == 0 && count == PAGE_SIZE) {
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1417,6 +1417,7 @@ static int fuse_get_user_pages(struct fu
+ 			(PAGE_SIZE - ret) & (PAGE_SIZE - 1);
+ 	}
+ 
++	ap->args.user_pages = true;
+ 	if (write)
+ 		ap->args.in_pages = true;
+ 	else
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -256,6 +256,7 @@ struct fuse_args {
+ 	bool nocreds:1;
+ 	bool in_pages:1;
+ 	bool out_pages:1;
++	bool user_pages:1;
+ 	bool out_argvar:1;
+ 	bool page_zeroing:1;
+ 	bool page_replace:1;
 
 
