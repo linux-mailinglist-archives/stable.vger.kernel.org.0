@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 441B74D8332
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ED9F4D81D1
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240991AbiCNMMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
+        id S239813AbiCNL5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:57:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241434AbiCNMIn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17F34D9F6;
-        Mon, 14 Mar 2022 05:05:13 -0700 (PDT)
+        with ESMTP id S239835AbiCNL45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:56:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CACEDF8F;
+        Mon, 14 Mar 2022 04:55:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42D87B80DF2;
-        Mon, 14 Mar 2022 12:05:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33CFAC340ED;
-        Mon, 14 Mar 2022 12:05:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C426EB80DE3;
+        Mon, 14 Mar 2022 11:55:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98DE1C340ED;
+        Mon, 14 Mar 2022 11:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259510;
-        bh=PLkxFWAuJPB2flzQRtes2vC27qTt7IiTYtVEtYcftUM=;
+        s=korg; t=1647258943;
+        bh=YMYnOjNNfhNjUlC61X8qNNM2OgJ0OqDWeEDZ4qw2yJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2ozqY7Z9DSR+4rNhcRKBPuyvLp+aHcTkv3KULo9sTQQpcyYYjAyY1Iebvbpum0+r
-         Azs6MWciFtVKnq6Lyyd61BXQz3lpq25vdry/q+fhY/edUKMrosS2FukJTqiia7KLJZ
-         YX3GEx7CTKENT9xoT4162ddgZY8ugFBzDYIaiB/s=
+        b=qjicIDP2evSBAD7a9eOVzznArgu3Mfq40MSfG0spC/ZfdFPxRjRKZvLetehzW6JTS
+         hiLWY2jOiPBrumUME0wkTUgXcuo+mKoGhn7WyR1XGbO61/tNfnoXDNIoXsDuFFMh9e
+         Wu5qkKbn92s6WbIeSei24iM8RRIinGtf3aZiJyLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/110] smsc95xx: Ignore -ENODEV errors when device is unplugged
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 14/43] NFC: port100: fix use-after-free in port100_send_complete
 Date:   Mon, 14 Mar 2022 12:53:25 +0100
-Message-Id: <20220314112743.683391099@linuxfoundation.org>
+Message-Id: <20220314112734.818860137@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
+References: <20220314112734.415677317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,138 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit c70c453abcbf3ecbaadd4c3236a5119b8da365cf ]
+[ Upstream commit f80cfe2f26581f188429c12bd937eb905ad3ac7b ]
 
-According to Documentation/driver-api/usb/URB.rst when a device
-is unplugged usb_submit_urb() returns -ENODEV.
+Syzbot reported UAF in port100_send_complete(). The root case is in
+missing usb_kill_urb() calls on error handling path of ->probe function.
 
-This error code propagates all the way up to usbnet_read_cmd() and
-usbnet_write_cmd() calls inside the smsc95xx.c driver during
-Ethernet cable unplug, unbind or reboot.
+port100_send_complete() accesses devm allocated memory which will be
+freed on probe failure. We should kill this urbs before returning an
+error from probe function to prevent reported use-after-free
 
-This causes the following errors to be shown on reboot, for example:
+Fail log:
 
-ci_hdrc ci_hdrc.1: remove, state 1
-usb usb2: USB disconnect, device number 1
-usb 2-1: USB disconnect, device number 2
-usb 2-1.1: USB disconnect, device number 3
-smsc95xx 2-1.1:1.0 eth1: unregister 'smsc95xx' usb-ci_hdrc.1-1.1, smsc95xx USB 2.0 Ethernet
-smsc95xx 2-1.1:1.0 eth1: Failed to read reg index 0x00000114: -19
-smsc95xx 2-1.1:1.0 eth1: Error reading MII_ACCESS
-smsc95xx 2-1.1:1.0 eth1: __smsc95xx_mdio_read: MII is busy
-smsc95xx 2-1.1:1.0 eth1: Failed to read reg index 0x00000114: -19
-smsc95xx 2-1.1:1.0 eth1: Error reading MII_ACCESS
-smsc95xx 2-1.1:1.0 eth1: __smsc95xx_mdio_read: MII is busy
-smsc95xx 2-1.1:1.0 eth1: hardware isn't capable of remote wakeup
-usb 2-1.4: USB disconnect, device number 4
-ci_hdrc ci_hdrc.1: USB bus 2 deregistered
-ci_hdrc ci_hdrc.0: remove, state 4
-usb usb1: USB disconnect, device number 1
-ci_hdrc ci_hdrc.0: USB bus 1 deregistered
-imx2-wdt 30280000.watchdog: Device shutdown: Expect reboot!
-reboot: Restarting system
+BUG: KASAN: use-after-free in port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
+Read of size 1 at addr ffff88801bb59540 by task ksoftirqd/2/26
+...
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
+ port100_send_complete+0x16e/0x1a0 drivers/nfc/port100.c:935
+ __usb_hcd_giveback_urb+0x2b0/0x5c0 drivers/usb/core/hcd.c:1670
 
-Ignore the -ENODEV errors inside __smsc95xx_mdio_read() and
-__smsc95xx_phy_wait_not_busy() and do not print error messages
-when -ENODEV is returned.
+...
 
-Fixes: a049a30fc27c ("net: usb: Correct PHY handling of smsc95xx")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Allocated by task 1255:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:45 [inline]
+ set_alloc_info mm/kasan/common.c:436 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:515 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:474 [inline]
+ __kasan_kmalloc+0xa6/0xd0 mm/kasan/common.c:524
+ alloc_dr drivers/base/devres.c:116 [inline]
+ devm_kmalloc+0x96/0x1d0 drivers/base/devres.c:823
+ devm_kzalloc include/linux/device.h:209 [inline]
+ port100_probe+0x8a/0x1320 drivers/nfc/port100.c:1502
+
+Freed by task 1255:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+ kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+ ____kasan_slab_free mm/kasan/common.c:366 [inline]
+ ____kasan_slab_free+0xff/0x140 mm/kasan/common.c:328
+ kasan_slab_free include/linux/kasan.h:236 [inline]
+ __cache_free mm/slab.c:3437 [inline]
+ kfree+0xf8/0x2b0 mm/slab.c:3794
+ release_nodes+0x112/0x1a0 drivers/base/devres.c:501
+ devres_release_all+0x114/0x190 drivers/base/devres.c:530
+ really_probe+0x626/0xcc0 drivers/base/dd.c:670
+
+Reported-and-tested-by: syzbot+16bcb127fb73baeecb14@syzkaller.appspotmail.com
+Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20220308185007.6987-1-paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+ drivers/nfc/port100.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 026e7487c45b..eb0d325e92b7 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -84,9 +84,10 @@ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
- 	ret = fn(dev, USB_VENDOR_REQUEST_READ_REGISTER, USB_DIR_IN
- 		 | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 		 0, index, &buf, 4);
--	if (unlikely(ret < 0)) {
--		netdev_warn(dev->net, "Failed to read reg index 0x%08x: %d\n",
--			    index, ret);
-+	if (ret < 0) {
-+		if (ret != -ENODEV)
-+			netdev_warn(dev->net, "Failed to read reg index 0x%08x: %d\n",
-+				    index, ret);
- 		return ret;
- 	}
+diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
+index 1caebefb25ff..2ae1474faede 100644
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -1609,7 +1609,9 @@ static int port100_probe(struct usb_interface *interface,
+ 	nfc_digital_free_device(dev->nfc_digital_dev);
  
-@@ -116,7 +117,7 @@ static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
- 	ret = fn(dev, USB_VENDOR_REQUEST_WRITE_REGISTER, USB_DIR_OUT
- 		 | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 		 0, index, &buf, 4);
--	if (unlikely(ret < 0))
-+	if (ret < 0 && ret != -ENODEV)
- 		netdev_warn(dev->net, "Failed to write reg index 0x%08x: %d\n",
- 			    index, ret);
- 
-@@ -159,6 +160,9 @@ static int __must_check __smsc95xx_phy_wait_not_busy(struct usbnet *dev,
- 	do {
- 		ret = __smsc95xx_read_reg(dev, MII_ADDR, &val, in_pm);
- 		if (ret < 0) {
-+			/* Ignore -ENODEV error during disconnect() */
-+			if (ret == -ENODEV)
-+				return 0;
- 			netdev_warn(dev->net, "Error reading MII_ACCESS\n");
- 			return ret;
- 		}
-@@ -194,7 +198,8 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
- 	addr = mii_address_cmd(phy_id, idx, MII_READ_ | MII_BUSY_);
- 	ret = __smsc95xx_write_reg(dev, MII_ADDR, addr, in_pm);
- 	if (ret < 0) {
--		netdev_warn(dev->net, "Error writing MII_ADDR\n");
-+		if (ret != -ENODEV)
-+			netdev_warn(dev->net, "Error writing MII_ADDR\n");
- 		goto done;
- 	}
- 
-@@ -206,7 +211,8 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
- 
- 	ret = __smsc95xx_read_reg(dev, MII_DATA, &val, in_pm);
- 	if (ret < 0) {
--		netdev_warn(dev->net, "Error reading MII_DATA\n");
-+		if (ret != -ENODEV)
-+			netdev_warn(dev->net, "Error reading MII_DATA\n");
- 		goto done;
- 	}
- 
-@@ -214,6 +220,10 @@ static int __smsc95xx_mdio_read(struct usbnet *dev, int phy_id, int idx,
- 
- done:
- 	mutex_unlock(&dev->phy_mutex);
-+
-+	/* Ignore -ENODEV error during disconnect() */
-+	if (ret == -ENODEV)
-+		return 0;
- 	return ret;
- }
- 
-@@ -235,7 +245,8 @@ static void __smsc95xx_mdio_write(struct usbnet *dev, int phy_id,
- 	val = regval;
- 	ret = __smsc95xx_write_reg(dev, MII_DATA, val, in_pm);
- 	if (ret < 0) {
--		netdev_warn(dev->net, "Error writing MII_DATA\n");
-+		if (ret != -ENODEV)
-+			netdev_warn(dev->net, "Error writing MII_DATA\n");
- 		goto done;
- 	}
- 
-@@ -243,7 +254,8 @@ static void __smsc95xx_mdio_write(struct usbnet *dev, int phy_id,
- 	addr = mii_address_cmd(phy_id, idx, MII_WRITE_ | MII_BUSY_);
- 	ret = __smsc95xx_write_reg(dev, MII_ADDR, addr, in_pm);
- 	if (ret < 0) {
--		netdev_warn(dev->net, "Error writing MII_ADDR\n");
-+		if (ret != -ENODEV)
-+			netdev_warn(dev->net, "Error writing MII_ADDR\n");
- 		goto done;
- 	}
+ error:
++	usb_kill_urb(dev->in_urb);
+ 	usb_free_urb(dev->in_urb);
++	usb_kill_urb(dev->out_urb);
+ 	usb_free_urb(dev->out_urb);
+ 	usb_put_dev(dev->udev);
  
 -- 
 2.34.1
