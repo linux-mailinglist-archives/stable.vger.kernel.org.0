@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6B94D8401
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A02744D82C7
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236514AbiCNMWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50854 "EHLO
+        id S232608AbiCNMHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:07:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242947AbiCNMT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EF4522F5;
-        Mon, 14 Mar 2022 05:15:06 -0700 (PDT)
+        with ESMTP id S240708AbiCNMG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:06:59 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FD332018A;
+        Mon, 14 Mar 2022 05:03:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6CA2B80DFF;
-        Mon, 14 Mar 2022 12:15:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D3A9C340E9;
-        Mon, 14 Mar 2022 12:15:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 27E7FCE1265;
+        Mon, 14 Mar 2022 12:03:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBC4DC340E9;
+        Mon, 14 Mar 2022 12:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260103;
-        bh=5dn8+/NyVA/eNrucFxQnoSAcjC8HjqGn5cqpg5UYb6Q=;
+        s=korg; t=1647259392;
+        bh=KJ76qdj+9s1wslnc9jYS35+T7a9INtf5aJ7Icsm/uo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yk7zxjGitFsSnQrAjIzHR+9dj4nQHKHtk/EVllim5eoHS790yrCYNQxKwSoLyPBWY
-         wDWPhJZxG3amlSnG/R7Ew7nscuhrK2IpISVyRuJcO3OHR2L6iK1N9UKaLf4vt6CH6F
-         /6gWyrkfcuMsicaRKI33iGzIfG2CRadE4xYpTXG0=
+        b=IBDTF68M3p1xT5Lv7GdCbJlI45c4W5qAurJnDRvWKdQSrROJYO+0qHTYVPgGfwUgr
+         lL3eYpgMZ98JiWuU4e9XSQocCyBnHl94jvQgc9QuHlmyrLgXYKbTqZ5AJAcyOlFQ4r
+         /PAJD2yXPlsTFLwSh1O3TO9jV2BZoYuo8YqsYs2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 057/121] net: arc_emac: Fix use after free in arc_mdio_probe()
+        stable@vger.kernel.org, Ross Philipson <ross.philipson@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Daniel Kiper <daniel.kiper@oracle.com>
+Subject: [PATCH 5.10 67/71] x86/boot: Add setup_indirect support in early_memremap_is_setup_data()
 Date:   Mon, 14 Mar 2022 12:54:00 +0100
-Message-Id: <20220314112745.717795416@linuxfoundation.org>
+Message-Id: <20220314112739.814638150@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Ross Philipson <ross.philipson@oracle.com>
 
-[ Upstream commit bc0e610a6eb0d46e4123fafdbe5e6141d9fff3be ]
+commit 445c1470b6ef96440e7cfc42dfc160f5004fd149 upstream.
 
-If bus->state is equal to MDIOBUS_ALLOCATED, mdiobus_free(bus) will free
-the "bus". But bus->name is still used in the next line, which will lead
-to a use after free.
+The x86 boot documentation describes the setup_indirect structures and
+how they are used. Only one of the two functions in ioremap.c that needed
+to be modified to be aware of the introduction of setup_indirect
+functionality was updated. Adds comparable support to the other function
+where it was missing.
 
-We can fix it by putting the name in a local variable and make the
-bus->name point to the rodata section "name",then use the name in the
-error message without referring to bus to avoid the uaf.
-
-Fixes: 95b5fc03c189 ("net: arc_emac: Make use of the helper function dev_err_probe()")
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Link: https://lore.kernel.org/r/20220309121824.36529-1-niejianglei2021@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b3c72fc9a78e ("x86/boot: Introduce setup_indirect")
+Signed-off-by: Ross Philipson <ross.philipson@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Daniel Kiper <daniel.kiper@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1645668456-22036-3-git-send-email-ross.philipson@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/arc/emac_mdio.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/mm/ioremap.c |   33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/arc/emac_mdio.c b/drivers/net/ethernet/arc/emac_mdio.c
-index 9acf589b1178..87f40c2ba904 100644
---- a/drivers/net/ethernet/arc/emac_mdio.c
-+++ b/drivers/net/ethernet/arc/emac_mdio.c
-@@ -132,6 +132,7 @@ int arc_mdio_probe(struct arc_emac_priv *priv)
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -694,22 +694,51 @@ static bool memremap_is_setup_data(resou
+ static bool __init early_memremap_is_setup_data(resource_size_t phys_addr,
+ 						unsigned long size)
  {
- 	struct arc_emac_mdio_bus_data *data = &priv->bus_data;
- 	struct device_node *np = priv->dev->of_node;
-+	const char *name = "Synopsys MII Bus";
- 	struct mii_bus *bus;
- 	int error;
++	struct setup_indirect *indirect;
+ 	struct setup_data *data;
+ 	u64 paddr, paddr_next;
  
-@@ -142,7 +143,7 @@ int arc_mdio_probe(struct arc_emac_priv *priv)
- 	priv->bus = bus;
- 	bus->priv = priv;
- 	bus->parent = priv->dev;
--	bus->name = "Synopsys MII Bus";
-+	bus->name = name;
- 	bus->read = &arc_mdio_read;
- 	bus->write = &arc_mdio_write;
- 	bus->reset = &arc_mdio_reset;
-@@ -167,7 +168,7 @@ int arc_mdio_probe(struct arc_emac_priv *priv)
- 	if (error) {
- 		mdiobus_free(bus);
- 		return dev_err_probe(priv->dev, error,
--				     "cannot register MDIO bus %s\n", bus->name);
-+				     "cannot register MDIO bus %s\n", name);
- 	}
+ 	paddr = boot_params.hdr.setup_data;
+ 	while (paddr) {
+-		unsigned int len;
++		unsigned int len, size;
  
- 	return 0;
--- 
-2.34.1
-
+ 		if (phys_addr == paddr)
+ 			return true;
+ 
+ 		data = early_memremap_decrypted(paddr, sizeof(*data));
++		if (!data) {
++			pr_warn("failed to early memremap setup_data entry\n");
++			return false;
++		}
++
++		size = sizeof(*data);
+ 
+ 		paddr_next = data->next;
+ 		len = data->len;
+ 
+-		early_memunmap(data, sizeof(*data));
++		if ((phys_addr > paddr) && (phys_addr < (paddr + len))) {
++			early_memunmap(data, sizeof(*data));
++			return true;
++		}
++
++		if (data->type == SETUP_INDIRECT) {
++			size += len;
++			early_memunmap(data, sizeof(*data));
++			data = early_memremap_decrypted(paddr, size);
++			if (!data) {
++				pr_warn("failed to early memremap indirect setup_data\n");
++				return false;
++			}
++
++			indirect = (struct setup_indirect *)data->data;
++
++			if (indirect->type != SETUP_INDIRECT) {
++				paddr = indirect->addr;
++				len = indirect->len;
++			}
++		}
++
++		early_memunmap(data, size);
+ 
+ 		if ((phys_addr > paddr) && (phys_addr < (paddr + len)))
+ 			return true;
 
 
