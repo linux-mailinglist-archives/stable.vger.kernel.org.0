@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB53A4D8279
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:03:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E714D8272
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:03:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240389AbiCNMEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
+        id S240404AbiCNMEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:04:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240412AbiCNMDh (ORCPT
+        with ESMTP id S240432AbiCNMDh (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:03:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D966B49F8D;
-        Mon, 14 Mar 2022 05:01:16 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720F24BB9B;
+        Mon, 14 Mar 2022 05:01:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C953B80DC2;
-        Mon, 14 Mar 2022 12:01:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC9A3C340ED;
-        Mon, 14 Mar 2022 12:01:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC694612AF;
+        Mon, 14 Mar 2022 12:01:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9052CC340F6;
+        Mon, 14 Mar 2022 12:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259274;
-        bh=4dnyVepvitlIwJlr9BRFyX0QDhIjvlzBvc/cJXlsIZ0=;
+        s=korg; t=1647259280;
+        bh=HrdSo/HJW4mBmi3Icvfw/mTu9CV8szoCbDK6mYCN8Gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqbGmQWgXYZvNcKLsaN7HC+eDUoVbWVWbSwTzmeOAJWoZ00T5raB1c4SafPe0/roq
-         AGbKIlEOZHNNUz8TSuXA8bGV7TiQ/j66u2fnUFjjPNLBD67oy4yyJPox0AEGe8M2/7
-         E+jxerwM1UCgh8sCZ1D4iaN6EmDq08SfDgYw6QAc=
+        b=b3e2WN5osm0cQRzpcxDg260WYZafsCK6jb79wHLQNqlHexXsUyXt2rM5pdnHotF/m
+         kseiQvOKBomLAjGTi26lCmzBwTj3nQIDBv3kGY5qN5wrS78XZBEWKqLoifsvGUuz4h
+         XbNtaoo/e0pmSKmM4jmUfuCLmS6llAPjWiwagoEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 04/71] arm64: dts: armada-3720-turris-mox: Add missing ethernet0 alias
-Date:   Mon, 14 Mar 2022 12:52:57 +0100
-Message-Id: <20220314112738.055097540@linuxfoundation.org>
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Jon Maloy <jmaloy@redhat.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 05/71] tipc: fix kernel panic when enabling bearer
+Date:   Mon, 14 Mar 2022 12:52:58 +0100
+Message-Id: <20220314112738.083229245@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
 References: <20220314112737.929694832@linuxfoundation.org>
@@ -55,34 +56,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-[ Upstream commit a0e897d1b36793fe0ab899f2fe93dff25c82f418 ]
+[ Upstream commit be4977b847f5d5cedb64d50eaaf2218c3a55a3a3 ]
 
-U-Boot uses ethernet* aliases for setting MAC addresses. Therefore define
-also alias for ethernet0.
+When enabling a bearer on a node, a kernel panic is observed:
 
-Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[    4.498085] RIP: 0010:tipc_mon_prep+0x4e/0x130 [tipc]
+...
+[    4.520030] Call Trace:
+[    4.520689]  <IRQ>
+[    4.521236]  tipc_link_build_proto_msg+0x375/0x750 [tipc]
+[    4.522654]  tipc_link_build_state_msg+0x48/0xc0 [tipc]
+[    4.524034]  __tipc_node_link_up+0xd7/0x290 [tipc]
+[    4.525292]  tipc_rcv+0x5da/0x730 [tipc]
+[    4.526346]  ? __netif_receive_skb_core+0xb7/0xfc0
+[    4.527601]  tipc_l2_rcv_msg+0x5e/0x90 [tipc]
+[    4.528737]  __netif_receive_skb_list_core+0x20b/0x260
+[    4.530068]  netif_receive_skb_list_internal+0x1bf/0x2e0
+[    4.531450]  ? dev_gro_receive+0x4c2/0x680
+[    4.532512]  napi_complete_done+0x6f/0x180
+[    4.533570]  virtnet_poll+0x29c/0x42e [virtio_net]
+...
+
+The node in question is receiving activate messages in another
+thread after changing bearer status to allow message sending/
+receiving in current thread:
+
+         thread 1           |              thread 2
+         --------           |              --------
+                            |
+tipc_enable_bearer()        |
+  test_and_set_bit_lock()   |
+    tipc_bearer_xmit_skb()  |
+                            | tipc_l2_rcv_msg()
+                            |   tipc_rcv()
+                            |     __tipc_node_link_up()
+                            |       tipc_link_build_state_msg()
+                            |         tipc_link_build_proto_msg()
+                            |           tipc_mon_prep()
+                            |           {
+                            |             ...
+                            |             // null-pointer dereference
+                            |             u16 gen = mon->dom_gen;
+                            |             ...
+                            |           }
+  // Not being executed yet |
+  tipc_mon_create()         |
+  {                         |
+    ...                     |
+    // allocate             |
+    mon = kzalloc();        |
+    ...                     |
+  }                         |
+
+Monitoring pointer in thread 2 is dereferenced before monitoring data
+is allocated in thread 1. This causes kernel panic.
+
+This commit fixes it by allocating the monitoring data before enabling
+the bearer to receive messages.
+
+Fixes: 35c55c9877f8 ("tipc: add neighbor monitoring framework")
+Reported-by: Shuang Li <shuali@redhat.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 1 +
- 1 file changed, 1 insertion(+)
+ net/tipc/bearer.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index 2e437f20da39..ad963b51dcbe 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -18,6 +18,7 @@ / {
+diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
+index 12e535b43d88..6911f1cab206 100644
+--- a/net/tipc/bearer.c
++++ b/net/tipc/bearer.c
+@@ -342,16 +342,18 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+ 		goto rejected;
+ 	}
  
- 	aliases {
- 		spi0 = &spi0;
-+		ethernet0 = &eth0;
- 		ethernet1 = &eth1;
- 		mmc0 = &sdhci0;
- 		mmc1 = &sdhci1;
+-	test_and_set_bit_lock(0, &b->up);
+-	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
+-	if (skb)
+-		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
+-
++	/* Create monitoring data before accepting activate messages */
+ 	if (tipc_mon_create(net, bearer_id)) {
+ 		bearer_disable(net, b);
++		kfree_skb(skb);
+ 		return -ENOMEM;
+ 	}
+ 
++	test_and_set_bit_lock(0, &b->up);
++	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
++	if (skb)
++		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
++
+ 	pr_info("Enabled bearer <%s>, priority %u\n", name, prio);
+ 
+ 	return res;
 -- 
 2.34.1
 
