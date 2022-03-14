@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 315734D8456
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7BC4D833E
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241963AbiCNMXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:23:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
+        id S241194AbiCNMNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:13:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243799AbiCNMVQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0B7049F83;
-        Mon, 14 Mar 2022 05:17:03 -0700 (PDT)
+        with ESMTP id S242877AbiCNMLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:11:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC62338AE;
+        Mon, 14 Mar 2022 05:10:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9949BB80DC0;
-        Mon, 14 Mar 2022 12:17:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB94EC340E9;
-        Mon, 14 Mar 2022 12:17:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEA416135D;
+        Mon, 14 Mar 2022 12:09:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4460C340EC;
+        Mon, 14 Mar 2022 12:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260221;
-        bh=iPLPLA7IMxm/yNnObmx+1b1e4pzUaWU5IeYMucuip24=;
+        s=korg; t=1647259798;
+        bh=gCLJMVhTROye/SBdLcctGIL2mAAUBv6dbc1bY/smkoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JuRALm8qa02uSeevSnA1S/bx+wUYcpjnlVyx8zZzHW2s7S+v4f/22b9oU4fMAaAb/
-         uEqKljCrTA+AAiCmRrQ07UjUPt7aUNLU0IKJXVWRgMLqaPwWR/tr5T4PJjvA/uNfqy
-         pLuSRKnw0PGuznGYMplz3fKQGR0FDth0azbxelww=
+        b=IPLpO6By0FrSujOoEGW12YZTqASc9qVQQHl57DxUA8X7lkoWyqmUia+NCl2cXxDNz
+         qHSVkD2tsa+/+qo3dCJJMySkt6YcXY0Nau4VJRknBagcNN54sDFvpndoZAoZYjIuu2
+         +XcTa8ImwWsb+94elhHrJi6/GBhgCU+HKBY31hTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.16 090/121] staging: gdm724x: fix use after free in gdm_lte_rx()
-Date:   Mon, 14 Mar 2022 12:54:33 +0100
-Message-Id: <20220314112746.629986870@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 092/110] ARM: fix Thumb2 regression with Spectre BHB
+Date:   Mon, 14 Mar 2022 12:54:34 +0100
+Message-Id: <20220314112745.597288876@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit fc7f750dc9d102c1ed7bbe4591f991e770c99033 upstream.
+commit 6c7cb60bff7aec24b834343ff433125f469886a3 upstream.
 
-The netif_rx_ni() function frees the skb so we can't dereference it to
-save the skb->len.
+When building for Thumb2, the vectors make use of a local label. Sadly,
+the Spectre BHB code also uses a local label with the same number which
+results in the Thumb2 reference pointing at the wrong place. Fix this
+by changing the number used for the Spectre BHB local label.
 
-Fixes: 61e121047645 ("staging: gdm7240: adding LTE USB driver")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20220228074331.GA13685@kili
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/gdm724x/gdm_lte.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/kernel/entry-armv.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
-index 493ed4821515..0d8d8fed283d 100644
---- a/drivers/staging/gdm724x/gdm_lte.c
-+++ b/drivers/staging/gdm724x/gdm_lte.c
-@@ -76,14 +76,15 @@ static void tx_complete(void *arg)
+--- a/arch/arm/kernel/entry-armv.S
++++ b/arch/arm/kernel/entry-armv.S
+@@ -1038,9 +1038,9 @@ vector_bhb_loop8_\name:
  
- static int gdm_lte_rx(struct sk_buff *skb, struct nic *nic, int nic_type)
- {
--	int ret;
-+	int ret, len;
- 
-+	len = skb->len + ETH_HLEN;
- 	ret = netif_rx_ni(skb);
- 	if (ret == NET_RX_DROP) {
- 		nic->stats.rx_dropped++;
- 	} else {
- 		nic->stats.rx_packets++;
--		nic->stats.rx_bytes += skb->len + ETH_HLEN;
-+		nic->stats.rx_bytes += len;
- 	}
- 
- 	return 0;
--- 
-2.35.1
-
+ 	@ bhb workaround
+ 	mov	r0, #8
+-1:	b	. + 4
++3:	b	. + 4
+ 	subs	r0, r0, #1
+-	bne	1b
++	bne	3b
+ 	dsb
+ 	isb
+ 	b	2b
 
 
