@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 055854D841A
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B62A74D8307
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236188AbiCNMWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51490 "EHLO
+        id S240785AbiCNMMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243401AbiCNMUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:20:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E3A34B8E;
-        Mon, 14 Mar 2022 05:15:57 -0700 (PDT)
+        with ESMTP id S242472AbiCNMKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:10:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C035140A5;
+        Mon, 14 Mar 2022 05:08:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41ED0B80DBF;
-        Mon, 14 Mar 2022 12:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55F2BC340E9;
-        Mon, 14 Mar 2022 12:15:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6C9F6130F;
+        Mon, 14 Mar 2022 12:08:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E322C340E9;
+        Mon, 14 Mar 2022 12:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260155;
-        bh=3xAnkSXnjA5wk2NRB8COP0R/p2itWDdP61y6JWt5ymo=;
+        s=korg; t=1647259733;
+        bh=46/45yPv03Vd7wdgIs0qyefA6DBhuuWV8uHgW4390cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TmwwEgXiZ/xpcjb61BSugq/JjAj/qtz/P28cosq4sdF0EMrwpjumMhOeMsOYEPlsM
-         KlFaa5Qj2NtfcwR0cVm9AONAWXtT5AaBOqU1gZKXBCAKymea6FYR07pVzIfRDEwSox
-         jDqepQL7gAXS1RPlKFSGuUhuKdx7rY94rosGFHnE=
+        b=GMDPsXJCdhKa2czS/zJiwPnZ4wLW58wFx9jC2ljG9SG4PUZuh1vJ0g0R0Ln4RTN5n
+         y+G+8q9MejrlQyJSoJJ2Fks0ZoSRt8TtUqD/3fJ8IFBlQZs7DZeKym8bUvbUzDPzi7
+         mY0GpIVKhRvrf8/s1XW8rJPD4heamES/OMsJoRpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vikash Chandola <vikash.chandola@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 073/121] hwmon: (pmbus) Clear pmbus fault/warning bits after read
-Date:   Mon, 14 Mar 2022 12:54:16 +0100
-Message-Id: <20220314112746.160362529@linuxfoundation.org>
+        =?UTF-8?q?Jean-Pierre=20Andr=C3=A9?= <jean-pierre.andre@wanadoo.fr>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.15 075/110] fuse: fix fileattr op failure
+Date:   Mon, 14 Mar 2022 12:54:17 +0100
+Message-Id: <20220314112745.127129705@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikash Chandola <vikash.chandola@linux.intel.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 35f165f08950a876f1b95a61d79c93678fba2fd6 ]
+commit a679a61520d8a7b0211a1da990404daf5cc80b72 upstream.
 
-Almost all fault/warning bits in pmbus status registers remain set even
-after fault/warning condition are removed. As per pmbus specification
-these faults must be cleared by user.
-Modify hwmon behavior to clear fault/warning bit after fetching data if
-fault/warning bit was set. This allows to get fresh data in next read.
+The fileattr API conversion broke lsattr on ntfs3g.
 
-Signed-off-by: Vikash Chandola <vikash.chandola@linux.intel.com>
-Link: https://lore.kernel.org/r/20220222131253.2426834-1-vikash.chandola@linux.intel.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Previously the ioctl(... FS_IOC_GETFLAGS) returned an EINVAL error, but
+after the conversion the error returned by the fuse filesystem was not
+propagated back to the ioctl() system call, resulting in success being
+returned with bogus values.
+
+Fix by checking for outarg.result in fuse_priv_ioctl(), just as generic
+ioctl code does.
+
+Reported-by: Jean-Pierre André <jean-pierre.andre@wanadoo.fr>
+Fixes: 72227eac177d ("fuse: convert to fileattr")
+Cc: <stable@vger.kernel.org> # v5.13
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/pmbus/pmbus_core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/fuse/ioctl.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index 776ee2237be2..ac2fbee1ba9c 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -911,6 +911,11 @@ static int pmbus_get_boolean(struct i2c_client *client, struct pmbus_boolean *b,
- 		pmbus_update_sensor_data(client, s2);
+--- a/fs/fuse/ioctl.c
++++ b/fs/fuse/ioctl.c
+@@ -394,9 +394,12 @@ static int fuse_priv_ioctl(struct inode
+ 	args.out_args[1].value = ptr;
  
- 	regval = status & mask;
-+	if (regval) {
-+		ret = pmbus_write_byte_data(client, page, reg, regval);
-+		if (ret)
-+			goto unlock;
+ 	err = fuse_simple_request(fm, &args);
+-	if (!err && outarg.flags & FUSE_IOCTL_RETRY)
+-		err = -EIO;
+-
++	if (!err) {
++		if (outarg.result < 0)
++			err = outarg.result;
++		else if (outarg.flags & FUSE_IOCTL_RETRY)
++			err = -EIO;
 +	}
- 	if (s1 && s2) {
- 		s64 v1, v2;
+ 	return err;
+ }
  
--- 
-2.34.1
-
 
 
