@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC3B4D8323
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21DF84D8304
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240923AbiCNMMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48102 "EHLO
+        id S240768AbiCNMMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242392AbiCNMJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C58D56404;
-        Mon, 14 Mar 2022 05:07:50 -0700 (PDT)
+        with ESMTP id S240608AbiCNMHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:07:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5997525E89;
+        Mon, 14 Mar 2022 05:03:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 744B5B80DED;
-        Mon, 14 Mar 2022 12:07:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9096C340EC;
-        Mon, 14 Mar 2022 12:07:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 895A4612FC;
+        Mon, 14 Mar 2022 12:03:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59FAEC340E9;
+        Mon, 14 Mar 2022 12:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259668;
-        bh=dQE9AN0W3xhOOojm4d6cc0ZVs/VcgoMmZFSyfL9v3+8=;
+        s=korg; t=1647259428;
+        bh=NuDrYjk6KqOnjT4mFjDBvDlCwZpllFFhwKqWbiYw1/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2H3d7uU+57Zd59ZIej/qiKmal169BeekIH6tY1uFdYkQmbuOszYGvDNcgTacdPzFQ
-         Ax6HMtCuQp5s0XFKJpUpBrnbn/MBsjT20w6aGvRwD+5kAmVOXx+IMRWQUG8lkqbfFK
-         ly2uVu5Uit+gXjAO4u4XjISlHEhHm5GggT0irB8o=
+        b=r45OMfHwNBeBK1G83k+G7xAHn3+whPOEPqw0py0mZS83gbeKamiZR51G3lBYbSP4o
+         9XVuWm4Qavk9JCMuwrM7726yUv8XGSUvxhItqate8NUlfKKbMxrvsmkSSz1wg2fYzR
+         Cf31zU52JF9pT1FEYrBzxQOyyNGjOAnesPMPh2QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Niels Dossche <niels.dossche@ugent.be>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 035/110] tipc: fix incorrect order of state message data sanity check
-Date:   Mon, 14 Mar 2022 12:53:37 +0100
-Message-Id: <20220314112744.017934814@linuxfoundation.org>
+Subject: [PATCH 5.10 45/71] ipv6: prevent a possible race condition with lifetimes
+Date:   Mon, 14 Mar 2022 12:53:38 +0100
+Message-Id: <20220314112739.192035540@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit c79fcc27be90b308b3fa90811aefafdd4078668c ]
+[ Upstream commit 6c0d8833a605e195ae219b5042577ce52bf71fff ]
 
-When receiving a state message, function tipc_link_validate_msg()
-is called to validate its header portion. Then, its data portion
-is validated before it can be accessed correctly. However, current
-data sanity  check is done after the message header is accessed to
-update some link variables.
+valid_lft, prefered_lft and tstamp are always accessed under the lock
+"lock" in other places. Reading these without taking the lock may result
+in inconsistencies regarding the calculation of the valid and preferred
+variables since decisions are taken on these fields for those variables.
 
-This commit fixes this issue by moving the data sanity check to
-the beginning of state message handling and right after the header
-sanity check.
-
-Fixes: 9aa422ad3266 ("tipc: improve size validations for received domain records")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Link: https://lore.kernel.org/r/20220308021200.9245-1-tung.q.nguyen@dektech.com.au
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Niels Dossche <niels.dossche@ugent.be>
+Link: https://lore.kernel.org/r/20220223131954.6570-1-niels.dossche@ugent.be
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/link.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ net/ipv6/addrconf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/tipc/link.c b/net/tipc/link.c
-index 4e7936d9b442..115a4a7950f5 100644
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -2285,6 +2285,11 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
- 		break;
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 072c34823753..7c5bf39dca5d 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -4979,6 +4979,7 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
+ 	    nla_put_s32(skb, IFA_TARGET_NETNSID, args->netnsid))
+ 		goto error;
  
- 	case STATE_MSG:
-+		/* Validate Gap ACK blocks, drop if invalid */
-+		glen = tipc_get_gap_ack_blks(&ga, l, hdr, true);
-+		if (glen > dlen)
-+			break;
-+
- 		l->rcv_nxt_state = msg_seqno(hdr) + 1;
++	spin_lock_bh(&ifa->lock);
+ 	if (!((ifa->flags&IFA_F_PERMANENT) &&
+ 	      (ifa->prefered_lft == INFINITY_LIFE_TIME))) {
+ 		preferred = ifa->prefered_lft;
+@@ -5000,6 +5001,7 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
+ 		preferred = INFINITY_LIFE_TIME;
+ 		valid = INFINITY_LIFE_TIME;
+ 	}
++	spin_unlock_bh(&ifa->lock);
  
- 		/* Update own tolerance if peer indicates a non-zero value */
-@@ -2310,10 +2315,6 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
- 			break;
- 		}
- 
--		/* Receive Gap ACK blocks from peer if any */
--		glen = tipc_get_gap_ack_blks(&ga, l, hdr, true);
--		if(glen > dlen)
--			break;
- 		tipc_mon_rcv(l->net, data + glen, dlen - glen, l->addr,
- 			     &l->mon_state, l->bearer_id);
- 
+ 	if (!ipv6_addr_any(&ifa->peer_addr)) {
+ 		if (nla_put_in6_addr(skb, IFA_LOCAL, &ifa->addr) < 0 ||
 -- 
 2.34.1
 
