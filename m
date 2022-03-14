@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D00354D836C
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B8E4D836E
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236511AbiCNMNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:13:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57434 "EHLO
+        id S240829AbiCNMNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:13:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240935AbiCNMMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:12:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 314BC34678;
-        Mon, 14 Mar 2022 05:10:45 -0700 (PDT)
+        with ESMTP id S240973AbiCNMMo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:12:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A81344FD;
+        Mon, 14 Mar 2022 05:10:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98B5F61343;
-        Mon, 14 Mar 2022 12:10:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A83C7C36AE9;
-        Mon, 14 Mar 2022 12:10:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 021476130F;
+        Mon, 14 Mar 2022 12:10:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2EFC340E9;
+        Mon, 14 Mar 2022 12:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259843;
-        bh=TZFCzcRAJ2ywtVw4hszyoiDKGNP7GMYuWJEWqOZtKEI=;
+        s=korg; t=1647259847;
+        bh=NqA27l9xeTHC7nsQWTG2iQ8eiJfiJlCHGnqdQcCijeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opwe8jBwttNQUgVEn1Ai9kRFTJlkoHADStNL1DOHOn23IXboFRp5hc5CHmUde6jBU
-         y6AgyED+As5bQEvZgec79Yp/TBEtsjpZVg+zmplIItoP7MLOdwe61fpMfeahRjiSPi
-         D2QK57LnBf+qSI5PZGPhLS0nucUDuyAaADHmqIZU=
+        b=MM3idWel+Kr66bBqi93bSYIL1TxDpVZTal0oT8piXmp1LMsy6e5TrIVavDDUIGYL7
+         n9HcWhExXQi8odPhcd33XfWk/AOCtqqttw+LUjNFMly0evuavb6J8EKUMUqhfGEm5S
+         LhGmzr2P2ck90lVFziknRKIGfgkeXPcAJUQz2lqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Philipson <ross.philipson@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Daniel Kiper <daniel.kiper@oracle.com>
-Subject: [PATCH 5.15 102/110] x86/boot: Add setup_indirect support in early_memremap_is_setup_data()
-Date:   Mon, 14 Mar 2022 12:54:44 +0100
-Message-Id: <20220314112745.873715665@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.15 103/110] x86/sgx: Free backing memory after faulting the enclave page
+Date:   Mon, 14 Mar 2022 12:54:45 +0100
+Message-Id: <20220314112745.901639690@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
 References: <20220314112743.029192918@linuxfoundation.org>
@@ -54,82 +53,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Philipson <ross.philipson@oracle.com>
+From: Jarkko Sakkinen <jarkko@kernel.org>
 
-commit 445c1470b6ef96440e7cfc42dfc160f5004fd149 upstream.
+commit 08999b2489b4c9b939d7483dbd03702ee4576d96 upstream.
 
-The x86 boot documentation describes the setup_indirect structures and
-how they are used. Only one of the two functions in ioremap.c that needed
-to be modified to be aware of the introduction of setup_indirect
-functionality was updated. Adds comparable support to the other function
-where it was missing.
+There is a limited amount of SGX memory (EPC) on each system.  When that
+memory is used up, SGX has its own swapping mechanism which is similar
+in concept but totally separate from the core mm/* code.  Instead of
+swapping to disk, SGX swaps from EPC to normal RAM.  That normal RAM
+comes from a shared memory pseudo-file and can itself be swapped by the
+core mm code.  There is a hierarchy like this:
 
-Fixes: b3c72fc9a78e ("x86/boot: Introduce setup_indirect")
-Signed-off-by: Ross Philipson <ross.philipson@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Daniel Kiper <daniel.kiper@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1645668456-22036-3-git-send-email-ross.philipson@oracle.com
+	EPC <-> shmem <-> disk
+
+After data is swapped back in from shmem to EPC, the shmem backing
+storage needs to be freed.  Currently, the backing shmem is not freed.
+This effectively wastes the shmem while the enclave is running.  The
+memory is recovered when the enclave is destroyed and the backing
+storage freed.
+
+Sort this out by freeing memory with shmem_truncate_range(), as soon as
+a page is faulted back to the EPC.  In addition, free the memory for
+PCMD pages as soon as all PCMD's in a page have been marked as unused
+by zeroing its contents.
+
+Cc: stable@vger.kernel.org
+Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
+Reported-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lkml.kernel.org/r/20220303223859.273187-1-jarkko@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/ioremap.c |   33 +++++++++++++++++++++++++++++++--
- 1 file changed, 31 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/sgx/encl.c |   57 ++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 48 insertions(+), 9 deletions(-)
 
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -675,22 +675,51 @@ static bool memremap_is_setup_data(resou
- static bool __init early_memremap_is_setup_data(resource_size_t phys_addr,
- 						unsigned long size)
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -13,6 +13,30 @@
+ #include "sgx.h"
+ 
+ /*
++ * Calculate byte offset of a PCMD struct associated with an enclave page. PCMD's
++ * follow right after the EPC data in the backing storage. In addition to the
++ * visible enclave pages, there's one extra page slot for SECS, before PCMD
++ * structs.
++ */
++static inline pgoff_t sgx_encl_get_backing_page_pcmd_offset(struct sgx_encl *encl,
++							    unsigned long page_index)
++{
++	pgoff_t epc_end_off = encl->size + sizeof(struct sgx_secs);
++
++	return epc_end_off + page_index * sizeof(struct sgx_pcmd);
++}
++
++/*
++ * Free a page from the backing storage in the given page index.
++ */
++static inline void sgx_encl_truncate_backing_page(struct sgx_encl *encl, unsigned long page_index)
++{
++	struct inode *inode = file_inode(encl->backing);
++
++	shmem_truncate_range(inode, PFN_PHYS(page_index), PFN_PHYS(page_index) + PAGE_SIZE - 1);
++}
++
++/*
+  * ELDU: Load an EPC page as unblocked. For more info, see "OS Management of EPC
+  * Pages" in the SDM.
+  */
+@@ -22,9 +46,11 @@ static int __sgx_encl_eldu(struct sgx_en
  {
-+	struct setup_indirect *indirect;
- 	struct setup_data *data;
- 	u64 paddr, paddr_next;
+ 	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
+ 	struct sgx_encl *encl = encl_page->encl;
++	pgoff_t page_index, page_pcmd_off;
+ 	struct sgx_pageinfo pginfo;
+ 	struct sgx_backing b;
+-	pgoff_t page_index;
++	bool pcmd_page_empty;
++	u8 *pcmd_page;
+ 	int ret;
  
- 	paddr = boot_params.hdr.setup_data;
- 	while (paddr) {
--		unsigned int len;
-+		unsigned int len, size;
+ 	if (secs_page)
+@@ -32,14 +58,16 @@ static int __sgx_encl_eldu(struct sgx_en
+ 	else
+ 		page_index = PFN_DOWN(encl->size);
  
- 		if (phys_addr == paddr)
- 			return true;
- 
- 		data = early_memremap_decrypted(paddr, sizeof(*data));
-+		if (!data) {
-+			pr_warn("failed to early memremap setup_data entry\n");
-+			return false;
-+		}
++	page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
 +
-+		size = sizeof(*data);
+ 	ret = sgx_encl_get_backing(encl, page_index, &b);
+ 	if (ret)
+ 		return ret;
  
- 		paddr_next = data->next;
- 		len = data->len;
+ 	pginfo.addr = encl_page->desc & PAGE_MASK;
+ 	pginfo.contents = (unsigned long)kmap_atomic(b.contents);
+-	pginfo.metadata = (unsigned long)kmap_atomic(b.pcmd) +
+-			  b.pcmd_offset;
++	pcmd_page = kmap_atomic(b.pcmd);
++	pginfo.metadata = (unsigned long)pcmd_page + b.pcmd_offset;
  
--		early_memunmap(data, sizeof(*data));
-+		if ((phys_addr > paddr) && (phys_addr < (paddr + len))) {
-+			early_memunmap(data, sizeof(*data));
-+			return true;
-+		}
-+
-+		if (data->type == SETUP_INDIRECT) {
-+			size += len;
-+			early_memunmap(data, sizeof(*data));
-+			data = early_memremap_decrypted(paddr, size);
-+			if (!data) {
-+				pr_warn("failed to early memremap indirect setup_data\n");
-+				return false;
-+			}
-+
-+			indirect = (struct setup_indirect *)data->data;
-+
-+			if (indirect->type != SETUP_INDIRECT) {
-+				paddr = indirect->addr;
-+				len = indirect->len;
-+			}
-+		}
-+
-+		early_memunmap(data, size);
+ 	if (secs_page)
+ 		pginfo.secs = (u64)sgx_get_epc_virt_addr(secs_page);
+@@ -55,11 +83,24 @@ static int __sgx_encl_eldu(struct sgx_en
+ 		ret = -EFAULT;
+ 	}
  
- 		if ((phys_addr > paddr) && (phys_addr < (paddr + len)))
- 			return true;
+-	kunmap_atomic((void *)(unsigned long)(pginfo.metadata - b.pcmd_offset));
++	memset(pcmd_page + b.pcmd_offset, 0, sizeof(struct sgx_pcmd));
++
++	/*
++	 * The area for the PCMD in the page was zeroed above.  Check if the
++	 * whole page is now empty meaning that all PCMD's have been zeroed:
++	 */
++	pcmd_page_empty = !memchr_inv(pcmd_page, 0, PAGE_SIZE);
++
++	kunmap_atomic(pcmd_page);
+ 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
+ 
+ 	sgx_encl_put_backing(&b, false);
+ 
++	sgx_encl_truncate_backing_page(encl, page_index);
++
++	if (pcmd_page_empty)
++		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
++
+ 	return ret;
+ }
+ 
+@@ -579,7 +620,7 @@ static struct page *sgx_encl_get_backing
+ int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
+ 			 struct sgx_backing *backing)
+ {
+-	pgoff_t pcmd_index = PFN_DOWN(encl->size) + 1 + (page_index >> 5);
++	pgoff_t page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
+ 	struct page *contents;
+ 	struct page *pcmd;
+ 
+@@ -587,7 +628,7 @@ int sgx_encl_get_backing(struct sgx_encl
+ 	if (IS_ERR(contents))
+ 		return PTR_ERR(contents);
+ 
+-	pcmd = sgx_encl_get_backing_page(encl, pcmd_index);
++	pcmd = sgx_encl_get_backing_page(encl, PFN_DOWN(page_pcmd_off));
+ 	if (IS_ERR(pcmd)) {
+ 		put_page(contents);
+ 		return PTR_ERR(pcmd);
+@@ -596,9 +637,7 @@ int sgx_encl_get_backing(struct sgx_encl
+ 	backing->page_index = page_index;
+ 	backing->contents = contents;
+ 	backing->pcmd = pcmd;
+-	backing->pcmd_offset =
+-		(page_index & (PAGE_SIZE / sizeof(struct sgx_pcmd) - 1)) *
+-		sizeof(struct sgx_pcmd);
++	backing->pcmd_offset = page_pcmd_off & (PAGE_SIZE - 1);
+ 
+ 	return 0;
+ }
 
 
