@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E23044D82E1
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C25024D83EB
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240823AbiCNMLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:11:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35326 "EHLO
+        id S240646AbiCNMWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242232AbiCNMJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09ECE50B0E;
-        Mon, 14 Mar 2022 05:06:55 -0700 (PDT)
+        with ESMTP id S242635AbiCNMTP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:19:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BA4E4FC50;
+        Mon, 14 Mar 2022 05:14:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB58E61319;
-        Mon, 14 Mar 2022 12:06:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0120AC340E9;
-        Mon, 14 Mar 2022 12:06:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10F4560B07;
+        Mon, 14 Mar 2022 12:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16C65C340E9;
+        Mon, 14 Mar 2022 12:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259600;
-        bh=YfpmRIDi6jRVe/IYxm/SbOg5cyruW3iEv4Tg+KggpLQ=;
+        s=korg; t=1647260067;
+        bh=Svs+ecLYsIpbOGDF0ZHV1mzx8SE/Sm6sfWeiCifERt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10/UpRbBENrQtegLjmJMzXe+vq4yBqTi4VYzrVssHNfEKdJId/ElWShL8DgNnx3+t
-         kZ/ZQvdQMJZeG2XHzthft12TDX7N8rBQ7T/IhQZ373tlRVOM+yY6t9rXB5Mr+KLc/q
-         Yg+NU54Gao8ve6rq7bL1eyu0UfPRPdD6herUJ36c=
+        b=vUy3duC773SOzcwlHlKo7o0qZK2sONt/9cjx+Dlqho6YfRXnWeTC43SrRzUAPb6rk
+         YoOdJsmwXSfudzP0sMao8Zz9WrPEf/rTBKYsGhip3wPw0MxEBiPMrrKWnJAY8YD3nq
+         CHlzV7VUHHC+6iaEKBopSsRfGlGpTWqLorKQaLUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Featherston <mark@embeddedTS.com>,
-        Kris Bahnsen <kris@embeddedTS.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 046/110] gpio: ts4900: Do not set DAT and OE together
-Date:   Mon, 14 Mar 2022 12:53:48 +0100
-Message-Id: <20220314112744.322917468@linuxfoundation.org>
+Subject: [PATCH 5.16 046/121] net/mlx5: Fix a race on command flush flow
+Date:   Mon, 14 Mar 2022 12:53:49 +0100
+Message-Id: <20220314112745.412487164@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Featherston <mark@embeddedTS.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-[ Upstream commit 03fe003547975680fdb9ff5ab0e41cb68276c4f2 ]
+[ Upstream commit 063bd355595428750803d8736a9bb7c8db67d42d ]
 
-This works around an issue with the hardware where both OE and
-DAT are exposed in the same register. If both are updated
-simultaneously, the harware makes no guarantees that OE or DAT
-will actually change in any given order and may result in a
-glitch of a few ns on a GPIO pin when changing direction and value
-in a single write.
+Fix a refcount use after free warning due to a race on command entry.
+Such race occurs when one of the commands releases its last refcount and
+frees its index and entry while another process running command flush
+flow takes refcount to this command entry. The process which handles
+commands flush may see this command as needed to be flushed if the other
+process released its refcount but didn't release the index yet. Fix it
+by adding the needed spin lock.
 
-Setting direction to input now only affects OE bit. Setting
-direction to output updates DAT first, then OE.
+It fixes the following warning trace:
 
-Fixes: 9c6686322d74 ("gpio: add Technologic I2C-FPGA gpio support")
-Signed-off-by: Mark Featherston <mark@embeddedTS.com>
-Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 11 PID: 540311 at lib/refcount.c:25 refcount_warn_saturate+0x80/0xe0
+...
+RIP: 0010:refcount_warn_saturate+0x80/0xe0
+...
+Call Trace:
+ <TASK>
+ mlx5_cmd_trigger_completions+0x293/0x340 [mlx5_core]
+ mlx5_cmd_flush+0x3a/0xf0 [mlx5_core]
+ enter_error_state+0x44/0x80 [mlx5_core]
+ mlx5_fw_fatal_reporter_err_work+0x37/0xe0 [mlx5_core]
+ process_one_work+0x1be/0x390
+ worker_thread+0x4d/0x3d0
+ ? rescuer_thread+0x350/0x350
+ kthread+0x141/0x160
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Fixes: 50b2412b7e78 ("net/mlx5: Avoid possible free of command entry while timeout comp handler")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-ts4900.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpio/gpio-ts4900.c b/drivers/gpio/gpio-ts4900.c
-index d885032cf814..d918d2df4de2 100644
---- a/drivers/gpio/gpio-ts4900.c
-+++ b/drivers/gpio/gpio-ts4900.c
-@@ -1,7 +1,7 @@
- /*
-  * Digital I/O driver for Technologic Systems I2C FPGA Core
-  *
-- * Copyright (C) 2015 Technologic Systems
-+ * Copyright (C) 2015, 2018 Technologic Systems
-  * Copyright (C) 2016 Savoir-Faire Linux
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -55,19 +55,33 @@ static int ts4900_gpio_direction_input(struct gpio_chip *chip,
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index 17fe05809653..3eacd8739929 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -131,11 +131,8 @@ static int cmd_alloc_index(struct mlx5_cmd *cmd)
  
--	/*
--	 * This will clear the output enable bit, the other bits are
--	 * dontcare when this is cleared
-+	/* Only clear the OE bit here, requires a RMW. Prevents potential issue
-+	 * with OE and data getting to the physical pin at different times.
- 	 */
--	return regmap_write(priv->regmap, offset, 0);
-+	return regmap_update_bits(priv->regmap, offset, TS4900_GPIO_OE, 0);
+ static void cmd_free_index(struct mlx5_cmd *cmd, int idx)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&cmd->alloc_lock, flags);
++	lockdep_assert_held(&cmd->alloc_lock);
+ 	set_bit(idx, &cmd->bitmask);
+-	spin_unlock_irqrestore(&cmd->alloc_lock, flags);
  }
  
- static int ts4900_gpio_direction_output(struct gpio_chip *chip,
- 					unsigned int offset, int value)
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
-+	unsigned int reg;
- 	int ret;
+ static void cmd_ent_get(struct mlx5_cmd_work_ent *ent)
+@@ -145,17 +142,21 @@ static void cmd_ent_get(struct mlx5_cmd_work_ent *ent)
  
-+	/* If changing from an input to an output, we need to first set the
-+	 * proper data bit to what is requested and then set OE bit. This
-+	 * prevents a glitch that can occur on the IO line
-+	 */
-+	regmap_read(priv->regmap, offset, &reg);
-+	if (!(reg & TS4900_GPIO_OE)) {
-+		if (value)
-+			reg = TS4900_GPIO_OUT;
-+		else
-+			reg &= ~TS4900_GPIO_OUT;
+ static void cmd_ent_put(struct mlx5_cmd_work_ent *ent)
+ {
++	struct mlx5_cmd *cmd = ent->cmd;
++	unsigned long flags;
 +
-+		regmap_write(priv->regmap, offset, reg);
-+	}
-+
- 	if (value)
- 		ret = regmap_write(priv->regmap, offset, TS4900_GPIO_OE |
- 							 TS4900_GPIO_OUT);
++	spin_lock_irqsave(&cmd->alloc_lock, flags);
+ 	if (!refcount_dec_and_test(&ent->refcnt))
+-		return;
++		goto out;
+ 
+ 	if (ent->idx >= 0) {
+-		struct mlx5_cmd *cmd = ent->cmd;
+-
+ 		cmd_free_index(cmd, ent->idx);
+ 		up(ent->page_queue ? &cmd->pages_sem : &cmd->sem);
+ 	}
+ 
+ 	cmd_free_ent(ent);
++out:
++	spin_unlock_irqrestore(&cmd->alloc_lock, flags);
+ }
+ 
+ static struct mlx5_cmd_layout *get_inst(struct mlx5_cmd *cmd, int idx)
 -- 
 2.34.1
 
