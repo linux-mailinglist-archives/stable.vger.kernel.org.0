@@ -2,157 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DAE24D88F7
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 17:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E32DA4D8979
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 17:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242963AbiCNQWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 12:22:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42040 "EHLO
+        id S243294AbiCNQgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 12:36:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241710AbiCNQWp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 12:22:45 -0400
-X-Greylist: delayed 392 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Mar 2022 09:21:35 PDT
-Received: from sender4-of-o53.zoho.com (sender4-of-o53.zoho.com [136.143.188.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E915912A8A;
-        Mon, 14 Mar 2022 09:21:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1647274883; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=mx2smIOGeo5ZjY9eOcc/bCGdqHmQUFR59CYhROKVr38Nz2LvTY2tlis1je8oqqd0yKOSOFIb3ccss3/zksRXDdKtAaOBo/XLyWQhKc0FI7PRZRUokt/E+aIaO2UpJtn/Jc9cWCIQjfKdC3m2Hs3FsvkoWmMtC9tuSTWyaiOAWL4=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1647274883; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=exLHJy/o8u0v5+P+IbvaTX55kBTxm+CYnLzbshyskLQ=; 
-        b=iu4CwdmaeduL2TpUU/4fmKpgv8MJPLw2fzJSYQWr8mAlm8rCvRkNK66DdfEJZm91T/tobqETRn5aHHl1E93mkmUiQO5P4CQ0lVuaGa/HncCx5cAnlJrVARbX7KtCYMeLLfEiPaSCv97zYhpzKcFmzP6e6C5OdAkU2OZ1jFJo+tY=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=anirudhrb.com;
-        spf=pass  smtp.mailfrom=mail@anirudhrb.com;
-        dmarc=pass header.from=<mail@anirudhrb.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1647274883;
-        s=zoho; d=anirudhrb.com; i=mail@anirudhrb.com;
-        h=Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To:Message-Id:Reply-To;
-        bh=exLHJy/o8u0v5+P+IbvaTX55kBTxm+CYnLzbshyskLQ=;
-        b=Kp+VnZ/0dusGp1M2OtccWhO6EKsLdjYBJFIL/BZh8jjtp9YNmAP+tnXWoYmaAUKN
-        woajBDaQEecsACvn6Cbb+hH5wnmXnCikCQ98aMfwNtGyIiDPLHnWWG4AW0DC9hwsn8G
-        aNrn8rPwsei/avKj+9tmYYtJK3Lht9mc2R/UUizw=
-Received: from anirudhrb.com (49.207.221.223 [49.207.221.223]) by mx.zohomail.com
-        with SMTPS id 1647274843303560.9949108171496; Mon, 14 Mar 2022 09:20:43 -0700 (PDT)
-Date:   Mon, 14 Mar 2022 21:50:36 +0530
-From:   Anirudh Rayabharam <mail@anirudhrb.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com
-Subject: Re: [PATCH 5.16 017/121] vhost: fix hung thread due to erroneous
- iotlb entries
-Message-ID: <Yi9rVI7AhOnkBIx2@anirudhrb.com>
-References: <20220314112744.120491875@linuxfoundation.org>
- <20220314112744.608703877@linuxfoundation.org>
+        with ESMTP id S243202AbiCNQgc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 12:36:32 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E1B6013E23;
+        Mon, 14 Mar 2022 09:35:15 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9D1D9D6E;
+        Mon, 14 Mar 2022 09:35:15 -0700 (PDT)
+Received: from [192.168.178.6] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 322D63F766;
+        Mon, 14 Mar 2022 09:35:13 -0700 (PDT)
+Message-ID: <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
+Date:   Mon, 14 Mar 2022 17:35:05 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220314112744.608703877@linuxfoundation.org>
-X-ZohoMailClient: External
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v3] topology: make core_mask include at least
+ cluster_siblings
+Content-Language: en-US
+To:     Darren Hart <darren@os.amperecomputing.com>
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        Will Deacon <will@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        stable@vger.kernel.org
+References: <f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com>
+ <20220308103012.GA31267@willie-the-truck>
+ <CAKfTPtDe+i0fwV10m2sX2xkJGBrO8B+RQogDDij8ioJAT5+wAw@mail.gmail.com>
+ <e91bcc83-37c8-dcca-e088-8b3fcd737b2c@arm.com> <YieXQD7uG0+R5QBq@fedora>
+ <7ac47c67-0b5e-5caa-20bb-a0100a0cb78f@arm.com> <YijxUAuufpBKLtwy@fedora>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+In-Reply-To: <YijxUAuufpBKLtwy@fedora>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 14, 2022 at 12:53:20PM +0100, Greg Kroah-Hartman wrote:
-> From: Anirudh Rayabharam <mail@anirudhrb.com>
-> 
-> [ Upstream commit e2ae38cf3d91837a493cb2093c87700ff3cbe667 ]
+On 09/03/2022 19:26, Darren Hart wrote:
+> On Wed, Mar 09, 2022 at 01:50:07PM +0100, Dietmar Eggemann wrote:
+>> On 08/03/2022 18:49, Darren Hart wrote:
+>>> On Tue, Mar 08, 2022 at 05:03:07PM +0100, Dietmar Eggemann wrote:
+>>>> On 08/03/2022 12:04, Vincent Guittot wrote:
+>>>>> On Tue, 8 Mar 2022 at 11:30, Will Deacon <will@kernel.org> wrote:
 
-This breaks batching of IOTLB messages. [1] fixes it but hasn't landed in
-Linus' tree yet.
+[...]
 
-[1]: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=linux-next&id=95932ab2ea07b79cdb33121e2f40ccda9e6a73b5
+>>>> I do not have any better idea than this tweak here either in case the
+>>>> platform can't provide a cleaner setup.
+>>>
+>>> I'd argue The platform is describing itself accurately in ACPI PPTT
+>>> terms. The topology doesn't fit nicely within the kernel abstractions
+>>> today. This is an area where I hope to continue to improve things going
+>>> forward.
+>>
+>> I see. And I assume lying about SCU/LLC boundaries in ACPI is not an
+>> option since it messes up /sys/devices/system/cpu/cpu0/cache/index*/.
+>>
+>> [...]
+> 
+> I'm not aware of a way to accurately describe the SCU topology in the PPTT, and
+> the risk we run with lying about LLC topology is that lie has to be comprehended
+> by all OSes and not conflict with other lies people may ask for. In general, I
+> think it is preferable and more maintainable to describe the topology as
+> accurately and honestly as we can within the existing platform mechanisms (PPTT,
+> HMAT, etc) and work on the higher level abstractions to accommodate a broader
+> set of topologies as they emerge (as well as working to more fully describe the
+> topology with new platform level mechanisms as needed).
+> 
+> As I mentioned, I intend to continue looking in to how to improve the current
+> abstractions. For now, it sounds like we have agreement that this patch can be
+> merged to address the BUG?
 
-    - Anirudh.
-> 
-> In vhost_iotlb_add_range_ctx(), range size can overflow to 0 when
-> start is 0 and last is ULONG_MAX. One instance where it can happen
-> is when userspace sends an IOTLB message with iova=size=uaddr=0
-> (vhost_process_iotlb_msg). So, an entry with size = 0, start = 0,
-> last = ULONG_MAX ends up in the iotlb. Next time a packet is sent,
-> iotlb_access_ok() loops indefinitely due to that erroneous entry.
-> 
-> 	Call Trace:
-> 	 <TASK>
-> 	 iotlb_access_ok+0x21b/0x3e0 drivers/vhost/vhost.c:1340
-> 	 vq_meta_prefetch+0xbc/0x280 drivers/vhost/vhost.c:1366
-> 	 vhost_transport_do_send_pkt+0xe0/0xfd0 drivers/vhost/vsock.c:104
-> 	 vhost_worker+0x23d/0x3d0 drivers/vhost/vhost.c:372
-> 	 kthread+0x2e9/0x3a0 kernel/kthread.c:377
-> 	 ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-> 	 </TASK>
-> 
-> Reported by syzbot at:
-> 	https://syzkaller.appspot.com/bug?extid=0abd373e2e50d704db87
-> 
-> To fix this, do two things:
-> 
-> 1. Return -EINVAL in vhost_chr_write_iter() when userspace asks to map
->    a range with size 0.
-> 2. Fix vhost_iotlb_add_range_ctx() to handle the range [0, ULONG_MAX]
->    by splitting it into two entries.
-> 
-> Fixes: 0bbe30668d89e ("vhost: factor out IOTLB")
-> Reported-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
-> Tested-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
-> Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-> Link: https://lore.kernel.org/r/20220305095525.5145-1-mail@anirudhrb.com
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/vhost/iotlb.c | 11 +++++++++++
->  drivers/vhost/vhost.c |  5 +++++
->  2 files changed, 16 insertions(+)
-> 
-> diff --git a/drivers/vhost/iotlb.c b/drivers/vhost/iotlb.c
-> index 670d56c879e5..40b098320b2a 100644
-> --- a/drivers/vhost/iotlb.c
-> +++ b/drivers/vhost/iotlb.c
-> @@ -57,6 +57,17 @@ int vhost_iotlb_add_range_ctx(struct vhost_iotlb *iotlb,
->  	if (last < start)
->  		return -EFAULT;
->  
-> +	/* If the range being mapped is [0, ULONG_MAX], split it into two entries
-> +	 * otherwise its size would overflow u64.
-> +	 */
-> +	if (start == 0 && last == ULONG_MAX) {
-> +		u64 mid = last / 2;
-> +
-> +		vhost_iotlb_add_range_ctx(iotlb, start, mid, addr, perm, opaque);
-> +		addr += mid + 1;
-> +		start = mid + 1;
-> +	}
-> +
->  	if (iotlb->limit &&
->  	    iotlb->nmaps == iotlb->limit &&
->  	    iotlb->flags & VHOST_IOTLB_FLAG_RETIRE) {
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 59edb5a1ffe2..55475fd59fb7 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1170,6 +1170,11 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
->  		goto done;
->  	}
->  
-> +	if (msg.size == 0) {
-> +		ret = -EINVAL;
-> +		goto done;
-> +	}
-> +
->  	if (dev->msg_handler)
->  		ret = dev->msg_handler(dev, &msg);
->  	else
-> -- 
-> 2.34.1
-> 
-> 
-> 
+What about swapping the CLS and MC cpumasks for such a machine? This
+would avoid that the task scheduler has to deal with a system which has
+CLS but no MC. We essentially promote the CLS cpumask up to MC in this
+case.
+
+cat /sys/kernel/debug/sched/domains/cpu0/domain*/name
+MC
+^^
+DIE
+NUMA
+
+cat /sys/kernel/debug/sched/domains/cpu0# cat domain*/flags
+SD_BALANCE_NEWIDLE SD_BALANCE_EXEC SD_BALANCE_FORK SD_WAKE_AFFINE SD_SHARE_PKG_RESOURCES SD_PREFER_SIBLING
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^ 
+SD_BALANCE_NEWIDLE SD_BALANCE_EXEC SD_BALANCE_FORK SD_WAKE_AFFINE SD_PREFER_SIBLING 
+SD_BALANCE_NEWIDLE SD_BALANCE_EXEC SD_BALANCE_FORK SD_WAKE_AFFINE SD_SERIALIZE SD_OVERLAP SD_NUMA
+
+Only very lightly tested on Altra and Juno-r0 (DT).
+
+--->8---
+
+From 54bef59e7f50fa41b7ae39190fd71af57209c27d Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Mon, 14 Mar 2022 15:08:23 +0000
+Subject: [PATCH] arch_topology: Swap MC & CLS SD mask if MC weight==1 &
+ subset(MC,CLS)
+
+This avoids the issue of having a system with a CLS SD but no MC SD.
+CLS should be sub-SD of MC.
+
+The cpumask under /sys/devices/system/cpu/cpu*/cache/index* and
+/sys/devices/system/cpu/cpu*/topology are not changed by this.
+
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ drivers/base/arch_topology.c | 30 ++++++++++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+index 976154140f0b..9af90a5625c7 100644
+--- a/drivers/base/arch_topology.c
++++ b/drivers/base/arch_topology.c
+@@ -614,7 +614,7 @@ static int __init parse_dt_topology(void)
+ struct cpu_topology cpu_topology[NR_CPUS];
+ EXPORT_SYMBOL_GPL(cpu_topology);
+ 
+-const struct cpumask *cpu_coregroup_mask(int cpu)
++const struct cpumask *_cpu_coregroup_mask(int cpu)
+ {
+ 	const cpumask_t *core_mask = cpumask_of_node(cpu_to_node(cpu));
+ 
+@@ -631,11 +631,37 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
+ 	return core_mask;
+ }
+ 
+-const struct cpumask *cpu_clustergroup_mask(int cpu)
++const struct cpumask *_cpu_clustergroup_mask(int cpu)
+ {
+ 	return &cpu_topology[cpu].cluster_sibling;
+ }
+ 
++static int
++swap_masks(const cpumask_t *core_mask, const cpumask_t *cluster_mask)
++{
++	if (cpumask_weight(core_mask) == 1 &&
++	    cpumask_subset(core_mask, cluster_mask))
++		return 1;
++
++	return 0;
++}	
++
++const struct cpumask *cpu_coregroup_mask(int cpu)
++{
++	const cpumask_t *cluster_mask = _cpu_clustergroup_mask(cpu);
++	const cpumask_t *core_mask = _cpu_coregroup_mask(cpu);
++	
++	return swap_masks(core_mask, cluster_mask) ? cluster_mask : core_mask;
++}
++
++const struct cpumask *cpu_clustergroup_mask(int cpu)
++{
++	const cpumask_t *cluster_mask = _cpu_clustergroup_mask(cpu);
++	const cpumask_t *core_mask = _cpu_coregroup_mask(cpu);
++
++	return swap_masks(core_mask, cluster_mask) ? core_mask : cluster_mask;
++}
++
+ void update_siblings_masks(unsigned int cpuid)
+ {
+ 	struct cpu_topology *cpu_topo, *cpuid_topo = &cpu_topology[cpuid];
+-- 
+2.25.1
