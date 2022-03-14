@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C60794D832E
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:13:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32B1C4D8233
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240906AbiCNMMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59690 "EHLO
+        id S238785AbiCNMBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:01:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240916AbiCNMIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3529112AFB;
-        Mon, 14 Mar 2022 05:04:09 -0700 (PDT)
+        with ESMTP id S240093AbiCNMBN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:01:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6201EC66;
+        Mon, 14 Mar 2022 04:59:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F7016130A;
-        Mon, 14 Mar 2022 12:04:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65D6CC340E9;
-        Mon, 14 Mar 2022 12:04:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7218261298;
+        Mon, 14 Mar 2022 11:58:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47BA2C340E9;
+        Mon, 14 Mar 2022 11:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259447;
-        bh=i8qGsXG0QM9S+t1uaNSoITn4iePN5etLSZG72agkyec=;
+        s=korg; t=1647259129;
+        bh=61uHkFMGvJanV3OCIKdUfTS/GzNdm0plwIvcxdlPqHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESX2yMdbFAu4G3CdGUnLr3aDqOnQekqT+oc05oEIq1z+Z3Sx0COynljXEeFNHX9V9
-         xbyhrwSx4GH1jlLtUdbTnD0tvqQ1a0tgYB9wyCrl/2uy1ImeVLptVfQ8PLPEBQX1Za
-         KyE9H5EF1rJN8N5G8U3znfF3zdigkDXuXMxCGHoE=
+        b=hECu76bRZaS22ptaerAolp5pWHsfRoxo5OHyF3uTATZZm6DWF5SrlJ/eAHmq6tb6d
+         SciuZ9Ku/7IUG9//zhJZyA5j/DPUvckc/7WkHAmwgyb+jaGC/qarWPCuktdw0vzj3v
+         PV0g7mTBlRp26UxfqtAO6jxhnlA4ClulfR4MuLoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 001/110] arm64: dts: qcom: sm8350: Describe GCC dependency clocks
+Subject: [PATCH 5.10 10/71] net: qlogic: check the return value of dma_alloc_coherent() in qed_vf_hw_prepare()
 Date:   Mon, 14 Mar 2022 12:53:03 +0100
-Message-Id: <20220314112743.072654870@linuxfoundation.org>
+Message-Id: <20220314112738.222654075@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,58 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 9ea9eb36b3c046fc48e737db4de69f7acd12f9be ]
+[ Upstream commit e0058f0fa80f6e09c4d363779c241c45a3c56b94 ]
 
-Add all the clock names that the GCC driver expects to get via DT, so that the
-clock handles can be filled as the development progresses.
+The function dma_alloc_coherent() in qed_vf_hw_prepare() can fail, so
+its return value should be checked.
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211114012755.112226-8-konrad.dybcio@somainline.org
+Fixes: 1408cc1fa48c ("qed: Introduce VFs")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8350.dtsi | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_vf.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-index 296ffb0e9888..09d919793758 100644
---- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-@@ -443,8 +443,30 @@ gcc: clock-controller@100000 {
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
- 			#power-domain-cells = <1>;
--			clock-names = "bi_tcxo", "sleep_clk";
--			clocks = <&rpmhcc RPMH_CXO_CLK>, <&sleep_clk>;
-+			clock-names = "bi_tcxo",
-+				      "sleep_clk",
-+				      "pcie_0_pipe_clk",
-+				      "pcie_1_pipe_clk",
-+				      "ufs_card_rx_symbol_0_clk",
-+				      "ufs_card_rx_symbol_1_clk",
-+				      "ufs_card_tx_symbol_0_clk",
-+				      "ufs_phy_rx_symbol_0_clk",
-+				      "ufs_phy_rx_symbol_1_clk",
-+				      "ufs_phy_tx_symbol_0_clk",
-+				      "usb3_phy_wrapper_gcc_usb30_pipe_clk",
-+				      "usb3_uni_phy_sec_gcc_usb30_pipe_clk";
-+			clocks = <&rpmhcc RPMH_CXO_CLK>,
-+				 <&sleep_clk>,
-+				 <0>,
-+				 <0>,
-+				 <0>,
-+				 <0>,
-+				 <0>,
-+				 <0>,
-+				 <0>,
-+				 <0>,
-+				 <0>,
-+				 <0>;
- 		};
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_vf.c b/drivers/net/ethernet/qlogic/qed/qed_vf.c
+index 72a38d53d33f..e2a5a6a373cb 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_vf.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_vf.c
+@@ -513,6 +513,9 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
+ 						    p_iov->bulletin.size,
+ 						    &p_iov->bulletin.phys,
+ 						    GFP_KERNEL);
++	if (!p_iov->bulletin.p_virt)
++		goto free_pf2vf_reply;
++
+ 	DP_VERBOSE(p_hwfn, QED_MSG_IOV,
+ 		   "VF's bulletin Board [%p virt 0x%llx phys 0x%08x bytes]\n",
+ 		   p_iov->bulletin.p_virt,
+@@ -552,6 +555,10 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
  
- 		ipcc: mailbox@408000 {
+ 	return rc;
+ 
++free_pf2vf_reply:
++	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
++			  sizeof(union pfvf_tlvs),
++			  p_iov->pf2vf_reply, p_iov->pf2vf_reply_phys);
+ free_vf2pf_request:
+ 	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
+ 			  sizeof(union vfpf_tlvs),
 -- 
 2.34.1
 
