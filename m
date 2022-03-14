@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA434D8157
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A55004D8107
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239481AbiCNLlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:41:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43060 "EHLO
+        id S239334AbiCNLit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:38:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239486AbiCNLla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:41:30 -0400
+        with ESMTP id S239637AbiCNLid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:38:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBDB496B9;
-        Mon, 14 Mar 2022 04:39:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB7B441F98;
+        Mon, 14 Mar 2022 04:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC4E4B80DB7;
-        Mon, 14 Mar 2022 11:38:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 210A4C340E9;
-        Mon, 14 Mar 2022 11:38:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D92DB80DB7;
+        Mon, 14 Mar 2022 11:37:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C875C340E9;
+        Mon, 14 Mar 2022 11:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257938;
-        bh=gKeliq3fg57rfc2CraoSKQcTegs0MvIYlV2XGTYuXDQ=;
+        s=korg; t=1647257841;
+        bh=Tyw5QrVnfC1kAJr4FzLxEeD45l5eRSblJilYfTF51P0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fciaNtHd+S/ZtFJSJpn+QB+EVwu75Uy3SgkCA0kTrErPvM8nfYMVVaGAYSn9ADVV
-         mQYz5yCnFeQwHhrU0VqoXJe5hOBpd8EJ5mm0Jjv9m71HmHXNgTsWCYUHyQSDkJahCx
-         +KYjIgsImv2J8NO/T48Gcpax70+seDDAaN99Ff6I=
+        b=CHC2JSx9+IwQlcQE+RaesYl36fzKGh0s8Ru/0KP6UjlcHfP3VSWLhyg6fZubPimm7
+         iCiYA8rA7dLM7RY3agXttb+RLldUD9Bi5J3Mdtxhshmk9qfXEiYgWM/ko3YOXEaRvK
+         8BknJTf6mdJ/8GU4sbusItfCRvdi2+dvIe1SLbzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Mark Featherston <mark@embeddedTS.com>,
+        Kris Bahnsen <kris@embeddedTS.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/30] net: ethernet: ti: cpts: Handle error for clk_enable
+Subject: [PATCH 4.14 09/23] gpio: ts4900: Do not set DAT and OE together
 Date:   Mon, 14 Mar 2022 12:34:22 +0100
-Message-Id: <20220314112731.913713180@linuxfoundation.org>
+Message-Id: <20220314112731.327807263@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
-References: <20220314112731.785042288@linuxfoundation.org>
+In-Reply-To: <20220314112731.050583127@linuxfoundation.org>
+References: <20220314112731.050583127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Mark Featherston <mark@embeddedTS.com>
 
-[ Upstream commit 6babfc6e6fab068018c36e8f6605184b8c0b349d ]
+[ Upstream commit 03fe003547975680fdb9ff5ab0e41cb68276c4f2 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+This works around an issue with the hardware where both OE and
+DAT are exposed in the same register. If both are updated
+simultaneously, the harware makes no guarantees that OE or DAT
+will actually change in any given order and may result in a
+glitch of a few ns on a GPIO pin when changing direction and value
+in a single write.
 
-Fixes: 8a2c9a5ab4b9 ("net: ethernet: ti: cpts: rework initialization/deinitialization")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Setting direction to input now only affects OE bit. Setting
+direction to output updates DAT first, then OE.
+
+Fixes: 9c6686322d74 ("gpio: add Technologic I2C-FPGA gpio support")
+Signed-off-by: Mark Featherston <mark@embeddedTS.com>
+Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/cpts.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-ts4900.c | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/cpts.c b/drivers/net/ethernet/ti/cpts.c
-index 10b301e79086..01cc92f6a1f8 100644
---- a/drivers/net/ethernet/ti/cpts.c
-+++ b/drivers/net/ethernet/ti/cpts.c
-@@ -445,7 +445,9 @@ int cpts_register(struct cpts *cpts)
- 	for (i = 0; i < CPTS_MAX_EVENTS; i++)
- 		list_add(&cpts->pool_data[i].list, &cpts->pool);
+diff --git a/drivers/gpio/gpio-ts4900.c b/drivers/gpio/gpio-ts4900.c
+index 5bd21725e604..930a6098b758 100644
+--- a/drivers/gpio/gpio-ts4900.c
++++ b/drivers/gpio/gpio-ts4900.c
+@@ -1,7 +1,7 @@
+ /*
+  * Digital I/O driver for Technologic Systems I2C FPGA Core
+  *
+- * Copyright (C) 2015 Technologic Systems
++ * Copyright (C) 2015, 2018 Technologic Systems
+  * Copyright (C) 2016 Savoir-Faire Linux
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -52,19 +52,33 @@ static int ts4900_gpio_direction_input(struct gpio_chip *chip,
+ {
+ 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
  
--	clk_enable(cpts->refclk);
-+	err = clk_enable(cpts->refclk);
-+	if (err)
-+		return err;
+-	/*
+-	 * This will clear the output enable bit, the other bits are
+-	 * dontcare when this is cleared
++	/* Only clear the OE bit here, requires a RMW. Prevents potential issue
++	 * with OE and data getting to the physical pin at different times.
+ 	 */
+-	return regmap_write(priv->regmap, offset, 0);
++	return regmap_update_bits(priv->regmap, offset, TS4900_GPIO_OE, 0);
+ }
  
- 	cpts_write32(cpts, CPTS_EN, control);
- 	cpts_write32(cpts, TS_PEND_EN, int_enable);
+ static int ts4900_gpio_direction_output(struct gpio_chip *chip,
+ 					unsigned int offset, int value)
+ {
+ 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
++	unsigned int reg;
+ 	int ret;
+ 
++	/* If changing from an input to an output, we need to first set the
++	 * proper data bit to what is requested and then set OE bit. This
++	 * prevents a glitch that can occur on the IO line
++	 */
++	regmap_read(priv->regmap, offset, &reg);
++	if (!(reg & TS4900_GPIO_OE)) {
++		if (value)
++			reg = TS4900_GPIO_OUT;
++		else
++			reg &= ~TS4900_GPIO_OUT;
++
++		regmap_write(priv->regmap, offset, reg);
++	}
++
+ 	if (value)
+ 		ret = regmap_write(priv->regmap, offset, TS4900_GPIO_OE |
+ 							 TS4900_GPIO_OUT);
 -- 
 2.34.1
 
