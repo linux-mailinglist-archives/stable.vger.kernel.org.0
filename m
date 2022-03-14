@@ -2,52 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3814D7D53
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:09:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE41D4D7DB9
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 09:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237626AbiCNIKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 04:10:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51596 "EHLO
+        id S236646AbiCNIoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 04:44:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237597AbiCNIKF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:10:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB2E23EA8D;
-        Mon, 14 Mar 2022 01:08:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8717B6120E;
-        Mon, 14 Mar 2022 08:08:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8152C340EE;
-        Mon, 14 Mar 2022 08:08:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647245330;
-        bh=i0tqRLWwHkIcHdHsjVnbUaxEIivvKa02E341WSxRgCQ=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=bXKvVS9qMgQuBuVwd9GE7Icau+ZGa9IWq/vT/qs/ZMPB3Smjvh7C8ax7+7GUSfoKN
-         hqZTOff7+I/ufJFKvvzqLoG5EwUT8cmYf/VIhslaL9bBWDdyiNqBZNgR5SdhPPFKTx
-         G5oBSE32AC1N8UFVy03N+5WHrNpnrIu9sKZqBFlfcmGZYIO/o5ii8p6jGbu34ykPmF
-         Z/cz7cuieBIQY7hBcQR58g4a5I/C1YPAEVB4i0/fNwMLFsfR4RS5IEMDbiyegDDOLt
-         mMsWS1uRtdAoRM1uUFaS6y003mPreELVe/xKML2fnySg69UeSGw5viKjCKUA8kjAro
-         nm1HdiZM59uDg==
-From:   Kalle Valo <kvalo@kernel.org>
-To:     Pkshih <pkshih@realtek.com>
-Cc:     Larry Finger <Larry.Finger@lwfinger.net>,
-        "linux-wireless\@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] rtw88: Fix missing support for Realtek 8821CE RFE Type 6
-References: <20220313164358.30426-1-Larry.Finger@lwfinger.net>
-        <9ae5780119e24142bffd855d915a5e92@realtek.com>
-Date:   Mon, 14 Mar 2022 10:08:48 +0200
-In-Reply-To: <9ae5780119e24142bffd855d915a5e92@realtek.com> (Pkshih's message
-        of "Mon, 14 Mar 2022 00:21:45 +0000")
-Message-ID: <87y21dot0v.fsf@kernel.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        with ESMTP id S237373AbiCNIoS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 04:44:18 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08CB41260D
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 01:43:08 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id bg31-20020a05600c3c9f00b00381590dbb33so9127265wmb.3
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 01:43:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=h8sJyHrz9MSFv6aQ5rNLhY6H2EgY9rxFKZSrrjXt/DA=;
+        b=SFQws5dWS5IMGrfAnDPxae+Am8l7I6/hNpKN2OmjbEYBGOqYImlF1vqLR1AWOKjxuz
+         Y3SmnYVN3rl4rC4EoSP+NPG+5KWZz++GAzeOoGAbPT/KVHXn4ANsb5wfn5v3kGdtF/ZJ
+         64EyjWFnJczi6FbxWHPRo3MnjGRwix9kCikrysBaeN1/ylzG2nUNblB3tW3v/OKTS6xt
+         gCceRq2GOmUuCVyDsRt62GwnhO3ZZLyEg6TLLo0DIi2fWEIRL1kSiGcyV/KP1hV5Ur/m
+         w9PIORH6GoAPa2fq9IRxdWhZhrnbnpECthh2qm72hq+KeXISV48tviEmpezl7l3KW+gs
+         s/OA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=h8sJyHrz9MSFv6aQ5rNLhY6H2EgY9rxFKZSrrjXt/DA=;
+        b=a1syEokxhIcDEhqNUJlLlQgCOtnc+a0qHyCukjEiiuVPAiEQ2GiPuuCNjxjGEhT/QL
+         a6QGdwaqGfMI2fJYx9fDJrJhc78jE246Fnqlxyk1kTWBg59vkLy4NmbnDj2BugVt0Y/Y
+         7LRBBCplj+2ttV0HkM3BHm6xYinCVi54sJ6btldVV/Ct/QzMUBUZ+N7IP9kr3SODywBN
+         mtE1j4mOFvNo+CcUOYYRDDg6P090uUovj1SxJNkbsA/9/UtJhJBP0ev2wAk3RtKGzMJD
+         NNeage398fWmdYXVFU0eJWRkVZqlgwAfxsb9rKq4iFLl0LBsjjAhjiIepNwMS2/xlOl5
+         IgCw==
+X-Gm-Message-State: AOAM531jAfFT2/aQ47wBxARfWzDu5aPCI70YNKCNSSr0AXwNcOyad23a
+        8n9dl4OFvFYPlyE3UKvwzd/5+Q==
+X-Google-Smtp-Source: ABdhPJzc9uprjBGpnv4mgjX60WyBxgufdLW4uQZcYLKXmRnyMUHGBSCkV5UyRJf8/ADueYqZriWJIQ==
+X-Received: by 2002:a05:600c:4249:b0:385:a7bc:b37 with SMTP id r9-20020a05600c424900b00385a7bc0b37mr24170451wmm.185.1647247386565;
+        Mon, 14 Mar 2022 01:43:06 -0700 (PDT)
+Received: from joneslee.c.googlers.com.com (205.215.190.35.bc.googleusercontent.com. [35.190.215.205])
+        by smtp.gmail.com with ESMTPSA id v14-20020adfd18e000000b0020373e5319asm13416678wrc.103.2022.03.14.01.43.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Mar 2022 01:43:06 -0700 (PDT)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org, mst@redhat.com, jasowang@redhat.com
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/1] vhost: Protect the virtqueue from being cleared whilst still in use
+Date:   Mon, 14 Mar 2022 08:43:02 +0000
+Message-Id: <20220314084302.2933167-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.35.1.723.g4982287a31-goog
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,51 +68,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Pkshih <pkshih@realtek.com> writes:
+vhost_vsock_handle_tx_kick() already holds the mutex during its call
+to vhost_get_vq_desc().  All we have to do here is take the same lock
+during virtqueue clean-up and we mitigate the reported issues.
 
->> -----Original Message-----
->> From: Larry Finger <Larry.Finger@lwfinger.net>
->> Sent: Monday, March 14, 2022 12:44 AM
->> To: kvalo@kernel.org
->> Cc: linux-wireless@vger.kernel.org; Larry Finger
->> <Larry.Finger@lwfinger.net>; Pkshih <pkshih@realtek.com>;
->> stable@vger.kernel.org
->> Subject: [PATCH] rtw88: Fix missing support for Realtek 8821CE RFE Type 6
->> 
->> The rtl8821ce with RFE Type 6 behaves the same as ones with RFE Type 0.
->> 
->> This change has been tested in the repo at git://GitHub.com/lwfinger/rtw88.git.
->> It fixes commit 769a29ce2af4 ("rtw88: 8821c: add basic functions").
->> 
->> Fixes: 769a29ce2af4 ("rtw88: 8821c: add basic functions").
->> Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
->> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
->> Cc: stable@vger.kernel.org # 5.9+
->> ---
->> Kalle,
->> 
->> This patch file was prepared a couple of months ago, but apparently not submitted
->> then. It should be applied as soon as possible.
->> 
->> Larry
->
-> Hi Larry,
->
-> This patch has been merged [1]. The git link of wireless driver next has been
-> changed [2]. That may be the reason you can't find the patch.
->
-> [1]
-> https://lore.kernel.org/all/164364407205.21641.13263478436415544062.kvalo@kernel.org/
-> [2] git://git.kernel.org/pub/scm/linux/kernel/git/wireless/wireless-next.git
+Also WARN() as a precautionary measure.  The purpose of this is to
+capture possible future race conditions which may pop up over time.
 
-So the commit id is:
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/vhost/vhost.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-e109e3617e5d rtw88: rtw8821c: enable rfe 6 devices
-
-And the commit should be in v5.18-rc1, which is most likely released in
-three weeks.
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 59edb5a1ffe28..bbaff6a5e21b8 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -693,6 +693,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ 	int i;
+ 
+ 	for (i = 0; i < dev->nvqs; ++i) {
++		mutex_lock(&dev->vqs[i]->mutex);
+ 		if (dev->vqs[i]->error_ctx)
+ 			eventfd_ctx_put(dev->vqs[i]->error_ctx);
+ 		if (dev->vqs[i]->kick)
+@@ -700,6 +701,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ 		if (dev->vqs[i]->call_ctx.ctx)
+ 			eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
+ 		vhost_vq_reset(dev, dev->vqs[i]);
++		mutex_unlock(&dev->vqs[i]->mutex);
+ 	}
+ 	vhost_dev_free_iovecs(dev);
+ 	if (dev->log_ctx)
 -- 
-https://patchwork.kernel.org/project/linux-wireless/list/
+2.35.1.723.g4982287a31-goog
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
