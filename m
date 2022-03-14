@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C004D83C8
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:20:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FCD84D8237
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236691AbiCNMVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51676 "EHLO
+        id S239304AbiCNMBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:01:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241729AbiCNMSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1CFABC0A;
-        Mon, 14 Mar 2022 05:12:54 -0700 (PDT)
+        with ESMTP id S240220AbiCNMBP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:01:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06BA29C9D;
+        Mon, 14 Mar 2022 04:59:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11B8061382;
-        Mon, 14 Mar 2022 12:12:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03C0C340E9;
-        Mon, 14 Mar 2022 12:12:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 326F661251;
+        Mon, 14 Mar 2022 11:59:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27285C340EC;
+        Mon, 14 Mar 2022 11:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259973;
-        bh=jt+cYboBf6a9eltsE2cy5RocCv4dZOC0FFIQxWaw7dY=;
+        s=korg; t=1647259154;
+        bh=HOjxcHufxyRTfpHSShWWcmsQrE1BqgUePpUDYNwRE6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvUTwMRbkcq0fd2ZUNslUtrZEXKMw96l9txMNh4WPKddUbg5al+QMvXcbOAZgb51H
-         BYktA9jfwO6lo9167JmRHuve0WRDYKKpC28ajXS3BGhlwUwwqlYuFKcWLhlgTeiwRA
-         A5pi2zKM+bv3EH9AYpj08T4+76XpTMe1s8jHH7/M=
+        b=qQAjFgcspB7Y+UfTygkqmvuYIvpp06JhYwup9rn0m+b0ds9ZlOjmc0RqlV12UmJZC
+         Usq6bnuTh5NFS/+hJweZ2pzGNQMNJV7nCbsK1fMBHlZy7EKrbwTNlRZeWtvV/+O7dY
+         +rbbMzZrHiMzh2WYq6LSJseAmB2QbdZaMk0ULSv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        syzbot+35eebd505e97d315d01c@syzkaller.appspotmail.com
-Subject: [PATCH 5.16 004/121] HID: hid-thrustmaster: fix OOB read in thrustmaster_interrupts
-Date:   Mon, 14 Mar 2022 12:53:07 +0100
-Message-Id: <20220314112744.246863886@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 15/71] ARM: dts: aspeed: Fix AST2600 quad spi group
+Date:   Mon, 14 Mar 2022 12:53:08 +0100
+Message-Id: <20220314112738.360531242@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
+References: <20220314112737.929694832@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit fc3ef2e3297b3c0e2006b5d7b3d66965e3392036 ]
+[ Upstream commit 2f6edb6bcb2f3f41d876e0eba2ba97f87a0296ea ]
 
-Syzbot reported an slab-out-of-bounds Read in thrustmaster_probe() bug.
-The root case is in missing validation check of actual number of endpoints.
+Requesting quad mode for the FMC resulted in an error:
 
-Code should not blindly access usb_host_interface::endpoint array, since
-it may contain less endpoints than code expects.
+  &fmc {
+         status = "okay";
+ +       pinctrl-names = "default";
+ +       pinctrl-0 = <&pinctrl_fwqspi_default>'
 
-Fix it by adding missing validaion check and print an error if
-number of endpoints do not match expected number
+[    0.742963] aspeed-g6-pinctrl 1e6e2000.syscon:pinctrl: invalid function FWQSPID in map table
+￼
 
-Fixes: c49c33637802 ("HID: support for initialization of some Thrustmaster wheels")
-Reported-and-tested-by: syzbot+35eebd505e97d315d01c@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+This is because the quad mode pins are a group of pins, not a function.
+
+After applying this patch we can request the pins and the QSPI data
+lines are muxed:
+
+ # cat /sys/kernel/debug/pinctrl/1e6e2000.syscon\:pinctrl-aspeed-g6-pinctrl/pinmux-pins |grep 1e620000.spi
+ pin 196 (AE12): device 1e620000.spi function FWSPID group FWQSPID
+ pin 197 (AF12): device 1e620000.spi function FWSPID group FWQSPID
+ pin 240 (Y1): device 1e620000.spi function FWSPID group FWQSPID
+ pin 241 (Y2): device 1e620000.spi function FWSPID group FWQSPID
+ pin 242 (Y3): device 1e620000.spi function FWSPID group FWQSPID
+ pin 243 (Y4): device 1e620000.spi function FWSPID group FWQSPID
+
+Fixes: f510f04c8c83 ("ARM: dts: aspeed: Add AST2600 pinmux nodes")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au
+Link: https://lore.kernel.org/r/20220304011010.974863-1-joel@jms.id.au'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-thrustmaster.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
-index 03b935ff02d5..9da4240530dd 100644
---- a/drivers/hid/hid-thrustmaster.c
-+++ b/drivers/hid/hid-thrustmaster.c
-@@ -158,6 +158,12 @@ static void thrustmaster_interrupts(struct hid_device *hdev)
- 		return;
- 	}
+diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+index 910eacc8ad3b..a362714ae9fc 100644
+--- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
++++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+@@ -118,7 +118,7 @@ pinctrl_fwspid_default: fwspid_default {
+ 	};
  
-+	if (usbif->cur_altsetting->desc.bNumEndpoints < 2) {
-+		kfree(send_buf);
-+		hid_err(hdev, "Wrong number of endpoints?\n");
-+		return;
-+	}
-+
- 	ep = &usbif->cur_altsetting->endpoint[1];
- 	b_ep = ep->desc.bEndpointAddress;
+ 	pinctrl_fwqspid_default: fwqspid_default {
+-		function = "FWQSPID";
++		function = "FWSPID";
+ 		groups = "FWQSPID";
+ 	};
  
 -- 
 2.34.1
