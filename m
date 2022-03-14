@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CC84D825B
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A7374D83CC
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:20:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240330AbiCNMDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:03:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41410 "EHLO
+        id S238961AbiCNMVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:21:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240223AbiCNMCc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:02:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFA949FBC;
-        Mon, 14 Mar 2022 04:59:55 -0700 (PDT)
+        with ESMTP id S241813AbiCNMSZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9CFF264D;
+        Mon, 14 Mar 2022 05:13:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8530661297;
-        Mon, 14 Mar 2022 11:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41636C340EC;
-        Mon, 14 Mar 2022 11:59:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3256F6139D;
+        Mon, 14 Mar 2022 12:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41515C340ED;
+        Mon, 14 Mar 2022 12:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259163;
-        bh=uH+9wUozafbkU8hZyLgzaileE4CqzDonFw9tNkZ91r4=;
+        s=korg; t=1647259984;
+        bh=x8ZDC68Cp5usz1aT+VE2TNb5XMwJpsLwMUxX0tjgTFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opNnZS84ZEMUgcS+JWJvoF34k6TNx7XVbT6n06FLoA6jUuRKLvFkFo2gvOulHnyH/
-         73rIBdnA3J9u2ufa0qTHs73nZ6E+Wx1peivePeaf7vIiJIx011vaQCxqMKHkFDpBG+
-         1nMqETTwAQ4qULsE12xqBngL1IEUCRy6CSeRXYIs=
+        b=tjrT8N7SqCWf/cFCIQzloXGbB4Sely2ZWWF2fuxsLe3XvALJtx+OQ+vuL629SH71H
+         nwx5jqti+curogXwprtzgCWhINC59m0mtuXncPRQyUKx8tYbGpuWODnDyrRyhKMXAp
+         oMwzXuez8hbthfssfx1GMuap4JObzWGgjZtQ/VSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/71] ice: stop disabling VFs due to PF error responses
+Subject: [PATCH 5.16 007/121] clk: qcom: dispcc: Update the transition delay for MDSS GDSC
 Date:   Mon, 14 Mar 2022 12:53:10 +0100
-Message-Id: <20220314112738.415508406@linuxfoundation.org>
+Message-Id: <20220314112744.330030133@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,106 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Taniya Das <tdas@codeaurora.org>
 
-[ Upstream commit 79498d5af8e458102242d1667cf44df1f1564e63 ]
+[ Upstream commit 6e6fec3f961c00ca34ffb4bf2ad9febb4b499f8d ]
 
-The ice_vc_send_msg_to_vf function has logic to detect "failure"
-responses being sent to a VF. If a VF is sent more than
-ICE_DFLT_NUM_INVAL_MSGS_ALLOWED then the VF is marked as disabled.
-Almost identical logic also existed in the i40e driver.
+On SC7180 we observe black screens because the gdsc is being
+enabled/disabled very rapidly and the GDSC FSM state does not work as
+expected. This is due to the fact that the GDSC reset value is being
+updated from SW.
 
-This logic was added to the ice driver in commit 1071a8358a28 ("ice:
-Implement virtchnl commands for AVF support") which itself copied from
-the i40e implementation in commit 5c3c48ac6bf5 ("i40e: implement virtual
-device interface").
+The recommended transition delay for mdss core gdsc updated for
+SC7180/SC7280/SM8250.
 
-Neither commit provides a proper explanation or justification of the
-check. In fact, later commits to i40e changed the logic to allow
-bypassing the check in some specific instances.
-
-The "logic" for this seems to be that error responses somehow indicate a
-malicious VF. This is not really true. The PF might be sending an error
-for any number of reasons such as lack of resources, etc.
-
-Additionally, this causes the PF to log an info message for every failed
-VF response which may confuse users, and can spam the kernel log.
-
-This behavior is not documented as part of any requirement for our
-products and other operating system drivers such as the FreeBSD
-implementation of our drivers do not include this type of check.
-
-In fact, the change from dev_err to dev_info in i40e commit 18b7af57d9c1
-("i40e: Lower some message levels") explains that these messages
-typically don't actually indicate a real issue. It is quite likely that
-a user who hits this in practice will be very confused as the VF will be
-disabled without an obvious way to recover.
-
-We already have robust malicious driver detection logic using actual
-hardware detection mechanisms that detect and prevent invalid device
-usage. Remove the logic since its not a documented requirement and the
-behavior is not intuitive.
-
-Fixes: 1071a8358a28 ("ice: Implement virtchnl commands for AVF support")
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: dd3d06622138 ("clk: qcom: Add display clock controller driver for SC7180")
+Fixes: 1a00c962f9cd ("clk: qcom: Add display clock controller driver for SC7280")
+Fixes: 80a18f4a8567 ("clk: qcom: Add display clock controller driver for SM8150 and SM8250")
+Signed-off-by: Taniya Das <tdas@codeaurora.org>
+Link: https://lore.kernel.org/r/20220223185606.3941-2-tdas@codeaurora.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+[sboyd@kernel.org: lowercase hex]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/ice/ice_virtchnl_pf.c   | 18 ------------------
- .../net/ethernet/intel/ice/ice_virtchnl_pf.h   |  3 ---
- 2 files changed, 21 deletions(-)
+ drivers/clk/qcom/dispcc-sc7180.c | 5 ++++-
+ drivers/clk/qcom/dispcc-sc7280.c | 5 ++++-
+ drivers/clk/qcom/dispcc-sm8250.c | 5 ++++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index 48511ad0e0c8..5134342ff70f 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -1849,24 +1849,6 @@ ice_vc_send_msg_to_vf(struct ice_vf *vf, u32 v_opcode,
+diff --git a/drivers/clk/qcom/dispcc-sc7180.c b/drivers/clk/qcom/dispcc-sc7180.c
+index 538e4963c915..5d2ae297e741 100644
+--- a/drivers/clk/qcom/dispcc-sc7180.c
++++ b/drivers/clk/qcom/dispcc-sc7180.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) 2019, The Linux Foundation. All rights reserved.
++ * Copyright (c) 2019, 2022, The Linux Foundation. All rights reserved.
+  */
  
- 	dev = ice_pf_to_dev(pf);
+ #include <linux/clk-provider.h>
+@@ -625,6 +625,9 @@ static struct clk_branch disp_cc_mdss_vsync_clk = {
  
--	/* single place to detect unsuccessful return values */
--	if (v_retval) {
--		vf->num_inval_msgs++;
--		dev_info(dev, "VF %d failed opcode %d, retval: %d\n", vf->vf_id,
--			 v_opcode, v_retval);
--		if (vf->num_inval_msgs > ICE_DFLT_NUM_INVAL_MSGS_ALLOWED) {
--			dev_err(dev, "Number of invalid messages exceeded for VF %d\n",
--				vf->vf_id);
--			dev_err(dev, "Use PF Control I/F to enable the VF\n");
--			set_bit(ICE_VF_STATE_DIS, vf->vf_states);
--			return -EIO;
--		}
--	} else {
--		vf->num_valid_msgs++;
--		/* reset the invalid counter, if a valid message is received. */
--		vf->num_inval_msgs = 0;
--	}
--
- 	aq_ret = ice_aq_send_msg_to_vf(&pf->hw, vf->vf_id, v_opcode, v_retval,
- 				       msg, msglen, NULL);
- 	if (aq_ret && pf->hw.mailboxq.sq_last_status != ICE_AQ_RC_ENOSYS) {
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-index 59e5b4f16e96..d2e935c678a1 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-@@ -13,7 +13,6 @@
- #define ICE_MAX_MACADDR_PER_VF		18
+ static struct gdsc mdss_gdsc = {
+ 	.gdscr = 0x3000,
++	.en_rest_wait_val = 0x2,
++	.en_few_wait_val = 0x2,
++	.clk_dis_wait_val = 0xf,
+ 	.pd = {
+ 		.name = "mdss_gdsc",
+ 	},
+diff --git a/drivers/clk/qcom/dispcc-sc7280.c b/drivers/clk/qcom/dispcc-sc7280.c
+index 4ef4ae231794..ad596d567f6a 100644
+--- a/drivers/clk/qcom/dispcc-sc7280.c
++++ b/drivers/clk/qcom/dispcc-sc7280.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) 2021, The Linux Foundation. All rights reserved.
++ * Copyright (c) 2021-2022, The Linux Foundation. All rights reserved.
+  */
  
- /* Malicious Driver Detection */
--#define ICE_DFLT_NUM_INVAL_MSGS_ALLOWED		10
- #define ICE_MDD_EVENTS_THRESHOLD		30
+ #include <linux/clk-provider.h>
+@@ -787,6 +787,9 @@ static struct clk_branch disp_cc_sleep_clk = {
  
- /* Static VF transaction/status register def */
-@@ -97,8 +96,6 @@ struct ice_vf {
- 	unsigned int tx_rate;		/* Tx bandwidth limit in Mbps */
- 	DECLARE_BITMAP(vf_states, ICE_VF_STATES_NBITS);	/* VF runtime states */
+ static struct gdsc disp_cc_mdss_core_gdsc = {
+ 	.gdscr = 0x1004,
++	.en_rest_wait_val = 0x2,
++	.en_few_wait_val = 0x2,
++	.clk_dis_wait_val = 0xf,
+ 	.pd = {
+ 		.name = "disp_cc_mdss_core_gdsc",
+ 	},
+diff --git a/drivers/clk/qcom/dispcc-sm8250.c b/drivers/clk/qcom/dispcc-sm8250.c
+index 566fdfa0a15b..db9379634fb2 100644
+--- a/drivers/clk/qcom/dispcc-sm8250.c
++++ b/drivers/clk/qcom/dispcc-sm8250.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
++ * Copyright (c) 2018-2020, 2022, The Linux Foundation. All rights reserved.
+  */
  
--	u64 num_inval_msgs;		/* number of continuous invalid msgs */
--	u64 num_valid_msgs;		/* number of valid msgs detected */
- 	unsigned long vf_caps;		/* VF's adv. capabilities */
- 	u8 num_req_qs;			/* num of queue pairs requested by VF */
- 	u16 num_mac;
+ #include <linux/clk-provider.h>
+@@ -1126,6 +1126,9 @@ static struct clk_branch disp_cc_mdss_vsync_clk = {
+ 
+ static struct gdsc mdss_gdsc = {
+ 	.gdscr = 0x3000,
++	.en_rest_wait_val = 0x2,
++	.en_few_wait_val = 0x2,
++	.clk_dis_wait_val = 0xf,
+ 	.pd = {
+ 		.name = "mdss_gdsc",
+ 	},
 -- 
 2.34.1
 
