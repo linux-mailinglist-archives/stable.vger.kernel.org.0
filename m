@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B24AD4D82AA
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16ED94D8351
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240420AbiCNMGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:06:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59436 "EHLO
+        id S240931AbiCNMMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240572AbiCNMFv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:05:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7405A49254;
-        Mon, 14 Mar 2022 05:02:38 -0700 (PDT)
+        with ESMTP id S242325AbiCNMJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 054F213FA5;
+        Mon, 14 Mar 2022 05:07:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 242F9B80CDE;
-        Mon, 14 Mar 2022 12:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B7E1C340E9;
-        Mon, 14 Mar 2022 12:02:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3D7E61361;
+        Mon, 14 Mar 2022 12:07:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B41C340E9;
+        Mon, 14 Mar 2022 12:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259355;
-        bh=AUqtvabMwOT8H1tChuw/4DbeorIaoD6A+b5KC2+sjwI=;
+        s=korg; t=1647259626;
+        bh=0fYqO3/Kwmdjf5miuWSFOMXV9YAehpSgs/ABHv008Co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKL/TphBMrgtrdbfZaBHDED+NO+RiPW9Lsunxis4MtBi3UowW0UodK+HdPP6MWmtn
-         hQjfPJKC0xCUHG9hkqpzNjZ7XlKZRelh0AF+mRenchyKqHWaGlgs1ls0i72Vel5SQ8
-         C+sgF1OcOvpvgSWECXNUyW2wHeDdo47I/HsmMFiQ=
+        b=r1n3iZ+TT2G4Ag3IzOKEZ9Memm/MlZ2Ni1zclnA4l9lMLsCoklq+zLxFSN3HOsqyB
+         YcfORjaYWDgTLHV5ulwLbaTm392jjO5Pc5fTZdkZ90uNG4bGyApBfcSq7AfVy8DI6a
+         lXLOc1ZHG2fGN0HxE3neYA8Ng2nLfK9iM1yXyJ+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 60/71] watch_queue: Fix to release page in ->release()
-Date:   Mon, 14 Mar 2022 12:53:53 +0100
-Message-Id: <20220314112739.610601388@linuxfoundation.org>
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 052/110] selftests/bpf: Add test for bpf_timer overwriting crash
+Date:   Mon, 14 Mar 2022 12:53:54 +0100
+Message-Id: <20220314112744.489149113@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit c1853fbadcba1497f4907971e7107888e0714c81 upstream.
+[ Upstream commit a7e75016a0753c24d6c995bc02501ae35368e333 ]
 
-When a pipe ring descriptor points to a notification message, the
-refcount on the backing page is incremented by the generic get function,
-but the release function, which marks the bitmap, doesn't drop the page
-ref.
+Add a test that validates that timer value is not overwritten when doing
+a copy_map_value call in the kernel. Without the prior fix, this test
+triggers a crash.
 
-Fix this by calling generic_pipe_buf_release() at the end of
-watch_queue_pipe_buf_release().
-
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/watch_queue.c |    1 +
- 1 file changed, 1 insertion(+)
+ .../selftests/bpf/prog_tests/timer_crash.c    | 32 +++++++++++
+ .../testing/selftests/bpf/progs/timer_crash.c | 54 +++++++++++++++++++
+ 2 files changed, 86 insertions(+)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
+ create mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
 
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -54,6 +54,7 @@ static void watch_queue_pipe_buf_release
- 	bit += page->index;
- 
- 	set_bit(bit, wqueue->notes_bitmap);
-+	generic_pipe_buf_release(pipe, buf);
- }
- 
- // No try_steal function => no stealing
+diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
+new file mode 100644
+index 000000000000..f74b82305da8
+--- /dev/null
++++ b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
+@@ -0,0 +1,32 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <test_progs.h>
++#include "timer_crash.skel.h"
++
++enum {
++	MODE_ARRAY,
++	MODE_HASH,
++};
++
++static void test_timer_crash_mode(int mode)
++{
++	struct timer_crash *skel;
++
++	skel = timer_crash__open_and_load();
++	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
++		return;
++	skel->bss->pid = getpid();
++	skel->bss->crash_map = mode;
++	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
++		goto end;
++	usleep(1);
++end:
++	timer_crash__destroy(skel);
++}
++
++void test_timer_crash(void)
++{
++	if (test__start_subtest("array"))
++		test_timer_crash_mode(MODE_ARRAY);
++	if (test__start_subtest("hash"))
++		test_timer_crash_mode(MODE_HASH);
++}
+diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
+new file mode 100644
+index 000000000000..f8f7944e70da
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/timer_crash.c
+@@ -0,0 +1,54 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <vmlinux.h>
++#include <bpf/bpf_tracing.h>
++#include <bpf/bpf_helpers.h>
++
++struct map_elem {
++	struct bpf_timer timer;
++	struct bpf_spin_lock lock;
++};
++
++struct {
++	__uint(type, BPF_MAP_TYPE_ARRAY);
++	__uint(max_entries, 1);
++	__type(key, int);
++	__type(value, struct map_elem);
++} amap SEC(".maps");
++
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__uint(max_entries, 1);
++	__type(key, int);
++	__type(value, struct map_elem);
++} hmap SEC(".maps");
++
++int pid = 0;
++int crash_map = 0; /* 0 for amap, 1 for hmap */
++
++SEC("fentry/do_nanosleep")
++int sys_enter(void *ctx)
++{
++	struct map_elem *e, value = {};
++	void *map = crash_map ? (void *)&hmap : (void *)&amap;
++
++	if (bpf_get_current_task_btf()->tgid != pid)
++		return 0;
++
++	*(void **)&value = (void *)0xdeadcaf3;
++
++	bpf_map_update_elem(map, &(int){0}, &value, 0);
++	/* For array map, doing bpf_map_update_elem will do a
++	 * check_and_free_timer_in_array, which will trigger the crash if timer
++	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
++	 */
++	if (crash_map == 1) {
++		e = bpf_map_lookup_elem(map, &(int){0});
++		if (!e)
++			return 0;
++		bpf_timer_cancel(&e->timer);
++	}
++	return 0;
++}
++
++char _license[] SEC("license") = "GPL";
+-- 
+2.34.1
+
 
 
