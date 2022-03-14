@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2474D8302
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E00C24D8409
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240757AbiCNMMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:12:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
+        id S241388AbiCNMWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:22:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242400AbiCNMJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA31658A;
-        Mon, 14 Mar 2022 05:07:54 -0700 (PDT)
+        with ESMTP id S243062AbiCNMUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:20:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890D152E7F;
+        Mon, 14 Mar 2022 05:15:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9686B6130D;
-        Mon, 14 Mar 2022 12:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E2BC340E9;
-        Mon, 14 Mar 2022 12:07:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35AF0B80DFE;
+        Mon, 14 Mar 2022 12:15:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97881C340E9;
+        Mon, 14 Mar 2022 12:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259659;
-        bh=Isd6eX3MZTVfTJRJPDZlkUXt7TUV9IkLi7PqQSY8XRk=;
+        s=korg; t=1647260114;
+        bh=rg6mB/XZeyc4/94kQYCm4veWrHrTIgQhki3atHfiu7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9Yjj8J72EMEa1XNwLFT4FosxhOjP9qYvO/4HR6sreqaocmEutjt+oNGsw9mmduvF
-         GbQdfGjOE4h+OPF73OYTAOvwt/blJTe/lAUMqJnOQ2wVwK91Tx7SPDwveX6IRbFcA2
-         U5fTO0afbdUbH8h4AQfjMtubdRCGYOtMZO7q+7bo=
+        b=h1pwZmq+Oq06Y8NK2aCCFOpm2qJ6z9FDg1sId+PDiRjHZl4xZg04e8up+jCKbdT8m
+         urlhV+uRteOGFH4GiarMO02YutuV/VTHtPgedkAgEpoILM1tA9sBRoBbIQN+BnxaGo
+         JDZLWwP93ViJqF7GqRV2osLBTB5LoD+b2713ByPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Javier Martinez Canillas <javierm@redhat.com>,
+        stable@vger.kernel.org, Erico Nunes <nunes.erico@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/110] drm/vc4: hdmi: Unregister codec device on unbind
+Subject: [PATCH 5.16 059/121] net: phy: meson-gxl: improve link-up behavior
 Date:   Mon, 14 Mar 2022 12:54:02 +0100
-Message-Id: <20220314112744.709890013@linuxfoundation.org>
+Message-Id: <20220314112745.772714489@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
-References: <20220314112743.029192918@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit e40945ab7c7f966d0c37b7bd7b0596497dfe228d ]
+[ Upstream commit 2c87c6f9fbddc5b84d67b2fa3f432fcac6d99d93 ]
 
-On bind we will register the HDMI codec device but we don't unregister
-it on unbind, leading to a device leakage. Unregister our device at
-unbind.
+Sometimes the link comes up but no data flows. This patch fixes
+this behavior. It's not clear what's the root cause of the issue.
 
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220127111452.222002-1-maxime@cerno.tech
+According to the tests one other link-up issue remains.
+In very rare cases the link isn't even reported as up.
+
+Fixes: 84c8f773d2dc ("net: phy: meson-gxl: remove the use of .ack_callback()")
+Tested-by: Erico Nunes <nunes.erico@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/e3473452-a1f9-efcf-5fdd-02b6f44c3fcd@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 8 ++++++++
- drivers/gpu/drm/vc4/vc4_hdmi.h | 1 +
- 2 files changed, 9 insertions(+)
+ drivers/net/phy/meson-gxl.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 9170d948b448..07887cbfd9cb 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -1522,6 +1522,7 @@ static int vc4_hdmi_audio_init(struct vc4_hdmi *vc4_hdmi)
- 		dev_err(dev, "Couldn't register the HDMI codec: %ld\n", PTR_ERR(codec_pdev));
- 		return PTR_ERR(codec_pdev);
- 	}
-+	vc4_hdmi->audio.codec_pdev = codec_pdev;
+diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
+index c49062ad72c6..73f7962a37d3 100644
+--- a/drivers/net/phy/meson-gxl.c
++++ b/drivers/net/phy/meson-gxl.c
+@@ -243,7 +243,13 @@ static irqreturn_t meson_gxl_handle_interrupt(struct phy_device *phydev)
+ 	    irq_status == INTSRC_ENERGY_DETECT)
+ 		return IRQ_HANDLED;
  
- 	dai_link->cpus		= &vc4_hdmi->audio.cpu;
- 	dai_link->codecs	= &vc4_hdmi->audio.codec;
-@@ -1561,6 +1562,12 @@ static int vc4_hdmi_audio_init(struct vc4_hdmi *vc4_hdmi)
+-	phy_trigger_machine(phydev);
++	/* Give PHY some time before MAC starts sending data. This works
++	 * around an issue where network doesn't come up properly.
++	 */
++	if (!(irq_status & INTSRC_LINK_DOWN))
++		phy_queue_state_machine(phydev, msecs_to_jiffies(100));
++	else
++		phy_trigger_machine(phydev);
  
+ 	return IRQ_HANDLED;
  }
- 
-+static void vc4_hdmi_audio_exit(struct vc4_hdmi *vc4_hdmi)
-+{
-+	platform_device_unregister(vc4_hdmi->audio.codec_pdev);
-+	vc4_hdmi->audio.codec_pdev = NULL;
-+}
-+
- static irqreturn_t vc4_hdmi_hpd_irq_thread(int irq, void *priv)
- {
- 	struct vc4_hdmi *vc4_hdmi = priv;
-@@ -2298,6 +2305,7 @@ static void vc4_hdmi_unbind(struct device *dev, struct device *master,
- 	kfree(vc4_hdmi->hdmi_regset.regs);
- 	kfree(vc4_hdmi->hd_regset.regs);
- 
-+	vc4_hdmi_audio_exit(vc4_hdmi);
- 	vc4_hdmi_cec_exit(vc4_hdmi);
- 	vc4_hdmi_hotplug_exit(vc4_hdmi);
- 	vc4_hdmi_connector_destroy(&vc4_hdmi->connector);
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.h b/drivers/gpu/drm/vc4/vc4_hdmi.h
-index 33e9f665ab8e..c0492da73683 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.h
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.h
-@@ -113,6 +113,7 @@ struct vc4_hdmi_audio {
- 	struct snd_soc_dai_link_component platform;
- 	struct snd_dmaengine_dai_dma_data dma_data;
- 	struct hdmi_audio_infoframe infoframe;
-+	struct platform_device *codec_pdev;
- 	bool streaming;
- };
- 
 -- 
 2.34.1
 
