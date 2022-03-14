@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA704D812E
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:38:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34E944D8106
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239225AbiCNLjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:39:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39280 "EHLO
+        id S239137AbiCNLil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:38:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239377AbiCNLh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:37:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E498742A27;
-        Mon, 14 Mar 2022 04:36:38 -0700 (PDT)
+        with ESMTP id S239390AbiCNLiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:38:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 969B642EC0;
+        Mon, 14 Mar 2022 04:36:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B434CE108C;
-        Mon, 14 Mar 2022 11:36:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB2FC340EC;
-        Mon, 14 Mar 2022 11:36:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA46861159;
+        Mon, 14 Mar 2022 11:36:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C75C340ED;
+        Mon, 14 Mar 2022 11:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257795;
-        bh=MvYMT4b+70eWMffJm65qmhDlhkcPj5Zm+k3nFgv9U04=;
+        s=korg; t=1647257799;
+        bh=boM+X7Jtz7xEMxABclzXsyS0I01CPMFAo2H06POull4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=amGZywsZvMrnDgplRulfroLaV7WWqOEK+oWiGvRvSZmlDXE+kz1vCDpr0APWoqqDL
-         IwuPbNzreoOidLgeDFWxovFzFKLDeMrrh20QnUhKpDUgq++eTT7S6F7r4HtohDeeH6
-         N1t3UA+D1XqUzseMOyhthPSSO1kezGuHugqrxSgQ=
+        b=wZB/A1ZYkxjjluI+u5hd9zgycP9xRwA7Y+WkAzgsa1BPbZ4j6CmZHHRjblYBLgyja
+         6ZF8g7Q7IMv/hvHe94/XV8+ztdTTKv0HcMDYzlfmA5PNluSjTYd2ll5tF0IdHawumk
+         cPpFLg6AJQSmzSmslhvLKNezgDdB7pleeJ4P2LUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/23] selftests/memfd: clean up mapping in mfd_fail_write
-Date:   Mon, 14 Mar 2022 12:34:28 +0100
-Message-Id: <20220314112731.500185438@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel@lists.infradead.org, patches@armlinux.org.uk,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 16/23] ARM: Spectre-BHB: provide empty stub for non-config
+Date:   Mon, 14 Mar 2022 12:34:29 +0100
+Message-Id: <20220314112731.528088035@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112731.050583127@linuxfoundation.org>
 References: <20220314112731.050583127@linuxfoundation.org>
@@ -57,57 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit fda153c89af344d21df281009a9d046cf587ea0f ]
+commit 68453767131a5deec1e8f9ac92a9042f929e585d upstream.
 
-Running the memfd script ./run_hugetlbfs_test.sh will often end in error
-as follows:
+When CONFIG_GENERIC_CPU_VULNERABILITIES is not set, references
+to spectre_v2_update_state() cause a build error, so provide an
+empty stub for that function when the Kconfig option is not set.
 
-    memfd-hugetlb: CREATE
-    memfd-hugetlb: BASIC
-    memfd-hugetlb: SEAL-WRITE
-    memfd-hugetlb: SEAL-FUTURE-WRITE
-    memfd-hugetlb: SEAL-SHRINK
-    fallocate(ALLOC) failed: No space left on device
-    ./run_hugetlbfs_test.sh: line 60: 166855 Aborted                 (core dumped) ./memfd_test hugetlbfs
-    opening: ./mnt/memfd
-    fuse: DONE
+Fixes this build error:
 
-If no hugetlb pages have been preallocated, run_hugetlbfs_test.sh will
-allocate 'just enough' pages to run the test.  In the SEAL-FUTURE-WRITE
-test the mfd_fail_write routine maps the file, but does not unmap.  As a
-result, two hugetlb pages remain reserved for the mapping.  When the
-fallocate call in the SEAL-SHRINK test attempts allocate all hugetlb
-pages, it is short by the two reserved pages.
+  arm-linux-gnueabi-ld: arch/arm/mm/proc-v7-bugs.o: in function `cpu_v7_bugs_init':
+  proc-v7-bugs.c:(.text+0x52): undefined reference to `spectre_v2_update_state'
+  arm-linux-gnueabi-ld: proc-v7-bugs.c:(.text+0x82): undefined reference to `spectre_v2_update_state'
 
-Fix by making sure to unmap in mfd_fail_write.
-
-Link: https://lkml.kernel.org/r/20220219004340.56478-1-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: patches@armlinux.org.uk
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/memfd/memfd_test.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/include/asm/spectre.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/testing/selftests/memfd/memfd_test.c b/tools/testing/selftests/memfd/memfd_test.c
-index 845e5f67b6f0..cf4c5276eb06 100644
---- a/tools/testing/selftests/memfd/memfd_test.c
-+++ b/tools/testing/selftests/memfd/memfd_test.c
-@@ -416,6 +416,7 @@ static void mfd_fail_write(int fd)
- 			printf("mmap()+mprotect() didn't fail as expected\n");
- 			abort();
- 		}
-+		munmap(p, mfd_def_size);
- 	}
+--- a/arch/arm/include/asm/spectre.h
++++ b/arch/arm/include/asm/spectre.h
+@@ -25,7 +25,13 @@ enum {
+ 	SPECTRE_V2_METHOD_LOOP8 = BIT(__SPECTRE_V2_METHOD_LOOP8),
+ };
  
- 	/* verify PUNCH_HOLE fails */
--- 
-2.34.1
-
++#ifdef CONFIG_GENERIC_CPU_VULNERABILITIES
+ void spectre_v2_update_state(unsigned int state, unsigned int methods);
++#else
++static inline void spectre_v2_update_state(unsigned int state,
++					   unsigned int methods)
++{}
++#endif
+ 
+ int spectre_bhb_update_vectors(unsigned int method);
+ 
 
 
