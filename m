@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B240F4D8405
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:21:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A21E4D81D2
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:57:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241368AbiCNMWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:22:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
+        id S239733AbiCNL4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:56:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241496AbiCNMSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D2E4B1D0;
-        Mon, 14 Mar 2022 05:12:36 -0700 (PDT)
+        with ESMTP id S238210AbiCNL4g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:56:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F93965C1;
+        Mon, 14 Mar 2022 04:55:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B921361382;
-        Mon, 14 Mar 2022 12:12:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DB8C340E9;
-        Mon, 14 Mar 2022 12:12:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36DC7B80DE1;
+        Mon, 14 Mar 2022 11:55:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 647DEC340E9;
+        Mon, 14 Mar 2022 11:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259955;
-        bh=o1eyfosOZlTJ+hUZYylS3B8wCxvivTOqYdjwqWdX3ms=;
+        s=korg; t=1647258923;
+        bh=w1bhthRC2rn5OnhHoF6ya02mHnibBe41VJkGV0cgl5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zv0PIvxf7xj8JmJ1DLrI2R5SLxJD6JH/5NZWdxmLwOqfmwriqa9nRiM9NHZn6Cfk0
-         qIEWYs5fJ9N1SaS/tArL/N62BQfOSyRVjb12+XgMnhtUg7lRKGjATm6laUgqcMBvQ1
-         rzpaY8iax7EauPXxoo/FNo7/y3gnFh+itZmbox+g=
+        b=deY743SrIcuAIVgSwBUgj5mAuNtMOHTiZyvemalpwYv25RZqUj2ayLtXTTbrww86w
+         rq+b5U97enCGZA75m6wTrrVgSsLIH+8WcAZC8b6loNNjvsNgyaTaWmIcNeV8NC5ITY
+         YF39U/tEtmDIVjQ2uc/Y2vkl3ZjIl10TlmDD4gDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 017/121] vhost: fix hung thread due to erroneous iotlb entries
-Date:   Mon, 14 Mar 2022 12:53:20 +0100
-Message-Id: <20220314112744.608703877@linuxfoundation.org>
+Subject: [PATCH 5.4 10/43] net: ethernet: lpc_eth: Handle error for clk_enable
+Date:   Mon, 14 Mar 2022 12:53:21 +0100
+Message-Id: <20220314112734.708604987@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112734.415677317@linuxfoundation.org>
+References: <20220314112734.415677317@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit e2ae38cf3d91837a493cb2093c87700ff3cbe667 ]
+[ Upstream commit 2169b79258c8be803d2595d6456b1e77129fe154 ]
 
-In vhost_iotlb_add_range_ctx(), range size can overflow to 0 when
-start is 0 and last is ULONG_MAX. One instance where it can happen
-is when userspace sends an IOTLB message with iova=size=uaddr=0
-(vhost_process_iotlb_msg). So, an entry with size = 0, start = 0,
-last = ULONG_MAX ends up in the iotlb. Next time a packet is sent,
-iotlb_access_ok() loops indefinitely due to that erroneous entry.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-	Call Trace:
-	 <TASK>
-	 iotlb_access_ok+0x21b/0x3e0 drivers/vhost/vhost.c:1340
-	 vq_meta_prefetch+0xbc/0x280 drivers/vhost/vhost.c:1366
-	 vhost_transport_do_send_pkt+0xe0/0xfd0 drivers/vhost/vsock.c:104
-	 vhost_worker+0x23d/0x3d0 drivers/vhost/vhost.c:372
-	 kthread+0x2e9/0x3a0 kernel/kthread.c:377
-	 ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-	 </TASK>
-
-Reported by syzbot at:
-	https://syzkaller.appspot.com/bug?extid=0abd373e2e50d704db87
-
-To fix this, do two things:
-
-1. Return -EINVAL in vhost_chr_write_iter() when userspace asks to map
-   a range with size 0.
-2. Fix vhost_iotlb_add_range_ctx() to handle the range [0, ULONG_MAX]
-   by splitting it into two entries.
-
-Fixes: 0bbe30668d89e ("vhost: factor out IOTLB")
-Reported-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
-Tested-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20220305095525.5145-1-mail@anirudhrb.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/iotlb.c | 11 +++++++++++
- drivers/vhost/vhost.c |  5 +++++
- 2 files changed, 16 insertions(+)
+ drivers/net/ethernet/nxp/lpc_eth.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/iotlb.c b/drivers/vhost/iotlb.c
-index 670d56c879e5..40b098320b2a 100644
---- a/drivers/vhost/iotlb.c
-+++ b/drivers/vhost/iotlb.c
-@@ -57,6 +57,17 @@ int vhost_iotlb_add_range_ctx(struct vhost_iotlb *iotlb,
- 	if (last < start)
- 		return -EFAULT;
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index 3b177421651f..d2e220a94a57 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1470,6 +1470,7 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
+ {
+ 	struct net_device *ndev = platform_get_drvdata(pdev);
+ 	struct netdata_local *pldat;
++	int ret;
  
-+	/* If the range being mapped is [0, ULONG_MAX], split it into two entries
-+	 * otherwise its size would overflow u64.
-+	 */
-+	if (start == 0 && last == ULONG_MAX) {
-+		u64 mid = last / 2;
-+
-+		vhost_iotlb_add_range_ctx(iotlb, start, mid, addr, perm, opaque);
-+		addr += mid + 1;
-+		start = mid + 1;
-+	}
-+
- 	if (iotlb->limit &&
- 	    iotlb->nmaps == iotlb->limit &&
- 	    iotlb->flags & VHOST_IOTLB_FLAG_RETIRE) {
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 59edb5a1ffe2..55475fd59fb7 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1170,6 +1170,11 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
- 		goto done;
- 	}
+ 	if (device_may_wakeup(&pdev->dev))
+ 		disable_irq_wake(ndev->irq);
+@@ -1479,7 +1480,9 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
+ 			pldat = netdev_priv(ndev);
  
-+	if (msg.size == 0) {
-+		ret = -EINVAL;
-+		goto done;
-+	}
-+
- 	if (dev->msg_handler)
- 		ret = dev->msg_handler(dev, &msg);
- 	else
+ 			/* Enable interface clock */
+-			clk_enable(pldat->clk);
++			ret = clk_enable(pldat->clk);
++			if (ret)
++				return ret;
+ 
+ 			/* Reset and initialize */
+ 			__lpc_eth_reset(pldat);
 -- 
 2.34.1
 
