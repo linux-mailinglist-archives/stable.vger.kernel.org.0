@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE4D4D8254
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBC84D843D
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240238AbiCNMDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42078 "EHLO
+        id S241681AbiCNMX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240336AbiCNMCs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:02:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944F548E7B;
-        Mon, 14 Mar 2022 05:00:02 -0700 (PDT)
+        with ESMTP id S241243AbiCNMRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:17:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3229249F9E;
+        Mon, 14 Mar 2022 05:12:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6579C61260;
-        Mon, 14 Mar 2022 12:00:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69FA4C340ED;
-        Mon, 14 Mar 2022 12:00:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFB2612FF;
+        Mon, 14 Mar 2022 12:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 536B6C36AE9;
+        Mon, 14 Mar 2022 12:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259200;
-        bh=HsN3ea+pGBixgNb6E6XkYeexSxxETtROPScpPCIEJhw=;
+        s=korg; t=1647259944;
+        bh=sGG4xEp0veDolkndlxoaSezooSPfZ1+e2LfA0C1bkR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNRlma8HSQ4S7bvQqTVF1A3d8CV2XBPIX64Ir2Vuc3jQ2DyGeZwU5FnwARfNwnU34
-         SW0J0hNbKIf5jvfszucP9vR8Wunt9t7aAar4g9J5F1Ae6DBYzvvPC8H99fGZMOhvmj
-         26L7bogT6FHddQ08UX00NXZ90/P7+LZ+XZKFKD2U=
+        b=w2kvYP70Uf4p9V9bx6sDDoZqgUAfqI3Kz42+wvlqlOkP56lNeahDHQ5f6gYKfa9nh
+         lP0RcRoZZy8Io5ycnzdtlU+7v6mkDK1QVAB1ZdKwXGzc/nM+OdDNqD/eOlHeCEz4oW
+         2uYYQBy5AnUube0ylRqsiTHcm4MvNlmSdPhJt0Po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/71] net: ethernet: lpc_eth: Handle error for clk_enable
+Subject: [PATCH 5.16 015/121] net: phy: meson-gxl: fix interrupt handling in forced mode
 Date:   Mon, 14 Mar 2022 12:53:18 +0100
-Message-Id: <20220314112738.637983827@linuxfoundation.org>
+Message-Id: <20220314112744.552406448@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112737.929694832@linuxfoundation.org>
-References: <20220314112737.929694832@linuxfoundation.org>
+In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
+References: <20220314112744.120491875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 2169b79258c8be803d2595d6456b1e77129fe154 ]
+[ Upstream commit a502a8f04097e038c3daa16c5202a9538116d563 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+This PHY doesn't support a link-up interrupt source. If aneg is enabled
+we use the "aneg complete" interrupt for this purpose, but if aneg is
+disabled link-up isn't signaled currently.
+According to a vendor driver there's an additional "energy detect"
+interrupt source that can be used to signal link-up if aneg is disabled.
+We can safely ignore this interrupt source if aneg is enabled.
 
-Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch was tested on a TX3 Mini TV box with S905W (even though
+boot message says it's a S905D).
+
+This issue has been existing longer, but due to changes in phylib and
+the driver the patch applies only from the commit marked as fixed.
+
+Fixes: 84c8f773d2dc ("net: phy: meson-gxl: remove the use of .ack_callback()")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/04cac530-ea1b-850e-6cfa-144a55c4d75d@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/nxp/lpc_eth.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/phy/meson-gxl.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
-index 9e098e40fb1c..a9a9bf2e065a 100644
---- a/drivers/net/ethernet/nxp/lpc_eth.c
-+++ b/drivers/net/ethernet/nxp/lpc_eth.c
-@@ -1468,6 +1468,7 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
+diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
+index 7e7904fee1d9..c49062ad72c6 100644
+--- a/drivers/net/phy/meson-gxl.c
++++ b/drivers/net/phy/meson-gxl.c
+@@ -30,8 +30,12 @@
+ #define  INTSRC_LINK_DOWN	BIT(4)
+ #define  INTSRC_REMOTE_FAULT	BIT(5)
+ #define  INTSRC_ANEG_COMPLETE	BIT(6)
++#define  INTSRC_ENERGY_DETECT	BIT(7)
+ #define INTSRC_MASK	30
+ 
++#define INT_SOURCES (INTSRC_LINK_DOWN | INTSRC_ANEG_COMPLETE | \
++		     INTSRC_ENERGY_DETECT)
++
+ #define BANK_ANALOG_DSP		0
+ #define BANK_WOL		1
+ #define BANK_BIST		3
+@@ -200,7 +204,6 @@ static int meson_gxl_ack_interrupt(struct phy_device *phydev)
+ 
+ static int meson_gxl_config_intr(struct phy_device *phydev)
  {
- 	struct net_device *ndev = platform_get_drvdata(pdev);
- 	struct netdata_local *pldat;
-+	int ret;
+-	u16 val;
+ 	int ret;
  
- 	if (device_may_wakeup(&pdev->dev))
- 		disable_irq_wake(ndev->irq);
-@@ -1477,7 +1478,9 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
- 			pldat = netdev_priv(ndev);
+ 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
+@@ -209,16 +212,9 @@ static int meson_gxl_config_intr(struct phy_device *phydev)
+ 		if (ret)
+ 			return ret;
  
- 			/* Enable interface clock */
--			clk_enable(pldat->clk);
-+			ret = clk_enable(pldat->clk);
-+			if (ret)
-+				return ret;
+-		val = INTSRC_ANEG_PR
+-			| INTSRC_PARALLEL_FAULT
+-			| INTSRC_ANEG_LP_ACK
+-			| INTSRC_LINK_DOWN
+-			| INTSRC_REMOTE_FAULT
+-			| INTSRC_ANEG_COMPLETE;
+-		ret = phy_write(phydev, INTSRC_MASK, val);
++		ret = phy_write(phydev, INTSRC_MASK, INT_SOURCES);
+ 	} else {
+-		val = 0;
+-		ret = phy_write(phydev, INTSRC_MASK, val);
++		ret = phy_write(phydev, INTSRC_MASK, 0);
  
- 			/* Reset and initialize */
- 			__lpc_eth_reset(pldat);
+ 		/* Ack any pending IRQ */
+ 		ret = meson_gxl_ack_interrupt(phydev);
+@@ -237,9 +233,16 @@ static irqreturn_t meson_gxl_handle_interrupt(struct phy_device *phydev)
+ 		return IRQ_NONE;
+ 	}
+ 
++	irq_status &= INT_SOURCES;
++
+ 	if (irq_status == 0)
+ 		return IRQ_NONE;
+ 
++	/* Aneg-complete interrupt is used for link-up detection */
++	if (phydev->autoneg == AUTONEG_ENABLE &&
++	    irq_status == INTSRC_ENERGY_DETECT)
++		return IRQ_HANDLED;
++
+ 	phy_trigger_machine(phydev);
+ 
+ 	return IRQ_HANDLED;
 -- 
 2.34.1
 
