@@ -2,68 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C77E4D7EF3
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 10:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3FC64D7F62
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 11:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234361AbiCNJsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 05:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54968 "EHLO
+        id S238294AbiCNKEU convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 14 Mar 2022 06:04:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237875AbiCNJsW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 05:48:22 -0400
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com [209.85.166.199])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124A53FBC8
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 02:47:13 -0700 (PDT)
-Received: by mail-il1-f199.google.com with SMTP id x6-20020a923006000000b002bea39c3974so8838196ile.12
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 02:47:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to;
-        bh=sVvRetvU66viZg03zt42J481swUWQOVgkFgrLPfYY/8=;
-        b=tFiLCCVJLMklkKBz45Je2sna5cjCZ2wdl7M0hDNBDzxxGsAm0o/eoe9HXQ8CkMvELY
-         4nuFouIm023GnEhG9LuelABFEi2vv1xiyVFLUZJ9RmWxRs26HwCoSUvRUcQdbCZALTSU
-         z94uEpzE2LzHBj2O583QCpY8UYpQrGiCEMyPca2ESLB6HUwcpOlWQPunanrk9NEtJ7QP
-         3NZqUfX4CJc6lEeNhk/EhJtpTl3oFpDiPDsnTawOxA3uUFlVZxq7912OiF75Jbbmjf9v
-         d+KU7niMlP5OXpfJQvzHy61l+ILspAenjtg2ZQHdimfF/Y/kL+eiDZ6m9nOEbbYjLbAB
-         MctA==
-X-Gm-Message-State: AOAM532/Thf0zElfQ0gaV1TlwnoVKJyHNxkqdiJ8oJXwZPkP3WrRJwlY
-        AO0mgRZn5+jB/muE/v35aQz5kiSGNO+Kuw/TQyTG3E0ViPvN
-X-Google-Smtp-Source: ABdhPJwIqosa++Lmj+wLGtk5dmKbazucL5r6bCr45MbIstqic01FiTP0+c2nazdzGji8OxC7EAX156qmBK9C+3+aOmLLvJpHvkGY
-MIME-Version: 1.0
-X-Received: by 2002:a05:6638:34ac:b0:31a:8f1:e4f1 with SMTP id
- t44-20020a05663834ac00b0031a08f1e4f1mr3121597jal.75.1647251232496; Mon, 14
- Mar 2022 02:47:12 -0700 (PDT)
-Date:   Mon, 14 Mar 2022 02:47:12 -0700
-In-Reply-To: <000000000000b960c00594598949@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000091a0ff05da2a904f@google.com>
-Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
-From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
-To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
-        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org,
-        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+        with ESMTP id S238288AbiCNKEQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 06:04:16 -0400
+Received: from mail.wilcox-tech.com (mail.wilcox-tech.com [45.32.83.9])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 510BF9FF3
+        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 03:03:05 -0700 (PDT)
+Received: (qmail 5988 invoked from network); 14 Mar 2022 10:03:03 -0000
+Received: from localhost (HELO smtpclient.apple) (AWilcox@Wilcox-Tech.com@127.0.0.1)
+  by localhost with ESMTPA; 14 Mar 2022 10:03:03 -0000
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.60.0.1.1\))
+Subject: Re: [BUG] arm64/m1: Accessing SYS_ID_AA64ISAR2_EL1 causes early boot
+ failure on 5.15.28, 5.16.14, 5.17
+From:   "A. Wilcox" <awilfox@adelielinux.org>
+In-Reply-To: <1f0b74caa45a1d73af68eab8dcc15485@misterjones.org>
+Date:   Mon, 14 Mar 2022 05:03:02 -0500
+Cc:     Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Message-Id: <2498FEAE-DE38-46C5-A50A-93396BB0938A@adelielinux.org>
+References: <32EA0FE1-5254-4A41-B684-AA2DEC021110@adelielinux.org>
+ <Yi7iRSHaFGsYup1p@kroah.com>
+ <1f0b74caa45a1d73af68eab8dcc15485@misterjones.org>
+To:     Marc Zyngier <maz@misterjones.org>
+X-Mailer: Apple Mail (2.3693.60.0.1.1)
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_FAIL,
+        SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This bug is marked as fixed by commit:
-net: core: netlink: add helper refcount dec and lock function
-net: sched: add helper function to take reference to Qdisc
-net: sched: extend Qdisc with rcu
-net: sched: rename qdisc_destroy() to qdisc_put()
-net: sched: use Qdisc rcu API instead of relying on rtnl lock
-But I can't find it in any tested tree for more than 90 days.
-Is it a correct commit? Please update it by replying:
-#syz fix: exact-commit-title
-Until then the bug is still considered open and
-new crashes with the same signature are ignored.
+On Mar 14, 2022, at 4:08 AM, Marc Zyngier <maz@misterjones.org> wrote:
+> On 2022-03-14 06:35, Greg KH wrote:
+>> On Sun, Mar 13, 2022 at 10:59:01PM -0500, A. Wilcox wrote:
+>>> Hello,
+>>> I’ve been testing kernel updates for the Adélie Linux distribution’s
+>>> ARM64 port using a Parallels VM on a MacBook Pro (13-inch, M1, 2020).
+>>> When the kernel attempts to access SYS_ID_AA64ISAR2_EL1, it causes a
+>>> fault as seen here booting 5.17.0-rc8:
+> 
+> […]
+> 
+>>> This is because detection of the clearbhb instruction support requires
+>>> accessing SYS_ID_AA64ISAR2_EL1. Commenting out the two uses of
+>>> supports_clearbhb in the kernel now yields a successful boot.
+>>> Qemu developers seem to have found this issue as well[1] when trying to
+>>> boot 5.17 using HVF, the Apple Hypervisor Framework. This seems to be
+>>> some sort of platform quirk on M1, or at least in HVF on M1. I’m not
+>>> sure what the best workaround would be for this. SYS_ID_AA64ISAR2_EL1
+>>> seems to be something added in ARMv8.7, so perhaps access to it could be
+>>> gated on that.
+>>> Unfortunately, this code was just added to 5.15.28 and 5.16.14, so
+>>> stable no longer boots on Parallels VM on M1. I am unsure if this
+>>> affects physical boot on Apple M1 or not.
+>> What commit causes this problem?  It sounds like you narrowed this down
+>> already, right?
+> 
+> This really is a Parallels bug. These kernels run fine on bare metal
+> M1 and in KVM. QEMU was affected as well, and that was fixed in their
+> HVF handling. HVF itself is fine.
+> 
+> So this should be punted back to the hypervisor vendor for not properly
+> implementing the architecture (no ID register is allowed to UNDEF).
+> 
+>        M.
+> -- 
+> Who you jivin' with that Cosmik Debris?
+
+Thanks, I wasn’t able to test native boot.  Since this is a bug in the hypervisor, I’ll notify them in the morning.
+
+For those of us stuck with Parallels, I’ll assume reverting of these three commits in my own build is the best way forward until it’s fixed.  The M1 isn’t going to grow new instruction support in the meantime, so I don’t see a whole lot of harm in it - but the other mitigations in .28 seem useful.
+
+Best,
+-A.
