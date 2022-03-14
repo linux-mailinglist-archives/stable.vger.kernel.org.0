@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E31A4D842B
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 621504D8352
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241584AbiCNMXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50806 "EHLO
+        id S240738AbiCNMMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241652AbiCNMSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE14421AC;
-        Mon, 14 Mar 2022 05:12:47 -0700 (PDT)
+        with ESMTP id S241744AbiCNMJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:09:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26BFD5005D;
+        Mon, 14 Mar 2022 05:05:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3980AB80DEB;
-        Mon, 14 Mar 2022 12:12:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 597A6C340E9;
-        Mon, 14 Mar 2022 12:12:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A720DB80DFB;
+        Mon, 14 Mar 2022 12:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AEDC340E9;
+        Mon, 14 Mar 2022 12:05:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259965;
-        bh=FGlG9j/bb+DQZwt+VLKTEn12jff30HV9UqqLaRGCb9Q=;
+        s=korg; t=1647259552;
+        bh=V+853khC3T+yyyE4lTN1M3wsATdBDpk20pz8p+avMNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WlAw/BQB+UnNivGg3fIfLcAK0hBcC2nkwJ7M2VeTd5+o/sLifTLq83qES2WXmqYDb
-         Aim6VtrDGx+aNukt97bW/7tLaKQLlPVJme3duGTYpHhS2CV/8WYG8DNLIbfWXDThav
-         zUW7Z497ach4BMBau4Oca3wCX/fyHU7EEGr0MAZs=
+        b=cqx2+/ZyfmnreOmnBwXvd1u7hBUi63mPdOY+Mb9PRVac8ptO9wyrL2H77dxCdMSkK
+         0/XWcLHQpKuCfcP6ysaVTRReU78cGFgV5eUwp6gLHFol+9nBTzdRuHoWqqus6+MtVJ
+         vskfIRY2wrKlWb4uZh4yGnoy/X8FUG7Pz4PrfNP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 002/121] arm64: dts: qcom: sm8350: Correct UFS symbol clocks
-Date:   Mon, 14 Mar 2022 12:53:05 +0100
-Message-Id: <20220314112744.191997222@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        syzbot+35eebd505e97d315d01c@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 004/110] HID: hid-thrustmaster: fix OOB read in thrustmaster_interrupts
+Date:   Mon, 14 Mar 2022 12:53:06 +0100
+Message-Id: <20220314112743.154783242@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 0fd4dcb607ce29110d6c0b481a98c4ff3d300551 ]
+[ Upstream commit fc3ef2e3297b3c0e2006b5d7b3d66965e3392036 ]
 
-The introduction of '9a61f813fcc8 ("clk: qcom: regmap-mux: fix parent
-clock lookup")' broke UFS support on SM8350.
+Syzbot reported an slab-out-of-bounds Read in thrustmaster_probe() bug.
+The root case is in missing validation check of actual number of endpoints.
 
-The cause for this is that the symbol clocks have a specified rate in
-the "freq-table-hz" table in the UFS node, which causes the UFS code to
-request a rate change, for which the "bi_tcxo" happens to provide the
-closest rate.  Prior to the change in regmap-mux it was determined
-(incorrectly) that no change was needed and everything worked.
+Code should not blindly access usb_host_interface::endpoint array, since
+it may contain less endpoints than code expects.
 
-The rates of 75 and 300MHz matches the documentation for the symbol
-clocks, but we don't represent the parent clocks today. So let's mimic
-the configuration found in other platforms, by omitting the rate for the
-symbol clocks as well to avoid the rate change.
+Fix it by adding missing validaion check and print an error if
+number of endpoints do not match expected number
 
-While at it also fill in the dummy symbol clocks that was dropped from
-the GCC driver as it was upstreamed.
-
-Fixes: 59c7cf814783 ("arm64: dts: qcom: sm8350: Add UFS nodes")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20211222162058.3418902-1-bjorn.andersson@linaro.org
+Fixes: c49c33637802 ("HID: support for initialization of some Thrustmaster wheels")
+Reported-and-tested-by: syzbot+35eebd505e97d315d01c@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8350.dtsi | 28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
+ drivers/hid/hid-thrustmaster.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-index db102b293154..1a70a70ed056 100644
---- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-@@ -34,6 +34,24 @@ sleep_clk: sleep-clk {
- 			clock-frequency = <32000>;
- 			#clock-cells = <0>;
- 		};
-+
-+		ufs_phy_rx_symbol_0_clk: ufs-phy-rx-symbol-0 {
-+			compatible = "fixed-clock";
-+			clock-frequency = <1000>;
-+			#clock-cells = <0>;
-+		};
-+
-+		ufs_phy_rx_symbol_1_clk: ufs-phy-rx-symbol-1 {
-+			compatible = "fixed-clock";
-+			clock-frequency = <1000>;
-+			#clock-cells = <0>;
-+		};
-+
-+		ufs_phy_tx_symbol_0_clk: ufs-phy-tx-symbol-0 {
-+			compatible = "fixed-clock";
-+			clock-frequency = <1000>;
-+			#clock-cells = <0>;
-+		};
- 	};
+diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
+index 0c92b7f9b8b8..afdd778a10f0 100644
+--- a/drivers/hid/hid-thrustmaster.c
++++ b/drivers/hid/hid-thrustmaster.c
+@@ -158,6 +158,12 @@ static void thrustmaster_interrupts(struct hid_device *hdev)
+ 		return;
+ 	}
  
- 	cpus {
-@@ -602,9 +620,9 @@ gcc: clock-controller@100000 {
- 				 <0>,
- 				 <0>,
- 				 <0>,
--				 <0>,
--				 <0>,
--				 <0>,
-+				 <&ufs_phy_rx_symbol_0_clk>,
-+				 <&ufs_phy_rx_symbol_1_clk>,
-+				 <&ufs_phy_tx_symbol_0_clk>,
- 				 <0>,
- 				 <0>;
- 		};
-@@ -1227,8 +1245,8 @@ ufs_mem_hc: ufshc@1d84000 {
- 				<75000000 300000000>,
- 				<0 0>,
- 				<0 0>,
--				<75000000 300000000>,
--				<75000000 300000000>;
-+				<0 0>,
-+				<0 0>;
- 			status = "disabled";
- 		};
++	if (usbif->cur_altsetting->desc.bNumEndpoints < 2) {
++		kfree(send_buf);
++		hid_err(hdev, "Wrong number of endpoints?\n");
++		return;
++	}
++
+ 	ep = &usbif->cur_altsetting->endpoint[1];
+ 	b_ep = ep->desc.bEndpointAddress;
  
 -- 
 2.34.1
