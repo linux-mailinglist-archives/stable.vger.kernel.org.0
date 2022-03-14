@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F2134D8459
+	by mail.lfdr.de (Postfix) with ESMTP id C9FE14D845A
 	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234650AbiCNMX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:23:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
+        id S232723AbiCNMX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:23:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243836AbiCNMVS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D5537017;
-        Mon, 14 Mar 2022 05:17:11 -0700 (PDT)
+        with ESMTP id S243853AbiCNMVT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:21:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3939B08;
+        Mon, 14 Mar 2022 05:17:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F739608C4;
-        Mon, 14 Mar 2022 12:17:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C2A4C340E9;
-        Mon, 14 Mar 2022 12:17:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7498B80DEB;
+        Mon, 14 Mar 2022 12:17:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E842DC340E9;
+        Mon, 14 Mar 2022 12:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647260230;
-        bh=geHGzriX4PGV6WZTOfnWNbzTkroyn7NhS+GPkc5qQwU=;
+        s=korg; t=1647260237;
+        bh=Wsxqznz+IquJ0SiSvvBnpxlHeNi7tUeAdIQmNX7KyFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjR/QvTA/Sb12q4IHKdII45XKg61HumPu3es23mQTfGuHRDut0g79N79oA66L/WXb
-         77QBxuvGX6kiuVTi49MD+UvBI1DkQ3F2NDhhiRkQHvQ0QWzs75SQ4fYUQIHv5vjH1i
-         MP0yoRRRi/qQ2FsHM9910l4s/+W7d9iop2kwHm/g=
+        b=hbgac/TOshweMNlprv5TaflX5TjKxP++FCyiw5tFi5Xn9+QvcDKQ7Rvp9DHc4CGSp
+         kyppQ9T+jkMJh81y/1EM8W44ALnqb0qQ7iQlZINaWVdLw4qpkDZsFFkeZtnUaBsDHM
+         gDw8kljInOuerZthj+7+V0UhDNLbtzuCV3RFsCNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 092/121] riscv: alternative only works on !XIP_KERNEL
-Date:   Mon, 14 Mar 2022 12:54:35 +0100
-Message-Id: <20220314112746.684663854@linuxfoundation.org>
+        stable@vger.kernel.org, Rong Chen <rong.chen@amlogic.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.16 093/121] mmc: meson: Fix usage of meson_mmc_post_req()
+Date:   Mon, 14 Mar 2022 12:54:36 +0100
+Message-Id: <20220314112746.712066290@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
 References: <20220314112744.120491875@linuxfoundation.org>
@@ -53,47 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Rong Chen <rong.chen@amlogic.com>
 
-commit c80ee64a8020ef1a6a92109798080786829b8994 upstream.
+commit f0d2f15362f02444c5d7ffd5a5eb03e4aa54b685 upstream.
 
-The alternative mechanism needs runtime code patching, it can't work
-on XIP_KERNEL. And the errata workarounds are implemented via the
-alternative mechanism. So add !XIP_KERNEL dependency for alternative
-and erratas.
+Currently meson_mmc_post_req() is called in meson_mmc_request() right
+after meson_mmc_start_cmd(). This could lead to DMA unmapping before the request
+is actually finished.
 
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Fixes: 44c922572952 ("RISC-V: enable XIP")
+To fix, don't call meson_mmc_post_req() until meson_mmc_request_done().
+
+Signed-off-by: Rong Chen <rong.chen@amlogic.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: 79ed05e329c3 ("mmc: meson-gx: add support for descriptor chain mode")
 Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20220216124239.4007667-1-rong.chen@amlogic.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/Kconfig.erratas |    1 +
- arch/riscv/Kconfig.socs    |    4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/mmc/host/meson-gx-mmc.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/arch/riscv/Kconfig.erratas
-+++ b/arch/riscv/Kconfig.erratas
-@@ -2,6 +2,7 @@ menu "CPU errata selection"
+--- a/drivers/mmc/host/meson-gx-mmc.c
++++ b/drivers/mmc/host/meson-gx-mmc.c
+@@ -173,6 +173,8 @@ struct meson_host {
+ 	int irq;
  
- config RISCV_ERRATA_ALTERNATIVE
- 	bool "RISC-V alternative scheme"
-+	depends on !XIP_KERNEL
- 	default y
- 	help
- 	  This Kconfig allows the kernel to automatically patch the
---- a/arch/riscv/Kconfig.socs
-+++ b/arch/riscv/Kconfig.socs
-@@ -14,8 +14,8 @@ config SOC_SIFIVE
- 	select CLK_SIFIVE
- 	select CLK_SIFIVE_PRCI
- 	select SIFIVE_PLIC
--	select RISCV_ERRATA_ALTERNATIVE
--	select ERRATA_SIFIVE
-+	select RISCV_ERRATA_ALTERNATIVE if !XIP_KERNEL
-+	select ERRATA_SIFIVE if !XIP_KERNEL
- 	help
- 	  This enables support for SiFive SoC platform hardware.
+ 	bool vqmmc_enabled;
++	bool needs_pre_post_req;
++
+ };
  
+ #define CMD_CFG_LENGTH_MASK GENMASK(8, 0)
+@@ -663,6 +665,8 @@ static void meson_mmc_request_done(struc
+ 	struct meson_host *host = mmc_priv(mmc);
+ 
+ 	host->cmd = NULL;
++	if (host->needs_pre_post_req)
++		meson_mmc_post_req(mmc, mrq, 0);
+ 	mmc_request_done(host->mmc, mrq);
+ }
+ 
+@@ -880,7 +884,7 @@ static int meson_mmc_validate_dram_acces
+ static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
+ {
+ 	struct meson_host *host = mmc_priv(mmc);
+-	bool needs_pre_post_req = mrq->data &&
++	host->needs_pre_post_req = mrq->data &&
+ 			!(mrq->data->host_cookie & SD_EMMC_PRE_REQ_DONE);
+ 
+ 	/*
+@@ -896,22 +900,19 @@ static void meson_mmc_request(struct mmc
+ 		}
+ 	}
+ 
+-	if (needs_pre_post_req) {
++	if (host->needs_pre_post_req) {
+ 		meson_mmc_get_transfer_mode(mmc, mrq);
+ 		if (!meson_mmc_desc_chain_mode(mrq->data))
+-			needs_pre_post_req = false;
++			host->needs_pre_post_req = false;
+ 	}
+ 
+-	if (needs_pre_post_req)
++	if (host->needs_pre_post_req)
+ 		meson_mmc_pre_req(mmc, mrq);
+ 
+ 	/* Stop execution */
+ 	writel(0, host->regs + SD_EMMC_START);
+ 
+ 	meson_mmc_start_cmd(mmc, mrq->sbc ?: mrq->cmd);
+-
+-	if (needs_pre_post_req)
+-		meson_mmc_post_req(mmc, mrq, 0);
+ }
+ 
+ static void meson_mmc_read_resp(struct mmc_host *mmc, struct mmc_command *cmd)
 
 
