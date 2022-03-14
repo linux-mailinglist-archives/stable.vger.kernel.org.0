@@ -2,107 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C414D83CF
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:20:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A091F4D8313
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240780AbiCNMVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 08:21:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50862 "EHLO
+        id S240812AbiCNMMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:12:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241879AbiCNMSc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:18:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786D41FCC1;
-        Mon, 14 Mar 2022 05:13:11 -0700 (PDT)
+        with ESMTP id S240968AbiCNMIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:08:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 013652AE02;
+        Mon, 14 Mar 2022 05:04:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9FDB8CE1268;
-        Mon, 14 Mar 2022 12:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D2CC340EC;
-        Mon, 14 Mar 2022 12:13:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45D1D6130D;
+        Mon, 14 Mar 2022 12:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20DD0C340E9;
+        Mon, 14 Mar 2022 12:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647259987;
-        bh=O0ug6X5FmoZy+XnlL4UfoS/smZJsR4Ea5iDiujXvNvg=;
+        s=korg; t=1647259451;
+        bh=bqsgv4wYRlRAXFN2jwy/To0VbWXSYoahODxLG/Pqnl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CNNFhF5NgmPTuYq2DXNRQNpDuHvhcceYdfHgY/okm59uqTLtHVrGlEynVfnLAyTOW
-         IJHIUv9SX8gNmhRVAxHxTfXW0Nm6t/7rZCeXtxxt3uGyPfZ0k5gy4/4wHJ98GEntO0
-         Lym7ywuHrJpDPtBSzAOfCIZ4wrcRywh4QYEd7uEY=
+        b=p3SH04pEZK0e+deVykMjji5sJ7xu/ZK+fgy//QqpUgt+kqOVUgtveDv6sFjYPLYra
+         ss+hUYAhFxbFaNxYoJvi2sPKWAgkkDGjUz8Ly30MqUqr2inwaPaZR+jjm/EstijnFY
+         oHc0/4XuJvu97STG/Rk839hy0arp0sIT7GEQcj0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Jon Maloy <jmaloy@redhat.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 008/121] soc: mediatek: mt8192-mmsys: Fix dither to dsi0 paths input sel
-Date:   Mon, 14 Mar 2022 12:53:11 +0100
-Message-Id: <20220314112744.357937888@linuxfoundation.org>
+Subject: [PATCH 5.15 010/110] tipc: fix kernel panic when enabling bearer
+Date:   Mon, 14 Mar 2022 12:53:12 +0100
+Message-Id: <20220314112743.320738039@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-References: <20220314112744.120491875@linuxfoundation.org>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+References: <20220314112743.029192918@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-[ Upstream commit c432cd598a185afefba1ac3b0ee226f222f71341 ]
+[ Upstream commit be4977b847f5d5cedb64d50eaaf2218c3a55a3a3 ]
 
-In commit d687e056a18f ("soc: mediatek: mmsys: Add mt8192 mmsys routing table"),
-the mmsys routing table for mt8192 was introduced but the input selector
-for DITHER->DSI0 has no value assigned to it.
+When enabling a bearer on a node, a kernel panic is observed:
 
-This means that we are clearing bit 0 instead of setting it, blocking
-communication between these two blocks; due to that, any display that
-is connected to DSI0 will not work, as no data will go through.
-The effect of that issue is that, during bootup, the DRM will block for
-some time, while atomically waiting for a vblank that never happens;
-later, the situation doesn't get better, leaving the display in a
-non-functional state.
+[    4.498085] RIP: 0010:tipc_mon_prep+0x4e/0x130 [tipc]
+...
+[    4.520030] Call Trace:
+[    4.520689]  <IRQ>
+[    4.521236]  tipc_link_build_proto_msg+0x375/0x750 [tipc]
+[    4.522654]  tipc_link_build_state_msg+0x48/0xc0 [tipc]
+[    4.524034]  __tipc_node_link_up+0xd7/0x290 [tipc]
+[    4.525292]  tipc_rcv+0x5da/0x730 [tipc]
+[    4.526346]  ? __netif_receive_skb_core+0xb7/0xfc0
+[    4.527601]  tipc_l2_rcv_msg+0x5e/0x90 [tipc]
+[    4.528737]  __netif_receive_skb_list_core+0x20b/0x260
+[    4.530068]  netif_receive_skb_list_internal+0x1bf/0x2e0
+[    4.531450]  ? dev_gro_receive+0x4c2/0x680
+[    4.532512]  napi_complete_done+0x6f/0x180
+[    4.533570]  virtnet_poll+0x29c/0x42e [virtio_net]
+...
 
-To fix this issue, fix the route entry in the table by assigning the
-dither input selector to MT8192_DISP_DSI0_SEL_IN.
+The node in question is receiving activate messages in another
+thread after changing bearer status to allow message sending/
+receiving in current thread:
 
-Fixes: d687e056a18f ("soc: mediatek: mmsys: Add mt8192 mmsys routing table")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Tested-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Link: https://lore.kernel.org/r/20220128142056.359900-1-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+         thread 1           |              thread 2
+         --------           |              --------
+                            |
+tipc_enable_bearer()        |
+  test_and_set_bit_lock()   |
+    tipc_bearer_xmit_skb()  |
+                            | tipc_l2_rcv_msg()
+                            |   tipc_rcv()
+                            |     __tipc_node_link_up()
+                            |       tipc_link_build_state_msg()
+                            |         tipc_link_build_proto_msg()
+                            |           tipc_mon_prep()
+                            |           {
+                            |             ...
+                            |             // null-pointer dereference
+                            |             u16 gen = mon->dom_gen;
+                            |             ...
+                            |           }
+  // Not being executed yet |
+  tipc_mon_create()         |
+  {                         |
+    ...                     |
+    // allocate             |
+    mon = kzalloc();        |
+    ...                     |
+  }                         |
+
+Monitoring pointer in thread 2 is dereferenced before monitoring data
+is allocated in thread 1. This causes kernel panic.
+
+This commit fixes it by allocating the monitoring data before enabling
+the bearer to receive messages.
+
+Fixes: 35c55c9877f8 ("tipc: add neighbor monitoring framework")
+Reported-by: Shuang Li <shuali@redhat.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mt8192-mmsys.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tipc/bearer.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/soc/mediatek/mt8192-mmsys.h b/drivers/soc/mediatek/mt8192-mmsys.h
-index 6f0a57044a7b..6aae0b12b6ff 100644
---- a/drivers/soc/mediatek/mt8192-mmsys.h
-+++ b/drivers/soc/mediatek/mt8192-mmsys.h
-@@ -53,7 +53,8 @@ static const struct mtk_mmsys_routes mmsys_mt8192_routing_table[] = {
- 		MT8192_AAL0_SEL_IN_CCORR0
- 	}, {
- 		DDP_COMPONENT_DITHER, DDP_COMPONENT_DSI0,
--		MT8192_DISP_DSI0_SEL_IN, MT8192_DSI0_SEL_IN_DITHER0
-+		MT8192_DISP_DSI0_SEL_IN, MT8192_DSI0_SEL_IN_DITHER0,
-+		MT8192_DSI0_SEL_IN_DITHER0
- 	}, {
- 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_COLOR0,
- 		MT8192_DISP_RDMA0_SOUT_SEL, MT8192_RDMA0_SOUT_COLOR0,
+diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
+index 443f8e5b9477..36b466cfd9e1 100644
+--- a/net/tipc/bearer.c
++++ b/net/tipc/bearer.c
+@@ -352,16 +352,18 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+ 		goto rejected;
+ 	}
+ 
+-	test_and_set_bit_lock(0, &b->up);
+-	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
+-	if (skb)
+-		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
+-
++	/* Create monitoring data before accepting activate messages */
+ 	if (tipc_mon_create(net, bearer_id)) {
+ 		bearer_disable(net, b);
++		kfree_skb(skb);
+ 		return -ENOMEM;
+ 	}
+ 
++	test_and_set_bit_lock(0, &b->up);
++	rcu_assign_pointer(tn->bearer_list[bearer_id], b);
++	if (skb)
++		tipc_bearer_xmit_skb(net, bearer_id, skb, &b->bcast_addr);
++
+ 	pr_info("Enabled bearer <%s>, priority %u\n", name, prio);
+ 
+ 	return res;
 -- 
 2.34.1
 
