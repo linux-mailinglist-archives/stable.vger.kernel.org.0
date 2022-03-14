@@ -2,189 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E32DA4D8979
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 17:35:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 670454D89D0
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 17:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243294AbiCNQgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 12:36:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45030 "EHLO
+        id S235355AbiCNQmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 12:42:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243202AbiCNQgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 12:36:32 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E1B6013E23;
-        Mon, 14 Mar 2022 09:35:15 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9D1D9D6E;
-        Mon, 14 Mar 2022 09:35:15 -0700 (PDT)
-Received: from [192.168.178.6] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 322D63F766;
-        Mon, 14 Mar 2022 09:35:13 -0700 (PDT)
-Message-ID: <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
-Date:   Mon, 14 Mar 2022 17:35:05 +0100
+        with ESMTP id S243880AbiCNQi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 12:38:26 -0400
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5D3F31EEFE;
+        Mon, 14 Mar 2022 09:37:00 -0700 (PDT)
+Received: from jpiotrowski-Surface-Book-3 (ip-037-201-215-233.um10.pools.vodafone-ip.de [37.201.215.233])
+        by linux.microsoft.com (Postfix) with ESMTPSA id E9FF5205836A;
+        Mon, 14 Mar 2022 09:36:57 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E9FF5205836A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1647275819;
+        bh=TANwhXsmvSoowjz9fhb6c0Fd/b7jlbQ0LayQhJAe704=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sevBVUwN9Njy9W0lVbgHuO2iFIH/DCQJx1beCuQ7p+2YNcsvNvvz46MV/SD+9K7pn
+         Z9Ri9xz0mGzKuEhEq6Ckh1+omZu0Xfe8RyB6C2LP3PC5S4UUksvWV9rruh2E6+R1ai
+         I3A+Nq17RUIJ/6JsU/zMDjZyGn4bssEvg0s1egxE=
+Date:   Mon, 14 Mar 2022 17:36:47 +0100
+From:   Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Stefan Roese <sr@denx.de>, Thomas Gleixner <tglx@linutronix.de>,
+        linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Marek Vasut <marex@denx.de>, stable@vger.kernel.org,
+        x86@kernel.org, maz@kernel.org
+Subject: Re: [tip: irq/urgent] PCI/MSI: Mask MSI-X vectors only on success
+Message-ID: <Yi9vH2F2OBDprwd8@jpiotrowski-Surface-Book-3>
+References: <20211210161025.3287927-1-sr@denx.de>
+ <163948488617.23020.3934435568065766936.tip-bot2@tip-bot2>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v3] topology: make core_mask include at least
- cluster_siblings
-Content-Language: en-US
-To:     Darren Hart <darren@os.amperecomputing.com>
-Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
-        Will Deacon <will@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org
-References: <f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com>
- <20220308103012.GA31267@willie-the-truck>
- <CAKfTPtDe+i0fwV10m2sX2xkJGBrO8B+RQogDDij8ioJAT5+wAw@mail.gmail.com>
- <e91bcc83-37c8-dcca-e088-8b3fcd737b2c@arm.com> <YieXQD7uG0+R5QBq@fedora>
- <7ac47c67-0b5e-5caa-20bb-a0100a0cb78f@arm.com> <YijxUAuufpBKLtwy@fedora>
-From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
-In-Reply-To: <YijxUAuufpBKLtwy@fedora>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <163948488617.23020.3934435568065766936.tip-bot2@tip-bot2>
+X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,
+        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09/03/2022 19:26, Darren Hart wrote:
-> On Wed, Mar 09, 2022 at 01:50:07PM +0100, Dietmar Eggemann wrote:
->> On 08/03/2022 18:49, Darren Hart wrote:
->>> On Tue, Mar 08, 2022 at 05:03:07PM +0100, Dietmar Eggemann wrote:
->>>> On 08/03/2022 12:04, Vincent Guittot wrote:
->>>>> On Tue, 8 Mar 2022 at 11:30, Will Deacon <will@kernel.org> wrote:
+Hi Thomas, Hi Stefan,
 
-[...]
-
->>>> I do not have any better idea than this tweak here either in case the
->>>> platform can't provide a cleaner setup.
->>>
->>> I'd argue The platform is describing itself accurately in ACPI PPTT
->>> terms. The topology doesn't fit nicely within the kernel abstractions
->>> today. This is an area where I hope to continue to improve things going
->>> forward.
->>
->> I see. And I assume lying about SCU/LLC boundaries in ACPI is not an
->> option since it messes up /sys/devices/system/cpu/cpu0/cache/index*/.
->>
->> [...]
+On Tue, Dec 14, 2021 at 12:28:06PM -0000, tip-bot2 for Stefan Roese wrote:
+> The following commit has been merged into the irq/urgent branch of tip:
 > 
-> I'm not aware of a way to accurately describe the SCU topology in the PPTT, and
-> the risk we run with lying about LLC topology is that lie has to be comprehended
-> by all OSes and not conflict with other lies people may ask for. In general, I
-> think it is preferable and more maintainable to describe the topology as
-> accurately and honestly as we can within the existing platform mechanisms (PPTT,
-> HMAT, etc) and work on the higher level abstractions to accommodate a broader
-> set of topologies as they emerge (as well as working to more fully describe the
-> topology with new platform level mechanisms as needed).
+> Commit-ID:     83dbf898a2d45289be875deb580e93050ba67529
+> Gitweb:        https://git.kernel.org/tip/83dbf898a2d45289be875deb580e93050ba67529
+> Author:        Stefan Roese <sr@denx.de>
+> AuthorDate:    Tue, 14 Dec 2021 12:49:32 +01:00
+> Committer:     Thomas Gleixner <tglx@linutronix.de>
+> CommitterDate: Tue, 14 Dec 2021 13:23:32 +01:00
 > 
-> As I mentioned, I intend to continue looking in to how to improve the current
-> abstractions. For now, it sounds like we have agreement that this patch can be
-> merged to address the BUG?
+> PCI/MSI: Mask MSI-X vectors only on success
+> 
+> Masking all unused MSI-X entries is done to ensure that a crash kernel
+> starts from a clean slate, which correponds to the reset state of the
+> device as defined in the PCI-E specificion 3.0 and later:
+> 
+>  Vector Control for MSI-X Table Entries
+>  --------------------------------------
+> 
+>  "00: Mask bit:  When this bit is set, the function is prohibited from
+>                  sending a message using this MSI-X Table entry.
+>                  ...
+>                  This bit’s state after reset is 1 (entry is masked)."
+> 
+> A Marvell NVME device fails to deliver MSI interrupts after trying to
+> enable MSI-X interrupts due to that masking. It seems to take the MSI-X
+> mask bits into account even when MSI-X is disabled.
+> 
+> While not specification compliant, this can be cured by moving the masking
+> into the success path, so that the MSI-X table entries stay in device reset
+> state when the MSI-X setup fails.
+> 
+> [ tglx: Move it into the success path, add comment and amend changelog ]
+> 
+> Fixes: aa8092c1d1f1 ("PCI/MSI: Mask all unused MSI-X entries")                                                                                                                                                                                                                 
+> Signed-off-by: Stefan Roese <sr@denx.de>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: linux-pci@vger.kernel.org
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: Michal Simek <michal.simek@xilinx.com>
+> Cc: Marek Vasut <marex@denx.de>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/r/20211210161025.3287927-1-sr@denx.de
+> ---
+>  drivers/pci/msi.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+> index 48e3f4e..6748cf9 100644
+> --- a/drivers/pci/msi.c
+> +++ b/drivers/pci/msi.c
+> @@ -722,9 +722,6 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
+>  		goto out_disable;
+>  	}
+>  
+> -	/* Ensure that all table entries are masked. */
+> -	msix_mask_all(base, tsize);
+> -
+>  	ret = msix_setup_entries(dev, base, entries, nvec, affd);
+>  	if (ret)
+>  		goto out_disable;
+> @@ -751,6 +748,16 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
+>  	/* Set MSI-X enabled bits and unmask the function */
+>  	pci_intx_for_msi(dev, 0);
+>  	dev->msix_enabled = 1;
+> +
+> +	/*
+> +	 * Ensure that all table entries are masked to prevent
+> +	 * stale entries from firing in a crash kernel.
+> +	 *
+> +	 * Done late to deal with a broken Marvell NVME device
+> +	 * which takes the MSI-X mask bits into account even
+> +	 * when MSI-X is disabled, which prevents MSI delivery.
+> +	 */
+> +	msix_mask_all(base, tsize);
+>  	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
+>  
+>  	pcibios_free_irq(dev);
 
-What about swapping the CLS and MC cpumasks for such a machine? This
-would avoid that the task scheduler has to deal with a system which has
-CLS but no MC. We essentially promote the CLS cpumask up to MC in this
-case.
+We've had reports of issues with AWS m4 instances, which use Intel 82559 VFs
+for networking (ixgbevf) with MSI-X interrupts, which I've bisected down to
+this commit. Since this commit these VMs no longer have any network connectivity
+and so fail to boot. This occurs with both 5.15 and 5.10 kernels, reverting the
+backport of this commit restores networking.
 
-cat /sys/kernel/debug/sched/domains/cpu0/domain*/name
-MC
-^^
-DIE
-NUMA
+Do you have any suggestions of how this can be resolved other than a revert?
 
-cat /sys/kernel/debug/sched/domains/cpu0# cat domain*/flags
-SD_BALANCE_NEWIDLE SD_BALANCE_EXEC SD_BALANCE_FORK SD_WAKE_AFFINE SD_SHARE_PKG_RESOURCES SD_PREFER_SIBLING
-                                                                  ^^^^^^^^^^^^^^^^^^^^^^ 
-SD_BALANCE_NEWIDLE SD_BALANCE_EXEC SD_BALANCE_FORK SD_WAKE_AFFINE SD_PREFER_SIBLING 
-SD_BALANCE_NEWIDLE SD_BALANCE_EXEC SD_BALANCE_FORK SD_WAKE_AFFINE SD_SERIALIZE SD_OVERLAP SD_NUMA
+Here's the full bisect log:
 
-Only very lightly tested on Altra and Juno-r0 (DT).
+$ git bisect log
+git bisect start
+# good: [4e8c680af6d51ba9315e31bd4f7599e080561a2d] Linux 5.15.7
+git bisect good 4e8c680af6d51ba9315e31bd4f7599e080561a2d
+# bad: [efe3167e52a5833ec20ee6214be9b99b378564a8] Linux 5.15.27
+git bisect bad efe3167e52a5833ec20ee6214be9b99b378564a8
+# bad: [63dcc388662c3562de94d69bfa771ae4cd29b79f] Linux 5.15.16
+git bisect bad 63dcc388662c3562de94d69bfa771ae4cd29b79f
+# good: [57dcae4a8b93271c4e370920ea0dbb94a0215d30] Linux 5.15.10
+git bisect good 57dcae4a8b93271c4e370920ea0dbb94a0215d30
+# bad: [25960cafa06e6fcd830e6c792e6a7de68c1e25ed] Linux 5.15.12
+git bisect bad 25960cafa06e6fcd830e6c792e6a7de68c1e25ed
+# bad: [fb6ad5cb3b6745e7bffc5fe19b130f3594375634] Linux 5.15.11
+git bisect bad fb6ad5cb3b6745e7bffc5fe19b130f3594375634
+# good: [257b3bb16634fd936129fe2f57a91594a75b8751] drm/amd/pm: fix a potential gpu_metrics_table memory leak
+git bisect good 257b3bb16634fd936129fe2f57a91594a75b8751
+# bad: [bbdaa7a48f465a2ee76d65839caeda08af1ef3b2] btrfs: fix double free of anon_dev after failure to create subvolume
+git bisect bad bbdaa7a48f465a2ee76d65839caeda08af1ef3b2
+# good: [c8e8e6f4108e4c133b09f31f6cc7557ee6df3bb6] bpf, selftests: Fix racing issue in btf_skc_cls_ingress test
+git bisect good c8e8e6f4108e4c133b09f31f6cc7557ee6df3bb6
+# bad: [5cb5c3e1b184da9f49e46119a0e506519fc58185] usb: xhci: Extend support for runtime power management for AMD's Yellow carp.
+git bisect bad 5cb5c3e1b184da9f49e46119a0e506519fc58185
+# good: [e7a8a261bab07ec1ed5f5bb990aacc4de9c08eb4] tty: n_hdlc: make n_hdlc_tty_wakeup() asynchronous
+git bisect good e7a8a261bab07ec1ed5f5bb990aacc4de9c08eb4
+# good: [4df1af29930b03d61fb774bfaa5100dbdb964628] PCI/MSI: Clear PCI_MSIX_FLAGS_MASKALL on error
+git bisect good 4df1af29930b03d61fb774bfaa5100dbdb964628
+# bad: [d8888cdabedf353ab9b5a6af75f70bf341a3e7df] PCI/MSI: Mask MSI-X vectors only on success
+git bisect bad d8888cdabedf353ab9b5a6af75f70bf341a3e7df
+# first bad commit: [d8888cdabedf353ab9b5a6af75f70bf341a3e7df] PCI/MSI: Mask MSI-X vectors only on success
 
---->8---
-
-From 54bef59e7f50fa41b7ae39190fd71af57209c27d Mon Sep 17 00:00:00 2001
-From: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Date: Mon, 14 Mar 2022 15:08:23 +0000
-Subject: [PATCH] arch_topology: Swap MC & CLS SD mask if MC weight==1 &
- subset(MC,CLS)
-
-This avoids the issue of having a system with a CLS SD but no MC SD.
-CLS should be sub-SD of MC.
-
-The cpumask under /sys/devices/system/cpu/cpu*/cache/index* and
-/sys/devices/system/cpu/cpu*/topology are not changed by this.
-
-Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
----
- drivers/base/arch_topology.c | 30 ++++++++++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-index 976154140f0b..9af90a5625c7 100644
---- a/drivers/base/arch_topology.c
-+++ b/drivers/base/arch_topology.c
-@@ -614,7 +614,7 @@ static int __init parse_dt_topology(void)
- struct cpu_topology cpu_topology[NR_CPUS];
- EXPORT_SYMBOL_GPL(cpu_topology);
- 
--const struct cpumask *cpu_coregroup_mask(int cpu)
-+const struct cpumask *_cpu_coregroup_mask(int cpu)
- {
- 	const cpumask_t *core_mask = cpumask_of_node(cpu_to_node(cpu));
- 
-@@ -631,11 +631,37 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
- 	return core_mask;
- }
- 
--const struct cpumask *cpu_clustergroup_mask(int cpu)
-+const struct cpumask *_cpu_clustergroup_mask(int cpu)
- {
- 	return &cpu_topology[cpu].cluster_sibling;
- }
- 
-+static int
-+swap_masks(const cpumask_t *core_mask, const cpumask_t *cluster_mask)
-+{
-+	if (cpumask_weight(core_mask) == 1 &&
-+	    cpumask_subset(core_mask, cluster_mask))
-+		return 1;
-+
-+	return 0;
-+}	
-+
-+const struct cpumask *cpu_coregroup_mask(int cpu)
-+{
-+	const cpumask_t *cluster_mask = _cpu_clustergroup_mask(cpu);
-+	const cpumask_t *core_mask = _cpu_coregroup_mask(cpu);
-+	
-+	return swap_masks(core_mask, cluster_mask) ? cluster_mask : core_mask;
-+}
-+
-+const struct cpumask *cpu_clustergroup_mask(int cpu)
-+{
-+	const cpumask_t *cluster_mask = _cpu_clustergroup_mask(cpu);
-+	const cpumask_t *core_mask = _cpu_coregroup_mask(cpu);
-+
-+	return swap_masks(core_mask, cluster_mask) ? core_mask : cluster_mask;
-+}
-+
- void update_siblings_masks(unsigned int cpuid)
- {
- 	struct cpu_topology *cpu_topo, *cpuid_topo = &cpu_topology[cpuid];
--- 
-2.25.1
+Bests,
+Jeremi
