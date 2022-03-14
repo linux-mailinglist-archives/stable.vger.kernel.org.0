@@ -2,161 +2,388 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7061C4D81A6
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 234904D8289
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 13:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239638AbiCNLvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50980 "EHLO
+        id S240463AbiCNMFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 08:05:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239653AbiCNLvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:51:31 -0400
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40DDA41F96
-        for <stable@vger.kernel.org>; Mon, 14 Mar 2022 04:50:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1647258622; x=1678794622;
-  h=from:to:cc:subject:date:message-id:content-id:
-   content-transfer-encoding:mime-version;
-  bh=G1SCYCSOcEHF5rYD5j7FRHGwWbkZbj80UT8Irvmx/0A=;
-  b=WYiGelEVU/Rb7eBXsCeCb7MoWeUxZ+ESqUrarEQ7XWuEV3JUfJ1dRAKp
-   1L9xSmSi9YKP4DN1vAVFkpJKos47L1rlhoYGdBvrKzECFo1bgkm0iwwMn
-   i8H5UW6aVxq61vLdmiezN08Eqw3q0g4ASpLrKyOIYbKZXvFxl8BscqNqr
-   r3MTzE4PZf0pSX+gZztCt4XlvNYGm78wjO9Cb+ddTxW8j3Pg2rXlNKZTi
-   cMRCXd6e9XyeTIkZ9CpYpM0PoM3Mvp1Nef/sU3RNZvsHPLK7li9SgI7k/
-   ZnK0GsauV9nPMNkPQdRHeRVe7hvJdx9XsAj9NSr1jCQI/XSRBYB8Wi+jY
-   w==;
-X-IronPort-AV: E=Sophos;i="5.90,180,1643644800"; 
-   d="scan'208";a="194221121"
-Received: from mail-bn8nam11lp2168.outbound.protection.outlook.com (HELO NAM11-BN8-obe.outbound.protection.outlook.com) ([104.47.58.168])
-  by ob1.hgst.iphmx.com with ESMTP; 14 Mar 2022 19:50:20 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=i9vpaUZRZr5IGh+Q7aeFipgU2z+EOob/+W2HgtYeDPjewQPiv77df+H6eDusiSViLw7Lfj167/UyZMLtB+HitmLVNJIqYcAOlnARth8pDY8PyYO8iJ7In6LjrKka+opqRn0PcMHl5PwMnRiG+lQOdhtFpSQDqDgFGLjbyPZM6T+zv9OEQy3lGgPkv4zqphWzYBOLt/+a0sfux7auWAwYIbUJ4sUyVKH6LSSx25scEL1OgyGfkx20ASHrgO/PXsq6ocZ2Bui7J8nyGP0uH1rSUM3a18UsBUojPZxT6dFedeeuI2Sb9rMv75hFadE5kls6lbqL+HJrG1MdnECUsh/FEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=G1SCYCSOcEHF5rYD5j7FRHGwWbkZbj80UT8Irvmx/0A=;
- b=FyLZtUhpJay5rmsreGd9K+UQz4IJhX8y6R8nLRTwAJHWAyyZB7kJ2fbfsOmP9X0jtia4NYQ2CrK8se26gJvNg/6LicNz32mMh4PeUsMFUD88VnZ4DKHb2RTOrIl98J3pnlRYMhD+z0RiavRX/PNkC6z4q6C+oxNj1lHI2Tk+o6tPyYQcQXKmg+fCxEC6++wPt+ob2iXBx+wlEFTwmE9Y0tF2a6i/a76TNngp8ZGHIcgyeIGgV1Ar9nW36oMnMtp8J+LayIK1ItXEA297hvDY0vph+Ity92Xh94Jxgssjo95WV0UpZ1lJVnjh+cE23St0NjDE9Dsi1oFiUOhPADXTvA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G1SCYCSOcEHF5rYD5j7FRHGwWbkZbj80UT8Irvmx/0A=;
- b=jsiInxq3vIZ2wpHKZyNWB12uo7Li5Rm6fhpnUxi0Csno7bm5rRKJ65C3ZgKnjDvbJmQhn3+iTX64s7UKgo81l+Boxt9nUZfmWrKEmTbSy7cro3OGUEjMNbP9uIWBP/BvFIptKvDWKi1MTJoGzXJwNX4W4FWwvEnmTzw1H7aT70c=
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
- by DM6PR04MB6681.namprd04.prod.outlook.com (2603:10b6:5:24c::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.22; Mon, 14 Mar
- 2022 11:50:18 +0000
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::f025:4f23:8e46:b2ed]) by PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::f025:4f23:8e46:b2ed%2]) with mapi id 15.20.5061.028; Mon, 14 Mar 2022
- 11:50:18 +0000
-From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     Christoph Hellwig <hch@lst.de>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "kbusch@kernel.org" <kbusch@kernel.org>,
-        "martin.petersen@oracle.com" <martin.petersen@oracle.com>
-Subject: kintegrityd workqueue fix backported, but only to some LTS
-Thread-Topic: kintegrityd workqueue fix backported, but only to some LTS
-Thread-Index: AQHYN5mtjBWghYPVmkqkfGiiQU6Z4Q==
-Date:   Mon, 14 Mar 2022 11:50:18 +0000
-Message-ID: <Yi8r+UyK092FE12X@x1-carbon>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: c2735e63-c976-4bc2-40db-08da05b0cfc5
-x-ms-traffictypediagnostic: DM6PR04MB6681:EE_
-x-microsoft-antispam-prvs: <DM6PR04MB66812B15FD408B0C8971D227F20F9@DM6PR04MB6681.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: FLauftynklhZd7o+XPhWWnW7+L3eH2gHQzLY9gPLo9IV+DZ2qwuBpaySc/Mpj7lIFqdXAM4vR/aE0/A8S7MxR6LVJtilSx1XLIb50MhLX1mnrWJ49faKgSsz6+BycQj1hzTVBp2Cr/DzvdYR+fZBJTA+R+IJoKt2udzDrFHoEPqHhZ9Tz7R6bHPaHFB5eEmdW4uDPWapBYbqk8dk8gJkpxZynFMqOaE5YtoFXlSFpDnB7fA4Cq9tG5L5LIaaMsDJXgoB8u8g158E0V7QnQCtRwqCjJY67iFM9tCLHAf4hR9JgZi4z9q7Xacml8M+LyhMHymQTFYfbxqva8VWHUNdcjhKnT+NMbLijj/X4cxh9ZnZ78+sfyTaLOyOH9pi7y6XQpI8sFQ+XtvwlMwsibZAVoabvq0WI1U8B349SFLazUwj2xzsLIzBqQr4UglF1izlpcimz8D0PJPchFYgl+8v5ayufZs5zDghr9cpK5t/GSrzMU5rWEZ8w2JEt5F2uLQBTSRSBJHJ6Oq7N3Dhs0qXUj0QlLWFbULIk/bWq1ztKyc42RKdAdK6sg9OLBv/6zTnEvjTSDsNj6dnlP23Tw0O42nYcQtQ9s9DW1KoAvzoG7V1m64Gd9IK7G7NtaJLk/upzgZb4PBi1NqJTCW+ikhLAs0+p+u3iha8R5s1nqrL1Tmw3HeA6iYvq1y2nLcbUlw2ojGVAbjF0H/tDPR0ah3aLbhDVrjby2l0Wo5K8bU20DT3DRAygoUUmGyKFAIuxTvdfAStZWb/UUiQ4a8S9WR8z5RbG7PyfwmZTqBLbWAZIKMsjhvhyRWMUyIXV1fbOvYD
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(7916004)(4636009)(366004)(8936002)(71200400001)(64756008)(38100700002)(66446008)(66476007)(66556008)(66946007)(76116006)(508600001)(4744005)(6506007)(26005)(186003)(82960400001)(5660300002)(9686003)(6512007)(6916009)(122000001)(6486002)(966005)(54906003)(33716001)(2906002)(91956017)(316002)(83380400001)(8676002)(4326008)(86362001)(38070700005)(67856001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?713wzqXtsxjhzIiQPU1g14HcgQTaWiV4mjonMp+MCLdKHfb5SvIuRwl9BX1T?=
- =?us-ascii?Q?5MqtNDS/smLLWVvZQrrgWE7ajm5mcw9tar6Z3ML/2zPXy5qwDG2YmR4IKkZ0?=
- =?us-ascii?Q?FYPmpxdZ/kx3M5hih6DMrwpFGZ8MKS1w1zM/Jrb2q/+9qlPoR8kpU/IA+Rm5?=
- =?us-ascii?Q?OzllXcrZpVSCOUfdskSSawYyEghWcpmM+qHlDrjbibVMoWZG8YFV1iXJkRTT?=
- =?us-ascii?Q?CcnPRmxhay0Yeb7wXk1KfYlrW5Ur6WYSU3/Euy8cTIZkzofzSIPyWJ2Szzln?=
- =?us-ascii?Q?QsRwfU+OUfaSel4HpOJ19k4uKZdCx8APHsyuzOkrqLyCNB3R64f0PVoHBOWg?=
- =?us-ascii?Q?gHebeYA/6MI4tY8DH0m3ytbQaMTkl2yLoeh3mOI7ACRlwj94SjyAgZvwt5CW?=
- =?us-ascii?Q?H48sVMvzfzOAdbXVYUNV6KBV1WBSkAs86e9bjG0ihO8rylx3EDjYt4LzPdUm?=
- =?us-ascii?Q?8wicNmQScmpFb1axEULw+/Aw1bsX+qy6hDh63f1SPYAYxa9jJPL2hm0fo/hl?=
- =?us-ascii?Q?t3dH5wFqvpnajQnTrvhcqFmm/fZZYGCUF30lHHzBRfVJMM+ZQ7dI+32jngZj?=
- =?us-ascii?Q?0CXFKCtTVelWdebpAuxtNXxOe2c4C9HOv3UPG23wkSUQqFa18qZYuRQfIxdf?=
- =?us-ascii?Q?x05wwqjeO/LvBIXWMT0PnlEFvf+QGzZUTZpyVdIJ/YJr/o0Zb5x4wa8cNRH9?=
- =?us-ascii?Q?2GUl7FjJLeUGSqRLs1QIlkOTZwZTqwKKhrx92MBaMkr9bJsVCSdvD5mDmVBI?=
- =?us-ascii?Q?JcuclYfLC4WyH1jFXJw3F37xhm5Kro9TyOolrNtSkeDDYmPVXc114xHYMoMg?=
- =?us-ascii?Q?+TG5uhyCsu4rxg/rWj33b6EF8fhLCr6i1QWqMyKTg/eu0JOAIlstneQkpwOg?=
- =?us-ascii?Q?vhz8c2lkiHnAAq1AGJknnG/0VKabe4k6ehC19z45bpQ5BBFYPjJo0bbyg6Kc?=
- =?us-ascii?Q?vvQUiHV1LIe2aLtfdGtyvmCRYmfHvLygAEqmNDTqSZNMKt+hxOOhiRSNfI/w?=
- =?us-ascii?Q?kbH9nC108hDBaeixvTgWYHgmCPb3JlQDLW2VMbxmf7NOSgPBpj/gnirQ2NRQ?=
- =?us-ascii?Q?a3+XDYvXRRkxPVY7o+TVS8/f3NIKjRFImaz093VAueOmthcDShpDkrpSDWWK?=
- =?us-ascii?Q?D2BmBCqfMrY5N/dPl5LYqld/tjyqCWUvKT970bfenqTzIUB4Tyekl6ku1u7k?=
- =?us-ascii?Q?QcBEZCc6stEqMJqwThtxrTIjk2wlQMVpsJE+J6J66YcBQxLghzGpcM928BMp?=
- =?us-ascii?Q?y6844n1lDFDjpy/qKspgz7Ne4Rn4cxaG0rdp9xbNMuyZ6avGgm0MuB6eTvNR?=
- =?us-ascii?Q?OjpeZwO4XJV0usuKsvfGO0o5gbjl6C5+t5qblAmuUx9LcsKO0coO93ZbeKp/?=
- =?us-ascii?Q?ofnVVE7kJvn0LMoqZDN7pMdE75NIRV673IoAA99k4FrHk0YA+QdvXwglzeYS?=
- =?us-ascii?Q?ppn2ZD+OD+m320C5ZaVBUcMFyGw4rb9FfciHF49TOj0Xvc/TD8aZww=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <730FFA68B3CFD844AAEDB3EE1A94C668@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S240325AbiCNMEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 08:04:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCD75193E8;
+        Mon, 14 Mar 2022 05:01:41 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E943FB80DC2;
+        Mon, 14 Mar 2022 12:01:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95DC3C340E9;
+        Mon, 14 Mar 2022 12:01:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647259298;
+        bh=F4WV0wBDjeZ4sAOKDItEv5yVVQPKuJ3u1f0WICDpBa8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Z7zcTm1qXovlJyRP/CJi/sqF3mYZPuTd3ENljgCySvDNJsJiZS6xJ3bhZSwCZIK2b
+         22jrYQkz2nQ09F4UvHajgXxRpESn4zOuRN675rmd9+f39ibU/9fji4rkHN14S+YD78
+         lIT5CZw4R/FhBB+l/clZoFtFWAOwQa1T4GKCP9w8=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.10 00/71] 5.10.106-rc1 review
+Date:   Mon, 14 Mar 2022 12:52:53 +0100
+Message-Id: <20220314112737.929694832@linuxfoundation.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c2735e63-c976-4bc2-40db-08da05b0cfc5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Mar 2022 11:50:18.2977
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: StTKeKr+BqXuZAPfxJe0b3W3DJBwhvdLK2dpuHt6Uje3RwcZ/zF/2aYOMicFmLoJobrbXKTFm1rnwg89NItYvw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR04MB6681
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.106-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.106-rc1
+X-KernelTest-Deadline: 2022-03-16T11:27+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Christoph, stable,
+This is the start of the stable review cycle for the 5.10.106 release.
+There are 71 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-I recently saw a crash caused by the kintegrityd workqueue that could only
-be reproduced on older kernels.
-A null pointer dereference in function bio_integrity_verify_fn.
+Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
+Anything received after that time might be too late.
 
-The fix in Linus's tree for this:
-3df49967f6f1 ("block: flush the integrity workqueue in blk_integrity_unregi=
-ster")
-was first merged in v5.15.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.106-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-The fix has been backported to v5.10 LTS branch in:
-1ef68b84bc11 ("block: flush the integrity workqueue in blk_integrity_unregi=
-ster")
+thanks,
 
-The fix doesn't have a fixes tag, but from inspecting the code,
-I don't understand why this was only backported to v5.10, AFAICT it should
-at least have been backported to v5.4, v4.19 and v4.14 LTS as well.
+greg k-h
 
-Original series:
-https://lore.kernel.org/all/20210914070657.87677-3-hch@lst.de/
+-------------
+Pseudo-Shortlog of commits:
 
-The blk_flush_integrity() call that actually fixes the crash should be
-trivial to backport/add before clearing the flag and doing the memset.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.106-rc1
+
+David Howells <dhowells@redhat.com>
+    watch_queue: Fix filter limit check
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    ARM: fix Thumb2 regression with Spectre BHB
+
+Josh Triplett <josh@joshtriplett.org>
+    ext4: add check to prevent attempting to resize an fs with sparse_super2
+
+Li Huafei <lihuafei1@huawei.com>
+    x86/traps: Mark do_int3() NOKPROBE_SYMBOL
+
+Ross Philipson <ross.philipson@oracle.com>
+    x86/boot: Add setup_indirect support in early_memremap_is_setup_data()
+
+Ross Philipson <ross.philipson@oracle.com>
+    x86/boot: Fix memremap of setup_indirect structures
+
+David Howells <dhowells@redhat.com>
+    watch_queue: Make comment about setting ->defunct more accurate
+
+David Howells <dhowells@redhat.com>
+    watch_queue: Fix lack of barrier/sync/lock between post and read
+
+David Howells <dhowells@redhat.com>
+    watch_queue: Free the alloc bitmap when the watch_queue is torn down
+
+David Howells <dhowells@redhat.com>
+    watch_queue: Fix the alloc bitmap size to reflect notes allocated
+
+David Howells <dhowells@redhat.com>
+    watch_queue: Fix to always request a pow-of-2 pipe ring size
+
+David Howells <dhowells@redhat.com>
+    watch_queue: Fix to release page in ->release()
+
+David Howells <dhowells@redhat.com>
+    watch_queue, pipe: Free watchqueue state after clearing pipe ring
+
+Michael S. Tsirkin <mst@redhat.com>
+    virtio: acknowledge all features before access
+
+Michael S. Tsirkin <mst@redhat.com>
+    virtio: unexport virtio_finalize_features
+
+Pali Rohár <pali@kernel.org>
+    arm64: dts: marvell: armada-37xx: Remap IO space to bus address 0x0
+
+Emil Renner Berthing <kernel@esmil.dk>
+    riscv: Fix auipc+jalr relocation range checks
+
+Rong Chen <rong.chen@amlogic.com>
+    mmc: meson: Fix usage of meson_mmc_post_req()
+
+Robert Hancock <robert.hancock@calian.com>
+    net: macb: Fix lost RX packet wakeup race in NAPI receive
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    staging: gdm724x: fix use after free in gdm_lte_rx()
+
+Hans de Goede <hdegoede@redhat.com>
+    staging: rtl8723bs: Fix access-point mode deadlock
+
+Miklos Szeredi <mszeredi@redhat.com>
+    fuse: fix pipe buffer lifetime for direct_io
+
+Randy Dunlap <rdunlap@infradead.org>
+    ARM: Spectre-BHB: provide empty stub for non-config
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    selftests/memfd: clean up mapping in mfd_fail_write
+
+Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+    selftest/vm: fix map_fixed_noreplace test failure
+
+Sven Schnelle <svens@linux.ibm.com>
+    tracing: Ensure trace buffer is at least 4096 bytes large
+
+Niels Dossche <dossche.niels@gmail.com>
+    ipv6: prevent a possible race condition with lifetimes
+
+Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+    Revert "xen-netback: Check for hotplug-status existence before watching"
+
+Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+    Revert "xen-netback: remove 'hotplug-status' once it has served its purpose"
+
+Shreeya Patel <shreeya.patel@collabora.com>
+    gpio: Return EPROBE_DEFER if gc->to_irq is NULL
+
+Vikash Chandola <vikash.chandola@linux.intel.com>
+    hwmon: (pmbus) Clear pmbus fault/warning bits after read
+
+suresh kumar <suresh2514@gmail.com>
+    net-sysfs: add check for netdevice being present to speed_show
+
+Jon Lin <jon.lin@rock-chips.com>
+    spi: rockchip: terminate dma transmission when slave abort
+
+Jon Lin <jon.lin@rock-chips.com>
+    spi: rockchip: Fix error in getting num-cs property
+
+Kumar Kartikeya Dwivedi <memxor@gmail.com>
+    selftests/bpf: Add test for bpf_timer overwriting crash
+
+Jeremy Linton <jeremy.linton@arm.com>
+    net: bcmgenet: Don't claim WOL when its not available
+
+Eric Dumazet <edumazet@google.com>
+    sctp: fix kernel-infoleak for SCTP sockets
+
+Clément Léger <clement.leger@bootlin.com>
+    net: phy: DP83822: clear MISR2 register to disable interrupts
+
+Miaoqian Lin <linmq006@gmail.com>
+    gianfar: ethtool: Fix refcount leak in gfar_get_ts_info
+
+Mark Featherston <mark@embeddedTS.com>
+    gpio: ts4900: Do not set DAT and OE together
+
+Guillaume Nault <gnault@redhat.com>
+    selftests: pmtu.sh: Kill tcpdump processes launched by subshell.
+
+Pavel Skripkin <paskripkin@gmail.com>
+    NFC: port100: fix use-after-free in port100_send_complete
+
+Roi Dayan <roid@nvidia.com>
+    net/mlx5e: Lag, Only handle events from highest priority multipath entry
+
+Moshe Shemesh <moshe@nvidia.com>
+    net/mlx5: Fix a race on command flush flow
+
+Mohammad Kabat <mohammadkab@nvidia.com>
+    net/mlx5: Fix size field in bufferx_reg struct
+
+Duoming Zhou <duoming@zju.edu.cn>
+    ax25: Fix NULL pointer dereference in ax25_kill_by_device
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    net: ethernet: lpc_eth: Handle error for clk_enable
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    net: ethernet: ti: cpts: Handle error for clk_enable
+
+Tung Nguyen <tung.q.nguyen@dektech.com.au>
+    tipc: fix incorrect order of state message data sanity check
+
+Miaoqian Lin <linmq006@gmail.com>
+    ethernet: Fix error handling in xemaclite_of_probe
+
+Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+    ice: Fix curr_link_speed advertised speed
+
+Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+    ice: Rename a couple of variables
+
+Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+    ice: Remove unnecessary checker loop
+
+Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+    ice: Align macro names to the specification
+
+Jacob Keller <jacob.e.keller@intel.com>
+    ice: stop disabling VFs due to PF error responses
+
+Jacob Keller <jacob.e.keller@intel.com>
+    i40e: stop disabling VFs due to PF error responses
+
+Joel Stanley <joel@jms.id.au>
+    ARM: dts: aspeed: Fix AST2600 quad spi group
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    net: dsa: mt7530: fix incorrect test in mt753x_phylink_validate()
+
+Jernej Skrabec <jernej.skrabec@gmail.com>
+    drm/sun4i: mixer: Fix P010 and P210 format numbers
+
+Tom Rix <trix@redhat.com>
+    qed: return status of qed_iov_get_link
+
+Steffen Klassert <steffen.klassert@secunet.com>
+    esp: Fix BEET mode inter address family tunneling on GSO
+
+Jia-Ju Bai <baijiaju1990@gmail.com>
+    net: qlogic: check the return value of dma_alloc_coherent() in qed_vf_hw_prepare()
+
+Jia-Ju Bai <baijiaju1990@gmail.com>
+    isdn: hfcpci: check the return value of dma_set_mask() in setup_hw()
+
+Xie Yongji <xieyongji@bytedance.com>
+    virtio-blk: Don't use MAX_DISCARD_SEGMENTS if max_discard_seg is zero
+
+Alexey Khoroshilov <khoroshilov@ispras.ru>
+    mISDN: Fix memory leak in dsp_pipeline_build()
+
+Zhen Lei <thunder.leizhen@huawei.com>
+    mISDN: Remove obsolete PIPELINE_DEBUG debugging information
+
+Tung Nguyen <tung.q.nguyen@dektech.com.au>
+    tipc: fix kernel panic when enabling bearer
+
+Pali Rohár <pali@kernel.org>
+    arm64: dts: armada-3720-turris-mox: Add missing ethernet0 alias
+
+Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    HID: vivaldi: fix sysfs attributes leak
+
+Taniya Das <tdas@codeaurora.org>
+    clk: qcom: gdsc: Add support to update GDSC transition delay
+
+Maxime Ripard <maxime@cerno.tech>
+    ARM: boot: dts: bcm2711: Fix HVS register range
 
 
-Kind regards,
-Niklas=
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi           |  2 +-
+ arch/arm/boot/dts/bcm2711.dtsi                     |  1 +
+ arch/arm/include/asm/spectre.h                     |  6 ++
+ arch/arm/kernel/entry-armv.S                       |  4 +-
+ .../boot/dts/marvell/armada-3720-turris-mox.dts    |  8 ++-
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi       |  2 +-
+ arch/riscv/kernel/module.c                         | 21 ++++--
+ arch/x86/kernel/e820.c                             | 41 ++++++++----
+ arch/x86/kernel/kdebugfs.c                         | 37 ++++++++---
+ arch/x86/kernel/ksysfs.c                           | 77 +++++++++++++++++-----
+ arch/x86/kernel/setup.c                            | 34 ++++++++--
+ arch/x86/kernel/traps.c                            |  1 +
+ arch/x86/mm/ioremap.c                              | 57 ++++++++++++++--
+ drivers/block/virtio_blk.c                         | 10 ++-
+ drivers/clk/qcom/gdsc.c                            | 26 ++++++--
+ drivers/clk/qcom/gdsc.h                            |  8 ++-
+ drivers/gpio/gpio-ts4900.c                         | 24 +++++--
+ drivers/gpio/gpiolib.c                             | 10 +++
+ drivers/gpu/drm/sun4i/sun8i_mixer.h                |  8 +--
+ drivers/hid/hid-vivaldi.c                          |  2 +-
+ drivers/hwmon/pmbus/pmbus_core.c                   |  5 ++
+ drivers/isdn/hardware/mISDN/hfcpci.c               |  6 +-
+ drivers/isdn/mISDN/dsp_pipeline.c                  | 52 ++-------------
+ drivers/mmc/host/meson-gx-mmc.c                    | 15 +++--
+ drivers/net/dsa/mt7530.c                           |  2 +-
+ drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |  7 ++
+ drivers/net/ethernet/cadence/macb_main.c           | 25 ++++++-
+ drivers/net/ethernet/freescale/gianfar_ethtool.c   |  1 +
+ drivers/net/ethernet/intel/i40e/i40e_debugfs.c     |  6 +-
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 57 ++--------------
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |  5 --
+ drivers/net/ethernet/intel/ice/ice_adminq_cmd.h    | 10 +--
+ drivers/net/ethernet/intel/ice/ice_common.c        | 13 ++--
+ drivers/net/ethernet/intel/ice/ice_ethtool.c       | 70 +++++++++-----------
+ drivers/net/ethernet/intel/ice/ice_main.c          | 12 ++--
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c   | 18 -----
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h   |  3 -
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c      | 15 +++--
+ drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c   | 11 +++-
+ drivers/net/ethernet/nxp/lpc_eth.c                 |  5 +-
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c        | 18 +++--
+ drivers/net/ethernet/qlogic/qed/qed_vf.c           |  7 ++
+ drivers/net/ethernet/ti/cpts.c                     |  4 +-
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c      |  4 +-
+ drivers/net/phy/dp83822.c                          |  2 +-
+ drivers/net/xen-netback/xenbus.c                   | 14 ++--
+ drivers/nfc/port100.c                              |  2 +
+ drivers/spi/spi-rockchip.c                         | 13 +++-
+ drivers/staging/gdm724x/gdm_lte.c                  |  5 +-
+ drivers/staging/rtl8723bs/core/rtw_mlme_ext.c      |  7 +-
+ drivers/staging/rtl8723bs/core/rtw_recv.c          | 10 ++-
+ drivers/staging/rtl8723bs/core/rtw_sta_mgt.c       | 22 +++----
+ drivers/staging/rtl8723bs/core/rtw_xmit.c          | 16 +++--
+ drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c     |  2 +
+ drivers/virtio/virtio.c                            | 40 ++++++-----
+ fs/ext4/resize.c                                   |  5 ++
+ fs/fuse/dev.c                                      | 12 +++-
+ fs/fuse/file.c                                     |  1 +
+ fs/fuse/fuse_i.h                                   |  1 +
+ fs/pipe.c                                          | 11 ++--
+ include/linux/mlx5/mlx5_ifc.h                      |  4 +-
+ include/linux/virtio.h                             |  1 -
+ include/linux/virtio_config.h                      |  3 +-
+ include/linux/watch_queue.h                        |  3 +-
+ kernel/trace/trace.c                               | 10 +--
+ kernel/watch_queue.c                               | 15 +++--
+ net/ax25/af_ax25.c                                 |  7 ++
+ net/core/net-sysfs.c                               |  2 +-
+ net/ipv4/esp4_offload.c                            |  3 +
+ net/ipv6/addrconf.c                                |  2 +
+ net/ipv6/esp6_offload.c                            |  3 +
+ net/sctp/diag.c                                    |  9 +--
+ net/tipc/bearer.c                                  | 12 ++--
+ net/tipc/link.c                                    |  9 +--
+ .../testing/selftests/bpf/prog_tests/timer_crash.c | 32 +++++++++
+ tools/testing/selftests/bpf/progs/timer_crash.c    | 54 +++++++++++++++
+ tools/testing/selftests/memfd/memfd_test.c         |  1 +
+ tools/testing/selftests/net/pmtu.sh                |  7 +-
+ tools/testing/selftests/vm/map_fixed_noreplace.c   | 49 ++++++++++----
+ 80 files changed, 744 insertions(+), 399 deletions(-)
+
+
