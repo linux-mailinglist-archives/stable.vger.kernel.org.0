@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E25C4D8128
-	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2244D8155
+	for <lists+stable@lfdr.de>; Mon, 14 Mar 2022 12:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239427AbiCNLjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Mar 2022 07:39:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40542 "EHLO
+        id S239400AbiCNLk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Mar 2022 07:40:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239351AbiCNLiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:38:50 -0400
+        with ESMTP id S239208AbiCNLkt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Mar 2022 07:40:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF6B4338A;
-        Mon, 14 Mar 2022 04:37:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36E34889B;
+        Mon, 14 Mar 2022 04:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 326C9B80DBA;
-        Mon, 14 Mar 2022 11:37:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 914C5C36AE5;
-        Mon, 14 Mar 2022 11:37:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 492A6B80DB9;
+        Mon, 14 Mar 2022 11:38:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C08C340E9;
+        Mon, 14 Mar 2022 11:38:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647257857;
-        bh=M8ax33quUGmZY4WEvx5nH5KNIApyPzylG8aYXe9hmrg=;
+        s=korg; t=1647257906;
+        bh=vHmuLfdC8PlitAMUeam9r7HwHWum7zeTUtLgdzhVJ3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y998LP5GI/lo79FmHKOfP+Bg+E5aoEzgIE883yxdh3V7q6D2PcHEBaltPCe1Jao7X
-         +KKMNLc7tRNIZLdFHk1gCNFqstdvWgSZDlPCPKr6NCZGINqkZc5//Nvo4f4j3Gs+K/
-         H6VsfaT0PUTjGjhMEPZt3fL46hFnKMbN2Fw+uleA=
+        b=da9rCUIc5UD6bjBwzGmusI6huxGRXVUzTw2d3XR02s+HfdFXYZ53bbZTV3hlC4SI9
+         PXsH2fiZYr7IXZGKzpoD4EJ39wQvaZ98h3n0Qf7Z31td98HZvGW0onCWR4uH98sxiA
+         tQ8/oRKnTRhMXM0uPV+uRxV/qmUaqsa88blPAxg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Triplett <josh@joshtriplett.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 22/23] ext4: add check to prevent attempting to resize an fs with sparse_super2
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 17/30] selftests/memfd: clean up mapping in mfd_fail_write
 Date:   Mon, 14 Mar 2022 12:34:35 +0100
-Message-Id: <20220314112731.699764053@linuxfoundation.org>
+Message-Id: <20220314112732.275191343@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220314112731.050583127@linuxfoundation.org>
-References: <20220314112731.050583127@linuxfoundation.org>
+In-Reply-To: <20220314112731.785042288@linuxfoundation.org>
+References: <20220314112731.785042288@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Triplett <josh@joshtriplett.org>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit b1489186cc8391e0c1e342f9fbc3eedf6b944c61 upstream.
+[ Upstream commit fda153c89af344d21df281009a9d046cf587ea0f ]
 
-The in-kernel ext4 resize code doesn't support filesystem with the
-sparse_super2 feature. It fails with errors like this and doesn't finish
-the resize:
-EXT4-fs (loop0): resizing filesystem from 16640 to 7864320 blocks
-EXT4-fs warning (device loop0): verify_reserved_gdb:760: reserved GDT 2 missing grp 1 (32770)
-EXT4-fs warning (device loop0): ext4_resize_fs:2111: error (-22) occurred during file system resize
-EXT4-fs (loop0): resized filesystem to 2097152
+Running the memfd script ./run_hugetlbfs_test.sh will often end in error
+as follows:
 
-To reproduce:
-mkfs.ext4 -b 4096 -I 256 -J size=32 -E resize=$((256*1024*1024)) -O sparse_super2 ext4.img 65M
-truncate -s 30G ext4.img
-mount ext4.img /mnt
-python3 -c 'import fcntl, os, struct ; fd = os.open("/mnt", os.O_RDONLY | os.O_DIRECTORY) ; fcntl.ioctl(fd, 0x40086610, struct.pack("Q", 30 * 1024 * 1024 * 1024 // 4096), False) ; os.close(fd)'
-dmesg | tail
-e2fsck ext4.img
+    memfd-hugetlb: CREATE
+    memfd-hugetlb: BASIC
+    memfd-hugetlb: SEAL-WRITE
+    memfd-hugetlb: SEAL-FUTURE-WRITE
+    memfd-hugetlb: SEAL-SHRINK
+    fallocate(ALLOC) failed: No space left on device
+    ./run_hugetlbfs_test.sh: line 60: 166855 Aborted                 (core dumped) ./memfd_test hugetlbfs
+    opening: ./mnt/memfd
+    fuse: DONE
 
-The userspace resize2fs tool has a check for this case: it checks if the
-filesystem has sparse_super2 set and if the kernel provides
-/sys/fs/ext4/features/sparse_super2. However, the former check requires
-manually reading and parsing the filesystem superblock.
+If no hugetlb pages have been preallocated, run_hugetlbfs_test.sh will
+allocate 'just enough' pages to run the test.  In the SEAL-FUTURE-WRITE
+test the mfd_fail_write routine maps the file, but does not unmap.  As a
+result, two hugetlb pages remain reserved for the mapping.  When the
+fallocate call in the SEAL-SHRINK test attempts allocate all hugetlb
+pages, it is short by the two reserved pages.
 
-Detect this case in ext4_resize_begin and error out early with a clear
-error message.
+Fix by making sure to unmap in mfd_fail_write.
 
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Link: https://lore.kernel.org/r/74b8ae78405270211943cd7393e65586c5faeed1.1623093259.git.josh@joshtriplett.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20220219004340.56478-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ tools/testing/selftests/memfd/memfd_test.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -74,6 +74,11 @@ int ext4_resize_begin(struct super_block
- 		return -EPERM;
+diff --git a/tools/testing/selftests/memfd/memfd_test.c b/tools/testing/selftests/memfd/memfd_test.c
+index 10baa1652fc2..a4e520b94e43 100644
+--- a/tools/testing/selftests/memfd/memfd_test.c
++++ b/tools/testing/selftests/memfd/memfd_test.c
+@@ -386,6 +386,7 @@ static void mfd_fail_write(int fd)
+ 			printf("mmap()+mprotect() didn't fail as expected\n");
+ 			abort();
+ 		}
++		munmap(p, mfd_def_size);
  	}
  
-+	if (ext4_has_feature_sparse_super2(sb)) {
-+		ext4_msg(sb, KERN_ERR, "Online resizing not supported with sparse_super2");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (test_and_set_bit_lock(EXT4_FLAGS_RESIZING,
- 				  &EXT4_SB(sb)->s_ext4_flags))
- 		ret = -EBUSY;
+ 	/* verify PUNCH_HOLE fails */
+-- 
+2.34.1
+
 
 
