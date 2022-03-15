@@ -2,120 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94E1D4D9C3E
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 14:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A514D9C9F
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 14:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347971AbiCONbg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 09:31:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
+        id S244349AbiCONvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 09:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240579AbiCONbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 09:31:35 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8C0FF51307
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 06:30:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647351022;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=wZtmaY3QY+M2yy/RC8DM8e+OTFH19E+LWuDTX+tqqXg=;
-        b=amzF1+A5GXZrdNsxPMVmTO67B2kDWpnwelbzpmZgJvyofRY24qzibvJ83g0yMIuwsk+GV4
-        NnQjO51jGl6c/k01fJ/Z3GHF3MU4/Mi9o0CAEsG0iUG04lHTDlWGM3jBJg+wfkBV4zk7o4
-        DK5EtsMZFjg9e2b8oXQ+XRrk5NMti4I=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-248-0pqzCze7O5ifmDtNdow7lA-1; Tue, 15 Mar 2022 09:30:21 -0400
-X-MC-Unique: 0pqzCze7O5ifmDtNdow7lA-1
-Received: by mail-wr1-f69.google.com with SMTP id a16-20020adff7d0000000b001f0473a6b25so5289242wrq.1
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 06:30:21 -0700 (PDT)
+        with ESMTP id S1348820AbiCONu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 09:50:57 -0400
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B253136D;
+        Tue, 15 Mar 2022 06:49:45 -0700 (PDT)
+Received: by mail-il1-x136.google.com with SMTP id b5so13321507ilj.9;
+        Tue, 15 Mar 2022 06:49:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=GxhzMMCRxWyv25ftHfQam+a9DFEwcb//2QAxW1fgZ20=;
+        b=okbP8FUeE+Uf0s1bOeO+nY7pBYjFoilHSVwjTJVqAzNefcyDe7OyA4eveKnCj8Rbup
+         IjhOfcVim3fkXbWditJdJ9oeKSW6A/G/Bz2uIe9Y4Gio5YyAyEtrbt6MO03TXwgamjNK
+         IIUY0Uo9avKXwFqjZ44133zM/YLhuK7ZJv9iY2lvWt/xrlZKNBQKO3662WXzZh4oZE1k
+         opEj5yoUr3PL+5K1eUwwF/5fn6TXI+lcT3fnvFbRNTSKznpBrsKLLKSSVajmE+GR3zLv
+         oFxZ7eC6MMjBcok5aTQQyaP6IzvyjKKQPr4NksC0vlfkt/ySS0KefFSAx1edK1/pAUJ9
+         SgeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=wZtmaY3QY+M2yy/RC8DM8e+OTFH19E+LWuDTX+tqqXg=;
-        b=l3wocCQoHgrOfoMSrAEUfsmMTr5wS/RoGwarhCNY7HhG+PNMwxjvS+SxHYKoksG2H3
-         nnaahCO9GSvF3S7sccdyKXaFnmu0o3fSNUvju3bnUM+eUFo+lw/ErVsQCk2+TzE1APTD
-         iWjGhPzIeIxtZqHdubaYvGHuiz35xTrz+1QyPJlJVIi7F3f+x7OoUG67JMJwmAsxg6nS
-         CXVg7uLH0u7shlms2DYb+rrI2DynUd/IuQ1rV7q81AP08ei0LUa1pCh1j4VPgC0phBGL
-         KkKYRLQK+vTLJWf0IqA32pLdDuCClIxqBpL240rS+SwSRx9Wxfvh3Ljl6Y6RAdiqtT8B
-         mltw==
-X-Gm-Message-State: AOAM533+oV2rml3+h+F+s+ygeEg4/KoUTuiFyxvuJEs5kBrMUn9Pp/vq
-        zppH5EKHRrPbg3sfT7sgyq64xsfPglViZ+YOQ0a75U2ZLS2GSRRInQeSvdXrA+O3QfHA7MtlCEZ
-        ObQ7obhRgI7agPK4R
-X-Received: by 2002:a05:6000:15c1:b0:1f0:73d6:b716 with SMTP id y1-20020a05600015c100b001f073d6b716mr20330939wry.293.1647351020078;
-        Tue, 15 Mar 2022 06:30:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzdY0tDepaN3E0R9C8xSHxKp7c5DEvBWlJLZSGDDqbc8x3hCbPBn4KS7IxZ9d8Y4vz2d7ox3g==
-X-Received: by 2002:a05:6000:15c1:b0:1f0:73d6:b716 with SMTP id y1-20020a05600015c100b001f073d6b716mr20330928wry.293.1647351019893;
-        Tue, 15 Mar 2022 06:30:19 -0700 (PDT)
-Received: from redhat.com ([2.53.2.35])
-        by smtp.gmail.com with ESMTPSA id w10-20020a5d680a000000b001f1dabec837sm15515573wru.113.2022.03.15.06.30.17
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=GxhzMMCRxWyv25ftHfQam+a9DFEwcb//2QAxW1fgZ20=;
+        b=wrs8dhcjlGpwPsrT0i7WecjwSzAWdfVIG/XFtRj2Xw53ymagw6aWHbz9SoOc3LgEjc
+         9M40p/jTPwppDC+DXmMrTzqxGi/IXZVY2ayQvl10xdNJHUgBx0AmJX9fClO4aRg0ePCf
+         /YE2Zcl4VFgLftHvcqpI0jRLQG/mSl6xP3DDzpeVM+RbzeBnXwf1GzUT7SayjGlB9Jxq
+         1NdRGPJ5HoocR2Ah5xCeVQQ2FBeLxtV8JQvTmavGcpa2aq72EtAYKPuwMTkPUfPibZbW
+         nDT+PNuHf6lJyyWI4xYHBTZP6hMwV3u2QVRBxPGub1NI6tj1/r1QXZ7z1VnSz5sFcrWK
+         3nIA==
+X-Gm-Message-State: AOAM533FMdx7OJdtF8xx5796WFtelG4hJcRERYB+Dde6j//a+axMc03m
+        2hKvEGBFbImFYgyFxq3qVpQh/liAjhT1L1zzwX6X+A==
+X-Google-Smtp-Source: ABdhPJyR08WmRAm4o3b1HF2TWQyeADX5eTi3c+So0rVTxfSKnFwFQCFiUZOW6QX5+u79X2w7uCmobQ==
+X-Received: by 2002:a05:6e02:216f:b0:2c7:7a3f:2a94 with SMTP id s15-20020a056e02216f00b002c77a3f2a94mr16039753ilv.267.1647352184335;
+        Tue, 15 Mar 2022 06:49:44 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id i3-20020a056602134300b0064620a85b6dsm10360674iov.12.2022.03.15.06.49.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 06:30:19 -0700 (PDT)
-Date:   Tue, 15 Mar 2022 09:30:15 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com
-Subject: Re: [PATCH 5.15 015/110] vhost: fix hung thread due to erroneous
- iotlb entries
-Message-ID: <20220315092949-mutt-send-email-mst@kernel.org>
-References: <20220314112743.029192918@linuxfoundation.org>
- <20220314112743.460512435@linuxfoundation.org>
- <Yi9p8xsrWV+GD9c3@anirudhrb.com>
- <YjBaOClDdNQkxtM8@kroah.com>
- <20220315074834-mutt-send-email-mst@kernel.org>
- <YjCI/Gd6oFiC1J8Z@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YjCI/Gd6oFiC1J8Z@kroah.com>
-X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        Tue, 15 Mar 2022 06:49:43 -0700 (PDT)
+Message-ID: <62309977.1c69fb81.71db4.bed2@mx.google.com>
+Date:   Tue, 15 Mar 2022 06:49:43 -0700 (PDT)
+X-Google-Original-Date: Tue, 15 Mar 2022 13:49:42 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+Subject: RE: [PATCH 5.15 000/110] 5.15.29-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 15, 2022 at 01:39:24PM +0100, Greg Kroah-Hartman wrote:
-> On Tue, Mar 15, 2022 at 07:50:10AM -0400, Michael S. Tsirkin wrote:
-> > On Tue, Mar 15, 2022 at 10:19:52AM +0100, Greg Kroah-Hartman wrote:
-> > > On Mon, Mar 14, 2022 at 09:44:43PM +0530, Anirudh Rayabharam wrote:
-> > > > Mon, Mar 14, 2022 at 12:53:17PM +0100, Greg Kroah-Hartman wrote:
-> > > > > From: Anirudh Rayabharam <mail@anirudhrb.com>
-> > > > > 
-> > > > > [ Upstream commit e2ae38cf3d91837a493cb2093c87700ff3cbe667 ]
-> > > > 
-> > > > This breaks batching of IOTLB messages. [1] fixes it but hasn't landed in
-> > > > Linus' tree yet.
-> > > > 
-> > > > [1]: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=linux-next&id=95932ab2ea07b79cdb33121e2f40ccda9e6a73b5
-> > > 
-> > > Why is this tree not in linux-next?  I don't see this commit there, so
-> > > how can it get to Linus properly?
-> > > 
-> > > thanks,
-> > > 
-> > > greg k-h
-> > 
-> > It is in next normally. I was sure this commit was there too. I'm not sure
-> > what happened, maybe I forgot to push :(
-> > 
+On Mon, 14 Mar 2022 12:53:02 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.15.29 release.
+> There are 110 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> It's on kernel.org already though.
+> Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
+> Anything received after that time might be too late.
 > 
-> Anyway, I'll just take it from here directly, thanks.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.29-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
 > 
 > greg k-h
+> 
 
-Thanks!
-
--- 
-MST
+5.15.29-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
