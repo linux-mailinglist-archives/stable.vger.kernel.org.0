@@ -2,136 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2499C4DA3F7
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 21:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A204DA41E
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 21:40:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351687AbiCOU23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 16:28:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49102 "EHLO
+        id S238410AbiCOUk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 16:40:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345892AbiCOU22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 16:28:28 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E04B50B37
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:27:16 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id n15so110012plh.2
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:27:16 -0700 (PDT)
+        with ESMTP id S1351758AbiCOUk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 16:40:57 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7154F9DA
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:39:42 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id n18so122453plg.5
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:39:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=e971YJ0373vCf0pSijQNtqGxfBI4VqEhoh4939qD8Tk=;
-        b=g9znTadiCE9NBQK/LrkNHD8LhFpJbXMwZDMciIw33by55jo0ex2qRF2vHHKIxv9fd5
-         YAvOn5wNF6JLhbkQbkisMUJaZhDOO16hiC2a03vnYQs2tF/WlnQfi9yQEypBIFSZieJs
-         vUctCsgsuebTK/wteHVK6HAGFoQ+5H9agrrbUvvLVeUArORZyRsT5qAnuZx4XJ9+I7OG
-         lzQYx5xFrMrYdDuulmRkzxWFXR/nwOl6t9x+uUdeuk/HXURZssupMhRuaAiKgCS5lRR/
-         f8+2BKDl1W/tKOBpO2K8yAHydzmhMkH2+fN9f734u6LiXKUnRMys2Cs0YGg+mA1VB4LL
-         zssw==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=qO1EZxPk3EVYZjHmIZj/SC5/lmPYHCVAMvKpVV+UbkI=;
+        b=lNItlz7lqZKKNSvgFx8p5I2NY3GMP9wTeXbVYdrJPCryt0IcrSh18D4QzjcMqzi+HR
+         v+eGGmRhmBAzunxzblrnrfu7bJtD6d1vzXcNdaZt03OvaRZ2SN00vdvN59vTeU34n0BM
+         DFVY1MUc7ddZfaAF1uhPOhnbUUVRqr1wueMc4XuS477LeOWHJ4MROyUXT2sS3whhkzER
+         1p97lKTeLciQ2wqq6J57y9T9lVn7mrMyG3VQC4V2Liu+6DieALRYZfgJRPJKiOcPcxkw
+         3EYVqjJR51Ymeb4QTzTpfLFZuVquNHi6hOrAjteVrJOwFhJgEox4WtFeDbsXLXqaMqo+
+         qsRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=e971YJ0373vCf0pSijQNtqGxfBI4VqEhoh4939qD8Tk=;
-        b=AsIkSVD/cP+IftmuSQTL4h0PYdSJ/Fe5bRgfHEedsGB2TGuKXLy8OtXiF2Kl2F/24F
-         4nsNkTIQAq54yfoFnuqQwoYtyxhqz/KXgv0IpY78WK9TZlmf9dtrYxe7X8hTgKP3RRUf
-         OVS+PO6+pcaxmzgLVjobCvvphEKEjfkmYoNjCjGehoQzIdvaVaLJUpez10BZomoPePk9
-         lGCA8mz2UcniE1wlUCin9h4xQOAlK7vv8d7D0qV62GXrhA9jcIOgG4dbZ518rcmoydFi
-         nARlJc6LNu3yT494HYlexGcOgcuUxHT6l2S35Qr+GYeWENuhhdV5koMhTGXV3rC6MtM/
-         a0zg==
-X-Gm-Message-State: AOAM532DUvrZsFOzPrO6Uq6QlcpB7SECLu6w2d2bWAGzBBls+v4eMhSR
-        Bj7e5dVgn3w0BMuS0NCqlnsxz8MmoF9N3+mr/p8=
-X-Google-Smtp-Source: ABdhPJw+4tJ5N4nq/oeUgBvkpc+xX5laWolciuRseW9WZeUTjc0N7xT4FF2QGF3MH5C74V25QKp4Vg==
-X-Received: by 2002:a17:902:aa01:b0:153:3a40:1097 with SMTP id be1-20020a170902aa0100b001533a401097mr21073027plb.107.1647376035662;
-        Tue, 15 Mar 2022 13:27:15 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c3-20020a056a00248300b004f6f729e485sm26507863pfv.127.2022.03.15.13.27.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 13:27:15 -0700 (PDT)
-Message-ID: <6230f6a3.1c69fb81.f34e7.1f53@mx.google.com>
-Date:   Tue, 15 Mar 2022 13:27:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=qO1EZxPk3EVYZjHmIZj/SC5/lmPYHCVAMvKpVV+UbkI=;
+        b=5jLB6EZDnJRCgDAHkTtnjgodiaEAcNGJjOgOUwLIZnprnK0Y6BZtu/8YHYYCImfypn
+         oLr8F3oFn1PpBorWF2sbJ/eaqdj/zAblI5K48Sbp92ycJZ4ySDIkxeKBuaMJpauWCI93
+         9WoFEyB9sK6ba0ExPIkl2YIAWr4HvoYJUeXw2PS7+SDkfYp81o9Uv2l6qPiUThksqxAL
+         7/B8Ucy00uXhz6jCD5A2NdbnneBwNRmiJpPfI5MsyNlucBl9FSf0To2dNLnnSXzh3nbY
+         dW74q6DycnLYABA9JmeXro33NMY7XZvKSI0XWsMW2cmuvcqHGe9q8RDYzyEEp/h/sv64
+         8EpA==
+X-Gm-Message-State: AOAM53151Db1l1Sdz2/DPBmoJVLb67LEQeobCCagqsRqrmyfC2ItB2P6
+        ip0qtyHW41BbVwcuAaeMzb3iPw==
+X-Google-Smtp-Source: ABdhPJyNhIOzgOk4J23C+RNMCO/AhRln4iWu4uKOJZurIutYWkz0FE5iluYGaRnuE5oHnmUO/MOn/Q==
+X-Received: by 2002:a17:90b:2496:b0:1b9:a6dd:ae7 with SMTP id nt22-20020a17090b249600b001b9a6dd0ae7mr6577592pjb.35.1647376782485;
+        Tue, 15 Mar 2022 13:39:42 -0700 (PDT)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id s14-20020a056a0008ce00b004f66dcd4f1csm27714733pfu.32.2022.03.15.13.39.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Mar 2022 13:39:42 -0700 (PDT)
+Message-ID: <ca6b85d7-3b58-dd6b-adf2-3dc3362bf54a@linaro.org>
+Date:   Tue, 15 Mar 2022 13:39:41 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.28-111-g20b27e498e39
-Subject: stable-rc/queue/5.15 baseline: 77 runs,
- 1 regressions (v5.15.28-111-g20b27e498e39)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH] ext4: check if offset+length is within a valid range in
+ fallocate
+Content-Language: en-US
+To:     Theodore Ts'o <tytso@mit.edu>
+Cc:     Andreas Dilger <adilger.kernel@dilger.ca>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        linux-ext4@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
+References: <d153bb2e-5f95-47d0-43db-b95c577e2b91@linaro.org>
+ <20220315191545.187366-1-tadeusz.struk@linaro.org>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <20220315191545.187366-1-tadeusz.struk@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 77 runs, 1 regressions (v5.15.28-111-g20b27e=
-498e39)
+On 3/15/22 12:15, Tadeusz Struk wrote:
+> @@ -3967,6 +3968,16 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
+>   		   offset;
+>   	}
+>   
+> +	/*
+> +	 * For punch hole the length + offset needs to be at least within
+> +	 * one block before last
+> +	 */
+> +	max_length = sbi->s_bitmap_maxbytes - sbi->s_blocksize;
 
-Regressions Summary
--------------------
+that supposed to be:
+max_length = sbi->s_bitmap_maxbytes - inode->i_sb->s_blocksize;
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+Please ignore this one. I will send a new version soon.
+Sorry for the noise.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.28-111-g20b27e498e39/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.28-111-g20b27e498e39
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      20b27e498e39be92a5dc03d0b7b80fc797110cf9 =
+> +	if (offset + length >= max_length) {
+> +		ret = -ENOSPC;
+> +		goto out_mutex;
+> +	}
+> +
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6230c4958a67e3c0e3c62991
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.28-=
-111-g20b27e498e39/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.28-=
-111-g20b27e498e39/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6230c4958a67e3c0e3c629b7
-        failing since 7 days (last pass: v5.15.26-42-gc89c0807b943, first f=
-ail: v5.15.26-257-g2b9a22cd5eb8)
-
-    2022-03-15T16:53:14.281959  /lava-5884213/1/../bin/lava-test-case   =
-
- =20
+-- 
+Thanks,
+Tadeusz
