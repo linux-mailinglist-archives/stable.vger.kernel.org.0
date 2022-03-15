@@ -2,103 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF0D4D9B28
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 13:27:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C6A4D9B32
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 13:28:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241936AbiCOM2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 08:28:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54746 "EHLO
+        id S1348264AbiCOM3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 08:29:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239134AbiCOM2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 08:28:48 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E86D9532E4;
-        Tue, 15 Mar 2022 05:27:36 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id g7so75213wrb.4;
-        Tue, 15 Mar 2022 05:27:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=vsPzKwTS+IeFWwMuAO6niSRyxPXe0xb+6y4I6aL7QW0=;
-        b=NL+6mVXVc1ULntZn6zGAnso0FAmQ76WRKZ3Jvq9anuufLIQW4RBIIiMcAPEm4jCuDK
-         ykfi02g0nCetjIZaq5XYPak7KEGHV0Ad6AXxKhvlnFKzhFx6o/EwwV499I3AQh0hgaS3
-         h7UQAbtGfuQ/V2n4944je+hTfTSIBRRPO7CKnDvjsFGWZqviwTzPkndcYnfsNyCkH9cu
-         UswbkIffl6AtqT74VVSlcS0rSP1/c5uN4reY/b6n3JRGBFmzko/7MzeQZZ3EMK/yQ7pE
-         /BK1OjThtOw472gixxuHu8oGbPSO+0VuluSIHvK+IDe+gOdO92LFnLdmGGsM65nW3ieQ
-         B06Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=vsPzKwTS+IeFWwMuAO6niSRyxPXe0xb+6y4I6aL7QW0=;
-        b=NuXIwvrKI36Xp+KlqDa41kSncuz98xG8C5BCKwsQGm7xSAC7wdw7G0h3nimCigva8A
-         McPRoqKXjYUpxLw2n4b9WE0iOZV72RHMK1oSP1r8HDW1Vs708gt265vx4xaApKJnoagB
-         rAR0htYIRCpXdSVitTPl9LPBinNg4DrrsSFBN3+U+uVWkk3W3lQiWpxdJh5RtwXp4y9+
-         R6PiLVSZRAbqzFIWGlgv88kIDTrV34olbQ5dcUKw6c+WQPqLMkkRvBzSn/NfqdAU81K3
-         t0Ci/YhK0YMgJb+g+m44HGB+mhr6t0mfxThQmYQZSmJiKiPm0FnZzmuN0qpsXIPJBqae
-         zoBw==
-X-Gm-Message-State: AOAM5323K2U+cpR/RRpWGUVftla8LdsuDx2d29rneT5MdemyZI/aC4gj
-        sy9Orb5COe55R6EMu8bSlb9ZVo/U3oE=
-X-Google-Smtp-Source: ABdhPJw9ZyXSSVehYTlyuH3WFHXnRE2RC1Xiin6VmXbIKq+x3kPvEhih+fOd4MhV9lnNokBxAfg6/A==
-X-Received: by 2002:a05:6000:144d:b0:203:7add:fa71 with SMTP id v13-20020a056000144d00b002037addfa71mr19819711wrx.526.1647347255342;
-        Tue, 15 Mar 2022 05:27:35 -0700 (PDT)
-Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id g12-20020a5d698c000000b001f1d8bb4618sm24282118wru.36.2022.03.15.05.27.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 05:27:34 -0700 (PDT)
-Date:   Tue, 15 Mar 2022 12:27:32 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/29] 4.19.235-rc2 review
-Message-ID: <YjCGNH2AWqpbIICA@debian>
-References: <20220314145920.247358804@linuxfoundation.org>
+        with ESMTP id S235801AbiCOM3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 08:29:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4256410E2;
+        Tue, 15 Mar 2022 05:28:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2044B81604;
+        Tue, 15 Mar 2022 12:28:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE02C340EE;
+        Tue, 15 Mar 2022 12:28:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647347305;
+        bh=Ye/ocCGoca+qFVAWeKWtxYvCf9/D8eC+LLNNN0SVF8I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dwoyEDyPlZeusu3XvRaZorYD9Ag4OSd+LxC8HFYTcS6xHRV3uXWCTtJVpMGRrnc8b
+         hLVncT+SxCzFNgGXx7MzqxhUKU8GfVxdb6UrRw1b4EyjLgio8duvlSsZa4DW0PGGrF
+         RkhmW/dO0qHS9rv0WBtCblD0NBOjCrt3XBcdbnJo=
+Date:   Tue, 15 Mar 2022 13:28:21 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     James Morse <james.morse@arm.com>
+Cc:     Jon Hunter <jonathanh@nvidia.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.19 00/30] 4.19.235-rc1 review
+Message-ID: <YjCGZVxDgtxzzswA@kroah.com>
+References: <20220314112731.785042288@linuxfoundation.org>
+ <0ac87017-362d-33e2-eace-3407e0891a94@nvidia.com>
+ <Yi9LlP+x2swdsrbE@kroah.com>
+ <ae60e4a0-3333-1ad7-1ac9-62e6ac3751de@nvidia.com>
+ <Yi9X4jqy4RT4jr5n@kroah.com>
+ <3f809462-217d-fc4d-8e1e-a3d265350fcb@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220314145920.247358804@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3f809462-217d-fc4d-8e1e-a3d265350fcb@arm.com>
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Mon, Mar 14, 2022 at 04:00:14PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.235 release.
-> There are 29 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Mar 15, 2022 at 12:14:08PM +0000, James Morse wrote:
+> Hi Greg,
 > 
-> Responses should be made by Wed, 16 Mar 2022 14:59:12 +0000.
-> Anything received after that time might be too late.
+> On 3/14/22 2:57 PM, Greg Kroah-Hartman wrote:
+> > On Mon, Mar 14, 2022 at 02:14:41PM +0000, Jon Hunter wrote:
+> > > On 14/03/2022 14:05, Greg Kroah-Hartman wrote:
+> > > > On Mon, Mar 14, 2022 at 01:58:12PM +0000, Jon Hunter wrote:
+> > > > > On 14/03/2022 11:34, Greg Kroah-Hartman wrote:
+> > > > > > This is the start of the stable review cycle for the 4.19.235 release.
+> > > > > > There are 30 patches in this series, all will be posted as a response
+> > > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > > let me know.
+> > > > > > 
+> > > > > > Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
+> > > > > > Anything received after that time might be too late.
+> 
+> 
+> > > > > > James Morse <james.morse@arm.com>
+> > > > > >        KVM: arm64: Reset PMC_EL0 to avoid a panic() on systems with no PMU
+> > > > > 
+> > > > > 
+> > > > > The above is causing the following build error for ARM64 ...
+> > > > > 
+> > > > > arch/arm64/kvm/sys_regs.c: In function ‘reset_pmcr’:
+> > > > > arch/arm64/kvm/sys_regs.c:624:3: error: implicit declaration of function ‘vcpu_sys_reg’ [-Werror=implicit-function-declaration]
+> > > > >      vcpu_sys_reg(vcpu, PMCR_EL0) = 0;
+> > > > >      ^~~~~~~~~~~~
+> > > > > arch/arm64/kvm/sys_regs.c:624:32: error: lvalue required as left operand of assignment
+> > > > >      vcpu_sys_reg(vcpu, PMCR_EL0) = 0;
+> > > > > 
+> > > > 
+> > > > Is this also broken in Linus's tree?
+> > > 
+> > > 
+> > > No, Linus' tree is not broken. However, I don't see this change in Linus'
+> > > tree (v5.17-rc8).
+> > 
+> > Ah, this is a "fix something broken in stable-only" type patch :(
+> 
+> > James, I'm dropping this from the 4.19, 4.9, and 4.14 trees right now as
+> > it looks broken :(
+> 
+> What would you prefer I do here:
+>  1 post a revert for the original problematic backport.
+>  2 post versions of this to fix each of the above 3 stable kernels. (instead of putting conditions in the stable tag).
 
-Build test:
-mips (gcc version 11.2.1 20220301): 63 configs -> no  failure
-arm (gcc version 11.2.1 20220301): 116 configs -> no new failure
-arm64 (gcc version 11.2.1 20220301): 2 configs -> no failure
-x86_64 (gcc version 11.2.1 20220301): 4 configs -> no failure
+I don't see what I did wrong with the "conditions" in the existing
+commit you sent.  How did I get it wrong?
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
+Best case, send a patch series for each kernel tree.  That way I "know"
+I got the right thing here.
 
-[1]. https://openqa.qa.codethink.co.uk/tests/880
+thanks,
 
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
-
+greg k-h
