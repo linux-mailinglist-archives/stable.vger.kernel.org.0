@@ -2,172 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 867594DA27D
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 19:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D57524DA2AB
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 19:50:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347887AbiCOSjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 14:39:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32848 "EHLO
+        id S1346084AbiCOSvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 14:51:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238563AbiCOSjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 14:39:16 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F501BE8B
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 11:38:04 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id mv14-20020a17090b198e00b001c64b23f5b0so1535183pjb.5
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 11:38:04 -0700 (PDT)
+        with ESMTP id S231664AbiCOSvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 14:51:39 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222A056C3B;
+        Tue, 15 Mar 2022 11:50:27 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id w25so1770058edi.11;
+        Tue, 15 Mar 2022 11:50:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JCcC+Uh+k22p56X20uuNnSaNDqISKuRryO0wBz2+dJs=;
-        b=oXadT26H6LczAB8dRJXb31bb9qc/HeLNUCD2B6yCkjTvCuk0FRxDBHvZOG+bLNlQF7
-         Vih8I/DvITmveL4SK63NpRqhLYCvcMyI+pR4DvUyR+v2UtmecqOpF3ribQz1O9Iso+uu
-         itn80PfGjc8Etje9MnqJKqhlM91WNjPn3XwuD2L8X+4ejed4LqlOVozU5Ey1lTgRfP4O
-         TWgRlTwNBeGTUu4LhFEnlHNspA930qysXGz/QiZnSrPXF40osxmcmczmJWwre93u0Xso
-         cF2KD17dl6EPbVqmAKssbEPxgKz/reCZ1UZmy3bbjnPMV/sw5aQmPFGOziZB+5Ill3tY
-         qaoA==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=isS1AYQcwVPOcEynJdmCksyBOj5J5k4cGXy9RxN9siM=;
+        b=EJAR8bgpKmAzptXx9PJ1JiXWfZa4MK/+HWdD9If3KRwYbuvcHJuGI23cqy7p1yoRML
+         tW8cZV/UomyHa9mRQI/k3hZkoINAsGKuFcOs0nQQO8GYttIqs9e4RfVUzigKZ/AmLqKt
+         aH6gnqHpIIHuHXG2v5Rjscm7xPDW2OCKzy1J8tCbxxE285qCSPV9rngp6i9a8TAVVvlm
+         PASZUntJ91F3OG07e1StFZGA2A5EKPiqfwsN0xUeYk6WVzmM5DtgKJNVsy/13bKKm3p7
+         tjM0vwmCWiueiGNu+GUlp+N71G/6RutaybQ0Qwb9e7DrRRfQf2NCSoje3jKCD48pmffa
+         fj7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JCcC+Uh+k22p56X20uuNnSaNDqISKuRryO0wBz2+dJs=;
-        b=1Q53fbV/lW3xSAsMfFNLglIv4ZVv9NXZV5GiuNcMeOyJ6koTl6/nbj90AdrmWylvMb
-         CZh+hf85HQQM1/cE/j3qvDN80pjXkV/FQSvQzrOXG956AAAJnFyMuj+WTS7MsXGbtjwq
-         y+cIuJHHrwTC0MystOBKLt21/UjUsf6Xj36ciD6wAU1/XizGEL1r1jJsH82E8diR3FA6
-         RTJDS4WToLrN9JFrQL6K6FeHixmQLLzL/f45AWCeL+amLOfpXknebMyP1nNhQH8y6bK1
-         mGpCE/dzXrwxE5QHmisTD+GpOM5lpzYbLVvUL945YLyOt1Bt794f0Qrr5vBabv3aB6/l
-         teow==
-X-Gm-Message-State: AOAM532IIBEGNp2OZS6k3asVLsfwp1vII/a0sKcUl6/krH2Iet0Y38JN
-        HyI+tRN4LhzpH+PyCT3BPXR+JnhGoiCm/DH8Tms=
-X-Google-Smtp-Source: ABdhPJzAf+U9qAeS3fMQqNApNPT25Pv5eeHop8wluNoSBxzL7V8mbvJuLInbQrKlc4OsHeM6rKbbtA==
-X-Received: by 2002:a17:90b:314d:b0:1bf:1dc5:8e8d with SMTP id ip13-20020a17090b314d00b001bf1dc58e8dmr6178316pjb.204.1647369483586;
-        Tue, 15 Mar 2022 11:38:03 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u17-20020a056a00159100b004f763ac761fsm24633227pfk.33.2022.03.15.11.38.03
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=isS1AYQcwVPOcEynJdmCksyBOj5J5k4cGXy9RxN9siM=;
+        b=55AmE51VKyOaX4OEo4VV37t8MauQ/ECxRc6lmiBBtRGrrmUl6QYrk9b60mGdfhInOP
+         u/Yl0asICiLxPnm4knku98x/tYLI4jNu0cCleBc5hcAUpm2jBTC6caFdz0delzLYmuq2
+         r+bQQKOtd4SlYgDqHM52ZtfJxuuaEOhLLd0hpUfTElG4ucXmM7aI/N/VEli4YBWsFy5z
+         6vWv8c4FrvuVF+RR1nJDfFzf/hIVJWA6rIS8Y8jTEVM6gTSHwZ+nXLyzAMlvBElchRkP
+         7wdn9b0ld/z59/DZrH5fL3Bz83JqIGOqUOV2wFf38Rh/8I0RpScH3xxICkt6uzbJEAIh
+         57Ag==
+X-Gm-Message-State: AOAM530r16EGoxbZKlRCsNSHssBVeTklVCOWauwsXF7zMSDFO2Pyqy5k
+        oO2gQKe99cqbAOXClZHLVpg=
+X-Google-Smtp-Source: ABdhPJxInX22y59stRqwLhA58e5mYMCN0nEinf10VE+bMfkXFl0cU9SFTmDTCGo59xL2vgPYa8y5ow==
+X-Received: by 2002:a50:d78e:0:b0:416:2cd7:7ac5 with SMTP id w14-20020a50d78e000000b004162cd77ac5mr26447468edi.320.1647370225554;
+        Tue, 15 Mar 2022 11:50:25 -0700 (PDT)
+Received: from kista.localnet (cpe-86-58-32-107.static.triera.net. [86.58.32.107])
+        by smtp.gmail.com with ESMTPSA id f6-20020a0564021e8600b00412ae7fda95sm9970933edf.44.2022.03.15.11.50.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 11:38:03 -0700 (PDT)
-Message-ID: <6230dd0b.1c69fb81.1970e.c478@mx.google.com>
-Date:   Tue, 15 Mar 2022 11:38:03 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 15 Mar 2022 11:50:25 -0700 (PDT)
+From:   Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Petr =?utf-8?B?xaB0ZXRpYXI=?= <ynezz@true.cz>
+Cc:     Petr =?utf-8?B?xaB0ZXRpYXI=?= <ynezz@true.cz>,
+        stable@vger.kernel.org,
+        Bastien =?ISO-8859-1?Q?Roucari=E8s?= <rouca@debian.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] Revert "ARM: dts: sun7i: A20-olinuxino-lime2: Fix ethernet phy-mode"
+Date:   Tue, 15 Mar 2022 19:50:23 +0100
+Message-ID: <44524634.fMDQidcC6G@kista>
+In-Reply-To: <20220315095244.29718-2-ynezz@true.cz>
+References: <20220315095244.29718-1-ynezz@true.cz> <20220315095244.29718-2-ynezz@true.cz>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.16
-X-Kernelci-Kernel: v5.16.14-122-g74c6b0438c08
-Subject: stable-rc/queue/5.16 baseline: 74 runs,
- 2 regressions (v5.16.14-122-g74c6b0438c08)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.16 baseline: 74 runs, 2 regressions (v5.16.14-122-g74c6b0=
-438c08)
+Hi Petr!
 
-Regressions Summary
--------------------
+Dne torek, 15. marec 2022 ob 10:52:42 CET je Petr =C5=A0tetiar napisal(a):
+> This reverts commit 55dd7e059098ce4bd0a55c251cb78e74604abb57 as it
+> breaks network on my A20-olinuxino-lime2 hardware revision "K" which has
+> Micrel KSZ9031RNXCC-TR Gigabit PHY. Bastien has probably some previous
+> hardware revisions which were based on RTL8211E-VB-CG1 PHY and thus this
+> fix was working on his board.
 
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
-         | 1          =
+NAK.
 
-rk3399-gru-kevin    | arm64 | lab-collabora | gcc-10   | defconfig+arm64-ch=
-romebook | 1          =
+As Corentin mentioned in another discussion, new DT variant should be=20
+introduced for newer board model. Otherwise we can play this revert game wi=
+th=20
+each new revision which changes Ethernet PHY behaviour. It also makes most=
+=20
+sense to have naming chronologically sorted. If board name in DT file doesn=
+'t=20
+have any postfix, it should be compatible with earliest publicly available=
+=20
+board. If board manufacturer releases new board variant with incompatible=20
+changes, new DT with appropriate postfix should be introduced.
 
+I understand that this is frustrating for you, but whole situation around=20
+mentioned commit is unfortunate and we can't satisfy everyone.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
-nel/v5.16.14-122-g74c6b0438c08/plan/baseline/
+Also good way to solve such issues is to apply DT overlay in bootloader bas=
+ed=20
+on board revision number. I know Olimex implemented DT fixup in their=20
+downstream U-Boot fork.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.16
-  Describe: v5.16.14-122-g74c6b0438c08
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      74c6b0438c087c61c3d5e1260611c532c91c8dba =
+Best regards,
+Jernej
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6230aa60a960b4cd5ac62981
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g74c6b0438c08/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sal=
-vator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g74c6b0438c08/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sal=
-vator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6230aa60a960b4cd5ac62=
-982
-        new failure (last pass: v5.16.14-112-gba4f1fffbebe) =
-
- =
+>=20
+> Cc: stable@vger.kernel.org
+> Cc: Bastien Roucari=C3=A8s <rouca@debian.org>
+> References: https://github.com/openwrt/openwrt/issues/9153
+> References: https://github.com/OLIMEX/OLINUXINO/blob/master/HARDWARE/A20-=
+OLinuXino-LIME2/hardware_revision_changes_log.txt
+> Signed-off-by: Petr =C5=A0tetiar <ynezz@true.cz>
+> ---
+>  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/b=
+oot/
+dts/sun7i-a20-olinuxino-lime2.dts
+> index ecb91fb899ff..8077f1716fbc 100644
+> --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> @@ -112,7 +112,7 @@ &gmac {
+>  	pinctrl-names =3D "default";
+>  	pinctrl-0 =3D <&gmac_rgmii_pins>;
+>  	phy-handle =3D <&phy1>;
+> -	phy-mode =3D "rgmii-id";
+> +	phy-mode =3D "rgmii";
+>  	status =3D "okay";
+>  };
+> =20
+>=20
 
 
-
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-rk3399-gru-kevin    | arm64 | lab-collabora | gcc-10   | defconfig+arm64-ch=
-romebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6230a88eaf7ae55dcbc62991
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g74c6b0438c08/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g74c6b0438c08/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6230a88eaf7ae55dcbc629b5
-        failing since 7 days (last pass: v5.16.12-85-g060a81f57a12, first f=
-ail: v5.16.12-184-g8f38ca5a2a07)
-
-    2022-03-15T14:53:41.628034  /lava-5883583/1/../bin/lava-test-case   =
-
- =20
