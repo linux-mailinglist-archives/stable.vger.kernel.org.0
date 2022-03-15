@@ -2,147 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB64B4DA2B3
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 19:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1353A4DA2F7
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 20:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231664AbiCOSw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 14:52:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36818 "EHLO
+        id S1349577AbiCOTHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 15:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351195AbiCOSw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 14:52:56 -0400
-Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [IPv6:2001:4b98:dc4:8::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E15158839
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 11:51:41 -0700 (PDT)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id A5CEB100003;
-        Tue, 15 Mar 2022 18:51:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1647370300;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mtIJ/RT9AyMm2r6Q6e8jZJ4WZp0suD6YNlNWzDzCarw=;
-        b=WJ756feOVINa7LY3fsskeGvcAHj1xeB3HxgbrRLBh0R6GMXuiQbB38iwaPzVdkp6r6xnvX
-        cO8UxVpSBdHIIgImZEkGFsUC3O1H9VqmacH3+n1lNhtgz6/0jn/A3SmRr/MQNm2rI0X63G
-        U4Jeo9xn5c3/W9jj2aYisLpL7kVCJ/Hg4nVMl5o/fCbebU9X3bH1RhZGPVRRIn8Q5bqpgn
-        tN60yHSnY5jAioMbMCyzQUjnMX1rS/vKhD9/XHnNs0zp2hme5RPGVwLLVCa4wmyHIm0opc
-        astTmS/msm0ezUVFEpywNgnnJL20/jFX5ji3bbGr3nQyFQlk1/JUndzNfZ0mHw==
-Date:   Tue, 15 Mar 2022 19:51:37 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Tokunori Ikegami <ikegami.t@gmail.com>
-Cc:     linux-mtd@lists.infradead.org,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] mtd: cfi_cmdset_0002: Use chip_ready() for write
- on S29GL064N
-Message-ID: <20220315195137.6e371f8f@xps13>
-In-Reply-To: <20220315165607.390070-4-ikegami.t@gmail.com>
-References: <20220315165607.390070-1-ikegami.t@gmail.com>
-        <20220315165607.390070-4-ikegami.t@gmail.com>
-Organization: Bootlin
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        with ESMTP id S1351268AbiCOTGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 15:06:23 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495FB4A3E6
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 12:03:53 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id b8so268782pjb.4
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 12:03:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=FR8zuS8m7J+Uesy6qejEsMdVivdp2zT2G12qp9WWuXg=;
+        b=UzNoNKwvI/+cgFzlihhQj+fF2Fd9v9pdIND8KOi/SQp+HlFP9cNkdGkt+Q/rVsrj02
+         PhWGlU9m31h5bfZqgUAATZvZq0JVTs8ZexVPu8inLUakcSbKvan3jaoHuKnSX3+6nJ8w
+         7mFHpyDDWNPUb8i30nWWwcpKFXuENJBvP7zbP0/rB710tVGtVp6MiBPypsZWXWcityXZ
+         9c3+oUjIF/K4P2wuwB1YhyqtrfK+1w7r5CB/QmC5AJ8p9F2NESqZeng1wyd/OahRQMCY
+         j2pb1AbBxZ2tlhCUwF9jq3CV80qFWL3m+u9xJyKhXE7FxZDNnMrWIbwSOroiX06ak34m
+         MUTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=FR8zuS8m7J+Uesy6qejEsMdVivdp2zT2G12qp9WWuXg=;
+        b=2bYLkVWS2EMfDyPmui4US9ZNdHpPyzJqZEemW1N9d+nl3GWIOWcUmFDLvYXYqD0tHW
+         62t5ze2iMNK0GAk/N3jhHmC1O6K1qqzbURVwgh7/RA2VIhzGvDMk2UoraQXz2sbxGPuW
+         BqHIDv5vct62UtELGmOCnDB5lHzAsX/N9TsR/AcuvJ/diyps+PToGl2j0xFav0YaW/dZ
+         H7ck5yUY+ZZox27u8mf0Z6POYQhEniV3WST3pRZ/jvbQsOYsZni42O32uz1rgsJhEQPO
+         rvwtWlJ8vj6rbdWK+j/AgeEUeSJ+ex4kxKqh3lB58AWHpPDLpWxHhUfSA/XiuiPlyYoa
+         HV6Q==
+X-Gm-Message-State: AOAM532/YEkOrNgPhyxomtZZAvYD8sI/7qENLOXR/w3SZPyrZalARTHt
+        +F5VujVrfQt3Ozlyh+kMUEhaBWBVb/umHIzIMYE=
+X-Google-Smtp-Source: ABdhPJxYROhwiONXjC0Mzv6r4aKDyD96C05Huf4DSptjRC1MUdTjKvj8l/3UTuB5o/u7TTlNH/BQJQ==
+X-Received: by 2002:a17:90a:d584:b0:1b8:7864:1735 with SMTP id v4-20020a17090ad58400b001b878641735mr6190971pju.126.1647371029499;
+        Tue, 15 Mar 2022 12:03:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ic6-20020a17090b414600b001bf691499e4sm3748761pjb.33.2022.03.15.12.03.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Mar 2022 12:03:49 -0700 (PDT)
+Message-ID: <6230e315.1c69fb81.a1862.98ae@mx.google.com>
+Date:   Tue, 15 Mar 2022 12:03:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.234-29-g655878b7b44c
+Subject: stable-rc/queue/4.19 baseline: 65 runs,
+ 1 regressions (v4.19.234-29-g655878b7b44c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tokunori,
+stable-rc/queue/4.19 baseline: 65 runs, 1 regressions (v4.19.234-29-g655878=
+b7b44c)
 
-ikegami.t@gmail.com wrote on Wed, 16 Mar 2022 01:56:07 +0900:
+Regressions Summary
+-------------------
 
-> As pointed out by this bug report [1], the buffered write is now broken on
-
-                                       , buffered writes are now broken
-
-> S29GL064N. The reason is that changed the buffered write to use chip_good
-> instead of chip_ready.
-
-"This issue comes from a rework which switched from using chip_good()
-to chip_ready(), because <explain the difference here>."
-
-[please note I am just trying to understand what the root cause is,
-please rephrase if I'm wrong].
-
-> One way to solve the issue is to revert the change
-> partially to use chip_ready for S29GL064N since the way of least surprise.
-
-s/since the way of least surprise//
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
->=20
-> [1] https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengut=
-ronix.de/
->=20
-> Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check c=
-orrect value")
-> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-> Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-> Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Vignesh Raghavendra <vigneshr@ti.com>
-> Cc: linux-mtd@lists.infradead.org
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.234-29-g655878b7b44c/plan/baseline/
 
-I think you can get rid of all the above Cc: tags and just copy all 3
-of us + the mailing list when sending your v4.
-
-> Cc: stable@vger.kernel.org
-> ---
-
-Please also include a Fixes/stable tag in the patch before (2/3) to explain
-that both patches are required in order to fix the issue and the current pa=
-tch alone won't apply.
-
-You should mention that with a nice comment below the three dashes ("---") =
-in patch 2/3 as well.
-
->  drivers/mtd/chips/cfi_cmdset_0002.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
->=20
-> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_=
-cmdset_0002.c
-> index 8f3f0309dc03..fa11db066c99 100644
-> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
-> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-> @@ -867,10 +867,20 @@ static int __xipram chip_good(struct map_info *map,=
- struct flchip *chip,
->  	return chip_check(map, chip, addr, &expected);
->  }
-> =20
-> +static bool __xipram cfi_use_chip_ready_for_write(struct map_info *map)
-> +{
-> +	struct cfi_private *cfi =3D map->fldrv_priv;
-> +
-> +	return cfi->mfr =3D=3D CFI_MFR_AMD && cfi->id =3D=3D S29GL064N_MN12;
-> +}
-> +
->  static int __xipram chip_good_for_write(struct map_info *map,
->  					struct flchip *chip, unsigned long addr,
->  					map_word expected)
->  {
-> +	if (cfi_use_chip_ready_for_write(map))
-> +		return chip_ready(map, chip, addr);
-> +
->  	return chip_good(map, chip, addr, expected);
->  }
-> =20
-
-This is much more understandable.
-
-Vignesh, perhaps it would be better to provide a way for manufacturers
-to overload certain callbacks instead of applying quirks like this in
-the code. But that will come in a second time of course.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.234-29-g655878b7b44c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      655878b7b44c020a7017001d47fea4214a5600da =
 
 
-Thanks,
-Miqu=C3=A8l
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6230ae24627c3b338ac62976
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.234=
+-29-g655878b7b44c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.234=
+-29-g655878b7b44c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6230ae24627c3b338ac6299c
+        failing since 9 days (last pass: v4.19.232-31-g5cf846953aa2, first =
+fail: v4.19.232-44-gfd65e02206f4)
+
+    2022-03-15T15:17:42.805073  /lava-5883702/1/../bin/lava-test-case   =
+
+ =20
