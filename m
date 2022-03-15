@@ -2,140 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7B14DA42A
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 21:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 833E24DA42D
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 21:45:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240676AbiCOUo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 16:44:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
+        id S242341AbiCOUrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 16:47:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245528AbiCOUo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 16:44:28 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4503111155
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:43:15 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id p17so114517plo.9
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:43:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yxjdn/ayAL1ZNC9PTR76WcRnTWR3CwOriUZbgMnWU+U=;
-        b=lmVmzH8nQjPClIr7NARwegUE/AlrOFSyr79d8C/1eWI78fcJoImXS0IpAREafhWIeG
-         v3vuayRXSwMLiXNBa4hMhudVp7ygAJYTJ/Nbxp2pLbq+fnWlGa4X3Gfi0lXQT3VRoiPz
-         Y3Sp/MRGLwjO0k94K7EuryQVVJOYezJccDwlLaP4YAIM1MpJ6Ima3KlR/7PBXKeN3iWJ
-         yfYctTRyC2zt0I5w2ocznWawwFGIWIMVZpq4ypIvM8cPaT6R3B5CUkdG5rroaLZBhI3w
-         lGiZkNuxLDu26F6ri5NJ80ns1aIXyAMWDEdQowLaZQVHwOLNgJ40ZJo/arVBqOLLInbh
-         fSsg==
+        with ESMTP id S240589AbiCOUrE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 16:47:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A17401EAFD
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:45:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1647377150;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mfsuVWuQAKJg+F+zcfbiO96TVlca2UoPYtQW08E2LFI=;
+        b=hrGBSiHFRS79x+QCKlu8wlyGkCHjF72l5FPFa+Sh7jRsS5WW/4J4fcZDIJ2yWXBO6pNN+R
+        YZ5iDF2cmA8+FmDPjwnXT86CfZyuufzpOS2UgsfF86Q2GABPuqYqmBXBTcROCPuZdSt21K
+        Mx5g4I8tlraglyX1Ybi5Yasfchv9SfE=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-393-zdypxzTFO2SzPg8I6rL1ag-1; Tue, 15 Mar 2022 16:45:49 -0400
+X-MC-Unique: zdypxzTFO2SzPg8I6rL1ag-1
+Received: by mail-ed1-f69.google.com with SMTP id s7-20020a508dc7000000b0040f29ccd65aso158553edh.1
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:45:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yxjdn/ayAL1ZNC9PTR76WcRnTWR3CwOriUZbgMnWU+U=;
-        b=Lz/XHvS1am2qZsrXypC2Ah7RchpiVvcR6ZgdY++tgi01iwkqespmx+WbKAjx8v/Kwi
-         z80bL+YdUj/d19Hd5OjhKF7JaC36oh7fCm6K7uuRV+HndfQWBf9t3u43EkU97mZSFIa1
-         qZI+zOp8/crJO18ITwR5aZwbyfruOKb4ZJ5h/UpjRUO4/RqcONMPxEQ1saL6dJNQKIqR
-         w4ewkyJhGnOeEOLxHJJc9msJnkc/2B7TCQZmVeQH2sU39ONdJM9JVO+vutwy7yKh4Bbs
-         KHV7Dp5hzOzRIwNfQ2ykKO2ajczA3sBQLNq5qzNZWsNxzz/2I4c/4TDdQp8JZ2EKUihg
-         328w==
-X-Gm-Message-State: AOAM532w3chZgc5lBuabpUXwBdzpnu19YYWgvoKx03+VbKK5ncY8Ng8J
-        2RZAFrqEqSkW3vpuPkl4D0gPiMTselB+q39Ijvo=
-X-Google-Smtp-Source: ABdhPJw9Tvs59i9Eb8x7Qa39ciLD0b1GFO0NiDEl7RKqcfBcWiA/oaqL5pYOABlZ0iuW78sUwdMTlw==
-X-Received: by 2002:a17:90a:2c0b:b0:1be:da5a:b294 with SMTP id m11-20020a17090a2c0b00b001beda5ab294mr6616629pjd.9.1647376994572;
-        Tue, 15 Mar 2022 13:43:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id hk1-20020a17090b224100b001b8cff17f89sm84428pjb.12.2022.03.15.13.43.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 13:43:14 -0700 (PDT)
-Message-ID: <6230fa62.1c69fb81.679fc.0529@mx.google.com>
-Date:   Tue, 15 Mar 2022 13:43:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=mfsuVWuQAKJg+F+zcfbiO96TVlca2UoPYtQW08E2LFI=;
+        b=s2oL23WOyEZJD/aupe993oXQadKYvxWi3FgaP8Sf9kLWhuMb/iEVsozVH2xVUoVtDl
+         Fbir82kxgREudOia01T0/AxrplKR0ikT1ir+VOV6SihrLFe3rd83Lyx8ub1cv8/VFEmd
+         3cOKgeNrqjZrjp1kpmr4bwLtL+7fxXqipoBkXSxw02YycjZbJ8yNpXym12xupIBdOMWr
+         S+sSoaDvuHoijGTG03C3Vt4n2SJJZ8SdUyLYUSKIoUr33NJrepc2jVh3bZATbVu1xtJa
+         N3yQe61muq1DMdeo44dKAiIqkG/Pku+mp9KKwf8FKEdJZGj1MsZKTa079jER2iPCAKkV
+         tYTQ==
+X-Gm-Message-State: AOAM531Ig75wf6eiWaRxN1AYzOSvb7cYpfO3J/G9YMA5XT1WQjX88Ufs
+        G2NgwCD0jR0zKfflEurNPeoj0Xr5tYiM8CQ51r99+snr85uI8/W8B4GyUq6hgIwpPM/AcxGIh+b
+        0aV/kdGYcgYK+RiBf
+X-Received: by 2002:a05:6402:5243:b0:418:e5f7:7b1 with SMTP id t3-20020a056402524300b00418e5f707b1mr819108edd.153.1647377148301;
+        Tue, 15 Mar 2022 13:45:48 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwDVTf9id9co9geemsNRV2GfTX3x2HDSYveRlWEoLl0162igpVWp9eSdiYwBNBvHBG+KoHtcg==
+X-Received: by 2002:a05:6402:5243:b0:418:e5f7:7b1 with SMTP id t3-20020a056402524300b00418e5f707b1mr819095edd.153.1647377148096;
+        Tue, 15 Mar 2022 13:45:48 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
+        by smtp.googlemail.com with ESMTPSA id re21-20020a170906d8d500b006daf3718d0csm39570ejb.143.2022.03.15.13.45.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Mar 2022 13:45:47 -0700 (PDT)
+Message-ID: <fc0bca25-fbda-d489-5ad9-04db49cee205@redhat.com>
+Date:   Tue, 15 Mar 2022 21:45:45 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.105-71-gc7516cfcad00
-Subject: stable-rc/queue/5.10 baseline: 100 runs,
- 1 regressions (v5.10.105-71-gc7516cfcad00)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH RESEND 1/2] KVM: Prevent module exit until all VMs are
+ freed
+Content-Language: en-US
+To:     muriloo@linux.ibm.com, David Matlack <dmatlack@google.com>
+Cc:     kvm@vger.kernel.org, Marcelo Tosatti <mtosatti@redhat.com>,
+        Gleb Natapov <gleb@redhat.com>, Rik van Riel <riel@redhat.com>,
+        seanjc@google.com, bgardon@google.com, stable@vger.kernel.org,
+        farosas@linux.ibm.com
+References: <20220303183328.1499189-1-dmatlack@google.com>
+ <20220303183328.1499189-2-dmatlack@google.com>
+ <cb11c10b-0520-02ef-afb5-6f524847d67f@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <cb11c10b-0520-02ef-afb5-6f524847d67f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 100 runs, 1 regressions (v5.10.105-71-gc7516=
-cfcad00)
 
-Regressions Summary
--------------------
+On 3/15/22 16:43, Murilo Opsfelder Araújo wrote:
+>>
+>> +    if (!try_module_get(kvm_chardev_ops.owner)) {
+>> +        r = -ENODEV;
+>> +        goto out_err;
+>> +    }
+>> +
+> 
+> Doesn't this problem also affects the other functions called from
+> kvm_dev_ioctl()?
+> 
+> Is it possible that the module is removed while other ioctl's are
+> still running, e.g. KVM_GET_API_VERSION and KVM_CHECK_EXTENSION, even
+> though they don't use struct kvm?
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+No, because opening /dev/kvm also adds a reference to the module.  The 
+problem is that create_vm creates another source of references to the 
+module that can survive after /dev/kvm is closed.
 
+Paolo
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.105-71-gc7516cfcad00/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.105-71-gc7516cfcad00
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c7516cfcad009215a2372e61271b68dcb7c87801 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6230c97db2c8e0e25dc62976
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.105=
--71-gc7516cfcad00/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.105=
--71-gc7516cfcad00/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6230c97db2c8e0e25dc6299c
-        failing since 7 days (last pass: v5.10.103-56-ge5a40f18f4ce, first =
-fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-03-15T17:14:23.479246  <8>[   60.191419] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-15T17:14:24.501287  /lava-5884294/1/../bin/lava-test-case
-    2022-03-15T17:14:24.511888  <8>[   61.225342] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
