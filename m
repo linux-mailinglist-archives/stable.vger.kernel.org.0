@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08FB24D9CB7
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 14:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3984D9D9C
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 15:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245621AbiCON6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 09:58:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48676 "EHLO
+        id S240954AbiCOOd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 10:33:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347052AbiCON6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 09:58:39 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3913553E0F;
-        Tue, 15 Mar 2022 06:57:27 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 041FA1474;
-        Tue, 15 Mar 2022 06:57:27 -0700 (PDT)
-Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2236E3F66F;
-        Tue, 15 Mar 2022 06:57:26 -0700 (PDT)
-From:   James Morse <james.morse@arm.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, pavel@denx.de, catalin.marinas@arm.com,
-        linux-kernel@vger.kernel.org, james.morse@arm.com
-Subject: [stable:PATCH v5.10.105] arm64: kvm: Fix copy-and-paste error in bhb templates for v5.10 stable
-Date:   Tue, 15 Mar 2022 13:57:20 +0000
-Message-Id: <20220315135720.1302143-1-james.morse@arm.com>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S240614AbiCOOdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 10:33:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEBA55217
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 07:32:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00F3B60A3C
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 14:32:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8240CC340E8;
+        Tue, 15 Mar 2022 14:32:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647354732;
+        bh=e6jLf4LFTzrVUMUYPpmemHxtWqW96pvb4esRLRTtxVo=;
+        h=Subject:To:From:Date:From;
+        b=uGJj/1GLy+aze0ut17yVXVftI0MEBtPw+GyHLOEY9cGx2icFk41iiDlYBBWVAqMHG
+         w/bP8tCm9FDqMrc7WGF0ipjFH22uYyWzV6i2MoV8DXiu1EiwHx6O0NjRR7mSU1i6HT
+         3dlJjFoiUUbTxQQQaJdJSKs3k1Ejq9XMeQJzGnpo=
+Subject: patch "dt-bindings: usb: hcd: correct usb-device path" added to usb-testing
+To:     krzysztof.kozlowski@canonical.com, gregkh@linuxfoundation.org,
+        robh@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 15 Mar 2022 15:31:50 +0100
+Message-ID: <16473547108117@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -39,44 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-KVM's infrastructure for spectre mitigations in the vectors in v5.10 and
-earlier is different, it uses templates which are used to build a set of
-vectors at runtime.
 
-There are two copy-and-paste errors in the templates: __spectre_bhb_loop_k24
-should loop 24 times and __spectre_bhb_loop_k32 32.
+This is a note to let you know that I've just added the patch titled
 
-Fix these.
+    dt-bindings: usb: hcd: correct usb-device path
 
-Reported-by: Pavel Machek <pavel@denx.de>
-Link: https://lore.kernel.org/all/20220310234858.GB16308@amd/
-Signed-off-by: James Morse <james.morse@arm.com>
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 801109b1a37ad99784e6370cc7e462596f505ea3 Mon Sep 17 00:00:00 2001
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Date: Mon, 14 Mar 2022 19:18:30 +0100
+Subject: dt-bindings: usb: hcd: correct usb-device path
+
+The usb-device.yaml reference is absolute so it should use /schemas part
+in path.
+
+Fixes: 23bf6fc7046c ("dt-bindings: usb: convert usb-device.txt to YAML schema")
+Cc: <stable@vger.kernel.org>
+Reported-by: Rob Herring <robh@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20220314181830.245853-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/hyp/smccc_wa.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/usb/usb-hcd.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kvm/hyp/smccc_wa.S b/arch/arm64/kvm/hyp/smccc_wa.S
-index 24b281912463..533b0aa73256 100644
---- a/arch/arm64/kvm/hyp/smccc_wa.S
-+++ b/arch/arm64/kvm/hyp/smccc_wa.S
-@@ -68,7 +68,7 @@ SYM_DATA_START(__spectre_bhb_loop_k24)
- 	esb
- 	sub	sp, sp, #(8 * 2)
- 	stp	x0, x1, [sp, #(8 * 0)]
--	mov	x0, #8
-+	mov	x0, #24
- 2:	b	. + 4
- 	subs	x0, x0, #1
- 	b.ne	2b
-@@ -85,7 +85,7 @@ SYM_DATA_START(__spectre_bhb_loop_k32)
- 	esb
- 	sub	sp, sp, #(8 * 2)
- 	stp	x0, x1, [sp, #(8 * 0)]
--	mov	x0, #8
-+	mov	x0, #32
- 2:	b	. + 4
- 	subs	x0, x0, #1
- 	b.ne	2b
+diff --git a/Documentation/devicetree/bindings/usb/usb-hcd.yaml b/Documentation/devicetree/bindings/usb/usb-hcd.yaml
+index 56853c17af66..1dc3d5d7b44f 100644
+--- a/Documentation/devicetree/bindings/usb/usb-hcd.yaml
++++ b/Documentation/devicetree/bindings/usb/usb-hcd.yaml
+@@ -33,7 +33,7 @@ patternProperties:
+   "^.*@[0-9a-f]{1,2}$":
+     description: The hard wired USB devices
+     type: object
+-    $ref: /usb/usb-device.yaml
++    $ref: /schemas/usb/usb-device.yaml
+ 
+ additionalProperties: true
+ 
 -- 
-2.30.2
+2.35.1
+
 
