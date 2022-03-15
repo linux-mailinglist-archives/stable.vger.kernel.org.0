@@ -2,83 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 869CE4D9B39
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 13:29:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05EE74D9B47
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 13:32:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239994AbiCOMbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 08:31:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35768 "EHLO
+        id S1348332AbiCOMd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 08:33:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237425AbiCOMa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 08:30:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D622D53701;
-        Tue, 15 Mar 2022 05:29:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85EF7B8122D;
-        Tue, 15 Mar 2022 12:29:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4292C340ED;
-        Tue, 15 Mar 2022 12:29:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647347385;
-        bh=yu1IZzfDQbWy54cvNCINeIZqwhUe63idE+YJeXm73Og=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CapuCZmc1rLoomDXg3av9VkLre/R2z5lX0fJTda4v0qGKzMzg6oYxa2CZHmEw6dhH
-         VGnWzMHRQ7Wf6Xklg0oTYY6S/vFvu9Q5yJlHrk3LCOVGQyVL6Vy7NebX3NpZqSW05K
-         vF7Snkt4Ds/0fTMir4PXsuymBxWKEBj4YNXWoXlY=
-Date:   Tue, 15 Mar 2022 13:29:40 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     James Morse <james.morse@arm.com>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH 5.10 38/58] KVM: arm64: Allow indirect vectors to be used
- without SPECTRE_V3A
-Message-ID: <YjCGtM8INuLORSNb@kroah.com>
-References: <20220310140812.869208747@linuxfoundation.org>
- <20220310140813.956533242@linuxfoundation.org>
- <20220310234858.GB16308@amd>
- <YirvObKn0ADrEOk+@kroah.com>
- <ef538a31-5f73-dfc5-12a9-f5222514035c@arm.com>
+        with ESMTP id S1348331AbiCOMd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 08:33:27 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72E9553723;
+        Tue, 15 Mar 2022 05:32:15 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id i8so28748708wrr.8;
+        Tue, 15 Mar 2022 05:32:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=KM4XwBUogsooi4yJ541eYsrpo8lcj3lydQ59nOWeD14=;
+        b=Uy3jmElRUk9qhWFP2igEevDSL+gDln/8vwvBp2/IU5kg/4ONK/ZQ/t7HGiQlJZDNkY
+         ETwDffArvCDm78BP9Y6SJ36VkQEjfRlkTsamOsmy4amjX2WLOp2oVLA9ClzPWHTpzkm6
+         qqj67OQINwFr4DGBixQMc9d4ib4BlkHhSt2QX1RtzRbCIv0ExRvnPpxxWXn8JmLbvq2e
+         fmUfPNSy0Qwtf69WW2HdkIweNsge1WDYsYvM2qgAgPZiUqZCmRx3jFOcir0JeTUAzu7v
+         EMSQ94wPDrnN3FEMKAeaAwiLHZPQ+5O59zdGasDiIEgbpHfQPr52UqsCJjlP5gMuP/8u
+         03cQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=KM4XwBUogsooi4yJ541eYsrpo8lcj3lydQ59nOWeD14=;
+        b=UhZm4KYmX5kGy1ul0H7H/qcv5VkPnGPfYNltrxB4dqMIMW2kISzapck77/QCwniZk5
+         t/Sj/CCHHj3jWvs5XdZh3yOsMqIcFQ9blkgCWrIB0GXG1yYFTs7vLK2rMTZUCnQ1VhfW
+         u44PXvC/ZePzY70pgXA/KRspOZBcU0NsURH/udfiu/1RK5uGHss3wIUSA3xMHXc8x1Ci
+         LF9mwLsIQlvcEhj5Rcqje5DtO2wz8H4EbPxARK4GT/UGiz4chPienzrI1+aoe/BTdFZi
+         i+B8iymYBiP0wtMclRqbBrQ2P6kDW7woBGpluv2kjQtk58wpZNORu+sZVZdz5XNAkDu3
+         YmVw==
+X-Gm-Message-State: AOAM533E4BzJM622cNRDaEVR0/c8X0ciavOiI3r/P589qO/Up+W2I9ad
+        PixPACcDHcYtU3greEdBpZ4=
+X-Google-Smtp-Source: ABdhPJwdW3nEBCD7NgiE3+1XdBwDH/XokwsyFefqVd+z/2JH2X0m3QMELYZCYM36HZ9mL9luTOCxow==
+X-Received: by 2002:a5d:508d:0:b0:203:dac9:d301 with SMTP id a13-20020a5d508d000000b00203dac9d301mr143038wrt.441.1647347534080;
+        Tue, 15 Mar 2022 05:32:14 -0700 (PDT)
+Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
+        by smtp.gmail.com with ESMTPSA id i74-20020adf90d0000000b0020373ba7beesm25454610wri.0.2022.03.15.05.32.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Mar 2022 05:32:13 -0700 (PDT)
+Date:   Tue, 15 Mar 2022 12:32:11 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 000/110] 5.15.29-rc1 review
+Message-ID: <YjCHSwkhM8yEjloW@debian>
+References: <20220314112743.029192918@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ef538a31-5f73-dfc5-12a9-f5222514035c@arm.com>
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220314112743.029192918@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 15, 2022 at 12:20:31PM +0000, James Morse wrote:
-> Hi guys,
+Hi Greg,
+
+On Mon, Mar 14, 2022 at 12:53:02PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.29 release.
+> There are 110 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On 3/11/22 6:42 AM, Greg Kroah-Hartman wrote:
-> > On Fri, Mar 11, 2022 at 12:48:59AM +0100, Pavel Machek wrote:
-> > > What is going on here?
-> > > 
-> > > > commit 5bdf3437603d4af87f9c7f424b0c8aeed2420745 upstream.
-> > > 
-> > > Upstream commit 5bdf is very different from this. In particular,
-> > > 
-> > > >   arch/arm64/kvm/hyp/smccc_wa.S    |   66 +++++++++++++++++++++++++++++++++++++++
-> > > 
-> > > I can't find smccc_wa.S, neither in mainline, nor in -next. And it
-> > > looks buggy. I suspect loop_k24 should loop 24 times, but it does 8
-> > > loops AFAICT. Same problem with loop_k32.
-> 
-> Yup, that's a bug. Thanks for spotting it!
-> I'll post a replacement for this patch.
+> Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
+> Anything received after that time might be too late.
 
-That's going to be hard as this is now in a merged tree :(
+Build test:
+mips (gcc version 11.2.1 20220301): 62 configs -> no new failure
+arm (gcc version 11.2.1 20220301): 100 configs -> no new failure
+arm64 (gcc version 11.2.1 20220301): 3 configs -> no failure
+x86_64 (gcc version 11.2.1 20220301): 4 configs -> no failure
 
-Can you just send a fixup?
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+mips: Booted on ci20 board. No regression. [3]
 
-thanks,
+[1]. https://openqa.qa.codethink.co.uk/tests/883
+[2]. https://openqa.qa.codethink.co.uk/tests/886
+[3]. https://openqa.qa.codethink.co.uk/tests/888
 
-greg k-h
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
+
