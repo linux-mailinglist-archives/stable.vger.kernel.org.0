@@ -2,183 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89BCD4D9EED
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 16:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD1C84D9F01
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 16:45:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245453AbiCOPo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 11:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
+        id S1344752AbiCOPqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 11:46:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349696AbiCOPoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 11:44:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A838412A88;
-        Tue, 15 Mar 2022 08:43:42 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FEVL9X005682;
-        Tue, 15 Mar 2022 15:43:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : reply-to : subject : to : cc : references : from :
- in-reply-to : content-type : content-transfer-encoding; s=pp1;
- bh=459r01xmZlAP+2cSVQlS9UqVmJK+42DZpl6dRPzzILs=;
- b=lYEQBSfwgvrVjPkMY8vmVr8ZztqyEl74uZlG+Bu/MkfhC5eRK0E3KnthyyuOPeG328hL
- oFS9Jl2Udt7QNcgcoK/1DnyMR9IJvMY59aR8kY6W9b5eDH0HA+W4rpXTI5rHwfAfbvgy
- dRkVIrYZv65G7AdLDXltqq5lqN/W7MPKbgsSAKW8PW/5lweM0HUsZ6sMmd+KuqKCu3se
- GmRPAYIUJy3EPT+QOYuCtzVKQL1jrkEUDMAbgXhkM/KWdaNDbeR12K8UHGe195z38HXZ
- erpwfMpXyP6xZ1Ge6+Q2Bv7YuZCcZINL1rA4K8SQ5Bse+mFcEmL6h28bj4Y283/kRbEf Hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3etvbk26t8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 15:43:42 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FFe3BX017066;
-        Tue, 15 Mar 2022 15:43:41 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3etvbk26st-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 15:43:41 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FFXCIt001387;
-        Tue, 15 Mar 2022 15:43:40 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma05wdc.us.ibm.com with ESMTP id 3erk59x9qe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 15:43:40 +0000
-Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FFhdQ614287452
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Mar 2022 15:43:39 GMT
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 173E1C6065;
-        Tue, 15 Mar 2022 15:43:39 +0000 (GMT)
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 980E7C605F;
-        Tue, 15 Mar 2022 15:43:36 +0000 (GMT)
-Received: from [9.160.176.198] (unknown [9.160.176.198])
-        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTPS;
-        Tue, 15 Mar 2022 15:43:36 +0000 (GMT)
-Message-ID: <cb11c10b-0520-02ef-afb5-6f524847d67f@linux.ibm.com>
-Date:   Tue, 15 Mar 2022 12:43:34 -0300
+        with ESMTP id S236068AbiCOPqT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 11:46:19 -0400
+Received: from ssl.serverraum.org (ssl.serverraum.org [176.9.125.105])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1669713D6D;
+        Tue, 15 Mar 2022 08:45:05 -0700 (PDT)
+Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id DBBD622247;
+        Tue, 15 Mar 2022 16:45:01 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1647359103;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JfosakXBgjInItGIDwOVGdxA4oBENc+T56qzt13SnWQ=;
+        b=MLev/5zo+b0bVDICdH2Lq4/tsy6sprEVzbSMhpsrBkAujkGf53LA3rMnV472fgX0dR/ag9
+        cHKUdVSJYnmCxo1ddz1rvSwoFNLqiNOf0VdBQs9DgSzcPZ73qJKe5AHRahgj3pmBVRjHwF
+        4JF8NFtrRd7YQHCKHj6//h5MU5F2Utg=
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Firefox/91.0 Thunderbird/91.6.2
-Reply-To: muriloo@linux.ibm.com
-Subject: Re: [PATCH RESEND 1/2] KVM: Prevent module exit until all VMs are
- freed
-Content-Language: en-US
-To:     David Matlack <dmatlack@google.com>, pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, Marcelo Tosatti <mtosatti@redhat.com>,
-        Gleb Natapov <gleb@redhat.com>, Rik van Riel <riel@redhat.com>,
-        seanjc@google.com, bgardon@google.com, stable@vger.kernel.org,
-        farosas@linux.ibm.com
-References: <20220303183328.1499189-1-dmatlack@google.com>
- <20220303183328.1499189-2-dmatlack@google.com>
-From:   =?UTF-8?Q?Murilo_Opsfelder_Ara=c3=bajo?= <muriloo@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20220303183328.1499189-2-dmatlack@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bmcD82FCleoXPe_xRkh2OLyuTvBmgPBM
-X-Proofpoint-ORIG-GUID: xPOGm2O2ZRhdPuIZrcwqS2YAq_Xn5tRr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-15_03,2022-03-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
- malwarescore=0 priorityscore=1501 suspectscore=0 clxscore=1011
- lowpriorityscore=0 impostorscore=0 mlxscore=0 bulkscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203150101
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H5,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Date:   Tue, 15 Mar 2022 16:45:01 +0100
+From:   Michael Walle <michael@walle.cc>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>,
+        Saravana Kannan <saravanak@google.com>
+Cc:     Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
+        Andrew Chant <achant@google.com>,
+        Edmond Chung <edmondchung@google.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        regressions@lists.linux.dev,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        stable <stable@vger.kernel.org>,
+        Sergio Tanzilli <tanzilli@acmesystems.it>,
+        Thierry Reding <treding@nvidia.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
+        Will McVicker <willmcvicker@google.com>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Lars Povlsen <lars.povlsen@microchip.com>
+Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
+In-Reply-To: <CAMRc=MfH00YJv07TaiZ5z1w4gzqP5_8z9bKFcNU1Z37AVih4hQ@mail.gmail.com>
+References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
+ <20220314155509.552218-1-michael@walle.cc>
+ <CAMRc=MfH00YJv07TaiZ5z1w4gzqP5_8z9bKFcNU1Z37AVih4hQ@mail.gmail.com>
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <fe1ba600b2b30b4cba702d6aebdfda50@walle.cc>
+X-Sender: michael@walle.cc
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, David.
+[+ Saravana ]
 
-Some comments below.
+Am 2022-03-15 16:32, schrieb Bartosz Golaszewski:
+> On Mon, Mar 14, 2022 at 4:55 PM Michael Walle <michael@walle.cc> wrote:
+>> > Some GPIO lines have stopped working after the patch
+>> > commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+>> >
+>> > And this has supposedly been fixed in the following patches
+>> > commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
+>> > commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
+>> >
+>> > But an erratic behavior where some GPIO lines work while others do not work
+>> > has been introduced.
+>> >
+>> > This patch reverts those changes so that the sysfs-gpio interface works
+>> > properly again.
+>> >
+>> > Signed-off-by: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
+>> 
+>> This breaks the pinctrl-microchip-sgpio driver as far as I can see.
+>> 
+>> I tried to debug it and this is what I have discovered so far:
+>>  (1) the sgpio driver will use the gpio_stub_drv for its child nodes.
+>>      Looks like a workaround, see [1].
+>>  (2) these will have an empty gpio range
+>>  (3) with the changes of this patch, pinctrl_gpio_request() will now
+>>      be called and will fail with -EPROBE_DEFER.
+>> 
+>> I'm not exactly sure what to do here. Saravana Kannan once suggested
+>> to use devm_of_platform_populate() to probe the child nodes [2]. But
+>> I haven't found any other driver doing that.
 
-On 3/3/22 15:33, David Matlack wrote:
-> Tie the lifetime the KVM module to the lifetime of each VM via
-> kvm.users_count. This way anything that grabs a reference to the VM via
-> kvm_get_kvm() cannot accidentally outlive the KVM module.
+Oh I meant gpio/pinctrl drivers.
+
+> TI AEMIF driver (drivers/memory/ti-aemif.c) does something like this:
 > 
-> Prior to this commit, the lifetime of the KVM module was tied to the
-> lifetime of /dev/kvm file descriptors, VM file descriptors, and vCPU
-> file descriptors by their respective file_operations "owner" field.
-> This approach is insufficient because references grabbed via
-> kvm_get_kvm() do not prevent closing any of the aforementioned file
-> descriptors.
+> 406         if (np) {
+> 407                 for_each_available_child_of_node(np, child_np) {
+> 408                         ret = of_platform_populate(child_np, NULL,
+> 409                                                    dev_lookup, 
+> dev);
+> 410                         if (ret < 0) {
+> 411                                 of_node_put(child_np);
+> 412                                 goto error;
+> 413                         }
+> 414                 }
+> 415         } else if (pdata) {
+> 416                 for (i = 0; i < pdata->num_sub_devices; i++) {
+> 417                         pdata->sub_devices[i].dev.parent = dev;
+> 418                         ret =
+> platform_device_register(&pdata->sub_devices[i]);
+> 419                         if (ret) {
+> 420                                 dev_warn(dev, "Error register sub
+> device %s\n",
+> 421                                          
+> pdata->sub_devices[i].name);
+> 422                         }
+> 423                 }
+> 424         }
 > 
-> This fixes a long standing theoretical bug in KVM that at least affects
-> async page faults. kvm_setup_async_pf() grabs a reference via
-> kvm_get_kvm(), and drops it in an asynchronous work callback. Nothing
-> prevents the VM file descriptor from being closed and the KVM module
-> from being unloaded before this callback runs.
-> 
-> Fixes: af585b921e5d ("KVM: Halt vcpu if page it tries to access is swapped out")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Ben Gardon <bgardon@google.com>
-> [ Based on a patch from Ben implemented for Google's kernel. ]
-> Signed-off-by: David Matlack <dmatlack@google.com>
-> ---
->   virt/kvm/kvm_main.c | 8 ++++++++
->   1 file changed, 8 insertions(+)
-> 
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 35ae6d32dae5..b59f0a29dbd5 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -117,6 +117,8 @@ EXPORT_SYMBOL_GPL(kvm_debugfs_dir);
->   
->   static const struct file_operations stat_fops_per_vm;
->   
-> +static struct file_operations kvm_chardev_ops;
-> +
->   static long kvm_vcpu_ioctl(struct file *file, unsigned int ioctl,
->   			   unsigned long arg);
->   #ifdef CONFIG_KVM_COMPAT
-> @@ -1131,6 +1133,11 @@ static struct kvm *kvm_create_vm(unsigned long type)
->   	preempt_notifier_inc();
->   	kvm_init_pm_notifier(kvm);
->   
-> +	if (!try_module_get(kvm_chardev_ops.owner)) {
-> +		r = -ENODEV;
-> +		goto out_err;
-> +	}
-> +
+> A bunch of different devices (like NAND) get instantiated this way.
+> Would this work?
 
-Doesn't this problem also affects the other functions called from
-kvm_dev_ioctl()?
+I started to try this out, but then I was wondering if there weren't
+other gpio/pinctrl drivers with the same problem. And judging by the
+reports [1], I'd say there are. Then I wasn't sure if this is actually
+the correct fix here - or if that old workaround [2] doesn't work
+anymore because it might have that empty ranges "feature".
 
-Is it possible that the module is removed while other ioctl's are still running,
-e.g. KVM_GET_API_VERSION and KVM_CHECK_EXTENSION, even though they don't use
-struct kvm?
+To answer your question: I don't know. But I don't know if that is
+actually the correct way of fixing this either.
 
-I wonder if this try_module_get() (along with module_put() in the out path of
-the function) shouldn't be placed in the upper function kvm_dev_ioctl() so it
-would cover all the other ioctl's.
+>> Also, I'm not sure if there are any other other driver which get
+>> broken by this. I.e. ones falling into the gpio_stub_drv category.
+>> 
+>> [1] 
+>> https://lore.kernel.org/lkml/20210122193600.1415639-1-saravanak@google.com/
+>> [2] 
+>> https://lore.kernel.org/lkml/CAGETcx9PiX==mLxB9PO8Myyk6u2vhPVwTMsA5NkD-ywH5xhusw@mail.gmail.com/
+>> 
+>> -michael
+>> 
+>> NB. this patch doesn't contain a Fixes tag. Was this on purpose?
 
->   	return kvm;
->   
->   out_err:
-> @@ -1220,6 +1227,7 @@ static void kvm_destroy_vm(struct kvm *kvm)
->   	preempt_notifier_dec();
->   	hardware_disable_all();
->   	mmdrop(mm);
-> +	module_put(kvm_chardev_ops.owner);
->   }
->   
->   void kvm_get_kvm(struct kvm *kvm)
-> 
-> base-commit: b13a3befc815eae574d87e6249f973dfbb6ad6cd
-> prerequisite-patch-id: 38f66d60319bf0bc9bf49f91f0f9119e5441629b
-> prerequisite-patch-id: 51aa921d68ea649d436ea68e1b8f4aabc3805156
+-michael
 
--- 
-Murilo
+[1] https://lore.kernel.org/lkml/20220314192522.GA3031157@roeck-us.net/
+[2] 
+https://lore.kernel.org/lkml/20210122193600.1415639-1-saravanak@google.com/
