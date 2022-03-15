@@ -2,68 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A874DA4EF
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 22:55:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E0584DA538
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 23:21:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237315AbiCOV4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 17:56:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
+        id S239396AbiCOWWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 18:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234311AbiCOV4s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 17:56:48 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79185C34D
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 14:55:35 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id d19so1068396pfv.7
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 14:55:35 -0700 (PDT)
+        with ESMTP id S234097AbiCOWWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 18:22:08 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCFE15C656;
+        Tue, 15 Mar 2022 15:20:55 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id t2so1132050pfj.10;
+        Tue, 15 Mar 2022 15:20:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oXiGTEuakDi6scceVyLYH4uzypVcynDgxtyK6s5vtKA=;
-        b=DLhQQ6kz7m8e1jlTZl8iiSJ7LPZV44T0yCSSWzrH1yGRBUQ2hs7Jl3Qld9pgyhk6wz
-         arsPox3wYcniQcIHbh87PROF+EnB+2e3J/1nx5nJXRaBrguCpWi0zM0ksO0f4xyEcGtz
-         0fcfHyCBxBiwKVQlTC5rVAU0XDoe8QXExtZggSb72VWjtJ4q+PtYwnbx/MFIenXVkRK5
-         XnaMJBqOfbFg/4Q4q86H4VWmCDrq64S9uPeiIKrRsBNskqcJNQjTRl2G/oyuwnuMHpUd
-         2H94h2xFpXG+eQXcISlxQVErgnL1WAUnNYtfO5i4RMR2kzaP9F2hWWITqxzWUkK2XNDW
-         e1qA==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=84kFTOf9/F1bpdxHLGKdmzF1pTCG4mq3396ASbcsPH0=;
+        b=S6cKaJtz5ujUV0DCCwnZC3p3N4rVdwVp2PLbBPZAmCuTZTB0i6HNT8QMptZSHmuGkp
+         lsv0iFjmSkdLqJcNKzqKUUDyvKpS9W34al05N1tqh39whL1PwZIZsOdUwqHJQKCJe8gn
+         YlzqJQfNKUMiwF9PIELmslwzxkeICml7G7Epms9FgQC0Ap5rqviMF6GX3Xn4dtNx4px5
+         ZrQvK8E9518ngBf5PwMEGXnaOyWOz9kcHkL4lnPNZn+k3/MwY33VpSlnkLQoEeTDwIcu
+         VMjI7mBxz28QWTqH64lJj2AZZWZIC2a28yJvuEMcq0ZQtQwN0Nmtuy9X9nBWm4H5PIJL
+         JttQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oXiGTEuakDi6scceVyLYH4uzypVcynDgxtyK6s5vtKA=;
-        b=vdrOuIPqa/AiTGr/R4Xgqa/h3mNI3RDp3k1dL2yrS165h13uWLKn2gZEvzRKkhp36t
-         orSEYtyXqJbbFhuG2pjGVGb05Ggx0QbpDnAHHEMnAiDvHWZbDF0DUJWEGj3+aRYBc7gy
-         by9bbsJEqzHyOusqULf3C4ki/GyFFs2D9SNiZOHLyidGhMCOIDbpbBEfoii/3OyNUXXb
-         QQdzDuDtlWx3wYxBqHsQdG6BjmfsYZ0fRlDNOAmHiv0MUynp36R3Pjcm9zidH1jRrAjs
-         Ow9bv+Jb/lPUhQwDWu6WUgDrs+VNdzXkzxPldMZuulpeG4VOjT7Tz1jh8slZIsNpOAnQ
-         vCnA==
-X-Gm-Message-State: AOAM53210/0d+P5k4xZTlF3zbBnbA9+5B5Qyoe3OGASdyhbNxPNsrDRp
-        mSi630uDnM9fAJjMUbWPX9X83Q==
-X-Google-Smtp-Source: ABdhPJwro/vpzubWkVZcJnMDYIdf7YnWMqIo5RLALOtqUrccJBPKoDhHL61E3KesdUUsn9sTC4Htcw==
-X-Received: by 2002:a05:6a00:a23:b0:4f6:72a8:20c7 with SMTP id p35-20020a056a000a2300b004f672a820c7mr30540640pfh.12.1647381335253;
-        Tue, 15 Mar 2022 14:55:35 -0700 (PDT)
-Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id p17-20020a639511000000b0038108d69e8fsm187880pgd.53.2022.03.15.14.55.34
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=84kFTOf9/F1bpdxHLGKdmzF1pTCG4mq3396ASbcsPH0=;
+        b=tWDOAwkwH85GK5Ov1wuSowdk+anP06aUWf43v6mrXwvXM5PHW0HMnr6SZVZ+3dYvAD
+         OaPBfN7FHG9W/jPow3v3JAlgljde3+9G56YuKRS056n9dRYrNW64z/o4Kq8S3dJI0/vP
+         qfuINNIwAowLeUTfX7h3ouqv4NIPOgExo277L6xGT/J/nyg7c9N2j8VUFHnr4AMovT3z
+         a1jVsZToJOaPPQvR4AG+GtaJh2P3GE7MUaj+kCIvRGTDSt++OMJaoHcAC6eFeaVfp1CP
+         KaOPcYc3+O/1ksX/2v8G4e4xgx3oDRngR/chJPtpnMNtoUxcpXC521j/yS8fHqCTx+V0
+         Nx2A==
+X-Gm-Message-State: AOAM530iBwvoH+kN/VpI4E21TnkGmtMyOqnOZ+O5SSBfZqwJXF5FLJy8
+        6P/hFQ3XTRqXiRDduySPCuE=
+X-Google-Smtp-Source: ABdhPJxPhbkHWHq5TAaAy1B2Kg+asrvXDmUsyIHvqWnKaqzN5CfQMU5J53F1xwWQl7jWU5H2aeS6jA==
+X-Received: by 2002:a65:424a:0:b0:375:6d8b:8d44 with SMTP id d10-20020a65424a000000b003756d8b8d44mr26272327pgq.170.1647382855304;
+        Tue, 15 Mar 2022 15:20:55 -0700 (PDT)
+Received: from google.com ([2620:15c:211:201:7484:dc22:fe49:91cb])
+        by smtp.gmail.com with ESMTPSA id y32-20020a056a001ca000b004fa201a613fsm85131pfw.196.2022.03.15.15.20.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 14:55:34 -0700 (PDT)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     tytso@mit.edu
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        linux-ext4@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
-Subject: [PATCH v2] ext4: check if offset+length is valid in fallocate
-Date:   Tue, 15 Mar 2022 14:54:39 -0700
-Message-Id: <20220315215439.269122-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.35.1
+        Tue, 15 Mar 2022 15:20:54 -0700 (PDT)
+Sender: Minchan Kim <minchan.kim@gmail.com>
+Date:   Tue, 15 Mar 2022 15:20:52 -0700
+From:   Minchan Kim <minchan@kernel.org>
+To:     Charan Teja Kalla <quic_charante@quicinc.com>
+Cc:     akpm@linux-foundation.org, surenb@google.com, vbabka@suse.cz,
+        rientjes@google.com, sfr@canb.auug.org.au, edgararriaga@google.com,
+        nadav.amit@gmail.com, mhocko@suse.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, "# 5 . 10+" <stable@vger.kernel.org>
+Subject: Re: [PATCH V2,1/2] mm: madvise: return correct bytes advised with
+ process_madvise
+Message-ID: <YjERRJn/2GZOt4b7@google.com>
+References: <cover.1647008754.git.quic_charante@quicinc.com>
+ <125b61a0edcee5c2db8658aed9d06a43a19ccafc.1647008754.git.quic_charante@quicinc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <125b61a0edcee5c2db8658aed9d06a43a19ccafc.1647008754.git.quic_charante@quicinc.com>
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SCC_BODY_URI_ONLY,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,72 +75,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot found an issue [1] in ext4_fallocate().
-The C reproducer [2] calls fallocate(), passing size 0xffeffeff000ul,
-and offset 0x1000000ul, which, when added together exceed the disk size,
-and trigger a BUG in ext4_ind_remove_space() [3].
-According to the comment doc in ext4_ind_remove_space() the 'end' block
-parameter needs to be one block after the last block to remove.
-In the case when the BUG is triggered it points to the last block on
-a 4GB virtual disk image. This is calculated in
-ext4_ind_remove_space() in [4].
-This patch adds a check that ensure the length + offest to be
-within the valid range and returns -ENOSPC error code in case
-it is invalid.
-
-LINK: [1] https://syzkaller.appspot.com/bug?id=b80bd9cf348aac724a4f4dff251800106d721331
-LINK: [2] https://syzkaller.appspot.com/text?tag=ReproC&x=14ba0238700000
-LINK: [3] https://elixir.bootlin.com/linux/v5.17-rc8/source/fs/ext4/indirect.c#L1244
-LINK: [4] https://elixir.bootlin.com/linux/v5.17-rc8/source/fs/ext4/indirect.c#L1234
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: Ritesh Harjani <riteshh@linux.ibm.com>
-Cc: <linux-ext4@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-
-Fixes: a4bb6b64e39a ("ext4: enable "punch hole" functionality")
-Reported-by: syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
---
-v2: Change sbi->s_blocksize to inode->i_sb->s_blocksize in maxlength
- computation.
----
- fs/ext4/inode.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 01c9e4f743ba..355384007d11 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3924,7 +3924,8 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
- 	struct super_block *sb = inode->i_sb;
- 	ext4_lblk_t first_block, stop_block;
- 	struct address_space *mapping = inode->i_mapping;
--	loff_t first_block_offset, last_block_offset;
-+	loff_t first_block_offset, last_block_offset, max_length;
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	handle_t *handle;
- 	unsigned int credits;
- 	int ret = 0, ret2 = 0;
-@@ -3967,6 +3968,16 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
- 		   offset;
- 	}
- 
-+	/*
-+	 * For punch hole the length + offset needs to be at least within
-+	 * one block before last
-+	 */
-+	max_length = sbi->s_bitmap_maxbytes - inode->i_sb->s_blocksize;
-+	if (offset + length >= max_length) {
-+		ret = -ENOSPC;
-+		goto out_mutex;
-+	}
-+
- 	if (offset & (sb->s_blocksize - 1) ||
- 	    (offset + length) & (sb->s_blocksize - 1)) {
- 		/*
--- 
-2.35.1
-
+On Fri, Mar 11, 2022 at 08:59:05PM +0530, Charan Teja Kalla wrote:
+> The process_madvise() system call returns error even after processing
+> some VMA's passed in the 'struct iovec' vector list which leaves the
+> user confused to know where to restart the advise next. It is also
+> against this syscall man page[1] documentation where it mentions that
+> "return value may be less than the total number of requested bytes, if
+> an error occurred after some iovec elements were already processed.".
+> 
+> Consider a user passed 10 VMA's in the 'struct iovec' vector list of
+> which 9 are processed but one. Then it just returns the error caused on
+> that failed VMA despite the first 9 VMA's processed, leaving the user
+> confused about on which VMA it is failed. Returning the number of bytes
+> processed here can help the user to know which VMA it is failed on and
+> thus can retry/skip the advise on that VMA.
+> 
+> [1]https://man7.org/linux/man-pages/man2/process_madvise.2.html.
+> 
+> Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
+> Cc: <stable@vger.kernel.org> # 5.10+
+> Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
