@@ -2,51 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22EF94DA5D5
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 23:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EA7E4DA5EE
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 00:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237649AbiCOW7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 18:59:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47506 "EHLO
+        id S1352484AbiCOXEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 19:04:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352433AbiCOW7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 18:59:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED89A4C418;
-        Tue, 15 Mar 2022 15:58:39 -0700 (PDT)
+        with ESMTP id S1344119AbiCOXEx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 19:04:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E793E2AC7;
+        Tue, 15 Mar 2022 16:03:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A985614A4;
-        Tue, 15 Mar 2022 22:58:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DEF8C340E8;
-        Tue, 15 Mar 2022 22:58:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1647385119;
-        bh=nAaYL5YjCg97b7NBxM3k75M3xEa2Xha1to1xC1/Cx0E=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=GYvfeIORbleDqEAFiLNYtWqvdjKjkaNBDGOq6DzMhVo9mDsIVxLE4o3mgIC5tUR6E
-         5yojWb/x1d0ZA5xiCcuGAzNq2Yx3k0eQt+i2ocKA3Yv1Kx0P0Njjwos8KdjTEnoh6c
-         /9zvEUx+SFWPDb9NyMOFImyK9MMjtyRD16u0mxTQ=
-Date:   Tue, 15 Mar 2022 15:58:37 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Dong Aisheng <aisheng.dong@nxp.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, dongas86@gmail.com,
-        shawnguo@kernel.org, linux-imx@nxp.com, m.szyprowski@samsung.com,
-        lecopzer.chen@mediatek.com, david@redhat.com, vbabka@suse.cz,
-        stable@vger.kernel.org, shijie.qin@nxp.com
-Subject: Re: [PATCH v3 1/2] mm: cma: fix allocation may fail sometimes
-Message-Id: <20220315155837.2dcef6eb226ad74e37ca31ca@linux-foundation.org>
-In-Reply-To: <20220315144521.3810298-2-aisheng.dong@nxp.com>
-References: <20220315144521.3810298-1-aisheng.dong@nxp.com>
-        <20220315144521.3810298-2-aisheng.dong@nxp.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93079B8190D;
+        Tue, 15 Mar 2022 23:03:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD318C340E8;
+        Tue, 15 Mar 2022 23:03:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647385417;
+        bh=TzB71EHsQSxi9ycyQW305aKb38kU4PoZa65+ZUbL93c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gxcMWeCpBQjsYX9XnajV96+qEiT05QvvAx+rpLrcAIzeNueu3XWZgwe1bu+82MSBo
+         8QtaTDP9fJx5OgfCXARIFUexLMi0jPJs/vNLyeFZqi1jS8CkFc0ovgc57dSyCUNkOW
+         EaGMwjv3hwlNYVX/NmwlmTf7otRdnACrkJEFDFsl2nqjvl01R5QjRk3a5rO2gsXXPP
+         rAY9iKskfNSakrlT0SzC7D+j1L3AG8RJRn1nH9ENRUJ+KeoaiPR+qQyQt2K4Jcmx28
+         W7FavvnKY13dgKnurZpxAFG/STrJFbgl9ESVSWN0O3sFE1hLCsPzbip00dWz2/B2Z0
+         jKUsesoPwf9cQ==
+Received: by pali.im (Postfix)
+        id F1C44824; Wed, 16 Mar 2022 00:03:33 +0100 (CET)
+Date:   Wed, 16 Mar 2022 00:03:33 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Marcin Wojtas <mw@semihalf.com>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Ziji Hu <huziji@marvell.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Grzegorz Jaszczyk <jaz@semihalf.com>,
+        Tomasz Nowicki <tn@semihalf.com>,
+        Kostya Porotchkin <kostap@marvell.com>,
+        Alex Leibovich <alexl@marvell.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
+Message-ID: <20220315230333.eyznbu5tuxneizbs@pali>
+References: <20201211141656.24915-1-mw@semihalf.com>
+ <CAPDyKFqsSO+f9iG8vccwXZXDDNHgLEg7bfUe-KfHn2C-ZnOU4A@mail.gmail.com>
+ <20220314154033.4x74zscayee32rrj@pali>
+ <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
+User-Agent: NeoMutt/20180716
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,41 +68,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 15 Mar 2022 22:45:20 +0800 Dong Aisheng <aisheng.dong@nxp.com> wrote:
+Hello!
 
-> --- a/mm/cma.c
-> +++ b/mm/cma.c
->
-> ...
->
-> @@ -457,6 +458,16 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
->  				offset);
->  		if (bitmap_no >= bitmap_maxno) {
->  			spin_unlock_irq(&cma->lock);
-> +			pr_debug("%s(): alloc fail, retry loop %d\n", __func__, loop++);
-> +			/*
-> +			 * rescan as others may finish the memory migration
-> +			 * and quit if no available CMA memory found finally
-> +			 */
-> +			if (start) {
-> +				schedule();
-> +				start = 0;
-> +				continue;
-> +			}
->  			break;
+On Monday 14 March 2022 16:51:25 Marcin Wojtas wrote:
+> Hi Pali,
+> 
+> 
+> pon., 14 mar 2022 o 16:40 Pali Rohár <pali@kernel.org> napisał(a):
+> >
+> > On Monday 11 January 2021 19:06:24 Ulf Hansson wrote:
+> > > On Fri, 11 Dec 2020 at 15:17, Marcin Wojtas <mw@semihalf.com> wrote:
+> > > >
+> > > > From: Alex Leibovich <alexl@marvell.com>
+> > > >
+> > > > Automatic Clock Gating is a feature used for the power
+> > > > consumption optimisation. It turned out that
+> > > > during early init phase it may prevent the stable voltage
+> > > > switch to 1.8V - due to that on some platfroms an endless
+> > > > printout in dmesg can be observed:
+> > > > "mmc1: 1.8V regulator output did not became stable"
+> > > > Fix the problem by disabling the ACG at very beginning
+> > > > of the sdhci_init and let that be enabled later.
+> > > >
+> > > > Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC core functionality")
+> > > > Signed-off-by: Alex Leibovich <alexl@marvell.com>
+> > > > Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+> > > > Cc: stable@vger.kernel.org
+> > >
+> > > Applied for fixes (by fixing the typos), thanks!
+> >
+> > Hello!
+> >
+> > Is not this patch address same issue which was fixed by patch which was
+> > merged earlier?
+> >
+> > bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying 1.8V regulator warning")
+> > https://lore.kernel.org/linux-mmc/CAPDyKFqAsvgAjfL-c9ukFNWeGJmufQosR2Eg9SKjXMVpNitdkA@mail.gmail.com/
+> >
+> 
+> This indeed look similar. This fix was originally developed for CN913x
+> platform without the mentioned patch (I'm wondering if it would also
+> suffice to fix A3k board's problem). Anyway, I don't think we have an
+> issue here, as everything seems to work fine on top of mainline Linux
+> with both changes.
 
-The schedule() is problematic.  For a start, we'd normally use
-cond_resched() here, so we avoid calling the more expensive schedule()
-if we know it won't perform any action.
+Yea, there should be no issue. Just question is if we need _both_ fixes.
 
-But cond_resched() is problematic if this thread has realtime
-scheduling policy and the process we're waiting on does not.  One way
-to address that is to use an unconditional msleep(1), but that's still
-just a hack.
+I could probably try to revert bb32e1987bc5 and check what happens on
+A3k board.
 
-A much cleaner solution is to use appropriate locking so that various
-threads run this code in order, without messing each other up.
-
-And it looks like the way to do that is to simply revert the commit
-which caused this regression, a4efc174b382 ("mm/cma.c: remove redundant
-cma_mutex lock")?
+> Best regards,
+> Marcin
+> 
+> > > Kind regards
+> > > Uffe
+> > >
+> > >
+> > > > ---
+> > > >  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
+> > > >  1 file changed, 6 insertions(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
+> > > > index c67611fdaa8a..4b05f6fdefb4 100644
+> > > > --- a/drivers/mmc/host/sdhci-xenon.c
+> > > > +++ b/drivers/mmc/host/sdhci-xenon.c
+> > > > @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sdhci_host *host,
+> > > >         /* Disable tuning request and auto-retuning again */
+> > > >         xenon_retune_setup(host);
+> > > >
+> > > > -       xenon_set_acg(host, true);
+> > > > +       /*
+> > > > +        * The ACG should be turned off at the early init time, in order
+> > > > +        * to solve a possile issues with the 1.8V regulator stabilization.
+> > > > +        * The feature is enabled in later stage.
+> > > > +        */
+> > > > +       xenon_set_acg(host, false);
+> > > >
+> > > >         xenon_set_sdclk_off_idle(host, sdhc_id, false);
+> > > >
+> > > > --
+> > > > 2.29.0
+> > > >
