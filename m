@@ -2,151 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7604DA15D
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 18:35:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68E964DA183
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 18:45:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243158AbiCORgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 13:36:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44950 "EHLO
+        id S1350699AbiCORqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 13:46:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350556AbiCORgS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 13:36:18 -0400
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA07035DF8
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 10:35:05 -0700 (PDT)
-Received: by mail-yb1-xb32.google.com with SMTP id j2so36134ybu.0
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 10:35:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9cxe7F0Mm0a6AxqMIeIGWlQ8NeF1GaRTfZXWG+OuJgM=;
-        b=O5uIOAbth+QHgV6WFWP4rYQGes8fCDwvedy6aLvQIIzDYGotbwM9UQGzboKlj6XLQA
-         CiK+gyk2qrziLafVjDNSCsbTUkdDx44N9QMU3QQP7/vwON6dt9baTp9iCCJl22hHNd3C
-         LsveuF1p2i6QRzRRv1UmMqMyphy1oBu/ZWTDCjstTPvc+tOAxbgJPgFSz0krTq/yAwmw
-         m1n7BnE7gzC7CFRtsX5I0o9kdMHMZpYg3nx0563lmtd0CEnG1rdphkqdzndQiFG0CQ0I
-         umBFWgxoXha55Gb4J5Yq96gxspBqM/FqVf2CVM1HF1zjC5UwEco3EpLd2TJNnZQuXpBk
-         idBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9cxe7F0Mm0a6AxqMIeIGWlQ8NeF1GaRTfZXWG+OuJgM=;
-        b=beDLns6IEZX6lQTDkr/swXkE6cXt7rhMZleBjoJqSyE9uMAl+a2TDUtoro4U74Rv75
-         CKN+76PsgJ13DD+1+9lm/NDc/AdCcbu4fCDtrds/4+7xEiTk/qRsSYFxSzaJjlwt4FDY
-         A0RXdri4lWj8AvZ+ovirTF32cabq8gylXh/c75JCm3F0Viopni5Z0M2PqHhuWHTrduDa
-         nda2TKCWZnaqNg93Rm6yMH/j/kB10kAFRPt51ebT9U4L9lWJ3F7p+19KLeqYBKe4bFF4
-         OrwhuYcHeXKmAA1UvS5zU0qD7WoB9TQ8UF0Q7V/bFRBsOtmy7qEZNH08Jod9XZVcyh1k
-         vrVQ==
-X-Gm-Message-State: AOAM530SZbn6jCj0LwaTnXTSPtv4CXYFsReVcGrbY6X/SAH0zlOhPu5P
-        B82GbM0uwE7KtagSexMdqeCjX6cIBVqURyYuExP0MQ==
-X-Google-Smtp-Source: ABdhPJy2I0TVZS5JR6nWQ7Hm2iBK4LhRnGmfmQjqOgBqQmAQT7V/PxHh9ME1T3aj5Vwgcnx8sRTSPFrKPGPugrJLIBA=
-X-Received: by 2002:a25:be8b:0:b0:61a:6cf9:7ea6 with SMTP id
- i11-20020a25be8b000000b0061a6cf97ea6mr24909198ybk.309.1647365704939; Tue, 15
- Mar 2022 10:35:04 -0700 (PDT)
+        with ESMTP id S238809AbiCORqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 13:46:44 -0400
+Received: from mail1.bemta31.messagelabs.com (mail1.bemta31.messagelabs.com [67.219.246.113])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C72E4F9DF;
+        Tue, 15 Mar 2022 10:45:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
+        s=Selector; t=1647366330; i=@motorola.com;
+        bh=5E5zxINeV0hdwni5VHVJAAVrPJoXGXxiqslzNvn1vRQ=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:
+         Content-Transfer-Encoding;
+        b=S/7dLSZKO7q9C3Drqhco+gKO2kfp9BF+Svlq8G0SdZgsZJHJc1GVToJRqEI1bZCRY
+         YlXH9bzphBxkPhNhwTDg/m6nGOOjoRwTWPNLsGrEtb0oF1QHVIn4QY0teNXI7ON8+G
+         pOTy/kP1gij4k4TCAVbGLB7r13CnOy+wWBloO05N7sqIgJ2SHUcoTgRJvNQ0yJgJFN
+         HvwntMXi6NjggcENRzR/Mil/u7X8/iAyxZGbV7HNOi9BHMm1dNovMJ8KHpxJLnibmU
+         eoPeE17kes2hYWZqCy9SVOz/6iYt0rfHsZAOYwXfByFqoLZoXUdduA77l66UsrhdJp
+         0Ve/mYzI7zaig==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrIIsWRWlGSWpSXmKPExsUyYU+Ds+6uCwZ
+  JBuuULI61PWG3aF68ns2ic+ISdovLu+awWSxa1spssWDjI0YHNo/ZHTNZPTat6mTz2D93DbvH
+  501yASxRrJl5SfkVCawZixcXF3zjr5i/4SdbA+Mn3i5GLg4hgWlMEjcP9LBCOEuYJO62r2XvY
+  uTkYBNQk1jwehUziC0iICtx+MpvMJtZ4DmjxO9+ZRBbWMBfYseJmYwgNouAqkT77FUsIDavgI
+  XEvG9PwOISAvISp5YdZIKIC0qcnPmEBWKOvETz1tnMExi5ZyFJzUKSWsDItIrRIqkoMz2jJDc
+  xM0fX0MBA19DQRNdE11wvsUo3Ua+0WDc1sbhE11AvsbxYL7W4WK+4Mjc5J0UvL7VkEyMw9FKK
+  WNh3MK7t+al3iFGSg0lJlLew3CBJiC8pP6UyI7E4I76oNCe1+BCjDAeHkgTv7rNAOcGi1PTUi
+  rTMHGAcwKQlOHiURHhXHgNK8xYXJOYWZ6ZDpE4x6nI8vXplL7MQS15+XqqUOG/PeaAiAZCijN
+  I8uBGwmLzEKCslzMvIwMAgxFOQWpSbWYIq/4pRnINRSZj3EsgUnsy8ErhNr4COYAI6Yp60Hsg
+  RJYkIKakGprXfGR7mGBgIzH9fvaX6u6PWlnB/2wkpH1yXhxR8/i2hMeEVq/ZOsUcSh+53JJ0s
+  trbk/yTyTEZHbIszT+DfcNOtnewRVaVi775Mrf417f7Tg+l9ikuizes+SDUdr/078/GM2G3zS
+  tN7S8I371wwjy3svcRSsaoNnzfbuplI27WZvfn44Iee8aQpMkLmjAvail762ovl+YSszxUt5z
+  /vdfvjNj1jfraNQXsf8bpmWpXJs/vtWbXmsqlUFqfX5durYp81ewW5pkrsLVmwZf30yQpJc24
+  e9/p9OFPQ/EdBAKvGKaanfUt22cz0UrAOfHamNFrYlL8hWTtNNWaNata7St3XOrIqjCtrwyZd
+  K21XYinOSDTUYi4qTgQAkRt2mUQDAAA=
+X-Env-Sender: w36195@motorola.com
+X-Msg-Ref: server-5.tower-706.messagelabs.com!1647366329!9570!1
+X-Originating-IP: [144.188.128.67]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.81.9; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 9506 invoked from network); 15 Mar 2022 17:45:29 -0000
+Received: from unknown (HELO ilclpfpp01.lenovo.com) (144.188.128.67)
+  by server-5.tower-706.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 15 Mar 2022 17:45:29 -0000
+Received: from va32lmmrp02.lenovo.com (va32lmmrp02.mot.com [10.62.176.191])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by ilclpfpp01.lenovo.com (Postfix) with ESMTPS id 4KJ15j41nvzfBZq;
+        Tue, 15 Mar 2022 17:45:29 +0000 (UTC)
+Received: from p1g3.. (unknown [10.45.4.46])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: w36195)
+        by va32lmmrp02.lenovo.com (Postfix) with ESMTPSA id 4KJ15j0VzSzf6Wf;
+        Tue, 15 Mar 2022 17:45:29 +0000 (UTC)
+From:   Dan Vacura <w36195@motorola.com>
+To:     linux-usb@vger.kernel.org
+Cc:     stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] usb: gadget: uvc: Fix crash when encoding data for usb request
+Date:   Tue, 15 Mar 2022 12:41:46 -0500
+Message-Id: <20220315174146.27155-1-w36195@motorola.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-References: <20220314145920.247358804@linuxfoundation.org>
-In-Reply-To: <20220314145920.247358804@linuxfoundation.org>
-From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
-Date:   Tue, 15 Mar 2022 13:34:28 -0400
-Message-ID: <CAG=yYwktdQ1Ep0r=VKitta=1gWrNN1Wi0Ft9t0+sXdy1bsX81Q@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/29] 4.19.235-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     lkml <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        torvalds@linux-foundation.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Content-Type: multipart/mixed; boundary="000000000000a8d26605da4537b2"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---000000000000a8d26605da4537b2
-Content-Type: text/plain; charset="UTF-8"
+During the uvcg_video_pump() process, if an error occurs and
+uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
+the current marker (queue->buf_used) of the active buffer (no longer
+active) is not reset. On the next iteration of uvcg_video_pump() the
+stale buf_used count will be used and the logic of min((unsigned
+int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
+nbytes size, causing an invalid memory access.
 
-On Mon, Mar 14, 2022 at 11:00 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.235 release.
-> There are 29 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 16 Mar 2022 14:59:12 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.235-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-hello,
+[80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+[80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+...
+uvcg_queue_cancel() is called and the queue is cleared out, but the
+marker queue->buf_used is not reset.
+...
+[80802.262328][ T8682] Unable to handle kernel paging request at virtual
+address ffffffc03af9f000
+...
+...
+[80802.263138][ T8682] Call trace:
+[80802.263146][ T8682]  __memcpy+0x12c/0x180
+[80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
+[80802.263165][ T8682]  process_one_work+0x2cc/0x568
+[80802.263173][ T8682]  worker_thread+0x28c/0x518
+[80802.263181][ T8682]  kthread+0x160/0x170
+[80802.263188][ T8682]  ret_from_fork+0x10/0x18
+[80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
 
-Compiled and  booted 4.19.235-rc2+ on ...
+Signed-off-by: Dan Vacura <w36195@motorola.com>
+---
+ drivers/usb/gadget/function/uvc_queue.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Processor Information
-    Socket Designation: FM2
-    Type: Central Processor
-    Family: A-Series
-    Manufacturer: AuthenticAMD
-    ID: 31 0F 61 00 FF FB 8B 17
-    Signature: Family 21, Model 19, Stepping 1
-
-
-I think No major new  regression or regressions  from dmesg.
-Some error related stuff has happened.
-Please see the  attachment for build issues related.
-
-Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Reported-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-
-
+diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
+index d852ac9e47e7..2cda982f3765 100644
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -264,6 +264,8 @@ void uvcg_queue_cancel(struct uvc_video_queue *queue, int disconnect)
+ 		buf->state = UVC_BUF_STATE_ERROR;
+ 		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
+ 	}
++	queue->buf_used = 0;
++
+ 	/* This must be protected by the irqlock spinlock to avoid race
+ 	 * conditions between uvc_queue_buffer and the disconnection event that
+ 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
 -- 
-software engineer
-rajagiri school of engineering and technology  -  autonomous
+2.32.0
 
---000000000000a8d26605da4537b2
-Content-Type: text/plain; charset="US-ASCII"; name="error-4.19.235-rc2.txt"
-Content-Disposition: attachment; filename="error-4.19.235-rc2.txt"
-Content-Transfer-Encoding: base64
-Content-ID: <f_l0seymyd0>
-X-Attachment-Id: f_l0seymyd0
-
-Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTxlcnJvciByZWxhdGVkIGNsaXBwaW5nIDE+LS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0KSW4gZnVuY3Rpb24gJ21lbWNweScsCiAgaW5saW5lZCBmcm9t
-IG1lbWNweV9mcm9taW8gYXQgLi9pbmNsdWRlL2FzbS1nZW5lcmljL2lvLmg6MTExNzoyLAogICAg
-aW5saW5lZCBmcm9tIGdoZXNfY29weV90b2Zyb21fcGh5cyBhdCBkcml2ZXJzL2FjcGkvYXBlaS9n
-aGVzLmM6MzExOjQ6Ci4vaW5jbHVkZS9saW51eC9zdHJpbmcuaDoyNjE6MzM6IHdhcm5pbmc6IF9f
-YnVpbHRpbl9tZW1jcHkgcmVhZGluZyBiZXR3ZWVuIDEgYW5kIDQwOTYgYnl0ZXMgZnJvbSBhIHJl
-Z2lvbiBvZiBzaXplIDAgWy1Xc3RyaW5nb3Atb3ZlcnJlYWRdCiAgMjYxIHwgI2RlZmluZSBfX3Vu
-ZGVybHlpbmdfbWVtY3B5ICAgICBfX2J1aWx0aW5fbWVtY3B5CiAgICAgIHwgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBeCi4vaW5jbHVkZS9saW51eC9zdHJpbmcuaDozNzc6MTY6IG5v
-dGU6IGluIGV4cGFuc2lvbiBvZiBtYWNybyBfX3VuZGVybHlpbmdfbWVtY3B5CiAgMzc3IHwgICAg
-ICAgICByZXR1cm4gX191bmRlcmx5aW5nX21lbWNweShwLCBxLCBzaXplKTsKCi0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLTxlcnJvciByZWxhdGVkIGNsaXBwaW5nID4tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLQoKCgoKCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTxlcnJvciByZWxhdGVkIGNsaXBw
-aW5nIDI+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KCmRyaXZlcnMvY3J5cHRvL2NjcC9zcC1w
-bGF0Zm9ybS5jOjM3OjM0OiB3YXJuaW5nOiBhcnJheSBzcF9vZl9tYXRjaCBhc3N1bWVkIHRvIGhh
-dmUgb25lIGVsZW1lbnQKICAgMzcgfCBzdGF0aWMgY29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCBz
-cF9vZl9tYXRjaFtdOwotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS08ZXJyb3IgcmVsYXRlZCBjbGlw
-cGluZz4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKCgoKCgotLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS08ZXJyb3IgcmVsYXRlZCBjbGlwcGluZyAzPi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-CmxkOiBhcmNoL3g4Ni9ib290L2NvbXByZXNzZWQvaGVhZF82NC5vOiB3YXJuaW5nOiByZWxvY2F0
-aW9uIGluIHJlYWQtb25seSBzZWN0aW9uIGAuaGVhZC50ZXh0JwpsZDogd2FybmluZzogY3JlYXRp
-bmcgRFRfVEVYVFJFTCBpbiBhIFBJRQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS08ZXJyb3IgcmVs
-YXRlZCBjbGlwcGluZz4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ==
---000000000000a8d26605da4537b2--
