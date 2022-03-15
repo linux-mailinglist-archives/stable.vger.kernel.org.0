@@ -2,109 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833E24DA42D
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 21:45:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A874DA4EF
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 22:55:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242341AbiCOUrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 16:47:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36252 "EHLO
+        id S237315AbiCOV4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 17:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240589AbiCOUrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 16:47:04 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A17401EAFD
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:45:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647377150;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mfsuVWuQAKJg+F+zcfbiO96TVlca2UoPYtQW08E2LFI=;
-        b=hrGBSiHFRS79x+QCKlu8wlyGkCHjF72l5FPFa+Sh7jRsS5WW/4J4fcZDIJ2yWXBO6pNN+R
-        YZ5iDF2cmA8+FmDPjwnXT86CfZyuufzpOS2UgsfF86Q2GABPuqYqmBXBTcROCPuZdSt21K
-        Mx5g4I8tlraglyX1Ybi5Yasfchv9SfE=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-393-zdypxzTFO2SzPg8I6rL1ag-1; Tue, 15 Mar 2022 16:45:49 -0400
-X-MC-Unique: zdypxzTFO2SzPg8I6rL1ag-1
-Received: by mail-ed1-f69.google.com with SMTP id s7-20020a508dc7000000b0040f29ccd65aso158553edh.1
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:45:49 -0700 (PDT)
+        with ESMTP id S234311AbiCOV4s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 17:56:48 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79185C34D
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 14:55:35 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id d19so1068396pfv.7
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 14:55:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=oXiGTEuakDi6scceVyLYH4uzypVcynDgxtyK6s5vtKA=;
+        b=DLhQQ6kz7m8e1jlTZl8iiSJ7LPZV44T0yCSSWzrH1yGRBUQ2hs7Jl3Qld9pgyhk6wz
+         arsPox3wYcniQcIHbh87PROF+EnB+2e3J/1nx5nJXRaBrguCpWi0zM0ksO0f4xyEcGtz
+         0fcfHyCBxBiwKVQlTC5rVAU0XDoe8QXExtZggSb72VWjtJ4q+PtYwnbx/MFIenXVkRK5
+         XnaMJBqOfbFg/4Q4q86H4VWmCDrq64S9uPeiIKrRsBNskqcJNQjTRl2G/oyuwnuMHpUd
+         2H94h2xFpXG+eQXcISlxQVErgnL1WAUnNYtfO5i4RMR2kzaP9F2hWWITqxzWUkK2XNDW
+         e1qA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=mfsuVWuQAKJg+F+zcfbiO96TVlca2UoPYtQW08E2LFI=;
-        b=s2oL23WOyEZJD/aupe993oXQadKYvxWi3FgaP8Sf9kLWhuMb/iEVsozVH2xVUoVtDl
-         Fbir82kxgREudOia01T0/AxrplKR0ikT1ir+VOV6SihrLFe3rd83Lyx8ub1cv8/VFEmd
-         3cOKgeNrqjZrjp1kpmr4bwLtL+7fxXqipoBkXSxw02YycjZbJ8yNpXym12xupIBdOMWr
-         S+sSoaDvuHoijGTG03C3Vt4n2SJJZ8SdUyLYUSKIoUr33NJrepc2jVh3bZATbVu1xtJa
-         N3yQe61muq1DMdeo44dKAiIqkG/Pku+mp9KKwf8FKEdJZGj1MsZKTa079jER2iPCAKkV
-         tYTQ==
-X-Gm-Message-State: AOAM531Ig75wf6eiWaRxN1AYzOSvb7cYpfO3J/G9YMA5XT1WQjX88Ufs
-        G2NgwCD0jR0zKfflEurNPeoj0Xr5tYiM8CQ51r99+snr85uI8/W8B4GyUq6hgIwpPM/AcxGIh+b
-        0aV/kdGYcgYK+RiBf
-X-Received: by 2002:a05:6402:5243:b0:418:e5f7:7b1 with SMTP id t3-20020a056402524300b00418e5f707b1mr819108edd.153.1647377148301;
-        Tue, 15 Mar 2022 13:45:48 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwDVTf9id9co9geemsNRV2GfTX3x2HDSYveRlWEoLl0162igpVWp9eSdiYwBNBvHBG+KoHtcg==
-X-Received: by 2002:a05:6402:5243:b0:418:e5f7:7b1 with SMTP id t3-20020a056402524300b00418e5f707b1mr819095edd.153.1647377148096;
-        Tue, 15 Mar 2022 13:45:48 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
-        by smtp.googlemail.com with ESMTPSA id re21-20020a170906d8d500b006daf3718d0csm39570ejb.143.2022.03.15.13.45.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Mar 2022 13:45:47 -0700 (PDT)
-Message-ID: <fc0bca25-fbda-d489-5ad9-04db49cee205@redhat.com>
-Date:   Tue, 15 Mar 2022 21:45:45 +0100
+        bh=oXiGTEuakDi6scceVyLYH4uzypVcynDgxtyK6s5vtKA=;
+        b=vdrOuIPqa/AiTGr/R4Xgqa/h3mNI3RDp3k1dL2yrS165h13uWLKn2gZEvzRKkhp36t
+         orSEYtyXqJbbFhuG2pjGVGb05Ggx0QbpDnAHHEMnAiDvHWZbDF0DUJWEGj3+aRYBc7gy
+         by9bbsJEqzHyOusqULf3C4ki/GyFFs2D9SNiZOHLyidGhMCOIDbpbBEfoii/3OyNUXXb
+         QQdzDuDtlWx3wYxBqHsQdG6BjmfsYZ0fRlDNOAmHiv0MUynp36R3Pjcm9zidH1jRrAjs
+         Ow9bv+Jb/lPUhQwDWu6WUgDrs+VNdzXkzxPldMZuulpeG4VOjT7Tz1jh8slZIsNpOAnQ
+         vCnA==
+X-Gm-Message-State: AOAM53210/0d+P5k4xZTlF3zbBnbA9+5B5Qyoe3OGASdyhbNxPNsrDRp
+        mSi630uDnM9fAJjMUbWPX9X83Q==
+X-Google-Smtp-Source: ABdhPJwro/vpzubWkVZcJnMDYIdf7YnWMqIo5RLALOtqUrccJBPKoDhHL61E3KesdUUsn9sTC4Htcw==
+X-Received: by 2002:a05:6a00:a23:b0:4f6:72a8:20c7 with SMTP id p35-20020a056a000a2300b004f672a820c7mr30540640pfh.12.1647381335253;
+        Tue, 15 Mar 2022 14:55:35 -0700 (PDT)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id p17-20020a639511000000b0038108d69e8fsm187880pgd.53.2022.03.15.14.55.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Mar 2022 14:55:34 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     tytso@mit.edu
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        linux-ext4@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
+Subject: [PATCH v2] ext4: check if offset+length is valid in fallocate
+Date:   Tue, 15 Mar 2022 14:54:39 -0700
+Message-Id: <20220315215439.269122-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH RESEND 1/2] KVM: Prevent module exit until all VMs are
- freed
-Content-Language: en-US
-To:     muriloo@linux.ibm.com, David Matlack <dmatlack@google.com>
-Cc:     kvm@vger.kernel.org, Marcelo Tosatti <mtosatti@redhat.com>,
-        Gleb Natapov <gleb@redhat.com>, Rik van Riel <riel@redhat.com>,
-        seanjc@google.com, bgardon@google.com, stable@vger.kernel.org,
-        farosas@linux.ibm.com
-References: <20220303183328.1499189-1-dmatlack@google.com>
- <20220303183328.1499189-2-dmatlack@google.com>
- <cb11c10b-0520-02ef-afb5-6f524847d67f@linux.ibm.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <cb11c10b-0520-02ef-afb5-6f524847d67f@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Syzbot found an issue [1] in ext4_fallocate().
+The C reproducer [2] calls fallocate(), passing size 0xffeffeff000ul,
+and offset 0x1000000ul, which, when added together exceed the disk size,
+and trigger a BUG in ext4_ind_remove_space() [3].
+According to the comment doc in ext4_ind_remove_space() the 'end' block
+parameter needs to be one block after the last block to remove.
+In the case when the BUG is triggered it points to the last block on
+a 4GB virtual disk image. This is calculated in
+ext4_ind_remove_space() in [4].
+This patch adds a check that ensure the length + offest to be
+within the valid range and returns -ENOSPC error code in case
+it is invalid.
 
-On 3/15/22 16:43, Murilo Opsfelder Araújo wrote:
->>
->> +    if (!try_module_get(kvm_chardev_ops.owner)) {
->> +        r = -ENODEV;
->> +        goto out_err;
->> +    }
->> +
-> 
-> Doesn't this problem also affects the other functions called from
-> kvm_dev_ioctl()?
-> 
-> Is it possible that the module is removed while other ioctl's are
-> still running, e.g. KVM_GET_API_VERSION and KVM_CHECK_EXTENSION, even
-> though they don't use struct kvm?
+LINK: [1] https://syzkaller.appspot.com/bug?id=b80bd9cf348aac724a4f4dff251800106d721331
+LINK: [2] https://syzkaller.appspot.com/text?tag=ReproC&x=14ba0238700000
+LINK: [3] https://elixir.bootlin.com/linux/v5.17-rc8/source/fs/ext4/indirect.c#L1244
+LINK: [4] https://elixir.bootlin.com/linux/v5.17-rc8/source/fs/ext4/indirect.c#L1234
 
-No, because opening /dev/kvm also adds a reference to the module.  The 
-problem is that create_vm creates another source of references to the 
-module that can survive after /dev/kvm is closed.
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Andreas Dilger <adilger.kernel@dilger.ca>
+Cc: Ritesh Harjani <riteshh@linux.ibm.com>
+Cc: <linux-ext4@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 
-Paolo
+Fixes: a4bb6b64e39a ("ext4: enable "punch hole" functionality")
+Reported-by: syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+--
+v2: Change sbi->s_blocksize to inode->i_sb->s_blocksize in maxlength
+ computation.
+---
+ fs/ext4/inode.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 01c9e4f743ba..355384007d11 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3924,7 +3924,8 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
+ 	struct super_block *sb = inode->i_sb;
+ 	ext4_lblk_t first_block, stop_block;
+ 	struct address_space *mapping = inode->i_mapping;
+-	loff_t first_block_offset, last_block_offset;
++	loff_t first_block_offset, last_block_offset, max_length;
++	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+ 	handle_t *handle;
+ 	unsigned int credits;
+ 	int ret = 0, ret2 = 0;
+@@ -3967,6 +3968,16 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
+ 		   offset;
+ 	}
+ 
++	/*
++	 * For punch hole the length + offset needs to be at least within
++	 * one block before last
++	 */
++	max_length = sbi->s_bitmap_maxbytes - inode->i_sb->s_blocksize;
++	if (offset + length >= max_length) {
++		ret = -ENOSPC;
++		goto out_mutex;
++	}
++
+ 	if (offset & (sb->s_blocksize - 1) ||
+ 	    (offset + length) & (sb->s_blocksize - 1)) {
+ 		/*
+-- 
+2.35.1
 
