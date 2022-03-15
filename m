@@ -2,121 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F324D9C0F
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 14:23:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF8644D9C14
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 14:25:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241858AbiCONY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 09:24:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58554 "EHLO
+        id S237131AbiCON0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 09:26:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348628AbiCONY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 09:24:27 -0400
-Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F88E36
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 06:23:14 -0700 (PDT)
-Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 22FCsCPs005140
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:23:13 GMT
+        with ESMTP id S232315AbiCON0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 09:26:44 -0400
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B118E3464B
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 06:25:31 -0700 (PDT)
+Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 22FCv29m005187
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 06:25:31 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to :
  subject : date : message-id : content-transfer-encoding : content-type :
  mime-version; s=PPS06212021;
- bh=SVWvtTPKTE1cUeRqq060NwaDEHuVRhjVAw98tqNNljs=;
- b=Dr2ysmjL/KNiTV04DWXKueNoWArjVVgUssVqDhZfqNEJTPn9sJqmoXHjfZSNlJ5KRs1b
- hsC6ARfU5aWa39hup3YM1B0eoO6EnE3Il0r2VfZ9nOvlibqqerXrdGZa7qjAfbOMNKAT
- RqwW+PzyKb/w+sansXsDFxuOC+Km67RWudo32UidI1gqAB5EVH0H1hJ+D/KZhxWSoH/1
- t+UelQ9yOUuJubFJ3hCs14QL5NEWo6nEqtwgSdvBj9ENxr/Idx/8GZP32RKBIxOx8QLs
- AB/EL1zWcd91YgltvykpMMpUcaSoYM92te9rRi0QUrln7Dqk5xhyDwTM3DYsdk6uDlI9 OA== 
-Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2103.outbound.protection.outlook.com [104.47.55.103])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3ergr0aksr-1
+ bh=oNXg5U8rhINvLvpkqZjKm23C0AS4u9u9GlEJyx56zgs=;
+ b=haToLofN2Y4icAsnWGPoLJsp0IhFi2F4hGJJxqKHPLdbgqd7VeLSlRpqEoFn8dLRlOUr
+ pCtGlLQaGd4BsPNlD7OV9P9MRanKd8id2N852yUEu3UOPtV+kF+uJPDezjxGmZswIY4D
+ +tSZlI7yDsuHT9wDMRATWaa1bZzI5XoBOyzZkyj79iWCSkGvyleqAq1xg9JeKuj38HIf
+ p0n7sJHMDy9h/Q5GnvOAA1gITuxYSsm/q6iTzaeBq85d3LIdE7TZvT7bRfAJYHSi9I5h
+ z41j+5LdNQoHMSCF/gCt+T2Po9d5bvjuNij3n0oWEI1VjSuvokhY6LQzO3K+bgEwdB9N QA== 
+Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam07lp2044.outbound.protection.outlook.com [104.47.51.44])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3esq04sgbd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 13:23:13 +0000
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 06:25:30 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CeFG7cIG/rPDQG/Vb4rL8jQQlyjLFPpb3L9zbKyezW25LcteOVx/VfoFfyWTC0WACrC+50HyCUd607v4LBfO0K44s3DGbSuwr4Nkcr+/Blu1tY5thNVFnfklG+bEevvA4db5vYjaUCbckXFYtc4RCQG2hDjW7089Zt7kqSLVVgtcVE0UCKXSeoHLM9J6PEZYkH+Ep7I6jaZTdQB819/GIJt2PIfSTg4wbeLDH8LN38zrm3j48JWR/YfULUslTTSeAnIVnEOxsL+xs0HEU404cRZJsl6pPXwP4TpntjtoOOi6QZMmuZmZmbkD+qH5UvzXQX1J6n20Z097qoBP3cp1UA==
+ b=nnpqdYChjd8o30yHmKJZ82/0biM/GW3/X3mhYZfeCT7u4q+K18I1aJcn2/EstnVllJAt/Rqjk6rVoC40/hzvxlbfQTII55KE5ZgPDHbqFIZS9LbKL92yFHJZnPo2KPCl56BZGkTB3kU7H6r8dMQr8m3qCTxtJKfWTWc4tXv8l4gKxsxkxqbBKrKEN4pLO790yVBjpVk2XPhwrOj4syrEn/19ikEOLaQ5HiESeHMP/9VZEPIeHrHmwBSOKmo6ctaTzex49L8ellsT2rb0nhVecHQ8fqCTRm4aYdDeYP3NW666f7nwLbkZbqIJyDxUH6t3hDgfmgxgPMXuxwuu6Wn+2w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SVWvtTPKTE1cUeRqq060NwaDEHuVRhjVAw98tqNNljs=;
- b=FhWQM2l3oYK76AXYsEBDVIWE+D6gnRr4Sh8GXtmLLsQvUgBJYvpxnxSxFYuwXk5DVkUdJRYfu0pUcGTAsE8Cvpm0gMIGR2TyYQDn1ILg6ELejNry8heu7a7GFkgJhWPPiXy9HW6qFjJxnEqlEHOvGpHrPzjgglltr2+eVBLYZ1CJ6UzrHyuLyET2uxWcaxxQhGmfu4MFZWiXEjYDyYCG7ketTXbt9/phQhgV24VWya+T5I7VNNaUI3pcWM+IC6doNHi3m3P1J7XZfSVOdiNVmH1n0LxNauUZcr/ZZY9aKNVX+86jVD8dcjKv+UEsMKdIg70UKPNJZ1IWXciLZOTVqg==
+ bh=oNXg5U8rhINvLvpkqZjKm23C0AS4u9u9GlEJyx56zgs=;
+ b=FkkdGB0jmQiAQkbjxGXxoh8r5VyoHhTWohNVQFpAuL41nLAFYZOQxrHitIzJO1c1EzhYmg+vDHCqOnrghxAd7s0jkhsdBQqM60bcd/vJwCMq66i8eE3DPn3t1qIppadvk0fuoLFFBEndHXsCnjVKyx6ARIn+OqpEkues/2g6wC+UIFKFp1HOa+Y5Wxm6id0NKKJ/yp8yfpie6ZfoidcIeogWb+Up9rijsx5K4Y98XuWTYaMabCCys7O6a7HNxtEeJj7Ar1/8GxQAJaUY+8rV3eG+Sves4qm3iMTNPKKPiNKs5xgm2h46v11qdgRGiRt7EwxuFvSzjLPdRsngwLaw4A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
- by DM6PR11MB3772.namprd11.prod.outlook.com (2603:10b6:5:143::28) with
+ by BN7PR11MB2756.namprd11.prod.outlook.com (2603:10b6:406:b4::24) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.26; Tue, 15 Mar
- 2022 13:23:11 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.14; Tue, 15 Mar
+ 2022 13:25:25 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::4ceb:e511:4a4e:17af]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::4ceb:e511:4a4e:17af%9]) with mapi id 15.20.5081.014; Tue, 15 Mar 2022
- 13:23:11 +0000
+ 13:25:25 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 5.4 1/1] sctp: fix the processing for INIT chunk
-Date:   Tue, 15 Mar 2022 15:22:55 +0200
-Message-Id: <20220315132255.2084596-1-ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 1/2] sctp: fix the processing for INIT chunk
+Date:   Tue, 15 Mar 2022 15:25:09 +0200
+Message-Id: <20220315132510.2088935-1-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: VI1PR09CA0151.eurprd09.prod.outlook.com
- (2603:10a6:803:12c::35) To DM4PR11MB5327.namprd11.prod.outlook.com
+X-ClientProxiedBy: VI1PR07CA0194.eurprd07.prod.outlook.com
+ (2603:10a6:802:3f::18) To DM4PR11MB5327.namprd11.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 98d6b1a5-64eb-4909-03da-08da0686f3fa
-X-MS-TrafficTypeDiagnostic: DM6PR11MB3772:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR11MB3772DAF121D42B1BB9A772B0FE109@DM6PR11MB3772.namprd11.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: dba988d2-d914-4843-9ede-08da06874376
+X-MS-TrafficTypeDiagnostic: BN7PR11MB2756:EE_
+X-Microsoft-Antispam-PRVS: <BN7PR11MB2756F2ECA38B9CC06C7FC43DFE109@BN7PR11MB2756.namprd11.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FUG0MrL0sUKI+0HgRtEQMDf3dNm+758/p9ZPl+0oDMAlOUTI0V7+IgY49z4zSN1BJEp2cmt/6lrI7HVZ+awuqipbCaJBZjqOVPEYJWSKMurpg4zI9/pqhBTZFHq2GQnrtXfRTfCxG6TvOe8r3NFspD9ruP+6+7ENyfkOy05gOZg92+sBJSe9gJOBqzrV45c6CRuhEJDO70fj48QWrAO43MNa+TQAQrDg/5W8+vbcgFOIZsdNpkQxtrA8uajnnSfthJ9VUkFxv0e2FqeTOtkbdpLktkP7G9I57vyR3Ckz84EJjqXZ2tIDZem/u/DsGSiCyNz8e01ngoq9PlApnKoIYOTnDM2Xvb3s8AuQFjEl8u0LAkfFsBcOpc5BPDS4QBjOIP+X7scDc2QwqbAGqQmqm+cUuhNTmR0cHG9z+pdeBvMpmQAu1aUg+tFrSlHEcfHlyfHKX3ljeF/mAy7xgYb3L/+bolhPNwoSxEz6Vbd1VXIfWm+VJlM7rdM8hBlPC9EsYDQA1YvHjTn466Ii4P8dOrpWbwChFhJpHAUFEdgMO624DwMGX6WoflL2nMtlvHIEhZuwMvKyG99OlfpDuxlek3FtbmQ5HhnSfDgaCRmqCXhkKy9xE6xWJ3KzFuKl0ZZgrueJylffLZHwYeAuRjLP0D3JpXnDn4N2jjYq0JGNrKdRi27sWVvuoRRY34YpcULFPl+d0AKUqCi6nSlFkKkRwA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(83380400001)(38100700002)(186003)(38350700002)(2616005)(1076003)(36756003)(2906002)(8676002)(26005)(5660300002)(8936002)(44832011)(86362001)(316002)(52116002)(6512007)(6666004)(66476007)(6916009)(66556008)(66946007)(508600001)(6506007)(6486002);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: roG7J+6jk4PMRhkm/RT5Xz4txWYDOOrBoVh2+JNVAVHHmeR7Jb+1/bxV+7bmLewK+CZx97s2w54oyL1bQBrdWOTUYwaawfHBUx3nn7a1osDt4yGCluq69WapiOjBgtMLcDuB7Tc0nzquBI6N1Nm11mI6zS0NzfFsQ6TOs5/odRGinavIkDxX5zv6n1hV4G2Up/GBoI5ScZ97UHgitI+Zq+rPaEHF43LCT7DjsE0+wmsjHSLzB4tDqs17fdE6sKw8YdRIcxyNb2aRpIBUf98PkgZFXo4MvlFsCS0zNNQUMpiv9bL2MGQBL2dIafDAbxk2zOdM/Ko8FW6zLIXX0wSabQOEJClAU0aCr3nIRVlDlc2XtJfOooNJVImEYjbwmsvU5QFkzxEa8zIpadTARV4iFV5H1TrYkIIGTVTma69i5cEMeX63FCewGYfGvS2F1nqaQ425E1TeJSmU0AwOhk6PTrx9yY7T+0Wjdq22XbVJJItlw0vNnla1BqluZLUmveDUBL4LeIyHWnCbTCOJDLGE7agMB0sR8sQNVakak6wirC6YZWowXnBYLXzBG6Ls8/lavbZ/cfeBWUdDXvpweoNFhBIFD/bjgcbWQl6fJZgjk9aehRTtl19lWVE8vj6BCKQr98t+Ie7rJC/wxmu9cDWH2iv1bZ5oB9dWCHKv141L2p5LeqpZ4zbDdTKx2YMpZ3jTCeyv0sehvqXyG3jS4zZK0A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(186003)(38100700002)(6506007)(38350700002)(44832011)(66946007)(6486002)(8676002)(66556008)(66476007)(52116002)(508600001)(26005)(6512007)(2616005)(83380400001)(1076003)(6916009)(2906002)(5660300002)(316002)(6666004)(86362001)(8936002)(36756003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?c7W1VcJpgcR+HsvlFm9eIfqagdj/PzpmWS7d84OWXaYObTl0DYSB0pFy3/Aw?=
- =?us-ascii?Q?tsqSMpd+tOKaCVpoL1zcp1FJAzDfVdpMkhKg7Vtm7Mrok3IdDOOc013hMFv5?=
- =?us-ascii?Q?ps+R13at1tOD/h8BK1YHmL5FRdhuH8iq4PDHv9jGcRPmfCZ5S0MULZed/tax?=
- =?us-ascii?Q?IHsHnu/qj1i7S0//fFPsPTXd5lNERW7BR2sM7JRd6WLKPtkTayT+nJpuvAqC?=
- =?us-ascii?Q?+DQWUJ2cgn0U2X4EFgEFeQCsy5ymko0cXdMTSUAyezzHArXE7PSK/ABWoi++?=
- =?us-ascii?Q?WHJichLRCDVtOyZ6ixI3mbzZKWOBOV6zW3yDH+TLnXXdKXQz15g7sz5xuxfc?=
- =?us-ascii?Q?ER664hELCjdyGdpcgQoEI6dDz31dAce2MQLk9Lc/uBw0EnWt2wskGSX0pTVD?=
- =?us-ascii?Q?GtNRvds+P5tMaOITeV1cOKvuKggkDpN33BvmoAa0F4Q3KeabEwBJbbGVYpIb?=
- =?us-ascii?Q?49RLL1ANExJ+WHw47pqTRq4JYduSrRA0PUIyKqX1b9IVp65Ad5T9bfRuIkvm?=
- =?us-ascii?Q?+ROphgYGP2IgISUXbByC/IeohZjwjEqcHOgSMofkyCR1nl7CICC1GzF2TuCe?=
- =?us-ascii?Q?7UUnz0yu3B27yqbzGMSlxXBbMTHBtuUxF+PmbHycrkbi0UJvrpiTDy/zOvur?=
- =?us-ascii?Q?q2JIR84GR21k3e3iGepvTMOM4amhqex/oe1AO3oKgAl4aiSyys3PDfWEPrSs?=
- =?us-ascii?Q?Yb80gqtWKw8tttzz6ejENRH15fgpWnl7mg56yp/AtAF5rK+XnP11u1G1Z1Vi?=
- =?us-ascii?Q?hfK8/1k0l1hXLIR9xynzDQbNR+LS6PR7ZsMrfv9niE+v6Afx7LAxsD2PqTyo?=
- =?us-ascii?Q?G3e5jaRVkxjhk02q4D+H4WPjLJRGOxZ2gz1YsgFVKT6fVW9K5srt2cT7Qfzx?=
- =?us-ascii?Q?SciS2vxT5moJB5ViGUf5sxwiZFaLBJ6oj38gvqfMoJpFOXMB+cGewCsvspBo?=
- =?us-ascii?Q?8Jt8gskL4pqd5cFHkoIjmVloPEDq63k3menSegFmRTacZC2cSj6xziG2tLgv?=
- =?us-ascii?Q?AHY3/ll6rple6VcUucnMwwEFa73iDbFZMCHOvqQxqGWAhbhfRJb4sUhuP9w/?=
- =?us-ascii?Q?3O43x5VUcmRJECdPJqPLJOjBf1zMvYhxaYwNtZPRu3oO21dv5EE1yQNKcDX8?=
- =?us-ascii?Q?ASCKLJ/MOXxrS9iYqhrcyGjSqAf6ebs3+yQTVck5mfFd+iQFUAHnLb2Fz0+E?=
- =?us-ascii?Q?TZCstidP5ihTofXfeR9fUgDV716/zbz+teyo22ceeSUH9nWCXo6ZDTJ5UYak?=
- =?us-ascii?Q?J32A6114sroIAAurqdJvRpDDQuXsRGd+3PGIevjB31sPLRKfwfbmAdY7Y/TB?=
- =?us-ascii?Q?myDxE1MuF2c1ol4MWqJWOV7B8uwMO/SrsfxvjiXs/SLjRP3U5e79Ef9kEIBc?=
- =?us-ascii?Q?lJ0lnbuJzCWEVYqoegdIMTjln6oeCJDkpAVGnUh6TMDdSBnoDnrruxVLb254?=
- =?us-ascii?Q?gDmPPXlyRmM3flWIz+z6SIoXTKep30uXTSfOmd6sbKtlKEYwWJwuQA=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cU48WH8wg5Ch/7SPjeqgmBPRrfMDq7Y/WRvgVykqs2mgfzpMs0567jVqVTF1?=
+ =?us-ascii?Q?ls1S3iK0JcpyxUIb3ZnvswGNOiOmMdQeeYiQ143S1OP5bKzjFfXu9pHCwYZc?=
+ =?us-ascii?Q?n+votKehsSRCXHSI5nS9THOiaEUuiH5vYQ9IhRYwwOKKQSZTsA3cozXovI0B?=
+ =?us-ascii?Q?sNyCdv6vufPyz+UANsLpkSyWh0nirCDT2c2WAVm/gHgBvp3Q7BhDjdfGKBTs?=
+ =?us-ascii?Q?NV63VCmBtFJ05aaSnSvlYRtE4GTf15A4OwsFGs1yVTU75wcsKRgoE+Mv+O6r?=
+ =?us-ascii?Q?eDcEB5DsfA0Z/L7m87Tg2z9cuYVFuTImiujXaibTf5u+aCPmcdQCRJY9XjEi?=
+ =?us-ascii?Q?hF4cDDyDVWimBsZ6/XX/NoQp7jlEegQJ/N+yHJ5c3J5wq+Y7l8u+cK3a9rS5?=
+ =?us-ascii?Q?fdIIWL1U/aWRmjioyTaD5ZTcqh9fHrBxDvSGqT7z5tmyJWYNLLdOxtzmrgsd?=
+ =?us-ascii?Q?01Znqhjej5+SzuLPIKzlpHUNylL7zVy7nbIvGmIQVMwYVl7oAHZa8Q8hb5FK?=
+ =?us-ascii?Q?bsOV0c0Wfn+LHJZHwbIAVR7BByRWbUC/wiqxgZ70iq9PouIIXZG4I02Bnr0O?=
+ =?us-ascii?Q?nGXgXd4BQD0u573DlddTR3SnE06afMqg0twHpSmw1MX219VOXZ7U6/5efKUr?=
+ =?us-ascii?Q?umq56sK5oMstSjp2qtN8bejjXlfSXzRZ11zPsbpo6afD7D+yUJ4WPMTdKQ47?=
+ =?us-ascii?Q?p905yATa6dz4Tq6KliNPmyMsTsy6Kr8cFzTBg30vbmFbJY6k4XXDWmup3Dz6?=
+ =?us-ascii?Q?LZXo9fSTHPkuo4mbsYysURBXoRyRZAEg8vN1ot4O01/3UkdVWZPUs2IHs/nP?=
+ =?us-ascii?Q?X6+6RiVeqI8/9BRYCYSepbNX4kggai+gV7M/TN3LjYR2WXa0y2i7cGJpw8RZ?=
+ =?us-ascii?Q?aEIPKL9NXpkksvV267m1VTIENczLVmW1edgUb3TS8hwP4vQj8W1T2ZPht1Rl?=
+ =?us-ascii?Q?qs6rDcIni/cLmHjgiFlkTY3XRKias+fq7pnNXNMvamOXNOLkhlEOtmcQKGet?=
+ =?us-ascii?Q?SQ9acVIjWZKiNAVj4RFDg1sjKCqg4e+ATp/P4qwC9GC7qBVklbVkxHZc/rEs?=
+ =?us-ascii?Q?9XY3XlCDnauioTWnk6AvfHQaETXFfJKrxdgguqjNcWPs10mHXFgq1C6bNALi?=
+ =?us-ascii?Q?LUcxl/iO2UHJQtaeK5YU52gghf8f2CCMzURkERHNTOwTjA0Ch5Wh2gFhn2CZ?=
+ =?us-ascii?Q?mMnxdP6oIAwkmq0WA55zQ811SJvXeqqIO+vuQrZdWGWf4Tc9M6iIfCjy9eGb?=
+ =?us-ascii?Q?e53H5EVARP8ku1G0fel749U1ABsO1+mty70fzFtUPY0XiAQ/4MiF8q2FZiTJ?=
+ =?us-ascii?Q?hUP7ftGZjq2Z4ksztmQw1S+j3neNwr4z+9lwV6fKGXA94VlqnVMMTzj7BNiY?=
+ =?us-ascii?Q?Cia16ONaqKXhqGWdiL34NQiIeWqjaYQUrzT5iBLD58oPm8rRL/z1wiTgpzn0?=
+ =?us-ascii?Q?1Y1MNveL3CZ7meMSWRzdZ7vPwGBo7lVewf2Byn2wVYMmyE+sJZ/WEg=3D=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 98d6b1a5-64eb-4909-03da-08da0686f3fa
+X-MS-Exchange-CrossTenant-Network-Message-Id: dba988d2-d914-4843-9ede-08da06874376
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 13:23:11.6229
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 13:25:24.9795
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: NG/kHFa2C96jBp8DWfapzdfvMWUA6pe3BQ048CkJ4nLu5qru46sygfu8823YAyPxjNwFGdeyzlgc/MNldErYYtUIEidE73owq9ATuDek8/c=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB3772
-X-Proofpoint-GUID: 4aoehR9HPeHAGnS9SNFLpdzBMubHXcIL
-X-Proofpoint-ORIG-GUID: 4aoehR9HPeHAGnS9SNFLpdzBMubHXcIL
+X-MS-Exchange-CrossTenant-UserPrincipalName: 11X6UbQoIdop0lXpom4ntqjK8I8eB0adQy8l3GdTleVuVYACrCuo+lRAx9AddKEsJsCSCJpdxNsR5lwHxX0p4O87ksJKtXQ3erhawsU33+I=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR11MB2756
+X-Proofpoint-GUID: Z2UIVspcUTB1fLJPgBCBu5sNpXpoXXwk
+X-Proofpoint-ORIG-GUID: Z2UIVspcUTB1fLJPgBCBu5sNpXpoXXwk
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-15_03,2022-03-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 phishscore=0 malwarescore=0 suspectscore=0
- clxscore=1015 impostorscore=0 mlxlogscore=953 mlxscore=0 adultscore=0
- bulkscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2203150087
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ impostorscore=0 mlxlogscore=998 lowpriorityscore=0 bulkscore=0
+ malwarescore=0 adultscore=0 spamscore=0 priorityscore=1501 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203150087
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
@@ -149,7 +149,7 @@ Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[OP: adjusted context for 5.4]
+[OP: adjusted context for 4.19]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
 CVE-2021-3772 patchset consists of 7 fixes:
@@ -161,17 +161,17 @@ CVE-2021-3772 patchset consists of 7 fixes:
 [6] ef16b1734f0a ("sctp: add vtag check in sctp_sf_do_8_5_1_E_sa")
 [7] 9d02831e517a ("sctp: add vtag check in sctp_sf_ootb")
 
-This is a backport for [2], which is the only fix missing from 5.4-stable.
-Only small contextual adjustments were made.
+This series contains backports for [2] and [3], which are the only fixes
+missing from 4.19-stable. Only small contextual adjustments were made.
 
  net/sctp/sm_statefuns.c | 71 ++++++++++++++++++++++++++---------------
  1 file changed, 46 insertions(+), 25 deletions(-)
 
 diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 7c6dcbc8e98b..1d2f633c6c7c 100644
+index ebca069064df..5e17df88df5d 100644
 --- a/net/sctp/sm_statefuns.c
 +++ b/net/sctp/sm_statefuns.c
-@@ -149,6 +149,12 @@ static enum sctp_disposition __sctp_sf_do_9_1_abort(
+@@ -164,6 +164,12 @@ static enum sctp_disposition __sctp_sf_do_9_1_abort(
  					void *arg,
  					struct sctp_cmd_seq *commands);
  
@@ -184,7 +184,7 @@ index 7c6dcbc8e98b..1d2f633c6c7c 100644
  /* Small helper function that checks if the chunk length
   * is of the appropriate length.  The 'required_length' argument
   * is set to be the size of a specific chunk we are testing.
-@@ -330,6 +336,14 @@ enum sctp_disposition sctp_sf_do_5_1B_init(struct net *net,
+@@ -345,6 +351,14 @@ enum sctp_disposition sctp_sf_do_5_1B_init(struct net *net,
  	if (!chunk->singleton)
  		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
  
@@ -199,7 +199,7 @@ index 7c6dcbc8e98b..1d2f633c6c7c 100644
  	/* If the packet is an OOTB packet which is temporarily on the
  	 * control endpoint, respond with an ABORT.
  	 */
-@@ -344,14 +358,6 @@ enum sctp_disposition sctp_sf_do_5_1B_init(struct net *net,
+@@ -359,14 +373,6 @@ enum sctp_disposition sctp_sf_do_5_1B_init(struct net *net,
  	if (chunk->sctp_hdr->vtag != 0)
  		return sctp_sf_tabort_8_4_8(net, ep, asoc, type, arg, commands);
  
@@ -214,7 +214,7 @@ index 7c6dcbc8e98b..1d2f633c6c7c 100644
  	/* If the INIT is coming toward a closing socket, we'll send back
  	 * and ABORT.  Essentially, this catches the race of INIT being
  	 * backloged to the socket at the same time as the user isses close().
-@@ -1484,19 +1490,16 @@ static enum sctp_disposition sctp_sf_do_unexpected_init(
+@@ -1499,19 +1505,16 @@ static enum sctp_disposition sctp_sf_do_unexpected_init(
  	if (!chunk->singleton)
  		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
  
@@ -238,7 +238,7 @@ index 7c6dcbc8e98b..1d2f633c6c7c 100644
  	/* Grab the INIT header.  */
  	chunk->subh.init_hdr = (struct sctp_inithdr *)chunk->skb->data;
  
-@@ -1814,9 +1817,9 @@ static enum sctp_disposition sctp_sf_do_dupcook_a(
+@@ -1829,9 +1832,9 @@ static enum sctp_disposition sctp_sf_do_dupcook_a(
  	 * its peer.
  	*/
  	if (sctp_state(asoc, SHUTDOWN_ACK_SENT)) {
@@ -251,7 +251,7 @@ index 7c6dcbc8e98b..1d2f633c6c7c 100644
  		if (SCTP_DISPOSITION_NOMEM == disposition)
  			goto nomem;
  
-@@ -2915,13 +2918,11 @@ enum sctp_disposition sctp_sf_do_9_2_shut_ctsn(
+@@ -2930,13 +2933,11 @@ enum sctp_disposition sctp_sf_do_9_2_shut_ctsn(
   * that belong to this association, it should discard the INIT chunk and
   * retransmit the SHUTDOWN ACK chunk.
   */
@@ -270,7 +270,7 @@ index 7c6dcbc8e98b..1d2f633c6c7c 100644
  {
  	struct sctp_chunk *chunk = arg;
  	struct sctp_chunk *reply;
-@@ -2955,6 +2956,26 @@ enum sctp_disposition sctp_sf_do_9_2_reshutack(
+@@ -2970,6 +2971,26 @@ enum sctp_disposition sctp_sf_do_9_2_reshutack(
  	return SCTP_DISPOSITION_NOMEM;
  }
  
