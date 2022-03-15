@@ -2,72 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E0584DA538
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 23:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2743B4DA598
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 23:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239396AbiCOWWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 18:22:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59032 "EHLO
+        id S1352336AbiCOWrB convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 15 Mar 2022 18:47:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234097AbiCOWWI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 18:22:08 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCFE15C656;
-        Tue, 15 Mar 2022 15:20:55 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id t2so1132050pfj.10;
-        Tue, 15 Mar 2022 15:20:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=84kFTOf9/F1bpdxHLGKdmzF1pTCG4mq3396ASbcsPH0=;
-        b=S6cKaJtz5ujUV0DCCwnZC3p3N4rVdwVp2PLbBPZAmCuTZTB0i6HNT8QMptZSHmuGkp
-         lsv0iFjmSkdLqJcNKzqKUUDyvKpS9W34al05N1tqh39whL1PwZIZsOdUwqHJQKCJe8gn
-         YlzqJQfNKUMiwF9PIELmslwzxkeICml7G7Epms9FgQC0Ap5rqviMF6GX3Xn4dtNx4px5
-         ZrQvK8E9518ngBf5PwMEGXnaOyWOz9kcHkL4lnPNZn+k3/MwY33VpSlnkLQoEeTDwIcu
-         VMjI7mBxz28QWTqH64lJj2AZZWZIC2a28yJvuEMcq0ZQtQwN0Nmtuy9X9nBWm4H5PIJL
-         JttQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=84kFTOf9/F1bpdxHLGKdmzF1pTCG4mq3396ASbcsPH0=;
-        b=tWDOAwkwH85GK5Ov1wuSowdk+anP06aUWf43v6mrXwvXM5PHW0HMnr6SZVZ+3dYvAD
-         OaPBfN7FHG9W/jPow3v3JAlgljde3+9G56YuKRS056n9dRYrNW64z/o4Kq8S3dJI0/vP
-         qfuINNIwAowLeUTfX7h3ouqv4NIPOgExo277L6xGT/J/nyg7c9N2j8VUFHnr4AMovT3z
-         a1jVsZToJOaPPQvR4AG+GtaJh2P3GE7MUaj+kCIvRGTDSt++OMJaoHcAC6eFeaVfp1CP
-         KaOPcYc3+O/1ksX/2v8G4e4xgx3oDRngR/chJPtpnMNtoUxcpXC521j/yS8fHqCTx+V0
-         Nx2A==
-X-Gm-Message-State: AOAM530iBwvoH+kN/VpI4E21TnkGmtMyOqnOZ+O5SSBfZqwJXF5FLJy8
-        6P/hFQ3XTRqXiRDduySPCuE=
-X-Google-Smtp-Source: ABdhPJxPhbkHWHq5TAaAy1B2Kg+asrvXDmUsyIHvqWnKaqzN5CfQMU5J53F1xwWQl7jWU5H2aeS6jA==
-X-Received: by 2002:a65:424a:0:b0:375:6d8b:8d44 with SMTP id d10-20020a65424a000000b003756d8b8d44mr26272327pgq.170.1647382855304;
-        Tue, 15 Mar 2022 15:20:55 -0700 (PDT)
-Received: from google.com ([2620:15c:211:201:7484:dc22:fe49:91cb])
-        by smtp.gmail.com with ESMTPSA id y32-20020a056a001ca000b004fa201a613fsm85131pfw.196.2022.03.15.15.20.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 15:20:54 -0700 (PDT)
-Sender: Minchan Kim <minchan.kim@gmail.com>
-Date:   Tue, 15 Mar 2022 15:20:52 -0700
-From:   Minchan Kim <minchan@kernel.org>
-To:     Charan Teja Kalla <quic_charante@quicinc.com>
-Cc:     akpm@linux-foundation.org, surenb@google.com, vbabka@suse.cz,
-        rientjes@google.com, sfr@canb.auug.org.au, edgararriaga@google.com,
-        nadav.amit@gmail.com, mhocko@suse.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, "# 5 . 10+" <stable@vger.kernel.org>
-Subject: Re: [PATCH V2,1/2] mm: madvise: return correct bytes advised with
- process_madvise
-Message-ID: <YjERRJn/2GZOt4b7@google.com>
-References: <cover.1647008754.git.quic_charante@quicinc.com>
- <125b61a0edcee5c2db8658aed9d06a43a19ccafc.1647008754.git.quic_charante@quicinc.com>
+        with ESMTP id S1352334AbiCOWrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 18:47:00 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0045213DEB;
+        Tue, 15 Mar 2022 15:45:47 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6FBB41474;
+        Tue, 15 Mar 2022 15:45:47 -0700 (PDT)
+Received: from slackpad.lan (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A52363F66F;
+        Tue, 15 Mar 2022 15:45:45 -0700 (PDT)
+Date:   Tue, 15 Mar 2022 22:44:44 +0000
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     Jernej =?UTF-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>,
+        Petr =?UTF-8?B?xaB0ZXRpYXI=?= <ynezz@true.cz>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>, stable@vger.kernel.org,
+        Bastien =?UTF-8?B?Um91Y2FyacOocw==?= <rouca@debian.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] Revert "ARM: dts: sun7i: A20-olinuxino-lime2:
+ Fix ethernet phy-mode"
+Message-ID: <20220315224444.1825833e@slackpad.lan>
+In-Reply-To: <44524634.fMDQidcC6G@kista>
+References: <20220315095244.29718-1-ynezz@true.cz>
+        <20220315095244.29718-2-ynezz@true.cz>
+        <44524634.fMDQidcC6G@kista>
+Organization: Arm Ltd.
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-slackware-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <125b61a0edcee5c2db8658aed9d06a43a19ccafc.1647008754.git.quic_charante@quicinc.com>
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SCC_BODY_URI_ONLY,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,24 +51,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 11, 2022 at 08:59:05PM +0530, Charan Teja Kalla wrote:
-> The process_madvise() system call returns error even after processing
-> some VMA's passed in the 'struct iovec' vector list which leaves the
-> user confused to know where to restart the advise next. It is also
-> against this syscall man page[1] documentation where it mentions that
-> "return value may be less than the total number of requested bytes, if
-> an error occurred after some iovec elements were already processed.".
+On Tue, 15 Mar 2022 19:50:23 +0100
+Jernej Škrabec <jernej.skrabec@gmail.com> wrote:
+
+> Hi Petr!
 > 
-> Consider a user passed 10 VMA's in the 'struct iovec' vector list of
-> which 9 are processed but one. Then it just returns the error caused on
-> that failed VMA despite the first 9 VMA's processed, leaving the user
-> confused about on which VMA it is failed. Returning the number of bytes
-> processed here can help the user to know which VMA it is failed on and
-> thus can retry/skip the advise on that VMA.
+> Dne torek, 15. marec 2022 ob 10:52:42 CET je Petr Štetiar napisal(a):
+> > This reverts commit 55dd7e059098ce4bd0a55c251cb78e74604abb57 as it
+> > breaks network on my A20-olinuxino-lime2 hardware revision "K" which has
+> > Micrel KSZ9031RNXCC-TR Gigabit PHY. Bastien has probably some previous
+> > hardware revisions which were based on RTL8211E-VB-CG1 PHY and thus this
+> > fix was working on his board.  
 > 
-> [1]https://man7.org/linux/man-pages/man2/process_madvise.2.html.
+> NAK.
 > 
-> Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
-> Cc: <stable@vger.kernel.org> # 5.10+
-> Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
+> As Corentin mentioned in another discussion, new DT variant should be 
+> introduced for newer board model. Otherwise we can play this revert game with 
+> each new revision which changes Ethernet PHY behaviour. It also makes most 
+> sense to have naming chronologically sorted. If board name in DT file doesn't 
+> have any postfix, it should be compatible with earliest publicly available 
+> board. If board manufacturer releases new board variant with incompatible 
+> changes, new DT with appropriate postfix should be introduced.
+> 
+> I understand that this is frustrating for you, but whole situation around 
+> mentioned commit is unfortunate and we can't satisfy everyone.
+> 
+> Also good way to solve such issues is to apply DT overlay in bootloader based 
+> on board revision number. I know Olimex implemented DT fixup in their 
+> downstream U-Boot fork.
+
+I agree with Jernej's here.
+I had a quick look into the U-Boot source, and it seem like the Micrel
+PHY should work there, since its phy_driver.config routine seems to
+ignore the phy-mode property (in contrast to its 9131 sibling in the
+same file). So we can go with the Realtek setting in the DT.
+
+If U-Boot's networking itself is fine, we can just try to fix up the
+DT. Looks like board/sunxi/board.c:ft_board_setup() is the place. The
+PHY is autodetected, I am pretty sure we can somehow read the PHY
+driver name, and depending on that just patch the phy-mode property.
+
+Does that sound like a way out?
+
+Cheers,
+Andre
+
+> Best regards,
+> Jernej
+> 
+> > 
+> > Cc: stable@vger.kernel.org
+> > Cc: Bastien Roucariès <rouca@debian.org>
+> > References: https://github.com/openwrt/openwrt/issues/9153
+> > References: https://github.com/OLIMEX/OLINUXINO/blob/master/HARDWARE/A20-OLinuXino-LIME2/hardware_revision_changes_log.txt
+> > Signed-off-by: Petr Štetiar <ynezz@true.cz>
+> > ---
+> >  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/  
+> dts/sun7i-a20-olinuxino-lime2.dts
+> > index ecb91fb899ff..8077f1716fbc 100644
+> > --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> > +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> > @@ -112,7 +112,7 @@ &gmac {
+> >  	pinctrl-names = "default";
+> >  	pinctrl-0 = <&gmac_rgmii_pins>;
+> >  	phy-handle = <&phy1>;
+> > -	phy-mode = "rgmii-id";
+> > +	phy-mode = "rgmii";
+> >  	status = "okay";
+> >  };
+> >  
+> >   
+> 
+> 
+> 
+
