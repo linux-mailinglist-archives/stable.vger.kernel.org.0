@@ -2,112 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD14A4D9542
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 08:29:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 535264D9543
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 08:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343661AbiCOHaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 03:30:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
+        id S1345414AbiCOHaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 03:30:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235621AbiCOHaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 03:30:14 -0400
-X-Greylist: delayed 31506 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 15 Mar 2022 00:29:02 PDT
-Received: from gproxy2-pub.mail.unifiedlayer.com (gproxy2-pub.mail.unifiedlayer.com [69.89.18.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 969364B1CE
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 00:29:02 -0700 (PDT)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway4.mail.pro1.eigbox.com (Postfix) with ESMTP id E2A7110047F93
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 07:29:01 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id U1c5npHsnQs3CU1c5nvHE2; Tue, 15 Mar 2022 07:29:01 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=d8AwdTvE c=1 sm=1 tr=0 ts=6230403d
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=o8Y5sQTvuykA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=pi8ZjtXAksFnf0lD1AsMuINUXKUI5NXUo9rz7/ibKE0=; b=nq2Xwrp43eWVTSqzG+4G6/LIev
-        ZQ4MY99NybJmtvJYQ+NdiM4xsZS/R2Fldt1/wKsFwRDjoQI9Ax7KWXCp0xpBeNGtXmS+LB9mh2bXx
-        gDIZ7abKw/5OWzNymR7PKUcno;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60912 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nU1c4-001iJv-M1; Tue, 15 Mar 2022 01:29:00 -0600
-Subject: Re: [PATCH 5.16 000/121] 5.16.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220314112744.120491875@linuxfoundation.org>
-In-Reply-To: <20220314112744.120491875@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <267e38ad-d40a-3cac-fcc1-09df574c94a6@w6rz.net>
-Date:   Tue, 15 Mar 2022 00:28:58 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S1345411AbiCOHaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 03:30:16 -0400
+Received: from smtp-out.xnet.cz (smtp-out.xnet.cz [178.217.244.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64464B1D1;
+        Tue, 15 Mar 2022 00:29:02 -0700 (PDT)
+Received: from meh.true.cz (meh.true.cz [108.61.167.218])
+        (Authenticated sender: petr@true.cz)
+        by smtp-out.xnet.cz (Postfix) with ESMTPSA id 420E01822C;
+        Tue, 15 Mar 2022 08:29:00 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=true.cz; s=xnet;
+        t=1647329340; bh=65xHoffDZObM2VcshT2400SVsaHk3C3lcItOW7dYiro=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To;
+        b=LcIHGOxyWO+eN62q6QH5dSr84iz8ODEZ+2nhHHrUG1w6UE9Mbsyr0H+6UP3nbzIEz
+         iL4g6D3ZcfQvtl5m/BPl39+tqWEOqudRSbqqAc9/G/IA561CnJWYn4B635DHO7RPwP
+         FFTlRZGBFvEp1AbDNB2L8qBC5vk6B2GVeGlH8olY=
+Received: by meh.true.cz (OpenSMTPD) with ESMTP id 7ab44043;
+        Tue, 15 Mar 2022 08:28:36 +0100 (CET)
+Date:   Tue, 15 Mar 2022 08:28:58 +0100
+From:   Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Maxime Ripard <mripard@kernel.org>,
+        Bastien =?utf-8?Q?Roucari=C3=A8s?= <rouca@debian.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>, stable@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Revert "ARM: dts: sun7i: A20-olinuxino-lime2: Fix
+ ethernet phy-mode"
+Message-ID: <20220315072846.GA9129@meh.true.cz>
+Reply-To: Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
+References: <20220308125531.27305-1-ynezz@true.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nU1c4-001iJv-M1
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:60912
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220308125531.27305-1-ynezz@true.cz>
+X-PGP-Key: https://gist.githubusercontent.com/ynezz/477f6d7a1623a591b0806699f9fc8a27/raw/a0878b8ed17e56f36ebf9e06a6b888a2cd66281b/pgp-key.pub
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/14/22 4:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.15 release.
-> There are 121 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 16 Mar 2022 11:27:22 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Petr Štetiar <ynezz@true.cz> [2022-03-08 13:55:30]:
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Hi Greg,
 
-Tested-by: Ron Economos <re@w6rz.net>
+one week has passed and as I didn't received any feedback, I'm providing more
+details in a hope to make it more clear, why I think, that this fix is wrong
+and should be reverted in LTS kernels 5.10 and 5.15.
 
+> This reverts commit 55dd7e059098ce4bd0a55c251cb78e74604abb57 as it breaks
+> network on my A20-olinuxino-lime2 hardware revision "K" which has Micrel
+> KSZ9031RNXCC-TR Gigabit PHY. Bastien has probably some previous hardware
+> revisions which were based on RTL8211E-VB-CG1 PHY and thus this fix was
+> working on his board.
+
+Disclaimer, I don't own A20-olinuxino-lime2 board with earlier HW revisions
+G/G1/G2 utilizing RTL8211E PHY.
+
+My understanding is, that up to kernel version 5.9 and specifically commit
+bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx delay config") it was
+likely possible to use same DTS for A20-olinuxino-lime2 with KSZ9031 or
+RTL8211E PHYs (all HW revisions).
+
+At least I was using my A20-olinuxino-lime2 HW revision K with KSZ9031 PHY
+just fine with 4.19 kernel. After upgrade to 5.10 LTS kernel my network
+stopped working, reverting stable backport commit a90398438517 ("ARM: dts:
+sun7i: A20-olinuxino-lime2: Fix ethernet phy-mode") fixed it.
+
+From my POV proper fix for earlier HW revisions G/G1/G2 is introduction of
+sun7i-a20-olinuxino-lime2-revG.dts with a proper `phy-mode` for RTL8211E PHY.
+
+Cheers,
+
+Petr
+
+> Cc: stable@vger.kernel.org
+> Cc: Bastien Roucariès <rouca@debian.org>
+> References: https://github.com/openwrt/openwrt/issues/9153
+> References: https://github.com/OLIMEX/OLINUXINO/blob/master/HARDWARE/A20-OLinuXino-LIME2/hardware_revision_changes_log.txt
+> Signed-off-by: Petr Štetiar <ynezz@true.cz>
+> ---
+>  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> index ecb91fb899ff..8077f1716fbc 100644
+> --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> @@ -112,7 +112,7 @@ &gmac {
+>  	pinctrl-names = "default";
+>  	pinctrl-0 = <&gmac_rgmii_pins>;
+>  	phy-handle = <&phy1>;
+> -	phy-mode = "rgmii-id";
+> +	phy-mode = "rgmii";
+>  	status = "okay";
+>  };
