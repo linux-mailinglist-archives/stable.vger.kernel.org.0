@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CA5D4DA099
-	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 17:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6BA4DA09B
+	for <lists+stable@lfdr.de>; Tue, 15 Mar 2022 17:57:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350345AbiCOQ6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 12:58:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43408 "EHLO
+        id S1346711AbiCOQ6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 12:58:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350330AbiCOQ6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 12:58:00 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E42A5574B2
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 09:56:47 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id p8so20664103pfh.8
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 09:56:47 -0700 (PDT)
+        with ESMTP id S245084AbiCOQ6T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 12:58:19 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1F8A57481
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 09:57:07 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id mr24-20020a17090b239800b001bf0a375440so2813767pjb.4
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 09:57:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YJkWk99bLZw++rSGr2/IK3Rs1XoNvFcnuxKFkD7iXfQ=;
-        b=HfWVhu5hvd7qeRccFco3HtFVm5PsbpepnDOYIuIcWqwjwJbBPhUkjW0jJTU9bJsw9s
-         n65j2LUPAhuKGNqx8VCNX+hsswJHY4gf25DJnor6UcEqGhYoA5MzoRBB94LJSXYDAIqk
-         t0ztzrf9wWcAnzUKsATm0nRUYGBryW2OSolE2h4SwPsT9eNJaVid55ceUQif5RZHQ+iT
-         5jEPEdFRZ+n6VEx/ef8nzAaEkLox0b9WR5IKE8eGsGzBlrzx+rVUsgSANk123LtWIcW5
-         X9rQ0J8ES8mSdxMNeFcUwoX2eg3BLcaiamF49HL/DrtPtDyJv3NvrsBt7PdyE7Dhv9Ec
-         8l5g==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=sZYOe+A3oC1fCNmMc9UqSewRIWLOsh6xjndXGY2xoNQ=;
+        b=F66OOnf5YxYSQPa4Ft9NT8XE/vImYLd6gqhpRTNTTxeHTjEhdWe04IgrOtV2rzjDd0
+         emgWslL4rZi8lRHu6TJTRTCN58AFPsS98P3xqsNVnmge1OiQr+KLY0fblAda+3L62VJb
+         VGCV7Q8WA8oshFXVNK6kzTGveJ87rujbii9Zex/kvMdtTYWvhyJKI8jnrwDuFTW8Ug85
+         NCArB/m7jDdcncUxgtGSVzXg+taFwgTviiCrC9oCIKXfluePt1rZ7tyGHB8ygR4mbavZ
+         i63EGZYGcwuQV9MYAk6QwuCkgsEZU+0LsL3/0lrJnN9S2q0grSr9aS8LqtSeUwj02JEj
+         dYgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YJkWk99bLZw++rSGr2/IK3Rs1XoNvFcnuxKFkD7iXfQ=;
-        b=RZQoPV9lyxtsmQ2D+j1H9KtN2f4X4IzXt0ebe4Mp4zxL73AC1a2wn1nMTAkchCQr1G
-         r521/RLqwCsGtpAA94ZYiozSFXmdOI9oHZmMxFEdYfAdQqekZ7xzcFRBMsJZHesTxJ8E
-         LCOJ6EzPla+iM8/1mp14hpBe6esaC/TiK5EzPsSnhQYrbWHiBf/GXqRC2zH9VUbaqdEY
-         BFRgqSKU+UJENP76IB5Mxd2kHoOSgl4zw9W/QuKu0LY+kpGqHaf+6uPmS5nA28aPWXQV
-         thV+12tQbJ8p40uiumTQV1tQiPKN0bnT3VffNTVfl2mHiW9wYOUc7zAg/lwgNwPdOwS5
-         Xr9w==
-X-Gm-Message-State: AOAM53097HrCZzlfL3QuSkUJt1mB9U8VxtOANqxlYs8khPlGZeVp8OnX
-        7l0wjLupdEGHy4KWOe7NnQk=
-X-Google-Smtp-Source: ABdhPJxHFbqVOmNHUuxR+neKszGPBNtKnYs0I9jRD3t+e3mY0TR4WuxOLTPugKbYcs1pvwkwR2BWgQ==
-X-Received: by 2002:a63:4e4d:0:b0:381:640e:a373 with SMTP id o13-20020a634e4d000000b00381640ea373mr3905684pgl.379.1647363407195;
-        Tue, 15 Mar 2022 09:56:47 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=sZYOe+A3oC1fCNmMc9UqSewRIWLOsh6xjndXGY2xoNQ=;
+        b=xnUH5/B4Pt+gpC8pbfFm3XrFwUMWhlLYsyaRyJPEA2CKt+Z1YxnH7zkI44RUPIjShi
+         xtBAdaC+9mrI6Owk/ZeGHAj97otQWsG09Xbz205KpkJOKYve2/SOtxTy2l03qYWpD/oN
+         Muy7oIZApfv3NQfrYSfIuXwHqArXNRJ+Fy9MF7ZFOSa8aofFFPlOv6vFXga8XobNh4RW
+         31MGdkcYC0pIOM3nd4NwELtv8mR84EdtagOzKTfU28rbz+XEWw48NzcyHQ6kWpgTdGBs
+         QUZyxt0LHm1Ua7WrooNLlrA2SNMQiUv6tuTJriZGVk6eUiHNZMN1A8nYOuZ1jdaVLyZu
+         qNDg==
+X-Gm-Message-State: AOAM533S1gjlboO0KRWNopZee/+tJsZIkik+xSdajBGcAAjQiuuJTXPu
+        qXk8dxLpAGWL2mVCqnGtJhY=
+X-Google-Smtp-Source: ABdhPJyfChb4/6khUHa/0Gd/YGba2eBXMUPIeZKQ91T5JOQbSyRIJmsREVHsJOK9n+7DxGl8vK4y7w==
+X-Received: by 2002:a17:90b:4f8e:b0:1bf:8b95:da05 with SMTP id qe14-20020a17090b4f8e00b001bf8b95da05mr5666557pjb.216.1647363427230;
+        Tue, 15 Mar 2022 09:57:07 -0700 (PDT)
 Received: from tokunori-desktop.flets-east.jp ([240b:10:2720:5500:3e36:8008:b94b:774d])
-        by smtp.gmail.com with ESMTPSA id l10-20020a056a00140a00b004c55d0dcbd1sm24835809pfu.120.2022.03.15.09.56.44
+        by smtp.gmail.com with ESMTPSA id l10-20020a056a00140a00b004c55d0dcbd1sm24835809pfu.120.2022.03.15.09.57.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Mar 2022 09:56:46 -0700 (PDT)
+        Tue, 15 Mar 2022 09:57:06 -0700 (PDT)
 From:   Tokunori Ikegami <ikegami.t@gmail.com>
 To:     miquel.raynal@bootlin.com
 Cc:     linux-mtd@lists.infradead.org,
@@ -54,10 +54,12 @@ Cc:     linux-mtd@lists.infradead.org,
         Ahmad Fatoum <a.fatoum@pengutronix.de>,
         Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>, stable@vger.kernel.org
-Subject: [PATCH v3 0/3] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
-Date:   Wed, 16 Mar 2022 01:56:04 +0900
-Message-Id: <20220315165607.390070-1-ikegami.t@gmail.com>
+Subject: [PATCH v3 3/3] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
+Date:   Wed, 16 Mar 2022 01:56:07 +0900
+Message-Id: <20220315165607.390070-4-ikegami.t@gmail.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220315165607.390070-1-ikegami.t@gmail.com>
+References: <20220315165607.390070-1-ikegami.t@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -85,16 +87,35 @@ Cc: Richard Weinberger <richard@nod.at>
 Cc: Vignesh Raghavendra <vigneshr@ti.com>
 Cc: linux-mtd@lists.infradead.org
 Cc: stable@vger.kernel.org
+---
+ drivers/mtd/chips/cfi_cmdset_0002.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Tokunori Ikegami (3):
-  mtd: cfi_cmdset_0002: Add S29GL064N ID definition
-  mtd: cfi_cmdset_0002: Move and rename
-    chip_check/chip_ready/chip_good_for_write
-  mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
-
- drivers/mtd/chips/cfi_cmdset_0002.c | 89 +++++++++++++++--------------
- 1 file changed, 47 insertions(+), 42 deletions(-)
-
+diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+index 8f3f0309dc03..fa11db066c99 100644
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -867,10 +867,20 @@ static int __xipram chip_good(struct map_info *map, struct flchip *chip,
+ 	return chip_check(map, chip, addr, &expected);
+ }
+ 
++static bool __xipram cfi_use_chip_ready_for_write(struct map_info *map)
++{
++	struct cfi_private *cfi = map->fldrv_priv;
++
++	return cfi->mfr == CFI_MFR_AMD && cfi->id == S29GL064N_MN12;
++}
++
+ static int __xipram chip_good_for_write(struct map_info *map,
+ 					struct flchip *chip, unsigned long addr,
+ 					map_word expected)
+ {
++	if (cfi_use_chip_ready_for_write(map))
++		return chip_ready(map, chip, addr);
++
+ 	return chip_good(map, chip, addr, expected);
+ }
+ 
 -- 
 2.32.0
 
