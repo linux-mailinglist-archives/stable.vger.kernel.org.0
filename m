@@ -2,205 +2,324 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DD74DB045
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 14:02:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AFFF4DB19A
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 14:36:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352150AbiCPNEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 09:04:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44256 "EHLO
+        id S242879AbiCPNh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 09:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232366AbiCPND7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 09:03:59 -0400
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B698B6662E;
-        Wed, 16 Mar 2022 06:02:42 -0700 (PDT)
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-2e5ad7166f1so9611047b3.12;
-        Wed, 16 Mar 2022 06:02:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2kXsqPiYOqsHAhBrFjuq2lGWRyJ/hN9PzrRuRIITwfo=;
-        b=S6IBYbt42fPeeftUhK1dJrU4YS2T5k8r9ZNjEQXwr34ctZpxbYICUbpmhgNIjOEma3
-         EolQAqlMTvHfU2H6Ad/5cSqA7csuNyNeS/CbbwZJZ1ejt9/3kOSvOR3EJnbDSQdELy6b
-         sHrUD6ftaP3Ewk1knGoxeyria+fTpJvAa4rnpU/o6HmFO+3bXBXdo35XscpDbxbIAyFA
-         2dDaIvmVCfhNEvfvkR9wU+iYLBsBrGFXeSgJ8NhkLEYjaIV4M28AeiHGdVqlBouVfVWw
-         7tvhjr10yCAWnSF6XXFoMiKvDehq4aNSuN2R0xOziGKOAfAkz17/e8ZG1zWc9hzi0igv
-         vkaA==
-X-Gm-Message-State: AOAM530bsqDBjE3+caWmGiO8lqprBF6sNk5hzMFTqjxo19pHngSr7hyV
-        OZ4uU4QKOmmSbemR7GneDvWHxSO4tvC2OUFEERE=
-X-Google-Smtp-Source: ABdhPJwcIUZ8ZwyAWC6O7Ni3CtnZ75zb54xMJej9WfYL/MKnZXUU6l2cA0i5SBQWNwwSrcKG9YnVbz/WPPTlUpan/90=
-X-Received: by 2002:a81:508b:0:b0:2e5:9904:8655 with SMTP id
- e133-20020a81508b000000b002e599048655mr6655175ywb.196.1647435761506; Wed, 16
- Mar 2022 06:02:41 -0700 (PDT)
+        with ESMTP id S230172AbiCPNh4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 09:37:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E06094707C;
+        Wed, 16 Mar 2022 06:36:41 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EB6D60C7E;
+        Wed, 16 Mar 2022 13:36:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41E9CC340E9;
+        Wed, 16 Mar 2022 13:36:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647437800;
+        bh=quH8zwSVKyG0VADcpnj2NLd0KWU7tiOuZWkKkmJCLVw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Rhok7x7X3PvCxIlpm0MUgYzd5JIEcw0muESvUjhueGWDDsc7GVlZCOlqzII6ei776
+         mcrFvcSjIorPFi87+CYe+9OA27jcBYo53Dj2Z8/pU8d7dvNPqYOkkUoVnJUgteXvLf
+         lB8ES2f99Kr2H6jeyiVFLwnbU2zzyvmxxllv8aZY=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.10.106
+Date:   Wed, 16 Mar 2022 14:36:36 +0100
+Message-Id: <1647437796207155@kroah.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
- <CAJZ5v0hQifvD+U8q1O7p_5QeicG_On4=CrgNj0RsbPSbkY8Hww@mail.gmail.com>
- <ad3b77f8-7e75-1dfa-8ee4-1077336911aa@redhat.com> <CAJZ5v0js8Vr7dW09WGyR_JTn4kMybDhaTWt4yziqwSM+oAXUNA@mail.gmail.com>
- <CAJZ5v0imJfOp-Uw=tH2dimSQzb-EgHu_yEU_0LScmrQ43t3pbw@mail.gmail.com>
- <c9a1adb5-17b7-c7ed-d23f-6b6523a4771a@redhat.com> <CAJZ5v0gB2ZCWe3MeGnw6_CNu_Ds0QEPZ6X6jnA7dQbZe6gKZ8w@mail.gmail.com>
- <5fb0cbe8-5f9d-1c75-ae0a-5909624189d3@redhat.com> <ce781d92-f269-aaf5-1733-25de85f05b7b@amd.com>
-In-Reply-To: <ce781d92-f269-aaf5-1733-25de85f05b7b@amd.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 16 Mar 2022 14:02:30 +0100
-Message-ID: <CAJZ5v0irKgmSQ7YegP=US1ACUfqVMCNitu2azMbMAqm2f+cXTg@mail.gmail.com>
-Subject: Re: Many reports of laptops getting hot while suspended with kernels
- >= 5.16.10 || >= 5.17-rc1
-To:     "Limonciello, Mario" <mario.limonciello@amd.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Justin Forbes <jmforbes@linuxtx.org>,
-        Mark Pearson <markpearson@lenovo.com>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 14, 2022 at 3:37 PM Limonciello, Mario
-<mario.limonciello@amd.com> wrote:
->
-> + KH
->
-> On 3/10/2022 06:22, Hans de Goede wrote:
-> > Hi,
-> >
-> > On 3/10/22 11:56, Rafael J. Wysocki wrote:
-> >> On Thu, Mar 10, 2022 at 10:07 AM Hans de Goede <hdegoede@redhat.com> wrote:
-> >>>
-> >>> Hi,
-> >>>
-> >>> On 3/9/22 19:27, Rafael J. Wysocki wrote:
-> >>>> On Wed, Mar 9, 2022 at 5:34 PM Rafael J. Wysocki <rafael@kernel.org> wrote:
-> >>>>>
-> >>>>> On Wed, Mar 9, 2022 at 5:33 PM Hans de Goede <hdegoede@redhat.com> wrote:
-> >>>>>>
-> >>>>>> Hi,
-> >>>>>>
-> >>>>>> On 3/9/22 14:57, Rafael J. Wysocki wrote:
-> >>>>>>> On Wed, Mar 9, 2022 at 2:44 PM Hans de Goede <hdegoede@redhat.com> wrote:
-> >>>>>>>>
-> >>>>>>>> Hi Rafael,
-> >>>>>>>>
-> >>>>>>>> We (Fedora) have been receiving a whole bunch of bug reports about
-> >>>>>>>> laptops getting hot/toasty while suspended with kernels >= 5.16.10
-> >>>>>>>> and this seems to still happen with 5.17-rc7 too.
-> >>>>>>>>
-> >>>>>>>> The following are all bugzilla.redhat.com bug numbers:
-> >>>>>>>>
-> >>>>>>>>     1750910 - Laptop failed to suspend and completely drained the battery
-> >>>>>>>>     2050036 - Framework laptop: 5.16.5 breaks s2idle sleep
-> >>>>>>>>     2053957 - Package c-states never go below C2
-> >>>>>>>>     2056729 - No lid events when closing lid / laptop does not suspend
-> >>>>>>>>     2057909 - Thinkpad X1C 9th in s2idle suspend still draining battery to zero over night , Ap
-> >>>>>>>>     2059668 - HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case ge
-> >>>>>>>>     2059688 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
-> >>>>>>>>
-> >>>>>>>> And one of the bugs has also been mirrored at bugzilla.kernel.org by
-> >>>>>>>> the reporter:
-> >>>>>>>>
-> >>>>>>>>   bko215641 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
-> >>>>>>>>
-> >>>>>>>> The common denominator here (besides the kernel version) seems to
-> >>>>>>>> be that these are all Ice or Tiger Lake systems (I did not do
-> >>>>>>>> check this applies 100% to all bugs, but it does see, to be a pattern).
-> >>>>>>>>
-> >>>>>>>> A similar arch-linux report:
-> >>>>>>>>
-> >>>>>>>> https://bbs.archlinux.org/viewtopic.php?id=274292&p=2
-> >>>>>>>>
-> >>>>>>>> Suggest that reverting
-> >>>>>>>> "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
-> >>>>>>>>
-> >>>>>>>> which was cherry-picked into 5.16.10 fixes things.
-> >>>>>>>
-> >>>>>>> Thanks for letting me know!
-> >>>>>>>
-> >>>>>>>> If you want I can create Fedora kernel test-rpms of a recent
-> >>>>>>>> 5.16.y with just that one commit reverted and ask users to
-> >>>>>>>> confirm if that helps. Please let me know if doing that woulkd
-> >>>>>>>> be useful ?
-> >>>>>>>
-> >>>>>>> Yes, it would.
-> >>>>>>>
-> >>>>>>> However, it follows from the arch-linux report linked above that
-> >>>>>>> 5.17-rc is fine, so it would be good to also check if reverting that
-> >>>>>>> commit from 5.17-rc helps.
-> >>>>>>
-> >>>>>> Ok, I've done Fedora kernel builds of both 5.16.13 and 5.17-rc7 with
-> >>>>>> the patch reverted and asked the bug-reporters to test both.
-> >>>>>
-> >>>>> Thanks!
-> >>>>
-> >>>> Also, in the cases where people have not tested 5.17-rc7 without any
-> >>>> reverts, it would be good to ask them to do so.
-> >>>
-> >>> Ok, done.
-> >>>
-> >>>> I have received another report related to this issue where the problem
-> >>>> is not present in 5.17-rc7 (see
-> >>>> https://lore.kernel.org/linux-pm/CAJZ5v0hKXyTtb1Jk=wqNV9_mZKdf3mmwF4bPOcmADyNnTkpMbQ@mail.gmail.com/).
-> >>>
-> >>> The first results from the Fedora test kernel builds are in:
-> >>>
-> >>> "HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case gets very hot and requires a power button hold to restart"
-> >>> https://bugzilla.redhat.com/show_bug.cgi?id=2059668
-> >>>
-> >>> 5.16.9: good
-> >>> 5.16.10+: bad
-> >>> 5.16.13 with "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE" reverted: good
-> >>> 5.17-rc7 with "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE" reverted: good
-> >>> 5.17-rc7 (plain): good
-> >>>
-> >>> So this seems to match the arch-linux report and the email report
-> >>> you linked. There is a problem with the backport in 5.16.10+,
-> >>> while 5.17-rc7 is fine.
-> >>>
-> >>>> It is likely that the commit in question actually depends on some
-> >>>> other commits that were not backported into 5.16.y.
-> >>> I was thinking the same thing, but I've no idea which commits
-> >>> that would be.
-> >>
-> >> I do have an idea, but regardless of this, IMO the least risky way
-> >> forward would be to request "stable" to drop "ACPI: PM: s2idle: Cancel
-> >> wakeup before dispatching EC GPE" which has been backported, because
-> >> it carried a Fixes tag and not because it was marked for "stable".
-> >>
-> >> Let me do that.
-> >
-> > Ok, that sounds good, thank you.
-> >
->
-> Just FWIW this fix that was backported to stable also fixed keyboard
-> wakeup from s2idle on a number of HP laptops too.  I know for sure that
-> it fixed it on the AMD versions of them, and Kai Heng Feng suspected it
-> will also fix it for the Intel versions.  So if there is another commit
-> that can be backported from 5.17 to make it safer for the other systems,
-> I think we should consider doing that to solve it too.
+I'm announcing the release of the 5.10.106 kernel.
 
-There is a series of ACPI EC driver commits that are present in
-5.17-rc, but have not been included in any "stable" series:
+All users of the 5.10 kernel series must upgrade.
 
-befd9b5b0c62 ACPI: EC: Relocate acpi_ec_create_query() and drop
-acpi_ec_delete_query()
-c33676aa4824 ACPI: EC: Make the event work state machine visible
-c793570d8725 ACPI: EC: Avoid queuing unnecessary work in acpi_ec_submit_event()
-eafe7509ab8c ACPI: EC: Rename three functions
-a105acd7e384 ACPI: EC: Simplify locking in acpi_ec_event_handler()
-388fb77dcf97 ACPI: EC: Rearrange the loop in acpi_ec_event_handler()
-98d364509d77 ACPI: EC: Fold acpi_ec_check_event() into acpi_ec_event_handler()
-1f2350443dd2 ACPI: EC: Pass one argument to acpi_ec_query()
-ca8283dcd933 ACPI: EC: Call advance_transaction() from acpi_ec_dispatch_gpe()
+The updated 5.10.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-It is likely that they prevent the problem exposed by the problematic
-commit from occurring, but I'm not sure which ones do that.  Some of
-them are clearly cosmetic, but the ordering matters.
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                               |    2 
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi               |    2 
+ arch/arm/boot/dts/bcm2711.dtsi                         |    1 
+ arch/arm/include/asm/spectre.h                         |    6 +
+ arch/arm/kernel/entry-armv.S                           |    4 
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts |    8 +
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi           |    2 
+ arch/riscv/kernel/module.c                             |   21 +++-
+ arch/x86/kernel/e820.c                                 |   41 ++++++---
+ arch/x86/kernel/kdebugfs.c                             |   37 ++++++--
+ arch/x86/kernel/ksysfs.c                               |   77 +++++++++++++----
+ arch/x86/kernel/setup.c                                |   34 +++++--
+ arch/x86/kernel/traps.c                                |    1 
+ arch/x86/mm/ioremap.c                                  |   57 +++++++++++-
+ drivers/block/virtio_blk.c                             |   10 +-
+ drivers/clk/qcom/gdsc.c                                |   26 ++++-
+ drivers/clk/qcom/gdsc.h                                |    8 +
+ drivers/gpio/gpio-ts4900.c                             |   24 ++++-
+ drivers/gpio/gpiolib.c                                 |   10 ++
+ drivers/gpu/drm/sun4i/sun8i_mixer.h                    |    8 -
+ drivers/hid/hid-vivaldi.c                              |    2 
+ drivers/hwmon/pmbus/pmbus_core.c                       |    5 +
+ drivers/isdn/hardware/mISDN/hfcpci.c                   |    6 +
+ drivers/isdn/mISDN/dsp_pipeline.c                      |   52 +----------
+ drivers/mmc/host/meson-gx-mmc.c                        |   15 +--
+ drivers/net/dsa/mt7530.c                               |    2 
+ drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c     |    7 +
+ drivers/net/ethernet/cadence/macb_main.c               |   25 +++++
+ drivers/net/ethernet/freescale/gianfar_ethtool.c       |    1 
+ drivers/net/ethernet/intel/i40e/i40e_debugfs.c         |    6 -
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c     |   57 +-----------
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h     |    5 -
+ drivers/net/ethernet/intel/ice/ice_adminq_cmd.h        |   10 +-
+ drivers/net/ethernet/intel/ice/ice_common.c            |   13 +-
+ drivers/net/ethernet/intel/ice/ice_ethtool.c           |   70 ++++++---------
+ drivers/net/ethernet/intel/ice/ice_main.c              |   12 +-
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c       |   18 ---
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h       |    3 
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c          |   15 +--
+ drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c       |   11 +-
+ drivers/net/ethernet/nxp/lpc_eth.c                     |    5 -
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c            |   18 ++-
+ drivers/net/ethernet/qlogic/qed/qed_vf.c               |    7 +
+ drivers/net/ethernet/ti/cpts.c                         |    4 
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c          |    4 
+ drivers/net/phy/dp83822.c                              |    2 
+ drivers/net/xen-netback/xenbus.c                       |   14 +--
+ drivers/nfc/port100.c                                  |    2 
+ drivers/spi/spi-rockchip.c                             |   13 ++
+ drivers/staging/gdm724x/gdm_lte.c                      |    5 -
+ drivers/staging/rtl8723bs/core/rtw_mlme_ext.c          |    7 +
+ drivers/staging/rtl8723bs/core/rtw_recv.c              |   10 +-
+ drivers/staging/rtl8723bs/core/rtw_sta_mgt.c           |   22 ++--
+ drivers/staging/rtl8723bs/core/rtw_xmit.c              |   16 +--
+ drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c         |    2 
+ drivers/virtio/virtio.c                                |   40 ++++----
+ fs/ext4/resize.c                                       |    5 +
+ fs/fuse/dev.c                                          |   12 ++
+ fs/fuse/file.c                                         |    1 
+ fs/fuse/fuse_i.h                                       |    1 
+ fs/pipe.c                                              |   11 +-
+ include/linux/mlx5/mlx5_ifc.h                          |    4 
+ include/linux/virtio.h                                 |    1 
+ include/linux/virtio_config.h                          |    3 
+ include/linux/watch_queue.h                            |    3 
+ kernel/trace/trace.c                                   |   10 +-
+ kernel/watch_queue.c                                   |   15 +--
+ net/ax25/af_ax25.c                                     |    7 +
+ net/core/net-sysfs.c                                   |    2 
+ net/ipv4/esp4_offload.c                                |    3 
+ net/ipv6/addrconf.c                                    |    2 
+ net/ipv6/esp6_offload.c                                |    3 
+ net/sctp/diag.c                                        |    9 -
+ net/tipc/bearer.c                                      |   12 +-
+ net/tipc/link.c                                        |    9 +
+ tools/testing/selftests/bpf/prog_tests/timer_crash.c   |   32 +++++++
+ tools/testing/selftests/bpf/progs/timer_crash.c        |   54 +++++++++++
+ tools/testing/selftests/memfd/memfd_test.c             |    1 
+ tools/testing/selftests/net/pmtu.sh                    |    7 +
+ tools/testing/selftests/vm/map_fixed_noreplace.c       |   49 ++++++++--
+ 80 files changed, 743 insertions(+), 398 deletions(-)
+
+Alexey Khoroshilov (1):
+      mISDN: Fix memory leak in dsp_pipeline_build()
+
+Aneesh Kumar K.V (1):
+      selftest/vm: fix map_fixed_noreplace test failure
+
+Anirudh Venkataramanan (3):
+      ice: Align macro names to the specification
+      ice: Remove unnecessary checker loop
+      ice: Rename a couple of variables
+
+Clément Léger (1):
+      net: phy: DP83822: clear MISR2 register to disable interrupts
+
+Dan Carpenter (1):
+      staging: gdm724x: fix use after free in gdm_lte_rx()
+
+David Howells (8):
+      watch_queue, pipe: Free watchqueue state after clearing pipe ring
+      watch_queue: Fix to release page in ->release()
+      watch_queue: Fix to always request a pow-of-2 pipe ring size
+      watch_queue: Fix the alloc bitmap size to reflect notes allocated
+      watch_queue: Free the alloc bitmap when the watch_queue is torn down
+      watch_queue: Fix lack of barrier/sync/lock between post and read
+      watch_queue: Make comment about setting ->defunct more accurate
+      watch_queue: Fix filter limit check
+
+Dmitry Torokhov (1):
+      HID: vivaldi: fix sysfs attributes leak
+
+Duoming Zhou (1):
+      ax25: Fix NULL pointer dereference in ax25_kill_by_device
+
+Emil Renner Berthing (1):
+      riscv: Fix auipc+jalr relocation range checks
+
+Eric Dumazet (1):
+      sctp: fix kernel-infoleak for SCTP sockets
+
+Greg Kroah-Hartman (1):
+      Linux 5.10.106
+
+Guillaume Nault (1):
+      selftests: pmtu.sh: Kill tcpdump processes launched by subshell.
+
+Hans de Goede (1):
+      staging: rtl8723bs: Fix access-point mode deadlock
+
+Jacob Keller (2):
+      i40e: stop disabling VFs due to PF error responses
+      ice: stop disabling VFs due to PF error responses
+
+Jedrzej Jagielski (1):
+      ice: Fix curr_link_speed advertised speed
+
+Jeremy Linton (1):
+      net: bcmgenet: Don't claim WOL when its not available
+
+Jernej Skrabec (1):
+      drm/sun4i: mixer: Fix P010 and P210 format numbers
+
+Jia-Ju Bai (2):
+      isdn: hfcpci: check the return value of dma_set_mask() in setup_hw()
+      net: qlogic: check the return value of dma_alloc_coherent() in qed_vf_hw_prepare()
+
+Jiasheng Jiang (2):
+      net: ethernet: ti: cpts: Handle error for clk_enable
+      net: ethernet: lpc_eth: Handle error for clk_enable
+
+Joel Stanley (1):
+      ARM: dts: aspeed: Fix AST2600 quad spi group
+
+Jon Lin (2):
+      spi: rockchip: Fix error in getting num-cs property
+      spi: rockchip: terminate dma transmission when slave abort
+
+Josh Triplett (1):
+      ext4: add check to prevent attempting to resize an fs with sparse_super2
+
+Kumar Kartikeya Dwivedi (1):
+      selftests/bpf: Add test for bpf_timer overwriting crash
+
+Li Huafei (1):
+      x86/traps: Mark do_int3() NOKPROBE_SYMBOL
+
+Marek Marczykowski-Górecki (2):
+      Revert "xen-netback: remove 'hotplug-status' once it has served its purpose"
+      Revert "xen-netback: Check for hotplug-status existence before watching"
+
+Mark Featherston (1):
+      gpio: ts4900: Do not set DAT and OE together
+
+Maxime Ripard (1):
+      ARM: boot: dts: bcm2711: Fix HVS register range
+
+Miaoqian Lin (2):
+      ethernet: Fix error handling in xemaclite_of_probe
+      gianfar: ethtool: Fix refcount leak in gfar_get_ts_info
+
+Michael S. Tsirkin (2):
+      virtio: unexport virtio_finalize_features
+      virtio: acknowledge all features before access
+
+Mike Kravetz (1):
+      selftests/memfd: clean up mapping in mfd_fail_write
+
+Miklos Szeredi (1):
+      fuse: fix pipe buffer lifetime for direct_io
+
+Mohammad Kabat (1):
+      net/mlx5: Fix size field in bufferx_reg struct
+
+Moshe Shemesh (1):
+      net/mlx5: Fix a race on command flush flow
+
+Niels Dossche (1):
+      ipv6: prevent a possible race condition with lifetimes
+
+Pali Rohár (2):
+      arm64: dts: armada-3720-turris-mox: Add missing ethernet0 alias
+      arm64: dts: marvell: armada-37xx: Remap IO space to bus address 0x0
+
+Pavel Skripkin (1):
+      NFC: port100: fix use-after-free in port100_send_complete
+
+Randy Dunlap (1):
+      ARM: Spectre-BHB: provide empty stub for non-config
+
+Robert Hancock (1):
+      net: macb: Fix lost RX packet wakeup race in NAPI receive
+
+Roi Dayan (1):
+      net/mlx5e: Lag, Only handle events from highest priority multipath entry
+
+Rong Chen (1):
+      mmc: meson: Fix usage of meson_mmc_post_req()
+
+Ross Philipson (2):
+      x86/boot: Fix memremap of setup_indirect structures
+      x86/boot: Add setup_indirect support in early_memremap_is_setup_data()
+
+Russell King (Oracle) (2):
+      net: dsa: mt7530: fix incorrect test in mt753x_phylink_validate()
+      ARM: fix Thumb2 regression with Spectre BHB
+
+Shreeya Patel (1):
+      gpio: Return EPROBE_DEFER if gc->to_irq is NULL
+
+Steffen Klassert (1):
+      esp: Fix BEET mode inter address family tunneling on GSO
+
+Sven Schnelle (1):
+      tracing: Ensure trace buffer is at least 4096 bytes large
+
+Taniya Das (1):
+      clk: qcom: gdsc: Add support to update GDSC transition delay
+
+Tom Rix (1):
+      qed: return status of qed_iov_get_link
+
+Tung Nguyen (2):
+      tipc: fix kernel panic when enabling bearer
+      tipc: fix incorrect order of state message data sanity check
+
+Vikash Chandola (1):
+      hwmon: (pmbus) Clear pmbus fault/warning bits after read
+
+Xie Yongji (1):
+      virtio-blk: Don't use MAX_DISCARD_SEGMENTS if max_discard_seg is zero
+
+Zhen Lei (1):
+      mISDN: Remove obsolete PIPELINE_DEBUG debugging information
+
+suresh kumar (1):
+      net-sysfs: add check for netdevice being present to speed_show
+
