@@ -2,1416 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A45FF4DB03F
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 14:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DD74DB045
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 14:02:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355977AbiCPNBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 09:01:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39700 "EHLO
+        id S1352150AbiCPNEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 09:04:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355990AbiCPNBT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 09:01:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2DBB66AD8;
-        Wed, 16 Mar 2022 05:59:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA5D4617B0;
-        Wed, 16 Mar 2022 12:59:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B33AC340E9;
-        Wed, 16 Mar 2022 12:59:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647435596;
-        bh=dsBwD4iN+vsg/j6gfCeY+T+XgDpvpVOo8TwEu6aU2hQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBeYi74nvD1I33Nsdvn3HBT1JIHw3NgfVRkgjkn1hSTkMz/FOO+FMTZyXG8PI8tyO
-         pklD5obe/EeCKwvw599RQLoc2byLLd80+KtC9UIZClFK5Y9kWxrcVB3UtMTC8JC1qP
-         B/9wmcfcz88AOChKsRzZ6pvmhdru0VntdlX55UAE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.4.185
-Date:   Wed, 16 Mar 2022 13:59:44 +0100
-Message-Id: <164743558317770@kroah.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <1647435583127@kroah.com>
-References: <1647435583127@kroah.com>
+        with ESMTP id S232366AbiCPND7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 09:03:59 -0400
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B698B6662E;
+        Wed, 16 Mar 2022 06:02:42 -0700 (PDT)
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-2e5ad7166f1so9611047b3.12;
+        Wed, 16 Mar 2022 06:02:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2kXsqPiYOqsHAhBrFjuq2lGWRyJ/hN9PzrRuRIITwfo=;
+        b=S6IBYbt42fPeeftUhK1dJrU4YS2T5k8r9ZNjEQXwr34ctZpxbYICUbpmhgNIjOEma3
+         EolQAqlMTvHfU2H6Ad/5cSqA7csuNyNeS/CbbwZJZ1ejt9/3kOSvOR3EJnbDSQdELy6b
+         sHrUD6ftaP3Ewk1knGoxeyria+fTpJvAa4rnpU/o6HmFO+3bXBXdo35XscpDbxbIAyFA
+         2dDaIvmVCfhNEvfvkR9wU+iYLBsBrGFXeSgJ8NhkLEYjaIV4M28AeiHGdVqlBouVfVWw
+         7tvhjr10yCAWnSF6XXFoMiKvDehq4aNSuN2R0xOziGKOAfAkz17/e8ZG1zWc9hzi0igv
+         vkaA==
+X-Gm-Message-State: AOAM530bsqDBjE3+caWmGiO8lqprBF6sNk5hzMFTqjxo19pHngSr7hyV
+        OZ4uU4QKOmmSbemR7GneDvWHxSO4tvC2OUFEERE=
+X-Google-Smtp-Source: ABdhPJwcIUZ8ZwyAWC6O7Ni3CtnZ75zb54xMJej9WfYL/MKnZXUU6l2cA0i5SBQWNwwSrcKG9YnVbz/WPPTlUpan/90=
+X-Received: by 2002:a81:508b:0:b0:2e5:9904:8655 with SMTP id
+ e133-20020a81508b000000b002e599048655mr6655175ywb.196.1647435761506; Wed, 16
+ Mar 2022 06:02:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <31b9d1cd-6a67-218b-4ada-12f72e6f00dc@redhat.com>
+ <CAJZ5v0hQifvD+U8q1O7p_5QeicG_On4=CrgNj0RsbPSbkY8Hww@mail.gmail.com>
+ <ad3b77f8-7e75-1dfa-8ee4-1077336911aa@redhat.com> <CAJZ5v0js8Vr7dW09WGyR_JTn4kMybDhaTWt4yziqwSM+oAXUNA@mail.gmail.com>
+ <CAJZ5v0imJfOp-Uw=tH2dimSQzb-EgHu_yEU_0LScmrQ43t3pbw@mail.gmail.com>
+ <c9a1adb5-17b7-c7ed-d23f-6b6523a4771a@redhat.com> <CAJZ5v0gB2ZCWe3MeGnw6_CNu_Ds0QEPZ6X6jnA7dQbZe6gKZ8w@mail.gmail.com>
+ <5fb0cbe8-5f9d-1c75-ae0a-5909624189d3@redhat.com> <ce781d92-f269-aaf5-1733-25de85f05b7b@amd.com>
+In-Reply-To: <ce781d92-f269-aaf5-1733-25de85f05b7b@amd.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 16 Mar 2022 14:02:30 +0100
+Message-ID: <CAJZ5v0irKgmSQ7YegP=US1ACUfqVMCNitu2azMbMAqm2f+cXTg@mail.gmail.com>
+Subject: Re: Many reports of laptops getting hot while suspended with kernels
+ >= 5.16.10 || >= 5.17-rc1
+To:     "Limonciello, Mario" <mario.limonciello@amd.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Justin Forbes <jmforbes@linuxtx.org>,
+        Mark Pearson <markpearson@lenovo.com>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index e914e1a8a7d2..bd3bdf86b992 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 4
--SUBLEVEL = 184
-+SUBLEVEL = 185
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-index 996e006e06c2..f310f4d3bcc7 100644
---- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-@@ -118,7 +118,7 @@
- 	};
- 
- 	pinctrl_fwqspid_default: fwqspid_default {
--		function = "FWQSPID";
-+		function = "FWSPID";
- 		groups = "FWQSPID";
- 	};
- 
-diff --git a/arch/arm/include/asm/spectre.h b/arch/arm/include/asm/spectre.h
-index d1fa5607d3aa..85f9e538fb32 100644
---- a/arch/arm/include/asm/spectre.h
-+++ b/arch/arm/include/asm/spectre.h
-@@ -25,7 +25,13 @@ enum {
- 	SPECTRE_V2_METHOD_LOOP8 = BIT(__SPECTRE_V2_METHOD_LOOP8),
- };
- 
-+#ifdef CONFIG_GENERIC_CPU_VULNERABILITIES
- void spectre_v2_update_state(unsigned int state, unsigned int methods);
-+#else
-+static inline void spectre_v2_update_state(unsigned int state,
-+					   unsigned int methods)
-+{}
-+#endif
- 
- int spectre_bhb_update_vectors(unsigned int method);
- 
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index 94d25425b7bc..3d65fa56a0e5 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -1043,9 +1043,9 @@ vector_bhb_loop8_\name:
- 
- 	@ bhb workaround
- 	mov	r0, #8
--1:	b	. + 4
-+3:	b	. + 4
- 	subs	r0, r0, #1
--	bne	1b
-+	bne	3b
- 	dsb
- 	isb
- 	b	2b
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index 16e73597bb78..2e8239d489f8 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -18,6 +18,7 @@
- 
- 	aliases {
- 		spi0 = &spi0;
-+		ethernet0 = &eth0;
- 		ethernet1 = &eth1;
- 	};
- 
-@@ -137,7 +138,9 @@
- 	/*
- 	 * U-Boot port for Turris Mox has a bug which always expects that "ranges" DT property
- 	 * contains exactly 2 ranges with 3 (child) address cells, 2 (parent) address cells and
--	 * 2 size cells and also expects that the second range starts at 16 MB offset. If these
-+	 * 2 size cells and also expects that the second range starts at 16 MB offset. Also it
-+	 * expects that first range uses same address for PCI (child) and CPU (parent) cells (so
-+	 * no remapping) and that this address is the lowest from all specified ranges. If these
- 	 * conditions are not met then U-Boot crashes during loading kernel DTB file. PCIe address
- 	 * space is 128 MB long, so the best split between MEM and IO is to use fixed 16 MB window
- 	 * for IO and the rest 112 MB (64+32+16) for MEM, despite that maximal IO size is just 64 kB.
-@@ -146,6 +149,9 @@
- 	 * https://source.denx.de/u-boot/u-boot/-/commit/cb2ddb291ee6fcbddd6d8f4ff49089dfe580f5d7
- 	 * https://source.denx.de/u-boot/u-boot/-/commit/c64ac3b3185aeb3846297ad7391fc6df8ecd73bf
- 	 * https://source.denx.de/u-boot/u-boot/-/commit/4a82fca8e330157081fc132a591ebd99ba02ee33
-+	 * Bug related to requirement of same child and parent addresses for first range is fixed
-+	 * in U-Boot version 2022.04 by following commit:
-+	 * https://source.denx.de/u-boot/u-boot/-/commit/1fd54253bca7d43d046bba4853fe5fafd034bc17
- 	 */
- 	#address-cells = <3>;
- 	#size-cells = <2>;
-diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-index 3d15e4ab3f53..9405d9c619ca 100644
---- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -495,7 +495,7 @@
- 			 * (totaling 127 MiB) for MEM.
- 			 */
- 			ranges = <0x82000000 0 0xe8000000   0 0xe8000000   0 0x07f00000   /* Port 0 MEM */
--				  0x81000000 0 0xefff0000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
-+				  0x81000000 0 0x00000000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
- 			interrupt-map-mask = <0 0 0 7>;
- 			interrupt-map = <0 0 0 1 &pcie_intc 0>,
- 					<0 0 0 2 &pcie_intc 1>,
-diff --git a/arch/riscv/kernel/module.c b/arch/riscv/kernel/module.c
-index 6bf5b1674384..a963b761e1a3 100644
---- a/arch/riscv/kernel/module.c
-+++ b/arch/riscv/kernel/module.c
-@@ -13,6 +13,19 @@
- #include <asm/pgtable.h>
- #include <asm/sections.h>
- 
-+/*
-+ * The auipc+jalr instruction pair can reach any PC-relative offset
-+ * in the range [-2^31 - 2^11, 2^31 - 2^11)
-+ */
-+static bool riscv_insn_valid_32bit_offset(ptrdiff_t val)
-+{
-+#ifdef CONFIG_32BIT
-+	return true;
-+#else
-+	return (-(1L << 31) - (1L << 11)) <= val && val < ((1L << 31) - (1L << 11));
-+#endif
-+}
-+
- static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
- {
- 	if (v != (u32)v) {
-@@ -95,7 +108,7 @@ static int apply_r_riscv_pcrel_hi20_rela(struct module *me, u32 *location,
- 	ptrdiff_t offset = (void *)v - (void *)location;
- 	s32 hi20;
- 
--	if (offset != (s32)offset) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
-@@ -197,10 +210,9 @@ static int apply_r_riscv_call_plt_rela(struct module *me, u32 *location,
- 				       Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
- 
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		/* Only emit the plt entry if offset over 32-bit range */
- 		if (IS_ENABLED(CONFIG_MODULE_SECTIONS)) {
- 			offset = module_emit_plt_entry(me, v);
-@@ -224,10 +236,9 @@ static int apply_r_riscv_call_rela(struct module *me, u32 *location,
- 				   Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
- 
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index f48905f796e9..56eb9a6524e9 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -96,6 +96,7 @@
- #define X86_FEATURE_SYSCALL32		( 3*32+14) /* "" syscall in IA32 userspace */
- #define X86_FEATURE_SYSENTER32		( 3*32+15) /* "" sysenter in IA32 userspace */
- #define X86_FEATURE_REP_GOOD		( 3*32+16) /* REP microcode works well */
-+#define X86_FEATURE_SME_COHERENT	( 3*32+17) /* "" AMD hardware-enforced cache coherency */
- #define X86_FEATURE_LFENCE_RDTSC	( 3*32+18) /* "" LFENCE synchronizes RDTSC */
- #define X86_FEATURE_ACC_POWER		( 3*32+19) /* AMD Accumulated Power Mechanism */
- #define X86_FEATURE_NOPL		( 3*32+20) /* The NOPL (0F 1F) instructions */
-@@ -107,6 +108,7 @@
- #define X86_FEATURE_EXTD_APICID		( 3*32+26) /* Extended APICID (8 bits) */
- #define X86_FEATURE_AMD_DCM		( 3*32+27) /* AMD multi-node processor */
- #define X86_FEATURE_APERFMPERF		( 3*32+28) /* P-State hardware coordination feedback capability (APERF/MPERF MSRs) */
-+/* free					( 3*32+29) */
- #define X86_FEATURE_NONSTOP_TSC_S3	( 3*32+30) /* TSC doesn't stop in S3 state */
- #define X86_FEATURE_TSC_KNOWN_FREQ	( 3*32+31) /* TSC has known frequency */
- 
-diff --git a/arch/x86/kernel/cpu/scattered.c b/arch/x86/kernel/cpu/scattered.c
-index adf9b71386ef..53004dbd55c4 100644
---- a/arch/x86/kernel/cpu/scattered.c
-+++ b/arch/x86/kernel/cpu/scattered.c
-@@ -41,6 +41,7 @@ static const struct cpuid_bit cpuid_bits[] = {
- 	{ X86_FEATURE_MBA,		CPUID_EBX,  6, 0x80000008, 0 },
- 	{ X86_FEATURE_SME,		CPUID_EAX,  0, 0x8000001f, 0 },
- 	{ X86_FEATURE_SEV,		CPUID_EAX,  1, 0x8000001f, 0 },
-+	{ X86_FEATURE_SME_COHERENT,	CPUID_EAX, 10, 0x8000001f, 0 },
- 	{ 0, 0, 0, 0, 0 }
- };
- 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 2f84509f2828..125970286f28 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -1904,7 +1904,8 @@ static void sev_clflush_pages(struct page *pages[], unsigned long npages)
- 	uint8_t *page_virtual;
- 	unsigned long i;
- 
--	if (npages == 0 || pages == NULL)
-+	if (this_cpu_has(X86_FEATURE_SME_COHERENT) || npages == 0 ||
-+	    pages == NULL)
- 		return;
- 
- 	for (i = 0; i < npages; i++) {
-diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-index 281e584cfe39..d61313f5c5b9 100644
---- a/arch/x86/mm/pageattr.c
-+++ b/arch/x86/mm/pageattr.c
-@@ -1967,7 +1967,7 @@ static int __set_memory_enc_dec(unsigned long addr, int numpages, bool enc)
- 	/*
- 	 * Before changing the encryption attribute, we need to flush caches.
- 	 */
--	cpa_flush(&cpa, 1);
-+	cpa_flush(&cpa, !this_cpu_has(X86_FEATURE_SME_COHERENT));
- 
- 	ret = __change_page_attr_set_clr(&cpa, 1);
- 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 816eb2db7308..4b3645e648ee 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -980,9 +980,15 @@ static int virtblk_probe(struct virtio_device *vdev)
- 
- 		virtio_cread(vdev, struct virtio_blk_config, max_discard_seg,
- 			     &v);
-+
-+		/*
-+		 * max_discard_seg == 0 is out of spec but we always
-+		 * handled it.
-+		 */
-+		if (!v)
-+			v = sg_elems - 2;
- 		blk_queue_max_discard_segments(q,
--					       min_not_zero(v,
--							    MAX_DISCARD_SEGMENTS));
-+					       min(v, MAX_DISCARD_SEGMENTS));
- 
- 		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
- 	}
-diff --git a/drivers/clk/qcom/gdsc.c b/drivers/clk/qcom/gdsc.c
-index a250f59708d8..888965bb93ed 100644
---- a/drivers/clk/qcom/gdsc.c
-+++ b/drivers/clk/qcom/gdsc.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2015, 2017-2018, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2015, 2017-2018, 2022, The Linux Foundation. All rights reserved.
-  */
- 
- #include <linux/bitops.h>
-@@ -31,9 +31,14 @@
- #define CFG_GDSCR_OFFSET		0x4
- 
- /* Wait 2^n CXO cycles between all states. Here, n=2 (4 cycles). */
--#define EN_REST_WAIT_VAL	(0x2 << 20)
--#define EN_FEW_WAIT_VAL		(0x8 << 16)
--#define CLK_DIS_WAIT_VAL	(0x2 << 12)
-+#define EN_REST_WAIT_VAL	0x2
-+#define EN_FEW_WAIT_VAL		0x8
-+#define CLK_DIS_WAIT_VAL	0x2
-+
-+/* Transition delay shifts */
-+#define EN_REST_WAIT_SHIFT	20
-+#define EN_FEW_WAIT_SHIFT	16
-+#define CLK_DIS_WAIT_SHIFT	12
- 
- #define RETAIN_MEM		BIT(14)
- #define RETAIN_PERIPH		BIT(13)
-@@ -308,7 +313,18 @@ static int gdsc_init(struct gdsc *sc)
- 	 */
- 	mask = HW_CONTROL_MASK | SW_OVERRIDE_MASK |
- 	       EN_REST_WAIT_MASK | EN_FEW_WAIT_MASK | CLK_DIS_WAIT_MASK;
--	val = EN_REST_WAIT_VAL | EN_FEW_WAIT_VAL | CLK_DIS_WAIT_VAL;
-+
-+	if (!sc->en_rest_wait_val)
-+		sc->en_rest_wait_val = EN_REST_WAIT_VAL;
-+	if (!sc->en_few_wait_val)
-+		sc->en_few_wait_val = EN_FEW_WAIT_VAL;
-+	if (!sc->clk_dis_wait_val)
-+		sc->clk_dis_wait_val = CLK_DIS_WAIT_VAL;
-+
-+	val = sc->en_rest_wait_val << EN_REST_WAIT_SHIFT |
-+		sc->en_few_wait_val << EN_FEW_WAIT_SHIFT |
-+		sc->clk_dis_wait_val << CLK_DIS_WAIT_SHIFT;
-+
- 	ret = regmap_update_bits(sc->regmap, sc->gdscr, mask, val);
- 	if (ret)
- 		return ret;
-diff --git a/drivers/clk/qcom/gdsc.h b/drivers/clk/qcom/gdsc.h
-index 64cdc8cf0d4d..907396ccb83f 100644
---- a/drivers/clk/qcom/gdsc.h
-+++ b/drivers/clk/qcom/gdsc.h
-@@ -1,6 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0-only */
- /*
-- * Copyright (c) 2015, 2017-2018, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2015, 2017-2018, 2022, The Linux Foundation. All rights reserved.
-  */
- 
- #ifndef __QCOM_GDSC_H__
-@@ -21,6 +21,9 @@ struct reset_controller_dev;
-  * @cxcs: offsets of branch registers to toggle mem/periph bits in
-  * @cxc_count: number of @cxcs
-  * @pwrsts: Possible powerdomain power states
-+ * @en_rest_wait_val: transition delay value for receiving enr ack signal
-+ * @en_few_wait_val: transition delay value for receiving enf ack signal
-+ * @clk_dis_wait_val: transition delay value for halting clock
-  * @resets: ids of resets associated with this gdsc
-  * @reset_count: number of @resets
-  * @rcdev: reset controller
-@@ -34,6 +37,9 @@ struct gdsc {
- 	unsigned int			clamp_io_ctrl;
- 	unsigned int			*cxcs;
- 	unsigned int			cxc_count;
-+	unsigned int			en_rest_wait_val;
-+	unsigned int			en_few_wait_val;
-+	unsigned int			clk_dis_wait_val;
- 	const u8			pwrsts;
- /* Powerdomain allowable state bitfields */
- #define PWRSTS_OFF		BIT(0)
-diff --git a/drivers/gpio/gpio-ts4900.c b/drivers/gpio/gpio-ts4900.c
-index 1da8d0586329..410452306bf7 100644
---- a/drivers/gpio/gpio-ts4900.c
-+++ b/drivers/gpio/gpio-ts4900.c
-@@ -1,7 +1,7 @@
- /*
-  * Digital I/O driver for Technologic Systems I2C FPGA Core
-  *
-- * Copyright (C) 2015 Technologic Systems
-+ * Copyright (C) 2015, 2018 Technologic Systems
-  * Copyright (C) 2016 Savoir-Faire Linux
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -52,19 +52,33 @@ static int ts4900_gpio_direction_input(struct gpio_chip *chip,
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
- 
--	/*
--	 * This will clear the output enable bit, the other bits are
--	 * dontcare when this is cleared
-+	/* Only clear the OE bit here, requires a RMW. Prevents potential issue
-+	 * with OE and data getting to the physical pin at different times.
- 	 */
--	return regmap_write(priv->regmap, offset, 0);
-+	return regmap_update_bits(priv->regmap, offset, TS4900_GPIO_OE, 0);
- }
- 
- static int ts4900_gpio_direction_output(struct gpio_chip *chip,
- 					unsigned int offset, int value)
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
-+	unsigned int reg;
- 	int ret;
- 
-+	/* If changing from an input to an output, we need to first set the
-+	 * proper data bit to what is requested and then set OE bit. This
-+	 * prevents a glitch that can occur on the IO line
-+	 */
-+	regmap_read(priv->regmap, offset, &reg);
-+	if (!(reg & TS4900_GPIO_OE)) {
-+		if (value)
-+			reg = TS4900_GPIO_OUT;
-+		else
-+			reg &= ~TS4900_GPIO_OUT;
-+
-+		regmap_write(priv->regmap, offset, reg);
-+	}
-+
- 	if (value)
- 		ret = regmap_write(priv->regmap, offset, TS4900_GPIO_OE |
- 							 TS4900_GPIO_OUT);
-diff --git a/drivers/gpu/drm/sun4i/sun8i_mixer.h b/drivers/gpu/drm/sun4i/sun8i_mixer.h
-index 345b28b0a80a..dc4300a7b019 100644
---- a/drivers/gpu/drm/sun4i/sun8i_mixer.h
-+++ b/drivers/gpu/drm/sun4i/sun8i_mixer.h
-@@ -114,10 +114,10 @@
- /* format 13 is semi-planar YUV411 VUVU */
- #define SUN8I_MIXER_FBFMT_YUV411	14
- /* format 15 doesn't exist */
--/* format 16 is P010 YVU */
--#define SUN8I_MIXER_FBFMT_P010_YUV	17
--/* format 18 is P210 YVU */
--#define SUN8I_MIXER_FBFMT_P210_YUV	19
-+#define SUN8I_MIXER_FBFMT_P010_YUV	16
-+/* format 17 is P010 YVU */
-+#define SUN8I_MIXER_FBFMT_P210_YUV	18
-+/* format 19 is P210 YVU */
- /* format 20 is packed YVU444 10-bit */
- /* format 21 is packed YUV444 10-bit */
- 
-diff --git a/drivers/mmc/host/meson-gx-mmc.c b/drivers/mmc/host/meson-gx-mmc.c
-index cdd57ce55b2f..9044faf0050a 100644
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -174,6 +174,8 @@ struct meson_host {
- 	int irq;
- 
- 	bool vqmmc_enabled;
-+	bool needs_pre_post_req;
-+
- };
- 
- #define CMD_CFG_LENGTH_MASK GENMASK(8, 0)
-@@ -655,6 +657,8 @@ static void meson_mmc_request_done(struct mmc_host *mmc,
- 	struct meson_host *host = mmc_priv(mmc);
- 
- 	host->cmd = NULL;
-+	if (host->needs_pre_post_req)
-+		meson_mmc_post_req(mmc, mrq, 0);
- 	mmc_request_done(host->mmc, mrq);
- }
- 
-@@ -872,7 +876,7 @@ static int meson_mmc_validate_dram_access(struct mmc_host *mmc, struct mmc_data
- static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
- {
- 	struct meson_host *host = mmc_priv(mmc);
--	bool needs_pre_post_req = mrq->data &&
-+	host->needs_pre_post_req = mrq->data &&
- 			!(mrq->data->host_cookie & SD_EMMC_PRE_REQ_DONE);
- 
- 	/*
-@@ -888,22 +892,19 @@ static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
- 		}
- 	}
- 
--	if (needs_pre_post_req) {
-+	if (host->needs_pre_post_req) {
- 		meson_mmc_get_transfer_mode(mmc, mrq);
- 		if (!meson_mmc_desc_chain_mode(mrq->data))
--			needs_pre_post_req = false;
-+			host->needs_pre_post_req = false;
- 	}
- 
--	if (needs_pre_post_req)
-+	if (host->needs_pre_post_req)
- 		meson_mmc_pre_req(mmc, mrq);
- 
- 	/* Stop execution */
- 	writel(0, host->regs + SD_EMMC_START);
- 
- 	meson_mmc_start_cmd(mmc, mrq->sbc ?: mrq->cmd);
--
--	if (needs_pre_post_req)
--		meson_mmc_post_req(mmc, mrq, 0);
- }
- 
- static void meson_mmc_read_resp(struct mmc_host *mmc, struct mmc_command *cmd)
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-index 164988f3b4fa..a2da09da4907 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -41,6 +41,13 @@
- void bcmgenet_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
-+	struct device *kdev = &priv->pdev->dev;
-+
-+	if (!device_can_wakeup(kdev)) {
-+		wol->supported = 0;
-+		wol->wolopts = 0;
-+		return;
-+	}
- 
- 	wol->supported = WAKE_MAGIC | WAKE_MAGICSECURE;
- 	wol->wolopts = priv->wolopts;
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 0dc52cf5367e..480d2ca369e6 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1283,7 +1283,14 @@ static int macb_poll(struct napi_struct *napi, int budget)
- 	if (work_done < budget) {
- 		napi_complete_done(napi, work_done);
- 
--		/* Packets received while interrupts were disabled */
-+		/* RSR bits only seem to propagate to raise interrupts when
-+		 * interrupts are enabled at the time, so if bits are already
-+		 * set due to packets received while interrupts were disabled,
-+		 * they will not cause another interrupt to be generated when
-+		 * interrupts are re-enabled.
-+		 * Check for this case here. This has been seen to happen
-+		 * around 30% of the time under heavy network load.
-+		 */
- 		status = macb_readl(bp, RSR);
- 		if (status) {
- 			if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
-@@ -1291,6 +1298,22 @@ static int macb_poll(struct napi_struct *napi, int budget)
- 			napi_reschedule(napi);
- 		} else {
- 			queue_writel(queue, IER, bp->rx_intr_mask);
-+
-+			/* In rare cases, packets could have been received in
-+			 * the window between the check above and re-enabling
-+			 * interrupts. Therefore, a double-check is required
-+			 * to avoid losing a wakeup. This can potentially race
-+			 * with the interrupt handler doing the same actions
-+			 * if an interrupt is raised just after enabling them,
-+			 * but this should be harmless.
-+			 */
-+			status = macb_readl(bp, RSR);
-+			if (unlikely(status)) {
-+				queue_writel(queue, IDR, bp->rx_intr_mask);
-+				if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
-+					queue_writel(queue, ISR, MACB_BIT(RCOMP));
-+				napi_schedule(napi);
-+			}
- 		}
- 	}
- 
-diff --git a/drivers/net/ethernet/freescale/gianfar_ethtool.c b/drivers/net/ethernet/freescale/gianfar_ethtool.c
-index 3c8e4e2efc07..01a7255e86c9 100644
---- a/drivers/net/ethernet/freescale/gianfar_ethtool.c
-+++ b/drivers/net/ethernet/freescale/gianfar_ethtool.c
-@@ -1489,6 +1489,7 @@ static int gfar_get_ts_info(struct net_device *dev,
- 	ptp_node = of_find_compatible_node(NULL, NULL, "fsl,etsec-ptp");
- 	if (ptp_node) {
- 		ptp_dev = of_find_device_by_node(ptp_node);
-+		of_node_put(ptp_node);
- 		if (ptp_dev)
- 			ptp = platform_get_drvdata(ptp_dev);
- 	}
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-index 1a7aa078f351..6c7b364d0bf0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -130,11 +130,8 @@ static int cmd_alloc_index(struct mlx5_cmd *cmd)
- 
- static void cmd_free_index(struct mlx5_cmd *cmd, int idx)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&cmd->alloc_lock, flags);
-+	lockdep_assert_held(&cmd->alloc_lock);
- 	set_bit(idx, &cmd->bitmask);
--	spin_unlock_irqrestore(&cmd->alloc_lock, flags);
- }
- 
- static void cmd_ent_get(struct mlx5_cmd_work_ent *ent)
-@@ -144,17 +141,21 @@ static void cmd_ent_get(struct mlx5_cmd_work_ent *ent)
- 
- static void cmd_ent_put(struct mlx5_cmd_work_ent *ent)
- {
-+	struct mlx5_cmd *cmd = ent->cmd;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&cmd->alloc_lock, flags);
- 	if (!refcount_dec_and_test(&ent->refcnt))
--		return;
-+		goto out;
- 
- 	if (ent->idx >= 0) {
--		struct mlx5_cmd *cmd = ent->cmd;
--
- 		cmd_free_index(cmd, ent->idx);
- 		up(ent->page_queue ? &cmd->pages_sem : &cmd->sem);
- 	}
- 
- 	cmd_free_ent(ent);
-+out:
-+	spin_unlock_irqrestore(&cmd->alloc_lock, flags);
- }
- 
- static struct mlx5_cmd_layout *get_inst(struct mlx5_cmd *cmd, int idx)
-diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
-index 3b177421651f..d2e220a94a57 100644
---- a/drivers/net/ethernet/nxp/lpc_eth.c
-+++ b/drivers/net/ethernet/nxp/lpc_eth.c
-@@ -1470,6 +1470,7 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
- {
- 	struct net_device *ndev = platform_get_drvdata(pdev);
- 	struct netdata_local *pldat;
-+	int ret;
- 
- 	if (device_may_wakeup(&pdev->dev))
- 		disable_irq_wake(ndev->irq);
-@@ -1479,7 +1480,9 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
- 			pldat = netdev_priv(ndev);
- 
- 			/* Enable interface clock */
--			clk_enable(pldat->clk);
-+			ret = clk_enable(pldat->clk);
-+			if (ret)
-+				return ret;
- 
- 			/* Reset and initialize */
- 			__lpc_eth_reset(pldat);
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-index fb9c3ca5d36c..5e8f8eb916e6 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -3801,11 +3801,11 @@ bool qed_iov_mark_vf_flr(struct qed_hwfn *p_hwfn, u32 *p_disabled_vfs)
- 	return found;
- }
- 
--static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
--			     u16 vfid,
--			     struct qed_mcp_link_params *p_params,
--			     struct qed_mcp_link_state *p_link,
--			     struct qed_mcp_link_capabilities *p_caps)
-+static int qed_iov_get_link(struct qed_hwfn *p_hwfn,
-+			    u16 vfid,
-+			    struct qed_mcp_link_params *p_params,
-+			    struct qed_mcp_link_state *p_link,
-+			    struct qed_mcp_link_capabilities *p_caps)
- {
- 	struct qed_vf_info *p_vf = qed_iov_get_vf_info(p_hwfn,
- 						       vfid,
-@@ -3813,7 +3813,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
- 	struct qed_bulletin_content *p_bulletin;
- 
- 	if (!p_vf)
--		return;
-+		return -EINVAL;
- 
- 	p_bulletin = p_vf->bulletin.p_virt;
- 
-@@ -3823,6 +3823,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
- 		__qed_vf_get_link_state(p_hwfn, p_link, p_bulletin);
- 	if (p_caps)
- 		__qed_vf_get_link_caps(p_hwfn, p_caps, p_bulletin);
-+	return 0;
- }
- 
- static int
-@@ -4684,6 +4685,7 @@ static int qed_get_vf_config(struct qed_dev *cdev,
- 	struct qed_public_vf_info *vf_info;
- 	struct qed_mcp_link_state link;
- 	u32 tx_rate;
-+	int ret;
- 
- 	/* Sanitize request */
- 	if (IS_VF(cdev))
-@@ -4697,7 +4699,9 @@ static int qed_get_vf_config(struct qed_dev *cdev,
- 
- 	vf_info = qed_iov_get_public_vf_info(hwfn, vf_id, true);
- 
--	qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
-+	ret = qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
-+	if (ret)
-+		return ret;
- 
- 	/* Fill information about VF */
- 	ivi->vf = vf_id;
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_vf.c b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-index adc2c8f3d48e..62e4511db857 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_vf.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-@@ -539,6 +539,9 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
- 						    p_iov->bulletin.size,
- 						    &p_iov->bulletin.phys,
- 						    GFP_KERNEL);
-+	if (!p_iov->bulletin.p_virt)
-+		goto free_pf2vf_reply;
-+
- 	DP_VERBOSE(p_hwfn, QED_MSG_IOV,
- 		   "VF's bulletin Board [%p virt 0x%llx phys 0x%08x bytes]\n",
- 		   p_iov->bulletin.p_virt,
-@@ -578,6 +581,10 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
- 
- 	return rc;
- 
-+free_pf2vf_reply:
-+	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
-+			  sizeof(union pfvf_tlvs),
-+			  p_iov->pf2vf_reply, p_iov->pf2vf_reply_phys);
- free_vf2pf_request:
- 	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
- 			  sizeof(union vfpf_tlvs),
-diff --git a/drivers/net/ethernet/ti/cpts.c b/drivers/net/ethernet/ti/cpts.c
-index 26cfe3f7ed8d..453ad1247288 100644
---- a/drivers/net/ethernet/ti/cpts.c
-+++ b/drivers/net/ethernet/ti/cpts.c
-@@ -454,7 +454,9 @@ int cpts_register(struct cpts *cpts)
- 	for (i = 0; i < CPTS_MAX_EVENTS; i++)
- 		list_add(&cpts->pool_data[i].list, &cpts->pool);
- 
--	clk_enable(cpts->refclk);
-+	err = clk_enable(cpts->refclk);
-+	if (err)
-+		return err;
- 
- 	cpts_write32(cpts, CPTS_EN, control);
- 	cpts_write32(cpts, TS_PEND_EN, int_enable);
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index 53dbf3e28f1e..63a2d1bcccfb 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -1187,7 +1187,7 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 	if (rc) {
- 		dev_err(dev,
- 			"Cannot register network device, aborting\n");
--		goto error;
-+		goto put_node;
- 	}
- 
- 	dev_info(dev,
-@@ -1195,6 +1195,8 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 		 (unsigned int __force)ndev->mem_start, lp->base_addr, ndev->irq);
- 	return 0;
- 
-+put_node:
-+	of_node_put(lp->phy_node);
- error:
- 	free_netdev(ndev);
- 	return rc;
-diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
-index 8a4b1d167ce2..ae17d2f9d534 100644
---- a/drivers/net/phy/dp83822.c
-+++ b/drivers/net/phy/dp83822.c
-@@ -238,7 +238,7 @@ static int dp83822_config_intr(struct phy_device *phydev)
- 		if (err < 0)
- 			return err;
- 
--		err = phy_write(phydev, MII_DP83822_MISR1, 0);
-+		err = phy_write(phydev, MII_DP83822_MISR2, 0);
- 		if (err < 0)
- 			return err;
- 
-diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
-index 416305e6d093..44e353dd2ba1 100644
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -435,6 +435,7 @@ static void backend_disconnect(struct backend_info *be)
- 		unsigned int queue_index;
- 
- 		xen_unregister_watchers(vif);
-+		xenbus_rm(XBT_NIL, be->dev->nodename, "hotplug-status");
- #ifdef CONFIG_DEBUG_FS
- 		xenvif_debugfs_delif(vif);
- #endif /* CONFIG_DEBUG_FS */
-@@ -979,15 +980,11 @@ static void connect(struct backend_info *be)
- 	xenvif_carrier_on(be->vif);
- 
- 	unregister_hotplug_status_watch(be);
--	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
--		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
--					   NULL, hotplug_status_changed,
--					   "%s/%s", dev->nodename,
--					   "hotplug-status");
--		if (err)
--			goto err;
-+	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
-+				   hotplug_status_changed,
-+				   "%s/%s", dev->nodename, "hotplug-status");
-+	if (!err)
- 		be->have_hotplug_status_watch = 1;
--	}
- 
- 	netif_tx_wake_all_queues(be->vif->dev);
- 
-diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
-index 1caebefb25ff..2ae1474faede 100644
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1609,7 +1609,9 @@ static int port100_probe(struct usb_interface *interface,
- 	nfc_digital_free_device(dev->nfc_digital_dev);
- 
- error:
-+	usb_kill_urb(dev->in_urb);
- 	usb_free_urb(dev->in_urb);
-+	usb_kill_urb(dev->out_urb);
- 	usb_free_urb(dev->out_urb);
- 	usb_put_dev(dev->udev);
- 
-diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
-index 8093d0608638..4dba62aed10b 100644
---- a/drivers/staging/gdm724x/gdm_lte.c
-+++ b/drivers/staging/gdm724x/gdm_lte.c
-@@ -76,14 +76,15 @@ static void tx_complete(void *arg)
- 
- static int gdm_lte_rx(struct sk_buff *skb, struct nic *nic, int nic_type)
- {
--	int ret;
-+	int ret, len;
- 
-+	len = skb->len + ETH_HLEN;
- 	ret = netif_rx_ni(skb);
- 	if (ret == NET_RX_DROP) {
- 		nic->stats.rx_dropped++;
- 	} else {
- 		nic->stats.rx_packets++;
--		nic->stats.rx_bytes += skb->len + ETH_HLEN;
-+		nic->stats.rx_bytes += len;
- 	}
- 
- 	return 0;
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 91627e744326..cab97cda5430 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -167,14 +167,12 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
--int virtio_finalize_features(struct virtio_device *dev)
-+/* Do some validation, then set FEATURES_OK */
-+static int virtio_features_ok(struct virtio_device *dev)
- {
--	int ret = dev->config->finalize_features(dev);
- 	unsigned status;
- 
- 	might_sleep();
--	if (ret)
--		return ret;
- 
- 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
- 		return 0;
-@@ -188,7 +186,6 @@ int virtio_finalize_features(struct virtio_device *dev)
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(virtio_finalize_features);
- 
- static int virtio_dev_probe(struct device *_d)
- {
-@@ -225,17 +222,6 @@ static int virtio_dev_probe(struct device *_d)
- 		driver_features_legacy = driver_features;
- 	}
- 
--	/*
--	 * Some devices detect legacy solely via F_VERSION_1. Write
--	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
--	 * these when needed.
--	 */
--	if (drv->validate && !virtio_legacy_is_little_endian()
--			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
--		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
--		dev->config->finalize_features(dev);
--	}
--
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
-@@ -246,13 +232,26 @@ static int virtio_dev_probe(struct device *_d)
- 		if (device_features & (1ULL << i))
- 			__virtio_set_bit(dev, i);
- 
-+	err = dev->config->finalize_features(dev);
-+	if (err)
-+		goto err;
-+
- 	if (drv->validate) {
-+		u64 features = dev->features;
-+
- 		err = drv->validate(dev);
- 		if (err)
- 			goto err;
-+
-+		/* Did validation change any features? Then write them again. */
-+		if (features != dev->features) {
-+			err = dev->config->finalize_features(dev);
-+			if (err)
-+				goto err;
-+		}
- 	}
- 
--	err = virtio_finalize_features(dev);
-+	err = virtio_features_ok(dev);
- 	if (err)
- 		goto err;
- 
-@@ -417,7 +416,11 @@ int virtio_device_restore(struct virtio_device *dev)
- 	/* We have a driver! */
- 	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
- 
--	ret = virtio_finalize_features(dev);
-+	ret = dev->config->finalize_features(dev);
-+	if (ret)
-+		goto err;
-+
-+	ret = virtio_features_ok(dev);
- 	if (ret)
- 		goto err;
- 
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index ad1d4c8faf44..b7f20196439a 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -74,6 +74,11 @@ int ext4_resize_begin(struct super_block *sb)
- 		return -EPERM;
- 	}
- 
-+	if (ext4_has_feature_sparse_super2(sb)) {
-+		ext4_msg(sb, KERN_ERR, "Online resizing not supported with sparse_super2");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (test_and_set_bit_lock(EXT4_FLAGS_RESIZING,
- 				  &EXT4_SB(sb)->s_ext4_flags))
- 		ret = -EBUSY;
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 64d6c8c9f1ff..ac6a8da34013 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -933,7 +933,17 @@ static int fuse_copy_page(struct fuse_copy_state *cs, struct page **pagep,
- 
- 	while (count) {
- 		if (cs->write && cs->pipebufs && page) {
--			return fuse_ref_page(cs, page, offset, count);
-+			/*
-+			 * Can't control lifetime of pipe buffers, so always
-+			 * copy user pages.
-+			 */
-+			if (cs->req->args->user_pages) {
-+				err = fuse_copy_fill(cs);
-+				if (err)
-+					return err;
-+			} else {
-+				return fuse_ref_page(cs, page, offset, count);
-+			}
- 		} else if (!cs->len) {
- 			if (cs->move_pages && page &&
- 			    offset == 0 && count == PAGE_SIZE) {
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index 5cf13196ce69..efb2a4871291 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1433,6 +1433,7 @@ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
- 			(PAGE_SIZE - ret) & (PAGE_SIZE - 1);
- 	}
- 
-+	ap->args.user_pages = true;
- 	if (write)
- 		ap->args.in_pages = 1;
- 	else
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index d87892648545..83c2855bc740 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -248,6 +248,7 @@ struct fuse_args {
- 	bool nocreds:1;
- 	bool in_pages:1;
- 	bool out_pages:1;
-+	bool user_pages:1;
- 	bool out_argvar:1;
- 	bool page_zeroing:1;
- 	bool page_replace:1;
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 641a01bc5f6f..031022e32635 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -8975,8 +8975,8 @@ struct mlx5_ifc_bufferx_reg_bits {
- 	u8         reserved_at_0[0x6];
- 	u8         lossy[0x1];
- 	u8         epsb[0x1];
--	u8         reserved_at_8[0xc];
--	u8         size[0xc];
-+	u8         reserved_at_8[0x8];
-+	u8         size[0x10];
- 
- 	u8         xoff_threshold[0x10];
- 	u8         xon_threshold[0x10];
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 7c075463c7f2..b80376654a60 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -135,7 +135,6 @@ void virtio_break_device(struct virtio_device *dev);
- void virtio_config_changed(struct virtio_device *dev);
- void virtio_config_disable(struct virtio_device *dev);
- void virtio_config_enable(struct virtio_device *dev);
--int virtio_finalize_features(struct virtio_device *dev);
- #ifdef CONFIG_PM_SLEEP
- int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index bb4cc4910750..ad4d4697a167 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -56,8 +56,9 @@ struct irq_affinity;
-  *	Returns the first 64 feature bits (all we currently need).
-  * @finalize_features: confirm what device features we'll be using.
-  *	vdev: the virtio_device
-- *	This gives the final feature bits for the device: it can change
-+ *	This sends the driver feature bits to the device: it can change
-  *	the dev->feature bits if it wants.
-+ * Note: despite the name this can be called any number of times.
-  *	Returns 0 on success or error status
-  * @bus_name: return the bus name associated with the device (optional)
-  *	vdev: the virtio_device
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 1a89b2bf626a..56619766e910 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1305,10 +1305,12 @@ static int __init set_buf_size(char *str)
- 	if (!str)
- 		return 0;
- 	buf_size = memparse(str, &str);
--	/* nr_entries can not be zero */
--	if (buf_size == 0)
--		return 0;
--	trace_buf_size = buf_size;
-+	/*
-+	 * nr_entries can not be zero and the startup
-+	 * tests require some buffer space. Therefore
-+	 * ensure we have at least 4096 bytes of buffer.
-+	 */
-+	trace_buf_size = max(4096UL, buf_size);
- 	return 1;
- }
- __setup("trace_buf_size=", set_buf_size);
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 184af6da0def..093b73c454d2 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -87,6 +87,13 @@ static void ax25_kill_by_device(struct net_device *dev)
- 	ax25_for_each(s, &ax25_list) {
- 		if (s->ax25_dev == ax25_dev) {
- 			sk = s->sk;
-+			if (!sk) {
-+				spin_unlock_bh(&ax25_list_lock);
-+				s->ax25_dev = NULL;
-+				ax25_disconnect(s, ENETUNREACH);
-+				spin_lock_bh(&ax25_list_lock);
-+				goto again;
-+			}
- 			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index bcad7028bbf4..ad45f13a0370 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -212,7 +212,7 @@ static ssize_t speed_show(struct device *dev,
- 	if (!rtnl_trylock())
- 		return restart_syscall();
- 
--	if (netif_running(netdev)) {
-+	if (netif_running(netdev) && netif_device_present(netdev)) {
- 		struct ethtool_link_ksettings cmd;
- 
- 		if (!__ethtool_get_link_ksettings(netdev, &cmd))
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index d1f29a3eb70b..60d070b25484 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -4924,6 +4924,7 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
- 	    nla_put_s32(skb, IFA_TARGET_NETNSID, args->netnsid))
- 		goto error;
- 
-+	spin_lock_bh(&ifa->lock);
- 	if (!((ifa->flags&IFA_F_PERMANENT) &&
- 	      (ifa->prefered_lft == INFINITY_LIFE_TIME))) {
- 		preferred = ifa->prefered_lft;
-@@ -4945,6 +4946,7 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
- 		preferred = INFINITY_LIFE_TIME;
- 		valid = INFINITY_LIFE_TIME;
- 	}
-+	spin_unlock_bh(&ifa->lock);
- 
- 	if (!ipv6_addr_any(&ifa->peer_addr)) {
- 		if (nla_put_in6_addr(skb, IFA_LOCAL, &ifa->addr) < 0 ||
-diff --git a/net/sctp/diag.c b/net/sctp/diag.c
-index 7921e77fa55a..5a918e74bb82 100644
---- a/net/sctp/diag.c
-+++ b/net/sctp/diag.c
-@@ -61,10 +61,6 @@ static void inet_diag_msg_sctpasoc_fill(struct inet_diag_msg *r,
- 		r->idiag_timer = SCTP_EVENT_TIMEOUT_T3_RTX;
- 		r->idiag_retrans = asoc->rtx_data_chunks;
- 		r->idiag_expires = jiffies_to_msecs(t3_rtx->expires - jiffies);
--	} else {
--		r->idiag_timer = 0;
--		r->idiag_retrans = 0;
--		r->idiag_expires = 0;
- 	}
- }
- 
-@@ -144,13 +140,14 @@ static int inet_sctp_diag_fill(struct sock *sk, struct sctp_association *asoc,
- 	r = nlmsg_data(nlh);
- 	BUG_ON(!sk_fullsock(sk));
- 
-+	r->idiag_timer = 0;
-+	r->idiag_retrans = 0;
-+	r->idiag_expires = 0;
- 	if (asoc) {
- 		inet_diag_msg_sctpasoc_fill(r, sk, asoc);
- 	} else {
- 		inet_diag_msg_common_fill(r, sk);
- 		r->idiag_state = sk->sk_state;
--		r->idiag_timer = 0;
--		r->idiag_retrans = 0;
- 	}
- 
- 	if (inet_diag_msg_attrs_fill(sk, skb, r, ext, user_ns, net_admin))
-diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-new file mode 100644
-index 000000000000..f74b82305da8
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <test_progs.h>
-+#include "timer_crash.skel.h"
-+
-+enum {
-+	MODE_ARRAY,
-+	MODE_HASH,
-+};
-+
-+static void test_timer_crash_mode(int mode)
-+{
-+	struct timer_crash *skel;
-+
-+	skel = timer_crash__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
-+		return;
-+	skel->bss->pid = getpid();
-+	skel->bss->crash_map = mode;
-+	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
-+		goto end;
-+	usleep(1);
-+end:
-+	timer_crash__destroy(skel);
-+}
-+
-+void test_timer_crash(void)
-+{
-+	if (test__start_subtest("array"))
-+		test_timer_crash_mode(MODE_ARRAY);
-+	if (test__start_subtest("hash"))
-+		test_timer_crash_mode(MODE_HASH);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
-new file mode 100644
-index 000000000000..f8f7944e70da
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/timer_crash.c
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <vmlinux.h>
-+#include <bpf/bpf_tracing.h>
-+#include <bpf/bpf_helpers.h>
-+
-+struct map_elem {
-+	struct bpf_timer timer;
-+	struct bpf_spin_lock lock;
-+};
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_ARRAY);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} amap SEC(".maps");
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, 1);
-+	__type(key, int);
-+	__type(value, struct map_elem);
-+} hmap SEC(".maps");
-+
-+int pid = 0;
-+int crash_map = 0; /* 0 for amap, 1 for hmap */
-+
-+SEC("fentry/do_nanosleep")
-+int sys_enter(void *ctx)
-+{
-+	struct map_elem *e, value = {};
-+	void *map = crash_map ? (void *)&hmap : (void *)&amap;
-+
-+	if (bpf_get_current_task_btf()->tgid != pid)
-+		return 0;
-+
-+	*(void **)&value = (void *)0xdeadcaf3;
-+
-+	bpf_map_update_elem(map, &(int){0}, &value, 0);
-+	/* For array map, doing bpf_map_update_elem will do a
-+	 * check_and_free_timer_in_array, which will trigger the crash if timer
-+	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
-+	 */
-+	if (crash_map == 1) {
-+		e = bpf_map_lookup_elem(map, &(int){0});
-+		if (!e)
-+			return 0;
-+		bpf_timer_cancel(&e->timer);
-+	}
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
-diff --git a/tools/testing/selftests/memfd/memfd_test.c b/tools/testing/selftests/memfd/memfd_test.c
-index c67d32eeb668..290cec2a6a33 100644
---- a/tools/testing/selftests/memfd/memfd_test.c
-+++ b/tools/testing/selftests/memfd/memfd_test.c
-@@ -421,6 +421,7 @@ static void mfd_fail_write(int fd)
- 			printf("mmap()+mprotect() didn't fail as expected\n");
- 			abort();
- 		}
-+		munmap(p, mfd_def_size);
- 	}
- 
- 	/* verify PUNCH_HOLE fails */
-diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
-index 3429767cadcd..88be9083b923 100755
---- a/tools/testing/selftests/net/pmtu.sh
-+++ b/tools/testing/selftests/net/pmtu.sh
-@@ -579,7 +579,6 @@ setup_routing() {
- setup() {
- 	[ "$(id -u)" -ne 0 ] && echo "  need to run as root" && return $ksft_skip
- 
--	cleanup
- 	for arg do
- 		eval setup_${arg} || { echo "  ${arg} not supported"; return 1; }
- 	done
-@@ -590,7 +589,7 @@ trace() {
- 
- 	for arg do
- 		[ "${ns_cmd}" = "" ] && ns_cmd="${arg}" && continue
--		${ns_cmd} tcpdump -s 0 -i "${arg}" -w "${name}_${arg}.pcap" 2> /dev/null &
-+		${ns_cmd} tcpdump --immediate-mode -s 0 -i "${arg}" -w "${name}_${arg}.pcap" 2> /dev/null &
- 		tcpdump_pids="${tcpdump_pids} $!"
- 		ns_cmd=
- 	done
-@@ -1182,6 +1181,10 @@ run_test() {
- 
- 	unset IFS
- 
-+	# Since cleanup() relies on variables modified by this subshell, it
-+	# has to run in this context.
-+	trap cleanup EXIT
-+
- 	if [ "$VERBOSE" = "1" ]; then
- 		printf "\n##########################################################################\n\n"
- 	fi
-diff --git a/tools/testing/selftests/vm/map_fixed_noreplace.c b/tools/testing/selftests/vm/map_fixed_noreplace.c
-index d91bde511268..eed44322d1a6 100644
---- a/tools/testing/selftests/vm/map_fixed_noreplace.c
-+++ b/tools/testing/selftests/vm/map_fixed_noreplace.c
-@@ -17,9 +17,6 @@
- #define MAP_FIXED_NOREPLACE 0x100000
- #endif
- 
--#define BASE_ADDRESS	(256ul * 1024 * 1024)
--
--
- static void dump_maps(void)
- {
- 	char cmd[32];
-@@ -28,18 +25,46 @@ static void dump_maps(void)
- 	system(cmd);
- }
- 
-+static unsigned long find_base_addr(unsigned long size)
-+{
-+	void *addr;
-+	unsigned long flags;
-+
-+	flags = MAP_PRIVATE | MAP_ANONYMOUS;
-+	addr = mmap(NULL, size, PROT_NONE, flags, -1, 0);
-+	if (addr == MAP_FAILED) {
-+		printf("Error: couldn't map the space we need for the test\n");
-+		return 0;
-+	}
-+
-+	if (munmap(addr, size) != 0) {
-+		printf("Error: couldn't map the space we need for the test\n");
-+		return 0;
-+	}
-+	return (unsigned long)addr;
-+}
-+
- int main(void)
- {
-+	unsigned long base_addr;
- 	unsigned long flags, addr, size, page_size;
- 	char *p;
- 
- 	page_size = sysconf(_SC_PAGE_SIZE);
- 
-+	//let's find a base addr that is free before we start the tests
-+	size = 5 * page_size;
-+	base_addr = find_base_addr(size);
-+	if (!base_addr) {
-+		printf("Error: couldn't map the space we need for the test\n");
-+		return 1;
-+	}
-+
- 	flags = MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE;
- 
- 	// Check we can map all the areas we need below
- 	errno = 0;
--	addr = BASE_ADDRESS;
-+	addr = base_addr;
- 	size = 5 * page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 
-@@ -60,7 +85,7 @@ int main(void)
- 	printf("unmap() successful\n");
- 
- 	errno = 0;
--	addr = BASE_ADDRESS + page_size;
-+	addr = base_addr + page_size;
- 	size = 3 * page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 	printf("mmap() @ 0x%lx-0x%lx p=%p result=%m\n", addr, addr + size, p);
-@@ -80,7 +105,7 @@ int main(void)
- 	 *     +4 |  free  | new
- 	 */
- 	errno = 0;
--	addr = BASE_ADDRESS;
-+	addr = base_addr;
- 	size = 5 * page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 	printf("mmap() @ 0x%lx-0x%lx p=%p result=%m\n", addr, addr + size, p);
-@@ -101,7 +126,7 @@ int main(void)
- 	 *     +4 |  free  |
- 	 */
- 	errno = 0;
--	addr = BASE_ADDRESS + (2 * page_size);
-+	addr = base_addr + (2 * page_size);
- 	size = page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 	printf("mmap() @ 0x%lx-0x%lx p=%p result=%m\n", addr, addr + size, p);
-@@ -121,7 +146,7 @@ int main(void)
- 	 *     +4 |  free  | new
- 	 */
- 	errno = 0;
--	addr = BASE_ADDRESS + (3 * page_size);
-+	addr = base_addr + (3 * page_size);
- 	size = 2 * page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 	printf("mmap() @ 0x%lx-0x%lx p=%p result=%m\n", addr, addr + size, p);
-@@ -141,7 +166,7 @@ int main(void)
- 	 *     +4 |  free  |
- 	 */
- 	errno = 0;
--	addr = BASE_ADDRESS;
-+	addr = base_addr;
- 	size = 2 * page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 	printf("mmap() @ 0x%lx-0x%lx p=%p result=%m\n", addr, addr + size, p);
-@@ -161,7 +186,7 @@ int main(void)
- 	 *     +4 |  free  |
- 	 */
- 	errno = 0;
--	addr = BASE_ADDRESS;
-+	addr = base_addr;
- 	size = page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 	printf("mmap() @ 0x%lx-0x%lx p=%p result=%m\n", addr, addr + size, p);
-@@ -181,7 +206,7 @@ int main(void)
- 	 *     +4 |  free  |  new
- 	 */
- 	errno = 0;
--	addr = BASE_ADDRESS + (4 * page_size);
-+	addr = base_addr + (4 * page_size);
- 	size = page_size;
- 	p = mmap((void *)addr, size, PROT_NONE, flags, -1, 0);
- 	printf("mmap() @ 0x%lx-0x%lx p=%p result=%m\n", addr, addr + size, p);
-@@ -192,7 +217,7 @@ int main(void)
- 		return 1;
- 	}
- 
--	addr = BASE_ADDRESS;
-+	addr = base_addr;
- 	size = 5 * page_size;
- 	if (munmap((void *)addr, size) != 0) {
- 		dump_maps();
+On Mon, Mar 14, 2022 at 3:37 PM Limonciello, Mario
+<mario.limonciello@amd.com> wrote:
+>
+> + KH
+>
+> On 3/10/2022 06:22, Hans de Goede wrote:
+> > Hi,
+> >
+> > On 3/10/22 11:56, Rafael J. Wysocki wrote:
+> >> On Thu, Mar 10, 2022 at 10:07 AM Hans de Goede <hdegoede@redhat.com> wrote:
+> >>>
+> >>> Hi,
+> >>>
+> >>> On 3/9/22 19:27, Rafael J. Wysocki wrote:
+> >>>> On Wed, Mar 9, 2022 at 5:34 PM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> >>>>>
+> >>>>> On Wed, Mar 9, 2022 at 5:33 PM Hans de Goede <hdegoede@redhat.com> wrote:
+> >>>>>>
+> >>>>>> Hi,
+> >>>>>>
+> >>>>>> On 3/9/22 14:57, Rafael J. Wysocki wrote:
+> >>>>>>> On Wed, Mar 9, 2022 at 2:44 PM Hans de Goede <hdegoede@redhat.com> wrote:
+> >>>>>>>>
+> >>>>>>>> Hi Rafael,
+> >>>>>>>>
+> >>>>>>>> We (Fedora) have been receiving a whole bunch of bug reports about
+> >>>>>>>> laptops getting hot/toasty while suspended with kernels >= 5.16.10
+> >>>>>>>> and this seems to still happen with 5.17-rc7 too.
+> >>>>>>>>
+> >>>>>>>> The following are all bugzilla.redhat.com bug numbers:
+> >>>>>>>>
+> >>>>>>>>     1750910 - Laptop failed to suspend and completely drained the battery
+> >>>>>>>>     2050036 - Framework laptop: 5.16.5 breaks s2idle sleep
+> >>>>>>>>     2053957 - Package c-states never go below C2
+> >>>>>>>>     2056729 - No lid events when closing lid / laptop does not suspend
+> >>>>>>>>     2057909 - Thinkpad X1C 9th in s2idle suspend still draining battery to zero over night , Ap
+> >>>>>>>>     2059668 - HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case ge
+> >>>>>>>>     2059688 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
+> >>>>>>>>
+> >>>>>>>> And one of the bugs has also been mirrored at bugzilla.kernel.org by
+> >>>>>>>> the reporter:
+> >>>>>>>>
+> >>>>>>>>   bko215641 - Dell G15 5510 s2idle fails in 5.16.11 works in 5.16.10
+> >>>>>>>>
+> >>>>>>>> The common denominator here (besides the kernel version) seems to
+> >>>>>>>> be that these are all Ice or Tiger Lake systems (I did not do
+> >>>>>>>> check this applies 100% to all bugs, but it does see, to be a pattern).
+> >>>>>>>>
+> >>>>>>>> A similar arch-linux report:
+> >>>>>>>>
+> >>>>>>>> https://bbs.archlinux.org/viewtopic.php?id=274292&p=2
+> >>>>>>>>
+> >>>>>>>> Suggest that reverting
+> >>>>>>>> "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE"
+> >>>>>>>>
+> >>>>>>>> which was cherry-picked into 5.16.10 fixes things.
+> >>>>>>>
+> >>>>>>> Thanks for letting me know!
+> >>>>>>>
+> >>>>>>>> If you want I can create Fedora kernel test-rpms of a recent
+> >>>>>>>> 5.16.y with just that one commit reverted and ask users to
+> >>>>>>>> confirm if that helps. Please let me know if doing that woulkd
+> >>>>>>>> be useful ?
+> >>>>>>>
+> >>>>>>> Yes, it would.
+> >>>>>>>
+> >>>>>>> However, it follows from the arch-linux report linked above that
+> >>>>>>> 5.17-rc is fine, so it would be good to also check if reverting that
+> >>>>>>> commit from 5.17-rc helps.
+> >>>>>>
+> >>>>>> Ok, I've done Fedora kernel builds of both 5.16.13 and 5.17-rc7 with
+> >>>>>> the patch reverted and asked the bug-reporters to test both.
+> >>>>>
+> >>>>> Thanks!
+> >>>>
+> >>>> Also, in the cases where people have not tested 5.17-rc7 without any
+> >>>> reverts, it would be good to ask them to do so.
+> >>>
+> >>> Ok, done.
+> >>>
+> >>>> I have received another report related to this issue where the problem
+> >>>> is not present in 5.17-rc7 (see
+> >>>> https://lore.kernel.org/linux-pm/CAJZ5v0hKXyTtb1Jk=wqNV9_mZKdf3mmwF4bPOcmADyNnTkpMbQ@mail.gmail.com/).
+> >>>
+> >>> The first results from the Fedora test kernel builds are in:
+> >>>
+> >>> "HP Envy Laptop deadlocks on entering suspend power state when plugged in. Case gets very hot and requires a power button hold to restart"
+> >>> https://bugzilla.redhat.com/show_bug.cgi?id=2059668
+> >>>
+> >>> 5.16.9: good
+> >>> 5.16.10+: bad
+> >>> 5.16.13 with "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE" reverted: good
+> >>> 5.17-rc7 with "ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE" reverted: good
+> >>> 5.17-rc7 (plain): good
+> >>>
+> >>> So this seems to match the arch-linux report and the email report
+> >>> you linked. There is a problem with the backport in 5.16.10+,
+> >>> while 5.17-rc7 is fine.
+> >>>
+> >>>> It is likely that the commit in question actually depends on some
+> >>>> other commits that were not backported into 5.16.y.
+> >>> I was thinking the same thing, but I've no idea which commits
+> >>> that would be.
+> >>
+> >> I do have an idea, but regardless of this, IMO the least risky way
+> >> forward would be to request "stable" to drop "ACPI: PM: s2idle: Cancel
+> >> wakeup before dispatching EC GPE" which has been backported, because
+> >> it carried a Fixes tag and not because it was marked for "stable".
+> >>
+> >> Let me do that.
+> >
+> > Ok, that sounds good, thank you.
+> >
+>
+> Just FWIW this fix that was backported to stable also fixed keyboard
+> wakeup from s2idle on a number of HP laptops too.  I know for sure that
+> it fixed it on the AMD versions of them, and Kai Heng Feng suspected it
+> will also fix it for the Intel versions.  So if there is another commit
+> that can be backported from 5.17 to make it safer for the other systems,
+> I think we should consider doing that to solve it too.
+
+There is a series of ACPI EC driver commits that are present in
+5.17-rc, but have not been included in any "stable" series:
+
+befd9b5b0c62 ACPI: EC: Relocate acpi_ec_create_query() and drop
+acpi_ec_delete_query()
+c33676aa4824 ACPI: EC: Make the event work state machine visible
+c793570d8725 ACPI: EC: Avoid queuing unnecessary work in acpi_ec_submit_event()
+eafe7509ab8c ACPI: EC: Rename three functions
+a105acd7e384 ACPI: EC: Simplify locking in acpi_ec_event_handler()
+388fb77dcf97 ACPI: EC: Rearrange the loop in acpi_ec_event_handler()
+98d364509d77 ACPI: EC: Fold acpi_ec_check_event() into acpi_ec_event_handler()
+1f2350443dd2 ACPI: EC: Pass one argument to acpi_ec_query()
+ca8283dcd933 ACPI: EC: Call advance_transaction() from acpi_ec_dispatch_gpe()
+
+It is likely that they prevent the problem exposed by the problematic
+commit from occurring, but I'm not sure which ones do that.  Some of
+them are clearly cosmetic, but the ordering matters.
