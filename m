@@ -2,165 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD324DBA71
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 22:59:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A82604DBA83
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 23:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358201AbiCPWAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 18:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48490 "EHLO
+        id S1358224AbiCPWJu convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 16 Mar 2022 18:09:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356693AbiCPWAQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 18:00:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE7242183F;
-        Wed, 16 Mar 2022 14:59:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70A25B81CE8;
-        Wed, 16 Mar 2022 21:58:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DB93C340E9;
-        Wed, 16 Mar 2022 21:58:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1647467938;
-        bh=Y3CcxMe1+8xCuYIMXNEFP4fxuLf/+TIF+RAfoizJIGg=;
-        h=Date:To:From:Subject:From;
-        b=h0yRUJ6siR+tZbNjOhcYKiLT9lBAly5usEcuP+RJsg1ItlG45zfKWLzd+uxIcBuLm
-         Ro0SNjzFebqR7Nwd7Vvj8Xi0zKgtxchWzmIAfDgAtJbTootIrMsdVIIZ3qJRDMDYm2
-         4R/6zxrLlFvYEL4LHuGr6pWUBw7YyvZ2kQWY2hMk=
-Date:   Wed, 16 Mar 2022 14:58:57 -0700
-To:     mm-commits@vger.kernel.org, tj@kernel.org, stable@vger.kernel.org,
-        osalvador@suse.de, mhocko@suse.com, dennis@kernel.org,
-        david@redhat.com, cl@linux.com, amakhalov@vmware.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [alternative-merged] mm-fix-panic-in-__alloc_pages.patch removed from -mm tree
-Message-Id: <20220316215858.0DB93C340E9@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S1358225AbiCPWJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 18:09:48 -0400
+X-Greylist: delayed 442 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Mar 2022 15:08:33 PDT
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B6713D64
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 15:08:33 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id D913F6081104;
+        Wed, 16 Mar 2022 23:01:09 +0100 (CET)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 8vaihv-rfqXQ; Wed, 16 Mar 2022 23:01:09 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 4F3016081107;
+        Wed, 16 Mar 2022 23:01:09 +0100 (CET)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id dGMp6Mx7hpNU; Wed, 16 Mar 2022 23:01:09 +0100 (CET)
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 1FE796081104;
+        Wed, 16 Mar 2022 23:01:09 +0100 (CET)
+Date:   Wed, 16 Mar 2022 23:01:09 +0100 (CET)
+From:   Richard Weinberger <richard@nod.at>
+To:     libaokun <libaokun1@huawei.com>
+Cc:     David Woodhouse <dwmw2@infradead.org>,
+        christian brauner <christian.brauner@ubuntu.com>,
+        linux-mtd <linux-mtd@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        yukuai3 <yukuai3@huawei.com>, stable <stable@vger.kernel.org>,
+        Hulk Robot <hulkci@huawei.com>
+Message-ID: <1891491465.152789.1647468069089.JavaMail.zimbra@nod.at>
+In-Reply-To: <8a175ec6-1555-8575-1f03-0002efac1740@huawei.com>
+References: <20211228125430.1880252-1-libaokun1@huawei.com> <8a175ec6-1555-8575-1f03-0002efac1740@huawei.com>
+Subject: Re: [PATCH -next] jffs2: fix use-after-free in
+ jffs2_clear_xattr_subsystem
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: [195.201.40.130]
+X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF97 (Linux)/8.8.12_GA_3809)
+Thread-Topic: jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
+Thread-Index: CCC9RxtPxe322JVfIQ6ZCv5ouCR7KA==
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        T_SCC_BODY_TEXT_LINE,T_SPF_PERMERROR autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+----- Ursprüngliche Mail -----
+> Von: "libaokun" <libaokun1@huawei.com>
+> An: "richard" <richard@nod.at>, "David Woodhouse" <dwmw2@infradead.org>, "christian brauner"
+> <christian.brauner@ubuntu.com>, "linux-mtd" <linux-mtd@lists.infradead.org>, "linux-kernel"
+> <linux-kernel@vger.kernel.org>
+> CC: "yukuai3" <yukuai3@huawei.com>, "stable" <stable@vger.kernel.org>, "Hulk Robot" <hulkci@huawei.com>, "libaokun"
+> <libaokun1@huawei.com>
+> Gesendet: Donnerstag, 10. März 2022 09:35:18
+> Betreff: Re: [PATCH -next] jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
 
-The patch titled
-     Subject: mm: fix panic in __alloc_pages
-has been removed from the -mm tree.  Its filename was
-     mm-fix-panic-in-__alloc_pages.patch
+> A gentle ping, sorry for the noise.
+> 
+> 在 2021/12/28 20:54, Baokun Li 写道:
+>> When we mount a jffs2 image, assume that the first few blocks of
+>> the image are normal and contain at least one xattr-related inode,
+>> but the next block is abnormal. As a result, an error is returned
+>> in jffs2_scan_eraseblock(). jffs2_clear_xattr_subsystem() is then
+>> called in jffs2_build_filesystem() and then again in
+>> jffs2_do_fill_super().
+>>
+>> Finally we can observe the following report:
+>>   ==================================================================
+>>   BUG: KASAN: use-after-free in jffs2_clear_xattr_subsystem+0x95/0x6ac
+>>   Read of size 8 at addr ffff8881243384e0 by task mount/719
+>>
+>>   Call Trace:
+>>    dump_stack+0x115/0x16b
+>>    jffs2_clear_xattr_subsystem+0x95/0x6ac
+>>    jffs2_do_fill_super+0x84f/0xc30
+>>    jffs2_fill_super+0x2ea/0x4c0
+>>    mtd_get_sb+0x254/0x400
+>>    mtd_get_sb_by_nr+0x4f/0xd0
+>>    get_tree_mtd+0x498/0x840
+>>    jffs2_get_tree+0x25/0x30
+>>    vfs_get_tree+0x8d/0x2e0
+>>    path_mount+0x50f/0x1e50
+>>    do_mount+0x107/0x130
+>>    __se_sys_mount+0x1c5/0x2f0
+>>    __x64_sys_mount+0xc7/0x160
+>>    do_syscall_64+0x45/0x70
+>>    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>
+>>   Allocated by task 719:
+>>    kasan_save_stack+0x23/0x60
+>>    __kasan_kmalloc.constprop.0+0x10b/0x120
+>>    kasan_slab_alloc+0x12/0x20
+>>    kmem_cache_alloc+0x1c0/0x870
+>>    jffs2_alloc_xattr_ref+0x2f/0xa0
+>>    jffs2_scan_medium.cold+0x3713/0x4794
+>>    jffs2_do_mount_fs.cold+0xa7/0x2253
+>>    jffs2_do_fill_super+0x383/0xc30
+>>    jffs2_fill_super+0x2ea/0x4c0
+>>   [...]
+>>
+>>   Freed by task 719:
+>>    kmem_cache_free+0xcc/0x7b0
+>>    jffs2_free_xattr_ref+0x78/0x98
+>>    jffs2_clear_xattr_subsystem+0xa1/0x6ac
+>>    jffs2_do_mount_fs.cold+0x5e6/0x2253
+>>    jffs2_do_fill_super+0x383/0xc30
+>>    jffs2_fill_super+0x2ea/0x4c0
+>>   [...]
+>>
+>>   The buggy address belongs to the object at ffff8881243384b8
+>>    which belongs to the cache jffs2_xattr_ref of size 48
+>>   The buggy address is located 40 bytes inside of
+>>    48-byte region [ffff8881243384b8, ffff8881243384e8)
+>>   [...]
+>>   ==================================================================
+>>
+>> The triggering of the BUG is shown in the following stack:
+>> -----------------------------------------------------------
+>> jffs2_fill_super
+>>    jffs2_do_fill_super
+>>      jffs2_do_mount_fs
+>>        jffs2_build_filesystem
+>>          jffs2_scan_medium
+>>            jffs2_scan_eraseblock        <--- ERROR
+>>          jffs2_clear_xattr_subsystem    <--- free
+>>      jffs2_clear_xattr_subsystem        <--- free again
+>> -----------------------------------------------------------
+>>
+>> An error is returned in jffs2_do_mount_fs(). If the error is returned
+>> by jffs2_sum_init(), the jffs2_clear_xattr_subsystem() does not need to
+>> be executed. If the error is returned by jffs2_build_filesystem(), the
+>> jffs2_clear_xattr_subsystem() also does not need to be executed again.
+>> So move jffs2_clear_xattr_subsystem() from 'out_inohash' to 'out_root'
+>> to fix this UAF problem.
+>>
+>> Fixes: aa98d7cf59b5 ("[JFFS2][XATTR] XATTR support on JFFS2 (version. 5)")
+>> Cc: stable@vger.kernel.org
+>> Reported-by: Hulk Robot <hulkci@huawei.com>
+>> Signed-off-by: Baokun Li <libaokun1@huawei.com>
 
-This patch was dropped because an alternative patch was merged
+Applied. Thanks for fixing!
 
-------------------------------------------------------
-From: Alexey Makhalov <amakhalov@vmware.com>
-Subject: mm: fix panic in __alloc_pages
-
-There is a kernel panic caused by pcpu_alloc_pages() passing offlined and
-uninitialized node to alloc_pages_node() leading to panic by NULL
-dereferencing uninitialized NODE_DATA(nid).
-
- CPU2 has been hot-added
- BUG: unable to handle page fault for address: 0000000000001608
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] SMP PTI
- CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
- Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
-
- RIP: 0010:__alloc_pages+0x127/0x290
- Code: 4c 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d c3 44 89 e0 48 8b 55 b8 c1 e8 0c 83 e0 01 88 45 d0 4c 89 c8 48 85 d2 0f 85 1a 01 00 00 <45> 3b 41 08 0f 82 10 01 00 00 48 89 45 c0 48 8b 00 44 89 e2 81 e2
- RSP: 0018:ffffc900006f3bc8 EFLAGS: 00010246
- RAX: 0000000000001600 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000cc2
- RBP: ffffc900006f3c18 R08: 0000000000000001 R09: 0000000000001600
- R10: ffffc900006f3a40 R11: ffff88813c9fffe8 R12: 0000000000000cc2
- R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000cc2
- FS:  00007f27ead70500(0000) GS:ffff88807ce00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000001608 CR3: 000000000582c003 CR4: 00000000001706b0
- Call Trace:
-  pcpu_alloc_pages.constprop.0+0xe4/0x1c0
-  pcpu_populate_chunk+0x33/0xb0
-  pcpu_alloc+0x4d3/0x6f0
-  __alloc_percpu_gfp+0xd/0x10
-  alloc_mem_cgroup_per_node_info+0x54/0xb0
-  mem_cgroup_alloc+0xed/0x2f0
-  mem_cgroup_css_alloc+0x33/0x2f0
-  css_create+0x3a/0x1f0
-  cgroup_apply_control_enable+0x12b/0x150
-  cgroup_mkdir+0xdd/0x110
-  kernfs_iop_mkdir+0x4f/0x80
-  vfs_mkdir+0x178/0x230
-  do_mkdirat+0xfd/0x120
-  __x64_sys_mkdir+0x47/0x70
-  ? syscall_exit_to_user_mode+0x21/0x50
-  do_syscall_64+0x43/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Panic can be easily reproduced by disabling udev rule for automatic
-onlining hot added CPU followed by CPU with memoryless node (NUMA node
-with CPU only) hot add.
-
-Hot adding CPU and memoryless node does not bring the node to online
-state.  Memoryless node will be onlined only during the onlining its CPU.
-
-Node can be in one of the following states:
-1. not present.(nid == NUMA_NO_NODE)
-2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
-				NODE_DATA(nid) == NULL)
-3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
-				NODE_DATA(nid) != NULL)
-
-Percpu code is doing allocations for all possible CPUs.  The issue happens
-when it serves hot added but not yet onlined CPU when its node is in 2nd
-state.  This node is not ready to use, fallback to numa_mem_id().
-
-Link: https://lkml.kernel.org/r/20211108202325.20304-1-amakhalov@vmware.com
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Dennis Zhou <dennis@kernel.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/percpu-vm.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
---- a/mm/percpu-vm.c~mm-fix-panic-in-__alloc_pages
-+++ a/mm/percpu-vm.c
-@@ -84,15 +84,19 @@ static int pcpu_alloc_pages(struct pcpu_
- 			    gfp_t gfp)
- {
- 	unsigned int cpu, tcpu;
--	int i;
-+	int i, nid;
- 
- 	gfp |= __GFP_HIGHMEM;
- 
- 	for_each_possible_cpu(cpu) {
-+		nid = cpu_to_node(cpu);
-+		if (nid == NUMA_NO_NODE || !node_online(nid))
-+			nid = numa_mem_id();
-+
- 		for (i = page_start; i < page_end; i++) {
- 			struct page **pagep = &pages[pcpu_page_idx(cpu, i)];
- 
--			*pagep = alloc_pages_node(cpu_to_node(cpu), gfp, 0);
-+			*pagep = alloc_pages_node(nid, gfp, 0);
- 			if (!*pagep)
- 				goto err;
- 		}
-_
-
-Patches currently in -mm which might be from amakhalov@vmware.com are
-
-
+Thanks,
+//richard
