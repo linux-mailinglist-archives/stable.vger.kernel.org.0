@@ -2,83 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B5E4DBA12
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 22:29:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D9AD4DBA4B
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 22:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240067AbiCPVa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 17:30:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
+        id S240653AbiCPVs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 17:48:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354479AbiCPVaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 17:30:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDF72654F;
-        Wed, 16 Mar 2022 14:29:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CBAF61567;
-        Wed, 16 Mar 2022 21:29:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F422EC340F3;
-        Wed, 16 Mar 2022 21:29:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1647466147;
-        bh=dI8ATJ23yJ3aOXedIMHJSO6iU/obXw2eqnoCJdxikjo=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Wr5GCtT9e8hdgK53WPBSMowNZyqav5DZOjwCi+CegvpI8Ibc/s9bmJivRBw4pYcrJ
-         9AFhbhCy9kQGddYprYtD7YUYtlBLeQZnwaaapkymeHZ7MT2Vya1P9sC82KsjYBLaEY
-         61JkNVEMhl+Kr6DtHii92ToLM/hJPEy5CAkiXBSk=
-Date:   Wed, 16 Mar 2022 14:29:06 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Charan Teja Kalla <quic_charante@quicinc.com>
-Cc:     Minchan Kim <minchan@kernel.org>, <surenb@google.com>,
-        <vbabka@suse.cz>, <rientjes@google.com>, <sfr@canb.auug.org.au>,
-        <edgararriaga@google.com>, <nadav.amit@gmail.com>,
-        <mhocko@suse.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>,
-        "# 5 . 10+" <stable@vger.kernel.org>
-Subject: Re: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to
- process_madvise
-Message-Id: <20220316142906.e41e39d2315e35ef43f4aad6@linux-foundation.org>
-In-Reply-To: <5428f192-1537-fa03-8e9c-4a8322772546@quicinc.com>
-References: <cover.1647008754.git.quic_charante@quicinc.com>
-        <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
-        <YjEaFBWterxc3Nzf@google.com>
-        <20220315164807.7a9cf1694ee2db8709a8597c@linux-foundation.org>
-        <YjFAzuLKWw5eadtf@google.com>
-        <5428f192-1537-fa03-8e9c-4a8322772546@quicinc.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S234237AbiCPVs6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 17:48:58 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29315299;
+        Wed, 16 Mar 2022 14:47:43 -0700 (PDT)
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+        by mx0b-0016f401.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 22GG3tUR010116;
+        Wed, 16 Mar 2022 14:47:28 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0220;
+ bh=wJ9UnMRWsMdYFDnjwXnOZuvYq/t95WJIZkibcPo2wDM=;
+ b=c3YuEBtVjKfprwXJo9bmG6Bu0wiU5BOnLl4RTA2U/wZqqEcXeF0y0latrBO3XhjGVTsw
+ 9WMs83ctMKT9QQDcsBIzMm6GB0oGtE8WzOFIFEwvNT9K+EV0n8ogPXPjyPnllIYJuQsx
+ qBR2c0OUPkxw5UeOakuY3yUMzTqE7K8VQKqglzDC0GrgHH7w590GRsGHcX8WVtXWQJyb
+ 4o8kTkh+PVeBfawxWFrkjpwmwhCCo+n/4+BG3IzZhJFEfXt7q57xPOmrNs1z/2fnBwsJ
+ NC8NsjnLYYk1qcc7LApixLQNXdoZqsg3fXkzibJnDKpiafe5kiokkSAl1OwYUiihQTQl qw== 
+Received: from dc5-exch01.marvell.com ([199.233.59.181])
+        by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 3et64ar7r3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Wed, 16 Mar 2022 14:47:27 -0700
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 16 Mar
+ 2022 14:47:25 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.18 via Frontend
+ Transport; Wed, 16 Mar 2022 14:47:25 -0700
+Received: from dut1171.mv.qlogic.com (unknown [10.112.88.18])
+        by maili.marvell.com (Postfix) with ESMTP id E1E853F7044;
+        Wed, 16 Mar 2022 14:47:25 -0700 (PDT)
+Received: from dut1171.mv.qlogic.com (localhost [127.0.0.1])
+        by dut1171.mv.qlogic.com (8.14.7/8.14.7) with ESMTP id 22GLkpZT006929;
+        Wed, 16 Mar 2022 14:46:56 -0700
+Received: (from root@localhost)
+        by dut1171.mv.qlogic.com (8.14.7/8.14.7/Submit) id 22GLkFWr006920;
+        Wed, 16 Mar 2022 14:46:15 -0700
+From:   Manish Chopra <manishc@marvell.com>
+To:     <kuba@kernel.org>
+CC:     <pmenzel@molgen.mpg.de>, <netdev@vger.kernel.org>,
+        <aelior@marvell.com>, <regressions@lists.linux.dev>,
+        <stable@vger.kernel.org>
+Subject: [PATCH net] bnx2x: fix built-in kernel driver load failure
+Date:   Wed, 16 Mar 2022 14:46:13 -0700
+Message-ID: <20220316214613.6884-1-manishc@marvell.com>
+X-Mailer: git-send-email 2.12.0
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: NbbWkX58m6uCzFPvjAgj_9CYZVlfWBsV
+X-Proofpoint-GUID: NbbWkX58m6uCzFPvjAgj_9CYZVlfWBsV
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-16_09,2022-03-15_01,2022-02-23_01
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 16 Mar 2022 19:49:38 +0530 Charan Teja Kalla <quic_charante@quicinc.com> wrote:
+commit b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0")
+added request_firmware() logic in probe() which caused
+built-in kernel driver (CONFIG_BNX2X=y) load failure (below),
+as access to firmware file is not feasible during the probe.
 
-> > IMO, it's worth to note in man page.
-> > 
-> 
-> Or the current patch for just ENOMEM is sufficient here and we just have
-> to update the man page?
+"Direct firmware load for bnx2x/bnx2x-e2-7.13.21.0.fw
+failed with error -2"
 
-I think the "On success, process_madvise() returns the number of bytes
-advised" behaviour sounds useful.  But madvise() doesn't do that.
+This patch fixes this issue by -
 
-RETURN VALUE
-       On  success, madvise() returns zero.  On error, it returns -1 and errno
-       is set to indicate the error.
+1. Removing request_firmware() logic from the probe()
+   such that .ndo_open() handle it as it used to handle
+   it earlier
 
-So why is it desirable in the case of process_madvise()?
+2. Given request_firmware() is removed from probe(), so
+   driver has to relax FW version comparisons a bit against
+   the already loaded FW version (by some other PFs of same
+   adapter) to allow different compatible/close FWs with which
+   multiple PFs may run with (in different environments), as the
+   given PF who is in probe flow has no idea now with which firmware
+   file version it is going to initialize the device in ndo_open()
 
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/46f2d9d9-ae7f-b332-ddeb-b59802be2bab@molgen.mpg.de/
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Fixes: b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+---
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x.h   |  2 --
+ .../net/ethernet/broadcom/bnx2x/bnx2x_cmn.c   | 28 +++++++++++--------
+ .../net/ethernet/broadcom/bnx2x/bnx2x_main.c  | 15 ++--------
+ 3 files changed, 19 insertions(+), 26 deletions(-)
 
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+index a19dd6797070..2209d99b3404 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+@@ -2533,6 +2533,4 @@ void bnx2x_register_phc(struct bnx2x *bp);
+  * Meant for implicit re-load flows.
+  */
+ int bnx2x_vlan_reconfigure_vid(struct bnx2x *bp);
+-int bnx2x_init_firmware(struct bnx2x *bp);
+-void bnx2x_release_firmware(struct bnx2x *bp);
+ #endif /* bnx2x.h */
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+index 8d36ebbf08e1..5729a5ab059d 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+@@ -2364,24 +2364,30 @@ int bnx2x_compare_fw_ver(struct bnx2x *bp, u32 load_code, bool print_err)
+ 	/* is another pf loaded on this engine? */
+ 	if (load_code != FW_MSG_CODE_DRV_LOAD_COMMON_CHIP &&
+ 	    load_code != FW_MSG_CODE_DRV_LOAD_COMMON) {
+-		/* build my FW version dword */
+-		u32 my_fw = (bp->fw_major) + (bp->fw_minor << 8) +
+-				(bp->fw_rev << 16) + (bp->fw_eng << 24);
++		u8 loaded_fw_major, loaded_fw_minor, loaded_fw_rev, loaded_fw_eng;
++		u32 loaded_fw;
+ 
+ 		/* read loaded FW from chip */
+-		u32 loaded_fw = REG_RD(bp, XSEM_REG_PRAM);
++		loaded_fw = REG_RD(bp, XSEM_REG_PRAM);
+ 
+-		DP(BNX2X_MSG_SP, "loaded fw %x, my fw %x\n",
+-		   loaded_fw, my_fw);
++		loaded_fw_major = loaded_fw & 0xff;
++		loaded_fw_minor = (loaded_fw >> 8) & 0xff;
++		loaded_fw_rev = (loaded_fw >> 16) & 0xff;
++		loaded_fw_eng = (loaded_fw >> 24) & 0xff;
++
++		DP(BNX2X_MSG_SP, "loaded fw 0x%x major 0x%x minor 0x%x rev 0x%x eng 0x%x\n",
++		   loaded_fw, loaded_fw_major, loaded_fw_minor, loaded_fw_rev, loaded_fw_eng);
+ 
+ 		/* abort nic load if version mismatch */
+-		if (my_fw != loaded_fw) {
++		if (loaded_fw_major != BCM_5710_FW_MAJOR_VERSION ||
++		    loaded_fw_minor != BCM_5710_FW_MINOR_VERSION ||
++		    loaded_fw_eng != BCM_5710_FW_ENGINEERING_VERSION ||
++		    loaded_fw_rev < BCM_5710_FW_REVISION_VERSION_V15) {
+ 			if (print_err)
+-				BNX2X_ERR("bnx2x with FW %x was already loaded which mismatches my %x FW. Aborting\n",
+-					  loaded_fw, my_fw);
++				BNX2X_ERR("loaded FW incompatible. Aborting\n");
+ 			else
+-				BNX2X_DEV_INFO("bnx2x with FW %x was already loaded which mismatches my %x FW, possibly due to MF UNDI\n",
+-					       loaded_fw, my_fw);
++				BNX2X_DEV_INFO("loaded FW incompatible, possibly due to MF UNDI\n");
++
+ 			return -EBUSY;
+ 		}
+ 	}
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+index eedb48d945ed..c19b072f3a23 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+@@ -12319,15 +12319,6 @@ static int bnx2x_init_bp(struct bnx2x *bp)
+ 
+ 	bnx2x_read_fwinfo(bp);
+ 
+-	if (IS_PF(bp)) {
+-		rc = bnx2x_init_firmware(bp);
+-
+-		if (rc) {
+-			bnx2x_free_mem_bp(bp);
+-			return rc;
+-		}
+-	}
+-
+ 	func = BP_FUNC(bp);
+ 
+ 	/* need to reset chip if undi was active */
+@@ -12340,7 +12331,6 @@ static int bnx2x_init_bp(struct bnx2x *bp)
+ 
+ 		rc = bnx2x_prev_unload(bp);
+ 		if (rc) {
+-			bnx2x_release_firmware(bp);
+ 			bnx2x_free_mem_bp(bp);
+ 			return rc;
+ 		}
+@@ -13409,7 +13399,7 @@ do {									\
+ 	     (u8 *)bp->arr, len);					\
+ } while (0)
+ 
+-int bnx2x_init_firmware(struct bnx2x *bp)
++static int bnx2x_init_firmware(struct bnx2x *bp)
+ {
+ 	const char *fw_file_name, *fw_file_name_v15;
+ 	struct bnx2x_fw_file_hdr *fw_hdr;
+@@ -13509,7 +13499,7 @@ int bnx2x_init_firmware(struct bnx2x *bp)
+ 	return rc;
+ }
+ 
+-void bnx2x_release_firmware(struct bnx2x *bp)
++static void bnx2x_release_firmware(struct bnx2x *bp)
+ {
+ 	kfree(bp->init_ops_offsets);
+ 	kfree(bp->init_ops);
+@@ -14026,7 +14016,6 @@ static int bnx2x_init_one(struct pci_dev *pdev,
+ 	return 0;
+ 
+ init_one_freemem:
+-	bnx2x_release_firmware(bp);
+ 	bnx2x_free_mem_bp(bp);
+ 
+ init_one_exit:
+-- 
+2.35.1.273.ge6ebfd0
 
-And why was process_madvise() designed this way?   Or was it
-always simply an error in the manpage?
