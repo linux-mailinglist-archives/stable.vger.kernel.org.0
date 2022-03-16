@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B7C4DA750
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 02:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34E1D4DA74D
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 02:22:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352921AbiCPBXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 21:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41160 "EHLO
+        id S1344899AbiCPBXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 21:23:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244426AbiCPBXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 21:23:47 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1825D5D6;
+        with ESMTP id S239951AbiCPBXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 21:23:46 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29D165D5D3;
         Tue, 15 Mar 2022 18:22:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1647393754; x=1678929754;
+  t=1647393753; x=1678929753;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=o8NLwsHQ7nxjPsvtTK/0aON0mYhUsoCdtD1RyK2sjf4=;
-  b=Gq7Fy1q+K9jPoN8Nr+QTAUqwKiMLk8MLf3HILqvZXUREAupDOHh23XWN
-   I+WaaTcVTDxA4vjdEcYyGxaA9J3/0bUzsU4kHYEatglq9SHNgkO6+ZIn0
-   hvil6LRIDRcqpCt7YTONmcx1mpyL3gIB/G+X1ubBF2JBljf+D5Juv3wmw
-   A3ERvUA3YxmMOxHlo/SFShjeMiZgxNrYjZb6X4+X2D664ChPHcA8M0thT
-   Z/TQShtKNZm6ad4N8RtLom9yD66BrMHGlbU+P2Mxz+ag/apNQjuwGIYJh
-   pWt3VivUq8yEc3zBLiOS+r9TvC1CYN+SpM1ucaNHasJOw1hUbBsnQ123W
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10286"; a="236406795"
+  bh=sOmWI/JX2zd3KAThJoRSzxkUIfqthqS4raz/5dVW1Ms=;
+  b=R+KxFMmfzNINZCxfR5cvBzub471VuSCmkNyYcAgkrnK+OcgtOWWiDRHO
+   9BTTYfqYHklrjr4gjUBMUNjLx8ODxbR08YSiZAUw/osvaAq12idY0O85z
+   8DOKrC4Ec2lHRJFTOGco0TnPDeLNCvS5KVNivM6amfavvnms/2e2DbsoL
+   Q7Iq+dn2hnsaUEnWfelkgFJdYyJ4P0lFxMulk3FDur+Xl6fsFo5SSSDxg
+   UnGCZY3KccslKuwKV0ZlLOu6EMLW02C6MPBzn8KL0jTd7+4+o7vSPeAPH
+   3qXTSAqz5imv6qrKpFajGndvgyz7Wbc5dbddQk23AlToB8pOyQp0/01Bq
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10286"; a="254019666"
 X-IronPort-AV: E=Sophos;i="5.90,185,1643702400"; 
-   d="scan'208";a="236406795"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Mar 2022 18:22:33 -0700
+   d="scan'208";a="254019666"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Mar 2022 18:22:32 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.90,185,1643702400"; 
-   d="scan'208";a="549803069"
+   d="scan'208";a="598523517"
 Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
-  by fmsmga007.fm.intel.com with ESMTP; 15 Mar 2022 18:22:30 -0700
+  by fmsmga008.fm.intel.com with ESMTP; 15 Mar 2022 18:22:30 -0700
 Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
         (envelope-from <lkp@intel.com>)
-        id 1nUIMv-000Bkc-TD; Wed, 16 Mar 2022 01:22:29 +0000
-Date:   Wed, 16 Mar 2022 09:22:15 +0800
+        id 1nUIMv-000BkZ-Sn; Wed, 16 Mar 2022 01:22:29 +0000
+Date:   Wed, 16 Mar 2022 09:22:22 +0800
 From:   kernel test robot <lkp@intel.com>
 To:     Tadeusz Struk <tadeusz.struk@linaro.org>,
         Theodore Ts'o <tytso@mit.edu>
-Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
+Cc:     kbuild-all@lists.01.org, Tadeusz Struk <tadeusz.struk@linaro.org>,
         Andreas Dilger <adilger.kernel@dilger.ca>,
         Ritesh Harjani <riteshh@linux.ibm.com>,
         linux-ext4@vger.kernel.org, stable@vger.kernel.org,
@@ -53,16 +52,16 @@ Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
         syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
 Subject: Re: [PATCH] ext4: check if offset+length is within a valid range in
  fallocate
-Message-ID: <202203160955.fFhAfodc-lkp@intel.com>
+Message-ID: <202203160919.MtfBk5N0-lkp@intel.com>
 References: <20220315191545.187366-1-tadeusz.struk@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20220315191545.187366-1-tadeusz.struk@linaro.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -82,30 +81,28 @@ https://git-scm.com/docs/git-format-patch]
 
 url:    https://github.com/0day-ci/linux/commits/Tadeusz-Struk/ext4-check-if-offset-length-is-within-a-valid-range-in-fallocate/20220316-031841
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/tytso/ext4.git dev
-config: mips-cu1830-neo_defconfig (https://download.01.org/0day-ci/archive/20220316/202203160955.fFhAfodc-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project a6b2f50fb47da3baeee10b1906da6e30ac5d26ec)
+config: arc-randconfig-r043-20220313 (https://download.01.org/0day-ci/archive/20220316/202203160919.MtfBk5N0-lkp@intel.com/config)
+compiler: arc-elf-gcc (GCC) 11.2.0
 reproduce (this is a W=1 build):
         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
         chmod +x ~/bin/make.cross
-        # install mips cross compiling tool for clang build
-        # apt-get install binutils-mips-linux-gnu
         # https://github.com/0day-ci/linux/commit/bc1fdc20f07523e970c9dea4f0fbabbc437fb0d5
         git remote add linux-review https://github.com/0day-ci/linux
         git fetch --no-tags linux-review Tadeusz-Struk/ext4-check-if-offset-length-is-within-a-valid-range-in-fallocate/20220316-031841
         git checkout bc1fdc20f07523e970c9dea4f0fbabbc437fb0d5
         # save the config file to linux build tree
         mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=mips SHELL=/bin/bash
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=arc SHELL=/bin/bash fs/
 
 If you fix the issue, kindly add following tag as appropriate
 Reported-by: kernel test robot <lkp@intel.com>
 
 All errors (new ones prefixed by >>):
 
->> fs/ext4/inode.c:4002:45: error: no member named 's_blocksize' in 'struct ext4_sb_info'
-           max_length = sbi->s_bitmap_maxbytes - sbi->s_blocksize;
-                                                 ~~~  ^
-   1 error generated.
+   fs/ext4/inode.c: In function 'ext4_punch_hole':
+>> fs/ext4/inode.c:4002:50: error: 'struct ext4_sb_info' has no member named 's_blocksize'
+    4002 |         max_length = sbi->s_bitmap_maxbytes - sbi->s_blocksize;
+         |                                                  ^~
 
 
 vim +4002 fs/ext4/inode.c
