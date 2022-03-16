@@ -2,208 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2446B4DB502
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 16:36:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F36514DB513
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 16:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245478AbiCPPh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 11:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58748 "EHLO
+        id S1357250AbiCPPm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 11:42:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240167AbiCPPh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 11:37:28 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 851FC6D1A6
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 08:36:14 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id s11so4222199pfu.13
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 08:36:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=M1t46yOHmtMQuV0IpWXR9hT4kXlxwb4CaiXB/2wmOSY=;
-        b=d0PitMFGERjCxbhijxghM642nVWNTJSeeT/5vA69eUTAYAJQn4KH14Sc+8nFLyfBq1
-         FaUoS/sXDOE/xWnJScIF4wEkw1MN1Ee2GnDTi8S5J2/Sk+xMqgtpgqD1fsb/TB/jIJpZ
-         z5gUO3WzbFKt4tj/037Q4KPEn3Tr0OSino+dASIgo11gVlV5+UsPQo460dKSwBY2CzBx
-         2tZeRaSpdRdKG4+kuSwCR/rUFSzFSFuli1xOJnkfjOBoKVM1SnM2K49qp/0cDHygt+I6
-         I5fugAqwxTdF/qUIXc2sOwWhQtOL5pPvVdVqsGtuEu+IlTuTpTjvb1H3YpLKor7aczZV
-         VPzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=M1t46yOHmtMQuV0IpWXR9hT4kXlxwb4CaiXB/2wmOSY=;
-        b=6BeP0uzCC09JgslMIFKa5bU4S9WAjYJJNrDyYItWXSmR9BKdXbmzstgn6nespxIirK
-         4rxHFeOrwKBSCYYwO3GoCPJLjA4dMHoya2eDXGJvNitaSdi0AdshwpQHhui772FP69fq
-         2CVwqD3w+4elspZNFiLjSK7+2UDFIntGru/7EW0uJcTnyiHkpOhK0SzTpiprN9m/y02N
-         6xS39iMHNoBVUEuHkOpW7TgSmqBN5HyJYaqmhODwFTnWFmCrATcy32Y8uBmxcfbfOKIZ
-         1ZR9YqTOwiMN8F9DjEI0DbBbq8DSKjXESGSWKwsdcAz6b4bhHLlHLgR3/FQz5CXo294L
-         GQvg==
-X-Gm-Message-State: AOAM531b7CCbgLeSzERDzjMy0GSNW8/DRw3Um5zZj39AYZ9JULxiFUkq
-        LxmlOwCsaBOOLMl+WzIuM1rPLTqGEC9JpU7L6xQ=
-X-Google-Smtp-Source: ABdhPJwiCUHgVhs+cCVPZ8DDmzE5XPFHQs/sZ4cCiLRokXjK5sniX1bCu1XanT1cOjYor2BAKXlyAw==
-X-Received: by 2002:a63:f648:0:b0:380:a9f7:2189 with SMTP id u8-20020a63f648000000b00380a9f72189mr123787pgj.305.1647444973885;
-        Wed, 16 Mar 2022 08:36:13 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c18-20020a056a000ad200b004f0f9696578sm4183525pfl.141.2022.03.16.08.36.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Mar 2022 08:36:13 -0700 (PDT)
-Message-ID: <623203ed.1c69fb81.8c0f9.9450@mx.google.com>
-Date:   Wed, 16 Mar 2022 08:36:13 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1352184AbiCPPm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 11:42:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 834CB43399
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 08:41:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00704616F3
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 15:41:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDED9C340E9;
+        Wed, 16 Mar 2022 15:41:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647445271;
+        bh=fGlxVPOqx7AWOT3JY9X9MOlp4HEsWoCwI1MuXI2ST8U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JYpefBRr/EeoPTiDhHMNP9czSh83o/H1eJ+HF+AtGxXhBw5YtgFL6ulKHhtuNyNqn
+         IuVYrpWgz+E+Tl1f9LJNsS+5gKk8PekxIhASqKBumXCiiiRpP+Ww/IxMQKuIdk4HL6
+         EQprNezXL4o89zFvZt6jrfGZhUnkEjI/zlHlqzFqqiaJs7Da1lby3muw3MY4/OyIpv
+         UhY05ibHDfHdHMmZESzXo4kLMkBjEKo/wreqnemevjoKnUZELcA6xYgtyAAdkgUso8
+         Ji5ZqUdh1QnxzvXPSTnHzGocqti1DCT3QfyoFpk9gNOqIXGsB4ilXk5i2o0rKaIKBV
+         yfvYEN+h0awdQ==
+Date:   Wed, 16 Mar 2022 11:41:07 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     James Morse <james.morse@arm.com>
+Cc:     stable@vger.kernel.org, catalin.marinas@arm.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [stable:PATCH v5.4.184 00/22] arm64: Mitigate spectre style
+ branch history side channels
+Message-ID: <YjIFE8Abn7XI+4yW@sashalap>
+References: <20220315182415.3900464-1-james.morse@arm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.234-26-gcb61a50ab367
-Subject: stable-rc/queue/4.19 baseline: 67 runs,
- 3 regressions (v4.19.234-26-gcb61a50ab367)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20220315182415.3900464-1-james.morse@arm.com>
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 67 runs, 3 regressions (v4.19.234-26-gcb61a5=
-0ab367)
+On Tue, Mar 15, 2022 at 06:23:53PM +0000, James Morse wrote:
+>Hi Greg,
+>
+>Here is the state of the current v5.4 backport. Now that the 32bit
+>code has been merged, it doesn't conflict when KVM's shared 32bit/64bit
+>code needs to use these constants.
+>
+>I've fixed the two issues that were reported against the v5.10 backport.
+>
+>I had a go at bringing all the pre-requisites in to add proton-pack.c
+>to v5.4. Its currently 39 patches:
+>https://git.gitlab.arm.com/linux-arm/linux-jm.git /bhb/alternative_backport/UNTESTED/v5.4.183
+>(or for web browsers:
+>https://gitlab.arm.com/linux-arm/linux-jm/-/commits/bhb/alternative_backport/UNTESTED/v5.4.183/
+>)
 
-Regressions Summary
--------------------
+I've queued it up.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-da850-lcdk       | arm   | lab-baylibre  | gcc-10   | davinci_all_defconfig=
-      | 2          =
+>I've not managed to bring b881cdce77b4 "KVM: arm64: Allocate hyp vectors
+>statically" in, as that depends on the hypervisor's per-cpu support. Its
+>this patch that means those 'smccc_wa' templates are needed.
+>I estimate it would be 60 patches in total if we go this way, I don't
+>think its a good idea:
+>All this still has to work around 541ad0150ca4 ("arm: Remove 32bit KVM
+>host support") and 9ed24f4b712b ("KVM: arm64: Move virt/kvm/arm to
+>arch/arm64") being missing.
+>I think this approach creates more problems than it solves as the
+>files have to be in different places because of 32bit. It also creates
+>a significantly larger testing problem: I'm not looking forward to
+>working out how to test KVM guest migration over the variant-4 KVM ABI
+>changes in 29e8910a566a.
 
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+I think that the workaround you mention later on for this issue makes
+sense cost/benefit-wise.
 
+>This version of the backport still adds the mitigation management code
+>to cpu_errata.c, because that is where this stuff lived in v5.4.
+>
+>If you prefer, I can try adding proton-pack.c as a new empty file.
+>I think this would only confuse matters as the line-numbers would
+>never match, and there is an interaction with the spectre-v2 mitigations
+>that live in cpu_errata.c.
+>
+>There is one patch not present in mainline 'KVM: arm64: Add templtes for
+>BHB mitigation sequences'.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.234-26-gcb61a50ab367/plan/baseline/
+Thank you!
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.234-26-gcb61a50ab367
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cb61a50ab3670cfd1e473a2ffc4654f59d3103a4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-da850-lcdk       | arm   | lab-baylibre  | gcc-10   | davinci_all_defconfig=
-      | 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6231c9d461467a5a84c629b0
-
-  Results:     4 PASS, 2 FAIL, 1 SKIP
-  Full config: davinci_all_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.234=
--26-gcb61a50ab367/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-da=
-850-lcdk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.234=
--26-gcb61a50ab367/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-da=
-850-lcdk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6231c9d461467a5=
-a84c629b4
-        new failure (last pass: v4.19.234-29-g655878b7b44c)
-        6 lines
-
-    2022-03-16T11:28:12.103309  kern  :alert : BUG: Bad page state in proce=
-ss swapper  pfn:c3400
-    2022-03-16T11:28:12.103584  kern  :alert : raw: 00000000 00000100 00000=
-200 00000000 00000004 0000000a ffffff7f 00000000
-    2022-03-16T11:28:12.103754  kern  :alert : page dumped because: nonzero=
- mapcount
-    2022-03-16T11:28:12.103911  kern  :alert : BUG: Bad page state in proce=
-ss swapper  pfn:c3800
-    2022-03-16T11:28:12.104064  kern  :alert : raw: 00000000 00000100 00000=
-200 00000000 00000004 0000000a ffffff7f 00000000
-    2022-03-16T11:28:12.104212  kern  :alert : page dumped because: nonzero=
- mapcount
-    2022-03-16T11:28:12.141748  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
-rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D6>   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6231c9d461467a5=
-a84c629b5
-        new failure (last pass: v4.19.234-29-g655878b7b44c)
-        4 lines
-
-    2022-03-16T11:28:12.277732  kern  :emerg : page:c6f51000 count:0 mapcou=
-nt:-128 mapping:00000000 index:0x4
-    2022-03-16T11:28:12.277955  kern  :emerg : flags: 0x0()
-    2022-03-16T11:28:12.278121  kern  :emerg : page:c6f59000 count:0 mapcou=
-nt:-128 mapping:00000000 index:0x4
-    2022-03-16T11:28:12.278278  kern  :emerg : flags: 0x0()
-    2022-03-16T11:28:12.344131  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Deme=
-rg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D4>
-    2022-03-16T11:28:12.344344  + set +x
-    2022-03-16T11:28:12.344509  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 1706584_1.5.=
-2.4.1>   =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6231cfe227c4310a83c62a7b
-
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.234=
--26-gcb61a50ab367/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.234=
--26-gcb61a50ab367/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6231cfe227c4310a83c62aa1
-        failing since 10 days (last pass: v4.19.232-31-g5cf846953aa2, first=
- fail: v4.19.232-44-gfd65e02206f4)
-
-    2022-03-16T11:54:01.264119  /lava-5890041/1/../bin/lava-test-case<8>[  =
- 35.433775] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-i2s1-probed RESUL=
-T=3Dfail>   =
-
- =20
+-- 
+Thanks,
+Sasha
