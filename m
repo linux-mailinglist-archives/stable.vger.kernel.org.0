@@ -2,83 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C7E4DA66F
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 00:48:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 567564DA6D9
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 01:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352621AbiCOXta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 19:49:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
+        id S1352805AbiCPA14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 20:27:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352638AbiCOXt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 19:49:29 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373A421807;
-        Tue, 15 Mar 2022 16:48:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8EFF6CE1D92;
-        Tue, 15 Mar 2022 23:48:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA62C340F3;
-        Tue, 15 Mar 2022 23:48:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1647388088;
-        bh=lFbXIDa4QnBNJa5XI+6aSCuy5aLkXoZmkzSUjIS9Nus=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=nyfrMxNivbfRHfA/kgKORjOUDtNO0xiJdHK0Zph9F8/JEoL/jy+f1ikCofXmx6Ehf
-         ZaG3CsR7684FTWNeIUJoRVTiz0it3ilSem5lDIkIYt5AkzCH2aaGRLkr7B+PbUWICp
-         skiCnZTtAWjy0s3a6cMbZfgY7S3RC5np5wZ4DQgo=
-Date:   Tue, 15 Mar 2022 16:48:07 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Minchan Kim <minchan@kernel.org>
-Cc:     Charan Teja Kalla <quic_charante@quicinc.com>, surenb@google.com,
-        vbabka@suse.cz, rientjes@google.com, sfr@canb.auug.org.au,
-        edgararriaga@google.com, nadav.amit@gmail.com, mhocko@suse.com,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        "# 5 . 10+" <stable@vger.kernel.org>
-Subject: Re: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to
- process_madvise
-Message-Id: <20220315164807.7a9cf1694ee2db8709a8597c@linux-foundation.org>
-In-Reply-To: <YjEaFBWterxc3Nzf@google.com>
-References: <cover.1647008754.git.quic_charante@quicinc.com>
-        <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
-        <YjEaFBWterxc3Nzf@google.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        with ESMTP id S1352803AbiCPA1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 20:27:55 -0400
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DCA48397
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 17:26:43 -0700 (PDT)
+Received: by mail-yb1-xb35.google.com with SMTP id f38so1670041ybi.3
+        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 17:26:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=iQscjGHBncRaupHPdZQ3q0AiqG4cNJenFOFoRkIiicQ=;
+        b=aezXy6zkY97uzsl//85uDW56D3OAWAwchmro3QR5Vs+xex42nDPoxxEtIx+uPQv9vM
+         W9y0CpOufXiUk8/1FFETT/v27LO6y+qsIe+hTi3paIDcG1eFcGZbF9VnKCXsyEcaU0Eo
+         LXVyC2K1Pnbbtqf0b67bsaP75pp/UQivN7HdpEYnnxbTUdVjkEHHkzLpjqCcqc8tKsgP
+         LwXQ3xsswc+eaC+zQvPGYpkLU3VDuBxBRPrRMPyCVVmmDrnWjze+BtooHj3JCwyMGd83
+         iwmoZGuVjYni6ImL81FxXiBqF0K9Arbu5AdDWzkCizUicTFsrUutNLv+p2MNi1g+FMiz
+         eqnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=iQscjGHBncRaupHPdZQ3q0AiqG4cNJenFOFoRkIiicQ=;
+        b=MVAasue2nvjTk5gm8ROdspNbhsp60UxxtS0UAenPbc1O6gAE0jJAM/ZpPbUbJyg+e0
+         b2vEjHPd4+7MEgioAvhngphwyUiWH48KRKKHYu96lrTKZuH8qLXL6u8dzj7mj55hbJYy
+         n6KbxvtfOPf8hPZ5qMAQiGewrvNZBRsINQgtTHPPRIHY6ifBoAdtrGgx6a4051zeuuaN
+         ybmVV1lPh+IreFeKvAIPiGf977A/urtQC8PgGCk1P9IyZofXReAW4bO9RyhOeNR8T3UW
+         1PiIIU0qAAOUOa80AaN4Hodo7N2IKtIxEmC9bpsEUW+iZZQIf9jNIC5Kajl5sdYt6lrj
+         JkdQ==
+X-Gm-Message-State: AOAM532E5tQq0HgF5Z2T1QZ6l9BKVGESxaPa2ha5VhmyG7PmbtPEYJ/X
+        dY38O/0rMJkKk8Ka0pvSJ9DZpp0iGrHWiuz/h18=
+X-Google-Smtp-Source: ABdhPJwg/jcEW1TkQ73ok5bFwrVALyks+A/cl/avcNwcZXqqqxM4W0LaZfJryE5t+7bMI+EA+Q5saysu79hUBOvAteY=
+X-Received: by 2002:a5b:9cc:0:b0:61d:f7ba:7fc with SMTP id y12-20020a5b09cc000000b0061df7ba07fcmr24722026ybq.434.1647390402176;
+ Tue, 15 Mar 2022 17:26:42 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a05:7110:5682:b0:16e:f08:5fbe with HTTP; Tue, 15 Mar 2022
+ 17:26:41 -0700 (PDT)
+Reply-To: mrs.chantal_bill@hotmail.com
+From:   Chantal Aalim <licanorawlins@gmail.com>
+Date:   Tue, 15 Mar 2022 17:26:41 -0700
+Message-ID: <CAPWxNW7m8ZYHEX227b63RuR+tQzr=NLQvE43JzDnoPzO+2eEDQ@mail.gmail.com>
+Subject: U.N Relief funds
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=7.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
+        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM,UNDISC_MONEY autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:b35 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5003]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [licanorawlins[at]gmail.com]
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  3.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+        *  0.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+        *  2.6 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 15 Mar 2022 15:58:28 -0700 Minchan Kim <minchan@kernel.org> wrote:
+Congratulations
 
-> On Fri, Mar 11, 2022 at 08:59:06PM +0530, Charan Teja Kalla wrote:
-> > The process_madvise() system call is expected to skip holes in vma
-> > passed through 'struct iovec' vector list. But do_madvise, which
-> > process_madvise() calls for each vma, returns ENOMEM in case of unmapped
-> > holes, despite the VMA is processed.
-> > Thus process_madvise() should treat ENOMEM as expected and consider the
-> > VMA passed to as processed and continue processing other vma's in the
-> > vector list. Returning -ENOMEM to user, despite the VMA is processed,
-> > will be unable to figure out where to start the next madvise.
-> > Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
-> > Cc: <stable@vger.kernel.org> # 5.10+
-> 
-> Hmm, not sure whether it's stable material since it changes semantic of
-> API. It would be better to change the semantic from 5.19 with man page
-> update to specify the change.
+You have been compensated with the sum of $5.3 million USD by the
+United Nations, the payment will be made on ATM Visa Card
 
-It's a very desirable change and it makes the code match the manpage
-and it's cc:stable.  I think we should just absorb any transitory
-damage which this causes people.  I doubt if there will be much - if
-anyone was affected by this they would have already told us that it's
-broken?
+and send to you from Santander Bank of Spain, we need your
+passport, address and your Whats-app number.
 
-
+Best regards
+Mrs. Chantal bill
