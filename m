@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2474E4DB2F6
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:21:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 779494DB307
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348987AbiCPOWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 10:22:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44336 "EHLO
+        id S1356581AbiCPOZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 10:25:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343575AbiCPOVn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:21:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A964EF6B;
-        Wed, 16 Mar 2022 07:19:08 -0700 (PDT)
+        with ESMTP id S1356784AbiCPOWB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:22:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14FB95F4C4;
+        Wed, 16 Mar 2022 07:19:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C36261277;
-        Wed, 16 Mar 2022 14:19:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A93A7C340F0;
-        Wed, 16 Mar 2022 14:19:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 928D5B81B40;
+        Wed, 16 Mar 2022 14:19:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 536C7C340E9;
+        Wed, 16 Mar 2022 14:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647440347;
-        bh=Y5zWl7U5Otlds0oDof3do24rzGWPA9Fl6NP3DV3Vw0U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ev2AKkdIvRSGsHse2NLrCC2KRLJOXBCgbib0B7zcoEQu900vK6tuJ/BEVBfjNtyck
-         jbCKbU7HIvQr5sqH9dCDzLam50ZuQSNQFqPRuT5AQUsy5pNcZrpxMHsOBkgHxQ5+/l
-         lcnzwDx3j/tapzQzEq8dmS/oq1NOcPvokGaoMHSTk0FdR1OkRfupEk/gHw0+NY3viH
-         DmNRzvBPFc05wxaIkBZuU2q7wfJdp8hIQhaTOl/n/27APTqV14MZC70C28h8s7aXUM
-         UGIpyrIrgsWL0xtruoBtSgbvQ6NtMeEfbPGsjEupbFKfXHO0IiFqhqZS31FM0gsD3s
-         I9To9zaC7dcgg==
+        s=k20201202; t=1647440356;
+        bh=JuKv5L/0AOr+bAEI9MVsl38mgm5zbqJuHhNnytpvgeE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Yx2Zq9++e1+aE9AVdWRxgPGZOd8vQCEQEkoEc+GSZL6pBOJhh6kbXfY9luCCz3Ppi
+         VG6ugaOTgh9yq21iMHb7U5hz6iuuRlWlGLdmDbO4Vqk8IbedCq1Tp8T6yg+J7t2LdV
+         YfB5ADjXAUFUbjTSQd3Etz3DCbZ3scGJUI5A3EYQPPQnj129w7eBI9XsUoF9MxPcbB
+         gRJK54WPhJ2a7RUrd0AA0If0Y9SrFtnOew8TrtYYkYrZMlmOyTxqCjIoLnadD+qkO+
+         FhslkgW6qiB3M88rJUhOX0UQxirtDj6P+Qiyv+1JR0h8gmTgjbmU6zqGMMMHVZyIft
+         EXZ2HjQ70Kg2Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 3/3] spi: Fix invalid sgs value
-Date:   Wed, 16 Mar 2022 10:18:50 -0400
-Message-Id: <20220316141850.248784-3-sashal@kernel.org>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, amit@kernel.org,
+        gregkh@linuxfoundation.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 1/2] virtio_console: break out of buf poll on remove
+Date:   Wed, 16 Mar 2022 10:19:07 -0400
+Message-Id: <20220316141908.248848-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220316141850.248784-1-sashal@kernel.org>
-References: <20220316141850.248784-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,45 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-[ Upstream commit 1a4e53d2fc4f68aa654ad96d13ad042e1a8e8a7d ]
+[ Upstream commit 0e7174b9d5877130fec41fb4a16e0c2ee4958d44 ]
 
-max_seg_size is unsigned int and it can have a value up to 2^32
-(for eg:-RZ_DMAC driver sets dma_set_max_seg_size as U32_MAX)
-When this value is used in min_t() as an integer type, it becomes
--1 and the value of sgs becomes 0.
+A common pattern for device reset is currently:
+vdev->config->reset(vdev);
+.. cleanup ..
 
-Fix this issue by replacing the 'int' data type with 'unsigned int'
-in min_t().
+reset prevents new interrupts from arriving and waits for interrupt
+handlers to finish.
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220307184843.9994-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+However if - as is common - the handler queues a work request which is
+flushed during the cleanup stage, we have code adding buffers / trying
+to get buffers while device is reset. Not good.
+
+This was reproduced by running
+	modprobe virtio_console
+	modprobe -r virtio_console
+in a loop.
+
+Fix this up by calling virtio_break_device + flush before reset.
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1786239
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/virtio_console.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 71f74015efb9..d26aefed16ac 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -774,10 +774,10 @@ static int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
- 	int i, ret;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 2632b0fdb1b5..a6b6dc204c1f 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -2004,6 +2004,13 @@ static void virtcons_remove(struct virtio_device *vdev)
+ 	list_del(&portdev->list);
+ 	spin_unlock_irq(&pdrvdata_lock);
  
- 	if (vmalloced_buf || kmap_buf) {
--		desc_len = min_t(int, max_seg_size, PAGE_SIZE);
-+		desc_len = min_t(unsigned int, max_seg_size, PAGE_SIZE);
- 		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
- 	} else if (virt_addr_valid(buf)) {
--		desc_len = min_t(int, max_seg_size, ctlr->max_dma_len);
-+		desc_len = min_t(unsigned int, max_seg_size, ctlr->max_dma_len);
- 		sgs = DIV_ROUND_UP(len, desc_len);
- 	} else {
- 		return -EINVAL;
++	/* Device is going away, exit any polling for buffers */
++	virtio_break_device(vdev);
++	if (use_multiport(portdev))
++		flush_work(&portdev->control_work);
++	else
++		flush_work(&portdev->config_work);
++
+ 	/* Disable interrupts for vqs */
+ 	vdev->config->reset(vdev);
+ 	/* Finish up work that's lined up */
 -- 
 2.34.1
 
