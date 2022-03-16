@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D5B4DB24F
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:14:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 859B84DB250
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:14:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356381AbiCPOPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 10:15:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33748 "EHLO
+        id S1356380AbiCPOPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 10:15:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356347AbiCPOPl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:15:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD9F1EEE5;
-        Wed, 16 Mar 2022 07:14:27 -0700 (PDT)
+        with ESMTP id S1356372AbiCPOPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:15:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E027222B37;
+        Wed, 16 Mar 2022 07:14:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D57961240;
-        Wed, 16 Mar 2022 14:14:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12651C36AF9;
-        Wed, 16 Mar 2022 14:14:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48BBBB81B7B;
+        Wed, 16 Mar 2022 14:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EF94C340E9;
+        Wed, 16 Mar 2022 14:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647440066;
-        bh=8/YNMu7+LX6RHTLGnnonVq5mzG5eSceZVaeyn/2kX5Q=;
+        s=k20201202; t=1647440070;
+        bh=cDcBt1ZoRUQNRE8FVwU/QkkF+i3WkXILdRw8bB40734=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aYMZTaycAF1B1e8fkOA6TVfZEKfwlpsMa9fDx5kgPr83R/t4ibNFsnVrsKIlexqBZ
-         svvRDWVVHP/lYq5Ly4kB5O89giMybbjdEjIZNIiVTyRPapOZSgu9aBHgNmcS2+NtIQ
-         DFa5Ho9KlD0QJqS5deZpGQ0uOFbISXfCxvkgwk/VQHYtwMGY0jBA+7HULXRI3GgNZ8
-         D7xjECesfQ4O1r+iFc8NoUgxPxJXhRgOHsnt5rMdwKCtjR8/hvH73n2d65Bx4C+n9w
-         gfQsBpTfpkJ+1ow4G3+1OnRdYhnk+MRq3MwiPti11jEbFffxKwG4LjEWyYu8/dhEik
-         JgiNZ9pa0fQjg==
+        b=ByGskSaaSLrSEInH1f9dnMBBmFng1xJu/EweWnwjdcHTmHRVWaFa8T9ko2Wuh4ElH
+         Ac3AC+JFNlvlkihR70LKO7yFaaB8SCNyq/SVLd7bg9pQkaQkP2+Fe1vunL4WON7F5L
+         8HVJNW6k0tAXW+I3XAUgE2CjyCIcRUoryGGWgU3BXqXg1xUId9c3iMkAx3qobFY9X/
+         r3wGE1mxp7Ovav6AuKPbEJz40qzAiw05NGfauJZa2hjZhFrP8bOlroCPB2SXOJdeh1
+         wFY9CfGHKf74eccBJTFpNyGKaWaytDQPQyQ6sdiGLH7JxGrm2m5qvXHSDWNXVFCpYu
+         nXsYg0rSx9lmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Palmer <daniel@0x0f.com>, Arnd Bergmann <arnd@arndb.de>,
-        Sasha Levin <sashal@kernel.org>, daniel@thingy.jp,
-        romain.perier@gmail.com, linux@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.16 05/13] ARM: mstar: Select HAVE_ARM_ARCH_TIMER
-Date:   Wed, 16 Mar 2022 10:13:46 -0400
-Message-Id: <20220316141354.247750-5-sashal@kernel.org>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, amit@kernel.org,
+        gregkh@linuxfoundation.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.16 06/13] virtio_console: break out of buf poll on remove
+Date:   Wed, 16 Mar 2022 10:13:47 -0400
+Message-Id: <20220316141354.247750-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220316141354.247750-1-sashal@kernel.org>
 References: <20220316141354.247750-1-sashal@kernel.org>
@@ -57,34 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Palmer <daniel@0x0f.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-[ Upstream commit ea49432d184a6a09f84461604b7711a4e9f5ec9c ]
+[ Upstream commit 0e7174b9d5877130fec41fb4a16e0c2ee4958d44 ]
 
-The mstar SoCs have an arch timer but HAVE_ARM_ARCH_TIMER wasn't
-selected. If MSC313E_TIMER isn't selected then the kernel gets
-stuck at boot because there are no timers available.
+A common pattern for device reset is currently:
+vdev->config->reset(vdev);
+.. cleanup ..
 
-Signed-off-by: Daniel Palmer <daniel@0x0f.com>
-Link: https://lore.kernel.org/r/20220301104349.3040422-1-daniel@0x0f.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+reset prevents new interrupts from arriving and waits for interrupt
+handlers to finish.
+
+However if - as is common - the handler queues a work request which is
+flushed during the cleanup stage, we have code adding buffers / trying
+to get buffers while device is reset. Not good.
+
+This was reproduced by running
+	modprobe virtio_console
+	modprobe -r virtio_console
+in a loop.
+
+Fix this up by calling virtio_break_device + flush before reset.
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1786239
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mstar/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/virtio_console.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/mach-mstar/Kconfig b/arch/arm/mach-mstar/Kconfig
-index cd300eeedc20..0bf4d312bcfd 100644
---- a/arch/arm/mach-mstar/Kconfig
-+++ b/arch/arm/mach-mstar/Kconfig
-@@ -3,6 +3,7 @@ menuconfig ARCH_MSTARV7
- 	depends on ARCH_MULTI_V7
- 	select ARM_GIC
- 	select ARM_HEAVY_MB
-+	select HAVE_ARM_ARCH_TIMER
- 	select MST_IRQ
- 	select MSTAR_MSC313_MPLL
- 	help
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 660c5c388c29..f864b17be7e3 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1957,6 +1957,13 @@ static void virtcons_remove(struct virtio_device *vdev)
+ 	list_del(&portdev->list);
+ 	spin_unlock_irq(&pdrvdata_lock);
+ 
++	/* Device is going away, exit any polling for buffers */
++	virtio_break_device(vdev);
++	if (use_multiport(portdev))
++		flush_work(&portdev->control_work);
++	else
++		flush_work(&portdev->config_work);
++
+ 	/* Disable interrupts for vqs */
+ 	vdev->config->reset(vdev);
+ 	/* Finish up work that's lined up */
 -- 
 2.34.1
 
