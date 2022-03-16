@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FAC4DB2D9
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17FE54DB2CA
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:19:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344142AbiCPOUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 10:20:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42678 "EHLO
+        id S1356790AbiCPOUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 10:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356686AbiCPOUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:20:15 -0400
+        with ESMTP id S1356682AbiCPOUR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:20:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 228D81B7B9;
-        Wed, 16 Mar 2022 07:18:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94AB1C133;
+        Wed, 16 Mar 2022 07:18:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC7BFB81B82;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DF9FB81B84;
+        Wed, 16 Mar 2022 14:18:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DD4DC340E9;
         Wed, 16 Mar 2022 14:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B828BC340EC;
-        Wed, 16 Mar 2022 14:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647440278;
-        bh=u00hVaVVZV0tS90J075DOc/i7FLNseHgpTH7RXYLCPM=;
+        s=k20201202; t=1647440281;
+        bh=p1Gxwtsl+Zu3/9M6sjusFb0UOcDAspGxHcogY/Z0rj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8+sypCXrnBfq8lQ/TudLvV+saf1+fnolY2QQdAlt5RE1Y00fXZMlbLFx5qCx4sXr
-         u1MlyxS0exLiaWoBFkn+hlt05RA+nOP9D4sE21ef5au628ATXJi7/kY2ECt4zI5HQv
-         e1HtbrlETtgIzcbLIbxdaWXVqE95k3Rb8Fpm4hh/uDL8nyGP/D1Ru+TOYFDSSv/gqz
-         lqIa/xYRL9mqJ1ipuoMvaHX1xM7Go/0oug18dkJwFG0VDOWKgjhaWSo/cNH9gavZoF
-         9Z6LiLb0l9+7HrGJ6VGR8rPfzPVWKgh1leofD6r/XV75/l3aLvodC84BFABkLHMGPZ
-         x9cKfap1egNaA==
+        b=izVn4OKGVrJKCM5wqbR/gdxy/zqVUSndXuxHYGpvyGMzBbrU2L8P+o5h65XBXeP7f
+         17vFaEiu/nvU45C5/t3Bu0jlcwuBdNohx8s3TXXO+Ia1Yz5vPL2SgNHfyKc6pCh54W
+         uW/OgEwXTXi1nP8VfwyqhpW0/7z7TTkxTY7v28JkkcfSK+MbCtgYlmQSArDt4pzHF9
+         UfrqaK+S1B421Zpq5BlzYheIIvm+YrcIoviiyIJfmOstJNaeX540mmPLhRVtgJq/8g
+         jbnm+SZ6byFfuIPeuIJs3gWgOFI7sqJvkO2gOSB/+YCTLUT/muQcgxeZ+CNdbydJyD
+         usHb6oSiNg97A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, amit@kernel.org,
-        gregkh@linuxfoundation.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 3/7] virtio_console: break out of buf poll on remove
-Date:   Wed, 16 Mar 2022 10:17:34 -0400
-Message-Id: <20220316141738.248513-3-sashal@kernel.org>
+Cc:     Kai Lueke <kailueke@linux.microsoft.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 4/7] Revert "xfrm: state and policy should fail if XFRMA_IF_ID 0"
+Date:   Wed, 16 Mar 2022 10:17:35 -0400
+Message-Id: <20220316141738.248513-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220316141738.248513-1-sashal@kernel.org>
 References: <20220316141738.248513-1-sashal@kernel.org>
@@ -57,53 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Kai Lueke <kailueke@linux.microsoft.com>
 
-[ Upstream commit 0e7174b9d5877130fec41fb4a16e0c2ee4958d44 ]
+[ Upstream commit a3d9001b4e287fc043e5539d03d71a32ab114bcb ]
 
-A common pattern for device reset is currently:
-vdev->config->reset(vdev);
-.. cleanup ..
+This reverts commit 68ac0f3810e76a853b5f7b90601a05c3048b8b54 because ID
+0 was meant to be used for configuring the policy/state without
+matching for a specific interface (e.g., Cilium is affected, see
+https://github.com/cilium/cilium/pull/18789 and
+https://github.com/cilium/cilium/pull/19019).
 
-reset prevents new interrupts from arriving and waits for interrupt
-handlers to finish.
-
-However if - as is common - the handler queues a work request which is
-flushed during the cleanup stage, we have code adding buffers / trying
-to get buffers while device is reset. Not good.
-
-This was reproduced by running
-	modprobe virtio_console
-	modprobe -r virtio_console
-in a loop.
-
-Fix this up by calling virtio_break_device + flush before reset.
-
-Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1786239
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Kai Lueke <kailueke@linux.microsoft.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/virtio_console.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/xfrm/xfrm_user.c | 21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b453029487a1..2660a0c5483a 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1961,6 +1961,13 @@ static void virtcons_remove(struct virtio_device *vdev)
- 	list_del(&portdev->list);
- 	spin_unlock_irq(&pdrvdata_lock);
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 42ff32700d68..ddcf569d852f 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -621,13 +621,8 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
  
-+	/* Device is going away, exit any polling for buffers */
-+	virtio_break_device(vdev);
-+	if (use_multiport(portdev))
-+		flush_work(&portdev->control_work);
-+	else
-+		flush_work(&portdev->config_work);
-+
- 	/* Disable interrupts for vqs */
- 	vdev->config->reset(vdev);
- 	/* Finish up work that's lined up */
+ 	xfrm_smark_init(attrs, &x->props.smark);
+ 
+-	if (attrs[XFRMA_IF_ID]) {
++	if (attrs[XFRMA_IF_ID])
+ 		x->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
+-		if (!x->if_id) {
+-			err = -EINVAL;
+-			goto error;
+-		}
+-	}
+ 
+ 	err = __xfrm_init_state(x, false, attrs[XFRMA_OFFLOAD_DEV]);
+ 	if (err)
+@@ -1333,13 +1328,8 @@ static int xfrm_alloc_userspi(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ 	mark = xfrm_mark_get(attrs, &m);
+ 
+-	if (attrs[XFRMA_IF_ID]) {
++	if (attrs[XFRMA_IF_ID])
+ 		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
+-		if (!if_id) {
+-			err = -EINVAL;
+-			goto out_noput;
+-		}
+-	}
+ 
+ 	if (p->info.seq) {
+ 		x = xfrm_find_acq_byseq(net, mark, p->info.seq);
+@@ -1641,13 +1631,8 @@ static struct xfrm_policy *xfrm_policy_construct(struct net *net, struct xfrm_us
+ 
+ 	xfrm_mark_get(attrs, &xp->mark);
+ 
+-	if (attrs[XFRMA_IF_ID]) {
++	if (attrs[XFRMA_IF_ID])
+ 		xp->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
+-		if (!xp->if_id) {
+-			err = -EINVAL;
+-			goto error;
+-		}
+-	}
+ 
+ 	return xp;
+  error:
 -- 
 2.34.1
 
