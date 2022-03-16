@@ -2,135 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB62D4DB7C2
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 19:07:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 526164DB800
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 19:37:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236282AbiCPSIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 14:08:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49960 "EHLO
+        id S1357725AbiCPSio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 14:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234022AbiCPSIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 14:08:53 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 709184D9CF
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 11:07:36 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id mm23-20020a17090b359700b001bfceefd8c6so5751341pjb.3
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 11:07:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=nWp+jyPtLUPJs3sXoyYeV+ZYdf9WNUw6IkCu2ywBh8A=;
-        b=s5PMiwBfS7nUmi8FHqjHZP9QtlDfN5XnRXqvHqo+Ii9RpaID3qeSmySMXIVHcna2GK
-         RnRa5SHTFc6uZfDDmoPNB1SMjbI+7XpVwdpOrtHIv7uKVTjW8NiFujZzk2zqU3cI/ddm
-         LBqsvO376az2bhHCLOma8PYuEn9UE0kfD15p1ybEWKeLtR/1INI8H1MQjT3jJBQ6md9k
-         hEVhMWrIfa9FvBwIhHqS8ykKsusUDyM+zVPWYvs6E9jvKKqRFxWL3McuVVJtDndAUILC
-         S1yK3+HspEYSxFjcovmUT+l3RFrce/5ghPKzRHN2tBi3A5TrjfkvxMer1bw8Zq1L/Bqs
-         7BGg==
+        with ESMTP id S241347AbiCPSin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 14:38:43 -0400
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D00F6E295;
+        Wed, 16 Mar 2022 11:37:28 -0700 (PDT)
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-2e59939b862so33408787b3.10;
+        Wed, 16 Mar 2022 11:37:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=nWp+jyPtLUPJs3sXoyYeV+ZYdf9WNUw6IkCu2ywBh8A=;
-        b=RS7ooBJywYocB0Qsh3xEhN79bpQOGnWxku9G/yWhdp8wQsGnpBjyNXc4iXKcSGECrC
-         0XImAG53h987UgGlBiF/2Jxli+eripjI5uT9d8cl/vG0lRe7lJpRPqqgpZsndjJm/iOC
-         pCB+i87p6XPCYqLZLB8DwpqyPhpZY6+h1jywjKu79S1p2pt1zILMLbyidMKuG+TXuL6+
-         h0FmvGy9iDlsvpMzvMElDPviG8NQkOHrXJr9qr/8MmWP8jQMFC7Qfe4+c0dh/ed7M3Vr
-         cCc6gJGDA9LjFdIGox6d7YwscLTwhs1y6tSnGjeyqqlmRaZ8UFU3bjvprm02JW/QPsbK
-         jqeg==
-X-Gm-Message-State: AOAM531d/fN048EMGjPj1bq6v1MfX+TQP18gQ7bAaPRPBZyPTZEMwdOU
-        ewp2DpFlO/wEneX8mkToAJkxVgV9ssDHhbSe7C4=
-X-Google-Smtp-Source: ABdhPJysAlxKfpMgm4BgFJkUHYFF9nYTKu5AKpyC7oZ7CFbon0m/94Bad5Na7r7EFAnSPcr4OLG6DQ==
-X-Received: by 2002:a17:902:6b8b:b0:14d:66c4:f704 with SMTP id p11-20020a1709026b8b00b0014d66c4f704mr1147645plk.53.1647454055786;
-        Wed, 16 Mar 2022 11:07:35 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k5-20020aa788c5000000b004f7a02d2724sm4301219pff.50.2022.03.16.11.07.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Mar 2022 11:07:35 -0700 (PDT)
-Message-ID: <62322767.1c69fb81.fb65c.9f7b@mx.google.com>
-Date:   Wed, 16 Mar 2022 11:07:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=S7CD9ymBGSUH9xoh9EuGWgSN+WocwcNmiO6ecrAxwYQ=;
+        b=0Pxt3atUoFC0+JWCJVRTtpPjrEB8rhRRsNl0bynn9FnjbGczrKaWan+96XpVey+KGV
+         dsxppYI99Mgro3f/lSS3SnaaP07Wmc+ZvBXWcxYj1wP7yJ2i+GP7vr2Hog5jg9Hf0A1C
+         ModXY2UCCtL3hrKF7StmQDLXYmjvzH8nE+Uc2T2hNZF1Fd2rOHYhw5PPJ3U4mqK3va9U
+         JC8j0DiBPGNibCYAqo2KUXO9lOjGS5MbcV9Tb1WxhEvECz6rgI6XuF477BAKGpgsnS10
+         YVFR4Kse/C9vOnrsb20NlO3XGIN89kjw9I3JJAuNFI/pOkKgDeJsEUNtaMCAlo8KzDAH
+         G0oA==
+X-Gm-Message-State: AOAM530GMA2fhuD1lQPW765H8INX3KD4jDIEEUx/s9vGO2EmJid0LwTg
+        z51O0rfyh9/ngczKOFCbNk9E7moAP/ulMNcORx1o+8yE
+X-Google-Smtp-Source: ABdhPJxhctPM1paCg3U/d9lI9xrFtrHRF4X2UhxMkcjRi9OXvU0gaJ8deNpRnMDeZicvOJIkfB4GLX9JHFukxmEiBy8=
+X-Received: by 2002:a81:1b97:0:b0:2db:640f:49d8 with SMTP id
+ b145-20020a811b97000000b002db640f49d8mr1600322ywb.326.1647455847918; Wed, 16
+ Mar 2022 11:37:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.235
-Subject: stable/linux-4.19.y baseline: 75 runs, 1 regressions (v4.19.235)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220314220855.939823-1-srinivas.pandruvada@linux.intel.com>
+In-Reply-To: <20220314220855.939823-1-srinivas.pandruvada@linux.intel.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 16 Mar 2022 19:37:17 +0100
+Message-ID: <CAJZ5v0hdRTHPeg9wVudHAwgBhRb0Enj34t_9+2HcpBs1yWXiyg@mail.gmail.com>
+Subject: Re: [PATCH v2] thermal: int340x: Increase bitmap size
+To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        David Laight <David.Laight@aculab.com>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 75 runs, 1 regressions (v4.19.235)
+On Mon, Mar 14, 2022 at 11:09 PM Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> The number of policies are 10, so can't be supported by the bitmap size
+> of u8. Even though there are no platfoms with these many policies, but
+> as correctness increase to u32.
+>
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Fixes: 16fc8eca1975 ("thermal/int340x_thermal: Add additional UUIDs")
+> Cc: stable@vger.kernel.org
+> ---
+> v2
+> - Changed u16 to u32 for better alignment as suggested by David
+>
+>  drivers/thermal/intel/int340x_thermal/int3400_thermal.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+> index 72acb1f61849..348b1f4ef801 100644
+> --- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+> +++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+> @@ -53,7 +53,7 @@ struct int3400_thermal_priv {
+>         struct art *arts;
+>         int trt_count;
+>         struct trt *trts;
+> -       u8 uuid_bitmap;
+> +       u32 uuid_bitmap;
+>         int rel_misc_dev_res;
+>         int current_uuid_index;
+>         char *data_vault;
+> --
 
-Regressions Summary
--------------------
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.235/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.235
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      6b481672f19259632a852d013cacd5655e8d7da8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6231eece0b757ac6c2c62992
-
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.235/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
-evin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.235/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
-evin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6231eecf0b757ac6c2c629b8
-        new failure (last pass: v4.19.231)
-
-    2022-03-16T14:05:55.464773  /lava-5890887/1/../bin/lava-test-case
-    2022-03-16T14:05:55.473602  <8>[   36.726455] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+Applied as 5.18 material, thanks!
