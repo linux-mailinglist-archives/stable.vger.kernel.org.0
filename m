@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 358884DB2BF
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E6C4DB2C5
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:19:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356551AbiCPOUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 10:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
+        id S1356688AbiCPOUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 10:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356757AbiCPOTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:19:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591246A01F;
-        Wed, 16 Mar 2022 07:17:39 -0700 (PDT)
+        with ESMTP id S1356786AbiCPOT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:19:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C81C1CFE3;
+        Wed, 16 Mar 2022 07:17:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 717B76112F;
-        Wed, 16 Mar 2022 14:17:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 104E2C340E9;
-        Wed, 16 Mar 2022 14:17:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0798B81B7A;
+        Wed, 16 Mar 2022 14:17:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEE0BC340E9;
+        Wed, 16 Mar 2022 14:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647440257;
-        bh=U1RN+qcuU9O2LCspDevbAQrWN3ktOW7z/Tg19+h8DqQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qM6g6OSxkulF/qpFN1x7uD0t2MqJFGW97PRxmZBJFAi1fKBrCrr3sm8g2RrUu+m15
-         CvpblpSCO0fJC8x+UojxZBOVcZm+Xuc2SvQp2zs9L00uQxthAyzjzf/inKDVcSqSRi
-         v5zQ+dapmyKbOZiEoJYia3Sjr8DTy61YGIvRJCl952HDGPWOGWtxEamH8LJjraOMqL
-         6i93Kak1Os6w2UolreogYbAkcUMt3HmLgsefVt4X+9QXSxyHNXKwTQuqq1D27YsPfT
-         RM0Sw9QJlV1yXyFZqKWNptPjltyREWAvMo8R4oLi+aFhgI14k2ZwI7Js9vISP4TjwG
-         wFK/uGJxDO3ng==
+        s=k20201202; t=1647440267;
+        bh=ZqGrjoyTLlzOYsHDVHM6YzmHsPEEPwNgz/tXn328VLA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Qn59ktinCFv4+OrP+0sBx7jj8GD2kkw8BJq6U/SwETYfB++QK7HuTgFT7iXybcDOX
+         3bRCs3N+28b0VjTo1bdxh6hGoo/mrGRHqUFFATfaZ0MG3Zgz79c8jVri9TBL/pWrKD
+         tYSCnG+Des+ngi25d100OyadUOygwifu4rYZwtuKqII5SFE5n1Gw14U2aSlS8yYl3m
+         YlD4Anr5krQMulWKTUPEEP2D2a0hB+aWvnYpJKdSfAafw2swYYYdP8O7XBUCnlUALW
+         qJY35wlP7ue4KWGs5HO+lxpE8g73iGxXnwos94Fp+i2Uye5GiYbkVHrO7PZqsBvVOM
+         lWDEt4XjC3kBg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Minghao Chi (CGEL ZTE)" <chi.minghao@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 12/12] net:mcf8390: Use platform_get_irq() to get the interrupt
-Date:   Wed, 16 Mar 2022 10:16:36 -0400
-Message-Id: <20220316141636.248324-12-sashal@kernel.org>
+Cc:     Lucas Zampieri <lzampier@redhat.com>,
+        Nestor Lopez Casado <nlopezcasad@logitech.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 1/7] HID: logitech-dj: add new lightspeed receiver id
+Date:   Wed, 16 Mar 2022 10:17:32 -0400
+Message-Id: <20220316141738.248513-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220316141636.248324-1-sashal@kernel.org>
-References: <20220316141636.248324-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,58 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Minghao Chi (CGEL ZTE)" <chi.minghao@zte.com.cn>
+From: Lucas Zampieri <lzampier@redhat.com>
 
-[ Upstream commit 2a760554dcba450d3ad61b32375b50ed6d59a87c ]
+[ Upstream commit 25666e8ccd952627899b09b68f7c9b68cfeaf028 ]
 
-It is not recommened to use platform_get_resource(pdev, IORESOURCE_IRQ)
-for requesting IRQ's resources any more, as they can be not ready yet in
-case of DT-booting.
+As of logitech lightspeed receiver fw version 04.02.B0009,
+HIDPP_PARAM_DEVICE_INFO is being reported as 0x11.
 
-platform_get_irq() instead is a recommended way for getting IRQ even if
-it was not retrieved earlier.
+With patch "HID: logitech-dj: add support for the new lightspeed receiver
+iteration", the mouse starts to error out with:
+  logitech-djreceiver: unusable device of type UNKNOWN (0x011) connected on
+  slot 1
+and becomes unusable.
 
-It also makes code simpler because we're getting "int" value right away
-and no conversion from resource to int is required.
+This has been noticed on a Logitech G Pro X Superlight fw MPM 25.01.B0018.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi (CGEL ZTE) <chi.minghao@zte.com.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lucas Zampieri <lzampier@redhat.com>
+Acked-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/8390/mcf8390.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hid/hid-logitech-dj.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/8390/mcf8390.c b/drivers/net/ethernet/8390/mcf8390.c
-index 4ad8031ab669..065fdbe66c42 100644
---- a/drivers/net/ethernet/8390/mcf8390.c
-+++ b/drivers/net/ethernet/8390/mcf8390.c
-@@ -406,12 +406,12 @@ static int mcf8390_init(struct net_device *dev)
- static int mcf8390_probe(struct platform_device *pdev)
- {
- 	struct net_device *dev;
--	struct resource *mem, *irq;
-+	struct resource *mem;
- 	resource_size_t msize;
--	int ret;
-+	int ret, irq;
- 
--	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (irq == NULL) {
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
- 		dev_err(&pdev->dev, "no IRQ specified?\n");
- 		return -ENXIO;
- 	}
-@@ -434,7 +434,7 @@ static int mcf8390_probe(struct platform_device *pdev)
- 	SET_NETDEV_DEV(dev, &pdev->dev);
- 	platform_set_drvdata(pdev, dev);
- 
--	dev->irq = irq->start;
-+	dev->irq = irq;
- 	dev->base_addr = mem->start;
- 
- 	ret = mcf8390_init(dev);
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 4267e2f2e70f..a663cbb7b683 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1000,6 +1000,7 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
+ 		workitem.reports_supported |= STD_KEYBOARD;
+ 		break;
+ 	case 0x0f:
++	case 0x11:
+ 		device_type = "eQUAD Lightspeed 1.2";
+ 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
+ 		workitem.reports_supported |= STD_KEYBOARD;
 -- 
 2.34.1
 
