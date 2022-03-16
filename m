@@ -2,137 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6854DBAD5
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 00:06:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6411C4DBADD
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 00:15:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235255AbiCPXHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 19:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48984 "EHLO
+        id S236663AbiCPXQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 19:16:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231423AbiCPXHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 19:07:13 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0CF5DFAC
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 16:05:57 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id l4-20020a17090a49c400b001c6840df4a3so93135pjm.0
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 16:05:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0yv/R5OmKthZYUrc7tssFC9fFAQUriLrI2+xo3OKK4I=;
-        b=qLvujHkavcGMsFNw0q1Lm+0GW+/gVZOO+hHDMgwRD7xOKhts+NgcATWX3jql1a3x6k
-         miLtituS3IDqSq2y2NviSK78OFcRTHscvPJvKEpfUeCtztCeqEX29GyJ7SQglFBe18DM
-         EXRwZ+ODh9p9HqtZxTW7tTtFjWdhnDTeOkd3J5/X+7nB7dM7OhjmRrB6Swx50ZeCNKAx
-         97fHp8nB75Amsdb/u5aOoB+46UGm5yEeY1f7hvsLNtAMjScpcVnOhQnsNQcbLJnFe9lX
-         a62/rkjdwkBxQzTAoXTPyoSECwg2zJNujcbRjM9nKNsZpW0Lw7jJ9yoNQ3OcDWjYCGIv
-         Cu9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0yv/R5OmKthZYUrc7tssFC9fFAQUriLrI2+xo3OKK4I=;
-        b=afZbkGsSXC6RQzsHf5QUAfRHzzucqF7IZCz/S+pEYpwN/8wo0GmTKjg7CFHKUT3wsR
-         /232fnj8/1lfSSYvBWq6fhHTFIHSITYaTh7DD3hIBEtQJVZVLBUU6Igj/ZAZ1yfFpKks
-         L4el2UanV/W2Lvs6VZmQP2NaP6T68eQKyVyK7024duQtXiNRhsJCs5TWnenT/zGPiA9v
-         CY6vuzGqAxCCl9LxctKK2nqZ9O8MmnlZgcGwlyUTPMAS+pelPcH4HCLStDuzR22B60UR
-         IucDug/d7ReTt9OV+E4eQDRFRTAGAVcaMrng9LR8T+bhGexnyBRDSy/XbnfylwRLO4OQ
-         yLYQ==
-X-Gm-Message-State: AOAM531mlBVzrjV0ZkrjBj4/pEfibxTj7Ul+6QANDEficfSDYoN3pyRL
-        n0XxUwr3uh413tDdZuewDJCwPRqw15o3yOwLPkI=
-X-Google-Smtp-Source: ABdhPJxKaN2QA3DXXuaeEwadtPWPcZ7oGR3eKo7XI92AdwLWl8/7MtIPOYpzTqqSGfcsjkQ8o7Vbqg==
-X-Received: by 2002:a17:90a:e397:b0:1c6:3b63:bcbe with SMTP id b23-20020a17090ae39700b001c63b63bcbemr2095805pjz.180.1647471956780;
-        Wed, 16 Mar 2022 16:05:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f13-20020a056a001acd00b004f7a2f18e61sm4327369pfv.137.2022.03.16.16.05.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Mar 2022 16:05:56 -0700 (PDT)
-Message-ID: <62326d54.1c69fb81.f5ace.afa8@mx.google.com>
-Date:   Wed, 16 Mar 2022 16:05:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236817AbiCPXQ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 19:16:27 -0400
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050::465:102])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5615260C
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 16:15:12 -0700 (PDT)
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [80.241.60.233])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4KJmMb3tsyz9sS0;
+        Thu, 17 Mar 2022 00:15:07 +0100 (CET)
+Message-ID: <016f5ea6-f695-6994-c2ec-35cfef26058a@hauke-m.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hauke-m.de; s=MBO0001;
+        t=1647472505;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=9fzZ4cJpMCJ/wo08N1/KbgM56vXyh9RzncojaL0AiFk=;
+        b=GxDlSg6ADvK4FBXKs6XU5bAe+vQPz9Pq1++3La8XPUVr/P0mp3Vj9EQHbLOhYKctuP0QUK
+        jjGb5APBcMPwtWBIeZaSU8x8zfdcVHQP4XbrDDNJe0SFIlOzCfBoWYlnua4sFvFV4W+Q2J
+        hFKBiH6YuGF9iXY00s5gErakORtkbV9TWv/Hbx4zofE8+1ay3zk5GMwUgPzleX1zsU2p71
+        ELhNDkWKk/bJyLAl2cx+0ATSmn8E8Ly3FKvnHWIfO5FjmY5Vqw2on6Hj8sA9AlQdv5NYwh
+        oBUGX4zMkI2q1OQVOJlNCyYDavChHIU7yYbp6uwb/GdsiSRaxSwI7O5UmDs41Q==
+Date:   Thu, 17 Mar 2022 00:15:02 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.16.y
-X-Kernelci-Kernel: v5.16.15
-Subject: stable/linux-5.16.y baseline: 105 runs, 1 regressions (v5.16.15)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Language: en-US
+To:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>
+From:   Hauke Mehrtens <hauke@hauke-m.de>
+Cc:     Johannes Berg <johannes@sipsolutions.net>,
+        "backports@vger.kernel.org" <backports@vger.kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>
+Subject: Add LINUX_VERSION_SUBLEVEL to linux/version.h in LTS
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.16.y baseline: 105 runs, 1 regressions (v5.16.15)
+Hi,
 
-Regressions Summary
--------------------
+Upstream kernel commit 88a686728b37 ("kbuild: simplify access to the 
+kernel's version") [0] extended the Makefile to add the following 
+defines to the linux/version.h file:
+#define LINUX_VERSION_MAJOR $(VERSION)
+#define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL)
+#define LINUX_VERSION_SUBLEVEL $(SUBLEVEL)
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+I would like to have these defines especially LINUX_VERSION_SUBLEVEL 
+also in older stable kernel versions to make it easier for out of tree 
+kernel code to detect which version it is compiling against.
 
+In the Linux drivers backports project [1] we backport the current wifi 
+driver to older Linux versions, so someone with an old kernel can use 
+current wifi drivers. To make this work we have to know which kernel 
+version it is being compiled against. The Makefile has access to the 
+SUBLEVEL variable and can also forward it to the C code, but this does 
+not work when someone compiles some other driver against the mac80211 
+subsystem provided by backports for example.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.16.y/kernel=
-/v5.16.15/plan/baseline/
+I tried to cherry-pick commit 88a686728b37 to kernel 4.9, but it did not 
+apply cleanly. Would it get accepted when I just port the changes in the 
+main Makefile to the currently supported LTS kernel versions?
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.16.y
-  Describe: v5.16.15
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      3ea3a232f03adfcf6d18d91d6e851057b6cb079b =
+Hauke
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+[0]: https://git.kernel.org/linus/88a686728b3739d3598851e729c0e81f194e5c53
+[1]: https://backports.wiki.kernel.org/index.php/Main_Page
 
 
-  Details:     https://kernelci.org/test/plan/id/62323a66071fd6aec8c62976
+Here would be my suggestion for kernel 4.9, I haven't tested this yet:
+--- a/Makefile
++++ b/Makefile
+@@ -1142,7 +1142,10 @@ endef
+  define filechk_version.h
+  	(echo \#define LINUX_VERSION_CODE $(shell                         \
+  	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
+-	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
++	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';) \
++	echo \#define LINUX_VERSION_MAJOR $(VERSION);                    \
++	echo \#define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL);            \
++	echo \#define LINUX_VERSION_SUBLEVEL $(SUBLEVEL)
+  endef
 
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.16.y/v5.16.15/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.16.y/v5.16.15/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62323a66071fd6aec8c6299c
-        failing since 7 days (last pass: v5.16.10, first fail: v5.16.13)
-
-    2022-03-16T19:28:17.186097  <8>[   32.368481] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-16T19:28:18.209705  /lava-5892834/1/../bin/lava-test-case
-    2022-03-16T19:28:18.220854  <8>[   33.403377] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+  $(version_h): $(srctree)/Makefile FORCE
