@@ -2,55 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 655D34DB3A7
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:49:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9F34DB3B4
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:52:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356884AbiCPOug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 10:50:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37060 "EHLO
+        id S1356986AbiCPOxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 10:53:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356881AbiCPOue (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:50:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5690E3B574;
-        Wed, 16 Mar 2022 07:49:20 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E594F615B4;
-        Wed, 16 Mar 2022 14:49:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 982E9C340EC;
-        Wed, 16 Mar 2022 14:49:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647442159;
-        bh=oZ+E0tASMS+zo951CxfrtXx7IyUm5V1n5YMii3AwOqY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q7jqjqkqx93V35an0pxHi+thWxhFjpkTR3sLs7FAIzQY1yDVHjPB8DBJxBjlCuph6
-         3/5j+hzTkqJiBnMJIuqFzNEXyupyI4Sv6bjZtlKg6juI8yKrKBQiMsl/SQUv7iakMR
-         IwRNK1GHSwK0AyRIJkYRWTFwIIpv4hnpOkLQ372dQJ87rQWx0W2RCwgSDfVSZ8Szzq
-         viF1KPxZn07ZlCS3o5cmjKEdOBIM4Hi7WdLaBtV60nQRBsiO+bKem1OCqStv0hrSYA
-         xxdexsPnucIDrmNEmjo769rZWAb86fAb+m0I9iYHgWOa+0yk4W4eW3N8QcomAp1ink
-         LGBCYYYwJZeqQ==
-Date:   Wed, 16 Mar 2022 10:49:15 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        "David S . Miller" <davem@davemloft.net>, 3chas3@gmail.com,
-        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.16 17/27] atm: firestream: check the return
- value of ioremap() in fs_init()
-Message-ID: <YjH462h0dpMAE5Jp@sashalap>
-References: <20220309161711.135679-1-sashal@kernel.org>
- <20220309161711.135679-17-sashal@kernel.org>
- <20220309084856.4e6ca9e1@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        with ESMTP id S1356936AbiCPOw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:52:59 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 243885F4C6;
+        Wed, 16 Mar 2022 07:51:45 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E14A81476;
+        Wed, 16 Mar 2022 07:51:44 -0700 (PDT)
+Received: from slackpad.lan (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 030303F7D7;
+        Wed, 16 Mar 2022 07:51:43 -0700 (PDT)
+Date:   Wed, 16 Mar 2022 14:51:02 +0000
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Eric Auger <eric.auger@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] irqchip/gic-v3: Fix GICR_CTLR.RWP polling
+Message-ID: <20220316145102.28ad0a74@slackpad.lan>
+In-Reply-To: <20220315165034.794482-2-maz@kernel.org>
+References: <20220315165034.794482-1-maz@kernel.org>
+        <20220315165034.794482-2-maz@kernel.org>
+Organization: Arm Ltd.
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-slackware-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20220309084856.4e6ca9e1@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,20 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 09, 2022 at 08:48:56AM -0800, Jakub Kicinski wrote:
->On Wed,  9 Mar 2022 11:16:54 -0500 Sasha Levin wrote:
->> From: Jia-Ju Bai <baijiaju1990@gmail.com>
->>
->> [ Upstream commit d4e26aaea7f82ba884dcb4acfe689406bc092dc3 ]
->>
->> The function ioremap() in fs_init() can fail, so its return value should
->> be checked.
->
->I'd hold off on backporting the bot fixes. They break more than they
->fix.
+On Tue, 15 Mar 2022 16:50:32 +0000
+Marc Zyngier <maz@kernel.org> wrote:
 
-That's why we give AUTOSEL an extra week to soak :)
+> It turns out that our polling of RWP is totally wrong when checking
+> for it in the redistributors, as we test the *distributor* bit index,
+> whereas it is a different bit number in the RDs... Oopsie boo.
+> 
+> This is embarassing. Not only because it is wrong, but also because
+> it took *8 years* to notice the blunder...
 
--- 
-Thanks,
-Sasha
+Indeed, I wonder why we didn't see issues before. I guess it's either
+the UWP bit at position GICR_CTLR[31] having a similar implementation,
+or the MMIO access alone providing enough delay for the writes to
+finish.
+
+Anyway:
+
+> Just fix the damn thing.
+> 
+> Fixes: 021f653791ad ("irqchip: gic-v3: Initial support for GICv3")
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: stable@vger.kernel.org
+
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+
+Cheers,
+Andre
+
+
+> ---
+>  drivers/irqchip/irq-gic-v3.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+> index 5e935d97207d..736163d36b13 100644
+> --- a/drivers/irqchip/irq-gic-v3.c
+> +++ b/drivers/irqchip/irq-gic-v3.c
+> @@ -206,11 +206,11 @@ static inline void __iomem *gic_dist_base(struct irq_data *d)
+>  	}
+>  }
+>  
+> -static void gic_do_wait_for_rwp(void __iomem *base)
+> +static void gic_do_wait_for_rwp(void __iomem *base, u32 bit)
+>  {
+>  	u32 count = 1000000;	/* 1s! */
+>  
+> -	while (readl_relaxed(base + GICD_CTLR) & GICD_CTLR_RWP) {
+> +	while (readl_relaxed(base + GICD_CTLR) & bit) {
+>  		count--;
+>  		if (!count) {
+>  			pr_err_ratelimited("RWP timeout, gone fishing\n");
+> @@ -224,13 +224,13 @@ static void gic_do_wait_for_rwp(void __iomem *base)
+>  /* Wait for completion of a distributor change */
+>  static void gic_dist_wait_for_rwp(void)
+>  {
+> -	gic_do_wait_for_rwp(gic_data.dist_base);
+> +	gic_do_wait_for_rwp(gic_data.dist_base, GICD_CTLR_RWP);
+>  }
+>  
+>  /* Wait for completion of a redistributor change */
+>  static void gic_redist_wait_for_rwp(void)
+>  {
+> -	gic_do_wait_for_rwp(gic_data_rdist_rd_base());
+> +	gic_do_wait_for_rwp(gic_data_rdist_rd_base(), GICR_CTLR_RWP);
+>  }
+>  
+>  #ifdef CONFIG_ARM64
+
