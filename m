@@ -2,175 +2,284 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8BBD4DA72F
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 02:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0B7C4DA750
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 02:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349201AbiCPBFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Mar 2022 21:05:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32892 "EHLO
+        id S1352921AbiCPBXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Mar 2022 21:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347124AbiCPBFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 21:05:02 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDAC1BC0C
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 18:03:47 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id u3so1252534ljd.0
-        for <stable@vger.kernel.org>; Tue, 15 Mar 2022 18:03:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=nhmwtf/VjoQV7F5h0NhBM6NJo4NB3/oDyqq5QgKUcBo=;
-        b=XK6ukyJcvRudCRFreqwkI/ZibKG5OxRAZAZKt0vdZYPRwhihL8jVgAQutWBInC/+U8
-         oN5bKJWIL9Czm3Hd68rOx+kHlXfrmAWFcSl8HeEkMtvg4YfWoz39R/zC2bhsip5jCXYb
-         CauKoudJ/QFlP5RZAGpoVbY8Td6WINL6xtG5d6DKEI/nEeoCG7guBuT2VFRPFGT0DsKp
-         MIJeksid/Uj8o84X19iL0UQQuhCnbMErWbUZP9TSWCNz0v3ob76iQku5az/2z2dtziZ6
-         2d1gAahHloqs/pUJYO4C08f8gPodGcAhc8ZLxWqJ77MRVGwl0n9WMz+HQotsY9FEp7VG
-         JHpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nhmwtf/VjoQV7F5h0NhBM6NJo4NB3/oDyqq5QgKUcBo=;
-        b=KBlI2JOc8yR5dZP0vaykjKn9rtze28DgS11PgJCgwW8Japzgd9jOA+3ZrF+RK3YhAr
-         OCyM/aQ7hy5vabvOKsQR+ZKxjoFtDMhljZJKmO3hFIlX+PgqFjDmBRQgSx73a4adtPVP
-         bg5iU12MvoJrHY9Z4BeA6SAbAO0OOop/QjsVZHEZvKDmhV65WyXEHUvOdYgJn7v/sgpE
-         EJDw3638rCSEljXW+/JyC+2Fx3grOjq1ysu8W2hdFKVAkgTvaMXCYL9thO3qh1d1XmxU
-         xK70RqvVxFTTIUM7eh3L9etN6tCxx41XD28VpHXxl0rOaTAz3NzDqrRYvi2qMyn2Dgx4
-         MXgA==
-X-Gm-Message-State: AOAM532ly1nODfxVzuUCRySaLw5qYQNtL4F21Uz0+JAkGFKB7VeO4W/4
-        +UXe3pSMt90EIgHJbTQdzEx1R4O1V4j1TTYjMMb3jQ==
-X-Google-Smtp-Source: ABdhPJyCf73Ia/8zLvpmsufs/bjwOHOazg++Gw0hXDw/QV8/e2mFDrs+TGn7YwFIBM7OUFLVjACS3f2wdOxePnW6NlU=
-X-Received: by 2002:a05:651c:a06:b0:246:71a3:556a with SMTP id
- k6-20020a05651c0a0600b0024671a3556amr18781599ljq.5.1647392625976; Tue, 15 Mar
- 2022 18:03:45 -0700 (PDT)
+        with ESMTP id S244426AbiCPBXr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Mar 2022 21:23:47 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1825D5D6;
+        Tue, 15 Mar 2022 18:22:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1647393754; x=1678929754;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=o8NLwsHQ7nxjPsvtTK/0aON0mYhUsoCdtD1RyK2sjf4=;
+  b=Gq7Fy1q+K9jPoN8Nr+QTAUqwKiMLk8MLf3HILqvZXUREAupDOHh23XWN
+   I+WaaTcVTDxA4vjdEcYyGxaA9J3/0bUzsU4kHYEatglq9SHNgkO6+ZIn0
+   hvil6LRIDRcqpCt7YTONmcx1mpyL3gIB/G+X1ubBF2JBljf+D5Juv3wmw
+   A3ERvUA3YxmMOxHlo/SFShjeMiZgxNrYjZb6X4+X2D664ChPHcA8M0thT
+   Z/TQShtKNZm6ad4N8RtLom9yD66BrMHGlbU+P2Mxz+ag/apNQjuwGIYJh
+   pWt3VivUq8yEc3zBLiOS+r9TvC1CYN+SpM1ucaNHasJOw1hUbBsnQ123W
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10286"; a="236406795"
+X-IronPort-AV: E=Sophos;i="5.90,185,1643702400"; 
+   d="scan'208";a="236406795"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Mar 2022 18:22:33 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,185,1643702400"; 
+   d="scan'208";a="549803069"
+Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
+  by fmsmga007.fm.intel.com with ESMTP; 15 Mar 2022 18:22:30 -0700
+Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1nUIMv-000Bkc-TD; Wed, 16 Mar 2022 01:22:29 +0000
+Date:   Wed, 16 Mar 2022 09:22:15 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Theodore Ts'o <tytso@mit.edu>
+Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        linux-ext4@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
+Subject: Re: [PATCH] ext4: check if offset+length is within a valid range in
+ fallocate
+Message-ID: <202203160955.fFhAfodc-lkp@intel.com>
+References: <20220315191545.187366-1-tadeusz.struk@linaro.org>
 MIME-Version: 1.0
-References: <20201211141656.24915-1-mw@semihalf.com> <CAPDyKFqsSO+f9iG8vccwXZXDDNHgLEg7bfUe-KfHn2C-ZnOU4A@mail.gmail.com>
- <20220314154033.4x74zscayee32rrj@pali> <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
- <20220315230333.eyznbu5tuxneizbs@pali>
-In-Reply-To: <20220315230333.eyznbu5tuxneizbs@pali>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Wed, 16 Mar 2022 02:03:35 +0100
-Message-ID: <CAPv3WKc96vDsW_duXYMYbr3X05=-p28N5_cf2PHo-tiwDLjaWg@mail.gmail.com>
-Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
-To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        Ziji Hu <huziji@marvell.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Grzegorz Jaszczyk <jaz@semihalf.com>,
-        Tomasz Nowicki <tn@semihalf.com>,
-        Kostya Porotchkin <kostap@marvell.com>,
-        Alex Leibovich <alexl@marvell.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220315191545.187366-1-tadeusz.struk@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Pali,
+Hi Tadeusz,
 
-=C5=9Br., 16 mar 2022 o 00:03 Pali Roh=C3=A1r <pali@kernel.org> napisa=C5=
-=82(a):
->
-> Hello!
->
-> On Monday 14 March 2022 16:51:25 Marcin Wojtas wrote:
-> > Hi Pali,
-> >
-> >
-> > pon., 14 mar 2022 o 16:40 Pali Roh=C3=A1r <pali@kernel.org> napisa=C5=
-=82(a):
-> > >
-> > > On Monday 11 January 2021 19:06:24 Ulf Hansson wrote:
-> > > > On Fri, 11 Dec 2020 at 15:17, Marcin Wojtas <mw@semihalf.com> wrote=
-:
-> > > > >
-> > > > > From: Alex Leibovich <alexl@marvell.com>
-> > > > >
-> > > > > Automatic Clock Gating is a feature used for the power
-> > > > > consumption optimisation. It turned out that
-> > > > > during early init phase it may prevent the stable voltage
-> > > > > switch to 1.8V - due to that on some platfroms an endless
-> > > > > printout in dmesg can be observed:
-> > > > > "mmc1: 1.8V regulator output did not became stable"
-> > > > > Fix the problem by disabling the ACG at very beginning
-> > > > > of the sdhci_init and let that be enabled later.
-> > > > >
-> > > > > Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC co=
-re functionality")
-> > > > > Signed-off-by: Alex Leibovich <alexl@marvell.com>
-> > > > > Signed-off-by: Marcin Wojtas <mw@semihalf.com>
-> > > > > Cc: stable@vger.kernel.org
-> > > >
-> > > > Applied for fixes (by fixing the typos), thanks!
-> > >
-> > > Hello!
-> > >
-> > > Is not this patch address same issue which was fixed by patch which w=
-as
-> > > merged earlier?
-> > >
-> > > bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying 1.8V regulator warning"=
-)
-> > > https://lore.kernel.org/linux-mmc/CAPDyKFqAsvgAjfL-c9ukFNWeGJmufQosR2=
-Eg9SKjXMVpNitdkA@mail.gmail.com/
-> > >
-> >
-> > This indeed look similar. This fix was originally developed for CN913x
-> > platform without the mentioned patch (I'm wondering if it would also
-> > suffice to fix A3k board's problem). Anyway, I don't think we have an
-> > issue here, as everything seems to work fine on top of mainline Linux
-> > with both changes.
->
-> Yea, there should be no issue. Just question is if we need _both_ fixes.
->
-> I could probably try to revert bb32e1987bc5 and check what happens on
-> A3k board.
->
+Thank you for the patch! Yet something to improve:
 
-Yes, that would be interesting. Please let me know whenever you find
-time to check.
+[auto build test ERROR on tytso-ext4/dev]
+[also build test ERROR on linus/master v5.17-rc8 next-20220315]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-Best regards,
-Marcin
+url:    https://github.com/0day-ci/linux/commits/Tadeusz-Struk/ext4-check-if-offset-length-is-within-a-valid-range-in-fallocate/20220316-031841
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/tytso/ext4.git dev
+config: mips-cu1830-neo_defconfig (https://download.01.org/0day-ci/archive/20220316/202203160955.fFhAfodc-lkp@intel.com/config)
+compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project a6b2f50fb47da3baeee10b1906da6e30ac5d26ec)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # install mips cross compiling tool for clang build
+        # apt-get install binutils-mips-linux-gnu
+        # https://github.com/0day-ci/linux/commit/bc1fdc20f07523e970c9dea4f0fbabbc437fb0d5
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Tadeusz-Struk/ext4-check-if-offset-length-is-within-a-valid-range-in-fallocate/20220316-031841
+        git checkout bc1fdc20f07523e970c9dea4f0fbabbc437fb0d5
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=mips SHELL=/bin/bash
 
-> > > >
-> > > >
-> > > > > ---
-> > > > >  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
-> > > > >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > > > >
-> > > > > diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sd=
-hci-xenon.c
-> > > > > index c67611fdaa8a..4b05f6fdefb4 100644
-> > > > > --- a/drivers/mmc/host/sdhci-xenon.c
-> > > > > +++ b/drivers/mmc/host/sdhci-xenon.c
-> > > > > @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sdhci_ho=
-st *host,
-> > > > >         /* Disable tuning request and auto-retuning again */
-> > > > >         xenon_retune_setup(host);
-> > > > >
-> > > > > -       xenon_set_acg(host, true);
-> > > > > +       /*
-> > > > > +        * The ACG should be turned off at the early init time, i=
-n order
-> > > > > +        * to solve a possile issues with the 1.8V regulator stab=
-ilization.
-> > > > > +        * The feature is enabled in later stage.
-> > > > > +        */
-> > > > > +       xenon_set_acg(host, false);
-> > > > >
-> > > > >         xenon_set_sdclk_off_idle(host, sdhc_id, false);
-> > > > >
-> > > > > --
-> > > > > 2.29.0
-> > > > >
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All errors (new ones prefixed by >>):
+
+>> fs/ext4/inode.c:4002:45: error: no member named 's_blocksize' in 'struct ext4_sb_info'
+           max_length = sbi->s_bitmap_maxbytes - sbi->s_blocksize;
+                                                 ~~~  ^
+   1 error generated.
+
+
+vim +4002 fs/ext4/inode.c
+
+  3937	
+  3938	/*
+  3939	 * ext4_punch_hole: punches a hole in a file by releasing the blocks
+  3940	 * associated with the given offset and length
+  3941	 *
+  3942	 * @inode:  File inode
+  3943	 * @offset: The offset where the hole will begin
+  3944	 * @len:    The length of the hole
+  3945	 *
+  3946	 * Returns: 0 on success or negative on failure
+  3947	 */
+  3948	
+  3949	int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
+  3950	{
+  3951		struct super_block *sb = inode->i_sb;
+  3952		ext4_lblk_t first_block, stop_block;
+  3953		struct address_space *mapping = inode->i_mapping;
+  3954		loff_t first_block_offset, last_block_offset, max_length;
+  3955		struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+  3956		handle_t *handle;
+  3957		unsigned int credits;
+  3958		int ret = 0, ret2 = 0;
+  3959	
+  3960		trace_ext4_punch_hole(inode, offset, length, 0);
+  3961	
+  3962		ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+  3963		if (ext4_has_inline_data(inode)) {
+  3964			filemap_invalidate_lock(mapping);
+  3965			ret = ext4_convert_inline_data(inode);
+  3966			filemap_invalidate_unlock(mapping);
+  3967			if (ret)
+  3968				return ret;
+  3969		}
+  3970	
+  3971		/*
+  3972		 * Write out all dirty pages to avoid race conditions
+  3973		 * Then release them.
+  3974		 */
+  3975		if (mapping_tagged(mapping, PAGECACHE_TAG_DIRTY)) {
+  3976			ret = filemap_write_and_wait_range(mapping, offset,
+  3977							   offset + length - 1);
+  3978			if (ret)
+  3979				return ret;
+  3980		}
+  3981	
+  3982		inode_lock(inode);
+  3983	
+  3984		/* No need to punch hole beyond i_size */
+  3985		if (offset >= inode->i_size)
+  3986			goto out_mutex;
+  3987	
+  3988		/*
+  3989		 * If the hole extends beyond i_size, set the hole
+  3990		 * to end after the page that contains i_size
+  3991		 */
+  3992		if (offset + length > inode->i_size) {
+  3993			length = inode->i_size +
+  3994			   PAGE_SIZE - (inode->i_size & (PAGE_SIZE - 1)) -
+  3995			   offset;
+  3996		}
+  3997	
+  3998		/*
+  3999		 * For punch hole the length + offset needs to be at least within
+  4000		 * one block before last
+  4001		 */
+> 4002		max_length = sbi->s_bitmap_maxbytes - sbi->s_blocksize;
+  4003		if (offset + length >= max_length) {
+  4004			ret = -ENOSPC;
+  4005			goto out_mutex;
+  4006		}
+  4007	
+  4008		if (offset & (sb->s_blocksize - 1) ||
+  4009		    (offset + length) & (sb->s_blocksize - 1)) {
+  4010			/*
+  4011			 * Attach jinode to inode for jbd2 if we do any zeroing of
+  4012			 * partial block
+  4013			 */
+  4014			ret = ext4_inode_attach_jinode(inode);
+  4015			if (ret < 0)
+  4016				goto out_mutex;
+  4017	
+  4018		}
+  4019	
+  4020		/* Wait all existing dio workers, newcomers will block on i_rwsem */
+  4021		inode_dio_wait(inode);
+  4022	
+  4023		/*
+  4024		 * Prevent page faults from reinstantiating pages we have released from
+  4025		 * page cache.
+  4026		 */
+  4027		filemap_invalidate_lock(mapping);
+  4028	
+  4029		ret = ext4_break_layouts(inode);
+  4030		if (ret)
+  4031			goto out_dio;
+  4032	
+  4033		first_block_offset = round_up(offset, sb->s_blocksize);
+  4034		last_block_offset = round_down((offset + length), sb->s_blocksize) - 1;
+  4035	
+  4036		/* Now release the pages and zero block aligned part of pages*/
+  4037		if (last_block_offset > first_block_offset) {
+  4038			ret = ext4_update_disksize_before_punch(inode, offset, length);
+  4039			if (ret)
+  4040				goto out_dio;
+  4041			truncate_pagecache_range(inode, first_block_offset,
+  4042						 last_block_offset);
+  4043		}
+  4044	
+  4045		if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
+  4046			credits = ext4_writepage_trans_blocks(inode);
+  4047		else
+  4048			credits = ext4_blocks_for_truncate(inode);
+  4049		handle = ext4_journal_start(inode, EXT4_HT_TRUNCATE, credits);
+  4050		if (IS_ERR(handle)) {
+  4051			ret = PTR_ERR(handle);
+  4052			ext4_std_error(sb, ret);
+  4053			goto out_dio;
+  4054		}
+  4055	
+  4056		ret = ext4_zero_partial_blocks(handle, inode, offset,
+  4057					       length);
+  4058		if (ret)
+  4059			goto out_stop;
+  4060	
+  4061		first_block = (offset + sb->s_blocksize - 1) >>
+  4062			EXT4_BLOCK_SIZE_BITS(sb);
+  4063		stop_block = (offset + length) >> EXT4_BLOCK_SIZE_BITS(sb);
+  4064	
+  4065		/* If there are blocks to remove, do it */
+  4066		if (stop_block > first_block) {
+  4067	
+  4068			down_write(&EXT4_I(inode)->i_data_sem);
+  4069			ext4_discard_preallocations(inode, 0);
+  4070	
+  4071			ret = ext4_es_remove_extent(inode, first_block,
+  4072						    stop_block - first_block);
+  4073			if (ret) {
+  4074				up_write(&EXT4_I(inode)->i_data_sem);
+  4075				goto out_stop;
+  4076			}
+  4077	
+  4078			if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
+  4079				ret = ext4_ext_remove_space(inode, first_block,
+  4080							    stop_block - 1);
+  4081			else
+  4082				ret = ext4_ind_remove_space(handle, inode, first_block,
+  4083							    stop_block);
+  4084	
+  4085			up_write(&EXT4_I(inode)->i_data_sem);
+  4086		}
+  4087		ext4_fc_track_range(handle, inode, first_block, stop_block);
+  4088		if (IS_SYNC(inode))
+  4089			ext4_handle_sync(handle);
+  4090	
+  4091		inode->i_mtime = inode->i_ctime = current_time(inode);
+  4092		ret2 = ext4_mark_inode_dirty(handle, inode);
+  4093		if (unlikely(ret2))
+  4094			ret = ret2;
+  4095		if (ret >= 0)
+  4096			ext4_update_inode_fsync_trans(handle, inode, 1);
+  4097	out_stop:
+  4098		ext4_journal_stop(handle);
+  4099	out_dio:
+  4100		filemap_invalidate_unlock(mapping);
+  4101	out_mutex:
+  4102		inode_unlock(inode);
+  4103		return ret;
+  4104	}
+  4105	
+
+---
+0-DAY CI Kernel Test Service
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
