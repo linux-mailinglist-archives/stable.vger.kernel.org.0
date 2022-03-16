@@ -2,220 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 886FA4DB2CB
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:19:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EA44DB2DC
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:19:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356626AbiCPOUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 10:20:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44168 "EHLO
+        id S1356724AbiCPOVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 10:21:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356746AbiCPOUS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:20:18 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EA8E205EF
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 07:18:10 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id s11so4002171pfu.13
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 07:18:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dF1NxzE03VviIPEQXqZuNqgjYoCUPk1rjxQr4eHanLc=;
-        b=3rI6J80sy5uBxB7ICWcPJVwvNUQMLx3iD9XGppGunggNyhdsqsPi4bkPGyOH+pjVPq
-         iBQMQPE25CuBRAVe32+KKbVl9GVsTJS64cI50dWWLlA0tKKFNidPI/OFsYUdJ1e9eWIm
-         O0njHmH9s5lv26BhNOe8R4tJCPFDphptN8Yf2UJ0m7UdvJdMpsAD8oaI7p/el43EbbVt
-         0zY9gQkGqSnfK94rItyBRibQv9uIupH2rgCHz+IT0JaDt/5m46ltIxJZEVkjuK2GSP0c
-         M5cEBgTvtALVueZjxivfPMoh56fUZ7t12XPXKzVZIdM+Yef/AS9ELh/4l/IoFVNuoqIW
-         ct8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dF1NxzE03VviIPEQXqZuNqgjYoCUPk1rjxQr4eHanLc=;
-        b=Xew5hrLxuZp8JxIDT6ZDsy2DaM02G5AYVV8YURJOFMqk+GwGvWxGfIdufS2AOtkWZS
-         Dau2Vs7XUfn9FKpOg5BGR50L8MhemTNlyxCHF9GlD8Oj4M/z7YoFV9aoAGQlL3ASK+6a
-         QVbaUZYpcEN7GwJy78+eXu3ghJK4aQZhfnAqJvEvSYb3qQEwd4+uzwo7yk2P3KcPY8C4
-         7aaj1WaDVx6aPKYzJKllbEM3+tVTYV9SKQwFXRT0JDHF+T7tlYn6wco28klwcleDjP5f
-         hWTnasDicK5187m4d5qAnsql1qPpafS9nrPm0uh83lOZbVQ0VgP0PgC+FRbAvzIcA0+E
-         uraw==
-X-Gm-Message-State: AOAM533FXEEQ/oUJ8IkD8xRwltb2k82I1F8ksEGkrb8IIYEE4unkAdXV
-        htt04sVaQCHS18DUtRu5xIA2CtU4oGozH0Rfs9w=
-X-Google-Smtp-Source: ABdhPJxrTSjuRJrwU9woWTVS/YiM7yH1Gn0xTMpXjJljWFVmpXkWZAdnNr8snOOa8cRw8fWMoY/XCw==
-X-Received: by 2002:a63:1a56:0:b0:381:ede3:979d with SMTP id a22-20020a631a56000000b00381ede3979dmr2130307pgm.372.1647440289592;
-        Wed, 16 Mar 2022 07:18:09 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d4-20020aa78e44000000b004f6aaa184c9sm3066241pfr.71.2022.03.16.07.18.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Mar 2022 07:18:09 -0700 (PDT)
-Message-ID: <6231f1a1.1c69fb81.8ddd4.7129@mx.google.com>
-Date:   Wed, 16 Mar 2022 07:18:09 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1356805AbiCPOUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:20:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC30F24F20;
+        Wed, 16 Mar 2022 07:18:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6180EB81B82;
+        Wed, 16 Mar 2022 14:18:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA118C340E9;
+        Wed, 16 Mar 2022 14:18:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647440306;
+        bh=HRWp0DPtkLnjg5wRAjN9vQZy9JHLc0iQkk9SIi8PfKw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AnhMEmyoYSMLf2Us8CZcOfUP58gvseQs7O7B4wetC92OH4B51xbuD1ySWnxwxMDzc
+         3b+SblgwdPtxZN53z+eAWtwX0iDWSWLV0skDEH68AMEvOPB9R6WWxh5g3rhunKdCIB
+         usIpZ7MPi9JQcwb5PT6q3tJX8nnV1DP9T62DQIhb4SZNM4mVNAHkYSEeeUYgsQlQUH
+         3DTRD55qNxm14N7TbbsPKDaxObwSKCn/k4dlNoAQezWo44pUhzmuI9U/u6uzZw2ETl
+         lT7sZZsxE4l+GF8GghxC1PNqBJ7LX20bvddi2G4bckp1La9qPOBG7Z3QTo1XvjE2tv
+         LaSpcd5BQLcow==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Lina Wang <lina.wang@mediatek.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, kuba@kernel.org,
+        matthias.bgg@gmail.com, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 1/6] xfrm: fix tunnel model fragmentation behavior
+Date:   Wed, 16 Mar 2022 10:18:12 -0400
+Message-Id: <20220316141817.248621-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.16
-X-Kernelci-Kernel: v5.16.14-122-g77c201fb262c
-Subject: stable-rc/queue/5.16 baseline: 97 runs,
- 3 regressions (v5.16.14-122-g77c201fb262c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.16 baseline: 97 runs, 3 regressions (v5.16.14-122-g77c201=
-fb262c)
+From: Lina Wang <lina.wang@mediatek.com>
 
-Regressions Summary
--------------------
+[ Upstream commit 4ff2980b6bd2aa6b4ded3ce3b7c0ccfab29980af ]
 
-platform                  | arch   | lab           | compiler | defconfig  =
-                  | regressions
---------------------------+--------+---------------+----------+------------=
-------------------+------------
-hp-x360-12b-n4000-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_defc=
-on...6-chromebook | 1          =
+in tunnel mode, if outer interface(ipv4) is less, it is easily to let
+inner IPV6 mtu be less than 1280. If so, a Packet Too Big ICMPV6 message
+is received. When send again, packets are fragmentized with 1280, they
+are still rejected with ICMPV6(Packet Too Big) by xfrmi_xmit2().
 
-kontron-pitx-imx8m        | arm64  | lab-kontron   | gcc-10   | defconfig  =
-                  | 1          =
+According to RFC4213 Section3.2.2:
+if (IPv4 path MTU - 20) is less than 1280
+	if packet is larger than 1280 bytes
+		Send ICMPv6 "packet too big" with MTU=1280
+                Drop packet
+        else
+		Encapsulate but do not set the Don't Fragment
+                flag in the IPv4 header.  The resulting IPv4
+                packet might be fragmented by the IPv4 layer
+                on the encapsulator or by some router along
+                the IPv4 path.
+	endif
+else
+	if packet is larger than (IPv4 path MTU - 20)
+        	Send ICMPv6 "packet too big" with
+                MTU = (IPv4 path MTU - 20).
+                Drop packet.
+        else
+                Encapsulate and set the Don't Fragment flag
+                in the IPv4 header.
+        endif
+endif
+Packets should be fragmentized with ipv4 outer interface, so change it.
 
-rk3399-gru-kevin          | arm64  | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook   | 1          =
+After it is fragemtized with ipv4, there will be double fragmenation.
+No.48 & No.51 are ipv6 fragment packets, No.48 is double fragmentized,
+then tunneled with IPv4(No.49& No.50), which obey spec. And received peer
+cannot decrypt it rightly.
 
+48              2002::10        2002::11 1296(length) IPv6 fragment (off=0 more=y ident=0xa20da5bc nxt=50)
+49   0x0000 (0) 2002::10        2002::11 1304         IPv6 fragment (off=0 more=y ident=0x7448042c nxt=44)
+50   0x0000 (0) 2002::10        2002::11 200          ESP (SPI=0x00035000)
+51              2002::10        2002::11 180          Echo (ping) request
+52   0x56dc     2002::10        2002::11 248          IPv6 fragment (off=1232 more=n ident=0xa20da5bc nxt=50)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
-nel/v5.16.14-122-g77c201fb262c/plan/baseline/
+xfrm6_noneed_fragment has fixed above issues. Finally, it acted like below:
+1   0x6206 192.168.1.138   192.168.1.1 1316 Fragmented IP protocol (proto=Encap Security Payload 50, off=0, ID=6206) [Reassembled in #2]
+2   0x6206 2002::10        2002::11    88   IPv6 fragment (off=0 more=y ident=0x1f440778 nxt=50)
+3   0x0000 2002::10        2002::11    248  ICMPv6    Echo (ping) request
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.16
-  Describe: v5.16.14-122-g77c201fb262c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      77c201fb262ccee449ab9b08b874ea9ea1f9b0f5 =
+Signed-off-by: Lina Wang <lina.wang@mediatek.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/ipv6/xfrm6_output.c   | 16 ++++++++++++++++
+ net/xfrm/xfrm_interface.c |  5 ++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
+diff --git a/net/ipv6/xfrm6_output.c b/net/ipv6/xfrm6_output.c
+index b5941c9475f3..fbcec4827071 100644
+--- a/net/ipv6/xfrm6_output.c
++++ b/net/ipv6/xfrm6_output.c
+@@ -142,6 +142,19 @@ static int __xfrm6_output_finish(struct net *net, struct sock *sk, struct sk_buf
+ 	return x->outer_mode->afinfo->output_finish(sk, skb);
+ }
+ 
++static int xfrm6_noneed_fragment(struct sk_buff *skb)
++{
++	struct frag_hdr *fh;
++	u8 prevhdr = ipv6_hdr(skb)->nexthdr;
++
++	if (prevhdr != NEXTHDR_FRAGMENT)
++		return 0;
++	fh = (struct frag_hdr *)(skb->data + sizeof(struct ipv6hdr));
++	if (fh->nexthdr == NEXTHDR_ESP || fh->nexthdr == NEXTHDR_AUTH)
++		return 1;
++	return 0;
++}
++
+ static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct dst_entry *dst = skb_dst(skb);
+@@ -170,6 +183,9 @@ static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ 		xfrm6_local_rxpmtu(skb, mtu);
+ 		kfree_skb(skb);
+ 		return -EMSGSIZE;
++	} else if (toobig && xfrm6_noneed_fragment(skb)) {
++		skb->ignore_df = 1;
++		goto skip_frag;
+ 	} else if (!skb->ignore_df && toobig && skb->sk) {
+ 		xfrm_local_error(skb, mtu);
+ 		kfree_skb(skb);
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index 1ae8caca28a0..3c642328a117 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -300,7 +300,10 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
+ 			if (mtu < IPV6_MIN_MTU)
+ 				mtu = IPV6_MIN_MTU;
+ 
+-			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
++			if (skb->len > 1280)
++				icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
++			else
++				goto xmit;
+ 		} else {
+ 			if (!(ip_hdr(skb)->frag_off & htons(IP_DF)))
+ 				goto xmit;
+-- 
+2.34.1
 
-
-Test Regressions
----------------- =
-
-
-
-platform                  | arch   | lab           | compiler | defconfig  =
-                  | regressions
---------------------------+--------+---------------+----------+------------=
-------------------+------------
-hp-x360-12b-n4000-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_defc=
-on...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6231bcb3ee0b5b268dc62981
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g77c201fb262c/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-12b-n4000-octopus.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g77c201fb262c/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-12b-n4000-octopus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6231bcb3ee0b5b268dc62=
-982
-        new failure (last pass: v5.16.14-122-g74c6b0438c08) =
-
- =
-
-
-
-platform                  | arch   | lab           | compiler | defconfig  =
-                  | regressions
---------------------------+--------+---------------+----------+------------=
-------------------+------------
-kontron-pitx-imx8m        | arm64  | lab-kontron   | gcc-10   | defconfig  =
-                  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6231bdc954325db7c8c62991
-
-  Results:     51 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g77c201fb262c/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-=
-imx8m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g77c201fb262c/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-=
-imx8m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwc3-usb1-probed: https://kernelci.org/test/case/id/623=
-1bdc954325db7c8c629a8
-        new failure (last pass: v5.16.14-112-gba4f1fffbebe)
-
-    2022-03-16T10:36:38.323574  /lava-99515/1/../bin/lava-test-case
-    2022-03-16T10:36:38.323902  <8>[   11.327373] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwc3-usb1-probed RESULT=3Dfail>
-    2022-03-16T10:36:38.324082  /lava-99515/1/../bin/lava-test-case
-    2022-03-16T10:36:38.324268  <8>[   11.347243] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dimx8mq-usb-phy-driver-present RESULT=3Dpass>
-    2022-03-16T10:36:38.324526  /lava-99515/1/../bin/lava-test-case
-    2022-03-16T10:36:38.324761  <8>[   11.368553] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dimx8mq-usb-phy0-probed RESULT=3Dpass>
-    2022-03-16T10:36:38.324939  /lava-99515/1/../bin/lava-test-case   =
-
- =
-
-
-
-platform                  | arch   | lab           | compiler | defconfig  =
-                  | regressions
---------------------------+--------+---------------+----------+------------=
-------------------+------------
-rk3399-gru-kevin          | arm64  | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6231bd8c23c3e7b6e9c62970
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g77c201fb262c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.14-=
-122-g77c201fb262c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6231bd8c23c3e7b6e9c62996
-        failing since 8 days (last pass: v5.16.12-85-g060a81f57a12, first f=
-ail: v5.16.12-184-g8f38ca5a2a07)
-
-    2022-03-16T10:35:35.613096  <8>[   32.143755] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-16T10:35:36.634580  /lava-5889695/1/../bin/lava-test-case   =
-
- =20
