@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B2E4DB039
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 13:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E24C4DB03A
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 13:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355968AbiCPNBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 09:01:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38554 "EHLO
+        id S1355975AbiCPNBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 09:01:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355970AbiCPNBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 09:01:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B4066211;
-        Wed, 16 Mar 2022 05:59:49 -0700 (PDT)
+        with ESMTP id S1355977AbiCPNBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 09:01:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 367F365D38;
+        Wed, 16 Mar 2022 05:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95C4461799;
-        Wed, 16 Mar 2022 12:59:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D6CDC340E9;
-        Wed, 16 Mar 2022 12:59:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C769D617A6;
+        Wed, 16 Mar 2022 12:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6BF0C340E9;
+        Wed, 16 Mar 2022 12:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647435588;
-        bh=Nttcd8vD8PV+11I5SUThoD99qnwwBLMy4J+Dsopdx3Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgMHNFgdyBFgPI7kezregPdLwIN0eaZVyuunzINA85uRmhi1KmJrtClkn4jlL3VTD
-         t3sQId+0HLT2PxG2Nsz75cRBt0vmEsZdfibnqMYF/NHJQAQ49NEz10y3pKH3bmSV1q
-         D1qRWIMXU7cXbphBX3zyqibF0ndiNrJ+fkZ4wfD4=
+        s=korg; t=1647435591;
+        bh=D5djTTr29IPHfjG2Gm+rbphyRilYjl2QNHwiZ4OY69I=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DQ0vESjvPFl+wgmpvIRylUoDV5ijigrUg6Ki/3FLii9NyQojl38lJnQ+SC4Eookdd
+         jEeeB4zVzg0odVh7J0BIkxvxWT8Brwm+NEg3x+W8su0LgECmENbgsbxlk9r8ojeZsZ
+         fWHcrHBwAJiXiJsvXwQJ1vD3eoQlODEb3eXagns0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.235
-Date:   Wed, 16 Mar 2022 13:59:37 +0100
-Message-Id: <16474355766166@kroah.com>
+Subject: Linux 5.4.185
+Date:   Wed, 16 Mar 2022 13:59:43 +0100
+Message-Id: <1647435583127@kroah.com>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <1647435576128162@kroah.com>
-References: <1647435576128162@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -51,690 +50,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f3f1a59ec25b..6bfb0a18ee8a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 234
-+SUBLEVEL = 235
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/arm/include/asm/spectre.h b/arch/arm/include/asm/spectre.h
-index d1fa5607d3aa..85f9e538fb32 100644
---- a/arch/arm/include/asm/spectre.h
-+++ b/arch/arm/include/asm/spectre.h
-@@ -25,7 +25,13 @@ enum {
- 	SPECTRE_V2_METHOD_LOOP8 = BIT(__SPECTRE_V2_METHOD_LOOP8),
- };
- 
-+#ifdef CONFIG_GENERIC_CPU_VULNERABILITIES
- void spectre_v2_update_state(unsigned int state, unsigned int methods);
-+#else
-+static inline void spectre_v2_update_state(unsigned int state,
-+					   unsigned int methods)
-+{}
-+#endif
- 
- int spectre_bhb_update_vectors(unsigned int method);
- 
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index 3ed860c8cd73..a929b6acb149 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -1067,9 +1067,9 @@ vector_bhb_loop8_\name:
- 
- 	@ bhb workaround
- 	mov	r0, #8
--1:	b	. + 4
-+3:	b	. + 4
- 	subs	r0, r0, #1
--	bne	1b
-+	bne	3b
- 	dsb
- 	isb
- 	b	2b
-diff --git a/arch/riscv/kernel/module.c b/arch/riscv/kernel/module.c
-index 7c012ad1d7ed..4d29ceb26940 100644
---- a/arch/riscv/kernel/module.c
-+++ b/arch/riscv/kernel/module.c
-@@ -21,6 +21,19 @@
- #include <asm/pgtable.h>
- #include <asm/sections.h>
- 
-+/*
-+ * The auipc+jalr instruction pair can reach any PC-relative offset
-+ * in the range [-2^31 - 2^11, 2^31 - 2^11)
-+ */
-+static bool riscv_insn_valid_32bit_offset(ptrdiff_t val)
-+{
-+#ifdef CONFIG_32BIT
-+	return true;
-+#else
-+	return (-(1L << 31) - (1L << 11)) <= val && val < ((1L << 31) - (1L << 11));
-+#endif
-+}
-+
- static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
- {
- 	if (v != (u32)v) {
-@@ -103,7 +116,7 @@ static int apply_r_riscv_pcrel_hi20_rela(struct module *me, u32 *location,
- 	ptrdiff_t offset = (void *)v - (void *)location;
- 	s32 hi20;
- 
--	if (offset != (s32)offset) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
-@@ -205,10 +218,9 @@ static int apply_r_riscv_call_plt_rela(struct module *me, u32 *location,
- 				       Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
- 
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		/* Only emit the plt entry if offset over 32-bit range */
- 		if (IS_ENABLED(CONFIG_MODULE_SECTIONS)) {
- 			offset = module_emit_plt_entry(me, v);
-@@ -232,10 +244,9 @@ static int apply_r_riscv_call_rela(struct module *me, u32 *location,
- 				   Elf_Addr v)
- {
- 	ptrdiff_t offset = (void *)v - (void *)location;
--	s32 fill_v = offset;
- 	u32 hi20, lo12;
- 
--	if (offset != fill_v) {
-+	if (!riscv_insn_valid_32bit_offset(offset)) {
- 		pr_err(
- 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
- 		  me->name, (long long)v, location);
-diff --git a/drivers/gpio/gpio-ts4900.c b/drivers/gpio/gpio-ts4900.c
-index 1da8d0586329..410452306bf7 100644
---- a/drivers/gpio/gpio-ts4900.c
-+++ b/drivers/gpio/gpio-ts4900.c
-@@ -1,7 +1,7 @@
- /*
-  * Digital I/O driver for Technologic Systems I2C FPGA Core
-  *
-- * Copyright (C) 2015 Technologic Systems
-+ * Copyright (C) 2015, 2018 Technologic Systems
-  * Copyright (C) 2016 Savoir-Faire Linux
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -52,19 +52,33 @@ static int ts4900_gpio_direction_input(struct gpio_chip *chip,
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
- 
--	/*
--	 * This will clear the output enable bit, the other bits are
--	 * dontcare when this is cleared
-+	/* Only clear the OE bit here, requires a RMW. Prevents potential issue
-+	 * with OE and data getting to the physical pin at different times.
- 	 */
--	return regmap_write(priv->regmap, offset, 0);
-+	return regmap_update_bits(priv->regmap, offset, TS4900_GPIO_OE, 0);
- }
- 
- static int ts4900_gpio_direction_output(struct gpio_chip *chip,
- 					unsigned int offset, int value)
- {
- 	struct ts4900_gpio_priv *priv = gpiochip_get_data(chip);
-+	unsigned int reg;
- 	int ret;
- 
-+	/* If changing from an input to an output, we need to first set the
-+	 * proper data bit to what is requested and then set OE bit. This
-+	 * prevents a glitch that can occur on the IO line
-+	 */
-+	regmap_read(priv->regmap, offset, &reg);
-+	if (!(reg & TS4900_GPIO_OE)) {
-+		if (value)
-+			reg = TS4900_GPIO_OUT;
-+		else
-+			reg &= ~TS4900_GPIO_OUT;
-+
-+		regmap_write(priv->regmap, offset, reg);
-+	}
-+
- 	if (value)
- 		ret = regmap_write(priv->regmap, offset, TS4900_GPIO_OE |
- 							 TS4900_GPIO_OUT);
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index f162ac7d74e5..460bb81acf2b 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1269,7 +1269,14 @@ static int macb_poll(struct napi_struct *napi, int budget)
- 	if (work_done < budget) {
- 		napi_complete_done(napi, work_done);
- 
--		/* Packets received while interrupts were disabled */
-+		/* RSR bits only seem to propagate to raise interrupts when
-+		 * interrupts are enabled at the time, so if bits are already
-+		 * set due to packets received while interrupts were disabled,
-+		 * they will not cause another interrupt to be generated when
-+		 * interrupts are re-enabled.
-+		 * Check for this case here. This has been seen to happen
-+		 * around 30% of the time under heavy network load.
-+		 */
- 		status = macb_readl(bp, RSR);
- 		if (status) {
- 			if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
-@@ -1277,6 +1284,22 @@ static int macb_poll(struct napi_struct *napi, int budget)
- 			napi_reschedule(napi);
- 		} else {
- 			queue_writel(queue, IER, bp->rx_intr_mask);
-+
-+			/* In rare cases, packets could have been received in
-+			 * the window between the check above and re-enabling
-+			 * interrupts. Therefore, a double-check is required
-+			 * to avoid losing a wakeup. This can potentially race
-+			 * with the interrupt handler doing the same actions
-+			 * if an interrupt is raised just after enabling them,
-+			 * but this should be harmless.
-+			 */
-+			status = macb_readl(bp, RSR);
-+			if (unlikely(status)) {
-+				queue_writel(queue, IDR, bp->rx_intr_mask);
-+				if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
-+					queue_writel(queue, ISR, MACB_BIT(RCOMP));
-+				napi_schedule(napi);
-+			}
- 		}
- 	}
- 
-diff --git a/drivers/net/ethernet/freescale/gianfar_ethtool.c b/drivers/net/ethernet/freescale/gianfar_ethtool.c
-index 395a5266ea30..0cddaaaf48aa 100644
---- a/drivers/net/ethernet/freescale/gianfar_ethtool.c
-+++ b/drivers/net/ethernet/freescale/gianfar_ethtool.c
-@@ -1528,6 +1528,7 @@ static int gfar_get_ts_info(struct net_device *dev,
- 	ptp_node = of_find_compatible_node(NULL, NULL, "fsl,etsec-ptp");
- 	if (ptp_node) {
- 		ptp_dev = of_find_device_by_node(ptp_node);
-+		of_node_put(ptp_node);
- 		if (ptp_dev)
- 			ptp = platform_get_drvdata(ptp_dev);
- 	}
-diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
-index 415ac33341c5..27c22f0e9d25 100644
---- a/drivers/net/ethernet/nxp/lpc_eth.c
-+++ b/drivers/net/ethernet/nxp/lpc_eth.c
-@@ -1512,6 +1512,7 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
- {
- 	struct net_device *ndev = platform_get_drvdata(pdev);
- 	struct netdata_local *pldat;
-+	int ret;
- 
- 	if (device_may_wakeup(&pdev->dev))
- 		disable_irq_wake(ndev->irq);
-@@ -1521,7 +1522,9 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
- 			pldat = netdev_priv(ndev);
- 
- 			/* Enable interface clock */
--			clk_enable(pldat->clk);
-+			ret = clk_enable(pldat->clk);
-+			if (ret)
-+				return ret;
- 
- 			/* Reset and initialize */
- 			__lpc_eth_reset(pldat);
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-index 886c7aae662f..285231bc318b 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -3800,11 +3800,11 @@ bool qed_iov_mark_vf_flr(struct qed_hwfn *p_hwfn, u32 *p_disabled_vfs)
- 	return found;
- }
- 
--static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
--			     u16 vfid,
--			     struct qed_mcp_link_params *p_params,
--			     struct qed_mcp_link_state *p_link,
--			     struct qed_mcp_link_capabilities *p_caps)
-+static int qed_iov_get_link(struct qed_hwfn *p_hwfn,
-+			    u16 vfid,
-+			    struct qed_mcp_link_params *p_params,
-+			    struct qed_mcp_link_state *p_link,
-+			    struct qed_mcp_link_capabilities *p_caps)
- {
- 	struct qed_vf_info *p_vf = qed_iov_get_vf_info(p_hwfn,
- 						       vfid,
-@@ -3812,7 +3812,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
- 	struct qed_bulletin_content *p_bulletin;
- 
- 	if (!p_vf)
--		return;
-+		return -EINVAL;
- 
- 	p_bulletin = p_vf->bulletin.p_virt;
- 
-@@ -3822,6 +3822,7 @@ static void qed_iov_get_link(struct qed_hwfn *p_hwfn,
- 		__qed_vf_get_link_state(p_hwfn, p_link, p_bulletin);
- 	if (p_caps)
- 		__qed_vf_get_link_caps(p_hwfn, p_caps, p_bulletin);
-+	return 0;
- }
- 
- static int
-@@ -4676,6 +4677,7 @@ static int qed_get_vf_config(struct qed_dev *cdev,
- 	struct qed_public_vf_info *vf_info;
- 	struct qed_mcp_link_state link;
- 	u32 tx_rate;
-+	int ret;
- 
- 	/* Sanitize request */
- 	if (IS_VF(cdev))
-@@ -4689,7 +4691,9 @@ static int qed_get_vf_config(struct qed_dev *cdev,
- 
- 	vf_info = qed_iov_get_public_vf_info(hwfn, vf_id, true);
- 
--	qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
-+	ret = qed_iov_get_link(hwfn, vf_id, NULL, &link, NULL);
-+	if (ret)
-+		return ret;
- 
- 	/* Fill information about VF */
- 	ivi->vf = vf_id;
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_vf.c b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-index 93a0fbf6a132..e12338abaf0a 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_vf.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-@@ -539,6 +539,9 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
- 						    p_iov->bulletin.size,
- 						    &p_iov->bulletin.phys,
- 						    GFP_KERNEL);
-+	if (!p_iov->bulletin.p_virt)
-+		goto free_pf2vf_reply;
-+
- 	DP_VERBOSE(p_hwfn, QED_MSG_IOV,
- 		   "VF's bulletin Board [%p virt 0x%llx phys 0x%08x bytes]\n",
- 		   p_iov->bulletin.p_virt,
-@@ -578,6 +581,10 @@ int qed_vf_hw_prepare(struct qed_hwfn *p_hwfn)
- 
- 	return rc;
- 
-+free_pf2vf_reply:
-+	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
-+			  sizeof(union pfvf_tlvs),
-+			  p_iov->pf2vf_reply, p_iov->pf2vf_reply_phys);
- free_vf2pf_request:
- 	dma_free_coherent(&p_hwfn->cdev->pdev->dev,
- 			  sizeof(union vfpf_tlvs),
-diff --git a/drivers/net/ethernet/ti/cpts.c b/drivers/net/ethernet/ti/cpts.c
-index 10b301e79086..01cc92f6a1f8 100644
---- a/drivers/net/ethernet/ti/cpts.c
-+++ b/drivers/net/ethernet/ti/cpts.c
-@@ -445,7 +445,9 @@ int cpts_register(struct cpts *cpts)
- 	for (i = 0; i < CPTS_MAX_EVENTS; i++)
- 		list_add(&cpts->pool_data[i].list, &cpts->pool);
- 
--	clk_enable(cpts->refclk);
-+	err = clk_enable(cpts->refclk);
-+	if (err)
-+		return err;
- 
- 	cpts_write32(cpts, CPTS_EN, control);
- 	cpts_write32(cpts, TS_PEND_EN, int_enable);
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index edb2215f9993..23a4f9061072 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -1173,7 +1173,7 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 	if (rc) {
- 		dev_err(dev,
- 			"Cannot register network device, aborting\n");
--		goto error;
-+		goto put_node;
- 	}
- 
- 	dev_info(dev,
-@@ -1181,6 +1181,8 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 		 (unsigned int __force)ndev->mem_start, lp->base_addr, ndev->irq);
- 	return 0;
- 
-+put_node:
-+	of_node_put(lp->phy_node);
- error:
- 	free_netdev(ndev);
- 	return rc;
-diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
-index 6e8a2a4f3a6e..9e2ed98f7df2 100644
---- a/drivers/net/phy/dp83822.c
-+++ b/drivers/net/phy/dp83822.c
-@@ -244,7 +244,7 @@ static int dp83822_config_intr(struct phy_device *phydev)
- 		if (err < 0)
- 			return err;
- 
--		err = phy_write(phydev, MII_DP83822_MISR1, 0);
-+		err = phy_write(phydev, MII_DP83822_MISR2, 0);
- 		if (err < 0)
- 			return err;
- 
-diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
-index 78c56149559c..6d7fb0a95645 100644
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -499,6 +499,7 @@ static void backend_disconnect(struct backend_info *be)
- 		unsigned int queue_index;
- 
- 		xen_unregister_watchers(vif);
-+		xenbus_rm(XBT_NIL, be->dev->nodename, "hotplug-status");
- #ifdef CONFIG_DEBUG_FS
- 		xenvif_debugfs_delif(vif);
- #endif /* CONFIG_DEBUG_FS */
-@@ -1043,15 +1044,11 @@ static void connect(struct backend_info *be)
- 	xenvif_carrier_on(be->vif);
- 
- 	unregister_hotplug_status_watch(be);
--	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
--		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
--					   NULL, hotplug_status_changed,
--					   "%s/%s", dev->nodename,
--					   "hotplug-status");
--		if (err)
--			goto err;
-+	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
-+				   hotplug_status_changed,
-+				   "%s/%s", dev->nodename, "hotplug-status");
-+	if (!err)
- 		be->have_hotplug_status_watch = 1;
--	}
- 
- 	netif_tx_wake_all_queues(be->vif->dev);
- 
-diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
-index 0f37acec98ab..bc680b8be133 100644
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1618,7 +1618,9 @@ static int port100_probe(struct usb_interface *interface,
- 	nfc_digital_free_device(dev->nfc_digital_dev);
- 
- error:
-+	usb_kill_urb(dev->in_urb);
- 	usb_free_urb(dev->in_urb);
-+	usb_kill_urb(dev->out_urb);
- 	usb_free_urb(dev->out_urb);
- 	usb_put_dev(dev->udev);
- 
-diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
-index 3c537807f4d1..eb6046087a91 100644
---- a/drivers/staging/gdm724x/gdm_lte.c
-+++ b/drivers/staging/gdm724x/gdm_lte.c
-@@ -76,14 +76,15 @@ static void tx_complete(void *arg)
- 
- static int gdm_lte_rx(struct sk_buff *skb, struct nic *nic, int nic_type)
- {
--	int ret;
-+	int ret, len;
- 
-+	len = skb->len + ETH_HLEN;
- 	ret = netif_rx_ni(skb);
- 	if (ret == NET_RX_DROP) {
- 		nic->stats.rx_dropped++;
- 	} else {
- 		nic->stats.rx_packets++;
--		nic->stats.rx_bytes += skb->len + ETH_HLEN;
-+		nic->stats.rx_bytes += len;
- 	}
- 
- 	return 0;
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 74f43ef2fb0f..89935105df49 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -165,14 +165,11 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
--int virtio_finalize_features(struct virtio_device *dev)
-+/* Do some validation, then set FEATURES_OK */
-+static int virtio_features_ok(struct virtio_device *dev)
- {
--	int ret = dev->config->finalize_features(dev);
- 	unsigned status;
- 
--	if (ret)
--		return ret;
--
- 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
- 		return 0;
- 
-@@ -185,7 +182,6 @@ int virtio_finalize_features(struct virtio_device *dev)
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(virtio_finalize_features);
- 
- static int virtio_dev_probe(struct device *_d)
- {
-@@ -222,17 +218,6 @@ static int virtio_dev_probe(struct device *_d)
- 		driver_features_legacy = driver_features;
- 	}
- 
--	/*
--	 * Some devices detect legacy solely via F_VERSION_1. Write
--	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
--	 * these when needed.
--	 */
--	if (drv->validate && !virtio_legacy_is_little_endian()
--			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
--		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
--		dev->config->finalize_features(dev);
--	}
--
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
-@@ -243,13 +228,26 @@ static int virtio_dev_probe(struct device *_d)
- 		if (device_features & (1ULL << i))
- 			__virtio_set_bit(dev, i);
- 
-+	err = dev->config->finalize_features(dev);
-+	if (err)
-+		goto err;
-+
- 	if (drv->validate) {
-+		u64 features = dev->features;
-+
- 		err = drv->validate(dev);
- 		if (err)
- 			goto err;
-+
-+		/* Did validation change any features? Then write them again. */
-+		if (features != dev->features) {
-+			err = dev->config->finalize_features(dev);
-+			if (err)
-+				goto err;
-+		}
- 	}
- 
--	err = virtio_finalize_features(dev);
-+	err = virtio_features_ok(dev);
- 	if (err)
- 		goto err;
- 
-@@ -413,7 +411,11 @@ int virtio_device_restore(struct virtio_device *dev)
- 	/* We have a driver! */
- 	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
- 
--	ret = virtio_finalize_features(dev);
-+	ret = dev->config->finalize_features(dev);
-+	if (ret)
-+		goto err;
-+
-+	ret = virtio_features_ok(dev);
- 	if (ret)
- 		goto err;
- 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index bf46ed74eae6..d71f800e8bf6 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -8327,6 +8327,7 @@ struct extent_buffer *btrfs_alloc_tree_block(struct btrfs_trans_handle *trans,
- out_free_delayed:
- 	btrfs_free_delayed_extent_op(extent_op);
- out_free_buf:
-+	btrfs_tree_unlock(buf);
- 	free_extent_buffer(buf);
- out_free_reserved:
- 	btrfs_free_reserved_extent(fs_info, ins.objectid, ins.offset, 0);
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index 8098255c2801..5f954620efbf 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -74,6 +74,11 @@ int ext4_resize_begin(struct super_block *sb)
- 		return -EPERM;
- 	}
- 
-+	if (ext4_has_feature_sparse_super2(sb)) {
-+		ext4_msg(sb, KERN_ERR, "Online resizing not supported with sparse_super2");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (test_and_set_bit_lock(EXT4_FLAGS_RESIZING,
- 				  &EXT4_SB(sb)->s_ext4_flags))
- 		ret = -EBUSY;
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 5f711b2983db..af040fcd2c5a 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -8287,8 +8287,8 @@ struct mlx5_ifc_bufferx_reg_bits {
- 	u8         reserved_at_0[0x6];
- 	u8         lossy[0x1];
- 	u8         epsb[0x1];
--	u8         reserved_at_8[0xc];
--	u8         size[0xc];
-+	u8         reserved_at_8[0x8];
-+	u8         size[0x10];
- 
- 	u8         xoff_threshold[0x10];
- 	u8         xon_threshold[0x10];
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index fa1b5da2804e..14f6cf650ecf 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -151,7 +151,6 @@ void virtio_break_device(struct virtio_device *dev);
- void virtio_config_changed(struct virtio_device *dev);
- void virtio_config_disable(struct virtio_device *dev);
- void virtio_config_enable(struct virtio_device *dev);
--int virtio_finalize_features(struct virtio_device *dev);
- #ifdef CONFIG_PM_SLEEP
- int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 32baf8e26735..599e60f2e2a0 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -51,8 +51,9 @@ struct irq_affinity;
-  *	Returns the first 32 feature bits (all we currently need).
-  * @finalize_features: confirm what device features we'll be using.
-  *	vdev: the virtio_device
-- *	This gives the final feature bits for the device: it can change
-+ *	This sends the driver feature bits to the device: it can change
-  *	the dev->feature bits if it wants.
-+ * Note: despite the name this can be called any number of times.
-  *	Returns 0 on success or error status
-  * @bus_name: return the bus name associated with the device
-  *	vdev: the virtio_device
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 19a6b088f1e7..063b434c89d2 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1118,10 +1118,12 @@ static int __init set_buf_size(char *str)
- 	if (!str)
- 		return 0;
- 	buf_size = memparse(str, &str);
--	/* nr_entries can not be zero */
--	if (buf_size == 0)
--		return 0;
--	trace_buf_size = buf_size;
-+	/*
-+	 * nr_entries can not be zero and the startup
-+	 * tests require some buffer space. Therefore
-+	 * ensure we have at least 4096 bytes of buffer.
-+	 */
-+	trace_buf_size = max(4096UL, buf_size);
- 	return 1;
- }
- __setup("trace_buf_size=", set_buf_size);
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index a2bf5e4e9fbe..3170b43b9f89 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -90,6 +90,13 @@ static void ax25_kill_by_device(struct net_device *dev)
- 	ax25_for_each(s, &ax25_list) {
- 		if (s->ax25_dev == ax25_dev) {
- 			sk = s->sk;
-+			if (!sk) {
-+				spin_unlock_bh(&ax25_list_lock);
-+				s->ax25_dev = NULL;
-+				ax25_disconnect(s, ENETUNREACH);
-+				spin_lock_bh(&ax25_list_lock);
-+				goto again;
-+			}
- 			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index e5dc04cb5599..7a11b2d90975 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -203,7 +203,7 @@ static ssize_t speed_show(struct device *dev,
- 	if (!rtnl_trylock())
- 		return restart_syscall();
- 
--	if (netif_running(netdev)) {
-+	if (netif_running(netdev) && netif_device_present(netdev)) {
- 		struct ethtool_link_ksettings cmd;
- 
- 		if (!__ethtool_get_link_ksettings(netdev, &cmd))
-diff --git a/net/sctp/diag.c b/net/sctp/diag.c
-index 0a9db0a7f423..5f10984bf0f5 100644
---- a/net/sctp/diag.c
-+++ b/net/sctp/diag.c
-@@ -76,10 +76,6 @@ static void inet_diag_msg_sctpasoc_fill(struct inet_diag_msg *r,
- 		r->idiag_timer = SCTP_EVENT_TIMEOUT_T3_RTX;
- 		r->idiag_retrans = asoc->rtx_data_chunks;
- 		r->idiag_expires = jiffies_to_msecs(t3_rtx->expires - jiffies);
--	} else {
--		r->idiag_timer = 0;
--		r->idiag_retrans = 0;
--		r->idiag_expires = 0;
- 	}
- }
- 
-@@ -159,13 +155,14 @@ static int inet_sctp_diag_fill(struct sock *sk, struct sctp_association *asoc,
- 	r = nlmsg_data(nlh);
- 	BUG_ON(!sk_fullsock(sk));
- 
-+	r->idiag_timer = 0;
-+	r->idiag_retrans = 0;
-+	r->idiag_expires = 0;
- 	if (asoc) {
- 		inet_diag_msg_sctpasoc_fill(r, sk, asoc);
- 	} else {
- 		inet_diag_msg_common_fill(r, sk);
- 		r->idiag_state = sk->sk_state;
--		r->idiag_timer = 0;
--		r->idiag_retrans = 0;
- 	}
- 
- 	if (inet_diag_msg_attrs_fill(sk, skb, r, ext, user_ns, net_admin))
-diff --git a/tools/testing/selftests/memfd/memfd_test.c b/tools/testing/selftests/memfd/memfd_test.c
-index 10baa1652fc2..a4e520b94e43 100644
---- a/tools/testing/selftests/memfd/memfd_test.c
-+++ b/tools/testing/selftests/memfd/memfd_test.c
-@@ -386,6 +386,7 @@ static void mfd_fail_write(int fd)
- 			printf("mmap()+mprotect() didn't fail as expected\n");
- 			abort();
- 		}
-+		munmap(p, mfd_def_size);
- 	}
- 
- 	/* verify PUNCH_HOLE fails */
+I'm announcing the release of the 5.4.185 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                               |    2 
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi               |    2 
+ arch/arm/include/asm/spectre.h                         |    6 +
+ arch/arm/kernel/entry-armv.S                           |    4 -
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts |    8 ++
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi           |    2 
+ arch/riscv/kernel/module.c                             |   21 +++++-
+ arch/x86/include/asm/cpufeatures.h                     |    2 
+ arch/x86/kernel/cpu/scattered.c                        |    1 
+ arch/x86/kvm/svm.c                                     |    3 
+ arch/x86/mm/pageattr.c                                 |    2 
+ drivers/block/virtio_blk.c                             |   10 ++-
+ drivers/clk/qcom/gdsc.c                                |   26 ++++++--
+ drivers/clk/qcom/gdsc.h                                |    8 ++
+ drivers/gpio/gpio-ts4900.c                             |   24 +++++--
+ drivers/gpu/drm/sun4i/sun8i_mixer.h                    |    8 +-
+ drivers/mmc/host/meson-gx-mmc.c                        |   15 ++--
+ drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c     |    7 ++
+ drivers/net/ethernet/cadence/macb_main.c               |   25 +++++++
+ drivers/net/ethernet/freescale/gianfar_ethtool.c       |    1 
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c          |   15 ++--
+ drivers/net/ethernet/nxp/lpc_eth.c                     |    5 +
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c            |   18 +++--
+ drivers/net/ethernet/qlogic/qed/qed_vf.c               |    7 ++
+ drivers/net/ethernet/ti/cpts.c                         |    4 -
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c          |    4 -
+ drivers/net/phy/dp83822.c                              |    2 
+ drivers/net/xen-netback/xenbus.c                       |   13 +---
+ drivers/nfc/port100.c                                  |    2 
+ drivers/staging/gdm724x/gdm_lte.c                      |    5 -
+ drivers/virtio/virtio.c                                |   39 ++++++------
+ fs/ext4/resize.c                                       |    5 +
+ fs/fuse/dev.c                                          |   12 +++
+ fs/fuse/file.c                                         |    1 
+ fs/fuse/fuse_i.h                                       |    1 
+ include/linux/mlx5/mlx5_ifc.h                          |    4 -
+ include/linux/virtio.h                                 |    1 
+ include/linux/virtio_config.h                          |    3 
+ kernel/trace/trace.c                                   |   10 +--
+ net/ax25/af_ax25.c                                     |    7 ++
+ net/core/net-sysfs.c                                   |    2 
+ net/ipv6/addrconf.c                                    |    2 
+ net/sctp/diag.c                                        |    9 --
+ tools/testing/selftests/bpf/prog_tests/timer_crash.c   |   32 ++++++++++
+ tools/testing/selftests/bpf/progs/timer_crash.c        |   54 +++++++++++++++++
+ tools/testing/selftests/memfd/memfd_test.c             |    1 
+ tools/testing/selftests/net/pmtu.sh                    |    7 +-
+ tools/testing/selftests/vm/map_fixed_noreplace.c       |   49 +++++++++++----
+ 48 files changed, 377 insertions(+), 114 deletions(-)
+
+Aneesh Kumar K.V (1):
+      selftest/vm: fix map_fixed_noreplace test failure
+
+Borislav Petkov (1):
+      x86/cpufeatures: Mark two free bits in word 3
+
+Clément Léger (1):
+      net: phy: DP83822: clear MISR2 register to disable interrupts
+
+Dan Carpenter (1):
+      staging: gdm724x: fix use after free in gdm_lte_rx()
+
+Duoming Zhou (1):
+      ax25: Fix NULL pointer dereference in ax25_kill_by_device
+
+Emil Renner Berthing (1):
+      riscv: Fix auipc+jalr relocation range checks
+
+Eric Dumazet (1):
+      sctp: fix kernel-infoleak for SCTP sockets
+
+Greg Kroah-Hartman (1):
+      Linux 5.4.185
+
+Guillaume Nault (1):
+      selftests: pmtu.sh: Kill tcpdump processes launched by subshell.
+
+Jeremy Linton (1):
+      net: bcmgenet: Don't claim WOL when its not available
+
+Jernej Skrabec (1):
+      drm/sun4i: mixer: Fix P010 and P210 format numbers
+
+Jia-Ju Bai (1):
+      net: qlogic: check the return value of dma_alloc_coherent() in qed_vf_hw_prepare()
+
+Jiasheng Jiang (2):
+      net: ethernet: ti: cpts: Handle error for clk_enable
+      net: ethernet: lpc_eth: Handle error for clk_enable
+
+Joel Stanley (1):
+      ARM: dts: aspeed: Fix AST2600 quad spi group
+
+Josh Triplett (1):
+      ext4: add check to prevent attempting to resize an fs with sparse_super2
+
+Krish Sadhukhan (3):
+      x86/cpu: Add hardware-enforced cache coherency as a CPUID feature
+      x86/mm/pat: Don't flush cache if hardware enforces cache coherency across encryption domnains
+      KVM: SVM: Don't flush cache if hardware enforces cache coherency across encryption domains
+
+Kumar Kartikeya Dwivedi (1):
+      selftests/bpf: Add test for bpf_timer overwriting crash
+
+Marek Marczykowski-Górecki (2):
+      Revert "xen-netback: remove 'hotplug-status' once it has served its purpose"
+      Revert "xen-netback: Check for hotplug-status existence before watching"
+
+Mark Featherston (1):
+      gpio: ts4900: Do not set DAT and OE together
+
+Miaoqian Lin (2):
+      ethernet: Fix error handling in xemaclite_of_probe
+      gianfar: ethtool: Fix refcount leak in gfar_get_ts_info
+
+Michael S. Tsirkin (2):
+      virtio: unexport virtio_finalize_features
+      virtio: acknowledge all features before access
+
+Mike Kravetz (1):
+      selftests/memfd: clean up mapping in mfd_fail_write
+
+Miklos Szeredi (1):
+      fuse: fix pipe buffer lifetime for direct_io
+
+Mohammad Kabat (1):
+      net/mlx5: Fix size field in bufferx_reg struct
+
+Moshe Shemesh (1):
+      net/mlx5: Fix a race on command flush flow
+
+Niels Dossche (1):
+      ipv6: prevent a possible race condition with lifetimes
+
+Pali Rohár (2):
+      arm64: dts: armada-3720-turris-mox: Add missing ethernet0 alias
+      arm64: dts: marvell: armada-37xx: Remap IO space to bus address 0x0
+
+Pavel Skripkin (1):
+      NFC: port100: fix use-after-free in port100_send_complete
+
+Randy Dunlap (1):
+      ARM: Spectre-BHB: provide empty stub for non-config
+
+Robert Hancock (1):
+      net: macb: Fix lost RX packet wakeup race in NAPI receive
+
+Rong Chen (1):
+      mmc: meson: Fix usage of meson_mmc_post_req()
+
+Russell King (Oracle) (1):
+      ARM: fix Thumb2 regression with Spectre BHB
+
+Sven Schnelle (1):
+      tracing: Ensure trace buffer is at least 4096 bytes large
+
+Taniya Das (1):
+      clk: qcom: gdsc: Add support to update GDSC transition delay
+
+Tom Rix (1):
+      qed: return status of qed_iov_get_link
+
+Xie Yongji (1):
+      virtio-blk: Don't use MAX_DISCARD_SEGMENTS if max_discard_seg is zero
+
+suresh kumar (1):
+      net-sysfs: add check for netdevice being present to speed_show
+
