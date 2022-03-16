@@ -2,57 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A82604DBA83
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 23:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B10C24DBA80
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 23:06:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358224AbiCPWJu convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 16 Mar 2022 18:09:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
+        id S1346197AbiCPWHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 18:07:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358225AbiCPWJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 18:09:48 -0400
-X-Greylist: delayed 442 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Mar 2022 15:08:33 PDT
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B6713D64
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 15:08:33 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id D913F6081104;
-        Wed, 16 Mar 2022 23:01:09 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 8vaihv-rfqXQ; Wed, 16 Mar 2022 23:01:09 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 4F3016081107;
-        Wed, 16 Mar 2022 23:01:09 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id dGMp6Mx7hpNU; Wed, 16 Mar 2022 23:01:09 +0100 (CET)
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 1FE796081104;
-        Wed, 16 Mar 2022 23:01:09 +0100 (CET)
-Date:   Wed, 16 Mar 2022 23:01:09 +0100 (CET)
-From:   Richard Weinberger <richard@nod.at>
-To:     libaokun <libaokun1@huawei.com>
-Cc:     David Woodhouse <dwmw2@infradead.org>,
-        christian brauner <christian.brauner@ubuntu.com>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        yukuai3 <yukuai3@huawei.com>, stable <stable@vger.kernel.org>,
-        Hulk Robot <hulkci@huawei.com>
-Message-ID: <1891491465.152789.1647468069089.JavaMail.zimbra@nod.at>
-In-Reply-To: <8a175ec6-1555-8575-1f03-0002efac1740@huawei.com>
-References: <20211228125430.1880252-1-libaokun1@huawei.com> <8a175ec6-1555-8575-1f03-0002efac1740@huawei.com>
-Subject: Re: [PATCH -next] jffs2: fix use-after-free in
- jffs2_clear_xattr_subsystem
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [195.201.40.130]
-X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF97 (Linux)/8.8.12_GA_3809)
-Thread-Topic: jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
-Thread-Index: CCC9RxtPxe322JVfIQ6ZCv5ouCR7KA==
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        T_SCC_BODY_TEXT_LINE,T_SPF_PERMERROR autolearn=unavailable
+        with ESMTP id S243684AbiCPWHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 18:07:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728591D9
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 15:05:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE03AB81B9C
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 22:05:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735F4C340EC;
+        Wed, 16 Mar 2022 22:05:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1647468354;
+        bh=LM+PeWJfSxbwSLSeTGQlI1OYnxRksYJXzPpCpetxttg=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Pc6q4CdhqXO9hgGxXZTWm5lN5emNU/3GuyXneuhGDxioCR1M0iFaq04zZEym0HpAy
+         YexVTYgnRfT0DF2e0tMLzUmuetNNwpY5kx7VVVnl54UfjrAozaKCXtj8EXxG4VqH2I
+         3bvB5hvWYhPaVSVN1fYuDgnWSt4c6Q9awIdnQpy8=
+Date:   Wed, 16 Mar 2022 15:05:53 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Nadav Amit <nadav.amit@gmail.com>
+Cc:     Peter Xu <peterx@redhat.com>, Linux-MM <linux-mm@kvack.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] userfaultfd: mark uffd_wp regardless of VM_WRITE flag
+Message-Id: <20220316150553.c7b6f9e0eac620c9ee5963a5@linux-foundation.org>
+In-Reply-To: <3E9C755C-7335-4636-8280-D5CB9735A76A@gmail.com>
+References: <20220217211602.2769-1-namit@vmware.com>
+        <Yg79WMuYLS1sxASL@xz-m1.local>
+        <BDBC90F4-22E1-48CC-9DB8-773C044F0231@gmail.com>
+        <68B04C0D-F8CE-4C95-9032-CF703436DC99@gmail.com>
+        <3E9C755C-7335-4636-8280-D5CB9735A76A@gmail.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,101 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ Ursprüngliche Mail -----
-> Von: "libaokun" <libaokun1@huawei.com>
-> An: "richard" <richard@nod.at>, "David Woodhouse" <dwmw2@infradead.org>, "christian brauner"
-> <christian.brauner@ubuntu.com>, "linux-mtd" <linux-mtd@lists.infradead.org>, "linux-kernel"
-> <linux-kernel@vger.kernel.org>
-> CC: "yukuai3" <yukuai3@huawei.com>, "stable" <stable@vger.kernel.org>, "Hulk Robot" <hulkci@huawei.com>, "libaokun"
-> <libaokun1@huawei.com>
-> Gesendet: Donnerstag, 10. März 2022 09:35:18
-> Betreff: Re: [PATCH -next] jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
 
-> A gentle ping, sorry for the noise.
-> 
-> 在 2021/12/28 20:54, Baokun Li 写道:
->> When we mount a jffs2 image, assume that the first few blocks of
->> the image are normal and contain at least one xattr-related inode,
->> but the next block is abnormal. As a result, an error is returned
->> in jffs2_scan_eraseblock(). jffs2_clear_xattr_subsystem() is then
->> called in jffs2_build_filesystem() and then again in
->> jffs2_do_fill_super().
->>
->> Finally we can observe the following report:
->>   ==================================================================
->>   BUG: KASAN: use-after-free in jffs2_clear_xattr_subsystem+0x95/0x6ac
->>   Read of size 8 at addr ffff8881243384e0 by task mount/719
->>
->>   Call Trace:
->>    dump_stack+0x115/0x16b
->>    jffs2_clear_xattr_subsystem+0x95/0x6ac
->>    jffs2_do_fill_super+0x84f/0xc30
->>    jffs2_fill_super+0x2ea/0x4c0
->>    mtd_get_sb+0x254/0x400
->>    mtd_get_sb_by_nr+0x4f/0xd0
->>    get_tree_mtd+0x498/0x840
->>    jffs2_get_tree+0x25/0x30
->>    vfs_get_tree+0x8d/0x2e0
->>    path_mount+0x50f/0x1e50
->>    do_mount+0x107/0x130
->>    __se_sys_mount+0x1c5/0x2f0
->>    __x64_sys_mount+0xc7/0x160
->>    do_syscall_64+0x45/0x70
->>    entry_SYSCALL_64_after_hwframe+0x44/0xa9
->>
->>   Allocated by task 719:
->>    kasan_save_stack+0x23/0x60
->>    __kasan_kmalloc.constprop.0+0x10b/0x120
->>    kasan_slab_alloc+0x12/0x20
->>    kmem_cache_alloc+0x1c0/0x870
->>    jffs2_alloc_xattr_ref+0x2f/0xa0
->>    jffs2_scan_medium.cold+0x3713/0x4794
->>    jffs2_do_mount_fs.cold+0xa7/0x2253
->>    jffs2_do_fill_super+0x383/0xc30
->>    jffs2_fill_super+0x2ea/0x4c0
->>   [...]
->>
->>   Freed by task 719:
->>    kmem_cache_free+0xcc/0x7b0
->>    jffs2_free_xattr_ref+0x78/0x98
->>    jffs2_clear_xattr_subsystem+0xa1/0x6ac
->>    jffs2_do_mount_fs.cold+0x5e6/0x2253
->>    jffs2_do_fill_super+0x383/0xc30
->>    jffs2_fill_super+0x2ea/0x4c0
->>   [...]
->>
->>   The buggy address belongs to the object at ffff8881243384b8
->>    which belongs to the cache jffs2_xattr_ref of size 48
->>   The buggy address is located 40 bytes inside of
->>    48-byte region [ffff8881243384b8, ffff8881243384e8)
->>   [...]
->>   ==================================================================
->>
->> The triggering of the BUG is shown in the following stack:
->> -----------------------------------------------------------
->> jffs2_fill_super
->>    jffs2_do_fill_super
->>      jffs2_do_mount_fs
->>        jffs2_build_filesystem
->>          jffs2_scan_medium
->>            jffs2_scan_eraseblock        <--- ERROR
->>          jffs2_clear_xattr_subsystem    <--- free
->>      jffs2_clear_xattr_subsystem        <--- free again
->> -----------------------------------------------------------
->>
->> An error is returned in jffs2_do_mount_fs(). If the error is returned
->> by jffs2_sum_init(), the jffs2_clear_xattr_subsystem() does not need to
->> be executed. If the error is returned by jffs2_build_filesystem(), the
->> jffs2_clear_xattr_subsystem() also does not need to be executed again.
->> So move jffs2_clear_xattr_subsystem() from 'out_inohash' to 'out_root'
->> to fix this UAF problem.
->>
->> Fixes: aa98d7cf59b5 ("[JFFS2][XATTR] XATTR support on JFFS2 (version. 5)")
->> Cc: stable@vger.kernel.org
->> Reported-by: Hulk Robot <hulkci@huawei.com>
->> Signed-off-by: Baokun Li <libaokun1@huawei.com>
+As I understand it, this patch (below) is still good to merge upstream,
+although Peter hasn't acked it (please).
 
-Applied. Thanks for fixing!
+And a whole bunch of followup patches are being thought about, but have
+yet to eventuate.
 
-Thanks,
-//richard
+Do we feel that this patch warrants the cc:stable?  I'm suspecting
+"no", as it isn't clear that the use-case is really legitimate at this
+time?
+
+Thanks.
+
+
+From: Nadav Amit <namit@vmware.com>
+Subject: userfaultfd: mark uffd_wp regardless of VM_WRITE flag
+
+When a PTE is set by UFFD operations such as UFFDIO_COPY, the PTE is
+currently only marked as write-protected if the VMA has VM_WRITE flag set.
+This seems incorrect or at least would be unexpected by the users.
+
+Consider the following sequence of operations that are being performed on
+a certain page:
+
+	mprotect(PROT_READ)
+	UFFDIO_COPY(UFFDIO_COPY_MODE_WP)
+	mprotect(PROT_READ|PROT_WRITE)
+
+At this point the user would expect to still get UFFD notification when
+the page is accessed for write, but the user would not get one, since the
+PTE was not marked as UFFD_WP during UFFDIO_COPY.
+
+Fix it by always marking PTEs as UFFD_WP regardless on the
+write-permission in the VMA flags.
+
+Link: https://lkml.kernel.org/r/20220217211602.2769-1-namit@vmware.com
+Fixes: 292924b26024 ("userfaultfd: wp: apply _PAGE_UFFD_WP bit")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/userfaultfd.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+--- a/mm/userfaultfd.c~userfaultfd-mark-uffd_wp-regardless-of-vm_write-flag
++++ a/mm/userfaultfd.c
+@@ -72,12 +72,15 @@ int mfill_atomic_install_pte(struct mm_s
+ 	_dst_pte = pte_mkdirty(_dst_pte);
+ 	if (page_in_cache && !vm_shared)
+ 		writable = false;
+-	if (writable) {
+-		if (wp_copy)
+-			_dst_pte = pte_mkuffd_wp(_dst_pte);
+-		else
+-			_dst_pte = pte_mkwrite(_dst_pte);
+-	}
++
++	/*
++	 * Always mark a PTE as write-protected when needed, regardless of
++	 * VM_WRITE, which the user might change.
++	 */
++	if (wp_copy)
++		_dst_pte = pte_mkuffd_wp(_dst_pte);
++	else if (writable)
++		_dst_pte = pte_mkwrite(_dst_pte);
+ 
+ 	dst_pte = pte_offset_map_lock(dst_mm, dst_pmd, dst_addr, &ptl);
+ 
+_
+
