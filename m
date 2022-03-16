@@ -2,183 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A414DB6F3
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 18:14:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA32A4DB717
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 18:25:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344059AbiCPRPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 13:15:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33404 "EHLO
+        id S1350447AbiCPR0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 13:26:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237728AbiCPRPa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 13:15:30 -0400
-Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2B95A5B4;
-        Wed, 16 Mar 2022 10:14:15 -0700 (PDT)
-Received: from [192.168.0.3] (ip5f5aef39.dynamic.kabel-deutschland.de [95.90.239.57])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id BB1DC61EA1930;
-        Wed, 16 Mar 2022 18:14:13 +0100 (CET)
-Message-ID: <bad00633-e66a-2ae0-dff6-1ef53686cfac@molgen.mpg.de>
-Date:   Wed, 16 Mar 2022 18:14:13 +0100
+        with ESMTP id S232691AbiCPR0v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 13:26:51 -0400
+Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8ABF9FE5
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 10:25:36 -0700 (PDT)
+Received: from relay12.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::232])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 4B99ECF7B9
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 17:15:24 +0000 (UTC)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 300CA200005;
+        Wed, 16 Mar 2022 17:15:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1647450920;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=G6gLMMNOG4h/Lqkhq9E4+xt9ZMxIqvlsfo82rAng1Io=;
+        b=Xxo5i2+RXvU5DTAm9d98tXIa8WbrZh2KcglxmLlAdAOsl9CxYHDQigOVyqiR2Vi69/PUg2
+        qAGZm9LI++GkLoskozLCW799RaWubMK4GviLlfiArHlqUCTvctUnCJHRR26/y+kw6oLPD7
+        3D1VT8SrVQUSUFt7R70+DgjPpZZjabqB32m+wet+VMYTn54IFr6eZSyGUIC49ObkGK4er9
+        QNGO2JEK1wJ78Dj4vfJoQfNaAonlABD8sZhcb62bd82g1QBYgBDU3130Ji29WBQSXUMg4E
+        cRuO322RGAz1k6BgwCNIZuCpiqEW8edgZHYnbIKoB+kAhLRtuFMCZ/frFw9DmQ==
+Date:   Wed, 16 Mar 2022 18:15:19 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Tokunori Ikegami <ikegami.t@gmail.com>
+Cc:     linux-mtd@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH v4 1/3] mtd: cfi_cmdset_0002: Move and rename
+ chip_check/chip_ready/chip_good_for_write
+Message-ID: <20220316181519.0ec5bc97@xps13>
+In-Reply-To: <20220316155455.162362-2-ikegami.t@gmail.com>
+References: <20220316155455.162362-1-ikegami.t@gmail.com>
+        <20220316155455.162362-2-ikegami.t@gmail.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [EXT] Re: [PATCH v2 net-next 1/2] bnx2x: Utilize firmware
- 7.13.21.0
-Content-Language: en-US
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Manish Chopra <manishc@marvell.com>,
-        Donald Buczek <buczek@molgen.mpg.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        netdev@vger.kernel.org, Ariel Elior <aelior@marvell.com>,
-        Alok Prasad <palok@marvell.com>,
-        Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        it+netdev@molgen.mpg.de, regressions@lists.linux.dev
-References: <20211217165552.746-1-manishc@marvell.com>
- <ea05bcab-fe72-4bc2-3337-460888b2c44e@molgen.mpg.de>
- <BY3PR18MB46129282EBA1F699583134A4AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <e884cf16-3f98-e9a7-ce96-9028592246cc@molgen.mpg.de>
- <BY3PR18MB4612BC158A048053BAC7A30EAB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <CAHk-=wjN22EeVLviARu=amf1+422U2iswCC6cz7cN8h+S9=-Jg@mail.gmail.com>
- <BY3PR18MB4612C2FFE05879E30BAD91D7AB0A9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <CAHk-=whXCf43ieh79fujcF=u3Ow1byRvWp+Lt5+v3vumA+V0yA@mail.gmail.com>
- <BY3PR18MB46124F3F575F9F7D1980E76BAB0C9@BY3PR18MB4612.namprd18.prod.outlook.com>
- <0dafa9d7-9c79-f367-a343-8ad38f7bde07@molgen.mpg.de>
- <9513e74e-c682-d891-a5de-c9a82c5cf9d3@molgen.mpg.de>
- <20220314195735.6ada196d@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-In-Reply-To: <20220314195735.6ada196d@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Jakub,
+Hi Tokunori,
+
+ikegami.t@gmail.com wrote on Thu, 17 Mar 2022 00:54:53 +0900:
+
+> This is a preparation patch for the functional change in preparation to a=
+ change
+> expected to fix the buffered writes on S29GL064N.
+
+This is a preparation patch for the S29GL064N buffer writes fix. There
+is no functional change.
+
+>=20
+> Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check c=
+orrect value")
+> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/mtd/chips/cfi_cmdset_0002.c | 77 ++++++++++++-----------------
+>  1 file changed, 32 insertions(+), 45 deletions(-)
+>=20
+> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_=
+cmdset_0002.c
+> index a761134fd3be..e68ddf0f7fc0 100644
+> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
+> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+> @@ -801,22 +801,12 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd=
+_info *mtd)
+>  	return NULL;
+>  }
+> =20
+> -/*
+> - * Return true if the chip is ready.
+> - *
+> - * Ready is one of: read mode, query mode, erase-suspend-read mode (in a=
+ny
+> - * non-suspended sector) and is indicated by no toggle bits toggling.
+> - *
+> - * Note that anything more complicated than checking if no bits are togg=
+ling
+> - * (including checking DQ5 for an error status) is tricky to get working
+> - * correctly and is therefore not done	(particularly with interleaved ch=
+ips
+> - * as each chip must be checked independently of the others).
+> - */
+> -static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
+> -			       unsigned long addr)
+> +static int __xipram chip_check(struct map_info *map, struct flchip *chip,
+> +			       unsigned long addr, map_word *expected)
+>  {
+>  	struct cfi_private *cfi =3D map->fldrv_priv;
+> -	map_word d, t;
+> +	map_word oldd, curd;
+> +	int ret;
+> =20
+>  	if (cfi_use_status_reg(cfi)) {
+>  		map_word ready =3D CMD(CFI_SR_DRB);
+> @@ -826,17 +816,35 @@ static int __xipram chip_ready(struct map_info *map=
+, struct flchip *chip,
+>  		 */
+>  		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
+>  				 cfi->device_type, NULL);
+> -		d =3D map_read(map, addr);
+> +		curd =3D map_read(map, addr);
+> =20
+> -		return map_word_andequal(map, d, ready, ready);
+> +		return map_word_andequal(map, curd, ready, ready);
+
+A lot of the diff is just a rename. I am not against a rename if you
+feel it's better, but in this order:
+1: prepare the fix
+2: fix
+3: rename/define id's, whatever
+
+>  	}
+> =20
+> -	d =3D map_read(map, addr);
+> -	t =3D map_read(map, addr);
+> +	oldd =3D map_read(map, addr);
+> +	curd =3D map_read(map, addr);
+> +
+> +	ret =3D map_word_equal(map, oldd, curd);
+> =20
+> -	return map_word_equal(map, d, t);
+> +	if (!ret || !expected)
+> +		return ret;
+> +
+> +	return map_word_equal(map, curd, *expected);
+>  }
+> =20
+> +/*
+> + * Return true if the chip is ready.
+> + *
+> + * Ready is one of: read mode, query mode, erase-suspend-read mode (in a=
+ny
+> + * non-suspended sector) and is indicated by no toggle bits toggling.
+> + *
+> + * Note that anything more complicated than checking if no bits are togg=
+ling
+> + * (including checking DQ5 for an error status) is tricky to get working
+> + * correctly and is therefore not done	(particularly with interleaved ch=
+ips
+> + * as each chip must be checked independently of the others).
+> + */
+> +#define chip_ready(map, chip, addr) chip_check(map, chip, addr, NULL)
+
+I don't see the point of such a define. Just get rid of it.
+
+> +
+>  /*
+>   * Return true if the chip is ready and has the correct value.
+>   *
+> @@ -852,32 +860,11 @@ static int __xipram chip_ready(struct map_info *map=
+, struct flchip *chip,
+>   * as each chip must be checked independently of the others).
+>   *
+>   */
+> -static int __xipram chip_good(struct map_info *map, struct flchip *chip,
+> -			      unsigned long addr, map_word expected)
+> -{
+> -	struct cfi_private *cfi =3D map->fldrv_priv;
+> -	map_word oldd, curd;
+> -
+> -	if (cfi_use_status_reg(cfi)) {
+> -		map_word ready =3D CMD(CFI_SR_DRB);
+> -
+> -		/*
+> -		 * For chips that support status register, check device
+> -		 * ready bit
+> -		 */
+> -		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
+> -				 cfi->device_type, NULL);
+> -		curd =3D map_read(map, addr);
+> -
+> -		return map_word_andequal(map, curd, ready, ready);
+> -	}
+> -
+> -	oldd =3D map_read(map, addr);
+> -	curd =3D map_read(map, addr);
+> -
+> -	return	map_word_equal(map, oldd, curd) &&
+> -		map_word_equal(map, curd, expected);
+> -}
+> +#define chip_good(map, chip, addr, expected) \
+> +	({ \
+> +		map_word datum =3D expected; \
+> +		chip_check(map, chip, addr, &datum); \
+> +	})
+
+What is this for? Same here, I don't see the point. Please get rid of
+all these unnecessary helpers which do nothing, besides complicating
+user's life.
+
+>  static int get_chip(struct map_info *map, struct flchip *chip, unsigned =
+long adr, int mode)
+>  {
 
 
-Am 15.03.22 um 03:57 schrieb Jakub Kicinski:
-> On Mon, 14 Mar 2022 16:07:08 +0100 Paul Menzel wrote:
->>> There might be something more wrong with the patch in the subject: The
->>> usability of the ports from a single card (with older firmware?) now
->>> depends on the order the ports are enabled (first port enabled is
->>> working, second port enabled is not working, driver complaining about a
->>> firmware mismatch).
->>>
->>> In the following examples, the driver was not built-in to the kernel but
->>> loaded from the root filesystem instead, so there is no initramfs
->>> related problem here.
->>>
->>> For the records:
->>>
->>> root@ira:~# dmesg|grep bnx2x
->>> [   18.749871] bnx2x 0000:45:00.0: msix capability found
->>> [   18.766534] bnx2x 0000:45:00.0: part number 394D4342-31373735-31314131-473331
->>> [   18.799198] bnx2x 0000:45:00.0: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
->>> [   18.807638] bnx2x 0000:45:00.1: msix capability found
->>> [   18.824509] bnx2x 0000:45:00.1: part number 394D4342-31373735-31314131-473331
->>> [   18.857171] bnx2x 0000:45:00.1: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
->>> [   18.865619] bnx2x 0000:46:00.0: msix capability found
->>> [   18.882636] bnx2x 0000:46:00.0: part number 394D4342-31373735-31314131-473331
->>> [   18.915196] bnx2x 0000:46:00.0: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
->>> [   18.923636] bnx2x 0000:46:00.1: msix capability found
->>> [   18.940505] bnx2x 0000:46:00.1: part number 394D4342-31373735-31314131-473331
->>> [   18.973167] bnx2x 0000:46:00.1: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
->>> [   46.480660] bnx2x 0000:45:00.0 net04: renamed from eth4
->>> [   46.494677] bnx2x 0000:45:00.1 net05: renamed from eth5
->>> [   46.508544] bnx2x 0000:46:00.0 net06: renamed from eth6
->>> [   46.524641] bnx2x 0000:46:00.1 net07: renamed from eth7
->>> root@ira:~# ls /lib/firmware/bnx2x/
->>> bnx2x-e1-6.0.34.0.fw   bnx2x-e1-7.13.1.0.fw   bnx2x-e1-7.8.2.0.fw
->>> bnx2x-e1h-7.12.30.0.fw  bnx2x-e1h-7.8.19.0.fw  bnx2x-e2-7.10.51.0.fw  bnx2x-e2-7.8.17.0.fw
->>> bnx2x-e1-6.2.5.0.fw    bnx2x-e1-7.13.11.0.fw  bnx2x-e1h-6.0.34.0.fw
->>> bnx2x-e1h-7.13.1.0.fw   bnx2x-e1h-7.8.2.0.fw   bnx2x-e2-7.12.30.0.fw  bnx2x-e2-7.8.19.0.fw
->>> bnx2x-e1-6.2.9.0.fw    bnx2x-e1-7.13.15.0.fw  bnx2x-e1h-6.2.5.0.fw
->>> bnx2x-e1h-7.13.11.0.fw  bnx2x-e2-6.0.34.0.fw   bnx2x-e2-7.13.1.0.fw   bnx2x-e2-7.8.2.0.fw
->>> bnx2x-e1-7.0.20.0.fw   bnx2x-e1-7.13.21.0.fw  bnx2x-e1h-6.2.9.0.fw
->>> bnx2x-e1h-7.13.15.0.fw  bnx2x-e2-6.2.5.0.fw    bnx2x-e2-7.13.11.0.fw
->>> bnx2x-e1-7.0.23.0.fw   bnx2x-e1-7.2.16.0.fw   bnx2x-e1h-7.0.20.0.fw
->>> bnx2x-e1h-7.13.21.0.fw  bnx2x-e2-6.2.9.0.fw    bnx2x-e2-7.13.15.0.fw
->>> bnx2x-e1-7.0.29.0.fw   bnx2x-e1-7.2.51.0.fw   bnx2x-e1h-7.0.23.0.fw
->>> bnx2x-e1h-7.2.16.0.fw   bnx2x-e2-7.0.20.0.fw   bnx2x-e2-7.13.21.0.fw
->>> bnx2x-e1-7.10.51.0.fw  bnx2x-e1-7.8.17.0.fw   bnx2x-e1h-7.0.29.0.fw
->>> bnx2x-e1h-7.2.51.0.fw   bnx2x-e2-7.0.23.0.fw   bnx2x-e2-7.2.16.0.fw
->>> bnx2x-e1-7.12.30.0.fw  bnx2x-e1-7.8.19.0.fw   bnx2x-e1h-7.10.51.0.fw
->>> bnx2x-e1h-7.8.17.0.fw   bnx2x-e2-7.0.29.0.fw   bnx2x-e2-7.2.51.0.fw
->>>
->>> Now with v5.10.95, the first kernel of the series which includes
->>> fdcfabd0952d ("bnx2x: Utilize firmware 7.13.21.0") and later:
->>>
->>> root@ira:~# dmesg -w &
->>> [...]
->>> root@ira:~# ip link set net04 up
->>> [   88.504536] bnx2x 0000:45:00.0 net04: using MSI-X  IRQs: sp 47  fp[0] 49 ... fp[7] 56
->>> root@ira:~# ip link set net05 up
->>> [   90.825820] bnx2x: [bnx2x_compare_fw_ver:2380(net05)]bnx2x with FW 120d07 was already loaded which mismatches my 150d07 FW. Aborting
->>> RTNETLINK answers: Device or resource busy
->>> root@ira:~# ip link set net04 down
->>> root@ira:~# ip link set net05 down
->>> root@ira:~# ip link set net05 up
->>> [  114.462448] bnx2x 0000:45:00.1 net05: using MSI-X  IRQs: sp 58  fp[0] 60 ... fp[7] 67
->>> root@ira:~# ip link set net04 up
->>> [  117.247763] bnx2x: [bnx2x_compare_fw_ver:2380(net04)]bnx2x with FW 120d07 was already loaded which mismatches my 150d07 FW. Aborting
->>> RTNETLINK answers: Device or resource busy
->>>
->>> With v5.10.94, both ports work fine:
->>>
->>> root@ira:~# dmesg -w &
->>> [...]
->>> root@ira:~# ip link set net04 up
->>> [  133.126647] bnx2x 0000:45:00.0 net04: using MSI-X  IRQs: sp 47  fp[0] 49 ... fp[7] 56
->>> root@ira:~# ip link set net05 up
->>> [  136.215169] bnx2x 0000:45:00.1 net05: using MSI-X  IRQs: sp 58  fp[0] 60 ... fp[7] 67
->>
->> One additional note, that it’s totally unclear to us, where FW version
->> 120d07 in the error message comes from. It maps to 7.13.18.0, which is
->> nowhere to be found and too new to be on the cards EEPROM, which should
->> be from 2013 or so.
-> 
-> Hrm, any chance an out-of-tree driver or another OS loaded it?
-
-No, no such chance. The system firmware was not touched in the last five 
-years, and there is no other OS.
-
-> Does the dmesg indicate that the host loaded the FW at all?
-
-Unfortunately, no such Linux log messages exist (in the code).
-
-> Looks like upstream went from .15 to .21, .18 was never in the picture.
-
-Yes, that is the strange thing. Is there any chance, that the `.18` is 
-in the firmware file somehow, and was forgotten to be updated to `.21`?
-
-```
-$ md5sum /lib/firmware/bnx2x/*{15,21}*
-4137c813f3ff937f01fddf13c309d972  /lib/firmware/bnx2x/bnx2x-e1-7.13.15.0.fw
-075539e1072908a0c86ba352c1130f60  /lib/firmware/bnx2x/bnx2x-e1h-7.13.15.0.fw
-e59925dedf7ed95679e629dfeeaf5803  /lib/firmware/bnx2x/bnx2x-e2-7.13.15.0.fw
-a470a0d77930ef72ac7b725a5ff447fe  /lib/firmware/bnx2x/bnx2x-e1-7.13.21.0.fw
-f02012b118664c0579ab58757f276982  /lib/firmware/bnx2x/bnx2x-e1h-7.13.21.0.fw
-47667a7bf156d1e531fde42d800e4a66  /lib/firmware/bnx2x/bnx2x-e2-7.13.21.0.fw
-```
-
-> Also, will the revert work for you?
-
-I tested reverting the three patches you also listed on top of 5.10.103, 
-and that restored the working behavior. Manish’s patch *[RFC net] bnx2x: 
-fix built-in kernel driver load failure* also fixes the issue.
-
-
-Kind regards,
-
-Paul
+Thanks,
+Miqu=C3=A8l
