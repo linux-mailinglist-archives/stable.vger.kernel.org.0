@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6304DB9E8
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 22:09:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B5E4DBA12
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 22:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243953AbiCPVKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 17:10:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58156 "EHLO
+        id S240067AbiCPVa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 17:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230479AbiCPVKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 17:10:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC0A0C05;
-        Wed, 16 Mar 2022 14:09:08 -0700 (PDT)
+        with ESMTP id S1354479AbiCPVaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 17:30:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDF72654F;
+        Wed, 16 Mar 2022 14:29:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42FB4B81D66;
-        Wed, 16 Mar 2022 21:09:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 917E4C340EC;
-        Wed, 16 Mar 2022 21:09:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CBAF61567;
+        Wed, 16 Mar 2022 21:29:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F422EC340F3;
+        Wed, 16 Mar 2022 21:29:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1647464946;
-        bh=oWK3VcNvpXGTNhy85nGsEuBb0xLj+hGobYNogj8xemA=;
+        s=korg; t=1647466147;
+        bh=dI8ATJ23yJ3aOXedIMHJSO6iU/obXw2eqnoCJdxikjo=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=u7h37YQ6uAvKEsqQZ/qS24pnWVadk3WbVxPK1DDYOhSGSuTASwzPaNBR/gUruokiX
-         rGftaV3gnwWPlFCmHHKM2zZ9tWQcC+cAOBryIHekRu2sTKBWaeIqbN5YS6QGRqtasn
-         NphHE2JPraITErtwDaRJOE6rN9QbiIl7banPPseI=
-Date:   Wed, 16 Mar 2022 14:09:04 -0700
+        b=Wr5GCtT9e8hdgK53WPBSMowNZyqav5DZOjwCi+CegvpI8Ibc/s9bmJivRBw4pYcrJ
+         9AFhbhCy9kQGddYprYtD7YUYtlBLeQZnwaaapkymeHZ7MT2Vya1P9sC82KsjYBLaEY
+         61JkNVEMhl+Kr6DtHii92ToLM/hJPEy5CAkiXBSk=
+Date:   Wed, 16 Mar 2022 14:29:06 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Dong Aisheng <dongas86@gmail.com>
-Cc:     Dong Aisheng <aisheng.dong@nxp.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        shawnguo@kernel.org, linux-imx@nxp.com, m.szyprowski@samsung.com,
-        lecopzer.chen@mediatek.com, david@redhat.com, vbabka@suse.cz,
-        stable@vger.kernel.org, shijie.qin@nxp.com
-Subject: Re: [PATCH v3 1/2] mm: cma: fix allocation may fail sometimes
-Message-Id: <20220316140904.513fe0e8180b4e3fcad24e3b@linux-foundation.org>
-In-Reply-To: <CAA+hA=Ss=YBt-3f=r1BL1NuO7FK56kTf31zWzNjMBkAKQE41Rg@mail.gmail.com>
-References: <20220315144521.3810298-1-aisheng.dong@nxp.com>
-        <20220315144521.3810298-2-aisheng.dong@nxp.com>
-        <20220315155837.2dcef6eb226ad74e37ca31ca@linux-foundation.org>
-        <CAA+hA=Ss=YBt-3f=r1BL1NuO7FK56kTf31zWzNjMBkAKQE41Rg@mail.gmail.com>
+To:     Charan Teja Kalla <quic_charante@quicinc.com>
+Cc:     Minchan Kim <minchan@kernel.org>, <surenb@google.com>,
+        <vbabka@suse.cz>, <rientjes@google.com>, <sfr@canb.auug.org.au>,
+        <edgararriaga@google.com>, <nadav.amit@gmail.com>,
+        <mhocko@suse.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>,
+        "# 5 . 10+" <stable@vger.kernel.org>
+Subject: Re: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to
+ process_madvise
+Message-Id: <20220316142906.e41e39d2315e35ef43f4aad6@linux-foundation.org>
+In-Reply-To: <5428f192-1537-fa03-8e9c-4a8322772546@quicinc.com>
+References: <cover.1647008754.git.quic_charante@quicinc.com>
+        <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
+        <YjEaFBWterxc3Nzf@google.com>
+        <20220315164807.7a9cf1694ee2db8709a8597c@linux-foundation.org>
+        <YjFAzuLKWw5eadtf@google.com>
+        <5428f192-1537-fa03-8e9c-4a8322772546@quicinc.com>
 X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -57,46 +61,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 16 Mar 2022 11:41:37 +0800 Dong Aisheng <dongas86@gmail.com> wrote:
+On Wed, 16 Mar 2022 19:49:38 +0530 Charan Teja Kalla <quic_charante@quicinc.com> wrote:
 
-> On Wed, Mar 16, 2022 at 6:58 AM Andrew Morton <akpm@linux-foundation.org> wrote:
-> >
-> > On Tue, 15 Mar 2022 22:45:20 +0800 Dong Aisheng <aisheng.dong@nxp.com> wrote:
-> >
-> > > --- a/mm/cma.c
-> > > +++ b/mm/cma.c
-> > >
-> > > ...
-> > >
-> > > @@ -457,6 +458,16 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
-> > >                               offset);
-> > >               if (bitmap_no >= bitmap_maxno) {
-> > >                       spin_unlock_irq(&cma->lock);
-> > > +                     pr_debug("%s(): alloc fail, retry loop %d\n", __func__, loop++);
-> > > +                     /*
-> > > +                      * rescan as others may finish the memory migration
-> > > +                      * and quit if no available CMA memory found finally
-> > > +                      */
-> > > +                     if (start) {
-> > > +                             schedule();
-> > > +                             start = 0;
-> > > +                             continue;
-> > > +                     }
-> > >                       break;
-> >
-> > The schedule() is problematic. For a start, we'd normally use
-> > cond_resched() here, so we avoid calling the more expensive schedule()
-> > if we know it won't perform any action.
-> >
-> > But cond_resched() is problematic if this thread has realtime
-> > scheduling policy and the process we're waiting on does not.  One way
-> > to address that is to use an unconditional msleep(1), but that's still
-> > just a hack.
-> >
+> > IMO, it's worth to note in man page.
+> > 
 > 
-> I think we can simply drop schedule() here during the second round of retry
-> as the estimated delay may not be really needed.
+> Or the current patch for just ENOMEM is sufficient here and we just have
+> to update the man page?
 
-That will simply cause a tight loop, so I'm obviously not understanding
-the proposal.
+I think the "On success, process_madvise() returns the number of bytes
+advised" behaviour sounds useful.  But madvise() doesn't do that.
 
+RETURN VALUE
+       On  success, madvise() returns zero.  On error, it returns -1 and errno
+       is set to indicate the error.
+
+So why is it desirable in the case of process_madvise()?
+
+
+
+And why was process_madvise() designed this way?   Or was it
+always simply an error in the manpage?
