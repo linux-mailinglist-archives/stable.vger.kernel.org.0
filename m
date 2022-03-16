@@ -2,95 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 554884DB59B
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 17:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E414C4DB59E
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 17:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347986AbiCPQIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 12:08:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36030 "EHLO
+        id S1344785AbiCPQI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 12:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344350AbiCPQIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 12:08:13 -0400
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7F1866F81
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 09:06:58 -0700 (PDT)
-Received: by mail-yb1-xb31.google.com with SMTP id v35so5225144ybi.10
-        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 09:06:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=a/fku2jY7FrEwf8BvIHJEVI6TmZJW1EoFquRvwAEEBI=;
-        b=kQniIhahzChESr2Lkq/u/YeQvDTcb3hjU5hkJFuigYB+5zfYmJX5M9Tw4PtLrkfbXH
-         7+GCgpNn3+ixSdB3ecVi3zgZRseJisvsaFJ3iuRqbRkXROeyDT51XAexq6wnj/EPVBu/
-         0mdDQ5crj5nu/soRPXkA54VijpRt8F3QDC/AfnNU9Y1cyCJpA2oBp96Cu0xgJ9mO00B/
-         GB1sEzeRPSBteVmHmUsxF0/CPar3Ftjiyh4Rln/Am2SPBSWA7tTnAd1xDTDQvwqkEQmF
-         7Hd6Zs8FpAQQ8xwcVwnZAJ5oInckAu0b6FPLTZOb4Ij/5uH0D4ncJF762lBIl6g0z/lw
-         94pg==
+        with ESMTP id S1343865AbiCPQI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 12:08:58 -0400
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C68E6006F;
+        Wed, 16 Mar 2022 09:07:43 -0700 (PDT)
+Received: by mail-qk1-f175.google.com with SMTP id g8so2253476qke.2;
+        Wed, 16 Mar 2022 09:07:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=a/fku2jY7FrEwf8BvIHJEVI6TmZJW1EoFquRvwAEEBI=;
-        b=QOSNQUaq7Ux4AwqU3fU2djUgmEtudyKusGl4c2h1bX3nseNuAqhDQHjUKP7B/vg+32
-         R5vlYWVCaEfZth5UwiokBVctbvpKBAqgtMrcY38RJqeieyt2A0cDkggPB5PN21peGyfb
-         GoCvNedAI43c6zYqstotk7ccRoXKYLuyXvcxgwaexs/3rMPUipnuRhF9TFan96j1CIsz
-         az03QF8ZaNMT+112Qgx553b+tWMrcoVrf7lxf+fxfAznc4dTl1fUDkOOB1lAzSwyTNZm
-         s674ZEodr5zW/T0gZ0JDlK8UgRdOpGsCJnJJCVvcCUsiDEIf1y+6BtzQjKPjTGr+CK99
-         T59g==
-X-Gm-Message-State: AOAM532GXHh5DerYJw3vREz9XzHMKv7LO9MWPMXXROm0xF6ZMYyEud96
-        vqFx1NYQpRIzqYB905esbIpyRh76AvQkVAsND8MlTQ==
-X-Google-Smtp-Source: ABdhPJzpNehbsRHEj6Slc+4ZIcLJRi1k3XLsbjdKqHuiXH7nJyB8JuisPsnUq/kUqSlZbPJMHAytZV8AePC3mbRa4tM=
-X-Received: by 2002:a5b:dc5:0:b0:624:f16d:7069 with SMTP id
- t5-20020a5b0dc5000000b00624f16d7069mr553635ybr.295.1647446817892; Wed, 16 Mar
- 2022 09:06:57 -0700 (PDT)
+        bh=3kQi/ATz8vXUZ8yEbTxILdWl+W/EazBouregaIRmudw=;
+        b=zH6HSMbLokaaI4W5CrJVgrJsrUGiuwlM/WIS1wLB2JFZUCc337J+nApRrsMmGRXnMh
+         s57C4FO+9dAyP3WA0vYUt0DOwvU5wBgWLDPcM/EElEgYzAQnFl7jYOm3XuJR0HIJBuvS
+         AgSZTLmHqNtWvdqCbT8N1tQ9JE66ftpl/WvqjbRGkoqHUeMBnxj0lgXCmJo8aSfBrwed
+         9Bnumu3AdKQc2wV91rHL1NJoVzGNJlIC78g82Mg7hAVNPftewaixOeyWyYdrgwkrvVtz
+         mCrg8/6SYJ/Wo99/f6E4paNOF6PeOYrkNKnXwyZ8h1VVPt4rqQ3wT1xfeZp14MZPAcV3
+         x4cA==
+X-Gm-Message-State: AOAM530xfhnh4U5Lwg6dOJO+V2Nbqx3lbAXJfWTAlxklb+DIm4X1dyW1
+        etMJL8+8hoHbaa8LJe+AU+N7QUtflwqfrw==
+X-Google-Smtp-Source: ABdhPJxzJ5J1YB0KYzMUusjiJwklstERWjnbu4Y+blpzMppdSnLNkCUp1Hf3QxbYf4OA7bUL080HRg==
+X-Received: by 2002:a37:68d0:0:b0:67b:3c3c:eeaa with SMTP id d199-20020a3768d0000000b0067b3c3ceeaamr389583qkc.616.1647446862155;
+        Wed, 16 Mar 2022 09:07:42 -0700 (PDT)
+Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com. [209.85.128.176])
+        by smtp.gmail.com with ESMTPSA id s64-20020a375e43000000b0067b0e68092csm1106455qkb.91.2022.03.16.09.07.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 16 Mar 2022 09:07:42 -0700 (PDT)
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-2db2add4516so29105987b3.1;
+        Wed, 16 Mar 2022 09:07:40 -0700 (PDT)
+X-Received: by 2002:a81:618b:0:b0:2db:d952:8a39 with SMTP id
+ v133-20020a81618b000000b002dbd9528a39mr936600ywb.132.1647446859767; Wed, 16
+ Mar 2022 09:07:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220316141636.248324-1-sashal@kernel.org> <20220316141636.248324-10-sashal@kernel.org>
-In-Reply-To: <20220316141636.248324-10-sashal@kernel.org>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Wed, 16 Mar 2022 17:06:47 +0100
-Message-ID: <CACRpkdZU_wv74MeRiO_bMV03Gwp=8LamsPOGMEpY8Rm-X2Aq8w@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.10 10/12] gpio: Revert regression in sysfs-gpio (gpiolib.c)
+References: <20220316141354.247750-1-sashal@kernel.org> <20220316141354.247750-12-sashal@kernel.org>
+In-Reply-To: <20220316141354.247750-12-sashal@kernel.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 16 Mar 2022 17:07:28 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdVtGb6LCTbDKo9vn=1MmP+RZJTe2=VNTtrNsPa-=1Q6zA@mail.gmail.com>
+Message-ID: <CAMuHMdVtGb6LCTbDKo9vn=1MmP+RZJTe2=VNTtrNsPa-=1Q6zA@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.16 12/13] spi: Fix invalid sgs value
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>, linux-gpio@vger.kernel.org
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 16, 2022 at 3:17 PM Sasha Levin <sashal@kernel.org> wrote:
+Hi Sasha,
 
-> From: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
+On Wed, Mar 16, 2022 at 3:15 PM Sasha Levin <sashal@kernel.org> wrote:
+> From: Biju Das <biju.das.jz@bp.renesas.com>
 >
-> [ Upstream commit fc328a7d1fcce263db0b046917a66f3aa6e68719 ]
+> [ Upstream commit 1a4e53d2fc4f68aa654ad96d13ad042e1a8e8a7d ]
+
+This commit is not 100% correct, cfr.
+https://lore.kernel.org/lkml/CAHk-=wiZnS6n1ROQg3FHd=bcVTHi-sKutKT+toiViQEH47ZACg@mail.gmail.com
+Please postpone backporting until the issue has been resolved.
+
 >
-> Some GPIO lines have stopped working after the patch
-> commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+> max_seg_size is unsigned int and it can have a value up to 2^32
+> (for eg:-RZ_DMAC driver sets dma_set_max_seg_size as U32_MAX)
+> When this value is used in min_t() as an integer type, it becomes
+> -1 and the value of sgs becomes 0.
 >
-> And this has supposedly been fixed in the following patches
-> commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
-> commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
+> Fix this issue by replacing the 'int' data type with 'unsigned int'
+> in min_t().
 >
-> But an erratic behavior where some GPIO lines work while others do not work
-> has been introduced.
->
-> This patch reverts those changes so that the sysfs-gpio interface works
-> properly again.
->
-> Signed-off-by: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
-> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+> Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Link: https://lore.kernel.org/r/20220307184843.9994-1-biju.das.jz@bp.renesas.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/spi/spi.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+> index 8ba87b7f8f1a..ed4e6983eda0 100644
+> --- a/drivers/spi/spi.c
+> +++ b/drivers/spi/spi.c
+> @@ -1021,10 +1021,10 @@ int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
+>         int i, ret;
+>
+>         if (vmalloced_buf || kmap_buf) {
+> -               desc_len = min_t(int, max_seg_size, PAGE_SIZE);
+> +               desc_len = min_t(unsigned int, max_seg_size, PAGE_SIZE);
+>                 sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
+>         } else if (virt_addr_valid(buf)) {
+> -               desc_len = min_t(int, max_seg_size, ctlr->max_dma_len);
+> +               desc_len = min_t(unsigned int, max_seg_size, ctlr->max_dma_len);
+>                 sgs = DIV_ROUND_UP(len, desc_len);
+>         } else {
+>                 return -EINVAL;
 
+Gr{oetje,eeting}s,
 
-I think you should not apply this for stable, because we will revert the revert.
+                        Geert
 
-Yours,
-Linus Walleij
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
