@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C4E4DB2EC
-	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:20:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DDDA4DB2E4
+	for <lists+stable@lfdr.de>; Wed, 16 Mar 2022 15:20:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356661AbiCPOVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Mar 2022 10:21:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44240 "EHLO
+        id S1348404AbiCPOV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Mar 2022 10:21:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356672AbiCPOUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:20:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9743F286DC;
-        Wed, 16 Mar 2022 07:18:40 -0700 (PDT)
+        with ESMTP id S1356705AbiCPOU4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Mar 2022 10:20:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10BE25C7B;
+        Wed, 16 Mar 2022 07:18:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BECDA612E6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53570B81B7C;
+        Wed, 16 Mar 2022 14:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 055E7C340F1;
         Wed, 16 Mar 2022 14:18:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFCBCC340E9;
-        Wed, 16 Mar 2022 14:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647440320;
-        bh=YBW9ISviAOPaKNtXuRYKHpW5Tf299q3Fe1E8jrVtelQ=;
+        s=k20201202; t=1647440324;
+        bh=fZ0NMhp8ITe263nvjodv6Z57zmXNL/LGHoSpLaRSkNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCWQU5Qwa6t0Vff/GJBMIyeZRFPACdVH3v7M0J3Q+nAsa5J2WjoNhSwwqviRiHlGB
-         DcasFEPtSpXfYew9KA9CvO0/EW/LL7QmHtRiAvQfvGtr2sPGsPA5O+IVL2GnHjlzTX
-         WF8e9tRkzfOwzlG9hNS2BZHgD66awqML4aY+MUDJL+uV6TSQrEk+TUCqy7KkCH5uti
-         KYnsWbj8M0ghSXY0x9SozAwcljGpuq/IkflMFXazMcwjsur45ukR3bK+zXgbLNIwyT
-         jCGziViLVdj/0KBUhrD0YMQqBD3FaytbrlywzLfXUebjmKxpRlSaDpB88nyYM85x10
-         6ivutPCR4cnnQ==
+        b=TfaQWrQAzvnP7II+ybcpwpdOJutI2ULyOeWurSbWd4/nYFHms1n1vdXDc+T4duktZ
+         vu+d6fNKIhWZmc9uItdBx56bH1LeIl32oYXj1ZOBcSJezdaW4PNfdAGcTsjxjdbv6+
+         kBn9uEw+BISmGEGms+K1Q6Zb4oaVsnFU0+h6kwBkd/2XftsSkx4roovuEDsZJQ7jlm
+         OHuswtNpB9UVM9bb9/8G+++xqXBCEPiMgFwPn6MPUAaYdqpThimHNbHb4RsqMsZTDD
+         QF4GIX2jQeO0oVoTA+ZLjeRpeX93JeCFgqxSZHJ6Swm64mgbBVXLcQx6K2XAIXZMBi
+         7dl1/mBx0iONw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        tanghui20@huawei.com, christophe.jaillet@wanadoo.fr,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 4/6] ethernet: sun: Free the coherent when failing in probing
-Date:   Wed, 16 Mar 2022 10:18:15 -0400
-Message-Id: <20220316141817.248621-4-sashal@kernel.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 5/6] spi: Fix invalid sgs value
+Date:   Wed, 16 Mar 2022 10:18:16 -0400
+Message-Id: <20220316141817.248621-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220316141817.248621-1-sashal@kernel.org>
 References: <20220316141817.248621-1-sashal@kernel.org>
@@ -58,45 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit bb77bd31c281f70ec77c9c4f584950a779e05cf8 ]
+[ Upstream commit 1a4e53d2fc4f68aa654ad96d13ad042e1a8e8a7d ]
 
-When the driver fails to register net device, it should free the DMA
-region first, and then do other cleanup.
+max_seg_size is unsigned int and it can have a value up to 2^32
+(for eg:-RZ_DMAC driver sets dma_set_max_seg_size as U32_MAX)
+When this value is used in min_t() as an integer type, it becomes
+-1 and the value of sgs becomes 0.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this issue by replacing the 'int' data type with 'unsigned int'
+in min_t().
+
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220307184843.9994-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/sunhme.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/spi/spi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sun/sunhme.c b/drivers/net/ethernet/sun/sunhme.c
-index 06da2f59fcbf..882908e74cc9 100644
---- a/drivers/net/ethernet/sun/sunhme.c
-+++ b/drivers/net/ethernet/sun/sunhme.c
-@@ -3164,7 +3164,7 @@ static int happy_meal_pci_probe(struct pci_dev *pdev,
- 	if (err) {
- 		printk(KERN_ERR "happymeal(PCI): Cannot register net device, "
- 		       "aborting.\n");
--		goto err_out_iounmap;
-+		goto err_out_free_coherent;
- 	}
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 49f592e433a8..518c8e0eef7f 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -779,10 +779,10 @@ int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
+ 	int i, ret;
  
- 	pci_set_drvdata(pdev, hp);
-@@ -3197,6 +3197,10 @@ static int happy_meal_pci_probe(struct pci_dev *pdev,
- 
- 	return 0;
- 
-+err_out_free_coherent:
-+	dma_free_coherent(hp->dma_dev, PAGE_SIZE,
-+			  hp->happy_block, hp->hblock_dvma);
-+
- err_out_iounmap:
- 	iounmap(hp->gregs);
- 
+ 	if (vmalloced_buf || kmap_buf) {
+-		desc_len = min_t(int, max_seg_size, PAGE_SIZE);
++		desc_len = min_t(unsigned int, max_seg_size, PAGE_SIZE);
+ 		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
+ 	} else if (virt_addr_valid(buf)) {
+-		desc_len = min_t(int, max_seg_size, ctlr->max_dma_len);
++		desc_len = min_t(unsigned int, max_seg_size, ctlr->max_dma_len);
+ 		sgs = DIV_ROUND_UP(len, desc_len);
+ 	} else {
+ 		return -EINVAL;
 -- 
 2.34.1
 
