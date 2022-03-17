@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B484DC697
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A5CC4DC68C
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234140AbiCQMzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:55:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39860 "EHLO
+        id S234097AbiCQMzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234920AbiCQMyD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:54:03 -0400
+        with ESMTP id S234149AbiCQMwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:52:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E39F1F1619;
-        Thu, 17 Mar 2022 05:52:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C9A1F1D11;
+        Thu, 17 Mar 2022 05:50:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38413614FF;
-        Thu, 17 Mar 2022 12:52:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BAA3C340E9;
-        Thu, 17 Mar 2022 12:52:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99783614AF;
+        Thu, 17 Mar 2022 12:50:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A41B0C340ED;
+        Thu, 17 Mar 2022 12:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521563;
-        bh=zRZO4C73CEe0cGTlpqWmGRS66SbFnS+B8DijLjV/NHc=;
+        s=korg; t=1647521413;
+        bh=Q7TxT+Qahmke/4FB6D+uOUHQd94SguoBT2wBn7Wh2p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aScqgrCZMgPHqgH8Mb9HLjnKlFQBURQcSapEiM04pjsA/ofi4nDa4LzikT9U3OcJQ
-         mlFuxiZVXaTxQ1ftL4CeePRbMJHCvyamneqAs1XOyozLdBRYrHofpjlTX+QrLjmx9I
-         OrTijIXtSUUvDkFyvsgd3hRq7W1oFv5dbnQnETPw=
+        b=QHO0693l4ZBE8yX4v5vFuV9HWVeePeYhwXHmP+uhiYlJz15RHbBP2jleC+f7RIr4f
+         ym2uFCMqw7ySNRRuCOBnwmSXXeDF0WuUDqohnMLAiuwtvYdLYJRW27X/lk9BsME9U1
+         zgUcHmtTddAh1zR/S6zLSckya+MR2ss8frFqnYEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 12/28] mac80211: refuse aggregations sessions before authorized
-Date:   Thu, 17 Mar 2022 13:46:03 +0100
-Message-Id: <20220317124527.118540315@linuxfoundation.org>
+        Pavel Machek <pavel@denx.de>, James Morse <james.morse@arm.com>
+Subject: [PATCH 5.10 23/23] arm64: kvm: Fix copy-and-paste error in bhb templates for v5.10 stable
+Date:   Thu, 17 Mar 2022 13:46:04 +0100
+Message-Id: <20220317124526.627536148@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
-References: <20220317124526.768423926@linuxfoundation.org>
+In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
+References: <20220317124525.955110315@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit a6bce78262f5dd4b50510f0aa47f3995f7b185f3 ]
+KVM's infrastructure for spectre mitigations in the vectors in v5.10 and
+earlier is different, it uses templates which are used to build a set of
+vectors at runtime.
 
-If an MFP station isn't authorized, the receiver will (or
-at least should) drop the action frame since it's a robust
-management frame, but if we're not authorized we haven't
-installed keys yet. Refuse attempts to start a session as
-they'd just time out.
+There are two copy-and-paste errors in the templates: __spectre_bhb_loop_k24
+should loop 24 times and __spectre_bhb_loop_k32 32.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220203201528.ff4d5679dce9.I34bb1f2bc341e161af2d6faf74f91b332ba11285@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix these.
+
+Reported-by: Pavel Machek <pavel@denx.de>
+Link: https://lore.kernel.org/all/20220310234858.GB16308@amd/
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/agg-tx.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/arm64/kvm/hyp/smccc_wa.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
-index 74a878f213d3..1deb3d874a4b 100644
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -9,7 +9,7 @@
-  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
-  * Copyright 2007-2010, Intel Corporation
-  * Copyright(c) 2015-2017 Intel Deutschland GmbH
-- * Copyright (C) 2018 - 2021 Intel Corporation
-+ * Copyright (C) 2018 - 2022 Intel Corporation
-  */
- 
- #include <linux/ieee80211.h>
-@@ -626,6 +626,14 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
- 		return -EINVAL;
- 	}
- 
-+	if (test_sta_flag(sta, WLAN_STA_MFP) &&
-+	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {
-+		ht_dbg(sdata,
-+		       "MFP STA not authorized - deny BA session request %pM tid %d\n",
-+		       sta->sta.addr, tid);
-+		return -EINVAL;
-+	}
-+
- 	/*
- 	 * 802.11n-2009 11.5.1.1: If the initiating STA is an HT STA, is a
- 	 * member of an IBSS, and has no other existing Block Ack agreement
--- 
-2.34.1
-
+--- a/arch/arm64/kvm/hyp/smccc_wa.S
++++ b/arch/arm64/kvm/hyp/smccc_wa.S
+@@ -68,7 +68,7 @@ SYM_DATA_START(__spectre_bhb_loop_k24)
+ 	esb
+ 	sub	sp, sp, #(8 * 2)
+ 	stp	x0, x1, [sp, #(8 * 0)]
+-	mov	x0, #8
++	mov	x0, #24
+ 2:	b	. + 4
+ 	subs	x0, x0, #1
+ 	b.ne	2b
+@@ -85,7 +85,7 @@ SYM_DATA_START(__spectre_bhb_loop_k32)
+ 	esb
+ 	sub	sp, sp, #(8 * 2)
+ 	stp	x0, x1, [sp, #(8 * 0)]
+-	mov	x0, #8
++	mov	x0, #32
+ 2:	b	. + 4
+ 	subs	x0, x0, #1
+ 	b.ne	2b
 
 
