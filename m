@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ADA24DC633
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A36DB4DC637
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233825AbiCQMtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:49:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37794 "EHLO
+        id S233538AbiCQMtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:49:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233831AbiCQMsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:48:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609AB1F160C;
-        Thu, 17 Mar 2022 05:47:33 -0700 (PDT)
+        with ESMTP id S233806AbiCQMs6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:48:58 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0E51EE8CC;
+        Thu, 17 Mar 2022 05:47:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97423B81E8F;
-        Thu, 17 Mar 2022 12:47:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3E23C340E9;
-        Thu, 17 Mar 2022 12:47:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9B57FCE233E;
+        Thu, 17 Mar 2022 12:47:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66AE2C340E9;
+        Thu, 17 Mar 2022 12:47:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521251;
-        bh=xQ/QPoHuSTOEaT/zwWGL/Im2bTgaHT33q9j06Qr2CWQ=;
+        s=korg; t=1647521254;
+        bh=q7NDhv+Pmke9KxIWmycyovhu3ewHKRglnlkG+h0isi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBSNfFZ7R/CIFacunqyw8SKgvJjybhfE7K/N66fV3cThClvSRaeuPfDHhoeiduIaY
-         eMHIzpnxO3KjOQQoRXTAhfcw3WJPxrdTM8LzKTy3/U9JMgPkJwcgbfDbGIrq35ZrUa
-         Jqnf6FjBTiUgYXa/7NWkrnZUpYfXb8rwiWevs45M=
+        b=n4Nzgxuu1O0NuBZ1Wi6vXpUozUzqTydxKLw5qodKoPtX0OB1P4MwkLAlvL5gSkUD1
+         +CfmFKiyjWeg9kJV0ah0iS8wDYNyu+DvSQpdddI82YBc156Km04+QaU1F97aIVM3nF
+         k332+BPvY0mxa4HgoaeKT64+1uJgow2iaUseR+mU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
+        stable@vger.kernel.org, Yan Yan <evitayan@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/43] arm64: Use the clearbhb instruction in mitigations
-Date:   Thu, 17 Mar 2022 13:45:35 +0100
-Message-Id: <20220317124528.347435363@linuxfoundation.org>
+Subject: [PATCH 5.4 25/43] xfrm: Check if_id in xfrm_migrate
+Date:   Thu, 17 Mar 2022 13:45:36 +0100
+Message-Id: <20220317124528.374694054@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220317124527.672236844@linuxfoundation.org>
 References: <20220317124527.672236844@linuxfoundation.org>
@@ -56,241 +54,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Yan Yan <evitayan@google.com>
 
-commit 228a26b912287934789023b4132ba76065d9491c upstream.
+[ Upstream commit c1aca3080e382886e2e58e809787441984a2f89b ]
 
-Future CPUs may implement a clearbhb instruction that is sufficient
-to mitigate SpectreBHB. CPUs that implement this instruction, but
-not CSV2.3 must be affected by Spectre-BHB.
+This patch enables distinguishing SAs and SPs based on if_id during
+the xfrm_migrate flow. This ensures support for xfrm interfaces
+throughout the SA/SP lifecycle.
 
-Add support to use this instruction as the BHB mitigation on CPUs
-that support it. The instruction is in the hint space, so it will
-be treated by a NOP as older CPUs.
+When there are multiple existing SPs with the same direction,
+the same xfrm_selector and different endpoint addresses,
+xfrm_migrate might fail with ENODATA.
 
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-[ modified for stable: Use a KVM vector template instead of alternatives,
-  removed bitmap of mitigations ]
-Signed-off-by: James Morse <james.morse@arm.com>
+Specifically, the code path for performing xfrm_migrate is:
+  Stage 1: find policy to migrate with
+    xfrm_migrate_policy_find(sel, dir, type, net)
+  Stage 2: find and update state(s) with
+    xfrm_migrate_state_find(mp, net)
+  Stage 3: update endpoint address(es) of template(s) with
+    xfrm_policy_migrate(pol, m, num_migrate)
+
+Currently "Stage 1" always returns the first xfrm_policy that
+matches, and "Stage 3" looks for the xfrm_tmpl that matches the
+old endpoint address. Thus if there are multiple xfrm_policy
+with same selector, direction, type and net, "Stage 1" might
+rertun a wrong xfrm_policy and "Stage 3" will fail with ENODATA
+because it cannot find a xfrm_tmpl with the matching endpoint
+address.
+
+The fix is to allow userspace to pass an if_id and add if_id
+to the matching rule in Stage 1 and Stage 2 since if_id is a
+unique ID for xfrm_policy and xfrm_state. For compatibility,
+if_id will only be checked if the attribute is set.
+
+Tested with additions to Android's kernel unit test suite:
+https://android-review.googlesource.com/c/kernel/tests/+/1668886
+
+Signed-off-by: Yan Yan <evitayan@google.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/assembler.h  |  7 +++++++
- arch/arm64/include/asm/cpufeature.h | 13 +++++++++++++
- arch/arm64/include/asm/sysreg.h     |  1 +
- arch/arm64/include/asm/vectors.h    |  7 +++++++
- arch/arm64/kernel/cpu_errata.c      | 14 ++++++++++++++
- arch/arm64/kernel/cpufeature.c      |  1 +
- arch/arm64/kernel/entry.S           |  8 ++++++++
- arch/arm64/kvm/hyp/hyp-entry.S      |  6 ++++++
- 8 files changed, 57 insertions(+)
+ include/net/xfrm.h     |  5 +++--
+ net/key/af_key.c       |  2 +-
+ net/xfrm/xfrm_policy.c | 14 ++++++++------
+ net/xfrm/xfrm_state.c  |  7 ++++++-
+ net/xfrm/xfrm_user.c   |  6 +++++-
+ 5 files changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
-index 4b13739ca518..01112f9767bc 100644
---- a/arch/arm64/include/asm/assembler.h
-+++ b/arch/arm64/include/asm/assembler.h
-@@ -110,6 +110,13 @@
- 	hint	#20
- 	.endm
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 614f19bbad74..96faf0918694 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1663,14 +1663,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	       const struct xfrm_migrate *m, int num_bundles,
+ 	       const struct xfrm_kmaddress *k,
+ 	       const struct xfrm_encap_tmpl *encap);
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id);
+ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ 				      struct xfrm_migrate *m,
+ 				      struct xfrm_encap_tmpl *encap);
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_bundles,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap);
++		 struct xfrm_encap_tmpl *encap, u32 if_id);
+ #endif
  
-+/*
-+ * Clear Branch History instruction
-+ */
-+	.macro clearbhb
-+	hint	#22
-+	.endm
-+
- /*
-  * Speculation barrier
-  */
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index 40a5e48881af..f63438474dd5 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -523,6 +523,19 @@ static inline bool supports_csv2p3(int scope)
- 	return csv2_val == 3;
+ int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 907d04a47459..406e13478b01 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2627,7 +2627,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
+ 	}
+ 
+ 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
+-			    kma ? &k : NULL, net, NULL);
++			    kma ? &k : NULL, net, NULL, 0);
+ 
+  out:
+ 	return err;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 404823c5eb7d..3ecb77c58c44 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -4271,7 +4271,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
  }
  
-+static inline bool supports_clearbhb(int scope)
-+{
-+	u64 isar2;
-+
-+	if (scope == SCOPE_LOCAL_CPU)
-+		isar2 = read_sysreg_s(SYS_ID_AA64ISAR2_EL1);
-+	else
-+		isar2 = read_sanitised_ftr_reg(SYS_ID_AA64ISAR2_EL1);
-+
-+	return cpuid_feature_extract_unsigned_field(isar2,
-+						    ID_AA64ISAR2_CLEARBHB_SHIFT);
-+}
-+
- static inline bool system_supports_32bit_el0(void)
+ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
+-						    u8 dir, u8 type, struct net *net)
++						    u8 dir, u8 type, struct net *net, u32 if_id)
  {
- 	return cpus_have_const_cap(ARM64_HAS_32BIT_EL0);
-diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
-index b35579352856..5b3bdad66b27 100644
---- a/arch/arm64/include/asm/sysreg.h
-+++ b/arch/arm64/include/asm/sysreg.h
-@@ -577,6 +577,7 @@
- #define ID_AA64ISAR1_GPI_IMP_DEF	0x1
+ 	struct xfrm_policy *pol, *ret = NULL;
+ 	struct hlist_head *chain;
+@@ -4280,7 +4280,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+ 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
+ 	hlist_for_each_entry(pol, chain, bydst) {
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			priority = ret->priority;
+@@ -4292,7 +4293,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 		if ((pol->priority >= priority) && ret)
+ 			break;
  
- /* id_aa64isar2 */
-+#define ID_AA64ISAR2_CLEARBHB_SHIFT	28
- #define ID_AA64ISAR2_RPRES_SHIFT	4
- #define ID_AA64ISAR2_WFXT_SHIFT		0
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			break;
+@@ -4408,7 +4410,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_migrate,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap)
++		 struct xfrm_encap_tmpl *encap, u32 if_id)
+ {
+ 	int i, err, nx_cur = 0, nx_new = 0;
+ 	struct xfrm_policy *pol = NULL;
+@@ -4427,14 +4429,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	}
  
-diff --git a/arch/arm64/include/asm/vectors.h b/arch/arm64/include/asm/vectors.h
-index 1f65c37dc653..f64613a96d53 100644
---- a/arch/arm64/include/asm/vectors.h
-+++ b/arch/arm64/include/asm/vectors.h
-@@ -32,6 +32,12 @@ enum arm64_bp_harden_el1_vectors {
- 	 * canonical vectors.
- 	 */
- 	EL1_VECTOR_BHB_FW,
-+
-+	/*
-+	 * Use the ClearBHB instruction, before branching to the canonical
-+	 * vectors.
-+	 */
-+	EL1_VECTOR_BHB_CLEAR_INSN,
- #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+ 	/* Stage 1 - find policy */
+-	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
++	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
+ 		err = -ENOENT;
+ 		goto out;
+ 	}
  
- 	/*
-@@ -43,6 +49,7 @@ enum arm64_bp_harden_el1_vectors {
- #ifndef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
- #define EL1_VECTOR_BHB_LOOP		-1
- #define EL1_VECTOR_BHB_FW		-1
-+#define EL1_VECTOR_BHB_CLEAR_INSN	-1
- #endif /* !CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
- 
- /* The vectors to use on return from EL0. e.g. to remap the kernel */
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 0f74dc2b13c0..33b33416fea4 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -125,6 +125,8 @@ extern char __spectre_bhb_loop_k24_start[];
- extern char __spectre_bhb_loop_k24_end[];
- extern char __spectre_bhb_loop_k32_start[];
- extern char __spectre_bhb_loop_k32_end[];
-+extern char __spectre_bhb_clearbhb_start[];
-+extern char __spectre_bhb_clearbhb_end[];
- 
- static void __copy_hyp_vect_bpi(int slot, const char *hyp_vecs_start,
- 				const char *hyp_vecs_end)
-@@ -1086,6 +1088,7 @@ static void update_mitigation_state(enum mitigation_state *oldp,
-  * - Mitigated by a branchy loop a CPU specific number of times, and listed
-  *   in our "loop mitigated list".
-  * - Mitigated in software by the firmware Spectre v2 call.
-+ * - Has the ClearBHB instruction to perform the mitigation.
-  * - Has the 'Exception Clears Branch History Buffer' (ECBHB) feature, so no
-  *   software mitigation in the vectors is needed.
-  * - Has CSV2.3, so is unaffected.
-@@ -1226,6 +1229,9 @@ bool is_spectre_bhb_affected(const struct arm64_cpu_capabilities *entry,
- 	if (supports_csv2p3(scope))
- 		return false;
- 
-+	if (supports_clearbhb(scope))
-+		return true;
-+
- 	if (spectre_bhb_loop_affected(scope))
- 		return true;
- 
-@@ -1266,6 +1272,8 @@ static const char *kvm_bhb_get_vecs_end(const char *start)
- 		return __spectre_bhb_loop_k24_end;
- 	else if (start == __spectre_bhb_loop_k32_start)
- 		return __spectre_bhb_loop_k32_end;
-+	else if (start == __spectre_bhb_clearbhb_start)
-+		return __spectre_bhb_clearbhb_end;
- 
+ 	/* Stage 2 - find and update state(s) */
+ 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
+-		if ((x = xfrm_migrate_state_find(mp, net))) {
++		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
+ 			x_cur[nx_cur] = x;
+ 			nx_cur++;
+ 			xc = xfrm_state_migrate(x, mp, encap);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 1423e2b7cb42..83ee3d337a60 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1563,7 +1563,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
  	return NULL;
  }
-@@ -1305,6 +1313,7 @@ static void kvm_setup_bhb_slot(const char *hyp_vecs_start)
- #define __spectre_bhb_loop_k8_start NULL
- #define __spectre_bhb_loop_k24_start NULL
- #define __spectre_bhb_loop_k32_start NULL
-+#define __spectre_bhb_clearbhb_start NULL
  
- static void kvm_setup_bhb_slot(const char *hyp_vecs_start) { }
- #endif
-@@ -1323,6 +1332,11 @@ void spectre_bhb_enable_mitigation(const struct arm64_cpu_capabilities *entry)
- 	} else if (cpu_mitigations_off()) {
- 		pr_info_once("spectre-bhb mitigation disabled by command line option\n");
- 	} else if (supports_ecbhb(SCOPE_LOCAL_CPU)) {
-+		state = SPECTRE_MITIGATED;
-+	} else if (supports_clearbhb(SCOPE_LOCAL_CPU)) {
-+		kvm_setup_bhb_slot(__spectre_bhb_clearbhb_start);
-+		this_cpu_set_vectors(EL1_VECTOR_BHB_CLEAR_INSN);
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id)
+ {
+ 	unsigned int h;
+ 	struct xfrm_state *x = NULL;
+@@ -1579,6 +1580,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 				continue;
+ 			if (m->reqid && x->props.reqid != m->reqid)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+@@ -1594,6 +1597,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 			if (x->props.mode != m->mode ||
+ 			    x->id.proto != m->proto)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index ddcf569d852f..bd44a800e7db 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -2374,6 +2374,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	int n = 0;
+ 	struct net *net = sock_net(skb->sk);
+ 	struct xfrm_encap_tmpl  *encap = NULL;
++	u32 if_id = 0;
+ 
+ 	if (attrs[XFRMA_MIGRATE] == NULL)
+ 		return -EINVAL;
+@@ -2398,7 +2399,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			return 0;
+ 	}
+ 
+-	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
++	if (attrs[XFRMA_IF_ID])
++		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
 +
- 		state = SPECTRE_MITIGATED;
- 	} else if (spectre_bhb_loop_affected(SCOPE_LOCAL_CPU)) {
- 		switch (spectre_bhb_loop_affected(SCOPE_SYSTEM)) {
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 0d89d535720f..d07dadd6b8ff 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -156,6 +156,7 @@ static const struct arm64_ftr_bits ftr_id_aa64isar1[] = {
- };
++	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
  
- static const struct arm64_ftr_bits ftr_id_aa64isar2[] = {
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_HIGHER_SAFE, ID_AA64ISAR2_CLEARBHB_SHIFT, 4, 0),
- 	ARM64_FTR_END,
- };
+ 	kfree(encap);
  
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index fcfbb2b009e2..296422119488 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -1074,6 +1074,7 @@ alternative_else_nop_endif
- #define BHB_MITIGATION_NONE	0
- #define BHB_MITIGATION_LOOP	1
- #define BHB_MITIGATION_FW	2
-+#define BHB_MITIGATION_INSN	3
- 
- 	.macro tramp_ventry, vector_start, regsize, kpti, bhb
- 	.align	7
-@@ -1090,6 +1091,11 @@ alternative_else_nop_endif
- 	__mitigate_spectre_bhb_loop	x30
- 	.endif // \bhb == BHB_MITIGATION_LOOP
- 
-+	.if	\bhb == BHB_MITIGATION_INSN
-+	clearbhb
-+	isb
-+	.endif // \bhb == BHB_MITIGATION_INSN
-+
- 	.if	\kpti == 1
- 	/*
- 	 * Defend against branch aliasing attacks by pushing a dummy
-@@ -1170,6 +1176,7 @@ ENTRY(tramp_vectors)
- #ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
- 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_LOOP
- 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_FW
-+	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_INSN
- #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
- 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_NONE
- END(tramp_vectors)
-@@ -1232,6 +1239,7 @@ SYM_CODE_START(__bp_harden_el1_vectors)
- #ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
- 	generate_el1_vector	bhb=BHB_MITIGATION_LOOP
- 	generate_el1_vector	bhb=BHB_MITIGATION_FW
-+	generate_el1_vector	bhb=BHB_MITIGATION_INSN
- #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
- SYM_CODE_END(__bp_harden_el1_vectors)
- 	.popsection
-diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
-index b59b66f1f905..99b8ecaae810 100644
---- a/arch/arm64/kvm/hyp/hyp-entry.S
-+++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -405,4 +405,10 @@ ENTRY(__spectre_bhb_loop_k32_start)
- 	ldp	x0, x1, [sp, #(8 * 0)]
- 	add	sp, sp, #(8 * 2)
- ENTRY(__spectre_bhb_loop_k32_end)
-+
-+ENTRY(__spectre_bhb_clearbhb_start)
-+	esb
-+	clearbhb
-+	isb
-+ENTRY(__spectre_bhb_clearbhb_end)
- #endif
 -- 
 2.34.1
 
