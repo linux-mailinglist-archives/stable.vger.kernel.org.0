@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F9B04DC6A7
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5994DC6CF
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234218AbiCQMz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:55:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
+        id S234323AbiCQMz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:55:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234236AbiCQMwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:52:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F768125C97;
-        Thu, 17 Mar 2022 05:50:37 -0700 (PDT)
+        with ESMTP id S234716AbiCQMx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:53:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6D61FE576;
+        Thu, 17 Mar 2022 05:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC097B81E5C;
-        Thu, 17 Mar 2022 12:50:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E91C340ED;
-        Thu, 17 Mar 2022 12:50:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D8764CE2340;
+        Thu, 17 Mar 2022 12:51:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EF5FC340E9;
+        Thu, 17 Mar 2022 12:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521434;
-        bh=SkQQ1BX9TQ5/PyCr5p4s9Ri4LO1tgKuZTAitMBwYexA=;
+        s=korg; t=1647521490;
+        bh=WB/A9z0bllwl5fTK4cuQmxEQkRdoAy5zWdRVr5axPS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZwBtNKhBIrtCxbg4OAwFxGjkC52TdS0ylUj6e+YdqzllqI9+7CEF/lCS6RqGrIva
-         cpr7GARXetC8SiDfrMitKHY9fj9vqqB+gVuek+zqs7gbWtQnz1NY0cwWzOXd99XBwf
-         lG7I6vakUMEU0RydFfmO4rH1GgdG9+1YPhxN8MGc=
+        b=QYMz/MKoQTn5tcwxqb+XPeH98ouBYNf/U1N3P5J0b5nNdHIim36cS9njmZQW0qow5
+         U9Xb7o6Por4RTSxvEBT/k6HOgoSurob+D/kPACc04tImvZSLub0pV3GJxnydNt4JQA
+         rR7cHQY9zvHOyrskV5l8+7mroRNtVbGbDMfedGn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
+        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 08/23] ARM: dts: rockchip: reorder rk322x hmdi clocks
+Subject: [PATCH 5.15 02/25] arm64: dts: rockchip: fix rk3399-puma-haikou USB OTG mode
 Date:   Thu, 17 Mar 2022 13:45:49 +0100
-Message-Id: <20220317124526.196170966@linuxfoundation.org>
+Message-Id: <20220317124526.381270640@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
-References: <20220317124525.955110315@linuxfoundation.org>
+In-Reply-To: <20220317124526.308079100@linuxfoundation.org>
+References: <20220317124526.308079100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
 
-[ Upstream commit be4e65bdffab5f588044325117df77dad7e9c45a ]
+[ Upstream commit ed2c66a95c0c5669880aa93d0d34c6e9694b4cbd ]
 
-The binding specifies the clock order to "iahb", "isfr", "cec". Reorder
-the clocks accordingly.
+The micro USB3.0 port available on the Haikou evaluation kit for Puma
+RK3399-Q7 SoM supports dual-role model (aka drd or OTG) but its support
+was broken until now because of missing logic around the ID pin.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20220210142353.3420859-1-s.hauer@pengutronix.de
+This adds proper support for USB OTG on Puma Haikou by "connecting" the
+GPIO used for USB ID to the USB3 controller device.
+
+Cc: Quentin Schulz <foss+kernel@0leil.net>
+Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20220120125156.16217-1-quentin.schulz@theobroma-systems.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk322x.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../arm64/boot/dts/rockchip/rk3399-puma-haikou.dts |  1 +
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi      | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
-index 7de8b006ca13..2f17bf35d7a6 100644
---- a/arch/arm/boot/dts/rk322x.dtsi
-+++ b/arch/arm/boot/dts/rk322x.dtsi
-@@ -640,8 +640,8 @@
- 		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
- 		assigned-clocks = <&cru SCLK_HDMI_PHY>;
- 		assigned-clock-parents = <&hdmi_phy>;
--		clocks = <&cru SCLK_HDMI_HDCP>, <&cru PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_CEC>;
--		clock-names = "isfr", "iahb", "cec";
-+		clocks = <&cru PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_HDCP>, <&cru SCLK_HDMI_CEC>;
-+		clock-names = "iahb", "isfr", "cec";
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&hdmii2c_xfer &hdmi_hpd &hdmi_cec>;
- 		resets = <&cru SRST_HDMI_P>;
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
+index 292bb7e80cf3..3ae5d727e367 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
+@@ -232,6 +232,7 @@
+ 
+ &usbdrd_dwc3_0 {
+ 	dr_mode = "otg";
++	extcon = <&extcon_usb3>;
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+index fb67db4619ea..002ece51c3ba 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+@@ -25,6 +25,13 @@
+ 		};
+ 	};
+ 
++	extcon_usb3: extcon-usb3 {
++		compatible = "linux,extcon-usb-gpio";
++		id-gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&usb3_id>;
++	};
++
+ 	clkin_gmac: external-gmac-clock {
+ 		compatible = "fixed-clock";
+ 		clock-frequency = <125000000>;
+@@ -422,6 +429,13 @@
+ 			  <4 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
+ 		};
+ 	};
++
++	usb3 {
++		usb3_id: usb3-id {
++			rockchip,pins =
++			  <1 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
+ };
+ 
+ &sdhci {
 -- 
 2.34.1
 
