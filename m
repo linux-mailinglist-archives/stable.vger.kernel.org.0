@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C16F44DC6C1
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7F94DC6A8
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbiCQMzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39308 "EHLO
+        id S230504AbiCQMzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234640AbiCQMxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:53:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B862D1F5186;
-        Thu, 17 Mar 2022 05:51:24 -0700 (PDT)
+        with ESMTP id S234980AbiCQMyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:54:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A4E884ED7;
+        Thu, 17 Mar 2022 05:52:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5332061021;
-        Thu, 17 Mar 2022 12:51:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D98DC340EF;
-        Thu, 17 Mar 2022 12:51:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B79EACE2340;
+        Thu, 17 Mar 2022 12:52:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88EEFC340E9;
+        Thu, 17 Mar 2022 12:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521483;
-        bh=Iqwh5RWoW5jbhU7n09L6jNGAntnAJR+hnRZr6bdNjKk=;
+        s=korg; t=1647521574;
+        bh=94Eezw0rkaghiNp0XtbPiQ+zQlAXCbVMeFdXKfkMh5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00/l4L63nO07HsXlBwQt9aWi322Vm+D4KlRVLsupmPEPpQy/iFZRf59tsoh9rT1wo
-         BgjvNbYxIfN3oTfZKw1jfKrkOSYq7BmATXkhn8JLnawmvDPgMcd2482xyOBKxNgR9N
-         u7iHSTX1ls7/RgphX+LdhJPLaNL4nsnk6GLokk+Y=
+        b=kfcuWKulK/k7zppHtfWWgVbplKFllYL1wLJnZH2Eb4eRfd0io5K8tdW1gnZM5FjTp
+         sf43wxmAUPEBV1e5iZnvgMXNr3bDUsxPPS8j11jjlnunZYpYe7uj2ZV4+JzMvtfTpb
+         7/ZsCanMteiHq8qXgJXkfg5Q8TPW+Qv7CklLkaq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sreeramya Soratkal <quic_ssramya@quicinc.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 19/25] nl80211: Update bss channel on channel switch for P2P_CLIENT
+Subject: [PATCH 5.16 15/28] Bluetooth: hci_core: Fix leaking sent_cmd skb
 Date:   Thu, 17 Mar 2022 13:46:06 +0100
-Message-Id: <20220317124526.857573122@linuxfoundation.org>
+Message-Id: <20220317124527.200558031@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124526.308079100@linuxfoundation.org>
-References: <20220317124526.308079100@linuxfoundation.org>
+In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
+References: <20220317124526.768423926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreeramya Soratkal <quic_ssramya@quicinc.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit e50b88c4f076242358b66ddb67482b96947438f2 ]
+[ Upstream commit dd3b1dc3dd050f1f47cd13e300732852414270f8 ]
 
-The wdev channel information is updated post channel switch only for
-the station mode and not for the other modes. Due to this, the P2P client
-still points to the old value though it moved to the new channel
-when the channel change is induced from the P2P GO.
+sent_cmd memory is not freed before freeing hci_dev causing it to leak
+it contents.
 
-Update the bss channel after CSA channel switch completion for P2P client
-interface as well.
-
-Signed-off-by: Sreeramya Soratkal <quic_ssramya@quicinc.com>
-Link: https://lore.kernel.org/r/1646114600-31479-1-git-send-email-quic_ssramya@quicinc.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/hci_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 99564db14aa1..2f9ead98a9da 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -17525,7 +17525,8 @@ void cfg80211_ch_switch_notify(struct net_device *dev,
- 	wdev->chandef = *chandef;
- 	wdev->preset_chandef = *chandef;
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 6c00ce302f09..1c8fb27b155a 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -3969,6 +3969,7 @@ void hci_release_dev(struct hci_dev *hdev)
+ 	hci_dev_unlock(hdev);
  
--	if (wdev->iftype == NL80211_IFTYPE_STATION &&
-+	if ((wdev->iftype == NL80211_IFTYPE_STATION ||
-+	     wdev->iftype == NL80211_IFTYPE_P2P_CLIENT) &&
- 	    !WARN_ON(!wdev->current_bss))
- 		cfg80211_update_assoc_bss_entry(wdev, chandef->chan);
- 
+ 	ida_simple_remove(&hci_index_ida, hdev->id);
++	kfree_skb(hdev->sent_cmd);
+ 	kfree(hdev);
+ }
+ EXPORT_SYMBOL(hci_release_dev);
 -- 
 2.34.1
 
