@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 518374DC682
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B97854DC6B9
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234112AbiCQMzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:55:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
+        id S234267AbiCQMzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234914AbiCQMyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:54:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26C41F0CB7;
-        Thu, 17 Mar 2022 05:52:25 -0700 (PDT)
+        with ESMTP id S235092AbiCQMyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:54:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAD41EC6D;
+        Thu, 17 Mar 2022 05:53:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E2CB614F0;
-        Thu, 17 Mar 2022 12:52:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56D1FC340ED;
-        Thu, 17 Mar 2022 12:52:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8438A614F0;
+        Thu, 17 Mar 2022 12:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C30A5C340E9;
+        Thu, 17 Mar 2022 12:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521544;
-        bh=BCx64xO3Wbry2wCPfTZARKe6NTiar7S30FYEF5kz4GU=;
+        s=korg; t=1647521602;
+        bh=88f2Inyp4nMPXG1F0eSXddJ2jr5Uf6R8ttDLN4ddLcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPDURMUMwy71KDAbVCC7pgGMX+xEoPVjU+RTZVFpqjksuGOWR22k8+pX+bop0q2ZC
-         1DGmhbsDtaCGR9erSrD0w59sLBOg/EnNF47KvyMkKTuxZeuQpyjDr0I53ZSLvmx5go
-         asaQPH8C62dEuBMZSx7OH1e3kT+TEShNtS4v/tig=
+        b=N9hs0V4labmMcPQTNaqF9y4QwZHtuqkrCDFLCYy1T+h936r/yChA0zAKHX6BjYqme
+         ww3ySde/4kUL/VU1OH1du3hBcxViE5ZaJCdA9bbFCdxTOwNM1EP5cc74EXWcN28ZtC
+         99ITClBSjFMND7Z9sLGj2/oVffqSwB0/SLkHZ0IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
-        Petr Oros <poros@redhat.com>,
-        Dave Ertman <david.m.ertman@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 25/25] ice: Fix race condition during interface enslave
+        stable@vger.kernel.org, Golan Ben Ami <golan.ben.ami@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 21/28] iwlwifi: dont advertise TWT support
 Date:   Thu, 17 Mar 2022 13:46:12 +0100
-Message-Id: <20220317124527.024081334@linuxfoundation.org>
+Message-Id: <20220317124527.368108305@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124526.308079100@linuxfoundation.org>
-References: <20220317124526.308079100@linuxfoundation.org>
+In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
+References: <20220317124526.768423926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,162 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Golan Ben Ami <golan.ben.ami@intel.com>
 
-commit 5cb1ebdbc4342b1c2ce89516e19808d64417bdbc upstream.
+[ Upstream commit 1db5fcbba2631277b78d7f8aff99c9607d29f6d8 ]
 
-Commit 5dbbbd01cbba83 ("ice: Avoid RTNL lock when re-creating
-auxiliary device") changes a process of re-creation of aux device
-so ice_plug_aux_dev() is called from ice_service_task() context.
-This unfortunately opens a race window that can result in dead-lock
-when interface has left LAG and immediately enters LAG again.
+Some APs misbehave when TWT is used and cause our firmware to crash.
+We don't know a reasonable way to detect and work around this problem
+in the FW yet.  To prevent these crashes, disable TWT in the driver by
+stopping to advertise TWT support.
 
-Reproducer:
-```
-#!/bin/sh
-
-ip link add lag0 type bond mode 1 miimon 100
-ip link set lag0
-
-for n in {1..10}; do
-        echo Cycle: $n
-        ip link set ens7f0 master lag0
-        sleep 1
-        ip link set ens7f0 nomaster
-done
-```
-
-This results in:
-[20976.208697] Workqueue: ice ice_service_task [ice]
-[20976.213422] Call Trace:
-[20976.215871]  __schedule+0x2d1/0x830
-[20976.219364]  schedule+0x35/0xa0
-[20976.222510]  schedule_preempt_disabled+0xa/0x10
-[20976.227043]  __mutex_lock.isra.7+0x310/0x420
-[20976.235071]  enum_all_gids_of_dev_cb+0x1c/0x100 [ib_core]
-[20976.251215]  ib_enum_roce_netdev+0xa4/0xe0 [ib_core]
-[20976.256192]  ib_cache_setup_one+0x33/0xa0 [ib_core]
-[20976.261079]  ib_register_device+0x40d/0x580 [ib_core]
-[20976.266139]  irdma_ib_register_device+0x129/0x250 [irdma]
-[20976.281409]  irdma_probe+0x2c1/0x360 [irdma]
-[20976.285691]  auxiliary_bus_probe+0x45/0x70
-[20976.289790]  really_probe+0x1f2/0x480
-[20976.298509]  driver_probe_device+0x49/0xc0
-[20976.302609]  bus_for_each_drv+0x79/0xc0
-[20976.306448]  __device_attach+0xdc/0x160
-[20976.310286]  bus_probe_device+0x9d/0xb0
-[20976.314128]  device_add+0x43c/0x890
-[20976.321287]  __auxiliary_device_add+0x43/0x60
-[20976.325644]  ice_plug_aux_dev+0xb2/0x100 [ice]
-[20976.330109]  ice_service_task+0xd0c/0xed0 [ice]
-[20976.342591]  process_one_work+0x1a7/0x360
-[20976.350536]  worker_thread+0x30/0x390
-[20976.358128]  kthread+0x10a/0x120
-[20976.365547]  ret_from_fork+0x1f/0x40
-...
-[20976.438030] task:ip              state:D stack:    0 pid:213658 ppid:213627 flags:0x00004084
-[20976.446469] Call Trace:
-[20976.448921]  __schedule+0x2d1/0x830
-[20976.452414]  schedule+0x35/0xa0
-[20976.455559]  schedule_preempt_disabled+0xa/0x10
-[20976.460090]  __mutex_lock.isra.7+0x310/0x420
-[20976.464364]  device_del+0x36/0x3c0
-[20976.467772]  ice_unplug_aux_dev+0x1a/0x40 [ice]
-[20976.472313]  ice_lag_event_handler+0x2a2/0x520 [ice]
-[20976.477288]  notifier_call_chain+0x47/0x70
-[20976.481386]  __netdev_upper_dev_link+0x18b/0x280
-[20976.489845]  bond_enslave+0xe05/0x1790 [bonding]
-[20976.494475]  do_setlink+0x336/0xf50
-[20976.502517]  __rtnl_newlink+0x529/0x8b0
-[20976.543441]  rtnl_newlink+0x43/0x60
-[20976.546934]  rtnetlink_rcv_msg+0x2b1/0x360
-[20976.559238]  netlink_rcv_skb+0x4c/0x120
-[20976.563079]  netlink_unicast+0x196/0x230
-[20976.567005]  netlink_sendmsg+0x204/0x3d0
-[20976.570930]  sock_sendmsg+0x4c/0x50
-[20976.574423]  ____sys_sendmsg+0x1eb/0x250
-[20976.586807]  ___sys_sendmsg+0x7c/0xc0
-[20976.606353]  __sys_sendmsg+0x57/0xa0
-[20976.609930]  do_syscall_64+0x5b/0x1a0
-[20976.613598]  entry_SYSCALL_64_after_hwframe+0x65/0xca
-
-1. Command 'ip link ... set nomaster' causes that ice_plug_aux_dev()
-   is called from ice_service_task() context, aux device is created
-   and associated device->lock is taken.
-2. Command 'ip link ... set master...' calls ice's notifier under
-   RTNL lock and that notifier calls ice_unplug_aux_dev(). That
-   function tries to take aux device->lock but this is already taken
-   by ice_plug_aux_dev() in step 1
-3. Later ice_plug_aux_dev() tries to take RTNL lock but this is already
-   taken in step 2
-4. Dead-lock
-
-The patch fixes this issue by following changes:
-- Bit ICE_FLAG_PLUG_AUX_DEV is kept to be set during ice_plug_aux_dev()
-  call in ice_service_task()
-- The bit is checked in ice_clear_rdma_cap() and only if it is not set
-  then ice_unplug_aux_dev() is called. If it is set (in other words
-  plugging of aux device was requested and ice_plug_aux_dev() is
-  potentially running) then the function only clears the bit
-- Once ice_plug_aux_dev() call (in ice_service_task) is finished
-  the bit ICE_FLAG_PLUG_AUX_DEV is cleared but it is also checked
-  whether it was already cleared by ice_clear_rdma_cap(). If so then
-  aux device is unplugged.
-
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Co-developed-by: Petr Oros <poros@redhat.com>
-Signed-off-by: Petr Oros <poros@redhat.com>
-Reviewed-by: Dave Ertman <david.m.ertman@intel.com>
-Link: https://lore.kernel.org/r/20220310171641.3863659-1-ivecera@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215523
+Signed-off-by: Golan Ben Ami <golan.ben.ami@intel.com>
+[reworded the commit message]
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20220301072926.153969-1-luca@coelho.fi
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h      |   11 ++++++++++-
- drivers/net/ethernet/intel/ice/ice_main.c |   12 +++++++++++-
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c | 3 +--
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c  | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -703,7 +703,16 @@ static inline void ice_set_rdma_cap(stru
-  */
- static inline void ice_clear_rdma_cap(struct ice_pf *pf)
- {
--	ice_unplug_aux_dev(pf);
-+	/* We can directly unplug aux device here only if the flag bit
-+	 * ICE_FLAG_PLUG_AUX_DEV is not set because ice_unplug_aux_dev()
-+	 * could race with ice_plug_aux_dev() called from
-+	 * ice_service_task(). In this case we only clear that bit now and
-+	 * aux device will be unplugged later once ice_plug_aux_device()
-+	 * called from ice_service_task() finishes (see ice_service_task()).
-+	 */
-+	if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+		ice_unplug_aux_dev(pf);
-+
- 	clear_bit(ICE_FLAG_RDMA_ENA, pf->flags);
- 	clear_bit(ICE_FLAG_AUX_ENA, pf->flags);
- }
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2143,9 +2143,19 @@ static void ice_service_task(struct work
- 		return;
- 	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+index f470f9aea50f..c97798f6290a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+@@ -552,8 +552,7 @@ static const struct ieee80211_sband_iftype_data iwl_he_capa[] = {
+ 			.has_he = true,
+ 			.he_cap_elem = {
+ 				.mac_cap_info[0] =
+-					IEEE80211_HE_MAC_CAP0_HTC_HE |
+-					IEEE80211_HE_MAC_CAP0_TWT_REQ,
++					IEEE80211_HE_MAC_CAP0_HTC_HE,
+ 				.mac_cap_info[1] =
+ 					IEEE80211_HE_MAC_CAP1_TF_MAC_PAD_DUR_16US |
+ 					IEEE80211_HE_MAC_CAP1_MULTI_TID_AGG_RX_QOS_8,
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index cde3d2ce0b85..a65024fc96dd 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -223,7 +223,6 @@ static const u8 he_if_types_ext_capa_sta[] = {
+ 	 [0] = WLAN_EXT_CAPA1_EXT_CHANNEL_SWITCHING,
+ 	 [2] = WLAN_EXT_CAPA3_MULTI_BSSID_SUPPORT,
+ 	 [7] = WLAN_EXT_CAPA8_OPMODE_NOTIF,
+-	 [9] = WLAN_EXT_CAPA10_TWT_REQUESTER_SUPPORT,
+ };
  
--	if (test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+	if (test_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags)) {
-+		/* Plug aux device per request */
- 		ice_plug_aux_dev(pf);
- 
-+		/* Mark plugging as done but check whether unplug was
-+		 * requested during ice_plug_aux_dev() call
-+		 * (e.g. from ice_clear_rdma_cap()) and if so then
-+		 * plug aux device.
-+		 */
-+		if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+			ice_unplug_aux_dev(pf);
-+	}
-+
- 	if (test_and_clear_bit(ICE_FLAG_MTU_CHANGED, pf->flags)) {
- 		struct iidc_event *event;
- 
+ static const struct wiphy_iftype_ext_capab he_iftypes_ext_capa[] = {
+-- 
+2.34.1
+
 
 
