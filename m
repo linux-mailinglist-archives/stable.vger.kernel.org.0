@@ -2,215 +2,295 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E0EB4DC6D6
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:55:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA3FA4DC79D
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 14:32:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234096AbiCQM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:56:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39010 "EHLO
+        id S234594AbiCQNdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 09:33:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234210AbiCQMzV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:55:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A73BA27E9;
-        Thu, 17 Mar 2022 05:53:53 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S234597AbiCQNdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 09:33:20 -0400
+Received: from mx1.molgen.mpg.de (unknown [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A611D7880;
+        Thu, 17 Mar 2022 06:32:02 -0700 (PDT)
+Received: from [192.168.0.3] (ip5f5aef3c.dynamic.kabel-deutschland.de [95.90.239.60])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1C51B81EA1;
-        Thu, 17 Mar 2022 12:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D67E2C36AE2;
-        Thu, 17 Mar 2022 12:53:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521630;
-        bh=ttqHx00Pz/KQ4MnXgN1hjdqSE3T+gxajqzQTE81Z/74=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ym+yOjqntpe+Yxyme7l/EJK1rh1T18cy0yX1BjCDdJgXgkYODQyUp/Sc9Ol9KkYOQ
-         VPCV7WuChRK6DBKQvk6v3Dd/+Gc3+20kraukInrZ3SI6SAltBnX3gaftQFiO2TPv67
-         +EBDsclOsZM2nysqcGYINnAxDFMsR+7HDLOMO/E0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
-        Petr Oros <poros@redhat.com>,
-        Dave Ertman <david.m.ertman@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 28/28] ice: Fix race condition during interface enslave
-Date:   Thu, 17 Mar 2022 13:46:19 +0100
-Message-Id: <20220317124527.562546441@linuxfoundation.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
-References: <20220317124526.768423926@linuxfoundation.org>
-User-Agent: quilt/0.66
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id AE25F61EA1928;
+        Thu, 17 Mar 2022 14:31:45 +0100 (CET)
+Message-ID: <1986e70f-9e3b-cc64-4c15-dbc2abd1dc8d@molgen.mpg.de>
+Date:   Thu, 17 Mar 2022 14:31:45 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [EXT] Re: [PATCH net] bnx2x: fix built-in kernel driver load
+ failure
+Content-Language: en-US
+To:     Manish Chopra <manishc@marvell.com>
+Cc:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Ariel Elior <aelior@marvell.com>, regressions@lists.linux.dev,
+        stable@vger.kernel.org, it+netdev@molgen.mpg.de
+References: <20220316214613.6884-1-manishc@marvell.com>
+ <35d305f5-aa84-2c47-7efd-66fffb91c398@molgen.mpg.de>
+ <BY3PR18MB46129020BC8C93377CA16FB8AB129@BY3PR18MB4612.namprd18.prod.outlook.com>
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+In-Reply-To: <BY3PR18MB46129020BC8C93377CA16FB8AB129@BY3PR18MB4612.namprd18.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RDNS_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
 
-commit 5cb1ebdbc4342b1c2ce89516e19808d64417bdbc upstream.
-
-Commit 5dbbbd01cbba83 ("ice: Avoid RTNL lock when re-creating
-auxiliary device") changes a process of re-creation of aux device
-so ice_plug_aux_dev() is called from ice_service_task() context.
-This unfortunately opens a race window that can result in dead-lock
-when interface has left LAG and immediately enters LAG again.
-
-Reproducer:
-```
-#!/bin/sh
-
-ip link add lag0 type bond mode 1 miimon 100
-ip link set lag0
-
-for n in {1..10}; do
-        echo Cycle: $n
-        ip link set ens7f0 master lag0
-        sleep 1
-        ip link set ens7f0 nomaster
-done
-```
-
-This results in:
-[20976.208697] Workqueue: ice ice_service_task [ice]
-[20976.213422] Call Trace:
-[20976.215871]  __schedule+0x2d1/0x830
-[20976.219364]  schedule+0x35/0xa0
-[20976.222510]  schedule_preempt_disabled+0xa/0x10
-[20976.227043]  __mutex_lock.isra.7+0x310/0x420
-[20976.235071]  enum_all_gids_of_dev_cb+0x1c/0x100 [ib_core]
-[20976.251215]  ib_enum_roce_netdev+0xa4/0xe0 [ib_core]
-[20976.256192]  ib_cache_setup_one+0x33/0xa0 [ib_core]
-[20976.261079]  ib_register_device+0x40d/0x580 [ib_core]
-[20976.266139]  irdma_ib_register_device+0x129/0x250 [irdma]
-[20976.281409]  irdma_probe+0x2c1/0x360 [irdma]
-[20976.285691]  auxiliary_bus_probe+0x45/0x70
-[20976.289790]  really_probe+0x1f2/0x480
-[20976.298509]  driver_probe_device+0x49/0xc0
-[20976.302609]  bus_for_each_drv+0x79/0xc0
-[20976.306448]  __device_attach+0xdc/0x160
-[20976.310286]  bus_probe_device+0x9d/0xb0
-[20976.314128]  device_add+0x43c/0x890
-[20976.321287]  __auxiliary_device_add+0x43/0x60
-[20976.325644]  ice_plug_aux_dev+0xb2/0x100 [ice]
-[20976.330109]  ice_service_task+0xd0c/0xed0 [ice]
-[20976.342591]  process_one_work+0x1a7/0x360
-[20976.350536]  worker_thread+0x30/0x390
-[20976.358128]  kthread+0x10a/0x120
-[20976.365547]  ret_from_fork+0x1f/0x40
-...
-[20976.438030] task:ip              state:D stack:    0 pid:213658 ppid:213627 flags:0x00004084
-[20976.446469] Call Trace:
-[20976.448921]  __schedule+0x2d1/0x830
-[20976.452414]  schedule+0x35/0xa0
-[20976.455559]  schedule_preempt_disabled+0xa/0x10
-[20976.460090]  __mutex_lock.isra.7+0x310/0x420
-[20976.464364]  device_del+0x36/0x3c0
-[20976.467772]  ice_unplug_aux_dev+0x1a/0x40 [ice]
-[20976.472313]  ice_lag_event_handler+0x2a2/0x520 [ice]
-[20976.477288]  notifier_call_chain+0x47/0x70
-[20976.481386]  __netdev_upper_dev_link+0x18b/0x280
-[20976.489845]  bond_enslave+0xe05/0x1790 [bonding]
-[20976.494475]  do_setlink+0x336/0xf50
-[20976.502517]  __rtnl_newlink+0x529/0x8b0
-[20976.543441]  rtnl_newlink+0x43/0x60
-[20976.546934]  rtnetlink_rcv_msg+0x2b1/0x360
-[20976.559238]  netlink_rcv_skb+0x4c/0x120
-[20976.563079]  netlink_unicast+0x196/0x230
-[20976.567005]  netlink_sendmsg+0x204/0x3d0
-[20976.570930]  sock_sendmsg+0x4c/0x50
-[20976.574423]  ____sys_sendmsg+0x1eb/0x250
-[20976.586807]  ___sys_sendmsg+0x7c/0xc0
-[20976.606353]  __sys_sendmsg+0x57/0xa0
-[20976.609930]  do_syscall_64+0x5b/0x1a0
-[20976.613598]  entry_SYSCALL_64_after_hwframe+0x65/0xca
-
-1. Command 'ip link ... set nomaster' causes that ice_plug_aux_dev()
-   is called from ice_service_task() context, aux device is created
-   and associated device->lock is taken.
-2. Command 'ip link ... set master...' calls ice's notifier under
-   RTNL lock and that notifier calls ice_unplug_aux_dev(). That
-   function tries to take aux device->lock but this is already taken
-   by ice_plug_aux_dev() in step 1
-3. Later ice_plug_aux_dev() tries to take RTNL lock but this is already
-   taken in step 2
-4. Dead-lock
-
-The patch fixes this issue by following changes:
-- Bit ICE_FLAG_PLUG_AUX_DEV is kept to be set during ice_plug_aux_dev()
-  call in ice_service_task()
-- The bit is checked in ice_clear_rdma_cap() and only if it is not set
-  then ice_unplug_aux_dev() is called. If it is set (in other words
-  plugging of aux device was requested and ice_plug_aux_dev() is
-  potentially running) then the function only clears the bit
-- Once ice_plug_aux_dev() call (in ice_service_task) is finished
-  the bit ICE_FLAG_PLUG_AUX_DEV is cleared but it is also checked
-  whether it was already cleared by ice_clear_rdma_cap(). If so then
-  aux device is unplugged.
-
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Co-developed-by: Petr Oros <poros@redhat.com>
-Signed-off-by: Petr Oros <poros@redhat.com>
-Reviewed-by: Dave Ertman <david.m.ertman@intel.com>
-Link: https://lore.kernel.org/r/20220310171641.3863659-1-ivecera@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/intel/ice/ice.h      |   11 ++++++++++-
- drivers/net/ethernet/intel/ice/ice_main.c |   12 +++++++++++-
- 2 files changed, 21 insertions(+), 2 deletions(-)
-
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -891,7 +891,16 @@ static inline void ice_set_rdma_cap(stru
-  */
- static inline void ice_clear_rdma_cap(struct ice_pf *pf)
- {
--	ice_unplug_aux_dev(pf);
-+	/* We can directly unplug aux device here only if the flag bit
-+	 * ICE_FLAG_PLUG_AUX_DEV is not set because ice_unplug_aux_dev()
-+	 * could race with ice_plug_aux_dev() called from
-+	 * ice_service_task(). In this case we only clear that bit now and
-+	 * aux device will be unplugged later once ice_plug_aux_device()
-+	 * called from ice_service_task() finishes (see ice_service_task()).
-+	 */
-+	if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+		ice_unplug_aux_dev(pf);
-+
- 	clear_bit(ICE_FLAG_RDMA_ENA, pf->flags);
- 	clear_bit(ICE_FLAG_AUX_ENA, pf->flags);
- }
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2237,9 +2237,19 @@ static void ice_service_task(struct work
- 		return;
- 	}
- 
--	if (test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+	if (test_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags)) {
-+		/* Plug aux device per request */
- 		ice_plug_aux_dev(pf);
- 
-+		/* Mark plugging as done but check whether unplug was
-+		 * requested during ice_plug_aux_dev() call
-+		 * (e.g. from ice_clear_rdma_cap()) and if so then
-+		 * plug aux device.
-+		 */
-+		if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+			ice_unplug_aux_dev(pf);
-+	}
-+
- 	if (test_and_clear_bit(ICE_FLAG_MTU_CHANGED, pf->flags)) {
- 		struct iidc_event *event;
- 
+Dear Manish,
 
 
+Am 17.03.22 um 10:55 schrieb Manish Chopra:
+>> -----Original Message-----
+>> From: Paul Menzel <pmenzel@molgen.mpg.de>
+>> Sent: Thursday, March 17, 2022 1:03 PM
+
+[…]
+
+>> Am 16.03.22 um 22:46 schrieb Manish Chopra:
+>>> commit b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0") added
+>>> request_firmware() logic in probe() which caused built-in kernel
+>>> driver (CONFIG_BNX2X=y) load failure (below), as access to firmware
+>>> file is not feasible during the probe.
+>>
+>> I think it’s important to document, that the firmware was not present in the
+>> initrd.
+> 
+> I believe this problem has nothing to do with initrd module/FW but
+> rather a module built in the kernel/vmlinuz (CONFIG_BNX2X=y) itself, 
+> A module load from initrd works fine and can access the initrd FW
+> files present in initrd file system even during the probe. For
+> example, when I had CONFIG_BNX2X=m, it loads the module fine from
+> initrd with FW files present in initrd file system. When I had
+> CONFIG_BNX2X=y, which I believe doesn't install/load module in/from
+> initrd but in kernel (vmlinuz) itself, that's where it can't access
+> the firmware file and cause the load failure.
+
+I can only say, that adding the firmware to the initrd worked around the 
+problem on our side with `CONFIG_BNX2X=y`.
+
+>>> "Direct firmware load for bnx2x/bnx2x-e2-7.13.21.0.fw
+>>> failed with error -2"
+>>
+>> I’d say, no line break for log message. Maybe paste the excerpt below:
+>>
+>>       [   20.534985] bnx2x 0000:45:00.0: msix capability found
+>>       [   20.540342] bnx2x 0000:45:00.0: part number 394D4342-31373735-31314131-473331
+>>       [   20.548605] bnx2x 0000:45:00.0: Direct firmware load for bnx2x/bnx2x-e1h-7.13.21.0.fw failed with error -2
+>>       [   20.558373] bnx2x 0000:45:00.0: Direct firmware load for bnx2x/bnx2x-e1h-7.13.15.0.fw failed with error -2
+>>       [   20.568319] bnx2x: probe of 0000:45:00.0 failed with error -2
+>>
+>>> This patch fixes this issue by -
+>>>
+>>> 1. Removing request_firmware() logic from the probe()
+>>>      such that .ndo_open() handle it as it used to handle
+>>>      it earlier
+>>>
+>>> 2. Given request_firmware() is removed from probe(), so
+>>>      driver has to relax FW version comparisons a bit against
+>>>      the already loaded FW version (by some other PFs of same
+>>>      adapter) to allow different compatible/close FWs with which
+>>>      multiple PFs may run with (in different environments), as the
+>>>      given PF who is in probe flow has no idea now with which firmware
+>>>      file version it is going to initialize the device in ndo_open()
+>>
+>> Please be specific and state, that the revision part in the version has
+>> to be greater, and that downgrading is not allowed.
+> 
+> I didn't get it, you can't downgrade to any firmware unless you
+> downgrade the kernel/driver, driver with these recent commits/fixes
+> are always supposed to run with this minimum older FW version
+> (7.13.15.0) or a greater FW version (for example now 7.13.21.0). if
+> you want to use the FW version even older to these then you have to 
+> downgrade the driver/kernel as well which won't have these
+> commits/logics in them.
+I just want you to explicitly describe the added condition in the commit
+message.
+
+>>> Cc: stable@vger.kernel.org
+>>> Link: https://urldefense.proofpoint.com/v2/url?u=https-
+>> 3A__lore.kernel.org_all_46f2d9d9-2Dae7f-2Db332-2Dddeb-
+>> 2Db59802be2bab-
+>> 40molgen.mpg.de_&d=DwIDaQ&c=nKjWec2b6R0mOyPaz7xtfQ&r=bMTgx2X4
+>> 8QVXyXOEL8ALyI4dsWoR-m74c5n3d-ruJI8&m=FmUvhi_ygxQI4mnQmg5pU-
+>> th-BWb_aEXUni5bpt6e934rZh0Wp-
+>> KuVdfW7N2O0za&s=t3mHF8L4_cacsuvE5TqHUBSqD70Yfsbk3or973FvyEQ&e=
+
+Thank you Outlook for protecting the word. :/
+
+>>> Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+>>> Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+>>> Fixes: b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0")
+>>> Signed-off-by: Manish Chopra <manishc@marvell.com>
+>>> Signed-off-by: Ariel Elior <aelior@marvell.com>
+>>> ---
+>>>    drivers/net/ethernet/broadcom/bnx2x/bnx2x.h   |  2 --
+>>>    .../net/ethernet/broadcom/bnx2x/bnx2x_cmn.c   | 28 +++++++++++--------
+>>>    .../net/ethernet/broadcom/bnx2x/bnx2x_main.c  | 15 ++--------
+>>>    3 files changed, 19 insertions(+), 26 deletions(-)
+>>>
+>>> diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+>> b/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+>>> index a19dd6797070..2209d99b3404 100644
+>>> --- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+>>> +++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+>>> @@ -2533,6 +2533,4 @@ void bnx2x_register_phc(struct bnx2x *bp);
+>>>     * Meant for implicit re-load flows.
+>>>     */
+>>>    int bnx2x_vlan_reconfigure_vid(struct bnx2x *bp);
+>>> -int bnx2x_init_firmware(struct bnx2x *bp);
+>>> -void bnx2x_release_firmware(struct bnx2x *bp);
+>>>    #endif /* bnx2x.h */
+>>> diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+>> b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+>>> index 8d36ebbf08e1..5729a5ab059d 100644
+>>> --- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+>>> +++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+>>> @@ -2364,24 +2364,30 @@ int bnx2x_compare_fw_ver(struct bnx2x *bp,
+>> u32 load_code, bool print_err)
+>>>    	/* is another pf loaded on this engine? */
+>>>    	if (load_code != FW_MSG_CODE_DRV_LOAD_COMMON_CHIP &&
+>>>    	    load_code != FW_MSG_CODE_DRV_LOAD_COMMON) {
+>>> -		/* build my FW version dword */
+>>> -		u32 my_fw = (bp->fw_major) + (bp->fw_minor << 8) +
+>>> -				(bp->fw_rev << 16) + (bp->fw_eng << 24);
+>>> +		u8 loaded_fw_major, loaded_fw_minor, loaded_fw_rev, loaded_fw_eng;
+>>> +		u32 loaded_fw;
+>>>
+>>>    		/* read loaded FW from chip */
+>>> -		u32 loaded_fw = REG_RD(bp, XSEM_REG_PRAM);
+>>> +		loaded_fw = REG_RD(bp, XSEM_REG_PRAM);
+>>>
+>>> -		DP(BNX2X_MSG_SP, "loaded fw %x, my fw %x\n",
+>>> -		   loaded_fw, my_fw);
+>>> +		loaded_fw_major = loaded_fw & 0xff;
+>>> +		loaded_fw_minor = (loaded_fw >> 8) & 0xff;
+>>> +		loaded_fw_rev = (loaded_fw >> 16) & 0xff;
+>>> +		loaded_fw_eng = (loaded_fw >> 24) & 0xff;
+>>> +
+>>> +		DP(BNX2X_MSG_SP, "loaded fw 0x%x major 0x%x minor 0x%x rev 0x%x eng 0x%x\n",
+>>> +		   loaded_fw, loaded_fw_major, loaded_fw_minor, loaded_fw_rev, loaded_fw_eng);
+>>>
+>>>    		/* abort nic load if version mismatch */
+>>> -		if (my_fw != loaded_fw) {
+>>> +		if (loaded_fw_major != BCM_5710_FW_MAJOR_VERSION ||
+>>> +		    loaded_fw_minor != BCM_5710_FW_MINOR_VERSION ||
+>>> +		    loaded_fw_eng != BCM_5710_FW_ENGINEERING_VERSION ||
+>>
+>> The engineering version comes after the revision, so I’d assume they can
+>> also be relaxed and differ?
+> 
+> We don't change the engineering version at all, it's just for sanity
+> and going to always remain as zero. We use this only for debugging
+> purpose, to differentiate debug FW version vs official FW version.
+
+Please add a comment to make that clean. (Also the existing comment
+should be updated.)
+
+>>> +		    loaded_fw_rev < BCM_5710_FW_REVISION_VERSION_V15) {
+>>>    			if (print_err)
+>>
+>> Unrelated, this print_err argument added in commit 91ebb929b6f8 (bnx2x:
+>> Add support for Multi-Function UNDI) is not so elegant.
+>>
+>>> -				BNX2X_ERR("bnx2x with FW %x was already loaded which mismatches my %x FW. Aborting\n",
+>>> -					  loaded_fw, my_fw);
+>>> +				BNX2X_ERR("loaded FW incompatible. Aborting\n");
+>>
+>> Please add the versions to the error message to give the user more clues.
+> 
+> I didn't keep it purposely here (to get rid of 100 chars warning) :- ), given the debug print just before this already logs
+> all the version info about the already loaded_fw which can be enabled to get those info. I would prefer a seeparate commit
+> on refining/enabling messages or adding any new informative messages for user about FW versioning related.
+
+Well, the warning does not apply to log messages, so – as it’s present 
+before – and debug logging is cumbersome to enable, please leave it.
+
+
+Kind regards,
+
+Paul
+
+
+>>>    			else
+>>> -				BNX2X_DEV_INFO("bnx2x with FW %x was already loaded which mismatches my %x FW, possibly due to MF UNDI\n",
+>>> -					       loaded_fw, my_fw);
+>>> +				BNX2X_DEV_INFO("loaded FW incompatible, possibly due to MF UNDI\n");
+>>> +
+>>>    			return -EBUSY;
+>>>    		}
+>>>    	}
+>>> diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+>> b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+>>> index eedb48d945ed..c19b072f3a23 100644
+>>> --- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+>>> +++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+>>> @@ -12319,15 +12319,6 @@ static int bnx2x_init_bp(struct bnx2x *bp)
+>>>
+>>>    	bnx2x_read_fwinfo(bp);
+>>>
+>>> -	if (IS_PF(bp)) {
+>>> -		rc = bnx2x_init_firmware(bp);
+>>> -
+>>> -		if (rc) {
+>>> -			bnx2x_free_mem_bp(bp);
+>>> -			return rc;
+>>> -		}
+>>> -	}
+>>> -
+>>>    	func = BP_FUNC(bp);
+>>>
+>>>    	/* need to reset chip if undi was active */
+>>> @@ -12340,7 +12331,6 @@ static int bnx2x_init_bp(struct bnx2x *bp)
+>>>
+>>>    		rc = bnx2x_prev_unload(bp);
+>>>    		if (rc) {
+>>> -			bnx2x_release_firmware(bp);
+>>>    			bnx2x_free_mem_bp(bp);
+>>>    			return rc;
+>>>    		}
+>>> @@ -13409,7 +13399,7 @@ do {
+>> 				\
+>>>    	     (u8 *)bp->arr, len);					\
+>>>    } while (0)
+>>>
+>>> -int bnx2x_init_firmware(struct bnx2x *bp)
+>>> +static int bnx2x_init_firmware(struct bnx2x *bp)
+>>>    {
+>>>    	const char *fw_file_name, *fw_file_name_v15;
+>>>    	struct bnx2x_fw_file_hdr *fw_hdr;
+>>> @@ -13509,7 +13499,7 @@ int bnx2x_init_firmware(struct bnx2x *bp)
+>>>    	return rc;
+>>>    }
+>>>
+>>> -void bnx2x_release_firmware(struct bnx2x *bp)
+>>> +static void bnx2x_release_firmware(struct bnx2x *bp)
+>>>    {
+>>>    	kfree(bp->init_ops_offsets);
+>>>    	kfree(bp->init_ops);
+>>> @@ -14026,7 +14016,6 @@ static int bnx2x_init_one(struct pci_dev *pdev,
+>>>    	return 0;
+>>>
+>>>    init_one_freemem:
+>>> -	bnx2x_release_firmware(bp);
+>>>    	bnx2x_free_mem_bp(bp);
+>>>
+>>>    init_one_exit:
+>>
+>>
+>> Kind regards,
+>>
+>> Paul
