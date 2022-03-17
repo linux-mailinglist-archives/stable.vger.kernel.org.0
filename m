@@ -2,67 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4B34DBEF7
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 07:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2C64DBE72
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 06:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229958AbiCQGJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 02:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
+        id S229491AbiCQFgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 01:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229837AbiCQGI6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 02:08:58 -0400
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E1B413BAD6;
-        Wed, 16 Mar 2022 22:45:50 -0700 (PDT)
-Received: by mail-yb1-xb2a.google.com with SMTP id z8so8317964ybh.7;
-        Wed, 16 Mar 2022 22:45:50 -0700 (PDT)
+        with ESMTP id S229498AbiCQFgC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 01:36:02 -0400
+Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB84324D985
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 22:04:16 -0700 (PDT)
+Received: by mail-oo1-xc2f.google.com with SMTP id u30-20020a4a6c5e000000b00320d8dc2438so5185640oof.12
+        for <stable@vger.kernel.org>; Wed, 16 Mar 2022 22:04:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bzUnjGDyXu7q9v4BjGZ982U1CVW2XxSBT1y4mEjRJv0=;
-        b=lPqokLZqsCxHE1yHiPzSj38FzKqk0WtvURGh1j2mZGRinC9mx6Br+yZUHETj9FU6EU
-         f5tfU/cotSH2mNNo1cog37Kg+5PbkDh6hAHoMDvwCFhLDCvNhsJqjiLkxpjgqpsyR1ks
-         /heSfFFcjoT9Y5tkJordX492YJE6kZpUJABWooPMA6LxTsOPWjlVkbmj1ZR+v8QM+pu9
-         vKqGMc6gq6v/fbNyRVGlTr2bUiZWyz6PvvVeChYmLUVPBnDaAtbM/yknwctgsNRP1cwO
-         i0c72KK//O2pAyxiwoCt19dCIUgBxxIeJ8U3pkcxdQiQPhhzBxmJinC1RBLqbT8Ndvak
-         BoaA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=gpuptqu7IBeM5Uz/2p++wtUUfc4io3pMUAWYDGlB6Ro=;
+        b=KxIsRql6xzQfLvzMScqB9Gj+45+Av+6GUwIQpXpTMeEZID7POsW+pEjwMzn133fvOE
+         yr4N2vXPHtw8bxZkQF19d7TGxv2UKkvCHhDfZ3lpgF3N3Cfv6a2bmDoFVZBLUvFi2qjo
+         wS9eRGainTGXiSPSkMdPvA2SVi87qL1mZhS8bvogg6lZyjBAwYGnQSVLtMpcShf0zsGp
+         c0kguWfTa0AEC6+hP+Knwy8nNkV9v6aNv9tjB8cL7WCFJMteDa0sn/S4/+J5Wdn3yft7
+         A1R86FAmy1UAZM45+zf6jNud/VJeC4geqVxbFHkxE3aQ39EW+oaxBvL9h/xr5woJGy22
+         MHng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bzUnjGDyXu7q9v4BjGZ982U1CVW2XxSBT1y4mEjRJv0=;
-        b=t9j8jhZb+o2WfowRU0FVu15N7yNdQL34MAEZwAONy8oaGILRh0XOkRKOMU/WMr/8GU
-         L+GUlzow98/R3bQirpPf9T/aA0hE017DsBYiFeLydyHGc0jhNt7lVI5LngN8FU1QFbXJ
-         JK3YJWlyKM6hZzUZar2iU34MVP7Q19e3z4PYUHQhwwejEblNwMDXXm4NzF6NIZB0/B4g
-         yWkExPkBwSuPwB7AvfzRYk5HN97al7zxq9WB8kcg2ExR9oz7fLild/taJsLiWnNlfTlr
-         5msQI+l50Wr80NcGVmY/iySioG5bRBM6dRfzSO26AtgSTQ1c2ZIiyxLbZe9tCDN05d0c
-         8zhg==
-X-Gm-Message-State: AOAM533DOdOSuXN3dyNZW6y1pcmCAozqB+VEwjikYVoAGVKLJFn/ufi0
-        FKywnJorj75mSuub66wtM5W/MnqE+859lvH+uVpe9537WSojcw==
-X-Google-Smtp-Source: ABdhPJyFB4RAag2Fam31j7R7qBMFYRNd6SNZ1PP5uYDwvdKBwhy3oxZu7RngKvwR2SO67orM0Owagt8qYRoNNH4+YAk=
-X-Received: by 2002:a05:6830:1394:b0:5af:6776:ea37 with SMTP id
- d20-20020a056830139400b005af6776ea37mr987418otq.80.1647488968237; Wed, 16 Mar
- 2022 20:49:28 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=gpuptqu7IBeM5Uz/2p++wtUUfc4io3pMUAWYDGlB6Ro=;
+        b=tKDqlIgsS5rsSyoJmZZz4hP1zyaBYKSKvo6gleyioZM4gXBkiw+ZqIdcMXmaz2hajl
+         r4FNJ7aNenjHlmlnETQioEYoo8wpDFInLZ0dPVPeYITUrREiyRFW1vgu4uy5CygZEPAV
+         s7fb+t5mmCwe9pP9xburpwuABAFWl5gSuiFNcL4TRZSfKyGeegbuia0QbF6WPAsvOq/j
+         UJ1mFz+tHozUjKavR9LDScEqHFhWNPd1yvtrLitD3sFYD8EeXsUfUX3B3hoChKy3mSJV
+         RFCsBng3E3HZ4EqpNmfkkVqFwcVoLHTitx8FhXzSGjMQnwNZ5IfOpyREMo+/SuY62FLg
+         8jkg==
+X-Gm-Message-State: AOAM530yRCXacA/jYPR+AJVmUcXaZqL/2RajC1IK9D3VXKfCyRJ5Wu6n
+        JzC2haWX834Zl7ppVvGoDlrs/iAmWys2+lN8FmM=
+X-Google-Smtp-Source: ABdhPJzazPGZaYiYGyd4fvA49tx/fJ+eqlas567ocwF1DuiblhJr372muCCds8OPAtz7enm73bfKUQ==
+X-Received: by 2002:a17:90b:906:b0:1be:e765:882 with SMTP id bo6-20020a17090b090600b001bee7650882mr3116212pjb.152.1647488979085;
+        Wed, 16 Mar 2022 20:49:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g9-20020a056a0023c900b004f736d081d9sm5167734pfc.64.2022.03.16.20.49.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Mar 2022 20:49:38 -0700 (PDT)
+Message-ID: <6232afd2.1c69fb81.a5bbe.e066@mx.google.com>
+Date:   Wed, 16 Mar 2022 20:49:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220315144521.3810298-1-aisheng.dong@nxp.com>
- <20220315144521.3810298-2-aisheng.dong@nxp.com> <20220315155837.2dcef6eb226ad74e37ca31ca@linux-foundation.org>
- <CAA+hA=Ss=YBt-3f=r1BL1NuO7FK56kTf31zWzNjMBkAKQE41Rg@mail.gmail.com> <20220316140904.513fe0e8180b4e3fcad24e3b@linux-foundation.org>
-In-Reply-To: <20220316140904.513fe0e8180b4e3fcad24e3b@linux-foundation.org>
-From:   Dong Aisheng <dongas86@gmail.com>
-Date:   Thu, 17 Mar 2022 11:49:16 +0800
-Message-ID: <CAA+hA=QEtxeCZX7K+sW0KUZbErjr9NFMN6ZaidaXCL+1m6=F+w@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] mm: cma: fix allocation may fail sometimes
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Dong Aisheng <aisheng.dong@nxp.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        shawnguo@kernel.org, linux-imx@nxp.com, m.szyprowski@samsung.com,
-        lecopzer.chen@mediatek.com, david@redhat.com, vbabka@suse.cz,
-        stable@vger.kernel.org, shijie.qin@nxp.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.235
+Subject: stable-rc/linux-4.19.y baseline: 76 runs, 1 regressions (v4.19.235)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,69 +69,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 17, 2022 at 5:09 AM Andrew Morton <akpm@linux-foundation.org> wrote:
->
-> On Wed, 16 Mar 2022 11:41:37 +0800 Dong Aisheng <dongas86@gmail.com> wrote:
->
-> > On Wed, Mar 16, 2022 at 6:58 AM Andrew Morton <akpm@linux-foundation.org> wrote:
-> > >
-> > > On Tue, 15 Mar 2022 22:45:20 +0800 Dong Aisheng <aisheng.dong@nxp.com> wrote:
-> > >
-> > > > --- a/mm/cma.c
-> > > > +++ b/mm/cma.c
-> > > >
-> > > > ...
-> > > >
-> > > > @@ -457,6 +458,16 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
-> > > >                               offset);
-> > > >               if (bitmap_no >= bitmap_maxno) {
-> > > >                       spin_unlock_irq(&cma->lock);
-> > > > +                     pr_debug("%s(): alloc fail, retry loop %d\n", __func__, loop++);
-> > > > +                     /*
-> > > > +                      * rescan as others may finish the memory migration
-> > > > +                      * and quit if no available CMA memory found finally
-> > > > +                      */
-> > > > +                     if (start) {
-> > > > +                             schedule();
-> > > > +                             start = 0;
-> > > > +                             continue;
-> > > > +                     }
-> > > >                       break;
-> > >
-> > > The schedule() is problematic. For a start, we'd normally use
-> > > cond_resched() here, so we avoid calling the more expensive schedule()
-> > > if we know it won't perform any action.
-> > >
-> > > But cond_resched() is problematic if this thread has realtime
-> > > scheduling policy and the process we're waiting on does not.  One way
-> > > to address that is to use an unconditional msleep(1), but that's still
-> > > just a hack.
-> > >
-> >
-> > I think we can simply drop schedule() here during the second round of retry
-> > as the estimated delay may not be really needed.
->
-> That will simply cause a tight loop, so I'm obviously not understanding
-> the proposal.
->
+stable-rc/linux-4.19.y baseline: 76 runs, 1 regressions (v4.19.235)
 
-IIUC the original code is already a tight loop, isn't it?
-You could also see my observation, thousands of retries, in patch 2.
-The logic in this patch is just retry the original loop in case in case there's
-a false possive error return.
+Regressions Summary
+-------------------
 
-Or you mean infinite loop? The loop will break out when meet an non EBUSY
-error in alloc_contig_range().
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-BTW, the tight loop situation could be improved a lot by my patch 2.
 
-And after Zi Yan's patchset [1] got merged, the situation could be
-further improved by retring in pageblock step.
-1. [v7,0/5] Use pageblock_order for cma and alloc_contig_range
-alignment. - Patchwork (kernel.org)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.235/plan/baseline/
 
-So generally i wonder it seems still better than simply revert.
-Please fix me if i still missed something.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.235
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6b481672f19259632a852d013cacd5655e8d7da8 =
 
-Regards
-Aisheng
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6232762a50d0166ebdc6296f
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+35/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gr=
+u-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+35/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gr=
+u-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6232762a50d0166ebdc62995
+        failing since 10 days (last pass: v4.19.232, first fail: v4.19.232-=
+45-g5da8d73687e7)
+
+    2022-03-16T23:43:28.832235  /lava-5894341/1/../bin/lava-test-case
+    2022-03-16T23:43:28.841292  <8>[   36.805011] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
