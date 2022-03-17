@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B65A4DC65C
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 657864DC6D2
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:55:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234035AbiCQMvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38276 "EHLO
+        id S234221AbiCQMz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:55:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234037AbiCQMvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:51:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A631F2DC5;
-        Thu, 17 Mar 2022 05:49:05 -0700 (PDT)
+        with ESMTP id S234893AbiCQMyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:54:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A210125CB1;
+        Thu, 17 Mar 2022 05:52:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C2C2B81E5C;
-        Thu, 17 Mar 2022 12:49:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C1D2C340E9;
-        Thu, 17 Mar 2022 12:49:01 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 79D1DCE233F;
+        Thu, 17 Mar 2022 12:52:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7652EC340E9;
+        Thu, 17 Mar 2022 12:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521341;
-        bh=S+C3nMEKcj//SPKl/o/lF689KSCYt2NX+QEWbw/d2CU=;
+        s=korg; t=1647521520;
+        bh=1gCRPyY4vM+iDC3GJxAZQQdACtX+gknDE32JyIAp8tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7+R/DRrNsBK41d5ebO2kd5a/vAyZJVpPFMeN3LYjQ1xiN/7p2cQQZqU5KGg42LxN
-         e9uop0pa/4+5zuLz/V36svbZBRB6ptfGT91sz8xpT4na0x3ojZyn0FDky5+K525vYB
-         qRKZ51fmifQxFvHka4oSE5z9QSPYWwlE9EupqEww=
+        b=kNf4Uh4T9u47mlcfn8FdXbRUTdkYmMhOrBPgqOP09TwgKZx7tVWZO8BxPJEpDWS0A
+         5lzAEgeEW5G38x/QERRRQEo2+PUMTqLcyeHFXUjIgt12NMYn4VBlLIn+fl4eRLeMPO
+         +zDP8sQ2dpeOX5rCGWTjvFhH0bd0Pu+DpHQpRnyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/43] bnx2: Fix an error message
+Subject: [PATCH 5.15 06/25] arm64: dts: rockchip: align pl330 node name with dtschema
 Date:   Thu, 17 Mar 2022 13:45:53 +0100
-Message-Id: <20220317124528.836870115@linuxfoundation.org>
+Message-Id: <20220317124526.492233222@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124527.672236844@linuxfoundation.org>
-References: <20220317124527.672236844@linuxfoundation.org>
+In-Reply-To: <20220317124526.308079100@linuxfoundation.org>
+References: <20220317124526.308079100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,32 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 8ccffe9ac3239e549beaa0a9d5e1a1eac94e866c ]
+[ Upstream commit 8fd9415042826c7609c588e5ef45f3e84237785f ]
 
-Fix an error message and report the correct failing function.
+Fixes dtbs_check warnings like:
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  dmac@ff240000: $nodename:0: 'dmac@ff240000' does not match '^dma-controller(@.*)?$'
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20220129175429.298836-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/px30.dtsi   | 2 +-
+ arch/arm64/boot/dts/rockchip/rk3328.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
-index c3f67d8e1093..f53292eab9da 100644
---- a/drivers/net/ethernet/broadcom/bnx2.c
-+++ b/drivers/net/ethernet/broadcom/bnx2.c
-@@ -8231,7 +8231,7 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
- 		rc = pci_set_consistent_dma_mask(pdev, persist_dma_mask);
- 		if (rc) {
- 			dev_err(&pdev->dev,
--				"pci_set_consistent_dma_mask failed, aborting\n");
-+				"dma_set_coherent_mask failed, aborting\n");
- 			goto err_out_unmap;
- 		}
- 	} else if ((rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) != 0) {
+diff --git a/arch/arm64/boot/dts/rockchip/px30.dtsi b/arch/arm64/boot/dts/rockchip/px30.dtsi
+index 248ebb61aa79..5200d0bbd9e9 100644
+--- a/arch/arm64/boot/dts/rockchip/px30.dtsi
++++ b/arch/arm64/boot/dts/rockchip/px30.dtsi
+@@ -711,7 +711,7 @@
+ 		clock-names = "pclk", "timer";
+ 	};
+ 
+-	dmac: dmac@ff240000 {
++	dmac: dma-controller@ff240000 {
+ 		compatible = "arm,pl330", "arm,primecell";
+ 		reg = <0x0 0xff240000 0x0 0x4000>;
+ 		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+index da84be6f4715..3cbe83e6fb9a 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+@@ -489,7 +489,7 @@
+ 		status = "disabled";
+ 	};
+ 
+-	dmac: dmac@ff1f0000 {
++	dmac: dma-controller@ff1f0000 {
+ 		compatible = "arm,pl330", "arm,primecell";
+ 		reg = <0x0 0xff1f0000 0x0 0x4000>;
+ 		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
 -- 
 2.34.1
 
