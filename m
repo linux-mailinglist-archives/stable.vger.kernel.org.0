@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 120EF4DC65D
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:50:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B06EB4DC666
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234011AbiCQMvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:51:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39348 "EHLO
+        id S233856AbiCQMvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:51:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234053AbiCQMvC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:51:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03AC1F6343;
-        Thu, 17 Mar 2022 05:49:09 -0700 (PDT)
+        with ESMTP id S234071AbiCQMvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:51:31 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B083E1F6F20;
+        Thu, 17 Mar 2022 05:49:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3809461463;
-        Thu, 17 Mar 2022 12:49:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19928C340ED;
-        Thu, 17 Mar 2022 12:49:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 27ED6CE233F;
+        Thu, 17 Mar 2022 12:49:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 142ADC340EF;
+        Thu, 17 Mar 2022 12:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521348;
-        bh=Us0ddea7M4LNimZ1TRqKszvcE3LyqV9O8BoBA/Mrw4M=;
+        s=korg; t=1647521360;
+        bh=LHKATBomQ6ACtfJjG+YFvVAXAGjmKFmdhJSOLfP3MmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1w1ht0uTJNmJmtCLZ6yM2ZeCzWi49BDfU1GhBZWBwC1rjv64k7b4RMjw8S94mRCps
-         /j6x5/HPmrjkkYD8fVL6ydvz3KPtAH7fL2Ldk1eMKUGA2GaNa63KRcq3/26boTJ8Xx
-         9rJ4xp0sRyQl4iSwmdZdraSDQPWgooptN5wFJsvU=
+        b=qscb2wCQ+5gLe6R1RJykJzFVYw4WTfaT1Mx06XK9KclLAkYvE55vBRezwV9QCY61m
+         Zxs9AbgJW+Cdg9Po1+k3av84XeR20H3F+kjV3j++Q3YuhUpfQPFEEscbfT1ukw06l1
+         oOT8xdPDR8l69vDoKcbH8rS0eEhY31J7rcY3EoqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 40/43] tcp: make tcp_read_sock() more robust
+Subject: [PATCH 5.10 10/23] mac80211: refuse aggregations sessions before authorized
 Date:   Thu, 17 Mar 2022 13:45:51 +0100
-Message-Id: <20220317124528.782652194@linuxfoundation.org>
+Message-Id: <20220317124526.251768816@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124527.672236844@linuxfoundation.org>
-References: <20220317124527.672236844@linuxfoundation.org>
+In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
+References: <20220317124525.955110315@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit e3d5ea2c011ecb16fb94c56a659364e6b30fac94 ]
+[ Upstream commit a6bce78262f5dd4b50510f0aa47f3995f7b185f3 ]
 
-If recv_actor() returns an incorrect value, tcp_read_sock()
-might loop forever.
+If an MFP station isn't authorized, the receiver will (or
+at least should) drop the action frame since it's a robust
+management frame, but if we're not authorized we haven't
+installed keys yet. Refuse attempts to start a session as
+they'd just time out.
 
-Instead, issue a one time warning and make sure to make progress.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/r/20220302161723.3910001-2-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20220203201528.ff4d5679dce9.I34bb1f2bc341e161af2d6faf74f91b332ba11285@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/mac80211/agg-tx.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 9f53d25e047e..4815cf72569e 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1652,11 +1652,13 @@ int tcp_read_sock(struct sock *sk, read_descriptor_t *desc,
- 				if (!copied)
- 					copied = used;
- 				break;
--			} else if (used <= len) {
--				seq += used;
--				copied += used;
--				offset += used;
- 			}
-+			if (WARN_ON_ONCE(used > len))
-+				used = len;
-+			seq += used;
-+			copied += used;
-+			offset += used;
+diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
+index 190f300d8923..4b4ab1961068 100644
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -9,7 +9,7 @@
+  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
+  * Copyright 2007-2010, Intel Corporation
+  * Copyright(c) 2015-2017 Intel Deutschland GmbH
+- * Copyright (C) 2018 - 2021 Intel Corporation
++ * Copyright (C) 2018 - 2022 Intel Corporation
+  */
+ 
+ #include <linux/ieee80211.h>
+@@ -626,6 +626,14 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
+ 		return -EINVAL;
+ 	}
+ 
++	if (test_sta_flag(sta, WLAN_STA_MFP) &&
++	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {
++		ht_dbg(sdata,
++		       "MFP STA not authorized - deny BA session request %pM tid %d\n",
++		       sta->sta.addr, tid);
++		return -EINVAL;
++	}
 +
- 			/* If recv_actor drops the lock (e.g. TCP splice
- 			 * receive) the skb pointer might be invalid when
- 			 * getting here: tcp_collapse might have deleted it
+ 	/*
+ 	 * 802.11n-2009 11.5.1.1: If the initiating STA is an HT STA, is a
+ 	 * member of an IBSS, and has no other existing Block Ack agreement
 -- 
 2.34.1
 
