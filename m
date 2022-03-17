@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F81B4DC689
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7379C4DC631
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232513AbiCQMwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:52:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38068 "EHLO
+        id S233807AbiCQMt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:49:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234016AbiCQMwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:52:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393B11F83F4;
-        Thu, 17 Mar 2022 05:50:00 -0700 (PDT)
+        with ESMTP id S233795AbiCQMt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:49:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 419401F0C84;
+        Thu, 17 Mar 2022 05:48:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B76AA612AC;
-        Thu, 17 Mar 2022 12:49:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3DA8C340E9;
-        Thu, 17 Mar 2022 12:49:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C75CB81E5C;
+        Thu, 17 Mar 2022 12:48:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60EC0C340E9;
+        Thu, 17 Mar 2022 12:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521399;
-        bh=l5UBkHpHhHs/9/pI/wb4rOxpOmSD8CIB1JIiTa7lovk=;
+        s=korg; t=1647521283;
+        bh=Jfcq61gqf9CXq2ZHuQFRQVZPk1VmB2ZeZedHRCCDDxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1L+bvY1GQ1LrqXA18FWP6z2fSC2Zl4TMiXHjX3jrrjinWjYVcrvxtIJswcYNPhWOB
-         e8YeyKg8ceGxcPE6plqBtBKNspTlI0f8kC8BksAEVgGM/5RxDY5JmZ4vcfN7D24ES/
-         xNc/NMO2BZhcXe2ZdwuRqJORVDv+ycP7p4Qptv7g=
+        b=GOhUPCNmufHiYOFaN5/RHTdzdjNgauwN97c6pJm8+IeTtvYpzR4e7QvwzFcs24Ryo
+         ABGDOzhGVgXMNl7MH3Kc+UKHMgp0d1yd2O4FVaGipf/TIGFsLuGTC0w/ZM1UdWAYcr
+         g1wKHt7gu7QjH/lQ+YPn/ZPw9TnfmPiiy0euJgi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.10 02/23] sctp: fix the processing for INIT chunk
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 32/43] mac80211: refuse aggregations sessions before authorized
 Date:   Thu, 17 Mar 2022 13:45:43 +0100
-Message-Id: <20220317124526.028103737@linuxfoundation.org>
+Message-Id: <20220317124528.562977471@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
-References: <20220317124525.955110315@linuxfoundation.org>
+In-Reply-To: <20220317124527.672236844@linuxfoundation.org>
+References: <20220317124527.672236844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,161 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit eae5783908042a762c24e1bd11876edb91d314b1 upstream.
+[ Upstream commit a6bce78262f5dd4b50510f0aa47f3995f7b185f3 ]
 
-This patch fixes the problems below:
+If an MFP station isn't authorized, the receiver will (or
+at least should) drop the action frame since it's a robust
+management frame, but if we're not authorized we haven't
+installed keys yet. Refuse attempts to start a session as
+they'd just time out.
 
-1. In non-shutdown_ack_sent states: in sctp_sf_do_5_1B_init() and
-   sctp_sf_do_5_2_2_dupinit():
-
-  chunk length check should be done before any checks that may cause
-  to send abort, as making packet for abort will access the init_tag
-  from init_hdr in sctp_ootb_pkt_new().
-
-2. In shutdown_ack_sent state: in sctp_sf_do_9_2_reshutack():
-
-  The same checks as does in sctp_sf_do_5_2_2_dupinit() is needed
-  for sctp_sf_do_9_2_reshutack().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20220203201528.ff4d5679dce9.I34bb1f2bc341e161af2d6faf74f91b332ba11285@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c |   71 +++++++++++++++++++++++++++++++-----------------
- 1 file changed, 46 insertions(+), 25 deletions(-)
+ net/mac80211/agg-tx.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -149,6 +149,12 @@ static enum sctp_disposition __sctp_sf_d
- 					void *arg,
- 					struct sctp_cmd_seq *commands);
- 
-+static enum sctp_disposition
-+__sctp_sf_do_9_2_reshutack(struct net *net, const struct sctp_endpoint *ep,
-+			   const struct sctp_association *asoc,
-+			   const union sctp_subtype type, void *arg,
-+			   struct sctp_cmd_seq *commands);
-+
- /* Small helper function that checks if the chunk length
-  * is of the appropriate length.  The 'required_length' argument
-  * is set to be the size of a specific chunk we are testing.
-@@ -330,6 +336,14 @@ enum sctp_disposition sctp_sf_do_5_1B_in
- 	if (!chunk->singleton)
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
-+	/* Make sure that the INIT chunk has a valid length.
-+	 * Normally, this would cause an ABORT with a Protocol Violation
-+	 * error, but since we don't have an association, we'll
-+	 * just discard the packet.
-+	 */
-+	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_init_chunk)))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
- 	/* If the packet is an OOTB packet which is temporarily on the
- 	 * control endpoint, respond with an ABORT.
- 	 */
-@@ -344,14 +358,6 @@ enum sctp_disposition sctp_sf_do_5_1B_in
- 	if (chunk->sctp_hdr->vtag != 0)
- 		return sctp_sf_tabort_8_4_8(net, ep, asoc, type, arg, commands);
- 
--	/* Make sure that the INIT chunk has a valid length.
--	 * Normally, this would cause an ABORT with a Protocol Violation
--	 * error, but since we don't have an association, we'll
--	 * just discard the packet.
--	 */
--	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_init_chunk)))
--		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
--
- 	/* If the INIT is coming toward a closing socket, we'll send back
- 	 * and ABORT.  Essentially, this catches the race of INIT being
- 	 * backloged to the socket at the same time as the user isses close().
-@@ -1484,19 +1490,16 @@ static enum sctp_disposition sctp_sf_do_
- 	if (!chunk->singleton)
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
-+	/* Make sure that the INIT chunk has a valid length. */
-+	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_init_chunk)))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
- 	/* 3.1 A packet containing an INIT chunk MUST have a zero Verification
- 	 * Tag.
- 	 */
- 	if (chunk->sctp_hdr->vtag != 0)
- 		return sctp_sf_tabort_8_4_8(net, ep, asoc, type, arg, commands);
- 
--	/* Make sure that the INIT chunk has a valid length.
--	 * In this case, we generate a protocol violation since we have
--	 * an association established.
--	 */
--	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_init_chunk)))
--		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
--						  commands);
- 	/* Grab the INIT header.  */
- 	chunk->subh.init_hdr = (struct sctp_inithdr *)chunk->skb->data;
- 
-@@ -1814,9 +1817,9 @@ static enum sctp_disposition sctp_sf_do_
- 	 * its peer.
- 	*/
- 	if (sctp_state(asoc, SHUTDOWN_ACK_SENT)) {
--		disposition = sctp_sf_do_9_2_reshutack(net, ep, asoc,
--				SCTP_ST_CHUNK(chunk->chunk_hdr->type),
--				chunk, commands);
-+		disposition = __sctp_sf_do_9_2_reshutack(net, ep, asoc,
-+							 SCTP_ST_CHUNK(chunk->chunk_hdr->type),
-+							 chunk, commands);
- 		if (SCTP_DISPOSITION_NOMEM == disposition)
- 			goto nomem;
- 
-@@ -2915,13 +2918,11 @@ enum sctp_disposition sctp_sf_do_9_2_shu
-  * that belong to this association, it should discard the INIT chunk and
-  * retransmit the SHUTDOWN ACK chunk.
+diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
+index f140c2b94b2c..f30cdd7f3a73 100644
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -9,7 +9,7 @@
+  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
+  * Copyright 2007-2010, Intel Corporation
+  * Copyright(c) 2015-2017 Intel Deutschland GmbH
+- * Copyright (C) 2018 - 2021 Intel Corporation
++ * Copyright (C) 2018 - 2022 Intel Corporation
   */
--enum sctp_disposition sctp_sf_do_9_2_reshutack(
--					struct net *net,
--					const struct sctp_endpoint *ep,
--					const struct sctp_association *asoc,
--					const union sctp_subtype type,
--					void *arg,
--					struct sctp_cmd_seq *commands)
-+static enum sctp_disposition
-+__sctp_sf_do_9_2_reshutack(struct net *net, const struct sctp_endpoint *ep,
-+			   const struct sctp_association *asoc,
-+			   const union sctp_subtype type, void *arg,
-+			   struct sctp_cmd_seq *commands)
- {
- 	struct sctp_chunk *chunk = arg;
- 	struct sctp_chunk *reply;
-@@ -2955,6 +2956,26 @@ nomem:
- 	return SCTP_DISPOSITION_NOMEM;
- }
  
-+enum sctp_disposition
-+sctp_sf_do_9_2_reshutack(struct net *net, const struct sctp_endpoint *ep,
-+			 const struct sctp_association *asoc,
-+			 const union sctp_subtype type, void *arg,
-+			 struct sctp_cmd_seq *commands)
-+{
-+	struct sctp_chunk *chunk = arg;
+ #include <linux/ieee80211.h>
+@@ -615,6 +615,14 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
+ 		return -EINVAL;
+ 	}
+ 
++	if (test_sta_flag(sta, WLAN_STA_MFP) &&
++	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {
++		ht_dbg(sdata,
++		       "MFP STA not authorized - deny BA session request %pM tid %d\n",
++		       sta->sta.addr, tid);
++		return -EINVAL;
++	}
 +
-+	if (!chunk->singleton)
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
-+	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_init_chunk)))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
-+	if (chunk->sctp_hdr->vtag != 0)
-+		return sctp_sf_tabort_8_4_8(net, ep, asoc, type, arg, commands);
-+
-+	return __sctp_sf_do_9_2_reshutack(net, ep, asoc, type, arg, commands);
-+}
-+
- /*
-  * sctp_sf_do_ecn_cwr
-  *
+ 	/*
+ 	 * 802.11n-2009 11.5.1.1: If the initiating STA is an HT STA, is a
+ 	 * member of an IBSS, and has no other existing Block Ack agreement
+-- 
+2.34.1
+
 
 
