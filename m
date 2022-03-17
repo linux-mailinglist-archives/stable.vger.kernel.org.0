@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D66E14DC6A9
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F8B4DC634
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234225AbiCQMz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:55:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39668 "EHLO
+        id S233897AbiCQMuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:50:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234166AbiCQMwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:52:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73051F2DC2;
-        Thu, 17 Mar 2022 05:50:17 -0700 (PDT)
+        with ESMTP id S233889AbiCQMta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:49:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C6B1F0CA2;
+        Thu, 17 Mar 2022 05:48:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A2DB612AC;
-        Thu, 17 Mar 2022 12:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78D34C340EF;
-        Thu, 17 Mar 2022 12:50:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB73FB81E8F;
+        Thu, 17 Mar 2022 12:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F403C340ED;
+        Thu, 17 Mar 2022 12:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521416;
-        bh=iryJeOipI2fQm2Kduh61gmmU2fuSQG5Cfrxuy+fQi50=;
+        s=korg; t=1647521287;
+        bh=aEYPqwArAW+uwcXlKMY5N85b/gaIqcBdlnG6nxEOdnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylsJs3mKHqsNq0G57dflJTnUzcYdF76U1fYJTaqsnGyrx7w77Ce7LjcudhX3DKc53
-         sjmLMYxBV1UB6Y3DsABFPwxs/eYst3LGNKkRG6BiGMOUiAW3jK6ISNbgRMYbjQJmxM
-         FAdyjQBlE6bMyh11UmfSX3g2M5XWzS8gEpIyEpag=
+        b=DeuGyHK9s4istAcFq3l1eu7RXImaQrQ+udTWRhOIok6x2WhsMUT0LmtYsKtALMVPs
+         ULijL4wWhdMz7J2Dtz3ev7BCm55emEufSTkU2mcCtHG+uDdvF2zv9rM8roJs4f+nPi
+         GZoa0aof20sZUwtp7kSaf/yI3GFaaRRLvpyDv0Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan Yan <evitayan@google.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 03/23] xfrm: Check if_id in xfrm_migrate
+Subject: [PATCH 5.4 33/43] MIPS: smp: fill in sibling and core maps earlier
 Date:   Thu, 17 Mar 2022 13:45:44 +0100
-Message-Id: <20220317124526.056046170@linuxfoundation.org>
+Message-Id: <20220317124528.589586207@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
-References: <20220317124525.955110315@linuxfoundation.org>
+In-Reply-To: <20220317124527.672236844@linuxfoundation.org>
+References: <20220317124527.672236844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,203 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Yan <evitayan@google.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-[ Upstream commit c1aca3080e382886e2e58e809787441984a2f89b ]
+[ Upstream commit f2703def339c793674010cc9f01bfe4980231808 ]
 
-This patch enables distinguishing SAs and SPs based on if_id during
-the xfrm_migrate flow. This ensures support for xfrm interfaces
-throughout the SA/SP lifecycle.
+After enabling CONFIG_SCHED_CORE (landed during 5.14 cycle),
+2-core 2-thread-per-core interAptiv (CPS-driven) started emitting
+the following:
 
-When there are multiple existing SPs with the same direction,
-the same xfrm_selector and different endpoint addresses,
-xfrm_migrate might fail with ENODATA.
+[    0.025698] CPU1 revision is: 0001a120 (MIPS interAptiv (multi))
+[    0.048183] ------------[ cut here ]------------
+[    0.048187] WARNING: CPU: 1 PID: 0 at kernel/sched/core.c:6025 sched_core_cpu_starting+0x198/0x240
+[    0.048220] Modules linked in:
+[    0.048233] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.17.0-rc3+ #35 b7b319f24073fd9a3c2aa7ad15fb7993eec0b26f
+[    0.048247] Stack : 817f0000 00000004 327804c8 810eb050 00000000 00000004 00000000 c314fdd1
+[    0.048278]         830cbd64 819c0000 81800000 817f0000 83070bf4 00000001 830cbd08 00000000
+[    0.048307]         00000000 00000000 815fcbc4 00000000 00000000 00000000 00000000 00000000
+[    0.048334]         00000000 00000000 00000000 00000000 817f0000 00000000 00000000 817f6f34
+[    0.048361]         817f0000 818a3c00 817f0000 00000004 00000000 00000000 4dc33260 0018c933
+[    0.048389]         ...
+[    0.048396] Call Trace:
+[    0.048399] [<8105a7bc>] show_stack+0x3c/0x140
+[    0.048424] [<8131c2a0>] dump_stack_lvl+0x60/0x80
+[    0.048440] [<8108b5c0>] __warn+0xc0/0xf4
+[    0.048454] [<8108b658>] warn_slowpath_fmt+0x64/0x10c
+[    0.048467] [<810bd418>] sched_core_cpu_starting+0x198/0x240
+[    0.048483] [<810c6514>] sched_cpu_starting+0x14/0x80
+[    0.048497] [<8108c0f8>] cpuhp_invoke_callback_range+0x78/0x140
+[    0.048510] [<8108d914>] notify_cpu_starting+0x94/0x140
+[    0.048523] [<8106593c>] start_secondary+0xbc/0x280
+[    0.048539]
+[    0.048543] ---[ end trace 0000000000000000 ]---
+[    0.048636] Synchronize counters for CPU 1: done.
 
-Specifically, the code path for performing xfrm_migrate is:
-  Stage 1: find policy to migrate with
-    xfrm_migrate_policy_find(sel, dir, type, net)
-  Stage 2: find and update state(s) with
-    xfrm_migrate_state_find(mp, net)
-  Stage 3: update endpoint address(es) of template(s) with
-    xfrm_policy_migrate(pol, m, num_migrate)
+...for each but CPU 0/boot.
+Basic debug printks right before the mentioned line say:
 
-Currently "Stage 1" always returns the first xfrm_policy that
-matches, and "Stage 3" looks for the xfrm_tmpl that matches the
-old endpoint address. Thus if there are multiple xfrm_policy
-with same selector, direction, type and net, "Stage 1" might
-rertun a wrong xfrm_policy and "Stage 3" will fail with ENODATA
-because it cannot find a xfrm_tmpl with the matching endpoint
-address.
+[    0.048170] CPU: 1, smt_mask:
 
-The fix is to allow userspace to pass an if_id and add if_id
-to the matching rule in Stage 1 and Stage 2 since if_id is a
-unique ID for xfrm_policy and xfrm_state. For compatibility,
-if_id will only be checked if the attribute is set.
+So smt_mask, which is sibling mask obviously, is empty when entering
+the function.
+This is critical, as sched_core_cpu_starting() calculates
+core-scheduling parameters only once per CPU start, and it's crucial
+to have all the parameters filled in at that moment (at least it
+uses cpu_smt_mask() which in fact is `&cpu_sibling_map[cpu]` on
+MIPS).
 
-Tested with additions to Android's kernel unit test suite:
-https://android-review.googlesource.com/c/kernel/tests/+/1668886
+A bit of debugging led me to that set_cpu_sibling_map() performing
+the actual map calculation, was being invocated after
+notify_cpu_start(), and exactly the latter function starts CPU HP
+callback round (sched_core_cpu_starting() is basically a CPU HP
+callback).
+While the flow is same on ARM64 (maps after the notifier, although
+before calling set_cpu_online()), x86 started calculating sibling
+maps earlier than starting the CPU HP callbacks in Linux 4.14 (see
+[0] for the reference). Neither me nor my brief tests couldn't find
+any potential caveats in calculating the maps right after performing
+delay calibration, but the WARN splat is now gone.
+The very same debug prints now yield exactly what I expected from
+them:
 
-Signed-off-by: Yan Yan <evitayan@google.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+[    0.048433] CPU: 1, smt_mask: 0-1
+
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/mips/linux.git/commit/?id=76ce7cfe35ef
+
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h     |  5 +++--
- net/key/af_key.c       |  2 +-
- net/xfrm/xfrm_policy.c | 14 ++++++++------
- net/xfrm/xfrm_state.c  |  7 ++++++-
- net/xfrm/xfrm_user.c   |  6 +++++-
- 5 files changed, 23 insertions(+), 11 deletions(-)
+ arch/mips/kernel/smp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 4a2843441caf..0049a7459649 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1668,14 +1668,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 	       const struct xfrm_migrate *m, int num_bundles,
- 	       const struct xfrm_kmaddress *k,
- 	       const struct xfrm_encap_tmpl *encap);
--struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
-+struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
-+						u32 if_id);
- struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
- 				      struct xfrm_migrate *m,
- 				      struct xfrm_encap_tmpl *encap);
- int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 		 struct xfrm_migrate *m, int num_bundles,
- 		 struct xfrm_kmaddress *k, struct net *net,
--		 struct xfrm_encap_tmpl *encap);
-+		 struct xfrm_encap_tmpl *encap, u32 if_id);
- #endif
+diff --git a/arch/mips/kernel/smp.c b/arch/mips/kernel/smp.c
+index f510c00bda88..c563b03bdccc 100644
+--- a/arch/mips/kernel/smp.c
++++ b/arch/mips/kernel/smp.c
+@@ -361,6 +361,9 @@ asmlinkage void start_secondary(void)
+ 	cpu = smp_processor_id();
+ 	cpu_data[cpu].udelay_val = loops_per_jiffy;
  
- int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index ef9b4ac03e7b..d1364b858fdf 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -2627,7 +2627,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
- 	}
- 
- 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
--			    kma ? &k : NULL, net, NULL);
-+			    kma ? &k : NULL, net, NULL, 0);
- 
-  out:
- 	return err;
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index c4a195cb3681..3d0ffd927004 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -4287,7 +4287,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
- }
- 
- static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
--						    u8 dir, u8 type, struct net *net)
-+						    u8 dir, u8 type, struct net *net, u32 if_id)
- {
- 	struct xfrm_policy *pol, *ret = NULL;
- 	struct hlist_head *chain;
-@@ -4296,7 +4296,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
- 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
- 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
- 	hlist_for_each_entry(pol, chain, bydst) {
--		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
-+		if ((if_id == 0 || pol->if_id == if_id) &&
-+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
- 		    pol->type == type) {
- 			ret = pol;
- 			priority = ret->priority;
-@@ -4308,7 +4309,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
- 		if ((pol->priority >= priority) && ret)
- 			break;
- 
--		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
-+		if ((if_id == 0 || pol->if_id == if_id) &&
-+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
- 		    pol->type == type) {
- 			ret = pol;
- 			break;
-@@ -4424,7 +4426,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
- int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 		 struct xfrm_migrate *m, int num_migrate,
- 		 struct xfrm_kmaddress *k, struct net *net,
--		 struct xfrm_encap_tmpl *encap)
-+		 struct xfrm_encap_tmpl *encap, u32 if_id)
- {
- 	int i, err, nx_cur = 0, nx_new = 0;
- 	struct xfrm_policy *pol = NULL;
-@@ -4443,14 +4445,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 	}
- 
- 	/* Stage 1 - find policy */
--	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
-+	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
- 		err = -ENOENT;
- 		goto out;
- 	}
- 
- 	/* Stage 2 - find and update state(s) */
- 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
--		if ((x = xfrm_migrate_state_find(mp, net))) {
-+		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
- 			x_cur[nx_cur] = x;
- 			nx_cur++;
- 			xc = xfrm_state_migrate(x, mp, encap);
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index f5b846a2edcd..37fe22b2e843 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1569,7 +1569,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
- 	return NULL;
- }
- 
--struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
-+struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
-+						u32 if_id)
- {
- 	unsigned int h;
- 	struct xfrm_state *x = NULL;
-@@ -1585,6 +1586,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
- 				continue;
- 			if (m->reqid && x->props.reqid != m->reqid)
- 				continue;
-+			if (if_id != 0 && x->if_id != if_id)
-+				continue;
- 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
- 					     m->old_family) ||
- 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
-@@ -1600,6 +1603,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
- 			if (x->props.mode != m->mode ||
- 			    x->id.proto != m->proto)
- 				continue;
-+			if (if_id != 0 && x->if_id != if_id)
-+				continue;
- 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
- 					     m->old_family) ||
- 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 518462059a9a..1ece01cd67a4 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -2436,6 +2436,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	int n = 0;
- 	struct net *net = sock_net(skb->sk);
- 	struct xfrm_encap_tmpl  *encap = NULL;
-+	u32 if_id = 0;
- 
- 	if (attrs[XFRMA_MIGRATE] == NULL)
- 		return -EINVAL;
-@@ -2460,7 +2461,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
- 			return 0;
- 	}
- 
--	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
-+	if (attrs[XFRMA_IF_ID])
-+		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++	set_cpu_sibling_map(cpu);
++	set_cpu_core_map(cpu);
 +
-+	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
+ 	cpumask_set_cpu(cpu, &cpu_coherent_mask);
+ 	notify_cpu_starting(cpu);
  
- 	kfree(encap);
+@@ -372,9 +375,6 @@ asmlinkage void start_secondary(void)
+ 	/* The CPU is running and counters synchronised, now mark it online */
+ 	set_cpu_online(cpu, true);
  
+-	set_cpu_sibling_map(cpu);
+-	set_cpu_core_map(cpu);
+-
+ 	calculate_cpu_foreign_map();
+ 
+ 	/*
 -- 
 2.34.1
 
