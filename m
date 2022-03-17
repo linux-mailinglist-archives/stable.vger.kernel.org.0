@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C714DC6D3
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:55:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6B274DC6D5
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234166AbiCQM4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36698 "EHLO
+        id S233311AbiCQM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:56:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbiCQMy6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:54:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5358F40E68;
-        Thu, 17 Mar 2022 05:53:42 -0700 (PDT)
+        with ESMTP id S234180AbiCQMzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:55:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50079A981;
+        Thu, 17 Mar 2022 05:53:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3DB361506;
-        Thu, 17 Mar 2022 12:53:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2558C340E9;
-        Thu, 17 Mar 2022 12:53:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85F9CB81E01;
+        Thu, 17 Mar 2022 12:53:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA3CEC340E9;
+        Thu, 17 Mar 2022 12:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521621;
-        bh=BvnQwBFKUR8gZMwjM693Z0CBO57IlbCYmgALUnEdvQc=;
+        s=korg; t=1647521627;
+        bh=imLRbNBIttWRNaw4IAFVGr5nNbkEISMaVibcAl0KihE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bf+jqNEkPVCW5+IF3dDIANyfoUq8yArip7WWdW9LRWOGnlThd/CYOD+KxVW1eQQ2S
-         iXHWCDGW5TfEObvlFbWKHIWkBupCtJ9qdMbIHn6JABvr1pzg+90+rVUfG9e7QTSmOd
-         1tZn3p9wsX5EfYxCTin2BA8AK8Xjdw0YwGeifCdM=
+        b=IWjhBYoiUwTrVz/aZI5WRvbsVPaE+lQMkz52HIEH6InwK6rr0sgh8P4fy0xpuygtq
+         jf0LEE+sIwRuRAKPnBOZq1enrmwv4I/4loXjD+4O1U0pxbdRIOcDjUEqDl0BUxyHmJ
+         LahKIPNxyNxcOGfCV3xjtLQ4PRXfEnDdJZyq40lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 26/28] bnx2: Fix an error message
-Date:   Thu, 17 Mar 2022 13:46:17 +0100
-Message-Id: <20220317124527.507452477@linuxfoundation.org>
+Subject: [PATCH 5.16 27/28] kselftest/vm: fix tests build with old libc
+Date:   Thu, 17 Mar 2022 13:46:18 +0100
+Message-Id: <20220317124527.534855605@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
 References: <20220317124526.768423926@linuxfoundation.org>
@@ -55,34 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-[ Upstream commit 8ccffe9ac3239e549beaa0a9d5e1a1eac94e866c ]
+[ Upstream commit b773827e361952b3f53ac6fa4c4e39ccd632102e ]
 
-Fix an error message and report the correct failing function.
+The error message when I build vm tests on debian10 (GLIBC 2.28):
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    userfaultfd.c: In function `userfaultfd_pagemap_test':
+    userfaultfd.c:1393:37: error: `MADV_PAGEOUT' undeclared (first use
+    in this function); did you mean `MADV_RANDOM'?
+      if (madvise(area_dst, test_pgsize, MADV_PAGEOUT))
+                                         ^~~~~~~~~~~~
+                                         MADV_RANDOM
+
+This patch includes these newer definitions from UAPI linux/mman.h, is
+useful to fix tests build on systems without these definitions in glibc
+sys/mman.h.
+
+Link: https://lkml.kernel.org/r/20220227055330.43087-2-zhouchengming@bytedance.com
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/vm/userfaultfd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
-index babc955ba64e..b47a8237c6dd 100644
---- a/drivers/net/ethernet/broadcom/bnx2.c
-+++ b/drivers/net/ethernet/broadcom/bnx2.c
-@@ -8212,7 +8212,7 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
- 		rc = dma_set_coherent_mask(&pdev->dev, persist_dma_mask);
- 		if (rc) {
- 			dev_err(&pdev->dev,
--				"pci_set_consistent_dma_mask failed, aborting\n");
-+				"dma_set_coherent_mask failed, aborting\n");
- 			goto err_out_unmap;
- 		}
- 	} else if ((rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) != 0) {
--- 
-2.34.1
-
+--- a/tools/testing/selftests/vm/userfaultfd.c
++++ b/tools/testing/selftests/vm/userfaultfd.c
+@@ -46,6 +46,7 @@
+ #include <signal.h>
+ #include <poll.h>
+ #include <string.h>
++#include <linux/mman.h>
+ #include <sys/mman.h>
+ #include <sys/syscall.h>
+ #include <sys/ioctl.h>
 
 
