@@ -2,114 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72CF14DC1D2
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 09:48:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 159AD4DC2A1
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 10:27:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231377AbiCQIt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 04:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39380 "EHLO
+        id S231846AbiCQJ2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 05:28:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231182AbiCQItz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 04:49:55 -0400
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61F899EC1;
-        Thu, 17 Mar 2022 01:48:38 -0700 (PDT)
-Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
+        with ESMTP id S231356AbiCQJ2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 05:28:45 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BA41D4C0A;
+        Thu, 17 Mar 2022 02:27:28 -0700 (PDT)
+Received: from zn.tnic (p200300ea971561b0329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:9715:61b0:329c:23ff:fea6:a903])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id D0D0222205;
-        Thu, 17 Mar 2022 09:48:30 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1647506915;
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 80B0D1EC0576;
+        Thu, 17 Mar 2022 10:27:23 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1647509243;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=4a3Y2KbnQUavIG9wl141tJRVHNXn1CwqBXUisBhaUd4=;
-        b=NZ9t78xnhuHUDDjP/0YFzN3J6vMiQe0j3kwSsCbKIbcZz+Fprpc0+HEHh8vMORaKPGKk++
-        9meCilS92zd6+m1L4z6nTn3dhfRMW98yBBlSgVPNtw1JFfHnRFV6f2dteqiWXm2z0R9D6Z
-        cFvgNtnxbY4bMJKb4DC+RnPdDo5KDVs=
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=/RQrguJ3cKjr+bWjA/6e8aVvTohMSMRaWDTYbIX/dH8=;
+        b=i+kn3NRUeKo+NkVaSmoJYziJGSO3+q5T+7oduZrys964Cz0hU7XIqxwWCoHt9Jkf/RXZyk
+        +7AjyVtRs2t7A9mGrqqvDIptjzpi4qcGy84NAUnSO0hdXL/ELlUhmnvPksB3QzV0iNsvnk
+        Akuqq5MI5rP5rq8i37CQx8WsWc9MAoM=
+Date:   Thu, 17 Mar 2022 10:27:18 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Alviro Iskandar Setiawan <alviro.iskandar@gmail.com>,
+        Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
+        David.Laight@aculab.com, Dave Hansen <dave.hansen@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>, x86@kernel.org
+Subject: Re: [PATCH v5 0/2] Two x86 fixes
+Message-ID: <YjL+9sUPLvE57GE0@zn.tnic>
+References: <20220310015306.445359-1-ammarfaizi2@gnuweeb.org>
+ <CAFBCWQLJ6vCWePF0W4U7mont=Jn4QfDUq-8UpOcm37yqtbkQ8Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Thu, 17 Mar 2022 09:48:28 +0100
-From:   Michael Walle <michael@walle.cc>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
-        Saravana Kannan <saravanak@google.com>,
-        Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
-        Andrew Chant <achant@google.com>,
-        Edmond Chung <edmondchung@google.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        regressions@lists.linux.dev,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        stable <stable@vger.kernel.org>,
-        Sergio Tanzilli <tanzilli@acmesystems.it>,
-        Thierry Reding <treding@nvidia.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Will McVicker <willmcvicker@google.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Lars Povlsen <lars.povlsen@microchip.com>
-Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-In-Reply-To: <CAHp75VeoFQHAh6SbVu7fsXfziW+2RoFTWKA6jFhFswBbazzGAA@mail.gmail.com>
-References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
- <20220314155509.552218-1-michael@walle.cc>
- <CAMRc=MfH00YJv07TaiZ5z1w4gzqP5_8z9bKFcNU1Z37AVih4hQ@mail.gmail.com>
- <fe1ba600b2b30b4cba702d6aebdfda50@walle.cc>
- <CAHp75VeoFQHAh6SbVu7fsXfziW+2RoFTWKA6jFhFswBbazzGAA@mail.gmail.com>
-User-Agent: Roundcube Webmail/1.4.13
-Message-ID: <8a1a46f1e5b822fd49f56f2fe50c5396@walle.cc>
-X-Sender: michael@walle.cc
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAFBCWQLJ6vCWePF0W4U7mont=Jn4QfDUq-8UpOcm37yqtbkQ8Q@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 2022-03-17 09:37, schrieb Andy Shevchenko:
-> On Thu, Mar 17, 2022 at 7:36 AM Michael Walle <michael@walle.cc> wrote:
->> Am 2022-03-15 16:32, schrieb Bartosz Golaszewski:
->> > On Mon, Mar 14, 2022 at 4:55 PM Michael Walle <michael@walle.cc> wrote:
+On Thu, Mar 17, 2022 at 03:19:07PM +0700, Ammar Faizi wrote:
+> On Thu, Mar 10, 2022 at 8:53 AM Ammar Faizi wrote:
+> > Two x86 fixes in this series.
+> >
+> > 1) x86/delay: Fix the wrong Assembly constraint in delay_loop() function.
+> > 2) x86/MCE/AMD: Fix memory leak when `threshold_create_bank()` fails.
 > 
-> ...
-> 
->> I started to try this out, but then I was wondering if there weren't
->> other gpio/pinctrl drivers with the same problem. And judging by the
->> reports [1], I'd say there are. Then I wasn't sure if this is actually
->> the correct fix here - or if that old workaround [2] doesn't work
->> anymore because it might have that empty ranges "feature".
->> 
->> To answer your question: I don't know. But I don't know if that is
->> actually the correct way of fixing this either.
->> 
->> >> Also, I'm not sure if there are any other other driver which get
->> >> broken by this. I.e. ones falling into the gpio_stub_drv category.
-> 
-> I know that OF is a mess, but I want to understand why in ACPI we
-> haven't experienced such an issue. Any pointers would be appreciated.
+> Ping (1)!
+> Borislav? Thomas?
 
-During debugging I've seen that the pinctrl-microchip-sgpio will
-report itself as gpio_stub_drv. You'll find that this driver
-was added by the following commit:
+Yes, what's up?
 
-commit 4731210c09f5977300f439b6c56ba220c65b2348
-Author: Saravana Kannan <saravanak@google.com>
-Date:   Fri Jan 22 11:35:59 2021 -0800
+Are those urgent fixes which break some use case or can you simply sit
+patiently and wait?
 
-     gpiolib: Bind gpio_device to a driver to enable fw_devlink=on by 
-default
+Because we have an upcoming merge window and we need to prepare for
+that. And there are real bugs that need fixing too.
 
-The microchip driver has actually a binding which was described in
-that commit message. Thus I concluded, that it makes sense this driver
-falls into that workaround. That is where I stopped and wrote this mail.
-Actually, I haven't found out yet where that fallback to gpio_stub_drv
-is happening.
+So what's the rush here?
 
--michael
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
