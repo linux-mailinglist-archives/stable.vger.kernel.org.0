@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7379C4DC631
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D66E14DC6A9
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233807AbiCQMt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37970 "EHLO
+        id S234225AbiCQMz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:55:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233795AbiCQMt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:49:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 419401F0C84;
-        Thu, 17 Mar 2022 05:48:06 -0700 (PDT)
+        with ESMTP id S234166AbiCQMwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:52:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73051F2DC2;
+        Thu, 17 Mar 2022 05:50:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C75CB81E5C;
-        Thu, 17 Mar 2022 12:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60EC0C340E9;
-        Thu, 17 Mar 2022 12:48:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A2DB612AC;
+        Thu, 17 Mar 2022 12:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78D34C340EF;
+        Thu, 17 Mar 2022 12:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521283;
-        bh=Jfcq61gqf9CXq2ZHuQFRQVZPk1VmB2ZeZedHRCCDDxA=;
+        s=korg; t=1647521416;
+        bh=iryJeOipI2fQm2Kduh61gmmU2fuSQG5Cfrxuy+fQi50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOhUPCNmufHiYOFaN5/RHTdzdjNgauwN97c6pJm8+IeTtvYpzR4e7QvwzFcs24Ryo
-         ABGDOzhGVgXMNl7MH3Kc+UKHMgp0d1yd2O4FVaGipf/TIGFsLuGTC0w/ZM1UdWAYcr
-         g1wKHt7gu7QjH/lQ+YPn/ZPw9TnfmPiiy0euJgi0=
+        b=ylsJs3mKHqsNq0G57dflJTnUzcYdF76U1fYJTaqsnGyrx7w77Ce7LjcudhX3DKc53
+         sjmLMYxBV1UB6Y3DsABFPwxs/eYst3LGNKkRG6BiGMOUiAW3jK6ISNbgRMYbjQJmxM
+         FAdyjQBlE6bMyh11UmfSX3g2M5XWzS8gEpIyEpag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Yan Yan <evitayan@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/43] mac80211: refuse aggregations sessions before authorized
-Date:   Thu, 17 Mar 2022 13:45:43 +0100
-Message-Id: <20220317124528.562977471@linuxfoundation.org>
+Subject: [PATCH 5.10 03/23] xfrm: Check if_id in xfrm_migrate
+Date:   Thu, 17 Mar 2022 13:45:44 +0100
+Message-Id: <20220317124526.056046170@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124527.672236844@linuxfoundation.org>
-References: <20220317124527.672236844@linuxfoundation.org>
+In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
+References: <20220317124525.955110315@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Yan Yan <evitayan@google.com>
 
-[ Upstream commit a6bce78262f5dd4b50510f0aa47f3995f7b185f3 ]
+[ Upstream commit c1aca3080e382886e2e58e809787441984a2f89b ]
 
-If an MFP station isn't authorized, the receiver will (or
-at least should) drop the action frame since it's a robust
-management frame, but if we're not authorized we haven't
-installed keys yet. Refuse attempts to start a session as
-they'd just time out.
+This patch enables distinguishing SAs and SPs based on if_id during
+the xfrm_migrate flow. This ensures support for xfrm interfaces
+throughout the SA/SP lifecycle.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220203201528.ff4d5679dce9.I34bb1f2bc341e161af2d6faf74f91b332ba11285@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+When there are multiple existing SPs with the same direction,
+the same xfrm_selector and different endpoint addresses,
+xfrm_migrate might fail with ENODATA.
+
+Specifically, the code path for performing xfrm_migrate is:
+  Stage 1: find policy to migrate with
+    xfrm_migrate_policy_find(sel, dir, type, net)
+  Stage 2: find and update state(s) with
+    xfrm_migrate_state_find(mp, net)
+  Stage 3: update endpoint address(es) of template(s) with
+    xfrm_policy_migrate(pol, m, num_migrate)
+
+Currently "Stage 1" always returns the first xfrm_policy that
+matches, and "Stage 3" looks for the xfrm_tmpl that matches the
+old endpoint address. Thus if there are multiple xfrm_policy
+with same selector, direction, type and net, "Stage 1" might
+rertun a wrong xfrm_policy and "Stage 3" will fail with ENODATA
+because it cannot find a xfrm_tmpl with the matching endpoint
+address.
+
+The fix is to allow userspace to pass an if_id and add if_id
+to the matching rule in Stage 1 and Stage 2 since if_id is a
+unique ID for xfrm_policy and xfrm_state. For compatibility,
+if_id will only be checked if the attribute is set.
+
+Tested with additions to Android's kernel unit test suite:
+https://android-review.googlesource.com/c/kernel/tests/+/1668886
+
+Signed-off-by: Yan Yan <evitayan@google.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/agg-tx.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ include/net/xfrm.h     |  5 +++--
+ net/key/af_key.c       |  2 +-
+ net/xfrm/xfrm_policy.c | 14 ++++++++------
+ net/xfrm/xfrm_state.c  |  7 ++++++-
+ net/xfrm/xfrm_user.c   |  6 +++++-
+ 5 files changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
-index f140c2b94b2c..f30cdd7f3a73 100644
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -9,7 +9,7 @@
-  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
-  * Copyright 2007-2010, Intel Corporation
-  * Copyright(c) 2015-2017 Intel Deutschland GmbH
-- * Copyright (C) 2018 - 2021 Intel Corporation
-+ * Copyright (C) 2018 - 2022 Intel Corporation
-  */
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 4a2843441caf..0049a7459649 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1668,14 +1668,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	       const struct xfrm_migrate *m, int num_bundles,
+ 	       const struct xfrm_kmaddress *k,
+ 	       const struct xfrm_encap_tmpl *encap);
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id);
+ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ 				      struct xfrm_migrate *m,
+ 				      struct xfrm_encap_tmpl *encap);
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_bundles,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap);
++		 struct xfrm_encap_tmpl *encap, u32 if_id);
+ #endif
  
- #include <linux/ieee80211.h>
-@@ -615,6 +615,14 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
- 		return -EINVAL;
+ int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index ef9b4ac03e7b..d1364b858fdf 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2627,7 +2627,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
  	}
  
-+	if (test_sta_flag(sta, WLAN_STA_MFP) &&
-+	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {
-+		ht_dbg(sdata,
-+		       "MFP STA not authorized - deny BA session request %pM tid %d\n",
-+		       sta->sta.addr, tid);
-+		return -EINVAL;
-+	}
+ 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
+-			    kma ? &k : NULL, net, NULL);
++			    kma ? &k : NULL, net, NULL, 0);
+ 
+  out:
+ 	return err;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index c4a195cb3681..3d0ffd927004 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -4287,7 +4287,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
+ }
+ 
+ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
+-						    u8 dir, u8 type, struct net *net)
++						    u8 dir, u8 type, struct net *net, u32 if_id)
+ {
+ 	struct xfrm_policy *pol, *ret = NULL;
+ 	struct hlist_head *chain;
+@@ -4296,7 +4296,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+ 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
+ 	hlist_for_each_entry(pol, chain, bydst) {
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			priority = ret->priority;
+@@ -4308,7 +4309,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 		if ((pol->priority >= priority) && ret)
+ 			break;
+ 
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			break;
+@@ -4424,7 +4426,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_migrate,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap)
++		 struct xfrm_encap_tmpl *encap, u32 if_id)
+ {
+ 	int i, err, nx_cur = 0, nx_new = 0;
+ 	struct xfrm_policy *pol = NULL;
+@@ -4443,14 +4445,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	}
+ 
+ 	/* Stage 1 - find policy */
+-	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
++	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
+ 		err = -ENOENT;
+ 		goto out;
+ 	}
+ 
+ 	/* Stage 2 - find and update state(s) */
+ 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
+-		if ((x = xfrm_migrate_state_find(mp, net))) {
++		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
+ 			x_cur[nx_cur] = x;
+ 			nx_cur++;
+ 			xc = xfrm_state_migrate(x, mp, encap);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index f5b846a2edcd..37fe22b2e843 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1569,7 +1569,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 	return NULL;
+ }
+ 
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id)
+ {
+ 	unsigned int h;
+ 	struct xfrm_state *x = NULL;
+@@ -1585,6 +1586,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 				continue;
+ 			if (m->reqid && x->props.reqid != m->reqid)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+@@ -1600,6 +1603,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 			if (x->props.mode != m->mode ||
+ 			    x->id.proto != m->proto)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 518462059a9a..1ece01cd67a4 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -2436,6 +2436,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	int n = 0;
+ 	struct net *net = sock_net(skb->sk);
+ 	struct xfrm_encap_tmpl  *encap = NULL;
++	u32 if_id = 0;
+ 
+ 	if (attrs[XFRMA_MIGRATE] == NULL)
+ 		return -EINVAL;
+@@ -2460,7 +2461,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			return 0;
+ 	}
+ 
+-	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
++	if (attrs[XFRMA_IF_ID])
++		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
 +
- 	/*
- 	 * 802.11n-2009 11.5.1.1: If the initiating STA is an HT STA, is a
- 	 * member of an IBSS, and has no other existing Block Ack agreement
++	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
+ 
+ 	kfree(encap);
+ 
 -- 
 2.34.1
 
