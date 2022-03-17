@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 042304DC699
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 823524DC70D
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:59:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234153AbiCQMzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:55:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37976 "EHLO
+        id S234238AbiCQM4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234332AbiCQMxD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:53:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4051FAA24;
-        Thu, 17 Mar 2022 05:50:55 -0700 (PDT)
+        with ESMTP id S234272AbiCQM4C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:56:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5465DDAFD0;
+        Thu, 17 Mar 2022 05:54:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F7B261506;
-        Thu, 17 Mar 2022 12:50:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C5E7C340ED;
-        Thu, 17 Mar 2022 12:50:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D822BB81E8F;
+        Thu, 17 Mar 2022 12:54:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0115AC340E9;
+        Thu, 17 Mar 2022 12:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521454;
-        bh=zRZO4C73CEe0cGTlpqWmGRS66SbFnS+B8DijLjV/NHc=;
+        s=korg; t=1647521649;
+        bh=uhdsoUxxt7mQ3PMpzNkAu4PksDbXgWyjX6865DxB0aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0XSga6xqz45cEYIKYxp4RkqVHVXiVbWZ5CLTynLU8ZHhojyg6yvDZRwRqPJDGBEK
-         jhvrM5Ftca/OjfIQLbRSRtbT0LhNJJ6p12qBOL9tlHbuGsmmbEP3MwhQXpa+R/htYz
-         b3sUr7svwePyOfrdgadkULf8+bAEvBdI/igkkK7o=
+        b=wpnZT4lPkjhHpa9X7lHp96GIPA6Bx4kAOj6Zi32MkEaoudp3StG/UCzywZxTjkvYC
+         Q37K0ypN81cp1VmcRiAbXLTic/YshKLGowjr8PoK1HyMpAfAzz6C/QF63VDOKcsFe5
+         ZnBgrHhDzFIZP4hm36t/729gmn2N0x3codFcbFkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 11/25] mac80211: refuse aggregations sessions before authorized
+Subject: [PATCH 5.16 07/28] arm64: dts: rockchip: align pl330 node name with dtschema
 Date:   Thu, 17 Mar 2022 13:45:58 +0100
-Message-Id: <20220317124526.633142290@linuxfoundation.org>
+Message-Id: <20220317124526.980463534@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124526.308079100@linuxfoundation.org>
-References: <20220317124526.308079100@linuxfoundation.org>
+In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
+References: <20220317124526.768423926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit a6bce78262f5dd4b50510f0aa47f3995f7b185f3 ]
+[ Upstream commit 8fd9415042826c7609c588e5ef45f3e84237785f ]
 
-If an MFP station isn't authorized, the receiver will (or
-at least should) drop the action frame since it's a robust
-management frame, but if we're not authorized we haven't
-installed keys yet. Refuse attempts to start a session as
-they'd just time out.
+Fixes dtbs_check warnings like:
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220203201528.ff4d5679dce9.I34bb1f2bc341e161af2d6faf74f91b332ba11285@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+  dmac@ff240000: $nodename:0: 'dmac@ff240000' does not match '^dma-controller(@.*)?$'
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20220129175429.298836-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/agg-tx.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/px30.dtsi   | 2 +-
+ arch/arm64/boot/dts/rockchip/rk3328.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
-index 74a878f213d3..1deb3d874a4b 100644
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -9,7 +9,7 @@
-  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
-  * Copyright 2007-2010, Intel Corporation
-  * Copyright(c) 2015-2017 Intel Deutschland GmbH
-- * Copyright (C) 2018 - 2021 Intel Corporation
-+ * Copyright (C) 2018 - 2022 Intel Corporation
-  */
+diff --git a/arch/arm64/boot/dts/rockchip/px30.dtsi b/arch/arm64/boot/dts/rockchip/px30.dtsi
+index 00f50b05d55a..b72874c16a71 100644
+--- a/arch/arm64/boot/dts/rockchip/px30.dtsi
++++ b/arch/arm64/boot/dts/rockchip/px30.dtsi
+@@ -711,7 +711,7 @@
+ 		clock-names = "pclk", "timer";
+ 	};
  
- #include <linux/ieee80211.h>
-@@ -626,6 +626,14 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
- 		return -EINVAL;
- 	}
+-	dmac: dmac@ff240000 {
++	dmac: dma-controller@ff240000 {
+ 		compatible = "arm,pl330", "arm,primecell";
+ 		reg = <0x0 0xff240000 0x0 0x4000>;
+ 		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+index 39db0b85b4da..b822533dc7f1 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+@@ -489,7 +489,7 @@
+ 		status = "disabled";
+ 	};
  
-+	if (test_sta_flag(sta, WLAN_STA_MFP) &&
-+	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {
-+		ht_dbg(sdata,
-+		       "MFP STA not authorized - deny BA session request %pM tid %d\n",
-+		       sta->sta.addr, tid);
-+		return -EINVAL;
-+	}
-+
- 	/*
- 	 * 802.11n-2009 11.5.1.1: If the initiating STA is an HT STA, is a
- 	 * member of an IBSS, and has no other existing Block Ack agreement
+-	dmac: dmac@ff1f0000 {
++	dmac: dma-controller@ff1f0000 {
+ 		compatible = "arm,pl330", "arm,primecell";
+ 		reg = <0x0 0xff1f0000 0x0 0x4000>;
+ 		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
 -- 
 2.34.1
 
