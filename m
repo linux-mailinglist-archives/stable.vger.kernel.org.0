@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9043C4DC6D7
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:55:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F5E4DC66B
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:51:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234250AbiCQM4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40272 "EHLO
+        id S234122AbiCQMwF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:52:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234233AbiCQMzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:55:35 -0400
+        with ESMTP id S234090AbiCQMvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:51:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A24879F3BD;
-        Thu, 17 Mar 2022 05:53:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAA601F42C9;
+        Thu, 17 Mar 2022 05:49:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2ED5C61584;
-        Thu, 17 Mar 2022 12:53:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37187C340F3;
-        Thu, 17 Mar 2022 12:53:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 799B7614F4;
+        Thu, 17 Mar 2022 12:49:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA53C340E9;
+        Thu, 17 Mar 2022 12:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521633;
-        bh=WB/A9z0bllwl5fTK4cuQmxEQkRdoAy5zWdRVr5axPS4=;
+        s=korg; t=1647521370;
+        bh=Q4ZFIK2kN1op+eCrum4G5rv72TxTdFA+X7OK6qw/EE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bo1vnoUo3gL405reGq15VEhZ0aDMKERl28d2cA1IxrhG18McIcC0JGpnL8dF1xs5t
-         KJoIKOd1MClB6YQ/vqfJRzBlfZSHw2cxCso4NrXU0GZNTbEGYx7SP6i1Drz3T4CBPQ
-         UwixKnIWbVAHruprvOv0ijUQEyClXLxAZcWi56b0=
+        b=yrCjYr3bnxzwhcDOGdNpgjn0jFK/EDgITwZ2lhRJQTmYb+PfbkcNP8KJGSzCznjPp
+         Dl/A/Wc3CQ3dL2se6j/DEtcvq3JfySDlNVJZThW+znDHBfpmae2aKRLtH7xcjtu5u7
+         cF8AcJlqALikVOnJlb/urcWBfpZ0DirCeMCwywVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 03/28] arm64: dts: rockchip: fix rk3399-puma-haikou USB OTG mode
+Subject: [PATCH 5.10 13/23] can: rcar_canfd: rcar_canfd_channel_probe(): register the CAN device when fully ready
 Date:   Thu, 17 Mar 2022 13:45:54 +0100
-Message-Id: <20220317124526.868575839@linuxfoundation.org>
+Message-Id: <20220317124526.345313085@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
-References: <20220317124526.768423926@linuxfoundation.org>
+In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
+References: <20220317124525.955110315@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit ed2c66a95c0c5669880aa93d0d34c6e9694b4cbd ]
+[ Upstream commit c5048a7b2c23ab589f3476a783bd586b663eda5b ]
 
-The micro USB3.0 port available on the Haikou evaluation kit for Puma
-RK3399-Q7 SoM supports dual-role model (aka drd or OTG) but its support
-was broken until now because of missing logic around the ID pin.
+Register the CAN device only when all the necessary initialization is
+completed. This patch makes sure all the data structures and locks are
+initialized before registering the CAN device.
 
-This adds proper support for USB OTG on Puma Haikou by "connecting" the
-GPIO used for USB ID to the USB3 controller device.
-
-Cc: Quentin Schulz <foss+kernel@0leil.net>
-Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20220120125156.16217-1-quentin.schulz@theobroma-systems.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/all/20220221225935.12300-1-prabhakar.mahadev-lad.rj@bp.renesas.com
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Pavel Machek <pavel@denx.de>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../arm64/boot/dts/rockchip/rk3399-puma-haikou.dts |  1 +
- arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi      | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/net/can/rcar/rcar_canfd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-index 292bb7e80cf3..3ae5d727e367 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-@@ -232,6 +232,7 @@
+diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
+index de59dd6aad29..67f0f14e2bf4 100644
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1598,15 +1598,15 @@ static int rcar_canfd_channel_probe(struct rcar_canfd_global *gpriv, u32 ch,
  
- &usbdrd_dwc3_0 {
- 	dr_mode = "otg";
-+	extcon = <&extcon_usb3>;
- 	status = "okay";
- };
+ 	netif_napi_add(ndev, &priv->napi, rcar_canfd_rx_poll,
+ 		       RCANFD_NAPI_WEIGHT);
++	spin_lock_init(&priv->tx_lock);
++	devm_can_led_init(ndev);
++	gpriv->ch[priv->channel] = priv;
+ 	err = register_candev(ndev);
+ 	if (err) {
+ 		dev_err(&pdev->dev,
+ 			"register_candev() failed, error %d\n", err);
+ 		goto fail_candev;
+ 	}
+-	spin_lock_init(&priv->tx_lock);
+-	devm_can_led_init(ndev);
+-	gpriv->ch[priv->channel] = priv;
+ 	dev_info(&pdev->dev, "device registered (channel %u)\n", priv->channel);
+ 	return 0;
  
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-index fb67db4619ea..002ece51c3ba 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-@@ -25,6 +25,13 @@
- 		};
- 	};
- 
-+	extcon_usb3: extcon-usb3 {
-+		compatible = "linux,extcon-usb-gpio";
-+		id-gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_HIGH>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&usb3_id>;
-+	};
-+
- 	clkin_gmac: external-gmac-clock {
- 		compatible = "fixed-clock";
- 		clock-frequency = <125000000>;
-@@ -422,6 +429,13 @@
- 			  <4 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
- 		};
- 	};
-+
-+	usb3 {
-+		usb3_id: usb3-id {
-+			rockchip,pins =
-+			  <1 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
-+		};
-+	};
- };
- 
- &sdhci {
 -- 
 2.34.1
 
