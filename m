@@ -2,107 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C85C4DBFC1
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 07:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 491194DC031
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 08:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbiCQG6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 02:58:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43576 "EHLO
+        id S230308AbiCQHeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 03:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229605AbiCQG6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 02:58:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DBE1F61E;
-        Wed, 16 Mar 2022 23:57:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S230300AbiCQHeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 03:34:08 -0400
+Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 815A6AE58;
+        Thu, 17 Mar 2022 00:32:51 -0700 (PDT)
+Received: from [192.168.0.3] (ip5f5aef3c.dynamic.kabel-deutschland.de [95.90.239.60])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A90D3B81E18;
-        Thu, 17 Mar 2022 06:57:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE12C340EC;
-        Thu, 17 Mar 2022 06:57:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647500231;
-        bh=LBnh580nwV0ltN6LoEu0IOp5RJOffix+8iZ+wiK40lI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pNazjWB0a0MpP27kfCeo+Ea0zYS4oeEHObXpPY6ngtu3PD76ftt7YkCgOP2/rUooJ
-         vMipKNe32BEaaeHDQlSETUknW2GSv9zb1QSkdO/raX287zLLy196xeyeHxIXy8YAA1
-         DYzvcbFDLZprTfFzafz6PzA1fxxT1hVYFqhnIAuc=
-Date:   Thu, 17 Mar 2022 07:57:01 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Hauke Mehrtens <hauke@hauke-m.de>
-Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "backports@vger.kernel.org" <backports@vger.kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>
-Subject: Re: Add LINUX_VERSION_SUBLEVEL to linux/version.h in LTS
-Message-ID: <YjLbvZq780tHNyjG@kroah.com>
-References: <016f5ea6-f695-6994-c2ec-35cfef26058a@hauke-m.de>
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 22B4C61EA192E;
+        Thu, 17 Mar 2022 08:32:48 +0100 (CET)
+Message-ID: <35d305f5-aa84-2c47-7efd-66fffb91c398@molgen.mpg.de>
+Date:   Thu, 17 Mar 2022 08:32:47 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <016f5ea6-f695-6994-c2ec-35cfef26058a@hauke-m.de>
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH net] bnx2x: fix built-in kernel driver load failure
+Content-Language: en-US
+To:     Manish Chopra <manishc@marvell.com>
+Cc:     netdev@vger.kernel.org, kuba@kernel.org, aelior@marvell.com,
+        regressions@lists.linux.dev, stable@vger.kernel.org,
+        it+netdev@molgen.mpg.de
+References: <20220316214613.6884-1-manishc@marvell.com>
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+In-Reply-To: <20220316214613.6884-1-manishc@marvell.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 17, 2022 at 12:15:02AM +0100, Hauke Mehrtens wrote:
-> Hi,
-> 
-> Upstream kernel commit 88a686728b37 ("kbuild: simplify access to the
-> kernel's version") [0] extended the Makefile to add the following defines to
-> the linux/version.h file:
-> #define LINUX_VERSION_MAJOR $(VERSION)
-> #define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL)
-> #define LINUX_VERSION_SUBLEVEL $(SUBLEVEL)
-> 
-> I would like to have these defines especially LINUX_VERSION_SUBLEVEL also in
-> older stable kernel versions to make it easier for out of tree kernel code
-> to detect which version it is compiling against.
-> 
-> In the Linux drivers backports project [1] we backport the current wifi
-> driver to older Linux versions, so someone with an old kernel can use
-> current wifi drivers. To make this work we have to know which kernel version
-> it is being compiled against. The Makefile has access to the SUBLEVEL
-> variable and can also forward it to the C code, but this does not work when
-> someone compiles some other driver against the mac80211 subsystem provided
-> by backports for example.
-> 
-> I tried to cherry-pick commit 88a686728b37 to kernel 4.9, but it did not
-> apply cleanly. Would it get accepted when I just port the changes in the
-> main Makefile to the currently supported LTS kernel versions?
-> 
-> Hauke
-> 
-> [0]: https://git.kernel.org/linus/88a686728b3739d3598851e729c0e81f194e5c53
-> [1]: https://backports.wiki.kernel.org/index.php/Main_Page
-> 
-> 
-> Here would be my suggestion for kernel 4.9, I haven't tested this yet:
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -1142,7 +1142,10 @@ endef
->  define filechk_version.h
->  	(echo \#define LINUX_VERSION_CODE $(shell                         \
->  	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
-> -	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
-> +	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';) \
-> +	echo \#define LINUX_VERSION_MAJOR $(VERSION);                    \
-> +	echo \#define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL);            \
-> +	echo \#define LINUX_VERSION_SUBLEVEL $(SUBLEVEL)
->  endef
-> 
->  $(version_h): $(srctree)/Makefile FORCE
+Dear Manish,
 
-We have been through this before, it is not needed.  See the archives
-for the correct solution you should do in your out-of-tree code instead.
 
-thanks,
+Am 16.03.22 um 22:46 schrieb Manish Chopra:
+> commit b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0")
+> added request_firmware() logic in probe() which caused
+> built-in kernel driver (CONFIG_BNX2X=y) load failure (below),
+> as access to firmware file is not feasible during the probe.
 
-greg k-h
+I think it’s important to document, that the firmware was not present in 
+the initrd.
+
+
+
+> "Direct firmware load for bnx2x/bnx2x-e2-7.13.21.0.fw
+> failed with error -2"
+
+I’d say, no line break for log message. Maybe paste the excerpt below:
+
+     [   20.534985] bnx2x 0000:45:00.0: msix capability found
+     [   20.540342] bnx2x 0000:45:00.0: part number 
+394D4342-31373735-31314131-473331
+     [   20.548605] bnx2x 0000:45:00.0: Direct firmware load for 
+bnx2x/bnx2x-e1h-7.13.21.0.fw failed with error -2
+     [   20.558373] bnx2x 0000:45:00.0: Direct firmware load for 
+bnx2x/bnx2x-e1h-7.13.15.0.fw failed with error -2
+     [   20.568319] bnx2x: probe of 0000:45:00.0 failed with error -2
+
+> This patch fixes this issue by -
+> 
+> 1. Removing request_firmware() logic from the probe()
+>     such that .ndo_open() handle it as it used to handle
+>     it earlier
+> 
+> 2. Given request_firmware() is removed from probe(), so
+>     driver has to relax FW version comparisons a bit against
+>     the already loaded FW version (by some other PFs of same
+>     adapter) to allow different compatible/close FWs with which
+>     multiple PFs may run with (in different environments), as the
+>     given PF who is in probe flow has no idea now with which firmware
+>     file version it is going to initialize the device in ndo_open()
+
+Please be specific and state, that the revision part in the version has 
+to be greater, and that downgrading is not allowed.
+
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/all/46f2d9d9-ae7f-b332-ddeb-b59802be2bab@molgen.mpg.de/
+> Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+> Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+> Fixes: b7a49f73059f ("bnx2x: Utilize firmware 7.13.21.0")
+> Signed-off-by: Manish Chopra <manishc@marvell.com>
+> Signed-off-by: Ariel Elior <aelior@marvell.com>
+> ---
+>   drivers/net/ethernet/broadcom/bnx2x/bnx2x.h   |  2 --
+>   .../net/ethernet/broadcom/bnx2x/bnx2x_cmn.c   | 28 +++++++++++--------
+>   .../net/ethernet/broadcom/bnx2x/bnx2x_main.c  | 15 ++--------
+>   3 files changed, 19 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+> index a19dd6797070..2209d99b3404 100644
+> --- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+> +++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
+> @@ -2533,6 +2533,4 @@ void bnx2x_register_phc(struct bnx2x *bp);
+>    * Meant for implicit re-load flows.
+>    */
+>   int bnx2x_vlan_reconfigure_vid(struct bnx2x *bp);
+> -int bnx2x_init_firmware(struct bnx2x *bp);
+> -void bnx2x_release_firmware(struct bnx2x *bp);
+>   #endif /* bnx2x.h */
+> diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+> index 8d36ebbf08e1..5729a5ab059d 100644
+> --- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+> +++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+> @@ -2364,24 +2364,30 @@ int bnx2x_compare_fw_ver(struct bnx2x *bp, u32 load_code, bool print_err)
+>   	/* is another pf loaded on this engine? */
+>   	if (load_code != FW_MSG_CODE_DRV_LOAD_COMMON_CHIP &&
+>   	    load_code != FW_MSG_CODE_DRV_LOAD_COMMON) {
+> -		/* build my FW version dword */
+> -		u32 my_fw = (bp->fw_major) + (bp->fw_minor << 8) +
+> -				(bp->fw_rev << 16) + (bp->fw_eng << 24);
+> +		u8 loaded_fw_major, loaded_fw_minor, loaded_fw_rev, loaded_fw_eng;
+> +		u32 loaded_fw;
+>   
+>   		/* read loaded FW from chip */
+> -		u32 loaded_fw = REG_RD(bp, XSEM_REG_PRAM);
+> +		loaded_fw = REG_RD(bp, XSEM_REG_PRAM);
+>   
+> -		DP(BNX2X_MSG_SP, "loaded fw %x, my fw %x\n",
+> -		   loaded_fw, my_fw);
+> +		loaded_fw_major = loaded_fw & 0xff;
+> +		loaded_fw_minor = (loaded_fw >> 8) & 0xff;
+> +		loaded_fw_rev = (loaded_fw >> 16) & 0xff;
+> +		loaded_fw_eng = (loaded_fw >> 24) & 0xff;
+> +
+> +		DP(BNX2X_MSG_SP, "loaded fw 0x%x major 0x%x minor 0x%x rev 0x%x eng 0x%x\n",
+> +		   loaded_fw, loaded_fw_major, loaded_fw_minor, loaded_fw_rev, loaded_fw_eng);
+>   
+>   		/* abort nic load if version mismatch */
+> -		if (my_fw != loaded_fw) {
+> +		if (loaded_fw_major != BCM_5710_FW_MAJOR_VERSION ||
+> +		    loaded_fw_minor != BCM_5710_FW_MINOR_VERSION ||
+> +		    loaded_fw_eng != BCM_5710_FW_ENGINEERING_VERSION ||
+
+The engineering version comes after the revision, so I’d assume they can 
+also be relaxed and differ?
+
+> +		    loaded_fw_rev < BCM_5710_FW_REVISION_VERSION_V15) {
+>   			if (print_err)
+
+Unrelated, this print_err argument added in commit 91ebb929b6f8 (bnx2x: 
+Add support for Multi-Function UNDI) is not so elegant.
+
+> -				BNX2X_ERR("bnx2x with FW %x was already loaded which mismatches my %x FW. Aborting\n",
+> -					  loaded_fw, my_fw);
+> +				BNX2X_ERR("loaded FW incompatible. Aborting\n");
+
+Please add the versions to the error message to give the user more clues.
+
+>   			else
+> -				BNX2X_DEV_INFO("bnx2x with FW %x was already loaded which mismatches my %x FW, possibly due to MF UNDI\n",
+> -					       loaded_fw, my_fw);
+> +				BNX2X_DEV_INFO("loaded FW incompatible, possibly due to MF UNDI\n");
+> +
+>   			return -EBUSY;
+>   		}
+>   	}
+> diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+> index eedb48d945ed..c19b072f3a23 100644
+> --- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+> +++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+> @@ -12319,15 +12319,6 @@ static int bnx2x_init_bp(struct bnx2x *bp)
+>   
+>   	bnx2x_read_fwinfo(bp);
+>   
+> -	if (IS_PF(bp)) {
+> -		rc = bnx2x_init_firmware(bp);
+> -
+> -		if (rc) {
+> -			bnx2x_free_mem_bp(bp);
+> -			return rc;
+> -		}
+> -	}
+> -
+>   	func = BP_FUNC(bp);
+>   
+>   	/* need to reset chip if undi was active */
+> @@ -12340,7 +12331,6 @@ static int bnx2x_init_bp(struct bnx2x *bp)
+>   
+>   		rc = bnx2x_prev_unload(bp);
+>   		if (rc) {
+> -			bnx2x_release_firmware(bp);
+>   			bnx2x_free_mem_bp(bp);
+>   			return rc;
+>   		}
+> @@ -13409,7 +13399,7 @@ do {									\
+>   	     (u8 *)bp->arr, len);					\
+>   } while (0)
+>   
+> -int bnx2x_init_firmware(struct bnx2x *bp)
+> +static int bnx2x_init_firmware(struct bnx2x *bp)
+>   {
+>   	const char *fw_file_name, *fw_file_name_v15;
+>   	struct bnx2x_fw_file_hdr *fw_hdr;
+> @@ -13509,7 +13499,7 @@ int bnx2x_init_firmware(struct bnx2x *bp)
+>   	return rc;
+>   }
+>   
+> -void bnx2x_release_firmware(struct bnx2x *bp)
+> +static void bnx2x_release_firmware(struct bnx2x *bp)
+>   {
+>   	kfree(bp->init_ops_offsets);
+>   	kfree(bp->init_ops);
+> @@ -14026,7 +14016,6 @@ static int bnx2x_init_one(struct pci_dev *pdev,
+>   	return 0;
+>   
+>   init_one_freemem:
+> -	bnx2x_release_firmware(bp);
+>   	bnx2x_free_mem_bp(bp);
+>   
+>   init_one_exit:
+
+
+Kind regards,
+
+Paul
