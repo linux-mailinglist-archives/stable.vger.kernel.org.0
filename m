@@ -2,188 +2,275 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7134DC5D8
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:30:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D3EB4DC654
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:50:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233573AbiCQMcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58106 "EHLO
+        id S231938AbiCQMvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:51:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232450AbiCQMcI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:32:08 -0400
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9461DDFCB;
-        Thu, 17 Mar 2022 05:30:51 -0700 (PDT)
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-2e59939b862so55992357b3.10;
-        Thu, 17 Mar 2022 05:30:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RdSRIsJMcMTbELmRjIH9092SWXjm1j5Pn9ugkzrXeHc=;
-        b=YGN8oJiUhlq+E0Gk+RS0WfPFZFCqfhI8hW66gYJ0oVTvIHBI2lEiow/4+iEWWVJrMq
-         5t8w1wC+KnhmYHSjVIS1wn2NHrPy2N9xoVuvlrJGKHOUMlEyEOexMDqADPzIFqG8mFvf
-         XQMA5RI3FE55HzYvSBs2wfOwm7M12i1YQPAEHXq5uvVzWx1sbdaB3WqfARMnzj/PB3ML
-         CYFnjx9FQ7ZEL0uhVn0PNpgLyc015oQb76PYgd2KssK1HrDp6oeNL6orPa3ZGR3zF1uG
-         rT1ly6o1+aldlYX23Hw7ZiaJNSjmFrSJDK+dNnlMa8WSLE4xcsqmMNcBQNYg1+4dgPoB
-         z0Iw==
-X-Gm-Message-State: AOAM5306cXjPhm0IP49djheHd5TGuoN4pBZs5wn81Nv1DHlihqf5sKDm
-        LaHnotQHy4bMBnfkDY/5XEFAkrrQ/ZQXCJV4F4psaDdQp0Q=
-X-Google-Smtp-Source: ABdhPJyd81XrKccs0+WLtYrqHQXA2xz5pt2ggNNPzRgJujU6Bb4vePhJKgAlZ72/znO5eedXXje0MET65oFV/csFt8I=
-X-Received: by 2002:a81:1b97:0:b0:2db:640f:49d8 with SMTP id
- b145-20020a811b97000000b002db640f49d8mr5042332ywb.326.1647520250820; Thu, 17
- Mar 2022 05:30:50 -0700 (PDT)
+        with ESMTP id S233945AbiCQMu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:50:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD1321F1611;
+        Thu, 17 Mar 2022 05:48:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FC00B81DA1;
+        Thu, 17 Mar 2022 12:48:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7871EC340E9;
+        Thu, 17 Mar 2022 12:48:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647521335;
+        bh=ENui3h6TyIzSkBPbvuHfeNkachpM9GN40V9L8rZjtYc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hLlW6pH7fhGef4A56pzrTVpM5AQrdwD4ojhmeImVlGRjU1Nc3Bxh4gKz99CdIs4Ts
+         7AkisXuweBlmj2vPTx0EktvvvI4bC7G9ENEQNqNAg8rnYLOQ/GudcBCHkW8n886vuN
+         PVxrc5nEhswSfoXnpjeVkbg3D6JCdXK2wV/GvbBk=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.4 00/43] 5.4.186-rc1 review
+Date:   Thu, 17 Mar 2022 13:45:11 +0100
+Message-Id: <20220317124527.672236844@linuxfoundation.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
- <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
- <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
- <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
- <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
- <CAAYoRsWN-h+fBAoocGmUFHDkOv2PL+6U59_ASBYH74j0orHaCQ@mail.gmail.com>
- <CAJZ5v0iOOmRY3uC1-ZGQ30VysMuAjGum=Lt4tkqNUjop+ikqZw@mail.gmail.com>
- <CAAYoRsVs_CB-dBGShksmXATRP3oGnD6uU-xQdSPjkRER+j6fTQ@mail.gmail.com>
- <CAAYoRsVnPa-aiKCju7Nz+cznyOo2sbioFks+gU7W7dqWyO8JJw@mail.gmail.com> <CAAYoRsU=SjE2zpQPjxrE6aDzEk6+AZy9DUAJ4Vv2qimbiJ2ySQ@mail.gmail.com>
-In-Reply-To: <CAAYoRsU=SjE2zpQPjxrE6aDzEk6+AZy9DUAJ4Vv2qimbiJ2ySQ@mail.gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Thu, 17 Mar 2022 13:30:39 +0100
-Message-ID: <CAJZ5v0hTOD8Y-ft0jo8KO+RW33ow7_Lm+6gAWA0BpM7o-u4vyQ@mail.gmail.com>
-Subject: Re: CPU excessively long times between frequency scaling driver calls
- - bisected
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.186-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.186-rc1
+X-KernelTest-Deadline: 2022-03-19T12:45+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 16, 2022 at 4:55 PM Doug Smythies <dsmythies@telus.net> wrote:
->
-> Readers: So that graphs and large attachments could be used, I have
-> been on an off-list branch of this thread with Srinivas, and copied a
-> couple of others. While now returning to this on-list thread, I'll
-> only take up Rafael's proposed patch.
->
-> Hi Rafael,
->
-> So far all work has been done with: HWP disabled; intel_pstate; powersave.
-> The reason was that it is, by far, the best way to obtain good trace data
-> using the intel_pstate_tracer.py utility.
->
-> I always intended to try/test: HWP disabled; intel_cpufreq; schedutil.
-> There is an issue with the proposed patch and schedutil.
->
-> If any CPU ever requests a pstate > the max non turbo pstate
-> then it will stay at that request forever. Ultimately the idle
-> power goes to about 5.7 watts (verses 1.4 watts expected).
-> IRQs go very high, as the tick never turns off.
-> Actually, one knows how many CPUs are stuck requesting a high
-> pstate just by looking at IRQs.
+This is the start of the stable review cycle for the 5.4.186 release.
+There are 43 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-That may be because INTEL_CPUFREQ_TRANSITION_DELAY is too small.
+Responses should be made by Sat, 19 Mar 2022 12:45:16 +0000.
+Anything received after that time might be too late.
 
-Please try to increase
-/sys/devices/system/cpu/cpufreq/schedutil/rate_limit_us to 10000 and
-see what difference this makes.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.186-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-> Trace is useless because it virtually never gets called.
-> So I have been reading the IA32_PERF_CTL MSR
-> directly.
->
-> Example:
->
-> Processor: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
-> 6 cores, 12 CPUs
-> min pstate 8
-> max non-turbo pstate 41
-> max turbo pstate 48
-> The system is idle.
->
-> doug@s19:~$ sudo
-> /home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
-> --quiet --show Busy%,Bzy_MHz,IRQ,PkgWatt --interval 10
-> Busy%   Bzy_MHz IRQ     PkgWatt
-> 0.11    800     844     1.33
-> 0.01    800     231     1.33
-> 0.11    800     723     1.33 <<< Powersave governor
-> 0.03    889     440     1.33
-> 0.17    4418    21511   4.31 <<< Schedutil governor
-> 0.12    4101    30153   4.48 <<< 3 CPUs are > pstate 41
-> 0.22    4347    34226   4.75
-> 0.17    4101    43554   4.78
-> 0.29    4300    50565   4.94
-> 0.21    4098    50297   4.76 <<< 5 CPUs are > pstate 41
-> 0.29    4298    50532   4.84
-> 0.20    4101    50126   4.63
-> 0.20    4101    50149   4.62
-> 0.29    4297    50623   4.76
-> 0.20    4101    50203   4.72
-> 0.29    4295    50642   4.78
-> 0.20    4101    50223   4.68
-> 0.29    4292    50597   4.88
-> 0.20    4101    50208   4.73
-> 0.29    4296    50519   4.84
-> 0.20    4101    50167   4.80
-> 0.20    4101    50242   4.76
-> 0.29    4302    50625   4.94
-> 0.20    4101    50233   4.73
-> 0.29    4296    50613   4.78
-> 0.20    4101    50231   4.70
-> 0.29    4292    50802   4.93
-> 1.46    4669    65610   8.36
-> 0.41    4225    80701   5.48
-> 0.33    4101    80219   5.36 <<< 8 CPUs are > ptstate 41
-> 0.34    4098    80313   5.38
-> 0.41    4228    80689   5.56
-> 0.33    4101    80252   5.46
->
-> And the related MSR reads:
->
-> 3 CPUs are > pstate 41:
-> root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
-> 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  30 :   8 :   8 :  48 :
-> 48 :  48 :   8 :  30 :  31 :   8 :   8 :   8 :
->
-> 5 CPUs are > psate 41:
-> root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
-> 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  44 :  30 :  31 :  48 :
-> 48 :  48 :   8 :   8 :   8 :   8 :  48 :   8 :
->
-> 8 CPUs are > pstate 41:
-> root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
-> 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  45 :  48 :  48 :  48 :
-> 48 :  48 :   8 :  30 :   8 :   8 :  48 :  42 :
->
-> This issue is independent of the original patch or the suggested modification:
->
-> > diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-> > index f878a4545eee..94018ac0b59b 100644
-> > --- a/drivers/cpufreq/intel_pstate.c
-> > +++ b/drivers/cpufreq/intel_pstate.c
-> > @@ -1980,7 +1980,7 @@ static void intel_pstate_update_perf_ctl(struct
-> > cpudata *cpu)
-> >          * P-states to prevent them from getting back to the high frequency
-> >          * right away after getting out of deep idle.
-> >          */
-> > -       cpuidle_update_retain_tick(pstate > cpu->pstate.max_pstate);
-> > +       cpuidle_update_retain_tick(pstate > ((cpu->pstate.max_pstate +
-> > cpu->pstate.min_pstate)/2));
-> >         wrmsrl(MSR_IA32_PERF_CTL, pstate_funcs.get_val(cpu, pstate));
-> >  }
->
-> ... Doug
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.186-rc1
+
+Chengming Zhou <zhouchengming@bytedance.com>
+    kselftest/vm: fix tests build with old libc
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    bnx2: Fix an error message
+
+Niels Dossche <dossche.niels@gmail.com>
+    sfc: extend the locking on mcdi->seqno
+
+Eric Dumazet <edumazet@google.com>
+    tcp: make tcp_read_sock() more robust
+
+Sreeramya Soratkal <quic_ssramya@quicinc.com>
+    nl80211: Update bss channel on channel switch for P2P_CLIENT
+
+Manasi Navare <manasi.d.navare@intel.com>
+    drm/vrr: Set VRR capable prop only if it is attached to connector
+
+Golan Ben Ami <golan.ben.ami@intel.com>
+    iwlwifi: don't advertise TWT support
+
+Jia-Ju Bai <baijiaju1990@gmail.com>
+    atm: firestream: check the return value of ioremap() in fs_init()
+
+Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+    can: rcar_canfd: rcar_canfd_channel_probe(): register the CAN device when fully ready
+
+Julian Braha <julianbraha@gmail.com>
+    ARM: 9178/1: fix unmet dependency on BITREVERSE for HAVE_ARCH_BITREVERSE
+
+Alexander Lobakin <alobakin@pm.me>
+    MIPS: smp: fill in sibling and core maps earlier
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: refuse aggregations sessions before authorized
+
+Corentin Labbe <clabbe@baylibre.com>
+    ARM: dts: rockchip: fix a typo on rk3288 crypto-controller
+
+Sascha Hauer <s.hauer@pengutronix.de>
+    ARM: dts: rockchip: reorder rk322x hmdi clocks
+
+Dinh Nguyen <dinguyen@kernel.org>
+    arm64: dts: agilex: use the compatible "intel,socfpga-agilex-hsotg"
+
+Sascha Hauer <s.hauer@pengutronix.de>
+    arm64: dts: rockchip: reorder rk3399 hdmi clocks
+
+Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+    arm64: dts: rockchip: fix rk3399-puma eMMC HS400 signal integrity
+
+Yan Yan <evitayan@google.com>
+    xfrm: Fix xfrm migrate issues when address family changes
+
+Yan Yan <evitayan@google.com>
+    xfrm: Check if_id in xfrm_migrate
+
+James Morse <james.morse@arm.com>
+    arm64: Use the clearbhb instruction in mitigations
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and migrated
+
+James Morse <james.morse@arm.com>
+    arm64: Mitigate spectre style branch history side channels
+
+James Morse <james.morse@arm.com>
+    KVM: arm64: Add templates for BHB mitigation sequences
+
+James Morse <james.morse@arm.com>
+    arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2
+
+James Morse <james.morse@arm.com>
+    arm64: Add percpu vectors for EL1
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Add macro for reading symbol addresses from the trampoline
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Add vectors that have the bhb mitigation sequences
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Allow the trampoline text to occupy multiple pages
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Make the kpti trampoline's kpti sequence optional
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Move trampoline macros out of ifdef'd section
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Don't assume tramp_vectors is the start of the vectors
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Move the trampoline data page before the text page
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Free up another register on kpti's tramp_exit path
+
+James Morse <james.morse@arm.com>
+    arm64: entry: Make the trampoline cleanup optional
+
+James Morse <james.morse@arm.com>
+    arm64: entry.S: Add ventry overflow sanity checks
+
+Anshuman Khandual <anshuman.khandual@arm.com>
+    arm64: Add Cortex-X2 CPU part definition
+
+Joey Gouly <joey.gouly@arm.com>
+    arm64: add ID_AA64ISAR2_EL1 sys register
+
+Suzuki K Poulose <suzuki.poulose@arm.com>
+    arm64: Add Neoverse-N2, Cortex-A710 CPU part definition
+
+Rob Herring <robh@kernel.org>
+    arm64: Add part number for Arm Cortex-A77
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: fix the processing for INIT chunk
+
+Kai Lueke <kailueke@linux.microsoft.com>
+    Revert "xfrm: state and policy should fail if XFRMA_IF_ID 0"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm/boot/dts/rk322x.dtsi                      |   4 +-
+ arch/arm/boot/dts/rk3288.dtsi                      |   2 +-
+ arch/arm/include/asm/kvm_host.h                    |   7 +
+ arch/arm/include/uapi/asm/kvm.h                    |   6 +
+ arch/arm64/Kconfig                                 |   9 +
+ arch/arm64/boot/dts/intel/socfpga_agilex.dtsi      |   4 +-
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi      |   6 +
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi           |   6 +-
+ arch/arm64/include/asm/assembler.h                 |  33 ++
+ arch/arm64/include/asm/cpu.h                       |   1 +
+ arch/arm64/include/asm/cpucaps.h                   |   3 +-
+ arch/arm64/include/asm/cpufeature.h                |  40 +++
+ arch/arm64/include/asm/cputype.h                   |  16 +
+ arch/arm64/include/asm/fixmap.h                    |   6 +-
+ arch/arm64/include/asm/kvm_host.h                  |   5 +
+ arch/arm64/include/asm/kvm_mmu.h                   |   6 +-
+ arch/arm64/include/asm/mmu.h                       |   8 +-
+ arch/arm64/include/asm/sections.h                  |   5 +
+ arch/arm64/include/asm/sysreg.h                    |  17 +
+ arch/arm64/include/asm/vectors.h                   |  73 ++++
+ arch/arm64/include/uapi/asm/kvm.h                  |   5 +
+ arch/arm64/kernel/cpu_errata.c                     | 385 ++++++++++++++++++++-
+ arch/arm64/kernel/cpufeature.c                     |  21 ++
+ arch/arm64/kernel/cpuinfo.c                        |   1 +
+ arch/arm64/kernel/entry.S                          | 213 +++++++++---
+ arch/arm64/kernel/vmlinux.lds.S                    |   2 +-
+ arch/arm64/kvm/hyp/hyp-entry.S                     |  64 ++++
+ arch/arm64/kvm/hyp/switch.c                        |   8 +-
+ arch/arm64/kvm/sys_regs.c                          |   2 +-
+ arch/arm64/mm/mmu.c                                |  12 +-
+ arch/mips/kernel/smp.c                             |   6 +-
+ drivers/atm/firestream.c                           |   2 +
+ drivers/gpu/drm/drm_connector.c                    |   3 +
+ drivers/net/can/rcar/rcar_canfd.c                  |   6 +-
+ drivers/net/ethernet/broadcom/bnx2.c               |   2 +-
+ drivers/net/ethernet/sfc/mcdi.c                    |   2 +-
+ drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c |   3 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c  |   1 -
+ include/linux/arm-smccc.h                          |   5 +
+ include/net/xfrm.h                                 |   5 +-
+ lib/Kconfig                                        |   1 -
+ net/ipv4/tcp.c                                     |  10 +-
+ net/key/af_key.c                                   |   2 +-
+ net/mac80211/agg-tx.c                              |  10 +-
+ net/sctp/sm_statefuns.c                            |  71 ++--
+ net/wireless/nl80211.c                             |   3 +-
+ net/xfrm/xfrm_policy.c                             |  14 +-
+ net/xfrm/xfrm_state.c                              |  15 +-
+ net/xfrm/xfrm_user.c                               |  27 +-
+ tools/testing/selftests/vm/userfaultfd.c           |   1 +
+ virt/kvm/arm/psci.c                                |  34 +-
+ 52 files changed, 1037 insertions(+), 160 deletions(-)
+
+
