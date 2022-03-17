@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9736F4DC670
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E574DC711
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 13:59:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbiCQMwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 08:52:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39860 "EHLO
+        id S234198AbiCQM40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 08:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234112AbiCQMwA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:52:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA911F1260;
-        Thu, 17 Mar 2022 05:49:44 -0700 (PDT)
+        with ESMTP id S234335AbiCQMz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 08:55:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70C72BB920;
+        Thu, 17 Mar 2022 05:54:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E0F4614F9;
-        Thu, 17 Mar 2022 12:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F535C36AE3;
-        Thu, 17 Mar 2022 12:49:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FE56614F0;
+        Thu, 17 Mar 2022 12:54:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02807C340EF;
+        Thu, 17 Mar 2022 12:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647521383;
-        bh=74fUNjecR8fdqL28kcqYW3B5dHuRd/wXLz1YjF6Q8wE=;
+        s=korg; t=1647521644;
+        bh=DPdfF6q9H15BXcu0xyHzF22kFQv23DsT8xa/YMq2E1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rVF4CJMcPcoNiIGN1S/gYfvgZL+GdUaWSH3m6HPPQIr2fbwInFOPV1jP9aln+PsJR
-         qSGOpmc5EOiRvwpcMarRS5M6wFXQTIKEF9DRbZlTkRGeqjcI4Lw7WEVHdqhKx/WxVt
-         uaioBMVw0UoFCYD+VV5V8pDfEHoiOP7x0An0Swkg=
+        b=S05oLSeXKc3hOfghWJtg+hbBpaQ6c9Nb4bB23q5baJfHdGMuQZZ7vy8+qW5KVM3La
+         oz/BBKqnOXmiVdSqJJ+pEle0PzgfZ+/EXMzka654i6oxCWFH2Y/h9FVMWyAAAsJGal
+         N89kd8zJljBvM25F2fnFKyxCTS2qnLRWKja4U24k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, dri-devel@lists.freedesktop.org,
-        Manasi Navare <manasi.d.navare@intel.com>,
+        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
+        Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
+        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/23] drm/vrr: Set VRR capable prop only if it is attached to connector
+Subject: [PATCH 5.16 06/28] arm64: dts: rockchip: fix rk3399-puma eMMC HS400 signal integrity
 Date:   Thu, 17 Mar 2022 13:45:57 +0100
-Message-Id: <20220317124526.431057119@linuxfoundation.org>
+Message-Id: <20220317124526.953096814@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220317124525.955110315@linuxfoundation.org>
-References: <20220317124525.955110315@linuxfoundation.org>
+In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
+References: <20220317124526.768423926@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manasi Navare <manasi.d.navare@intel.com>
+From: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
 
-[ Upstream commit 62929726ef0ec72cbbe9440c5d125d4278b99894 ]
+[ Upstream commit 62966cbdda8a92f82d966a45aa671e788b2006f7 ]
 
-VRR capable property is not attached by default to the connector
-It is attached only if VRR is supported.
-So if the driver tries to call drm core set prop function without
-it being attached that causes NULL dereference.
+There are signal integrity issues running the eMMC at 200MHz on Puma
+RK3399-Q7.
 
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220225013055.9282-1-manasi.d.navare@intel.com
+Similar to the work-around found for RK3399 Gru boards, lowering the
+frequency to 100MHz made the eMMC much more stable, so let's lower the
+frequency to 100MHz.
+
+It might be possible to run at 150MHz as on RK3399 Gru boards but only
+100MHz was extensively tested.
+
+Cc: Quentin Schulz <foss+kernel@0leil.net>
+Signed-off-by: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20220119134948.1444965-1-quentin.schulz@theobroma-systems.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_connector.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_connector.c b/drivers/gpu/drm/drm_connector.c
-index 717c4e7271b0..5163433ac561 100644
---- a/drivers/gpu/drm/drm_connector.c
-+++ b/drivers/gpu/drm/drm_connector.c
-@@ -2155,6 +2155,9 @@ EXPORT_SYMBOL(drm_connector_attach_max_bpc_property);
- void drm_connector_set_vrr_capable_property(
- 		struct drm_connector *connector, bool capable)
- {
-+	if (!connector->vrr_capable_property)
-+		return;
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+index 002ece51c3ba..08fa00364b42 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+@@ -439,6 +439,12 @@
+ };
+ 
+ &sdhci {
++	/*
++	 * Signal integrity isn't great at 200MHz but 100MHz has proven stable
++	 * enough.
++	 */
++	max-frequency = <100000000>;
 +
- 	drm_object_property_set_value(&connector->base,
- 				      connector->vrr_capable_property,
- 				      capable);
+ 	bus-width = <8>;
+ 	mmc-hs400-1_8v;
+ 	mmc-hs400-enhanced-strobe;
 -- 
 2.34.1
 
