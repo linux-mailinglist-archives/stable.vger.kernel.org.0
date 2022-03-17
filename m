@@ -2,112 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B866A4DD0B9
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 23:29:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F1124DD0EF
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 23:56:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229745AbiCQWav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 18:30:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36488 "EHLO
+        id S230014AbiCQW5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 18:57:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229490AbiCQWau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 18:30:50 -0400
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21A05C7490
-        for <stable@vger.kernel.org>; Thu, 17 Mar 2022 15:29:33 -0700 (PDT)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 9007F1004817C
-        for <stable@vger.kernel.org>; Thu, 17 Mar 2022 22:29:32 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id Uycen6kQPkku4UycenOd39; Thu, 17 Mar 2022 22:29:32 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=JeJ5EWGV c=1 sm=1 tr=0 ts=6233b64c
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=o8Y5sQTvuykA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=2GCAtCuT3wgT4q42L9EA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=okwJesg+n+xS19dxycO0FL5oTNm06thYVuK9ZYqFucU=; b=AWKZHTuq7ELRTfmoGj/gp4hZWe
-        UsWlpbvHN5Dbgd2VIJw2K5AJpGttNqUEVoMCmu1yVMAjY6x8Dor/cyijF0MtZ7qG8xV+DhA843umA
-        2AHmBSuupUXpkTKZ809mptNS0;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:33244 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nUycd-003p3r-BI; Thu, 17 Mar 2022 16:29:31 -0600
-Subject: Re: [PATCH 5.15 00/25] 5.15.30-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220317124526.308079100@linuxfoundation.org>
-In-Reply-To: <20220317124526.308079100@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <bdbf5040-0f79-e1f9-4d8b-742d864b1ecc@w6rz.net>
-Date:   Thu, 17 Mar 2022 15:29:29 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nUycd-003p3r-BI
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:33244
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229772AbiCQW5h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 18:57:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246CD2AB884;
+        Thu, 17 Mar 2022 15:56:20 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3A04B8205E;
+        Thu, 17 Mar 2022 22:56:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417E7C340E9;
+        Thu, 17 Mar 2022 22:56:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1647557777;
+        bh=/VJB/d/3Z6TvE59Uq2N7YwI67p3DC5nPAdndbLHX+LI=;
+        h=Date:To:From:Subject:From;
+        b=Q1NPoNB5KXb+hAZPA4zP3pvhZ6ar4km8KgGgdFrPIIpIntGR9wK/F0wznyDuiZ1To
+         4YSp9wOehxUf4HIu0BoYAypGKjf3k8Arim1yfaAswhk5a97o4yIHIM3M2Qg69R3Y53
+         MLkuWfPRtX9c/L4HG/3mNEJt+rto4OiQ8losfcPo=
+Date:   Thu, 17 Mar 2022 15:56:16 -0700
+To:     mm-commits@vger.kernel.org, zealci@zte.com.cn,
+        yang.yang29@zte.com.cn, stable@vger.kernel.org, rogerq@kernel.org,
+        ran.xiaokai@zte.com.cn, naoya.horiguchi@nec.com,
+        minchan@kernel.org, mhocko@kernel.org, jiang.xuexin@zte.com.cn,
+        hughd@google.com, hannes@cmpxchg.org, guo.ziliang@zte.com.cn,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged] mm-swap-get-rid-of-deadloop-in-swapin-readahead.patch removed from -mm tree
+Message-Id: <20220317225617.417E7C340E9@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/17/22 5:45 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.30 release.
-> There are 25 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 19 Mar 2022 12:45:16 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.30-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+The patch titled
+     Subject: mm: swap: get rid of deadloop in swapin readahead
+has been removed from the -mm tree.  Its filename was
+     mm-swap-get-rid-of-deadloop-in-swapin-readahead.patch
 
-Tested-by: Ron Economos <re@w6rz.net>
+This patch was dropped because it was merged into mainline or a subsystem tree
+
+------------------------------------------------------
+From: Guo Ziliang <guo.ziliang@zte.com.cn>
+Subject: mm: swap: get rid of deadloop in swapin readahead
+
+In our testing, a deadloop task was found.  Through sysrq printing, same
+stack was found every time, as follows:
+
+__swap_duplicate+0x58/0x1a0
+swapcache_prepare+0x24/0x30
+__read_swap_cache_async+0xac/0x220
+read_swap_cache_async+0x58/0xa0
+swapin_readahead+0x24c/0x628
+do_swap_page+0x374/0x8a0
+__handle_mm_fault+0x598/0xd60
+handle_mm_fault+0x114/0x200
+do_page_fault+0x148/0x4d0
+do_translation_fault+0xb0/0xd4
+do_mem_abort+0x50/0xb0
+
+The reason for the deadloop is that swapcache_prepare() always returns
+EEXIST, indicating that SWAP_HAS_CACHE has not been cleared, so that it
+cannot jump out of the loop.  We suspect that the task that clears the
+SWAP_HAS_CACHE flag never gets a chance to run.  We try to lower the
+priority of the task stuck in a deadloop so that the task that clears the
+SWAP_HAS_CACHE flag will run.  The results show that the system returns to
+normal after the priority is lowered.
+
+In our testing, multiple real-time tasks are bound to the same core, and
+the task in the deadloop is the highest priority task of the core, so the
+deadloop task cannot be preempted.
+
+Although cond_resched() is used by __read_swap_cache_async, it is an empty
+function in the preemptive system and cannot achieve the purpose of
+releasing the CPU.  A high-priority task cannot release the CPU unless
+preempted by a higher-priority task.  But when this task is already the
+highest priority task on this core, other tasks will not be able to be
+scheduled.  So we think we should replace cond_resched() with
+schedule_timeout_uninterruptible(1), schedule_timeout_interruptible will
+call set_current_state first to set the task state, so the task will be
+removed from the running queue, so as to achieve the purpose of giving up
+the CPU and prevent it from running in kernel mode for too long.
+
+(akpm: ugly hack becomes uglier.  But it fixes the issue in a
+backportable-to-stable fashion while we hopefully work on something
+better)
+
+Link: https://lkml.kernel.org/r/20220221111749.1928222-1-cgel.zte@gmail.com
+Signed-off-by: Guo Ziliang <guo.ziliang@zte.com.cn>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Reviewed-by: Ran Xiaokai <ran.xiaokai@zte.com.cn>
+Reviewed-by: Jiang Xuexin <jiang.xuexin@zte.com.cn>
+Reviewed-by: Yang Yang <yang.yang29@zte.com.cn>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Roger Quadros <rogerq@kernel.org>
+Cc: Ziliang Guo <guo.ziliang@zte.com.cn>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/swap_state.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/swap_state.c~mm-swap-get-rid-of-deadloop-in-swapin-readahead
++++ a/mm/swap_state.c
+@@ -478,7 +478,7 @@ struct page *__read_swap_cache_async(swp
+ 		 * __read_swap_cache_async(), which has set SWAP_HAS_CACHE
+ 		 * in swap_map, but not yet added its page to swap cache.
+ 		 */
+-		cond_resched();
++		schedule_timeout_uninterruptible(1);
+ 	}
+ 
+ 	/*
+_
+
+Patches currently in -mm which might be from guo.ziliang@zte.com.cn are
+
 
