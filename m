@@ -2,84 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABACE4DCF7B
-	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 21:38:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CF094DCFA5
+	for <lists+stable@lfdr.de>; Thu, 17 Mar 2022 21:48:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbiCQUkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 16:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53048 "EHLO
+        id S229884AbiCQUtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Mar 2022 16:49:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229775AbiCQUkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 16:40:12 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4BCBB917;
-        Thu, 17 Mar 2022 13:38:55 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id t14so3550527pgr.3;
-        Thu, 17 Mar 2022 13:38:55 -0700 (PDT)
+        with ESMTP id S229826AbiCQUtX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 16:49:23 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCC41AA8E5;
+        Thu, 17 Mar 2022 13:48:06 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id p8so7769404pfh.8;
+        Thu, 17 Mar 2022 13:48:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=XXPxc8xF2CJlGObdw/eC6baiwA/XpPKEd/Jy1SJ3ol8=;
-        b=N4ZQLI8tGuL3HO7LWthMx63lUi8bBwKx4ejXuWr+Hzv7vwlGzlxOUjoKPnvOZtq6LC
-         31S3SSnT23US3dSeCl6I85ttzhDYlywg0PL1/sUs2kkuMe2MyUurbXzOrpAxeVqZ8lQc
-         cnLaBIH8VKhUDUqZhHwYk1sh0Nrx1leIl+rjGh1uYlbRS0RVXSiQf88LVt1YKLteXs1t
-         kIVkVDOgTu/Zn6yPssRCO23eCMwYwz0NSeZYOxu5OoUPZWgtmVKovnId9+FtBfkCe0Fs
-         FjQxP05od8Q1gogWspX2xQ1vEgZ8DXY9+9/oMckgpGGK8kBLYpi0NDX9/yle3+1Ci1p9
-         XmNQ==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=njBL1mxoEng7tVDrEjek9QFtAEEhmO0f5Yln/xxwvDw=;
+        b=lXM8OrqufnEFzjbGiqqWqKBGx879TMVpq4VVaebGl/WM2lSF2X9FYJlXLdvfJKuQaG
+         YQKdWFVaTCtyNLuDOpXLhyXgNeL5GJKiW8cIm4AT0q1TK4GU6owp6UQ2o+cZerBWC1jy
+         fsit++BGImvQU2Qmyr5Zz85X7ZQgOLvB21OgXawVkuy8EGZfIP+yMqIrFGT7h4e5OTA9
+         20cy/iQaNLqpaUpw/KZuvTfvbh0pjAN0T1j1kBFQI9C/4et6L/d1bzIv5YW5u1HTM8Rl
+         ew3NoNnSMhqh/+N5qJEDTqQLhpYpn68XZWKVP0NRXZRy/UqGG5tCbMwYApCJeQjm5Mz/
+         sseA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=XXPxc8xF2CJlGObdw/eC6baiwA/XpPKEd/Jy1SJ3ol8=;
-        b=wckDgOy+TXQ3cNd/MG7qiqW/YvYLp8XEnwOCsoLJ2g57FukOzzUy3leqF93AOTuV1A
-         8sRjpCNf4zwBQRPCjyq1qSYEzBKz+C3uqmrw1y3UPXddcQ1Hmt/hDXpvgh5zzfM8N8Hk
-         +CE0/FBHNJH+dNlKr3QVCN46LhFk/UOwpLPUdsClNM7o3ZtlyMS/A30rvoIosM7dL4DP
-         q9buC1csOEsFDAlHlMU6/in3c8ntAopFnW4YjpIaOs1+TuTDh/yWK/JillL+sKq3K2Kn
-         cfUqLq3x8ialiW4f2Y9ifGnkgmv9Ai87VcK9bCZLtKqlUc2gY0cDQBTUzZUpUCzGY/gI
-         +seA==
-X-Gm-Message-State: AOAM531/XQT4NbZjapcQvmE7LZTPKzyrvlf1zivayiImS8CqKYhpDG0y
-        twVmQOki8Fy6vhbzBi6D/a8=
-X-Google-Smtp-Source: ABdhPJyK0tJFmlDmVUuHFtogfArqh+PaJZQTl6s/30PTRARFfwstTpt/Vf5VhxkHqx+dRGRiPhVYhg==
-X-Received: by 2002:aa7:92cf:0:b0:4fa:3b47:7408 with SMTP id k15-20020aa792cf000000b004fa3b477408mr5232524pfa.72.1647549535202;
-        Thu, 17 Mar 2022 13:38:55 -0700 (PDT)
-Received: from smtpclient.apple ([66.170.99.2])
-        by smtp.gmail.com with ESMTPSA id a38-20020a056a001d2600b004f70d5e92basm7673990pfx.34.2022.03.17.13.38.53
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 17 Mar 2022 13:38:54 -0700 (PDT)
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.80.82.1.1\))
-Subject: Re: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to
- process_madvise
-From:   Nadav Amit <nadav.amit@gmail.com>
-In-Reply-To: <CAJuCfpGBJev_h92S0xLEQXghGQzNPCsqWTunpVPJQX4WWPjGzw@mail.gmail.com>
-Date:   Thu, 17 Mar 2022 13:38:52 -0700
-Cc:     Minchan Kim <minchan@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Charan Teja Kalla <quic_charante@quicinc.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Rientjes <rientjes@google.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        =?utf-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Michal Hocko <mhocko@suse.com>, linux-mm <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "# 5 . 10+" <stable@vger.kernel.org>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <B49F17E4-8D3D-45FB-97E9-E0F906C88564@gmail.com>
-References: <cover.1647008754.git.quic_charante@quicinc.com>
- <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
- <YjEaFBWterxc3Nzf@google.com>
- <20220315164807.7a9cf1694ee2db8709a8597c@linux-foundation.org>
- <YjFAzuLKWw5eadtf@google.com>
- <5428f192-1537-fa03-8e9c-4a8322772546@quicinc.com>
- <20220316142906.e41e39d2315e35ef43f4aad6@linux-foundation.org>
- <YjNhvhb7l2i9WTfF@google.com>
- <CAJuCfpGBJev_h92S0xLEQXghGQzNPCsqWTunpVPJQX4WWPjGzw@mail.gmail.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-X-Mailer: Apple Mail (2.3696.80.82.1.1)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=njBL1mxoEng7tVDrEjek9QFtAEEhmO0f5Yln/xxwvDw=;
+        b=5xaJ/H6Ywi1jFv+G4ejUV3mdCbqCwgexWHVVDgb4l/3E6/yXqt8d5MNEJQD1mG/f6p
+         GRU3WgUxd8MeMReyEzYR2WdqNN8oQlouDFtlD2X5njd28zwMIbcQ8GiIST02qQODkGJ7
+         KZdAlVA7cr5SqDzM1hiOJwL4RqzXi3ghnvkfi1ljz9eCelu2bZHvz4Ma/Gt3LvmeGf0N
+         W/3aAZVq0a/qbYBFm76CcMRPHtUa1pRU1sr/KDBCiRxMAI9lXW+Gn1NER29cqS1whu+K
+         3yrtBz4Z4f34OxYWp2S5Iw8OwYTWySiRNL64YdLhUh/gttF6IyNn/t3Yn7dc3ZB7iIYb
+         lmlA==
+X-Gm-Message-State: AOAM531CJXMQ1EeY6u9jm6GTCYWT1vH2XrbGpN322qQ6P6HijdQ/ipZA
+        UumARXnq+vOrIq93n8qwrjEHh8059tM=
+X-Google-Smtp-Source: ABdhPJy+GaP9Ye3xYXvE+Sw33CdxTFOEry8xKg8X5JOEdb2vXx3lktHLE4949AUo0qIPycpc5Be5BA==
+X-Received: by 2002:a63:7702:0:b0:382:24f1:b70f with SMTP id s2-20020a637702000000b0038224f1b70fmr1519933pgc.144.1647550086039;
+        Thu, 17 Mar 2022 13:48:06 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id oo17-20020a17090b1c9100b001bf0ccc59c2sm11038810pjb.16.2022.03.17.13.48.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 17 Mar 2022 13:48:05 -0700 (PDT)
+Subject: Re: [PATCH 5.4 18/43] arm64: entry: Add macro for reading symbol
+ addresses from the trampoline
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+References: <20220317124527.672236844@linuxfoundation.org>
+ <20220317124528.180267687@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <113e7675-4263-2a20-81d0-9634f03511d2@gmail.com>
+Date:   Thu, 17 Mar 2022 13:48:02 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+In-Reply-To: <20220317124528.180267687@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -88,73 +77,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 3/17/22 5:45 AM, Greg Kroah-Hartman wrote:
+> From: James Morse <james.morse@arm.com>
+> 
+> commit b28a8eebe81c186fdb1a0078263b30576c8e1f42 upstream.
+> 
+> The trampoline code needs to use the address of symbols in the wider
+> kernel, e.g. vectors. PC-relative addressing wouldn't work as the
+> trampoline code doesn't run at the address the linker expected.
+> 
+> tramp_ventry uses a literal pool, unless CONFIG_RANDOMIZE_BASE is
+> set, in which case it uses the data page as a literal pool because
+> the data page can be unmapped when running in user-space, which is
+> required for CPUs vulnerable to meltdown.
+> 
+> Pull this logic out as a macro, instead of adding a third copy
+> of it.
+> 
+> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: James Morse <james.morse@arm.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+This commit causes a linking failure with CONFIG_ARM_SDE_INTERFACE=y
+enabled in the kernel:
+
+  LD      .tmp_vmlinux.kallsyms1
+/local/users/fainelli/buildroot/output/arm64/host/bin/aarch64-linux-ld:
+arch/arm64/kernel/entry.o: in function `__sdei_asm_exit_trampoline':
+/local/users/fainelli/buildroot/output/arm64/build/linux-custom/arch/arm64/kernel/entry.S:1352:
+undefined reference to `__sdei_asm_trampoline_next_handler'
+make[2]: *** [Makefile:1100: vmlinux] Error 1
+make[1]: *** [package/pkg-generic.mk:295:
+/local/users/fainelli/buildroot/output/arm64/build/linux-custom/.stamp_built]
+Error 2
+make: *** [Makefile:27: _all] Error 2
 
 
-> On Mar 17, 2022, at 9:53 AM, Suren Baghdasaryan <surenb@google.com> =
-wrote:
->=20
-> On Thu, Mar 17, 2022 at 9:28 AM Minchan Kim <minchan@kernel.org> =
-wrote:
->>=20
->> On Wed, Mar 16, 2022 at 02:29:06PM -0700, Andrew Morton wrote:
->>> On Wed, 16 Mar 2022 19:49:38 +0530 Charan Teja Kalla =
-<quic_charante@quicinc.com> wrote:
->>>=20
->>>>> IMO, it's worth to note in man page.
->>>>>=20
->>>>=20
->>>> Or the current patch for just ENOMEM is sufficient here and we just =
-have
->>>> to update the man page?
->>>=20
->>> I think the "On success, process_madvise() returns the number of =
-bytes
->>> advised" behaviour sounds useful.  But madvise() doesn't do that.
->>>=20
->>> RETURN VALUE
->>>       On  success, madvise() returns zero.  On error, it returns -1 =
-and errno
->>>       is set to indicate the error.
->>>=20
->>> So why is it desirable in the case of process_madvise()?
->>=20
->> Since process_madvise deal with multiple ranges and could fail at one =
-of
->> them in the middle or pocessing, people could decide where the call
->> failed and then make a strategy whether they will abort at the point =
-or
->> continue to hint next addresses. Here, problem of the strategy is API
->> doesn't return any error vaule if it has processed any bytes so they
->> would have limitation to decide a policy. That's the limitation for
->> every vector IO syscalls, unfortunately.
->>=20
->>>=20
->>>=20
->>>=20
->>> And why was process_madvise() designed this way?   Or was it
->>> always simply an error in the manpage?
->=20
-> Taking a closer look, indeed manpage seems to be wrong.
-> https://elixir.bootlin.com/linux/v5.17-rc8/source/mm/madvise.c#L1154
-> indicates that in the presence of unmapped holes madvise will skip
-> them but will return ENOMEM and that's what process_madvise is
-> ultimately returning in this case. So, the manpage claim of "This
-> return value may be less than the total number of requested bytes, if
-> an error occurred after some iovec elements were already processed."
-> does not reflect the reality in our case because the return value will
-> be -ENOMEM. After the desired behavior is finalized I'll modify the
-> manpage accordingly.
+> ---
+>  arch/arm64/kernel/entry.S | 35 ++++++++++++++++-------------------
+>  1 file changed, 16 insertions(+), 19 deletions(-)
+> 
+> diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+> index 14351ee5e812..e4b5a15c2e2e 100644
+> --- a/arch/arm64/kernel/entry.S
+> +++ b/arch/arm64/kernel/entry.S
+> @@ -1063,6 +1063,15 @@ alternative_else_nop_endif
+>  	sub	\dst, \dst, PAGE_SIZE
+>  	.endm
+>  
+> +	.macro tramp_data_read_var	dst, var
+> +#ifdef CONFIG_RANDOMIZE_BASE
+> +	tramp_data_page		\dst
+> +	add	\dst, \dst, #:lo12:__entry_tramp_data_\var
+> +	ldr	\dst, [\dst]
+> +#else
+> +	ldr	\dst, =\var
+> +#endif
+> +	.endm
+>  
+>  #define BHB_MITIGATION_NONE	0
+>  #define BHB_MITIGATION_LOOP	1
+> @@ -1093,13 +1102,8 @@ alternative_else_nop_endif
+>  	b	.
+>  2:
+>  	tramp_map_kernel	x30
+> -#ifdef CONFIG_RANDOMIZE_BASE
+> -	tramp_data_page		x30
+>  alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
+> -	ldr	x30, [x30]
+> -#else
+> -	ldr	x30, =vectors
+> -#endif
+> +	tramp_data_read_var	x30, vectors
+>  alternative_if_not ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM
+>  	prfm	plil1strm, [x30, #(1b - \vector_start)]
+>  alternative_else_nop_endif
+> @@ -1183,7 +1187,12 @@ END(tramp_exit_compat)
+>  	.align PAGE_SHIFT
+>  	.globl	__entry_tramp_data_start
+>  __entry_tramp_data_start:
+> +__entry_tramp_data_vectors:
+>  	.quad	vectors
+> +#ifdef CONFIG_ARM_SDE_INTERFACE
+> +__entry_tramp_data___sdei_asm_trampoline_next_handler:
+> +	.quad	__sdei_asm_handler
+> +#endif /* CONFIG_ARM_SDE_INTERFACE */
+>  	.popsection				// .rodata
+>  #endif /* CONFIG_RANDOMIZE_BASE */
+>  #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
+> @@ -1310,13 +1319,7 @@ ENTRY(__sdei_asm_entry_trampoline)
+>  	 */
+>  1:	str	x4, [x1, #(SDEI_EVENT_INTREGS + S_ORIG_ADDR_LIMIT)]
+>  
+> -#ifdef CONFIG_RANDOMIZE_BASE
+> -	tramp_data_page		x4
+> -	add	x4, x4, #:lo12:__sdei_asm_trampoline_next_handler
+> -	ldr	x4, [x4]
+> -#else
+> -	ldr	x4, =__sdei_asm_handler
+> -#endif
+> +	tramp_data_read_var     x4, __sdei_asm_trampoline_next_handler
+>  	br	x4
+>  ENDPROC(__sdei_asm_entry_trampoline)
+>  NOKPROBE(__sdei_asm_entry_trampoline)
+> @@ -1339,12 +1342,6 @@ ENDPROC(__sdei_asm_exit_trampoline)
+>  NOKPROBE(__sdei_asm_exit_trampoline)
+>  	.ltorg
+>  .popsection		// .entry.tramp.text
+> -#ifdef CONFIG_RANDOMIZE_BASE
+> -.pushsection ".rodata", "a"
+> -__sdei_asm_trampoline_next_handler:
+> -	.quad	__sdei_asm_handler
+> -.popsection		// .rodata
+> -#endif /* CONFIG_RANDOMIZE_BASE */
+>  #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
+>  
+>  /*
+> 
 
-Since process_madvise() might be used in sort of non-cooperative mode,
-I think that the caller cannot guarantee that it knows exactly the
-memory layout of the process whose memory it madvise=E2=80=99s. I know =
-that
-MADV_DONTNEED for instance is not supported (at least today) by
-process_madvise(), but if it were, the caller may want which exact
-memory was madvise'd even if the target process ran some other
-memory layout changing syscalls (e.g., munmap()).
 
-IOW, skipping holes and just returning the total number of madvise=E2=80=99=
-d
-bytes might not be enough.
-
+-- 
+Florian
