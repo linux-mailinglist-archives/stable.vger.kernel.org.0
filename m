@@ -2,84 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AACB24DD97A
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:15:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7DB04DD9C4
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:32:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236073AbiCRMQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 08:16:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49120 "EHLO
+        id S235886AbiCRMdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 08:33:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236059AbiCRMQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 08:16:37 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0646663B3
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 05:15:19 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BE6A91424;
-        Fri, 18 Mar 2022 05:15:18 -0700 (PDT)
-Received: from [10.57.88.118] (unknown [10.57.88.118])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EF9EB3F7F5;
-        Fri, 18 Mar 2022 05:15:17 -0700 (PDT)
-Subject: Re: [stable:PATCH v5.4.184 00/22] arm64: Mitigate spectre style
- branch history side channels
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, catalin.marinas@arm.com,
-        linux-arm-kernel@lists.infradead.org
-References: <20220315182415.3900464-1-james.morse@arm.com>
- <YjIFE8Abn7XI+4yW@sashalap> <YjMGwYeBTx36/6uO@kroah.com>
-From:   James Morse <james.morse@arm.com>
-Message-ID: <6d749d6c-aa5b-0c82-a404-62633a3da8ee@arm.com>
-Date:   Fri, 18 Mar 2022 12:15:13 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S232023AbiCRMdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 08:33:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B582E1AA0
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 05:32:20 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 542A8B8222A
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 12:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3552C340E8;
+        Fri, 18 Mar 2022 12:32:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647606738;
+        bh=9tg8J5ZyZEwakC7w06ItLJTliJ00b051/r4hFi31nJs=;
+        h=Subject:To:From:Date:From;
+        b=rxDR5hpI1MFp/BwUQcbfdKCR5RnxNvxlTnIPJ9Jg1wWv4OVvfj8BIr8aqaE91nh/x
+         F81mZhPVocLlMcHHadoPkYUyvZCJSDOSnGoePDT+/xnNiDNnyi1CHrORuPqrJa5/YV
+         yEGz+GNasfvPqsKxu9OrHfrtCoe/HMe8nm1s7IG8=
+Subject: patch "serial: sc16is7xx: Clear RS485 bits in the shutdown" added to tty-testing
+To:     hui.wang@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 18 Mar 2022 13:29:11 +0100
+Message-ID: <164760655122119@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <YjMGwYeBTx36/6uO@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-On 3/17/22 10:00 AM, Greg KH wrote:
-> On Wed, Mar 16, 2022 at 11:41:07AM -0400, Sasha Levin wrote:
->> On Tue, Mar 15, 2022 at 06:23:53PM +0000, James Morse wrote:
->>> Hi Greg,
->>>
->>> Here is the state of the current v5.4 backport. Now that the 32bit
->>> code has been merged, it doesn't conflict when KVM's shared 32bit/64bit
->>> code needs to use these constants.
->>>
->>> I've fixed the two issues that were reported against the v5.10 backport.
->>>
->>> I had a go at bringing all the pre-requisites in to add proton-pack.c
->>> to v5.4. Its currently 39 patches:
->>> https://git.gitlab.arm.com/linux-arm/linux-jm.git /bhb/alternative_backport/UNTESTED/v5.4.183
->>> (or for web browsers:
->>> https://gitlab.arm.com/linux-arm/linux-jm/-/commits/bhb/alternative_backport/UNTESTED/v5.4.183/
->>> )
->>
->> I've queued it up.
-> 
-> Thanks for merging these, and James, thanks for the backports!  I agree,
-> this way is a bit "simpler", but thanks for trying the other way as
-> well.
+This is a note to let you know that I've just added the patch titled
 
-> Does this mean that the 4.19 and older backports will be easier?
+    serial: sc16is7xx: Clear RS485 bits in the shutdown
 
-It means they'll be based on the versions I posted on before. But: the last review comment that
-needs addressing is the A76 ID macros that came in with an errata workaround, but the workaround
-wasn't backported. I need to work out how easy that is to do.
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the tty-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
 
 
-Thanks,
+From 927728a34f11b5a27f4610bdb7068317d6fdc72a Mon Sep 17 00:00:00 2001
+From: Hui Wang <hui.wang@canonical.com>
+Date: Tue, 8 Mar 2022 19:00:42 +0800
+Subject: serial: sc16is7xx: Clear RS485 bits in the shutdown
 
-James
+We tested RS485 function on an EVB which has SC16IS752, after
+finishing the test, we started the RS232 function test, but found the
+RTS is still working in the RS485 mode.
+
+That is because both startup and shutdown call port_update() to set
+the EFCR_REG, this will not clear the RS485 bits once the bits are set
+in the reconf_rs485(). To fix it, clear the RS485 bits in shutdown.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20220308110042.108451-1-hui.wang@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/sc16is7xx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
+index 683dd3be010d..91434876fcde 100644
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -1238,10 +1238,12 @@ static void sc16is7xx_shutdown(struct uart_port *port)
+ 
+ 	/* Disable all interrupts */
+ 	sc16is7xx_port_write(port, SC16IS7XX_IER_REG, 0);
+-	/* Disable TX/RX */
++	/* Disable TX/RX, clear auto RS485 and RTS invert */
+ 	sc16is7xx_port_update(port, SC16IS7XX_EFCR_REG,
+ 			      SC16IS7XX_EFCR_RXDISABLE_BIT |
+-			      SC16IS7XX_EFCR_TXDISABLE_BIT,
++			      SC16IS7XX_EFCR_TXDISABLE_BIT |
++			      SC16IS7XX_EFCR_AUTO_RS485_BIT |
++			      SC16IS7XX_EFCR_RTS_INVERT_BIT,
+ 			      SC16IS7XX_EFCR_RXDISABLE_BIT |
+ 			      SC16IS7XX_EFCR_TXDISABLE_BIT);
+ 
+-- 
+2.35.1
+
+
