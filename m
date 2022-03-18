@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACD64DD934
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 12:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FCF24DD935
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 12:47:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235808AbiCRLtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 07:49:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42060 "EHLO
+        id S235896AbiCRLtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 07:49:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232272AbiCRLtF (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 07:49:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5332CD820
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 04:47:47 -0700 (PDT)
+        with ESMTP id S232272AbiCRLtP (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 07:49:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D3A10FC
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 04:47:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E23B61211
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 11:47:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A6FCC340E8;
-        Fri, 18 Mar 2022 11:47:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B199B821C5
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 11:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2430C340E8;
+        Fri, 18 Mar 2022 11:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647604066;
-        bh=jhNtd9jFDmXafumKOYVEZ/X4LwaWrXLLBvkit7JjCn4=;
+        s=korg; t=1647604073;
+        bh=DAotH8bT2Vis6VJL/HvOdMkRecZCT0wvzU1w6vna+sA=;
         h=Subject:To:From:Date:From;
-        b=f29PkP7Tl75+qc9WbPLDfs+hPyQWh9gB6D0FbhHL/CLTxPp+hwH0/QPsONis7kX/1
-         O6cLB8tYiluG5RS8pEJovDrSJJtS3E+OkzVv73wcSUFw1jsanpnwdjCpGh/e+Jm2SK
-         5zlj/c6UZ7ffObe5zK6bLSjEbjYggJ1kqRdOdJvI=
-Subject: patch "iio: afe: rescale: use s64 for temporary scale calculations" added to char-misc-testing
+        b=jqK2N1ZN2EAENel/TsnZcG9MPg9eYA/081B2u4qp9EH8UaVmji4ddtgjPA78fztKr
+         kF4g9OMhMuAXO4ZMg/m2sjBSiU6IM3NYK1f5oGWOUwQR3psu9dVqK5c3hIHLZihneG
+         GBxo0LIH1Ap51G4s3Sv8h8Q56sBDc0+FoQh1IuWU=
+Subject: patch "iio: inkern: make a best effort on offset calculation" added to char-misc-testing
 To:     liambeguin@gmail.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, andy.shevchenko@gmail.com, peda@axentia.se
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 18 Mar 2022 12:42:33 +0100
-Message-ID: <164760375375146@kroah.com>
+Message-ID: <1647603753147132@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: afe: rescale: use s64 for temporary scale calculations
+    iio: inkern: make a best effort on offset calculation
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,53 +65,71 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 51593106b608ae4247cc8da928813347da16d025 Mon Sep 17 00:00:00 2001
+From ca85123354e1a65a22170286387b4791997fe864 Mon Sep 17 00:00:00 2001
 From: Liam Beguin <liambeguin@gmail.com>
-Date: Sat, 8 Jan 2022 15:53:07 -0500
-Subject: iio: afe: rescale: use s64 for temporary scale calculations
+Date: Sat, 8 Jan 2022 15:53:06 -0500
+Subject: iio: inkern: make a best effort on offset calculation
 
-All four scaling coefficients can take signed values.
-Make tmp a signed 64-bit integer and switch to div_s64() to preserve
-signs during 64-bit divisions.
+iio_convert_raw_to_processed_unlocked() assumes the offset is an
+integer. Make a best effort to get a valid offset value for fractional
+cases without breaking implicit truncations.
 
-Fixes: 8b74816b5a9a ("iio: afe: rescale: new driver")
+Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
 Signed-off-by: Liam Beguin <liambeguin@gmail.com>
 Reviewed-by: Peter Rosin <peda@axentia.se>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220108205319.2046348-5-liambeguin@gmail.com
+Link: https://lore.kernel.org/r/20220108205319.2046348-4-liambeguin@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/afe/iio-rescale.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/inkern.c | 32 +++++++++++++++++++++++++++-----
+ 1 file changed, 27 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iio/afe/iio-rescale.c b/drivers/iio/afe/iio-rescale.c
-index 774eb3044edd..271d73e420c4 100644
---- a/drivers/iio/afe/iio-rescale.c
-+++ b/drivers/iio/afe/iio-rescale.c
-@@ -39,7 +39,7 @@ static int rescale_read_raw(struct iio_dev *indio_dev,
- 			    int *val, int *val2, long mask)
+diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+index dbe13fad3cbb..df74765d33dc 100644
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -595,13 +595,35 @@ EXPORT_SYMBOL_GPL(iio_read_channel_average_raw);
+ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
+ 	int raw, int *processed, unsigned int scale)
  {
- 	struct rescale *rescale = iio_priv(indio_dev);
--	unsigned long long tmp;
-+	s64 tmp;
- 	int ret;
+-	int scale_type, scale_val, scale_val2, offset;
++	int scale_type, scale_val, scale_val2;
++	int offset_type, offset_val, offset_val2;
+ 	s64 raw64 = raw;
+-	int ret;
  
- 	switch (mask) {
-@@ -77,10 +77,10 @@ static int rescale_read_raw(struct iio_dev *indio_dev,
- 			*val2 = rescale->denominator;
- 			return IIO_VAL_FRACTIONAL;
- 		case IIO_VAL_FRACTIONAL_LOG2:
--			tmp = *val * 1000000000LL;
--			do_div(tmp, rescale->denominator);
-+			tmp = (s64)*val * 1000000000LL;
-+			tmp = div_s64(tmp, rescale->denominator);
- 			tmp *= rescale->numerator;
--			do_div(tmp, 1000000000LL);
-+			tmp = div_s64(tmp, 1000000000LL);
- 			*val = tmp;
- 			return ret;
- 		default:
+-	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
+-	if (ret >= 0)
+-		raw64 += offset;
++	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
++				       IIO_CHAN_INFO_OFFSET);
++	if (offset_type >= 0) {
++		switch (offset_type) {
++		case IIO_VAL_INT:
++			break;
++		case IIO_VAL_INT_PLUS_MICRO:
++		case IIO_VAL_INT_PLUS_NANO:
++			/*
++			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
++			 * implicitely truncate the offset to it's integer form.
++			 */
++			break;
++		case IIO_VAL_FRACTIONAL:
++			offset_val /= offset_val2;
++			break;
++		case IIO_VAL_FRACTIONAL_LOG2:
++			offset_val >>= offset_val2;
++			break;
++		default:
++			return -EINVAL;
++		}
++
++		raw64 += offset_val;
++	}
+ 
+ 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
+ 					IIO_CHAN_INFO_SCALE);
 -- 
 2.35.1
 
