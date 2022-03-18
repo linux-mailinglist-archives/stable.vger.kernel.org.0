@@ -2,145 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 575BC4DDEE0
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:25:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E29FD4DDEEB
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:29:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239121AbiCRQZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 12:25:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
+        id S239090AbiCRQ35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 12:29:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239128AbiCRQZW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:25:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D602F09F0;
-        Fri, 18 Mar 2022 09:21:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A61961774;
-        Fri, 18 Mar 2022 16:21:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E756EC340E8;
-        Fri, 18 Mar 2022 16:21:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647620480;
-        bh=0kbUdPgdG/ygPeHnHoAJ1qXfejq0ixJB5sK4dDeLqeU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=idalnSWuwFfBy0/Dqg7PTorUAnbZ2CowEQ8GHbLco1L4jwkhrQpAasbdFKaD6yauQ
-         8MFIDhfWc+xn8YHxnc/GfbLFol3UxDEqnL5h5CrXuWRfSrWwP9CEe+cJzsAIb3pf+A
-         wwYFZQRsNVJ/WfMeq2XouItBh8GggL/bwZ7DosXQ=
-Date:   Fri, 18 Mar 2022 17:21:16 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     James Morse <james.morse@arm.com>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4 18/43] arm64: entry: Add macro for reading symbol
- addresses from the trampoline
-Message-ID: <YjSxfK6bmH4P9IQl@kroah.com>
-References: <20220317124527.672236844@linuxfoundation.org>
- <20220317124528.180267687@linuxfoundation.org>
- <113e7675-4263-2a20-81d0-9634f03511d2@gmail.com>
- <bc35996d-ec18-1923-38f4-81d16ed98b7a@arm.com>
- <YjSw3wfvbhtjWRSG@kroah.com>
+        with ESMTP id S239295AbiCRQ2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:28:19 -0400
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2111E8EB45;
+        Fri, 18 Mar 2022 09:27:00 -0700 (PDT)
+Received: by mail-wm1-x335.google.com with SMTP id q20so5138075wmq.1;
+        Fri, 18 Mar 2022 09:27:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=bE1h98kHg/vd9+ySU9xBpk1/akQmX3fkJjCvR5e1UFo=;
+        b=hy6lTPQIMROkI7AC71s/JdvifauaVii3kjTQSK3CACbW+Znm42bLTWF2PmDxbHqiYm
+         pOy3YeWxSgNC+VnRyMpeivw4L4ZhlfD4hybXkRmFbKfuHmzt8gh2Iq+HmlA2bYo0zIuP
+         Batd9aytoEpIVY2XRev4uRIGhYf5QwLQQIADqVxin5cBha6RpcZojxZ7QNHOkoJmOO7W
+         7oMV6i9ZGbdYmp4qTd29EX60pgGHopH9iR2IbwwyYbnt4i1KCTqSm3p11jq4ayKuwdVO
+         5OBgSWBf1wTM4ZmUO7zC4R0e9ea6oBLGkxS5QNqeHuY4CYWsN1Vm8VW1KDIY5qtVKHRc
+         I4OQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=bE1h98kHg/vd9+ySU9xBpk1/akQmX3fkJjCvR5e1UFo=;
+        b=4Dk51458T3X58B5oVKebHAPKTg0foYnZ1qlz2SQXZaaOYSHtN0UauFiTHZi8xuY8KB
+         qlzEQ7Ydy8KIwNAqMmB7JAWprgaEjjnIrdpdurSzrlDhTHwD8rOMESbTgDw2CvXJPv6b
+         e32uIJrptsj2/spuSIOHpyHW+s7WDKvM5RxWk1Cj5armCYBRfBHXy/+LQcbFVcG0VeDw
+         Sw3TDpaHOoToDmjo3Pmg2Xk89Ot7nZDONTIDzwryGVghN7iQH0XLrG3LzA+8mBNrAAwa
+         1HRmlgN1f5c0bfZRaDLcGYCEzZyJxCdlrzp61wzyN3s4HEf3MXZmz+lGVECKpXqh9vIi
+         JjqA==
+X-Gm-Message-State: AOAM531Ccl4ekbJnnphE+R+oYC+W/Swk6JXFlNI1aBGNvXvUfuG4/kci
+        mEubCMr3Zhpcng1azpkppG8=
+X-Google-Smtp-Source: ABdhPJxcHQXFITXUohtVzboQWy1beygU8s+a6fSMmy3ce5G+kY8pFubSZ68W9GwXxJpYfWLZgsfsoA==
+X-Received: by 2002:a7b:c8c5:0:b0:389:d4f1:7cb with SMTP id f5-20020a7bc8c5000000b00389d4f107cbmr11847782wml.3.1647620818607;
+        Fri, 18 Mar 2022 09:26:58 -0700 (PDT)
+Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
+        by smtp.gmail.com with ESMTPSA id n18-20020a5d6612000000b00203fbd39059sm737811wru.42.2022.03.18.09.26.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Mar 2022 09:26:57 -0700 (PDT)
+Date:   Fri, 18 Mar 2022 16:26:55 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 00/25] 5.15.30-rc1 review
+Message-ID: <YjSyz74SX8yCrNne@debian>
+References: <20220317124526.308079100@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YjSw3wfvbhtjWRSG@kroah.com>
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220317124526.308079100@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 18, 2022 at 05:18:39PM +0100, Greg Kroah-Hartman wrote:
-> On Fri, Mar 18, 2022 at 12:11:32PM +0000, James Morse wrote:
-> > Hi Florian,
-> > 
-> > On 3/17/22 8:48 PM, Florian Fainelli wrote:
-> > > On 3/17/22 5:45 AM, Greg Kroah-Hartman wrote:
-> > > > From: James Morse <james.morse@arm.com>
-> > > > 
-> > > > commit b28a8eebe81c186fdb1a0078263b30576c8e1f42 upstream.
-> > > > 
-> > > > The trampoline code needs to use the address of symbols in the wider
-> > > > kernel, e.g. vectors. PC-relative addressing wouldn't work as the
-> > > > trampoline code doesn't run at the address the linker expected.
-> > > > 
-> > > > tramp_ventry uses a literal pool, unless CONFIG_RANDOMIZE_BASE is
-> > > > set, in which case it uses the data page as a literal pool because
-> > > > the data page can be unmapped when running in user-space, which is
-> > > > required for CPUs vulnerable to meltdown.
-> > > > 
-> > > > Pull this logic out as a macro, instead of adding a third copy
-> > > > of it.
-> > > > 
-> > > > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> > > > Signed-off-by: James Morse <james.morse@arm.com>
-> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > 
-> > > This commit causes a linking failure with CONFIG_ARM_SDE_INTERFACE=y
-> > > enabled in the kernel:
-> > > 
-> > >    LD      .tmp_vmlinux.kallsyms1
-> > > /local/users/fainelli/buildroot/output/arm64/host/bin/aarch64-linux-ld:
-> > > arch/arm64/kernel/entry.o: in function `__sdei_asm_exit_trampoline':
-> > > /local/users/fainelli/buildroot/output/arm64/build/linux-custom/arch/arm64/kernel/entry.S:1352:
-> > > undefined reference to `__sdei_asm_trampoline_next_handler'
-> > > make[2]: *** [Makefile:1100: vmlinux] Error 1
-> > > make[1]: *** [package/pkg-generic.mk:295:
-> > > /local/users/fainelli/buildroot/output/arm64/build/linux-custom/.stamp_built]
-> > > Error 2
-> > > make: *** [Makefile:27: _all] Error 2
-> > 
-> > ... and with CONFIG_RANDOMIZE_BASE turned off, which is why allyesconfig didn't catch it.
-> > This is because I kept the next_handler bit of the label when it conflicted, which isn't needed
-> > because the __entry_tramp bit added by the macro serves the same purpose.
-> > 
-> > The below diff fixes it:
-> > ----------%<----------
-> > diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-> > index e4b5a15c2e2e..cfc0bb6c49f7 100644
-> > --- a/arch/arm64/kernel/entry.S
-> > +++ b/arch/arm64/kernel/entry.S
-> > @@ -1190,7 +1190,7 @@ __entry_tramp_data_start:
-> >  __entry_tramp_data_vectors:
-> >         .quad   vectors
-> >  #ifdef CONFIG_ARM_SDE_INTERFACE
-> > -__entry_tramp_data___sdei_asm_trampoline_next_handler:
-> > +__entry_tramp_data___sdei_asm_handler:
-> >         .quad   __sdei_asm_handler
-> >  #endif /* CONFIG_ARM_SDE_INTERFACE */
-> >         .popsection                             // .rodata
-> > @@ -1319,7 +1319,7 @@ ENTRY(__sdei_asm_entry_trampoline)
-> >          */
-> >  1:     str     x4, [x1, #(SDEI_EVENT_INTREGS + S_ORIG_ADDR_LIMIT)]
-> > -       tramp_data_read_var     x4, __sdei_asm_trampoline_next_handler
-> > +       tramp_data_read_var     x4, __sdei_asm_handler
-> >         br      x4
-> >  ENDPROC(__sdei_asm_entry_trampoline)
-> >  NOKPROBE(__sdei_asm_entry_trampoline)
-> > ----------%<----------
-> > 
-> > Good news - this didn't happen with v5.10.
-> > 
-> > I don't see this in v5.4.185 yet.
-> > 
-> > Greg/Sasha, what is least work for you?:
-> > A new version of this patch,
-> > A fixup on top of the series,
-> > Reposting the series with this fixed.
+Hi Greg,
+
+On Thu, Mar 17, 2022 at 01:45:47PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.30 release.
+> There are 25 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Let me merge this into this commit.
+> Responses should be made by Sat, 19 Mar 2022 12:45:16 +0000.
+> Anything received after that time might be too late.
 
-Well I would if it would actually apply :(
+Build test:
+mips (gcc version 11.2.1 20220301): 62 configs -> no new failure
+arm (gcc version 11.2.1 20220301): 100 configs -> no new failure
+arm64 (gcc version 11.2.1 20220301): 3 configs -> no failure
+x86_64 (gcc version 11.2.1 20220301): 4 configs -> no failure
 
-Can you send a version that isn't whitespace corrupted?
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+mips: Booted on ci20 board. No regression. [3]
 
-thanks,
+[1]. https://openqa.qa.codethink.co.uk/tests/904
+[2]. https://openqa.qa.codethink.co.uk/tests/909
+[3]. https://openqa.qa.codethink.co.uk/tests/910
 
-greg k-h
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
+
