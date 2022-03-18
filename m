@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5181C4DD956
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 016B54DD959
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236017AbiCRMCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 08:02:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33750 "EHLO
+        id S232957AbiCRMCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 08:02:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235903AbiCRMCc (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:02:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 021412D4D4D
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:01:14 -0700 (PDT)
+        with ESMTP id S236019AbiCRMCk (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:02:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D7B2E0456
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:01:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91E73614CB
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D5D5C340E8;
-        Fri, 18 Mar 2022 12:01:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95567614CB
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:01:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94F69C340E8;
+        Fri, 18 Mar 2022 12:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647604873;
-        bh=vs+nKSBt4Y0OjQ5xf5Ymp2ul9WJq4AGCFcjnoe5kwsk=;
+        s=korg; t=1647604880;
+        bh=r6AneU+ZIUj4y6WrftiFg5wZ8JCbNjI6PCJa0ioz72w=;
         h=Subject:To:From:Date:From;
-        b=fCMLUNdc5GkZBWVTdQazQzAeL5PTx85MnBfhEE+jTfeKlrg0zywPgyhRQbl8yEZlI
-         aSJY3tkuzuIPymGsKdOaL/MU/OxYSR0nw/06C9Su83uc1dlm4BSD0dqz54TURyx5g6
-         wAea5TaUdKrqJiGGnNA7aR5lUgsEPk58bQ0JmlRc=
-Subject: patch "iio: inkern: apply consumer scale on IIO_VAL_INT cases" added to char-misc-next
+        b=kbxHk2/Kyhn8xboDF0t2kNqoTx399NeKjWQeQFBD58NvwhUThiK1QBbTPwWLmWNUO
+         U4DjqgL7T4REPkC+Ozxl3PSidYvhoOn1NLvFxX54ppFWo1qS3MhbZvwzwiDS14g7ca
+         HpKY3ArHCxh7pFrHYfIHYIbgZhXRjY4twtTy6mno=
+Subject: patch "iio: inkern: make a best effort on offset calculation" added to char-misc-next
 To:     liambeguin@gmail.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, andy.shevchenko@gmail.com, peda@axentia.se
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Mar 2022 12:45:22 +0100
-Message-ID: <164760392215675@kroah.com>
+Date:   Fri, 18 Mar 2022 12:45:23 +0100
+Message-ID: <1647603923160160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: inkern: apply consumer scale on IIO_VAL_INT cases
+    iio: inkern: make a best effort on offset calculation
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,45 +65,71 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 1bca97ff95c732a516ebb68da72814194980e0a5 Mon Sep 17 00:00:00 2001
+From ca85123354e1a65a22170286387b4791997fe864 Mon Sep 17 00:00:00 2001
 From: Liam Beguin <liambeguin@gmail.com>
-Date: Sat, 8 Jan 2022 15:53:04 -0500
-Subject: iio: inkern: apply consumer scale on IIO_VAL_INT cases
+Date: Sat, 8 Jan 2022 15:53:06 -0500
+Subject: iio: inkern: make a best effort on offset calculation
 
-When a consumer calls iio_read_channel_processed() and the channel has
-an integer scale, the scale channel scale is applied and the processed
-value is returned as expected.
-
-On the other hand, if the consumer calls iio_convert_raw_to_processed()
-the scaling factor requested by the consumer is not applied.
-
-This for example causes the consumer to process mV when expecting uV.
-Make sure to always apply the scaling factor requested by the consumer.
+iio_convert_raw_to_processed_unlocked() assumes the offset is an
+integer. Make a best effort to get a valid offset value for fractional
+cases without breaking implicit truncations.
 
 Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
 Signed-off-by: Liam Beguin <liambeguin@gmail.com>
 Reviewed-by: Peter Rosin <peda@axentia.se>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220108205319.2046348-2-liambeguin@gmail.com
+Link: https://lore.kernel.org/r/20220108205319.2046348-4-liambeguin@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/inkern.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/inkern.c | 32 +++++++++++++++++++++++++++-----
+ 1 file changed, 27 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index 0222885b334c..021e1397ffc5 100644
+index dbe13fad3cbb..df74765d33dc 100644
 --- a/drivers/iio/inkern.c
 +++ b/drivers/iio/inkern.c
-@@ -616,7 +616,7 @@ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
+@@ -595,13 +595,35 @@ EXPORT_SYMBOL_GPL(iio_read_channel_average_raw);
+ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
+ 	int raw, int *processed, unsigned int scale)
+ {
+-	int scale_type, scale_val, scale_val2, offset;
++	int scale_type, scale_val, scale_val2;
++	int offset_type, offset_val, offset_val2;
+ 	s64 raw64 = raw;
+-	int ret;
  
- 	switch (scale_type) {
- 	case IIO_VAL_INT:
--		*processed = raw64 * scale_val;
-+		*processed = raw64 * scale_val * scale;
- 		break;
- 	case IIO_VAL_INT_PLUS_MICRO:
- 		if (scale_val2 < 0)
+-	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
+-	if (ret >= 0)
+-		raw64 += offset;
++	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
++				       IIO_CHAN_INFO_OFFSET);
++	if (offset_type >= 0) {
++		switch (offset_type) {
++		case IIO_VAL_INT:
++			break;
++		case IIO_VAL_INT_PLUS_MICRO:
++		case IIO_VAL_INT_PLUS_NANO:
++			/*
++			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
++			 * implicitely truncate the offset to it's integer form.
++			 */
++			break;
++		case IIO_VAL_FRACTIONAL:
++			offset_val /= offset_val2;
++			break;
++		case IIO_VAL_FRACTIONAL_LOG2:
++			offset_val >>= offset_val2;
++			break;
++		default:
++			return -EINVAL;
++		}
++
++		raw64 += offset_val;
++	}
+ 
+ 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
+ 					IIO_CHAN_INFO_SCALE);
 -- 
 2.35.1
 
