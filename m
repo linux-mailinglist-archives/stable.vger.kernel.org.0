@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C71544DE012
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A4B4DE030
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239699AbiCRRio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 13:38:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
+        id S239433AbiCRRpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 13:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239693AbiCRRii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 13:38:38 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 756903076F8;
-        Fri, 18 Mar 2022 10:37:19 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1CE191515;
-        Fri, 18 Mar 2022 10:37:19 -0700 (PDT)
-Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 203123F7B4;
-        Fri, 18 Mar 2022 10:37:18 -0700 (PDT)
-From:   James Morse <james.morse@arm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     James Morse <james.morse@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: fixup for [PATCH 5.4 18/43] arm64 entry: Add macro for reading symbol address from the trampoline
-Date:   Fri, 18 Mar 2022 17:37:13 +0000
-Message-Id: <20220318173713.2320567-1-james.morse@arm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <YjSxfK6bmH4P9IQl@kroah.com>
-References: <YjSxfK6bmH4P9IQl@kroah.com>
+        with ESMTP id S238668AbiCRRpP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 13:45:15 -0400
+Received: from letterbox.kde.org (letterbox.kde.org [IPv6:2001:41c9:1:41e::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3272BA7778
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 10:43:55 -0700 (PDT)
+Received: from vertex.localdomain (pool-108-36-85-85.phlapa.fios.verizon.net [108.36.85.85])
+        (Authenticated sender: zack)
+        by letterbox.kde.org (Postfix) with ESMTPSA id 8959428909B;
+        Fri, 18 Mar 2022 17:43:51 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kde.org; s=users;
+        t=1647625432; bh=Pq3m+BVAc4QHE9tP+/Vw24SFr8lOiJbCJYcCL0sQyGw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XPGcKNX/p/6Nz7SUrgz317LYuM1TPHWmvGpXR5ge1jF7ZHic/B5bE4PHpl/wj1NoH
+         D1mVTjdi2tW7O5TZwZ8QTR8i0Mmn/k20ySelQSGs9Xf4yQIX5vbenP2HT2qwpXOxtb
+         57HA/V5wmXE3+lgh9ZjNZ2WwAYCHNrRJH6v70IrtixnArXBy14BvbN9yMGyu/jfiKD
+         hGk1/stKO9lW9X3mlOwO7ThuVt0UYCN3eIvWDvdDuUC87+ASUmAhEcjRxevMTmPOs6
+         E//PgsUYtKQdWrjSx/+R24LXjDhk8WAEXQC/FomZTUbl9dYuWYunCiTx3G0JsFJKl7
+         hG92Zlp6s7vrw==
+From:   Zack Rusin <zack@kde.org>
+To:     dri-devel@lists.freedesktop.org
+Cc:     krastevm@vmware.com, mombasawalam@vmware.com,
+        Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
+Subject: [PATCH 4/5] drm/vmwgfx: Disable command buffers on svga3 without gbobjects
+Date:   Fri, 18 Mar 2022 13:43:31 -0400
+Message-Id: <20220318174332.440068-5-zack@kde.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220318174332.440068-1-zack@kde.org>
+References: <20220318174332.440068-1-zack@kde.org>
+Reply-To: Zack Rusin <zackr@vmware.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -44,44 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-__sdei_asm_trampoline_next_handler shouldn't have its own name as the
-tramp_data_read_var takes the symbol name, and generates the name for
-the value in the data page if CONFIG_RANDOMIZE_BASE is clear.
+From: Zack Rusin <zackr@vmware.com>
 
-This means when CONFIG_RANDOMIZE_BASE is clear, this code won't compile
-as __sdei_asm_trampoline_next_handler doesn't exist.
+With very limited vram on svga3 it's difficult to handle all the surface
+migrations. Without gbobjects, i.e. the ability to store surfaces in
+guest mobs, there's no reason to support intermediate svga2 features,
+especially because we can fall back to fb traces and svga3 will never
+support those in-between features.
 
-Use the proper name, and let the macro do its thing.
+On svga3 we wither want to use fb traces or screen targets
+(i.e. gbobjects), nothing in between. This fixes presentation on a lot
+of fusion/esxi tech previews where the exposed svga3 caps haven't been
+finalized yet.
 
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 2cd80dbd3551 ("drm/vmwgfx: Add basic support for SVGA3")
+Cc: <stable@vger.kernel.org> # v5.14+
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
 ---
- arch/arm64/kernel/entry.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index e4b5a15c2e2e..cfc0bb6c49f7 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -1190,7 +1190,7 @@ __entry_tramp_data_start:
- __entry_tramp_data_vectors:
- 	.quad	vectors
- #ifdef CONFIG_ARM_SDE_INTERFACE
--__entry_tramp_data___sdei_asm_trampoline_next_handler:
-+__entry_tramp_data___sdei_asm_handler:
- 	.quad	__sdei_asm_handler
- #endif /* CONFIG_ARM_SDE_INTERFACE */
- 	.popsection				// .rodata
-@@ -1319,7 +1319,7 @@ ENTRY(__sdei_asm_entry_trampoline)
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
+index bf1b394753da..162dfeb1cc5a 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
+@@ -675,11 +675,14 @@ int vmw_cmd_emit_dummy_query(struct vmw_private *dev_priv,
+  */
+ bool vmw_cmd_supported(struct vmw_private *vmw)
+ {
+-	if ((vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
+-				  SVGA_CAP_CMD_BUFFERS_2)) != 0)
+-		return true;
++	bool has_cmdbufs =
++		(vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
++				      SVGA_CAP_CMD_BUFFERS_2)) != 0;
++	if (vmw_is_svga_v3(vmw))
++		return (has_cmdbufs &&
++			(vmw->capabilities & SVGA_CAP_GBOBJECTS) != 0);
+ 	/*
+ 	 * We have FIFO cmd's
  	 */
- 1:	str	x4, [x1, #(SDEI_EVENT_INTREGS + S_ORIG_ADDR_LIMIT)]
- 
--	tramp_data_read_var     x4, __sdei_asm_trampoline_next_handler
-+	tramp_data_read_var     x4, __sdei_asm_handler
- 	br	x4
- ENDPROC(__sdei_asm_entry_trampoline)
- NOKPROBE(__sdei_asm_entry_trampoline)
+-	return vmw->fifo_mem != NULL;
++	return has_cmdbufs || vmw->fifo_mem != NULL;
+ }
 -- 
-2.30.2
+2.32.0
 
