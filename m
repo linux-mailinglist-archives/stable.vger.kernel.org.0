@@ -2,141 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B7D4DDF53
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:49:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5AAC4DDF6E
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:56:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239365AbiCRQuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 12:50:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42848 "EHLO
+        id S236575AbiCRQ52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 12:57:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239301AbiCRQuM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:50:12 -0400
-Received: from mail1.bemta31.messagelabs.com (mail1.bemta31.messagelabs.com [67.219.246.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDEA62F09FF;
-        Fri, 18 Mar 2022 09:48:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
-        s=Selector; t=1647622129; i=@motorola.com;
-        bh=4tTrL6MoObzkg36pxyIJNl57VWNIKMGSOhfyf5Pe+90=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:
-         Content-Transfer-Encoding;
-        b=knoeRLLqLfIxUJLrusdgHQqTv9tvfsTTnjFwq3zg8NoU0692rxt9KwThX0qJyofzq
-         pR6graiEnGOUmEham3VHXJruvU/v2CGAZEHwoohOvDDcJqj84j2SlR31JTEen8hCSb
-         HqGTUgUXWJyuJRI+Uik54w475Lo46DWXgXW86+G8zv0CifvjLEgJE64SNMRAxvnE/N
-         I2ownRTONTtUIFbFA6SdiV6waPGB2jzqhDbzPF9BnkFsNvrCxx3ppGnVynlMRx3BqX
-         c+Nl2N0vcr5gu2c0CbhXq42z6jcO/7hmCupJK8zw+E5JMCWPGEYsueAL5+WPpGW5kL
-         MBf2Rx+WPPHxQ==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrPIsWRWlGSWpSXmKPExsUyYU+Ds+6H7SZ
-  JBse/ilkca3vCbrF68VUmi+bF69ksOicuYbe4vGsOm8WiZa3MFgs2PmJ0YPeY3TGT1WPTqk42
-  j/1z17B7PP2xl9nj8ya5ANYo1sy8pPyKBNaMBbfWsRd8Eqi4uGATYwPjTb4uRi4OIYEpTBIbl
-  21kg3CWMEl07lvN3sXIycEmoCax4PUqZhBbREBW4vCV38wgRcwCE5gkGjqOMYIkhAWCJJZd3s
-  AGYrMIqEpcf/EMLM4rYCGx6cQaVhBbQkBe4tSyg0wQcUGJkzOfsIDYzEDx5q2zmScwcs9Ckpq
-  FJLWAkWkVo2VSUWZ6RkluYmaOrqGBga6hoYmuqa6FpV5ilW6iXmmxbmpicYmuoV5iebFeanGx
-  XnFlbnJOil5easkmRmBYphSxRu5gnN3zU+8QoyQHk5Ior8hykyQhvqT8lMqMxOKM+KLSnNTiQ
-  4wyHBxKErxiW4BygkWp6akVaZk5wBiBSUtw8CiJ8IaCpHmLCxJzizPTIVKnGHU5nl69spdZiC
-  UvPy9VSpx34VagIgGQoozSPLgRsHi9xCgrJczLyMDAIMRTkFqUm1mCKv+KUZyDUUmYVxtkCk9
-  mXgncpldARzABHdEoYARyREkiQkqqgUmNWefIbWUufSaTlQca9xgfYVSeKCYSo1Gglnz5t4Nk
-  54yNcskCys2igaWruvguBd9aujLJyif6NAv3sX6266KvLuQs9mNc99fMaXXAHUvxGSz+3T0Sp
-  TUbFDpc+M/WXnS5oWgwuyaVx31yjl29r7Oo6LScKe7lTY+6d8j+e1PMqfLbjV1xlqmwtbV5VJ
-  vek6LMeyu1L32/euJEw2HdItaA2EXl3x78XNJcNi/kzi+V7VazNkTvEol0uMOy8FaMy61iafd
-  ckenzpJ//5JcWe3/8mlPgaovnd365qkbpbphqNdPPRk12TbP1mljzRUvmLe6V3id07tEfyT+c
-  fXMEUzdGCf/Myql+P9f9xd4pSizFGYmGWsxFxYkAtr3+/lIDAAA=
-X-Env-Sender: w36195@motorola.com
-X-Msg-Ref: server-31.tower-706.messagelabs.com!1647622128!4665!1
-X-Originating-IP: [144.188.128.67]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.81.10; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 22957 invoked from network); 18 Mar 2022 16:48:48 -0000
-Received: from unknown (HELO ilclpfpp01.lenovo.com) (144.188.128.67)
-  by server-31.tower-706.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 18 Mar 2022 16:48:48 -0000
-Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S239430AbiCRQ52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:57:28 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2D72BC1C9;
+        Fri, 18 Mar 2022 09:56:09 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by ilclpfpp01.lenovo.com (Postfix) with ESMTPS id 4KKqhv6gmRzfBZq;
-        Fri, 18 Mar 2022 16:48:47 +0000 (UTC)
-Received: from p1g3.. (unknown [10.45.4.226])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        by smtp-out2.suse.de (Postfix) with ESMTPS id E66661F392;
+        Fri, 18 Mar 2022 16:56:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1647622567; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Mp/9GH7VCVH6yRrvqWVAbBDtVnOlmtIXQvROfo3TzB8=;
+        b=d53Ia78bdfyuGJLCOxWXtyZaOvwAqUeXDzSLCF9NmwRRTeyXVsv/yetQY9oesHh69TLTXT
+        nYmYcnlYYWph0Tfp4VxXOSxDxc97dLAO2DB8LUsTaE5usZlnNFMnG8sNxtroVxubgDlxzA
+        qLuoFT8kgo5FEVMOy0jQ5jR1zOwYhh4=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        (Authenticated sender: w36195)
-        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4KKqhv5b7yzbvDd;
-        Fri, 18 Mar 2022 16:48:47 +0000 (UTC)
-From:   Dan Vacura <w36195@motorola.com>
-To:     linux-usb@vger.kernel.org
-Cc:     stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Bhupesh Sharma <bhupesh.sharma@st.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2] usb: gadget: uvc: Fix crash when encoding data for usb request
-Date:   Fri, 18 Mar 2022 11:47:06 -0500
-Message-Id: <20220318164706.22365-1-w36195@motorola.com>
-X-Mailer: git-send-email 2.32.0
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9FD501351D;
+        Fri, 18 Mar 2022 16:56:07 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Yy9iJae5NGIgCgAAMHmgww
+        (envelope-from <jgross@suse.com>); Fri, 18 Mar 2022 16:56:07 +0000
+Message-ID: <2a4573e0-4a8d-52c1-d29b-66b13bfe376f@suse.com>
+Date:   Fri, 18 Mar 2022 17:56:07 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH] platform/x86/dell: add buffer allocation/free functions
+ for SMI calls
+Content-Language: en-US
+To:     David Laight <David.Laight@ACULAB.COM>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        "platform-driver-x86@vger.kernel.org" 
+        <platform-driver-x86@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Dell.Client.Kernel@dell.com" <Dell.Client.Kernel@dell.com>
+Cc:     Stuart Hayes <stuart.w.hayes@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20220318150950.16843-1-jgross@suse.com>
+ <accf95548a8c4374b17c159b9b2d0098@AcuMS.aculab.com>
+From:   Juergen Gross <jgross@suse.com>
+In-Reply-To: <accf95548a8c4374b17c159b9b2d0098@AcuMS.aculab.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------TM6SaXL8siRcJxQNQGUqgn4j"
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During the uvcg_video_pump() process, if an error occurs and
-uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
-the current marker (queue->buf_used) of the active buffer (no longer
-active) is not reset. On the next iteration of uvcg_video_pump() the
-stale buf_used count will be used and the logic of min((unsigned
-int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
-nbytes size, causing an invalid memory access.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------TM6SaXL8siRcJxQNQGUqgn4j
+Content-Type: multipart/mixed; boundary="------------0gPSdPzUPEcNzI04c8WYT5Ll";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: David Laight <David.Laight@ACULAB.COM>,
+ "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+ "platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "Dell.Client.Kernel@dell.com" <Dell.Client.Kernel@dell.com>
+Cc: Stuart Hayes <stuart.w.hayes@gmail.com>,
+ Hans de Goede <hdegoede@redhat.com>, Mark Gross <markgross@kernel.org>,
+ "stable@vger.kernel.org" <stable@vger.kernel.org>
+Message-ID: <2a4573e0-4a8d-52c1-d29b-66b13bfe376f@suse.com>
+Subject: Re: [PATCH] platform/x86/dell: add buffer allocation/free functions
+ for SMI calls
+References: <20220318150950.16843-1-jgross@suse.com>
+ <accf95548a8c4374b17c159b9b2d0098@AcuMS.aculab.com>
+In-Reply-To: <accf95548a8c4374b17c159b9b2d0098@AcuMS.aculab.com>
 
-[80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
-with status -18.
-[80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
-with status -18.
-...
-uvcg_queue_cancel() is called and the queue is cleared out, but the
-marker queue->buf_used is not reset.
-...
-[80802.262328][ T8682] Unable to handle kernel paging request at virtual
-address ffffffc03af9f000
-...
-...
-[80802.263138][ T8682] Call trace:
-[80802.263146][ T8682]  __memcpy+0x12c/0x180
-[80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
-[80802.263165][ T8682]  process_one_work+0x2cc/0x568
-[80802.263173][ T8682]  worker_thread+0x28c/0x518
-[80802.263181][ T8682]  kthread+0x160/0x170
-[80802.263188][ T8682]  ret_from_fork+0x10/0x18
-[80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
+--------------0gPSdPzUPEcNzI04c8WYT5Ll
+Content-Type: multipart/mixed; boundary="------------DDUITxrpMQFqvmeqif0y83vA"
 
-Fixes: d692522577c0 ("usb: gadget/uvc: Port UVC webcam gadget to use videobuf2 framework")
-Signed-off-by: Dan Vacura <w36195@motorola.com>
+--------------DDUITxrpMQFqvmeqif0y83vA
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
----
-Changes in v2:
-- Add Fixes tag
+T24gMTguMDMuMjIgMTY6MjIsIERhdmlkIExhaWdodCB3cm90ZToNCj4gRnJvbTogSnVlcmdl
+biBHcm9zcw0KPj4gU2VudDogMTggTWFyY2ggMjAyMiAxNToxMA0KPj4NCj4+IFRoZSBkY2Ri
+YXMgZHJpdmVyIGlzIHVzZWQgdG8gY2FsbCBTTUkgaGFuZGxlcnMgZm9yIGJvdGgsIGRjZGJh
+cyBhbmQNCj4+IGRlbGwtc21iaW9zLXNtbS4gQm90aCBkcml2ZXJzIGFsbG9jYXRlIGEgYnVm
+ZmVyIGZvciBjb21tdW5pY2F0aW5nDQo+PiB3aXRoIHRoZSBTTUkgaGFuZGxlci4gVGhlIHBo
+eXNpY2FsIGJ1ZmZlciBhZGRyZXNzIGlzIHRoZW4gcGFzc2VkIHRvDQo+PiB0aGUgY2FsbGVk
+IFNNSSBoYW5kbGVyIHZpYSAlZWJ4Lg0KPj4NCj4+IFVuZm9ydHVuYXRlbHkgdGhpcyBkb2Vz
+bid0IHdvcmsgd2hlbiBydW5uaW5nIGluIFhlbiBkb20wLCBhcyB0aGUNCj4+IHBoeXNpY2Fs
+IGFkZHJlc3Mgb2J0YWluZWQgdmlhIHZpcnRfdG9fcGh5cygpIGlzIG9ubHkgYSBndWVzdCBw
+aHlzaWNhbA0KPj4gYWRkcmVzcywgYW5kIG5vdCBhIG1hY2hpbmUgcGh5c2ljYWwgYWRkcmVz
+cyBhcyBuZWVkZWQgYnkgU01JLg0KPiANCj4gVGhlIHBoeXNpY2FsIGFkZHJlc3MgZnJvbSB2
+aXJ0X3RvX3BoeSgpIGlzIGFsd2F5cyB3cm9uZy4NCj4gVGhhdCBpcyB0aGUgcGh5c2ljYWwg
+YWRkcmVzcyB0aGUgY3B1IGhhcyBmb3IgdGhlIG1lbW9yeS4NCj4gV2hhdCB5b3Ugd2FudCBp
+cyB0aGUgYWRkcmVzcyB0aGUgZG1hIG1hc3RlciBpbnRlcmZhY2UgbmVlZHMgdG8gdXNlLg0K
+PiBUaGF0IGNhbiBiZSBkaWZmZXJlbnQgZm9yIGEgcGh5c2ljYWwgc3lzdGVtIC0gbm8gbmVl
+ZCBmb3IgdmlydHVhbGlzYXRpb24uDQo+IA0KPiBPbiB4ODYgdGhleSBkbyB1c3VhbGx5IG1h
+dGNoLCBidXQgYW55dGhpbmcgd2l0aCBhIGZ1bGwgaW9tbXUNCj4gd2lsbCBuZWVkIGNvbXBs
+ZXRlbHkgZGlmZmVyZW50IGFkZHJlc3Nlcy4NCg0KWWVzLCB0aGFua3MgZm9yIHJlbWluZGlu
+ZyBtZSBvZiB0aGF0Lg0KDQpUaGUgU01JIGhhbmRsZXIgaXMgcnVubmluZyBvbiB0aGUgY3B1
+LCByaWdodD8gU28gdXNpbmcgdGhlIERNQQ0KYWRkcmVzcyBpcyB3cm9uZyBpbiBjYXNlIG9m
+IGFuIElPTU1VLiBJIHJlYWxseSBuZWVkIHRoZSBtYWNoaW5lDQpwaHlzaWNhbCBhZGRyZXNz
+Lg0KDQoNCkp1ZXJnZW4NCg==
+--------------DDUITxrpMQFqvmeqif0y83vA
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
- drivers/usb/gadget/function/uvc_queue.c | 2 ++
- 1 file changed, 2 insertions(+)
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
-index d852ac9e47e7..2cda982f3765 100644
---- a/drivers/usb/gadget/function/uvc_queue.c
-+++ b/drivers/usb/gadget/function/uvc_queue.c
-@@ -264,6 +264,8 @@ void uvcg_queue_cancel(struct uvc_video_queue *queue, int disconnect)
- 		buf->state = UVC_BUF_STATE_ERROR;
- 		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
- 	}
-+	queue->buf_used = 0;
-+
- 	/* This must be protected by the irqlock spinlock to avoid race
- 	 * conditions between uvc_queue_buffer and the disconnection event that
- 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
--- 
-2.32.0
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
 
+--------------DDUITxrpMQFqvmeqif0y83vA--
+
+--------------0gPSdPzUPEcNzI04c8WYT5Ll--
+
+--------------TM6SaXL8siRcJxQNQGUqgn4j
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmI0uacFAwAAAAAACgkQsN6d1ii/Ey8Y
+2Af9H+sA3gToLVqND0JUAgm34RV3HcBKtmpQrwauUp+n2SxJt7BkiulazKmckqT1f3cwxZCYdmJK
+y0z4QGH05zM2M+L8Zkij1zVgL+yT45i0ptVXqAbURrP5GRvPoAcCzdMcQRjFma+QxviH6iY6Tmp/
+yRixaeI76WgVtjPGpg50MevpkP1xnYI8a6Rm6g3yXH6D+UA5kooDyRiz8CGTepBffR1jdKBAjLwy
+PTbPY/KUMdeqfkOvj/5DAx5UvGFfY4DEkUf2WQ2F50AMQe8ZruD85Pi2SqTDkDin9YEeXOP1MJTj
+WFa6WWbs9CwlBtaXRbk9N56f5g2mhfeijLVIrQ7h8g==
+=qjJK
+-----END PGP SIGNATURE-----
+
+--------------TM6SaXL8siRcJxQNQGUqgn4j--
