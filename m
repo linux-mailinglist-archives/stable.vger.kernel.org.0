@@ -2,46 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A4B4DE030
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 715904DE03B
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239433AbiCRRpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 13:45:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44980 "EHLO
+        id S239610AbiCRRuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 13:50:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238668AbiCRRpP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 13:45:15 -0400
-Received: from letterbox.kde.org (letterbox.kde.org [IPv6:2001:41c9:1:41e::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3272BA7778
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 10:43:55 -0700 (PDT)
-Received: from vertex.localdomain (pool-108-36-85-85.phlapa.fios.verizon.net [108.36.85.85])
-        (Authenticated sender: zack)
-        by letterbox.kde.org (Postfix) with ESMTPSA id 8959428909B;
-        Fri, 18 Mar 2022 17:43:51 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kde.org; s=users;
-        t=1647625432; bh=Pq3m+BVAc4QHE9tP+/Vw24SFr8lOiJbCJYcCL0sQyGw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XPGcKNX/p/6Nz7SUrgz317LYuM1TPHWmvGpXR5ge1jF7ZHic/B5bE4PHpl/wj1NoH
-         D1mVTjdi2tW7O5TZwZ8QTR8i0Mmn/k20ySelQSGs9Xf4yQIX5vbenP2HT2qwpXOxtb
-         57HA/V5wmXE3+lgh9ZjNZ2WwAYCHNrRJH6v70IrtixnArXBy14BvbN9yMGyu/jfiKD
-         hGk1/stKO9lW9X3mlOwO7ThuVt0UYCN3eIvWDvdDuUC87+ASUmAhEcjRxevMTmPOs6
-         E//PgsUYtKQdWrjSx/+R24LXjDhk8WAEXQC/FomZTUbl9dYuWYunCiTx3G0JsFJKl7
-         hG92Zlp6s7vrw==
-From:   Zack Rusin <zack@kde.org>
-To:     dri-devel@lists.freedesktop.org
-Cc:     krastevm@vmware.com, mombasawalam@vmware.com,
-        Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
-Subject: [PATCH 4/5] drm/vmwgfx: Disable command buffers on svga3 without gbobjects
-Date:   Fri, 18 Mar 2022 13:43:31 -0400
-Message-Id: <20220318174332.440068-5-zack@kde.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220318174332.440068-1-zack@kde.org>
-References: <20220318174332.440068-1-zack@kde.org>
-Reply-To: Zack Rusin <zackr@vmware.com>
+        with ESMTP id S236763AbiCRRuI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 13:50:08 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A9DEC15DABC;
+        Fri, 18 Mar 2022 10:48:49 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5CB961515;
+        Fri, 18 Mar 2022 10:48:49 -0700 (PDT)
+Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id ADFA23F7B4;
+        Fri, 18 Mar 2022 10:48:48 -0700 (PDT)
+From:   James Morse <james.morse@arm.com>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, james.morse@arm.com,
+        catalin.marinas@arm.com
+Subject: [stable:PATCH v4.19.235 00/22] arm64: Mitigate spectre style branch history side channels
+Date:   Fri, 18 Mar 2022 17:48:20 +0000
+Message-Id: <20220318174842.2321061-1-james.morse@arm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -50,50 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+Hello!
 
-With very limited vram on svga3 it's difficult to handle all the surface
-migrations. Without gbobjects, i.e. the ability to store surfaces in
-guest mobs, there's no reason to support intermediate svga2 features,
-especially because we can fall back to fb traces and svga3 will never
-support those in-between features.
+There is the v4.19 backport with the k=8 typo and SDEI name thing both
+fixed.
 
-On svga3 we wither want to use fb traces or screen targets
-(i.e. gbobjects), nothing in between. This fixes presentation on a lot
-of fusion/esxi tech previews where the exposed svga3 caps haven't been
-finalized yet.
+Again, its the KVM templates patch that doesn't exist upstream, this is
+necessary because the infrastructure for older kernels is very
+different, and the dependencies for what was a rewrite are huge.
 
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Fixes: 2cd80dbd3551 ("drm/vmwgfx: Add basic support for SVGA3")
-Cc: <stable@vger.kernel.org> # v5.14+
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
----
- drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
-index bf1b394753da..162dfeb1cc5a 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
-@@ -675,11 +675,14 @@ int vmw_cmd_emit_dummy_query(struct vmw_private *dev_priv,
-  */
- bool vmw_cmd_supported(struct vmw_private *vmw)
- {
--	if ((vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
--				  SVGA_CAP_CMD_BUFFERS_2)) != 0)
--		return true;
-+	bool has_cmdbufs =
-+		(vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
-+				      SVGA_CAP_CMD_BUFFERS_2)) != 0;
-+	if (vmw_is_svga_v3(vmw))
-+		return (has_cmdbufs &&
-+			(vmw->capabilities & SVGA_CAP_GBOBJECTS) != 0);
- 	/*
- 	 * We have FIFO cmd's
- 	 */
--	return vmw->fifo_mem != NULL;
-+	return has_cmdbufs || vmw->fifo_mem != NULL;
- }
+Its v4.14 and erlier that need to bring some timer errata workaround in
+with it. I'm still trying to test that.
+
+
+
+Thanks,
+
+James
+
+Anshuman Khandual (1):
+  arm64: Add Cortex-X2 CPU part definition
+
+James Morse (18):
+  arm64: entry.S: Add ventry overflow sanity checks
+  arm64: entry: Make the trampoline cleanup optional
+  arm64: entry: Free up another register on kpti's tramp_exit path
+  arm64: entry: Move the trampoline data page before the text page
+  arm64: entry: Allow tramp_alias to access symbols after the 4K
+    boundary
+  arm64: entry: Don't assume tramp_vectors is the start of the vectors
+  arm64: entry: Move trampoline macros out of ifdef'd section
+  arm64: entry: Make the kpti trampoline's kpti sequence optional
+  arm64: entry: Allow the trampoline text to occupy multiple pages
+  arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
+  arm64: entry: Add vectors that have the bhb mitigation sequences
+  arm64: entry: Add macro for reading symbol addresses from the
+    trampoline
+  arm64: Add percpu vectors for EL1
+  arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of
+    Spectre-v2
+  KVM: arm64: Add templates for BHB mitigation sequences
+  arm64: Mitigate spectre style branch history side channels
+  KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and
+    migrated
+  arm64: Use the clearbhb instruction in mitigations
+
+Joey Gouly (1):
+  arm64: add ID_AA64ISAR2_EL1 sys register
+
+Rob Herring (1):
+  arm64: Add part number for Arm Cortex-A77
+
+Suzuki K Poulose (1):
+  arm64: Add Neoverse-N2, Cortex-A710 CPU part definition
+
+ arch/arm/include/asm/kvm_host.h     |   7 +
+ arch/arm64/Kconfig                  |   9 +
+ arch/arm64/include/asm/assembler.h  |  34 +++
+ arch/arm64/include/asm/cpu.h        |   1 +
+ arch/arm64/include/asm/cpucaps.h    |   3 +-
+ arch/arm64/include/asm/cpufeature.h |  39 +++
+ arch/arm64/include/asm/cputype.h    |  16 ++
+ arch/arm64/include/asm/fixmap.h     |   6 +-
+ arch/arm64/include/asm/kvm_host.h   |   5 +
+ arch/arm64/include/asm/kvm_mmu.h    |   6 +-
+ arch/arm64/include/asm/mmu.h        |   8 +-
+ arch/arm64/include/asm/sections.h   |   5 +
+ arch/arm64/include/asm/sysreg.h     |   5 +
+ arch/arm64/include/asm/vectors.h    |  74 ++++++
+ arch/arm64/kernel/cpu_errata.c      | 381 +++++++++++++++++++++++++++-
+ arch/arm64/kernel/cpufeature.c      |  21 ++
+ arch/arm64/kernel/cpuinfo.c         |   1 +
+ arch/arm64/kernel/entry.S           | 215 ++++++++++++----
+ arch/arm64/kernel/vmlinux.lds.S     |   2 +-
+ arch/arm64/kvm/hyp/hyp-entry.S      |  64 +++++
+ arch/arm64/kvm/hyp/switch.c         |   8 +-
+ arch/arm64/kvm/sys_regs.c           |   2 +-
+ arch/arm64/mm/mmu.c                 |  12 +-
+ include/linux/arm-smccc.h           |   7 +
+ virt/kvm/arm/psci.c                 |  12 +
+ 25 files changed, 871 insertions(+), 72 deletions(-)
+ create mode 100644 arch/arm64/include/asm/vectors.h
+
 -- 
-2.32.0
+2.30.2
 
