@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D594DDDB9
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:07:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F3B4DDDC9
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238450AbiCRQIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 12:08:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35666 "EHLO
+        id S233852AbiCRQJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 12:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238750AbiCRQH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:07:58 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7DB2F5124
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 09:06:29 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id bx24-20020a17090af49800b001c6872a9e4eso4577207pjb.5
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 09:06:29 -0700 (PDT)
+        with ESMTP id S238781AbiCRQIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:08:00 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114497307F
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 09:06:38 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id s8so9780947pfk.12
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 09:06:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=khJmslWv0a2E7utlqnjPzMacJa6IuPRCd0mxTYJBh1U=;
-        b=0DVxrFONrhR4c/inQBopMuNWZodMHhcPWxPBl0acPr3k2jqQVNVAkqJ4ukMmXG1BcZ
-         cEs6cEYAJzOxzJOLdFuDq54xrIICgSz2ElmodP6Q7AvQMBrPJZxzWL8jf+yD4E3tTJZd
-         jjsPLmfHD0Cyeka2RzIf3oS1M/ce3QQ9iua1YlG4C9Jm43vpist0yT6hyUshgq6zicUH
-         A7bWdOQNvN3e95RcPR+oDtTvgX4P9QUpxYMO5fkgKj3cmJGcIx7nC8PpNP7TNyUJOuJU
-         3F///s5EsoVN1kJA1bsjjdPpwJ23/IJmNT2UwaNclr9BjRzaZ6pGN6ZyEkAUhsKW+rL5
-         OxyA==
+        bh=hUZOHrb7QYJ6t2mpn11kJvJ8mII8S0lr5TxGZ5xBMCI=;
+        b=m8QllEtTNMeUui+XrVdL4qSNSwrjhKuKxgIfxV6pM5WLkhyMg2SkGrzW4lWPKLcad3
+         Sqrd9voD+0daIqrmeRxCxhJdCh31BpqNkS605wLjOVU86/qgTVlP4syHqk8aTtSEWFkH
+         K6dFxlNoItEZY7fUCV2hmo6OlE40hI0IzAwzu5U8YmtFqRXYr5Xgi230ju6Sxk8lyCRv
+         rzox14UzMXkC+l+zpapW4kawxk5gd3HyDXAEG6DZrPwgbWrdrqat1eonE5/FUv1+rlg/
+         IrKeptM8mkiu+O0dc4Soy3CBfLecBSylYE/48IxryCYfv75tM2JykBzf+qQBcS4WOSLu
+         8gqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=khJmslWv0a2E7utlqnjPzMacJa6IuPRCd0mxTYJBh1U=;
-        b=vARTk1hQs9RusMHZM9yzNZj43kitDOT6oDuRgHAmtG6/RengM5JG1f0pRb16ZV0umv
-         1YxtSMgayOWkuK+8vYUHd0TEvrqMh7paFMIfCBhXIrwgtdIqHkrhA9Bl2zeV5zCIhYRM
-         onYuUNEXLgAfOScXeyo5ZmWfC8pLHZl+IZ6K3zXy7f/J8xKjS6meYnweVir10i9H2nb1
-         yAAwq+kQMErEUGLEq1BYmiqRkABCuHq3pbWdYdonDUnJHkclTL9w4gcK68Q5zDZ0Qe/X
-         BM6KW60Mfep8hK/1BeSkphWqR5xfhNvEfFvCKWU2eEKw25ry99Mq5j1krrE6uVfRL5dY
-         Z23A==
-X-Gm-Message-State: AOAM53357Ps/44b0MdUF9aqvi/VopDGmJi98F2JoUqRt6uWEA6E6gDyu
-        aPCuIocdck5Vrk8f24FrEcGALn4pfTD2KS51N38=
-X-Google-Smtp-Source: ABdhPJwfDOnJSDQpHzq+O8AnrE7r7Aej2rZY5B11Sr0G0wpz3wPG2yojeezN/0r2jv0PDltjobYozw==
-X-Received: by 2002:a17:902:9887:b0:151:6e1c:7082 with SMTP id s7-20020a170902988700b001516e1c7082mr140839plp.162.1647619588523;
-        Fri, 18 Mar 2022 09:06:28 -0700 (PDT)
+        bh=hUZOHrb7QYJ6t2mpn11kJvJ8mII8S0lr5TxGZ5xBMCI=;
+        b=NJgeXt9+t4DR5tmpgEfp+LupVUi2d+RZnCoesQx/dcDV+vdDlp5LWxHEZwk688z8vK
+         suao4AIi7c2qzb1/es/puL6B0AspQn+qKf85+kwsQ6vsCqY1q2+bZqzusENgwzzKUXoH
+         aFNtjk/s9yEaz7q2LsLs9VkfalXA6a7cIJpuj0maUeFYhmC18MoH6YhEHDIdKnfzsvSJ
+         D5xwGPZC5Vlp6r/DZ742nxoFtq1DWzM556r7pUmEPqZ3ax5/uUnm5SBUXU/KqxOgVA1x
+         N2Jqbrsfusu3fXH2Cj38BLcWdf0fj0v4kqJjVG7TfV3D6plPGYUofStIRiQYmOvraAq8
+         djDg==
+X-Gm-Message-State: AOAM530G6qSlWGfafIuTh8zRZj/cBOAP8QD0a/AAbmz+fQItI7n8LNt9
+        l8AMdIxD9RmWbCN0dL7Ew8IipR4rEwCUFPhAfaM=
+X-Google-Smtp-Source: ABdhPJy1dM9PPXC6gmV+8zlKdgMXBOC6TwXY1/onDEkWKYXditihpA9SWlF8SNqjNW48b453S+KDlg==
+X-Received: by 2002:a63:2049:0:b0:381:31b6:a317 with SMTP id r9-20020a632049000000b0038131b6a317mr8455603pgm.356.1647619597368;
+        Fri, 18 Mar 2022 09:06:37 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r1-20020a17090a560100b001bf72b5af97sm8471411pjf.13.2022.03.18.09.06.27
+        by smtp.gmail.com with ESMTPSA id u8-20020a056a00098800b004f702473553sm9831250pfg.6.2022.03.18.09.06.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Mar 2022 09:06:28 -0700 (PDT)
-Message-ID: <6234ae04.1c69fb81.4c966.78fb@mx.google.com>
-Date:   Fri, 18 Mar 2022 09:06:28 -0700 (PDT)
+        Fri, 18 Mar 2022 09:06:37 -0700 (PDT)
+Message-ID: <6234ae0d.1c69fb81.af4d.bd77@mx.google.com>
+Date:   Fri, 18 Mar 2022 09:06:37 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.272-15-gd7a314aa75d7
+X-Kernelci-Kernel: v4.9.307-11-gb2c5ef60cbee
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y build: 168 builds: 3 failed,
- 165 passed (v4.14.272-15-gd7a314aa75d7)
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 build: 171 builds: 2 failed,
+ 169 passed (v4.9.307-11-gb2c5ef60cbee)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y build: 168 builds: 3 failed, 165 passed (v4.14.272-1=
-5-gd7a314aa75d7)
+stable-rc/queue/4.9 build: 171 builds: 2 failed, 169 passed (v4.9.307-11-gb=
+2c5ef60cbee)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.272-15-gd7a314aa75d7/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.307-11-gb2c5ef60cbee/
 
 Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.272-15-gd7a314aa75d7
-Git Commit: d7a314aa75d7de0e8d9ea07acfc6cb1638958eff
+Branch: queue/4.9
+Git Describe: v4.9.307-11-gb2c5ef60cbee
+Git Commit: b2c5ef60cbeedbc43d946b9ff08ab4d8449dd9ff
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -90,7 +90,6 @@ arm:
     rpc_defconfig: (gcc-10) FAIL
 
 mips:
-    ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
 
 ---
