@@ -2,97 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9154DE3FC
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 23:28:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF344DE45B
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 23:56:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241281AbiCRWaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 18:30:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
+        id S241421AbiCRW6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 18:58:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233444AbiCRWaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 18:30:01 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B554E15DA9D
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 15:28:41 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-308-tJXXIe7QOkm1qFX-LQUFdA-1; Fri, 18 Mar 2022 22:28:38 +0000
-X-MC-Unique: tJXXIe7QOkm1qFX-LQUFdA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Fri, 18 Mar 2022 22:28:38 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Fri, 18 Mar 2022 22:28:37 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Juergen Gross' <jgross@suse.com>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        "platform-driver-x86@vger.kernel.org" 
-        <platform-driver-x86@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Dell.Client.Kernel@dell.com" <Dell.Client.Kernel@dell.com>
-CC:     Stuart Hayes <stuart.w.hayes@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] platform/x86/dell: add buffer allocation/free functions
- for SMI calls
-Thread-Topic: [PATCH] platform/x86/dell: add buffer allocation/free functions
- for SMI calls
-Thread-Index: AQHYOto/hyLOp/NEJ0S+JLWvPC30KazFQPKggAAbeICAAFvP8A==
-Date:   Fri, 18 Mar 2022 22:28:37 +0000
-Message-ID: <f04348c83155404c8ae4c8e5c3abedf2@AcuMS.aculab.com>
-References: <20220318150950.16843-1-jgross@suse.com>
- <accf95548a8c4374b17c159b9b2d0098@AcuMS.aculab.com>
- <2a4573e0-4a8d-52c1-d29b-66b13bfe376f@suse.com>
-In-Reply-To: <2a4573e0-4a8d-52c1-d29b-66b13bfe376f@suse.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S241418AbiCRW6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 18:58:11 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68062D41F6
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 15:56:51 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id z9-20020a05683020c900b005b22bf41872so6503762otq.13
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 15:56:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=PLzyPUSjfo0Qtpj5gmZd3aXs/ZxVVAJIrjiNg+OPCHg=;
+        b=PWzsIQQCIcyveMJ9nhBODeJlRKnFyQEWhF7OC2D7N/QJkOdQ6YM/fOulb4LMqr/d+Y
+         h2mK0uAXa4P+LglwFvAmALzFBYaR1c61ZVS4w18xGGfbSeb8ia4nzQmW6ycemHJk0/hH
+         eFzCqha6TMLWYSgWiPBOObHDZFBVBYyKX82PA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=PLzyPUSjfo0Qtpj5gmZd3aXs/ZxVVAJIrjiNg+OPCHg=;
+        b=ep6On+vob/Iukq45RrWbn7GcVaLtweF3QcM5nlDWqSbRPuktRweD20YnLLsS9CCiPR
+         usAU43RmyE+6YbciNuAvsHbDpegsf1seKMqUHu1YJyHmlxxa6utfumdF4re2MCSy7Ry2
+         W+J0i/102Ejd182QcTzVMQe3XxHx4kF9BHYcLE8KpMZmffurXawIXZRWWhBdX4C2/HaY
+         HIdg8k1Q4BB+REVnSo7+LKB7ZVCHCoXwBX5fzcCtkFW9a0sxTluui9g2RClSf74rC42N
+         7Okf4NudU+nKIIZPDpvmyXQjyxuF5+3IuyUC1eatLR65aHBwqTL4siCmy7ytYkjrk/+J
+         h+vg==
+X-Gm-Message-State: AOAM530+IG/qude/nNaCP1/ng3qnb0OyAF8F6LXp1AZiAkcKGvfRPtw1
+        HWuBo3CrQ7ynzXD/+ye4tmfXQA==
+X-Google-Smtp-Source: ABdhPJy4i5EDcsoUlN68saZ/09C4VCIsWJfAbzbGOa4yNvDkoFlpTvlK83YrW3J05AREmJlmyQVRGQ==
+X-Received: by 2002:a05:6830:34aa:b0:5b2:613f:5523 with SMTP id c42-20020a05683034aa00b005b2613f5523mr4153857otu.40.1647644211102;
+        Fri, 18 Mar 2022 15:56:51 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id 89-20020a9d0be2000000b005ae194ec5absm4316722oth.15.2022.03.18.15.56.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Mar 2022 15:56:50 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Fri, 18 Mar 2022 17:56:48 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.16 00/28] 5.16.16-rc1 review
+Message-ID: <YjUOMF6dvZ83YhSl@fedora64.linuxtx.org>
+References: <20220317124526.768423926@linuxfoundation.org>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogSnVlcmdlbiBHcm9zcw0KPiBTZW50OiAxOCBNYXJjaCAyMDIyIDE2OjU2DQo+IA0KPiBP
-biAxOC4wMy4yMiAxNjoyMiwgRGF2aWQgTGFpZ2h0IHdyb3RlOg0KPiA+IEZyb206IEp1ZXJnZW4g
-R3Jvc3MNCj4gPj4gU2VudDogMTggTWFyY2ggMjAyMiAxNToxMA0KPiA+Pg0KPiA+PiBUaGUgZGNk
-YmFzIGRyaXZlciBpcyB1c2VkIHRvIGNhbGwgU01JIGhhbmRsZXJzIGZvciBib3RoLCBkY2RiYXMg
-YW5kDQo+ID4+IGRlbGwtc21iaW9zLXNtbS4gQm90aCBkcml2ZXJzIGFsbG9jYXRlIGEgYnVmZmVy
-IGZvciBjb21tdW5pY2F0aW5nDQo+ID4+IHdpdGggdGhlIFNNSSBoYW5kbGVyLiBUaGUgcGh5c2lj
-YWwgYnVmZmVyIGFkZHJlc3MgaXMgdGhlbiBwYXNzZWQgdG8NCj4gPj4gdGhlIGNhbGxlZCBTTUkg
-aGFuZGxlciB2aWEgJWVieC4NCj4gPj4NCj4gPj4gVW5mb3J0dW5hdGVseSB0aGlzIGRvZXNuJ3Qg
-d29yayB3aGVuIHJ1bm5pbmcgaW4gWGVuIGRvbTAsIGFzIHRoZQ0KPiA+PiBwaHlzaWNhbCBhZGRy
-ZXNzIG9idGFpbmVkIHZpYSB2aXJ0X3RvX3BoeXMoKSBpcyBvbmx5IGEgZ3Vlc3QgcGh5c2ljYWwN
-Cj4gPj4gYWRkcmVzcywgYW5kIG5vdCBhIG1hY2hpbmUgcGh5c2ljYWwgYWRkcmVzcyBhcyBuZWVk
-ZWQgYnkgU01JLg0KPiA+DQo+ID4gVGhlIHBoeXNpY2FsIGFkZHJlc3MgZnJvbSB2aXJ0X3RvX3Bo
-eSgpIGlzIGFsd2F5cyB3cm9uZy4NCj4gPiBUaGF0IGlzIHRoZSBwaHlzaWNhbCBhZGRyZXNzIHRo
-ZSBjcHUgaGFzIGZvciB0aGUgbWVtb3J5Lg0KPiA+IFdoYXQgeW91IHdhbnQgaXMgdGhlIGFkZHJl
-c3MgdGhlIGRtYSBtYXN0ZXIgaW50ZXJmYWNlIG5lZWRzIHRvIHVzZS4NCj4gPiBUaGF0IGNhbiBi
-ZSBkaWZmZXJlbnQgZm9yIGEgcGh5c2ljYWwgc3lzdGVtIC0gbm8gbmVlZCBmb3IgdmlydHVhbGlz
-YXRpb24uDQo+ID4NCj4gPiBPbiB4ODYgdGhleSBkbyB1c3VhbGx5IG1hdGNoLCBidXQgYW55dGhp
-bmcgd2l0aCBhIGZ1bGwgaW9tbXUNCj4gPiB3aWxsIG5lZWQgY29tcGxldGVseSBkaWZmZXJlbnQg
-YWRkcmVzc2VzLg0KPiANCj4gWWVzLCB0aGFua3MgZm9yIHJlbWluZGluZyBtZSBvZiB0aGF0Lg0K
-PiANCj4gVGhlIFNNSSBoYW5kbGVyIGlzIHJ1bm5pbmcgb24gdGhlIGNwdSwgcmlnaHQ/IFNvIHVz
-aW5nIHRoZSBETUENCj4gYWRkcmVzcyBpcyB3cm9uZyBpbiBjYXNlIG9mIGFuIElPTU1VLiBJIHJl
-YWxseSBuZWVkIHRoZSBtYWNoaW5lDQo+IHBoeXNpY2FsIGFkZHJlc3MuDQoNClRoYXQgb3VnaHQg
-dG8gYmUgaGFuZGxlZCBieSB0aGUgJ2RldicgcGFyYW1ldGVyIHRvIGRtYV9hbGxvY19jb2hlcmVu
-dCgpLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5
-IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRp
-b24gTm86IDEzOTczODYgKFdhbGVzKQ0K
+On Thu, Mar 17, 2022 at 01:45:51PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.16 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 19 Mar 2022 12:45:16 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
+
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
