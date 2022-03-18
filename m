@@ -2,126 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE9B84DDBA6
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 15:28:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D19A4DDBC6
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 15:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237233AbiCRO3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 10:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60230 "EHLO
+        id S237352AbiCROiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 10:38:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237242AbiCRO3v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 10:29:51 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3411D186CD;
-        Fri, 18 Mar 2022 07:28:32 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id q8so623457wrc.0;
-        Fri, 18 Mar 2022 07:28:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=QMp0QqN5Rc7yHWj1ge61Fcg0NrJkJCfWYiT8StepBHo=;
-        b=fHAvxLIqcCsasXYO5/xFApFasN5U22rI+6ED4ZM+sYXuGCeS5K+trKxI+h2NnFmVQB
-         FQbWqICMr1CyhRowbVlGIX4TPaZvx8RUgDzFc4z2MCcJQjGLLeX8MLGfL4KORMXrxMk5
-         lo72vQVYwB4HrKlZhQPASSVSk9+1KdLRL5cQs3jTOaddKWh0BtoLYlDMFxheelJygrjI
-         7XFrbwjod/uLWuJumOqKFJCANjvWt4LHNeMAbZPz13kIDNOOQIv+u+bkP+HCKqtozgBk
-         pzxlPeTHC5h65mxllCACRwjxW3JmlcK5vsVBMb5qLuXPuE61nq6kpmKxcGtyTdW63VSN
-         ntoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=QMp0QqN5Rc7yHWj1ge61Fcg0NrJkJCfWYiT8StepBHo=;
-        b=aWk5uiyqzGCSLrgdZe+q8S9Ze79Cqz48JWZH65mRztfWz5HP62GuTlXHN/Q75LblGD
-         fX8hL3bjtMEu+b8hmfOdul1DRwFBkDNNpN8qSkTjwPpokOSupIDGGgX6xATFPZmmtW/l
-         UlbEwUCQ3KWslEu1ud+KNEhIqBziaUeCKnFsakJz/0gf6pmgF6brdakGE7hoqDCxThxO
-         lV6Rq+bVakbNyJ0Kr6SJj5aN5ZR1TTXPnq58lhGOR9NpiBeitroja9JNvvB0FEJDPJhZ
-         v+QSsXVsZRfaa7QswGd7d78lLbU1/l3hBHB7BCHZnRtzDIIULSSthioCiqvZURqAUrrE
-         Qz+g==
-X-Gm-Message-State: AOAM532f8NTlVXxdu7NOkauTljIho3ASXOhhByF85LNh4KWtjg9jVPVO
-        z6Ywdb4yV68w1FB3Ks8CTqt3kgGygwOPaA==
-X-Google-Smtp-Source: ABdhPJxePbWH34FcXfBL0WTi8+NF9q6Kjyl2jV78U90F/g95zgtCmQhzIckknx6bRKSiMeDBVLa7Mg==
-X-Received: by 2002:adf:dfc2:0:b0:1f0:262a:d831 with SMTP id q2-20020adfdfc2000000b001f0262ad831mr7850277wrn.589.1647613710524;
-        Fri, 18 Mar 2022 07:28:30 -0700 (PDT)
-Received: from elementary ([94.73.33.246])
-        by smtp.gmail.com with ESMTPSA id b3-20020adfd1c3000000b00203f94379a4sm1267780wrd.67.2022.03.18.07.28.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Mar 2022 07:28:30 -0700 (PDT)
-Date:   Fri, 18 Mar 2022 15:28:24 +0100
-From:   =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
+        with ESMTP id S236567AbiCROip (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 10:38:45 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ADA82E5753;
+        Fri, 18 Mar 2022 07:37:22 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id E95281F37F;
+        Fri, 18 Mar 2022 14:37:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1647614240; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XNXcAYQW5Hz3fswspMidh1mhKM6SNhu/Xg3QEmgSjuo=;
+        b=nVlLwTw5JhuxSmkaEo0iKIxgJbmg6YvlZsS664H7PlXuiO1q81InlpRkPeypySZMXhZU97
+        n/Uh6uOoaVrYbkwwtaAmLWk9eiUyVhoXT2Zm65shJPIK6JF49nFLzkXG42298X9+kbhnId
+        IhVRiCCd36tkcueus49Yr0hYKKgAhNk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1647614240;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XNXcAYQW5Hz3fswspMidh1mhKM6SNhu/Xg3QEmgSjuo=;
+        b=041PDJvY/a63e9IcGtaWYaJG2OGMoJ+BVkvxg5PwJL9neVI01m2Diaolgv/ZZIMfuYOdwW
+        DSnuQeGISxaOqJDQ==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id C6410A3B89;
+        Fri, 18 Mar 2022 14:37:20 +0000 (UTC)
+Date:   Fri, 18 Mar 2022 15:37:20 +0100
+Message-ID: <s5hh77v2uov.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
 To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org,
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?B?Sm9zw6kgRXhww7NzaXRv?= <jose.exposito89@gmail.com>,
+        linux-input@vger.kernel.org,
         Peter Hutterer <peter.hutterer@who-t.net>,
         Jiri Kosina <jkosina@suse.cz>, stable@vger.kernel.org,
         regressions@lists.linux.dev, linux-kernel@vger.kernel.org
 Subject: Re: [REGRESSION] Right touchpad button disabled on Dell 7750
-Message-ID: <20220318142824.GA6009@elementary>
-References: <s5htubv32s8.wl-tiwai@suse.de>
- <20220318130740.GA33535@elementary>
- <s5hlex72yno.wl-tiwai@suse.de>
- <CAO-hwJK8QMjYhQAC8tp7hLWZjSB3JMBJXgpKmFZRSEqPUn3_iw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <CAO-hwJK8QMjYhQAC8tp7hLWZjSB3JMBJXgpKmFZRSEqPUn3_iw@mail.gmail.com>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <s5htubv32s8.wl-tiwai@suse.de>
+        <20220318130740.GA33535@elementary>
+        <s5hlex72yno.wl-tiwai@suse.de>
+        <CAO-hwJK8QMjYhQAC8tp7hLWZjSB3JMBJXgpKmFZRSEqPUn3_iw@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 18, 2022 at 03:06:55PM +0100, Benjamin Tissoires wrote:
-> On Fri, Mar 18, 2022 at 2:11 PM Takashi Iwai <tiwai@suse.de> wrote:
-> > > > Hi,
-> > > >
-> > > > we received a bug report about the regression of the touchpad on Dell
-> > > > 7750 laptop, the right touchpad button is disabled on recent kernels:
-> > > >   https://bugzilla.suse.com/show_bug.cgi?id=1197243
-> > > >
-> > > > Note that it's a physical button, not a virtual clickpad button.
-> > > >
-> > > > The regression seems introduced by the upstream commit
-> > > > 37ef4c19b4c659926ce65a7ac709ceaefb211c40 ("Input: clear
-> > > > BTN_RIGHT/MIDDLE on buttonpads") that was backported to stable 5.16.x
-> > > > kernel.
-> > > >
-> > > > The device is managed by hid-multitouch driver, and the further
-> > > > investigation revealed that it's rather an incorrectly recognized
-> > > > buttonpad property; namely, ID_DG_BUTTONTYPE reports it being 0 =
-> > > > clickable touchpad although it's not.  I built a test kernel to ignore
-> > > > this check and it was confirmed to make the right button working again
-> > > > by the reporter.
+On Fri, 18 Mar 2022 15:06:55 +0100,
+Benjamin Tissoires wrote:
 > 
-> Yep, I came to the same conclusion this morning with the reporter of
-> the libinput bug Jos� was mentioning.
-> 
-> > > >
-> > > > Is this check really correct in general?  Or do we need some
-> > > > device-specific quirk?
-> 
-> The device firmware is clearly wrong here. It's the first time I see
-> this failing like that and I hope this is just an isolated case.
-> The device advertises itself as a buttonpad, when it's not.
-> 
-> However, the fact that it passed MS certification (even if I doubt
-> Microsoft ever got that touchpad in their own hands) leads me to
-> believe that the certification doesn't enforce that setting too much,
-> and that we might see more devices coming in with that same bug.
-> 
-> To sum up, I am not happy that this commit introduced a regression
-> that we can not work around in userspace: given that BTN_RIGHT gets
-> removed from the device, all of the values are filtered out and
-> userspace can not resolve that situation by itself.
-> 
-> I wish I had a better way of fixing this than having to quirk the device.
-> 
-> > >
 > > > A couple of days ago another user with the same laptop (Dell Precision
 > > > 7550 or 7750) emailed me to report the issue and I sent him a patch for
 > > > testing.
@@ -139,8 +90,124 @@ On Fri, Mar 18, 2022 at 03:06:55PM +0100, Benjamin Tissoires wrote:
 > 
 > As noticed on the libinput bug, I think the patch is wrong (not by a lot).
 > We should base the class on MT_CLS_WIN8, not MT_CLS_DEFAULT.
+> 
+> The testers might say that it's working, but this might create some
+> corner cases where it's not leading to more and more headaches with
+> your users.
 
-Thanks for providing the right class Benjamin, I updated the patch:
-https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/726#note_1303724
+So is it like below?  I'll build another kernel with that.
+
+
+Thanks!
+
+Takashi
+
+-- 8< --
+From: José Expósito <jose.exposito89@gmail.com>
+Subject: [PATCH] HID: multitouch: fix Dell Precision 7550 and 7750 button type
+
+The touchpad present in the Dell Precision 7550 and 7750 laptops
+reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
+the device is not a clickpad, it is a touchpad with physical buttons.
+
+In order to fix this issue, a quirk for the device was introduced in
+libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
+
+	[Precision 7x50 Touchpad]
+	MatchBus=i2c
+	MatchUdevType=touchpad
+	MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
+	AttrInputPropDisable=INPUT_PROP_BUTTONPAD
+
+However, because of the change introduced in 37ef4c19b4 ("Input: clear
+BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
+anymore breaking the device right click button.
+
+In order to fix the issue, create a quirk for the device forcing its
+button type to touchpad regardless of the value reported by the
+firmware.
+
+[1] https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/481
+[2] https://bugzilla.redhat.com/show_bug.cgi?id=1868789
+
+[ modified MT_CLS_BUTTONTYPE_TOUCHPAD quirk bits to base on MT_CLS_WIN8
+  as suggested by Benjamin -- tiwai ]
+
+Fixes: 37ef4c19b4 ("Input: clear BTN_RIGHT/MIDDLE on buttonpads")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+---
+ drivers/hid/hid-ids.h        |    3 +++
+ drivers/hid/hid-multitouch.c |   20 ++++++++++++++++++++
+ 2 files changed, 23 insertions(+)
+
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -285,6 +285,9 @@
  
-Jose
+ #define USB_VENDOR_ID_CIDC		0x1677
+ 
++#define USB_VENDOR_ID_CIRQUE_CORP		0x0488
++#define USB_DEVICE_ID_DELL_PRECISION_7X50	0x120A
++
+ #define USB_VENDOR_ID_CJTOUCH		0x24b8
+ #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
+ #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040	0x0040
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -71,6 +71,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
+ #define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
+ #define MT_QUIRK_DISABLE_WAKEUP		BIT(21)
++#define MT_QUIRK_BUTTONTYPE_TOUCHPAD	BIT(22)
+ 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -194,6 +195,7 @@ static void mt_post_parse(struct mt_devi
+ #define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
+ #define MT_CLS_WIN_8_DISABLE_WAKEUP		0x0016
+ #define MT_CLS_WIN_8_NO_STICKY_FINGERS		0x0017
++#define MT_CLS_BUTTONTYPE_TOUCHPAD		0x0018
+ 
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -302,6 +304,15 @@ static const struct mt_class mt_classes[
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE |
+ 			MT_QUIRK_WIN8_PTP_BUTTONS,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_BUTTONTYPE_TOUCHPAD,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |,
++			MT_QUIRK_BUTTONTYPE_TOUCHPAD,
++		.export_all_inputs = true },
+ 
+ 	/*
+ 	 * vendor specific classes
+@@ -1286,6 +1297,9 @@ static int mt_touch_input_configured(str
+ 	    (app->buttons_count == 1))
+ 		td->is_buttonpad = true;
+ 
++	if (app->quirks & MT_QUIRK_BUTTONTYPE_TOUCHPAD)
++		td->is_buttonpad = false;
++
+ 	if (td->is_buttonpad)
+ 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+ 
+@@ -1875,6 +1889,12 @@ static const struct hid_device_id mt_dev
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
+ 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
+ 
++	/* Cirque Corp (Dell Precision 7550 and 7750 touchpad) */
++	{ .driver_data = MT_CLS_BUTTONTYPE_TOUCHPAD,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_CIRQUE_CORP,
++			USB_DEVICE_ID_DELL_PRECISION_7X50) },
++
+ 	/* CJTouch panels */
+ 	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
