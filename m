@@ -2,206 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3116C4DD3AF
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 04:44:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA77F4DD535
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 08:27:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbiCRDpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Mar 2022 23:45:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
+        id S231614AbiCRH2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 03:28:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232260AbiCRDpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Mar 2022 23:45:12 -0400
-Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4380D197522;
-        Thu, 17 Mar 2022 20:43:54 -0700 (PDT)
-Received: by mail-oo1-xc2b.google.com with SMTP id p10-20020a056820044a00b00320d7d4af22so8881216oou.4;
-        Thu, 17 Mar 2022 20:43:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ynjx2xasnK94IQoAMCxrHRqvLPi1opghMBMYP4yL6Dg=;
-        b=CDWkqsSNir/188WzvASyO6XPoDgnFPxWVof8AUWQKUxpaNMK9VdzXIf9fCnMa42o7a
-         EwZ7OL8VXjcbOh4FJFKKcPUCT921WV+vT4uEyVMdurp2oTGcBQDC2vG0F9nF0kkGWZoH
-         aKrtO3bqwlRIm/joTFmNQYby4iHxjc7M0SGyXtohTVIzc4yVzAd8+KtPhMwRLrI9ktFh
-         GA1aJkRWNLq4sX6trZP6VzwwyTv4Cu+umu59MumiNje5CFdkWVy5ahoRMLhHinqd2vrs
-         QhL72BpyVLIN5FdSYg6IXWm+RnMd04wTYYqk0cE84cCtmBmN0AenyYGIM+WMFc+uoAD/
-         yATA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ynjx2xasnK94IQoAMCxrHRqvLPi1opghMBMYP4yL6Dg=;
-        b=xSJACL7vZflZ4MM33EWTgfVmCPFwLqgkk5+sGgueVIcuHeOwqxZgNjVWquYjtFRi6F
-         +FnrtU/G4oicxGB8979xO3SVTszkaGgYF7VSg4HOBUUWcqiOKeyMBHvcrDpr6oD1LEtF
-         QWAXjNXTh0PXsqWh+fL0r2kSGJv3sNAZIKlOAsn7YVxXc+5zHb+HKZqTDMJdPWa6J3O+
-         5O6ja7EG0bjA065GnE+KQ67iqwDQhPPRkaSWuEoWCjZPIM/lIJtRxcTnuvoFLT4LnKX5
-         zAX31BvFc2lghp9WOkr216rReDrxlMp4h515gH+SbP3x31kA62sAUuCiUB+nzIHCb/Ag
-         I4Kg==
-X-Gm-Message-State: AOAM530cCnHozdnbN2B1z4a+iUqWpUsOkP2l1ralaMCTo+lTZmlCt9Ei
-        qHJvqa5+tzkijp7wmJcW7BO7RCcQ42mVNtv4O1A=
-X-Google-Smtp-Source: ABdhPJxREeoH+3sUFvHGU9oDcEPz/3E3yeiOqa5/ycYyHGvNDWSRtxBIiFS47ZRVUmnXPrYaUi2GwSRTXQwv3i9F5Qk=
-X-Received: by 2002:a05:6870:538b:b0:d9:accf:8cf with SMTP id
- h11-20020a056870538b00b000d9accf08cfmr6575135oan.126.1647575033534; Thu, 17
- Mar 2022 20:43:53 -0700 (PDT)
+        with ESMTP id S230109AbiCRH23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 03:28:29 -0400
+Received: from EUR04-VI1-obe.outbound.protection.outlook.com (mail-eopbgr80125.outbound.protection.outlook.com [40.107.8.125])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21EE2EBF92;
+        Fri, 18 Mar 2022 00:27:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bi3Rbim4ep6jRKJ3MzU58uPjg3eZDvijijtc/PZRKWG013mVcFGbmD8VFq9v5tvCWQ3+pvwqeYY+rpd/EBAp2nd9axZfleLP4BTFhYzwirA9vBoBChHHkQ/uR5GGuOwbn05PSoKz4BhrAnTrqtQy+1Mfbs7s45FbK3aaGuLgVqje1KUHP3gWKI7Ru3dlQbpRhDT1oCNilJhgILQNHh8UPiX5qiZZ7y5gToQ5wUga6rG+1CmHe30yoYdBJbNHtwGRF/vulARR9NZlww6QP2n+GvYYjXobORXXa+B5LqsjSLoHHi5p/hSXpsKK69M0jsFIoh55tbFio3oSpfWusXJTmA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=3inpjq57RrM1ddQNuIkgS4Est829t1FYyQFAww7i3zQ=;
+ b=H7Dil8xgIkUKmrRnzRgTrk8A5i7MgkRE2IuDvFKcxIP8yeifWfF+1ee8BRJmRX5OSExCywOGkPjl/IeKzs1CubN+DRQXOQVO/oIZM+K0MfsimcKv/OmQonG1wwIglgktgtvIjnY8Pc3ptob19Z759dNOg57X4V45TtBP7In6J5D6eJBBfKS+AydoNVMePsX88JoQyPEvrSujfjQRD3u/DRHvtbYJWepFSYKAAiUm1tFy0zo/1b85d+1i+g/7gP+PpLmlhVbWtfUd8Sb7sU8oy3eALsC/Ee+CWwkMsmIoTLdn3XVnuAnKVhJtQ7cSsV36kIAOlN4GQxwtasNHSWEIYg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
+ dkim=pass header.d=nokia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3inpjq57RrM1ddQNuIkgS4Est829t1FYyQFAww7i3zQ=;
+ b=BWlpqSlwmjrN5lISJIwvlAmP42PbaHH0ziUIo39pruMhpc+ZVDbDtSX7Bm/sSuB/i0Qh6CuuEuGCNnB4OjZJOgUeyUtJQgewnY8i9xWBLEziym+7pPlTLrOq8PZQ09u0OPH1Ys0qkK2mYKEjEx+EF8nDmQwzGQJVN/xdOerpTLY=
+Received: from HE1PR07MB3450.eurprd07.prod.outlook.com (2603:10a6:7:2c::17) by
+ AM7PR07MB6946.eurprd07.prod.outlook.com (2603:10a6:20b:1b8::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5102.7; Fri, 18 Mar
+ 2022 07:27:08 +0000
+Received: from HE1PR07MB3450.eurprd07.prod.outlook.com
+ ([fe80::85af:b59b:2357:8d9e]) by HE1PR07MB3450.eurprd07.prod.outlook.com
+ ([fe80::85af:b59b:2357:8d9e%6]) with mapi id 15.20.5081.014; Fri, 18 Mar 2022
+ 07:27:08 +0000
+From:   "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "sashal@kernel.org" <sashal@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "memxor@gmail.com" <memxor@gmail.com>,
+        "ast@kernel.org" <ast@kernel.org>
+Subject: Re: [PATCH 5.4 21/43] selftests/bpf: Add test for bpf_timer
+ overwriting crash
+Thread-Topic: [PATCH 5.4 21/43] selftests/bpf: Add test for bpf_timer
+ overwriting crash
+Thread-Index: AQHYOpmQ1TYofY4SQ0uVQYCDF8f92w==
+Date:   Fri, 18 Mar 2022 07:27:07 +0000
+Message-ID: <a0a7298ca5c64b3d0ecfcc8821c2de79186fa9f7.camel@nokia.com>
+References: <20220314112734.415677317@linuxfoundation.org>
+         <20220314112735.013019647@linuxfoundation.org>
+In-Reply-To: <20220314112735.013019647@linuxfoundation.org>
+Accept-Language: en-US, en-150, fi-FI
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nokia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: e96d31c7-a5ee-4f35-4319-08da08b0b5e0
+x-ms-traffictypediagnostic: AM7PR07MB6946:EE_
+x-microsoft-antispam-prvs: <AM7PR07MB6946BD496BA044B62807ED43B4139@AM7PR07MB6946.eurprd07.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ZjJOkuaMQCTeVsd+I8aPSE0n2EM8wQv8hQZzo/hAg6KGbVJmsRE+eRTZYGUSOlBGu7EAdZN1qo7fgusvM/4QFIhgH1B65G9cNrxT/CvdJYY6uMHiRg6FIqtvYAT3k8BrX3BXi5ArAW/fwx3hH8QDiqnRlf8mX69NaTclmnTHjlZDaF3489voejjx2uz2pgvFae0gnlyn9E1GhmRWWbUz5JVKvGw+X73ZXIljyZVnKDNJOkzkm+X93lih0sftb9ecaKFzinXviJskfTHSvWkirwf0Anc4d+PLiHp1SXrBPIr3NCXQkY1e2Yze3AVD2sI4bTqITQvAQTCfbpvcQUS6RiyPOQoU4De/GWjbdlqyv/+xO+NZPPQGNVdswDXQO/2OZVGWEYO79Yu2/qNt48WNlJ++bCQfRvCTgBkajVIsqOVRoTsnAOjzmuj50HCGAN3i9C91fXP9rDsuu//1FvDFXhmTyKIsmjlggLohIZpWrb+WJFArpAl/mlX1b23Mwa9pzPPLnF8NLCg/iBDg5iUZ7tawWqk9go7QQAIBDPaKbWZgc/vWjAfnMIq5VO8w3Zxx6PwBcD95EUZ1Sls2JAprju+vK5xHK/690dakilnX7uvim9Rael2fY585whYE7wwxiWRmWXBy6DyPaA03AXzW18YNxUuOBqGwCivC0Tr1jA+dpzfOL4CB1UuezknG7fOLR5Jt37Du4VJdbLw2RDALjKA+4lZgBl5qBFdK1gGrIfij4P0O6GNTBKbnVYLgdE1lTXe7qM4SBwyIGs6BpFg2jGwglCE9affgsgYoKwReHAs=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HE1PR07MB3450.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6512007)(2906002)(8936002)(83380400001)(38100700002)(110136005)(5660300002)(8676002)(6506007)(82960400001)(122000001)(508600001)(316002)(966005)(54906003)(2616005)(66556008)(36756003)(66476007)(26005)(4326008)(76116006)(66946007)(66446008)(64756008)(6486002)(71200400001)(38070700005)(86362001)(186003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?VzlJTGRUSlVDV2xWb1FzVlVOc3I0dTlhNDhQdUdxcUlRVnc1dGNGcC9Ic1pQ?=
+ =?utf-8?B?WTU3aFZza0JyQi9jNEo2eit5bEtuQUc1WTlhK0ZIS09UbEFVeFRYYVZ1Y090?=
+ =?utf-8?B?M0hzV3VseHJlQ3RSSmpla3ZCVHBoQ0RNOXlmSi9xTjk0ZDN4a05KUmNQMmsv?=
+ =?utf-8?B?dzl1RjUvUW5iWWVlcG1vYWhDYkZ3ZjYvUHd1WndZTjJXVm9zWFVRbHVwc1M3?=
+ =?utf-8?B?N1BJWEhZemsyMVJjMnVvOFNMK1UyTnJNMjVLdVorcGpIMGZobG54eEZmVXJC?=
+ =?utf-8?B?ZTkzZTVScGV3S1d0R1MzbFVqa0twZzBhOHZFTmtGemNGTjNKL21IZVBUS1JW?=
+ =?utf-8?B?OVNkYUozK25NWkg2eWF4L3BlZWs1azAvRko3ZW4vQTQ4cHU2RHR4Q3R6Rlo4?=
+ =?utf-8?B?a20vQU5PeERERDk0T2xUNmlBUDZtOVc4ajJkM0x3dDdtRUxnSWJOYUxzMFBU?=
+ =?utf-8?B?NGVwRi9qZS93VU00R0E2dkFXTTZBV2xPcE53U01DdkJ6ckRnNmxSc21RUGp0?=
+ =?utf-8?B?Tzlndm8vMFZERmgrMjFrbjBjWVlJRU5sYjBNamFJSXZJZzdYT3hJRVEvMDI4?=
+ =?utf-8?B?UmJFam1XYmlMUkNrYzN4ODlCZWVNdkRxK3JWcUFOM0FCMjM3ejJTWUc0ZGhz?=
+ =?utf-8?B?UXJQUHN0Mkdja3dOVXlYVmJ0REdQd0NXZ0VCVWpoNDgyUnNSQWptYVlsMk82?=
+ =?utf-8?B?REhJVzR1TXJMVDRFZE5HejAxMENabjVSTlFrSVFtSG9jWkhLeW5JeU5tTFh2?=
+ =?utf-8?B?SEV6d3d1dHR2eDhPOCszcnJFSHVmem5iZ2h0SnJkR1NQTFVVRVV0OGtuYVFk?=
+ =?utf-8?B?WmtOaFlRcXBkR3RkQmliTnIvcW9yTXpyYVdxWnVsbzBGQS92NjRJYWtnM283?=
+ =?utf-8?B?a1UxUGhENVFXa2lpaGdwMmlPOUVtN2RYVll2M1l2b211b0dxVnhNbVZyWUNu?=
+ =?utf-8?B?Z09jQlBvQ0p5RHI0Skhodlo0dExmbTc2a3k3UFRpKys1eU5KaHpHMGY2S3M4?=
+ =?utf-8?B?SnVESTJiK3Z3anJQWmlvdUtOV1dDSjl0dGhienJOQmlYSVhFejZHc1Ivek12?=
+ =?utf-8?B?OW9BeklVM2t6dk0vU1R0TEVUR1Z0RVJwRWx2YkhZeDAvWVc5QjJTTVU0alhN?=
+ =?utf-8?B?S21OUW5jbUZqTFdhZDY5YlpOMGZaaGs1YzBLWUFCMmp3Wkxpd1VQZzB3RVNi?=
+ =?utf-8?B?dnhQeDRiTVhrMFJOVUdXV0ZmdG1VNUNGYTJrQzA4bTVkTGYwcmgvWlAyajRS?=
+ =?utf-8?B?L0R5TkZNOGtNZEU2Y0pMTUlKNlBielV6Q1VJdGJNaEtxTGNLRG94MDlESHhp?=
+ =?utf-8?B?YVJjWkVXQ2VDSlRuTnVrR1dWY3Z3SVJScnN2Q3pLa0JsZXVUS2o4MlJGTXdo?=
+ =?utf-8?B?M1ZNYm8xeW1LWmthaTU5T0JpY2ZyR1pJSkt4UExqR21wK3ZMWUNPNGhjNy9i?=
+ =?utf-8?B?WWdGUSs5M1JmWk0vU2N0a3lHVHBVV3hzczIrSXdnTVNwUUs1bmtiR3YycmYv?=
+ =?utf-8?B?Ym92Y1ltS2dSSm1GazN3eGI3YkNycG5ETkpsSktRdTlDU0lOUWsvejNJblVq?=
+ =?utf-8?B?S0h0UzFHRFliaUpaYnZjTG1CQ0h3SmhyUHQrTFlXZUs5Zm9Od1BkL2ZPcloy?=
+ =?utf-8?B?NFh4S05LOWRXQUVVTVB6dWFuYnF4QUtUazBudEhZZGdvVWUxaE1xR2orc09i?=
+ =?utf-8?B?VGdTZUI1K2hzd1ltYjc2Y0h4dFR5VGR2aVRQLzdyUmhVRTN2WnFyQjBXU2NR?=
+ =?utf-8?B?R2hpQ1U2UWtoVmVQOVpZMlRBMGRoRWZwOC84UVZJY3NRd3hKYnRCckRPVm9k?=
+ =?utf-8?B?S3U5enpPTEprb3BBbm02UjBraXVqNW9jUHdxbmMySXVtdzVyaUwvQUd1eVFO?=
+ =?utf-8?B?RThOeXN6ck9xZDJiMTVrNjE1NUY2a2NWVUc3ZWRud1NRVkVwR0JkVE1Td0Zv?=
+ =?utf-8?B?M0oxSENEQXJKNXo1SUxDQzVRUVE2eEhjMitBa0t3bXdla1pJQmlBZkc5SWRu?=
+ =?utf-8?B?UWtSVUg1TSt3PT0=?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <A36F6FD691554D47A8E374252AFB2E66@eurprd07.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20220315144521.3810298-1-aisheng.dong@nxp.com>
- <20220315144521.3810298-2-aisheng.dong@nxp.com> <93480fb1-6992-b992-4c93-0046f3b92d7a@redhat.com>
- <CAA+hA=QzDJhFnntKK4nk-SMErk9J_mFPv0b7ZWuC8Ubz0BC+sg@mail.gmail.com> <YjNr+d2Un7F8c2DZ@google.com>
-In-Reply-To: <YjNr+d2Un7F8c2DZ@google.com>
-From:   Dong Aisheng <dongas86@gmail.com>
-Date:   Fri, 18 Mar 2022 11:43:41 +0800
-Message-ID: <CAA+hA=SBeCT+XkzNL3p07vC+58AZOTtoiLG=jVK0tX4wNFvrHA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] mm: cma: fix allocation may fail sometimes
-To:     Minchan Kim <minchan@kernel.org>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        shawnguo@kernel.org, linux-imx@nxp.com, akpm@linux-foundation.org,
-        m.szyprowski@samsung.com, lecopzer.chen@mediatek.com,
-        vbabka@suse.cz, stable@vger.kernel.org, shijie.qin@nxp.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: HE1PR07MB3450.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e96d31c7-a5ee-4f35-4319-08da08b0b5e0
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Mar 2022 07:27:08.0923
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: H41MyrdP+e6Gsicg88qUa35BMPmYpNR8yDhu4SjjTaf/mZROq5ZBIUCCyos1W7eBWUchmcR8RPEva68xj8ix3+JcZ6otNpd+D7Qg7R6mRGo=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM7PR07MB6946
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,FORGED_SPF_HELO,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 18, 2022 at 1:12 AM Minchan Kim <minchan@kernel.org> wrote:
->
-> On Thu, Mar 17, 2022 at 10:26:42PM +0800, Dong Aisheng wrote:
-> > On Thu, Mar 17, 2022 at 6:55 PM David Hildenbrand <david@redhat.com> wrote:
-> > >
-> > > On 15.03.22 15:45, Dong Aisheng wrote:
-> > > > When there're multiple process allocing dma memory in parallel
-> > >
-> > > s/allocing/allocating/
-> > >
-> > > > by calling dma_alloc_coherent(), it may fail sometimes as follows:
-> > > >
-> > > > Error log:
-> > > > cma: cma_alloc: linux,cma: alloc failed, req-size: 148 pages, ret: -16
-> > > > cma: number of available pages:
-> > > > 3@125+20@172+12@236+4@380+32@736+17@2287+23@2473+20@36076+99@40477+108@40852+44@41108+20@41196+108@41364+108@41620+
-> > > > 108@42900+108@43156+483@44061+1763@45341+1440@47712+20@49324+20@49388+5076@49452+2304@55040+35@58141+20@58220+20@58284+
-> > > > 7188@58348+84@66220+7276@66452+227@74525+6371@75549=> 33161 free of 81920 total pages
-> > > >
-> > > > When issue happened, we saw there were still 33161 pages (129M) free CMA
-> > > > memory and a lot available free slots for 148 pages in CMA bitmap that we
-> > > > want to allocate.
->
-> Yes, I also have met the problem especially when the multiple threads
-> compete cma allocation. Thanks for bringing up the issue.
->
-> > > >
-> > > > If dumping memory info, we found that there was also ~342M normal memory,
-> > > > but only 1352K CMA memory left in buddy system while a lot of pageblocks
-> > > > were isolated.
-> > >
-> > > s/If/When/
-> > >
-> >
-> > Will fix them all, thanks.
-> >
-> > > >
-> > > > Memory info log:
-> > > > Normal free:351096kB min:30000kB low:37500kB high:45000kB reserved_highatomic:0KB
-> > > >           active_anon:98060kB inactive_anon:98948kB active_file:60864kB inactive_file:31776kB
-> > > >           unevictable:0kB writepending:0kB present:1048576kB managed:1018328kB mlocked:0kB
-> > > >           bounce:0kB free_pcp:220kB local_pcp:192kB free_cma:1352kB lowmem_reserve[]: 0 0 0
-> > > > Normal: 78*4kB (UECI) 1772*8kB (UMECI) 1335*16kB (UMECI) 360*32kB (UMECI) 65*64kB (UMCI)
-> > > >       36*128kB (UMECI) 16*256kB (UMCI) 6*512kB (EI) 8*1024kB (UEI) 4*2048kB (MI) 8*4096kB (EI)
-> > > >       8*8192kB (UI) 3*16384kB (EI) 8*32768kB (M) = 489288kB
-> > > >
-> > > > The root cause of this issue is that since commit a4efc174b382
-> > > > ("mm/cma.c: remove redundant cma_mutex lock"), CMA supports concurrent
-> > > > memory allocation. It's possible that the memory range process A trying
-> > > > to alloc has already been isolated by the allocation of process B during
-> > > > memory migration.
-> > > >
-> > > > The problem here is that the memory range isolated during one allocation
-> > > > by start_isolate_page_range() could be much bigger than the real size we
-> > > > want to alloc due to the range is aligned to MAX_ORDER_NR_PAGES.
-> > > >
-> > > > Taking an ARMv7 platform with 1G memory as an example, when MAX_ORDER_NR_PAGES
-> > > > is big (e.g. 32M with max_order 14) and CMA memory is relatively small
-> > > > (e.g. 128M), there're only 4 MAX_ORDER slot, then it's very easy that
-> > > > all CMA memory may have already been isolated by other processes when
-> > > > one trying to allocate memory using dma_alloc_coherent().
-> > > > Since current CMA code will only scan one time of whole available CMA
-> > > > memory, then dma_alloc_coherent() may easy fail due to contention with
-> > > > other processes.
-> > > >
-> > > > This patch introduces a retry mechanism to rescan CMA bitmap for -EBUSY
-> > > > error in case the target memory range may has been temporarily isolated
-> > > > by others and released later.
-> > >
-> > > But you patch doesn't check for -EBUSY and instead might retry forever,
-> > > on any allocation error, no?
-> > >
-> >
-> > My patch seems not need check it because there's no chance to retry the loop
-> > in case an non -EBUS error happened earlier.
-> >
-> > for (;;) {
-> >         if (bitmap_no >= bitmap_maxno) {
-> >                 retry_the_whole_loop;
-> >         }
-> >
-> >         pfn = cma->base_pfn + (bitmap_no << cma->order_per_bit);
-> >         ret = alloc_contig_range(pfn, pfn + count, MIGRATE_CMA,
-> >                              GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0));
-> >
-> >         if (ret != -EBUSY)
-> >                 break;
-> > }
-> >
-> > > I'd really suggest letting alloc_contig_range() return -EAGAIN in case
-> > > the isolation failed and handling -EAGAIN only in a special way instead.
-> > >
-> >
-> > Yes, i guess that's another improvement and is applicable.
-> >
-> > > In addition, we might want to stop once we looped to often I assume.
-> > >
-> >
-> > I wonder if really retried un-reasonably too often, we probably may
-> > need figure out
-> > what's going on inside alloc_contig_range() and fix it rather than
-> > return EBUSY error to
-> > users in case there're still a lot of avaiable memories.
-> > So currently i didn't add a maximum retry loop outside.
-> >
-> > Additionaly, for a small CMA system (128M with 32M max_order pages),
-> > the retry would
-> > be frequently when multiple process allocating memory, it also depends
-> > on system running
-> > state, so it's hard to define a reasonable and stable maxinum retry count.
->
-> IMO, when the CMA see the -EAGAIN, it should put the task into
-> cma->wait_queue and then be woken up by other thread which finish
-> work of the cma. So it's similar with cma_mutex but we don't need to
-> synchronize for !EAGAIN cases and make the cma allocatoin fair.
-
-Okay, that's another approach which is completely different from the
-existing one.
-Instead of blocking on the CMA memory range which we want to allocate,
-the existing code will try the next available memory ranges.
-The question is whether we need to change this behavior?
-It looks to me both ways have pros and cons.
-
-And for sleeping on -EAGAIN case, do we need an accurate wakeup?
-IOW only wakes the sleeper when the exact memory range is released
-which means we need create some more complicated code logic
-to track different CMA memory range usage.
-Otherwise, there will be possible false positive wakeups and the requester may
-quickly sleep again.
-
-I'm not sure if it's worth it. Might need to think a bit more.
-
-Regards
-Aisheng
+T24gTW9uLCAyMDIyLTAzLTE0IGF0IDEyOjUzICswMTAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
+dGU6DQo+IEZyb206IEt1bWFyIEthcnRpa2V5YSBEd2l2ZWRpIDxtZW14b3JAZ21haWwuY29tPg0K
+PiANCj4gWyBVcHN0cmVhbSBjb21taXQgYTdlNzUwMTZhMDc1M2MyNGQ2Yzk5NWJjMDI1MDFhZTM1
+MzY4ZTMzMyBdDQo+IA0KPiBBZGQgYSB0ZXN0IHRoYXQgdmFsaWRhdGVzIHRoYXQgdGltZXIgdmFs
+dWUgaXMgbm90IG92ZXJ3cml0dGVuIHdoZW4gZG9pbmcNCj4gYSBjb3B5X21hcF92YWx1ZSBjYWxs
+IGluIHRoZSBrZXJuZWwuIFdpdGhvdXQgdGhlIHByaW9yIGZpeCwgdGhpcyB0ZXN0DQo+IHRyaWdn
+ZXJzIGEgY3Jhc2guDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBLdW1hciBLYXJ0aWtleWEgRHdpdmVk
+aSA8bWVteG9yQGdtYWlsLmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogQWxleGVpIFN0YXJvdm9pdG92
+IDxhc3RAa2VybmVsLm9yZz4NCj4gTGluazogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvYnBmLzIw
+MjIwMjA5MDcwMzI0LjEwOTMxODItMy1tZW14b3JAZ21haWwuY29tDQo+IFNpZ25lZC1vZmYtYnk6
+IFNhc2hhIExldmluIDxzYXNoYWxAa2VybmVsLm9yZz4NCg0KSGksIHRoaXMgcGF0Y2ggaW4gNS40
+LjE4NSBicmVha3MgYnBmIHNlbGZ0ZXN0cyBidWlsZCBmb3IgbWU6DQoNCiAgcHJvZ3MvdGltZXJf
+Y3Jhc2guYzozOjEwOiBmYXRhbCBlcnJvcjogJ3ZtbGludXguaCcgZmlsZSBub3QgZm91bmQNCiAg
+I2luY2x1ZGUgPHZtbGludXguaD4NCiAgICAgICAgICAgXn5+fn5+fn5+fn4NCg0KQmFzZWQgb24g
+cXVpY2sgbG9vaywgdm1saW51eC5oIGdlbmVyYXRpb24gd2FzIGFkZGVkIHRvIHNlbGZ0ZXN0cyBp
+biB2NS43LA0Kc28gZHJvcCB0aGlzIHBhdGNoIGluIHY1LjQ/DQoNCi1Ub21taQ0KDQoNCj4gLS0t
+DQo+ICAuLi4vc2VsZnRlc3RzL2JwZi9wcm9nX3Rlc3RzL3RpbWVyX2NyYXNoLmMgICAgfCAzMiAr
+KysrKysrKysrKw0KPiAgLi4uL3Rlc3Rpbmcvc2VsZnRlc3RzL2JwZi9wcm9ncy90aW1lcl9jcmFz
+aC5jIHwgNTQgKysrKysrKysrKysrKysrKysrKw0KPiAgMiBmaWxlcyBjaGFuZ2VkLCA4NiBpbnNl
+cnRpb25zKCspDQo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMv
+YnBmL3Byb2dfdGVzdHMvdGltZXJfY3Jhc2guYw0KPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IHRvb2xz
+L3Rlc3Rpbmcvc2VsZnRlc3RzL2JwZi9wcm9ncy90aW1lcl9jcmFzaC5jDQo+IA0KPiBkaWZmIC0t
+Z2l0IGEvdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMvYnBmL3Byb2dzL3RpbWVyX2NyYXNoLmMgYi90
+b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy9icGYvcHJvZ3MvdGltZXJfY3Jhc2guYw0KPiBuZXcgZmls
+ZSBtb2RlIDEwMDY0NA0KPiBpbmRleCAwMDAwMDAwMDAwMDAuLmY4Zjc5NDRlNzBkYQ0KPiAtLS0g
+L2Rldi9udWxsDQo+ICsrKyBiL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2JwZi9wcm9ncy90aW1l
+cl9jcmFzaC5jDQo+IEBAIC0wLDAgKzEsNTQgQEANCj4gKy8vIFNQRFgtTGljZW5zZS1JZGVudGlm
+aWVyOiBHUEwtMi4wDQo+ICsNCj4gKyNpbmNsdWRlIDx2bWxpbnV4Lmg+DQo+ICsjaW5jbHVkZSA8
+YnBmL2JwZl90cmFjaW5nLmg+DQo+ICsjaW5jbHVkZSA8YnBmL2JwZl9oZWxwZXJzLmg+DQo+ICsN
+Cg0K
