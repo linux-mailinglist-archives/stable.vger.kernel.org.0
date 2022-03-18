@@ -2,84 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A8E4DD9FC
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:53:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C6A4DDA10
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 14:01:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230008AbiCRMyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 08:54:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
+        id S236475AbiCRNC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 09:02:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236439AbiCRMym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 08:54:42 -0400
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E862F3281;
-        Fri, 18 Mar 2022 05:53:23 -0700 (PDT)
-Received: by mail-lj1-f176.google.com with SMTP id o6so11193988ljp.3;
-        Fri, 18 Mar 2022 05:53:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=azzcjd1OIWakEOc8UERpptRP6fFvybBF/IXdEJwOYok=;
-        b=eoLQiLfu1TPsEdwzkBZInXc+LkvonGx+mECDutWQrmYDixW+5RkFKB9pQNcgxnL+kn
-         VQUtBjhlrwlGnwTkNeVPKQOEFSNWlZ2QvRHv8p+y/tffa7k86+7ogykKSvsKl/4+QEWB
-         6YDQ8vq8u0FAxPucG9v2d4oLmFF2tvSOMTtGN4Ci/6A9xlkyIRv1ofYn622BQt+1VAYP
-         JEcfnjCka2APuvAXEnhxV0NcoFDCRBo0lLydPa4dq/ZWrLMydQQ1q86L0nbx6767N6vM
-         hIgTuMWwvPmKErimryRDIzZ++P/BE+82J16igvg6zBxbeSzyyhcDfXx4aaMot9++Mhk+
-         wOcA==
-X-Gm-Message-State: AOAM5326n2kXNePtmqRlkDoIAjJaJ2yQIAOL3ct/T+r4bf6wp+U4XDjD
-        2vCSx2T20Pfa+Yilk8IzTXzRYbEX9Lk=
-X-Google-Smtp-Source: ABdhPJz3hHh22dAgdUP2vOsOvXNZF84TeD+dtedtzAccxko5hO5CfDbqZPj7PZRVU02lw9zujdnxYA==
-X-Received: by 2002:a2e:b536:0:b0:247:f015:ad57 with SMTP id z22-20020a2eb536000000b00247f015ad57mr6063675ljm.257.1647608001421;
-        Fri, 18 Mar 2022 05:53:21 -0700 (PDT)
-Received: from [192.168.0.17] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.googlemail.com with ESMTPSA id m21-20020a197115000000b0044895f0608asm840021lfc.37.2022.03.18.05.53.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Mar 2022 05:53:20 -0700 (PDT)
-Message-ID: <d0d0c0e1-47c7-0177-1b97-61befe3f1327@kernel.org>
-Date:   Fri, 18 Mar 2022 13:53:18 +0100
+        with ESMTP id S236427AbiCRNC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 09:02:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 928672D8138;
+        Fri, 18 Mar 2022 06:01:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19FF461944;
+        Fri, 18 Mar 2022 13:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2065AC340EC;
+        Fri, 18 Mar 2022 13:01:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647608464;
+        bh=EvKvDWMjPs8RviERmN4Qeb/n64LMap7LOYadKAjVVkE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=l+9xq6dRn9tlQYW+m4OOpWxHI7gEPhRgznCS5kNtOTBDzB33jtzQaWbJNW6OdJVce
+         oPUCf1KO5zzWHz+11/IbsI5USKTJoioW+dmYWVd2pV9yXpol++zuu5EN4UCc1Oq/q9
+         dEfqfRF2/NkkeuEyOx3elvJDBBbqIbmCl+F3hDIPSrhJuwK1fk1ChUD5GGncYr1LG4
+         2pmmcbJXnJHRQhThQEWvNN3LaOt4WVOiU8mVjQVhIERPEB5mPFbWQbukxE9lk5Hodw
+         Kbj9ZUQTrcfWqRsD/RVpSDc5MGBdDMYSIzgZCeMBh2F7k9TxxesknY87E9ors3quyA
+         Wrtp28M5fWYFw==
+Received: by pali.im (Postfix)
+        id 077999CF; Fri, 18 Mar 2022 14:01:00 +0100 (CET)
+Date:   Fri, 18 Mar 2022 14:01:00 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Marcin Wojtas <mw@semihalf.com>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Ziji Hu <huziji@marvell.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Grzegorz Jaszczyk <jaz@semihalf.com>,
+        Tomasz Nowicki <tn@semihalf.com>,
+        Kostya Porotchkin <kostap@marvell.com>,
+        Alex Leibovich <alexl@marvell.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
+Message-ID: <20220318130100.zkdaoviwzwhnixuh@pali>
+References: <20201211141656.24915-1-mw@semihalf.com>
+ <CAPDyKFqsSO+f9iG8vccwXZXDDNHgLEg7bfUe-KfHn2C-ZnOU4A@mail.gmail.com>
+ <20220314154033.4x74zscayee32rrj@pali>
+ <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
+ <20220315230333.eyznbu5tuxneizbs@pali>
+ <CAPv3WKc96vDsW_duXYMYbr3X05=-p28N5_cf2PHo-tiwDLjaWg@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH] memory: renesas-rpc-if: fix platform-device leak in error
- path
-Content-Language: en-US
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-References: <20220303180632.3194-1-johan@kernel.org>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-In-Reply-To: <20220303180632.3194-1-johan@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPv3WKc96vDsW_duXYMYbr3X05=-p28N5_cf2PHo-tiwDLjaWg@mail.gmail.com>
+User-Agent: NeoMutt/20180716
+X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/03/2022 19:06, Johan Hovold wrote:
-> Make sure to free the flash platform device in the event that
-> registration fails during probe.
+On Wednesday 16 March 2022 02:03:35 Marcin Wojtas wrote:
+> Hi Pali,
 > 
-> Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
-> Cc: stable@vger.kernel.org      # 5.8
-> Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  drivers/memory/renesas-rpc-if.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
+> śr., 16 mar 2022 o 00:03 Pali Rohár <pali@kernel.org> napisał(a):
+> >
+> > Hello!
+> >
+> > On Monday 14 March 2022 16:51:25 Marcin Wojtas wrote:
+> > > Hi Pali,
+> > >
+> > >
+> > > pon., 14 mar 2022 o 16:40 Pali Rohár <pali@kernel.org> napisał(a):
+> > > >
+> > > > On Monday 11 January 2021 19:06:24 Ulf Hansson wrote:
+> > > > > On Fri, 11 Dec 2020 at 15:17, Marcin Wojtas <mw@semihalf.com> wrote:
+> > > > > >
+> > > > > > From: Alex Leibovich <alexl@marvell.com>
+> > > > > >
+> > > > > > Automatic Clock Gating is a feature used for the power
+> > > > > > consumption optimisation. It turned out that
+> > > > > > during early init phase it may prevent the stable voltage
+> > > > > > switch to 1.8V - due to that on some platfroms an endless
+> > > > > > printout in dmesg can be observed:
+> > > > > > "mmc1: 1.8V regulator output did not became stable"
+> > > > > > Fix the problem by disabling the ACG at very beginning
+> > > > > > of the sdhci_init and let that be enabled later.
+> > > > > >
+> > > > > > Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC core functionality")
+> > > > > > Signed-off-by: Alex Leibovich <alexl@marvell.com>
+> > > > > > Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+> > > > > > Cc: stable@vger.kernel.org
+> > > > >
+> > > > > Applied for fixes (by fixing the typos), thanks!
+> > > >
+> > > > Hello!
+> > > >
+> > > > Is not this patch address same issue which was fixed by patch which was
+> > > > merged earlier?
+> > > >
+> > > > bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying 1.8V regulator warning")
+> > > > https://lore.kernel.org/linux-mmc/CAPDyKFqAsvgAjfL-c9ukFNWeGJmufQosR2Eg9SKjXMVpNitdkA@mail.gmail.com/
+> > > >
+> > >
+> > > This indeed look similar. This fix was originally developed for CN913x
+> > > platform without the mentioned patch (I'm wondering if it would also
+> > > suffice to fix A3k board's problem). Anyway, I don't think we have an
+> > > issue here, as everything seems to work fine on top of mainline Linux
+> > > with both changes.
+> >
+> > Yea, there should be no issue. Just question is if we need _both_ fixes.
+> >
+> > I could probably try to revert bb32e1987bc5 and check what happens on
+> > A3k board.
+> >
 > 
+> Yes, that would be interesting. Please let me know whenever you find
+> time to check.
 
-It's too late for upcoming cycle, so I will pick it up after the merge
-window.
+Hello! Now I tested kernel with reverted commit bb32e1987bc5 ("mmc:
+sdhci-xenon: fix annoying 1.8V regulator warning") and issue is still
+fixed. I reverted also bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying
+1.8V regulator warning") commit and then issue appeared again.
 
+So any of this commit is fixing that issue on Armada 3720.
 
-Best regards,
-Krzysztof
+Should we revert one of them?
+
+> Best regards,
+> Marcin
+> 
+> > > > >
+> > > > >
+> > > > > > ---
+> > > > > >  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
+> > > > > >  1 file changed, 6 insertions(+), 1 deletion(-)
+> > > > > >
+> > > > > > diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
+> > > > > > index c67611fdaa8a..4b05f6fdefb4 100644
+> > > > > > --- a/drivers/mmc/host/sdhci-xenon.c
+> > > > > > +++ b/drivers/mmc/host/sdhci-xenon.c
+> > > > > > @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sdhci_host *host,
+> > > > > >         /* Disable tuning request and auto-retuning again */
+> > > > > >         xenon_retune_setup(host);
+> > > > > >
+> > > > > > -       xenon_set_acg(host, true);
+> > > > > > +       /*
+> > > > > > +        * The ACG should be turned off at the early init time, in order
+> > > > > > +        * to solve a possile issues with the 1.8V regulator stabilization.
+> > > > > > +        * The feature is enabled in later stage.
+> > > > > > +        */
+> > > > > > +       xenon_set_acg(host, false);
+> > > > > >
+> > > > > >         xenon_set_sdclk_off_idle(host, sdhc_id, false);
+> > > > > >
+> > > > > > --
+> > > > > > 2.29.0
+> > > > > >
