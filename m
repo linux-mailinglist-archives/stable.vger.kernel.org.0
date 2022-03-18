@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4FE4DD984
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC354DD985
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236109AbiCRMSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 08:18:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55434 "EHLO
+        id S233625AbiCRMSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 08:18:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236100AbiCRMSD (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:18:03 -0400
+        with ESMTP id S236110AbiCRMSG (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:18:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 555A0F210B
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:16:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 836BAF2132
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:16:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E484C61807
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:16:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED82DC340E8;
-        Fri, 18 Mar 2022 12:16:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21DB56185C
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:16:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B493C340E8;
+        Fri, 18 Mar 2022 12:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647605804;
-        bh=kXItJXTvGAKQC9IiiRXs7//INO00yCjJHKKZq5/UEi8=;
+        s=korg; t=1647605807;
+        bh=vhM0I6Q4jKNq3QVQUho4bVdXv925mAlj9PlKNFsXOs8=;
         h=Subject:To:From:Date:From;
-        b=B+p41E08eTRqS7vnGtL3SRHBSSkNjRXxNXIXKn9I1q4SQPc1maot9K1QabaaGTQWw
-         7zDpiwJCqCEL7d8XnkMnsIILEVJRcB7iFoklv6VAirHrTlXQWP9mVALYvyv8RSfd6f
-         hrrA5ygqJda/zGGlgdrHmSB/s4KxtUhPdAZiKvzA=
-Subject: patch "dt-bindings: iio: adc: zynqmp_ams: Add clock entry" added to char-misc-next
+        b=OFGg4jKqIYEMIVGNNH9ScWhc+XZESCNJqD/QqT4oEX5d+zc5zv1mlWMnXcnlGcgMM
+         FEDX+jZkNtDONtquplKdfA6P3tTtatr/o5IwUsIAWcXLd6i/W5t6/WumBBNTwxGGCp
+         Li6RoDdkRt1kGvsEAcirqUO49G9WFhfDFEHECPJs=
+Subject: patch "iio: adc: xilinx-ams: Fix single channel switching sequence" added to char-misc-next
 To:     robert.hancock@calian.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, michal.simek@xilinx.com, robh@kernel.org
+        Stable@vger.kernel.org, michal.simek@xilinx.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Mar 2022 12:46:40 +0100
-Message-ID: <1647604000160229@kroah.com>
+Date:   Fri, 18 Mar 2022 12:46:41 +0100
+Message-ID: <164760400154106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    dt-bindings: iio: adc: zynqmp_ams: Add clock entry
+    iio: adc: xilinx-ams: Fix single channel switching sequence
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,64 +65,69 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 5165102efa41c2aedc77441612f4506a8a8671db Mon Sep 17 00:00:00 2001
+From 0bf126163c3e7e6d722622073046aed567a5551e Mon Sep 17 00:00:00 2001
 From: Robert Hancock <robert.hancock@calian.com>
-Date: Thu, 27 Jan 2022 11:34:47 -0600
-Subject: dt-bindings: iio: adc: zynqmp_ams: Add clock entry
+Date: Thu, 27 Jan 2022 11:34:50 -0600
+Subject: iio: adc: xilinx-ams: Fix single channel switching sequence
 
-The AMS driver DT binding was missing the clock entry, which is actually
-mandatory according to the driver implementation. Add this in.
+Some of the AMS channels need to be read by switching into single-channel
+mode from the normal polling sequence. There was a logic issue in this
+switching code that could cause the first read of these channels to read
+back as zero.
 
-Fixes: 39dd2d1e251d ("dt-bindings: iio: adc: Add Xilinx AMS binding documentation")
+It appears that the sequencer should be set back to default mode before
+changing the channel selection, and the channel should be set before
+switching the sequencer back into single-channel mode.
+
+Also, write 1 to the EOC bit in the status register to clear it before
+waiting for it to become set, so that we actually wait for a new
+conversion to complete, and don't proceed based on a previous conversion
+completing.
+
+Fixes: d5c70627a794 ("iio: adc: Add Xilinx AMS driver")
 Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
 Acked-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/20220127173450.3684318-2-robert.hancock@calian.com
+Link: https://lore.kernel.org/r/20220127173450.3684318-5-robert.hancock@calian.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- .../devicetree/bindings/iio/adc/xlnx,zynqmp-ams.yaml      | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/iio/adc/xilinx-ams.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/iio/adc/xlnx,zynqmp-ams.yaml b/Documentation/devicetree/bindings/iio/adc/xlnx,zynqmp-ams.yaml
-index 87992db389b2..3698b4b0900f 100644
---- a/Documentation/devicetree/bindings/iio/adc/xlnx,zynqmp-ams.yaml
-+++ b/Documentation/devicetree/bindings/iio/adc/xlnx,zynqmp-ams.yaml
-@@ -92,6 +92,10 @@ properties:
-     description: AMS Controller register space
-     maxItems: 1
+diff --git a/drivers/iio/adc/xilinx-ams.c b/drivers/iio/adc/xilinx-ams.c
+index 0c491667c464..a55396c1f8b2 100644
+--- a/drivers/iio/adc/xilinx-ams.c
++++ b/drivers/iio/adc/xilinx-ams.c
+@@ -531,14 +531,18 @@ static int ams_enable_single_channel(struct ams *ams, unsigned int offset)
+ 		return -EINVAL;
+ 	}
  
-+  clocks:
-+    items:
-+      - description: AMS reference clock
+-	/* set single channel, sequencer off mode */
++	/* put sysmon in a soft reset to change the sequence */
+ 	ams_ps_update_reg(ams, AMS_REG_CONFIG1, AMS_CONF1_SEQ_MASK,
+-			  AMS_CONF1_SEQ_SINGLE_CHANNEL);
++			  AMS_CONF1_SEQ_DEFAULT);
+ 
+ 	/* write the channel number */
+ 	ams_ps_update_reg(ams, AMS_REG_CONFIG0, AMS_CONF0_CHANNEL_NUM_MASK,
+ 			  channel_num);
+ 
++	/* set single channel, sequencer off mode */
++	ams_ps_update_reg(ams, AMS_REG_CONFIG1, AMS_CONF1_SEQ_MASK,
++			  AMS_CONF1_SEQ_SINGLE_CHANNEL);
 +
-   ranges:
-     description:
-       Maps the child address space for PS and/or PL.
-@@ -181,12 +185,15 @@ properties:
- required:
-   - compatible
-   - reg
-+  - clocks
-   - ranges
+ 	return 0;
+ }
  
- additionalProperties: false
+@@ -552,6 +556,8 @@ static int ams_read_vcc_reg(struct ams *ams, unsigned int offset, u32 *data)
+ 	if (ret)
+ 		return ret;
  
- examples:
-   - |
-+    #include <dt-bindings/clock/xlnx-zynqmp-clk.h>
-+
-     bus {
-         #address-cells = <2>;
-         #size-cells = <2>;
-@@ -196,6 +203,7 @@ examples:
-             interrupt-parent = <&gic>;
-             interrupts = <0 56 4>;
-             reg = <0x0 0xffa50000 0x0 0x800>;
-+            clocks = <&zynqmp_clk AMS_REF>;
-             #address-cells = <1>;
-             #size-cells = <1>;
-             #io-channel-cells = <1>;
++	/* clear end-of-conversion flag, wait for next conversion to complete */
++	writel(expect, ams->base + AMS_ISR_1);
+ 	ret = readl_poll_timeout(ams->base + AMS_ISR_1, reg, (reg & expect),
+ 				 AMS_INIT_POLL_TIME_US, AMS_INIT_TIMEOUT_US);
+ 	if (ret)
 -- 
 2.35.1
 
