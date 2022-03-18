@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C4F24DD95B
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2504DD97F
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236019AbiCRMDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 08:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34116 "EHLO
+        id S235557AbiCRMRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 08:17:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236034AbiCRMCx (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:02:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B7E2D4D4F
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:01:35 -0700 (PDT)
+        with ESMTP id S229580AbiCRMRq (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:17:46 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3331FF2103
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:16:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31561B82199
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:01:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88EB7C340E8;
-        Fri, 18 Mar 2022 12:01:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 15089CE26E2
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:16:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E126C340E8;
+        Fri, 18 Mar 2022 12:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647604893;
-        bh=Mzv80Ryk8V+ViDseYjUe5NM617Iwr/TnxyfUXXbkdIw=;
+        s=korg; t=1647605784;
+        bh=ZR8+8xcCNjbUgRm7SA7zoL8ozJ72f6frtoU9+DTYFSM=;
         h=Subject:To:From:Date:From;
-        b=rwc46tMUKASkd52JT2SkTxy23yEjlBBoGIZNGaOadXW3qiXCT68tSA8LZmcbg2ia7
-         IFb5goinFQrtTv+KYK+HAy7BAJmQWN8DYjxYEJ+/8VKP/JPldglxYB5b/7szNSTT2i
-         XvzzsJB98qvQV7ZzMWe6Uu6NHeu2lEAHh5pqeD7U=
-Subject: patch "iio: afe: rescale: use s64 for temporary scale calculations" added to char-misc-next
-To:     liambeguin@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andy.shevchenko@gmail.com, peda@axentia.se
+        b=NKtOVOvZUUTpWq3hRRBFmA8smqZFtEPStsR/kocue+NndYGXOpqQXN1UatV51TZAE
+         ZkYbN3/dLV9iqzTgvOCIHtdZawWBH2JXKFulDW7UQoqvNNT/AkfsqTjLwfEJhnuZuj
+         jC8iM+Jr4HuW8VbPgIEZ2SmdvNN7IdiV+Ec/qeRg=
+Subject: patch "iio: imu: st_lsm6dsx: use dev_to_iio_dev() to get iio_dev struct" added to char-misc-next
+To:     haibo.chen@nxp.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Mar 2022 12:45:24 +0100
-Message-ID: <1647603924233194@kroah.com>
+Date:   Fri, 18 Mar 2022 12:46:36 +0100
+Message-ID: <164760399661117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: afe: rescale: use s64 for temporary scale calculations
+    iio: imu: st_lsm6dsx: use dev_to_iio_dev() to get iio_dev struct
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,53 +65,45 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 51593106b608ae4247cc8da928813347da16d025 Mon Sep 17 00:00:00 2001
-From: Liam Beguin <liambeguin@gmail.com>
-Date: Sat, 8 Jan 2022 15:53:07 -0500
-Subject: iio: afe: rescale: use s64 for temporary scale calculations
+From 6270bf1f0197739a9cddaf0a40699a99b7357cb5 Mon Sep 17 00:00:00 2001
+From: Haibo Chen <haibo.chen@nxp.com>
+Date: Thu, 24 Feb 2022 19:29:51 +0800
+Subject: iio: imu: st_lsm6dsx: use dev_to_iio_dev() to get iio_dev struct
 
-All four scaling coefficients can take signed values.
-Make tmp a signed 64-bit integer and switch to div_s64() to preserve
-signs during 64-bit divisions.
+dev_get_drvdata() on iio_dev->dev no longer returns the iio_dev.
+Use dev_to_iio_dev() to get iio_dev struct.
 
-Fixes: 8b74816b5a9a ("iio: afe: rescale: new driver")
-Signed-off-by: Liam Beguin <liambeguin@gmail.com>
-Reviewed-by: Peter Rosin <peda@axentia.se>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220108205319.2046348-5-liambeguin@gmail.com
+Fixes: 8b7651f25962 ("iio: iio_device_alloc(): Remove unnecessary self drvdata")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/1645702191-9400-1-git-send-email-haibo.chen@nxp.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/afe/iio-rescale.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/afe/iio-rescale.c b/drivers/iio/afe/iio-rescale.c
-index 774eb3044edd..271d73e420c4 100644
---- a/drivers/iio/afe/iio-rescale.c
-+++ b/drivers/iio/afe/iio-rescale.c
-@@ -39,7 +39,7 @@ static int rescale_read_raw(struct iio_dev *indio_dev,
- 			    int *val, int *val2, long mask)
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index 727b4b6ac696..8b662332c282 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -1629,7 +1629,7 @@ st_lsm6dsx_sysfs_sampling_frequency_avail(struct device *dev,
+ 					  struct device_attribute *attr,
+ 					  char *buf)
  {
- 	struct rescale *rescale = iio_priv(indio_dev);
--	unsigned long long tmp;
-+	s64 tmp;
- 	int ret;
+-	struct st_lsm6dsx_sensor *sensor = iio_priv(dev_get_drvdata(dev));
++	struct st_lsm6dsx_sensor *sensor = iio_priv(dev_to_iio_dev(dev));
+ 	const struct st_lsm6dsx_odr_table_entry *odr_table;
+ 	int i, len = 0;
  
- 	switch (mask) {
-@@ -77,10 +77,10 @@ static int rescale_read_raw(struct iio_dev *indio_dev,
- 			*val2 = rescale->denominator;
- 			return IIO_VAL_FRACTIONAL;
- 		case IIO_VAL_FRACTIONAL_LOG2:
--			tmp = *val * 1000000000LL;
--			do_div(tmp, rescale->denominator);
-+			tmp = (s64)*val * 1000000000LL;
-+			tmp = div_s64(tmp, rescale->denominator);
- 			tmp *= rescale->numerator;
--			do_div(tmp, 1000000000LL);
-+			tmp = div_s64(tmp, 1000000000LL);
- 			*val = tmp;
- 			return ret;
- 		default:
+@@ -1647,7 +1647,7 @@ static ssize_t st_lsm6dsx_sysfs_scale_avail(struct device *dev,
+ 					    struct device_attribute *attr,
+ 					    char *buf)
+ {
+-	struct st_lsm6dsx_sensor *sensor = iio_priv(dev_get_drvdata(dev));
++	struct st_lsm6dsx_sensor *sensor = iio_priv(dev_to_iio_dev(dev));
+ 	const struct st_lsm6dsx_fs_table_entry *fs_table;
+ 	struct st_lsm6dsx_hw *hw = sensor->hw;
+ 	int i, len = 0;
 -- 
 2.35.1
 
