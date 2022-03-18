@@ -2,146 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8ED44DDA4D
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 14:14:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C38D74DDAB0
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 14:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236579AbiCRNP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 09:15:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38246 "EHLO
+        id S236742AbiCRNkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 09:40:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234686AbiCRNP4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 09:15:56 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2046.outbound.protection.outlook.com [40.107.237.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF40C2921CC;
-        Fri, 18 Mar 2022 06:14:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=XKak55sW2rAJmX+tTEjejSFIsCLLN7Rtnj+ndhxeUXc0dV9aFRZaLPpAmC6k9B+9tZ98FUjqUMV/0BTOJVPZioRbgpQFl/P3J7cHLtdsZOP46h6IOnZWrWV7vTYHft4CpUYZ3ulPFsV1afUsLteFxqsoEMiKkhyk85JWkXPIQsXldQuOZ48KtU4qpvrsENl/nmGLBBe6ZiCankPzIrp6cfhVhS2RSpigAavxN0StTajPZKMgnMJegvBODhiNwBKb+LtlDje3WcCv9XXn6kjKOm5GkK1LbeK2nnnwAc0HT+9kM40IGV/QOo76d8ntctBsKrTKZxyFN+cu1FTPXJT9nw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7cJmtEnZJiuBoRiObfxbH+RE77wKx76yDylJ701Ac2k=;
- b=Fajto62Y8l49fplhQBjAo5GFq4lMRwb+tf2vfGzbUAYJi7A/5fWwdDAy4yQNSaLx/b314rsqlxdgZPOaK6E6Q8T5Fpz63L+G2hqkbrqSbs3EInsr4nD+qI7liTjFB0tSuBmvrihr7eyjN+9D/E4tw18hxP906N4N8wJPy4WNiJ0EzyizN0q+T59cscp69GnafXesWBO7JUuIFLshehSVcTHeGWqnWX8fxOP+Fc8mFNtJ+GIkH/x0Hntlqrc5B6VRFV2oPMdNQ53I2kvS22/NZT6hPvnu6LgoElwtd1sRw9JShmC1D0bjxw0AYHju+YZCNCw4PiAheT29Qq0A6gN7Rg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.236) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
- (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
- (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7cJmtEnZJiuBoRiObfxbH+RE77wKx76yDylJ701Ac2k=;
- b=c8lCxbLIS6ZMuzh26opEl9RE7r8HWRGg7gbz9tbwtcGG/y8z47Q8zJgou5N/t8Qt+aMb/vFV/8CkqGRFteo986IlRy1MCZVQioCyII0XniAEAcuc6j1n8Qa0KAfKSkuOzzv2D+avUENjYcBn+lrH/UAnb6W2DyedsMycffzoWFCQmn4XL5eaetkJms900kGitteXloOgO21uj/y5WR226J7JKiXjIj/iFuNY5onsPsZDDQXnFiiJLDYk0jVx44fTCYqcLImwFQrqOQ9/XHLHHdlh0HsBMpTr6mxNB/FfbXqrxQUygfmbcm/Rwr0rLJNPddtrBGoSLi/YHKECY8w71w==
-Received: from DM5PR15CA0039.namprd15.prod.outlook.com (2603:10b6:4:4b::25) by
- BN6PR12MB1747.namprd12.prod.outlook.com (2603:10b6:404:106::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.15; Fri, 18 Mar
- 2022 13:14:37 +0000
-Received: from DM6NAM11FT036.eop-nam11.prod.protection.outlook.com
- (2603:10b6:4:4b:cafe::81) by DM5PR15CA0039.outlook.office365.com
- (2603:10b6:4:4b::25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.18 via Frontend
- Transport; Fri, 18 Mar 2022 13:14:36 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.236; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (12.22.5.236) by
- DM6NAM11FT036.mail.protection.outlook.com (10.13.172.64) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5081.14 via Frontend Transport; Fri, 18 Mar 2022 13:14:35 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by DRHQMAIL109.nvidia.com
- (10.27.9.19) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Fri, 18 Mar
- 2022 13:14:34 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Fri, 18 Mar
- 2022 06:14:33 -0700
-Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22 via Frontend
- Transport; Fri, 18 Mar 2022 06:14:33 -0700
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>,
-        <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.16 00/28] 5.16.16-rc1 review
-In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
-References: <20220317124526.768423926@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S236589AbiCRNkj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 09:40:39 -0400
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE1AF1C7C37
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 06:39:19 -0700 (PDT)
+Received: by mail-lf1-x135.google.com with SMTP id bt26so14164176lfb.3
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 06:39:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=VD6iA//rl+G0UvkOMm0n4elOqulyLO/Rgg1ugKzl5M8=;
+        b=Mtl+So5/Jxp9GNKNlJjBsh+Bil+WakboMMsGp4hKJFPuYHwP4D2q1jZlMV06P6ocZB
+         jZrveQqftZmscyyD0wShKftQyIxD20+9ffsUuQ5/o2cpIB0kXaXvSrDDtBDGzErGq8I6
+         POmphZeOAxRsBbKs4qawH+BLivYvyau2uQ+IWKv/48DgHCB7p/VXYyp4X9q3zzmQ/Ryj
+         d/J0WIwN0ZB1ihb2VFDHcgaWQj2hbE1aP8dCt5D6XKNGVGCaweNi7lgCuZxAgSMbgeEB
+         tIpJ9D2XX9Il65VJAmVRhof7+/OhQ5aHnFRoiA1cyKLXZ3YnBoM49q1GsPZgsrdxORto
+         rqjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=VD6iA//rl+G0UvkOMm0n4elOqulyLO/Rgg1ugKzl5M8=;
+        b=f8/ZtBDl+tMJOUxXMccbq1WPVaYitsHkg3E8g6w8vfN3LhleykpZbKa8GNwf2PCtvp
+         PW61gdZFfRM/LyVwUg/C+12f+rbb42Jcn54SVXOpPFhalbHoSCmIxuyn82nWVWlA/LcI
+         UrT+V2HOA/8S7+gnYf3ChA4JhPGDgeJ/s/Wr4GuhG4lL2xUuWUMod7pyFjyEmTPatoUX
+         0bmT5+tkvaVS4VX5DDwbL8XNVgjhRq2HQl/550a944PIibOi73G/bfy+bgtmIB7lV1w6
+         wxDqNrDgR50tWeBvd1VSB8wvp3ej20tYuGgV7lZUNgySsWp68lZ3DFL33AtEUDFfHgUr
+         U3ig==
+X-Gm-Message-State: AOAM5314uXej6bdD5BktezrqdC6r3LuVe/9ZjlZqW1MXh8xeqJq/GZtN
+        SpggUnQN6HFmVzSRXmzcNo1VOgQVPfv/UKnEUkiSP9H0E2Y=
+X-Google-Smtp-Source: ABdhPJyRyNhnCTgNlv5CqHoQl4al/grplnra/gw9rcQSwMrSnJYHrkRYV2pjITN+iYPZ+sjmEUMY2McF1cx6dtsQqSE=
+X-Received: by 2002:a05:6512:3f99:b0:447:7fc0:8d3 with SMTP id
+ x25-20020a0565123f9900b004477fc008d3mr6100043lfa.671.1647610757400; Fri, 18
+ Mar 2022 06:39:17 -0700 (PDT)
 MIME-Version: 1.0
-Message-ID: <e745d908-46a2-46d0-a8a4-e6d6c69c18a1@rnnvmail201.nvidia.com>
-Date:   Fri, 18 Mar 2022 06:14:33 -0700
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 682f2012-3f40-47c2-87d5-08da08e13fc7
-X-MS-TrafficTypeDiagnostic: BN6PR12MB1747:EE_
-X-Microsoft-Antispam-PRVS: <BN6PR12MB1747611324B8F8377ADAB574D9139@BN6PR12MB1747.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: aWf5cMwQF1BQla29mKNkwPlaYPGcxh9ejeRwZYHyMTswZAMndOe+1Traxu7yM3NGx2fOEu7C+8n43mRAWNmpZ94xFV2sHdJXVP3wlWWvxKy2Te+M1+lRwtFNCeKBRaO+DrrllNfFHdatlTGXZahh5bMaDcxIgIPV9lgtVNYbbEzVHpz2gYq278xsgaVlbxl6+N5e/fT0fwGoaVTU1PS9Q+/CaIn0Ts8Pzhw+yv9BjLg7Fame4QQsgXMgIE6f4tI7ksJa4sjckdwKOTwTIk2zynmb7gJRSJhaQ8zOZ3KjObsCerw24xjO20FY0bk+lhBVqYr2faahiEYO54aCiD8SaFH97bfZWRAXgaZ9s4vfXxVlrbuKX4KS1Cej/NUT8svBV/acDJfmu7RYACatTuuiAkUwRj4LM+kf8eKq/9N3+SPt1LOguFti3qYfTN8z/JMa8lEnGwIB1kU14oCdBLAJbewWtjKXNVxeWbl09ajNUe+QGYaqEUGpJjhD1FNgkxQAM5dSmtDTJOxI7EZsav3wlEvBcmtU1+ARYlxRoYE8zoD9Qkv3CR9rlKArtUbq+WiJMfsFbFjPgLqm36lt/4pY7GQjjzrav0XKZMNJV+k6tR40bqjax9yumGbzKEKftEsA1xMZYn97iCFQMFKy8ItuqZMeSaYZeZbi/6dIml9rW8ug+uJepjkBnwl16+Nl5BB3U9SF7ZHohuZ7RiJZQ/CsesepIi6cQDZcGyUjgYdfHmcNj+QklM88tcGRGYSorb8e1jc1idhfZj4oRfSEADDCP7xKNhpXx+3rfp/AgTu3TCM=
-X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:ErrorRetry;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(40470700004)(46966006)(47076005)(508600001)(36860700001)(426003)(82310400004)(186003)(26005)(336012)(966005)(31696002)(356005)(2906002)(316002)(31686004)(86362001)(40460700003)(8936002)(7416002)(5660300002)(4326008)(8676002)(70206006)(81166007)(70586007)(6916009)(54906003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Mar 2022 13:14:35.5957
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 682f2012-3f40-47c2-87d5-08da08e13fc7
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT036.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR12MB1747
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20201211141656.24915-1-mw@semihalf.com> <CAPDyKFqsSO+f9iG8vccwXZXDDNHgLEg7bfUe-KfHn2C-ZnOU4A@mail.gmail.com>
+ <20220314154033.4x74zscayee32rrj@pali> <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
+ <20220315230333.eyznbu5tuxneizbs@pali> <CAPv3WKc96vDsW_duXYMYbr3X05=-p28N5_cf2PHo-tiwDLjaWg@mail.gmail.com>
+ <20220318130100.zkdaoviwzwhnixuh@pali> <20220318130615.hwa5fhzf2cyquwzr@pali>
+In-Reply-To: <20220318130615.hwa5fhzf2cyquwzr@pali>
+From:   Marcin Wojtas <mw@semihalf.com>
+Date:   Fri, 18 Mar 2022 14:39:05 +0100
+Message-ID: <CAPv3WKcAgYS8=CWt-JmTT+Jx9LUU588kkrG1Xo6=W=NUkZ9K4Q@mail.gmail.com>
+Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
+To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Ziji Hu <huziji@marvell.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Grzegorz Jaszczyk <jaz@semihalf.com>,
+        Tomasz Nowicki <tn@semihalf.com>,
+        Kostya Porotchkin <kostap@marvell.com>,
+        Alex Leibovich <alexl@marvell.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 17 Mar 2022 13:45:51 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.16 release.
-> There are 28 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 19 Mar 2022 12:45:16 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.16-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Hi Pali,
 
-All tests passing for Tegra ...
+Thanks for testing!
 
-Test results for stable-v5.16:
-    10 builds:	10 pass, 0 fail
-    28 boots:	28 pass, 0 fail
-    122 tests:	122 pass, 0 fail
+pt., 18 mar 2022 o 14:06 Pali Roh=C3=A1r <pali@kernel.org> napisa=C5=82(a):
+>
+> On Friday 18 March 2022 14:01:00 Pali Roh=C3=A1r wrote:
+> > On Wednesday 16 March 2022 02:03:35 Marcin Wojtas wrote:
+> > > Hi Pali,
+> > >
+> > > =C5=9Br., 16 mar 2022 o 00:03 Pali Roh=C3=A1r <pali@kernel.org> napis=
+a=C5=82(a):
+> > > >
+> > > > Hello!
+> > > >
+> > > > On Monday 14 March 2022 16:51:25 Marcin Wojtas wrote:
+> > > > > Hi Pali,
+> > > > >
+> > > > >
+> > > > > pon., 14 mar 2022 o 16:40 Pali Roh=C3=A1r <pali@kernel.org> napis=
+a=C5=82(a):
+> > > > > >
+> > > > > > On Monday 11 January 2021 19:06:24 Ulf Hansson wrote:
+> > > > > > > On Fri, 11 Dec 2020 at 15:17, Marcin Wojtas <mw@semihalf.com>=
+ wrote:
+> > > > > > > >
+> > > > > > > > From: Alex Leibovich <alexl@marvell.com>
+> > > > > > > >
+> > > > > > > > Automatic Clock Gating is a feature used for the power
+> > > > > > > > consumption optimisation. It turned out that
+> > > > > > > > during early init phase it may prevent the stable voltage
+> > > > > > > > switch to 1.8V - due to that on some platfroms an endless
+> > > > > > > > printout in dmesg can be observed:
+> > > > > > > > "mmc1: 1.8V regulator output did not became stable"
+> > > > > > > > Fix the problem by disabling the ACG at very beginning
+> > > > > > > > of the sdhci_init and let that be enabled later.
+> > > > > > > >
+> > > > > > > > Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon S=
+DHC core functionality")
+> > > > > > > > Signed-off-by: Alex Leibovich <alexl@marvell.com>
+> > > > > > > > Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+> > > > > > > > Cc: stable@vger.kernel.org
+> > > > > > >
+> > > > > > > Applied for fixes (by fixing the typos), thanks!
+> > > > > >
+> > > > > > Hello!
+> > > > > >
+> > > > > > Is not this patch address same issue which was fixed by patch w=
+hich was
+> > > > > > merged earlier?
+> > > > > >
+> > > > > > bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying 1.8V regulator wa=
+rning")
+> > > > > > https://lore.kernel.org/linux-mmc/CAPDyKFqAsvgAjfL-c9ukFNWeGJmu=
+fQosR2Eg9SKjXMVpNitdkA@mail.gmail.com/
+> > > > > >
+> > > > >
+> > > > > This indeed look similar. This fix was originally developed for C=
+N913x
+> > > > > platform without the mentioned patch (I'm wondering if it would a=
+lso
+> > > > > suffice to fix A3k board's problem). Anyway, I don't think we hav=
+e an
+> > > > > issue here, as everything seems to work fine on top of mainline L=
+inux
+> > > > > with both changes.
+> > > >
+> > > > Yea, there should be no issue. Just question is if we need _both_ f=
+ixes.
+> > > >
+> > > > I could probably try to revert bb32e1987bc5 and check what happens =
+on
+> > > > A3k board.
+> > > >
+> > >
+> > > Yes, that would be interesting. Please let me know whenever you find
+> > > time to check.
+> >
+> > Hello! Now I tested kernel with reverted commit bb32e1987bc5 ("mmc:
+> > sdhci-xenon: fix annoying 1.8V regulator warning") and issue is still
+> > fixed. I reverted also bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying
+> > 1.8V regulator warning") commit and then issue appeared again.
+>
+> I mean that I reverted also 1a3ed0dc3594 ("mmc: sdhci-xenon: fix 1.8v
+> regulator stabilization") commit and then issue appeared again.
+>
+> > So any of this commit is fixing that issue on Armada 3720.
+> >
 
-Linux version:	5.16.16-rc1-g106ac438092e
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
-                tegra20-ventana, tegra210-p2371-2180,
-                tegra210-p3450-0000, tegra30-cardhu-a04
+I think both can stay, but if I had to choose, I'd keep 1a3ed0dc3594
+("mmc: sdhci-xenon: fix 1.8v regulator stabilization"):
+* Now we know for sure it fixes both Armada 3720 and CN913x/Armada 7k8k
+* Afaik this patch was checked with HW team (and IMO it looks a bit
+less hacky than the extra read :) ).
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Best regards,
+Marcin
 
-Jon
+
+> > Should we revert one of them?
+> >
+> > > Best regards,
+> > > Marcin
+> > >
+> > > > > > >
+> > > > > > >
+> > > > > > > > ---
+> > > > > > > >  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
+> > > > > > > >  1 file changed, 6 insertions(+), 1 deletion(-)
+> > > > > > > >
+> > > > > > > > diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/h=
+ost/sdhci-xenon.c
+> > > > > > > > index c67611fdaa8a..4b05f6fdefb4 100644
+> > > > > > > > --- a/drivers/mmc/host/sdhci-xenon.c
+> > > > > > > > +++ b/drivers/mmc/host/sdhci-xenon.c
+> > > > > > > > @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sd=
+hci_host *host,
+> > > > > > > >         /* Disable tuning request and auto-retuning again *=
+/
+> > > > > > > >         xenon_retune_setup(host);
+> > > > > > > >
+> > > > > > > > -       xenon_set_acg(host, true);
+> > > > > > > > +       /*
+> > > > > > > > +        * The ACG should be turned off at the early init t=
+ime, in order
+> > > > > > > > +        * to solve a possile issues with the 1.8V regulato=
+r stabilization.
+> > > > > > > > +        * The feature is enabled in later stage.
+> > > > > > > > +        */
+> > > > > > > > +       xenon_set_acg(host, false);
+> > > > > > > >
+> > > > > > > >         xenon_set_sdclk_off_idle(host, sdhc_id, false);
+> > > > > > > >
+> > > > > > > > --
+> > > > > > > > 2.29.0
+> > > > > > > >
