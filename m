@@ -2,214 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C38D74DDAB0
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 14:39:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B674DDB54
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 15:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236742AbiCRNkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 09:40:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
+        id S236116AbiCRONv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 10:13:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236589AbiCRNkj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 09:40:39 -0400
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE1AF1C7C37
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 06:39:19 -0700 (PDT)
-Received: by mail-lf1-x135.google.com with SMTP id bt26so14164176lfb.3
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 06:39:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=VD6iA//rl+G0UvkOMm0n4elOqulyLO/Rgg1ugKzl5M8=;
-        b=Mtl+So5/Jxp9GNKNlJjBsh+Bil+WakboMMsGp4hKJFPuYHwP4D2q1jZlMV06P6ocZB
-         jZrveQqftZmscyyD0wShKftQyIxD20+9ffsUuQ5/o2cpIB0kXaXvSrDDtBDGzErGq8I6
-         POmphZeOAxRsBbKs4qawH+BLivYvyau2uQ+IWKv/48DgHCB7p/VXYyp4X9q3zzmQ/Ryj
-         d/J0WIwN0ZB1ihb2VFDHcgaWQj2hbE1aP8dCt5D6XKNGVGCaweNi7lgCuZxAgSMbgeEB
-         tIpJ9D2XX9Il65VJAmVRhof7+/OhQ5aHnFRoiA1cyKLXZ3YnBoM49q1GsPZgsrdxORto
-         rqjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=VD6iA//rl+G0UvkOMm0n4elOqulyLO/Rgg1ugKzl5M8=;
-        b=f8/ZtBDl+tMJOUxXMccbq1WPVaYitsHkg3E8g6w8vfN3LhleykpZbKa8GNwf2PCtvp
-         PW61gdZFfRM/LyVwUg/C+12f+rbb42Jcn54SVXOpPFhalbHoSCmIxuyn82nWVWlA/LcI
-         UrT+V2HOA/8S7+gnYf3ChA4JhPGDgeJ/s/Wr4GuhG4lL2xUuWUMod7pyFjyEmTPatoUX
-         0bmT5+tkvaVS4VX5DDwbL8XNVgjhRq2HQl/550a944PIibOi73G/bfy+bgtmIB7lV1w6
-         wxDqNrDgR50tWeBvd1VSB8wvp3ej20tYuGgV7lZUNgySsWp68lZ3DFL33AtEUDFfHgUr
-         U3ig==
-X-Gm-Message-State: AOAM5314uXej6bdD5BktezrqdC6r3LuVe/9ZjlZqW1MXh8xeqJq/GZtN
-        SpggUnQN6HFmVzSRXmzcNo1VOgQVPfv/UKnEUkiSP9H0E2Y=
-X-Google-Smtp-Source: ABdhPJyRyNhnCTgNlv5CqHoQl4al/grplnra/gw9rcQSwMrSnJYHrkRYV2pjITN+iYPZ+sjmEUMY2McF1cx6dtsQqSE=
-X-Received: by 2002:a05:6512:3f99:b0:447:7fc0:8d3 with SMTP id
- x25-20020a0565123f9900b004477fc008d3mr6100043lfa.671.1647610757400; Fri, 18
- Mar 2022 06:39:17 -0700 (PDT)
+        with ESMTP id S234403AbiCRONv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 10:13:51 -0400
+X-Greylist: delayed 1439 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 18 Mar 2022 07:12:32 PDT
+Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30C8228D15
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 07:12:32 -0700 (PDT)
+Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
+        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id 1604780485E5
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 13:48:33 +0000 (UTC)
+Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
+        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id 7BF6110045A1E
+        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 13:48:30 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id VCxynkFb72s5dVCxynRQx9; Fri, 18 Mar 2022 13:48:30 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=BOh2EHcG c=1 sm=1 tr=0 ts=62348dae
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=o8Y5sQTvuykA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=2GCAtCuT3wgT4q42L9EA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=1QYp7nWSJ3VYtGgxX5TKlOfQVqw+7WaVqX47zjJXg7A=; b=GPtW2r3sGhkZWVZWfCwPapDQU3
+        iGXALFfeiyOyyEv153wGjcvPyLhQnHtvxLAsR/uUg3hxtV84hWOLAeh6KogTg6EZ1VRtSIATsh4Rh
+        IX5uz2EMK/SObQynPSfci6ZVf;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:33286 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nVCxx-000O6R-3d; Fri, 18 Mar 2022 07:48:29 -0600
+Subject: Re: [PATCH 5.16 00/28] 5.16.16-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220317124526.768423926@linuxfoundation.org>
+In-Reply-To: <20220317124526.768423926@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <a074ff6f-a339-bfbc-c408-3d1617fb4f57@w6rz.net>
+Date:   Fri, 18 Mar 2022 06:48:27 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-References: <20201211141656.24915-1-mw@semihalf.com> <CAPDyKFqsSO+f9iG8vccwXZXDDNHgLEg7bfUe-KfHn2C-ZnOU4A@mail.gmail.com>
- <20220314154033.4x74zscayee32rrj@pali> <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
- <20220315230333.eyznbu5tuxneizbs@pali> <CAPv3WKc96vDsW_duXYMYbr3X05=-p28N5_cf2PHo-tiwDLjaWg@mail.gmail.com>
- <20220318130100.zkdaoviwzwhnixuh@pali> <20220318130615.hwa5fhzf2cyquwzr@pali>
-In-Reply-To: <20220318130615.hwa5fhzf2cyquwzr@pali>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Fri, 18 Mar 2022 14:39:05 +0100
-Message-ID: <CAPv3WKcAgYS8=CWt-JmTT+Jx9LUU588kkrG1Xo6=W=NUkZ9K4Q@mail.gmail.com>
-Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
-To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        Ziji Hu <huziji@marvell.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Grzegorz Jaszczyk <jaz@semihalf.com>,
-        Tomasz Nowicki <tn@semihalf.com>,
-        Kostya Porotchkin <kostap@marvell.com>,
-        Alex Leibovich <alexl@marvell.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nVCxx-000O6R-3d
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:33286
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Pali,
-
-Thanks for testing!
-
-pt., 18 mar 2022 o 14:06 Pali Roh=C3=A1r <pali@kernel.org> napisa=C5=82(a):
+On 3/17/22 5:45 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.16 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> On Friday 18 March 2022 14:01:00 Pali Roh=C3=A1r wrote:
-> > On Wednesday 16 March 2022 02:03:35 Marcin Wojtas wrote:
-> > > Hi Pali,
-> > >
-> > > =C5=9Br., 16 mar 2022 o 00:03 Pali Roh=C3=A1r <pali@kernel.org> napis=
-a=C5=82(a):
-> > > >
-> > > > Hello!
-> > > >
-> > > > On Monday 14 March 2022 16:51:25 Marcin Wojtas wrote:
-> > > > > Hi Pali,
-> > > > >
-> > > > >
-> > > > > pon., 14 mar 2022 o 16:40 Pali Roh=C3=A1r <pali@kernel.org> napis=
-a=C5=82(a):
-> > > > > >
-> > > > > > On Monday 11 January 2021 19:06:24 Ulf Hansson wrote:
-> > > > > > > On Fri, 11 Dec 2020 at 15:17, Marcin Wojtas <mw@semihalf.com>=
- wrote:
-> > > > > > > >
-> > > > > > > > From: Alex Leibovich <alexl@marvell.com>
-> > > > > > > >
-> > > > > > > > Automatic Clock Gating is a feature used for the power
-> > > > > > > > consumption optimisation. It turned out that
-> > > > > > > > during early init phase it may prevent the stable voltage
-> > > > > > > > switch to 1.8V - due to that on some platfroms an endless
-> > > > > > > > printout in dmesg can be observed:
-> > > > > > > > "mmc1: 1.8V regulator output did not became stable"
-> > > > > > > > Fix the problem by disabling the ACG at very beginning
-> > > > > > > > of the sdhci_init and let that be enabled later.
-> > > > > > > >
-> > > > > > > > Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon S=
-DHC core functionality")
-> > > > > > > > Signed-off-by: Alex Leibovich <alexl@marvell.com>
-> > > > > > > > Signed-off-by: Marcin Wojtas <mw@semihalf.com>
-> > > > > > > > Cc: stable@vger.kernel.org
-> > > > > > >
-> > > > > > > Applied for fixes (by fixing the typos), thanks!
-> > > > > >
-> > > > > > Hello!
-> > > > > >
-> > > > > > Is not this patch address same issue which was fixed by patch w=
-hich was
-> > > > > > merged earlier?
-> > > > > >
-> > > > > > bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying 1.8V regulator wa=
-rning")
-> > > > > > https://lore.kernel.org/linux-mmc/CAPDyKFqAsvgAjfL-c9ukFNWeGJmu=
-fQosR2Eg9SKjXMVpNitdkA@mail.gmail.com/
-> > > > > >
-> > > > >
-> > > > > This indeed look similar. This fix was originally developed for C=
-N913x
-> > > > > platform without the mentioned patch (I'm wondering if it would a=
-lso
-> > > > > suffice to fix A3k board's problem). Anyway, I don't think we hav=
-e an
-> > > > > issue here, as everything seems to work fine on top of mainline L=
-inux
-> > > > > with both changes.
-> > > >
-> > > > Yea, there should be no issue. Just question is if we need _both_ f=
-ixes.
-> > > >
-> > > > I could probably try to revert bb32e1987bc5 and check what happens =
-on
-> > > > A3k board.
-> > > >
-> > >
-> > > Yes, that would be interesting. Please let me know whenever you find
-> > > time to check.
-> >
-> > Hello! Now I tested kernel with reverted commit bb32e1987bc5 ("mmc:
-> > sdhci-xenon: fix annoying 1.8V regulator warning") and issue is still
-> > fixed. I reverted also bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying
-> > 1.8V regulator warning") commit and then issue appeared again.
+> Responses should be made by Sat, 19 Mar 2022 12:45:16 +0000.
+> Anything received after that time might be too late.
 >
-> I mean that I reverted also 1a3ed0dc3594 ("mmc: sdhci-xenon: fix 1.8v
-> regulator stabilization") commit and then issue appeared again.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
 >
-> > So any of this commit is fixing that issue on Armada 3720.
-> >
+> thanks,
+>
+> greg k-h
 
-I think both can stay, but if I had to choose, I'd keep 1a3ed0dc3594
-("mmc: sdhci-xenon: fix 1.8v regulator stabilization"):
-* Now we know for sure it fixes both Armada 3720 and CN913x/Armada 7k8k
-* Afaik this patch was checked with HW team (and IMO it looks a bit
-less hacky than the extra read :) ).
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Best regards,
-Marcin
+Tested-by: Ron Economos <re@w6rz.net>
 
-
-> > Should we revert one of them?
-> >
-> > > Best regards,
-> > > Marcin
-> > >
-> > > > > > >
-> > > > > > >
-> > > > > > > > ---
-> > > > > > > >  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
-> > > > > > > >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > > > > > > >
-> > > > > > > > diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/h=
-ost/sdhci-xenon.c
-> > > > > > > > index c67611fdaa8a..4b05f6fdefb4 100644
-> > > > > > > > --- a/drivers/mmc/host/sdhci-xenon.c
-> > > > > > > > +++ b/drivers/mmc/host/sdhci-xenon.c
-> > > > > > > > @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sd=
-hci_host *host,
-> > > > > > > >         /* Disable tuning request and auto-retuning again *=
-/
-> > > > > > > >         xenon_retune_setup(host);
-> > > > > > > >
-> > > > > > > > -       xenon_set_acg(host, true);
-> > > > > > > > +       /*
-> > > > > > > > +        * The ACG should be turned off at the early init t=
-ime, in order
-> > > > > > > > +        * to solve a possile issues with the 1.8V regulato=
-r stabilization.
-> > > > > > > > +        * The feature is enabled in later stage.
-> > > > > > > > +        */
-> > > > > > > > +       xenon_set_acg(host, false);
-> > > > > > > >
-> > > > > > > >         xenon_set_sdclk_off_idle(host, sdhc_id, false);
-> > > > > > > >
-> > > > > > > > --
-> > > > > > > > 2.29.0
-> > > > > > > >
