@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 304034DD981
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D81F64DD980
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236102AbiCRMRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236107AbiCRMRz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 18 Mar 2022 08:17:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54412 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236120AbiCRMRu (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:17:50 -0400
+        with ESMTP id S236131AbiCRMRy (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:17:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F592F2103
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:16:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3042F2103
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:16:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01B5661807
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:16:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E47A7C340F2;
-        Fri, 18 Mar 2022 12:16:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5043361807
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:16:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4048BC340E8;
+        Fri, 18 Mar 2022 12:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647605791;
-        bh=cMMKH1glzYT8AljESLG2h4PRinA9Pnab7e8fEqonjIw=;
+        s=korg; t=1647605794;
+        bh=BrVqYtO4whfjpzAbV1u170bw91NTJPdnPJ9V8iggfEY=;
         h=Subject:To:From:Date:From;
-        b=on1vkpvhw3E9QmfBhMGOUikt9R/etlCvBSezCL37wpEAk2raGuVjV6ZkHnj6Zf8SJ
-         qP1TVb6eFR2GdcE4j/6JAn93X8lgGu6ciZatkg6oTLTeUWuT7N81Qm6J6RD+Kg/0R6
-         CxX9fOzrxpsBmbxFK45p7+OmuTCkkaw0Zs9WmDyk=
-Subject: patch "iio: adc: aspeed: Add divider flag to fix incorrect voltage reading." added to char-misc-next
-To:     billy_tsai@aspeedtech.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, joel@jms.id.au, kitsok@yandex-team.ru
+        b=xd33pWKFMrIJKU+P39DfqCveDa/b0qaSDzn57Sr2nBqBwhlNMPNT6dHjkhTXWtlsD
+         JyRl8JEfL6jWEsAsSPxRjs3MIWdup7VrFVYnYjMiODb8IOSR0lQMfXCagYhVqcduMX
+         NtK0V9c2KnoDDoUR0hMMKIESUNWLHta+nqwqaItU=
+Subject: patch "iio: accel: mma8452: use the correct logic to get mma8452_data" added to char-misc-next
+To:     haibo.chen@nxp.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, martink@posteo.de
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Mar 2022 12:46:38 +0100
-Message-ID: <164760399822299@kroah.com>
+Date:   Fri, 18 Mar 2022 12:46:39 +0100
+Message-ID: <1647603999155183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: aspeed: Add divider flag to fix incorrect voltage reading.
+    iio: accel: mma8452: use the correct logic to get mma8452_data
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,46 +65,56 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 571426631acf46e2999c7ecd1e9d048172969a43 Mon Sep 17 00:00:00 2001
-From: Billy Tsai <billy_tsai@aspeedtech.com>
-Date: Mon, 21 Feb 2022 09:27:05 +0800
-Subject: iio: adc: aspeed: Add divider flag to fix incorrect voltage reading.
+From c87b7b12f48db86ac9909894f4dc0107d7df6375 Mon Sep 17 00:00:00 2001
+From: Haibo Chen <haibo.chen@nxp.com>
+Date: Tue, 22 Feb 2022 10:42:21 +0800
+Subject: iio: accel: mma8452: use the correct logic to get mma8452_data
 
-The formula for the ADC sampling period in ast2400/ast2500 is:
-ADC clock period = PCLK * 2 * (ADC0C[31:17] + 1) * (ADC0C[9:0])
-When ADC0C[9:0] is set to 0 the sampling voltage will be lower than
-expected, because the hardware may not have enough time to
-charge/discharge to a stable voltage. This patch use the flag
-CLK_DIVIDER_ONE_BASED which will use the raw value read from the
-register, with the value of zero considered invalid to conform to the
-corrected formula.
+The original logic to get mma8452_data is wrong, the *dev point to
+the device belong to iio_dev. we can't use this dev to find the
+correct i2c_client. The original logic happen to work because it
+finally use dev->driver_data to get iio_dev. Here use the API
+to_i2c_client() is wrong and make reader confuse. To correct the
+logic, it should be like this
 
-Fixes: 573803234e72 ("iio: Aspeed ADC")
-Reported-by: Konstantin Klubnichkin <kitsok@yandex-team.ru>
-Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20220221012705.22008-1-billy_tsai@aspeedtech.com
+  struct mma8452_data *data = iio_priv(dev_get_drvdata(dev));
+
+But after commit 8b7651f25962 ("iio: iio_device_alloc(): Remove
+unnecessary self drvdata"), the upper logic also can't work.
+When try to show the avialable scale in userspace, will meet kernel
+dump, kernel handle NULL pointer dereference.
+
+So use dev_to_iio_dev() to correct the logic.
+
+Dual fixes tags as the second reflects when the bug was exposed, whilst
+the first reflects when the original bug was introduced.
+
+Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
+Fixes: 8b7651f25962 ("iio: iio_device_alloc(): Remove unnecessary self drvdata")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Reviewed-by: Martin Kepplinger <martink@posteo.de>
 Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1645497741-5402-1-git-send-email-haibo.chen@nxp.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/aspeed_adc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/accel/mma8452.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/aspeed_adc.c b/drivers/iio/adc/aspeed_adc.c
-index e939b84cbb56..0793d2474cdc 100644
---- a/drivers/iio/adc/aspeed_adc.c
-+++ b/drivers/iio/adc/aspeed_adc.c
-@@ -539,7 +539,9 @@ static int aspeed_adc_probe(struct platform_device *pdev)
- 	data->clk_scaler = devm_clk_hw_register_divider(
- 		&pdev->dev, clk_name, clk_parent_name, scaler_flags,
- 		data->base + ASPEED_REG_CLOCK_CONTROL, 0,
--		data->model_data->scaler_bit_width, 0, &data->clk_lock);
-+		data->model_data->scaler_bit_width,
-+		data->model_data->need_prescaler ? CLK_DIVIDER_ONE_BASED : 0,
-+		&data->clk_lock);
- 	if (IS_ERR(data->clk_scaler))
- 		return PTR_ERR(data->clk_scaler);
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index 6ea10700d048..9c02c681c84c 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -381,8 +381,8 @@ static ssize_t mma8452_show_scale_avail(struct device *dev,
+ 					struct device_attribute *attr,
+ 					char *buf)
+ {
+-	struct mma8452_data *data = iio_priv(i2c_get_clientdata(
+-					     to_i2c_client(dev)));
++	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
++	struct mma8452_data *data = iio_priv(indio_dev);
  
+ 	return mma8452_show_int_plus_micros(buf, data->chip_info->mma_scales,
+ 		ARRAY_SIZE(data->chip_info->mma_scales));
 -- 
 2.35.1
 
