@@ -2,76 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3AD4DDF26
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B7D4DDF53
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 17:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235913AbiCRQeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 12:34:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40000 "EHLO
+        id S239365AbiCRQuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 12:50:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238699AbiCRQep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:34:45 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158FB2B44AB;
-        Fri, 18 Mar 2022 09:33:24 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id s11so9845067pfu.13;
-        Fri, 18 Mar 2022 09:33:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=uqrYEAfHuf0wkRq2lUVPpQU7SLLCnbhWn5P1zgSp4Bg=;
-        b=R1/vtPVPNAd4IEpdhz5myyEIm9iMD3+XA9QE7WNd1sBvuqpROiSaqFP1S0oGPWNrzG
-         PGCQrzB/2FPZvGr/1xYz8YX9h2oSuTlNd7Oy+PlWUPvhb3j1TxH1ckeLl406/S+NWmcJ
-         wkQsEgHbk3jHkgZsdsOqccLo8TPqqoFxe6k+4LKC4KGzLBnYJC7i/FoQB96YRjpPiveU
-         mvs2vu77/cWVVGgQCm3sdMt6/9nsmSXvTfha4tz8Vqs/7qJCoNV9w+9BZKFuFDWbf92+
-         sj7+/F5rZerh2nOwLOt8Aoe0ijduzOyGSwVz2Y7hFxcv7A5Yi/b9O4hMhFTVJpYB5SVU
-         kbNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=uqrYEAfHuf0wkRq2lUVPpQU7SLLCnbhWn5P1zgSp4Bg=;
-        b=dAq+5So2xFpSpArUkCAzy5pzocsEGdx64QbL2pMpzdZQSNP+E+2AiqFrT9t/h0K1XW
-         yWS/OQGSbPSVoVq5eOZfNKCVBT2xjyf7X8nwSU+2S2ptkv88Bj0WqsIdlBNu29oJ82Pr
-         CqcBchQek1qJ9LRlzMkcgLjWezEfDig3JY2/DZyytwqUGTvexBSfDvGSSxTUDfOVNPP/
-         Y1d2CEh2rIVElKYAd+Hueh6qKyCOCq4rN2xVRyZ5rrAinXnQjsVrkq/n7+VrUq411tql
-         4ptfKpOR/30yH7Z8zwITECxdMkbmJDcc9lmX+S4Iq6d1dQVjHDI7flEFkZdaJ8spLBEi
-         m+Pw==
-X-Gm-Message-State: AOAM533ROGWZmBob+50l1349beWIQ65B4s2NG8rD9xVlEVfowsn1DRMr
-        IyciLj4E5Kx/NiyH9UPxGUA6R9d1law=
-X-Google-Smtp-Source: ABdhPJw042wC/bNq7K+DZPJf38T7E06+6ptmzNuQb3ez5pbVNg6t3d2Mu4OF9TPdrjwA5alcpT+Jqg==
-X-Received: by 2002:a63:1d6:0:b0:380:a063:660c with SMTP id 205-20020a6301d6000000b00380a063660cmr8538141pgb.149.1647621203368;
-        Fri, 18 Mar 2022 09:33:23 -0700 (PDT)
-Received: from [10.230.3.191] ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id q2-20020a056a00084200b004f761a7287dsm10600535pfk.131.2022.03.18.09.33.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Mar 2022 09:33:22 -0700 (PDT)
-Message-ID: <0721f050-d6db-ce33-3b59-465c75d73a24@gmail.com>
-Date:   Fri, 18 Mar 2022 09:33:21 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.4 18/43] arm64: entry: Add macro for reading symbol
- addresses from the trampoline
-Content-Language: en-US
-To:     James Morse <james.morse@arm.com>,
+        with ESMTP id S239301AbiCRQuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 12:50:12 -0400
+Received: from mail1.bemta31.messagelabs.com (mail1.bemta31.messagelabs.com [67.219.246.113])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDEA62F09FF;
+        Fri, 18 Mar 2022 09:48:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
+        s=Selector; t=1647622129; i=@motorola.com;
+        bh=4tTrL6MoObzkg36pxyIJNl57VWNIKMGSOhfyf5Pe+90=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:
+         Content-Transfer-Encoding;
+        b=knoeRLLqLfIxUJLrusdgHQqTv9tvfsTTnjFwq3zg8NoU0692rxt9KwThX0qJyofzq
+         pR6graiEnGOUmEham3VHXJruvU/v2CGAZEHwoohOvDDcJqj84j2SlR31JTEen8hCSb
+         HqGTUgUXWJyuJRI+Uik54w475Lo46DWXgXW86+G8zv0CifvjLEgJE64SNMRAxvnE/N
+         I2ownRTONTtUIFbFA6SdiV6waPGB2jzqhDbzPF9BnkFsNvrCxx3ppGnVynlMRx3BqX
+         c+Nl2N0vcr5gu2c0CbhXq42z6jcO/7hmCupJK8zw+E5JMCWPGEYsueAL5+WPpGW5kL
+         MBf2Rx+WPPHxQ==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrPIsWRWlGSWpSXmKPExsUyYU+Ds+6H7SZ
+  JBse/ilkca3vCbrF68VUmi+bF69ksOicuYbe4vGsOm8WiZa3MFgs2PmJ0YPeY3TGT1WPTqk42
+  j/1z17B7PP2xl9nj8ya5ANYo1sy8pPyKBNaMBbfWsRd8Eqi4uGATYwPjTb4uRi4OIYEpTBIbl
+  21kg3CWMEl07lvN3sXIycEmoCax4PUqZhBbREBW4vCV38wgRcwCE5gkGjqOMYIkhAWCJJZd3s
+  AGYrMIqEpcf/EMLM4rYCGx6cQaVhBbQkBe4tSyg0wQcUGJkzOfsIDYzEDx5q2zmScwcs9Ckpq
+  FJLWAkWkVo2VSUWZ6RkluYmaOrqGBga6hoYmuqa6FpV5ilW6iXmmxbmpicYmuoV5iebFeanGx
+  XnFlbnJOil5easkmRmBYphSxRu5gnN3zU+8QoyQHk5Ior8hykyQhvqT8lMqMxOKM+KLSnNTiQ
+  4wyHBxKErxiW4BygkWp6akVaZk5wBiBSUtw8CiJ8IaCpHmLCxJzizPTIVKnGHU5nl69spdZiC
+  UvPy9VSpx34VagIgGQoozSPLgRsHi9xCgrJczLyMDAIMRTkFqUm1mCKv+KUZyDUUmYVxtkCk9
+  mXgncpldARzABHdEoYARyREkiQkqqgUmNWefIbWUufSaTlQca9xgfYVSeKCYSo1Gglnz5t4Nk
+  54yNcskCys2igaWruvguBd9aujLJyif6NAv3sX6266KvLuQs9mNc99fMaXXAHUvxGSz+3T0Sp
+  TUbFDpc+M/WXnS5oWgwuyaVx31yjl29r7Oo6LScKe7lTY+6d8j+e1PMqfLbjV1xlqmwtbV5VJ
+  vek6LMeyu1L32/euJEw2HdItaA2EXl3x78XNJcNi/kzi+V7VazNkTvEol0uMOy8FaMy61iafd
+  ckenzpJ//5JcWe3/8mlPgaovnd365qkbpbphqNdPPRk12TbP1mljzRUvmLe6V3id07tEfyT+c
+  fXMEUzdGCf/Myql+P9f9xd4pSizFGYmGWsxFxYkAtr3+/lIDAAA=
+X-Env-Sender: w36195@motorola.com
+X-Msg-Ref: server-31.tower-706.messagelabs.com!1647622128!4665!1
+X-Originating-IP: [144.188.128.67]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.81.10; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 22957 invoked from network); 18 Mar 2022 16:48:48 -0000
+Received: from unknown (HELO ilclpfpp01.lenovo.com) (144.188.128.67)
+  by server-31.tower-706.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 18 Mar 2022 16:48:48 -0000
+Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by ilclpfpp01.lenovo.com (Postfix) with ESMTPS id 4KKqhv6gmRzfBZq;
+        Fri, 18 Mar 2022 16:48:47 +0000 (UTC)
+Received: from p1g3.. (unknown [10.45.4.226])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: w36195)
+        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4KKqhv5b7yzbvDd;
+        Fri, 18 Mar 2022 16:48:47 +0000 (UTC)
+From:   Dan Vacura <w36195@motorola.com>
+To:     linux-usb@vger.kernel.org
+Cc:     stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bhupesh Sharma <bhupesh.sharma@st.com>,
         linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220317124527.672236844@linuxfoundation.org>
- <20220317124528.180267687@linuxfoundation.org>
- <113e7675-4263-2a20-81d0-9634f03511d2@gmail.com>
- <bc35996d-ec18-1923-38f4-81d16ed98b7a@arm.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <bc35996d-ec18-1923-38f4-81d16ed98b7a@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: [PATCH v2] usb: gadget: uvc: Fix crash when encoding data for usb request
+Date:   Fri, 18 Mar 2022 11:47:06 -0500
+Message-Id: <20220318164706.22365-1-w36195@motorola.com>
+X-Mailer: git-send-email 2.32.0
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -79,104 +85,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+During the uvcg_video_pump() process, if an error occurs and
+uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
+the current marker (queue->buf_used) of the active buffer (no longer
+active) is not reset. On the next iteration of uvcg_video_pump() the
+stale buf_used count will be used and the logic of min((unsigned
+int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
+nbytes size, causing an invalid memory access.
 
+[80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+[80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+...
+uvcg_queue_cancel() is called and the queue is cleared out, but the
+marker queue->buf_used is not reset.
+...
+[80802.262328][ T8682] Unable to handle kernel paging request at virtual
+address ffffffc03af9f000
+...
+...
+[80802.263138][ T8682] Call trace:
+[80802.263146][ T8682]  __memcpy+0x12c/0x180
+[80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
+[80802.263165][ T8682]  process_one_work+0x2cc/0x568
+[80802.263173][ T8682]  worker_thread+0x28c/0x518
+[80802.263181][ T8682]  kthread+0x160/0x170
+[80802.263188][ T8682]  ret_from_fork+0x10/0x18
+[80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
 
-On 3/18/2022 5:11 AM, James Morse wrote:
-> Hi Florian,
-> 
-> On 3/17/22 8:48 PM, Florian Fainelli wrote:
->> On 3/17/22 5:45 AM, Greg Kroah-Hartman wrote:
->>> From: James Morse <james.morse@arm.com>
->>>
->>> commit b28a8eebe81c186fdb1a0078263b30576c8e1f42 upstream.
->>>
->>> The trampoline code needs to use the address of symbols in the wider
->>> kernel, e.g. vectors. PC-relative addressing wouldn't work as the
->>> trampoline code doesn't run at the address the linker expected.
->>>
->>> tramp_ventry uses a literal pool, unless CONFIG_RANDOMIZE_BASE is
->>> set, in which case it uses the data page as a literal pool because
->>> the data page can be unmapped when running in user-space, which is
->>> required for CPUs vulnerable to meltdown.
->>>
->>> Pull this logic out as a macro, instead of adding a third copy
->>> of it.
->>>
->>> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
->>> Signed-off-by: James Morse <james.morse@arm.com>
->>> Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->> This commit causes a linking failure with CONFIG_ARM_SDE_INTERFACE=y
->> enabled in the kernel:
->>
->>    LD      .tmp_vmlinux.kallsyms1
->> /local/users/fainelli/buildroot/output/arm64/host/bin/aarch64-linux-ld:
->> arch/arm64/kernel/entry.o: in function `__sdei_asm_exit_trampoline':
->> /local/users/fainelli/buildroot/output/arm64/build/linux-custom/arch/arm64/kernel/entry.S:1352: 
->>
->> undefined reference to `__sdei_asm_trampoline_next_handler'
->> make[2]: *** [Makefile:1100: vmlinux] Error 1
->> make[1]: *** [package/pkg-generic.mk:295:
->> /local/users/fainelli/buildroot/output/arm64/build/linux-custom/.stamp_built] 
->>
->> Error 2
->> make: *** [Makefile:27: _all] Error 2
-> 
-> ... and with CONFIG_RANDOMIZE_BASE turned off, which is why allyesconfig 
-> didn't catch it.
+Fixes: d692522577c0 ("usb: gadget/uvc: Port UVC webcam gadget to use videobuf2 framework")
+Signed-off-by: Dan Vacura <w36195@motorola.com>
 
-Yes that is correct CONFIG_RANDOMIZE_BASE is turned off in the 
-configuration file I used.
+---
+Changes in v2:
+- Add Fixes tag
 
-> This is because I kept the next_handler bit of the label when it 
-> conflicted, which isn't needed
-> because the __entry_tramp bit added by the macro serves the same purpose.
-> 
-> The below diff fixes it:
-> ----------%<----------
-> diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-> index e4b5a15c2e2e..cfc0bb6c49f7 100644
-> --- a/arch/arm64/kernel/entry.S
-> +++ b/arch/arm64/kernel/entry.S
-> @@ -1190,7 +1190,7 @@ __entry_tramp_data_start:
->   __entry_tramp_data_vectors:
->          .quad   vectors
->   #ifdef CONFIG_ARM_SDE_INTERFACE
-> -__entry_tramp_data___sdei_asm_trampoline_next_handler:
-> +__entry_tramp_data___sdei_asm_handler:
->          .quad   __sdei_asm_handler
->   #endif /* CONFIG_ARM_SDE_INTERFACE */
->          .popsection                             // .rodata
-> @@ -1319,7 +1319,7 @@ ENTRY(__sdei_asm_entry_trampoline)
->           */
->   1:     str     x4, [x1, #(SDEI_EVENT_INTREGS + S_ORIG_ADDR_LIMIT)]
-> 
-> -       tramp_data_read_var     x4, __sdei_asm_trampoline_next_handler
-> +       tramp_data_read_var     x4, __sdei_asm_handler
->          br      x4
->   ENDPROC(__sdei_asm_entry_trampoline)
->   NOKPROBE(__sdei_asm_entry_trampoline)
-> ----------%<----------
-> 
-> Good news - this didn't happen with v5.10.
-> 
-> I don't see this in v5.4.185 yet.
-> 
-> Greg/Sasha, what is least work for you?:
-> A new version of this patch,
-> A fixup on top of the series,
-> Reposting the series with this fixed.
+ drivers/usb/gadget/function/uvc_queue.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-FWIW, applying your patch on top of the entire 5.4.186-rc1 series will 
-fail with some rejects so that would require you to fixup the patch 
-instead, and then I suppose the whole -rc1 now becomes an -rc2?
-
-> 
-> 
-> Thanks for catching this!
-
-Thanks for the quick turnaround:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
+index d852ac9e47e7..2cda982f3765 100644
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -264,6 +264,8 @@ void uvcg_queue_cancel(struct uvc_video_queue *queue, int disconnect)
+ 		buf->state = UVC_BUF_STATE_ERROR;
+ 		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
+ 	}
++	queue->buf_used = 0;
++
+ 	/* This must be protected by the irqlock spinlock to avoid race
+ 	 * conditions between uvc_queue_buffer and the disconnection event that
+ 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
 -- 
-Florian
+2.32.0
+
