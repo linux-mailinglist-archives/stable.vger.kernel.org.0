@@ -2,81 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4754C4DE005
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C71544DE012
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238908AbiCRRff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 13:35:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37718 "EHLO
+        id S239699AbiCRRio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 13:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236101AbiCRRfe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 13:35:34 -0400
-Received: from smtp.smtpout.orange.fr (smtp05.smtpout.orange.fr [80.12.242.127])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D430187B9F
-        for <stable@vger.kernel.org>; Fri, 18 Mar 2022 10:34:14 -0700 (PDT)
-Received: from [192.168.1.18] ([90.126.236.122])
-        by smtp.orange.fr with ESMTPA
-        id VGUFnWu9IvjW4VGUFnSqLL; Fri, 18 Mar 2022 18:34:13 +0100
-X-ME-Helo: [192.168.1.18]
-X-ME-Auth: YWZlNiIxYWMyZDliZWIzOTcwYTEyYzlhMmU3ZiQ1M2U2MzfzZDfyZTMxZTBkMTYyNDBjNDJlZmQ3ZQ==
-X-ME-Date: Fri, 18 Mar 2022 18:34:13 +0100
-X-ME-IP: 90.126.236.122
-Message-ID: <3494995c-b173-cc99-ef9d-f5dafb543353@wanadoo.fr>
-Date:   Fri, 18 Mar 2022 18:34:03 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.10 20/23] bnx2: Fix an error message
-Content-Language: fr
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        with ESMTP id S239693AbiCRRii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 13:38:38 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 756903076F8;
+        Fri, 18 Mar 2022 10:37:19 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1CE191515;
+        Fri, 18 Mar 2022 10:37:19 -0700 (PDT)
+Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 203123F7B4;
+        Fri, 18 Mar 2022 10:37:18 -0700 (PDT)
+From:   James Morse <james.morse@arm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     James Morse <james.morse@arm.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-References: <20220317124525.955110315@linuxfoundation.org>
- <20220317124526.543596817@linuxfoundation.org>
-From:   Marion & Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-In-Reply-To: <20220317124526.543596817@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: fixup for [PATCH 5.4 18/43] arm64 entry: Add macro for reading symbol address from the trampoline
+Date:   Fri, 18 Mar 2022 17:37:13 +0000
+Message-Id: <20220318173713.2320567-1-james.morse@arm.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <YjSxfK6bmH4P9IQl@kroah.com>
+References: <YjSxfK6bmH4P9IQl@kroah.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+__sdei_asm_trampoline_next_handler shouldn't have its own name as the
+tramp_data_read_var takes the symbol name, and generates the name for
+the value in the data page if CONFIG_RANDOMIZE_BASE is clear.
 
-This one should be removed, the message is correct in 5.10.
+This means when CONFIG_RANDOMIZE_BASE is clear, this code won't compile
+as __sdei_asm_trampoline_next_handler doesn't exist.
 
-CJ
+Use the proper name, and let the macro do its thing.
 
-Le 17/03/2022 à 13:46, Greg Kroah-Hartman a écrit :
-> From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
->
-> [ Upstream commit 8ccffe9ac3239e549beaa0a9d5e1a1eac94e866c ]
->
-> Fix an error message and report the correct failing function.
->
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   drivers/net/ethernet/broadcom/bnx2.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
-> index 633b10389653..93129d9a87f4 100644
-> --- a/drivers/net/ethernet/broadcom/bnx2.c
-> +++ b/drivers/net/ethernet/broadcom/bnx2.c
-> @@ -8229,7 +8229,7 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
->   		rc = pci_set_consistent_dma_mask(pdev, persist_dma_mask);
->   		if (rc) {
->   			dev_err(&pdev->dev,
-> -				"pci_set_consistent_dma_mask failed, aborting\n");
-> +				"dma_set_coherent_mask failed, aborting\n");
->   			goto err_out_unmap;
->   		}
->   	} else if ((rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) != 0) {
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+---
+ arch/arm64/kernel/entry.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index e4b5a15c2e2e..cfc0bb6c49f7 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -1190,7 +1190,7 @@ __entry_tramp_data_start:
+ __entry_tramp_data_vectors:
+ 	.quad	vectors
+ #ifdef CONFIG_ARM_SDE_INTERFACE
+-__entry_tramp_data___sdei_asm_trampoline_next_handler:
++__entry_tramp_data___sdei_asm_handler:
+ 	.quad	__sdei_asm_handler
+ #endif /* CONFIG_ARM_SDE_INTERFACE */
+ 	.popsection				// .rodata
+@@ -1319,7 +1319,7 @@ ENTRY(__sdei_asm_entry_trampoline)
+ 	 */
+ 1:	str	x4, [x1, #(SDEI_EVENT_INTREGS + S_ORIG_ADDR_LIMIT)]
+ 
+-	tramp_data_read_var     x4, __sdei_asm_trampoline_next_handler
++	tramp_data_read_var     x4, __sdei_asm_handler
+ 	br	x4
+ ENDPROC(__sdei_asm_entry_trampoline)
+ NOKPROBE(__sdei_asm_entry_trampoline)
+-- 
+2.30.2
+
