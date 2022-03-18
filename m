@@ -2,173 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B3D4DDA1F
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 14:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABDCE4DDA24
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 14:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236494AbiCRNHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 09:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37766 "EHLO
+        id S236491AbiCRNJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 09:09:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236048AbiCRNHi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 09:07:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A6C02241CE;
-        Fri, 18 Mar 2022 06:06:19 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E81FC6195F;
-        Fri, 18 Mar 2022 13:06:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07992C340E8;
-        Fri, 18 Mar 2022 13:06:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647608778;
-        bh=M9ITTZm/eOgP+09UyLrk/yabCIkGSszZ5U1+MT684bo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t/na1wi7PgW+CvqPglEwByXWrLtwko01+8u4TB4FmOzOVGEp0qqO8AbqUMFgysuUL
-         riSpm4OR+I70iySgeIajfadrKUgQy4FGLGTryH3Y3dqfStVftWpyf2u+Gdzl3mAcZc
-         C0ajj3iJBfVot3DeoK5werdIMTWyQzgjt9VMUyj2ce5H/GFnaNscCiXDszyVo4aHAA
-         oW881fEiYoCldgstuS/gTn+z3VkqVO5KgKPxpYBgRDjY6gpeERtgcU9tFSKlyK2vdL
-         aElz3gCTZt+1sQbSeWWXV+tJQGCKYjv9DWGNsmzCbOKYrC7OwjLoOUuh56YuhvLb9U
-         0CTYZCWu8nHEQ==
-Received: by pali.im (Postfix)
-        id 376869CF; Fri, 18 Mar 2022 14:06:15 +0100 (CET)
-Date:   Fri, 18 Mar 2022 14:06:15 +0100
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To:     Marcin Wojtas <mw@semihalf.com>
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        Ziji Hu <huziji@marvell.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Grzegorz Jaszczyk <jaz@semihalf.com>,
-        Tomasz Nowicki <tn@semihalf.com>,
-        Kostya Porotchkin <kostap@marvell.com>,
-        Alex Leibovich <alexl@marvell.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
-Message-ID: <20220318130615.hwa5fhzf2cyquwzr@pali>
-References: <20201211141656.24915-1-mw@semihalf.com>
- <CAPDyKFqsSO+f9iG8vccwXZXDDNHgLEg7bfUe-KfHn2C-ZnOU4A@mail.gmail.com>
- <20220314154033.4x74zscayee32rrj@pali>
- <CAPv3WKc4MFeLgnJMWx=YNT5Ta5yi6fVhb4f-Rf211FTEmkvyog@mail.gmail.com>
- <20220315230333.eyznbu5tuxneizbs@pali>
- <CAPv3WKc96vDsW_duXYMYbr3X05=-p28N5_cf2PHo-tiwDLjaWg@mail.gmail.com>
- <20220318130100.zkdaoviwzwhnixuh@pali>
+        with ESMTP id S232685AbiCRNJE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 09:09:04 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92B42986D2;
+        Fri, 18 Mar 2022 06:07:45 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id m30so1843350wrb.1;
+        Fri, 18 Mar 2022 06:07:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=lHJUxhr0q/fLLgAgJ1hsxiSujF7pe5kTN3TD9F1pmy0=;
+        b=eVU8yYe+T+Yz5OFxsyacazuGOIeIzeIAWBxW+yz4AixAnUQl4NG8dtbNDDUoQcuW5A
+         mArinQxBe505cQ1LSfe3u7HzhddDxGdis20BSGKJIPCTWJSLS1+uG9zI1Ut8w7NF3fSO
+         piOJ5adSJ4D4oMuHbBYSBOa0zwvhC+pSct8SUOCDLynLEXB4nNZwyWGrNGubG7NAPFTx
+         avvzgcn2Qzkq6MWonzFHp3QoCvzWkuxbGIh1VH5uF9jb5mwqBkf7sCD2vsA/SO2jGMvO
+         kd2Ld2EkMx9doZKKhItEyB0bBA2CP5I9fFubIZ6+Sw9tulMP89vvqoBxlAQYzl81dvPE
+         eGKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=lHJUxhr0q/fLLgAgJ1hsxiSujF7pe5kTN3TD9F1pmy0=;
+        b=jIk9NGkrGN/AVmrgt15PTLq8eCe5NhAaoMl0X8PUES0e4skfu4rJxFCC9fIRL9MXUo
+         UES8pwsWNmKUfkIlKQo3o+QXlCj8w/wV9fsb4BtI0/PiZOM0cI3bcLpoNjD7P9isZlRf
+         L2vgmBq7cxbCq2Y8NaG+QDOKjoSED3m8dQNAig4ANGEaG4k56gOOWaSribc6oi1IGl6u
+         xE22ISfipfh775h8oZpKZHW+cUeLDrmAz91XbaIPvnNxeLJPD7b+XEnET5LBE/vw5F3p
+         JFchEoOPbbSc2uiy2mo4Osz6fRvQ6gALalorNlpOg7vcZw01NwpoQ4ZSFLpl1+ylZ/1H
+         18tQ==
+X-Gm-Message-State: AOAM530sREK30JE8bC66NS6GQsq58BmSPp7nzrmeBwbCMpsg/5EEEMbi
+        Eyt2ay6dcfzAg0QXtpiFn7k=
+X-Google-Smtp-Source: ABdhPJzWrx+EvHGimSG8O/nEhVa0gGiVeJppmvHNj2YmE8uqF1T4tMrmEhErVyph5Md8Np0fx3vWXQ==
+X-Received: by 2002:a5d:47a3:0:b0:203:8cc3:3647 with SMTP id 3-20020a5d47a3000000b002038cc33647mr8161918wrb.321.1647608864120;
+        Fri, 18 Mar 2022 06:07:44 -0700 (PDT)
+Received: from elementary ([94.73.33.246])
+        by smtp.gmail.com with ESMTPSA id m3-20020a5d64a3000000b00203ed35b0aesm5927702wrp.108.2022.03.18.06.07.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Mar 2022 06:07:43 -0700 (PDT)
+Date:   Fri, 18 Mar 2022 14:07:40 +0100
+From:   =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     linux-input@vger.kernel.org,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, stable@vger.kernel.org,
+        regressions@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [REGRESSION] Right touchpad button disabled on Dell 7750
+Message-ID: <20220318130740.GA33535@elementary>
+References: <s5htubv32s8.wl-tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220318130100.zkdaoviwzwhnixuh@pali>
-User-Agent: NeoMutt/20180716
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <s5htubv32s8.wl-tiwai@suse.de>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Friday 18 March 2022 14:01:00 Pali Rohár wrote:
-> On Wednesday 16 March 2022 02:03:35 Marcin Wojtas wrote:
-> > Hi Pali,
-> > 
-> > śr., 16 mar 2022 o 00:03 Pali Rohár <pali@kernel.org> napisał(a):
-> > >
-> > > Hello!
-> > >
-> > > On Monday 14 March 2022 16:51:25 Marcin Wojtas wrote:
-> > > > Hi Pali,
-> > > >
-> > > >
-> > > > pon., 14 mar 2022 o 16:40 Pali Rohár <pali@kernel.org> napisał(a):
-> > > > >
-> > > > > On Monday 11 January 2021 19:06:24 Ulf Hansson wrote:
-> > > > > > On Fri, 11 Dec 2020 at 15:17, Marcin Wojtas <mw@semihalf.com> wrote:
-> > > > > > >
-> > > > > > > From: Alex Leibovich <alexl@marvell.com>
-> > > > > > >
-> > > > > > > Automatic Clock Gating is a feature used for the power
-> > > > > > > consumption optimisation. It turned out that
-> > > > > > > during early init phase it may prevent the stable voltage
-> > > > > > > switch to 1.8V - due to that on some platfroms an endless
-> > > > > > > printout in dmesg can be observed:
-> > > > > > > "mmc1: 1.8V regulator output did not became stable"
-> > > > > > > Fix the problem by disabling the ACG at very beginning
-> > > > > > > of the sdhci_init and let that be enabled later.
-> > > > > > >
-> > > > > > > Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC core functionality")
-> > > > > > > Signed-off-by: Alex Leibovich <alexl@marvell.com>
-> > > > > > > Signed-off-by: Marcin Wojtas <mw@semihalf.com>
-> > > > > > > Cc: stable@vger.kernel.org
-> > > > > >
-> > > > > > Applied for fixes (by fixing the typos), thanks!
-> > > > >
-> > > > > Hello!
-> > > > >
-> > > > > Is not this patch address same issue which was fixed by patch which was
-> > > > > merged earlier?
-> > > > >
-> > > > > bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying 1.8V regulator warning")
-> > > > > https://lore.kernel.org/linux-mmc/CAPDyKFqAsvgAjfL-c9ukFNWeGJmufQosR2Eg9SKjXMVpNitdkA@mail.gmail.com/
-> > > > >
-> > > >
-> > > > This indeed look similar. This fix was originally developed for CN913x
-> > > > platform without the mentioned patch (I'm wondering if it would also
-> > > > suffice to fix A3k board's problem). Anyway, I don't think we have an
-> > > > issue here, as everything seems to work fine on top of mainline Linux
-> > > > with both changes.
-> > >
-> > > Yea, there should be no issue. Just question is if we need _both_ fixes.
-> > >
-> > > I could probably try to revert bb32e1987bc5 and check what happens on
-> > > A3k board.
-> > >
-> > 
-> > Yes, that would be interesting. Please let me know whenever you find
-> > time to check.
-> 
-> Hello! Now I tested kernel with reverted commit bb32e1987bc5 ("mmc:
-> sdhci-xenon: fix annoying 1.8V regulator warning") and issue is still
-> fixed. I reverted also bb32e1987bc5 ("mmc: sdhci-xenon: fix annoying
-> 1.8V regulator warning") commit and then issue appeared again.
+Hi Takashi,
 
-I mean that I reverted also 1a3ed0dc3594 ("mmc: sdhci-xenon: fix 1.8v
-regulator stabilization") commit and then issue appeared again.
+Thanks for reporting the regression here.
 
-> So any of this commit is fixing that issue on Armada 3720.
+On Fri, Mar 18, 2022 at 12:42:31PM +0100, Takashi Iwai wrote:
+> Hi,
 > 
-> Should we revert one of them?
+> we received a bug report about the regression of the touchpad on Dell
+> 7750 laptop, the right touchpad button is disabled on recent kernels:
+>   https://bugzilla.suse.com/show_bug.cgi?id=1197243
 > 
-> > Best regards,
-> > Marcin
-> > 
-> > > > > >
-> > > > > >
-> > > > > > > ---
-> > > > > > >  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
-> > > > > > >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > > > > > >
-> > > > > > > diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
-> > > > > > > index c67611fdaa8a..4b05f6fdefb4 100644
-> > > > > > > --- a/drivers/mmc/host/sdhci-xenon.c
-> > > > > > > +++ b/drivers/mmc/host/sdhci-xenon.c
-> > > > > > > @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sdhci_host *host,
-> > > > > > >         /* Disable tuning request and auto-retuning again */
-> > > > > > >         xenon_retune_setup(host);
-> > > > > > >
-> > > > > > > -       xenon_set_acg(host, true);
-> > > > > > > +       /*
-> > > > > > > +        * The ACG should be turned off at the early init time, in order
-> > > > > > > +        * to solve a possile issues with the 1.8V regulator stabilization.
-> > > > > > > +        * The feature is enabled in later stage.
-> > > > > > > +        */
-> > > > > > > +       xenon_set_acg(host, false);
-> > > > > > >
-> > > > > > >         xenon_set_sdclk_off_idle(host, sdhc_id, false);
-> > > > > > >
-> > > > > > > --
-> > > > > > > 2.29.0
-> > > > > > >
+> Note that it's a physical button, not a virtual clickpad button.
+> 
+> The regression seems introduced by the upstream commit
+> 37ef4c19b4c659926ce65a7ac709ceaefb211c40 ("Input: clear
+> BTN_RIGHT/MIDDLE on buttonpads") that was backported to stable 5.16.x
+> kernel.
+> 
+> The device is managed by hid-multitouch driver, and the further
+> investigation revealed that it's rather an incorrectly recognized
+> buttonpad property; namely, ID_DG_BUTTONTYPE reports it being 0 =
+> clickable touchpad although it's not.  I built a test kernel to ignore
+> this check and it was confirmed to make the right button working again
+> by the reporter.
+> 
+> Is this check really correct in general?  Or do we need some
+> device-specific quirk?
+
+A couple of days ago another user with the same laptop (Dell Precision
+7550 or 7750) emailed me to report the issue and I sent him a patch for
+testing.
+
+I he confirms that the patch works, I'll send it to the mailing list.
+
+I believe that your analysis of the regression is correct and I think
+that we'd need to add a quirk for the device.
+
+In case you want to have a look to the patch, I added it to this
+libinput [1] report.
+
+Thanks,
+Jose
+
+[1] https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/726#note_1303623
