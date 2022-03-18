@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D81F64DD980
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:16:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B72434DD983
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 13:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236107AbiCRMRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 08:17:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54668 "EHLO
+        id S235868AbiCRMSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 08:18:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236131AbiCRMRy (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:17:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3042F2103
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:16:35 -0700 (PDT)
+        with ESMTP id S236100AbiCRMSC (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 18 Mar 2022 08:18:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA45F2103
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 05:16:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5043361807
-        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4048BC340E8;
-        Fri, 18 Mar 2022 12:16:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABD73B82169
+        for <Stable@vger.kernel.org>; Fri, 18 Mar 2022 12:16:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF203C340E8;
+        Fri, 18 Mar 2022 12:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647605794;
-        bh=BrVqYtO4whfjpzAbV1u170bw91NTJPdnPJ9V8iggfEY=;
+        s=korg; t=1647605801;
+        bh=hTBm458bXgyKBZoo25Esqb0DT5SsS40H56zE7yIy9vc=;
         h=Subject:To:From:Date:From;
-        b=xd33pWKFMrIJKU+P39DfqCveDa/b0qaSDzn57Sr2nBqBwhlNMPNT6dHjkhTXWtlsD
-         JyRl8JEfL6jWEsAsSPxRjs3MIWdup7VrFVYnYjMiODb8IOSR0lQMfXCagYhVqcduMX
-         NtK0V9c2KnoDDoUR0hMMKIESUNWLHta+nqwqaItU=
-Subject: patch "iio: accel: mma8452: use the correct logic to get mma8452_data" added to char-misc-next
-To:     haibo.chen@nxp.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, martink@posteo.de
+        b=ImroKM2PLwL8++NG6fD36MGv5Jrqk/wIkc8jt6/MKf/LzsdFC8Ixsbgu2DuliSxyu
+         y7BRQgSWyKP78zd+rjZCuFNEJUPNTrb5M59+/6OkZqNr0qZel/H2kj/xZsJzbUimC8
+         vjnDDmzI+ZYAVoR1W8T3mmIyPuQcGWUSxBMmwZ/U=
+Subject: patch "iio: adc: xilinx-ams: Fixed wrong sequencer register settings" added to char-misc-next
+To:     robert.hancock@calian.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, m.tretter@pengutronix.de,
+        michal.simek@xilinx.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Mar 2022 12:46:39 +0100
-Message-ID: <1647603999155183@kroah.com>
+Date:   Fri, 18 Mar 2022 12:46:40 +0100
+Message-ID: <1647604000239124@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +51,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: accel: mma8452: use the correct logic to get mma8452_data
+    iio: adc: xilinx-ams: Fixed wrong sequencer register settings
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,56 +66,40 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From c87b7b12f48db86ac9909894f4dc0107d7df6375 Mon Sep 17 00:00:00 2001
-From: Haibo Chen <haibo.chen@nxp.com>
-Date: Tue, 22 Feb 2022 10:42:21 +0800
-Subject: iio: accel: mma8452: use the correct logic to get mma8452_data
+From d5d786fb531697be74c567b3844c6897ddf1ffdd Mon Sep 17 00:00:00 2001
+From: Robert Hancock <robert.hancock@calian.com>
+Date: Thu, 27 Jan 2022 11:34:49 -0600
+Subject: iio: adc: xilinx-ams: Fixed wrong sequencer register settings
 
-The original logic to get mma8452_data is wrong, the *dev point to
-the device belong to iio_dev. we can't use this dev to find the
-correct i2c_client. The original logic happen to work because it
-finally use dev->driver_data to get iio_dev. Here use the API
-to_i2c_client() is wrong and make reader confuse. To correct the
-logic, it should be like this
+Register settings used for the sequencer configuration register
+were incorrect, causing some inputs to not be read properly.
 
-  struct mma8452_data *data = iio_priv(dev_get_drvdata(dev));
-
-But after commit 8b7651f25962 ("iio: iio_device_alloc(): Remove
-unnecessary self drvdata"), the upper logic also can't work.
-When try to show the avialable scale in userspace, will meet kernel
-dump, kernel handle NULL pointer dereference.
-
-So use dev_to_iio_dev() to correct the logic.
-
-Dual fixes tags as the second reflects when the bug was exposed, whilst
-the first reflects when the original bug was introduced.
-
-Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
-Fixes: 8b7651f25962 ("iio: iio_device_alloc(): Remove unnecessary self drvdata")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Reviewed-by: Martin Kepplinger <martink@posteo.de>
+Fixes: d5c70627a794 ("iio: adc: Add Xilinx AMS driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Reviewed-by: Michael Tretter <m.tretter@pengutronix.de>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/20220127173450.3684318-4-robert.hancock@calian.com
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1645497741-5402-1-git-send-email-haibo.chen@nxp.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/accel/mma8452.c | 4 ++--
+ drivers/iio/adc/xilinx-ams.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
-index 6ea10700d048..9c02c681c84c 100644
---- a/drivers/iio/accel/mma8452.c
-+++ b/drivers/iio/accel/mma8452.c
-@@ -381,8 +381,8 @@ static ssize_t mma8452_show_scale_avail(struct device *dev,
- 					struct device_attribute *attr,
- 					char *buf)
- {
--	struct mma8452_data *data = iio_priv(i2c_get_clientdata(
--					     to_i2c_client(dev)));
-+	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
-+	struct mma8452_data *data = iio_priv(indio_dev);
+diff --git a/drivers/iio/adc/xilinx-ams.c b/drivers/iio/adc/xilinx-ams.c
+index 6746bc966bfd..0c491667c464 100644
+--- a/drivers/iio/adc/xilinx-ams.c
++++ b/drivers/iio/adc/xilinx-ams.c
+@@ -92,8 +92,8 @@
  
- 	return mma8452_show_int_plus_micros(buf, data->chip_info->mma_scales,
- 		ARRAY_SIZE(data->chip_info->mma_scales));
+ #define AMS_CONF1_SEQ_MASK		GENMASK(15, 12)
+ #define AMS_CONF1_SEQ_DEFAULT		FIELD_PREP(AMS_CONF1_SEQ_MASK, 0)
+-#define AMS_CONF1_SEQ_CONTINUOUS	FIELD_PREP(AMS_CONF1_SEQ_MASK, 1)
+-#define AMS_CONF1_SEQ_SINGLE_CHANNEL	FIELD_PREP(AMS_CONF1_SEQ_MASK, 2)
++#define AMS_CONF1_SEQ_CONTINUOUS	FIELD_PREP(AMS_CONF1_SEQ_MASK, 2)
++#define AMS_CONF1_SEQ_SINGLE_CHANNEL	FIELD_PREP(AMS_CONF1_SEQ_MASK, 3)
+ 
+ #define AMS_REG_SEQ0_MASK		GENMASK(15, 0)
+ #define AMS_REG_SEQ2_MASK		GENMASK(21, 16)
 -- 
 2.35.1
 
