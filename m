@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C53CE4DE06E
-	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:52:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E9C04DE06A
+	for <lists+stable@lfdr.de>; Fri, 18 Mar 2022 18:52:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239884AbiCRRvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Mar 2022 13:51:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37398 "EHLO
+        id S239847AbiCRRvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Mar 2022 13:51:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239838AbiCRRvH (ORCPT
+        with ESMTP id S239803AbiCRRvH (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 18 Mar 2022 13:51:07 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BA96317DC85;
-        Fri, 18 Mar 2022 10:49:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9CD81180231;
+        Fri, 18 Mar 2022 10:49:41 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 875D91515;
-        Fri, 18 Mar 2022 10:49:40 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 68FFB1570;
+        Fri, 18 Mar 2022 10:49:41 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DBC163F7B4;
-        Fri, 18 Mar 2022 10:49:39 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BD6F03F7B4;
+        Fri, 18 Mar 2022 10:49:40 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, james.morse@arm.com,
         catalin.marinas@arm.com
-Subject: [stable:PATCH v4.19.235 08/22] arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
-Date:   Fri, 18 Mar 2022 17:48:28 +0000
-Message-Id: <20220318174842.2321061-9-james.morse@arm.com>
+Subject: [stable:PATCH v4.19.235 09/22] arm64: entry: Don't assume tramp_vectors is the start of the vectors
+Date:   Fri, 18 Mar 2022 17:48:29 +0000
+Message-Id: <20220318174842.2321061-10-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220318174842.2321061-1-james.morse@arm.com>
 References: <20220318174842.2321061-1-james.morse@arm.com>
@@ -41,68 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6c5bf79b69f911560fbf82214c0971af6e58e682 upstream.
+commit ed50da7764535f1e24432ded289974f2bf2b0c5a upstream.
 
-Systems using kpti enter and exit the kernel through a trampoline mapping
-that is always mapped, even when the kernel is not. tramp_valias is a macro
-to find the address of a symbol in the trampoline mapping.
+The tramp_ventry macro uses tramp_vectors as the address of the vectors
+when calculating which ventry in the 'full fat' vectors to branch to.
 
-Adding extra sets of vectors will expand the size of the entry.tramp.text
-section to beyond 4K. tramp_valias will be unable to generate addresses
-for symbols beyond 4K as it uses the 12 bit immediate of the add
-instruction.
+While there is one set of tramp_vectors, this will be true.
+Adding multiple sets of vectors will break this assumption.
 
-As there are now two registers available when tramp_alias is called,
-use the extra register to avoid the 4K limit of the 12 bit immediate.
+Move the generation of the vectors to a macro, and pass the start
+of the vectors as an argument to tramp_ventry.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- arch/arm64/kernel/entry.S | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/entry.S | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
 diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 1df718f53a1f..5d174c119563 100644
+index 5d174c119563..a13f7d30b7fa 100644
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -135,9 +135,12 @@
- .org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
+@@ -975,7 +975,7 @@ alternative_else_nop_endif
+ 	sub	\dst, \dst, PAGE_SIZE
  	.endm
  
--	.macro tramp_alias, dst, sym
-+	.macro tramp_alias, dst, sym, tmp
- 	mov_q	\dst, TRAMP_VALIAS
--	add	\dst, \dst, #(\sym - .entry.tramp.text)
-+	adr_l	\tmp, \sym
-+	add	\dst, \dst, \tmp
-+	adr_l	\tmp, .entry.tramp.text
-+	sub	\dst, \dst, \tmp
+-	.macro tramp_ventry, regsize = 64
++	.macro tramp_ventry, vector_start, regsize
+ 	.align	7
+ 1:
+ 	.if	\regsize == 64
+@@ -997,9 +997,9 @@ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
+ #else
+ 	ldr	x30, =vectors
+ #endif
+-	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
++	prfm	plil1strm, [x30, #(1b - \vector_start)]
+ 	msr	vbar_el1, x30
+-	add	x30, x30, #(1b - tramp_vectors + 4)
++	add	x30, x30, #(1b - \vector_start + 4)
+ 	isb
+ 	ret
+ .org 1b + 128	// Did we overflow the ventry slot?
+@@ -1017,19 +1017,21 @@ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
+ 	eret
  	.endm
  
- 	// This macro corrupts x0-x3. It is the caller's duty
-@@ -362,10 +365,10 @@ alternative_else_nop_endif
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	bne	4f
- 	msr	far_el1, x29
--	tramp_alias	x30, tramp_exit_native
-+	tramp_alias	x30, tramp_exit_native, x29
- 	br	x30
- 4:
--	tramp_alias	x30, tramp_exit_compat
-+	tramp_alias	x30, tramp_exit_compat, x29
- 	br	x30
- #endif
- 	.else
-@@ -1265,7 +1268,7 @@ alternative_if_not ARM64_UNMAP_KERNEL_AT_EL0
- alternative_else_nop_endif
+-	.align	11
+-ENTRY(tramp_vectors)
++	.macro	generate_tramp_vector
++.Lvector_start\@:
+ 	.space	0x400
  
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline
-+	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline, tmp=x3
- 	br	x5
- #endif
- ENDPROC(__sdei_asm_handler)
+-	tramp_ventry
+-	tramp_ventry
+-	tramp_ventry
+-	tramp_ventry
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 64
++	.endr
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 32
++	.endr
++	.endm
+ 
+-	tramp_ventry	32
+-	tramp_ventry	32
+-	tramp_ventry	32
+-	tramp_ventry	32
++	.align	11
++ENTRY(tramp_vectors)
++	generate_tramp_vector
+ END(tramp_vectors)
+ 
+ ENTRY(tramp_exit_native)
 -- 
 2.30.2
 
