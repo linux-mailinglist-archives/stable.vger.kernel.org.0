@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F514DE6A5
-	for <lists+stable@lfdr.de>; Sat, 19 Mar 2022 08:16:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C936D4DE6A6
+	for <lists+stable@lfdr.de>; Sat, 19 Mar 2022 08:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238666AbiCSHRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Mar 2022 03:17:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60404 "EHLO
+        id S242378AbiCSHRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Mar 2022 03:17:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231423AbiCSHRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Mar 2022 03:17:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7BB6282B34
-        for <stable@vger.kernel.org>; Sat, 19 Mar 2022 00:16:21 -0700 (PDT)
+        with ESMTP id S231423AbiCSHRp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Mar 2022 03:17:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D216283EC8
+        for <stable@vger.kernel.org>; Sat, 19 Mar 2022 00:16:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74918B8013C
-        for <stable@vger.kernel.org>; Sat, 19 Mar 2022 07:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A09BBC340EC;
-        Sat, 19 Mar 2022 07:16:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1EC960F45
+        for <stable@vger.kernel.org>; Sat, 19 Mar 2022 07:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94852C340F0;
+        Sat, 19 Mar 2022 07:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647674178;
-        bh=vYetahtb+3wjX14tTLuQPiA9h88wXQUjYxB1MU9gBnM=;
+        s=korg; t=1647674182;
+        bh=FZ8wIWnX044UtcP7/bwCCMzzEVnLroWplDLCoJvAu8Q=;
         h=Subject:To:From:Date:From;
-        b=m6BCCQSWisAZjCa4BYCqvzvAdKjgw9ynQjD9ppHGkwOPcPXgOWFoWMUN5zvwI3quU
-         132Jg5zAIuH/s2jcJeGmMND0Sa4n5RNrxoYGPtd4yupUrmBm3VZAYx9NyJOMUz5h2q
-         UqT8jBwWQuR10fbXG5VOArvArpXkw1PORg8SlAS8=
-Subject: patch "mei: me: add Alder Lake N device id." added to char-misc-next
+        b=VIAbZnTBnJE3lJWrm+HJD0k4SGhd1ueoW+LP/i3nekRE+671WYeu2jqAH+TZvxBA1
+         D/yvGqPR0KA7s8qmy4fSagVKoFs9gsr5ilYTfO1of45OxDGXXYJhmu78k4/JvXCNos
+         k8l8Uxl/tq0pk0ZKDbQl7QibLiWtWcC6xVX3qPoU=
+Subject: patch "mei: avoid iterator usage outside of list_for_each_entry" added to char-misc-next
 To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org, tomas.winkler@intel.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 19 Mar 2022 08:16:01 +0100
-Message-ID: <1647674161120111@kroah.com>
+Date:   Sat, 19 Mar 2022 08:16:02 +0100
+Message-ID: <1647674162122142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: me: add Alder Lake N device id.
+    mei: avoid iterator usage outside of list_for_each_entry
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,47 +65,82 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 7bbbd0845818cffa9fa8ccfe52fa1cad58e7e4f2 Mon Sep 17 00:00:00 2001
+From c10187b1c5ebb8681ca467ab7b0ded5ea415d258 Mon Sep 17 00:00:00 2001
 From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Tue, 1 Mar 2022 09:11:15 +0200
-Subject: mei: me: add Alder Lake N device id.
+Date: Tue, 8 Mar 2022 11:59:26 +0200
+Subject: mei: avoid iterator usage outside of list_for_each_entry
 
-Add Alder Lake N device ID.
+Usage of the iterator outside of the list_for_each_entry
+is considered harmful. https://lkml.org/lkml/2022/2/17/1032
+
+Do not reference the loop variable outside of the loop,
+by rearranging the orders of execution.
+Instead of performing search loop and checking outside the loop
+if the end of the list was hit and no matching element was found,
+the execution is performed inside the loop upon a successful match
+followed by a goto statement to the next step,
+therefore no condition has to be performed after the loop has ended.
 
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20220301071115.96145-1-tomas.winkler@intel.com
+Link: https://lore.kernel.org/r/20220308095926.300412-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hw-me-regs.h | 1 +
- drivers/misc/mei/pci-me.c     | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/misc/mei/interrupt.c | 35 +++++++++++++++--------------------
+ 1 file changed, 15 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index 888c27bc3f1a..64ce3f830262 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -107,6 +107,7 @@
- #define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
- #define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
- #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
-+#define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
+diff --git a/drivers/misc/mei/interrupt.c b/drivers/misc/mei/interrupt.c
+index a67f4f2d33a9..0706322154cb 100644
+--- a/drivers/misc/mei/interrupt.c
++++ b/drivers/misc/mei/interrupt.c
+@@ -424,31 +424,26 @@ int mei_irq_read_handler(struct mei_device *dev,
+ 	list_for_each_entry(cl, &dev->file_list, link) {
+ 		if (mei_cl_hbm_equal(cl, mei_hdr)) {
+ 			cl_dbg(dev, cl, "got a message\n");
+-			break;
++			ret = mei_cl_irq_read_msg(cl, mei_hdr, meta_hdr, cmpl_list);
++			goto reset_slots;
+ 		}
+ 	}
  
- /*
-  * MEI HW Section
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index a05cdb25d0c4..33e58821e478 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -114,6 +114,7 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_LP, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
+ 	/* if no recipient cl was found we assume corrupted header */
+-	if (&cl->link == &dev->file_list) {
+-		/* A message for not connected fixed address clients
+-		 * should be silently discarded
+-		 * On power down client may be force cleaned,
+-		 * silently discard such messages
+-		 */
+-		if (hdr_is_fixed(mei_hdr) ||
+-		    dev->dev_state == MEI_DEV_POWER_DOWN) {
+-			mei_irq_discard_msg(dev, mei_hdr, mei_hdr->length);
+-			ret = 0;
+-			goto reset_slots;
+-		}
+-		dev_err(dev->dev, "no destination client found 0x%08X\n",
+-				dev->rd_msg_hdr[0]);
+-		ret = -EBADMSG;
+-		goto end;
++	/* A message for not connected fixed address clients
++	 * should be silently discarded
++	 * On power down client may be force cleaned,
++	 * silently discard such messages
++	 */
++	if (hdr_is_fixed(mei_hdr) ||
++	    dev->dev_state == MEI_DEV_POWER_DOWN) {
++		mei_irq_discard_msg(dev, mei_hdr, mei_hdr->length);
++		ret = 0;
++		goto reset_slots;
+ 	}
+-
+-	ret = mei_cl_irq_read_msg(cl, mei_hdr, meta_hdr, cmpl_list);
+-
++	dev_err(dev->dev, "no destination client found 0x%08X\n", dev->rd_msg_hdr[0]);
++	ret = -EBADMSG;
++	goto end;
  
- 	/* required last entry */
- 	{0, }
+ reset_slots:
+ 	/* reset the number of slots and header */
 -- 
 2.35.1
 
