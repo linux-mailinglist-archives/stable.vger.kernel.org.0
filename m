@@ -2,815 +2,462 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7024DE810
-	for <lists+stable@lfdr.de>; Sat, 19 Mar 2022 14:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2574D4E1967
+	for <lists+stable@lfdr.de>; Sun, 20 Mar 2022 03:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243023AbiCSNG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Mar 2022 09:06:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58924 "EHLO
+        id S238523AbiCTCFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Mar 2022 22:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243008AbiCSNGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Mar 2022 09:06:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B48725EC99;
-        Sat, 19 Mar 2022 06:04:53 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5AC060C58;
-        Sat, 19 Mar 2022 13:04:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5E54C340EC;
-        Sat, 19 Mar 2022 13:04:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647695092;
-        bh=6LukUBX+wyatdutELNhjJv7xWYfqLjncqkz9z5Ksadg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Wvi2SrnQANDvoQL0h4ghU6YcwJoxhkfq7jqVwuLBLtBzlZLm4ZEdP5P2OYs0JfUR
-         MsxUwWrXoqGjrcNbZhHWFaNjucdU58ssUDSaCD8uxh3Unmtt6RNbXqznA36Gab4sFF
-         UzbGUquseK/xlZ6tO2+B/CR3PDBrqz3gzldhLk7M=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.16.16
-Date:   Sat, 19 Mar 2022 14:04:40 +0100
-Message-Id: <1647695079132244@kroah.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <16476950798220@kroah.com>
-References: <16476950798220@kroah.com>
-MIME-Version: 1.0
+        with ESMTP id S234519AbiCTCFv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Mar 2022 22:05:51 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDA413F7B;
+        Sat, 19 Mar 2022 19:04:26 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22JDh87O027688;
+        Sun, 20 Mar 2022 02:04:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=corp-2021-07-09;
+ bh=VX5gUWbY4cpl+TWWcFbSDTSbg+4+6qAZkNUrIdUCg8w=;
+ b=M6iN4QMvWOlGzEwVFDCxQcWD36UCGR9c5u/EWOIxZxgTJurKCByMqQvX+av5nKgQDlsk
+ c89itrpP6NZqNmTb64aI1fCDXvXBth9SqPb4C51qaiKFzmFB1vCZ9A7nTvpLZmGlwJYr
+ WXPTQLnhn21yG4cnTrqeyM5fl5bJbhjebytoR/X9dA21QafDs7dOmpyWiTvl4k7AQlko
+ Y3MrAo8cDgNGjsBWTeYAuay148r8JSDVifEjHjFt29mfe9i9l69kjEd5fCVlPj+S7tMJ
+ XQfIH5Z8+JW3yopOPLZ2AbsX+f5qKh37ohp4ic5PAObQDMmWuwWFxo1NBHhiY6W5PEev rw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3ew5y1rx2q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 20 Mar 2022 02:04:13 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 22K1ua5u023073;
+        Sun, 20 Mar 2022 02:04:12 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2043.outbound.protection.outlook.com [104.47.66.43])
+        by userp3020.oracle.com with ESMTP id 3ew8mg7xbm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 20 Mar 2022 02:04:12 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=J0Mr4TA8hp0/wjhkC+QMN+F3YQZ0PdyS1c3CU/+XfBgm67pRkKU/ZCj8uXsEXUS+rgjy/rE72p5xTNLydidZp6b6HDCQqvFDGtK+shcpKy05Xt/BoEFUFQJVJUhZKcOlwgeSWrocZ5TUmoO9e19Fd19IfA69hSqjHRjnUbFmSJ65/i0woFa1xkOl+XyVDH0jLzw6fgRaG5OgWKrR13axT8jx2b2Hll1VWerYW66weG1xbvgtsWLixE8B8mJ+Z0kewEhu5b6DhqVWWTI8zQL98tZj++jB2+hRYZVNSVRPTK6p/kq9TiJmqHAibyHsY47XLkV1u/gikmBG7p3q2OP1Pg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VX5gUWbY4cpl+TWWcFbSDTSbg+4+6qAZkNUrIdUCg8w=;
+ b=Q66VYmmJJ/XKtcsZogYqxXk8OcI/HkNUSo1IkK9avmKsj6s84zBmy+n8AAQoim+0KFvs12Mq1DqG3pO9AVZF06/AAoazou6ErYQjM4mrX5FI8HgRE4l7nXaIdrzIRohqqh0V0iUw+p+Zfdgg6JbxbogE8qx55Yfw5zc0PhVWwVCj+TGBFkgdcZwnWFQferfREvh5GGSXasBuxTtLMo9/VJcprzpvUwLD43zAfmomolcjWG5VPdQcwGYKfqf7DUdMHdZxYNmm3IEQ6fHLcNsaWJnGe8CIreylkHh7x+5984ObuZCiOAUWdVlorhTKaEENcC2EoE1Ko0KPNH+Wo6uAzA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VX5gUWbY4cpl+TWWcFbSDTSbg+4+6qAZkNUrIdUCg8w=;
+ b=Amb5stluLCkTLgc8LYU9tSaqJY8IGGUlUaxtk/CA63KdSBm3MMWInIvzudU1mw1PArHbtIX/ckC+pADegHJ7HPPxTPS6BV5udgkOKS0EixlO+drXhp52f9xTRSeZT2Y9pqmHepD9179BkSptznE0W4fJJQPEef8/89XJ9lMyGN0=
+Received: from PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10)
+ by SA2PR10MB4556.namprd10.prod.outlook.com (2603:10b6:806:119::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.15; Sun, 20 Mar
+ 2022 02:04:09 +0000
+Received: from PH0PR10MB5706.namprd10.prod.outlook.com
+ ([fe80::d469:7ab:8ae2:1e6f]) by PH0PR10MB5706.namprd10.prod.outlook.com
+ ([fe80::d469:7ab:8ae2:1e6f%5]) with mapi id 15.20.5081.014; Sun, 20 Mar 2022
+ 02:04:09 +0000
+From:   Anand Jain <anand.jain@oracle.com>
+To:     stable@vger.kernel.org
+Cc:     linux-btrfs@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH stable-5.15.y, stable-5.16.y] btrfs: skip reserved bytes warning on unmount after log cleanup failure
+Date:   Sun, 20 Mar 2022 10:03:17 +0800
+Message-Id: <25358f0838c5a22923a8163e38415acaca94b01d.1647741632.git.anand.jain@oracle.com>
+X-Mailer: git-send-email 2.33.1
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-ClientProxiedBy: SG2PR03CA0089.apcprd03.prod.outlook.com
+ (2603:1096:4:7c::17) To PH0PR10MB5706.namprd10.prod.outlook.com
+ (2603:10b6:510:148::10)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: d03f11cb-455b-4f59-fab2-08da0a15eb74
+X-MS-TrafficTypeDiagnostic: SA2PR10MB4556:EE_
+X-Microsoft-Antispam-PRVS: <SA2PR10MB45562562880FE9BD12F25FE7E5159@SA2PR10MB4556.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: GS3woBwCfOW4tIvEWfB7HPQd6/wB8EYhyaIYPEQuYBoOiG9VHFVR4RZod9OzQnjbShkSrRtJeo2x1DdEAS+Cp925FqBz6BP22L147zvsHw/HYfoJXstLANPd2JneHcTtJGjW1WII2rUojfyoeDLUW0QJnXYb2ShmqaXmXTaNpXLAG8OLY/TwZQIzb3FL4CTkeG+Vv2DZZheapS9zgEDkBrUVjIVsKDGZUIlIgyTNc5fJcyJFt1LCV6jsVLOu+t581W47si2bfHZyOAefX+Kj2qSfGrWmkYXsv7if6gtKl/0XjQF68OBpuh+qXOdlcHyDfWn6o8p2Eik+58BPzrxzM9WHYsGjTcNHpLEr4Ovbk1baeW1Nw2169xW8HqcIbc7r+nMBznB47x4sybNqv3UaFmycsqwD29GOZDTEcvW/F6kTbMagd0ImKnPIRe9RnayP/pgIMsq3hwJdg1DMp/zNXQVJqfBqYJU7lEBIjxPQ45n4X9N3c5t6E7VdpYpepWyqKkPF/KgWX06asO1MPh6yZC2LWLkzX9NwvjvPNKunaInnmlgYSvcVETdsR6i/l5MX2KGrcYHNtJuBZChmlLvYm/h3PRS8LDzJ+ke3WoM+Vs20HGl6ISgqCTCRM7P+KSvxQvncB8+OrPqFL8at3i0F8G64yCh1VF3n/KxcgK+sFB/0IX1XMXaMMAeNVZH+AprsjFBNmTQ67leZCkmJTRvwT5mKTATLygp4JPvtuegqYt6RKOZQ6hPrfGhfvXgjPRjjSDVMV9Xaj/dE5yXhcVSZjw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(508600001)(8936002)(30864003)(5660300002)(6666004)(66476007)(4326008)(6486002)(38100700002)(966005)(66946007)(45080400002)(44832011)(86362001)(66556008)(2616005)(26005)(107886003)(186003)(83380400001)(6506007)(6512007)(2906002)(36756003)(6916009)(54906003)(316002)(8676002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?/PM9e1gKW9hLCbdOFaLXzBDWeGte9EXHT70BD3MotMhjFtXKXHZ0cPMW2u9Y?=
+ =?us-ascii?Q?N1924WkCm/gZLjYusEIlC8JTcdgS872jZ4xE1U/MXTuh59abdSceKSydu16t?=
+ =?us-ascii?Q?oe8D6ZKZJKzASpQaAzgcPAqRbdlD9kQJ67XkKmcQqURLsulIBg0Xo1U/taGX?=
+ =?us-ascii?Q?Iv+JXX25egxmvn2tAo0eBQvmWeuFLnUsdtkaJDd7YJPU5G7noH5mqr0QzHYL?=
+ =?us-ascii?Q?+PmTidC24YAhgQuN84Y1q42Qva/AJ7fETmyIxomuMIPv7P8zKJuH73hG5JKb?=
+ =?us-ascii?Q?V9jyVhStREvVFH0yHeZnwcCMp2LzsrFH1iGLNMfSWifvJRk1hOOxOniwtxB4?=
+ =?us-ascii?Q?4z1c4kbIL0l/qu2jTfVJxvRoNmaJG6F+JokM4jo6WmhLkSNnRvi6BZaDVzSZ?=
+ =?us-ascii?Q?qTcaHvLbodbKCvfC69mPzhSt0w6rVcAbloi3AQGiOWT5t761vtFBO77ujIph?=
+ =?us-ascii?Q?QFrkDBTL6DiTtmaNxVOQRpTLAfQQIpm8K8sQOosvfp4xQsYrRiI14KCrzxrI?=
+ =?us-ascii?Q?G6TZ9mL0SlYT0D4ArkRJ77wY2EUBDwtaKs4jotWG9GAfTUP/caX+6yjg/cQH?=
+ =?us-ascii?Q?LaQIQ2IhvTm3tuG+frSwIg6DZucmd1Bc/gBnSyPGQykXwTELdoYGzdbMbHKM?=
+ =?us-ascii?Q?bqfp1gKjMjVnLwhH6vc5qaHS3UYnZB6Ap6ywTI1yg+piT2+Vwt98fiv0TW+3?=
+ =?us-ascii?Q?6KzFbiizBD/YEGL1SFnyWKKfGRF9vL28Xdposza0vpy7+4+KiNw5JIudiJXr?=
+ =?us-ascii?Q?Wplw46zoZg/KetpcRf3hzuPrOVrFyi8tfEseYyfJJrTEbRY130ZgdrWxuX0W?=
+ =?us-ascii?Q?VgAEGM1HmWXVQgFjTNop92mbQ0VkOr7KjGo8wrZlyl7W1WdIC+aRjyMu1t5x?=
+ =?us-ascii?Q?kjqrrREH3FfCP1iwJHIYhtP3cZq56jQoDaiLPuHJb3t0bIFD6uSSYmJ//Fnw?=
+ =?us-ascii?Q?DmAR2vQU+B2cJ31hABcAlttXcFBvEi+2NP0zGh5sxg+CmU2HG7nZMzSVBUPG?=
+ =?us-ascii?Q?6Iu4ElnuFnu00SPeOfew5Y+pfMZdbqmiKU3o16rotFXmNuwB1fIzoIDhPN7L?=
+ =?us-ascii?Q?X22FAtkj1cj5v07995gVhMUaB9RCl6Uf6wMEFn8dxEHVm43DW1EqFmzXw1EK?=
+ =?us-ascii?Q?JakgA2XW5h67gRgTtP8xdNfQTTiZsEJOPUinoPAMbaeScKfloro4MckKPnO3?=
+ =?us-ascii?Q?Nj+T9U9SWD02xly5M09YSRbgrUgcwNj+uxBH1ipEvb6vsOwf4fb327x+s35N?=
+ =?us-ascii?Q?AhtCE34IW5nGKM9ytMQZ8Ikf+VC2a2gRKUswlMpOOD6/RacsDTuwTxVd84Tq?=
+ =?us-ascii?Q?7tH5lpjlZqk6/pboSXMMl4P8xrpeiwJ0l+SKoul2V/37PX6//e+uk4e8EmC3?=
+ =?us-ascii?Q?F4Nxq0KfjAAFUnDIvzVVvEbIJZlBZSXSlqPRUJ3XmR0x/wzMqmdYXW/+dbKG?=
+ =?us-ascii?Q?9pSk94dokH/OKT5N3MFx/+tdPY2ygGHV?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d03f11cb-455b-4f59-fab2-08da0a15eb74
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5706.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Mar 2022 02:04:09.3185
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: JdD0OPiNKYU+kmq+wOne7tZJBDv9z8KoeDo2eT6WFBdUorALCojlUzv10/9cFc+ZrnbWNArzzg65WD9jLBThvA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR10MB4556
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10291 signatures=694221
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 adultscore=0 bulkscore=0
+ malwarescore=0 mlxlogscore=999 phishscore=0 spamscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203200012
+X-Proofpoint-GUID: 3Xe8WJhgsiUrgOQifgrzXccJINtiBI1h
+X-Proofpoint-ORIG-GUID: 3Xe8WJhgsiUrgOQifgrzXccJINtiBI1h
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 8675dd2a9cc8..d625d3aeab2e 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 16
--SUBLEVEL = 15
-+SUBLEVEL = 16
- EXTRAVERSION =
- NAME = Gobble Gobble
- 
-diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
-index 8eed9e3a92e9..5868eb512f69 100644
---- a/arch/arm/boot/dts/rk322x.dtsi
-+++ b/arch/arm/boot/dts/rk322x.dtsi
-@@ -718,8 +718,8 @@ hdmi: hdmi@200a0000 {
- 		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
- 		assigned-clocks = <&cru SCLK_HDMI_PHY>;
- 		assigned-clock-parents = <&hdmi_phy>;
--		clocks = <&cru SCLK_HDMI_HDCP>, <&cru PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_CEC>;
--		clock-names = "isfr", "iahb", "cec";
-+		clocks = <&cru PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_HDCP>, <&cru SCLK_HDMI_CEC>;
-+		clock-names = "iahb", "isfr", "cec";
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&hdmii2c_xfer &hdmi_hpd &hdmi_cec>;
- 		resets = <&cru SRST_HDMI_P>;
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index aaaa61875701..45a9d9b908d2 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -971,7 +971,7 @@ i2s: i2s@ff890000 {
- 		status = "disabled";
- 	};
- 
--	crypto: cypto-controller@ff8a0000 {
-+	crypto: crypto@ff8a0000 {
- 		compatible = "rockchip,rk3288-crypto";
- 		reg = <0x0 0xff8a0000 0x0 0x4000>;
- 		interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-index 0dd2d2ee765a..f4270cf18996 100644
---- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-+++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-@@ -502,7 +502,7 @@ uart1: serial@ffc02100 {
- 		};
- 
- 		usb0: usb@ffb00000 {
--			compatible = "snps,dwc2";
-+			compatible = "intel,socfpga-agilex-hsotg", "snps,dwc2";
- 			reg = <0xffb00000 0x40000>;
- 			interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy0>;
-@@ -515,7 +515,7 @@ usb0: usb@ffb00000 {
- 		};
- 
- 		usb1: usb@ffb40000 {
--			compatible = "snps,dwc2";
-+			compatible = "intel,socfpga-agilex-hsotg", "snps,dwc2";
- 			reg = <0xffb40000 0x40000>;
- 			interrupts = <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy0>;
-diff --git a/arch/arm64/boot/dts/rockchip/px30.dtsi b/arch/arm64/boot/dts/rockchip/px30.dtsi
-index 00f50b05d55a..b72874c16a71 100644
---- a/arch/arm64/boot/dts/rockchip/px30.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/px30.dtsi
-@@ -711,7 +711,7 @@ rktimer: timer@ff210000 {
- 		clock-names = "pclk", "timer";
- 	};
- 
--	dmac: dmac@ff240000 {
-+	dmac: dma-controller@ff240000 {
- 		compatible = "arm,pl330", "arm,primecell";
- 		reg = <0x0 0xff240000 0x0 0x4000>;
- 		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-index 39db0b85b4da..b822533dc7f1 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-@@ -489,7 +489,7 @@ pwm3: pwm@ff1b0030 {
- 		status = "disabled";
- 	};
- 
--	dmac: dmac@ff1f0000 {
-+	dmac: dma-controller@ff1f0000 {
- 		compatible = "arm,pl330", "arm,primecell";
- 		reg = <0x0 0xff1f0000 0x0 0x4000>;
- 		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-index 292bb7e80cf3..3ae5d727e367 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-@@ -232,6 +232,7 @@ &usbdrd3_0 {
- 
- &usbdrd_dwc3_0 {
- 	dr_mode = "otg";
-+	extcon = <&extcon_usb3>;
- 	status = "okay";
- };
- 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-index fb67db4619ea..08fa00364b42 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-@@ -25,6 +25,13 @@ module_led: led-0 {
- 		};
- 	};
- 
-+	extcon_usb3: extcon-usb3 {
-+		compatible = "linux,extcon-usb-gpio";
-+		id-gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_HIGH>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&usb3_id>;
-+	};
-+
- 	clkin_gmac: external-gmac-clock {
- 		compatible = "fixed-clock";
- 		clock-frequency = <125000000>;
-@@ -422,9 +429,22 @@ vcc5v0_host_en: vcc5v0-host-en {
- 			  <4 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
- 		};
- 	};
-+
-+	usb3 {
-+		usb3_id: usb3-id {
-+			rockchip,pins =
-+			  <1 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
-+		};
-+	};
- };
- 
- &sdhci {
-+	/*
-+	 * Signal integrity isn't great at 200MHz but 100MHz has proven stable
-+	 * enough.
-+	 */
-+	max-frequency = <100000000>;
-+
- 	bus-width = <8>;
- 	mmc-hs400-1_8v;
- 	mmc-hs400-enhanced-strobe;
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index d3cdf6f42a30..080457a68e3c 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -1881,10 +1881,10 @@ hdmi: hdmi@ff940000 {
- 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH 0>;
- 		clocks = <&cru PCLK_HDMI_CTRL>,
- 			 <&cru SCLK_HDMI_SFR>,
--			 <&cru PLL_VPLL>,
-+			 <&cru SCLK_HDMI_CEC>,
- 			 <&cru PCLK_VIO_GRF>,
--			 <&cru SCLK_HDMI_CEC>;
--		clock-names = "iahb", "isfr", "vpll", "grf", "cec";
-+			 <&cru PLL_VPLL>;
-+		clock-names = "iahb", "isfr", "cec", "grf", "vpll";
- 		power-domains = <&power RK3399_PD_HDCP>;
- 		reg-io-width = <4>;
- 		rockchip,grf = <&grf>;
-diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-index 46d9552f6028..688e3585525a 100644
---- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-@@ -647,7 +647,7 @@ &i2s1m0_sdo0   &i2s1m0_sdo1
- 		status = "disabled";
- 	};
- 
--	dmac0: dmac@fe530000 {
-+	dmac0: dma-controller@fe530000 {
- 		compatible = "arm,pl330", "arm,primecell";
- 		reg = <0x0 0xfe530000 0x0 0x4000>;
- 		interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
-@@ -658,7 +658,7 @@ dmac0: dmac@fe530000 {
- 		#dma-cells = <1>;
- 	};
- 
--	dmac1: dmac@fe550000 {
-+	dmac1: dma-controller@fe550000 {
- 		compatible = "arm,pl330", "arm,primecell";
- 		reg = <0x0 0xfe550000 0x0 0x4000>;
- 		interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>,
-diff --git a/arch/mips/kernel/smp.c b/arch/mips/kernel/smp.c
-index d542fb7af3ba..1986d1309410 100644
---- a/arch/mips/kernel/smp.c
-+++ b/arch/mips/kernel/smp.c
-@@ -351,6 +351,9 @@ asmlinkage void start_secondary(void)
- 	cpu = smp_processor_id();
- 	cpu_data[cpu].udelay_val = loops_per_jiffy;
- 
-+	set_cpu_sibling_map(cpu);
-+	set_cpu_core_map(cpu);
-+
- 	cpumask_set_cpu(cpu, &cpu_coherent_mask);
- 	notify_cpu_starting(cpu);
- 
-@@ -362,9 +365,6 @@ asmlinkage void start_secondary(void)
- 	/* The CPU is running and counters synchronised, now mark it online */
- 	set_cpu_online(cpu, true);
- 
--	set_cpu_sibling_map(cpu);
--	set_cpu_core_map(cpu);
--
- 	calculate_cpu_foreign_map();
- 
- 	/*
-diff --git a/drivers/atm/firestream.c b/drivers/atm/firestream.c
-index 3bc3c314a467..4f67404fe64c 100644
---- a/drivers/atm/firestream.c
-+++ b/drivers/atm/firestream.c
-@@ -1676,6 +1676,8 @@ static int fs_init(struct fs_dev *dev)
- 	dev->hw_base = pci_resource_start(pci_dev, 0);
- 
- 	dev->base = ioremap(dev->hw_base, 0x1000);
-+	if (!dev->base)
-+		return 1;
- 
- 	reset_chip (dev);
-   
-diff --git a/drivers/gpu/drm/drm_connector.c b/drivers/gpu/drm/drm_connector.c
-index 52e20c68813b..6ae26e7d3dec 100644
---- a/drivers/gpu/drm/drm_connector.c
-+++ b/drivers/gpu/drm/drm_connector.c
-@@ -2275,6 +2275,9 @@ EXPORT_SYMBOL(drm_connector_atomic_hdr_metadata_equal);
- void drm_connector_set_vrr_capable_property(
- 		struct drm_connector *connector, bool capable)
+From: Filipe Manana <fdmanana@suse.com>
+
+Commit 40cdc509877bacb438213b83c7541c5e24a1d9ec upstream
+
+After the recent changes made by commit c2e39305299f01 ("btrfs: clear
+extent buffer uptodate when we fail to write it") and its followup fix,
+commit 651740a5024117 ("btrfs: check WRITE_ERR when trying to read an
+extent buffer"), we can now end up not cleaning up space reservations of
+log tree extent buffers after a transaction abort happens, as well as not
+cleaning up still dirty extent buffers.
+
+This happens because if writeback for a log tree extent buffer failed,
+then we have cleared the bit EXTENT_BUFFER_UPTODATE from the extent buffer
+and we have also set the bit EXTENT_BUFFER_WRITE_ERR on it. Later on,
+when trying to free the log tree with free_log_tree(), which iterates
+over the tree, we can end up getting an -EIO error when trying to read
+a node or a leaf, since read_extent_buffer_pages() returns -EIO if an
+extent buffer does not have EXTENT_BUFFER_UPTODATE set and has the
+EXTENT_BUFFER_WRITE_ERR bit set. Getting that -EIO means that we return
+immediately as we can not iterate over the entire tree.
+
+In that case we never update the reserved space for an extent buffer in
+the respective block group and space_info object.
+
+When this happens we get the following traces when unmounting the fs:
+
+[174957.284509] BTRFS: error (device dm-0) in cleanup_transaction:1913: errno=-5 IO failure
+[174957.286497] BTRFS: error (device dm-0) in free_log_tree:3420: errno=-5 IO failure
+[174957.399379] ------------[ cut here ]------------
+[174957.402497] WARNING: CPU: 2 PID: 3206883 at fs/btrfs/block-group.c:127 btrfs_put_block_group+0x77/0xb0 [btrfs]
+[174957.407523] Modules linked in: btrfs overlay dm_zero (...)
+[174957.424917] CPU: 2 PID: 3206883 Comm: umount Tainted: G        W         5.16.0-rc5-btrfs-next-109 #1
+[174957.426689] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[174957.428716] RIP: 0010:btrfs_put_block_group+0x77/0xb0 [btrfs]
+[174957.429717] Code: 21 48 8b bd (...)
+[174957.432867] RSP: 0018:ffffb70d41cffdd0 EFLAGS: 00010206
+[174957.433632] RAX: 0000000000000001 RBX: ffff8b09c3848000 RCX: ffff8b0758edd1c8
+[174957.434689] RDX: 0000000000000001 RSI: ffffffffc0b467e7 RDI: ffff8b0758edd000
+[174957.436068] RBP: ffff8b0758edd000 R08: 0000000000000000 R09: 0000000000000000
+[174957.437114] R10: 0000000000000246 R11: 0000000000000000 R12: ffff8b09c3848148
+[174957.438140] R13: ffff8b09c3848198 R14: ffff8b0758edd188 R15: dead000000000100
+[174957.439317] FS:  00007f328fb82800(0000) GS:ffff8b0a2d200000(0000) knlGS:0000000000000000
+[174957.440402] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[174957.441164] CR2: 00007fff13563e98 CR3: 0000000404f4e005 CR4: 0000000000370ee0
+[174957.442117] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[174957.443076] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[174957.443948] Call Trace:
+[174957.444264]  <TASK>
+[174957.444538]  btrfs_free_block_groups+0x255/0x3c0 [btrfs]
+[174957.445238]  close_ctree+0x301/0x357 [btrfs]
+[174957.445803]  ? call_rcu+0x16c/0x290
+[174957.446250]  generic_shutdown_super+0x74/0x120
+[174957.446832]  kill_anon_super+0x14/0x30
+[174957.447305]  btrfs_kill_super+0x12/0x20 [btrfs]
+[174957.447890]  deactivate_locked_super+0x31/0xa0
+[174957.448440]  cleanup_mnt+0x147/0x1c0
+[174957.448888]  task_work_run+0x5c/0xa0
+[174957.449336]  exit_to_user_mode_prepare+0x1e5/0x1f0
+[174957.449934]  syscall_exit_to_user_mode+0x16/0x40
+[174957.450512]  do_syscall_64+0x48/0xc0
+[174957.450980]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[174957.451605] RIP: 0033:0x7f328fdc4a97
+[174957.452059] Code: 03 0c 00 f7 (...)
+[174957.454320] RSP: 002b:00007fff13564ec8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+[174957.455262] RAX: 0000000000000000 RBX: 00007f328feea264 RCX: 00007f328fdc4a97
+[174957.456131] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000560b8ae51dd0
+[174957.457118] RBP: 0000560b8ae51ba0 R08: 0000000000000000 R09: 00007fff13563c40
+[174957.458005] R10: 00007f328fe49fc0 R11: 0000000000000246 R12: 0000000000000000
+[174957.459113] R13: 0000560b8ae51dd0 R14: 0000560b8ae51cb0 R15: 0000000000000000
+[174957.460193]  </TASK>
+[174957.460534] irq event stamp: 0
+[174957.461003] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+[174957.461947] hardirqs last disabled at (0): [<ffffffffb0e94214>] copy_process+0x934/0x2040
+[174957.463147] softirqs last  enabled at (0): [<ffffffffb0e94214>] copy_process+0x934/0x2040
+[174957.465116] softirqs last disabled at (0): [<0000000000000000>] 0x0
+[174957.466323] ---[ end trace bc7ee0c490bce3af ]---
+[174957.467282] ------------[ cut here ]------------
+[174957.468184] WARNING: CPU: 2 PID: 3206883 at fs/btrfs/block-group.c:3976 btrfs_free_block_groups+0x330/0x3c0 [btrfs]
+[174957.470066] Modules linked in: btrfs overlay dm_zero (...)
+[174957.483137] CPU: 2 PID: 3206883 Comm: umount Tainted: G        W         5.16.0-rc5-btrfs-next-109 #1
+[174957.484691] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[174957.486853] RIP: 0010:btrfs_free_block_groups+0x330/0x3c0 [btrfs]
+[174957.488050] Code: 00 00 00 ad de (...)
+[174957.491479] RSP: 0018:ffffb70d41cffde0 EFLAGS: 00010206
+[174957.492520] RAX: ffff8b08d79310b0 RBX: ffff8b09c3848000 RCX: 0000000000000000
+[174957.493868] RDX: 0000000000000001 RSI: fffff443055ee600 RDI: ffffffffb1131846
+[174957.495183] RBP: ffff8b08d79310b0 R08: 0000000000000000 R09: 0000000000000000
+[174957.496580] R10: 0000000000000001 R11: 0000000000000000 R12: ffff8b08d7931000
+[174957.498027] R13: ffff8b09c38492b0 R14: dead000000000122 R15: dead000000000100
+[174957.499438] FS:  00007f328fb82800(0000) GS:ffff8b0a2d200000(0000) knlGS:0000000000000000
+[174957.500990] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[174957.502117] CR2: 00007fff13563e98 CR3: 0000000404f4e005 CR4: 0000000000370ee0
+[174957.503513] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[174957.504864] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[174957.506167] Call Trace:
+[174957.506654]  <TASK>
+[174957.507047]  close_ctree+0x301/0x357 [btrfs]
+[174957.507867]  ? call_rcu+0x16c/0x290
+[174957.508567]  generic_shutdown_super+0x74/0x120
+[174957.509447]  kill_anon_super+0x14/0x30
+[174957.510194]  btrfs_kill_super+0x12/0x20 [btrfs]
+[174957.511123]  deactivate_locked_super+0x31/0xa0
+[174957.511976]  cleanup_mnt+0x147/0x1c0
+[174957.512610]  task_work_run+0x5c/0xa0
+[174957.513309]  exit_to_user_mode_prepare+0x1e5/0x1f0
+[174957.514231]  syscall_exit_to_user_mode+0x16/0x40
+[174957.515069]  do_syscall_64+0x48/0xc0
+[174957.515718]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[174957.516688] RIP: 0033:0x7f328fdc4a97
+[174957.517413] Code: 03 0c 00 f7 d8 (...)
+[174957.521052] RSP: 002b:00007fff13564ec8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+[174957.522514] RAX: 0000000000000000 RBX: 00007f328feea264 RCX: 00007f328fdc4a97
+[174957.523950] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000560b8ae51dd0
+[174957.525375] RBP: 0000560b8ae51ba0 R08: 0000000000000000 R09: 00007fff13563c40
+[174957.526763] R10: 00007f328fe49fc0 R11: 0000000000000246 R12: 0000000000000000
+[174957.528058] R13: 0000560b8ae51dd0 R14: 0000560b8ae51cb0 R15: 0000000000000000
+[174957.529404]  </TASK>
+[174957.529843] irq event stamp: 0
+[174957.530256] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+[174957.531061] hardirqs last disabled at (0): [<ffffffffb0e94214>] copy_process+0x934/0x2040
+[174957.532075] softirqs last  enabled at (0): [<ffffffffb0e94214>] copy_process+0x934/0x2040
+[174957.533083] softirqs last disabled at (0): [<0000000000000000>] 0x0
+[174957.533865] ---[ end trace bc7ee0c490bce3b0 ]---
+[174957.534452] BTRFS info (device dm-0): space_info 4 has 1070841856 free, is not full
+[174957.535404] BTRFS info (device dm-0): space_info total=1073741824, used=2785280, pinned=0, reserved=49152, may_use=0, readonly=65536 zone_unusable=0
+[174957.537029] BTRFS info (device dm-0): global_block_rsv: size 0 reserved 0
+[174957.537859] BTRFS info (device dm-0): trans_block_rsv: size 0 reserved 0
+[174957.538697] BTRFS info (device dm-0): chunk_block_rsv: size 0 reserved 0
+[174957.539552] BTRFS info (device dm-0): delayed_block_rsv: size 0 reserved 0
+[174957.540403] BTRFS info (device dm-0): delayed_refs_rsv: size 0 reserved 0
+
+This also means that in case we have log tree extent buffers that are
+still dirty, we can end up not cleaning them up in case we find an
+extent buffer with EXTENT_BUFFER_WRITE_ERR set on it, as in that case
+we have no way for iterating over the rest of the tree.
+
+This issue is very often triggered with test cases generic/475 and
+generic/648 from fstests.
+
+The issue could almost be fixed by iterating over the io tree attached to
+each log root which keeps tracks of the range of allocated extent buffers,
+log_root->dirty_log_pages, however that does not work and has some
+inconveniences:
+
+1) After we sync the log, we clear the range of the extent buffers from
+   the io tree, so we can't find them after writeback. We could keep the
+   ranges in the io tree, with a separate bit to signal they represent
+   extent buffers already written, but that means we need to hold into
+   more memory until the transaction commits.
+
+   How much more memory is used depends a lot on whether we are able to
+   allocate contiguous extent buffers on disk (and how often) for a log
+   tree - if we are able to, then a single extent state record can
+   represent multiple extent buffers, otherwise we need multiple extent
+   state record structures to track each extent buffer.
+   In fact, my earlier approach did that:
+
+   https://lore.kernel.org/linux-btrfs/3aae7c6728257c7ce2279d6660ee2797e5e34bbd.1641300250.git.fdmanana@suse.com/
+
+   However that can cause a very significant negative impact on
+   performance, not only due to the extra memory usage but also because
+   we get a larger and deeper dirty_log_pages io tree.
+   We got a report that, on beefy machines at least, we can get such
+   performance drop with fsmark for example:
+
+   https://lore.kernel.org/linux-btrfs/20220117082426.GE32491@xsang-OptiPlex-9020/
+
+2) We would be doing it only to deal with an unexpected and exceptional
+   case, which is basically failure to read an extent buffer from disk
+   due to IO failures. On a healthy system we don't expect transaction
+   aborts to happen after all;
+
+3) Instead of relying on iterating the log tree or tracking the ranges
+   of extent buffers in the dirty_log_pages io tree, using the radix
+   tree that tracks extent buffers (fs_info->buffer_radix) to find all
+   log tree extent buffers is not reliable either, because after writeback
+   of an extent buffer it can be evicted from memory by the release page
+   callback of the btree inode (btree_releasepage()).
+
+Since there's no way to be able to properly cleanup a log tree without
+being able to read its extent buffers from disk and without using more
+memory to track the logical ranges of the allocated extent buffers do
+the following:
+
+1) When we fail to cleanup a log tree, setup a flag that indicates that
+   failure;
+
+2) Trigger writeback of all log tree extent buffers that are still dirty,
+   and wait for the writeback to complete. This is just to cleanup their
+   state, page states, page leaks, etc;
+
+3) When unmounting the fs, ignore if the number of bytes reserved in a
+   block group and in a space_info is not 0 if, and only if, we failed to
+   cleanup a log tree. Also ignore only for metadata block groups and the
+   metadata space_info object.
+
+This is far from a perfect solution, but it serves to silence test
+failures such as those from generic/475 and generic/648. However having
+a non-zero value for the reserved bytes counters on unmount after a
+transaction abort, is not such a terrible thing and it's completely
+harmless, it does not affect the filesystem integrity in any way.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+---
+Unrelated conflict fix in
+  fs/btrfs/ctree.h
+
+ fs/btrfs/block-group.c | 26 ++++++++++++++++++++++++--
+ fs/btrfs/ctree.h       |  7 +++++++
+ fs/btrfs/tree-log.c    | 23 +++++++++++++++++++++++
+ 3 files changed, 54 insertions(+), 2 deletions(-)
+
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 5edd07e0232d..e1c5c2114edf 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -123,7 +123,16 @@ void btrfs_put_block_group(struct btrfs_block_group *cache)
  {
-+	if (!connector->vrr_capable_property)
-+		return;
-+
- 	drm_object_property_set_value(&connector->base,
- 				      connector->vrr_capable_property,
- 				      capable);
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index aaa3c455e01e..d3136842b717 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/irq.h>
- #include <linux/interrupt.h>
-+#include <linux/platform_data/x86/soc.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
- #include <linux/of.h>
-@@ -686,21 +687,6 @@ static int goodix_reset(struct goodix_ts_data *ts)
- }
- 
- #ifdef ACPI_GPIO_SUPPORT
--#include <asm/cpu_device_id.h>
--#include <asm/intel-family.h>
--
--static const struct x86_cpu_id baytrail_cpu_ids[] = {
--	{ X86_VENDOR_INTEL, 6, INTEL_FAM6_ATOM_SILVERMONT, X86_FEATURE_ANY, },
--	{}
--};
--
--static inline bool is_byt(void)
--{
--	const struct x86_cpu_id *id = x86_match_cpu(baytrail_cpu_ids);
--
--	return !!id;
--}
--
- static const struct acpi_gpio_params first_gpio = { 0, 0, false };
- static const struct acpi_gpio_params second_gpio = { 1, 0, false };
- 
-@@ -759,7 +745,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 	const struct acpi_gpio_mapping *gpio_mapping = NULL;
- 	struct device *dev = &ts->client->dev;
- 	LIST_HEAD(resources);
--	int ret;
-+	int irq, ret;
- 
- 	ts->gpio_count = 0;
- 	ts->gpio_int_idx = -1;
-@@ -772,6 +758,20 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 
- 	acpi_dev_free_resource_list(&resources);
- 
-+	/*
-+	 * CHT devices should have a GpioInt + a regular GPIO ACPI resource.
-+	 * Some CHT devices have a bug (where the also is bogus Interrupt
-+	 * resource copied from a previous BYT based generation). i2c-core-acpi
-+	 * will use the non-working Interrupt resource, fix this up.
-+	 */
-+	if (soc_intel_is_cht() && ts->gpio_count == 2 && ts->gpio_int_idx != -1) {
-+		irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
-+		if (irq > 0 && irq != ts->client->irq) {
-+			dev_warn(dev, "Overriding IRQ %d -> %d\n", ts->client->irq, irq);
-+			ts->client->irq = irq;
-+		}
-+	}
-+
- 	if (ts->gpio_count == 2 && ts->gpio_int_idx == 0) {
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
- 		gpio_mapping = acpi_goodix_int_first_gpios;
-@@ -784,7 +784,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 		dev_info(dev, "Using ACPI INTI and INTO methods for IRQ pin access\n");
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_METHOD;
- 		gpio_mapping = acpi_goodix_reset_only_gpios;
--	} else if (is_byt() && ts->gpio_count == 2 && ts->gpio_int_idx == -1) {
-+	} else if (soc_intel_is_byt() && ts->gpio_count == 2 && ts->gpio_int_idx == -1) {
- 		dev_info(dev, "No ACPI GpioInt resource, assuming that the GPIO order is reset, int\n");
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
- 		gpio_mapping = acpi_goodix_int_last_gpios;
-diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
-index 137eea4c7bad..4871428859fd 100644
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -1716,15 +1716,15 @@ static int rcar_canfd_channel_probe(struct rcar_canfd_global *gpriv, u32 ch,
- 
- 	netif_napi_add(ndev, &priv->napi, rcar_canfd_rx_poll,
- 		       RCANFD_NAPI_WEIGHT);
-+	spin_lock_init(&priv->tx_lock);
-+	devm_can_led_init(ndev);
-+	gpriv->ch[priv->channel] = priv;
- 	err = register_candev(ndev);
- 	if (err) {
- 		dev_err(&pdev->dev,
- 			"register_candev() failed, error %d\n", err);
- 		goto fail_candev;
- 	}
--	spin_lock_init(&priv->tx_lock);
--	devm_can_led_init(ndev);
--	gpriv->ch[priv->channel] = priv;
- 	dev_info(&pdev->dev, "device registered (channel %u)\n", priv->channel);
- 	return 0;
- 
-diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
-index babc955ba64e..b47a8237c6dd 100644
---- a/drivers/net/ethernet/broadcom/bnx2.c
-+++ b/drivers/net/ethernet/broadcom/bnx2.c
-@@ -8212,7 +8212,7 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
- 		rc = dma_set_coherent_mask(&pdev->dev, persist_dma_mask);
- 		if (rc) {
- 			dev_err(&pdev->dev,
--				"pci_set_consistent_dma_mask failed, aborting\n");
-+				"dma_set_coherent_mask failed, aborting\n");
- 			goto err_out_unmap;
- 		}
- 	} else if ((rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) != 0) {
-diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index fa91896ae699..8093346f163b 100644
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -891,7 +891,16 @@ static inline void ice_set_rdma_cap(struct ice_pf *pf)
-  */
- static inline void ice_clear_rdma_cap(struct ice_pf *pf)
- {
--	ice_unplug_aux_dev(pf);
-+	/* We can directly unplug aux device here only if the flag bit
-+	 * ICE_FLAG_PLUG_AUX_DEV is not set because ice_unplug_aux_dev()
-+	 * could race with ice_plug_aux_dev() called from
-+	 * ice_service_task(). In this case we only clear that bit now and
-+	 * aux device will be unplugged later once ice_plug_aux_device()
-+	 * called from ice_service_task() finishes (see ice_service_task()).
-+	 */
-+	if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+		ice_unplug_aux_dev(pf);
-+
- 	clear_bit(ICE_FLAG_RDMA_ENA, pf->flags);
- 	clear_bit(ICE_FLAG_AUX_ENA, pf->flags);
- }
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 676e837d48cf..8a6c3716cdab 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2237,9 +2237,19 @@ static void ice_service_task(struct work_struct *work)
- 		return;
- 	}
- 
--	if (test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+	if (test_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags)) {
-+		/* Plug aux device per request */
- 		ice_plug_aux_dev(pf);
- 
-+		/* Mark plugging as done but check whether unplug was
-+		 * requested during ice_plug_aux_dev() call
-+		 * (e.g. from ice_clear_rdma_cap()) and if so then
-+		 * plug aux device.
+ 	if (refcount_dec_and_test(&cache->refs)) {
+ 		WARN_ON(cache->pinned > 0);
+-		WARN_ON(cache->reserved > 0);
++		/*
++		 * If there was a failure to cleanup a log tree, very likely due
++		 * to an IO failure on a writeback attempt of one or more of its
++		 * extent buffers, we could not do proper (and cheap) unaccounting
++		 * of their reserved space, so don't warn on reserved > 0 in that
++		 * case.
 +		 */
-+		if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+			ice_unplug_aux_dev(pf);
-+	}
++		if (!(cache->flags & BTRFS_BLOCK_GROUP_METADATA) ||
++		    !BTRFS_FS_LOG_CLEANUP_ERROR(cache->fs_info))
++			WARN_ON(cache->reserved > 0);
+ 
+ 		/*
+ 		 * A block_group shouldn't be on the discard_list anymore.
+@@ -3888,9 +3897,22 @@ int btrfs_free_block_groups(struct btrfs_fs_info *info)
+ 		 * important and indicates a real bug if this happens.
+ 		 */
+ 		if (WARN_ON(space_info->bytes_pinned > 0 ||
+-			    space_info->bytes_reserved > 0 ||
+ 			    space_info->bytes_may_use > 0))
+ 			btrfs_dump_space_info(info, space_info, 0, 0);
 +
- 	if (test_and_clear_bit(ICE_FLAG_MTU_CHANGED, pf->flags)) {
- 		struct iidc_event *event;
- 
-diff --git a/drivers/net/ethernet/sfc/mcdi.c b/drivers/net/ethernet/sfc/mcdi.c
-index be6bfd6b7ec7..50baf62b2cbc 100644
---- a/drivers/net/ethernet/sfc/mcdi.c
-+++ b/drivers/net/ethernet/sfc/mcdi.c
-@@ -163,9 +163,9 @@ static void efx_mcdi_send_request(struct efx_nic *efx, unsigned cmd,
- 	/* Serialise with efx_mcdi_ev_cpl() and efx_mcdi_ev_death() */
- 	spin_lock_bh(&mcdi->iface_lock);
- 	++mcdi->seqno;
-+	seqno = mcdi->seqno & SEQ_MASK;
- 	spin_unlock_bh(&mcdi->iface_lock);
- 
--	seqno = mcdi->seqno & SEQ_MASK;
- 	xflags = 0;
- 	if (mcdi->mode == MCDI_MODE_EVENTS)
- 		xflags |= MCDI_HEADER_XFLAGS_EVREQ;
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
-index f470f9aea50f..c97798f6290a 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
-@@ -552,8 +552,7 @@ static const struct ieee80211_sband_iftype_data iwl_he_capa[] = {
- 			.has_he = true,
- 			.he_cap_elem = {
- 				.mac_cap_info[0] =
--					IEEE80211_HE_MAC_CAP0_HTC_HE |
--					IEEE80211_HE_MAC_CAP0_TWT_REQ,
-+					IEEE80211_HE_MAC_CAP0_HTC_HE,
- 				.mac_cap_info[1] =
- 					IEEE80211_HE_MAC_CAP1_TF_MAC_PAD_DUR_16US |
- 					IEEE80211_HE_MAC_CAP1_MULTI_TID_AGG_RX_QOS_8,
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index cde3d2ce0b85..a65024fc96dd 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -223,7 +223,6 @@ static const u8 he_if_types_ext_capa_sta[] = {
- 	 [0] = WLAN_EXT_CAPA1_EXT_CHANNEL_SWITCHING,
- 	 [2] = WLAN_EXT_CAPA3_MULTI_BSSID_SUPPORT,
- 	 [7] = WLAN_EXT_CAPA8_OPMODE_NOTIF,
--	 [9] = WLAN_EXT_CAPA10_TWT_REQUESTER_SUPPORT,
++		/*
++		 * If there was a failure to cleanup a log tree, very likely due
++		 * to an IO failure on a writeback attempt of one or more of its
++		 * extent buffers, we could not do proper (and cheap) unaccounting
++		 * of their reserved space, so don't warn on bytes_reserved > 0 in
++		 * that case.
++		 */
++		if (!(space_info->flags & BTRFS_BLOCK_GROUP_METADATA) ||
++		    !BTRFS_FS_LOG_CLEANUP_ERROR(info)) {
++			if (WARN_ON(space_info->bytes_reserved > 0))
++				btrfs_dump_space_info(info, space_info, 0, 0);
++		}
++
+ 		WARN_ON(space_info->reclaim_size > 0);
+ 		list_del(&space_info->list);
+ 		btrfs_sysfs_remove_space_info(space_info);
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index e89f814cc8f5..21c44846b002 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -142,6 +142,9 @@ enum {
+ 	BTRFS_FS_STATE_DEV_REPLACING,
+ 	/* The btrfs_fs_info created for self-tests */
+ 	BTRFS_FS_STATE_DUMMY_FS_INFO,
++
++	/* Indicates there was an error cleaning up a log tree. */
++	BTRFS_FS_STATE_LOG_CLEANUP_ERROR,
  };
  
- static const struct wiphy_iftype_ext_capab he_iftypes_ext_capa[] = {
-diff --git a/include/linux/netfilter_netdev.h b/include/linux/netfilter_netdev.h
-index b4dd96e4dc8d..e6487a691136 100644
---- a/include/linux/netfilter_netdev.h
-+++ b/include/linux/netfilter_netdev.h
-@@ -101,7 +101,11 @@ static inline struct sk_buff *nf_hook_egress(struct sk_buff *skb, int *rc,
- 	nf_hook_state_init(&state, NF_NETDEV_EGRESS,
- 			   NFPROTO_NETDEV, dev, NULL, NULL,
- 			   dev_net(dev), NULL);
+ #define BTRFS_BACKREF_REV_MAX		256
+@@ -3578,6 +3581,10 @@ do {								\
+ 			  (errno), fmt, ##args);		\
+ } while (0)
+ 
++#define BTRFS_FS_LOG_CLEANUP_ERROR(fs_info)				\
++	(unlikely(test_bit(BTRFS_FS_STATE_LOG_CLEANUP_ERROR,		\
++			   &(fs_info)->fs_state)))
 +
-+	/* nf assumes rcu_read_lock, not just read_lock_bh */
-+	rcu_read_lock();
- 	ret = nf_hook_slow(skb, &state, e, 0);
-+	rcu_read_unlock();
- 
- 	if (ret == 1) {
- 		return skb;
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 301a164f17e9..358dfe6fefef 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1679,14 +1679,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 	       const struct xfrm_migrate *m, int num_bundles,
- 	       const struct xfrm_kmaddress *k,
- 	       const struct xfrm_encap_tmpl *encap);
--struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
-+struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
-+						u32 if_id);
- struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
- 				      struct xfrm_migrate *m,
- 				      struct xfrm_encap_tmpl *encap);
- int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 		 struct xfrm_migrate *m, int num_bundles,
- 		 struct xfrm_kmaddress *k, struct net *net,
--		 struct xfrm_encap_tmpl *encap);
-+		 struct xfrm_encap_tmpl *encap, u32 if_id);
- #endif
- 
- int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
-diff --git a/lib/Kconfig b/lib/Kconfig
-index 5e7165e6a346..fa4b10322efc 100644
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -45,7 +45,6 @@ config BITREVERSE
- config HAVE_ARCH_BITREVERSE
- 	bool
- 	default n
--	depends on BITREVERSE
- 	help
- 	  This option enables the use of hardware bit-reversal instructions on
- 	  architectures which support such operations.
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 6c00ce302f09..1c8fb27b155a 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3969,6 +3969,7 @@ void hci_release_dev(struct hci_dev *hdev)
- 	hci_dev_unlock(hdev);
- 
- 	ida_simple_remove(&hci_index_ida, hdev->id);
-+	kfree_skb(hdev->sent_cmd);
- 	kfree(hdev);
- }
- EXPORT_SYMBOL(hci_release_dev);
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 28abb0bb1c51..38f936785179 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1653,11 +1653,13 @@ int tcp_read_sock(struct sock *sk, read_descriptor_t *desc,
- 				if (!copied)
- 					copied = used;
- 				break;
--			} else if (used <= len) {
--				seq += used;
--				copied += used;
--				offset += used;
- 			}
-+			if (WARN_ON_ONCE(used > len))
-+				used = len;
-+			seq += used;
-+			copied += used;
-+			offset += used;
+ __printf(5, 6)
+ __cold
+ void __btrfs_panic(struct btrfs_fs_info *fs_info, const char *function,
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 8ef65073ce8c..e90d80a8a9e3 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3423,6 +3423,29 @@ static void free_log_tree(struct btrfs_trans_handle *trans,
+ 	if (log->node) {
+ 		ret = walk_log_tree(trans, log, &wc);
+ 		if (ret) {
++			/*
++			 * We weren't able to traverse the entire log tree, the
++			 * typical scenario is getting an -EIO when reading an
++			 * extent buffer of the tree, due to a previous writeback
++			 * failure of it.
++			 */
++			set_bit(BTRFS_FS_STATE_LOG_CLEANUP_ERROR,
++				&log->fs_info->fs_state);
 +
- 			/* If recv_actor drops the lock (e.g. TCP splice
- 			 * receive) the skb pointer might be invalid when
- 			 * getting here: tcp_collapse might have deleted it
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index de24a7d474df..9bf52a09b5ff 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -2623,7 +2623,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
- 	}
- 
- 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
--			    kma ? &k : NULL, net, NULL);
-+			    kma ? &k : NULL, net, NULL, 0);
- 
-  out:
- 	return err;
-diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
-index 74a878f213d3..1deb3d874a4b 100644
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -9,7 +9,7 @@
-  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
-  * Copyright 2007-2010, Intel Corporation
-  * Copyright(c) 2015-2017 Intel Deutschland GmbH
-- * Copyright (C) 2018 - 2021 Intel Corporation
-+ * Copyright (C) 2018 - 2022 Intel Corporation
-  */
- 
- #include <linux/ieee80211.h>
-@@ -626,6 +626,14 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
- 		return -EINVAL;
- 	}
- 
-+	if (test_sta_flag(sta, WLAN_STA_MFP) &&
-+	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {
-+		ht_dbg(sdata,
-+		       "MFP STA not authorized - deny BA session request %pM tid %d\n",
-+		       sta->sta.addr, tid);
-+		return -EINVAL;
-+	}
++			/*
++			 * Some extent buffers of the log tree may still be dirty
++			 * and not yet written back to storage, because we may
++			 * have updates to a log tree without syncing a log tree,
++			 * such as during rename and link operations. So flush
++			 * them out and wait for their writeback to complete, so
++			 * that we properly cleanup their state and pages.
++			 */
++			btrfs_write_marked_extents(log->fs_info,
++						   &log->dirty_log_pages,
++						   EXTENT_DIRTY | EXTENT_NEW);
++			btrfs_wait_tree_log_extents(log,
++						    EXTENT_DIRTY | EXTENT_NEW);
 +
- 	/*
- 	 * 802.11n-2009 11.5.1.1: If the initiating STA is an HT STA, is a
- 	 * member of an IBSS, and has no other existing Block Ack agreement
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index f73251828782..9b4bb1460cef 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -17757,7 +17757,8 @@ void cfg80211_ch_switch_notify(struct net_device *dev,
- 	wdev->chandef = *chandef;
- 	wdev->preset_chandef = *chandef;
- 
--	if (wdev->iftype == NL80211_IFTYPE_STATION &&
-+	if ((wdev->iftype == NL80211_IFTYPE_STATION ||
-+	     wdev->iftype == NL80211_IFTYPE_P2P_CLIENT) &&
- 	    !WARN_ON(!wdev->current_bss))
- 		cfg80211_update_assoc_bss_entry(wdev, chandef->chan);
- 
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 4924b9135c6e..fbc0b2798184 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -4257,7 +4257,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
- }
- 
- static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
--						    u8 dir, u8 type, struct net *net)
-+						    u8 dir, u8 type, struct net *net, u32 if_id)
- {
- 	struct xfrm_policy *pol, *ret = NULL;
- 	struct hlist_head *chain;
-@@ -4266,7 +4266,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
- 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
- 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
- 	hlist_for_each_entry(pol, chain, bydst) {
--		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
-+		if ((if_id == 0 || pol->if_id == if_id) &&
-+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
- 		    pol->type == type) {
- 			ret = pol;
- 			priority = ret->priority;
-@@ -4278,7 +4279,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
- 		if ((pol->priority >= priority) && ret)
- 			break;
- 
--		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
-+		if ((if_id == 0 || pol->if_id == if_id) &&
-+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
- 		    pol->type == type) {
- 			ret = pol;
- 			break;
-@@ -4394,7 +4396,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
- int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 		 struct xfrm_migrate *m, int num_migrate,
- 		 struct xfrm_kmaddress *k, struct net *net,
--		 struct xfrm_encap_tmpl *encap)
-+		 struct xfrm_encap_tmpl *encap, u32 if_id)
- {
- 	int i, err, nx_cur = 0, nx_new = 0;
- 	struct xfrm_policy *pol = NULL;
-@@ -4413,14 +4415,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 	}
- 
- 	/* Stage 1 - find policy */
--	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
-+	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
- 		err = -ENOENT;
- 		goto out;
- 	}
- 
- 	/* Stage 2 - find and update state(s) */
- 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
--		if ((x = xfrm_migrate_state_find(mp, net))) {
-+		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
- 			x_cur[nx_cur] = x;
- 			nx_cur++;
- 			xc = xfrm_state_migrate(x, mp, encap);
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 100b4b3723e7..f7bfa1916968 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1578,9 +1578,6 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
- 	memcpy(&x->mark, &orig->mark, sizeof(x->mark));
- 	memcpy(&x->props.smark, &orig->props.smark, sizeof(x->props.smark));
- 
--	if (xfrm_init_state(x) < 0)
--		goto error;
--
- 	x->props.flags = orig->props.flags;
- 	x->props.extra_flags = orig->props.extra_flags;
- 
-@@ -1605,7 +1602,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
- 	return NULL;
- }
- 
--struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
-+struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
-+						u32 if_id)
- {
- 	unsigned int h;
- 	struct xfrm_state *x = NULL;
-@@ -1621,6 +1619,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
- 				continue;
- 			if (m->reqid && x->props.reqid != m->reqid)
- 				continue;
-+			if (if_id != 0 && x->if_id != if_id)
-+				continue;
- 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
- 					     m->old_family) ||
- 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
-@@ -1636,6 +1636,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
- 			if (x->props.mode != m->mode ||
- 			    x->id.proto != m->proto)
- 				continue;
-+			if (if_id != 0 && x->if_id != if_id)
-+				continue;
- 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
- 					     m->old_family) ||
- 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
-@@ -1662,6 +1664,11 @@ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
- 	if (!xc)
- 		return NULL;
- 
-+	xc->props.family = m->new_family;
-+
-+	if (xfrm_init_state(xc) < 0)
-+		goto error;
-+
- 	memcpy(&xc->id.daddr, &m->new_daddr, sizeof(xc->id.daddr));
- 	memcpy(&xc->props.saddr, &m->new_saddr, sizeof(xc->props.saddr));
- 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index c60441be883a..a8c142bd1263 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -629,13 +629,8 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
- 
- 	xfrm_smark_init(attrs, &x->props.smark);
- 
--	if (attrs[XFRMA_IF_ID]) {
-+	if (attrs[XFRMA_IF_ID])
- 		x->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
--		if (!x->if_id) {
--			err = -EINVAL;
--			goto error;
--		}
--	}
- 
- 	err = __xfrm_init_state(x, false, attrs[XFRMA_OFFLOAD_DEV]);
- 	if (err)
-@@ -1431,13 +1426,8 @@ static int xfrm_alloc_userspi(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	mark = xfrm_mark_get(attrs, &m);
- 
--	if (attrs[XFRMA_IF_ID]) {
-+	if (attrs[XFRMA_IF_ID])
- 		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
--		if (!if_id) {
--			err = -EINVAL;
--			goto out_noput;
--		}
--	}
- 
- 	if (p->info.seq) {
- 		x = xfrm_find_acq_byseq(net, mark, p->info.seq);
-@@ -1750,13 +1740,8 @@ static struct xfrm_policy *xfrm_policy_construct(struct net *net, struct xfrm_us
- 
- 	xfrm_mark_get(attrs, &xp->mark);
- 
--	if (attrs[XFRMA_IF_ID]) {
-+	if (attrs[XFRMA_IF_ID])
- 		xp->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
--		if (!xp->if_id) {
--			err = -EINVAL;
--			goto error;
--		}
--	}
- 
- 	return xp;
-  error:
-@@ -2607,6 +2592,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	int n = 0;
- 	struct net *net = sock_net(skb->sk);
- 	struct xfrm_encap_tmpl  *encap = NULL;
-+	u32 if_id = 0;
- 
- 	if (attrs[XFRMA_MIGRATE] == NULL)
- 		return -EINVAL;
-@@ -2631,7 +2617,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
- 			return -ENOMEM;
- 	}
- 
--	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
-+	if (attrs[XFRMA_IF_ID])
-+		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
-+
-+	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
- 
- 	kfree(encap);
- 
-diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
-index 9354a5e0321c..3f7f5bd4e4c0 100644
---- a/tools/testing/selftests/vm/userfaultfd.c
-+++ b/tools/testing/selftests/vm/userfaultfd.c
-@@ -46,6 +46,7 @@
- #include <signal.h>
- #include <poll.h>
- #include <string.h>
-+#include <linux/mman.h>
- #include <sys/mman.h>
- #include <sys/syscall.h>
- #include <sys/ioctl.h>
+ 			if (trans)
+ 				btrfs_abort_transaction(trans, ret);
+ 			else
+-- 
+2.33.1
+
