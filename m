@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E3C4E28F7
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F164E2A2B
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348314AbiCUOBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60128 "EHLO
+        id S1349049AbiCUOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:14:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349161AbiCUN73 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA0B17E34;
-        Mon, 21 Mar 2022 06:58:03 -0700 (PDT)
+        with ESMTP id S1349611AbiCUOId (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE411E3D5;
+        Mon, 21 Mar 2022 07:03:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 833786125C;
-        Mon, 21 Mar 2022 13:58:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937CBC340E8;
-        Mon, 21 Mar 2022 13:58:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B09ED6132C;
+        Mon, 21 Mar 2022 14:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FB3C340E8;
+        Mon, 21 Mar 2022 14:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871083;
-        bh=JsBG2MyiRhsA2oGen2dAlVo6MAvoBKtGqss16qFVF4k=;
+        s=korg; t=1647871386;
+        bh=0uBFwo4dObKSt47frABjkpdhEbOqAtuJ8KAHkE6jSiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEKPWPwESqiCRGNiviQgHrfGtxs2lVfmjvMI0XJBf5M+5rxEfo1i9OkzhCyJ2wDiC
-         Q51UFqcNez7U+9uW4uE6d3e29BHdSokqyNvHFVS3Q/YOd088rmOPiACEQgMPg0f37i
-         dURGRkS/8r5HKx72DnpJdr63OtAFj+0yvtyhOyhU=
+        b=J1iP2CjETf7WNqkuc+dPiwt56VxJT0LQLk04SRmMFo856iceBongTS9NQWxDHEKFM
+         JfVbFRwZ3CkoFyIVZsMTIhLjfyz3kwy+3sPVr01sv06hNzdqVcBXWbv9DV3JEyyA/D
+         Bs2rFX9LkRYV0LfWv+dJCZJSnIAYm+IWrxgAleC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
-        Tommi Rantala <tommi.t.rantala@nokia.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/17] Revert "selftests/bpf: Add test for bpf_timer overwriting crash"
-Date:   Mon, 21 Mar 2022 14:52:53 +0100
-Message-Id: <20220321133217.653517515@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 12/37] nvmet: revert "nvmet: make discovery NQN configurable"
+Date:   Mon, 21 Mar 2022 14:52:54 +0100
+Message-Id: <20220321133221.650869844@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
+References: <20220321133221.290173884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,120 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Hannes Reinecke <hare@suse.de>
 
-This reverts commit dcf55b071de9231e197ba7b1a2d0a423e8d7d33a which is
-commit a7e75016a0753c24d6c995bc02501ae35368e333 upstream.
+[ Upstream commit 0c48645a7f3988a624767d025fa3275ae24b6ca1 ]
 
-It is reported to break the bpf self-tests.
+Revert commit 626851e9225d ("nvmet: make discovery NQN configurable");
+the interface was deemed incorrect and will be replaced with a different
+one.
 
-Reported-by: Geliang Tang <geliang.tang@suse.com>
-Reported-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Cc: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
-Cc: Sasha Levin <sashal@kernel.org>
-Link: https://lore.kernel.org/r/a0a7298ca5c64b3d0ecfcc8821c2de79186fa9f7.camel@nokia.com
-Link: https://lore.kernel.org/r/HE1PR0402MB3497CB13A12C4D15D20A1FCCF8139@HE1PR0402MB3497.eurprd04.prod.outlook.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 626851e9225d ("nvmet: make discovery NQN configurable")
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/timer_crash.c |   32 -----------
- tools/testing/selftests/bpf/progs/timer_crash.c      |   54 -------------------
- 2 files changed, 86 deletions(-)
- delete mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
- delete mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
+ drivers/nvme/target/configfs.c | 39 ----------------------------------
+ drivers/nvme/target/core.c     |  3 +--
+ 2 files changed, 1 insertion(+), 41 deletions(-)
 
---- a/tools/testing/selftests/bpf/prog_tests/timer_crash.c
-+++ /dev/null
-@@ -1,32 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--#include <test_progs.h>
--#include "timer_crash.skel.h"
--
--enum {
--	MODE_ARRAY,
--	MODE_HASH,
--};
--
--static void test_timer_crash_mode(int mode)
+diff --git a/drivers/nvme/target/configfs.c b/drivers/nvme/target/configfs.c
+index 091a0ca16361..496d775c6770 100644
+--- a/drivers/nvme/target/configfs.c
++++ b/drivers/nvme/target/configfs.c
+@@ -1233,44 +1233,6 @@ static ssize_t nvmet_subsys_attr_model_store(struct config_item *item,
+ }
+ CONFIGFS_ATTR(nvmet_subsys_, attr_model);
+ 
+-static ssize_t nvmet_subsys_attr_discovery_nqn_show(struct config_item *item,
+-			char *page)
 -{
--	struct timer_crash *skel;
--
--	skel = timer_crash__open_and_load();
--	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
--		return;
--	skel->bss->pid = getpid();
--	skel->bss->crash_map = mode;
--	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
--		goto end;
--	usleep(1);
--end:
--	timer_crash__destroy(skel);
+-	return snprintf(page, PAGE_SIZE, "%s\n",
+-			nvmet_disc_subsys->subsysnqn);
 -}
 -
--void test_timer_crash(void)
+-static ssize_t nvmet_subsys_attr_discovery_nqn_store(struct config_item *item,
+-			const char *page, size_t count)
 -{
--	if (test__start_subtest("array"))
--		test_timer_crash_mode(MODE_ARRAY);
--	if (test__start_subtest("hash"))
--		test_timer_crash_mode(MODE_HASH);
--}
---- a/tools/testing/selftests/bpf/progs/timer_crash.c
-+++ /dev/null
-@@ -1,54 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
+-	struct nvmet_subsys *subsys = to_subsys(item);
+-	char *subsysnqn;
+-	int len;
 -
--#include <vmlinux.h>
--#include <bpf/bpf_tracing.h>
--#include <bpf/bpf_helpers.h>
+-	len = strcspn(page, "\n");
+-	if (!len)
+-		return -EINVAL;
 -
--struct map_elem {
--	struct bpf_timer timer;
--	struct bpf_spin_lock lock;
--};
+-	subsysnqn = kmemdup_nul(page, len, GFP_KERNEL);
+-	if (!subsysnqn)
+-		return -ENOMEM;
 -
--struct {
--	__uint(type, BPF_MAP_TYPE_ARRAY);
--	__uint(max_entries, 1);
--	__type(key, int);
--	__type(value, struct map_elem);
--} amap SEC(".maps");
--
--struct {
--	__uint(type, BPF_MAP_TYPE_HASH);
--	__uint(max_entries, 1);
--	__type(key, int);
--	__type(value, struct map_elem);
--} hmap SEC(".maps");
--
--int pid = 0;
--int crash_map = 0; /* 0 for amap, 1 for hmap */
--
--SEC("fentry/do_nanosleep")
--int sys_enter(void *ctx)
--{
--	struct map_elem *e, value = {};
--	void *map = crash_map ? (void *)&hmap : (void *)&amap;
--
--	if (bpf_get_current_task_btf()->tgid != pid)
--		return 0;
--
--	*(void **)&value = (void *)0xdeadcaf3;
--
--	bpf_map_update_elem(map, &(int){0}, &value, 0);
--	/* For array map, doing bpf_map_update_elem will do a
--	 * check_and_free_timer_in_array, which will trigger the crash if timer
--	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
+-	/*
+-	 * The discovery NQN must be different from subsystem NQN.
 -	 */
--	if (crash_map == 1) {
--		e = bpf_map_lookup_elem(map, &(int){0});
--		if (!e)
--			return 0;
--		bpf_timer_cancel(&e->timer);
+-	if (!strcmp(subsysnqn, subsys->subsysnqn)) {
+-		kfree(subsysnqn);
+-		return -EBUSY;
 -	}
--	return 0;
--}
+-	down_write(&nvmet_config_sem);
+-	kfree(nvmet_disc_subsys->subsysnqn);
+-	nvmet_disc_subsys->subsysnqn = subsysnqn;
+-	up_write(&nvmet_config_sem);
 -
--char _license[] SEC("license") = "GPL";
+-	return count;
+-}
+-CONFIGFS_ATTR(nvmet_subsys_, attr_discovery_nqn);
+-
+ #ifdef CONFIG_BLK_DEV_INTEGRITY
+ static ssize_t nvmet_subsys_attr_pi_enable_show(struct config_item *item,
+ 						char *page)
+@@ -1300,7 +1262,6 @@ static struct configfs_attribute *nvmet_subsys_attrs[] = {
+ 	&nvmet_subsys_attr_attr_cntlid_min,
+ 	&nvmet_subsys_attr_attr_cntlid_max,
+ 	&nvmet_subsys_attr_attr_model,
+-	&nvmet_subsys_attr_attr_discovery_nqn,
+ #ifdef CONFIG_BLK_DEV_INTEGRITY
+ 	&nvmet_subsys_attr_attr_pi_enable,
+ #endif
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 5119c687de68..626caf6f1e4b 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -1493,8 +1493,7 @@ static struct nvmet_subsys *nvmet_find_get_subsys(struct nvmet_port *port,
+ 	if (!port)
+ 		return NULL;
+ 
+-	if (!strcmp(NVME_DISC_SUBSYS_NAME, subsysnqn) ||
+-	    !strcmp(nvmet_disc_subsys->subsysnqn, subsysnqn)) {
++	if (!strcmp(NVME_DISC_SUBSYS_NAME, subsysnqn)) {
+ 		if (!kref_get_unless_zero(&nvmet_disc_subsys->ref))
+ 			return NULL;
+ 		return nvmet_disc_subsys;
+-- 
+2.34.1
+
 
 
