@@ -2,124 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D3E4E22E7
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 10:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA39E4E2330
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 10:20:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241874AbiCUJGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 05:06:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53970 "EHLO
+        id S1345849AbiCUJVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 05:21:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235161AbiCUJGi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 05:06:38 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3F8931A1
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 02:05:13 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id d18so12138643plr.6
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 02:05:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=7giopjWTyujn3G/xgAOAojss0g1xOFmKeCsas97kVGU=;
-        b=h1r111w0IoNADAqUSnIrye1Efk50TcSVSgsPQo1p5dUP72Mmtu18TvGLmvHqUP8Gyi
-         3vqOiIhspE/t0IfmnoaG8U8u0nBEI0fy/VPAg1pDaGFGno9X+QFa1YCTbRaq0ohis/iy
-         A1ecfjEtcYo1Vqcc+o4sK3hl/7gtorZyvBolhR/igU32el1VQCxAmIeQZYBHED5xb9a/
-         e1mDjCeEB3upEBi8QulzvoPQY432APyXne+9FJ7X3idfyaD/uxKsr2BoCf1BFfCOEJZk
-         TAWSNlSz9HCJNMUyIpbzMCJ8DwesIwbR9Ms1IMjjsq29oqJxPUy1WEvXfxPu2Cj4vaWh
-         oX8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=7giopjWTyujn3G/xgAOAojss0g1xOFmKeCsas97kVGU=;
-        b=uTW8MFFMKwQGm1Zxd5FEJo6IiGaRQlBVEhzaBYCnv9lom1gAScqEF6uUdoi73lxqjE
-         4mjRxTVaOZlaNLi/SItxWW3t/oDIBgAAmS/L01C0QP2f9Ol7LzQTHqm08he7tzJLLrEo
-         I3xj29Xfpa79mz1L43KnDze1nDTlwQtTkKQKQ6vVda/VNU1H+Z6fGXZswqooEM6DX+lH
-         gpHK/z+cdQmuf74I6fFJDGl1Nlvyce8Uu7gcIZAfJcRRs4IsOMWCvF5aig7WDQMAjPyz
-         4oObMlxkZY20Z/i0LWvk0RoyMx5xmJo4bxXu8dy+jOj+Qt1XyfKStfkiDEZ8H8MEUgiZ
-         mKBA==
-X-Gm-Message-State: AOAM533W1li2VolNDHHo4DmLbGJGIalMwzRtttR3QPYOa/OYCKoZ64u/
-        eAMm3/7np6gxhlEhG1yaIlnNfKCmlvSewcRg1Yw=
-X-Google-Smtp-Source: ABdhPJzUW4m5ByRDluheon/PZ1HhmZHGnQkyXAG1mKMIv1sGO9GWmohNAaN9BQX6NRoeMDvKqvKyYtXWPVoQ1Y/BrSA=
-X-Received: by 2002:a17:902:74c3:b0:153:efa3:a127 with SMTP id
- f3-20020a17090274c300b00153efa3a127mr11815412plt.106.1647853513516; Mon, 21
- Mar 2022 02:05:13 -0700 (PDT)
+        with ESMTP id S1345841AbiCUJVV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 05:21:21 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE74F4619;
+        Mon, 21 Mar 2022 02:19:56 -0700 (PDT)
+Date:   Mon, 21 Mar 2022 09:19:52 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1647854394;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Tt65ZL8xhF4wrewSGkn1srAbuGS8NYTI48r/kHBjnA8=;
+        b=SQpEu1umeqqoYlZ8gyMziv4NTrmnD5LR8d3UDtkd9th72+JlDGssvMD2c/FJ+694006bVq
+        cB5vmT2WToQUAPaSMaNk9UO9bNbM4U9xrRF1jBGYvwAOXdLUcsotWWw/x8Z3ofgET5W///
+        lug5MYus5+31w+UtrLKvSv1J94EN6000mZW1+g4Gu9NhH7RkadkRbnFesdUpRmT915hD/u
+        aZkQFh9VbT1JMuNo+XhjYAXB5WpHyjGkqhOr7G09jxMhIwuUAQeCT2qZN92P0IwlGHzjoO
+        R5r6XFeOUqiT4dALiZckfeTFhS8xs4hc1rwQOr6SBBdqRLcyDddhqAlEWI510Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1647854394;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Tt65ZL8xhF4wrewSGkn1srAbuGS8NYTI48r/kHBjnA8=;
+        b=64lhmoy5uAAYItB0du58oe9UpuFF1fd06NTrYLQ3XFOcMxMR+YIC8lE7j1w51CZo9261Aa
+        ek7zg52IEPq+5hBQ==
+From:   "irqchip-bot for Marc Zyngier" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
+Subject: [irqchip: irq/irqchip-next] irqchip/gic-v3: Fix GICR_CTLR.RWP polling
+Cc:     Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org,
+        Andre Przywara <andre.przywara@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        tglx@linutronix.de
+In-Reply-To: <20220315165034.794482-2-maz@kernel.org>
+References: <20220315165034.794482-2-maz@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:a17:90a:8b02:0:0:0:0 with HTTP; Mon, 21 Mar 2022 02:05:12
- -0700 (PDT)
-Reply-To: susannelegitfirm155@gmail.com
-From:   Susanne Klatten <usmanabdulaziz8812@gmail.com>
-Date:   Mon, 21 Mar 2022 10:05:12 +0100
-Message-ID: <CAPxMV8m6FRxGyfGaxXeEHpWO=X-O--VZKqX5+__iys6VFO=rcQ@mail.gmail.com>
-Subject: =?UTF-8?B?UE/Fu1lDWktB?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=6.3 required=5.0 tests=BAYES_05,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,FUZZY_CREDIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:636 listed in]
-        [list.dnswl.org]
-        * -0.5 BAYES_05 BODY: Bayes spam probability is 1 to 5%
-        *      [score: 0.0311]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [usmanabdulaziz8812[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [usmanabdulaziz8812[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [susannelegitfirm155[at]gmail.com]
-        *  1.7 FUZZY_CREDIT BODY: Attempt to obfuscate words in spam
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.8 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: ******
+Message-ID: <164785439291.389.17030931008479432629.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-cze=C5=9B=C4=87
+The following commit has been merged into the irq/irqchip-next branch of irqchip:
 
-Nazywam si=C4=99 Susanne Klatten i jestem Z Niemiec, mog=C4=99 kontrolowa=
-=C4=87 Twoje
-problemy finansowe bez uciekania si=C4=99 do Bank=C3=B3w w zakresie Pieni=
-=C4=85dze
-Kredytowe. Oferujemy po=C5=BCyczki osobiste i po=C5=BCyczki biznesowe, jest=
-em
-zatwierdzonym i certyfikowanym po=C5=BCyczkodawc=C4=85 z wieloletnim
-do=C5=9Bwiadczeniem w udzielaniu po=C5=BCyczek i udzielamy po=C5=BCyczek z
-zabezpieczeniem i bez zabezpieczenia w zakresie od 2.000,00 =E2=82=AC ($) d=
-o
-maksymalnie 500 000 000,00 =E2=82=AC ze sta=C5=82ym oprocentowaniem 3% w st=
-osunku
-rocznym. Czy potrzebujesz po=C5=BCyczki? Napisz do nas na:
-susannelegitfirm155@gmail.com
+Commit-ID:     c114741827436ad1f1d465f3719f77b996ea6eca
+Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms/c114741827436ad1f1d465f3719f77b996ea6eca
+Author:        Marc Zyngier <maz@kernel.org>
+AuthorDate:    Tue, 15 Mar 2022 16:50:32 
+Committer:     Marc Zyngier <maz@kernel.org>
+CommitterDate: Mon, 21 Mar 2022 09:17:13 
 
-  Mo=C5=BCesz r=C3=B3wnie=C5=BC zobaczy=C4=87 m=C3=B3j link i dowiedzie=C4=
-=87 si=C4=99 wi=C4=99cej o mnie.
+irqchip/gic-v3: Fix GICR_CTLR.RWP polling
 
-  https://en.wikipedia.org/wiki/Susanne_Klatten
-  https://www.forbes.com/profile/susanne-klatten
+It turns out that our polling of RWP is totally wrong when checking
+for it in the redistributors, as we test the *distributor* bit index,
+whereas it is a different bit number in the RDs... Oopsie boo.
 
-  E-mail: susannelegitfirm155@gmail.com
-  Podpis,
-  Przewodnicz=C4=85cy Wykonawczy
-  Susanne Klatten
+This is embarassing. Not only because it is wrong, but also because
+it took *8 years* to notice the blunder...
+
+Just fix the damn thing.
+
+Fixes: 021f653791ad ("irqchip: gic-v3: Initial support for GICv3")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/20220315165034.794482-2-maz@kernel.org
+---
+ drivers/irqchip/irq-gic-v3.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index 0efe1a9..9b63165 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -206,11 +206,11 @@ static inline void __iomem *gic_dist_base(struct irq_data *d)
+ 	}
+ }
+ 
+-static void gic_do_wait_for_rwp(void __iomem *base)
++static void gic_do_wait_for_rwp(void __iomem *base, u32 bit)
+ {
+ 	u32 count = 1000000;	/* 1s! */
+ 
+-	while (readl_relaxed(base + GICD_CTLR) & GICD_CTLR_RWP) {
++	while (readl_relaxed(base + GICD_CTLR) & bit) {
+ 		count--;
+ 		if (!count) {
+ 			pr_err_ratelimited("RWP timeout, gone fishing\n");
+@@ -224,13 +224,13 @@ static void gic_do_wait_for_rwp(void __iomem *base)
+ /* Wait for completion of a distributor change */
+ static void gic_dist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data.dist_base);
++	gic_do_wait_for_rwp(gic_data.dist_base, GICD_CTLR_RWP);
+ }
+ 
+ /* Wait for completion of a redistributor change */
+ static void gic_redist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data_rdist_rd_base());
++	gic_do_wait_for_rwp(gic_data_rdist_rd_base(), GICR_CTLR_RWP);
+ }
+ 
+ #ifdef CONFIG_ARM64
