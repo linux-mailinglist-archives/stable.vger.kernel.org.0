@@ -2,46 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB324E3B68
+	by mail.lfdr.de (Postfix) with ESMTP id F017B4E3B6A
 	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 10:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232159AbiCVJFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 05:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56960 "EHLO
+        id S232251AbiCVJF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 05:05:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231705AbiCVJFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 05:05:17 -0400
+        with ESMTP id S231705AbiCVJFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 05:05:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D155F3E5FB
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 02:03:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4634E3ED23;
+        Tue, 22 Mar 2022 02:03:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63C956165E
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 09:03:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D4E5C340EC;
-        Tue, 22 Mar 2022 09:03:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B592561660;
+        Tue, 22 Mar 2022 09:03:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B053C340EC;
+        Tue, 22 Mar 2022 09:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647939829;
-        bh=1oVZOJg30rAaQeliXHnjLl/kE1Rn/xi3Ej1/bkDvBx8=;
+        s=korg; t=1647939833;
+        bh=fjzX2BdQHdr3ZaSisD0rP9IQyxDRzYITaNP9a8Lv4Uw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j92FsCQuZgCfV3SGLujZ4vMmoxvrxQWoVVv0GZxkYUoe6NQoRDiIrNHVIT8Ny1+kV
-         qkXYZRn0ZxaPz49hSF5FDgB4Jj8FXosLmTBxQpQOxSZrYe54KHfDBSMpJQkFVSvCKD
-         6ezYC6rTRSuXh3dv6FhCy86d930mL4nu/RpkUQQY=
-Date:   Mon, 21 Mar 2022 16:55:08 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH stable-5.15] MAINTAINERS: update Krzysztof Kozlowski's
- email
-Message-ID: <Yjif3B1NQBr6z4c+@kroah.com>
-References: <20220321144743.17896-1-krzk@kernel.org>
+        b=VKlKsR5IXWOK5v94DA2C7CBG4kD+8/4ucEdUKjxK0HshUFGD4Ks3nqTpoKYYNUQQh
+         yFtaZUUaskv9i6EnHrmuxKqTOXP6RanGWgGLeztREGm12HEbFhNb4uz9dg9irRll0H
+         oHHKGUokk775vkKikfm5va1HmL7KjWTWFAkl+nSA=
+Date:   Mon, 21 Mar 2022 16:56:08 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        Darren Hart <darren@os.amperecomputing.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        stable@vger.kernel.org, Barry Song <21cnbao@gmail.com>
+Subject: Re: [PATCH v3] topology: make core_mask include at least
+ cluster_siblings
+Message-ID: <YjigGBypwjzHFRQz@kroah.com>
+References: <e91bcc83-37c8-dcca-e088-8b3fcd737b2c@arm.com>
+ <YieXQD7uG0+R5QBq@fedora>
+ <7ac47c67-0b5e-5caa-20bb-a0100a0cb78f@arm.com>
+ <YijxUAuufpBKLtwy@fedora>
+ <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
+ <Yi9zUuroS1vHWexY@fedora>
+ <eb33745a-9d63-89b1-1245-9d1e0e04a169@arm.com>
+ <YjIAQKwfa3/vr/kU@fedora>
+ <YjIIfS6HkvlrdAHS@bogus>
+ <20220321143021.GB11145@willie-the-truck>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220321144743.17896-1-krzk@kernel.org>
+In-Reply-To: <20220321143021.GB11145@willie-the-truck>
 X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
         DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
         RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -52,25 +71,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 21, 2022 at 03:47:43PM +0100, Krzysztof Kozlowski wrote:
-> From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+On Mon, Mar 21, 2022 at 02:30:22PM +0000, Will Deacon wrote:
+> On Wed, Mar 16, 2022 at 03:55:41PM +0000, Sudeep Holla wrote:
+> > On Wed, Mar 16, 2022 at 08:20:32AM -0700, Darren Hart wrote:
+> > > On Wed, Mar 16, 2022 at 03:48:50PM +0100, Dietmar Eggemann wrote:
+> > 
+> > [...]
+> > 
+> > > >
+> > > > Yeah, I can see your point. It's the smaller hack. My solution just
+> > > > prevents us to manipulate the coregroup mask only to get the MC layer
+> > > > degenerated by the core topology code. But people might say that's a
+> > > > clever thing to do here. So I'm fine with your original solution as well.
+> > > >
+> > > > [...]
+> > >
+> > > Thanks Dietmar,
+> > >
+> > > Sudeep, do we have sufficient consensus to pull in this patch?
+> > 
+> > Indeed. I have already Acked, and sure after all these discussions we have
+> > concluded that this is the best we can do though not matches everyone's taste.
+> > 
+> > Greg or Will(not sure why he had asked since v3 doesn't touch arm64),
+> > Can one of you pick this patch ?
 > 
-> commit 5125091d757a251a128ec38d2397c9d160394eac upstream.
-> 
-> Use Krzysztof Kozlowski's @kernel.org account in maintainer entries.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> Link: https://lore.kernel.org/r/20220307172805.156760-1-krzysztof.kozlowski@canonical.com'
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  .mailmap    |  1 +
->  MAINTAINERS | 28 ++++++++++++++--------------
->  2 files changed, 15 insertions(+), 14 deletions(-)
+> Right, this doesn't touch arm64 any more so I don't think I'm the right
+> person to queue it.
 
-We do not normally do MAINTAINERS updates for older kernel trees as no
-one should be doing development against them.
-
-Any reason why this is different?
+It's too late for 5.18-rc1.  Please rebase and resend it after that is
+out and I will be glad to queue it up.
 
 thanks,
 
