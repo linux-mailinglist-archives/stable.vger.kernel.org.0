@@ -2,63 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F37DC4E240B
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 11:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 696084E2416
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 11:15:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239507AbiCUKOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 06:14:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40382 "EHLO
+        id S1346227AbiCUKRS convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 21 Mar 2022 06:17:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233527AbiCUKOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 06:14:45 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F20D17A80
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 03:13:20 -0700 (PDT)
-Date:   Mon, 21 Mar 2022 11:13:17 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1647857598;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=gDV90gqnyeQtw1YJGnbnnx5rUoyprbVnOQVhOvGW9oY=;
-        b=rLTqpyiLGa6olnZ5jz4ve90O59NgHOlE/aC9xKjZBIgCi+Tze18GujMSl+Y7lJ5Krn7YAd
-        HbsetDX/zV37tV0pHK5mle27Snf1f/TDjNM1YdVlMm8D7cKJ3hWn/t73eJsKHpHMYrWJF1
-        EroVGvyRSVU/TacjteS5d3TbHmUag7dmJwDLSoJ8poirOhefUOApDVtsQCW8hNMfB087iu
-        5xSzlEIC1ZvYS06NpC17LRjF0IVlo1hfXDBNsMzwBISJuQTuGVuMFhFO4ILHpEgHpuEzqg
-        dyRH0hDIXR7rwJLuFtX6EP9IparKqZxBpGuSfU7c5m8RwIByiGHOUlUQ9z/duQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1647857598;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=gDV90gqnyeQtw1YJGnbnnx5rUoyprbVnOQVhOvGW9oY=;
-        b=81tikQvX5IO12Zq8IN1G6/CvsBTXXaKSttfXufTLn7jWCwjDy6Os0tnjsuGJ/CQkxNgjRe
-        8pktyYIhTAs98PCA==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org, tglx@linutronix.de
-Subject: The linux-5.17.y tag looks bogus.
-Message-ID: <YjhPvcJ9opIrx+ua@linutronix.de>
+        with ESMTP id S1346225AbiCUKRR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 06:17:17 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FEF985BA
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 03:15:53 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1nWF4U-0002Cp-A5; Mon, 21 Mar 2022 11:15:30 +0100
+Received: from [2a0a:edc0:0:900:1d::4e] (helo=lupine)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1nWF4O-0024FB-Af; Mon, 21 Mar 2022 11:15:25 +0100
+Received: from pza by lupine with local (Exim 4.94.2)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1nWF4O-0005mG-5W; Mon, 21 Mar 2022 11:15:24 +0100
+Message-ID: <15c3836ecc42c1fea36a51b11a0f47757d06605f.camel@pengutronix.de>
+Subject: Re: [PATCH v2 2/3] net: mdio: add reset control for Aspeed MDIO
+From:   Philipp Zabel <p.zabel@pengutronix.de>
+To:     Dylan Hung <dylan_hung@aspeedtech.com>, robh+dt@kernel.org,
+        joel@jms.id.au, andrew@aj.id.au, andrew@lunn.ch,
+        hkallweit1@gmail.com, linux@armlinux.org.uk, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org
+Cc:     BMC-SW@aspeedtech.com, stable@vger.kernel.org
+Date:   Mon, 21 Mar 2022 11:15:24 +0100
+In-Reply-To: <20220321095648.4760-3-dylan_hung@aspeedtech.com>
+References: <20220321095648.4760-1-dylan_hung@aspeedtech.com>
+         <20220321095648.4760-3-dylan_hung@aspeedtech.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.38.3-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mo, 2022-03-21 at 17:56 +0800, Dylan Hung wrote:
+> Add reset assertion/deassertion for Aspeed MDIO.  There are 4 MDIO
+> controllers embedded in Aspeed AST2600 SOC and share one reset
+> control
+> register SCU50[3]. So devm_reset_control_get_shared is used in this
+> change.
+> 
+> Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
 
-I just noticed that the stable repository has the linux-5.17.y tag and
-no branch with the linux-5.17.y name. That tag looks like a copy of
-Linus' v5.17.
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 
-I guess this is a mistake. On my side git refused to push the
-linux-5.17.y branch because it already had a tag with the same name.
 
-Could you please remove it?
-
-Sebastian
+regards
+Philipp
