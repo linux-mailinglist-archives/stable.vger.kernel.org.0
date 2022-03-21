@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 923E94E29C5
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:12:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFA394E2A07
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343855AbiCUONW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:13:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34136 "EHLO
+        id S1343632AbiCUONV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348854AbiCUOF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:05:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85F6B2476;
-        Mon, 21 Mar 2022 07:01:48 -0700 (PDT)
+        with ESMTP id S1346510AbiCUOGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:06:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C2A39150;
+        Mon, 21 Mar 2022 07:01:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82C8BB816DD;
-        Mon, 21 Mar 2022 14:01:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF88BC340E8;
-        Mon, 21 Mar 2022 14:01:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B18F06125C;
+        Mon, 21 Mar 2022 14:01:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2FCEC340E8;
+        Mon, 21 Mar 2022 14:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871306;
-        bh=Vdb1iWqlqHWiCH1Lg+xVDeo/BUxVscRQ0x8Astw8CXA=;
+        s=korg; t=1647871309;
+        bh=KeThQ4Xkm9ZzMBh/v6cnasHmfIHk65epkL073iR7Mtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMpfSoo1Bdcp6LcC1Pu/7NEYKALE8/j0McI3yokFNz3M/KoYpJokmVf5iaZO6PU//
-         P2SAKah+Sq7CvYoVw0sijUWabY0ALwqpjgT/ORD5fSA9j3q12Jx47dEgDkoIQUA6Gq
-         nOQy+xxiZg8RhYTAs9m5hekCumKzs7E0t9/4F1gs=
+        b=kgo7Rg2ujkSG4J0lQfdveqNYo+wV5OjVwUukoJhWWlGgu7WBml+8e5a3bHw6lmK/t
+         5E0Wd42whdWQkumQzfBkx4NtRbGKdJZekzSqvTuIye8nfbF962jwcX4gLrxeZG2OGO
+         /e2SylztekMOgS2Lr7SiZGvoLZbmui79oRV0jyHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 15/37] iavf: Fix double free in iavf_reset_task
-Date:   Mon, 21 Mar 2022 14:52:57 +0100
-Message-Id: <20220321133221.737945027@linuxfoundation.org>
+Subject: [PATCH 5.16 16/37] hv_netvsc: Add check for kvmalloc_array
+Date:   Mon, 21 Mar 2022 14:52:58 +0100
+Message-Id: <20220321133221.766451095@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
 References: <20220321133221.290173884@linuxfoundation.org>
@@ -58,53 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 16b2dd8cdf6f4e0597c34899de74b4d012b78188 ]
+[ Upstream commit 886e44c9298a6b428ae046e2fa092ca52e822e6a ]
 
-Fix double free possibility in iavf_disable_vf, as crit_lock is
-freed in caller, iavf_reset_task. Add kernel-doc for iavf_disable_vf.
-Remove mutex_unlock in iavf_disable_vf.
-Without this patch there is double free scenario, when calling
-iavf_reset_task.
+As the potential failure of the kvmalloc_array(),
+it should be better to check and restore the 'data'
+if fails in order to avoid the dereference of the
+NULL pointer.
 
-Fixes: e85ff9c631e1 ("iavf: Fix deadlock in iavf_reset_task")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 6ae746711263 ("hv_netvsc: Add per-cpu ethtool stats for netvsc")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220314020125.2365084-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/hyperv/netvsc_drv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 138db07bdfa8..f2ce30366484 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2133,6 +2133,13 @@ static void iavf_watchdog_task(struct work_struct *work)
- 		queue_delayed_work(iavf_wq, &adapter->watchdog_task, HZ * 2);
- }
- 
-+/**
-+ * iavf_disable_vf - disable VF
-+ * @adapter: board private structure
-+ *
-+ * Set communication failed flag and free all resources.
-+ * NOTE: This function is expected to be called with crit_lock being held.
-+ **/
- static void iavf_disable_vf(struct iavf_adapter *adapter)
- {
- 	struct iavf_mac_filter *f, *ftmp;
-@@ -2187,7 +2194,6 @@ static void iavf_disable_vf(struct iavf_adapter *adapter)
- 	memset(adapter->vf_res, 0, IAVF_VIRTCHNL_VF_RESOURCE_SIZE);
- 	iavf_shutdown_adminq(&adapter->hw);
- 	adapter->netdev->flags &= ~IFF_UP;
--	mutex_unlock(&adapter->crit_lock);
- 	adapter->flags &= ~IAVF_FLAG_RESET_PENDING;
- 	iavf_change_state(adapter, __IAVF_DOWN);
- 	wake_up(&adapter->down_waitqueue);
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index 7e66ae1d2a59..7117187dfbd7 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -1587,6 +1587,9 @@ static void netvsc_get_ethtool_stats(struct net_device *dev,
+ 	pcpu_sum = kvmalloc_array(num_possible_cpus(),
+ 				  sizeof(struct netvsc_ethtool_pcpu_stats),
+ 				  GFP_KERNEL);
++	if (!pcpu_sum)
++		return;
++
+ 	netvsc_get_pcpu_stats(dev, pcpu_sum);
+ 	for_each_present_cpu(cpu) {
+ 		struct netvsc_ethtool_pcpu_stats *this_sum = &pcpu_sum[cpu];
 -- 
 2.34.1
 
