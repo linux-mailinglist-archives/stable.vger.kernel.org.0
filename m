@@ -2,89 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E9A4E33D0
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 00:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3D84E33FA
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 00:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232172AbiCUXFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 19:05:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51406 "EHLO
+        id S231808AbiCUXAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 19:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232394AbiCUXEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 19:04:43 -0400
-Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5BE3DABFC
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 15:50:52 -0700 (PDT)
-Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-de3ca1efbaso242837fac.9
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 15:50:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language
-         :from:to:references:in-reply-to:content-transfer-encoding;
-        bh=zSo+YHCVxkrIG4d4JGw6c/ZiUBVFVKc+agJDZsQcIME=;
-        b=oGe0dSOnKWmRVLz15bMXE5vxggepQAjQnLIJvUtzUph/olLrexTh9fjie3ebb1fKtg
-         3pmqmccKR8QaY8Tap/jA5GK8Tz8YaUQeXJ8hxdEtE5J2JFwkTrEOpV612jhe0lBu/1JU
-         PQTBWDF3JhS4rvd1VoJjl9DqgiHev9AUt7MAGBwzOlzTPEWCydFDnOBK2eIoTGh7njn6
-         jsnFci9MZSMXYd6hMvsPjTphfikeDwRPT3kDCKQItgBKoQUcEvHx8P7t8QFnHvmeIcDx
-         YA9FcXHVeiqkR6TlddO/hr+Z2CzfDxjrf8uiyANmVGbj1Q/7QaGpAlMylz7wT9tr4MMO
-         0dvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:references:in-reply-to
-         :content-transfer-encoding;
-        bh=zSo+YHCVxkrIG4d4JGw6c/ZiUBVFVKc+agJDZsQcIME=;
-        b=w68t9YzYZitLo2wI0ea6hIccADLYoN4Bn75Eavy+dEMIkdmnCNr8sGn7K4PPms3KcZ
-         aY5gb0GKIiHqU4nZy1pQhNm4oLaFg9+ltgjb3kMPuTjOXpq0NfnTOn06XTPAjgTUsFPG
-         KZPB3iNc1SCKGwOMcafI0uD1RSH+l9PDHt0W8W7gXt2F78RDtdRy2x32sxX1SSOrhGvd
-         Tsy5UI96Vghm+uFHnLKDh8vcHbvZnLytJL8CHSNmr5fuFMxglBKrvwd6GJMpFRJGLg3P
-         QVusq7vnk5zRo5wjC6bMW12DCgEMlXS3eQS8ihBefjBtLkhoNR0EtR0Bj4f5JOEkPzM1
-         5HuA==
-X-Gm-Message-State: AOAM531O6wthQ5A6npOd7PFehlhqIrcet7UVXgEGA6QdfdaY124bL8a2
-        3HKHmlOWeOdbRU5lZx3eFWdin+4tvtE=
-X-Google-Smtp-Source: ABdhPJxOzcE266CBA14W70J7wpzX6gRly823cuhm871czv1C3UQIzObhNMTvAjZdLEmukLASXjBoZw==
-X-Received: by 2002:a17:90a:9dc6:b0:1bc:5c73:522b with SMTP id x6-20020a17090a9dc600b001bc5c73522bmr1266735pjv.35.1647899155210;
-        Mon, 21 Mar 2022 14:45:55 -0700 (PDT)
-Received: from [10.69.44.239] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id 132-20020a62168a000000b004f40e8b3133sm21290725pfw.188.2022.03.21.14.45.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Mar 2022 14:45:54 -0700 (PDT)
-Message-ID: <fd794879-48d6-463a-fe0f-184df7cc66d2@gmail.com>
-Date:   Mon, 21 Mar 2022 14:45:53 -0700
+        with ESMTP id S232049AbiCUW6A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 18:58:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601A9474EEC;
+        Mon, 21 Mar 2022 15:37:15 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4491612BC;
+        Mon, 21 Mar 2022 21:53:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A50C340F2;
+        Mon, 21 Mar 2022 21:52:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647899580;
+        bh=iwUeLQxCDC7OEVPT2rElS4J+zZ+Rdy4pMjpsoROH3zg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DWmYabA/DvwkcigvY3moY0SEHyuBlUsscl7c/l+ihBJqUo9B0MHeQfTALgnVA8HLl
+         c0sR+BpFXNQKjH2pXDt0LmfOVqasvtl8qFc61gn8T9KPu2G3EF0TSsgK73qGzDoXdP
+         dAsfSL8N4T/dIhM1qf0iOZ5fvP90TXJJ27CoUuTqAvdRy615/WNPRI1vwmevbQTFIV
+         INdGmyBB7ejzGb7jG61C1feAzgk7lhDtpO+YzcfBBGuOdMLaVwgkFRl97zid+zEHct
+         OmNlJ2J5++/FCG1KijfYuE00qLAButjLtpD+Us2j4/YPu4OqC5ny0Z2qTtyfe31Kzl
+         THJl1mdsGL+qw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Haimin Zhang <tcs_kernel@tencent.com>,
+        TCS Robot <tcs_robot@tencent.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 2/5] af_key: add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
+Date:   Mon, 21 Mar 2022 17:52:50 -0400
+Message-Id: <20220321215256.490267-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220321215256.490267-1-sashal@kernel.org>
+References: <20220321215256.490267-1-sashal@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Backport Request: scsi: lpfc: Fix DMA virtual address ptr assignment
- in bsg
-Content-Language: en-US
-From:   James Smart <jsmart2021@gmail.com>
-To:     stable <stable@vger.kernel.org>
-References: <6aab7d93-7791-fd8b-b0ed-6a0a2ee52472@gmail.com>
-In-Reply-To: <6aab7d93-7791-fd8b-b0ed-6a0a2ee52472@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please backport the following patch to the 5.10 stable kernel. It is was 
-upstream'd as of the 5.12 kernel.
+From: Haimin Zhang <tcs_kernel@tencent.com>
 
-scsi: lpfc: Fix DMA virtual address ptr assignment in bsg
-commit    83adbba746d1
+[ Upstream commit 9a564bccb78a76740ea9d75a259942df8143d02c ]
 
-The error causes diagnostic loopback tests to fail.
+Add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
+to initialize the buffer of supp_skb to fix a kernel-info-leak issue.
+1) Function pfkey_register calls compose_sadb_supported to request
+a sk_buff. 2) compose_sadb_supported calls alloc_sbk to allocate
+a sk_buff, but it doesn't zero it. 3) If auth_len is greater 0, then
+compose_sadb_supported treats the memory as a struct sadb_supported and
+begins to initialize. But it just initializes the field sadb_supported_len
+and field sadb_supported_exttype without field sadb_supported_reserved.
 
-Note: problem was introduced in 5.10 by:
-   scsi: lpfc: Reject CT request for MIB commands
-   commit b67b59443282
+Reported-by: TCS Robot <tcs_robot@tencent.com>
+Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/key/af_key.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
--- James
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 9bf52a09b5ff..fd51db3be91c 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -1699,7 +1699,7 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
+ 
+ 	xfrm_probe_algs();
+ 
+-	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL);
++	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
+ 	if (!supp_skb) {
+ 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
+ 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
+-- 
+2.34.1
 
