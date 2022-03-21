@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 432144E2A0E
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CCEE4E2A06
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244912AbiCUONj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:13:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38216 "EHLO
+        id S244719AbiCUONa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349243AbiCUOIF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA52174B8B;
-        Mon, 21 Mar 2022 07:02:32 -0700 (PDT)
+        with ESMTP id S1349231AbiCUOIE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D55174BB9;
+        Mon, 21 Mar 2022 07:02:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A429B816DC;
-        Mon, 21 Mar 2022 14:02:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FB63C340E8;
-        Mon, 21 Mar 2022 14:02:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3D356132C;
+        Mon, 21 Mar 2022 14:02:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD94DC36AE9;
+        Mon, 21 Mar 2022 14:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871350;
-        bh=pApDzt38GhzWwzmU3F/B28vg6zW1m34oDcityxP6B0g=;
+        s=korg; t=1647871353;
+        bh=LEJPk0D57qEDTsqgXvDFEqHl7IO/xSoeV6j5WPkO2Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHEVxCRZcwIQoxfxM+Z/Mtmysrk/hBeQcm17luwUFxwhFSrufojorKRx+HsHl8eTi
-         Nseh6SSait8QlN6s5Z0rsDS75YhfhWGwjfn3kIYnkkXjf/5j/5WRheZO69lJ4qEawL
-         WIlnJkJ8fZH1J1jrJynVKCXm/wYgA9LE3G2YVyto=
+        b=zungZ22ah1s6p5uXgZS1NRz3Por7kWie+OqgsqBq2UfryTGl3DMUll0zvVftSLrSa
+         NIQlsEIIbMmrEGSvkQvA/5jWdb/bRqQkHVPId2sJSY0OOru6NXezBdj0W4Mf40AcUU
+         dn4cM0MbC+F5g9PkSNXPwJ+c72BXXWX2jafGSbRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+a48e3d1a875240cab5de@syzkaller.appspotmail.com
-Subject: [PATCH 5.16 30/37] usb: usbtmc: Fix bug in pipe direction for control transfers
-Date:   Mon, 21 Mar 2022 14:53:12 +0100
-Message-Id: <20220321133222.166033255@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        Matt Lupfer <mlupfer@ddn.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 31/37] scsi: mpt3sas: Page fault in reply q processing
+Date:   Mon, 21 Mar 2022 14:53:13 +0100
+Message-Id: <20220321133222.194425394@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
 References: <20220321133221.290173884@linuxfoundation.org>
@@ -53,86 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Matt Lupfer <mlupfer@ddn.com>
 
-commit e9b667a82cdcfe21d590344447d65daed52b353b upstream.
+commit 69ad4ef868c1fc7609daa235dfa46d28ba7a3ba3 upstream.
 
-The syzbot fuzzer reported a minor bug in the usbtmc driver:
+A page fault was encountered in mpt3sas on a LUN reset error path:
 
-usb 5-1: BOGUS control dir, pipe 80001e80 doesn't match bRequestType 0
-WARNING: CPU: 0 PID: 3813 at drivers/usb/core/urb.c:412
-usb_submit_urb+0x13a5/0x1970 drivers/usb/core/urb.c:410
-Modules linked in:
-CPU: 0 PID: 3813 Comm: syz-executor122 Not tainted
-5.17.0-rc5-syzkaller-00306-g2293be58d6a1 #0
-...
-Call Trace:
- <TASK>
- usb_start_wait_urb+0x113/0x530 drivers/usb/core/message.c:58
- usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
- usb_control_msg+0x2a5/0x4b0 drivers/usb/core/message.c:153
- usbtmc_ioctl_request drivers/usb/class/usbtmc.c:1947 [inline]
+[  145.763216] mpt3sas_cm1: Task abort tm failed: handle(0x0002),timeout(30) tr_method(0x0) smid(3) msix_index(0)
+[  145.778932] scsi 1:0:0:0: task abort: FAILED scmd(0x0000000024ba29a2)
+[  145.817307] scsi 1:0:0:0: attempting device reset! scmd(0x0000000024ba29a2)
+[  145.827253] scsi 1:0:0:0: [sg1] tag#2 CDB: Receive Diagnostic 1c 01 01 ff fc 00
+[  145.837617] scsi target1:0:0: handle(0x0002), sas_address(0x500605b0000272b9), phy(0)
+[  145.848598] scsi target1:0:0: enclosure logical id(0x500605b0000272b8), slot(0)
+[  149.858378] mpt3sas_cm1: Poll ReplyDescriptor queues for completion of smid(0), task_type(0x05), handle(0x0002)
+[  149.875202] BUG: unable to handle page fault for address: 00000007fffc445d
+[  149.885617] #PF: supervisor read access in kernel mode
+[  149.894346] #PF: error_code(0x0000) - not-present page
+[  149.903123] PGD 0 P4D 0
+[  149.909387] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[  149.917417] CPU: 24 PID: 3512 Comm: scsi_eh_1 Kdump: loaded Tainted: G S         O      5.10.89-altav-1 #1
+[  149.934327] Hardware name: DDN           200NVX2             /200NVX2-MB          , BIOS ATHG2.2.02.01 09/10/2021
+[  149.951871] RIP: 0010:_base_process_reply_queue+0x4b/0x900 [mpt3sas]
+[  149.961889] Code: 0f 84 22 02 00 00 8d 48 01 49 89 fd 48 8d 57 38 f0 0f b1 4f 38 0f 85 d8 01 00 00 49 8b 45 10 45 31 e4 41 8b 55 0c 48 8d 1c d0 <0f> b6 03 83 e0 0f 3c 0f 0f 85 a2 00 00 00 e9 e6 01 00 00 0f b7 ee
+[  149.991952] RSP: 0018:ffffc9000f1ebcb8 EFLAGS: 00010246
+[  150.000937] RAX: 0000000000000055 RBX: 00000007fffc445d RCX: 000000002548f071
+[  150.011841] RDX: 00000000ffff8881 RSI: 0000000000000001 RDI: ffff888125ed50d8
+[  150.022670] RBP: 0000000000000000 R08: 0000000000000000 R09: c0000000ffff7fff
+[  150.033445] R10: ffffc9000f1ebb68 R11: ffffc9000f1ebb60 R12: 0000000000000000
+[  150.044204] R13: ffff888125ed50d8 R14: 0000000000000080 R15: 34cdc00034cdea80
+[  150.054963] FS:  0000000000000000(0000) GS:ffff88dfaf200000(0000) knlGS:0000000000000000
+[  150.066715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  150.076078] CR2: 00000007fffc445d CR3: 000000012448a006 CR4: 0000000000770ee0
+[  150.086887] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  150.097670] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  150.108323] PKRU: 55555554
+[  150.114690] Call Trace:
+[  150.120497]  ? printk+0x48/0x4a
+[  150.127049]  mpt3sas_scsih_issue_tm.cold.114+0x2e/0x2b3 [mpt3sas]
+[  150.136453]  mpt3sas_scsih_issue_locked_tm+0x86/0xb0 [mpt3sas]
+[  150.145759]  scsih_dev_reset+0xea/0x300 [mpt3sas]
+[  150.153891]  scsi_eh_ready_devs+0x541/0x9e0 [scsi_mod]
+[  150.162206]  ? __scsi_host_match+0x20/0x20 [scsi_mod]
+[  150.170406]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
+[  150.178925]  ? blk_mq_tagset_busy_iter+0x45/0x60
+[  150.186638]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
+[  150.195087]  scsi_error_handler+0x3a5/0x4a0 [scsi_mod]
+[  150.203206]  ? __schedule+0x1e9/0x610
+[  150.209783]  ? scsi_eh_get_sense+0x210/0x210 [scsi_mod]
+[  150.217924]  kthread+0x12e/0x150
+[  150.224041]  ? kthread_worker_fn+0x130/0x130
+[  150.231206]  ret_from_fork+0x1f/0x30
 
-The problem is that usbtmc_ioctl_request() uses usb_rcvctrlpipe() for
-all of its transfers, whether they are in or out.  It's easy to fix.
+This is caused by mpt3sas_base_sync_reply_irqs() using an invalid reply_q
+pointer outside of the list_for_each_entry() loop. At the end of the full
+list traversal the pointer is invalid.
 
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+a48e3d1a875240cab5de@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YiEsYTPEE6lOCOA5@rowland.harvard.edu
+Move the _base_process_reply_queue() call inside of the loop.
+
+Link: https://lore.kernel.org/r/d625deae-a958-0ace-2ba3-0888dd0a415b@ddn.com
+Fixes: 711a923c14d9 ("scsi: mpt3sas: Postprocessing of target and LUN reset")
+Cc: stable@vger.kernel.org
+Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Matt Lupfer <mlupfer@ddn.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/usbtmc.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/class/usbtmc.c
-+++ b/drivers/usb/class/usbtmc.c
-@@ -1919,6 +1919,7 @@ static int usbtmc_ioctl_request(struct u
- 	struct usbtmc_ctrlrequest request;
- 	u8 *buffer = NULL;
- 	int rv;
-+	unsigned int is_in, pipe;
- 	unsigned long res;
- 
- 	res = copy_from_user(&request, arg, sizeof(struct usbtmc_ctrlrequest));
-@@ -1928,12 +1929,14 @@ static int usbtmc_ioctl_request(struct u
- 	if (request.req.wLength > USBTMC_BUFSIZE)
- 		return -EMSGSIZE;
- 
-+	is_in = request.req.bRequestType & USB_DIR_IN;
-+
- 	if (request.req.wLength) {
- 		buffer = kmalloc(request.req.wLength, GFP_KERNEL);
- 		if (!buffer)
- 			return -ENOMEM;
- 
--		if ((request.req.bRequestType & USB_DIR_IN) == 0) {
-+		if (!is_in) {
- 			/* Send control data to device */
- 			res = copy_from_user(buffer, request.data,
- 					     request.req.wLength);
-@@ -1944,8 +1947,12 @@ static int usbtmc_ioctl_request(struct u
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -2011,9 +2011,10 @@ mpt3sas_base_sync_reply_irqs(struct MPT3
+ 				enable_irq(reply_q->os_irq);
+ 			}
  		}
++
++		if (poll)
++			_base_process_reply_queue(reply_q);
  	}
+-	if (poll)
+-		_base_process_reply_queue(reply_q);
+ }
  
-+	if (is_in)
-+		pipe = usb_rcvctrlpipe(data->usb_dev, 0);
-+	else
-+		pipe = usb_sndctrlpipe(data->usb_dev, 0);
- 	rv = usb_control_msg(data->usb_dev,
--			usb_rcvctrlpipe(data->usb_dev, 0),
-+			pipe,
- 			request.req.bRequest,
- 			request.req.bRequestType,
- 			request.req.wValue,
-@@ -1957,7 +1964,7 @@ static int usbtmc_ioctl_request(struct u
- 		goto exit;
- 	}
- 
--	if (rv && (request.req.bRequestType & USB_DIR_IN)) {
-+	if (rv && is_in) {
- 		/* Read control data from device */
- 		res = copy_to_user(request.data, buffer, rv);
- 		if (res)
+ /**
 
 
