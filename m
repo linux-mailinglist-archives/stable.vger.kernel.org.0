@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E95A94E2A15
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BFB04E2981
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346709AbiCUONq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:13:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39880 "EHLO
+        id S1348786AbiCUOFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:05:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349719AbiCUOIj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11BF243EDC;
-        Mon, 21 Mar 2022 07:03:18 -0700 (PDT)
+        with ESMTP id S1348835AbiCUODC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F0D1667EA;
+        Mon, 21 Mar 2022 06:59:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FD08B816C8;
-        Mon, 21 Mar 2022 14:03:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 770F9C340E8;
-        Mon, 21 Mar 2022 14:03:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44D9EB816DA;
+        Mon, 21 Mar 2022 13:59:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87C64C340E8;
+        Mon, 21 Mar 2022 13:59:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871388;
-        bh=qPfk6gLyWnnbd5V+f6dbSOSO0L4BM1LgWP0BU6fEpnw=;
+        s=korg; t=1647871185;
+        bh=tj33CDVipt3Hwcf7gdEjoaIZbWPVmkUS+u0jcdrdLGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IX7Pd5JjqPeJyySR41hDA6xFgE9wRAbXuiOOZ2+etto1hs9iNJ2eVlysH3x1qneSg
-         On6LDeurXUYs8ir7CxcRanw0Uv6x+xqYwy1A1GIGDO/ehwoeb4EuCViFIT4Wybu+R6
-         x7OkFJYSwqd79KTcVAZN85MlxU+r14e7apBSxrxw=
+        b=YCZRCJZsrYamb4DvZiwKL45ZsuuOZJJ76jNmDH5NE+WHwFb3J1pW9QibzIRXtkzAk
+         jTrc1/cZPiD7QO/3t6fsX5aRFJqWvFgb2uVfYVQPQCgU9cpBadsr6GxuY5yUCLCP+W
+         ozlk3Lmjyu+YVUvw3qLrrKC8cGHEUklx/kFrPiMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 13/37] atm: eni: Add check for dma_map_single
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
+        Jiri Olsa <jolsa@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 25/30] perf symbols: Fix symbol size calculation condition
 Date:   Mon, 21 Mar 2022 14:52:55 +0100
-Message-Id: <20220321133221.679081884@linuxfoundation.org>
+Message-Id: <20220321133220.373087229@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
-References: <20220321133221.290173884@linuxfoundation.org>
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Michael Petlan <mpetlan@redhat.com>
 
-[ Upstream commit 0f74b29a4f53627376cf5a5fb7b0b3fa748a0b2b ]
+commit 3cf6a32f3f2a45944dd5be5c6ac4deb46bcd3bee upstream.
 
-As the potential failure of the dma_map_single(),
-it should be better to check it and return error
-if fails.
+Before this patch, the symbol end address fixup to be called, needed two
+conditions being met:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  if (prev->end == prev->start && prev->end != curr->start)
+
+Where
+  "prev->end == prev->start" means that prev is zero-long
+                             (and thus needs a fixup)
+and
+  "prev->end != curr->start" means that fixup hasn't been applied yet
+
+However, this logic is incorrect in the following situation:
+
+*curr  = {rb_node = {__rb_parent_color = 278218928,
+  rb_right = 0x0, rb_left = 0x0},
+  start = 0xc000000000062354,
+  end = 0xc000000000062354, namelen = 40, type = 2 '\002',
+  binding = 0 '\000', idle = 0 '\000', ignore = 0 '\000',
+  inlined = 0 '\000', arch_sym = 0 '\000', annotate2 = false,
+  name = 0x1159739e "kprobe_optinsn_page\t[__builtin__kprobes]"}
+
+*prev = {rb_node = {__rb_parent_color = 278219041,
+  rb_right = 0x109548b0, rb_left = 0x109547c0},
+  start = 0xc000000000062354,
+  end = 0xc000000000062354, namelen = 12, type = 2 '\002',
+  binding = 1 '\001', idle = 0 '\000', ignore = 0 '\000',
+  inlined = 0 '\000', arch_sym = 0 '\000', annotate2 = false,
+  name = 0x1095486e "optinsn_slot"}
+
+In this case, prev->start == prev->end == curr->start == curr->end,
+thus the condition above thinks that "we need a fixup due to zero
+length of prev symbol, but it has been probably done, since the
+prev->end == curr->start", which is wrong.
+
+After the patch, the execution path proceeds to arch__symbols__fixup_end
+function which fixes up the size of prev symbol by adding page_size to
+its end offset.
+
+Fixes: 3b01a413c196c910 ("perf symbols: Improve kallsyms symbol end addr calculation")
+Signed-off-by: Michael Petlan <mpetlan@redhat.com>
+Cc: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20220317135536.805-1-mpetlan@redhat.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/eni.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/symbol.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
-index 422753d52244..a31ffe16e626 100644
---- a/drivers/atm/eni.c
-+++ b/drivers/atm/eni.c
-@@ -1112,6 +1112,8 @@ DPRINTK("iovcnt = %d\n",skb_shinfo(skb)->nr_frags);
- 	skb_data3 = skb->data[3];
- 	paddr = dma_map_single(&eni_dev->pci_dev->dev,skb->data,skb->len,
- 			       DMA_TO_DEVICE);
-+	if (dma_mapping_error(&eni_dev->pci_dev->dev, paddr))
-+		return enq_next;
- 	ENI_PRV_PADDR(skb) = paddr;
- 	/* prepare DMA queue entries */
- 	j = 0;
--- 
-2.34.1
-
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -231,7 +231,7 @@ void symbols__fixup_end(struct rb_root_c
+ 		prev = curr;
+ 		curr = rb_entry(nd, struct symbol, rb_node);
+ 
+-		if (prev->end == prev->start && prev->end != curr->start)
++		if (prev->end == prev->start || prev->end != curr->start)
+ 			arch__symbols__fixup_end(prev, curr);
+ 	}
+ 
 
 
