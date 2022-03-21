@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE594E28D9
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 859624E2948
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348561AbiCUOAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60300 "EHLO
+        id S245100AbiCUOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:04:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349169AbiCUN7d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:33 -0400
+        with ESMTP id S1349403AbiCUODm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F83D22513;
-        Mon, 21 Mar 2022 06:58:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C7A518005A;
+        Mon, 21 Mar 2022 07:01:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4A5FB81598;
-        Mon, 21 Mar 2022 13:58:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F026C340E8;
-        Mon, 21 Mar 2022 13:58:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E84FBB816D7;
+        Mon, 21 Mar 2022 14:01:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2179CC340E8;
+        Mon, 21 Mar 2022 14:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871085;
-        bh=9BTH4l2nUijaCftcHoyPmyiVcOiGnzGXNLmpimNUF+w=;
+        s=korg; t=1647871259;
+        bh=u3F5wmbk+6PkM8pt2vrxqech9PMOYixTjf4rRI8WWcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bb+45hAll1IA8gcfZWTyCSDGj6YRLbDiC48Bg2aAFUpUcKPmIEUQQX+PUczEGNtX0
-         Yghpx0WfzalHN3AsWZmHGNCA3OPx64l/0Kaa8+RZ1DKR7bCFAXutUpPYGV3E3yzlxS
-         Xm378gO3qlWu9pnJb3GU+R2Y1ObzoPO3/tSdJCGw=
+        b=Ro0/ORY1qmo1P4eGyCR1bGBlU2Jm1h7meFiaGb3eFnOkb2bI97KgbbV+9O0nDk/cw
+         S1P2wujTNhgDBKCW5GLA4OxRhKCZLA+Zk1NzETY+DTsJVwxigFrf/5C/Od07hZoE2T
+         UfyxOFWhF2rPmtCOcjvF2M99NsoM9jPeR2Klhdq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        stable@vger.kernel.org, Guo Ziliang <guo.ziliang@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
+        Jiang Xuexin <jiang.xuexin@zte.com.cn>,
+        Yang Yang <yang.yang29@zte.com.cn>,
+        Hugh Dickins <hughd@google.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Roger Quadros <rogerq@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 02/17] ocfs2: fix crash when initialize filecheck kobj fails
-Date:   Mon, 21 Mar 2022 14:52:38 +0100
-Message-Id: <20220321133217.223599318@linuxfoundation.org>
+Subject: [PATCH 5.15 03/32] mm: swap: get rid of livelock in swapin readahead
+Date:   Mon, 21 Mar 2022 14:52:39 +0100
+Message-Id: <20220321133220.662265760@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,70 +64,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Guo Ziliang <guo.ziliang@zte.com.cn>
 
-commit 7b0b1332cfdb94489836b67d088a779699f8e47e upstream.
+commit 029c4628b2eb2ca969e9bf979b05dc18d8d5575e upstream.
 
-Once s_root is set, genric_shutdown_super() will be called if
-fill_super() fails.  That means, we will call ocfs2_dismount_volume()
-twice in such case, which can lead to kernel crash.
+In our testing, a livelock task was found.  Through sysrq printing, same
+stack was found every time, as follows:
 
-Fix this issue by initializing filecheck kobj before setting s_root.
+  __swap_duplicate+0x58/0x1a0
+  swapcache_prepare+0x24/0x30
+  __read_swap_cache_async+0xac/0x220
+  read_swap_cache_async+0x58/0xa0
+  swapin_readahead+0x24c/0x628
+  do_swap_page+0x374/0x8a0
+  __handle_mm_fault+0x598/0xd60
+  handle_mm_fault+0x114/0x200
+  do_page_fault+0x148/0x4d0
+  do_translation_fault+0xb0/0xd4
+  do_mem_abort+0x50/0xb0
 
-Link: https://lkml.kernel.org/r/20220310081930.86305-1-joseph.qi@linux.alibaba.com
-Fixes: 5f483c4abb50 ("ocfs2: add kobject for online file check")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+The reason for the livelock is that swapcache_prepare() always returns
+EEXIST, indicating that SWAP_HAS_CACHE has not been cleared, so that it
+cannot jump out of the loop.  We suspect that the task that clears the
+SWAP_HAS_CACHE flag never gets a chance to run.  We try to lower the
+priority of the task stuck in a livelock so that the task that clears
+the SWAP_HAS_CACHE flag will run.  The results show that the system
+returns to normal after the priority is lowered.
+
+In our testing, multiple real-time tasks are bound to the same core, and
+the task in the livelock is the highest priority task of the core, so
+the livelocked task cannot be preempted.
+
+Although cond_resched() is used by __read_swap_cache_async, it is an
+empty function in the preemptive system and cannot achieve the purpose
+of releasing the CPU.  A high-priority task cannot release the CPU
+unless preempted by a higher-priority task.  But when this task is
+already the highest priority task on this core, other tasks will not be
+able to be scheduled.  So we think we should replace cond_resched() with
+schedule_timeout_uninterruptible(1), schedule_timeout_interruptible will
+call set_current_state first to set the task state, so the task will be
+removed from the running queue, so as to achieve the purpose of giving
+up the CPU and prevent it from running in kernel mode for too long.
+
+(akpm: ugly hack becomes uglier.  But it fixes the issue in a
+backportable-to-stable fashion while we hopefully work on something
+better)
+
+Link: https://lkml.kernel.org/r/20220221111749.1928222-1-cgel.zte@gmail.com
+Signed-off-by: Guo Ziliang <guo.ziliang@zte.com.cn>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Reviewed-by: Ran Xiaokai <ran.xiaokai@zte.com.cn>
+Reviewed-by: Jiang Xuexin <jiang.xuexin@zte.com.cn>
+Reviewed-by: Yang Yang <yang.yang29@zte.com.cn>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Roger Quadros <rogerq@kernel.org>
+Cc: Ziliang Guo <guo.ziliang@zte.com.cn>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/super.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ mm/swap_state.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -1100,17 +1100,6 @@ static int ocfs2_fill_super(struct super
- 		goto read_super_error;
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -478,7 +478,7 @@ struct page *__read_swap_cache_async(swp
+ 		 * __read_swap_cache_async(), which has set SWAP_HAS_CACHE
+ 		 * in swap_map, but not yet added its page to swap cache.
+ 		 */
+-		cond_resched();
++		schedule_timeout_uninterruptible(1);
  	}
  
--	root = d_make_root(inode);
--	if (!root) {
--		status = -ENOMEM;
--		mlog_errno(status);
--		goto read_super_error;
--	}
--
--	sb->s_root = root;
--
--	ocfs2_complete_mount_recovery(osb);
--
- 	osb->osb_dev_kset = kset_create_and_add(sb->s_id, NULL,
- 						&ocfs2_kset->kobj);
- 	if (!osb->osb_dev_kset) {
-@@ -1128,6 +1117,17 @@ static int ocfs2_fill_super(struct super
- 		goto read_super_error;
- 	}
- 
-+	root = d_make_root(inode);
-+	if (!root) {
-+		status = -ENOMEM;
-+		mlog_errno(status);
-+		goto read_super_error;
-+	}
-+
-+	sb->s_root = root;
-+
-+	ocfs2_complete_mount_recovery(osb);
-+
- 	if (ocfs2_mount_local(osb))
- 		snprintf(nodestr, sizeof(nodestr), "local");
- 	else
+ 	/*
 
 
