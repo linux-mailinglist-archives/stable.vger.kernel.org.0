@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC7F24E2898
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4C34E2A16
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348439AbiCUOAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59090 "EHLO
+        id S1346717AbiCUONq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349111AbiCUN7L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400CE10CC;
-        Mon, 21 Mar 2022 06:57:46 -0700 (PDT)
+        with ESMTP id S1349783AbiCUOIo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72793A5FA;
+        Mon, 21 Mar 2022 07:03:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD594B81598;
-        Mon, 21 Mar 2022 13:57:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F938C340E8;
-        Mon, 21 Mar 2022 13:57:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1DC94CE18C3;
+        Mon, 21 Mar 2022 14:03:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C68C340F2;
+        Mon, 21 Mar 2022 14:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871063;
-        bh=iAWoA/KtW5sunOlZanpzjYKJC7pZGFvMadTuEFgrzKQ=;
+        s=korg; t=1647871391;
+        bh=vZuF8pNbfFHYqxphOwnhbj2YwC3gKbMH1JxCRjKzhzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lygqz3ANgmJZkHhbMqmsoIRtBqAA7iox7PIFFMMOhjMUKU/ugSQl63V1R1WKnmpZW
-         22wxyzjOcSVgnSr1aRnw8L73pDQ1THNO0YfJg05Kq7rwzy/++Ov40eQObzE5AZUcYh
-         QMRgUcCcxCv+lDEJPnrd0Qnl1PCLJ178py23n+hQ=
+        b=ciISTSXZ7LCmKIFPfpOzTHZkv3djBaiOUDsYXis1CQf0liizTnXNLgIMtIPoZ9uIj
+         XeQGXWtRo7AvX8INiQDBg483Di6YLWlym3I63uXfHoaQs1Q4YFRkPbuZnDjwD5ipoR
+         qQTrB7dMMJTJmknxxsBeH6zJqdu+VWZWPjiXKNmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/17] net: dsa: Add missing of_node_put() in dsa_port_parse_of
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        syzbot+b42749a851a47a0f581b@syzkaller.appspotmail.com,
+        Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 04/37] block: release rq qos structures for queue without disk
 Date:   Mon, 21 Mar 2022 14:52:46 +0100
-Message-Id: <20220321133217.455384427@linuxfoundation.org>
+Message-Id: <20220321133221.421650667@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
+References: <20220321133221.290173884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit cb0b430b4e3acc88c85e0ad2e25f2a25a5765262 ]
+commit daaca3522a8e67c46e39ef09c1d542e866f85f3b upstream.
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+blkcg_init_queue() may add rq qos structures to request queue, previously
+blk_cleanup_queue() calls rq_qos_exit() to release them, but commit
+8e141f9eb803 ("block: drain file system I/O on del_gendisk")
+moves rq_qos_exit() into del_gendisk(), so memory leak is caused
+because queues may not have disk, such as un-present scsi luns, nvme
+admin queue, ...
 
-Fixes: 6d4e5c570c2d ("net: dsa: get port type at parse time")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220316082602.10785-1-linmq006@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes the issue by adding rq_qos_exit() to blk_cleanup_queue() back.
+
+BTW, v5.18 won't need this patch any more since we move
+blkcg_init_queue()/blkcg_exit_queue() into disk allocation/release
+handler, and patches have been in for-5.18/block.
+
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Fixes: 8e141f9eb803 ("block: drain file system I/O on del_gendisk")
+Reported-by: syzbot+b42749a851a47a0f581b@syzkaller.appspotmail.com
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220314043018.177141-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/dsa2.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/blk-core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
-index 70e6fc2edd30..1f27641f9cc0 100644
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -669,6 +669,7 @@ static int dsa_port_parse_of(struct dsa_port *dp, struct device_node *dn)
- 		struct net_device *master;
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -51,6 +51,7 @@
+ #include "blk-mq-sched.h"
+ #include "blk-pm.h"
+ #include "blk-throttle.h"
++#include "blk-rq-qos.h"
  
- 		master = of_find_net_device_by_node(ethernet);
-+		of_node_put(ethernet);
- 		if (!master)
- 			return -EPROBE_DEFER;
+ struct dentry *blk_debugfs_root;
  
--- 
-2.34.1
-
+@@ -354,6 +355,9 @@ void blk_cleanup_queue(struct request_qu
+ 	 */
+ 	blk_freeze_queue(q);
+ 
++	/* cleanup rq qos structures for queue without disk */
++	rq_qos_exit(q);
++
+ 	blk_queue_flag_set(QUEUE_FLAG_DEAD, q);
+ 
+ 	blk_sync_queue(q);
 
 
