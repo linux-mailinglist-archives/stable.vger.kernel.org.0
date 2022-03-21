@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 324784E2991
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2394E290F
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348697AbiCUOGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35098 "EHLO
+        id S1348597AbiCUOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:01:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348944AbiCUOFK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:05:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF01181B2C;
-        Mon, 21 Mar 2022 07:01:29 -0700 (PDT)
+        with ESMTP id S1348452AbiCUOAd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:00:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0D439BA1;
+        Mon, 21 Mar 2022 06:58:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECD4BB816CE;
-        Mon, 21 Mar 2022 14:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 444E9C340ED;
-        Mon, 21 Mar 2022 14:01:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AAF561291;
+        Mon, 21 Mar 2022 13:58:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 512CBC340ED;
+        Mon, 21 Mar 2022 13:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871284;
-        bh=2nO093whqQ/sqbYqWbv0LaogH00/S1O/HY0QpO+NfNU=;
+        s=korg; t=1647871128;
+        bh=WeHYTISiGy0tEOfyzMPaacVtWPx3fEeGhuDRgUWbPNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CiH/1Ha3UbvdZ/nBRLVJd6kUz7aGcQhQHHO4sa86nQubwWOQzW7oodf667KRnFCKV
-         K8RokQAh33z3sinIIsyqf9akd+P2m6/zx/PvNpupsqFaMhl8XEpeWY4opG5fyyMfOd
-         YKdnWim2sof2Fu26ow7wqzoW8IfaSpJH/AaT63Lc=
+        b=XXHZr5gi8qyoJtyr7ytE0Yrw+eKs7Mw1cPfKjnmSFJZHhT9zSemDUB2GSRqjgSMdm
+         bCvoZ3/Nj2CKnkwzu4gvrXmXx4kVAFNSadR/lzI78h4h4Q9LgNm5PFfZW+lB3GfsVK
+         FKBNH9wqjEBSxoApb6+0a7JqzD8xiomH37e3qU9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Juerg Haefliger <juergh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 09/32] esp6: fix check on ipv6_skip_exthdrs return value
+Subject: [PATCH 5.10 15/30] net: phy: mscc: Add MODULE_FIRMWARE macros
 Date:   Mon, 21 Mar 2022 14:52:45 +0100
-Message-Id: <20220321133220.833086671@linuxfoundation.org>
+Message-Id: <20220321133220.087608399@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
-References: <20220321133220.559554263@linuxfoundation.org>
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Juerg Haefliger <juerg.haefliger@canonical.com>
 
-[ Upstream commit 4db4075f92af2b28f415fc979ab626e6b37d67b6 ]
+[ Upstream commit f1858c277ba40172005b76a31e6bb931bfc19d9c ]
 
-Commit 5f9c55c8066b ("ipv6: check return value of ipv6_skip_exthdr")
-introduced an incorrect check, which leads to all ESP packets over
-either TCPv6 or UDPv6 encapsulation being dropped. In this particular
-case, offset is negative, since skb->data points to the ESP header in
-the following chain of headers, while skb->network_header points to
-the IPv6 header:
+The driver requires firmware so define MODULE_FIRMWARE so that modinfo
+provides the details.
 
-    IPv6 | ext | ... | ext | UDP | ESP | ...
-
-That doesn't seem to be a problem, especially considering that if we
-reach esp6_input_done2, we're guaranteed to have a full set of headers
-available (otherwise the packet would have been dropped earlier in the
-stack). However, it means that the return value will (intentionally)
-be negative. We can make the test more specific, as the expected
-return value of ipv6_skip_exthdr will be the (negated) size of either
-a UDP header, or a TCP header with possible options.
-
-In the future, we should probably either make ipv6_skip_exthdr
-explicitly accept negative offsets (and adjust its return value for
-error cases), or make ipv6_skip_exthdr only take non-negative
-offsets (and audit all callers).
-
-Fixes: 5f9c55c8066b ("ipv6: check return value of ipv6_skip_exthdr")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: fa164e40c53b ("net: phy: mscc: split the driver into separate files")
+Signed-off-by: Juerg Haefliger <juergh@canonical.com>
+Link: https://lore.kernel.org/r/20220316151835.88765-1-juergh@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/esp6.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/phy/mscc/mscc_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
-index b7b573085bd5..5023f59a5b96 100644
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -813,8 +813,7 @@ int esp6_input_done2(struct sk_buff *skb, int err)
- 		struct tcphdr *th;
- 
- 		offset = ipv6_skip_exthdr(skb, offset, &nexthdr, &frag_off);
--
--		if (offset < 0) {
-+		if (offset == -1) {
- 			err = -EINVAL;
- 			goto out;
- 		}
+diff --git a/drivers/net/phy/mscc/mscc_main.c b/drivers/net/phy/mscc/mscc_main.c
+index 41a410124437..e14fa72791b0 100644
+--- a/drivers/net/phy/mscc/mscc_main.c
++++ b/drivers/net/phy/mscc/mscc_main.c
+@@ -2584,3 +2584,6 @@ MODULE_DEVICE_TABLE(mdio, vsc85xx_tbl);
+ MODULE_DESCRIPTION("Microsemi VSC85xx PHY driver");
+ MODULE_AUTHOR("Nagaraju Lakkaraju");
+ MODULE_LICENSE("Dual MIT/GPL");
++
++MODULE_FIRMWARE(MSCC_VSC8584_REVB_INT8051_FW);
++MODULE_FIRMWARE(MSCC_VSC8574_REVB_INT8051_FW);
 -- 
 2.34.1
 
