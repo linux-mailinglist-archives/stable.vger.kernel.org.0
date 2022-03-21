@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CCEE4E2A06
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35CDB4E2A0D
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244719AbiCUONa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:13:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34142 "EHLO
+        id S238242AbiCUONg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349231AbiCUOIE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D55174BB9;
-        Mon, 21 Mar 2022 07:02:34 -0700 (PDT)
+        with ESMTP id S1349251AbiCUOIG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4BB176D3A;
+        Mon, 21 Mar 2022 07:02:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3D356132C;
-        Mon, 21 Mar 2022 14:02:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD94DC36AE9;
-        Mon, 21 Mar 2022 14:02:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78E246134A;
+        Mon, 21 Mar 2022 14:02:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8790EC340E8;
+        Mon, 21 Mar 2022 14:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871353;
-        bh=LEJPk0D57qEDTsqgXvDFEqHl7IO/xSoeV6j5WPkO2Eo=;
+        s=korg; t=1647871355;
+        bh=ZaI+z8jCsQjDVirhHnBpi8JKgIL/KUzOPVBzH8tgTL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zungZ22ah1s6p5uXgZS1NRz3Por7kWie+OqgsqBq2UfryTGl3DMUll0zvVftSLrSa
-         NIQlsEIIbMmrEGSvkQvA/5jWdb/bRqQkHVPId2sJSY0OOru6NXezBdj0W4Mf40AcUU
-         dn4cM0MbC+F5g9PkSNXPwJ+c72BXXWX2jafGSbRY=
+        b=H31CvJYjyvaQDvGlu7RPOxme74SdnKtRBw7lcUlFdu9tgRxYOXiwkpz7ojQmHnih9
+         67s6JCqasKTGK0s7X+Hq+sBF0X57Gr8nr16KVl6v7y6ltY6frOtu/AEX6RINypSlUy
+         Sesnu7aj/Btbgjt9m1GcB6czGfSlI7Y+lf0AdNj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        Matt Lupfer <mlupfer@ddn.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 31/37] scsi: mpt3sas: Page fault in reply q processing
-Date:   Mon, 21 Mar 2022 14:53:13 +0100
-Message-Id: <20220321133222.194425394@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        syzbot+75cccf2b7da87fb6f84b@syzkaller.appspotmail.com
+Subject: [PATCH 5.16 32/37] Input: aiptek - properly check endpoint type
+Date:   Mon, 21 Mar 2022 14:53:14 +0100
+Message-Id: <20220321133222.222194278@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
 References: <20220321133221.290173884@linuxfoundation.org>
@@ -55,88 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Lupfer <mlupfer@ddn.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 69ad4ef868c1fc7609daa235dfa46d28ba7a3ba3 upstream.
+commit 5600f6986628dde8881734090588474f54a540a8 upstream.
 
-A page fault was encountered in mpt3sas on a LUN reset error path:
+Syzbot reported warning in usb_submit_urb() which is caused by wrong
+endpoint type. There was a check for the number of endpoints, but not
+for the type of endpoint.
 
-[  145.763216] mpt3sas_cm1: Task abort tm failed: handle(0x0002),timeout(30) tr_method(0x0) smid(3) msix_index(0)
-[  145.778932] scsi 1:0:0:0: task abort: FAILED scmd(0x0000000024ba29a2)
-[  145.817307] scsi 1:0:0:0: attempting device reset! scmd(0x0000000024ba29a2)
-[  145.827253] scsi 1:0:0:0: [sg1] tag#2 CDB: Receive Diagnostic 1c 01 01 ff fc 00
-[  145.837617] scsi target1:0:0: handle(0x0002), sas_address(0x500605b0000272b9), phy(0)
-[  145.848598] scsi target1:0:0: enclosure logical id(0x500605b0000272b8), slot(0)
-[  149.858378] mpt3sas_cm1: Poll ReplyDescriptor queues for completion of smid(0), task_type(0x05), handle(0x0002)
-[  149.875202] BUG: unable to handle page fault for address: 00000007fffc445d
-[  149.885617] #PF: supervisor read access in kernel mode
-[  149.894346] #PF: error_code(0x0000) - not-present page
-[  149.903123] PGD 0 P4D 0
-[  149.909387] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  149.917417] CPU: 24 PID: 3512 Comm: scsi_eh_1 Kdump: loaded Tainted: G S         O      5.10.89-altav-1 #1
-[  149.934327] Hardware name: DDN           200NVX2             /200NVX2-MB          , BIOS ATHG2.2.02.01 09/10/2021
-[  149.951871] RIP: 0010:_base_process_reply_queue+0x4b/0x900 [mpt3sas]
-[  149.961889] Code: 0f 84 22 02 00 00 8d 48 01 49 89 fd 48 8d 57 38 f0 0f b1 4f 38 0f 85 d8 01 00 00 49 8b 45 10 45 31 e4 41 8b 55 0c 48 8d 1c d0 <0f> b6 03 83 e0 0f 3c 0f 0f 85 a2 00 00 00 e9 e6 01 00 00 0f b7 ee
-[  149.991952] RSP: 0018:ffffc9000f1ebcb8 EFLAGS: 00010246
-[  150.000937] RAX: 0000000000000055 RBX: 00000007fffc445d RCX: 000000002548f071
-[  150.011841] RDX: 00000000ffff8881 RSI: 0000000000000001 RDI: ffff888125ed50d8
-[  150.022670] RBP: 0000000000000000 R08: 0000000000000000 R09: c0000000ffff7fff
-[  150.033445] R10: ffffc9000f1ebb68 R11: ffffc9000f1ebb60 R12: 0000000000000000
-[  150.044204] R13: ffff888125ed50d8 R14: 0000000000000080 R15: 34cdc00034cdea80
-[  150.054963] FS:  0000000000000000(0000) GS:ffff88dfaf200000(0000) knlGS:0000000000000000
-[  150.066715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  150.076078] CR2: 00000007fffc445d CR3: 000000012448a006 CR4: 0000000000770ee0
-[  150.086887] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  150.097670] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  150.108323] PKRU: 55555554
-[  150.114690] Call Trace:
-[  150.120497]  ? printk+0x48/0x4a
-[  150.127049]  mpt3sas_scsih_issue_tm.cold.114+0x2e/0x2b3 [mpt3sas]
-[  150.136453]  mpt3sas_scsih_issue_locked_tm+0x86/0xb0 [mpt3sas]
-[  150.145759]  scsih_dev_reset+0xea/0x300 [mpt3sas]
-[  150.153891]  scsi_eh_ready_devs+0x541/0x9e0 [scsi_mod]
-[  150.162206]  ? __scsi_host_match+0x20/0x20 [scsi_mod]
-[  150.170406]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
-[  150.178925]  ? blk_mq_tagset_busy_iter+0x45/0x60
-[  150.186638]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
-[  150.195087]  scsi_error_handler+0x3a5/0x4a0 [scsi_mod]
-[  150.203206]  ? __schedule+0x1e9/0x610
-[  150.209783]  ? scsi_eh_get_sense+0x210/0x210 [scsi_mod]
-[  150.217924]  kthread+0x12e/0x150
-[  150.224041]  ? kthread_worker_fn+0x130/0x130
-[  150.231206]  ret_from_fork+0x1f/0x30
+Fix it by replacing old desc.bNumEndpoints check with
+usb_find_common_endpoints() helper for finding endpoints
 
-This is caused by mpt3sas_base_sync_reply_irqs() using an invalid reply_q
-pointer outside of the list_for_each_entry() loop. At the end of the full
-list traversal the pointer is invalid.
+Fail log:
 
-Move the _base_process_reply_queue() call inside of the loop.
+usb 5-1: BOGUS urb xfer, pipe 1 != type 3
+WARNING: CPU: 2 PID: 48 at drivers/usb/core/urb.c:502 usb_submit_urb+0xed2/0x18a0 drivers/usb/core/urb.c:502
+Modules linked in:
+CPU: 2 PID: 48 Comm: kworker/2:2 Not tainted 5.17.0-rc6-syzkaller-00226-g07ebd38a0da2 #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+Workqueue: usb_hub_wq hub_event
+...
+Call Trace:
+ <TASK>
+ aiptek_open+0xd5/0x130 drivers/input/tablet/aiptek.c:830
+ input_open_device+0x1bb/0x320 drivers/input/input.c:629
+ kbd_connect+0xfe/0x160 drivers/tty/vt/keyboard.c:1593
 
-Link: https://lore.kernel.org/r/d625deae-a958-0ace-2ba3-0888dd0a415b@ddn.com
-Fixes: 711a923c14d9 ("scsi: mpt3sas: Postprocessing of target and LUN reset")
-Cc: stable@vger.kernel.org
-Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Matt Lupfer <mlupfer@ddn.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 8e20cf2bce12 ("Input: aiptek - fix crash on detecting device without endpoints")
+Reported-and-tested-by: syzbot+75cccf2b7da87fb6f84b@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20220308194328.26220-1-paskripkin@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/tablet/aiptek.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -2011,9 +2011,10 @@ mpt3sas_base_sync_reply_irqs(struct MPT3
- 				enable_irq(reply_q->os_irq);
- 			}
- 		}
-+
-+		if (poll)
-+			_base_process_reply_queue(reply_q);
- 	}
--	if (poll)
--		_base_process_reply_queue(reply_q);
- }
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -1787,15 +1787,13 @@ aiptek_probe(struct usb_interface *intf,
+ 	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
+ 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
  
- /**
+-	/* Verify that a device really has an endpoint */
+-	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
++	err = usb_find_common_endpoints(intf->cur_altsetting,
++					NULL, NULL, &endpoint, NULL);
++	if (err) {
+ 		dev_err(&intf->dev,
+-			"interface has %d endpoints, but must have minimum 1\n",
+-			intf->cur_altsetting->desc.bNumEndpoints);
+-		err = -EINVAL;
++			"interface has no int in endpoints, but must have minimum 1\n");
+ 		goto fail3;
+ 	}
+-	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ 
+ 	/* Go set up our URB, which is called when the tablet receives
+ 	 * input.
 
 
