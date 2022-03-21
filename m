@@ -2,83 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 611264E2DD2
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 17:24:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B54794E2ED9
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 18:10:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350249AbiCUQYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 12:24:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35656 "EHLO
+        id S233977AbiCURL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 13:11:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351041AbiCUQYg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 12:24:36 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60EE531532
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 09:23:09 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id z16so15907053pfh.3
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 09:23:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:content-language:to:cc:from
-         :subject:content-transfer-encoding;
-        bh=t3ReJ4PvBw3Gfo7mC/8g2N3DvGlY7pEgK2TBJHx457M=;
-        b=hob5J1LXhdMy91RjtxIm5UulDUmru2i3utdeV8mTdOyTWxXFZRzDzndIRlpodF9mZX
-         8upMZGZ5ABizUacX4OV2YplwO7FCyG7DW5cXgVBvMS6D9f2/+UH7p4/9zusxWYuK9R2C
-         gQCKeBi+8YbIZYFCn1APAKDOlm7H5DqxU835i5JVWLj3X8WUAs2aFJjKfHm+7GuNukLN
-         qBwRvUFIgo7wjdG/dRU5Yvxmt1L9ZqAC+bjpSAm9c81AAtbfUKrjuQutoSBHASbsXIqw
-         VsFSbWFEIfPY4QYSsfiIvnRQW6EctnA3tnyGdXgcMiUh2wrphxetZb4QcgyZeRUhBtCk
-         jqdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:from:subject:content-transfer-encoding;
-        bh=t3ReJ4PvBw3Gfo7mC/8g2N3DvGlY7pEgK2TBJHx457M=;
-        b=2xC56PZYBJyWdGZqOvHj6F6RLbrwJwNCz7Y3bzVL44/h7cdZNvCtScf6hAuoxhaCnh
-         Mavj4/Wy/wwHQzuZINYzZ0Bn77MzeHHFZ+cAZoM624nt26+jICpqQ6dDVQ0GlWqkpRLD
-         Zd57dkiYDn5f7BsjfKq3S5Un6B50Qkcc3gdmsCd9S9C4TE5Hi6OG6Q5kro3YIovEAxBN
-         8Psfa3t6FilVOtQwnhjhDaiaBsmk4LvpZOWYaPomyKdm5k1XXc89uKvMumzt1/DQ/eKV
-         i3tYaZuuEmycushWRcRZwYYLXZWHb3ukOG9LT61uaxaKL/2nIn7K2bdUCLrDeQZ3Klt8
-         TCiQ==
-X-Gm-Message-State: AOAM531NvNkZo8VMGHYjEzhNjztV2Z3u48Y7o83vMgfG0phYU00QZXFy
-        vu4wNGkwo+P2q4nuLWSuAXU9IvvM8cstNQ==
-X-Google-Smtp-Source: ABdhPJxoSzQpJ4eZG0papdjbUhdPotfeHoAE3ZwuthY1ZuDXHN2beWqDbC/a4N7FcltHsA4yFiJ28g==
-X-Received: by 2002:a05:6a00:198c:b0:4f7:7e0f:bfc2 with SMTP id d12-20020a056a00198c00b004f77e0fbfc2mr23953395pfl.44.1647879788626;
-        Mon, 21 Mar 2022 09:23:08 -0700 (PDT)
-Received: from [192.168.254.17] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id r1-20020a63b101000000b00380989bcb1bsm15654624pgf.5.2022.03.21.09.23.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Mar 2022 09:23:08 -0700 (PDT)
-Message-ID: <3943117e-b490-14e5-c72c-3a7db3cac061@linaro.org>
-Date:   Mon, 21 Mar 2022 09:23:07 -0700
+        with ESMTP id S235913AbiCURL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 13:11:27 -0400
+Received: from comms.puri.sm (comms.puri.sm [159.203.221.185])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA463427E1;
+        Mon, 21 Mar 2022 10:10:00 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by comms.puri.sm (Postfix) with ESMTP id 71BB1E013D;
+        Mon, 21 Mar 2022 10:09:30 -0700 (PDT)
+Received: from comms.puri.sm ([127.0.0.1])
+        by localhost (comms.puri.sm [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id V6GEmpCEbAdy; Mon, 21 Mar 2022 10:09:29 -0700 (PDT)
+From:   Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+To:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        linux-pm@vger.kernel.org
+Cc:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Amit Kucheria <amitk@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        linux-kernel@vger.kernel.org, kernel@puri.sm,
+        stable@vger.kernel.org
+Subject: [PATCH v3] thermal: qoriq: Only enable sites that actually exist
+Date:   Mon, 21 Mar 2022 18:08:52 +0100
+Message-Id: <20220321170852.654094-1-sebastian.krzyszkowiak@puri.sm>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Content-Language: en-US
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Chen Li <chenli@uniontech.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: Apply "exfat: avoid incorrectly releasing for root inode" to stable
- 5.10
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-Please apply 839a534f1e85 ("exfat: avoid incorrectly releasing for root inode")
-to stable 5.10.y
-Syzbot can still trigger a BUG:
-https://syzkaller.appspot.com/bug?id=0896bca762e93f26a3922dc0822313a7be65a3c1
-It is already applied to all versions above 5.10.
+On i.MX8MQ, enabling monitoring sites that aren't connected to anything
+can cause unwanted side effects on some units. This seems to happen
+once some of these sites report out-of-range readings and results in
+sensor misbehavior, such as thermal zone readings getting stuck or even
+suddenly reporting an impossibly high value, triggering emergency
+shutdowns.
 
+The datasheet lists all non-existent sites as "reserved" and doesn't
+make any guarantees about being able to enable them at all, so let's
+not do that. Instead, iterate over sensor DT nodes and only enable
+monitoring sites that are specified there prior to registering their
+thermal zones. This still fixes the issue with bogus data being
+reported on the first reading, but doesn't introduce problems that
+come with reading from non-existent sites.
+
+Fixes: 45038e03d633 ("thermal: qoriq: Enable all sensors before registering them")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+---
+v3: add cc: stable
+v2: augment the commit message with details on what the patch is doing
+---
+ drivers/thermal/qoriq_thermal.c | 63 ++++++++++++++++++++++-----------
+ 1 file changed, 43 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/thermal/qoriq_thermal.c b/drivers/thermal/qoriq_thermal.c
+index 73049f9bea25..ef0848849ee2 100644
+--- a/drivers/thermal/qoriq_thermal.c
++++ b/drivers/thermal/qoriq_thermal.c
+@@ -32,7 +32,6 @@
+ #define TMR_DISABLE	0x0
+ #define TMR_ME		0x80000000
+ #define TMR_ALPF	0x0c000000
+-#define TMR_MSITE_ALL	GENMASK(15, 0)
+ 
+ #define REGS_TMTMIR	0x008	/* Temperature measurement interval Register */
+ #define TMTMIR_DEFAULT	0x0000000f
+@@ -129,33 +128,51 @@ static const struct thermal_zone_of_device_ops tmu_tz_ops = {
+ static int qoriq_tmu_register_tmu_zone(struct device *dev,
+ 				       struct qoriq_tmu_data *qdata)
+ {
+-	int id;
++	int ret = 0;
++	struct device_node *np, *child, *sensor_np;
+ 
+-	if (qdata->ver == TMU_VER1) {
+-		regmap_write(qdata->regmap, REGS_TMR,
+-			     TMR_MSITE_ALL | TMR_ME | TMR_ALPF);
+-	} else {
+-		regmap_write(qdata->regmap, REGS_V2_TMSR, TMR_MSITE_ALL);
+-		regmap_write(qdata->regmap, REGS_TMR, TMR_ME | TMR_ALPF_V2);
+-	}
++	np = of_find_node_by_name(NULL, "thermal-zones");
++	if (!np)
++		return -ENODEV;
++
++	sensor_np = of_node_get(dev->of_node);
+ 
+-	for (id = 0; id < SITES_MAX; id++) {
++	for_each_available_child_of_node(np, child) {
+ 		struct thermal_zone_device *tzd;
+-		struct qoriq_sensor *sensor = &qdata->sensor[id];
+-		int ret;
++		struct qoriq_sensor *sensor;
++		int id, site;
++
++		ret = thermal_zone_of_get_sensor_id(child, sensor_np, &id);
++
++		if (ret < 0) {
++			dev_err(dev, "failed to get valid sensor id: %d\n", ret);
++			of_node_put(child);
++			break;
++		}
+ 
++		sensor = &qdata->sensor[id];
+ 		sensor->id = id;
+ 
++		/* Enable monitoring */
++		if (qdata->ver == TMU_VER1) {
++			site = 0x1 << (15 - id);
++			regmap_update_bits(qdata->regmap, REGS_TMR,
++					   site | TMR_ME | TMR_ALPF,
++					   site | TMR_ME | TMR_ALPF);
++		} else {
++			site = 0x1 << id;
++			regmap_update_bits(qdata->regmap, REGS_V2_TMSR, site, site);
++			regmap_write(qdata->regmap, REGS_TMR, TMR_ME | TMR_ALPF_V2);
++		}
++
+ 		tzd = devm_thermal_zone_of_sensor_register(dev, id,
+ 							   sensor,
+ 							   &tmu_tz_ops);
+-		ret = PTR_ERR_OR_ZERO(tzd);
+-		if (ret) {
+-			if (ret == -ENODEV)
+-				continue;
+-
+-			regmap_write(qdata->regmap, REGS_TMR, TMR_DISABLE);
+-			return ret;
++		if (IS_ERR(tzd)) {
++			ret = PTR_ERR(tzd);
++			dev_err(dev, "failed to register thermal zone: %d\n", ret);
++			of_node_put(child);
++			break;
+ 		}
+ 
+ 		if (devm_thermal_add_hwmon_sysfs(tzd))
+@@ -164,7 +181,13 @@ static int qoriq_tmu_register_tmu_zone(struct device *dev,
+ 
+ 	}
+ 
+-	return 0;
++	of_node_put(sensor_np);
++	of_node_put(np);
++
++	if (ret)
++		regmap_write(qdata->regmap, REGS_TMR, TMR_DISABLE);
++
++	return ret;
+ }
+ 
+ static int qoriq_tmu_calibration(struct device *dev,
 -- 
-Thanks,
-Tadeusz
+2.35.1
+
