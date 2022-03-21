@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 057014E28A5
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3FA4E2827
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:52:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348430AbiCUOAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
+        id S1348132AbiCUNxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 09:53:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348794AbiCUN6S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6613F173F54;
-        Mon, 21 Mar 2022 06:56:31 -0700 (PDT)
+        with ESMTP id S1348152AbiCUNxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:53:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D13B15DAAF;
+        Mon, 21 Mar 2022 06:52:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 934656126E;
-        Mon, 21 Mar 2022 13:56:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8FBC340E8;
-        Mon, 21 Mar 2022 13:56:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B57A6B81676;
+        Mon, 21 Mar 2022 13:52:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08DF8C340E8;
+        Mon, 21 Mar 2022 13:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870963;
-        bh=10wANgwzmiNzFyQP4bLaTsKFebgCJe7LYW36iJXwyCE=;
+        s=korg; t=1647870731;
+        bh=G+VFBqG7q4lwb2VB2x7Ca2f8r0VCZcoQv5l7T+Cnosk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzkI5e3Xa7W87kdWEc1psIt6Blrlp7vZuQLydx3tluHtwVigdlwY/+XAXsox7lspK
-         qt1jYQ6pqpExYK3pOWFuz5wjaKK0g3yAFLcPYDwT7fW+vmhR5g5VeIsE7i6zBWxWlM
-         OO4fUQG5W2n14CFA3e1dhixjw64UTHijaoe0bsGs=
+        b=RshB49YamUQ6yAVIpjJNAleVcKzCN7EbxbEjKkdowd4f+X29M0+COd43GLyV2fB8R
+         WlBfrDRadAzGKE8ekFO/Dk0lJ1lkWG82SOp/RtGIRZUY54XoalbCXa5gHvkUMxyY0g
+         sSFlgOpp5MwB1w6gvGwzZm6Hd2UbdEaFXUy0r8b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan Yan <evitayan@google.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/57] xfrm: Check if_id in xfrm_migrate
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 15/16] usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
 Date:   Mon, 21 Mar 2022 14:51:45 +0100
-Message-Id: <20220321133222.115204973@linuxfoundation.org>
+Message-Id: <20220321133217.101397866@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133221.984120927@linuxfoundation.org>
-References: <20220321133221.984120927@linuxfoundation.org>
+In-Reply-To: <20220321133216.648316863@linuxfoundation.org>
+References: <20220321133216.648316863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,205 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Yan <evitayan@google.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit c1aca3080e382886e2e58e809787441984a2f89b ]
+commit 16b1941eac2bd499f065a6739a40ce0011a3d740 upstream.
 
-This patch enables distinguishing SAs and SPs based on if_id during
-the xfrm_migrate flow. This ensures support for xfrm interfaces
-throughout the SA/SP lifecycle.
+The syzbot fuzzer found a use-after-free bug:
 
-When there are multiple existing SPs with the same direction,
-the same xfrm_selector and different endpoint addresses,
-xfrm_migrate might fail with ENODATA.
+BUG: KASAN: use-after-free in dev_uevent+0x712/0x780 drivers/base/core.c:2320
+Read of size 8 at addr ffff88802b934098 by task udevd/3689
 
-Specifically, the code path for performing xfrm_migrate is:
-  Stage 1: find policy to migrate with
-    xfrm_migrate_policy_find(sel, dir, type, net)
-  Stage 2: find and update state(s) with
-    xfrm_migrate_state_find(mp, net)
-  Stage 3: update endpoint address(es) of template(s) with
-    xfrm_policy_migrate(pol, m, num_migrate)
+CPU: 2 PID: 3689 Comm: udevd Not tainted 5.17.0-rc4-syzkaller-00229-g4f12b742eb2b #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
+ dev_uevent+0x712/0x780 drivers/base/core.c:2320
+ uevent_show+0x1b8/0x380 drivers/base/core.c:2391
+ dev_attr_show+0x4b/0x90 drivers/base/core.c:2094
 
-Currently "Stage 1" always returns the first xfrm_policy that
-matches, and "Stage 3" looks for the xfrm_tmpl that matches the
-old endpoint address. Thus if there are multiple xfrm_policy
-with same selector, direction, type and net, "Stage 1" might
-rertun a wrong xfrm_policy and "Stage 3" will fail with ENODATA
-because it cannot find a xfrm_tmpl with the matching endpoint
-address.
+Although the bug manifested in the driver core, the real cause was a
+race with the gadget core.  dev_uevent() does:
 
-The fix is to allow userspace to pass an if_id and add if_id
-to the matching rule in Stage 1 and Stage 2 since if_id is a
-unique ID for xfrm_policy and xfrm_state. For compatibility,
-if_id will only be checked if the attribute is set.
+	if (dev->driver)
+		add_uevent_var(env, "DRIVER=%s", dev->driver->name);
 
-Tested with additions to Android's kernel unit test suite:
-https://android-review.googlesource.com/c/kernel/tests/+/1668886
+and between the test and the dereference of dev->driver, the gadget
+core sets dev->driver to NULL.
 
-Signed-off-by: Yan Yan <evitayan@google.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The race wouldn't occur if the gadget core registered its devices on
+a real bus, using the standard synchronization techniques of the
+driver core.  However, it's not necessary to make such a large change
+in order to fix this bug; all we need to do is make sure that
+udc->dev.driver is always NULL.
+
+In fact, there is no reason for udc->dev.driver ever to be set to
+anything, let alone to the value it currently gets: the address of the
+gadget's driver.  After all, a gadget driver only knows how to manage
+a gadget, not how to manage a UDC.
+
+This patch simply removes the statements in the gadget core that touch
+udc->dev.driver.
+
+Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YiQgukfFFbBnwJ/9@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/xfrm.h     |  5 +++--
- net/key/af_key.c       |  2 +-
- net/xfrm/xfrm_policy.c | 14 ++++++++------
- net/xfrm/xfrm_state.c  |  7 ++++++-
- net/xfrm/xfrm_user.c   |  6 +++++-
- 5 files changed, 23 insertions(+), 11 deletions(-)
+ drivers/usb/gadget/udc/core.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index fe8bed557691..a8aa2bb74ad6 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1763,14 +1763,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 	       const struct xfrm_migrate *m, int num_bundles,
- 	       const struct xfrm_kmaddress *k,
- 	       const struct xfrm_encap_tmpl *encap);
--struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
-+struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
-+						u32 if_id);
- struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
- 				      struct xfrm_migrate *m,
- 				      struct xfrm_encap_tmpl *encap);
- int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 		 struct xfrm_migrate *m, int num_bundles,
- 		 struct xfrm_kmaddress *k, struct net *net,
--		 struct xfrm_encap_tmpl *encap);
-+		 struct xfrm_encap_tmpl *encap, u32 if_id);
- #endif
+--- a/drivers/usb/gadget/udc/core.c
++++ b/drivers/usb/gadget/udc/core.c
+@@ -1253,7 +1253,6 @@ static void usb_gadget_remove_driver(str
+ 	usb_gadget_udc_stop(udc);
  
- int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index c7d5a6015389..388910cf0978 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -2633,7 +2633,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
- 	}
- 
- 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
--			    kma ? &k : NULL, net, NULL);
-+			    kma ? &k : NULL, net, NULL, 0);
- 
-  out:
- 	return err;
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index e9aea82f370d..ab6d0c6576a6 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -3050,7 +3050,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
+ 	udc->driver = NULL;
+-	udc->dev.driver = NULL;
+ 	udc->gadget->dev.driver = NULL;
  }
  
- static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
--						    u8 dir, u8 type, struct net *net)
-+						    u8 dir, u8 type, struct net *net, u32 if_id)
- {
- 	struct xfrm_policy *pol, *ret = NULL;
- 	struct hlist_head *chain;
-@@ -3059,7 +3059,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
- 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
- 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
- 	hlist_for_each_entry(pol, chain, bydst) {
--		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
-+		if ((if_id == 0 || pol->if_id == if_id) &&
-+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
- 		    pol->type == type) {
- 			ret = pol;
- 			priority = ret->priority;
-@@ -3071,7 +3072,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
- 		if ((pol->priority >= priority) && ret)
- 			break;
+@@ -1301,7 +1300,6 @@ static int udc_bind_to_driver(struct usb
+ 			driver->function);
  
--		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
-+		if ((if_id == 0 || pol->if_id == if_id) &&
-+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
- 		    pol->type == type) {
- 			ret = pol;
- 			break;
-@@ -3187,7 +3189,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
- int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 		 struct xfrm_migrate *m, int num_migrate,
- 		 struct xfrm_kmaddress *k, struct net *net,
--		 struct xfrm_encap_tmpl *encap)
-+		 struct xfrm_encap_tmpl *encap, u32 if_id)
- {
- 	int i, err, nx_cur = 0, nx_new = 0;
- 	struct xfrm_policy *pol = NULL;
-@@ -3206,14 +3208,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
- 	}
+ 	udc->driver = driver;
+-	udc->dev.driver = &driver->driver;
+ 	udc->gadget->dev.driver = &driver->driver;
  
- 	/* Stage 1 - find policy */
--	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
-+	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
- 		err = -ENOENT;
- 		goto out;
- 	}
- 
- 	/* Stage 2 - find and update state(s) */
- 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
--		if ((x = xfrm_migrate_state_find(mp, net))) {
-+		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
- 			x_cur[nx_cur] = x;
- 			nx_cur++;
- 			xc = xfrm_state_migrate(x, mp, encap);
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 44acc724122b..0fd67d1acbfb 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1466,7 +1466,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
- 	return NULL;
+ 	ret = driver->bind(udc->gadget, driver);
+@@ -1321,7 +1319,6 @@ err1:
+ 		dev_err(&udc->dev, "failed to start %s: %d\n",
+ 			udc->driver->function, ret);
+ 	udc->driver = NULL;
+-	udc->dev.driver = NULL;
+ 	udc->gadget->dev.driver = NULL;
+ 	return ret;
  }
- 
--struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
-+struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
-+						u32 if_id)
- {
- 	unsigned int h;
- 	struct xfrm_state *x = NULL;
-@@ -1482,6 +1483,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
- 				continue;
- 			if (m->reqid && x->props.reqid != m->reqid)
- 				continue;
-+			if (if_id != 0 && x->if_id != if_id)
-+				continue;
- 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
- 					     m->old_family) ||
- 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
-@@ -1497,6 +1500,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
- 			if (x->props.mode != m->mode ||
- 			    x->id.proto != m->proto)
- 				continue;
-+			if (if_id != 0 && x->if_id != if_id)
-+				continue;
- 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
- 					     m->old_family) ||
- 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 87932f6ad9d7..3db5cd70b16a 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -2369,6 +2369,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	int n = 0;
- 	struct net *net = sock_net(skb->sk);
- 	struct xfrm_encap_tmpl  *encap = NULL;
-+	u32 if_id = 0;
- 
- 	if (attrs[XFRMA_MIGRATE] == NULL)
- 		return -EINVAL;
-@@ -2393,7 +2394,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
- 			return 0;
- 	}
- 
--	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
-+	if (attrs[XFRMA_IF_ID])
-+		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
-+
-+	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
- 
- 	kfree(encap);
- 
--- 
-2.34.1
-
 
 
