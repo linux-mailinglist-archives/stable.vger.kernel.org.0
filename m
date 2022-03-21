@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC32C4E2A2D
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA9814E2A11
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349078AbiCUOO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38460 "EHLO
+        id S237838AbiCUONk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349373AbiCUOIM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:12 -0400
+        with ESMTP id S1349452AbiCUOIZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47170179429;
-        Mon, 21 Mar 2022 07:02:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6FDC17A598;
+        Mon, 21 Mar 2022 07:02:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA23B613CA;
-        Mon, 21 Mar 2022 14:02:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F60C340F2;
-        Mon, 21 Mar 2022 14:02:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F9B6132C;
+        Mon, 21 Mar 2022 14:02:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B96AC340E8;
+        Mon, 21 Mar 2022 14:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871364;
-        bh=tj33CDVipt3Hwcf7gdEjoaIZbWPVmkUS+u0jcdrdLGM=;
+        s=korg; t=1647871366;
+        bh=qf/4IqoCH15v/gP5BPbKxETcCxWbZ+FrQYit2rRSzY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqdkokWqqr3sQZ06pD5Lo4Sadl2aioTGPBEhllPeS1s2audRB0JEbzL6xAiLosHte
-         XOaoymMLBfMGdppmiuksJVi1QoTVST6upJN6ZzHx/RJHS7fhvbFGPtwy6PjRZ7Twjt
-         iJfB9gawIOyCTX2EsqapLMq/5t0UDf+Hlzqho3X8=
+        b=T8BkqavWrskOaPUh5+adm55CKpvVIjQLw87q6k3z4Oy0+92iB2gd88fSVLTk7lWMc
+         nHbBiHiHm4Ir7P3dpw8rdTVLP6GBSCVt1SI0G6Xf8QIqOHb4gn+QXsLqLbt9x5b/2L
+         c5x8Xjii30k8x8jnoRPnA+hxyfeE5MeNSdnm/5v8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
-        Jiri Olsa <jolsa@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.16 34/37] perf symbols: Fix symbol size calculation condition
-Date:   Mon, 21 Mar 2022 14:53:16 +0100
-Message-Id: <20220321133222.278291921@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Marc Zyngier <maz@kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.16 35/37] Revert "arm64: dts: freescale: Fix interrupt-map parent address cells"
+Date:   Mon, 21 Mar 2022 14:53:17 +0100
+Message-Id: <20220321133222.305922095@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
 References: <20220321133221.290173884@linuxfoundation.org>
@@ -56,71 +53,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Petlan <mpetlan@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 3cf6a32f3f2a45944dd5be5c6ac4deb46bcd3bee upstream.
+commit 1447c635802fd0f5e213ad5277753108d56a4db3 upstream.
 
-Before this patch, the symbol end address fixup to be called, needed two
-conditions being met:
+This reverts commit 869f0ec048dc8fd88c0b2003373bd985795179fb. That
+updated the expected device tree binding format for the ls-extirq
+driver, without also updating the parsing code (ls_extirq_parse_map)
+to the new format.
 
-  if (prev->end == prev->start && prev->end != curr->start)
+The context is that the ls-extirq driver uses the standard
+"interrupt-map" OF property in a non-standard way, as suggested by
+Rob Herring during review:
+https://lore.kernel.org/lkml/20190927161118.GA19333@bogus/
 
-Where
-  "prev->end == prev->start" means that prev is zero-long
-                             (and thus needs a fixup)
-and
-  "prev->end != curr->start" means that fixup hasn't been applied yet
+This has turned out to be problematic, as Marc Zyngier discovered
+through commit 041284181226 ("of/irq: Allow matching of an interrupt-map
+local to an interrupt controller"), later fixed through commit
+de4adddcbcc2 ("of/irq: Add a quirk for controllers with their own
+definition of interrupt-map"). Marc's position, expressed on multiple
+opportunities, is that:
 
-However, this logic is incorrect in the following situation:
+(a) [ making private use of the reserved "interrupt-map" name in a
+    driver ] "is wrong, by the very letter of what an interrupt-map
+    means. If the interrupt map points to an interrupt controller,
+    that's the target for the interrupt."
+https://lore.kernel.org/lkml/87k0g8jlmg.wl-maz@kernel.org/
 
-*curr  = {rb_node = {__rb_parent_color = 278218928,
-  rb_right = 0x0, rb_left = 0x0},
-  start = 0xc000000000062354,
-  end = 0xc000000000062354, namelen = 40, type = 2 '\002',
-  binding = 0 '\000', idle = 0 '\000', ignore = 0 '\000',
-  inlined = 0 '\000', arch_sym = 0 '\000', annotate2 = false,
-  name = 0x1159739e "kprobe_optinsn_page\t[__builtin__kprobes]"}
+(b) [ updating the driver's bindings to accept a non-reserved name for
+    this property, as an alternative, is ] "is totally pointless. These
+    machines have been in the wild for years, and existing DTs will be
+    there *forever*."
+https://lore.kernel.org/lkml/87ilvrk1r0.wl-maz@kernel.org/
 
-*prev = {rb_node = {__rb_parent_color = 278219041,
-  rb_right = 0x109548b0, rb_left = 0x109547c0},
-  start = 0xc000000000062354,
-  end = 0xc000000000062354, namelen = 12, type = 2 '\002',
-  binding = 1 '\001', idle = 0 '\000', ignore = 0 '\000',
-  inlined = 0 '\000', arch_sym = 0 '\000', annotate2 = false,
-  name = 0x1095486e "optinsn_slot"}
+Considering the above, the Linux kernel has quirks in place to deal with
+the ls-extirq's non-standard use of the "interrupt-map". These quirks
+may be needed in other operating systems that consume this device tree,
+yet this is seen as the only viable solution.
 
-In this case, prev->start == prev->end == curr->start == curr->end,
-thus the condition above thinks that "we need a fixup due to zero
-length of prev symbol, but it has been probably done, since the
-prev->end == curr->start", which is wrong.
+Therefore, the premise of the patch being reverted here is invalid.
+It doesn't matter whether the driver, in its non-standard use of the
+property, complies to the standard format or not, since this property
+isn't expected to be used for interrupt translation by the core.
 
-After the patch, the execution path proceeds to arch__symbols__fixup_end
-function which fixes up the size of prev symbol by adding page_size to
-its end offset.
+This change restores LS1088A, LS2088A/LS2085A and LX2160A to their
+previous bindings, which allows these systems to continue to use
+external interrupt lines with the correct polarity.
 
-Fixes: 3b01a413c196c910 ("perf symbols: Improve kallsyms symbol end addr calculation")
-Signed-off-by: Michael Petlan <mpetlan@redhat.com>
-Cc: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kajol Jain <kjain@linux.ibm.com>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20220317135536.805-1-mpetlan@redhat.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 869f0ec048dc ("arm64: dts: freescale: Fix 'interrupt-map' parent address cells")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/symbol.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi |   24 ++++++++++++------------
+ arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi |   24 ++++++++++++------------
+ arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi |   24 ++++++++++++------------
+ 3 files changed, 36 insertions(+), 36 deletions(-)
 
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -231,7 +231,7 @@ void symbols__fixup_end(struct rb_root_c
- 		prev = curr;
- 		curr = rb_entry(nd, struct symbol, rb_node);
- 
--		if (prev->end == prev->start && prev->end != curr->start)
-+		if (prev->end == prev->start || prev->end != curr->start)
- 			arch__symbols__fixup_end(prev, curr);
- 	}
- 
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
+@@ -241,18 +241,18 @@
+ 				interrupt-controller;
+ 				reg = <0x14 4>;
+ 				interrupt-map =
+-					<0 0 &gic 0 0 GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+-					<1 0 &gic 0 0 GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
+-					<2 0 &gic 0 0 GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
+-					<3 0 &gic 0 0 GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
+-					<4 0 &gic 0 0 GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
+-					<5 0 &gic 0 0 GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
+-					<6 0 &gic 0 0 GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
+-					<7 0 &gic 0 0 GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>,
+-					<8 0 &gic 0 0 GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
+-					<9 0 &gic 0 0 GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>,
+-					<10 0 &gic 0 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
+-					<11 0 &gic 0 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
++					<0 0 &gic GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
++					<1 0 &gic GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
++					<2 0 &gic GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
++					<3 0 &gic GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
++					<4 0 &gic GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
++					<5 0 &gic GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
++					<6 0 &gic GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
++					<7 0 &gic GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>,
++					<8 0 &gic GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
++					<9 0 &gic GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>,
++					<10 0 &gic GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
++					<11 0 &gic GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
+ 				interrupt-map-mask = <0xffffffff 0x0>;
+ 			};
+ 		};
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -293,18 +293,18 @@
+ 				interrupt-controller;
+ 				reg = <0x14 4>;
+ 				interrupt-map =
+-					<0 0 &gic 0 0 GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+-					<1 0 &gic 0 0 GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
+-					<2 0 &gic 0 0 GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
+-					<3 0 &gic 0 0 GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
+-					<4 0 &gic 0 0 GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
+-					<5 0 &gic 0 0 GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
+-					<6 0 &gic 0 0 GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
+-					<7 0 &gic 0 0 GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>,
+-					<8 0 &gic 0 0 GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
+-					<9 0 &gic 0 0 GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>,
+-					<10 0 &gic 0 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
+-					<11 0 &gic 0 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
++					<0 0 &gic GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
++					<1 0 &gic GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
++					<2 0 &gic GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
++					<3 0 &gic GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
++					<4 0 &gic GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
++					<5 0 &gic GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
++					<6 0 &gic GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
++					<7 0 &gic GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>,
++					<8 0 &gic GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
++					<9 0 &gic GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>,
++					<10 0 &gic GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
++					<11 0 &gic GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
+ 				interrupt-map-mask = <0xffffffff 0x0>;
+ 			};
+ 		};
+--- a/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
+@@ -680,18 +680,18 @@
+ 				interrupt-controller;
+ 				reg = <0x14 4>;
+ 				interrupt-map =
+-					<0 0 &gic 0 0 GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+-					<1 0 &gic 0 0 GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
+-					<2 0 &gic 0 0 GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
+-					<3 0 &gic 0 0 GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
+-					<4 0 &gic 0 0 GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
+-					<5 0 &gic 0 0 GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
+-					<6 0 &gic 0 0 GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
+-					<7 0 &gic 0 0 GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>,
+-					<8 0 &gic 0 0 GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
+-					<9 0 &gic 0 0 GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>,
+-					<10 0 &gic 0 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
+-					<11 0 &gic 0 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
++					<0 0 &gic GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
++					<1 0 &gic GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
++					<2 0 &gic GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
++					<3 0 &gic GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
++					<4 0 &gic GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
++					<5 0 &gic GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
++					<6 0 &gic GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
++					<7 0 &gic GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>,
++					<8 0 &gic GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
++					<9 0 &gic GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>,
++					<10 0 &gic GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
++					<11 0 &gic GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
+ 				interrupt-map-mask = <0xffffffff 0x0>;
+ 			};
+ 		};
 
 
