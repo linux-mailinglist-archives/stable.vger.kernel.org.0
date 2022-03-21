@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F7234E295B
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 923E94E29C5
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348896AbiCUOEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37898 "EHLO
+        id S1343855AbiCUONW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349005AbiCUODO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 806C840A12;
-        Mon, 21 Mar 2022 07:00:11 -0700 (PDT)
+        with ESMTP id S1348854AbiCUOF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:05:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85F6B2476;
+        Mon, 21 Mar 2022 07:01:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C61B4B816D7;
-        Mon, 21 Mar 2022 13:59:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CFB7C340E8;
-        Mon, 21 Mar 2022 13:59:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82C8BB816DD;
+        Mon, 21 Mar 2022 14:01:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF88BC340E8;
+        Mon, 21 Mar 2022 14:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871190;
-        bh=VyqiZa+McEGjcbbsPS6zcIHRdgCkZADjXTnVD631GgM=;
+        s=korg; t=1647871306;
+        bh=Vdb1iWqlqHWiCH1Lg+xVDeo/BUxVscRQ0x8Astw8CXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhTJSF763UyG5N3jxHUDPy+yvJaPUBftO02ZcR6PDj6XfzKfxo+dratpm9gOE5Z0q
-         yp6urCEu7H1UxvH0dCRXr6xvyK8KBySV20YZl0gcJ0BK9eXygEKUV2RQstIhrGc6vz
-         Dr8xDw8bFw9ouwuCPHKFHPNpB08UPcjeLE6V3esY=
+        b=ZMpfSoo1Bdcp6LcC1Pu/7NEYKALE8/j0McI3yokFNz3M/KoYpJokmVf5iaZO6PU//
+         P2SAKah+Sq7CvYoVw0sijUWabY0ALwqpjgT/ORD5fSA9j3q12Jx47dEgDkoIQUA6Gq
+         nOQy+xxiZg8RhYTAs9m5hekCumKzs7E0t9/4F1gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gabriel Hojda <ghojda@yo2urs.ro>,
-        Markus Reichl <m.reichl@fivetechno.de>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 5.10 27/30] net: usb: Correct reset handling of smsc95xx
+        stable@vger.kernel.org,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 15/37] iavf: Fix double free in iavf_reset_task
 Date:   Mon, 21 Mar 2022 14:52:57 +0100
-Message-Id: <20220321133220.431816122@linuxfoundation.org>
+Message-Id: <20220321133221.737945027@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
+References: <20220321133221.290173884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Reichl <m.reichl@fivetechno.de>
+From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
 
-commit 0bf3885324a8599e3af4c7379b8d4f621c9bbffa upstream.
+[ Upstream commit 16b2dd8cdf6f4e0597c34899de74b4d012b78188 ]
 
-On boards with LAN9514 and no preconfigured MAC address we don't get an
-ip address from DHCP after commit a049a30fc27c ("net: usb: Correct PHY handling
-of smsc95xx") anymore. Adding an explicit reset before starting the phy
-fixes the issue.
+Fix double free possibility in iavf_disable_vf, as crit_lock is
+freed in caller, iavf_reset_task. Add kernel-doc for iavf_disable_vf.
+Remove mutex_unlock in iavf_disable_vf.
+Without this patch there is double free scenario, when calling
+iavf_reset_task.
 
-[1]
-https://lore.kernel.org/netdev/199eebbd6b97f52b9119c9fa4fd8504f8a34de18.camel@collabora.com/
-
-From: Gabriel Hojda <ghojda@yo2urs.ro>
-Fixes: a049a30fc27c ("net: usb: Correct PHY handling of smsc95xx")
-Signed-off-by: Gabriel Hojda <ghojda@yo2urs.ro>
-Signed-off-by: Markus Reichl <m.reichl@fivetechno.de>
-Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e85ff9c631e1 ("iavf: Fix deadlock in iavf_reset_task")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1961,7 +1961,8 @@ static const struct driver_info smsc95xx
- 	.bind		= smsc95xx_bind,
- 	.unbind		= smsc95xx_unbind,
- 	.link_reset	= smsc95xx_link_reset,
--	.reset		= smsc95xx_start_phy,
-+	.reset		= smsc95xx_reset,
-+	.check_connect	= smsc95xx_start_phy,
- 	.stop		= smsc95xx_stop,
- 	.rx_fixup	= smsc95xx_rx_fixup,
- 	.tx_fixup	= smsc95xx_tx_fixup,
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 138db07bdfa8..f2ce30366484 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2133,6 +2133,13 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 		queue_delayed_work(iavf_wq, &adapter->watchdog_task, HZ * 2);
+ }
+ 
++/**
++ * iavf_disable_vf - disable VF
++ * @adapter: board private structure
++ *
++ * Set communication failed flag and free all resources.
++ * NOTE: This function is expected to be called with crit_lock being held.
++ **/
+ static void iavf_disable_vf(struct iavf_adapter *adapter)
+ {
+ 	struct iavf_mac_filter *f, *ftmp;
+@@ -2187,7 +2194,6 @@ static void iavf_disable_vf(struct iavf_adapter *adapter)
+ 	memset(adapter->vf_res, 0, IAVF_VIRTCHNL_VF_RESOURCE_SIZE);
+ 	iavf_shutdown_adminq(&adapter->hw);
+ 	adapter->netdev->flags &= ~IFF_UP;
+-	mutex_unlock(&adapter->crit_lock);
+ 	adapter->flags &= ~IAVF_FLAG_RESET_PENDING;
+ 	iavf_change_state(adapter, __IAVF_DOWN);
+ 	wake_up(&adapter->down_waitqueue);
+-- 
+2.34.1
+
 
 
