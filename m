@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B56ED4E2946
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E3C4E28F7
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348898AbiCUOEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:04:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38004 "EHLO
+        id S1348314AbiCUOBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:01:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348819AbiCUODB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84CFBBD7E9;
-        Mon, 21 Mar 2022 06:59:44 -0700 (PDT)
+        with ESMTP id S1349161AbiCUN73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA0B17E34;
+        Mon, 21 Mar 2022 06:58:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F334B81598;
-        Mon, 21 Mar 2022 13:59:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4854C340F2;
-        Mon, 21 Mar 2022 13:59:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 833786125C;
+        Mon, 21 Mar 2022 13:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937CBC340E8;
+        Mon, 21 Mar 2022 13:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871179;
-        bh=TvLU7XgDbq4FG8A8TsB4hsfrKgfT3NhKOFUGfv4zHF4=;
+        s=korg; t=1647871083;
+        bh=JsBG2MyiRhsA2oGen2dAlVo6MAvoBKtGqss16qFVF4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGWSr7nzFAkvAdb+0nRv4zoZE5MEvWky8cU6gZ6A5XC4K3smOmWHbTaq1MZkzoEKA
-         7lepxWk/Q5MPT1b3IGz/vNN5ERzGM7tJxBc/PesTYq8WZ1Xr8BfdiUsG+sW/E906G7
-         zNPwaBcHfPp3Jsqo+d1rzesPU0tmdXaV4bgOa5LA=
+        b=YEKPWPwESqiCRGNiviQgHrfGtxs2lVfmjvMI0XJBf5M+5rxEfo1i9OkzhCyJ2wDiC
+         Q51UFqcNez7U+9uW4uE6d3e29BHdSokqyNvHFVS3Q/YOd088rmOPiACEQgMPg0f37i
+         dURGRkS/8r5HKx72DnpJdr63OtAFj+0yvtyhOyhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        Matt Lupfer <mlupfer@ddn.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 23/30] scsi: mpt3sas: Page fault in reply q processing
+        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
+        Tommi Rantala <tommi.t.rantala@nokia.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/17] Revert "selftests/bpf: Add test for bpf_timer overwriting crash"
 Date:   Mon, 21 Mar 2022 14:52:53 +0100
-Message-Id: <20220321133220.316060192@linuxfoundation.org>
+Message-Id: <20220321133217.653517515@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
+References: <20220321133217.148831184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +56,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Lupfer <mlupfer@ddn.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 69ad4ef868c1fc7609daa235dfa46d28ba7a3ba3 upstream.
+This reverts commit dcf55b071de9231e197ba7b1a2d0a423e8d7d33a which is
+commit a7e75016a0753c24d6c995bc02501ae35368e333 upstream.
 
-A page fault was encountered in mpt3sas on a LUN reset error path:
+It is reported to break the bpf self-tests.
 
-[  145.763216] mpt3sas_cm1: Task abort tm failed: handle(0x0002),timeout(30) tr_method(0x0) smid(3) msix_index(0)
-[  145.778932] scsi 1:0:0:0: task abort: FAILED scmd(0x0000000024ba29a2)
-[  145.817307] scsi 1:0:0:0: attempting device reset! scmd(0x0000000024ba29a2)
-[  145.827253] scsi 1:0:0:0: [sg1] tag#2 CDB: Receive Diagnostic 1c 01 01 ff fc 00
-[  145.837617] scsi target1:0:0: handle(0x0002), sas_address(0x500605b0000272b9), phy(0)
-[  145.848598] scsi target1:0:0: enclosure logical id(0x500605b0000272b8), slot(0)
-[  149.858378] mpt3sas_cm1: Poll ReplyDescriptor queues for completion of smid(0), task_type(0x05), handle(0x0002)
-[  149.875202] BUG: unable to handle page fault for address: 00000007fffc445d
-[  149.885617] #PF: supervisor read access in kernel mode
-[  149.894346] #PF: error_code(0x0000) - not-present page
-[  149.903123] PGD 0 P4D 0
-[  149.909387] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  149.917417] CPU: 24 PID: 3512 Comm: scsi_eh_1 Kdump: loaded Tainted: G S         O      5.10.89-altav-1 #1
-[  149.934327] Hardware name: DDN           200NVX2             /200NVX2-MB          , BIOS ATHG2.2.02.01 09/10/2021
-[  149.951871] RIP: 0010:_base_process_reply_queue+0x4b/0x900 [mpt3sas]
-[  149.961889] Code: 0f 84 22 02 00 00 8d 48 01 49 89 fd 48 8d 57 38 f0 0f b1 4f 38 0f 85 d8 01 00 00 49 8b 45 10 45 31 e4 41 8b 55 0c 48 8d 1c d0 <0f> b6 03 83 e0 0f 3c 0f 0f 85 a2 00 00 00 e9 e6 01 00 00 0f b7 ee
-[  149.991952] RSP: 0018:ffffc9000f1ebcb8 EFLAGS: 00010246
-[  150.000937] RAX: 0000000000000055 RBX: 00000007fffc445d RCX: 000000002548f071
-[  150.011841] RDX: 00000000ffff8881 RSI: 0000000000000001 RDI: ffff888125ed50d8
-[  150.022670] RBP: 0000000000000000 R08: 0000000000000000 R09: c0000000ffff7fff
-[  150.033445] R10: ffffc9000f1ebb68 R11: ffffc9000f1ebb60 R12: 0000000000000000
-[  150.044204] R13: ffff888125ed50d8 R14: 0000000000000080 R15: 34cdc00034cdea80
-[  150.054963] FS:  0000000000000000(0000) GS:ffff88dfaf200000(0000) knlGS:0000000000000000
-[  150.066715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  150.076078] CR2: 00000007fffc445d CR3: 000000012448a006 CR4: 0000000000770ee0
-[  150.086887] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  150.097670] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  150.108323] PKRU: 55555554
-[  150.114690] Call Trace:
-[  150.120497]  ? printk+0x48/0x4a
-[  150.127049]  mpt3sas_scsih_issue_tm.cold.114+0x2e/0x2b3 [mpt3sas]
-[  150.136453]  mpt3sas_scsih_issue_locked_tm+0x86/0xb0 [mpt3sas]
-[  150.145759]  scsih_dev_reset+0xea/0x300 [mpt3sas]
-[  150.153891]  scsi_eh_ready_devs+0x541/0x9e0 [scsi_mod]
-[  150.162206]  ? __scsi_host_match+0x20/0x20 [scsi_mod]
-[  150.170406]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
-[  150.178925]  ? blk_mq_tagset_busy_iter+0x45/0x60
-[  150.186638]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
-[  150.195087]  scsi_error_handler+0x3a5/0x4a0 [scsi_mod]
-[  150.203206]  ? __schedule+0x1e9/0x610
-[  150.209783]  ? scsi_eh_get_sense+0x210/0x210 [scsi_mod]
-[  150.217924]  kthread+0x12e/0x150
-[  150.224041]  ? kthread_worker_fn+0x130/0x130
-[  150.231206]  ret_from_fork+0x1f/0x30
-
-This is caused by mpt3sas_base_sync_reply_irqs() using an invalid reply_q
-pointer outside of the list_for_each_entry() loop. At the end of the full
-list traversal the pointer is invalid.
-
-Move the _base_process_reply_queue() call inside of the loop.
-
-Link: https://lore.kernel.org/r/d625deae-a958-0ace-2ba3-0888dd0a415b@ddn.com
-Fixes: 711a923c14d9 ("scsi: mpt3sas: Postprocessing of target and LUN reset")
-Cc: stable@vger.kernel.org
-Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Matt Lupfer <mlupfer@ddn.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Geliang Tang <geliang.tang@suse.com>
+Reported-by: Tommi Rantala <tommi.t.rantala@nokia.com>
+Cc: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209070324.1093182-3-memxor@gmail.com
+Cc: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/a0a7298ca5c64b3d0ecfcc8821c2de79186fa9f7.camel@nokia.com
+Link: https://lore.kernel.org/r/HE1PR0402MB3497CB13A12C4D15D20A1FCCF8139@HE1PR0402MB3497.eurprd04.prod.outlook.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/timer_crash.c |   32 -----------
+ tools/testing/selftests/bpf/progs/timer_crash.c      |   54 -------------------
+ 2 files changed, 86 deletions(-)
+ delete mode 100644 tools/testing/selftests/bpf/prog_tests/timer_crash.c
+ delete mode 100644 tools/testing/selftests/bpf/progs/timer_crash.c
 
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -1832,9 +1832,10 @@ mpt3sas_base_sync_reply_irqs(struct MPT3
- 				enable_irq(reply_q->os_irq);
- 			}
- 		}
-+
-+		if (poll)
-+			_base_process_reply_queue(reply_q);
- 	}
--	if (poll)
--		_base_process_reply_queue(reply_q);
- }
- 
- /**
+--- a/tools/testing/selftests/bpf/prog_tests/timer_crash.c
++++ /dev/null
+@@ -1,32 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-#include <test_progs.h>
+-#include "timer_crash.skel.h"
+-
+-enum {
+-	MODE_ARRAY,
+-	MODE_HASH,
+-};
+-
+-static void test_timer_crash_mode(int mode)
+-{
+-	struct timer_crash *skel;
+-
+-	skel = timer_crash__open_and_load();
+-	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
+-		return;
+-	skel->bss->pid = getpid();
+-	skel->bss->crash_map = mode;
+-	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
+-		goto end;
+-	usleep(1);
+-end:
+-	timer_crash__destroy(skel);
+-}
+-
+-void test_timer_crash(void)
+-{
+-	if (test__start_subtest("array"))
+-		test_timer_crash_mode(MODE_ARRAY);
+-	if (test__start_subtest("hash"))
+-		test_timer_crash_mode(MODE_HASH);
+-}
+--- a/tools/testing/selftests/bpf/progs/timer_crash.c
++++ /dev/null
+@@ -1,54 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-
+-#include <vmlinux.h>
+-#include <bpf/bpf_tracing.h>
+-#include <bpf/bpf_helpers.h>
+-
+-struct map_elem {
+-	struct bpf_timer timer;
+-	struct bpf_spin_lock lock;
+-};
+-
+-struct {
+-	__uint(type, BPF_MAP_TYPE_ARRAY);
+-	__uint(max_entries, 1);
+-	__type(key, int);
+-	__type(value, struct map_elem);
+-} amap SEC(".maps");
+-
+-struct {
+-	__uint(type, BPF_MAP_TYPE_HASH);
+-	__uint(max_entries, 1);
+-	__type(key, int);
+-	__type(value, struct map_elem);
+-} hmap SEC(".maps");
+-
+-int pid = 0;
+-int crash_map = 0; /* 0 for amap, 1 for hmap */
+-
+-SEC("fentry/do_nanosleep")
+-int sys_enter(void *ctx)
+-{
+-	struct map_elem *e, value = {};
+-	void *map = crash_map ? (void *)&hmap : (void *)&amap;
+-
+-	if (bpf_get_current_task_btf()->tgid != pid)
+-		return 0;
+-
+-	*(void **)&value = (void *)0xdeadcaf3;
+-
+-	bpf_map_update_elem(map, &(int){0}, &value, 0);
+-	/* For array map, doing bpf_map_update_elem will do a
+-	 * check_and_free_timer_in_array, which will trigger the crash if timer
+-	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
+-	 */
+-	if (crash_map == 1) {
+-		e = bpf_map_lookup_elem(map, &(int){0});
+-		if (!e)
+-			return 0;
+-		bpf_timer_cancel(&e->timer);
+-	}
+-	return 0;
+-}
+-
+-char _license[] SEC("license") = "GPL";
 
 
