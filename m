@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 274414E3399
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 23:58:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A524E3361
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 23:56:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231559AbiCUW5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 18:57:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
+        id S230458AbiCUWzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 18:55:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231575AbiCUW5P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 18:57:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 817B83B2073;
-        Mon, 21 Mar 2022 15:37:37 -0700 (PDT)
+        with ESMTP id S230453AbiCUWzX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 18:55:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B7903B2A14;
+        Mon, 21 Mar 2022 15:37:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B520BB81A61;
-        Mon, 21 Mar 2022 21:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E7E5C340F2;
-        Mon, 21 Mar 2022 21:53:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D747B81A66;
+        Mon, 21 Mar 2022 21:53:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3F2BC340F0;
+        Mon, 21 Mar 2022 21:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647899585;
-        bh=qYe/uBk0ndVaKY+4X1OhfMJEXd3Z6e/VbB81NnZOuOc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7u+vGjuU+kjaU5T6xXNPRR2Kej2ocgXxK1oSfdVwVdJsbbu3/AMHRBC/8YPM13GB
-         tqCxrGaRiXW2Vn2W62qxKUuP4Ufuo6b4bCxQ+6qDygiA/WyJe1f3QDISU5twDsfDYv
-         vzUxy85giTapQamuIi3JFzqzCwIPn8eXzdIe0jmbh70lP41XdurgxMpvlYWYA0FfOP
-         77EnX0SmVAdfeL93YBIvn5/kkMxbdpI+3Bh9tDu8qQ0r4tIlihElaLnEhaAAz4XFJr
-         xMZ4X+qI0j7hYy5nk9Cl+minAbJkjl8cn4IO8/oEBxWVSgbQvVrH1o9bw0IbXc+k0C
-         aM0dlaH+37BKg==
+        s=k20201202; t=1647899590;
+        bh=/yE+Sme9P6DeiwPLI0+q7oIXGmD4IVHQHa6leBP2hnE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=M6yBvafZ3D2xuVh5WZt4BgylGkT5tEJcTybhGdLp+VQIvWc8tBYvQFSFHtLF7n0NX
+         cwa4Ry4I6O+/6/3Z+I/D7Iltcfd90XpOH4D6SJj/JjvZkDfMr5FnHjKwj7evAyQ1dj
+         SM+VBB0/9x6HDBT+/uq3xl6zBd8ff7WhDoC4vgJqJOUCDmMjA31J7RwsG+ROPt6Jz7
+         J1zuMtuKyXJ5TWGHbzxrkwKgiyKoeO1e8ns0Aif+xcTlQToyHZZXJY38CN1fbmInDC
+         ZPDRzh8kfrUqIkodRGl5e2xB2Z5m5JcZxEpajz6QYmPYX5PiyYKs640oXw+yLO7jjd
+         HPPNSSiH6Ux3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yosry Ahmed <yosryahmed@google.com>, Shuah Khan <shuah@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org,
-        linux-kselftest@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 5/5] selftests: vm: fix clang build error multiple output files
-Date:   Mon, 21 Mar 2022 17:52:53 -0400
-Message-Id: <20220321215256.490267-5-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, nikita@trvn.ru,
+        song.bao.hua@hisilicon.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 1/4] Input: zinitix - do not report shadow fingers
+Date:   Mon, 21 Mar 2022 17:53:02 -0400
+Message-Id: <20220321215308.490358-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220321215256.490267-1-sashal@kernel.org>
-References: <20220321215256.490267-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,57 +55,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yosry Ahmed <yosryahmed@google.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 1c4debc443ef7037dcb7c4f08c33b9caebd21d2e ]
+[ Upstream commit e941dc13fd3717122207d74539ab95da07ef797f ]
 
-When building the vm selftests using clang, some errors are seen due to
-having headers in the compilation command:
+I observed the following problem with the BT404 touch pad
+running the Phosh UI:
 
-  clang -Wall -I ../../../../usr/include  -no-pie    gup_test.c ../../../../mm/gup_test.h -lrt -lpthread -o .../tools/testing/selftests/vm/gup_test
-  clang: error: cannot specify -o when generating multiple output files
-  make[1]: *** [../lib.mk:146: .../tools/testing/selftests/vm/gup_test] Error 1
+When e.g. typing on the virtual keyboard pressing "g" would
+produce "ggg".
 
-Rework to add the header files to LOCAL_HDRS before including ../lib.mk,
-since the dependency is evaluated in '$(OUTPUT)/%:%.c $(LOCAL_HDRS)' in
-file lib.mk.
+After some analysis it turns out the firmware reports that three
+fingers hit that coordinate at the same time, finger 0, 2 and
+4 (of the five available 0,1,2,3,4).
 
-Link: https://lkml.kernel.org/r/20220304000645.1888133-1-yosryahmed@google.com
-Signed-off-by: Yosry Ahmed <yosryahmed@google.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+DOWN
+  Zinitix-TS 3-0020: finger 0 down (246, 395)
+  Zinitix-TS 3-0020: finger 1 up (0, 0)
+  Zinitix-TS 3-0020: finger 2 down (246, 395)
+  Zinitix-TS 3-0020: finger 3 up (0, 0)
+  Zinitix-TS 3-0020: finger 4 down (246, 395)
+UP
+  Zinitix-TS 3-0020: finger 0 up (246, 395)
+  Zinitix-TS 3-0020: finger 2 up (246, 395)
+  Zinitix-TS 3-0020: finger 4 up (246, 395)
+
+This is one touch and release: i.e. this is all reported on
+touch (down) and release.
+
+There is a field in the struct touch_event called finger_cnt
+which is actually a bitmask of the fingers active in the
+event.
+
+Rename this field finger_mask as this matches the use contents
+better, then use for_each_set_bit() to iterate over just the
+fingers that are actally active.
+
+Factor out a finger reporting function zinitix_report_fingers()
+to handle all fingers.
+
+Also be more careful in reporting finger down/up: we were
+reporting every event with input_mt_report_slot_state(..., true);
+but this should only be reported on finger down or move,
+not on finger up, so also add code to check p->sub_status
+to see what is happening and report correctly.
+
+After this my Zinitix BT404 touchscreen report fingers
+flawlessly.
+
+The vendor drive I have notably does not use the "finger_cnt"
+and contains obviously incorrect code like this:
+
+  if (touch_dev->touch_info.finger_cnt > MAX_SUPPORTED_FINGER_NUM)
+      touch_dev->touch_info.finger_cnt = MAX_SUPPORTED_FINGER_NUM;
+
+As MAX_SUPPORTED_FINGER_NUM is an ordinal and the field is
+a bitmask this seems quite confused.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220228233017.2270599-1-linus.walleij@linaro.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/Makefile | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/zinitix.c | 44 +++++++++++++++++++++++------
+ 1 file changed, 35 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
-index d9605bd10f2d..acf5eaeef9ff 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -1,6 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for vm selftests
+diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
+index 6df6f07f1ac6..17b10b81c713 100644
+--- a/drivers/input/touchscreen/zinitix.c
++++ b/drivers/input/touchscreen/zinitix.c
+@@ -135,7 +135,7 @@ struct point_coord {
  
-+LOCAL_HDRS += $(selfdir)/vm/local_config.h $(top_srcdir)/mm/gup_test.h
+ struct touch_event {
+ 	__le16	status;
+-	u8	finger_cnt;
++	u8	finger_mask;
+ 	u8	time_stamp;
+ 	struct point_coord point_coord[MAX_SUPPORTED_FINGER_NUM];
+ };
+@@ -311,11 +311,32 @@ static int zinitix_send_power_on_sequence(struct bt541_ts_data *bt541)
+ static void zinitix_report_finger(struct bt541_ts_data *bt541, int slot,
+ 				  const struct point_coord *p)
+ {
++	u16 x, y;
 +
- include local_config.mk
++	if (unlikely(!(p->sub_status &
++		       (SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
++		dev_dbg(&bt541->client->dev, "unknown finger event %#02x\n",
++			p->sub_status);
++		return;
++	}
++
++	x = le16_to_cpu(p->x);
++	y = le16_to_cpu(p->y);
++
+ 	input_mt_slot(bt541->input_dev, slot);
+-	input_mt_report_slot_state(bt541->input_dev, MT_TOOL_FINGER, true);
+-	touchscreen_report_pos(bt541->input_dev, &bt541->prop,
+-			       le16_to_cpu(p->x), le16_to_cpu(p->y), true);
+-	input_report_abs(bt541->input_dev, ABS_MT_TOUCH_MAJOR, p->width);
++	if (input_mt_report_slot_state(bt541->input_dev, MT_TOOL_FINGER,
++				       !(p->sub_status & SUB_BIT_UP))) {
++		touchscreen_report_pos(bt541->input_dev,
++				       &bt541->prop, x, y, true);
++		input_report_abs(bt541->input_dev,
++				 ABS_MT_TOUCH_MAJOR, p->width);
++		dev_dbg(&bt541->client->dev, "finger %d %s (%u, %u)\n",
++			slot, p->sub_status & SUB_BIT_DOWN ? "down" : "move",
++			x, y);
++	} else {
++		dev_dbg(&bt541->client->dev, "finger %d up (%u, %u)\n",
++			slot, x, y);
++	}
+ }
  
- uname_M := $(shell uname -m 2>/dev/null || echo not)
-@@ -139,10 +141,6 @@ endif
+ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+@@ -323,6 +344,7 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ 	struct bt541_ts_data *bt541 = bt541_handler;
+ 	struct i2c_client *client = bt541->client;
+ 	struct touch_event touch_event;
++	unsigned long finger_mask;
+ 	int error;
+ 	int i;
  
- $(OUTPUT)/mlock-random-test $(OUTPUT)/memfd_secret: LDLIBS += -lcap
+@@ -335,10 +357,14 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ 		goto out;
+ 	}
  
--$(OUTPUT)/gup_test: ../../../../mm/gup_test.h
--
--$(OUTPUT)/hmm-tests: local_config.h
--
- # HMM_EXTRA_LIBS may get set in local_config.mk, or it may be left empty.
- $(OUTPUT)/hmm-tests: LDLIBS += $(HMM_EXTRA_LIBS)
+-	for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++)
+-		if (touch_event.point_coord[i].sub_status & SUB_BIT_EXIST)
+-			zinitix_report_finger(bt541, i,
+-					      &touch_event.point_coord[i]);
++	finger_mask = touch_event.finger_mask;
++	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
++		const struct point_coord *p = &touch_event.point_coord[i];
++
++		/* Only process contacts that are actually reported */
++		if (p->sub_status & SUB_BIT_EXIST)
++			zinitix_report_finger(bt541, i, p);
++	}
  
+ 	input_mt_sync_frame(bt541->input_dev);
+ 	input_sync(bt541->input_dev);
 -- 
 2.34.1
 
