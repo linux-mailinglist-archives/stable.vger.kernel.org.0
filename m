@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDFAB4E2A30
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C05C74E294E
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349098AbiCUOOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:14:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42008 "EHLO
+        id S239075AbiCUOET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:04:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348608AbiCUOHr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:07:47 -0400
+        with ESMTP id S1349405AbiCUODm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF6B40A1C;
-        Mon, 21 Mar 2022 07:02:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E06D17C404;
+        Mon, 21 Mar 2022 07:01:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB1BC61291;
-        Mon, 21 Mar 2022 14:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B464CC340E8;
-        Mon, 21 Mar 2022 14:02:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3497611D5;
+        Mon, 21 Mar 2022 14:01:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FA2AC340E8;
+        Mon, 21 Mar 2022 14:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871334;
-        bh=Rz97jaPjP8A5cEQQ+BaDGDxuBYyUviewzR5qgh6PjaQ=;
+        s=korg; t=1647871262;
+        bh=ZaI+z8jCsQjDVirhHnBpi8JKgIL/KUzOPVBzH8tgTL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QtoCLTtsShC0xZAVE11m7DZfay7sC4LDVfYKAPEz+5fiwKeRLnojNShyvsWHE5ULZ
-         XpsVgLvTH65m/thLSz+rFx66ZjWlUlaCv1j2sTikguZ13UU0uEAuv5V1YUE5/yqtVT
-         cLu+oUF7VvScBXyCgc36zjih7HgRmsqlLCHGzCbE=
+        b=YRV8wkcLg+d9V8eYwvuk2RIB1V0NeFyH/KOq4lZX9spEwf8EcjVnsAJPVlsOkHzDI
+         xU7mmp6znbGIBC9rwgPKpwBMEupguios8TGAwaAFZJSJCFj++/nZC9/2QBTfG3JGbu
+         w2pfbtRjMvenDXFsteTPuBl9RP6pem4iOpNS309A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 24/37] net: bcmgenet: skip invalid partial checksums
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        syzbot+75cccf2b7da87fb6f84b@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 30/32] Input: aiptek - properly check endpoint type
 Date:   Mon, 21 Mar 2022 14:53:06 +0100
-Message-Id: <20220321133221.996805822@linuxfoundation.org>
+Message-Id: <20220321133221.432170158@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
-References: <20220321133221.290173884@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 0f643c88c8d240eba0ea25c2e095a46515ff46e9 ]
+commit 5600f6986628dde8881734090588474f54a540a8 upstream.
 
-The RXCHK block will return a partial checksum of 0 if it encounters
-a problem while receiving a packet. Since a 1's complement sum can
-only produce this result if no bits are set in the received data
-stream it is fair to treat it as an invalid partial checksum and
-not pass it up the stack.
+Syzbot reported warning in usb_submit_urb() which is caused by wrong
+endpoint type. There was a check for the number of endpoints, but not
+for the type of endpoint.
 
-Fixes: 810155397890 ("net: bcmgenet: use CHECKSUM_COMPLETE for NETIF_F_RXCSUM")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220317012812.1313196-1-opendmb@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by replacing old desc.bNumEndpoints check with
+usb_find_common_endpoints() helper for finding endpoints
+
+Fail log:
+
+usb 5-1: BOGUS urb xfer, pipe 1 != type 3
+WARNING: CPU: 2 PID: 48 at drivers/usb/core/urb.c:502 usb_submit_urb+0xed2/0x18a0 drivers/usb/core/urb.c:502
+Modules linked in:
+CPU: 2 PID: 48 Comm: kworker/2:2 Not tainted 5.17.0-rc6-syzkaller-00226-g07ebd38a0da2 #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+Workqueue: usb_hub_wq hub_event
+...
+Call Trace:
+ <TASK>
+ aiptek_open+0xd5/0x130 drivers/input/tablet/aiptek.c:830
+ input_open_device+0x1bb/0x320 drivers/input/input.c:629
+ kbd_connect+0xfe/0x160 drivers/tty/vt/keyboard.c:1593
+
+Fixes: 8e20cf2bce12 ("Input: aiptek - fix crash on detecting device without endpoints")
+Reported-and-tested-by: syzbot+75cccf2b7da87fb6f84b@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20220308194328.26220-1-paskripkin@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/tablet/aiptek.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 87f1056e29ff..2da804f84b48 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -2287,8 +2287,10 @@ static unsigned int bcmgenet_desc_rx(struct bcmgenet_rx_ring *ring,
- 		dma_length_status = status->length_status;
- 		if (dev->features & NETIF_F_RXCSUM) {
- 			rx_csum = (__force __be16)(status->rx_csum & 0xffff);
--			skb->csum = (__force __wsum)ntohs(rx_csum);
--			skb->ip_summed = CHECKSUM_COMPLETE;
-+			if (rx_csum) {
-+				skb->csum = (__force __wsum)ntohs(rx_csum);
-+				skb->ip_summed = CHECKSUM_COMPLETE;
-+			}
- 		}
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -1787,15 +1787,13 @@ aiptek_probe(struct usb_interface *intf,
+ 	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
+ 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
  
- 		/* DMA flags and length are still valid no matter how
--- 
-2.34.1
-
+-	/* Verify that a device really has an endpoint */
+-	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
++	err = usb_find_common_endpoints(intf->cur_altsetting,
++					NULL, NULL, &endpoint, NULL);
++	if (err) {
+ 		dev_err(&intf->dev,
+-			"interface has %d endpoints, but must have minimum 1\n",
+-			intf->cur_altsetting->desc.bNumEndpoints);
+-		err = -EINVAL;
++			"interface has no int in endpoints, but must have minimum 1\n");
+ 		goto fail3;
+ 	}
+-	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ 
+ 	/* Go set up our URB, which is called when the tablet receives
+ 	 * input.
 
 
