@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84AA14E28F1
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5137E4E28CB
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348621AbiCUOBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44142 "EHLO
+        id S1348541AbiCUOAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:00:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348885AbiCUN6h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:37 -0400
+        with ESMTP id S1348944AbiCUN6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67CB31777D6;
-        Mon, 21 Mar 2022 06:56:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EA04160140;
+        Mon, 21 Mar 2022 06:56:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E6D1B816CE;
-        Mon, 21 Mar 2022 13:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CEB1C340ED;
-        Mon, 21 Mar 2022 13:56:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E664FB81598;
+        Mon, 21 Mar 2022 13:56:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB84C340F2;
+        Mon, 21 Mar 2022 13:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871000;
-        bh=L3iDTjTDAzuYE7KT7FKragVUvH8KipAdzWbbl09LOjg=;
+        s=korg; t=1647871003;
+        bh=xtTh4I9hVgdpR1VDucgu0Zv5fcwvFPkzhUf7+w9kffs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GU7kGdajQjRNR8piiH1t/tVg56pR3OcacJ1WeoFSKfSquIvAJq7hL+W5LoP2Na2y2
-         Mp1K4da8UD99Zj+EdOcwppUBallXlV8rjPBh0xBjwc9PP+tV1Lg4rt7cYSdctE0Axs
-         Dlf9+10D93uCvlTajeLRgLkbd23cpa3l21eklFU8=
+        b=GGN3zof5/LYJ1j2RBy5QBIRbl87xwjR2jWov0Jx0RusR2qloVPaITVYdIq8sClsIZ
+         17XXBrsNcgObcDMcepvtcaz5JdZvnLWVbnlmhPw67xel5XyHKt0cfPKrL+No2lcJ+N
+         J6f5X7vpUFCd0UxqhAV4eO5pNASEcM9ANtwcYRZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 46/57] ocfs2: fix crash when initialize filecheck kobj fails
-Date:   Mon, 21 Mar 2022 14:52:27 +0100
-Message-Id: <20220321133223.327033287@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Ard Biesheuvel <ardb@kernel.org>, linux-efi@vger.kernel.org,
+        Lukas Wunner <lukas@wunner.de>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 47/57] efi: fix return value of __setup handlers
+Date:   Mon, 21 Mar 2022 14:52:28 +0100
+Message-Id: <20220321133223.354570592@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.984120927@linuxfoundation.org>
 References: <20220321133221.984120927@linuxfoundation.org>
@@ -59,70 +59,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 7b0b1332cfdb94489836b67d088a779699f8e47e upstream.
+[ Upstream commit 9feaf8b387ee0ece9c1d7add308776b502a35d0c ]
 
-Once s_root is set, genric_shutdown_super() will be called if
-fill_super() fails.  That means, we will call ocfs2_dismount_volume()
-twice in such case, which can lead to kernel crash.
+When "dump_apple_properties" is used on the kernel boot command line,
+it causes an Unknown parameter message and the string is added to init's
+argument strings:
 
-Fix this issue by initializing filecheck kobj before setting s_root.
+  Unknown kernel command line parameters "dump_apple_properties
+    BOOT_IMAGE=/boot/bzImage-517rc6 efivar_ssdt=newcpu_ssdt", will be
+    passed to user space.
 
-Link: https://lkml.kernel.org/r/20220310081930.86305-1-joseph.qi@linux.alibaba.com
-Fixes: 5f483c4abb50 ("ocfs2: add kobject for online file check")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+     dump_apple_properties
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc6
+     efivar_ssdt=newcpu_ssdt
+
+Similarly when "efivar_ssdt=somestring" is used, it is added to the
+Unknown parameter message and to init's environment strings, polluting
+them (see examples above).
+
+Change the return value of the __setup functions to 1 to indicate
+that the __setup options have been handled.
+
+Fixes: 58c5475aba67 ("x86/efi: Retrieve and assign Apple device properties")
+Fixes: 475fb4e8b2f4 ("efi / ACPI: load SSTDs from EFI variables")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: linux-efi@vger.kernel.org
+Cc: Lukas Wunner <lukas@wunner.de>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Link: https://lore.kernel.org/r/20220301041851.12459-1-rdunlap@infradead.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/super.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/firmware/efi/apple-properties.c | 2 +-
+ drivers/firmware/efi/efi.c              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -1150,17 +1150,6 @@ static int ocfs2_fill_super(struct super
- 		goto read_super_error;
- 	}
+diff --git a/drivers/firmware/efi/apple-properties.c b/drivers/firmware/efi/apple-properties.c
+index 60a95719ecb8..726a23d45da4 100644
+--- a/drivers/firmware/efi/apple-properties.c
++++ b/drivers/firmware/efi/apple-properties.c
+@@ -34,7 +34,7 @@ static bool dump_properties __initdata;
+ static int __init dump_properties_enable(char *arg)
+ {
+ 	dump_properties = true;
+-	return 0;
++	return 1;
+ }
  
--	root = d_make_root(inode);
--	if (!root) {
--		status = -ENOMEM;
--		mlog_errno(status);
--		goto read_super_error;
--	}
--
--	sb->s_root = root;
--
--	ocfs2_complete_mount_recovery(osb);
--
- 	osb->osb_dev_kset = kset_create_and_add(sb->s_id, NULL,
- 						&ocfs2_kset->kobj);
- 	if (!osb->osb_dev_kset) {
-@@ -1178,6 +1167,17 @@ static int ocfs2_fill_super(struct super
- 		goto read_super_error;
- 	}
- 
-+	root = d_make_root(inode);
-+	if (!root) {
-+		status = -ENOMEM;
-+		mlog_errno(status);
-+		goto read_super_error;
-+	}
-+
-+	sb->s_root = root;
-+
-+	ocfs2_complete_mount_recovery(osb);
-+
- 	if (ocfs2_mount_local(osb))
- 		snprintf(nodestr, sizeof(nodestr), "local");
+ __setup("dump_apple_properties", dump_properties_enable);
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index a8180f9090fa..7098744f9276 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -245,7 +245,7 @@ static int __init efivar_ssdt_setup(char *str)
+ 		memcpy(efivar_ssdt, str, strlen(str));
  	else
+ 		pr_warn("efivar_ssdt: name too long: %s\n", str);
+-	return 0;
++	return 1;
+ }
+ __setup("efivar_ssdt=", efivar_ssdt_setup);
+ 
+-- 
+2.34.1
+
 
 
