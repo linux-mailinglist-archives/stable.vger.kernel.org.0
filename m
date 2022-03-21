@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2CFB4E3327
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 23:56:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EA464E332D
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 23:56:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231277AbiCUW4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 18:56:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56316 "EHLO
+        id S231389AbiCUWz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 18:55:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbiCUWz5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 18:55:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97563B2076;
-        Mon, 21 Mar 2022 15:37:37 -0700 (PDT)
+        with ESMTP id S231134AbiCUWzv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 18:55:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18B24EF4B;
+        Mon, 21 Mar 2022 15:37:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BABC0B81A5E;
-        Mon, 21 Mar 2022 21:52:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B07B4C340F0;
-        Mon, 21 Mar 2022 21:52:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82EC4B81A53;
+        Mon, 21 Mar 2022 21:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD535C340F3;
+        Mon, 21 Mar 2022 21:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647899569;
-        bh=jmP3FPdm1hh5kPbcapZm2SdByBPDlY4fxfWaKWpCmCE=;
+        s=k20201202; t=1647899571;
+        bh=tzu4ubjxmqozK98KomH+7/MS5yAMop4h8j39lIkn8Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1V3JgMXsulEUhPXSYUr05+H2bBJ5VThKT0WH8uAqspWWuMY4IWh9h9R3iJVTLgnl
-         Ur5F1i4QEYmR0W5FdoOr4emkEDsf7SEXdreVYGaWbMKrHe/3qLyvegrhjFZhSmD4G4
-         83qvtgldY00BheXdsJS1+pKDOcHqCYtrhWQUoU8wqy4SNn/6DCYQvuGExUy/v6a3tE
-         FtibWn9+CYAOW47730m4VGjLYaVE41IKSRgcAWIOqusWSSGEfNBZgo2PRW6+h09SIx
-         +Ym0N7rqw4pgX0/L4nmYXwQOOCWGNz+lUlx3GL13mJXWpaI5WsSyF5LMnVaFZ6H8sJ
-         tnbKF0lcABtug==
+        b=b7Y24Dd8tYBtUvj8YvRPS/J/u7bubw8JPfDPMFQcw5S6qEl48mCXEPXVC3QNr9Keq
+         3iOAbVv4fMOWDBBi3a/NLo6kCHcmA+CIOFdLabauNDUq1qtTG9rxE/7fDlmdMnkr2r
+         vjZ7+9hlNZkQuZUxdx4tz1GWg+sdykzMB/b9R3PwbbF9X5bX0X9s3G+nlgHpUDH5Mk
+         vuXIzEukOohx/2ravGUd3w2Ly9Mvu0QG3HfcpDzVYyxem6o1PSjjiQBK8/4LMwkWhT
+         1UFFKoz3wXgB0HiETT+FMQvJy99nQWKWc5BNsFRJAqSUy6mPPa2K4GoGc7Zxps4RT3
+         J9ryisWNXUTDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, woojung.huh@microchip.com,
-        UNGLinuxDriver@microchip.com, andrew@lunn.ch,
-        vivien.didelot@gmail.com, f.fainelli@gmail.com, olteanv@gmail.com,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 4/6] net: dsa: microchip: add spi_device_id tables
-Date:   Mon, 21 Mar 2022 17:52:35 -0400
-Message-Id: <20220321215240.490132-4-sashal@kernel.org>
+Cc:     David Jeffery <djeffery@redhat.com>,
+        Laurence Oberman <loberman@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, satishkh@cisco.com,
+        sebaddel@cisco.com, kartilak@cisco.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 5/6] scsi: fnic: Finish scsi_cmnd before dropping the spinlock
+Date:   Mon, 21 Mar 2022 17:52:36 -0400
+Message-Id: <20220321215240.490132-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220321215240.490132-1-sashal@kernel.org>
 References: <20220321215240.490132-1-sashal@kernel.org>
@@ -59,78 +60,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: David Jeffery <djeffery@redhat.com>
 
-[ Upstream commit e981bc74aefc6a177b50c16cfa7023599799cf74 ]
+[ Upstream commit 733ab7e1b5d1041204c4ca7373f6e6f9d08e3283 ]
 
-Add spi_device_id tables to avoid logs like "SPI driver ksz9477-switch
-has no spi_device_id".
+When aborting a SCSI command through fnic, there is a race with the fnic
+interrupt handler which can result in the SCSI command and its request
+being completed twice. If the interrupt handler claims the command by
+setting CMD_SP to NULL first, the abort handler assumes the interrupt
+handler has completed the command and returns SUCCESS, causing the request
+for the scsi_cmnd to be re-queued.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+But the interrupt handler may not have finished the command yet. After it
+drops the spinlock protecting CMD_SP, it does memory cleanup before finally
+calling scsi_done() to complete the scsi_cmnd. If the call to scsi_done
+occurs after the abort handler finishes and re-queues the request, the
+completion of the scsi_cmnd will advance and try to double complete a
+request already queued for retry.
+
+This patch fixes the issue by moving scsi_done() and any other use of
+scsi_cmnd to before the spinlock is released by the interrupt handler.
+
+Link: https://lore.kernel.org/r/20220311184359.2345319-1-djeffery@redhat.com
+Reviewed-by: Laurence Oberman <loberman@redhat.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz8795_spi.c | 11 +++++++++++
- drivers/net/dsa/microchip/ksz9477_spi.c | 12 ++++++++++++
- 2 files changed, 23 insertions(+)
+ drivers/scsi/fnic/fnic_scsi.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz8795_spi.c b/drivers/net/dsa/microchip/ksz8795_spi.c
-index 866767b70d65..b0a7dee27ffc 100644
---- a/drivers/net/dsa/microchip/ksz8795_spi.c
-+++ b/drivers/net/dsa/microchip/ksz8795_spi.c
-@@ -124,12 +124,23 @@ static const struct of_device_id ksz8795_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, ksz8795_dt_ids);
+diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
+index 88c549f257db..40a52feb315d 100644
+--- a/drivers/scsi/fnic/fnic_scsi.c
++++ b/drivers/scsi/fnic/fnic_scsi.c
+@@ -986,8 +986,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
+ 	CMD_SP(sc) = NULL;
+ 	CMD_FLAGS(sc) |= FNIC_IO_DONE;
  
-+static const struct spi_device_id ksz8795_spi_ids[] = {
-+	{ "ksz8765" },
-+	{ "ksz8794" },
-+	{ "ksz8795" },
-+	{ "ksz8863" },
-+	{ "ksz8873" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(spi, ksz8795_spi_ids);
-+
- static struct spi_driver ksz8795_spi_driver = {
- 	.driver = {
- 		.name	= "ksz8795-switch",
- 		.owner	= THIS_MODULE,
- 		.of_match_table = of_match_ptr(ksz8795_dt_ids),
- 	},
-+	.id_table = ksz8795_spi_ids,
- 	.probe	= ksz8795_spi_probe,
- 	.remove	= ksz8795_spi_remove,
- 	.shutdown = ksz8795_spi_shutdown,
-diff --git a/drivers/net/dsa/microchip/ksz9477_spi.c b/drivers/net/dsa/microchip/ksz9477_spi.c
-index e3cb0e6c9f6f..43addeabfc25 100644
---- a/drivers/net/dsa/microchip/ksz9477_spi.c
-+++ b/drivers/net/dsa/microchip/ksz9477_spi.c
-@@ -98,12 +98,24 @@ static const struct of_device_id ksz9477_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, ksz9477_dt_ids);
+-	spin_unlock_irqrestore(io_lock, flags);
+-
+ 	if (hdr_status != FCPIO_SUCCESS) {
+ 		atomic64_inc(&fnic_stats->io_stats.io_failures);
+ 		shost_printk(KERN_ERR, fnic->lport->host, "hdr status = %s\n",
+@@ -996,8 +994,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
  
-+static const struct spi_device_id ksz9477_spi_ids[] = {
-+	{ "ksz9477" },
-+	{ "ksz9897" },
-+	{ "ksz9893" },
-+	{ "ksz9563" },
-+	{ "ksz8563" },
-+	{ "ksz9567" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(spi, ksz9477_spi_ids);
+ 	fnic_release_ioreq_buf(fnic, io_req, sc);
+ 
+-	mempool_free(io_req, fnic->io_req_pool);
+-
+ 	cmd_trace = ((u64)hdr_status << 56) |
+ 		  (u64)icmnd_cmpl->scsi_status << 48 |
+ 		  (u64)icmnd_cmpl->flags << 40 | (u64)sc->cmnd[0] << 32 |
+@@ -1021,6 +1017,12 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
+ 	} else
+ 		fnic->lport->host_stats.fcp_control_requests++;
+ 
++	/* Call SCSI completion function to complete the IO */
++	scsi_done(sc);
++	spin_unlock_irqrestore(io_lock, flags);
 +
- static struct spi_driver ksz9477_spi_driver = {
- 	.driver = {
- 		.name	= "ksz9477-switch",
- 		.owner	= THIS_MODULE,
- 		.of_match_table = of_match_ptr(ksz9477_dt_ids),
- 	},
-+	.id_table = ksz9477_spi_ids,
- 	.probe	= ksz9477_spi_probe,
- 	.remove	= ksz9477_spi_remove,
- 	.shutdown = ksz9477_spi_shutdown,
++	mempool_free(io_req, fnic->io_req_pool);
++
+ 	atomic64_dec(&fnic_stats->io_stats.active_ios);
+ 	if (atomic64_read(&fnic->io_cmpl_skip))
+ 		atomic64_dec(&fnic->io_cmpl_skip);
+@@ -1049,9 +1051,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
+ 		if(io_duration_time > atomic64_read(&fnic_stats->io_stats.current_max_io_time))
+ 			atomic64_set(&fnic_stats->io_stats.current_max_io_time, io_duration_time);
+ 	}
+-
+-	/* Call SCSI completion function to complete the IO */
+-	scsi_done(sc);
+ }
+ 
+ /* fnic_fcpio_itmf_cmpl_handler
 -- 
 2.34.1
 
