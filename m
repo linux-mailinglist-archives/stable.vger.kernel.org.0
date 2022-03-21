@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA464E332D
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 23:56:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD2C4E3353
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 23:56:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231389AbiCUWz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 18:55:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
+        id S231625AbiCUW5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 18:57:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231134AbiCUWzv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 18:55:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18B24EF4B;
-        Mon, 21 Mar 2022 15:37:33 -0700 (PDT)
+        with ESMTP id S231514AbiCUW5A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 18:57:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556113BED34;
+        Mon, 21 Mar 2022 15:37:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82EC4B81A53;
-        Mon, 21 Mar 2022 21:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD535C340F3;
-        Mon, 21 Mar 2022 21:52:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4AEB612B2;
+        Mon, 21 Mar 2022 21:52:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1386C340EE;
+        Mon, 21 Mar 2022 21:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647899571;
-        bh=tzu4ubjxmqozK98KomH+7/MS5yAMop4h8j39lIkn8Dk=;
+        s=k20201202; t=1647899573;
+        bh=dyOSNsBIOAtZ7vGm89+pK75rTiVRFKBYVcdnYc/Tqyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7Y24Dd8tYBtUvj8YvRPS/J/u7bubw8JPfDPMFQcw5S6qEl48mCXEPXVC3QNr9Keq
-         3iOAbVv4fMOWDBBi3a/NLo6kCHcmA+CIOFdLabauNDUq1qtTG9rxE/7fDlmdMnkr2r
-         vjZ7+9hlNZkQuZUxdx4tz1GWg+sdykzMB/b9R3PwbbF9X5bX0X9s3G+nlgHpUDH5Mk
-         vuXIzEukOohx/2ravGUd3w2Ly9Mvu0QG3HfcpDzVYyxem6o1PSjjiQBK8/4LMwkWhT
-         1UFFKoz3wXgB0HiETT+FMQvJy99nQWKWc5BNsFRJAqSUy6mPPa2K4GoGc7Zxps4RT3
-         J9ryisWNXUTDw==
+        b=hKYd4xyiZBkMI4yuRA/8hErx9o+PvXRfji1Z0y9/HDegqUTt0h8M1w9TK2w2QcAqf
+         W5pGZ/+zF1Nv2koHR77xl0r8J1csvPULFTmH48rBnW2vF91kC9jGMGQ/Zybvi+2hea
+         gnIC7rPWHQUIeYFQ6hHy/PGvAVSKsz1TWtDWKzkY+733oSNR6zPzkZUjBKeLie5cpL
+         SRWtfIEnhH/0BOgaa9QE60Gc+VkViKeLMOpXLLPKC72mEQAAQRE98RXlDjp1yXLQ7W
+         e0hbTnI2wOKChBUwlpB/M74HNoIm2C3GWbFh7CQp2XQ01S1Z4LTOqOkR3toxVOv04/
+         I3Af4jN1GFNfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Jeffery <djeffery@redhat.com>,
-        Laurence Oberman <loberman@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, satishkh@cisco.com,
-        sebaddel@cisco.com, kartilak@cisco.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 5/6] scsi: fnic: Finish scsi_cmnd before dropping the spinlock
-Date:   Mon, 21 Mar 2022 17:52:36 -0400
-Message-Id: <20220321215240.490132-5-sashal@kernel.org>
+Cc:     Yosry Ahmed <yosryahmed@google.com>, Shuah Khan <shuah@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org,
+        linux-kselftest@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.16 6/6] selftests: vm: fix clang build error multiple output files
+Date:   Mon, 21 Mar 2022 17:52:37 -0400
+Message-Id: <20220321215240.490132-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220321215240.490132-1-sashal@kernel.org>
 References: <20220321215240.490132-1-sashal@kernel.org>
@@ -60,82 +60,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Yosry Ahmed <yosryahmed@google.com>
 
-[ Upstream commit 733ab7e1b5d1041204c4ca7373f6e6f9d08e3283 ]
+[ Upstream commit 1c4debc443ef7037dcb7c4f08c33b9caebd21d2e ]
 
-When aborting a SCSI command through fnic, there is a race with the fnic
-interrupt handler which can result in the SCSI command and its request
-being completed twice. If the interrupt handler claims the command by
-setting CMD_SP to NULL first, the abort handler assumes the interrupt
-handler has completed the command and returns SUCCESS, causing the request
-for the scsi_cmnd to be re-queued.
+When building the vm selftests using clang, some errors are seen due to
+having headers in the compilation command:
 
-But the interrupt handler may not have finished the command yet. After it
-drops the spinlock protecting CMD_SP, it does memory cleanup before finally
-calling scsi_done() to complete the scsi_cmnd. If the call to scsi_done
-occurs after the abort handler finishes and re-queues the request, the
-completion of the scsi_cmnd will advance and try to double complete a
-request already queued for retry.
+  clang -Wall -I ../../../../usr/include  -no-pie    gup_test.c ../../../../mm/gup_test.h -lrt -lpthread -o .../tools/testing/selftests/vm/gup_test
+  clang: error: cannot specify -o when generating multiple output files
+  make[1]: *** [../lib.mk:146: .../tools/testing/selftests/vm/gup_test] Error 1
 
-This patch fixes the issue by moving scsi_done() and any other use of
-scsi_cmnd to before the spinlock is released by the interrupt handler.
+Rework to add the header files to LOCAL_HDRS before including ../lib.mk,
+since the dependency is evaluated in '$(OUTPUT)/%:%.c $(LOCAL_HDRS)' in
+file lib.mk.
 
-Link: https://lore.kernel.org/r/20220311184359.2345319-1-djeffery@redhat.com
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lkml.kernel.org/r/20220304000645.1888133-1-yosryahmed@google.com
+Signed-off-by: Yosry Ahmed <yosryahmed@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fnic/fnic_scsi.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ tools/testing/selftests/vm/Makefile | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
-index 88c549f257db..40a52feb315d 100644
---- a/drivers/scsi/fnic/fnic_scsi.c
-+++ b/drivers/scsi/fnic/fnic_scsi.c
-@@ -986,8 +986,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 	CMD_SP(sc) = NULL;
- 	CMD_FLAGS(sc) |= FNIC_IO_DONE;
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
+index 1607322a112c..a14b5b800897 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -1,6 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for vm selftests
  
--	spin_unlock_irqrestore(io_lock, flags);
--
- 	if (hdr_status != FCPIO_SUCCESS) {
- 		atomic64_inc(&fnic_stats->io_stats.io_failures);
- 		shost_printk(KERN_ERR, fnic->lport->host, "hdr status = %s\n",
-@@ -996,8 +994,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 
- 	fnic_release_ioreq_buf(fnic, io_req, sc);
- 
--	mempool_free(io_req, fnic->io_req_pool);
--
- 	cmd_trace = ((u64)hdr_status << 56) |
- 		  (u64)icmnd_cmpl->scsi_status << 48 |
- 		  (u64)icmnd_cmpl->flags << 40 | (u64)sc->cmnd[0] << 32 |
-@@ -1021,6 +1017,12 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 	} else
- 		fnic->lport->host_stats.fcp_control_requests++;
- 
-+	/* Call SCSI completion function to complete the IO */
-+	scsi_done(sc);
-+	spin_unlock_irqrestore(io_lock, flags);
++LOCAL_HDRS += $(selfdir)/vm/local_config.h $(top_srcdir)/mm/gup_test.h
 +
-+	mempool_free(io_req, fnic->io_req_pool);
-+
- 	atomic64_dec(&fnic_stats->io_stats.active_ios);
- 	if (atomic64_read(&fnic->io_cmpl_skip))
- 		atomic64_dec(&fnic->io_cmpl_skip);
-@@ -1049,9 +1051,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 		if(io_duration_time > atomic64_read(&fnic_stats->io_stats.current_max_io_time))
- 			atomic64_set(&fnic_stats->io_stats.current_max_io_time, io_duration_time);
- 	}
--
--	/* Call SCSI completion function to complete the IO */
--	scsi_done(sc);
- }
+ include local_config.mk
  
- /* fnic_fcpio_itmf_cmpl_handler
+ uname_M := $(shell uname -m 2>/dev/null || echo not)
+@@ -140,10 +142,6 @@ endif
+ 
+ $(OUTPUT)/mlock-random-test $(OUTPUT)/memfd_secret: LDLIBS += -lcap
+ 
+-$(OUTPUT)/gup_test: ../../../../mm/gup_test.h
+-
+-$(OUTPUT)/hmm-tests: local_config.h
+-
+ # HMM_EXTRA_LIBS may get set in local_config.mk, or it may be left empty.
+ $(OUTPUT)/hmm-tests: LDLIBS += $(HMM_EXTRA_LIBS)
+ 
 -- 
 2.34.1
 
