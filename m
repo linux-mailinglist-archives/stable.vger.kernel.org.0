@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB544E28D4
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 057014E28A5
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348555AbiCUOAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46588 "EHLO
+        id S1348430AbiCUOAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:00:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348763AbiCUN6R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748CB17A2F2;
-        Mon, 21 Mar 2022 06:56:26 -0700 (PDT)
+        with ESMTP id S1348794AbiCUN6S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6613F173F54;
+        Mon, 21 Mar 2022 06:56:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0715B816D9;
-        Mon, 21 Mar 2022 13:55:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1886DC340ED;
-        Mon, 21 Mar 2022 13:55:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 934656126E;
+        Mon, 21 Mar 2022 13:56:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8FBC340E8;
+        Mon, 21 Mar 2022 13:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870957;
-        bh=kK/F+vYxZ+uksPmumGW61gK5DR/BLBFZmWV0K6jQ9VM=;
+        s=korg; t=1647870963;
+        bh=10wANgwzmiNzFyQP4bLaTsKFebgCJe7LYW36iJXwyCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhABuBVL4azGmTl/Vj39wq5D9+Yu5Q1kqwC7GMepjemqWaJd5MKEaMjjFD5XYgfg2
-         AnRk+50oW3WGzDkG+pK1qyOiP3QK9wChQgMJHffVLIwx5mL4OR2YSleYM98UsaKFtm
-         0CBh3kQZi3CeFuT66HNymd5F0osXr62cWdf1DrbU=
+        b=bzkI5e3Xa7W87kdWEc1psIt6Blrlp7vZuQLydx3tluHtwVigdlwY/+XAXsox7lspK
+         qt1jYQ6pqpExYK3pOWFuz5wjaKK0g3yAFLcPYDwT7fW+vmhR5g5VeIsE7i6zBWxWlM
+         OO4fUQG5W2n14CFA3e1dhixjw64UTHijaoe0bsGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 03/57] sctp: fix the processing for INIT_ACK chunk
-Date:   Mon, 21 Mar 2022 14:51:44 +0100
-Message-Id: <20220321133222.085585303@linuxfoundation.org>
+        stable@vger.kernel.org, Yan Yan <evitayan@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 04/57] xfrm: Check if_id in xfrm_migrate
+Date:   Mon, 21 Mar 2022 14:51:45 +0100
+Message-Id: <20220321133222.115204973@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.984120927@linuxfoundation.org>
 References: <20220321133221.984120927@linuxfoundation.org>
@@ -55,131 +54,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Yan Yan <evitayan@google.com>
 
-commit 438b95a7c98f77d51cbf4db021f41b602d750a3f upstream.
+[ Upstream commit c1aca3080e382886e2e58e809787441984a2f89b ]
 
-Currently INIT_ACK chunk in non-cookie_echoed state is processed in
-sctp_sf_discard_chunk() to send an abort with the existent asoc's
-vtag if the chunk length is not valid. But the vtag in the chunk's
-sctphdr is not verified, which may be exploited by one to cook a
-malicious chunk to terminal a SCTP asoc.
+This patch enables distinguishing SAs and SPs based on if_id during
+the xfrm_migrate flow. This ensures support for xfrm interfaces
+throughout the SA/SP lifecycle.
 
-sctp_sf_discard_chunk() also is called in many other places to send
-an abort, and most of those have this problem. This patch is to fix
-it by sending abort with the existent asoc's vtag only if the vtag
-from the chunk's sctphdr is verified in sctp_sf_discard_chunk().
+When there are multiple existing SPs with the same direction,
+the same xfrm_selector and different endpoint addresses,
+xfrm_migrate might fail with ENODATA.
 
-Note on sctp_sf_do_9_1_abort() and sctp_sf_shutdown_pending_abort(),
-the chunk length has been verified before sctp_sf_discard_chunk(),
-so replace it with sctp_sf_discard(). On sctp_sf_do_asconf_ack() and
-sctp_sf_do_asconf(), move the sctp_chunk_length_valid check ahead of
-sctp_sf_discard_chunk(), then replace it with sctp_sf_discard().
+Specifically, the code path for performing xfrm_migrate is:
+  Stage 1: find policy to migrate with
+    xfrm_migrate_policy_find(sel, dir, type, net)
+  Stage 2: find and update state(s) with
+    xfrm_migrate_state_find(mp, net)
+  Stage 3: update endpoint address(es) of template(s) with
+    xfrm_policy_migrate(pol, m, num_migrate)
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Currently "Stage 1" always returns the first xfrm_policy that
+matches, and "Stage 3" looks for the xfrm_tmpl that matches the
+old endpoint address. Thus if there are multiple xfrm_policy
+with same selector, direction, type and net, "Stage 1" might
+rertun a wrong xfrm_policy and "Stage 3" will fail with ENODATA
+because it cannot find a xfrm_tmpl with the matching endpoint
+address.
+
+The fix is to allow userspace to pass an if_id and add if_id
+to the matching rule in Stage 1 and Stage 2 since if_id is a
+unique ID for xfrm_policy and xfrm_state. For compatibility,
+if_id will only be checked if the attribute is set.
+
+Tested with additions to Android's kernel unit test suite:
+https://android-review.googlesource.com/c/kernel/tests/+/1668886
+
+Signed-off-by: Yan Yan <evitayan@google.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c |   37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+ include/net/xfrm.h     |  5 +++--
+ net/key/af_key.c       |  2 +-
+ net/xfrm/xfrm_policy.c | 14 ++++++++------
+ net/xfrm/xfrm_state.c  |  7 ++++++-
+ net/xfrm/xfrm_user.c   |  6 +++++-
+ 5 files changed, 23 insertions(+), 11 deletions(-)
 
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -2304,7 +2304,7 @@ enum sctp_disposition sctp_sf_shutdown_p
- 	 */
- 	if (SCTP_ADDR_DEL ==
- 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index fe8bed557691..a8aa2bb74ad6 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1763,14 +1763,15 @@ int km_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	       const struct xfrm_migrate *m, int num_bundles,
+ 	       const struct xfrm_kmaddress *k,
+ 	       const struct xfrm_encap_tmpl *encap);
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net);
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id);
+ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
+ 				      struct xfrm_migrate *m,
+ 				      struct xfrm_encap_tmpl *encap);
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_bundles,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap);
++		 struct xfrm_encap_tmpl *encap, u32 if_id);
+ #endif
  
- 	if (!sctp_err_chunk_valid(chunk))
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -2350,7 +2350,7 @@ enum sctp_disposition sctp_sf_shutdown_s
- 	 */
- 	if (SCTP_ADDR_DEL ==
- 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
- 	if (!sctp_err_chunk_valid(chunk))
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -2620,7 +2620,7 @@ enum sctp_disposition sctp_sf_do_9_1_abo
- 	 */
- 	if (SCTP_ADDR_DEL ==
- 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
- 	if (!sctp_err_chunk_valid(chunk))
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -3787,6 +3787,11 @@ enum sctp_disposition sctp_sf_do_asconf(
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+ int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index c7d5a6015389..388910cf0978 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2633,7 +2633,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
  	}
  
-+	/* Make sure that the ASCONF ADDIP chunk has a valid length.  */
-+	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_addip_chunk)))
-+		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
-+						  commands);
-+
- 	/* ADD-IP: Section 4.1.1
- 	 * This chunk MUST be sent in an authenticated way by using
- 	 * the mechanism defined in [I-D.ietf-tsvwg-sctp-auth]. If this chunk
-@@ -3794,13 +3799,7 @@ enum sctp_disposition sctp_sf_do_asconf(
- 	 * described in [I-D.ietf-tsvwg-sctp-auth].
- 	 */
- 	if (!net->sctp.addip_noauth && !chunk->auth)
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg,
--					     commands);
--
--	/* Make sure that the ASCONF ADDIP chunk has a valid length.  */
--	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_addip_chunk)))
--		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
--						  commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+ 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
+-			    kma ? &k : NULL, net, NULL);
++			    kma ? &k : NULL, net, NULL, 0);
  
- 	hdr = (struct sctp_addiphdr *)chunk->skb->data;
- 	serial = ntohl(hdr->serial);
-@@ -3929,6 +3928,12 @@ enum sctp_disposition sctp_sf_do_asconf_
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 	}
+  out:
+ 	return err;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index e9aea82f370d..ab6d0c6576a6 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -3050,7 +3050,7 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
+ }
  
-+	/* Make sure that the ADDIP chunk has a valid length.  */
-+	if (!sctp_chunk_length_valid(asconf_ack,
-+				     sizeof(struct sctp_addip_chunk)))
-+		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
-+						  commands);
-+
- 	/* ADD-IP, Section 4.1.2:
- 	 * This chunk MUST be sent in an authenticated way by using
- 	 * the mechanism defined in [I-D.ietf-tsvwg-sctp-auth]. If this chunk
-@@ -3936,14 +3941,7 @@ enum sctp_disposition sctp_sf_do_asconf_
- 	 * described in [I-D.ietf-tsvwg-sctp-auth].
- 	 */
- 	if (!net->sctp.addip_noauth && !asconf_ack->auth)
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg,
--					     commands);
--
--	/* Make sure that the ADDIP chunk has a valid length.  */
--	if (!sctp_chunk_length_valid(asconf_ack,
--				     sizeof(struct sctp_addip_chunk)))
--		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
--						  commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
- 	addip_hdr = (struct sctp_addiphdr *)asconf_ack->skb->data;
- 	rcvd_serial = ntohl(addip_hdr->serial);
-@@ -4515,6 +4513,9 @@ enum sctp_disposition sctp_sf_discard_ch
+ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
+-						    u8 dir, u8 type, struct net *net)
++						    u8 dir, u8 type, struct net *net, u32 if_id)
  {
- 	struct sctp_chunk *chunk = arg;
+ 	struct xfrm_policy *pol, *ret = NULL;
+ 	struct hlist_head *chain;
+@@ -3059,7 +3059,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+ 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
+ 	hlist_for_each_entry(pol, chain, bydst) {
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			priority = ret->priority;
+@@ -3071,7 +3072,8 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
+ 		if ((pol->priority >= priority) && ret)
+ 			break;
  
-+	if (asoc && !sctp_vtag_verify(chunk, asoc))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+-		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
++		if ((if_id == 0 || pol->if_id == if_id) &&
++		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+ 		    pol->type == type) {
+ 			ret = pol;
+ 			break;
+@@ -3187,7 +3189,7 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
+ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 		 struct xfrm_migrate *m, int num_migrate,
+ 		 struct xfrm_kmaddress *k, struct net *net,
+-		 struct xfrm_encap_tmpl *encap)
++		 struct xfrm_encap_tmpl *encap, u32 if_id)
+ {
+ 	int i, err, nx_cur = 0, nx_new = 0;
+ 	struct xfrm_policy *pol = NULL;
+@@ -3206,14 +3208,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
+ 	}
+ 
+ 	/* Stage 1 - find policy */
+-	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
++	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
+ 		err = -ENOENT;
+ 		goto out;
+ 	}
+ 
+ 	/* Stage 2 - find and update state(s) */
+ 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
+-		if ((x = xfrm_migrate_state_find(mp, net))) {
++		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
+ 			x_cur[nx_cur] = x;
+ 			nx_cur++;
+ 			xc = xfrm_state_migrate(x, mp, encap);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 44acc724122b..0fd67d1acbfb 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1466,7 +1466,8 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 	return NULL;
+ }
+ 
+-struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
++struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
++						u32 if_id)
+ {
+ 	unsigned int h;
+ 	struct xfrm_state *x = NULL;
+@@ -1482,6 +1483,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 				continue;
+ 			if (m->reqid && x->props.reqid != m->reqid)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+@@ -1497,6 +1500,8 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
+ 			if (x->props.mode != m->mode ||
+ 			    x->id.proto != m->proto)
+ 				continue;
++			if (if_id != 0 && x->if_id != if_id)
++				continue;
+ 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
+ 					     m->old_family) ||
+ 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 87932f6ad9d7..3db5cd70b16a 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -2369,6 +2369,7 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	int n = 0;
+ 	struct net *net = sock_net(skb->sk);
+ 	struct xfrm_encap_tmpl  *encap = NULL;
++	u32 if_id = 0;
+ 
+ 	if (attrs[XFRMA_MIGRATE] == NULL)
+ 		return -EINVAL;
+@@ -2393,7 +2394,10 @@ static int xfrm_do_migrate(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			return 0;
+ 	}
+ 
+-	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap);
++	if (attrs[XFRMA_IF_ID])
++		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
 +
- 	/* Make sure that the chunk has a valid length.
- 	 * Since we don't know the chunk type, we use a general
- 	 * chunkhdr structure to make a comparison.
++	err = xfrm_migrate(&pi->sel, pi->dir, type, m, n, kmp, net, encap, if_id);
+ 
+ 	kfree(encap);
+ 
+-- 
+2.34.1
+
 
 
