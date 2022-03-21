@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 467794E28E9
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD2D4E2984
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238973AbiCUOA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59842 "EHLO
+        id S1348765AbiCUOFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:05:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349147AbiCUN7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6422D7672;
-        Mon, 21 Mar 2022 06:57:58 -0700 (PDT)
+        with ESMTP id S1348767AbiCUOCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:02:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0BC33E9B;
+        Mon, 21 Mar 2022 06:59:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3D19611D5;
-        Mon, 21 Mar 2022 13:57:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB74C340E8;
-        Mon, 21 Mar 2022 13:57:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A7796132C;
+        Mon, 21 Mar 2022 13:59:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8161EC340F3;
+        Mon, 21 Mar 2022 13:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871077;
-        bh=dGOcXsBKGb+pa/3WupTRMH4qEFSFdcbUJ2kNGLJFczo=;
+        s=korg; t=1647871173;
+        bh=SisNPNMwIL3YAd74uiLsbQc1ojVwhNKoLmnSOriiSr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wNYvsx8qu26nv3wSAKblb/LEd3/1mpmDYk8Rjtpp3v0ZBt+fND6vYqo40LCbaGIAt
-         xOtGCsA3lpCKE94SOdu/BjzvDWal1CNzoI23Kb4ehsgKY17NaI1x5lMY2Lm04aymwL
-         d+HGK9/rXMvQh9fEiJCXvOYpAxbRNT4/QHcYXL0k=
+        b=1IWQp0u2MYu5Jtj0lqkxQynQNPpzjyIBNuMFMOizIkSgeey+XS9cn7uBfjGwPFqpV
+         ImkcgWAz5iyMYXLXa8ZNVpx1yOrj10Dgy/GwYRj0y30SSMifpHBflzP/H04BbEcrWZ
+         yMv4FadCRIdRRBBOtE7+ACk7x8EZrtCPXPr7Jl+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        syzbot+75cccf2b7da87fb6f84b@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 15/17] Input: aiptek - properly check endpoint type
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 21/30] usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
 Date:   Mon, 21 Mar 2022 14:52:51 +0100
-Message-Id: <20220321133217.597455661@linuxfoundation.org>
+Message-Id: <20220321133220.258860038@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 5600f6986628dde8881734090588474f54a540a8 upstream.
+commit 16b1941eac2bd499f065a6739a40ce0011a3d740 upstream.
 
-Syzbot reported warning in usb_submit_urb() which is caused by wrong
-endpoint type. There was a check for the number of endpoints, but not
-for the type of endpoint.
+The syzbot fuzzer found a use-after-free bug:
 
-Fix it by replacing old desc.bNumEndpoints check with
-usb_find_common_endpoints() helper for finding endpoints
+BUG: KASAN: use-after-free in dev_uevent+0x712/0x780 drivers/base/core.c:2320
+Read of size 8 at addr ffff88802b934098 by task udevd/3689
 
-Fail log:
-
-usb 5-1: BOGUS urb xfer, pipe 1 != type 3
-WARNING: CPU: 2 PID: 48 at drivers/usb/core/urb.c:502 usb_submit_urb+0xed2/0x18a0 drivers/usb/core/urb.c:502
-Modules linked in:
-CPU: 2 PID: 48 Comm: kworker/2:2 Not tainted 5.17.0-rc6-syzkaller-00226-g07ebd38a0da2 #0
+CPU: 2 PID: 3689 Comm: udevd Not tainted 5.17.0-rc4-syzkaller-00229-g4f12b742eb2b #0
 Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-Workqueue: usb_hub_wq hub_event
-...
 Call Trace:
  <TASK>
- aiptek_open+0xd5/0x130 drivers/input/tablet/aiptek.c:830
- input_open_device+0x1bb/0x320 drivers/input/input.c:629
- kbd_connect+0xfe/0x160 drivers/tty/vt/keyboard.c:1593
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
+ dev_uevent+0x712/0x780 drivers/base/core.c:2320
+ uevent_show+0x1b8/0x380 drivers/base/core.c:2391
+ dev_attr_show+0x4b/0x90 drivers/base/core.c:2094
 
-Fixes: 8e20cf2bce12 ("Input: aiptek - fix crash on detecting device without endpoints")
-Reported-and-tested-by: syzbot+75cccf2b7da87fb6f84b@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20220308194328.26220-1-paskripkin@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Although the bug manifested in the driver core, the real cause was a
+race with the gadget core.  dev_uevent() does:
+
+	if (dev->driver)
+		add_uevent_var(env, "DRIVER=%s", dev->driver->name);
+
+and between the test and the dereference of dev->driver, the gadget
+core sets dev->driver to NULL.
+
+The race wouldn't occur if the gadget core registered its devices on
+a real bus, using the standard synchronization techniques of the
+driver core.  However, it's not necessary to make such a large change
+in order to fix this bug; all we need to do is make sure that
+udc->dev.driver is always NULL.
+
+In fact, there is no reason for udc->dev.driver ever to be set to
+anything, let alone to the value it currently gets: the address of the
+gadget's driver.  After all, a gadget driver only knows how to manage
+a gadget, not how to manage a UDC.
+
+This patch simply removes the statements in the gadget core that touch
+udc->dev.driver.
+
+Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YiQgukfFFbBnwJ/9@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/tablet/aiptek.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/usb/gadget/udc/core.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/input/tablet/aiptek.c
-+++ b/drivers/input/tablet/aiptek.c
-@@ -1801,15 +1801,13 @@ aiptek_probe(struct usb_interface *intf,
- 	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
- 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
+--- a/drivers/usb/gadget/udc/core.c
++++ b/drivers/usb/gadget/udc/core.c
+@@ -1343,7 +1343,6 @@ static void usb_gadget_remove_driver(str
+ 	usb_gadget_udc_stop(udc);
  
--	/* Verify that a device really has an endpoint */
--	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
-+	err = usb_find_common_endpoints(intf->cur_altsetting,
-+					NULL, NULL, &endpoint, NULL);
-+	if (err) {
- 		dev_err(&intf->dev,
--			"interface has %d endpoints, but must have minimum 1\n",
--			intf->cur_altsetting->desc.bNumEndpoints);
--		err = -EINVAL;
-+			"interface has no int in endpoints, but must have minimum 1\n");
- 		goto fail3;
- 	}
--	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ 	udc->driver = NULL;
+-	udc->dev.driver = NULL;
+ 	udc->gadget->dev.driver = NULL;
+ }
  
- 	/* Go set up our URB, which is called when the tablet receives
- 	 * input.
+@@ -1405,7 +1404,6 @@ static int udc_bind_to_driver(struct usb
+ 			driver->function);
+ 
+ 	udc->driver = driver;
+-	udc->dev.driver = &driver->driver;
+ 	udc->gadget->dev.driver = &driver->driver;
+ 
+ 	usb_gadget_udc_set_speed(udc, driver->max_speed);
+@@ -1427,7 +1425,6 @@ err1:
+ 		dev_err(&udc->dev, "failed to start %s: %d\n",
+ 			udc->driver->function, ret);
+ 	udc->driver = NULL;
+-	udc->dev.driver = NULL;
+ 	udc->gadget->dev.driver = NULL;
+ 	return ret;
+ }
 
 
