@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6543F4E297D
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48FFD4E2907
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243098AbiCUOFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33826 "EHLO
+        id S1348497AbiCUOBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:01:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348808AbiCUODA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:00 -0400
+        with ESMTP id S1346367AbiCUN75 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40459BB0AF;
-        Mon, 21 Mar 2022 06:59:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1CE2E9CD;
+        Mon, 21 Mar 2022 06:58:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33725612B4;
-        Mon, 21 Mar 2022 13:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCC9C340F4;
-        Mon, 21 Mar 2022 13:59:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCE5F6126E;
+        Mon, 21 Mar 2022 13:58:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB44FC340FB;
+        Mon, 21 Mar 2022 13:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871162;
-        bh=uIUkZdntBR9X1c85x447nY92nPfuVGYkI6fX78SLkPs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=oh44SsV8TvjK01bMBu2CV2+PFQxJLsoCur/qL64UNrONabFYLlAfRnmolxkmnDRqO
-         vD5ki5rjp6loyYCbbBXoNrQEVdXW1VdvTTRUBQXXrqtiHPFy3HcjS3qlgH2bsiJqoI
-         GLNkMu+C8UKtcGSc4we2utmV8bYgkUpteDRRUb1w=
+        s=korg; t=1647871111;
+        bh=AJsb5X7wBUotw3TxRY558vOtFqFD4GfaPxqom60XZWc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZglJy2Xaoi3qAMNKPjl3ahwkvgRYizp0PdQ0kiIy84cBDi5WN0N7OpJuxSwN43bOt
+         +L9CPwB2C2b4hxHBEgtNbS3oMl+Jk+bv9GW64PlGZEo5PglmqiHpRtp1z3QSbqyT5r
+         HAVNpQ5DO0L7V6R73VvXKygUyZJTcBcz+vomqjQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.10 00/30] 5.10.108-rc1 review
-Date:   Mon, 21 Mar 2022 14:52:30 +0100
-Message-Id: <20220321133219.643490199@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Masney <bmasney@redhat.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andrew Halaney <ahalaney@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.10 01/30] crypto: qcom-rng - ensure buffer for generate is completely filled
+Date:   Mon, 21 Mar 2022 14:52:31 +0100
+Message-Id: <20220321133219.688329836@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.108-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.108-rc1
-X-KernelTest-Deadline: 2022-03-23T13:32+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,164 +57,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.108 release.
-There are 30 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Brian Masney <bmasney@redhat.com>
 
-Responses should be made by Wed, 23 Mar 2022 13:32:09 +0000.
-Anything received after that time might be too late.
+commit a680b1832ced3b5fa7c93484248fd221ea0d614b upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.108-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+The generate function in struct rng_alg expects that the destination
+buffer is completely filled if the function returns 0. qcom_rng_read()
+can run into a situation where the buffer is partially filled with
+randomness and the remaining part of the buffer is zeroed since
+qcom_rng_generate() doesn't check the return value. This issue can
+be reproduced by running the following from libkcapi:
 
-thanks,
+    kcapi-rng -b 9000000 > OUTFILE
 
-greg k-h
+The generated OUTFILE will have three huge sections that contain all
+zeros, and this is caused by the code where the test
+'val & PRNG_STATUS_DATA_AVAIL' fails.
 
--------------
-Pseudo-Shortlog of commits:
+Let's fix this issue by ensuring that qcom_rng_read() always returns
+with a full buffer if the function returns success. Let's also have
+qcom_rng_generate() return the correct value.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.108-rc1
+Here's some statistics from the ent project
+(https://www.fourmilab.ch/random/) that shows information about the
+quality of the generated numbers:
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "selftests/bpf: Add test for bpf_timer overwriting crash"
+    $ ent -c qcom-random-before
+    Value Char Occurrences Fraction
+      0           606748   0.067416
+      1            33104   0.003678
+      2            33001   0.003667
+    ...
+    253   �        32883   0.003654
+    254   �        33035   0.003671
+    255   �        33239   0.003693
 
-Steffen Klassert <steffen.klassert@secunet.com>
-    esp: Fix possible buffer overflow in ESP transformation
+    Total:       9000000   1.000000
 
-Fabio Estevam <festevam@denx.de>
-    smsc95xx: Ignore -ENODEV errors when device is unplugged
+    Entropy = 7.811590 bits per byte.
 
-Markus Reichl <m.reichl@fivetechno.de>
-    net: usb: Correct reset handling of smsc95xx
+    Optimum compression would reduce the size
+    of this 9000000 byte file by 2 percent.
 
-Martyn Welch <martyn.welch@collabora.com>
-    net: usb: Correct PHY handling of smsc95xx
+    Chi square distribution for 9000000 samples is 9329962.81, and
+    randomly would exceed this value less than 0.01 percent of the
+    times.
 
-Michael Petlan <mpetlan@redhat.com>
-    perf symbols: Fix symbol size calculation condition
+    Arithmetic mean value of data bytes is 119.3731 (127.5 = random).
+    Monte Carlo value for Pi is 3.197293333 (error 1.77 percent).
+    Serial correlation coefficient is 0.159130 (totally uncorrelated =
+    0.0).
 
-Pavel Skripkin <paskripkin@gmail.com>
-    Input: aiptek - properly check endpoint type
+Without this patch, the results of the chi-square test is 0.01%, and
+the numbers are certainly not random according to ent's project page.
+The results improve with this patch:
 
-Matt Lupfer <mlupfer@ddn.com>
-    scsi: mpt3sas: Page fault in reply q processing
+    $ ent -c qcom-random-after
+    Value Char Occurrences Fraction
+      0            35432   0.003937
+      1            35127   0.003903
+      2            35424   0.003936
+    ...
+    253   �        35201   0.003911
+    254   �        34835   0.003871
+    255   �        35368   0.003930
 
-Alan Stern <stern@rowland.harvard.edu>
-    usb: usbtmc: Fix bug in pipe direction for control transfers
+    Total:       9000000   1.000000
 
-Alan Stern <stern@rowland.harvard.edu>
-    usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
+    Entropy = 7.999979 bits per byte.
 
-Dan Carpenter <dan.carpenter@oracle.com>
-    usb: gadget: rndis: prevent integer overflow in rndis_set_response()
+    Optimum compression would reduce the size
+    of this 9000000 byte file by 0 percent.
 
-Arnd Bergmann <arnd@arndb.de>
-    arm64: fix clang warning about TRAMP_VALIAS
+    Chi square distribution for 9000000 samples is 258.77, and randomly
+    would exceed this value 42.24 percent of the times.
 
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: fix backwards compatibility with single-chain tc-flower offload
+    Arithmetic mean value of data bytes is 127.5006 (127.5 = random).
+    Monte Carlo value for Pi is 3.141277333 (error 0.01 percent).
+    Serial correlation coefficient is 0.000468 (totally uncorrelated =
+    0.0).
 
-Doug Berger <opendmb@gmail.com>
-    net: bcmgenet: skip invalid partial checksums
+This change was tested on a Nexus 5 phone (msm8974 SoC).
 
-Manish Chopra <manishc@marvell.com>
-    bnx2x: fix built-in kernel driver load failure
+Signed-off-by: Brian Masney <bmasney@redhat.com>
+Fixes: ceec5f5b5988 ("crypto: qcom-rng - Add Qcom prng driver")
+Cc: stable@vger.kernel.org # 4.19+
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/crypto/qcom-rng.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-Juerg Haefliger <juerg.haefliger@canonical.com>
-    net: phy: mscc: Add MODULE_FIRMWARE macros
-
-Miaoqian Lin <linmq006@gmail.com>
-    net: dsa: Add missing of_node_put() in dsa_port_parse_of
-
-Nicolas Dichtel <nicolas.dichtel@6wind.com>
-    net: handle ARPHRD_PIMREG in dev_is_mac_header_xmit()
-
-Marek Vasut <marex@denx.de>
-    drm/panel: simple: Fix Innolux G070Y2-L01 BPP settings
-
-Christoph Niedermaier <cniedermaier@dh-electronics.com>
-    drm/imx: parallel-display: Remove bus flags check in imx_pd_bridge_atomic_check()
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    hv_netvsc: Add check for kvmalloc_array
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    atm: eni: Add check for dma_map_single
-
-Eric Dumazet <edumazet@google.com>
-    net/packet: fix slab-out-of-bounds access in packet_recvmsg()
-
-Kurt Cancemi <kurt@x64architecture.com>
-    net: phy: marvell: Fix invalid comparison in the resume and suspend functions
-
-Sabrina Dubroca <sd@queasysnail.net>
-    esp6: fix check on ipv6_skip_exthdr's return value
-
-Jiyong Park <jiyong@google.com>
-    vsock: each transport cycles only on its own sockets
-
-Randy Dunlap <rdunlap@infradead.org>
-    efi: fix return value of __setup handlers
-
-Guo Ziliang <guo.ziliang@zte.com.cn>
-    mm: swap: get rid of livelock in swapin readahead
-
-Joseph Qi <joseph.qi@linux.alibaba.com>
-    ocfs2: fix crash when initialize filecheck kobj fails
-
-Brian Masney <bmasney@redhat.com>
-    crypto: qcom-rng - ensure buffer for generate is completely filled
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm64/include/asm/vectors.h                   |  4 +-
- drivers/atm/eni.c                                  |  2 +
- drivers/crypto/qcom-rng.c                          | 17 +++--
- drivers/firmware/efi/apple-properties.c            |  2 +-
- drivers/firmware/efi/efi.c                         |  2 +-
- drivers/gpu/drm/imx/parallel-display.c             |  8 --
- drivers/gpu/drm/panel/panel-simple.c               |  2 +-
- drivers/input/tablet/aiptek.c                      | 10 +--
- drivers/net/ethernet/broadcom/bnx2x/bnx2x.h        |  2 -
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c    | 28 ++++---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c   | 15 +---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  6 +-
- drivers/net/ethernet/mscc/ocelot_flower.c          | 16 +++-
- drivers/net/hyperv/netvsc_drv.c                    |  3 +
- drivers/net/phy/marvell.c                          |  8 +-
- drivers/net/phy/mscc/mscc_main.c                   |  3 +
- drivers/net/usb/smsc95xx.c                         | 86 ++++++++++++----------
- drivers/scsi/mpt3sas/mpt3sas_base.c                |  5 +-
- drivers/usb/class/usbtmc.c                         | 13 +++-
- drivers/usb/gadget/function/rndis.c                |  1 +
- drivers/usb/gadget/udc/core.c                      |  3 -
- drivers/vhost/vsock.c                              |  3 +-
- fs/ocfs2/super.c                                   | 22 +++---
- include/linux/if_arp.h                             |  1 +
- include/net/af_vsock.h                             |  3 +-
- include/net/esp.h                                  |  2 +
- include/net/sock.h                                 |  1 +
- mm/swap_state.c                                    |  2 +-
- net/dsa/dsa2.c                                     |  1 +
- net/ipv4/esp4.c                                    |  5 ++
- net/ipv6/esp6.c                                    |  8 +-
- net/packet/af_packet.c                             | 11 ++-
- net/vmw_vsock/af_vsock.c                           |  9 ++-
- net/vmw_vsock/virtio_transport.c                   |  7 +-
- net/vmw_vsock/vmci_transport.c                     |  5 +-
- tools/perf/util/symbol.c                           |  2 +-
- .../testing/selftests/bpf/prog_tests/timer_crash.c | 32 --------
- tools/testing/selftests/bpf/progs/timer_crash.c    | 54 --------------
- 39 files changed, 192 insertions(+), 216 deletions(-)
+--- a/drivers/crypto/qcom-rng.c
++++ b/drivers/crypto/qcom-rng.c
+@@ -8,6 +8,7 @@
+ #include <linux/clk.h>
+ #include <linux/crypto.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+@@ -43,16 +44,19 @@ static int qcom_rng_read(struct qcom_rng
+ {
+ 	unsigned int currsize = 0;
+ 	u32 val;
++	int ret;
+ 
+ 	/* read random data from hardware */
+ 	do {
+-		val = readl_relaxed(rng->base + PRNG_STATUS);
+-		if (!(val & PRNG_STATUS_DATA_AVAIL))
+-			break;
++		ret = readl_poll_timeout(rng->base + PRNG_STATUS, val,
++					 val & PRNG_STATUS_DATA_AVAIL,
++					 200, 10000);
++		if (ret)
++			return ret;
+ 
+ 		val = readl_relaxed(rng->base + PRNG_DATA_OUT);
+ 		if (!val)
+-			break;
++			return -EINVAL;
+ 
+ 		if ((max - currsize) >= WORD_SZ) {
+ 			memcpy(data, &val, WORD_SZ);
+@@ -61,11 +65,10 @@ static int qcom_rng_read(struct qcom_rng
+ 		} else {
+ 			/* copy only remaining bytes */
+ 			memcpy(data, &val, max - currsize);
+-			break;
+ 		}
+ 	} while (currsize < max);
+ 
+-	return currsize;
++	return 0;
+ }
+ 
+ static int qcom_rng_generate(struct crypto_rng *tfm,
+@@ -87,7 +90,7 @@ static int qcom_rng_generate(struct cryp
+ 	mutex_unlock(&rng->lock);
+ 	clk_disable_unprepare(rng->clk);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int qcom_rng_seed(struct crypto_rng *tfm, const u8 *seed,
 
 
