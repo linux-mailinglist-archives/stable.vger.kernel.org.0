@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA6C44E2871
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:56:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 828B04E283B
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:54:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348259AbiCUN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 09:56:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46098 "EHLO
+        id S1348215AbiCUNzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 09:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348328AbiCUN4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:56:12 -0400
+        with ESMTP id S1348359AbiCUNzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:55:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 589E6167DC;
-        Mon, 21 Mar 2022 06:54:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524C516E7EE;
+        Mon, 21 Mar 2022 06:53:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7CF96126E;
-        Mon, 21 Mar 2022 13:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07723C340E8;
-        Mon, 21 Mar 2022 13:54:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E291D611F4;
+        Mon, 21 Mar 2022 13:53:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE68FC340E8;
+        Mon, 21 Mar 2022 13:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870876;
-        bh=s316ygrdqc1xWuck3n4IO4eDMiOmMRS+C0SCMzq6M5s=;
+        s=korg; t=1647870816;
+        bh=fEVgwXk1c1lGMS8hGbRJ0s5ynNwtkHpZ8UedaFiEplo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZ5tPpgEurU+aDYxNESB3aFrb3ehBYsMjEDtZ+Y9xO+MRI9p+3OgOSSOH1V7YPV92
-         NcN94sZWueE3/YTrRbwsS9HdJnTuVNobhzEX1V2HAsfpAmYXKShToJf0P0tB5OShIk
-         1TvIW6Ou7orb3nOlPqJwQugqqGUtph5JuRc/q0d4=
+        b=LaHQ25T72RwAc/MZrjm22WSllDSYh9UmPYemXn2TLbidDnkae6BGUp6nmZaqUyDhY
+         q/Cv5DGpT2KaTlRxk5Hb6/ugf7EntXONpl1aBIFhQuTSTJuK/0U7QJ74W4CoSVj7a3
+         I870LjCKhwl4KJyCQXZ1SvBPH/y6LzhWmN9/aS6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
-        Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/22] arm64: dts: rockchip: fix rk3399-puma eMMC HS400 signal integrity
+Subject: [PATCH 4.9 05/16] can: rcar_canfd: rcar_canfd_channel_probe(): register the CAN device when fully ready
 Date:   Mon, 21 Mar 2022 14:51:35 +0100
-Message-Id: <20220321133217.734580952@linuxfoundation.org>
+Message-Id: <20220321133216.808677401@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.602054917@linuxfoundation.org>
-References: <20220321133217.602054917@linuxfoundation.org>
+In-Reply-To: <20220321133216.648316863@linuxfoundation.org>
+References: <20220321133216.648316863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,47 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 62966cbdda8a92f82d966a45aa671e788b2006f7 ]
+[ Upstream commit c5048a7b2c23ab589f3476a783bd586b663eda5b ]
 
-There are signal integrity issues running the eMMC at 200MHz on Puma
-RK3399-Q7.
+Register the CAN device only when all the necessary initialization is
+completed. This patch makes sure all the data structures and locks are
+initialized before registering the CAN device.
 
-Similar to the work-around found for RK3399 Gru boards, lowering the
-frequency to 100MHz made the eMMC much more stable, so let's lower the
-frequency to 100MHz.
-
-It might be possible to run at 150MHz as on RK3399 Gru boards but only
-100MHz was extensively tested.
-
-Cc: Quentin Schulz <foss+kernel@0leil.net>
-Signed-off-by: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
-Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20220119134948.1444965-1-quentin.schulz@theobroma-systems.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/all/20220221225935.12300-1-prabhakar.mahadev-lad.rj@bp.renesas.com
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Pavel Machek <pavel@denx.de>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/can/rcar/rcar_canfd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-index 0d5679380b2a..70fe6013d17c 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
-@@ -484,6 +484,12 @@
- };
+diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
+index 43cdd5544b0c..a127c853a4e9 100644
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1601,15 +1601,15 @@ static int rcar_canfd_channel_probe(struct rcar_canfd_global *gpriv, u32 ch,
  
- &sdhci {
-+	/*
-+	 * Signal integrity isn't great at 200MHz but 100MHz has proven stable
-+	 * enough.
-+	 */
-+	max-frequency = <100000000>;
-+
- 	bus-width = <8>;
- 	mmc-hs400-1_8v;
- 	mmc-hs400-enhanced-strobe;
+ 	netif_napi_add(ndev, &priv->napi, rcar_canfd_rx_poll,
+ 		       RCANFD_NAPI_WEIGHT);
++	spin_lock_init(&priv->tx_lock);
++	devm_can_led_init(ndev);
++	gpriv->ch[priv->channel] = priv;
+ 	err = register_candev(ndev);
+ 	if (err) {
+ 		dev_err(&pdev->dev,
+ 			"register_candev() failed, error %d\n", err);
+ 		goto fail_candev;
+ 	}
+-	spin_lock_init(&priv->tx_lock);
+-	devm_can_led_init(ndev);
+-	gpriv->ch[priv->channel] = priv;
+ 	dev_info(&pdev->dev, "device registered (channel %u)\n", priv->channel);
+ 	return 0;
+ 
 -- 
 2.34.1
 
