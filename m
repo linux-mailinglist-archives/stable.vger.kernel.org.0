@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5448A4E283F
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:54:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C464E284C
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348160AbiCUNzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239365AbiCUNzh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Mar 2022 09:55:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42846 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348172AbiCUNzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:55:33 -0400
+        with ESMTP id S1348152AbiCUNzh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:55:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330AB6178;
-        Mon, 21 Mar 2022 06:54:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20229FC6;
+        Mon, 21 Mar 2022 06:54:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF33FB816CB;
-        Mon, 21 Mar 2022 13:54:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B548C36AEC;
-        Mon, 21 Mar 2022 13:54:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6FF8B816C8;
+        Mon, 21 Mar 2022 13:54:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1C88C340E8;
+        Mon, 21 Mar 2022 13:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870845;
-        bh=SBnrSzmZi9VtvJcA7vI5yIsQi0dybMaBTBAxM9wYWXQ=;
+        s=korg; t=1647870848;
+        bh=gLeSm+kYDTDJwYvsRbW95g1ycycVjdO+9MYwfDntsOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozWCr/8l1fRK8Mv9A/t8b53Y9xV0mpbAU/Y+EZzlu4PhpDn55GmBNHlgVz+ekhkAE
-         3fyhxKgIujK8mb/HNOAL4BqJXKcR1agi3ifqE0mMko2885udCwctDvtjjhsG9ktXXC
-         R9q7Se6msa7i0B5Qdu3lqP4U1YMHp3xX2wIhXZ8s=
+        b=kGdAsvk2hQPL/bep8UjCFAhwwcB/E/fIRmbK47YLfHMJPlZUCs1oGvjcAgxEzY94o
+         LjBRVaDvyDlwyI09/W/mvDNRC2uMkN1xJ2S9LpVo/26I+R0GLRhufTFwLE6xLMbjHx
+         WMFom5nnFB3CJOFN53nbo4qIecDpqHZ+CPnD4bMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Wei <lucaswei@google.com>
-Subject: [PATCH 4.14 14/22] fs: sysfs_emit: Remove PAGE_SIZE alignment check
-Date:   Mon, 21 Mar 2022 14:51:45 +0100
-Message-Id: <20220321133218.028484709@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Ard Biesheuvel <ardb@kernel.org>, linux-efi@vger.kernel.org,
+        Lukas Wunner <lukas@wunner.de>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/22] efi: fix return value of __setup handlers
+Date:   Mon, 21 Mar 2022 14:51:46 +0100
+Message-Id: <20220321133218.057138436@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133217.602054917@linuxfoundation.org>
 References: <20220321133217.602054917@linuxfoundation.org>
@@ -52,32 +59,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Wei <lucaswei@google.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-For kernel releases older than 4.20, using the SLUB alloctor will cause
-this alignment check to fail as that allocator did NOT align kmalloc
-allocations on a PAGE_SIZE boundry.
+[ Upstream commit 9feaf8b387ee0ece9c1d7add308776b502a35d0c ]
 
-Remove the check for these older kernels as it is a false-positive and
-causes problems on many devices.
+When "dump_apple_properties" is used on the kernel boot command line,
+it causes an Unknown parameter message and the string is added to init's
+argument strings:
 
-Signed-off-by: Lucas Wei <lucaswei@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  Unknown kernel command line parameters "dump_apple_properties
+    BOOT_IMAGE=/boot/bzImage-517rc6 efivar_ssdt=newcpu_ssdt", will be
+    passed to user space.
+
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+     dump_apple_properties
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc6
+     efivar_ssdt=newcpu_ssdt
+
+Similarly when "efivar_ssdt=somestring" is used, it is added to the
+Unknown parameter message and to init's environment strings, polluting
+them (see examples above).
+
+Change the return value of the __setup functions to 1 to indicate
+that the __setup options have been handled.
+
+Fixes: 58c5475aba67 ("x86/efi: Retrieve and assign Apple device properties")
+Fixes: 475fb4e8b2f4 ("efi / ACPI: load SSTDs from EFI variables")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: linux-efi@vger.kernel.org
+Cc: Lukas Wunner <lukas@wunner.de>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Link: https://lore.kernel.org/r/20220301041851.12459-1-rdunlap@infradead.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/sysfs/file.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/firmware/efi/apple-properties.c | 2 +-
+ drivers/firmware/efi/efi.c              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/sysfs/file.c
-+++ b/fs/sysfs/file.c
-@@ -565,8 +565,7 @@ int sysfs_emit(char *buf, const char *fm
- 	va_list args;
- 	int len;
+diff --git a/drivers/firmware/efi/apple-properties.c b/drivers/firmware/efi/apple-properties.c
+index 9f6bcf173b0e..aa42d228762f 100644
+--- a/drivers/firmware/efi/apple-properties.c
++++ b/drivers/firmware/efi/apple-properties.c
+@@ -30,7 +30,7 @@ static bool dump_properties __initdata;
+ static int __init dump_properties_enable(char *arg)
+ {
+ 	dump_properties = true;
+-	return 0;
++	return 1;
+ }
  
--	if (WARN(!buf || offset_in_page(buf),
--		 "invalid sysfs_emit: buf:%p\n", buf))
-+	if (WARN(!buf, "invalid sysfs_emit: buf:%p\n", buf))
- 		return 0;
+ __setup("dump_apple_properties", dump_properties_enable);
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index a3dc6cb7326a..24365601fbbf 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -230,7 +230,7 @@ static int __init efivar_ssdt_setup(char *str)
+ 		memcpy(efivar_ssdt, str, strlen(str));
+ 	else
+ 		pr_warn("efivar_ssdt: name too long: %s\n", str);
+-	return 0;
++	return 1;
+ }
+ __setup("efivar_ssdt=", efivar_ssdt_setup);
  
- 	va_start(args, fmt);
+-- 
+2.34.1
+
 
 
