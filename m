@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A82D4E28F4
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 940A44E2908
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348691AbiCUOBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60362 "EHLO
+        id S1348383AbiCUOBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:01:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349173AbiCUN7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C438255B0;
-        Mon, 21 Mar 2022 06:58:09 -0700 (PDT)
+        with ESMTP id S1348384AbiCUOAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:00:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 213F4326EF;
+        Mon, 21 Mar 2022 06:58:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2778E6126A;
-        Mon, 21 Mar 2022 13:58:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBA33C340E8;
-        Mon, 21 Mar 2022 13:58:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD14C6126E;
+        Mon, 21 Mar 2022 13:58:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B132DC340E8;
+        Mon, 21 Mar 2022 13:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871088;
-        bh=hg12RVOcVeX/qVd5Vr1cnlSIyR3Is5JuwGoCxLJRNE8=;
+        s=korg; t=1647871114;
+        bh=R3418Rrg5V8B1c05XGDtRWXcwFIPVmKBkAGQp1+t2as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BIDLf2+evEhqzuOEWkDvjKHlZHS3qhZ4ohu3hjLxARW6tuM8pR2UJoVFGwWIhdpTy
-         aRZItNnGDh9YfSc2QpeU6Z9cx8nC+32tXPRv/vr/9w0rInAIKVLXBpng4vM6yemkPj
-         wcD0fQSNltxFAaESI2nb8gAdndzSGUV7GO0mKllU=
+        b=R56KceI1PdSDLgVeto2O4yY/CcfK1443Pzv3lcdp5JUnwWEBlp0mUH8dIOtDgndhQ
+         P+AUpBPVgzagC4+WusY3YdnE2xfvZGs8IqZ5cVUy9mEgfYQneGntfDMieiqnk6ak8b
+         NzW42+zFr9Oys2oqh6ajkZlb1D2EGSu8MiAYh+W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Ard Biesheuvel <ardb@kernel.org>, linux-efi@vger.kernel.org,
-        Lukas Wunner <lukas@wunner.de>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/17] efi: fix return value of __setup handlers
-Date:   Mon, 21 Mar 2022 14:52:39 +0100
-Message-Id: <20220321133217.252494434@linuxfoundation.org>
+Subject: [PATCH 5.10 10/30] hv_netvsc: Add check for kvmalloc_array
+Date:   Mon, 21 Mar 2022 14:52:40 +0100
+Message-Id: <20220321133219.946203430@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,80 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 9feaf8b387ee0ece9c1d7add308776b502a35d0c ]
+[ Upstream commit 886e44c9298a6b428ae046e2fa092ca52e822e6a ]
 
-When "dump_apple_properties" is used on the kernel boot command line,
-it causes an Unknown parameter message and the string is added to init's
-argument strings:
+As the potential failure of the kvmalloc_array(),
+it should be better to check and restore the 'data'
+if fails in order to avoid the dereference of the
+NULL pointer.
 
-  Unknown kernel command line parameters "dump_apple_properties
-    BOOT_IMAGE=/boot/bzImage-517rc6 efivar_ssdt=newcpu_ssdt", will be
-    passed to user space.
-
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-     dump_apple_properties
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc6
-     efivar_ssdt=newcpu_ssdt
-
-Similarly when "efivar_ssdt=somestring" is used, it is added to the
-Unknown parameter message and to init's environment strings, polluting
-them (see examples above).
-
-Change the return value of the __setup functions to 1 to indicate
-that the __setup options have been handled.
-
-Fixes: 58c5475aba67 ("x86/efi: Retrieve and assign Apple device properties")
-Fixes: 475fb4e8b2f4 ("efi / ACPI: load SSTDs from EFI variables")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: linux-efi@vger.kernel.org
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Link: https://lore.kernel.org/r/20220301041851.12459-1-rdunlap@infradead.org
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 6ae746711263 ("hv_netvsc: Add per-cpu ethtool stats for netvsc")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220314020125.2365084-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/apple-properties.c | 2 +-
- drivers/firmware/efi/efi.c              | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/hyperv/netvsc_drv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/firmware/efi/apple-properties.c b/drivers/firmware/efi/apple-properties.c
-index 0e206c9e0d7a..7ad2d85d7270 100644
---- a/drivers/firmware/efi/apple-properties.c
-+++ b/drivers/firmware/efi/apple-properties.c
-@@ -23,7 +23,7 @@ static bool dump_properties __initdata;
- static int __init dump_properties_enable(char *arg)
- {
- 	dump_properties = true;
--	return 0;
-+	return 1;
- }
- 
- __setup("dump_apple_properties", dump_properties_enable);
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 415d7b3a59f8..8fd74a7501d4 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -231,7 +231,7 @@ static int __init efivar_ssdt_setup(char *str)
- 		memcpy(efivar_ssdt, str, strlen(str));
- 	else
- 		pr_warn("efivar_ssdt: name too long: %s\n", str);
--	return 0;
-+	return 1;
- }
- __setup("efivar_ssdt=", efivar_ssdt_setup);
- 
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index 261e6e55a907..e3676386d0ee 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -1562,6 +1562,9 @@ static void netvsc_get_ethtool_stats(struct net_device *dev,
+ 	pcpu_sum = kvmalloc_array(num_possible_cpus(),
+ 				  sizeof(struct netvsc_ethtool_pcpu_stats),
+ 				  GFP_KERNEL);
++	if (!pcpu_sum)
++		return;
++
+ 	netvsc_get_pcpu_stats(dev, pcpu_sum);
+ 	for_each_present_cpu(cpu) {
+ 		struct netvsc_ethtool_pcpu_stats *this_sum = &pcpu_sum[cpu];
 -- 
 2.34.1
 
