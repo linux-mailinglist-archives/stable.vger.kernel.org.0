@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D7F4E2A2E
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 432144E2A0E
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348887AbiCUOOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:14:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
+        id S244912AbiCUONj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349160AbiCUOIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D927616F6E0;
-        Mon, 21 Mar 2022 07:02:28 -0700 (PDT)
+        with ESMTP id S1349243AbiCUOIF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA52174B8B;
+        Mon, 21 Mar 2022 07:02:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 515956132C;
-        Mon, 21 Mar 2022 14:02:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63ECBC340ED;
-        Mon, 21 Mar 2022 14:02:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A429B816DC;
+        Mon, 21 Mar 2022 14:02:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FB63C340E8;
+        Mon, 21 Mar 2022 14:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871347;
-        bh=ODkaVcy06AKxQMIunHXBF+jcKN3OsNsFosFEWMc/nGI=;
+        s=korg; t=1647871350;
+        bh=pApDzt38GhzWwzmU3F/B28vg6zW1m34oDcityxP6B0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hq7D8dpmF+w+5ArEAqBbZdvUJHc6QKmq9wsJAL0T8mkOyZhFsZfBuzkf9hLl7NMPt
-         utjyKsNc9EJVY8mUDmBBnHtdFcEJgp4pqmrKnYrJ0wyXoBVVs22RGISaO1ZKGfKEjJ
-         XNceg1BpsXTr/iszJTVP/duo8O/0MDLsH9ooVy3c=
+        b=NHEVxCRZcwIQoxfxM+Z/Mtmysrk/hBeQcm17luwUFxwhFSrufojorKRx+HsHl8eTi
+         Nseh6SSait8QlN6s5Z0rsDS75YhfhWGwjfn3kIYnkkXjf/5j/5WRheZO69lJ4qEawL
+         WIlnJkJ8fZH1J1jrJynVKCXm/wYgA9LE3G2YVyto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
-Subject: [PATCH 5.16 29/37] usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
-Date:   Mon, 21 Mar 2022 14:53:11 +0100
-Message-Id: <20220321133222.138112233@linuxfoundation.org>
+        syzbot+a48e3d1a875240cab5de@syzkaller.appspotmail.com
+Subject: [PATCH 5.16 30/37] usb: usbtmc: Fix bug in pipe direction for control transfers
+Date:   Mon, 21 Mar 2022 14:53:12 +0100
+Message-Id: <20220321133222.166033255@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
 References: <20220321133221.290173884@linuxfoundation.org>
@@ -55,84 +55,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 16b1941eac2bd499f065a6739a40ce0011a3d740 upstream.
+commit e9b667a82cdcfe21d590344447d65daed52b353b upstream.
 
-The syzbot fuzzer found a use-after-free bug:
+The syzbot fuzzer reported a minor bug in the usbtmc driver:
 
-BUG: KASAN: use-after-free in dev_uevent+0x712/0x780 drivers/base/core.c:2320
-Read of size 8 at addr ffff88802b934098 by task udevd/3689
-
-CPU: 2 PID: 3689 Comm: udevd Not tainted 5.17.0-rc4-syzkaller-00229-g4f12b742eb2b #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+usb 5-1: BOGUS control dir, pipe 80001e80 doesn't match bRequestType 0
+WARNING: CPU: 0 PID: 3813 at drivers/usb/core/urb.c:412
+usb_submit_urb+0x13a5/0x1970 drivers/usb/core/urb.c:410
+Modules linked in:
+CPU: 0 PID: 3813 Comm: syz-executor122 Not tainted
+5.17.0-rc5-syzkaller-00306-g2293be58d6a1 #0
+...
 Call Trace:
  <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
- dev_uevent+0x712/0x780 drivers/base/core.c:2320
- uevent_show+0x1b8/0x380 drivers/base/core.c:2391
- dev_attr_show+0x4b/0x90 drivers/base/core.c:2094
+ usb_start_wait_urb+0x113/0x530 drivers/usb/core/message.c:58
+ usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+ usb_control_msg+0x2a5/0x4b0 drivers/usb/core/message.c:153
+ usbtmc_ioctl_request drivers/usb/class/usbtmc.c:1947 [inline]
 
-Although the bug manifested in the driver core, the real cause was a
-race with the gadget core.  dev_uevent() does:
+The problem is that usbtmc_ioctl_request() uses usb_rcvctrlpipe() for
+all of its transfers, whether they are in or out.  It's easy to fix.
 
-	if (dev->driver)
-		add_uevent_var(env, "DRIVER=%s", dev->driver->name);
-
-and between the test and the dereference of dev->driver, the gadget
-core sets dev->driver to NULL.
-
-The race wouldn't occur if the gadget core registered its devices on
-a real bus, using the standard synchronization techniques of the
-driver core.  However, it's not necessary to make such a large change
-in order to fix this bug; all we need to do is make sure that
-udc->dev.driver is always NULL.
-
-In fact, there is no reason for udc->dev.driver ever to be set to
-anything, let alone to the value it currently gets: the address of the
-gadget's driver.  After all, a gadget driver only knows how to manage
-a gadget, not how to manage a UDC.
-
-This patch simply removes the statements in the gadget core that touch
-udc->dev.driver.
-
-Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
 CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+a48e3d1a875240cab5de@syzkaller.appspotmail.com
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YiQgukfFFbBnwJ/9@rowland.harvard.edu
+Link: https://lore.kernel.org/r/YiEsYTPEE6lOCOA5@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/core.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/usb/class/usbtmc.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -1436,7 +1436,6 @@ static void usb_gadget_remove_driver(str
- 	usb_gadget_udc_stop(udc);
+--- a/drivers/usb/class/usbtmc.c
++++ b/drivers/usb/class/usbtmc.c
+@@ -1919,6 +1919,7 @@ static int usbtmc_ioctl_request(struct u
+ 	struct usbtmc_ctrlrequest request;
+ 	u8 *buffer = NULL;
+ 	int rv;
++	unsigned int is_in, pipe;
+ 	unsigned long res;
  
- 	udc->driver = NULL;
--	udc->dev.driver = NULL;
- 	udc->gadget->dev.driver = NULL;
- }
+ 	res = copy_from_user(&request, arg, sizeof(struct usbtmc_ctrlrequest));
+@@ -1928,12 +1929,14 @@ static int usbtmc_ioctl_request(struct u
+ 	if (request.req.wLength > USBTMC_BUFSIZE)
+ 		return -EMSGSIZE;
  
-@@ -1498,7 +1497,6 @@ static int udc_bind_to_driver(struct usb
- 			driver->function);
++	is_in = request.req.bRequestType & USB_DIR_IN;
++
+ 	if (request.req.wLength) {
+ 		buffer = kmalloc(request.req.wLength, GFP_KERNEL);
+ 		if (!buffer)
+ 			return -ENOMEM;
  
- 	udc->driver = driver;
--	udc->dev.driver = &driver->driver;
- 	udc->gadget->dev.driver = &driver->driver;
+-		if ((request.req.bRequestType & USB_DIR_IN) == 0) {
++		if (!is_in) {
+ 			/* Send control data to device */
+ 			res = copy_from_user(buffer, request.data,
+ 					     request.req.wLength);
+@@ -1944,8 +1947,12 @@ static int usbtmc_ioctl_request(struct u
+ 		}
+ 	}
  
- 	usb_gadget_udc_set_speed(udc, driver->max_speed);
-@@ -1521,7 +1519,6 @@ err1:
- 		dev_err(&udc->dev, "failed to start %s: %d\n",
- 			udc->driver->function, ret);
- 	udc->driver = NULL;
--	udc->dev.driver = NULL;
- 	udc->gadget->dev.driver = NULL;
- 	return ret;
- }
++	if (is_in)
++		pipe = usb_rcvctrlpipe(data->usb_dev, 0);
++	else
++		pipe = usb_sndctrlpipe(data->usb_dev, 0);
+ 	rv = usb_control_msg(data->usb_dev,
+-			usb_rcvctrlpipe(data->usb_dev, 0),
++			pipe,
+ 			request.req.bRequest,
+ 			request.req.bRequestType,
+ 			request.req.wValue,
+@@ -1957,7 +1964,7 @@ static int usbtmc_ioctl_request(struct u
+ 		goto exit;
+ 	}
+ 
+-	if (rv && (request.req.bRequestType & USB_DIR_IN)) {
++	if (rv && is_in) {
+ 		/* Read control data from device */
+ 		res = copy_to_user(request.data, buffer, rv);
+ 		if (res)
 
 
