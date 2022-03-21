@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B08C4E23D7
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 10:59:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37DC4E240B
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 11:13:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346180AbiCUKAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 06:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49028 "EHLO
+        id S239507AbiCUKOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 06:14:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346119AbiCUKAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 06:00:12 -0400
-Received: from twspam01.aspeedtech.com (twspam01.aspeedtech.com [211.20.114.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23712387A5;
-        Mon, 21 Mar 2022 02:58:40 -0700 (PDT)
-Received: from mail.aspeedtech.com ([192.168.0.24])
-        by twspam01.aspeedtech.com with ESMTP id 22L9jw6V079101;
-        Mon, 21 Mar 2022 17:45:58 +0800 (GMT-8)
-        (envelope-from dylan_hung@aspeedtech.com)
-Received: from DylanHung-PC.aspeed.com (192.168.2.216) by TWMBX02.aspeed.com
- (192.168.0.24) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 21 Mar
- 2022 17:56:24 +0800
-From:   Dylan Hung <dylan_hung@aspeedtech.com>
-To:     <robh+dt@kernel.org>, <joel@jms.id.au>, <andrew@aj.id.au>,
-        <andrew@lunn.ch>, <hkallweit1@gmail.com>, <linux@armlinux.org.uk>,
-        <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-        <p.zabel@pengutronix.de>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-aspeed@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
-        <netdev@vger.kernel.org>
-CC:     <BMC-SW@aspeedtech.com>, <stable@vger.kernel.org>
-Subject: [PATCH v2 3/3] ARM: dts: aspeed: add reset properties into MDIO nodes
-Date:   Mon, 21 Mar 2022 17:56:48 +0800
-Message-ID: <20220321095648.4760-4-dylan_hung@aspeedtech.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220321095648.4760-1-dylan_hung@aspeedtech.com>
-References: <20220321095648.4760-1-dylan_hung@aspeedtech.com>
+        with ESMTP id S233527AbiCUKOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 06:14:45 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F20D17A80
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 03:13:20 -0700 (PDT)
+Date:   Mon, 21 Mar 2022 11:13:17 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1647857598;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=gDV90gqnyeQtw1YJGnbnnx5rUoyprbVnOQVhOvGW9oY=;
+        b=rLTqpyiLGa6olnZ5jz4ve90O59NgHOlE/aC9xKjZBIgCi+Tze18GujMSl+Y7lJ5Krn7YAd
+        HbsetDX/zV37tV0pHK5mle27Snf1f/TDjNM1YdVlMm8D7cKJ3hWn/t73eJsKHpHMYrWJF1
+        EroVGvyRSVU/TacjteS5d3TbHmUag7dmJwDLSoJ8poirOhefUOApDVtsQCW8hNMfB087iu
+        5xSzlEIC1ZvYS06NpC17LRjF0IVlo1hfXDBNsMzwBISJuQTuGVuMFhFO4ILHpEgHpuEzqg
+        dyRH0hDIXR7rwJLuFtX6EP9IparKqZxBpGuSfU7c5m8RwIByiGHOUlUQ9z/duQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1647857598;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=gDV90gqnyeQtw1YJGnbnnx5rUoyprbVnOQVhOvGW9oY=;
+        b=81tikQvX5IO12Zq8IN1G6/CvsBTXXaKSttfXufTLn7jWCwjDy6Os0tnjsuGJ/CQkxNgjRe
+        8pktyYIhTAs98PCA==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, tglx@linutronix.de
+Subject: The linux-5.17.y tag looks bogus.
+Message-ID: <YjhPvcJ9opIrx+ua@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [192.168.2.216]
-X-ClientProxiedBy: TWMBX02.aspeed.com (192.168.0.24) To TWMBX02.aspeed.com
- (192.168.0.24)
-X-DNSRBL: 
-X-MAIL: twspam01.aspeedtech.com 22L9jw6V079101
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,51 +50,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add reset control properties into MDIO nodes.  The 4 MDIO controllers in
-AST2600 SOC share one reset control bit SCU50[3].
+Hi,
 
-Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
-Cc: stable@vger.kernel.org
----
- arch/arm/boot/dts/aspeed-g6.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+I just noticed that the stable repository has the linux-5.17.y tag and
+no branch with the linux-5.17.y name. That tag looks like a copy of
+Linus' v5.17.
 
-diff --git a/arch/arm/boot/dts/aspeed-g6.dtsi b/arch/arm/boot/dts/aspeed-g6.dtsi
-index c32e87fad4dc..ab20ea8d829d 100644
---- a/arch/arm/boot/dts/aspeed-g6.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g6.dtsi
-@@ -181,6 +181,7 @@ mdio0: mdio@1e650000 {
- 			status = "disabled";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pinctrl_mdio1_default>;
-+			resets = <&syscon ASPEED_RESET_MII>;
- 		};
- 
- 		mdio1: mdio@1e650008 {
-@@ -191,6 +192,7 @@ mdio1: mdio@1e650008 {
- 			status = "disabled";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pinctrl_mdio2_default>;
-+			resets = <&syscon ASPEED_RESET_MII>;
- 		};
- 
- 		mdio2: mdio@1e650010 {
-@@ -201,6 +203,7 @@ mdio2: mdio@1e650010 {
- 			status = "disabled";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pinctrl_mdio3_default>;
-+			resets = <&syscon ASPEED_RESET_MII>;
- 		};
- 
- 		mdio3: mdio@1e650018 {
-@@ -211,6 +214,7 @@ mdio3: mdio@1e650018 {
- 			status = "disabled";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pinctrl_mdio4_default>;
-+			resets = <&syscon ASPEED_RESET_MII>;
- 		};
- 
- 		mac0: ftgmac@1e660000 {
--- 
-2.25.1
+I guess this is a mistake. On my side git refused to push the
+linux-5.17.y branch because it already had a tag with the same name.
 
+Could you please remove it?
+
+Sebastian
