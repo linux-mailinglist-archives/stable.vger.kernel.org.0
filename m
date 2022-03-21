@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2F294E2887
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D604E2940
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348436AbiCUOAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58892 "EHLO
+        id S1348742AbiCUODu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:03:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349104AbiCUN7J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866CE10CC;
-        Mon, 21 Mar 2022 06:57:43 -0700 (PDT)
+        with ESMTP id S1349076AbiCUODS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B09BD173F4F;
+        Mon, 21 Mar 2022 07:00:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E597B81598;
-        Mon, 21 Mar 2022 13:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D7B6C340E8;
-        Mon, 21 Mar 2022 13:57:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29D76B81598;
+        Mon, 21 Mar 2022 14:00:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76117C36AE3;
+        Mon, 21 Mar 2022 13:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871060;
-        bh=5yEzG5mCcTVSwH9OiUgBrwqHfwd0OfKOqGsA5QmuISQ=;
+        s=korg; t=1647871198;
+        bh=AJsb5X7wBUotw3TxRY558vOtFqFD4GfaPxqom60XZWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dk3DP0+Mlg5VFzLTfCZJEEue4hu9BijiY9d4ES2ZKJxJA4mAXfAp4Q+x4kXP2knUa
-         61zMGUWY6Z3S/2PPUeQPEO4ZBiWbpw3WPpq1392wzrJhrW4nToWz1ySdxRY0aaAACN
-         TaTPe3Ddsi2MSF++1pMDH/1rW80xJXhES/R6WFFA=
+        b=zYRuZpBAYBW4/2WRhxseoHR+fn7KbiV7FpLObLsxLyFQJfFx4M2YC29HE33MMqKGl
+         /ipdXC+y240K0xn4w/9tAM1nQ1iCiooLHskqNUCnYVwpvnADrPpMdWmrzrb/jo/L+l
+         eSCClv37QgM/aBIfTcQPs8j59/6PMEAJP5lSr4io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Andrew Halaney <ahalaney@redhat.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 01/17] crypto: qcom-rng - ensure buffer for generate is completely filled
+Subject: [PATCH 5.15 01/32] crypto: qcom-rng - ensure buffer for generate is completely filled
 Date:   Mon, 21 Mar 2022 14:52:37 +0100
-Message-Id: <20220321133217.193115204@linuxfoundation.org>
+Message-Id: <20220321133220.604619228@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -49,7 +49,7 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -152,15 +152,15 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/crypto/qcom-rng.c
 +++ b/drivers/crypto/qcom-rng.c
-@@ -7,6 +7,7 @@
- #include <linux/acpi.h>
+@@ -8,6 +8,7 @@
  #include <linux/clk.h>
  #include <linux/crypto.h>
+ #include <linux/io.h>
 +#include <linux/iopoll.h>
  #include <linux/module.h>
  #include <linux/of.h>
  #include <linux/platform_device.h>
-@@ -42,16 +43,19 @@ static int qcom_rng_read(struct qcom_rng
+@@ -43,16 +44,19 @@ static int qcom_rng_read(struct qcom_rng
  {
  	unsigned int currsize = 0;
  	u32 val;
@@ -184,7 +184,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		if ((max - currsize) >= WORD_SZ) {
  			memcpy(data, &val, WORD_SZ);
-@@ -60,11 +64,10 @@ static int qcom_rng_read(struct qcom_rng
+@@ -61,11 +65,10 @@ static int qcom_rng_read(struct qcom_rng
  		} else {
  			/* copy only remaining bytes */
  			memcpy(data, &val, max - currsize);
@@ -197,7 +197,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static int qcom_rng_generate(struct crypto_rng *tfm,
-@@ -86,7 +89,7 @@ static int qcom_rng_generate(struct cryp
+@@ -87,7 +90,7 @@ static int qcom_rng_generate(struct cryp
  	mutex_unlock(&rng->lock);
  	clk_disable_unprepare(rng->clk);
  
