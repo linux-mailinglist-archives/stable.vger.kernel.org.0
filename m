@@ -2,53 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 610914E2C5E
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 16:34:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD1974E2CDE
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 16:52:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241809AbiCUPfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 11:35:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42512 "EHLO
+        id S244218AbiCUPwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 11:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244949AbiCUPfg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 11:35:36 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7203313FAB;
-        Mon, 21 Mar 2022 08:34:11 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 2F847210EE;
-        Mon, 21 Mar 2022 15:34:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1647876850; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=VNyX+fb8O+Otr4c7FYr7v/jIn4CB8StYw4c40MavmeE=;
-        b=Ru+P1yK2Jw1QXzAyhjr0RARsHnQE7zJV28GEnbEs4xJuTY3Xf5qtvm/QzeTKVVyypizHIj
-        uwJd/qnMAsrfNC1aXFENGw4LABp31GnpyUUfUQDpMqoJdGXPRstyzHVslVCOrBll2SAkmo
-        0BfBq2jRMc1eqVe0T+AsJsJOXmz90QY=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 76B2CA3B87;
-        Mon, 21 Mar 2022 15:34:09 +0000 (UTC)
-Date:   Mon, 21 Mar 2022 16:34:08 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Charan Teja Kalla <quic_charante@quicinc.com>
-Cc:     akpm@linux-foundation.org, surenb@google.com, vbabka@suse.cz,
-        rientjes@google.com, sfr@canb.auug.org.au, edgararriaga@google.com,
-        minchan@kernel.org, nadav.amit@gmail.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, "# 5 . 10+" <stable@vger.kernel.org>
-Subject: Re: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to
- process_madvise
-Message-ID: <Yjia8AzhgWh4KPbp@dhcp22.suse.cz>
-References: <cover.1647008754.git.quic_charante@quicinc.com>
- <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
+        with ESMTP id S238686AbiCUPwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 11:52:36 -0400
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 621D01557FF;
+        Mon, 21 Mar 2022 08:51:11 -0700 (PDT)
+Received: by mail-wr1-f52.google.com with SMTP id r10so21329536wrp.3;
+        Mon, 21 Mar 2022 08:51:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=hefucE+Jiu9ept//sebHy0SZe1pf91jzk4A2hhyEoXU=;
+        b=j5xnLu4HfbvAZePTS+Q8j2bHhaftEKa8xdA01aScy2pzazE+gAPbz6pO0JtVC5Zq1e
+         N4Hs5AMCIGYtqhsYv265rz8TBpwSwGIZO5MbPglxS2WeF3YEf0AnF1pCuxJS/u+ZqEHR
+         gdCUPnJ0eh9RCPPfTmo8E4TytT6+2PEzWmsFJdeW0SP50r3z0UasQi3T67cQMp74rRVG
+         x2K96uw9LKOXXaGz6IV6UkYvLjh2TVIHUP5+FqlHocQ8HpLclT0d2xsEGpqcCadpkMkY
+         0Foy0FbPKnc8T/xmVr+BVtg35FHtJIbqhcEVhK0LwGu9vaIwD27HsQSlCZvHuGdG71b2
+         RCHw==
+X-Gm-Message-State: AOAM533PXJwUG47JMtrettbyIIlzp6DGwHWUjLDGqw1nqy5VsYPWvom4
+        h7ajqYl5MegyVFIq4c+cuD4=
+X-Google-Smtp-Source: ABdhPJwvW8A/Q2Qjh46eoL/oVh5ZiV0UasSIAFG93IFQXPqcKZSoCt5kt1x/8yu76BU3wmUskwpDfw==
+X-Received: by 2002:a5d:6acd:0:b0:1ef:78e9:193a with SMTP id u13-20020a5d6acd000000b001ef78e9193amr18601351wrw.281.1647877869926;
+        Mon, 21 Mar 2022 08:51:09 -0700 (PDT)
+Received: from [192.168.0.17] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
+        by smtp.googlemail.com with ESMTPSA id u7-20020a5d6da7000000b00203d9d1875bsm15376362wrs.73.2022.03.21.08.51.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Mar 2022 08:51:09 -0700 (PDT)
+Message-ID: <3aae94bd-d39d-ddfc-2b06-356173f6b1f8@kernel.org>
+Date:   Mon, 21 Mar 2022 16:51:07 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v2 1/3] dt-bindings: net: add reset property for aspeed,
+ ast2600-mdio binding
+Content-Language: en-US
+To:     Dylan Hung <dylan_hung@aspeedtech.com>, robh+dt@kernel.org,
+        joel@jms.id.au, andrew@aj.id.au, andrew@lunn.ch,
+        hkallweit1@gmail.com, linux@armlinux.org.uk, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, p.zabel@pengutronix.de,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org
+Cc:     BMC-SW@aspeedtech.com, stable@vger.kernel.org
+References: <20220321095648.4760-1-dylan_hung@aspeedtech.com>
+ <20220321095648.4760-2-dylan_hung@aspeedtech.com>
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+In-Reply-To: <20220321095648.4760-2-dylan_hung@aspeedtech.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,67 +70,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 11-03-22 20:59:06, Charan Teja Kalla wrote:
-> The process_madvise() system call is expected to skip holes in vma
-> passed through 'struct iovec' vector list.
+On 21/03/2022 10:56, Dylan Hung wrote:
+> The AST2600 MDIO bus controller has a reset control bit and must be
+> deasserted before the manipulating the MDIO controller.
+> 
+> Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
+> Cc: stable@vger.kernel.org
 
-Where is this assumption coming from? From the man page I can see:
-: The advice might be applied to only a part of iovec if one of its
-: elements points to an invalid memory region in the remote
-: process.  No further elements will be processed beyond that
-: point.  
+No bugs fixes, no cc-stable. Especially that you break existing devices...
 
-> But do_madvise, which
-> process_madvise() calls for each vma, returns ENOMEM in case of unmapped
-> holes, despite the VMA is processed.
-> Thus process_madvise() should treat ENOMEM as expected and consider the
-> VMA passed to as processed and continue processing other vma's in the
-> vector list. Returning -ENOMEM to user, despite the VMA is processed,
-> will be unable to figure out where to start the next madvise.
-
-I am not sure I follow. With your previous patch and -ENOMEM from
-do_madvise you get the the answer you are looking for, no?
-With this applied you are loosing the information that some of the iters
-are not mapped or has a hole. Which might be a useful information
-especially when processing on remote tasks which are free to manipulate
-their address spaces.
-
-> Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
-> Cc: <stable@vger.kernel.org> # 5.10+
-> Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
 > ---
-> Changes in V2:
->   -- Fixed handling of ENOMEM by process_madvise().
->   -- Patch doesn't exist in V1.
+>  .../devicetree/bindings/net/aspeed,ast2600-mdio.yaml          | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
->  mm/madvise.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/madvise.c b/mm/madvise.c
-> index e97e6a9..14fb76d 100644
-> --- a/mm/madvise.c
-> +++ b/mm/madvise.c
-> @@ -1426,9 +1426,16 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
->  
->  	while (iov_iter_count(&iter)) {
->  		iovec = iov_iter_iovec(&iter);
-> +		/*
-> +		 * do_madvise returns ENOMEM if unmapped holes are present
-> +		 * in the passed VMA. process_madvise() is expected to skip
-> +		 * unmapped holes passed to it in the 'struct iovec' list
-> +		 * and not fail because of them. Thus treat -ENOMEM return
-> +		 * from do_madvise as valid and continue processing.
-> +		 */
->  		ret = do_madvise(mm, (unsigned long)iovec.iov_base,
->  					iovec.iov_len, behavior);
-> -		if (ret < 0)
-> +		if (ret < 0 && ret != -ENOMEM)
->  			break;
->  		iov_iter_advance(&iter, iovec.iov_len);
->  	}
-> -- 
-> 2.7.4
+> diff --git a/Documentation/devicetree/bindings/net/aspeed,ast2600-mdio.yaml b/Documentation/devicetree/bindings/net/aspeed,ast2600-mdio.yaml
+> index 1c88820cbcdf..8ba108e25d94 100644
+> --- a/Documentation/devicetree/bindings/net/aspeed,ast2600-mdio.yaml
+> +++ b/Documentation/devicetree/bindings/net/aspeed,ast2600-mdio.yaml
+> @@ -23,12 +23,15 @@ properties:
+>    reg:
+>      maxItems: 1
+>      description: The register range of the MDIO controller instance
 
--- 
-Michal Hocko
-SUSE Labs
+Missing empty line.
+
+> +  resets:
+> +    maxItems: 1
+>  
+>  required:
+>    - compatible
+>    - reg
+>    - "#address-cells"
+>    - "#size-cells"
+> +  - resets
+
+You break the ABI. This isusually not accepted in a regular kernel and
+even totally not accepted accepted for stable kernel.
+
+>  
+>  unevaluatedProperties: false
+>  
+> @@ -39,6 +42,7 @@ examples:
+>              reg = <0x1e650000 0x8>;
+>              #address-cells = <1>;
+>              #size-cells = <0>;
+> +            resets = <&syscon 35>;
+>  
+>              ethphy0: ethernet-phy@0 {
+>                      compatible = "ethernet-phy-ieee802.3-c22";
+
+
+Best regards,
+Krzysztof
