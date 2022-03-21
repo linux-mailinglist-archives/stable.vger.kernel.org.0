@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC174E28BE
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6258C4E29A6
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243558AbiCUOAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60858 "EHLO
+        id S1349051AbiCUOHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:07:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349213AbiCUN7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4622529B;
-        Mon, 21 Mar 2022 06:58:25 -0700 (PDT)
+        with ESMTP id S1348817AbiCUOFd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:05:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FCA93B02A;
+        Mon, 21 Mar 2022 07:01:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D58CFB816D2;
-        Mon, 21 Mar 2022 13:58:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3771C340E8;
-        Mon, 21 Mar 2022 13:58:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4346B816E1;
+        Mon, 21 Mar 2022 14:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 032A4C340ED;
+        Mon, 21 Mar 2022 14:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871102;
-        bh=bxKaI78TST9aNbXIOxncy2ZRjY5+Q4ivxya09cBs6XE=;
+        s=korg; t=1647871295;
+        bh=u3F5wmbk+6PkM8pt2vrxqech9PMOYixTjf4rRI8WWcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uu96r14uwG5phlaF6E8e3mpU1B/NtTuUsvjl6NWdNIZulTHmaYpiw29eB/OcTRvZ1
-         vgfuWYmk192/MAXBLmPdYzeq7W86YiblFAkDIoSsuC9gAmOSGGAW5vGlhqUKOsxy1O
-         q3ueftffgz415zSpnkrhsi8GMjgmQRYdt525QsRk=
+        b=BU/TADhVZdWXvUJ/8Aps3n/V3Por6ohsJBlFDWyxS31/zx9X7RrP0p9FpVIn+svOh
+         j0mEKFqYy4JKf6APPPlmdW1+NwNmBfKleRMjdPjtU9Khen6BgH8+PrCfwve8QPYxFs
+         wikWMuZ+ZCNd6nGUNAAUXj5FA2wKN8WsZekH9Yxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Christoph Fritz <chf.fritz@googlemail.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/17] drm/panel: simple: Fix Innolux G070Y2-L01 BPP settings
-Date:   Mon, 21 Mar 2022 14:52:44 +0100
-Message-Id: <20220321133217.397728564@linuxfoundation.org>
+        stable@vger.kernel.org, Guo Ziliang <guo.ziliang@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
+        Jiang Xuexin <jiang.xuexin@zte.com.cn>,
+        Yang Yang <yang.yang29@zte.com.cn>,
+        Hugh Dickins <hughd@google.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Roger Quadros <rogerq@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 03/37] mm: swap: get rid of livelock in swapin readahead
+Date:   Mon, 21 Mar 2022 14:52:45 +0100
+Message-Id: <20220321133221.392695021@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
+References: <20220321133221.290173884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,49 +64,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Guo Ziliang <guo.ziliang@zte.com.cn>
 
-[ Upstream commit fc1b6ef7bfb3d1d4df868b1c3e0480cacda6cd81 ]
+commit 029c4628b2eb2ca969e9bf979b05dc18d8d5575e upstream.
 
-The Innolux G070Y2-L01 supports two modes of operation:
-1) FRC=Low/NC ... MEDIA_BUS_FMT_RGB666_1X7X3_SPWG ... BPP=6
-2) FRC=High ..... MEDIA_BUS_FMT_RGB888_1X7X4_SPWG ... BPP=8
+In our testing, a livelock task was found.  Through sysrq printing, same
+stack was found every time, as follows:
 
-Currently the panel description mixes both, BPP from 1) and bus
-format from 2), which triggers a warning at panel-simple.c:615.
+  __swap_duplicate+0x58/0x1a0
+  swapcache_prepare+0x24/0x30
+  __read_swap_cache_async+0xac/0x220
+  read_swap_cache_async+0x58/0xa0
+  swapin_readahead+0x24c/0x628
+  do_swap_page+0x374/0x8a0
+  __handle_mm_fault+0x598/0xd60
+  handle_mm_fault+0x114/0x200
+  do_page_fault+0x148/0x4d0
+  do_translation_fault+0xb0/0xd4
+  do_mem_abort+0x50/0xb0
 
-Pick the later, set bpp=8, fix the warning.
+The reason for the livelock is that swapcache_prepare() always returns
+EEXIST, indicating that SWAP_HAS_CACHE has not been cleared, so that it
+cannot jump out of the loop.  We suspect that the task that clears the
+SWAP_HAS_CACHE flag never gets a chance to run.  We try to lower the
+priority of the task stuck in a livelock so that the task that clears
+the SWAP_HAS_CACHE flag will run.  The results show that the system
+returns to normal after the priority is lowered.
 
-Fixes: a5d2ade627dca ("drm/panel: simple: Add support for Innolux G070Y2-L01")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Maxime Ripard <maxime@cerno.tech>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220220040718.532866-1-marex@denx.de
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In our testing, multiple real-time tasks are bound to the same core, and
+the task in the livelock is the highest priority task of the core, so
+the livelocked task cannot be preempted.
+
+Although cond_resched() is used by __read_swap_cache_async, it is an
+empty function in the preemptive system and cannot achieve the purpose
+of releasing the CPU.  A high-priority task cannot release the CPU
+unless preempted by a higher-priority task.  But when this task is
+already the highest priority task on this core, other tasks will not be
+able to be scheduled.  So we think we should replace cond_resched() with
+schedule_timeout_uninterruptible(1), schedule_timeout_interruptible will
+call set_current_state first to set the task state, so the task will be
+removed from the running queue, so as to achieve the purpose of giving
+up the CPU and prevent it from running in kernel mode for too long.
+
+(akpm: ugly hack becomes uglier.  But it fixes the issue in a
+backportable-to-stable fashion while we hopefully work on something
+better)
+
+Link: https://lkml.kernel.org/r/20220221111749.1928222-1-cgel.zte@gmail.com
+Signed-off-by: Guo Ziliang <guo.ziliang@zte.com.cn>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Reviewed-by: Ran Xiaokai <ran.xiaokai@zte.com.cn>
+Reviewed-by: Jiang Xuexin <jiang.xuexin@zte.com.cn>
+Reviewed-by: Yang Yang <yang.yang29@zte.com.cn>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Roger Quadros <rogerq@kernel.org>
+Cc: Ziliang Guo <guo.ziliang@zte.com.cn>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 2 +-
+ mm/swap_state.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index f0ea782df836..312a3c4e2331 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -1619,7 +1619,7 @@ static const struct display_timing innolux_g070y2_l01_timing = {
- static const struct panel_desc innolux_g070y2_l01 = {
- 	.timings = &innolux_g070y2_l01_timing,
- 	.num_timings = 1,
--	.bpc = 6,
-+	.bpc = 8,
- 	.size = {
- 		.width = 152,
- 		.height = 91,
--- 
-2.34.1
-
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -478,7 +478,7 @@ struct page *__read_swap_cache_async(swp
+ 		 * __read_swap_cache_async(), which has set SWAP_HAS_CACHE
+ 		 * in swap_map, but not yet added its page to swap cache.
+ 		 */
+-		cond_resched();
++		schedule_timeout_uninterruptible(1);
+ 	}
+ 
+ 	/*
 
 
