@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BFB04E2981
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E66014E296A
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348786AbiCUOFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:05:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
+        id S1348427AbiCUOE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:04:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348835AbiCUODC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F0D1667EA;
-        Mon, 21 Mar 2022 06:59:48 -0700 (PDT)
+        with ESMTP id S1349130AbiCUODV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DC141F90;
+        Mon, 21 Mar 2022 07:00:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44D9EB816DA;
-        Mon, 21 Mar 2022 13:59:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87C64C340E8;
-        Mon, 21 Mar 2022 13:59:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1A8B611D5;
+        Mon, 21 Mar 2022 14:00:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D18C7C340E8;
+        Mon, 21 Mar 2022 14:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871185;
-        bh=tj33CDVipt3Hwcf7gdEjoaIZbWPVmkUS+u0jcdrdLGM=;
+        s=korg; t=1647871226;
+        bh=HJC+tV5WL/Jo6vBUVK6nxlM2E40ekaBNFwJNEPvpV3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCZRCJZsrYamb4DvZiwKL45ZsuuOZJJ76jNmDH5NE+WHwFb3J1pW9QibzIRXtkzAk
-         jTrc1/cZPiD7QO/3t6fsX5aRFJqWvFgb2uVfYVQPQCgU9cpBadsr6GxuY5yUCLCP+W
-         ozlk3Lmjyu+YVUvw3qLrrKC8cGHEUklx/kFrPiMc=
+        b=MeHRHccWlt4xYJUXaWYpKJlhqByJHyaJWR4Rvk9lYcW7ZF9TK3WPLsBCwNJmRtwYp
+         eU7st2/kaxjfl8j+gYeYyixshcDniPgUMzVov3mq+CEXS4933VXyBcA2cLwTiLx1hB
+         27nv3fVQxO0ci3qr65Preuq5d4CTpn8UNNTJGhco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
-        Jiri Olsa <jolsa@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 25/30] perf symbols: Fix symbol size calculation condition
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 19/32] net: dsa: Add missing of_node_put() in dsa_port_parse_of
 Date:   Mon, 21 Mar 2022 14:52:55 +0100
-Message-Id: <20220321133220.373087229@linuxfoundation.org>
+Message-Id: <20220321133221.119797230@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Petlan <mpetlan@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 3cf6a32f3f2a45944dd5be5c6ac4deb46bcd3bee upstream.
+[ Upstream commit cb0b430b4e3acc88c85e0ad2e25f2a25a5765262 ]
 
-Before this patch, the symbol end address fixup to be called, needed two
-conditions being met:
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-  if (prev->end == prev->start && prev->end != curr->start)
-
-Where
-  "prev->end == prev->start" means that prev is zero-long
-                             (and thus needs a fixup)
-and
-  "prev->end != curr->start" means that fixup hasn't been applied yet
-
-However, this logic is incorrect in the following situation:
-
-*curr  = {rb_node = {__rb_parent_color = 278218928,
-  rb_right = 0x0, rb_left = 0x0},
-  start = 0xc000000000062354,
-  end = 0xc000000000062354, namelen = 40, type = 2 '\002',
-  binding = 0 '\000', idle = 0 '\000', ignore = 0 '\000',
-  inlined = 0 '\000', arch_sym = 0 '\000', annotate2 = false,
-  name = 0x1159739e "kprobe_optinsn_page\t[__builtin__kprobes]"}
-
-*prev = {rb_node = {__rb_parent_color = 278219041,
-  rb_right = 0x109548b0, rb_left = 0x109547c0},
-  start = 0xc000000000062354,
-  end = 0xc000000000062354, namelen = 12, type = 2 '\002',
-  binding = 1 '\001', idle = 0 '\000', ignore = 0 '\000',
-  inlined = 0 '\000', arch_sym = 0 '\000', annotate2 = false,
-  name = 0x1095486e "optinsn_slot"}
-
-In this case, prev->start == prev->end == curr->start == curr->end,
-thus the condition above thinks that "we need a fixup due to zero
-length of prev symbol, but it has been probably done, since the
-prev->end == curr->start", which is wrong.
-
-After the patch, the execution path proceeds to arch__symbols__fixup_end
-function which fixes up the size of prev symbol by adding page_size to
-its end offset.
-
-Fixes: 3b01a413c196c910 ("perf symbols: Improve kallsyms symbol end addr calculation")
-Signed-off-by: Michael Petlan <mpetlan@redhat.com>
-Cc: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kajol Jain <kjain@linux.ibm.com>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20220317135536.805-1-mpetlan@redhat.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6d4e5c570c2d ("net: dsa: get port type at parse time")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220316082602.10785-1-linmq006@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/dsa/dsa2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -231,7 +231,7 @@ void symbols__fixup_end(struct rb_root_c
- 		prev = curr;
- 		curr = rb_entry(nd, struct symbol, rb_node);
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index e9911b18bdbf..e7fa8ce41a4c 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -1341,6 +1341,7 @@ static int dsa_port_parse_of(struct dsa_port *dp, struct device_node *dn)
+ 		const char *user_protocol;
  
--		if (prev->end == prev->start && prev->end != curr->start)
-+		if (prev->end == prev->start || prev->end != curr->start)
- 			arch__symbols__fixup_end(prev, curr);
- 	}
+ 		master = of_find_net_device_by_node(ethernet);
++		of_node_put(ethernet);
+ 		if (!master)
+ 			return -EPROBE_DEFER;
  
+-- 
+2.34.1
+
 
 
