@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 940A44E2908
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4E14E2976
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348383AbiCUOBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33700 "EHLO
+        id S241901AbiCUOFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348384AbiCUOAC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:00:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 213F4326EF;
-        Mon, 21 Mar 2022 06:58:35 -0700 (PDT)
+        with ESMTP id S1348802AbiCUODx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6091D18114A;
+        Mon, 21 Mar 2022 07:01:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD14C6126E;
-        Mon, 21 Mar 2022 13:58:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B132DC340E8;
-        Mon, 21 Mar 2022 13:58:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0413DB816CE;
+        Mon, 21 Mar 2022 14:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65531C340ED;
+        Mon, 21 Mar 2022 14:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871114;
-        bh=R3418Rrg5V8B1c05XGDtRWXcwFIPVmKBkAGQp1+t2as=;
+        s=korg; t=1647871270;
+        bh=aZf76KE9DN5cxUeQ8w5mlraiAepMF2EIiwiv9GroYyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R56KceI1PdSDLgVeto2O4yY/CcfK1443Pzv3lcdp5JUnwWEBlp0mUH8dIOtDgndhQ
-         P+AUpBPVgzagC4+WusY3YdnE2xfvZGs8IqZ5cVUy9mEgfYQneGntfDMieiqnk6ak8b
-         NzW42+zFr9Oys2oqh6ajkZlb1D2EGSu8MiAYh+W8=
+        b=NQh0yM0bJ+jxkhzJ9501otf9GGxI2Es3tIvKc/y62zUfxqdlLJwrPdLrchBI/pWpX
+         GtUCByu7jeKiBel8rzyklHlr/UtY6tBBVRkvw97d/uuBbbGCinkxCgmG5CbI2NPfbE
+         GnyfwguyT0ccMkIsjDD5kT/bF9kzbDqD3vWUtXUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/30] hv_netvsc: Add check for kvmalloc_array
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        syzbot+b42749a851a47a0f581b@syzkaller.appspotmail.com,
+        Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 04/32] block: release rq qos structures for queue without disk
 Date:   Mon, 21 Mar 2022 14:52:40 +0100
-Message-Id: <20220321133219.946203430@linuxfoundation.org>
+Message-Id: <20220321133220.691523932@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 886e44c9298a6b428ae046e2fa092ca52e822e6a ]
+commit daaca3522a8e67c46e39ef09c1d542e866f85f3b upstream.
 
-As the potential failure of the kvmalloc_array(),
-it should be better to check and restore the 'data'
-if fails in order to avoid the dereference of the
-NULL pointer.
+blkcg_init_queue() may add rq qos structures to request queue, previously
+blk_cleanup_queue() calls rq_qos_exit() to release them, but commit
+8e141f9eb803 ("block: drain file system I/O on del_gendisk")
+moves rq_qos_exit() into del_gendisk(), so memory leak is caused
+because queues may not have disk, such as un-present scsi luns, nvme
+admin queue, ...
 
-Fixes: 6ae746711263 ("hv_netvsc: Add per-cpu ethtool stats for netvsc")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220314020125.2365084-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes the issue by adding rq_qos_exit() to blk_cleanup_queue() back.
+
+BTW, v5.18 won't need this patch any more since we move
+blkcg_init_queue()/blkcg_exit_queue() into disk allocation/release
+handler, and patches have been in for-5.18/block.
+
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Fixes: 8e141f9eb803 ("block: drain file system I/O on del_gendisk")
+Reported-by: syzbot+b42749a851a47a0f581b@syzkaller.appspotmail.com
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220314043018.177141-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ block/blk-core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 261e6e55a907..e3676386d0ee 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -1562,6 +1562,9 @@ static void netvsc_get_ethtool_stats(struct net_device *dev,
- 	pcpu_sum = kvmalloc_array(num_possible_cpus(),
- 				  sizeof(struct netvsc_ethtool_pcpu_stats),
- 				  GFP_KERNEL);
-+	if (!pcpu_sum)
-+		return;
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -49,6 +49,7 @@
+ #include "blk-mq.h"
+ #include "blk-mq-sched.h"
+ #include "blk-pm.h"
++#include "blk-rq-qos.h"
+ 
+ struct dentry *blk_debugfs_root;
+ 
+@@ -380,6 +381,9 @@ void blk_cleanup_queue(struct request_qu
+ 	 */
+ 	blk_freeze_queue(q);
+ 
++	/* cleanup rq qos structures for queue without disk */
++	rq_qos_exit(q);
 +
- 	netvsc_get_pcpu_stats(dev, pcpu_sum);
- 	for_each_present_cpu(cpu) {
- 		struct netvsc_ethtool_pcpu_stats *this_sum = &pcpu_sum[cpu];
--- 
-2.34.1
-
+ 	blk_queue_flag_set(QUEUE_FLAG_DEAD, q);
+ 
+ 	blk_sync_queue(q);
 
 
