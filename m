@@ -2,46 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D45A4E2A65
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF844E2AD8
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348578AbiCUOZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:25:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39930 "EHLO
+        id S1346944AbiCUOeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:34:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353045AbiCUOXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:23:21 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9925BE0D
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 07:17:59 -0700 (PDT)
-Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nWIr1-0005oJ-1R; Mon, 21 Mar 2022 15:17:51 +0100
-Message-ID: <3ed10e7e-1c73-6464-b1df-6c6e086fa162@leemhuis.info>
-Date:   Mon, 21 Mar 2022 15:17:50 +0100
+        with ESMTP id S1349846AbiCUOdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:33:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DCDA1AF;
+        Mon, 21 Mar 2022 07:30:31 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 019D0B8170B;
+        Mon, 21 Mar 2022 14:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22526C340EE;
+        Mon, 21 Mar 2022 14:30:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647873028;
+        bh=BJoJxM62oVu3PvwNK+c15fauttUCWAVfzzp/YPFUujo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qMJEj8Zo3BFaBw5Q+l5pug8Oa22PK9dZbWcMe5AZda5rqrEYZ9Q0GqaeZYcv6+vY0
+         hWLJ/CgZbWa1zThm38J7rqx0Qn2DSBAUKLS1squ35QlSdse+oWuIHOXT/LF4V1JzAx
+         /3J374DD0Ze1ReNwYDnSDVRhfdgPSt4acP5ab1efSe4YY8SZrusWmMX+eqlIXHw2qn
+         QwAqDNyi5hKLk3Em2C761jdzMrwE1znLJU7qDV6YR1/HxqATZ4pBrW1RB9FpqAlyRz
+         g7v6Jfh4CdtdXjXA5SOZBZ7BLx9odpD2PRdGtyTmkiu9ntV+iCKPvSz/mCPx7xozeS
+         X+Qam1RbisLAQ==
+Date:   Mon, 21 Mar 2022 14:30:22 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Sudeep Holla <sudeep.holla@arm.com>
+Cc:     Darren Hart <darren@os.amperecomputing.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        stable@vger.kernel.org, Barry Song <21cnbao@gmail.com>
+Subject: Re: [PATCH v3] topology: make core_mask include at least
+ cluster_siblings
+Message-ID: <20220321143021.GB11145@willie-the-truck>
+References: <CAKfTPtDe+i0fwV10m2sX2xkJGBrO8B+RQogDDij8ioJAT5+wAw@mail.gmail.com>
+ <e91bcc83-37c8-dcca-e088-8b3fcd737b2c@arm.com>
+ <YieXQD7uG0+R5QBq@fedora>
+ <7ac47c67-0b5e-5caa-20bb-a0100a0cb78f@arm.com>
+ <YijxUAuufpBKLtwy@fedora>
+ <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
+ <Yi9zUuroS1vHWexY@fedora>
+ <eb33745a-9d63-89b1-1245-9d1e0e04a169@arm.com>
+ <YjIAQKwfa3/vr/kU@fedora>
+ <YjIIfS6HkvlrdAHS@bogus>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v4 2/3] mtd: cfi_cmdset_0002: Use chip_ready() for write
- on S29GL064N
-Content-Language: en-US
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
-        linux-mtd@lists.infradead.org,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>, stable@vger.kernel.org
-References: <20220316155455.162362-1-ikegami.t@gmail.com>
- <20220316155455.162362-3-ikegami.t@gmail.com>
- <db755852-effe-c4ca-726c-200d28b0b8a5@leemhuis.info>
- <20220321133529.2d3addaf@xps13>
- <f950bfe4-9c8d-199d-120f-cc8c1ecca8e3@leemhuis.info>
- <20220321144134.3076a2ba@xps13>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <20220321144134.3076a2ba@xps13>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1647872289;08fdfc25;
-X-HE-SMSGID: 1nWIr1-0005oJ-1R
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YjIIfS6HkvlrdAHS@bogus>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -50,94 +75,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21.03.22 14:41, Miquel Raynal wrote:
-> regressions@leemhuis.info wrote on Mon, 21 Mar 2022 13:51:10 +0100:
->> On 21.03.22 13:35, Miquel Raynal wrote:
->>> regressions@leemhuis.info wrote on Mon, 21 Mar 2022 12:48:11 +0100:
->>>
->>>> On 16.03.22 16:54, Tokunori Ikegami wrote:
->>>>> As pointed out by this bug report [1], buffered writes are now broken on
->>>>> S29GL064N. This issue comes from a rework which switched from using chip_good()
->>>>> to chip_ready(), because DQ true data 0xFF is read on S29GL064N and an error
->>>>> returned by chip_good(). One way to solve the issue is to revert the change
->>>>> partially to use chip_ready for S29GL064N.
->>>>>
->>>>> [1] https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/  
->>>>
->>>> Why did you switch from the documented format for links you added on my
->>>> request (see
->>>> https://lore.kernel.org/stable/f1b44e87-e457-7783-d46e-0d577cea3b72@leemhuis.info/
->>>>
->>>> ) to v2 to something else that is not recognized by tools and scripts
->>>> that rely on proper link tags? You are making my and maybe other peoples
->>>> life unnecessary hard. :-((
->>>>
->>>> FWIW, the proper style should support footnote style like this:
->>>>
->>>> Link:
->>>> https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
->>>>  [1]
->>>>
->>>> Ciao, Thorsten
->>>>
->>>> #regzbot ^backmonitor:
->>>> https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
->>>>
->>>
->>> Because today's requirement from maintainers is to provide a Link
->>> tag that points to the mail discussion of the patch being applied.
->>
->> That can be an additional Link tag, that is done all the time.
->>
->>> I
->>> then asked to use the above form instead to point to the bug report
->>> because I don't see the point of having a "Link" tag for it?
+On Wed, Mar 16, 2022 at 03:55:41PM +0000, Sudeep Holla wrote:
+> On Wed, Mar 16, 2022 at 08:20:32AM -0700, Darren Hart wrote:
+> > On Wed, Mar 16, 2022 at 03:48:50PM +0100, Dietmar Eggemann wrote:
 > 
-> Perhaps I should emphasize that I don't remember your initial request
-> regarding the use of a Link tag
-
-Happen, no worries.
-
-> and my original idea was to help this
-> contributor, not kill your tools which I actually know very little
-> about.
->>> But it's not your own project, we are all working with thousands of
->> people together on this project on various different fronts. That needs
->> coordination, as some things otherwise become hard or impossible. That's
->> why we have documentation that explains how to do some things. Not
->> following it just because you don't like it is not helpful and in this
->> case makes my life as a volunteer a lot harder.
+> [...]
 > 
-> Let's be honest, you are referring to a Documentation patch that *you*
-> wrote
+> > >
+> > > Yeah, I can see your point. It's the smaller hack. My solution just
+> > > prevents us to manipulate the coregroup mask only to get the MC layer
+> > > degenerated by the core topology code. But people might say that's a
+> > > clever thing to do here. So I'm fine with your original solution as well.
+> > >
+> > > [...]
+> >
+> > Thanks Dietmar,
+> >
+> > Sudeep, do we have sufficient consensus to pull in this patch?
+> 
+> Indeed. I have already Acked, and sure after all these discussions we have
+> concluded that this is the best we can do though not matches everyone's taste.
+> 
+> Greg or Will(not sure why he had asked since v3 doesn't touch arm64),
+> Can one of you pick this patch ?
 
-Correct, but in case of submitting-patches it was just a clarification
-how to place links; why the whole aspect was missing in the other is
-kinda odd and likely lost in history...
+Right, this doesn't touch arm64 any more so I don't think I'm the right
+person to queue it.
 
-> and was merged into Linus' tree mid January. How often do you
-> think people used to the contribution workflow monitor these files?
-
-Not often, that's why I have no problem pointing it out, even if that's
-slightly annoying. But you can imagine that it felt kinda odd on my side
-when asking someone to set the links (with references to the docs
-explaining how to set them) and seeing them added then in v2, just so
-see they vanished again in v3 of the same patch. :-/
-
-> I am totally fine enforcing the use of Link: tags if this is what has
-> been decided, just don't expect everybody to switch to a style rather
-> than another over a night.
-
-I don't.
-
->> If you don't like the approach explained by the documentation, submit a
->> patch adjusting the documentation and then we can talk about this. But
->> until that is applied please stick to the format explained by the
->> documentation.
-> This is uselessly condescending.
-
-I apologize, it wasn't meant that way. I had to many discussions already
-where people were not setting any links and it seems the topic is slowly
-hitting a nerve here. Sorry.
-
-Ciao, Thorsten
+Will
