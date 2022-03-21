@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13EC74E2848
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:54:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BE64E2822
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:52:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348319AbiCUNz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 09:55:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42184 "EHLO
+        id S1348106AbiCUNxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 09:53:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348282AbiCUNzX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:55:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7158510CC;
-        Mon, 21 Mar 2022 06:53:58 -0700 (PDT)
+        with ESMTP id S1348107AbiCUNxb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:53:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E8C81459A8;
+        Mon, 21 Mar 2022 06:52:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DEFF6126A;
-        Mon, 21 Mar 2022 13:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007CCC340E8;
-        Mon, 21 Mar 2022 13:53:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20DD4B81674;
+        Mon, 21 Mar 2022 13:52:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CB6C340F2;
+        Mon, 21 Mar 2022 13:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870837;
-        bh=9UTHSdHsMxTSqtDc4h9uay8BvRiMDiW4mvc8DvxMn4Q=;
+        s=korg; t=1647870722;
+        bh=eNpTu/EL7cyclaAk+KggbJ090IfVQLSwA5Uf3oSwuJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjK5gVyjI4ZT6/rw11byOHc7CX+MaC6H3+5JyrnSH9XqQY6sro9Bm/ylMR9r9+ORw
-         /JbGQtcMiO/HIm2N7/eBA/4f57X7/jsdKtizo/44t8P+LMVAZ7gYGQa6eciuXfDpWX
-         s78R7cHDxT9jp1frco/4qKRzW38/9ZxaG64TThjU=
+        b=x+5JCkZ+ei9FykKa8nc8Y+7J5qvmuhRG3EnDPtzC41vlLDwkSbCcs5Iv303RAaHiY
+         nygO4BcNaOmeVbgMUyb8pd1THv/NAEhqF5Gewd1m4stF4sfLGThc2KqXv/UmtjkFgO
+         vOO3Ta4RgSDWcA0KTQPN6CJgY3lKcKI97eoXlFCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        syzbot <syzkaller@googlegroups.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/22] tcp: make tcp_read_sock() more robust
+Subject: [PATCH 4.9 12/16] net/packet: fix slab-out-of-bounds access in packet_recvmsg()
 Date:   Mon, 21 Mar 2022 14:51:42 +0100
-Message-Id: <20220321133217.940648621@linuxfoundation.org>
+Message-Id: <20220321133217.014039825@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.602054917@linuxfoundation.org>
-References: <20220321133217.602054917@linuxfoundation.org>
+In-Reply-To: <20220321133216.648316863@linuxfoundation.org>
+References: <20220321133216.648316863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,46 +57,115 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit e3d5ea2c011ecb16fb94c56a659364e6b30fac94 ]
+[ Upstream commit c700525fcc06b05adfea78039de02628af79e07a ]
 
-If recv_actor() returns an incorrect value, tcp_read_sock()
-might loop forever.
+syzbot found that when an AF_PACKET socket is using PACKET_COPY_THRESH
+and mmap operations, tpacket_rcv() is queueing skbs with
+garbage in skb->cb[], triggering a too big copy [1]
 
-Instead, issue a one time warning and make sure to make progress.
+Presumably, users of af_packet using mmap() already gets correct
+metadata from the mapped buffer, we can simply make sure
+to clear 12 bytes that might be copied to user space later.
 
+BUG: KASAN: stack-out-of-bounds in memcpy include/linux/fortify-string.h:225 [inline]
+BUG: KASAN: stack-out-of-bounds in packet_recvmsg+0x56c/0x1150 net/packet/af_packet.c:3489
+Write of size 165 at addr ffffc9000385fb78 by task syz-executor233/3631
+
+CPU: 0 PID: 3631 Comm: syz-executor233 Not tainted 5.17.0-rc7-syzkaller-02396-g0b3660695e80 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0xf/0x336 mm/kasan/report.c:255
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
+ check_region_inline mm/kasan/generic.c:183 [inline]
+ kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
+ memcpy+0x39/0x60 mm/kasan/shadow.c:66
+ memcpy include/linux/fortify-string.h:225 [inline]
+ packet_recvmsg+0x56c/0x1150 net/packet/af_packet.c:3489
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_recvmsg net/socket.c:962 [inline]
+ ____sys_recvmsg+0x2c4/0x600 net/socket.c:2632
+ ___sys_recvmsg+0x127/0x200 net/socket.c:2674
+ __sys_recvmsg+0xe2/0x1a0 net/socket.c:2704
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7fdfd5954c29
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 41 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffcf8e71e48 EFLAGS: 00000246 ORIG_RAX: 000000000000002f
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fdfd5954c29
+RDX: 0000000000000000 RSI: 0000000020000500 RDI: 0000000000000005
+RBP: 0000000000000000 R08: 000000000000000d R09: 000000000000000d
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffcf8e71e60
+R13: 00000000000f4240 R14: 000000000000c1ff R15: 00007ffcf8e71e54
+ </TASK>
+
+addr ffffc9000385fb78 is located in stack of task syz-executor233/3631 at offset 32 in frame:
+ ____sys_recvmsg+0x0/0x600 include/linux/uio.h:246
+
+this frame has 1 object:
+ [32, 160) 'addr'
+
+Memory state around the buggy address:
+ ffffc9000385fa80: 00 04 f3 f3 f3 f3 f3 00 00 00 00 00 00 00 00 00
+ ffffc9000385fb00: 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00
+>ffffc9000385fb80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f3
+                                                                ^
+ ffffc9000385fc00: f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00 f1
+ ffffc9000385fc80: f1 f1 f1 00 f2 f2 f2 00 f2 f2 f2 00 00 00 00 00
+==================================================================
+
+Fixes: 0fb375fb9b93 ("[AF_PACKET]: Allow for > 8 byte hardware addresses.")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/r/20220302161723.3910001-2-eric.dumazet@gmail.com
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220312232958.3535620-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/packet/af_packet.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index c9f6f28e54f3..a0fd9ef2d2c6 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1657,11 +1657,13 @@ int tcp_read_sock(struct sock *sk, read_descriptor_t *desc,
- 				if (!copied)
- 					copied = used;
- 				break;
--			} else if (used <= len) {
--				seq += used;
--				copied += used;
--				offset += used;
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 8e62b05efe29..e79d6881a97e 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2244,8 +2244,11 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
+ 					copy_skb = skb_get(skb);
+ 					skb_head = skb->data;
+ 				}
+-				if (copy_skb)
++				if (copy_skb) {
++					memset(&PACKET_SKB_CB(copy_skb)->sa.ll, 0,
++					       sizeof(PACKET_SKB_CB(copy_skb)->sa.ll));
+ 					skb_set_owner_r(copy_skb, sk);
++				}
  			}
-+			if (WARN_ON_ONCE(used > len))
-+				used = len;
-+			seq += used;
-+			copied += used;
-+			offset += used;
-+
- 			/* If recv_actor drops the lock (e.g. TCP splice
- 			 * receive) the skb pointer might be invalid when
- 			 * getting here: tcp_collapse might have deleted it
+ 			snaplen = po->rx_ring.frame_size - macoff;
+ 			if ((int)snaplen < 0) {
+@@ -3422,6 +3425,8 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	sock_recv_ts_and_drops(msg, sk, skb);
+ 
+ 	if (msg->msg_name) {
++		const size_t max_len = min(sizeof(skb->cb),
++					   sizeof(struct sockaddr_storage));
+ 		int copy_len;
+ 
+ 		/* If the address length field is there to be filled
+@@ -3444,6 +3449,10 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 				msg->msg_namelen = sizeof(struct sockaddr_ll);
+ 			}
+ 		}
++		if (WARN_ON_ONCE(copy_len > max_len)) {
++			copy_len = max_len;
++			msg->msg_namelen = copy_len;
++		}
+ 		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
+ 	}
+ 
 -- 
 2.34.1
 
