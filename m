@@ -2,44 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6DAE4E2982
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED874E2A27
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344361AbiCUOFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:05:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38006 "EHLO
+        id S1348935AbiCUOOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:14:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348565AbiCUOCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:02:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F5CA27D3;
-        Mon, 21 Mar 2022 06:59:34 -0700 (PDT)
+        with ESMTP id S1349022AbiCUOGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:06:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7028D3D1F8;
+        Mon, 21 Mar 2022 07:01:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B386B61325;
-        Mon, 21 Mar 2022 13:59:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9938C340ED;
-        Mon, 21 Mar 2022 13:59:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 089DAB816DC;
+        Mon, 21 Mar 2022 14:01:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469D4C340F3;
+        Mon, 21 Mar 2022 14:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871168;
-        bh=WbAXIMIpSRb7OSyInJWIlEk1e63sTaThqozBnDrl2dY=;
+        s=korg; t=1647871311;
+        bh=ZLNrGtC/1yYtaIEPvn2dN37TDlIhPm1AaMyY5zLM+o8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u02wL1SW39FzXRYbI6Wr4VNYBTOOjMJFXrUt23gT3ZDI3RVepUxUI0zW1Vxq2u+Lm
-         u9fiQmv0GVCry/THldhali7hCktgIj+LbIgy1fxP66cCfjMSu2/Wdy8BQCGxo61Zv4
-         nr47/p4qZH5xVxu65ls4I8Ud48tMpB8Qezomftx0=
+        b=w8gY10Zv3XvQyqm2Nt5OAfbKkFgLHV2J5YO3Iotiy2u/isKlm7tgLPqy9zeWe47+z
+         MAyMKDwDDXiU1yKDNENy1+mwsmOd6SgN/UtVjolaUGeNEDO5v/2lA/jQP4qMjXb6Fo
+         X4VsgHpCIBQrBnQoEUgKO35jyy4OSQfjQPcYBEqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, valis <sec@valis.email>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH 5.10 29/30] esp: Fix possible buffer overflow in ESP transformation
+        stable@vger.kernel.org,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Marek Vasut <marex@denx.de>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 17/37] drm/imx: parallel-display: Remove bus flags check in imx_pd_bridge_atomic_check()
 Date:   Mon, 21 Mar 2022 14:52:59 +0100
-Message-Id: <20220321133220.490047170@linuxfoundation.org>
+Message-Id: <20220321133221.794975962@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
+References: <20220321133221.290173884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,95 +67,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-commit ebe48d368e97d007bfeb76fcb065d6cfc4c96645 upstream.
+[ Upstream commit 6061806a863e8b65b109eb06a280041cc7525442 ]
 
-The maximum message size that can be send is bigger than
-the  maximum site that skb_page_frag_refill can allocate.
-So it is possible to write beyond the allocated buffer.
+If display timings were read from the devicetree using
+of_get_display_timing() and pixelclk-active is defined
+there, the flag DISPLAY_FLAGS_SYNC_POSEDGE/NEGEDGE is
+automatically generated. Through the function
+drm_bus_flags_from_videomode() e.g. called in the
+panel-simple driver this flag got into the bus flags,
+but then in imx_pd_bridge_atomic_check() the bus flag
+check failed and will not initialize the display. The
+original commit fe141cedc433 does not explain why this
+check was introduced. So remove the bus flags check,
+because it stops the initialization of the display with
+valid bus flags.
 
-Fix this by doing a fallback to COW in that case.
-
-v2:
-
-Avoid get get_order() costs as suggested by Linus Torvalds.
-
-Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
-Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
-Reported-by: valis <sec@valis.email>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fe141cedc433 ("drm/imx: pd: Use bus format/flags provided by the bridge when available")
+Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: linux-arm-kernel@lists.infradead.org
+To: dri-devel@lists.freedesktop.org
+Tested-by: Max Krummenacher <max.krummenacher@toradex.com>
+Acked-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220201113643.4638-1-cniedermaier@dh-electronics.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/esp.h  |    2 ++
- include/net/sock.h |    1 +
- net/ipv4/esp4.c    |    5 +++++
- net/ipv6/esp6.c    |    5 +++++
- 4 files changed, 13 insertions(+)
+ drivers/gpu/drm/imx/parallel-display.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/include/net/esp.h
-+++ b/include/net/esp.h
-@@ -4,6 +4,8 @@
+diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
+index a8aba0141ce7..06cb1a59b9bc 100644
+--- a/drivers/gpu/drm/imx/parallel-display.c
++++ b/drivers/gpu/drm/imx/parallel-display.c
+@@ -217,14 +217,6 @@ static int imx_pd_bridge_atomic_check(struct drm_bridge *bridge,
+ 	if (!imx_pd_format_supported(bus_fmt))
+ 		return -EINVAL;
  
- #include <linux/skbuff.h>
- 
-+#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
-+
- struct ip_esp_hdr;
- 
- static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2670,6 +2670,7 @@ extern int sysctl_optmem_max;
- extern __u32 sysctl_wmem_default;
- extern __u32 sysctl_rmem_default;
- 
-+#define SKB_FRAG_PAGE_ORDER	get_order(32768)
- DECLARE_STATIC_KEY_FALSE(net_high_order_alloc_disable_key);
- 
- static inline int sk_get_wmem0(const struct sock *sk, const struct proto *proto)
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -448,6 +448,7 @@ int esp_output_head(struct xfrm_state *x
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
-+	unsigned int allocsz;
- 
- 	/* this is non-NULL only with TCP/UDP Encapsulation */
- 	if (x->encap) {
-@@ -457,6 +458,10 @@ int esp_output_head(struct xfrm_state *x
- 			return err;
- 	}
- 
-+	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
-+	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+		goto cow;
-+
- 	if (!skb_cloned(skb)) {
- 		if (tailen <= skb_tailroom(skb)) {
- 			nfrags = 1;
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -483,6 +483,7 @@ int esp6_output_head(struct xfrm_state *
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
-+	unsigned int allocsz;
- 
- 	if (x->encap) {
- 		int err = esp6_output_encap(x, skb, esp);
-@@ -491,6 +492,10 @@ int esp6_output_head(struct xfrm_state *
- 			return err;
- 	}
- 
-+	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
-+	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+		goto cow;
-+
- 	if (!skb_cloned(skb)) {
- 		if (tailen <= skb_tailroom(skb)) {
- 			nfrags = 1;
+-	if (bus_flags &
+-	    ~(DRM_BUS_FLAG_DE_LOW | DRM_BUS_FLAG_DE_HIGH |
+-	      DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE |
+-	      DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)) {
+-		dev_warn(imxpd->dev, "invalid bus_flags (%x)\n", bus_flags);
+-		return -EINVAL;
+-	}
+-
+ 	bridge_state->output_bus_cfg.flags = bus_flags;
+ 	bridge_state->input_bus_cfg.flags = bus_flags;
+ 	imx_crtc_state->bus_flags = bus_flags;
+-- 
+2.34.1
+
 
 
