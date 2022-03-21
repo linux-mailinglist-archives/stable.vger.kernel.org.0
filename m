@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC5044E2A24
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0291C4E2955
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343742AbiCUOOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59958 "EHLO
+        id S1348428AbiCUOEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:04:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349050AbiCUOHR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:07:17 -0400
+        with ESMTP id S1349392AbiCUODm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33108B716A;
-        Mon, 21 Mar 2022 07:02:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C9E17FD3F;
+        Mon, 21 Mar 2022 07:01:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93028612DC;
-        Mon, 21 Mar 2022 14:02:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE1DC340E8;
-        Mon, 21 Mar 2022 14:02:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FB8461337;
+        Mon, 21 Mar 2022 14:00:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DBEBC340ED;
+        Mon, 21 Mar 2022 14:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871326;
-        bh=IAAFrUU8gQiQaC3sASTjgx3whxx7B6O72E6G9ckiAis=;
+        s=korg; t=1647871256;
+        bh=LEJPk0D57qEDTsqgXvDFEqHl7IO/xSoeV6j5WPkO2Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpbKgn5r8HpqSrKvLYiL3PK885mDp0zfaq1ps7bam9zlesqD1aZvjSDxVxc58jGei
-         AyRrPGSVJ4nkfrzRuWSSDQq7+SMSwqj6j5M+fXm84q4etCnOLWVpv/sfqx6F/6/iic
-         k8sFs1hYXHXUv9wQTg0fnrJawkzaLN6JsMSbQVi4=
+        b=vF84jjw5fZlR/ZD9/yLKwT54m0wj4dsjdN/F6Khhmv24zCAhf4wGyYTQaHanSHE9I
+         TnOusp8nx0cxsNqsPjs6jK2q37RC23XhN7YonD5nzuqWjRpVKog9PfsBGFrXsKQB9Q
+         lx+GRULG/1M75Zw1CqSk1cMebiRkLtCWp8aI7uuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juerg Haefliger <juergh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 22/37] net: phy: mscc: Add MODULE_FIRMWARE macros
-Date:   Mon, 21 Mar 2022 14:53:04 +0100
-Message-Id: <20220321133221.939774567@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        Matt Lupfer <mlupfer@ddn.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 29/32] scsi: mpt3sas: Page fault in reply q processing
+Date:   Mon, 21 Mar 2022 14:53:05 +0100
+Message-Id: <20220321133221.404074807@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
-References: <20220321133221.290173884@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juerg Haefliger <juerg.haefliger@canonical.com>
+From: Matt Lupfer <mlupfer@ddn.com>
 
-[ Upstream commit f1858c277ba40172005b76a31e6bb931bfc19d9c ]
+commit 69ad4ef868c1fc7609daa235dfa46d28ba7a3ba3 upstream.
 
-The driver requires firmware so define MODULE_FIRMWARE so that modinfo
-provides the details.
+A page fault was encountered in mpt3sas on a LUN reset error path:
 
-Fixes: fa164e40c53b ("net: phy: mscc: split the driver into separate files")
-Signed-off-by: Juerg Haefliger <juergh@canonical.com>
-Link: https://lore.kernel.org/r/20220316151835.88765-1-juergh@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[  145.763216] mpt3sas_cm1: Task abort tm failed: handle(0x0002),timeout(30) tr_method(0x0) smid(3) msix_index(0)
+[  145.778932] scsi 1:0:0:0: task abort: FAILED scmd(0x0000000024ba29a2)
+[  145.817307] scsi 1:0:0:0: attempting device reset! scmd(0x0000000024ba29a2)
+[  145.827253] scsi 1:0:0:0: [sg1] tag#2 CDB: Receive Diagnostic 1c 01 01 ff fc 00
+[  145.837617] scsi target1:0:0: handle(0x0002), sas_address(0x500605b0000272b9), phy(0)
+[  145.848598] scsi target1:0:0: enclosure logical id(0x500605b0000272b8), slot(0)
+[  149.858378] mpt3sas_cm1: Poll ReplyDescriptor queues for completion of smid(0), task_type(0x05), handle(0x0002)
+[  149.875202] BUG: unable to handle page fault for address: 00000007fffc445d
+[  149.885617] #PF: supervisor read access in kernel mode
+[  149.894346] #PF: error_code(0x0000) - not-present page
+[  149.903123] PGD 0 P4D 0
+[  149.909387] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[  149.917417] CPU: 24 PID: 3512 Comm: scsi_eh_1 Kdump: loaded Tainted: G S         O      5.10.89-altav-1 #1
+[  149.934327] Hardware name: DDN           200NVX2             /200NVX2-MB          , BIOS ATHG2.2.02.01 09/10/2021
+[  149.951871] RIP: 0010:_base_process_reply_queue+0x4b/0x900 [mpt3sas]
+[  149.961889] Code: 0f 84 22 02 00 00 8d 48 01 49 89 fd 48 8d 57 38 f0 0f b1 4f 38 0f 85 d8 01 00 00 49 8b 45 10 45 31 e4 41 8b 55 0c 48 8d 1c d0 <0f> b6 03 83 e0 0f 3c 0f 0f 85 a2 00 00 00 e9 e6 01 00 00 0f b7 ee
+[  149.991952] RSP: 0018:ffffc9000f1ebcb8 EFLAGS: 00010246
+[  150.000937] RAX: 0000000000000055 RBX: 00000007fffc445d RCX: 000000002548f071
+[  150.011841] RDX: 00000000ffff8881 RSI: 0000000000000001 RDI: ffff888125ed50d8
+[  150.022670] RBP: 0000000000000000 R08: 0000000000000000 R09: c0000000ffff7fff
+[  150.033445] R10: ffffc9000f1ebb68 R11: ffffc9000f1ebb60 R12: 0000000000000000
+[  150.044204] R13: ffff888125ed50d8 R14: 0000000000000080 R15: 34cdc00034cdea80
+[  150.054963] FS:  0000000000000000(0000) GS:ffff88dfaf200000(0000) knlGS:0000000000000000
+[  150.066715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  150.076078] CR2: 00000007fffc445d CR3: 000000012448a006 CR4: 0000000000770ee0
+[  150.086887] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  150.097670] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  150.108323] PKRU: 55555554
+[  150.114690] Call Trace:
+[  150.120497]  ? printk+0x48/0x4a
+[  150.127049]  mpt3sas_scsih_issue_tm.cold.114+0x2e/0x2b3 [mpt3sas]
+[  150.136453]  mpt3sas_scsih_issue_locked_tm+0x86/0xb0 [mpt3sas]
+[  150.145759]  scsih_dev_reset+0xea/0x300 [mpt3sas]
+[  150.153891]  scsi_eh_ready_devs+0x541/0x9e0 [scsi_mod]
+[  150.162206]  ? __scsi_host_match+0x20/0x20 [scsi_mod]
+[  150.170406]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
+[  150.178925]  ? blk_mq_tagset_busy_iter+0x45/0x60
+[  150.186638]  ? scsi_try_target_reset+0x90/0x90 [scsi_mod]
+[  150.195087]  scsi_error_handler+0x3a5/0x4a0 [scsi_mod]
+[  150.203206]  ? __schedule+0x1e9/0x610
+[  150.209783]  ? scsi_eh_get_sense+0x210/0x210 [scsi_mod]
+[  150.217924]  kthread+0x12e/0x150
+[  150.224041]  ? kthread_worker_fn+0x130/0x130
+[  150.231206]  ret_from_fork+0x1f/0x30
+
+This is caused by mpt3sas_base_sync_reply_irqs() using an invalid reply_q
+pointer outside of the list_for_each_entry() loop. At the end of the full
+list traversal the pointer is invalid.
+
+Move the _base_process_reply_queue() call inside of the loop.
+
+Link: https://lore.kernel.org/r/d625deae-a958-0ace-2ba3-0888dd0a415b@ddn.com
+Fixes: 711a923c14d9 ("scsi: mpt3sas: Postprocessing of target and LUN reset")
+Cc: stable@vger.kernel.org
+Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Matt Lupfer <mlupfer@ddn.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/mscc/mscc_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_base.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/mscc/mscc_main.c b/drivers/net/phy/mscc/mscc_main.c
-index ebfeeb3c67c1..7e3017e7a1c0 100644
---- a/drivers/net/phy/mscc/mscc_main.c
-+++ b/drivers/net/phy/mscc/mscc_main.c
-@@ -2685,3 +2685,6 @@ MODULE_DEVICE_TABLE(mdio, vsc85xx_tbl);
- MODULE_DESCRIPTION("Microsemi VSC85xx PHY driver");
- MODULE_AUTHOR("Nagaraju Lakkaraju");
- MODULE_LICENSE("Dual MIT/GPL");
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -2011,9 +2011,10 @@ mpt3sas_base_sync_reply_irqs(struct MPT3
+ 				enable_irq(reply_q->os_irq);
+ 			}
+ 		}
 +
-+MODULE_FIRMWARE(MSCC_VSC8584_REVB_INT8051_FW);
-+MODULE_FIRMWARE(MSCC_VSC8574_REVB_INT8051_FW);
--- 
-2.34.1
-
++		if (poll)
++			_base_process_reply_queue(reply_q);
+ 	}
+-	if (poll)
+-		_base_process_reply_queue(reply_q);
+ }
+ 
+ /**
 
 
