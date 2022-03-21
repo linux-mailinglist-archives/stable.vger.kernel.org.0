@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C70A04E2913
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA204E2A1D
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348434AbiCUOBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34312 "EHLO
+        id S1348793AbiCUONt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348676AbiCUOA5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:00:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8F33D48F;
-        Mon, 21 Mar 2022 06:58:59 -0700 (PDT)
+        with ESMTP id S1349353AbiCUOIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1BB179417;
+        Mon, 21 Mar 2022 07:02:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F19C612A1;
-        Mon, 21 Mar 2022 13:58:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109A6C340ED;
-        Mon, 21 Mar 2022 13:58:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9DA31B816C8;
+        Mon, 21 Mar 2022 14:02:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F059C340F2;
+        Mon, 21 Mar 2022 14:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871137;
-        bh=saHmvrY9uxdGezIR6fec89oK13Fs/l/1MxLyPHD9tpQ=;
+        s=korg; t=1647871361;
+        bh=kK0ExYZAsFXBMqVa2Gyws0IcFssO//gPc8Ps9AhPX5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f14wjtNXL7RMQ1CUngUqRSEhktxPmRrQFkD0fCPd5fp4Xkr+q2WvcvfVlAAsVsNJK
-         wXoxqQ9OGpaUlQkmkdbY3Yq4R+G1Qe2vwkDVnipsCJJI4RkieCaQ/4+rQvRBRHQXwP
-         m+5Dr2hRrXUTGuIk9yqJO3vhEXYNWCUJHy/0fjBU=
+        b=FsG9N5D4pym0LpAUPh6XLrr7zO9bpg5P1PhoBUO6y1FkCEKSCvLsBS4QVJULoOa0Y
+         tRwseAkfTf1TWTzte5wfQtgECRo1NA91uHQWlRDiZgnvezioMD+S24BxEki0kTtsRn
+         IbXtmih4bsk/iDgtBDPdtq6lHHVuMNZCn9nxQPDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/30] net: mscc: ocelot: fix backwards compatibility with single-chain tc-flower offload
-Date:   Mon, 21 Mar 2022 14:52:48 +0100
-Message-Id: <20220321133220.173764440@linuxfoundation.org>
+Subject: [PATCH 5.16 07/37] alx: acquire mutex for alx_reinit in alx_change_mtu
+Date:   Mon, 21 Mar 2022 14:52:49 +0100
+Message-Id: <20220321133221.507932995@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
+References: <20220321133221.290173884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 8e0341aefcc9133f3f48683873284b169581315b ]
+[ Upstream commit 46b348fd2d81a341b15fb3f3f986204b038f5c42 ]
 
-ACL rules can be offloaded to VCAP IS2 either through chain 0, or, since
-the blamed commit, through a chain index whose number encodes a specific
-PAG (Policy Action Group) and lookup number.
+alx_reinit has a lockdep assertion that the alx->mtx mutex must be held.
+alx_reinit is called from two places: alx_reset and alx_change_mtu.
+alx_reset does acquire alx->mtx before calling alx_reinit.
+alx_change_mtu does not acquire this mutex, nor do its callers or any
+path towards alx_change_mtu.
+Acquire the mutex in alx_change_mtu.
 
-The chain number is translated through ocelot_chain_to_pag() into a PAG,
-and through ocelot_chain_to_lookup() into a lookup number.
+The issue was introduced when the fine-grained locking was introduced
+to the code to replace the RTNL. The same commit also introduced the
+lockdep assertion.
 
-The problem with the blamed commit is that the above 2 functions don't
-have special treatment for chain 0. So ocelot_chain_to_pag(0) returns
-filter->pag = 224, which is in fact -32, but the "pag" field is an u8.
-
-So we end up programming the hardware with VCAP IS2 entries having a PAG
-of 224. But the way in which the PAG works is that it defines a subset
-of VCAP IS2 filters which should match on a packet. The default PAG is
-0, and previous VCAP IS1 rules (which we offload using 'goto') can
-modify it. So basically, we are installing filters with a PAG on which
-no packet will ever match. This is the hardware equivalent of adding
-filters to a chain which has no 'goto' to it.
-
-Restore the previous functionality by making ACL filters offloaded to
-chain 0 go to PAG 0 and lookup number 0. The choice of PAG is clearly
-correct, but the choice of lookup number isn't "as before" (which was to
-leave the lookup a "don't care"). However, lookup 0 should be fine,
-since even though there are ACL actions (policers) which have a
-requirement to be used in a specific lookup, that lookup is 0.
-
-Fixes: 226e9cd82a96 ("net: mscc: ocelot: only install TCAM entries into a specific lookup and PAG")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220316192117.2568261-1-vladimir.oltean@nxp.com
+Fixes: 4a5fe57e7751 ("alx: use fine-grained locking instead of RTNL")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Link: https://lore.kernel.org/r/20220310232707.44251-1-dossche.niels@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_flower.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/atheros/alx/main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
-index 217e8333de6c..c4c4649b2088 100644
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -54,6 +54,12 @@ static int ocelot_chain_to_block(int chain, bool ingress)
-  */
- static int ocelot_chain_to_lookup(int chain)
- {
-+	/* Backwards compatibility with older, single-chain tc-flower
-+	 * offload support in Ocelot
-+	 */
-+	if (chain == 0)
-+		return 0;
-+
- 	return (chain / VCAP_LOOKUP) % 10;
+diff --git a/drivers/net/ethernet/atheros/alx/main.c b/drivers/net/ethernet/atheros/alx/main.c
+index 4ad3fc72e74e..a89b93cb4e26 100644
+--- a/drivers/net/ethernet/atheros/alx/main.c
++++ b/drivers/net/ethernet/atheros/alx/main.c
+@@ -1181,8 +1181,11 @@ static int alx_change_mtu(struct net_device *netdev, int mtu)
+ 	alx->hw.mtu = mtu;
+ 	alx->rxbuf_size = max(max_frame, ALX_DEF_RXBUF_SIZE);
+ 	netdev_update_features(netdev);
+-	if (netif_running(netdev))
++	if (netif_running(netdev)) {
++		mutex_lock(&alx->mtx);
+ 		alx_reinit(alx);
++		mutex_unlock(&alx->mtx);
++	}
+ 	return 0;
  }
  
-@@ -62,7 +68,15 @@ static int ocelot_chain_to_lookup(int chain)
-  */
- static int ocelot_chain_to_pag(int chain)
- {
--	int lookup = ocelot_chain_to_lookup(chain);
-+	int lookup;
-+
-+	/* Backwards compatibility with older, single-chain tc-flower
-+	 * offload support in Ocelot
-+	 */
-+	if (chain == 0)
-+		return 0;
-+
-+	lookup = ocelot_chain_to_lookup(chain);
- 
- 	/* calculate PAG value as chain index relative to the first PAG */
- 	return chain - VCAP_IS2_CHAIN(lookup, 0);
 -- 
 2.34.1
 
