@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD2D4E2984
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C52304E2A13
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348765AbiCUOFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:05:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35632 "EHLO
+        id S244659AbiCUONn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:13:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348767AbiCUOCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:02:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0BC33E9B;
-        Mon, 21 Mar 2022 06:59:39 -0700 (PDT)
+        with ESMTP id S1349604AbiCUOId (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 558291B7B5;
+        Mon, 21 Mar 2022 07:03:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A7796132C;
-        Mon, 21 Mar 2022 13:59:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8161EC340F3;
-        Mon, 21 Mar 2022 13:59:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F6B661350;
+        Mon, 21 Mar 2022 14:02:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC41C340E8;
+        Mon, 21 Mar 2022 14:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871173;
-        bh=SisNPNMwIL3YAd74uiLsbQc1ojVwhNKoLmnSOriiSr0=;
+        s=korg; t=1647871378;
+        bh=2nO093whqQ/sqbYqWbv0LaogH00/S1O/HY0QpO+NfNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IWQp0u2MYu5Jtj0lqkxQynQNPpzjyIBNuMFMOizIkSgeey+XS9cn7uBfjGwPFqpV
-         ImkcgWAz5iyMYXLXa8ZNVpx1yOrj10Dgy/GwYRj0y30SSMifpHBflzP/H04BbEcrWZ
-         yMv4FadCRIdRRBBOtE7+ACk7x8EZrtCPXPr7Jl+8=
+        b=uqwUb/iCbeAiGiH6bOubamMb0i0uW3ZAg+C8v54TG9rDDjbseI5zc3tvU32XFWxJ8
+         jwKryWbIpPNP3K3PwOd/+kLeyVK/uYBK4XM1IO2XHFvt6pxYXC1ZUJFqrh1bYhsYTl
+         OzZi9PNmaleALC0ulor5HDKmBUnlktbunm++uz+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 21/30] usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 09/37] esp6: fix check on ipv6_skip_exthdrs return value
 Date:   Mon, 21 Mar 2022 14:52:51 +0100
-Message-Id: <20220321133220.258860038@linuxfoundation.org>
+Message-Id: <20220321133221.564244907@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
+References: <20220321133221.290173884@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,86 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-commit 16b1941eac2bd499f065a6739a40ce0011a3d740 upstream.
+[ Upstream commit 4db4075f92af2b28f415fc979ab626e6b37d67b6 ]
 
-The syzbot fuzzer found a use-after-free bug:
+Commit 5f9c55c8066b ("ipv6: check return value of ipv6_skip_exthdr")
+introduced an incorrect check, which leads to all ESP packets over
+either TCPv6 or UDPv6 encapsulation being dropped. In this particular
+case, offset is negative, since skb->data points to the ESP header in
+the following chain of headers, while skb->network_header points to
+the IPv6 header:
 
-BUG: KASAN: use-after-free in dev_uevent+0x712/0x780 drivers/base/core.c:2320
-Read of size 8 at addr ffff88802b934098 by task udevd/3689
+    IPv6 | ext | ... | ext | UDP | ESP | ...
 
-CPU: 2 PID: 3689 Comm: udevd Not tainted 5.17.0-rc4-syzkaller-00229-g4f12b742eb2b #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x303 mm/kasan/report.c:255
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
- dev_uevent+0x712/0x780 drivers/base/core.c:2320
- uevent_show+0x1b8/0x380 drivers/base/core.c:2391
- dev_attr_show+0x4b/0x90 drivers/base/core.c:2094
+That doesn't seem to be a problem, especially considering that if we
+reach esp6_input_done2, we're guaranteed to have a full set of headers
+available (otherwise the packet would have been dropped earlier in the
+stack). However, it means that the return value will (intentionally)
+be negative. We can make the test more specific, as the expected
+return value of ipv6_skip_exthdr will be the (negated) size of either
+a UDP header, or a TCP header with possible options.
 
-Although the bug manifested in the driver core, the real cause was a
-race with the gadget core.  dev_uevent() does:
+In the future, we should probably either make ipv6_skip_exthdr
+explicitly accept negative offsets (and adjust its return value for
+error cases), or make ipv6_skip_exthdr only take non-negative
+offsets (and audit all callers).
 
-	if (dev->driver)
-		add_uevent_var(env, "DRIVER=%s", dev->driver->name);
-
-and between the test and the dereference of dev->driver, the gadget
-core sets dev->driver to NULL.
-
-The race wouldn't occur if the gadget core registered its devices on
-a real bus, using the standard synchronization techniques of the
-driver core.  However, it's not necessary to make such a large change
-in order to fix this bug; all we need to do is make sure that
-udc->dev.driver is always NULL.
-
-In fact, there is no reason for udc->dev.driver ever to be set to
-anything, let alone to the value it currently gets: the address of the
-gadget's driver.  After all, a gadget driver only knows how to manage
-a gadget, not how to manage a UDC.
-
-This patch simply removes the statements in the gadget core that touch
-udc->dev.driver.
-
-Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+348b571beb5eeb70a582@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YiQgukfFFbBnwJ/9@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5f9c55c8066b ("ipv6: check return value of ipv6_skip_exthdr")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/core.c |    3 ---
- 1 file changed, 3 deletions(-)
+ net/ipv6/esp6.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -1343,7 +1343,6 @@ static void usb_gadget_remove_driver(str
- 	usb_gadget_udc_stop(udc);
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index b7b573085bd5..5023f59a5b96 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -813,8 +813,7 @@ int esp6_input_done2(struct sk_buff *skb, int err)
+ 		struct tcphdr *th;
  
- 	udc->driver = NULL;
--	udc->dev.driver = NULL;
- 	udc->gadget->dev.driver = NULL;
- }
- 
-@@ -1405,7 +1404,6 @@ static int udc_bind_to_driver(struct usb
- 			driver->function);
- 
- 	udc->driver = driver;
--	udc->dev.driver = &driver->driver;
- 	udc->gadget->dev.driver = &driver->driver;
- 
- 	usb_gadget_udc_set_speed(udc, driver->max_speed);
-@@ -1427,7 +1425,6 @@ err1:
- 		dev_err(&udc->dev, "failed to start %s: %d\n",
- 			udc->driver->function, ret);
- 	udc->driver = NULL;
--	udc->dev.driver = NULL;
- 	udc->gadget->dev.driver = NULL;
- 	return ret;
- }
+ 		offset = ipv6_skip_exthdr(skb, offset, &nexthdr, &frag_off);
+-
+-		if (offset < 0) {
++		if (offset == -1) {
+ 			err = -EINVAL;
+ 			goto out;
+ 		}
+-- 
+2.34.1
+
 
 
