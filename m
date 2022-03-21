@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2FA4E2903
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F6494E28D1
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348016AbiCUOBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46142 "EHLO
+        id S1345409AbiCUOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:00:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348778AbiCUN6R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FE317A594;
-        Mon, 21 Mar 2022 06:56:30 -0700 (PDT)
+        with ESMTP id S1349098AbiCUN7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0E0BC34;
+        Mon, 21 Mar 2022 06:57:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 811A7B816DD;
-        Mon, 21 Mar 2022 13:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5995C340ED;
-        Mon, 21 Mar 2022 13:55:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 176A9B81675;
+        Mon, 21 Mar 2022 13:57:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64778C340E8;
+        Mon, 21 Mar 2022 13:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870960;
-        bh=vACVCzk77C9AxEkQB5NVVBVP/DprcViXPn2JpwnA3Uk=;
+        s=korg; t=1647871057;
+        bh=EzheYmDy2+VssoBOahjX4ulkqPougU5Hjlom28RAad4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7D+rVnWAfYjNi3EWSqzx2rPgtnxnzo9GXlYH+S29YMowDUunwqYaeVrdE6J2bvMD
-         Vqsr/Rc7ILLI5pv23+P2u/YgE9xzpg9FiYojqm8wfNSPgEQN/RXc1PVUBKEzwL6vJ0
-         3qaJIjLrxJe7p2ymtgxMCq6/WlVxAZqGpylo7ywE=
+        b=aQhTydu3hm5uAYhEk7f+QzmPViIEEheHUYSSwwXmpmMsb2vRhvWOAnp2LBjlkO8Va
+         Y+57tOVdQRF8rzgrTV7a0WoWzVSY1wwFDEpKikq1dDT0rzbPG+hju75Pk4sYmkG3TJ
+         FimN7Yt/odTIvWJFmQXHTIt59/spN3UckY31qLZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 4.19 30/57] arm64: entry: Allow tramp_alias to access symbols after the 4K boundary
-Date:   Mon, 21 Mar 2022 14:52:11 +0100
-Message-Id: <20220321133222.866193712@linuxfoundation.org>
+Subject: [PATCH 4.19 31/57] arm64: entry: Dont assume tramp_vectors is the start of the vectors
+Date:   Mon, 21 Mar 2022 14:52:12 +0100
+Message-Id: <20220321133222.894855879@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133221.984120927@linuxfoundation.org>
 References: <20220321133221.984120927@linuxfoundation.org>
@@ -56,66 +56,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit 6c5bf79b69f911560fbf82214c0971af6e58e682 upstream.
+commit ed50da7764535f1e24432ded289974f2bf2b0c5a upstream.
 
-Systems using kpti enter and exit the kernel through a trampoline mapping
-that is always mapped, even when the kernel is not. tramp_valias is a macro
-to find the address of a symbol in the trampoline mapping.
+The tramp_ventry macro uses tramp_vectors as the address of the vectors
+when calculating which ventry in the 'full fat' vectors to branch to.
 
-Adding extra sets of vectors will expand the size of the entry.tramp.text
-section to beyond 4K. tramp_valias will be unable to generate addresses
-for symbols beyond 4K as it uses the 12 bit immediate of the add
-instruction.
+While there is one set of tramp_vectors, this will be true.
+Adding multiple sets of vectors will break this assumption.
 
-As there are now two registers available when tramp_alias is called,
-use the extra register to avoid the 4K limit of the 12 bit immediate.
+Move the generation of the vectors to a macro, and pass the start
+of the vectors as an argument to tramp_ventry.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/entry.S |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -135,9 +135,12 @@
- .org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
+@@ -975,7 +975,7 @@ alternative_else_nop_endif
+ 	sub	\dst, \dst, PAGE_SIZE
  	.endm
  
--	.macro tramp_alias, dst, sym
-+	.macro tramp_alias, dst, sym, tmp
- 	mov_q	\dst, TRAMP_VALIAS
--	add	\dst, \dst, #(\sym - .entry.tramp.text)
-+	adr_l	\tmp, \sym
-+	add	\dst, \dst, \tmp
-+	adr_l	\tmp, .entry.tramp.text
-+	sub	\dst, \dst, \tmp
+-	.macro tramp_ventry, regsize = 64
++	.macro tramp_ventry, vector_start, regsize
+ 	.align	7
+ 1:
+ 	.if	\regsize == 64
+@@ -997,9 +997,9 @@ alternative_insn isb, nop, ARM64_WORKARO
+ #else
+ 	ldr	x30, =vectors
+ #endif
+-	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
++	prfm	plil1strm, [x30, #(1b - \vector_start)]
+ 	msr	vbar_el1, x30
+-	add	x30, x30, #(1b - tramp_vectors + 4)
++	add	x30, x30, #(1b - \vector_start + 4)
+ 	isb
+ 	ret
+ .org 1b + 128	// Did we overflow the ventry slot?
+@@ -1017,19 +1017,21 @@ alternative_insn isb, nop, ARM64_WORKARO
+ 	eret
  	.endm
  
- 	// This macro corrupts x0-x3. It is the caller's duty
-@@ -362,10 +365,10 @@ alternative_else_nop_endif
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	bne	4f
- 	msr	far_el1, x29
--	tramp_alias	x30, tramp_exit_native
-+	tramp_alias	x30, tramp_exit_native, x29
- 	br	x30
- 4:
--	tramp_alias	x30, tramp_exit_compat
-+	tramp_alias	x30, tramp_exit_compat, x29
- 	br	x30
- #endif
- 	.else
-@@ -1265,7 +1268,7 @@ alternative_if_not ARM64_UNMAP_KERNEL_AT
- alternative_else_nop_endif
+-	.align	11
+-ENTRY(tramp_vectors)
++	.macro	generate_tramp_vector
++.Lvector_start\@:
+ 	.space	0x400
  
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline
-+	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline, tmp=x3
- 	br	x5
- #endif
- ENDPROC(__sdei_asm_handler)
+-	tramp_ventry
+-	tramp_ventry
+-	tramp_ventry
+-	tramp_ventry
+-
+-	tramp_ventry	32
+-	tramp_ventry	32
+-	tramp_ventry	32
+-	tramp_ventry	32
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 64
++	.endr
++	.rept	4
++	tramp_ventry	.Lvector_start\@, 32
++	.endr
++	.endm
++
++	.align	11
++ENTRY(tramp_vectors)
++	generate_tramp_vector
+ END(tramp_vectors)
+ 
+ ENTRY(tramp_exit_native)
 
 
