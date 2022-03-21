@@ -2,145 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C09D4E27EF
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 454A84E281D
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:52:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348016AbiCUNnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 09:43:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55548 "EHLO
+        id S1348095AbiCUNxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 09:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348089AbiCUNnE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:43:04 -0400
-X-Greylist: delayed 3964 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 21 Mar 2022 06:41:38 PDT
-Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67285762B3
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 06:41:38 -0700 (PDT)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id C30AEC000A;
-        Mon, 21 Mar 2022 13:41:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1647870096;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GIxuyqU3ctJGiCBP+cbpAyeqP8N2xcPjN2SiYQ6vLN8=;
-        b=BBjfOoMCjmQetnwVU70OFIwqXWm7DsCkndUr4172sno2nEVA19xhBE/58rIH4WDJkhrfgV
-        d0qsyCmZNJGsNIrMjRWQPvu5mnPQAaoo6yAHO9rO5iJZ5fSMbgQh95x3TYOtxypPGTgoM3
-        ZpVqb1NXeo/1NyReIw6ARZyCE+KiowJFpW0zZSJTgDk7OZa8EQaIl6YcY3ehi3qf9piFpP
-        HTziz3pO58y7HTIouxr7jN40SdfYK8bhDSQZ5emP55qEZSDTbDuEf5oojqMzE0v5hLZ5JP
-        dO0sDy2k5KTaMVM3jRikZw8Lq+WzWdFbNqRQUvf6UOjeYqUPpxA1oN4IkVXEDw==
-Date:   Mon, 21 Mar 2022 14:41:34 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     Tokunori Ikegami <ikegami.t@gmail.com>,
-        linux-mtd@lists.infradead.org,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>, stable@vger.kernel.org
-Subject: Re: [PATCH v4 2/3] mtd: cfi_cmdset_0002: Use chip_ready() for write
- on S29GL064N
-Message-ID: <20220321144134.3076a2ba@xps13>
-In-Reply-To: <f950bfe4-9c8d-199d-120f-cc8c1ecca8e3@leemhuis.info>
-References: <20220316155455.162362-1-ikegami.t@gmail.com>
-        <20220316155455.162362-3-ikegami.t@gmail.com>
-        <db755852-effe-c4ca-726c-200d28b0b8a5@leemhuis.info>
-        <20220321133529.2d3addaf@xps13>
-        <f950bfe4-9c8d-199d-120f-cc8c1ecca8e3@leemhuis.info>
-Organization: Bootlin
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        with ESMTP id S232974AbiCUNxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:53:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD27813CED6;
+        Mon, 21 Mar 2022 06:51:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C1A6B81676;
+        Mon, 21 Mar 2022 13:51:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F66C340E8;
+        Mon, 21 Mar 2022 13:51:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1647870712;
+        bh=pPgQaOZzDcuntvZ1Zvvum1sIs0kBLStpXYMjOtcnB/U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=aGXlZztHKdUBvPJ8JZXZz/MkmqDaMDLzD5t0EL/pZl2YQJDLT35z9Uyqn3+3iwhrI
+         tbhmI5wCbDBRF8ipJUsE8ux9hsZTfFD/mAkm+f6C7ptUbigXw4j3QpMeKdb1NExUBC
+         EqOIV/JUPWUs6IKxXekACDzC4OndVejdcyW/rUAY=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.9 00/16] 4.9.308-rc1 review
+Date:   Mon, 21 Mar 2022 14:51:30 +0100
+Message-Id: <20220321133216.648316863@linuxfoundation.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.308-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.308-rc1
+X-KernelTest-Deadline: 2022-03-23T13:32+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thorsten,
+This is the start of the stable review cycle for the 4.9.308 release.
+There are 16 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-regressions@leemhuis.info wrote on Mon, 21 Mar 2022 13:51:10 +0100:
+Responses should be made by Wed, 23 Mar 2022 13:32:09 +0000.
+Anything received after that time might be too late.
 
-> On 21.03.22 13:35, Miquel Raynal wrote:
-> >
-> > regressions@leemhuis.info wrote on Mon, 21 Mar 2022 12:48:11 +0100:
-> >=20
-> >> On 16.03.22 16:54, Tokunori Ikegami wrote:
-> >>> As pointed out by this bug report [1], buffered writes are now broken=
- on
-> >>> S29GL064N. This issue comes from a rework which switched from using c=
-hip_good()
-> >>> to chip_ready(), because DQ true data 0xFF is read on S29GL064N and a=
-n error
-> >>> returned by chip_good(). One way to solve the issue is to revert the =
-change
-> >>> partially to use chip_ready for S29GL064N.
-> >>>
-> >>> [1] https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pe=
-ngutronix.de/ =20
-> >>
-> >> Why did you switch from the documented format for links you added on my
-> >> request (see
-> >> https://lore.kernel.org/stable/f1b44e87-e457-7783-d46e-0d577cea3b72@le=
-emhuis.info/
-> >>
-> >> ) to v2 to something else that is not recognized by tools and scripts
-> >> that rely on proper link tags? You are making my and maybe other peopl=
-es
-> >> life unnecessary hard. :-((
-> >>
-> >> FWIW, the proper style should support footnote style like this:
-> >>
-> >> Link:
-> >> https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutr=
-onix.de/
-> >>  [1]
-> >>
-> >> Ciao, Thorsten
-> >>
-> >> #regzbot ^backmonitor:
-> >> https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutr=
-onix.de/
-> >>
-> >=20
-> > Because today's requirement from maintainers is to provide a Link
-> > tag that points to the mail discussion of the patch being applied.
->=20
-> That can be an additional Link tag, that is done all the time.
->=20
-> > I
-> > then asked to use the above form instead to point to the bug report
-> > because I don't see the point of having a "Link" tag for it?
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.308-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-Perhaps I should emphasize that I don't remember your initial request
-regarding the use of a Link tag and my original idea was to help this
-contributor, not kill your tools which I actually know very little
-about.
+thanks,
 
-> But it's not your own project, we are all working with thousands of
-> people together on this project on various different fronts. That needs
-> coordination, as some things otherwise become hard or impossible. That's
-> why we have documentation that explains how to do some things. Not
-> following it just because you don't like it is not helpful and in this
-> case makes my life as a volunteer a lot harder.
+greg k-h
 
-Let's be honest, you are referring to a Documentation patch that *you*
-wrote and was merged into Linus' tree mid January. How often do you
-think people used to the contribution workflow monitor these files?
+-------------
+Pseudo-Shortlog of commits:
 
-I am totally fine enforcing the use of Link: tags if this is what has
-been decided, just don't expect everybody to switch to a style rather
-than another over a night.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.308-rc1
 
-> If you don't like the approach explained by the documentation, submit a
-> patch adjusting the documentation and then we can talk about this. But
-> until that is applied please stick to the format explained by the
-> documentation.
+Pavel Skripkin <paskripkin@gmail.com>
+    Input: aiptek - properly check endpoint type
 
-This is uselessly condescending.
+Alan Stern <stern@rowland.harvard.edu>
+    usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
 
-Thanks,
-Miqu=C3=A8l
+Dan Carpenter <dan.carpenter@oracle.com>
+    usb: gadget: rndis: prevent integer overflow in rndis_set_response()
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    atm: eni: Add check for dma_map_single
+
+Eric Dumazet <edumazet@google.com>
+    net/packet: fix slab-out-of-bounds access in packet_recvmsg()
+
+Lucas Wei <lucaswei@google.com>
+    fs: sysfs_emit: Remove PAGE_SIZE alignment check
+
+Chengming Zhou <zhouchengming@bytedance.com>
+    kselftest/vm: fix tests build with old libc
+
+Niels Dossche <dossche.niels@gmail.com>
+    sfc: extend the locking on mcdi->seqno
+
+Eric Dumazet <edumazet@google.com>
+    tcp: make tcp_read_sock() more robust
+
+Sreeramya Soratkal <quic_ssramya@quicinc.com>
+    nl80211: Update bss channel on channel switch for P2P_CLIENT
+
+Jia-Ju Bai <baijiaju1990@gmail.com>
+    atm: firestream: check the return value of ioremap() in fs_init()
+
+Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+    can: rcar_canfd: rcar_canfd_channel_probe(): register the CAN device when fully ready
+
+Julian Braha <julianbraha@gmail.com>
+    ARM: 9178/1: fix unmet dependency on BITREVERSE for HAVE_ARCH_BITREVERSE
+
+Alexander Lobakin <alobakin@pm.me>
+    MIPS: smp: fill in sibling and core maps earlier
+
+Corentin Labbe <clabbe@baylibre.com>
+    ARM: dts: rockchip: fix a typo on rk3288 crypto-controller
+
+Yan Yan <evitayan@google.com>
+    xfrm: Fix xfrm migrate issues when address family changes
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                 |  4 ++--
+ arch/arm/boot/dts/rk3288.dtsi            |  2 +-
+ arch/mips/kernel/smp.c                   |  6 +++---
+ drivers/atm/eni.c                        |  2 ++
+ drivers/atm/firestream.c                 |  2 ++
+ drivers/input/tablet/aiptek.c            | 10 ++++------
+ drivers/net/can/rcar/rcar_canfd.c        |  6 +++---
+ drivers/net/ethernet/sfc/mcdi.c          |  2 +-
+ drivers/usb/gadget/function/rndis.c      |  1 +
+ drivers/usb/gadget/udc/core.c            |  3 ---
+ fs/sysfs/file.c                          |  3 +--
+ lib/Kconfig                              |  1 -
+ net/ipv4/tcp.c                           | 10 ++++++----
+ net/packet/af_packet.c                   | 11 ++++++++++-
+ net/wireless/nl80211.c                   |  3 ++-
+ net/xfrm/xfrm_state.c                    |  8 +++++---
+ tools/testing/selftests/vm/userfaultfd.c |  1 +
+ 17 files changed, 44 insertions(+), 31 deletions(-)
+
+
