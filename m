@@ -2,44 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE174E288C
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6635C4E290A
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243101AbiCUOAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60518 "EHLO
+        id S1348505AbiCUOBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:01:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349185AbiCUN7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE2C2529B;
-        Mon, 21 Mar 2022 06:58:13 -0700 (PDT)
+        with ESMTP id S1348403AbiCUOAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:00:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B1F35DD8;
+        Mon, 21 Mar 2022 06:58:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EF79B816CE;
-        Mon, 21 Mar 2022 13:58:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8625C340E8;
-        Mon, 21 Mar 2022 13:58:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E2D36125C;
+        Mon, 21 Mar 2022 13:58:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ED5DC340E8;
+        Mon, 21 Mar 2022 13:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871091;
-        bh=cBni2buC7H1TRb79ApwE1RHigOmlD6zjLemNukfcyac=;
+        s=korg; t=1647871117;
+        bh=wCtlhzyVh7eEx2vCINhC9Y7uEvjVr+GVgYMntv5pJWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJeWaVRU1rqR4aqZ1kBiYY2a79Acz1mz/suNRFPK5N6FjxEFv0q9XoALWICvoDSR5
-         KKBlGQMFnQqA/vWjveU4r8+R16Fy6bWA00NzymGGEfdqLNfOfaEr+587geD+qsqAV2
-         TTWFms5+/gp5S8gecxsd13aYdsO1BCdzv7oj8cVg=
+        b=s7RYhEMU13gqWKYuL1r7Fv5wocoxzOW1jthULM6ac8iUJQLxaqer5bc7TyUUmqjk4
+         zmtYsP5FdlEc/FQKspf3YlOzyV4TExU12rJc9x5DEbyA+6yvIyw//ec733V3DfKXwN
+         QvTWrWL/HEOnX6JRxLoBb7UNjjKucVKSbpQui5yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kurt Cancemi <kurt@x64architecture.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Marek Vasut <marex@denx.de>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/17] net: phy: marvell: Fix invalid comparison in the resume and suspend functions
-Date:   Mon, 21 Mar 2022 14:52:40 +0100
-Message-Id: <20220321133217.282060904@linuxfoundation.org>
+Subject: [PATCH 5.10 11/30] drm/imx: parallel-display: Remove bus flags check in imx_pd_bridge_atomic_check()
+Date:   Mon, 21 Mar 2022 14:52:41 +0100
+Message-Id: <20220321133219.974486080@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +67,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Cancemi <kurt@x64architecture.com>
+From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-[ Upstream commit 837d9e49402eaf030db55a49f96fc51d73b4b441 ]
+[ Upstream commit 6061806a863e8b65b109eb06a280041cc7525442 ]
 
-This bug resulted in only the current mode being resumed and suspended when
-the PHY supported both fiber and copper modes and when the PHY only supported
-copper mode the fiber mode would incorrectly be attempted to be resumed and
-suspended.
+If display timings were read from the devicetree using
+of_get_display_timing() and pixelclk-active is defined
+there, the flag DISPLAY_FLAGS_SYNC_POSEDGE/NEGEDGE is
+automatically generated. Through the function
+drm_bus_flags_from_videomode() e.g. called in the
+panel-simple driver this flag got into the bus flags,
+but then in imx_pd_bridge_atomic_check() the bus flag
+check failed and will not initialize the display. The
+original commit fe141cedc433 does not explain why this
+check was introduced. So remove the bus flags check,
+because it stops the initialization of the display with
+valid bus flags.
 
-Fixes: 3758be3dc162 ("Marvell phy: add functions to suspend and resume both interfaces: fiber and copper links.")
-Signed-off-by: Kurt Cancemi <kurt@x64architecture.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220312201512.326047-1-kurt@x64architecture.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: fe141cedc433 ("drm/imx: pd: Use bus format/flags provided by the bridge when available")
+Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: linux-arm-kernel@lists.infradead.org
+To: dri-devel@lists.freedesktop.org
+Tested-by: Max Krummenacher <max.krummenacher@toradex.com>
+Acked-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220201113643.4638-1-cniedermaier@dh-electronics.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/marvell.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/imx/parallel-display.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
-index 53420c531266..49801c2eb627 100644
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -1408,8 +1408,8 @@ static int marvell_suspend(struct phy_device *phydev)
- 	int err;
+diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
+index 2eb8df4697df..605ac8825a59 100644
+--- a/drivers/gpu/drm/imx/parallel-display.c
++++ b/drivers/gpu/drm/imx/parallel-display.c
+@@ -212,14 +212,6 @@ static int imx_pd_bridge_atomic_check(struct drm_bridge *bridge,
+ 	if (!imx_pd_format_supported(bus_fmt))
+ 		return -EINVAL;
  
- 	/* Suspend the fiber mode first */
--	if (!linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
--			       phydev->supported)) {
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
-+			      phydev->supported)) {
- 		err = marvell_set_page(phydev, MII_MARVELL_FIBER_PAGE);
- 		if (err < 0)
- 			goto error;
-@@ -1443,8 +1443,8 @@ static int marvell_resume(struct phy_device *phydev)
- 	int err;
- 
- 	/* Resume the fiber mode first */
--	if (!linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
--			       phydev->supported)) {
-+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
-+			      phydev->supported)) {
- 		err = marvell_set_page(phydev, MII_MARVELL_FIBER_PAGE);
- 		if (err < 0)
- 			goto error;
+-	if (bus_flags &
+-	    ~(DRM_BUS_FLAG_DE_LOW | DRM_BUS_FLAG_DE_HIGH |
+-	      DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE |
+-	      DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)) {
+-		dev_warn(imxpd->dev, "invalid bus_flags (%x)\n", bus_flags);
+-		return -EINVAL;
+-	}
+-
+ 	bridge_state->output_bus_cfg.flags = bus_flags;
+ 	bridge_state->input_bus_cfg.flags = bus_flags;
+ 	imx_crtc_state->bus_flags = bus_flags;
 -- 
 2.34.1
 
