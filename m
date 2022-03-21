@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E2394E290F
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:00:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7F24E2898
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348597AbiCUOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
+        id S1348439AbiCUOAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:00:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348452AbiCUOAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:00:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0D439BA1;
-        Mon, 21 Mar 2022 06:58:49 -0700 (PDT)
+        with ESMTP id S1349111AbiCUN7L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400CE10CC;
+        Mon, 21 Mar 2022 06:57:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AAF561291;
-        Mon, 21 Mar 2022 13:58:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 512CBC340ED;
-        Mon, 21 Mar 2022 13:58:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD594B81598;
+        Mon, 21 Mar 2022 13:57:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F938C340E8;
+        Mon, 21 Mar 2022 13:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871128;
-        bh=WeHYTISiGy0tEOfyzMPaacVtWPx3fEeGhuDRgUWbPNA=;
+        s=korg; t=1647871063;
+        bh=iAWoA/KtW5sunOlZanpzjYKJC7pZGFvMadTuEFgrzKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XXHZr5gi8qyoJtyr7ytE0Yrw+eKs7Mw1cPfKjnmSFJZHhT9zSemDUB2GSRqjgSMdm
-         bCvoZ3/Nj2CKnkwzu4gvrXmXx4kVAFNSadR/lzI78h4h4Q9LgNm5PFfZW+lB3GfsVK
-         FKBNH9wqjEBSxoApb6+0a7JqzD8xiomH37e3qU9I=
+        b=Lygqz3ANgmJZkHhbMqmsoIRtBqAA7iox7PIFFMMOhjMUKU/ugSQl63V1R1WKnmpZW
+         22wxyzjOcSVgnSr1aRnw8L73pDQ1THNO0YfJg05Kq7rwzy/++Ov40eQObzE5AZUcYh
+         QMRgUcCcxCv+lDEJPnrd0Qnl1PCLJ178py23n+hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juerg Haefliger <juergh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/30] net: phy: mscc: Add MODULE_FIRMWARE macros
-Date:   Mon, 21 Mar 2022 14:52:45 +0100
-Message-Id: <20220321133220.087608399@linuxfoundation.org>
+Subject: [PATCH 5.4 10/17] net: dsa: Add missing of_node_put() in dsa_port_parse_of
+Date:   Mon, 21 Mar 2022 14:52:46 +0100
+Message-Id: <20220321133217.455384427@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
+References: <20220321133217.148831184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juerg Haefliger <juerg.haefliger@canonical.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit f1858c277ba40172005b76a31e6bb931bfc19d9c ]
+[ Upstream commit cb0b430b4e3acc88c85e0ad2e25f2a25a5765262 ]
 
-The driver requires firmware so define MODULE_FIRMWARE so that modinfo
-provides the details.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: fa164e40c53b ("net: phy: mscc: split the driver into separate files")
-Signed-off-by: Juerg Haefliger <juergh@canonical.com>
-Link: https://lore.kernel.org/r/20220316151835.88765-1-juergh@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 6d4e5c570c2d ("net: dsa: get port type at parse time")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220316082602.10785-1-linmq006@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mscc/mscc_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/dsa/dsa2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/mscc/mscc_main.c b/drivers/net/phy/mscc/mscc_main.c
-index 41a410124437..e14fa72791b0 100644
---- a/drivers/net/phy/mscc/mscc_main.c
-+++ b/drivers/net/phy/mscc/mscc_main.c
-@@ -2584,3 +2584,6 @@ MODULE_DEVICE_TABLE(mdio, vsc85xx_tbl);
- MODULE_DESCRIPTION("Microsemi VSC85xx PHY driver");
- MODULE_AUTHOR("Nagaraju Lakkaraju");
- MODULE_LICENSE("Dual MIT/GPL");
-+
-+MODULE_FIRMWARE(MSCC_VSC8584_REVB_INT8051_FW);
-+MODULE_FIRMWARE(MSCC_VSC8574_REVB_INT8051_FW);
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index 70e6fc2edd30..1f27641f9cc0 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -669,6 +669,7 @@ static int dsa_port_parse_of(struct dsa_port *dp, struct device_node *dn)
+ 		struct net_device *master;
+ 
+ 		master = of_find_net_device_by_node(ethernet);
++		of_node_put(ethernet);
+ 		if (!master)
+ 			return -EPROBE_DEFER;
+ 
 -- 
 2.34.1
 
