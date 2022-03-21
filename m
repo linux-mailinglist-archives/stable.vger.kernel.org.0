@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FCAA4E2844
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E2F4E2845
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348265AbiCUNz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 09:55:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42462 "EHLO
+        id S1348182AbiCUNze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 09:55:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348320AbiCUNz2 (ORCPT
+        with ESMTP id S1348267AbiCUNz2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:55:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D76665F8E;
-        Mon, 21 Mar 2022 06:54:02 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1DFA6178;
+        Mon, 21 Mar 2022 06:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A635B816C8;
-        Mon, 21 Mar 2022 13:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFC7DC340E8;
-        Mon, 21 Mar 2022 13:53:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D7986125C;
+        Mon, 21 Mar 2022 13:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DEBEC340E8;
+        Mon, 21 Mar 2022 13:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870840;
-        bh=QCLclt6Podyl2puOmDCwjqlOCtweKVJusbddgI3eqP4=;
+        s=korg; t=1647870842;
+        bh=wEoJkZLmzdMrIsHPFU3oRk0kM0mMwx+PzxnxITksLjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2eKWnxcU89B1q21FI2jPdLSOTQg4P1dsqK5L7TCn0miT7n86FUxSWy6bwua5INuWC
-         VGkZvZ2I6ZG3/ynMsxbYU4vfAbFT9+DIaus3KTvzdoi4jxxapYIuiH3RpS9vaAP0pn
-         QgVxYPTKM87UaKUeko3Y+BzwzsvfZB0gr0qr5PkE=
+        b=iOpYSlYddAj6rXmuIDzLvDeQdDzzHo2F5Os1cEZ09xSdBOzNlCkYzNZu4fmnrDRsJ
+         Ye3p/7wVscUHDO0eLzjCeurAJ8flP4LDNZuswavr9PTt/bSGz6mdUTY2mR57Ry3v45
+         n60Ah0OyY7f04sfR8GU9N1in9lguwUeYGBKA1mQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/22] sfc: extend the locking on mcdi->seqno
-Date:   Mon, 21 Mar 2022 14:51:43 +0100
-Message-Id: <20220321133217.970199472@linuxfoundation.org>
+Subject: [PATCH 4.14 13/22] kselftest/vm: fix tests build with old libc
+Date:   Mon, 21 Mar 2022 14:51:44 +0100
+Message-Id: <20220321133217.999321675@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220321133217.602054917@linuxfoundation.org>
 References: <20220321133217.602054917@linuxfoundation.org>
@@ -55,38 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-[ Upstream commit f1fb205efb0ccca55626fd4ef38570dd16b44719 ]
+[ Upstream commit b773827e361952b3f53ac6fa4c4e39ccd632102e ]
 
-seqno could be read as a stale value outside of the lock. The lock is
-already acquired to protect the modification of seqno against a possible
-race condition. Place the reading of this value also inside this locking
-to protect it against a possible race condition.
+The error message when I build vm tests on debian10 (GLIBC 2.28):
 
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    userfaultfd.c: In function `userfaultfd_pagemap_test':
+    userfaultfd.c:1393:37: error: `MADV_PAGEOUT' undeclared (first use
+    in this function); did you mean `MADV_RANDOM'?
+      if (madvise(area_dst, test_pgsize, MADV_PAGEOUT))
+                                         ^~~~~~~~~~~~
+                                         MADV_RANDOM
+
+This patch includes these newer definitions from UAPI linux/mman.h, is
+useful to fix tests build on systems without these definitions in glibc
+sys/mman.h.
+
+Link: https://lkml.kernel.org/r/20220227055330.43087-2-zhouchengming@bytedance.com
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/mcdi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/vm/userfaultfd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/sfc/mcdi.c b/drivers/net/ethernet/sfc/mcdi.c
-index 3df872f56289..040b52affe19 100644
---- a/drivers/net/ethernet/sfc/mcdi.c
-+++ b/drivers/net/ethernet/sfc/mcdi.c
-@@ -167,9 +167,9 @@ static void efx_mcdi_send_request(struct efx_nic *efx, unsigned cmd,
- 	/* Serialise with efx_mcdi_ev_cpl() and efx_mcdi_ev_death() */
- 	spin_lock_bh(&mcdi->iface_lock);
- 	++mcdi->seqno;
-+	seqno = mcdi->seqno & SEQ_MASK;
- 	spin_unlock_bh(&mcdi->iface_lock);
- 
--	seqno = mcdi->seqno & SEQ_MASK;
- 	xflags = 0;
- 	if (mcdi->mode == MCDI_MODE_EVENTS)
- 		xflags |= MCDI_HEADER_XFLAGS_EVREQ;
+diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
+index 1963440f6725..b2c7043c0c30 100644
+--- a/tools/testing/selftests/vm/userfaultfd.c
++++ b/tools/testing/selftests/vm/userfaultfd.c
+@@ -60,6 +60,7 @@
+ #include <signal.h>
+ #include <poll.h>
+ #include <string.h>
++#include <linux/mman.h>
+ #include <sys/mman.h>
+ #include <sys/syscall.h>
+ #include <sys/ioctl.h>
 -- 
 2.34.1
 
