@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC7D4E284B
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:54:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E704E2897
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348223AbiCUNzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 09:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
+        id S1348336AbiCUOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:00:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347775AbiCUNzh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:55:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA92DF3;
-        Mon, 21 Mar 2022 06:54:12 -0700 (PDT)
+        with ESMTP id S1348697AbiCUN6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36E1B174B95;
+        Mon, 21 Mar 2022 06:56:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CD1B612A5;
-        Mon, 21 Mar 2022 13:54:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7997C340E8;
-        Mon, 21 Mar 2022 13:54:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34558B816DA;
+        Mon, 21 Mar 2022 13:56:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66DF6C340E8;
+        Mon, 21 Mar 2022 13:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647870851;
-        bh=Fd3GNLBWLpAQg28E20Y5JU8ZhkbdqyTX5nf57xBq0O4=;
+        s=korg; t=1647870968;
+        bh=i0Qo3fX/ApQqEBwCQ21tsIoIkznHhRd0w9qXkrP3dvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G96mgvT+CnCl2SgxqoknjEWlLFjIDR/IYMVfJPgKB1zVbspBX+5wOCF4XyLGsF0J/
-         w1ogzYmgHCW68pTf1DaqxBf16KzakWP1n3IQa4yJVPLn120KQxsrEHx2DPxOam3C8P
-         mmB6Uv3I5/z1fbGTFbTWV2CKbA5/PoxiKphJ5bB4=
+        b=xRwxjBIgz1DZMSohBg+H6dUqC6DUUeR1428WXwpZ/m1qIoqTOGx0OPXEJkL39Gdql
+         bHR0tstl6DNhd8KKaXPj4Jieqw0pxDQADFsSohxXeK/Y8ZarwApYSlOYgH+Jg0kEUE
+         +1P/o/5VlyLp/RloznbAuCaRaPtt61mvSgLcLJ68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
+        Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
+        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/22] net/packet: fix slab-out-of-bounds access in packet_recvmsg()
+Subject: [PATCH 4.19 06/57] arm64: dts: rockchip: fix rk3399-puma eMMC HS400 signal integrity
 Date:   Mon, 21 Mar 2022 14:51:47 +0100
-Message-Id: <20220321133218.086482158@linuxfoundation.org>
+Message-Id: <20220321133222.172580326@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.602054917@linuxfoundation.org>
-References: <20220321133217.602054917@linuxfoundation.org>
+In-Reply-To: <20220321133221.984120927@linuxfoundation.org>
+References: <20220321133221.984120927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,117 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
 
-[ Upstream commit c700525fcc06b05adfea78039de02628af79e07a ]
+[ Upstream commit 62966cbdda8a92f82d966a45aa671e788b2006f7 ]
 
-syzbot found that when an AF_PACKET socket is using PACKET_COPY_THRESH
-and mmap operations, tpacket_rcv() is queueing skbs with
-garbage in skb->cb[], triggering a too big copy [1]
+There are signal integrity issues running the eMMC at 200MHz on Puma
+RK3399-Q7.
 
-Presumably, users of af_packet using mmap() already gets correct
-metadata from the mapped buffer, we can simply make sure
-to clear 12 bytes that might be copied to user space later.
+Similar to the work-around found for RK3399 Gru boards, lowering the
+frequency to 100MHz made the eMMC much more stable, so let's lower the
+frequency to 100MHz.
 
-BUG: KASAN: stack-out-of-bounds in memcpy include/linux/fortify-string.h:225 [inline]
-BUG: KASAN: stack-out-of-bounds in packet_recvmsg+0x56c/0x1150 net/packet/af_packet.c:3489
-Write of size 165 at addr ffffc9000385fb78 by task syz-executor233/3631
+It might be possible to run at 150MHz as on RK3399 Gru boards but only
+100MHz was extensively tested.
 
-CPU: 0 PID: 3631 Comm: syz-executor233 Not tainted 5.17.0-rc7-syzkaller-02396-g0b3660695e80 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0xf/0x336 mm/kasan/report.c:255
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
- check_region_inline mm/kasan/generic.c:183 [inline]
- kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
- memcpy+0x39/0x60 mm/kasan/shadow.c:66
- memcpy include/linux/fortify-string.h:225 [inline]
- packet_recvmsg+0x56c/0x1150 net/packet/af_packet.c:3489
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_recvmsg net/socket.c:962 [inline]
- ____sys_recvmsg+0x2c4/0x600 net/socket.c:2632
- ___sys_recvmsg+0x127/0x200 net/socket.c:2674
- __sys_recvmsg+0xe2/0x1a0 net/socket.c:2704
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fdfd5954c29
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 41 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffcf8e71e48 EFLAGS: 00000246 ORIG_RAX: 000000000000002f
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fdfd5954c29
-RDX: 0000000000000000 RSI: 0000000020000500 RDI: 0000000000000005
-RBP: 0000000000000000 R08: 000000000000000d R09: 000000000000000d
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffcf8e71e60
-R13: 00000000000f4240 R14: 000000000000c1ff R15: 00007ffcf8e71e54
- </TASK>
-
-addr ffffc9000385fb78 is located in stack of task syz-executor233/3631 at offset 32 in frame:
- ____sys_recvmsg+0x0/0x600 include/linux/uio.h:246
-
-this frame has 1 object:
- [32, 160) 'addr'
-
-Memory state around the buggy address:
- ffffc9000385fa80: 00 04 f3 f3 f3 f3 f3 00 00 00 00 00 00 00 00 00
- ffffc9000385fb00: 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00
->ffffc9000385fb80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f3
-                                                                ^
- ffffc9000385fc00: f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00 f1
- ffffc9000385fc80: f1 f1 f1 00 f2 f2 f2 00 f2 f2 f2 00 00 00 00 00
-==================================================================
-
-Fixes: 0fb375fb9b93 ("[AF_PACKET]: Allow for > 8 byte hardware addresses.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220312232958.3535620-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Quentin Schulz <foss+kernel@0leil.net>
+Signed-off-by: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20220119134948.1444965-1-quentin.schulz@theobroma-systems.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 1381bfcb3cf0..92394595920c 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2285,8 +2285,11 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
- 					copy_skb = skb_get(skb);
- 					skb_head = skb->data;
- 				}
--				if (copy_skb)
-+				if (copy_skb) {
-+					memset(&PACKET_SKB_CB(copy_skb)->sa.ll, 0,
-+					       sizeof(PACKET_SKB_CB(copy_skb)->sa.ll));
- 					skb_set_owner_r(copy_skb, sk);
-+				}
- 			}
- 			snaplen = po->rx_ring.frame_size - macoff;
- 			if ((int)snaplen < 0) {
-@@ -3442,6 +3445,8 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	sock_recv_ts_and_drops(msg, sk, skb);
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+index b155f657292b..ce1320e4c106 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-puma.dtsi
+@@ -468,6 +468,12 @@
+ };
  
- 	if (msg->msg_name) {
-+		const size_t max_len = min(sizeof(skb->cb),
-+					   sizeof(struct sockaddr_storage));
- 		int copy_len;
- 
- 		/* If the address length field is there to be filled
-@@ -3464,6 +3469,10 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 				msg->msg_namelen = sizeof(struct sockaddr_ll);
- 			}
- 		}
-+		if (WARN_ON_ONCE(copy_len > max_len)) {
-+			copy_len = max_len;
-+			msg->msg_namelen = copy_len;
-+		}
- 		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
- 	}
- 
+ &sdhci {
++	/*
++	 * Signal integrity isn't great at 200MHz but 100MHz has proven stable
++	 * enough.
++	 */
++	max-frequency = <100000000>;
++
+ 	bus-width = <8>;
+ 	mmc-hs400-1_8v;
+ 	mmc-hs400-enhanced-strobe;
 -- 
 2.34.1
 
