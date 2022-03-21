@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA204E2A1D
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:13:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB79C4E2941
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348793AbiCUONt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:13:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
+        id S1348824AbiCUOEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:04:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349353AbiCUOIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:08:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1BB179417;
-        Mon, 21 Mar 2022 07:02:44 -0700 (PDT)
+        with ESMTP id S1348919AbiCUODK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FBC33FBF9;
+        Mon, 21 Mar 2022 06:59:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DA31B816C8;
-        Mon, 21 Mar 2022 14:02:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F059C340F2;
-        Mon, 21 Mar 2022 14:02:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C9CEB816E3;
+        Mon, 21 Mar 2022 13:59:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B04C6C340E8;
+        Mon, 21 Mar 2022 13:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871361;
-        bh=kK0ExYZAsFXBMqVa2Gyws0IcFssO//gPc8Ps9AhPX5E=;
+        s=korg; t=1647871196;
+        bh=jbi74pirWmIJryKTHRKMdiKZsXWXK+wLnFhWCEPB59E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FsG9N5D4pym0LpAUPh6XLrr7zO9bpg5P1PhoBUO6y1FkCEKSCvLsBS4QVJULoOa0Y
-         tRwseAkfTf1TWTzte5wfQtgECRo1NA91uHQWlRDiZgnvezioMD+S24BxEki0kTtsRn
-         IbXtmih4bsk/iDgtBDPdtq6lHHVuMNZCn9nxQPDA=
+        b=I8PQMFrJCjHMeX8Am5DIMHgAgrKLK2FUe4gglGJoRLLgsUsUFO5/Nv7mhi2Kbx/LN
+         JGv7UDpfKRl69FQClN87Bsc9m8fEjxBWJwS8YTXYEVs1rgglB+rdgEfaNOuFh2fPyB
+         s9pkm2Ma85ww/0memxmdl53LDCDsLlVdhLlGRjJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        James Morse <james.morse@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 07/37] alx: acquire mutex for alx_reinit in alx_change_mtu
+Subject: [PATCH 5.10 19/30] arm64: fix clang warning about TRAMP_VALIAS
 Date:   Mon, 21 Mar 2022 14:52:49 +0100
-Message-Id: <20220321133221.507932995@linuxfoundation.org>
+Message-Id: <20220321133220.201591833@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
-References: <20220321133221.290173884@linuxfoundation.org>
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 46b348fd2d81a341b15fb3f3f986204b038f5c42 ]
+[ Upstream commit 7f34b43e07cb512b28543fdcb9f35d1fbfda9ebc ]
 
-alx_reinit has a lockdep assertion that the alx->mtx mutex must be held.
-alx_reinit is called from two places: alx_reset and alx_change_mtu.
-alx_reset does acquire alx->mtx before calling alx_reinit.
-alx_change_mtu does not acquire this mutex, nor do its callers or any
-path towards alx_change_mtu.
-Acquire the mutex in alx_change_mtu.
+The newly introduced TRAMP_VALIAS definition causes a build warning
+with clang-14:
 
-The issue was introduced when the fine-grained locking was introduced
-to the code to replace the RTNL. The same commit also introduced the
-lockdep assertion.
+arch/arm64/include/asm/vectors.h:66:31: error: arithmetic on a null pointer treated as a cast from integer to pointer is a GNU extension [-Werror,-Wnull-pointer-arithmetic]
+                return (char *)TRAMP_VALIAS + SZ_2K * slot;
 
-Fixes: 4a5fe57e7751 ("alx: use fine-grained locking instead of RTNL")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Link: https://lore.kernel.org/r/20220310232707.44251-1-dossche.niels@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Change the addition to something clang does not complain about.
+
+Fixes: bd09128d16fa ("arm64: Add percpu vectors for EL1")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/20220316183833.1563139-1-arnd@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/atheros/alx/main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/vectors.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/atheros/alx/main.c b/drivers/net/ethernet/atheros/alx/main.c
-index 4ad3fc72e74e..a89b93cb4e26 100644
---- a/drivers/net/ethernet/atheros/alx/main.c
-+++ b/drivers/net/ethernet/atheros/alx/main.c
-@@ -1181,8 +1181,11 @@ static int alx_change_mtu(struct net_device *netdev, int mtu)
- 	alx->hw.mtu = mtu;
- 	alx->rxbuf_size = max(max_frame, ALX_DEF_RXBUF_SIZE);
- 	netdev_update_features(netdev);
--	if (netif_running(netdev))
-+	if (netif_running(netdev)) {
-+		mutex_lock(&alx->mtx);
- 		alx_reinit(alx);
-+		mutex_unlock(&alx->mtx);
-+	}
- 	return 0;
- }
+diff --git a/arch/arm64/include/asm/vectors.h b/arch/arm64/include/asm/vectors.h
+index f64613a96d53..bc9a2145f419 100644
+--- a/arch/arm64/include/asm/vectors.h
++++ b/arch/arm64/include/asm/vectors.h
+@@ -56,14 +56,14 @@ enum arm64_bp_harden_el1_vectors {
+ DECLARE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector);
+ 
+ #ifndef CONFIG_UNMAP_KERNEL_AT_EL0
+-#define TRAMP_VALIAS	0
++#define TRAMP_VALIAS	0ul
+ #endif
+ 
+ static inline const char *
+ arm64_get_bp_hardening_vector(enum arm64_bp_harden_el1_vectors slot)
+ {
+ 	if (arm64_kernel_unmapped_at_el0())
+-		return (char *)TRAMP_VALIAS + SZ_2K * slot;
++		return (char *)(TRAMP_VALIAS + SZ_2K * slot);
+ 
+ 	WARN_ON_ONCE(slot == EL1_VECTOR_KPTI);
  
 -- 
 2.34.1
