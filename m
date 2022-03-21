@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 991AD4E288B
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 624334E2972
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348152AbiCUN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 09:59:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59284 "EHLO
+        id S1346759AbiCUOEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:04:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349118AbiCUN7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:59:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A471764C;
-        Mon, 21 Mar 2022 06:57:50 -0700 (PDT)
+        with ESMTP id S1349001AbiCUODO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A6DE17585F;
+        Mon, 21 Mar 2022 07:00:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD3CA6126A;
-        Mon, 21 Mar 2022 13:57:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8C80C340E8;
-        Mon, 21 Mar 2022 13:57:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75979B816E6;
+        Mon, 21 Mar 2022 14:00:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB71FC340E8;
+        Mon, 21 Mar 2022 14:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871069;
-        bh=JBwT2FpWuW+DXrzrhNxMCQ2pX1GZUCBphhPILV5OTbU=;
+        s=korg; t=1647871207;
+        bh=qPfk6gLyWnnbd5V+f6dbSOSO0L4BM1LgWP0BU6fEpnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXqbDg7l+fn4GsmxsJ5hi0BssIi07/caBCeAhk+Hel+SqackmIkIiOQx8ebVbqvhs
-         smo58B9oISV20GFC8IWCcw1MxVbSQQ7umhSjL32SBHpQF6lEyZa8MkyROiwLTuDD5A
-         DnSHtX7iKJ5tpHBeh/hzGTnO82q7pruat6iZ2vQI=
+        b=qnn55/LAakvDvJVCH9UdzbupZ8SSYbO3aurCm0x8z22lN1wlUpAPyP6h007PUD85U
+         qXTZvqmRwmW7Bet+ldj+2v6ueeW4WnMqp6hszhsnBPYGItREQRrsn177r7FrpVxNI2
+         pzKh+trKIHgaL3t/wAKyJ2yFYCn9MLyno/QGHjE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.4 12/17] usb: gadget: rndis: prevent integer overflow in rndis_set_response()
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 12/32] atm: eni: Add check for dma_map_single
 Date:   Mon, 21 Mar 2022 14:52:48 +0100
-Message-Id: <20220321133217.511729578@linuxfoundation.org>
+Message-Id: <20220321133220.919335820@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133217.148831184@linuxfoundation.org>
-References: <20220321133217.148831184@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 65f3324f4b6fed78b8761c3b74615ecf0ffa81fa upstream.
+[ Upstream commit 0f74b29a4f53627376cf5a5fb7b0b3fa748a0b2b ]
 
-If "BufOffset" is very large the "BufOffset + 8" operation can have an
-integer overflow.
+As the potential failure of the dma_map_single(),
+it should be better to check it and return error
+if fails.
 
-Cc: stable@kernel.org
-Fixes: 38ea1eac7d88 ("usb: gadget: rndis: check size of RNDIS_MSG_SET command")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20220301080424.GA17208@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/rndis.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/atm/eni.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/function/rndis.c
-+++ b/drivers/usb/gadget/function/rndis.c
-@@ -640,6 +640,7 @@ static int rndis_set_response(struct rnd
- 	BufLength = le32_to_cpu(buf->InformationBufferLength);
- 	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
- 	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
-+	    (BufOffset > RNDIS_MAX_TOTAL_SIZE) ||
- 	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
- 		    return -EINVAL;
- 
+diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
+index 422753d52244..a31ffe16e626 100644
+--- a/drivers/atm/eni.c
++++ b/drivers/atm/eni.c
+@@ -1112,6 +1112,8 @@ DPRINTK("iovcnt = %d\n",skb_shinfo(skb)->nr_frags);
+ 	skb_data3 = skb->data[3];
+ 	paddr = dma_map_single(&eni_dev->pci_dev->dev,skb->data,skb->len,
+ 			       DMA_TO_DEVICE);
++	if (dma_mapping_error(&eni_dev->pci_dev->dev, paddr))
++		return enq_next;
+ 	ENI_PRV_PADDR(skb) = paddr;
+ 	/* prepare DMA queue entries */
+ 	j = 0;
+-- 
+2.34.1
+
 
 
