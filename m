@@ -2,57 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6635C4E290A
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A0D4E2974
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:04:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348505AbiCUOBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:01:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34024 "EHLO
+        id S1348672AbiCUOFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:05:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348403AbiCUOAF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:00:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B1F35DD8;
-        Mon, 21 Mar 2022 06:58:38 -0700 (PDT)
+        with ESMTP id S1348801AbiCUODx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:03:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 338EA3EAA0;
+        Mon, 21 Mar 2022 07:01:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E2D36125C;
-        Mon, 21 Mar 2022 13:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ED5DC340E8;
-        Mon, 21 Mar 2022 13:58:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4A25B816C8;
+        Mon, 21 Mar 2022 14:01:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1103DC340E8;
+        Mon, 21 Mar 2022 14:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871117;
-        bh=wCtlhzyVh7eEx2vCINhC9Y7uEvjVr+GVgYMntv5pJWI=;
+        s=korg; t=1647871273;
+        bh=np3PsbtFyilrKjrzx10d3sqVMIWHD2rFyiUwMPptA/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7RYhEMU13gqWKYuL1r7Fv5wocoxzOW1jthULM6ac8iUJQLxaqer5bc7TyUUmqjk4
-         zmtYsP5FdlEc/FQKspf3YlOzyV4TExU12rJc9x5DEbyA+6yvIyw//ec733V3DfKXwN
-         QvTWrWL/HEOnX6JRxLoBb7UNjjKucVKSbpQui5yI=
+        b=vTH7l3TN+zMwsthm2JMg7hhZxbdjwUNjD5GAfJ9EpaFetToKXiJ661V14e1kiFxkC
+         ncnKumL/cY/FCO2dYzBg3n45BFSGQ+VlWmJ/bRLYDOM6hUMaAa+brMBrEzSajDeMVZ
+         cta0+MIccjiEe/2gZ+KbyyNBXgtkdu+khtB8/Oe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Marek Vasut <marex@denx.de>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Max Krummenacher <max.krummenacher@toradex.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 11/30] drm/imx: parallel-display: Remove bus flags check in imx_pd_bridge_atomic_check()
+        stable@vger.kernel.org, Jocelyn Falempe <jfalempe@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.15 05/32] drm/mgag200: Fix PLL setup for g200wb and g200ew
 Date:   Mon, 21 Mar 2022 14:52:41 +0100
-Message-Id: <20220321133219.974486080@linuxfoundation.org>
+Message-Id: <20220321133220.719518534@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
-References: <20220321133219.643490199@linuxfoundation.org>
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+References: <20220321133220.559554263@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,68 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+From: Jocelyn Falempe <jfalempe@redhat.com>
 
-[ Upstream commit 6061806a863e8b65b109eb06a280041cc7525442 ]
+commit 40ce1121c1d76daf9048a86e36c83e469281b9fd upstream.
 
-If display timings were read from the devicetree using
-of_get_display_timing() and pixelclk-active is defined
-there, the flag DISPLAY_FLAGS_SYNC_POSEDGE/NEGEDGE is
-automatically generated. Through the function
-drm_bus_flags_from_videomode() e.g. called in the
-panel-simple driver this flag got into the bus flags,
-but then in imx_pd_bridge_atomic_check() the bus flag
-check failed and will not initialize the display. The
-original commit fe141cedc433 does not explain why this
-check was introduced. So remove the bus flags check,
-because it stops the initialization of the display with
-valid bus flags.
+commit f86c3ed55920 ("drm/mgag200: Split PLL setup into compute and
+ update functions") introduced a regression for g200wb and g200ew.
+The PLLs are not set up properly, and VGA screen stays
+black, or displays "out of range" message.
 
-Fixes: fe141cedc433 ("drm/imx: pd: Use bus format/flags provided by the bridge when available")
-Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Cc: Marek Vasut <marex@denx.de>
-Cc: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: linux-arm-kernel@lists.infradead.org
-To: dri-devel@lists.freedesktop.org
-Tested-by: Max Krummenacher <max.krummenacher@toradex.com>
-Acked-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220201113643.4638-1-cniedermaier@dh-electronics.com
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+MGA1064_WB_PIX_PLLC_N/M/P was mistakenly replaced with
+MGA1064_PIX_PLLC_N/M/P which have different addresses.
+
+Patch tested on a Dell T310 with g200wb
+
+Fixes: f86c3ed55920 ("drm/mgag200: Split PLL setup into compute and update functions")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220308174321.225606-1-jfalempe@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/imx/parallel-display.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_pll.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
-index 2eb8df4697df..605ac8825a59 100644
---- a/drivers/gpu/drm/imx/parallel-display.c
-+++ b/drivers/gpu/drm/imx/parallel-display.c
-@@ -212,14 +212,6 @@ static int imx_pd_bridge_atomic_check(struct drm_bridge *bridge,
- 	if (!imx_pd_format_supported(bus_fmt))
- 		return -EINVAL;
+--- a/drivers/gpu/drm/mgag200/mgag200_pll.c
++++ b/drivers/gpu/drm/mgag200/mgag200_pll.c
+@@ -404,9 +404,9 @@ mgag200_pixpll_update_g200wb(struct mgag
+ 		udelay(50);
  
--	if (bus_flags &
--	    ~(DRM_BUS_FLAG_DE_LOW | DRM_BUS_FLAG_DE_HIGH |
--	      DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE |
--	      DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)) {
--		dev_warn(imxpd->dev, "invalid bus_flags (%x)\n", bus_flags);
--		return -EINVAL;
--	}
--
- 	bridge_state->output_bus_cfg.flags = bus_flags;
- 	bridge_state->input_bus_cfg.flags = bus_flags;
- 	imx_crtc_state->bus_flags = bus_flags;
--- 
-2.34.1
-
+ 		/* program pixel pll register */
+-		WREG_DAC(MGA1064_PIX_PLLC_N, xpixpllcn);
+-		WREG_DAC(MGA1064_PIX_PLLC_M, xpixpllcm);
+-		WREG_DAC(MGA1064_PIX_PLLC_P, xpixpllcp);
++		WREG_DAC(MGA1064_WB_PIX_PLLC_N, xpixpllcn);
++		WREG_DAC(MGA1064_WB_PIX_PLLC_M, xpixpllcm);
++		WREG_DAC(MGA1064_WB_PIX_PLLC_P, xpixpllcp);
+ 
+ 		udelay(50);
+ 
 
 
