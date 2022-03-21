@@ -2,72 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BF844E2AD8
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 171224E2B26
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346944AbiCUOeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:34:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57800 "EHLO
+        id S1349572AbiCUOrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:47:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349846AbiCUOdK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:33:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DCDA1AF;
-        Mon, 21 Mar 2022 07:30:31 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 019D0B8170B;
-        Mon, 21 Mar 2022 14:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22526C340EE;
-        Mon, 21 Mar 2022 14:30:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647873028;
-        bh=BJoJxM62oVu3PvwNK+c15fauttUCWAVfzzp/YPFUujo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qMJEj8Zo3BFaBw5Q+l5pug8Oa22PK9dZbWcMe5AZda5rqrEYZ9Q0GqaeZYcv6+vY0
-         hWLJ/CgZbWa1zThm38J7rqx0Qn2DSBAUKLS1squ35QlSdse+oWuIHOXT/LF4V1JzAx
-         /3J374DD0Ze1ReNwYDnSDVRhfdgPSt4acP5ab1efSe4YY8SZrusWmMX+eqlIXHw2qn
-         QwAqDNyi5hKLk3Em2C761jdzMrwE1znLJU7qDV6YR1/HxqATZ4pBrW1RB9FpqAlyRz
-         g7v6Jfh4CdtdXjXA5SOZBZ7BLx9odpD2PRdGtyTmkiu9ntV+iCKPvSz/mCPx7xozeS
-         X+Qam1RbisLAQ==
-Date:   Mon, 21 Mar 2022 14:30:22 +0000
-From:   Will Deacon <will@kernel.org>
-To:     Sudeep Holla <sudeep.holla@arm.com>
-Cc:     Darren Hart <darren@os.amperecomputing.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org, Barry Song <21cnbao@gmail.com>
-Subject: Re: [PATCH v3] topology: make core_mask include at least
- cluster_siblings
-Message-ID: <20220321143021.GB11145@willie-the-truck>
-References: <CAKfTPtDe+i0fwV10m2sX2xkJGBrO8B+RQogDDij8ioJAT5+wAw@mail.gmail.com>
- <e91bcc83-37c8-dcca-e088-8b3fcd737b2c@arm.com>
- <YieXQD7uG0+R5QBq@fedora>
- <7ac47c67-0b5e-5caa-20bb-a0100a0cb78f@arm.com>
- <YijxUAuufpBKLtwy@fedora>
- <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
- <Yi9zUuroS1vHWexY@fedora>
- <eb33745a-9d63-89b1-1245-9d1e0e04a169@arm.com>
- <YjIAQKwfa3/vr/kU@fedora>
- <YjIIfS6HkvlrdAHS@bogus>
+        with ESMTP id S1349569AbiCUOrK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:47:10 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D88813D1F4
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 07:45:44 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id bx24-20020a17090af49800b001c6872a9e4eso10530417pjb.5
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 07:45:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:from:subject:to:cc
+         :content-language:content-transfer-encoding;
+        bh=aFtzHukDOsPh7oen/B4JvLuKORG3UNcB0KYqjhFfi0M=;
+        b=Hi2UfaQ3RJtABhMxIXoCgcH2zJW3h3SOTzhmNhYw+0Q9b0FtGHGxLH2Rh30IqgPZNw
+         ZOfw4P4gBX9EmqO2PisZWwgon51ROeIAMkCd/uhCd37GH+zpJTd3SQCr6fTEOUbi4vPD
+         MO4fh8S57kvZLaqS7FS/umbpIaj5KigW0zyGIOB7XZiwa+irQmVda2GIKqkwP73tmXJe
+         PANbIsOxgbGcBm75P3T58Sd9cSTW6stpQmBGCtmaND8JzYbhOoab8sfzaYsinEbQiBp8
+         HbBBZ9Ei2wuLIl46nEa+3EBP9nRBh43X5iUiunjBN3cWnwdr3Omw0xKGy7XfipcDcnIN
+         72xQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
+         :subject:to:cc:content-language:content-transfer-encoding;
+        bh=aFtzHukDOsPh7oen/B4JvLuKORG3UNcB0KYqjhFfi0M=;
+        b=tmPrc7oIewknn6DScYxGq4j3BFH2rptf2crxZe65bJvw6xaiNL2esSTQq7L5SnsZB3
+         eZh0aYylouswpucR46LW1ToIpfP1Y9ZtTdRWExYFcYt2qavzgn4vx7QSDOAdvmulfGQV
+         /hH1I4ywh8LqJ2MlUibKR0S/9YapDDrOAjubI+cOy/wg/UMGqlQ5xJJF8gJTpT05KljM
+         6mwBemGGzJTd/yBYiZXvN1PNaAFDzGks1vJ7T0AhvGzhbFaHKFLGnh5nbLC7RI+ZCV2d
+         n4gltQEbO4Ay214GGQfW1n14gWoV9FNChA737t7IW7zzHDYlFPhRiTU5t7vQIk/bbYAw
+         /RiQ==
+X-Gm-Message-State: AOAM532fIrf8gG374rJxo5bXA4+J4+bZaLA9wXkNBKAMdJptAoj802ZH
+        HInwH7dblj1iIelS18TEkOAe8Z1gXwv5Ig==
+X-Google-Smtp-Source: ABdhPJx/CEdsWkzqSdBvMtPn/oyRpsIriWlug1FWslnVxxagoCiwXmx0u8rRxKN7SlxC1vEOaVltEw==
+X-Received: by 2002:a17:902:f68e:b0:154:6518:69ba with SMTP id l14-20020a170902f68e00b00154651869bamr3586480plg.60.1647873944044;
+        Mon, 21 Mar 2022 07:45:44 -0700 (PDT)
+Received: from [192.168.254.36] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id t6-20020a63b246000000b0038085c0a9d7sm14812383pgo.49.2022.03.21.07.45.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Mar 2022 07:45:43 -0700 (PDT)
+Message-ID: <4a96a044-5743-5a33-9812-bda4c12f0a25@linaro.org>
+Date:   Mon, 21 Mar 2022 07:45:42 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YjIIfS6HkvlrdAHS@bogus>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: apply commit net: ipv6: fix skb_over_panic in __ip6_append_data to
+ stable
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,31 +71,13 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 16, 2022 at 03:55:41PM +0000, Sudeep Holla wrote:
-> On Wed, Mar 16, 2022 at 08:20:32AM -0700, Darren Hart wrote:
-> > On Wed, Mar 16, 2022 at 03:48:50PM +0100, Dietmar Eggemann wrote:
-> 
-> [...]
-> 
-> > >
-> > > Yeah, I can see your point. It's the smaller hack. My solution just
-> > > prevents us to manipulate the coregroup mask only to get the MC layer
-> > > degenerated by the core topology code. But people might say that's a
-> > > clever thing to do here. So I'm fine with your original solution as well.
-> > >
-> > > [...]
-> >
-> > Thanks Dietmar,
-> >
-> > Sudeep, do we have sufficient consensus to pull in this patch?
-> 
-> Indeed. I have already Acked, and sure after all these discussions we have
-> concluded that this is the best we can do though not matches everyone's taste.
-> 
-> Greg or Will(not sure why he had asked since v3 doesn't touch arm64),
-> Can one of you pick this patch ?
+Hi,
+Please apply commit
+5e34af4142ff ("net: ipv6: fix skb_over_panic in __ip6_append_data")
+to stable: 5.15, 5.10, 5.4, 4.19, 4.14, 4.9.
+It applies to all versions.
 
-Right, this doesn't touch arm64 any more so I don't think I'm the right
-person to queue it.
+-- 
+Thanks,
+Tadeusz
 
-Will
