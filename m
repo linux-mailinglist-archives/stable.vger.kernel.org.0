@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA0DC4E2896
-	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 14:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C2454E291A
+	for <lists+stable@lfdr.de>; Mon, 21 Mar 2022 15:00:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348385AbiCUOAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 10:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44996 "EHLO
+        id S1348662AbiCUOBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 10:01:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348973AbiCUN6p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 09:58:45 -0400
+        with ESMTP id S1348692AbiCUOBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 10:01:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4BF1717A9;
-        Mon, 21 Mar 2022 06:56:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2725D40E79;
+        Mon, 21 Mar 2022 06:59:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CED88B816D2;
-        Mon, 21 Mar 2022 13:56:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8BD0C340E8;
-        Mon, 21 Mar 2022 13:56:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A591B816D8;
+        Mon, 21 Mar 2022 13:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF7A1C36AE7;
+        Mon, 21 Mar 2022 13:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647871012;
-        bh=rTpAFxWKjUXl+FS6u1hAIHGN6xs3GKhIshiVpQ53tVk=;
+        s=korg; t=1647871140;
+        bh=gBv0ktP47tMp4zSS382fSjACWfsSnLnoTOPO5fvY1FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Irc7t7SrXzQ0UNxCyDTNR1BQSkhPNXjy3IbFiqrI2NzqfDOboxVERMh1wCgQEUnGG
-         rWbCA9JWLFmZrWADrWfqJYeF8z/NCkv9NDDLKo8BA9UaUrMjXbctUBIn6QMYJxk1PF
-         eKK6F83G0WDTV7fjKHWHHqPQf29xOzYgifj7InGM=
+        b=V1ZbVR9vJ7Wg3HL+nob/EO1vYbtVvDnSMkpheDtpWdGgDR9yMk9XB30NFOIfAkZS+
+         KRv18D+0ITToajbNW63rjJkHDsAKGm8T6oBJDW3hilCIHiabywAmxbOdp2MSXPzAzw
+         eFqHxyFdQzeS33R5E2r84awuFpduPNRpUW15jyuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/57] hv_netvsc: Add check for kvmalloc_array
-Date:   Mon, 21 Mar 2022 14:52:31 +0100
-Message-Id: <20220321133223.437365137@linuxfoundation.org>
+        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 02/30] ocfs2: fix crash when initialize filecheck kobj fails
+Date:   Mon, 21 Mar 2022 14:52:32 +0100
+Message-Id: <20220321133219.717685948@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220321133221.984120927@linuxfoundation.org>
-References: <20220321133221.984120927@linuxfoundation.org>
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+References: <20220321133219.643490199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +59,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-[ Upstream commit 886e44c9298a6b428ae046e2fa092ca52e822e6a ]
+commit 7b0b1332cfdb94489836b67d088a779699f8e47e upstream.
 
-As the potential failure of the kvmalloc_array(),
-it should be better to check and restore the 'data'
-if fails in order to avoid the dereference of the
-NULL pointer.
+Once s_root is set, genric_shutdown_super() will be called if
+fill_super() fails.  That means, we will call ocfs2_dismount_volume()
+twice in such case, which can lead to kernel crash.
 
-Fixes: 6ae746711263 ("hv_netvsc: Add per-cpu ethtool stats for netvsc")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220314020125.2365084-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this issue by initializing filecheck kobj before setting s_root.
+
+Link: https://lkml.kernel.org/r/20220310081930.86305-1-joseph.qi@linux.alibaba.com
+Fixes: 5f483c4abb50 ("ocfs2: add kobject for online file check")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ocfs2/super.c |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 2dff0e110c6f..f094e4bc2175 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -1454,6 +1454,9 @@ static void netvsc_get_ethtool_stats(struct net_device *dev,
- 	pcpu_sum = kvmalloc_array(num_possible_cpus(),
- 				  sizeof(struct netvsc_ethtool_pcpu_stats),
- 				  GFP_KERNEL);
-+	if (!pcpu_sum)
-+		return;
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1110,17 +1110,6 @@ static int ocfs2_fill_super(struct super
+ 		goto read_super_error;
+ 	}
+ 
+-	root = d_make_root(inode);
+-	if (!root) {
+-		status = -ENOMEM;
+-		mlog_errno(status);
+-		goto read_super_error;
+-	}
+-
+-	sb->s_root = root;
+-
+-	ocfs2_complete_mount_recovery(osb);
+-
+ 	osb->osb_dev_kset = kset_create_and_add(sb->s_id, NULL,
+ 						&ocfs2_kset->kobj);
+ 	if (!osb->osb_dev_kset) {
+@@ -1138,6 +1127,17 @@ static int ocfs2_fill_super(struct super
+ 		goto read_super_error;
+ 	}
+ 
++	root = d_make_root(inode);
++	if (!root) {
++		status = -ENOMEM;
++		mlog_errno(status);
++		goto read_super_error;
++	}
 +
- 	netvsc_get_pcpu_stats(dev, pcpu_sum);
- 	for_each_present_cpu(cpu) {
- 		struct netvsc_ethtool_pcpu_stats *this_sum = &pcpu_sum[cpu];
--- 
-2.34.1
-
++	sb->s_root = root;
++
++	ocfs2_complete_mount_recovery(osb);
++
+ 	if (ocfs2_mount_local(osb))
+ 		snprintf(nodestr, sizeof(nodestr), "local");
+ 	else
 
 
