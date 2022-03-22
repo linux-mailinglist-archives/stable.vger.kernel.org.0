@@ -2,105 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F017B4E3B6A
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 10:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4790E4E3B66
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 10:04:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232251AbiCVJF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 05:05:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57202 "EHLO
+        id S232167AbiCVJFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 05:05:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231705AbiCVJFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 05:05:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4634E3ED23;
-        Tue, 22 Mar 2022 02:03:54 -0700 (PDT)
+        with ESMTP id S232248AbiCVJFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 05:05:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CB20424A3
+        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 02:04:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B592561660;
-        Tue, 22 Mar 2022 09:03:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B053C340EC;
-        Tue, 22 Mar 2022 09:03:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 357F2B81C16
+        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 09:04:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D110C340EC;
+        Tue, 22 Mar 2022 09:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1647939833;
-        bh=fjzX2BdQHdr3ZaSisD0rP9IQyxDRzYITaNP9a8Lv4Uw=;
+        s=korg; t=1647939849;
+        bh=rAdir3hSuMDDc4NWjkYfnX62NouGOIG2yE0MKoFz5Oc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VKlKsR5IXWOK5v94DA2C7CBG4kD+8/4ucEdUKjxK0HshUFGD4Ks3nqTpoKYYNUQQh
-         yFtaZUUaskv9i6EnHrmuxKqTOXP6RanGWgGLeztREGm12HEbFhNb4uz9dg9irRll0H
-         oHHKGUokk775vkKikfm5va1HmL7KjWTWFAkl+nSA=
-Date:   Mon, 21 Mar 2022 16:56:08 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Will Deacon <will@kernel.org>
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Darren Hart <darren@os.amperecomputing.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org, Barry Song <21cnbao@gmail.com>
-Subject: Re: [PATCH v3] topology: make core_mask include at least
- cluster_siblings
-Message-ID: <YjigGBypwjzHFRQz@kroah.com>
-References: <e91bcc83-37c8-dcca-e088-8b3fcd737b2c@arm.com>
- <YieXQD7uG0+R5QBq@fedora>
- <7ac47c67-0b5e-5caa-20bb-a0100a0cb78f@arm.com>
- <YijxUAuufpBKLtwy@fedora>
- <9398d7ad-30e7-890a-3e18-c3011c383585@arm.com>
- <Yi9zUuroS1vHWexY@fedora>
- <eb33745a-9d63-89b1-1245-9d1e0e04a169@arm.com>
- <YjIAQKwfa3/vr/kU@fedora>
- <YjIIfS6HkvlrdAHS@bogus>
- <20220321143021.GB11145@willie-the-truck>
+        b=rdX6ydgmt4Em9QQOJCc8NxdRdHgsjE8xsGEISkAXs46iN0faEGgCWy+sisawMpMRx
+         aAqu5QjrvmGHvTjFE4izI/enqr2HBO61mocARwcBGycbya9osViENDQje3/JyUY1yZ
+         L60SjSdlWgTAIktRIXz2ceQUeW1uCBtiQjaMSuJs=
+Date:   Tue, 22 Mar 2022 09:02:15 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Vaibhav Rustagi <vaibhavrustagi@google.com>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>, steffen.klassert@secunet.com
+Subject: Re: Cherry-pick request to fix CVE-2022-0886 in v5.10 and v5.4
+Message-ID: <YjmCh1SPUOJjM7Rf@kroah.com>
+References: <CAMVonLjSP4cxtfahDORXG-b6K=ps+wN652hcrxgo70YU+eP5iA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220321143021.GB11145@willie-the-truck>
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <CAMVonLjSP4cxtfahDORXG-b6K=ps+wN652hcrxgo70YU+eP5iA@mail.gmail.com>
+X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 21, 2022 at 02:30:22PM +0000, Will Deacon wrote:
-> On Wed, Mar 16, 2022 at 03:55:41PM +0000, Sudeep Holla wrote:
-> > On Wed, Mar 16, 2022 at 08:20:32AM -0700, Darren Hart wrote:
-> > > On Wed, Mar 16, 2022 at 03:48:50PM +0100, Dietmar Eggemann wrote:
-> > 
-> > [...]
-> > 
-> > > >
-> > > > Yeah, I can see your point. It's the smaller hack. My solution just
-> > > > prevents us to manipulate the coregroup mask only to get the MC layer
-> > > > degenerated by the core topology code. But people might say that's a
-> > > > clever thing to do here. So I'm fine with your original solution as well.
-> > > >
-> > > > [...]
-> > >
-> > > Thanks Dietmar,
-> > >
-> > > Sudeep, do we have sufficient consensus to pull in this patch?
-> > 
-> > Indeed. I have already Acked, and sure after all these discussions we have
-> > concluded that this is the best we can do though not matches everyone's taste.
-> > 
-> > Greg or Will(not sure why he had asked since v3 doesn't touch arm64),
-> > Can one of you pick this patch ?
+On Mon, Mar 21, 2022 at 06:49:02PM -0700, Vaibhav Rustagi wrote:
+> Hi Greg,
 > 
-> Right, this doesn't touch arm64 any more so I don't think I'm the right
-> person to queue it.
+> To fix CVE-2022-0886 in v5.10 and v5.4, we need to cherry-pick the
+> commit "esp: Fix possible buffer overflow in ESP transformation"
+> (ebe48d368e97d007bfeb76fcb065d6cfc4c96645). The commit didn't apply
+> cleanly in v5.10 and v5.4 and therefore, patches for both the kernel
+> versions are attached.
+> 
+> In order to backport the original commit, following changes are done:
+> 
+>  - v5.10:
+>     - "SKB_FRAG_PAGE_ORDER" declaration is moved from
+> "net/core/sock.c" to "include/net/sock.c"
 
-It's too late for 5.18-rc1.  Please rebase and resend it after that is
-out and I will be glad to queue it up.
+Did you see that this is already in the 5.10 queue and out for review
+right now?  Can you verify that the backport there matches yours?
+
+>  - v5.4:
+>     - "SKB_FRAG_PAGE_ORDER" declaration is moved from
+> "net/core/sock.c" to "include/net/sock.c"
+>     - Ignore changes introduced due to `xfrm: add support for UDPv6
+> encapsulation of ESP` in esp6_output_head()
+
+Thanks for this one, I'll queue it up after this next round of releases.
+What about 4.14 and 4.19?  Will this backport work there?  If not, can
+you provide a working one?
 
 thanks,
 
