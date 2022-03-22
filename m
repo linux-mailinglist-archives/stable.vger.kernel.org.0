@@ -2,66 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D874E36B8
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 03:36:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB65B4E36C1
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 03:40:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235439AbiCVChD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 22:37:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39252 "EHLO
+        id S235609AbiCVClW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 22:41:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235438AbiCVChC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 22:37:02 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A07E1CFDE
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 19:35:34 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id k14so658805pga.0
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 19:35:34 -0700 (PDT)
+        with ESMTP id S235474AbiCVClV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 22:41:21 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B10EB1D30C
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 19:39:54 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id bc27so11640093pgb.4
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 19:39:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=message-id:date:mime-version:user-agent:subject:content-language:to
          :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=S6Jgc7aBpf/768ixumeVgNXvWvNNM1HOkw4ChK7eyOU=;
-        b=cWSkwhuYJYaUCVyPKabZS1UmBl8TGIAsCdJTxM9L/Dwa6n5dXcdNP8fPJFKAywOD0y
-         pJtxfqHE3uPeZk/6FMlZpo4ElzCqfpZTvqZfzGoSJq8od4d0WvILtx46rZZwn8yDMCs6
-         O0a7dw/ZEsJKjH0cKiWPAJxtnzOxV4ibCrM9Z7O8+08/RlBQabarw/PB34I1Iyt+7+U1
-         bGbScdeOCtsWZEUDKPSLdH2bG6eo9TYBoZzrlCKQmLjfXoG1ChnvQ+TntVHOWW50dYnW
-         G8xSEBjPSmiK6A3NPDLVVc9vex/uGlZHxbN4IpN9li0X3AqMnZxp1HE6BItQznA0egxa
-         3VWA==
+        bh=4zT38W/g3Nlr5yWulzhtGBybnz/7yz2x7YGjZPuQI/k=;
+        b=hLL+roDqm7W+xRi4+GuFdSbzPUWo+gNAt1Gqr4yhI0t7jOMmtUqkePjf7KzLpBk0pL
+         Idc2bZIftCtqRbxz6i/KxPJ1R2oyrpdtnb9ajbPnCYYTfZIoR74Vf4lNNIz0lb7+HxAB
+         G6T3QSVPfLtOds39XblzMmg/lTluBuIZO4gp9463lekRxwUD8b8g8WMZFV8dG1fR6Dlt
+         56Kt7EPUmQsE3/+FTjcTW5csMTIxKAknKjRr2nu5ZgK8VgJk22Umli8+k7+RpKdWhX9D
+         GIeHCb9mKIG2e7szp8ySUJl2NwPp4IJ270xru5dL3/1LDMLcSuq+9fnpkWHTopxgtyrg
+         RFMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=S6Jgc7aBpf/768ixumeVgNXvWvNNM1HOkw4ChK7eyOU=;
-        b=Wugxe5118NfYnxxflr/BmFMQXK6FGMaHbF44uKMSQ4XXw02C8xyIta3ZE7TsXJo8x6
-         iVB12tgsocnmcDY8UhQd6mZN5mnTDJ68sssGzGOJ3RwQ2pbJhBAsO230+Qx/esO3E04l
-         20IkogWuhU07K7wJ84WwuJ8Yz6Z7Z8PLQhunTRcBWAzwCd9o8Vp8BuTJhc2CyBBPGv6H
-         iUjQ9ilAAsbtT8FjZd5RhkE8NQMdkgY6FQ0TPqdfCVjpFXWfWR5nD0LxgjXccgjZchgf
-         v3nsbsnFsxUVL/XErOLprUXFeg6fh1IzP9q8GMTPVUsYRSGOLaeGTYy2UzFFq3o/kUbZ
-         gZgA==
-X-Gm-Message-State: AOAM532trBwZZPR9HLyVP6wlZHYhAIDNdBOvaKM3YLKZYBi1jlYwrMqr
-        c2Mi0kUxf0uYeMIzTnGwYU13XsAhhGk=
-X-Google-Smtp-Source: ABdhPJw08jv8M3tj1bPH9+gUQguR+QaoKHdufedTGDoWJ5e0ZuZNBBLGgC0iD0Bx3PXqtJttuw2yoA==
-X-Received: by 2002:a63:520c:0:b0:382:2953:a338 with SMTP id g12-20020a63520c000000b003822953a338mr15311991pgb.610.1647916533793;
-        Mon, 21 Mar 2022 19:35:33 -0700 (PDT)
+        bh=4zT38W/g3Nlr5yWulzhtGBybnz/7yz2x7YGjZPuQI/k=;
+        b=j9roK3FWk+cO5cP/0+3KDup472mVWzLb6U7uCnAclQs6MeKbE4KEToS0L6YKjPoVqN
+         NyLEs3ndXUjAwczzS0LHGbqUYxczdS2nzUpPa3sguR/qL0UgNhTUK3mmGw1Wb8mxlHCX
+         fkdLyO1IoHzs/kyHod2nbhnEP02RBNN5ewIAn4L+zUnT9F5tpLkyDSG12nltFEO9tddi
+         dDxClFJ/saqGWX0XeL06a+ERgP4KPDSZzd/U8ZJBAfZW2sulwgWHxKBKQbFVghneUn6e
+         pcNNqnTo7KITmuxeCULapwlN8VN79qpaKaL93AwtNGRzEK04/mec2nlhgWvtHqE66neb
+         jN7w==
+X-Gm-Message-State: AOAM530dUFzSBptLu0JlPeh3A+nPunjpHQ8z9NaZ7lXBSUyTTrbd0p/b
+        aBBHwvylukAXgX8n4yIIYZw=
+X-Google-Smtp-Source: ABdhPJxiSHJ1ylSMabnIDO7zYp4X5PXuw9twxYJKtZru9KM23TEAqcwhkyxFsXToYcYvra1MASeZqQ==
+X-Received: by 2002:a05:6a00:781:b0:4f4:2a:2d89 with SMTP id g1-20020a056a00078100b004f4002a2d89mr26694381pfu.13.1647916793925;
+        Mon, 21 Mar 2022 19:39:53 -0700 (PDT)
 Received: from [192.168.122.100] (133-175-21-116.tokyo.ap.gmo-isp.jp. [133.175.21.116])
-        by smtp.gmail.com with ESMTPSA id my18-20020a17090b4c9200b001c75aeac7fdsm337258pjb.27.2022.03.21.19.35.31
+        by smtp.gmail.com with ESMTPSA id gb5-20020a17090b060500b001c6d46f7e75sm752580pjb.30.2022.03.21.19.39.51
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Mar 2022 19:35:33 -0700 (PDT)
-Message-ID: <22f5c9f7-2fbd-902b-ca9b-c14d92a9b045@gmail.com>
-Date:   Tue, 22 Mar 2022 11:35:30 +0900
+        Mon, 21 Mar 2022 19:39:53 -0700 (PDT)
+Message-ID: <faae174c-bb3f-e4e2-dc6c-b79186d9804c@gmail.com>
+Date:   Tue, 22 Mar 2022 11:39:50 +0900
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
-Subject: Re: [PATCH v4 1/3] mtd: cfi_cmdset_0002: Move and rename
- chip_check/chip_ready/chip_good_for_write
+Subject: Re: [PATCH v4 2/3] mtd: cfi_cmdset_0002: Use chip_ready() for write
+ on S29GL064N
 Content-Language: en-US
 To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     linux-mtd@lists.infradead.org, stable@vger.kernel.org
+Cc:     linux-mtd@lists.infradead.org,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>, stable@vger.kernel.org
 References: <20220316155455.162362-1-ikegami.t@gmail.com>
- <20220316155455.162362-2-ikegami.t@gmail.com> <20220316181519.0ec5bc97@xps13>
+ <20220316155455.162362-3-ikegami.t@gmail.com> <20220316182100.6e2e5876@xps13>
 From:   Tokunori Ikegami <ikegami.t@gmail.com>
-In-Reply-To: <20220316181519.0ec5bc97@xps13>
+In-Reply-To: <20220316182100.6e2e5876@xps13>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -76,154 +77,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Miquèl-san,
 
-On 2022/03/17 2:15, Miquel Raynal wrote:
+On 2022/03/17 2:21, Miquel Raynal wrote:
 > Hi Tokunori,
 >
-> ikegami.t@gmail.com wrote on Thu, 17 Mar 2022 00:54:53 +0900:
+> ikegami.t@gmail.com wrote on Thu, 17 Mar 2022 00:54:54 +0900:
 >
->> This is a preparation patch for the functional change in preparation to a change
->> expected to fix the buffered writes on S29GL064N.
-> This is a preparation patch for the S29GL064N buffer writes fix. There
-> is no functional change.
-Fixed this by the version 5 patch.
+>> As pointed out by this bug report [1], buffered writes are now broken on
+>> S29GL064N. This issue comes from a rework which switched from using chip_good()
+>> to chip_ready(), because DQ true data 0xFF is read on S29GL064N and an error
+>> returned by chip_good().
+> Vignesh, I believe you understand this issue better than I do, can you
+> propose an improved commit log?
 >
+>> One way to solve the issue is to revert the change
+>> partially to use chip_ready for S29GL064N.
+>>
+>> [1] https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
+>>
 >> Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
 >> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+>> Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 >> Cc: stable@vger.kernel.org
 >> ---
->>   drivers/mtd/chips/cfi_cmdset_0002.c | 77 ++++++++++++-----------------
->>   1 file changed, 32 insertions(+), 45 deletions(-)
+>>   drivers/mtd/chips/cfi_cmdset_0002.c | 25 +++++++++++++++++++++----
+>>   1 file changed, 21 insertions(+), 4 deletions(-)
 >>
 >> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
->> index a761134fd3be..e68ddf0f7fc0 100644
+>> index e68ddf0f7fc0..6c57f85e1b8e 100644
 >> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
 >> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
->> @@ -801,22 +801,12 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd_info *mtd)
->>   	return NULL;
->>   }
+>> @@ -866,6 +866,23 @@ static int __xipram chip_check(struct map_info *map, struct flchip *chip,
+>>   		chip_check(map, chip, addr, &datum); \
+>>   	})
 >>   
->> -/*
->> - * Return true if the chip is ready.
->> - *
->> - * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
->> - * non-suspended sector) and is indicated by no toggle bits toggling.
->> - *
->> - * Note that anything more complicated than checking if no bits are toggling
->> - * (including checking DQ5 for an error status) is tricky to get working
->> - * correctly and is therefore not done	(particularly with interleaved chips
->> - * as each chip must be checked independently of the others).
->> - */
->> -static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
->> -			       unsigned long addr)
->> +static int __xipram chip_check(struct map_info *map, struct flchip *chip,
->> +			       unsigned long addr, map_word *expected)
->>   {
->>   	struct cfi_private *cfi = map->fldrv_priv;
->> -	map_word d, t;
->> +	map_word oldd, curd;
->> +	int ret;
->>   
->>   	if (cfi_use_status_reg(cfi)) {
->>   		map_word ready = CMD(CFI_SR_DRB);
->> @@ -826,17 +816,35 @@ static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
->>   		 */
->>   		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
->>   				 cfi->device_type, NULL);
->> -		d = map_read(map, addr);
->> +		curd = map_read(map, addr);
->>   
->> -		return map_word_andequal(map, d, ready, ready);
->> +		return map_word_andequal(map, curd, ready, ready);
-> A lot of the diff is just a rename. I am not against a rename if you
-> feel it's better, but in this order:
-> 1: prepare the fix
-> 2: fix
-> 3: rename/define id's, whatever
-This is also fixed as same.
+>> +static bool __xipram cfi_use_chip_ready_for_write(struct map_info *map)
+> At the very least I would call this function:
+> cfi_use_chip_ready_for_writes()
 >
->>   	}
->>   
->> -	d = map_read(map, addr);
->> -	t = map_read(map, addr);
->> +	oldd = map_read(map, addr);
->> +	curd = map_read(map, addr);
->> +
->> +	ret = map_word_equal(map, oldd, curd);
->>   
->> -	return map_word_equal(map, d, t);
->> +	if (!ret || !expected)
->> +		return ret;
->> +
->> +	return map_word_equal(map, curd, *expected);
->>   }
->>   
->> +/*
->> + * Return true if the chip is ready.
->> + *
->> + * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
->> + * non-suspended sector) and is indicated by no toggle bits toggling.
->> + *
->> + * Note that anything more complicated than checking if no bits are toggling
->> + * (including checking DQ5 for an error status) is tricky to get working
->> + * correctly and is therefore not done	(particularly with interleaved chips
->> + * as each chip must be checked independently of the others).
->> + */
->> +#define chip_ready(map, chip, addr) chip_check(map, chip, addr, NULL)
-> I don't see the point of such a define. Just get rid of it.
-Yes deleted the macro as changed the name chip_check to chip_ready and 
-to use only chip_ready without the macro.
+> Yet, I still don't fully get what chip_ready is versus chip_good.
+This was deleted as to use the quirks flag instead.
 >
+>> +{
+>> +	struct cfi_private *cfi = map->fldrv_priv;
 >> +
->>   /*
->>    * Return true if the chip is ready and has the correct value.
->>    *
->> @@ -852,32 +860,11 @@ static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
->>    * as each chip must be checked independently of the others).
->>    *
->>    */
->> -static int __xipram chip_good(struct map_info *map, struct flchip *chip,
->> -			      unsigned long addr, map_word expected)
->> -{
->> -	struct cfi_private *cfi = map->fldrv_priv;
->> -	map_word oldd, curd;
->> -
->> -	if (cfi_use_status_reg(cfi)) {
->> -		map_word ready = CMD(CFI_SR_DRB);
->> -
->> -		/*
->> -		 * For chips that support status register, check device
->> -		 * ready bit
->> -		 */
->> -		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
->> -				 cfi->device_type, NULL);
->> -		curd = map_read(map, addr);
->> -
->> -		return map_word_andequal(map, curd, ready, ready);
->> -	}
->> -
->> -	oldd = map_read(map, addr);
->> -	curd = map_read(map, addr);
->> -
->> -	return	map_word_equal(map, oldd, curd) &&
->> -		map_word_equal(map, curd, expected);
->> -}
->> +#define chip_good(map, chip, addr, expected) \
->> +	({ \
->> +		map_word datum = expected; \
->> +		chip_check(map, chip, addr, &datum); \
->> +	})
-> What is this for? Same here, I don't see the point. Please get rid of
-> all these unnecessary helpers which do nothing, besides complicating
-> user's life.
+>> +	return cfi->mfr == CFI_MFR_AMD && cfi->id == 0x0c01;
+>> +}
+>> +
+>> +static int __xipram chip_good_for_write(struct map_info *map,
+>> +					struct flchip *chip, unsigned long addr,
+>> +					map_word expected)
+>> +{
+>> +	if (cfi_use_chip_ready_for_write(map))
+>> +		return chip_ready(map, chip, addr);
+> If possible and not too invasive I would definitely add a "quirks" flag
+> somewhere instead of this cfi_use_chip_ready_for_write() check.
+Added the quirks flag by the version 5 patch.
+>
+> Anyway, I would move this to the chip_good() implementation directly so
+> we partially hide the quirks complexity from the core.
 
-Fixed as same.
+Yes also added the chip_good to check the quirks flag.
 
 Regards,
 Ikegami
 
 >
+>> +
+>> +	return chip_good(map, chip, addr, expected);
+>> +}
+>> +
 >>   static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
 >>   {
+>>   	DECLARE_WAITQUEUE(wait, current);
+>> @@ -1686,7 +1703,7 @@ static int __xipram do_write_oneword_once(struct map_info *map,
+>>   		 * "chip_good" to avoid the failure due to scheduling.
+>>   		 */
+>>   		if (time_after(jiffies, timeo) &&
+>> -		    !chip_good(map, chip, adr, datum)) {
+>> +		    !chip_good_for_write(map, chip, adr, datum)) {
+>>   			xip_enable(map, chip, adr);
+>>   			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
+>>   			xip_disable(map, chip, adr);
+>> @@ -1694,7 +1711,7 @@ static int __xipram do_write_oneword_once(struct map_info *map,
+>>   			break;
+>>   		}
+>>   
+>> -		if (chip_good(map, chip, adr, datum)) {
+>> +		if (chip_good_for_write(map, chip, adr, datum)) {
+>>   			if (cfi_check_err_status(map, chip, adr))
+>>   				ret = -EIO;
+>>   			break;
+>> @@ -1966,14 +1983,14 @@ static int __xipram do_write_buffer_wait(struct map_info *map,
+>>   		 * "chip_good" to avoid the failure due to scheduling.
+>>   		 */
+>>   		if (time_after(jiffies, timeo) &&
+>> -		    !chip_good(map, chip, adr, datum)) {
+>> +		    !chip_good_for_write(map, chip, adr, datum)) {
+>>   			pr_err("MTD %s(): software timeout, address:0x%.8lx.\n",
+>>   			       __func__, adr);
+>>   			ret = -EIO;
+>>   			break;
+>>   		}
+>>   
+>> -		if (chip_good(map, chip, adr, datum)) {
+>> +		if (chip_good_for_write(map, chip, adr, datum)) {
+>>   			if (cfi_check_err_status(map, chip, adr))
+>>   				ret = -EIO;
+>>   			break;
 >
 > Thanks,
 > Miquèl
