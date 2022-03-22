@@ -2,143 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4834E3EBE
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 13:48:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B25454E3EC7
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 13:51:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbiCVMte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 08:49:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33546 "EHLO
+        id S233677AbiCVMvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 08:51:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231920AbiCVMtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 08:49:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D7726F6F
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 05:48:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647953284;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=u9yrNlkYpunaRytWgUY4ikU4zuFUDmjdz1rHYai2Yfg=;
-        b=gxjqQKGg1e9u31Em0rFb58sOmiuRMlsNTgMLwXTZNP6VSuMDd2PHYX8we24tTNb+pXcRrq
-        FZHvrNVzmMPHMkNT/dzZzW6l/hSNefx6WLw0Q/uJaMRNxj9ltJzsrr1ZQtW+GzcuWV5zu8
-        FfzrgN6YZv77kvcmA2zGaRo9OXWBW2M=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-626-oi_E4ujzMGWFfTeTp3bxaQ-1; Tue, 22 Mar 2022 08:48:03 -0400
-X-MC-Unique: oi_E4ujzMGWFfTeTp3bxaQ-1
-Received: by mail-wm1-f69.google.com with SMTP id n62-20020a1ca441000000b0038124c99ebcso6829148wme.9
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 05:48:03 -0700 (PDT)
+        with ESMTP id S231836AbiCVMvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 08:51:15 -0400
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FDCF23177;
+        Tue, 22 Mar 2022 05:49:48 -0700 (PDT)
+Received: by mail-wm1-x335.google.com with SMTP id i186so1437279wma.3;
+        Tue, 22 Mar 2022 05:49:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=cI6JrRwQRBk0wOsq5ngKZkMLLny8sD3vOnlcyYocSi0=;
+        b=AkUikKpcc13bQ016kRZQCfvLUQpPGDecAEXx7DHDD1vEgnn1hQ+Jbm8xxwrEFq2BwZ
+         3K/3ni+NTe+Jki3La241lvDZKELJqpJ4UrmSF9yyB69c7W8YK9+QL4u9I8yM4Wi7kbMI
+         k+9ouIpXUQfiv7uQa7j/v33Cb4g6IHkkXtyQquOL9D371atKIPaqfanPnEqdU7wthc3l
+         W+bKW/AjcdTfgptzWiYlpkAGbcabPJK+FtRNK1TFKl7QVS+jX3Ytq95qrlrN0G6T7nkn
+         o+h468yvH4m1N5tiMBV01vv3xRWPiglRzQbzknQllpdZBKllJsQSrGKiXI8OY+NfMqit
+         xFOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=u9yrNlkYpunaRytWgUY4ikU4zuFUDmjdz1rHYai2Yfg=;
-        b=rBNlrl1F0XT5Fyt1kqV/Io+3/iI7dwDVwKpYGs1eeRx6pIMP0v5P+w6bUEBHEXYC5q
-         KUVmA5iyv6ufWnFsJFikm020Es7fcFA0W41+lS0PGhmJnIWDQZMRc8zYWKmTg98o3n7X
-         z5wJqSabU5BESANJDe7de2bidSLfD4KG/mmbrtOzRsD2Vr75zupPqG2daXWjqSrhBho4
-         4H1picGo1MWTXACrehqWB3fJAmjcTGLN+y3bh20QEsoKXR6QxsqudgB+LWadGtrlLL0b
-         oElUvMYNlNPezZO+/FaBB+kkuAQXzZ9fwGJAYPe8IEWGCuwIt2QON9oF56LYJs+If6Nn
-         Ic2A==
-X-Gm-Message-State: AOAM530E01gpABGPGAE7Q8pzmJBGS7ZXl/c0OOlj0AMm+b88Jeb05z+s
-        bK4XnA641eC87YFlZF97J24oJrycgBuulhN2Osu2sJrL/f6kLoyfeKPg44PwxvcEDEbagl925kX
-        PtLP1I9jiHDsv1n9S
-X-Received: by 2002:a05:600c:5021:b0:38c:70c0:80e9 with SMTP id n33-20020a05600c502100b0038c70c080e9mr3610558wmr.91.1647953282574;
-        Tue, 22 Mar 2022 05:48:02 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyb73Jj3kArrdOmr4xNJ2g6A2tODfvNxCiROA57ukRjloP9coQ4ogSvUIco5W02naEshguG4A==
-X-Received: by 2002:a05:600c:5021:b0:38c:70c0:80e9 with SMTP id n33-20020a05600c502100b0038c70c080e9mr3610550wmr.91.1647953282389;
-        Tue, 22 Mar 2022 05:48:02 -0700 (PDT)
-Received: from kherbst.pingu.com ([31.16.187.72])
-        by smtp.gmail.com with ESMTPSA id s17-20020adfdb11000000b001f02d5fea43sm16823291wri.98.2022.03.22.05.48.01
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=cI6JrRwQRBk0wOsq5ngKZkMLLny8sD3vOnlcyYocSi0=;
+        b=OPrmtjoWe0r4fIIrXOPyRvyb10xZqozoOZE3QXQiT4P/b73b/sIgMwvzimiJWgkNF8
+         KV3++Mu3oS4GWP3Qvn3YUkSiCDc1j/wj0k1rLPdBekxxKdRhsE+S8pO4zy5LMGnuGUzq
+         hJf9FN1ojNQKdZ99zdwLOont6lvmCxhqdzNNVkSlIztNTsZ07Y1o5f/5+0eYXOahV+hR
+         q5ZyYUcgcDaDnxXvA7+MzybB/gQLTn4PCxpphD++9Le6X9fOlb178dE1SIqJ/pwf5sHQ
+         EwzLq2ziEUSxa+tlaxWHrMfy9YvogIuNv5+qZFo0JgaodwST/voxeNpLf6LY8zWhiSUF
+         yjog==
+X-Gm-Message-State: AOAM533GJGzdnEEXozR+44wAAQIbmP6BksJKEFGuQrbnB+wg1dzd/2OO
+        +xVPi/WvJTLTAKzyEOvkiCI=
+X-Google-Smtp-Source: ABdhPJxjgBt4Z5A6pGlIZchA3ICSNrxCZ5Zw1DELB0tvg4sWj4o4sW7WE9mwig3DXdqXVGAftUbHKQ==
+X-Received: by 2002:adf:e589:0:b0:203:e324:3485 with SMTP id l9-20020adfe589000000b00203e3243485mr21653498wrm.271.1647953386852;
+        Tue, 22 Mar 2022 05:49:46 -0700 (PDT)
+Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
+        by smtp.gmail.com with ESMTPSA id az26-20020adfe19a000000b00204154a1d1fsm4542129wrb.88.2022.03.22.05.49.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Mar 2022 05:48:01 -0700 (PDT)
-From:   Karol Herbst <kherbst@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Karol Herbst <kherbst@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/nouveau/pmu: Add missing callbacks for Tegra devices
-Date:   Tue, 22 Mar 2022 13:48:00 +0100
-Message-Id: <20220322124800.2605463-1-kherbst@redhat.com>
-X-Mailer: git-send-email 2.35.1
+        Tue, 22 Mar 2022 05:49:46 -0700 (PDT)
+Date:   Tue, 22 Mar 2022 12:49:44 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 00/32] 5.15.31-rc1 review
+Message-ID: <YjnF6GOV5RDOkJu3@debian>
+References: <20220321133220.559554263@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220321133220.559554263@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fixes a crash booting on those platforms with nouveau.
+Hi Greg,
 
-Fixes: 4cdd2450bf73 ("drm/nouveau/pmu/gm200-: use alternate falcon reset sequence")
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: nouveau@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.17+
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
----
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c | 1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c | 2 +-
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c | 1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h  | 1 +
- 4 files changed, 4 insertions(+), 1 deletion(-)
+On Mon, Mar 21, 2022 at 02:52:36PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.31 release.
+> There are 32 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 23 Mar 2022 13:32:09 +0000.
+> Anything received after that time might be too late.
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
-index e1772211b0a4..612310d5d481 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
-@@ -216,6 +216,7 @@ gm20b_pmu = {
- 	.intr = gt215_pmu_intr,
- 	.recv = gm20b_pmu_recv,
- 	.initmsg = gm20b_pmu_initmsg,
-+	.reset = gf100_pmu_reset,
- };
- 
- #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
-index 6bf7fc1bd1e3..1a6f9c3af5ec 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
-@@ -23,7 +23,7 @@
-  */
- #include "priv.h"
- 
--static void
-+void
- gp102_pmu_reset(struct nvkm_pmu *pmu)
- {
- 	struct nvkm_device *device = pmu->subdev.device;
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
-index ba1583bb618b..94cfb1791af6 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
-@@ -83,6 +83,7 @@ gp10b_pmu = {
- 	.intr = gt215_pmu_intr,
- 	.recv = gm20b_pmu_recv,
- 	.initmsg = gm20b_pmu_initmsg,
-+	.reset = gp102_pmu_reset,
- };
- 
- #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
-index bcaade758ff7..21abf31f4442 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
-@@ -41,6 +41,7 @@ int gt215_pmu_send(struct nvkm_pmu *, u32[2], u32, u32, u32, u32);
- 
- bool gf100_pmu_enabled(struct nvkm_pmu *);
- void gf100_pmu_reset(struct nvkm_pmu *);
-+void gp102_pmu_reset(struct nvkm_pmu *pmu);
- 
- void gk110_pmu_pgob(struct nvkm_pmu *, bool);
- 
--- 
-2.35.1
+Build test:
+mips (gcc version 11.2.1 20220314): 62 configs -> no new failure
+arm (gcc version 11.2.1 20220314): 100 configs -> no new failure
+arm64 (gcc version 11.2.1 20220314): 3 configs -> no failure
+x86_64 (gcc version 11.2.1 20220314): 4 configs -> no failure
 
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+mips: Booted on ci20 board. No regression. [3]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/925
+[2]. https://openqa.qa.codethink.co.uk/tests/929
+[3]. https://openqa.qa.codethink.co.uk/tests/930
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
