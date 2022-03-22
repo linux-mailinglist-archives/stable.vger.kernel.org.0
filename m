@@ -2,136 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CEB4E388B
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 06:43:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF8574E38EB
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 07:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236727AbiCVFju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 01:39:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52722 "EHLO
+        id S237119AbiCVG0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 02:26:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236776AbiCVFjq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 01:39:46 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5761737A2E
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 22:38:20 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id q5so5331701plg.3
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 22:38:20 -0700 (PDT)
+        with ESMTP id S237114AbiCVG0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 02:26:44 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72FEB3334F
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 23:25:10 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id m22so14900029pja.0
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 23:25:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=z4YCCL1LPnHOzXwP3bnu88d5CnE0dJ5cFjZZBF8cRbg=;
-        b=SM1GkAc8gp+axzLpAa6ZShUarP0CqxNqEs9UWR4lYNEoE7jCYskPQDY/kyYglPm1Z9
-         soARGpUypX92uo+amn/yKjhrccy7cVraQv8cvufHeBNqJJLhYhTfM90J71TGmOQ/6hrd
-         SNFAhkOboIFu9Nu52A6nOrXR5rYr2ccyFGpDgtkge8mCt+x9Oah4aw1/v5xZBuqFMpu1
-         x+Hv1pJ7sF+m5OLR9Zi0KYUZieBu47NCwV6Ba7BJDJkeBp0GCkOVnEyuWb1J1ffYA/6l
-         E+6KVzww1vFKILGTbbYZX5+IXwHuMqEsSJx+MFigkuh/guFdEsaklmACH4I3EXRrphTm
-         ui5g==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Dvp5PLFFHZuIsQgWetyrsf4XNvoqvv0/5sQ2pDSkzC4=;
+        b=b6lMgKv5Sw24Rt4XR5Ivbbja4czyGfu0gP7CcpgVxE4+T3WzKMKZn8pKGO5rASuILO
+         LjZbEW2yLovrzHvDbc056juhC0Fr7PZURaX0QGZmhK/c24EIGm3/8Q/yRSEmNHn33uoM
+         T+4j1Mo3g35YmQfbxFyNeJCZRfAT4NgPQYDzo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=z4YCCL1LPnHOzXwP3bnu88d5CnE0dJ5cFjZZBF8cRbg=;
-        b=JY4zAoRSp/9DyKpQTWfZK4pft+KOp9CKABwbwOuEopLm3pU15n45g+r0NhgV8lyF5P
-         MCf1ABC5Oe62IgEfkqUOvNjzFrdDxEe8pxsrHB7esWzZvQbMQaN2cGDJ/pvWjug9CkDo
-         pLqMBAyWrLvNhCIwIIuVToUnYvV5WQwEsPNWIK7cT0YavnFufhnuE1gg8X9mBenITs8K
-         js2jeg6koeP8e3DQEa4YMssXD2oWVL3sEypaWWOm577aKp5KzEvGkU2ZgHertoWLX/VM
-         IzSZf+Ng0wsQ4VAHt70bWAxUMTurITi0DQ5BGRrsS+5JYSq2E0hPgCvtEeEjnhkxyAlQ
-         n3tQ==
-X-Gm-Message-State: AOAM530NSBvLEb4UiYNViTt3gIxFtBPQmG/LzSgVcj+5fTJ3+r6C+bRM
-        EFjlWGrVhIWIbopFClPK9EG+/H4xTDm5kIP/Ldk=
-X-Google-Smtp-Source: ABdhPJxpG3qU2hKooys36x5VkjZc+p/Af/rzGM5Hf2KG8IkSwgzd2eTkcoDGOmnLV2CP19qGbNui+g==
-X-Received: by 2002:a17:90b:4c86:b0:1c2:5a5c:9149 with SMTP id my6-20020a17090b4c8600b001c25a5c9149mr2937110pjb.241.1647927499577;
-        Mon, 21 Mar 2022 22:38:19 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m8-20020a056a00080800b004faa4e113bfsm5706521pfk.154.2022.03.21.22.38.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Mar 2022 22:38:19 -0700 (PDT)
-Message-ID: <623960cb.1c69fb81.61da5.0654@mx.google.com>
-Date:   Mon, 21 Mar 2022 22:38:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Dvp5PLFFHZuIsQgWetyrsf4XNvoqvv0/5sQ2pDSkzC4=;
+        b=W6N/DxGsJh+UAlDmyz8MlxwUjhFR7tIwvEdgFbP4nGZRYXmRjRg0xcl0ivFbgKEggH
+         leoriPSSEv65C/N293gdcXFkKHWYYzhnrWf7uoPIM53APNE6z5BeUq3xv2AAApLWUSqJ
+         HlTEAwAKgEfLgQzNUBXDcurTVKnkr66RblMiksy8eieqZWrs371gJGElKIayzQg6jSZK
+         xRrhLukJ0h5ZsaI/3nt/GBONLRiDpup3aCXL0U1154f3vjt05lvwllTxkVInZWXUmn88
+         wMbiFaZpuVf8oZexdsmI+4NOX52Cu84lNuLFq+Lba/JtDcns5WCcNsk870mcpD5SMSxZ
+         plqw==
+X-Gm-Message-State: AOAM532uw5DfErq7ZF4150vCBpwsZF6hBkQQVSIRaf6jaHXO7J9BFB/M
+        4GRsvH87/1UXCQSHj7zK8sUVcw==
+X-Google-Smtp-Source: ABdhPJy9Q3kS0c782m03W2yRWveI5jwvz72UxXedRRzodo+D+nfPTeo9Ax0/jonDXCofcMmXQUl8TQ==
+X-Received: by 2002:a17:90b:4a4b:b0:1c6:4398:523c with SMTP id lb11-20020a17090b4a4b00b001c64398523cmr3164773pjb.50.1647930309968;
+        Mon, 21 Mar 2022 23:25:09 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:c016:a147:e7e:6836])
+        by smtp.gmail.com with UTF8SMTPSA id c34-20020a630d22000000b0034cb89e4695sm16329296pgl.28.2022.03.21.23.25.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Mar 2022 23:25:09 -0700 (PDT)
+From:   Gwendal Grignou <gwendal@chromium.org>
+To:     jic23@kernel.org, robh+dt@kernel.org, swboyd@chromium.org
+Cc:     linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
+        Gwendal Grignou <gwendal@chromium.org>, stable@vger.kernel.org
+Subject: [PATCH v2 1/8] iio: sx9324: Fix default precharge internal resistance register
+Date:   Mon, 21 Mar 2022 23:24:57 -0700
+Message-Id: <20220322062504.1019504-2-gwendal@chromium.org>
+X-Mailer: git-send-email 2.35.1.894.gb6a874cedc-goog
+In-Reply-To: <20220322062504.1019504-1-gwendal@chromium.org>
+References: <20220322062504.1019504-1-gwendal@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.107-30-g6aadca3f97b23
-Subject: stable-rc/queue/5.10 baseline: 87 runs,
- 1 regressions (v5.10.107-30-g6aadca3f97b23)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 87 runs, 1 regressions (v5.10.107-30-g6aadca=
-3f97b23)
+Fix the default value for the register that set the resistance:
+it has to be 0x10.
 
-Regressions Summary
--------------------
+Fixes: 4c18a890dff8d ("iio:proximity:sx9324: Add SX9324 support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+---
+ drivers/iio/proximity/sx9324.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+diff --git a/drivers/iio/proximity/sx9324.c b/drivers/iio/proximity/sx9324.c
+index 0d9bbbb50cb45..d50ce67aafdf2 100644
+--- a/drivers/iio/proximity/sx9324.c
++++ b/drivers/iio/proximity/sx9324.c
+@@ -70,7 +70,8 @@
+ #define SX9324_REG_AFE_PH2		0x2a
+ #define SX9324_REG_AFE_PH3		0x2b
+ #define SX9324_REG_AFE_CTRL8		0x2c
+-#define SX9324_REG_AFE_CTRL8_RESFILTN_4KOHM 0x02
++#define SX9324_REG_AFE_CTRL8_RSVD	0x10
++#define SX9324_REG_AFE_CTRL8_RESFILTIN_4KOHM 0x02
+ #define SX9324_REG_AFE_CTRL9		0x2d
+ #define SX9324_REG_AFE_CTRL9_AGAIN_1	0x08
+ 
+@@ -781,7 +782,8 @@ static const struct sx_common_reg_default sx9324_default_regs[] = {
+ 	{ SX9324_REG_AFE_PH2, 0x1a },
+ 	{ SX9324_REG_AFE_PH3, 0x16 },
+ 
+-	{ SX9324_REG_AFE_CTRL8, SX9324_REG_AFE_CTRL8_RESFILTN_4KOHM },
++	{ SX9324_REG_AFE_CTRL8, SX9324_REG_AFE_CTRL8_RSVD |
++		SX9324_REG_AFE_CTRL8_RESFILTIN_4KOHM },
+ 	{ SX9324_REG_AFE_CTRL9, SX9324_REG_AFE_CTRL9_AGAIN_1 },
+ 
+ 	{ SX9324_REG_PROX_CTRL0, SX9324_REG_PROX_CTRL0_GAIN_1 |
+-- 
+2.35.1.894.gb6a874cedc-goog
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.107-30-g6aadca3f97b23/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.107-30-g6aadca3f97b23
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6aadca3f97b2326c4f268d60dd5813d9180af454 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62392f53ae379353912172d3
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.107=
--30-g6aadca3f97b23/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.107=
--30-g6aadca3f97b23/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62392f53ae379353912172f5
-        failing since 14 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-03-22T02:07:06.446297  /lava-5919805/1/../bin/lava-test-case   =
-
- =20
