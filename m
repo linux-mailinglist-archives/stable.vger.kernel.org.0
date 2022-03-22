@@ -2,108 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3961D4E3843
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 06:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E29A34E387E
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 06:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236641AbiCVFVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 01:21:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54336 "EHLO
+        id S236688AbiCVFaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 01:30:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236708AbiCVFVd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 01:21:33 -0400
-Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF81B29C;
-        Mon, 21 Mar 2022 22:20:05 -0700 (PDT)
+        with ESMTP id S236751AbiCVFaY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 01:30:24 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBB9913D35
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 22:28:48 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id g19so17277899pfc.9
+        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 22:28:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1647926405; x=1679462405;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=mxwNRxhZXnEhaBLVuTqpNgMwfQI6b2+lXrJsxhkw+1A=;
-  b=E8D/ED2bdKxMQqCu/OG4RKtdIPvSSfEmXwDivdfBfk751zVtbkK6lNVI
-   N2cOEbE3FVeFxrUsSnUv8mHy0zSe2oJE9m3MmTAjJsGgVobrIP+1hhJ6d
-   wg+YDpZ17zs/OMUnMS4ZNnryLtBBsxZ1XTA2xe20W1mDep9XGHL4fdE5+
-   M=;
-Received: from unknown (HELO ironmsg05-sd.qualcomm.com) ([10.53.140.145])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 21 Mar 2022 22:20:05 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg05-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Mar 2022 22:20:05 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Mon, 21 Mar 2022 22:20:04 -0700
-Received: from [10.216.14.252] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Mon, 21 Mar
- 2022 22:20:00 -0700
-Message-ID: <72b4183b-2ec7-dc73-0c21-b12f342860d4@quicinc.com>
-Date:   Tue, 22 Mar 2022 10:49:56 +0530
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=O7UcKSxm5mOhWMQz1ucaiqPHcAZZ59ACYBtbGPfA+E4=;
+        b=ikKKIspxfxIrmmhWOUDa0JSy5WHMkZV9gjqwxwDk2wRlRdsw3/N29RSAzfRYm+C5eo
+         LKiHyYkP1vCOlmIOtf6U6Uz53psINlfVhOwFTd9KcFctheSnfw4914JWGEgqnmxgiWXn
+         RQyM5HefQET5Qb/v+1pHTuWYHzj8iNGr7Sa9pM1RCoTHXVr0AOBIS7hIsM672G5mBTwg
+         jrmavo8FTyJvGvZPfOHjrWq9XDETHbJe7Bp7cKSwtgBq+225kAhJ+nJ3drZrV4MRYR8O
+         ddtvtAr6mJJEaMwD620ozCzd7LpqX30jAarvGAHJYlFMSmdSDHywAKQsVAGIWCpiELUu
+         +d7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=O7UcKSxm5mOhWMQz1ucaiqPHcAZZ59ACYBtbGPfA+E4=;
+        b=N3l8quj62n4k8oE2TySSR5NgQIrhkj8x37WDWwLkXD3Mg2A9MDKtMImllz91N9P+yo
+         D93aj5ol6/kE8fT4Ln8L8GTRanoZ4czf11NrxojmfTYiknqmB4flEqGieImn2jeTa6Am
+         JrLetQaGhReLWd6P8TZywkq0Sc7FZ28rpl8qSqMbeXvsy6EBxP8C9COKFoVjUq9ftdHr
+         rC0dNXZL/2MhxOg4vce7nPzqoJtPRJP6VElJlcrd/aWmuhz1bG6t6D+Gl2HJ6ZLcVk/H
+         NOuwTRbGp7M+XP/T3Ju4oosjWiGTX+5mTxDcB4A92Pn75j09voSOqKQDPRo5pA7RmrEp
+         HHwA==
+X-Gm-Message-State: AOAM530TvoNQnI+ATTUcchwq2G2TeLBN5ERxD62tFSM1u+OjtVYPC0E5
+        YPvMazWSRoMJz520TeUFkxWd9VoNq1cL4XVLXuY=
+X-Google-Smtp-Source: ABdhPJzbXXv3FnCew13sZ4L0pd89MCUlUOx7YEImsmvgfbhVEsAXB4sjHupv5yDNO61BXMYKn1n4OA==
+X-Received: by 2002:a05:6a00:d6a:b0:4fa:6940:f2dc with SMTP id n42-20020a056a000d6a00b004fa6940f2dcmr22312864pfv.61.1647926928256;
+        Mon, 21 Mar 2022 22:28:48 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f13-20020a056a001acd00b004f76d35c1dcsm20885756pfv.104.2022.03.21.22.28.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Mar 2022 22:28:48 -0700 (PDT)
+Message-ID: <62395e90.1c69fb81.e462a.9dee@mx.google.com>
+Date:   Mon, 21 Mar 2022 22:28:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to
- process_madvise
-Content-Language: en-US
-To:     Michal Hocko <mhocko@suse.com>
-CC:     Minchan Kim <minchan@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, <surenb@google.com>,
-        <vbabka@suse.cz>, <rientjes@google.com>, <sfr@canb.auug.org.au>,
-        <edgararriaga@google.com>, <nadav.amit@gmail.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        "# 5 . 10+" <stable@vger.kernel.org>
-References: <cover.1647008754.git.quic_charante@quicinc.com>
- <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
- <YjEaFBWterxc3Nzf@google.com>
- <20220315164807.7a9cf1694ee2db8709a8597c@linux-foundation.org>
- <YjFAzuLKWw5eadtf@google.com>
- <5428f192-1537-fa03-8e9c-4a8322772546@quicinc.com>
- <YjiTn+7vw2rXA6K/@dhcp22.suse.cz>
-From:   Charan Teja Kalla <quic_charante@quicinc.com>
-In-Reply-To: <YjiTn+7vw2rXA6K/@dhcp22.suse.cz>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.16
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.16.16-37-g2a1b62676c09
+Subject: stable-rc/queue/5.16 baseline: 84 runs,
+ 1 regressions (v5.16.16-37-g2a1b62676c09)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.16 baseline: 84 runs, 1 regressions (v5.16.16-37-g2a1b626=
+76c09)
 
-On 3/21/2022 8:32 PM, Michal Hocko wrote:
->> It can return EINTR when:
->> -------------------------
->> 1) PTRACE_MODE_READ is being checked in mm_access() where it is waiting
->> on task->signal->exec_update_lock. EINTR returned from here guarantees
->> that process_madvise() didn't event start processing.
->> https://elixir.bootlin.com/linux/v5.16.14/source/mm/madvise.c#L1264 -->
->> https://elixir.bootlin.com/linux/v5.16.14/source/kernel/fork.c#L1318
->>
->> 2) The process_madvise() started processing VMA's but the required
->> behavior on a VMA needs mmap_write_lock_killable(), from where EINTR is
->> returned.
-> Please note this will happen if the task has been killed. The return
-> value doesn't really matter because the process won't run in userspace.
+Regressions Summary
+-------------------
 
-Okay, thanks here.
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-> 
->> The current behaviours supported by process_madvise(),
->> MADV_COLD, PAGEOUT, WILLNEED, just need read lock here.
->> https://elixir.bootlin.com/linux/v5.16.14/source/mm/madvise.c#L1164
->>  **Thus I think no way for EINTR can be returned by process_madvise() in
->> the middle of processing.** . No?
-> Maybe not with the current implementation but I can easily imagine that
-> there is a requirement to break out early when there is a signal pending
-> (e.g. to support terminating madvise on a large memory rage). You would
-> get EINTR then somehow need to communicate that to the userspace.
 
-Agree. Will implement this.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
+nel/v5.16.16-37-g2a1b62676c09/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.16
+  Describe: v5.16.16-37-g2a1b62676c09
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2a1b62676c093c9c59c5b96d77fdf382bbf56bea =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6239282191fbde332a2172d8
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.16-=
+37-g2a1b62676c09/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.16-=
+37-g2a1b62676c09/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6239282191fbde332a2172fa
+        failing since 14 days (last pass: v5.16.12-85-g060a81f57a12, first =
+fail: v5.16.12-184-g8f38ca5a2a07)
+
+    2022-03-22T01:36:15.218104  /lava-5919549/1/../bin/lava-test-case
+    2022-03-22T01:36:15.228825  <8>[   33.603233] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
