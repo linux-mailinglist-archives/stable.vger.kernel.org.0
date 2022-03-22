@@ -2,186 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D2444E36F0
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 03:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F4D54E371A
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 04:02:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235577AbiCVCxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Mar 2022 22:53:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
+        id S235761AbiCVDCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Mar 2022 23:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235473AbiCVCxb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 22:53:31 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82AC52B04
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 19:52:04 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id o3-20020a17090a3d4300b001c6bc749227so968394pjf.1
-        for <stable@vger.kernel.org>; Mon, 21 Mar 2022 19:52:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=O/lcliIRAqwQlRYKUGRfUd2XRkTPCUiR7gECDUV4FEY=;
-        b=YU6zU9YL37l1mwH4e94vDklKtGIzfYQj1Qyd7OcP8FDDEfeK1UlFvhnpzzWr2bMN0V
-         aMHGonYaQ0WSXqrf8zQmYKUmWvujaIV7bDjAAUJeZsnCv3LEbsXLwklhnB/7oiDNROsp
-         rlmN4dgSzCOA/wOK9D8+UfCF4rehc0LV+U2mFIRAAtdiV3seGQFDmEaEKdxpjYgMq1vg
-         VL1k7xtndU0g7Zeod/xuavXy5KimAnkk2Bk6MCc8y/W2sh5hsK1hHxpyk6sUwN1hTuSa
-         6AAOGxyKSDzqWx5tQkxYHnrEUQ3If5oq2yqCy1T7x+G8RmOaIyJm1kz+sTlHSuShRbDo
-         NUdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=O/lcliIRAqwQlRYKUGRfUd2XRkTPCUiR7gECDUV4FEY=;
-        b=rBaKb166uHcTiWoCV5mZR1/DOQ+v369NhXAV56qCDIJ8WcuahO738T6RTHVi2clEu9
-         1xHaAf6ZVie4N5U3hyRgplHWWUvqctRXyN/bnKFHIaYC5WafowVNCMNedGSD8UChfDRX
-         YuVe2ugjKIbQ4lDXZi3+uSqHZAD1Mgb7mVGO743QsqLTJIRsiyeEEnCC9R6LyoHkMe7w
-         PsMjHKmJTYOt4XhTBZUBIHzg2rpU5zuSN/0VA0tHPFZqmEV4kYT2BywY/t5+3xpSHpD2
-         EJl7qn6NxnjTmBvqLbEvv5FCorfXVt7ccM7SwCL7S8smO/ZV6RoPVI3fkj9vg7y+ApdW
-         M9lw==
-X-Gm-Message-State: AOAM531ieaLVJdkkI6IgdGaspoR81P8/4cfzvTJkd0cH6uK+bCNgiWYq
-        eyhMsKrkPHqRLM/1OgZr2VbdBsaJPus=
-X-Google-Smtp-Source: ABdhPJx3wOJp9DkyyA89b1K7+IrRu4MUUX81x9Ii3WbvZ7L3hCGwXNb6YssjWsdgytfK94v/6kw7zg==
-X-Received: by 2002:a17:902:c286:b0:154:25ae:d6c7 with SMTP id i6-20020a170902c28600b0015425aed6c7mr15887226pld.44.1647917524059;
-        Mon, 21 Mar 2022 19:52:04 -0700 (PDT)
-Received: from [192.168.122.100] (133-175-21-116.tokyo.ap.gmo-isp.jp. [133.175.21.116])
-        by smtp.gmail.com with ESMTPSA id f14-20020a056a0022ce00b004fabe9fac23sm2191pfj.151.2022.03.21.19.52.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Mar 2022 19:52:03 -0700 (PDT)
-Message-ID: <c433b909-aa41-d5f6-4cf6-20a84dad5cd7@gmail.com>
-Date:   Tue, 22 Mar 2022 11:51:59 +0900
+        with ESMTP id S235759AbiCVDCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Mar 2022 23:02:41 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [185.16.172.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3044541A2;
+        Mon, 21 Mar 2022 20:01:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Transfer-Encoding:Content-Disposition:
+        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:From:
+        Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Content-Disposition:
+        In-Reply-To:References; bh=b9U/YwFXv20yTfLFWbuRAqJRHhEpMtnMkWj3xf7Fzmc=; b=UI
+        EEw8H1dCe2232LDPhplovW5e6NBNhkEiNVcTx8Gi+C/x/aWmMF0oZf5UfZpX9ycafyR2rIwhvk8lb
+        S/63ptPf6TBvFK8o+Ed2oh96jDXeLIDwEiH9B/Kpyln2pE00hYBEMbinj77+zZNRU1jjfimUnpmqq
+        vVUHfXSoVMB8oGM=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1nWUlH-00C3s4-PQ; Tue, 22 Mar 2022 04:00:43 +0100
+Date:   Tue, 22 Mar 2022 04:00:43 +0100
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Dylan Hung <dylan_hung@aspeedtech.com>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "joel@jms.id.au" <joel@jms.id.au>,
+        "andrew@aj.id.au" <andrew@aj.id.au>,
+        "hkallweit1@gmail.com" <hkallweit1@gmail.com>,
+        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "pabeni@redhat.com" <pabeni@redhat.com>,
+        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        BMC-SW <BMC-SW@aspeedtech.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: add reset properties into MDIO
+ nodes
+Message-ID: <Yjk722CyEW3q1ntm@lunn.ch>
+References: <20220321095648.4760-1-dylan_hung@aspeedtech.com>
+ <20220321095648.4760-4-dylan_hung@aspeedtech.com>
+ <eefe6dd8-6542-a5c2-6bdf-2c3ffe06e06b@kernel.org>
+ <HK0PR06MB2834CFADF087A439B06F87C29C179@HK0PR06MB2834.apcprd06.prod.outlook.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v4 2/3] mtd: cfi_cmdset_0002: Use chip_ready() for write
- on S29GL064N
-Content-Language: en-US
-To:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     linux-mtd@lists.infradead.org,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>, stable@vger.kernel.org
-References: <20220316155455.162362-1-ikegami.t@gmail.com>
- <20220316155455.162362-3-ikegami.t@gmail.com>
- <db755852-effe-c4ca-726c-200d28b0b8a5@leemhuis.info>
- <20220321133529.2d3addaf@xps13>
- <f950bfe4-9c8d-199d-120f-cc8c1ecca8e3@leemhuis.info>
- <20220321144134.3076a2ba@xps13>
- <3ed10e7e-1c73-6464-b1df-6c6e086fa162@leemhuis.info>
- <20220321155618.7bfa214e@xps13>
- <09be42ec-9eee-8237-83e9-054956381aab@leemhuis.info>
-From:   Tokunori Ikegami <ikegami.t@gmail.com>
-In-Reply-To: <09be42ec-9eee-8237-83e9-054956381aab@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <HK0PR06MB2834CFADF087A439B06F87C29C179@HK0PR06MB2834.apcprd06.prod.outlook.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, Mar 22, 2022 at 02:32:13AM +0000, Dylan Hung wrote:
+> > -----Original Message-----
+> > From: Krzysztof Kozlowski [mailto:krzk@kernel.org]
+> > Sent: 2022年3月21日 11:53 PM
+> > To: Dylan Hung <dylan_hung@aspeedtech.com>; robh+dt@kernel.org;
+> > joel@jms.id.au; andrew@aj.id.au; andrew@lunn.ch; hkallweit1@gmail.com;
+> > linux@armlinux.org.uk; davem@davemloft.net; kuba@kernel.org;
+> > pabeni@redhat.com; p.zabel@pengutronix.de; devicetree@vger.kernel.org;
+> > linux-arm-kernel@lists.infradead.org; linux-aspeed@lists.ozlabs.org;
+> > linux-kernel@vger.kernel.org; netdev@vger.kernel.org
+> > Cc: BMC-SW <BMC-SW@aspeedtech.com>; stable@vger.kernel.org
+> > Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: add reset properties into MDIO
+> > nodes
+> > 
+> > On 21/03/2022 10:56, Dylan Hung wrote:
+> > > Add reset control properties into MDIO nodes.  The 4 MDIO controllers in
+> > > AST2600 SOC share one reset control bit SCU50[3].
+> > >
+> > > Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
+> > > Cc: stable@vger.kernel.org
+> > 
+> > Please describe the bug being fixed. See stable-kernel-rules.
+> 
+> Thank you for your comment.
+> The reset deassertion of the MDIO device was usually done by the bootloader (u-boot).
+> However, one of our clients uses proprietary bootloader and doesn't deassert the MDIO
+> reset so failed to access the HW in kernel driver.
 
-On 2022/03/22 0:16, Thorsten Leemhuis wrote:
-> On 21.03.22 15:56, Miquel Raynal wrote:
->> regressions@leemhuis.info wrote on Mon, 21 Mar 2022 15:17:50 +0100:
->>> On 21.03.22 14:41, Miquel Raynal wrote:
->>>> regressions@leemhuis.info wrote on Mon, 21 Mar 2022 13:51:10 +0100:
->>>>> On 21.03.22 13:35, Miquel Raynal wrote:
->>>>>> regressions@leemhuis.info wrote on Mon, 21 Mar 2022 12:48:11 +0100:
->>>>>>   
->>>>>>> On 16.03.22 16:54, Tokunori Ikegami wrote:
->>>>>>>> As pointed out by this bug report [1], buffered writes are now broken on
->>>>>>>> S29GL064N. This issue comes from a rework which switched from using chip_good()
->>>>>>>> to chip_ready(), because DQ true data 0xFF is read on S29GL064N and an error
->>>>>>>> returned by chip_good(). One way to solve the issue is to revert the change
->>>>>>>> partially to use chip_ready for S29GL064N.
->>>>>>>>
->>>>>>>> [1] https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
->>>>>>> Why did you switch from the documented format for links you added on my
->>>>>>> request (see
->>>>>>> https://lore.kernel.org/stable/f1b44e87-e457-7783-d46e-0d577cea3b72@leemhuis.info/
->>>>>>>
->>>>>>> ) to v2 to something else that is not recognized by tools and scripts
->>>>>>> that rely on proper link tags? You are making my and maybe other peoples
->>>>>>> life unnecessary hard. :-((
->>>>>>>
->>>>>>> FWIW, the proper style should support footnote style like this:
->>>>>>>
->>>>>>> Link:
->>>>>>> https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
->>>>>>>   [1]
->>>>>>>
->>>>>>> Ciao, Thorsten
->>>>>>>
->>>>>>> #regzbot ^backmonitor:
->>>>>>> https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
->>>>>>>   
->>>>>> Because today's requirement from maintainers is to provide a Link
->>>>>> tag that points to the mail discussion of the patch being applied.
->>>>> That can be an additional Link tag, that is done all the time.
->>>>>   
->>>>>> I
->>>>>> then asked to use the above form instead to point to the bug report
->>>>>> because I don't see the point of having a "Link" tag for it?
->>>> Perhaps I should emphasize that I don't remember your initial request
->>>> regarding the use of a Link tag
->>> Happen, no worries.
->>>
->>>> and my original idea was to help this
->>>> contributor, not kill your tools which I actually know very little
->>>> about.
->>>>>> But it's not your own project, we are all working with thousands of
->>>>> people together on this project on various different fronts. That needs
->>>>> coordination, as some things otherwise become hard or impossible. That's
->>>>> why we have documentation that explains how to do some things. Not
->>>>> following it just because you don't like it is not helpful and in this
->>>>> case makes my life as a volunteer a lot harder.
->>>> Let's be honest, you are referring to a Documentation patch that *you*
->>>> wrote
->>> Correct, but in case of submitting-patches it was just a clarification
->>> how to place links; why the whole aspect was missing in the other is
->>> kinda odd and likely lost in history...
->>>
->>>> and was merged into Linus' tree mid January. How often do you
->>>> think people used to the contribution workflow monitor these files?
->>> Not often, that's why I have no problem pointing it out, even if that's
->>> slightly annoying. But you can imagine that it felt kinda odd on my side
->>> when asking someone to set the links (with references to the docs
->>> explaining how to set them) and seeing them added then in v2, just so
->>> see they vanished again in v3 of the same patch. :-/
->> I fully understand. I actually learned that these tags had to be used
->> for this purpose, so I will actually enforce their use in my next
->> reviews.
->>
->> Just a side question, should the Documentation also mention how
->> to refer to links for people not used to it? Something like
->> [5.Posting.rst]:
->>
->> 	"Link: <link> [1]
->> 	 Link: <link> [2]"
-> Maybe. But I think the better approach would be: introduce more specify
-> tags like "Reported:" (and maybe drop "Reported-by" at the same time?)
-> or "BugLink" (some people use that already!) would be better -- and then
-> maybe "Posted:", "Reviewposting", or something like that for the link to
-> the patch that is being applied; and leave "Link" for the rest. I
-> proposed that a while ago, but that didn't get any traction.
+So are you saying mainline u-boot releases the reset?
 
-Fixed to use Link tag as before by the version 5 patches instead of [1].
+> The reset deassertion is missing in the
+> kernel driver since it was created, should I add a BugFix for the first commit of this driver?
 
-Regards,
-Ikegami
+Yes, that is normal. Ideally the kernel should not depend on u-boot,
+because often people want to use other bootloaders, e.g. barebox. You
+should also consider kexec, where one kernel hands over to another
+kernel, without the bootloader being involved. In such a situation,
+you ideally want to assert and deassert the reset just to clean away
+any state the old kernel left around.
 
->
->> My original point was that maintainers would almost always add
->> a Link tag at the end, containing the mailing-list thread about the
->> patch being applied. Just saying in the commit log "see the link below"
->> then becomes misleading.
-> Maybe, but OTOH that link is normally at the end, which kinda makes it
-> obvious.
->
->> [...]
-> Ciao, Thorsten
+But please do note, that the reset is optional, since you need to be
+able to work with old DT blobs which don't have the reset property in
+them.
+
+	Andrew
+
+
+
