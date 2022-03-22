@@ -2,80 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5B54E3AD0
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 09:40:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F38504E3AD5
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 09:41:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231446AbiCVIlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 04:41:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49036 "EHLO
+        id S231465AbiCVImZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 04:42:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231260AbiCVIlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 04:41:31 -0400
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F11725D8;
-        Tue, 22 Mar 2022 01:40:04 -0700 (PDT)
-Received: by mail-wr1-f50.google.com with SMTP id p9so23824857wra.12;
-        Tue, 22 Mar 2022 01:40:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:content-language:to:cc:references:in-reply-to
-         :content-transfer-encoding;
-        bh=/Tfn3grWM8EBZ0IFyy5BUNygjofN0WZXFLyZhdj5fD8=;
-        b=UlDPQna4CCdnJGBrEqI6B8NF4N/ps+D1GLXFLuXXlmtvEs5zpF2MdoIvIpAoofLeJU
-         ZOKbOec2wgadltr6Qxs9Bw0nrxcduvkxlHaH1Vvv52+VNzvVbYmXtIxQWA6oaOk7RGFr
-         sERxThNv90Ev5yaTWNhyfNU2oDhqyhV3PKWuiq/sHOtD52XQf4rL+pYRRlAOgQVgZ6DU
-         eOVp/S1BrSS662yJTlpIzrhmQOaQE7AH5ztC8xUv2ncfWcK6yrwQLz5LKFAPc0Vo38X6
-         oYVpeD6I9Ar4f7bCAmKKBf1b3lNq62eawlTJnM8MLdL9vKab0kz54DS0su+Cbjur5pq5
-         mpvw==
-X-Gm-Message-State: AOAM530r1O45zpM53iKwyh+LSkPDwKvpfbvxBeQQVIpUXZfmykDCVIn2
-        YJYHELMAlVFb7HDhmB1tY9iGFEc7K7U=
-X-Google-Smtp-Source: ABdhPJxkORCp7gIYkTNw3KV3bdX3kmbwKYImn33rbcbzHbL5oapUbtQ9rTY8znVVhU8GFn8NowZFyg==
-X-Received: by 2002:a5d:4609:0:b0:203:e792:3add with SMTP id t9-20020a5d4609000000b00203e7923addmr21101655wrq.657.1647938402451;
-        Tue, 22 Mar 2022 01:40:02 -0700 (PDT)
-Received: from [192.168.0.17] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.googlemail.com with ESMTPSA id i10-20020a0560001aca00b00203daf3759asm16563813wry.68.2022.03.22.01.40.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Mar 2022 01:40:01 -0700 (PDT)
-Message-ID: <216b98d5-a254-4527-c569-9f3397811e70@kernel.org>
-Date:   Tue, 22 Mar 2022 09:40:00 +0100
+        with ESMTP id S231459AbiCVImZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 04:42:25 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B65125D8;
+        Tue, 22 Mar 2022 01:40:58 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 417CF210F3;
+        Tue, 22 Mar 2022 08:40:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1647938457; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0wkneNYxu4+l2f/BwLiRAlini3J7bunPFDGOTKdmMbo=;
+        b=aq6Tcn/s2XSpyqv94Jpi3whbz2A0f6QZQd2Mffhvu70LiPOkVlLzqRbyCxMnVLMHji6MN0
+        +Syv9J3Ia7u2PStho5upOeSuYxDUJ4DOK2Pv4eDq5ZByXJKn1vtZvYDNPihvve6RxrdPAo
+        1fLCAPZix2NZhePzVsOxCCItV6HGLaI=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id D8E3EA3B88;
+        Tue, 22 Mar 2022 08:40:56 +0000 (UTC)
+Date:   Tue, 22 Mar 2022 09:40:56 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Charan Teja Kalla <quic_charante@quicinc.com>
+Cc:     akpm@linux-foundation.org, surenb@google.com, vbabka@suse.cz,
+        rientjes@google.com, sfr@canb.auug.org.au, edgararriaga@google.com,
+        minchan@kernel.org, nadav.amit@gmail.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, "# 5 . 10+" <stable@vger.kernel.org>
+Subject: Re: [PATCH V2,2/2] mm: madvise: skip unmapped vma holes passed to
+ process_madvise
+Message-ID: <YjmLmBUmROr+hshO@dhcp22.suse.cz>
+References: <cover.1647008754.git.quic_charante@quicinc.com>
+ <4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com>
+ <Yjia8AzhgWh4KPbp@dhcp22.suse.cz>
+ <7207b2f5-6b3e-aea4-aa1b-9c6d849abe34@quicinc.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: add reset properties into MDIO
- nodes
-Content-Language: en-US
-To:     Dylan Hung <dylan_hung@aspeedtech.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "joel@jms.id.au" <joel@jms.id.au>,
-        "andrew@aj.id.au" <andrew@aj.id.au>,
-        "andrew@lunn.ch" <andrew@lunn.ch>,
-        "hkallweit1@gmail.com" <hkallweit1@gmail.com>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "kuba@kernel.org" <kuba@kernel.org>,
-        "pabeni@redhat.com" <pabeni@redhat.com>,
-        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc:     BMC-SW <BMC-SW@aspeedtech.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20220321095648.4760-1-dylan_hung@aspeedtech.com>
- <20220321095648.4760-4-dylan_hung@aspeedtech.com>
- <eefe6dd8-6542-a5c2-6bdf-2c3ffe06e06b@kernel.org>
- <HK0PR06MB2834CFADF087A439B06F87C29C179@HK0PR06MB2834.apcprd06.prod.outlook.com>
-In-Reply-To: <HK0PR06MB2834CFADF087A439B06F87C29C179@HK0PR06MB2834.apcprd06.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7207b2f5-6b3e-aea4-aa1b-9c6d849abe34@quicinc.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -83,39 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 22/03/2022 03:32, Dylan Hung wrote:
->> -----Original Message-----
->> From: Krzysztof Kozlowski [mailto:krzk@kernel.org]
->> Sent: 2022年3月21日 11:53 PM
->> To: Dylan Hung <dylan_hung@aspeedtech.com>; robh+dt@kernel.org;
->> joel@jms.id.au; andrew@aj.id.au; andrew@lunn.ch; hkallweit1@gmail.com;
->> linux@armlinux.org.uk; davem@davemloft.net; kuba@kernel.org;
->> pabeni@redhat.com; p.zabel@pengutronix.de; devicetree@vger.kernel.org;
->> linux-arm-kernel@lists.infradead.org; linux-aspeed@lists.ozlabs.org;
->> linux-kernel@vger.kernel.org; netdev@vger.kernel.org
->> Cc: BMC-SW <BMC-SW@aspeedtech.com>; stable@vger.kernel.org
->> Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: add reset properties into MDIO
->> nodes
->>
->> On 21/03/2022 10:56, Dylan Hung wrote:
->>> Add reset control properties into MDIO nodes.  The 4 MDIO controllers in
->>> AST2600 SOC share one reset control bit SCU50[3].
->>>
->>> Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
->>> Cc: stable@vger.kernel.org
->>
->> Please describe the bug being fixed. See stable-kernel-rules.
+On Tue 22-03-22 12:40:24, Charan Teja Kalla wrote:
+> Thanks Michal for the inputs.
 > 
-> Thank you for your comment.
-> The reset deassertion of the MDIO device was usually done by the bootloader (u-boot).
-> However, one of our clients uses proprietary bootloader and doesn't deassert the MDIO
-> reset so failed to access the HW in kernel driver.  The reset deassertion is missing in the
-> kernel driver since it was created, should I add a BugFix for the first commit of this driver?
-> Or would it be better if I remove " Cc: stable@vger.kernel.org"?
+> On 3/21/2022 9:04 PM, Michal Hocko wrote:
+> > On Fri 11-03-22 20:59:06, Charan Teja Kalla wrote:
+> >> The process_madvise() system call is expected to skip holes in vma
+> >> passed through 'struct iovec' vector list.
+> > Where is this assumption coming from? From the man page I can see:
+> > : The advice might be applied to only a part of iovec if one of its
+> > : elements points to an invalid memory region in the remote
+> > : process.  No further elements will be processed beyond that
+> > : point.  
+> 
+> I assumed this while processing a single element of a iovec. In a
+> scenario where a range passed contains multiple VMA's + holes, on
+> encountering the VMA with VM_LOCKED|VM_HUGETLB|VM_PFNMAP, we are
+> immediately stopping further processing of that iovec element with
+> EINVAL return. Where as on encountering a hole, we are simply
+> remembering it as ENOMEM but continues processing that iovec element and
+> in the end returns ENOMEM. This means that complete range is processed
+> but still returning ENOMEM, hence the assumption of skipping holes in a
+> vma.
+> 
+> The other problem is, in an individual iovec element, though some bytes
+> are processed we may still endup in returning EINVAL which is hard for
+> the user to take decisions i.e. he doesn't know at which address it is
+> exactly failed to advise.
+> 
+> Anyway, both these will be addressed in the next version of this patch
+> with the suggestions from minchan [1] where it mentioned that: "it
+> should represent exact bytes it addressed with exacts ranges like
+> process_vm_readv/writev. Poviding valid ranges is responsiblity from the
+> user."
 
-This rather looks like a missing feature, not a bug. Anyway any
-description must be in commit message.
+I would tend to agree that the userspace should be providing sensible
+ranges (either subsets or full existing mappings). Whenever multiple
+vmas are defined by a single iovec, things get more complicated. IMO
+process_madvise should mimic the madvise semantic applied to each iovec.
+That means to bail out on an error. That applies to ENOMEM even when the
+last iovec has been processed completely.
 
-
-Best regards,
-Krzysztof
+This would allow to learn about address space change that the caller is
+not aware of. That being said, your first patch should be good enough.
+-- 
+Michal Hocko
+SUSE Labs
