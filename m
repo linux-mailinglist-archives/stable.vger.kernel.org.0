@@ -2,39 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCCBB4E4956
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 23:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D684E49AC
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 00:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232615AbiCVWw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 18:52:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36984 "EHLO
+        id S234359AbiCVXeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 19:34:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229778AbiCVWw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 18:52:56 -0400
-X-Greylist: delayed 528 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 22 Mar 2022 15:51:27 PDT
-Received: from postfix01.core.dcmtl.stgraber.net (postfix01.core.dcmtl.stgraber.net [IPv6:2602:fc62:a:1001:216:3eff:feb3:6927])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE5AC5DA5E;
-        Tue, 22 Mar 2022 15:51:27 -0700 (PDT)
-Received: from dakara.stgraber.net (unknown [IPv6:2602:fc62:b:1000:5436:5b25:64e4:d81a])
-        by postfix01.core.dcmtl.stgraber.net (Postfix) with ESMTP id 41FD41FD94;
-        Tue, 22 Mar 2022 22:42:36 +0000 (UTC)
-From:   =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>
-To:     kuba@kernel.org
-Cc:     davem@davemloft.net, iyappan@os.amperecomputing.com,
-        keyur@os.amperecomputing.com, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, quan@os.amperecomputing.com,
-        stable@vger.kernel.org, stgraber@ubuntu.com,
-        toan@os.amperecomputing.com
-Subject: [PATCH v2] drivers: net: xgene: Fix regression in CRC stripping
-Date:   Tue, 22 Mar 2022 18:42:06 -0400
-Message-Id: <20220322224205.752795-1-stgraber@ubuntu.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220318141207.284972b7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-References: <20220318141207.284972b7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        with ESMTP id S239543AbiCVXea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 19:34:30 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA334D95;
+        Tue, 22 Mar 2022 16:33:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1647991980; x=1679527980;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=XwlEgxZx+biSuXUGcY7iQ2dLxTEwH6VqQm6lQR1IWEM=;
+  b=BxdOQ5bUi5RZrD05EdU/xwQjnJhwSkHFo8CZ1v9Y23zc+clMuWFzGw4d
+   fjQ8vAjGYNvy/Qk/0SgQypQnf2W3Ms9Nija0kPyYTiBGxiZ6Xzi6DGXnU
+   uVlBpeotNJs+HsSrDCUslgqDJt1tyHjLHr5QetHWl+jsevU+4TRjUQB8p
+   rfyj70WkIohxwX96zotOSLKSNhOAeHql9s7TteAW9WpW3Krh5yM0PagwA
+   4FdhaNaNUFVyRi+tLlk5AXfbavNFUZTUSOt4nmYxMsMQvWywEQKP7blh5
+   1UfFQE7t5lduzkpfTYT2Z8RixXW60P0GKrIQgeCM1bIuSWdEESVUf8Cfy
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10294"; a="344411960"
+X-IronPort-AV: E=Sophos;i="5.90,203,1643702400"; 
+   d="scan'208";a="344411960"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2022 16:33:00 -0700
+X-IronPort-AV: E=Sophos;i="5.90,203,1643702400"; 
+   d="scan'208";a="692749730"
+Received: from rtgarci1-mobl2.amr.corp.intel.com (HELO guptapa-desk) ([10.212.228.140])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2022 16:32:58 -0700
+Date:   Tue, 22 Mar 2022 16:32:42 -0700
+From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+To:     Borislav Petkov <bp@alien8.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
+        antonio.gomez.iglesias@linux.intel.com, neelima.krishnan@intel.com,
+        stable@vger.kernel.org, Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [PATCH v2 0/2] TSX update
+Message-ID: <20220322233242.mlslvnucjb5sjyk2@guptapa-desk>
+References: <cover.1646943780.git.pawan.kumar.gupta@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+In-Reply-To: <cover.1646943780.git.pawan.kumar.gupta@linux.intel.com>
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -42,56 +64,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Graber <stgraber@ubuntu.com>
+Hi Boris and others,
 
-All packets on ingress (except for jumbo) are terminated with a 4-bytes
-CRC checksum. It's the responsability of the driver to strip those 4
-bytes. Unfortunately a change dating back to March 2017 re-shuffled some
-code and made the CRC stripping code effectively dead.
+On Thu, Mar 10, 2022 at 01:59:47PM -0800, Pawan Gupta wrote:
+>v2:
+>- Added patch to disable TSX development mode (Andrew, Boris)
+>- Rebased to v5.17-rc7
+>
+>v1: https://lore.kernel.org/lkml/5bd785a1d6ea0b572250add0c6617b4504bc24d1.1644440311.git.pawan.kumar.gupta@linux.intel.com/
+>
+>Hi,
+>
+>After a recent microcode update some Intel processors will always abort
+>Transactional Synchronization Extensions (TSX) transactions [*]. On
+>these processors a new CPUID bit,
+>CPUID.07H.0H.EDX[11](RTM_ALWAYS_ABORT), will be enumerated to indicate
+>that the loaded microcode is forcing Restricted Transactional Memory
+>(RTM) abort. If the processor enumerated support for RTM previously, the
+>CPUID enumeration bits for TSX (CPUID.RTM and CPUID.HLE) continue to be
+>set by default after the microcode update.
+>
+>First patch in this series clears CPUID.RTM and CPUID.HLE so that
+>userspace doesn't enumerate TSX feature.
+>
+>Microcode also added support to re-enable TSX for development purpose,
+>doing so is not recommended for production deployments, because MD_CLEAR
+>flows for the mitigation of TSX Asynchronous Abort (TAA) may not be
+>effective on these processors when TSX is enabled with updated
+>microcode.
+>
+>Second patch unconditionally disables this TSX development mode, in case
+>it was enabled by the software running before kernel boot.
+>
+>Thanks,
+>Pawan
+>
+>[*] Intel Transactional Synchronization Extension (Intel TSX) Disable Update for Selected Processors
+>    https://cdrdv2.intel.com/v1/dl/getContent/643557
+>
+>Pawan Gupta (2):
+>  x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
+>  x86/tsx: Disable TSX development mode at boot
 
-This change re-orders that part a bit such that the datalen is
-immediately altered if needed.
+I am hoping to get some feedback on v2. Are these patches looking okay?
 
-Fixes: 4902a92270fb ("drivers: net: xgene: Add workaround for errata 10GE_8/ENET_11")
-Signed-off-by: Stephane Graber <stgraber@ubuntu.com>
-Tested-by: Stephane Graber <stgraber@ubuntu.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: stable@vger.kernel.org
----
- drivers/net/ethernet/apm/xgene/xgene_enet_main.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-index ff2d099aab21..53dc8d5fede8 100644
---- a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-+++ b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-@@ -696,6 +696,12 @@ static int xgene_enet_rx_frame(struct xgene_enet_desc_ring *rx_ring,
- 	buf_pool->rx_skb[skb_index] = NULL;
- 
- 	datalen = xgene_enet_get_data_len(le64_to_cpu(raw_desc->m1));
-+
-+	/* strip off CRC as HW isn't doing this */
-+	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
-+	if (!nv)
-+		datalen -= 4;
-+
- 	skb_put(skb, datalen);
- 	prefetch(skb->data - NET_IP_ALIGN);
- 	skb->protocol = eth_type_trans(skb, ndev);
-@@ -717,12 +723,8 @@ static int xgene_enet_rx_frame(struct xgene_enet_desc_ring *rx_ring,
- 		}
- 	}
- 
--	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
--	if (!nv) {
--		/* strip off CRC as HW isn't doing this */
--		datalen -= 4;
-+	if (!nv)
- 		goto skip_jumbo;
--	}
- 
- 	slots = page_pool->slots - 1;
- 	head = page_pool->head;
--- 
-2.34.1
-
+Thanks,
+Pawan
