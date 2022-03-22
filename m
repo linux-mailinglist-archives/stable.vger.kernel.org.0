@@ -2,214 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47E784E3EAA
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 13:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B4834E3EBE
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 13:48:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233608AbiCVMnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 08:43:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47038 "EHLO
+        id S232837AbiCVMte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 08:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233731AbiCVMnP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 08:43:15 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5490585960
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 05:41:47 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22MBaoRw003860;
-        Tue, 22 Mar 2022 12:41:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=jTGnOm9fABEgSPw8R/iBMBh1U6ZiIXDHxLqXXM1MhEA=;
- b=eC9fQ2eAm9XJaXewYHESIpui8QCCCOXYsaG3jmDF0JAPq+b86mmO7WU3oT0IpG0QYXVY
- j3SvHp8O7ZBnzYiXUHFP3/RMpT1ghh1YOG6SxNcNjqAVyGnafuV+oc0rxyyYUE2mFc9v
- EX5+Ht+dnE9uZBiv1RYpOkQQbBFRtse+PsKABK/mJrsSvARhGIiESDC838GYTe9N6WTA
- Hr2azW5Y8Q8qYf60dh25gbrAyFXienf8fcbIVWJAiDh9Ha36oGeBG2ryayou5jjq5Isp
- 7MgdGf//0ydjLD9bnOEel+zC0Tg3ESAJakictXFYN1NknYql0IpYDIkpF5qRKgieClz3 DQ== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ey7nah8am-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Mar 2022 12:41:38 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22MCZi5G019444;
-        Tue, 22 Mar 2022 12:41:36 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06fra.de.ibm.com with ESMTP id 3ew6ehwbte-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Mar 2022 12:41:36 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22MCfW6b39452982
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 22 Mar 2022 12:41:32 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D21C5AE053;
-        Tue, 22 Mar 2022 12:41:32 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 85412AE056;
-        Tue, 22 Mar 2022 12:41:32 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 22 Mar 2022 12:41:32 +0000 (GMT)
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@lst.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Doug Gilbert <dgilbert@interlog.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH for 5.4.x 2/2] swiotlb: rework "fix info leak with DMA_FROM_DEVICE"
-Date:   Tue, 22 Mar 2022 13:41:28 +0100
-Message-Id: <20220322124128.2232849-3-pasic@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220322124128.2232849-1-pasic@linux.ibm.com>
-References: <20220322124128.2232849-1-pasic@linux.ibm.com>
+        with ESMTP id S231920AbiCVMtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 08:49:33 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D7726F6F
+        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 05:48:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1647953284;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=u9yrNlkYpunaRytWgUY4ikU4zuFUDmjdz1rHYai2Yfg=;
+        b=gxjqQKGg1e9u31Em0rFb58sOmiuRMlsNTgMLwXTZNP6VSuMDd2PHYX8we24tTNb+pXcRrq
+        FZHvrNVzmMPHMkNT/dzZzW6l/hSNefx6WLw0Q/uJaMRNxj9ltJzsrr1ZQtW+GzcuWV5zu8
+        FfzrgN6YZv77kvcmA2zGaRo9OXWBW2M=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-626-oi_E4ujzMGWFfTeTp3bxaQ-1; Tue, 22 Mar 2022 08:48:03 -0400
+X-MC-Unique: oi_E4ujzMGWFfTeTp3bxaQ-1
+Received: by mail-wm1-f69.google.com with SMTP id n62-20020a1ca441000000b0038124c99ebcso6829148wme.9
+        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 05:48:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=u9yrNlkYpunaRytWgUY4ikU4zuFUDmjdz1rHYai2Yfg=;
+        b=rBNlrl1F0XT5Fyt1kqV/Io+3/iI7dwDVwKpYGs1eeRx6pIMP0v5P+w6bUEBHEXYC5q
+         KUVmA5iyv6ufWnFsJFikm020Es7fcFA0W41+lS0PGhmJnIWDQZMRc8zYWKmTg98o3n7X
+         z5wJqSabU5BESANJDe7de2bidSLfD4KG/mmbrtOzRsD2Vr75zupPqG2daXWjqSrhBho4
+         4H1picGo1MWTXACrehqWB3fJAmjcTGLN+y3bh20QEsoKXR6QxsqudgB+LWadGtrlLL0b
+         oElUvMYNlNPezZO+/FaBB+kkuAQXzZ9fwGJAYPe8IEWGCuwIt2QON9oF56LYJs+If6Nn
+         Ic2A==
+X-Gm-Message-State: AOAM530E01gpABGPGAE7Q8pzmJBGS7ZXl/c0OOlj0AMm+b88Jeb05z+s
+        bK4XnA641eC87YFlZF97J24oJrycgBuulhN2Osu2sJrL/f6kLoyfeKPg44PwxvcEDEbagl925kX
+        PtLP1I9jiHDsv1n9S
+X-Received: by 2002:a05:600c:5021:b0:38c:70c0:80e9 with SMTP id n33-20020a05600c502100b0038c70c080e9mr3610558wmr.91.1647953282574;
+        Tue, 22 Mar 2022 05:48:02 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyb73Jj3kArrdOmr4xNJ2g6A2tODfvNxCiROA57ukRjloP9coQ4ogSvUIco5W02naEshguG4A==
+X-Received: by 2002:a05:600c:5021:b0:38c:70c0:80e9 with SMTP id n33-20020a05600c502100b0038c70c080e9mr3610550wmr.91.1647953282389;
+        Tue, 22 Mar 2022 05:48:02 -0700 (PDT)
+Received: from kherbst.pingu.com ([31.16.187.72])
+        by smtp.gmail.com with ESMTPSA id s17-20020adfdb11000000b001f02d5fea43sm16823291wri.98.2022.03.22.05.48.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Mar 2022 05:48:01 -0700 (PDT)
+From:   Karol Herbst <kherbst@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Karol Herbst <kherbst@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/nouveau/pmu: Add missing callbacks for Tegra devices
+Date:   Tue, 22 Mar 2022 13:48:00 +0100
+Message-Id: <20220322124800.2605463-1-kherbst@redhat.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: s0QO3Hx9j_dLsRu6V4t9taFzF24YKlUD
-X-Proofpoint-ORIG-GUID: s0QO3Hx9j_dLsRu6V4t9taFzF24YKlUD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-22_04,2022-03-22_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 mlxscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0
- bulkscore=0 adultscore=0 impostorscore=0 mlxlogscore=999 phishscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203220072
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit aa6f8dcbab473f3a3c7454b74caa46d36cdc5d13 upstream.
+Fixes a crash booting on those platforms with nouveau.
 
-Unfortunately, we ended up merging an old version of the patch "fix info
-leak with DMA_FROM_DEVICE" instead of merging the latest one. Christoph
-(the swiotlb maintainer), he asked me to create an incremental fix
-(after I have pointed this out the mix up, and asked him for guidance).
-So here we go.
-
-The main differences between what we got and what was agreed are:
-* swiotlb_sync_single_for_device is also required to do an extra bounce
-* We decided not to introduce DMA_ATTR_OVERWRITE until we have exploiters
-* The implantation of DMA_ATTR_OVERWRITE is flawed: DMA_ATTR_OVERWRITE
-  must take precedence over DMA_ATTR_SKIP_CPU_SYNC
-
-Thus this patch removes DMA_ATTR_OVERWRITE, and makes
-swiotlb_sync_single_for_device() bounce unconditionally (that is, also
-when dir == DMA_TO_DEVICE) in order do avoid synchronising back stale
-data from the swiotlb buffer.
-
-Let me note, that if the size used with dma_sync_* API is less than the
-size used with dma_[un]map_*, under certain circumstances we may still
-end up with swiotlb not being transparent. In that sense, this is no
-perfect fix either.
-
-To get this bullet proof, we would have to bounce the entire
-mapping/bounce buffer. For that we would have to figure out the starting
-address, and the size of the mapping in
-swiotlb_sync_single_for_device(). While this does seem possible, there
-seems to be no firm consensus on how things are supposed to work.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
-Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 4cdd2450bf73 ("drm/nouveau/pmu/gm200-: use alternate falcon reset sequence")
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.17+
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
 ---
- Documentation/DMA-attributes.txt | 10 ----------
- include/linux/dma-mapping.h      |  8 --------
- kernel/dma/swiotlb.c             | 25 ++++++++++++++++---------
- 3 files changed, 16 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c | 1 +
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c | 2 +-
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c | 1 +
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h  | 1 +
+ 4 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/DMA-attributes.txt b/Documentation/DMA-attributes.txt
-index 7193505a98ca..8f8d97f65d73 100644
---- a/Documentation/DMA-attributes.txt
-+++ b/Documentation/DMA-attributes.txt
-@@ -156,13 +156,3 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
- subsystem that the buffer is fully accessible at the elevated privilege
- level (and ideally inaccessible or at least read-only at the
- lesser-privileged levels).
--
--DMA_ATTR_PRIVILEGED
---------------------
--
--Some advanced peripherals such as remote processors and GPUs perform
--accesses to DMA buffers in both privileged "supervisor" and unprivileged
--"user" modes.  This attribute is used to indicate to the DMA-mapping
--subsystem that the buffer is fully accessible at the elevated privilege
--level (and ideally inaccessible or at least read-only at the
--lesser-privileged levels).
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index da90f20e11c1..4d450672b7d6 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -70,14 +70,6 @@
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
+index e1772211b0a4..612310d5d481 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
+@@ -216,6 +216,7 @@ gm20b_pmu = {
+ 	.intr = gt215_pmu_intr,
+ 	.recv = gm20b_pmu_recv,
+ 	.initmsg = gm20b_pmu_initmsg,
++	.reset = gf100_pmu_reset,
+ };
+ 
+ #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
+index 6bf7fc1bd1e3..1a6f9c3af5ec 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
+@@ -23,7 +23,7 @@
   */
- #define DMA_ATTR_PRIVILEGED		(1UL << 9)
+ #include "priv.h"
  
--/*
-- * This is a hint to the DMA-mapping subsystem that the device is expected
-- * to overwrite the entire mapped size, thus the caller does not require any
-- * of the previous buffer contents to be preserved. This allows
-- * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
-- */
--#define DMA_ATTR_OVERWRITE		(1UL << 10)
--
- /*
-  * A dma_addr_t can hold any valid DMA or bus address for the platform.
-  * It can be given to a device to use as a DMA source or target.  A CPU cannot
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index f17b771856d1..76fb001dddd4 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -571,10 +571,14 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
- 	 */
- 	for (i = 0; i < nslots; i++)
- 		io_tlb_orig_addr[index+i] = orig_addr + (i << IO_TLB_SHIFT);
--	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
--	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
--	    dir == DMA_BIDIRECTIONAL))
--		swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
-+	/*
-+	 * When dir == DMA_FROM_DEVICE we could omit the copy from the orig
-+	 * to the tlb buffer, if we knew for sure the device will
-+	 * overwirte the entire current content. But we don't. Thus
-+	 * unconditional bounce may prevent leaking swiotlb content (i.e.
-+	 * kernel memory) to user-space.
-+	 */
-+	swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
+-static void
++void
+ gp102_pmu_reset(struct nvkm_pmu *pmu)
+ {
+ 	struct nvkm_device *device = pmu->subdev.device;
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
+index ba1583bb618b..94cfb1791af6 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
+@@ -83,6 +83,7 @@ gp10b_pmu = {
+ 	.intr = gt215_pmu_intr,
+ 	.recv = gm20b_pmu_recv,
+ 	.initmsg = gm20b_pmu_initmsg,
++	.reset = gp102_pmu_reset,
+ };
  
- 	return tlb_addr;
- }
-@@ -649,11 +653,14 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
- 			BUG_ON(dir != DMA_TO_DEVICE);
- 		break;
- 	case SYNC_FOR_DEVICE:
--		if (likely(dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
--			swiotlb_bounce(orig_addr, tlb_addr,
--				       size, DMA_TO_DEVICE);
--		else
--			BUG_ON(dir != DMA_FROM_DEVICE);
-+		/*
-+		 * Unconditional bounce is necessary to avoid corruption on
-+		 * sync_*_for_cpu or dma_ummap_* when the device didn't
-+		 * overwrite the whole lengt of the bounce buffer.
-+		 */
-+		swiotlb_bounce(orig_addr, tlb_addr,
-+			       size, DMA_TO_DEVICE);
-+		BUG_ON(!valid_dma_direction(dir));
- 		break;
- 	default:
- 		BUG();
+ #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
+index bcaade758ff7..21abf31f4442 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
+@@ -41,6 +41,7 @@ int gt215_pmu_send(struct nvkm_pmu *, u32[2], u32, u32, u32, u32);
+ 
+ bool gf100_pmu_enabled(struct nvkm_pmu *);
+ void gf100_pmu_reset(struct nvkm_pmu *);
++void gp102_pmu_reset(struct nvkm_pmu *pmu);
+ 
+ void gk110_pmu_pgob(struct nvkm_pmu *, bool);
+ 
 -- 
-2.32.0
+2.35.1
 
