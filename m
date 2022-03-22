@@ -2,112 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 475154E3A9C
-	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 09:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B5B54E3AD0
+	for <lists+stable@lfdr.de>; Tue, 22 Mar 2022 09:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231172AbiCVIdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 04:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44838 "EHLO
+        id S231446AbiCVIlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 04:41:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229706AbiCVIc7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 04:32:59 -0400
-Received: from gproxy2-pub.mail.unifiedlayer.com (gproxy2-pub.mail.unifiedlayer.com [69.89.18.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92C938BC1
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 01:31:30 -0700 (PDT)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway4.mail.pro1.eigbox.com (Postfix) with ESMTP id 11FA4100405ED
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 08:31:30 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id WZvNnysoLQs3CWZvNn4pAu; Tue, 22 Mar 2022 08:31:30 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=A+Opg4aG c=1 sm=1 tr=0 ts=62398962
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=o8Y5sQTvuykA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Xg6Z9MnRwFMJUtWyEmzpSzEvafd4fSSDjSnPaN7n+FE=; b=OJ5Gp9iTZfMIovGOkYcdMxODng
-        klzNSaRH/BdnG70MihERkbGuTS30/fD2xrEV2cTz6dmAxQhsd2hbCc5LEjIh05w/qBp0rvwIKLDeK
-        kYOVMeXTvW4hKH9RLZJKT4QR0;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:33758 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nWZvM-0010h5-QB; Tue, 22 Mar 2022 02:31:28 -0600
-Subject: Re: [PATCH 5.16 00/37] 5.16.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220321133221.290173884@linuxfoundation.org>
-In-Reply-To: <20220321133221.290173884@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <e74296b1-601a-961d-b501-7fed7f1aca0b@w6rz.net>
-Date:   Tue, 22 Mar 2022 01:31:26 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S231260AbiCVIlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 04:41:31 -0400
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F11725D8;
+        Tue, 22 Mar 2022 01:40:04 -0700 (PDT)
+Received: by mail-wr1-f50.google.com with SMTP id p9so23824857wra.12;
+        Tue, 22 Mar 2022 01:40:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
+         :subject:content-language:to:cc:references:in-reply-to
+         :content-transfer-encoding;
+        bh=/Tfn3grWM8EBZ0IFyy5BUNygjofN0WZXFLyZhdj5fD8=;
+        b=UlDPQna4CCdnJGBrEqI6B8NF4N/ps+D1GLXFLuXXlmtvEs5zpF2MdoIvIpAoofLeJU
+         ZOKbOec2wgadltr6Qxs9Bw0nrxcduvkxlHaH1Vvv52+VNzvVbYmXtIxQWA6oaOk7RGFr
+         sERxThNv90Ev5yaTWNhyfNU2oDhqyhV3PKWuiq/sHOtD52XQf4rL+pYRRlAOgQVgZ6DU
+         eOVp/S1BrSS662yJTlpIzrhmQOaQE7AH5ztC8xUv2ncfWcK6yrwQLz5LKFAPc0Vo38X6
+         oYVpeD6I9Ar4f7bCAmKKBf1b3lNq62eawlTJnM8MLdL9vKab0kz54DS0su+Cbjur5pq5
+         mpvw==
+X-Gm-Message-State: AOAM530r1O45zpM53iKwyh+LSkPDwKvpfbvxBeQQVIpUXZfmykDCVIn2
+        YJYHELMAlVFb7HDhmB1tY9iGFEc7K7U=
+X-Google-Smtp-Source: ABdhPJxkORCp7gIYkTNw3KV3bdX3kmbwKYImn33rbcbzHbL5oapUbtQ9rTY8znVVhU8GFn8NowZFyg==
+X-Received: by 2002:a5d:4609:0:b0:203:e792:3add with SMTP id t9-20020a5d4609000000b00203e7923addmr21101655wrq.657.1647938402451;
+        Tue, 22 Mar 2022 01:40:02 -0700 (PDT)
+Received: from [192.168.0.17] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
+        by smtp.googlemail.com with ESMTPSA id i10-20020a0560001aca00b00203daf3759asm16563813wry.68.2022.03.22.01.40.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Mar 2022 01:40:01 -0700 (PDT)
+Message-ID: <216b98d5-a254-4527-c569-9f3397811e70@kernel.org>
+Date:   Tue, 22 Mar 2022 09:40:00 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: add reset properties into MDIO
+ nodes
 Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nWZvM-0010h5-QB
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:33758
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+To:     Dylan Hung <dylan_hung@aspeedtech.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "joel@jms.id.au" <joel@jms.id.au>,
+        "andrew@aj.id.au" <andrew@aj.id.au>,
+        "andrew@lunn.ch" <andrew@lunn.ch>,
+        "hkallweit1@gmail.com" <hkallweit1@gmail.com>,
+        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "pabeni@redhat.com" <pabeni@redhat.com>,
+        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc:     BMC-SW <BMC-SW@aspeedtech.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20220321095648.4760-1-dylan_hung@aspeedtech.com>
+ <20220321095648.4760-4-dylan_hung@aspeedtech.com>
+ <eefe6dd8-6542-a5c2-6bdf-2c3ffe06e06b@kernel.org>
+ <HK0PR06MB2834CFADF087A439B06F87C29C179@HK0PR06MB2834.apcprd06.prod.outlook.com>
+In-Reply-To: <HK0PR06MB2834CFADF087A439B06F87C29C179@HK0PR06MB2834.apcprd06.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/21/22 6:52 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.17 release.
-> There are 37 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 23 Mar 2022 13:32:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.17-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 22/03/2022 03:32, Dylan Hung wrote:
+>> -----Original Message-----
+>> From: Krzysztof Kozlowski [mailto:krzk@kernel.org]
+>> Sent: 2022年3月21日 11:53 PM
+>> To: Dylan Hung <dylan_hung@aspeedtech.com>; robh+dt@kernel.org;
+>> joel@jms.id.au; andrew@aj.id.au; andrew@lunn.ch; hkallweit1@gmail.com;
+>> linux@armlinux.org.uk; davem@davemloft.net; kuba@kernel.org;
+>> pabeni@redhat.com; p.zabel@pengutronix.de; devicetree@vger.kernel.org;
+>> linux-arm-kernel@lists.infradead.org; linux-aspeed@lists.ozlabs.org;
+>> linux-kernel@vger.kernel.org; netdev@vger.kernel.org
+>> Cc: BMC-SW <BMC-SW@aspeedtech.com>; stable@vger.kernel.org
+>> Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: add reset properties into MDIO
+>> nodes
+>>
+>> On 21/03/2022 10:56, Dylan Hung wrote:
+>>> Add reset control properties into MDIO nodes.  The 4 MDIO controllers in
+>>> AST2600 SOC share one reset control bit SCU50[3].
+>>>
+>>> Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
+>>> Cc: stable@vger.kernel.org
+>>
+>> Please describe the bug being fixed. See stable-kernel-rules.
+> 
+> Thank you for your comment.
+> The reset deassertion of the MDIO device was usually done by the bootloader (u-boot).
+> However, one of our clients uses proprietary bootloader and doesn't deassert the MDIO
+> reset so failed to access the HW in kernel driver.  The reset deassertion is missing in the
+> kernel driver since it was created, should I add a BugFix for the first commit of this driver?
+> Or would it be better if I remove " Cc: stable@vger.kernel.org"?
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+This rather looks like a missing feature, not a bug. Anyway any
+description must be in commit message.
 
-Tested-by: Ron Economos <re@w6rz.net>
 
+Best regards,
+Krzysztof
