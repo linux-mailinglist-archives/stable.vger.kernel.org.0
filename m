@@ -2,132 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 344DF4E5996
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:09:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 504C14E59AF
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:14:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237339AbiCWULL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 16:11:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59110 "EHLO
+        id S1344589AbiCWUP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 16:15:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239934AbiCWULK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:11:10 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64552694AE
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:09:40 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id k6so2603761plg.12
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:09:40 -0700 (PDT)
+        with ESMTP id S1344579AbiCWUPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:15:55 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3F78C7CE;
+        Wed, 23 Mar 2022 13:14:23 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id yy13so5133807ejb.2;
+        Wed, 23 Mar 2022 13:14:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bqbkkfQ6DJeWwPjXhaTf4dOtRWnm84k2cLupIbOddZM=;
-        b=z4i1cmanH62I61kXSoNn1uGhTGyEDTffIogFS2jUJZclh10Iyrj2nD+W99z0jjmfe3
-         2miXRJ/8Ru7NFRU165OqhnpN759s4HxM1LIFC67BNM37oA9CIzHr4CA5PVArHP4czEbL
-         63BfcsSJGk7xorXZZjwEIY6d152camLVz8kcKhEgPNhkHIRIiS1UscSsEbeaoN7yp/rS
-         k6YlQbD6Qq90nsNzFR+mxvZ5WzBT8SCkaNCHYq5G4/EEb5Q4XFTccOXqZ9ukC46aoCW0
-         VbZj8Tr4SWN273XR7MRgGRwFFAeR9Uj1s2Y4bfI0Mk9yZ972R1vw684+NgjI2ls07FMJ
-         oY6w==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=vUP+cDU6A63BiCB5No7G9vTRFHC0WfO/ACql60JcDZ4=;
+        b=Uymv0AnoffsesJkU/vB9EPFV7fHYvGysg0Ebp/hmGaGcs6n+SDrkBCEUVrNzstO3p0
+         UgO0DcN9wZbez+Hd3bwRws4pny+z1IFrCXCn2K5+9JLzjH41IKgErmKFEfsgguuDcf47
+         sXzlTEEDDaq6O1vNaBDHlNz5JVPzPXw/XIQLM4ujqjpLh1f7yM6fy+lroM4mvovC3tkM
+         Cv/w/9imHIyQzEcJbZbvzReuVDIKceP3f3dPhsRbGtAAlfTYTRbbWT/uVSA1gD6CHXe+
+         aCfcEMXG4SSzTBlZzjCSgKZrTlZPXBsmAziS3rbtUWTG46kmU1j109pWCxG5vn/mhokm
+         wMQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bqbkkfQ6DJeWwPjXhaTf4dOtRWnm84k2cLupIbOddZM=;
-        b=7UEHcexLN3FowKQUWAp9lC5nP1SX7W+Eao+5eHx3Jrzx54hl+79hGOUduvAZrbExQh
-         OltqZHGG8OKkriblm1UF9ug8b1J8qyGEqNWHmZWlC4Nm86ZN3Hdpo1WlO/vNP6INFI7J
-         sOpLVGiMQ4TuMUKSz4wHIiccsAKngxGGitVf8XzKXkt0KlMkkglrDQfMwMUZ2J1Sddcf
-         ohrvwUCS6xMyRseEFFveoBpoV7hbPXwFZdklNwMyDzDqsDbZfYqRKT6SxBca5ZUMAUDs
-         SFrlv8osGqUzcJNpeX0RxvL3KeP+iRGJ0N7HS5DqC6WbMLjRI8ZtshwWRr0ZmKINYJIQ
-         +KDw==
-X-Gm-Message-State: AOAM532+R72/a1gnhx+X8mjD6vN+6lXjRcAA4d9We8nhD0ede4gqd114
-        Q3XWza3y7eSO2T7JETYFyjusecF/SllLSNrgVDI=
-X-Google-Smtp-Source: ABdhPJwQz+l3vUVheVdoxAiuivKgk66a5f0gj1bnBUAgJNdj+5mrRnHB7aA5nWpPhgYGwLPqY1inAA==
-X-Received: by 2002:a17:902:d50c:b0:154:5090:8126 with SMTP id b12-20020a170902d50c00b0015450908126mr1845656plg.133.1648066179707;
-        Wed, 23 Mar 2022 13:09:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e3-20020a636903000000b003863620133bsm176306pgc.77.2022.03.23.13.09.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Mar 2022 13:09:39 -0700 (PDT)
-Message-ID: <623b7e83.1c69fb81.ef4e.0d39@mx.google.com>
-Date:   Wed, 23 Mar 2022 13:09:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=vUP+cDU6A63BiCB5No7G9vTRFHC0WfO/ACql60JcDZ4=;
+        b=dFl2nH9MPt5cWvTo2+AFRHkPuW/Mu2Ndm+nw3rtqtV7JHlVj8X1gUgFm75zP79KyhX
+         y/lWu4hGCO/rVGeuMgXZAO5RWE2DDlWUdFKd+1kr93JLDSJZO7wIiGzid034zWqRgVK8
+         XudYWnwrxRNA0Lojj/qOHFqUObro0U9lTXePo3WvTdldaIBOZQrw37LqQfRcraXiufaP
+         /g8zLmOHiaGatI0xDheY6lF45Hfnlk+2aeT1MrYvmqVEU5QxagfikTxztFYaza9DQanG
+         ZN1WEKka9pQwmtzuplFLWFT5rRbzFKlCdnXsIZ1bZVgyfY6iqskvbI60HWxtZYlQjV1f
+         ua+w==
+X-Gm-Message-State: AOAM531cWeTKUjLnDAVWcW7/kK4ZtfJWuG8+Ti+peZZVzvwm2JNa3Mqg
+        Th9qTG1ifder6NULanJT5Gg=
+X-Google-Smtp-Source: ABdhPJy8/R1UwCohZhHy/oCfb9hBRA6tKwPHZexu/TtgXp3lESESoLy43PqmzjFrzUyKiXKNI239zA==
+X-Received: by 2002:a17:906:30d1:b0:6cf:c116:c9d3 with SMTP id b17-20020a17090630d100b006cfc116c9d3mr1850615ejb.245.1648066461644;
+        Wed, 23 Mar 2022 13:14:21 -0700 (PDT)
+Received: from [192.168.1.114] ([85.105.239.232])
+        by smtp.gmail.com with ESMTPSA id x12-20020a50d9cc000000b0040f70fe78f3sm424439edj.36.2022.03.23.13.14.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 23 Mar 2022 13:14:21 -0700 (PDT)
+Message-ID: <64197456-87f2-e780-186d-272e06ae223b@gmail.com>
+Date:   Wed, 23 Mar 2022 20:13:09 +0000
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.187
-Subject: stable-rc/linux-5.4.y baseline: 53 runs, 1 regressions (v5.4.187)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
+Subject: Re: [PATCH 1/2] io_uring: ensure recv and recvmsg handle MSG_WAITALL
+ correctly
+Content-Language: en-US
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     constantine.gavrilov@gmail.com, stable@vger.kernel.org
+References: <20220323153947.142692-1-axboe@kernel.dk>
+ <20220323153947.142692-2-axboe@kernel.dk>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+In-Reply-To: <20220323153947.142692-2-axboe@kernel.dk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 53 runs, 1 regressions (v5.4.187)
+On 3/23/22 15:39, Jens Axboe wrote:
+> We currently don't attempt to get the full asked for length even if
+> MSG_WAITALL is set, if we get a partial receive. If we do see a partial
+> receive, then just note how many bytes we did and return -EAGAIN to
+> get it retried.
+> 
+> The iov is advanced appropriately for the vector based case, and we
+> manually bump the buffer and remainder for the non-vector case.
 
-Regressions Summary
--------------------
+How datagrams work with MSG_WAITALL? I highly doubt it coalesces 2+
+packets to satisfy the length requirement (e.g. because it may move
+the address back into the userspace). I'm mainly afraid about
+breaking io_uring users who are using the flag just to fail links
+when there is not enough data in a packet.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.187/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.187
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      055c4cf7e6da13450016942e5286492b4a224868 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/623b54666654b9a445bd91aa
-
-  Results:     88 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.187=
-/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.187=
-/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/623b54666654b9a445bd91cc
-        failing since 17 days (last pass: v5.4.181-51-gb77a12b8d613, first =
-fail: v5.4.182-54-gf27af6bf3c32) =
-
- =20
+-- 
+Pavel Begunkov
