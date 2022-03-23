@@ -2,95 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E63E4E4ABA
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 03:08:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D6B24E4B8A
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 04:37:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239850AbiCWCJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Mar 2022 22:09:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40670 "EHLO
+        id S236272AbiCWDjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Mar 2022 23:39:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231596AbiCWCJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 22:09:57 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3F1F22519
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 19:08:27 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id g24so66257lja.7
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 19:08:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=J8R5fIKIW6T8IIqFMnxqRAyAbWLACxuZ0qCUQR/pgGY=;
-        b=Eq6BQka4f8LYxS/Tno67bSzUoi2mPqlP+glM7TxOjfAPhoCdKuboSnQmWForCK/G5Q
-         uvSWbW9LGbfwRAbIk2bphRZ9Qq8tpiA45DZWZTzPG6mPJUagHr2/7r5uPM6LolhND+kx
-         ws/mB3u/w9v98tgrtujz3csM3dx0hX8Bmi0fQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=J8R5fIKIW6T8IIqFMnxqRAyAbWLACxuZ0qCUQR/pgGY=;
-        b=UQGsvEQ4AONjSSAadwl38YoeA+fpWF308j+ZxZzjbHIiUvup0kY4+Udgc7fWyKstPZ
-         tlz2mIOrR8U7QdpmwGTTR5cLze1Db4im0jlV56ekY17K4HSBJ6eKs8Fo0yu/z53fT/GG
-         mZj1aTIZFD3sckpy5QwxGl8mkVez3EFXhsPwUHocOeE3TNq0g3vZc8WQjq02+QQGP/pd
-         9/0ybLOGdO5LyUbEYfpBvOqBGVT0NQeVzwQAtMdiwigHSY/28jniyBWA1EkjF80c6IYP
-         IfNGRxLOeSmVW3xvHSOGGBXb0eINWmJ05LViQUR4K3YSfeapYjwlq8DfhUxwyyUC2X6v
-         S39g==
-X-Gm-Message-State: AOAM532xUENnDQAWzZ1JIiCH3/hROag0FLFeGVSxSyEUkteur2XJ3oKh
-        NyZAlmU84eOGikGzDXaWE2+sOvaQGL/xoMwkOpw=
-X-Google-Smtp-Source: ABdhPJwW+D3ycda8vHTCJTzoue641hVBfJx7PCqmBL+QpEc3EuhlvzvFxhqqeBmJzSjK171OZbO0Pw==
-X-Received: by 2002:a2e:145e:0:b0:249:7feb:58bd with SMTP id 30-20020a2e145e000000b002497feb58bdmr11619959lju.449.1648001305935;
-        Tue, 22 Mar 2022 19:08:25 -0700 (PDT)
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com. [209.85.208.181])
-        by smtp.gmail.com with ESMTPSA id a10-20020a19e30a000000b00448ed99d745sm2241526lfh.90.2022.03.22.19.08.24
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Mar 2022 19:08:25 -0700 (PDT)
-Received: by mail-lj1-f181.google.com with SMTP id h11so86128ljb.2
-        for <stable@vger.kernel.org>; Tue, 22 Mar 2022 19:08:24 -0700 (PDT)
-X-Received: by 2002:a2e:9794:0:b0:249:8488:7dbd with SMTP id
- y20-20020a2e9794000000b0024984887dbdmr9591965lji.176.1648001304369; Tue, 22
- Mar 2022 19:08:24 -0700 (PDT)
+        with ESMTP id S232208AbiCWDi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Mar 2022 23:38:59 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3697087E;
+        Tue, 22 Mar 2022 20:37:30 -0700 (PDT)
+Received: from kwepemi100011.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KNYs507zmzCqs1;
+        Wed, 23 Mar 2022 11:35:20 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ kwepemi100011.china.huawei.com (7.221.188.134) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 23 Mar 2022 11:37:27 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 23 Mar 2022 11:37:26 +0800
+Subject: Re: [PATCH 5.10 00/30] 5.10.108-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
+References: <20220321133219.643490199@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <f4f7059d-ae79-e9a5-ad19-bbe0e19c970d@huawei.com>
+Date:   Wed, 23 Mar 2022 11:37:26 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20220322143803.04a5e59a07e48284f196a2f9@linux-foundation.org>
- <20220322214648.AB7A1C340EC@smtp.kernel.org> <Yjpo2jnp5pkJr+XI@google.com>
-In-Reply-To: <Yjpo2jnp5pkJr+XI@google.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 22 Mar 2022 19:08:08 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wiLMM1QJfmosoY3+Ah79_Oga8=EzUZnR8AoTRBUZGSfoA@mail.gmail.com>
-Message-ID: <CAHk-=wiLMM1QJfmosoY3+Ah79_Oga8=EzUZnR8AoTRBUZGSfoA@mail.gmail.com>
-Subject: Re: [patch 163/227] mm: madvise: skip unmapped vma holes passed to process_madvise
-To:     Minchan Kim <minchan@kernel.org>,
-        Charan Teja Kalla <quic_charante@quicinc.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Suren Baghdasaryan <surenb@google.com>,
-        stable <stable@vger.kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        David Rientjes <rientjes@google.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Michal Hocko <mhocko@suse.com>, patches@lists.linux.dev,
-        Linux-MM <linux-mm@kvack.org>, mm-commits@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20220321133219.643490199@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 22, 2022 at 5:25 PM Minchan Kim <minchan@kernel.org> wrote:
->
-> I thought it was still under discussion and Charan will post next
-> version along with previous patch
-> "mm: madvise: return correct bytes advised with process_madvise"
->
-> https://lore.kernel.org/linux-mm/7207b2f5-6b3e-aea4-aa1b-9c6d849abe34@quicinc.com/
 
-Hmm. It's merged now, as commit 08095d6310a7.
 
-So any fixes please do it on top of that existing state ;(
+On 2022/3/21 21:52, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.108 release.
+> There are 30 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 23 Mar 2022 13:32:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.108-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-            Linus
+Tested on arm64 and x86 for 5.10.108-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.108-rc1
+Commit: 9d7b0ced5647e0df1b200ee29119cb58ff958339
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9013
+passed: 9013
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9013
+passed: 9013
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
