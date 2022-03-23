@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C5E4E5322
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 14:30:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBBEE4E534C
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 14:39:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244276AbiCWNbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 09:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50950 "EHLO
+        id S239960AbiCWNkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 09:40:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231694AbiCWNbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 09:31:33 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F88475C2C
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 06:30:03 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id w21so1116922pgm.7
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 06:30:03 -0700 (PDT)
+        with ESMTP id S243877AbiCWNkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 09:40:21 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E96FD5E14E
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 06:38:51 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id c23so1584744plo.0
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 06:38:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=+ncWgHYZO++jEM1iwy6QkxU15J9FHZOkuQsUU5sSwuc=;
-        b=fHpOxMZFOG9Avn2Vrimyg1Xgvwx0pnaF1KKkVK/PV6dotfdOOTJ44Gl2DVaRSd/ceP
-         qrUltFL34ViGf7q8fqdcKvere208ELK2pswPn2D9r4OPtSO9UDbmFycUZzFU4CrIrOK2
-         Q5m89Nkd+hb0nRAzrZ4d5VT7LRWaYldzwT53E+cTh5MP2v7W0xH8kZn3OqFzz3rDGksA
-         BEJSQhJVUp57I0NUIrZQ7t7BTJ+FGweo1eqLuH3HkzH1iTL6QDUqVQq6I8oGlO8+eyHo
-         AFjdbVVDG2QVcsapFBndyZjgo61UzJtDwCizr1h3e8T1EUDEr192GmnsDQgiyg0o+Q7h
-         zqlA==
+        bh=hf7S+9bZWiwolVzS+croouZAXD2qzGnrPDUMLgydcxo=;
+        b=sp1Khn4A3iT0hEm+g9tvFr0gPjD58TBPsJdxLqaZRnlToAQJ5OZd8gosckaYwreLOE
+         evANczyrhOQJNAkiKtGLnax9ILNg8C4v1BhxsECgxB56G+JGWPbvzD+O8DKxD0neqdDT
+         P2S096z1uPggErXf151kU0WZ2IzWLGvWvIkq8s/AvfKSzv0W5DxA+sgywSKqvo73lJMd
+         yvaBDIXMurRxcrvdlR+AuUV92Rkp2+FgGR2iGiVcjkJsuXGr5F9ywU5BH8cUGVMaaBJe
+         hctiMvGAegFYt3nfE0EFbVyYYi4VXMP/eMqjbMz6yGNt0GMGAwCu2xFJ4+krj/WebCzs
+         SjKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=+ncWgHYZO++jEM1iwy6QkxU15J9FHZOkuQsUU5sSwuc=;
-        b=7BvO9fXB2wxanGlRpO4MCPceS3u4N6AxwKWXMf/5V7DeChCJdbIaVW1vbKvLnNH8On
-         Ol+nvqqqlmgfEUZTOBAXH6qHNQvgou1GJx7+E9sRPBezrkxBTeZqYvmv+F9CO/x31PON
-         Jl02EP+M+yC6EhrEzuoQNWfKi82taUmn4zflDCeSXTU0i+NwmLBZawuG2X79H1GERA2j
-         40o1NNlWx/wxoslR1tgk6+Mdrf+kNkQgVQpARmMN3GxorD2F7W/AseDug0zCmdiB7gPK
-         FpndYjnovuBSuXsiHmBj106GfbZ+Lettx0MC0Kd5f2uEKMcUEirPGm57kqg2hKMDAtGi
-         WkOg==
-X-Gm-Message-State: AOAM533x4K1uKdpQrjMzHF/qHRNMHeUphXx8W2JqR2s6aJIkSO9TMuef
-        KiPt18OhTFnaGEQ9S7ivYeqWuLWX1J1V7fv2aG4=
-X-Google-Smtp-Source: ABdhPJz/fo8bamrFt1dI3zNbH23LOn4StSOdotp6Y9q19KhnDDcuVABM9Yk1L0rsrO5v8lZFdsY3iw==
-X-Received: by 2002:a65:6390:0:b0:376:7f43:e9a1 with SMTP id h16-20020a656390000000b003767f43e9a1mr25742095pgv.480.1648042200881;
-        Wed, 23 Mar 2022 06:30:00 -0700 (PDT)
+        bh=hf7S+9bZWiwolVzS+croouZAXD2qzGnrPDUMLgydcxo=;
+        b=uFX30j5yH5spaSZ7b5IBJ8ewNaaPKwpPFPXdYUqoVXUT9xWjA/+Pkk22Ni9wvPhJPX
+         5UanoDwMii9YdSh9tfrBqlxrKk+4d35mVh8aQmBcg5+n8/ygHvXpzfFkAbZs+OnEpA5M
+         pUj00PkfYqmsFFaWcWPsLhl+stHhkswi2bGpFHXJhH32MUxHYWfle9ti1k+7+2GbCS1t
+         glj1bbrsInPncHD0k7YED/Vr0uj7gpRssDA/z33JeX1lTmw2T5R/UireL24s7zwB8omu
+         gVD3L0TlZUiI0N41cHR4Hb8HtPTecQHTSIq7xDXVFAsd/zY58uOnaDtwvc/JNTEaJmPg
+         ndlw==
+X-Gm-Message-State: AOAM5307A3vg2eQDloq/kWTZjPxU3/wZtXHw/H61u66pEFM/hH+2q2Af
+        yndQOOBl1xGS/mcSRAfWOhtDKla+U+QK3lNMfh0=
+X-Google-Smtp-Source: ABdhPJzpD/hflHt3fDd8pyHeq+ESPWDfzVF2jp5W4INGVUgzn71PnfFCxm+EC77ct/7Cmg4OPrKZ2w==
+X-Received: by 2002:a17:90a:2d0:b0:1bc:4fc0:6fb7 with SMTP id d16-20020a17090a02d000b001bc4fc06fb7mr12002347pjd.196.1648042731342;
+        Wed, 23 Mar 2022 06:38:51 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e11-20020a63e00b000000b0037341d979b8sm19979233pgh.94.2022.03.23.06.30.00
+        by smtp.gmail.com with ESMTPSA id k22-20020aa788d6000000b004faaf897064sm16575pff.106.2022.03.23.06.38.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Mar 2022 06:30:00 -0700 (PDT)
-Message-ID: <623b20d8.1c69fb81.5e4e.6486@mx.google.com>
-Date:   Wed, 23 Mar 2022 06:30:00 -0700 (PDT)
+        Wed, 23 Mar 2022 06:38:51 -0700 (PDT)
+Message-ID: <623b22eb.1c69fb81.28cae.00ac@mx.google.com>
+Date:   Wed, 23 Mar 2022 06:38:51 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.273
+X-Kernelci-Kernel: v5.4.187
 X-Kernelci-Report-Type: test
 X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y baseline: 49 runs, 1 regressions (v4.14.273)
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable/linux-5.4.y baseline: 66 runs, 2 regressions (v5.4.187)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -69,29 +69,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 49 runs, 1 regressions (v4.14.273)
+stable/linux-5.4.y baseline: 66 runs, 2 regressions (v5.4.187)
 
 Regressions Summary
 -------------------
 
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.273/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
+v5.4.187/plan/baseline/
 
   Test:     baseline
   Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.273
+  Branch:   linux-5.4.y
+  Describe: v5.4.187
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able.git
-  SHA:      004bfaafc45ccc95366b37c9b9e7844cd5156368 =
+  SHA:      055c4cf7e6da13450016942e5286492b4a224868 =
 
 
 
@@ -100,31 +103,66 @@ Test Regressions
 
 
 
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/623aefe05d6290d0e8bd9199
+  Details:     https://kernelci.org/test/plan/id/623af2278e0e661742bd9217
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
   Full config: multi_v7_defconfig
   Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
 10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.273/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.273/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.html
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.187/ar=
+m/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-uefi.=
+txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.187/ar=
+m/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-uefi.=
+html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220228.1/armel/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/623aefe05d6290d0e8bd9=
-19a
-        failing since 34 days (last pass: v4.14.266, first fail: v4.14.267) =
+  * baseline.login: https://kernelci.org/test/case/id/623af2278e0e661742bd9=
+218
+        failing since 95 days (last pass: v5.4.166, first fail: v5.4.167) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623af29c87705c03bbbd91b2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.187/ar=
+m/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-uefi.=
+txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.187/ar=
+m/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-uefi.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/623af29c87705c03bbbd9=
+1b3
+        failing since 95 days (last pass: v5.4.166, first fail: v5.4.167) =
 
  =20
