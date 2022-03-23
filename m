@@ -2,74 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ADD24E5A3A
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:53:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C314E5A3B
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:54:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244734AbiCWUzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 16:55:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57056 "EHLO
+        id S1344816AbiCWUzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 16:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244002AbiCWUzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:55:10 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A072C86E03;
-        Wed, 23 Mar 2022 13:53:39 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id y10so3317987edv.7;
-        Wed, 23 Mar 2022 13:53:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=KswJYkeDzz/VK2u33TT6uHd9UrUCQqzNCu2683hwwTs=;
-        b=apEJqpTTFV7dEV+z1gKpXKVqKdFX5ZsQ1nOzib60axZeUtOtMNm42hTrBSa0xSXscT
-         LtReXE05qRvdcbsUq/zZxnoVdIxVPPvktucme829bK2vMfqhpPAzoZJTfOWup/UTLKfw
-         4ZjOL43dYhf5S7D8y+YwgIhE8I7k7H/m383faNYqpq5PfJOFam6U+1RFmmcmnsFLggbL
-         5CTXJVZUk7AbqIFtz3IOQYA56LRI8Db0QSHM7WfS+SrY8ELnGVnNNRgGNiV+jgZiKno+
-         5PLKGQFSeL6R2i0uwidvYeE0HwJRlCZrYA4Odb1oxU1JecIS8a01eSR7GY3ZcAth+hlN
-         PSqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=KswJYkeDzz/VK2u33TT6uHd9UrUCQqzNCu2683hwwTs=;
-        b=QhT0He03ASS/7/U/J86UGJZm6avgj7GIn8cujJPytI9nmjeodaTBF7tXJjpuKvQacV
-         xCmwzTwBGIo3accOrEMNzdr96W90DwCVsVLSGNLELjNbZdbIp/Se+PASvMZ8Gi5xHL17
-         cT2HwIpJXwEyLWUmtV+w+P3SI7491cxvQ5cXF7gVTbxEmczQSmQYzoy+SjREI+hbjO2o
-         hmKbPAAeezj5UeYDEXIME+nDqa6sFrWkLv85EH/plVNDrCPC9e+iGPOpx4gXhj7hMwqO
-         UfYEMOfGoWg3ZJcqTzZsvTMbWkQtxEz3wrJX1CXx+OPPJyYDkL3aYMknJfg+pC4ehHFD
-         BGJA==
-X-Gm-Message-State: AOAM531wCdPnl/9aLWqCqdnnIlFatHfpMcdGnrCa0+sy154XpjJbus56
-        vt1YOmnVJ46OOZqqAGk0oCG5YBlBG4vSyA==
-X-Google-Smtp-Source: ABdhPJw7s/o+qoCLFN6GNRA2ga8Jhpw1+ASDi7e/xnTGOhNpZ7qhYUW5T6+uztLAPLTQn9Ufc+pPoA==
-X-Received: by 2002:a05:6402:209:b0:416:5211:841f with SMTP id t9-20020a056402020900b004165211841fmr2615362edv.59.1648068818246;
-        Wed, 23 Mar 2022 13:53:38 -0700 (PDT)
-Received: from [192.168.1.114] ([85.105.239.232])
-        by smtp.gmail.com with ESMTPSA id jg15-20020a170907970f00b006e0466dcc42sm353429ejc.134.2022.03.23.13.53.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Mar 2022 13:53:37 -0700 (PDT)
-Message-ID: <fe48b17e-380f-7159-8c0c-d7c5208e61b2@gmail.com>
-Date:   Wed, 23 Mar 2022 20:52:21 +0000
+        with ESMTP id S244002AbiCWUzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:55:46 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2318B8AE78;
+        Wed, 23 Mar 2022 13:54:16 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5E8E4D6E;
+        Wed, 23 Mar 2022 13:54:15 -0700 (PDT)
+Received: from [10.57.43.230] (unknown [10.57.43.230])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9CBF03F73B;
+        Wed, 23 Mar 2022 13:54:12 -0700 (PDT)
+Message-ID: <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+Date:   Wed, 23 Mar 2022 20:54:08 +0000
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Subject: Re: [PATCH 1/2] io_uring: ensure recv and recvmsg handle MSG_WAITALL
- correctly
-Content-Language: en-US
-To:     Constantine Gavrilov <constantine.gavrilov@gmail.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20220323153947.142692-1-axboe@kernel.dk>
- <20220323153947.142692-2-axboe@kernel.dk>
- <64197456-87f2-e780-186d-272e06ae223b@gmail.com>
- <CAAL3td3_VFmOH1mNXiG6geFeONSm066Xba5ePqPwkMr-zxkDGg@mail.gmail.com>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <CAAL3td3_VFmOH1mNXiG6geFeONSm066Xba5ePqPwkMr-zxkDGg@mail.gmail.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Content-Language: en-GB
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+ <CAHk-=wiwz+Z2MaP44h086jeniG-OpK3c=FywLsCwXV7Crvadrg@mail.gmail.com>
+ <27b5a287-7a33-9a8b-ad6d-04746735fb0c@arm.com>
+ <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,37 +62,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/23/22 20:45, Constantine Gavrilov wrote:
-> On Wed, Mar 23, 2022 at 10:14 PM Pavel Begunkov <asml.silence@gmail.com> wrote:
+On 2022-03-23 19:16, Linus Torvalds wrote:
+> On Wed, Mar 23, 2022 at 12:06 PM Robin Murphy <robin.murphy@arm.com> wrote:
 >>
->> On 3/23/22 15:39, Jens Axboe wrote:
->>> We currently don't attempt to get the full asked for length even if
->>> MSG_WAITALL is set, if we get a partial receive. If we do see a partial
->>> receive, then just note how many bytes we did and return -EAGAIN to
->>> get it retried.
+>> On 2022-03-23 17:27, Linus Torvalds wrote:
 >>>
->>> The iov is advanced appropriately for the vector based case, and we
->>> manually bump the buffer and remainder for the non-vector case.
+>>> I'm assuming that the ath9k issue is that it gives DMA mapping a big
+>>> enough area to handle any possible packet size, and just expects -
+>>> quite reasonably - smaller packets to only fill the part they need.
+>>>
+>>> Which that "info leak" patch obviously breaks entirely.
 >>
->> How datagrams work with MSG_WAITALL? I highly doubt it coalesces 2+
->> packets to satisfy the length requirement (e.g. because it may move
->> the address back into the userspace). I'm mainly afraid about
->> breaking io_uring users who are using the flag just to fail links
->> when there is not enough data in a packet.
->>
->> --
->> Pavel Begunkov
+>> Except that's the exact case which the new patch is addressing
 > 
-> Pavel:
+> Not "addressing". Breaking.
 > 
-> Datagrams have message boundaries and the MSG_WAITALL flag does not
-> make sense there. I believe it is ignored by receive code on daragram
-> sockets. MSG_WAITALL makes sends only on stream sockets, like TCP. The
-> manual page says "This flag has  no  effect  for datagram sockets.".
+> Which is why it will almost certainly get reverted.
+> 
+> Not doing DMA to the whole area seems to be quite the sane thing to do
+> for things like network packets, and overwriting the part that didn't
+> get DMA'd with zeroes seems to be exactly the wrong thing here.
+> 
+> So the SG_IO - and other random untrusted block command sources - data
+> leak will almost certainly have to be addressed differently. Possibly
+> by simply allocating the area with GFP_ZERO to begin with.
 
-Missed the line this in mans, thanks, and it's exactly as expected.
-The problem is on the io_uring side where with the patch it might
-blindly do a second call into the network stack consuming 2+ packets.
+Er, the point of the block layer case is that whole area *is* zeroed to 
+begin with, and a latent memory corruption problem in SWIOTLB itself 
+replaces those zeros with random other kernel data unexpectedly. Let me 
+try illustrating some sequences for clarity...
 
--- 
-Pavel Begunkov
+Expected behaviour/without SWIOTLB:
+                              Memory
+---------------------------------------------------
+start                        12345678
+dma_map(DMA_FROM_DEVICE)      no-op
+device writes partial data   12ABC678 <- ABC
+dma_unmap(DMA_FROM_DEVICE)   12ABC678
+
+
+SWIOTLB previously:
+                              Memory      Bounce buffer
+---------------------------------------------------
+start                        12345678    xxxxxxxx
+dma_map(DMA_FROM_DEVICE)             no-op
+device writes partial data   12345678    xxABCxxx <- ABC
+dma_unmap(DMA_FROM_DEVICE)   xxABCxxx <- xxABCxxx
+
+
+SWIOTLB Now:
+                              Memory      Bounce buffer
+---------------------------------------------------
+start                        12345678    xxxxxxxx
+dma_map(DMA_FROM_DEVICE)     12345678 -> 12345678
+device writes partial data   12345678    12ABC678 <- ABC
+dma_unmap(DMA_FROM_DEVICE)   12ABC678 <- 12ABC678
+
+
+Now, sure we can prevent any actual information leakage by initialising 
+the bounce buffer slot with zeros, but then we're just corrupting the 
+not-written-to parts of the mapping with zeros instead of anyone else's 
+old data. That's still fundamentally not OK. The only thing SWIOTLB can 
+do to be correct is treat DMA_FROM_DEVICE as a read-modify-write of the 
+entire mapping, because it has no way to know how much of it is actually 
+going to be modified.
+
+I'll admit I still never quite grasped the reason for also adding the 
+override to swiotlb_sync_single_for_device() in aa6f8dcbab47, but I 
+think by that point we were increasingly tired and confused and starting 
+to second-guess ourselves (well, I was, at least). I don't think it's 
+wrong per se, but as I said I do think it can bite anyone who's been 
+doing dma_sync_*() wrong but getting away with it until now. If 
+ddbd89deb7d3 alone turns out to work OK then I'd be inclined to try a 
+partial revert of just that one hunk.
+
+Thanks,
+Robin.
