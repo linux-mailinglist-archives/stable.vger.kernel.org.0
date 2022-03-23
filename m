@@ -2,70 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E95524E52EC
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 14:20:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C5E4E5322
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 14:30:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233734AbiCWNWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 09:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54362 "EHLO
+        id S244276AbiCWNbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 09:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbiCWNWQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 09:22:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A901C3EB8E
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 06:20:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE351615F8
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDC9BC340E8;
-        Wed, 23 Mar 2022 13:20:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648041645;
-        bh=5Tw9uXRqBxVfwkfG05xsb15zXOablL75+ehvO/v4F3Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Dr7wtFBlmIS6RlqkV8iG55MkoOvwHlWCrO1crMq8mcYLSztRVBbzNJQvf0qegOCE6
-         J6ax0t2H9LM18rS8LHmABxpMiN2P5s0lZH3iC1uK/6D4Bs5MbVbaGc3AxJG/tkOgOE
-         m7Og8gxiwq3evkkJ+KXxFZ/hVlVVl/cH0geMHTEM=
-Date:   Wed, 23 Mar 2022 14:20:42 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-Cc:     masami.ichikawa@cybertrust.co.jp, tj@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] cgroup-v1: Correct privileges check in
- release_agent writes" failed to apply to 5.10-stable tree
-Message-ID: <YjseqrSJQd9412So@kroah.com>
-References: <1645639632780@kroah.com>
- <20220323124932.GA27232@blackbody.suse.cz>
+        with ESMTP id S231694AbiCWNbd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 09:31:33 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F88475C2C
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 06:30:03 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id w21so1116922pgm.7
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 06:30:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+ncWgHYZO++jEM1iwy6QkxU15J9FHZOkuQsUU5sSwuc=;
+        b=fHpOxMZFOG9Avn2Vrimyg1Xgvwx0pnaF1KKkVK/PV6dotfdOOTJ44Gl2DVaRSd/ceP
+         qrUltFL34ViGf7q8fqdcKvere208ELK2pswPn2D9r4OPtSO9UDbmFycUZzFU4CrIrOK2
+         Q5m89Nkd+hb0nRAzrZ4d5VT7LRWaYldzwT53E+cTh5MP2v7W0xH8kZn3OqFzz3rDGksA
+         BEJSQhJVUp57I0NUIrZQ7t7BTJ+FGweo1eqLuH3HkzH1iTL6QDUqVQq6I8oGlO8+eyHo
+         AFjdbVVDG2QVcsapFBndyZjgo61UzJtDwCizr1h3e8T1EUDEr192GmnsDQgiyg0o+Q7h
+         zqlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+ncWgHYZO++jEM1iwy6QkxU15J9FHZOkuQsUU5sSwuc=;
+        b=7BvO9fXB2wxanGlRpO4MCPceS3u4N6AxwKWXMf/5V7DeChCJdbIaVW1vbKvLnNH8On
+         Ol+nvqqqlmgfEUZTOBAXH6qHNQvgou1GJx7+E9sRPBezrkxBTeZqYvmv+F9CO/x31PON
+         Jl02EP+M+yC6EhrEzuoQNWfKi82taUmn4zflDCeSXTU0i+NwmLBZawuG2X79H1GERA2j
+         40o1NNlWx/wxoslR1tgk6+Mdrf+kNkQgVQpARmMN3GxorD2F7W/AseDug0zCmdiB7gPK
+         FpndYjnovuBSuXsiHmBj106GfbZ+Lettx0MC0Kd5f2uEKMcUEirPGm57kqg2hKMDAtGi
+         WkOg==
+X-Gm-Message-State: AOAM533x4K1uKdpQrjMzHF/qHRNMHeUphXx8W2JqR2s6aJIkSO9TMuef
+        KiPt18OhTFnaGEQ9S7ivYeqWuLWX1J1V7fv2aG4=
+X-Google-Smtp-Source: ABdhPJz/fo8bamrFt1dI3zNbH23LOn4StSOdotp6Y9q19KhnDDcuVABM9Yk1L0rsrO5v8lZFdsY3iw==
+X-Received: by 2002:a65:6390:0:b0:376:7f43:e9a1 with SMTP id h16-20020a656390000000b003767f43e9a1mr25742095pgv.480.1648042200881;
+        Wed, 23 Mar 2022 06:30:00 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e11-20020a63e00b000000b0037341d979b8sm19979233pgh.94.2022.03.23.06.30.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Mar 2022 06:30:00 -0700 (PDT)
+Message-ID: <623b20d8.1c69fb81.5e4e.6486@mx.google.com>
+Date:   Wed, 23 Mar 2022 06:30:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220323124932.GA27232@blackbody.suse.cz>
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.273
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable/linux-4.14.y baseline: 49 runs, 1 regressions (v4.14.273)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 23, 2022 at 01:49:32PM +0100, Michal Koutný wrote:
-> Hello.
-> 
-> On Wed, Feb 23, 2022 at 07:07:12PM +0100, gregkh@linuxfoundation.org wrote:
-> > The patch below does not apply to the 5.10-stable tree.
-> 
-> What do you mean does not apply?
-> 
-> > HEAD is now at 9940314ebfc6 Linux 5.10.108
-> > $ git format-patch -o /tmp/ 467a726b754f474936980da793b4ff2ec3e382a7 -1
-> > /tmp/0001-cgroup-v1-Correct-privileges-check-in-release_agent-.patch
-> > $ git am /tmp/0001-cgroup-v1-Correct-privileges-check-in-release_agent-.patch
-> > Applying: cgroup-v1: Correct privileges check in release_agent writes
-> > $
+stable/linux-4.14.y baseline: 49 runs, 1 regressions (v4.14.273)
 
-Sorry, yes, it applies, but it breaks the build.  Try typing 'make' now :)
+Regressions Summary
+-------------------
+
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.273/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.273
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      004bfaafc45ccc95366b37c9b9e7844cd5156368 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/623aefe05d6290d0e8bd9199
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.273/=
+arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.273/=
+arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/623aefe05d6290d0e8bd9=
+19a
+        failing since 34 days (last pass: v4.14.266, first fail: v4.14.267) =
+
+ =20
