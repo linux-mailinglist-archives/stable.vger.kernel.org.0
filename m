@@ -2,154 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 288214E5ADF
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 22:49:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 531644E5AF0
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 22:57:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345025AbiCWVub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 17:50:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53234 "EHLO
+        id S242437AbiCWV66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 17:58:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242437AbiCWVub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 17:50:31 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694286BDDC
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:49:00 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id b19so3991716wrh.11
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:49:00 -0700 (PDT)
+        with ESMTP id S1345056AbiCWV65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 17:58:57 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92CC88EB56
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:57:26 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id t13so1048812pgn.8
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:57:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=qrSbZoAiUkXyBXtV96tQqE3U9+3a1WixHxW/5QnsD7s=;
-        b=WJaozsUrK1BXm41I0vi8XsK/ENuS6q7R88oBTOROdD3JeybgneYiHg7mMu0l/GwBF5
-         TKE8WMtDynXwzd+/7+ZbtWmxuA3YXmFPcZLYg9cy1bwTg9toVES1fUuIiVRCGfWCCAOv
-         twSYFA7Qisn6nPQ/r4ikYDnaJeLgzP6l/FYTT74xB33Fg7DvWUituFrIIdoAbTq2Mnyv
-         h1E3KF20VQOLVsxTDmWBkreTMFREiHu7VammZGFFEs0vFqwMFgN42lU6LPiyfdSG4+l5
-         Mj7/AuoMz66uqtDEoVj4hulbfM3a04R4/JHlUfAFIiH/UL8wyKheI330O9aQ7/3CfHUn
-         BxcA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MGaTSp8vhZLtsi+A6+dNCUTtQi/tPgkb2L99Vv9++aM=;
+        b=raqOAvA0ApC6TMIaHjNXbX0arBBLFxuLsxgRhPa0VXXZH5/D1FXSKmFzIz95rI7RLG
+         OxqIcdBC9q+kid6PWINfL6kYMzJ9sgRg8M9m+dfuOu2QlrLZ5T99CuBpmrg8YhPwYZI4
+         oMCre8hnqDwa6Lx/HysilVt1Mt+F9IBF8/WMHfICxqt78SznZQNy60XFYVUhGIUpz0bc
+         3ectuQP6vQiBCpbN2j+5u/INjbDO5E0Os0yFM6OxxFRLvjWAk77zaBYTkwNYpyGVbTsv
+         vZ9wdmd/4ygnljW2JjHveIxkEMHi1Sm2GAZRxR50ZXM8S420tYqjnnmUpADkpqkvxvV/
+         EF7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=qrSbZoAiUkXyBXtV96tQqE3U9+3a1WixHxW/5QnsD7s=;
-        b=7BmP+A+T4K6xEayN85jUQ0x7ldWh28AYzZyBwb+hI5vT9uHA//eRQsA2TBF76gZ/qs
-         pFhIiZVcOzM/bTJBD/oyVmweama5URjReTB1nNB651u4DmlHYdBINxzHBsV05SHEkuGX
-         eTjKJUlhppJ6/jNM+ASBZByPrumKLy8xJ7shchaE09vFMP8EYz3KZWrVXn5GMQp1wEGL
-         WZIWzvhoR+WfMFPBb9EiL73voDmkZ3N4Oups5J+K1jOtVxHF3LO6NiiZqmlhKkAs0/Xn
-         3YUvVefF/MzVGygM9YPQWWksYTiYESDPL35DZ4U0jdPm3FjkAxPT83BTG5ZJzuJPpFHa
-         Wa6g==
-X-Gm-Message-State: AOAM530X5KAO/1gp0aPL30gX4uC/kOrCb8UerX/BsmRJRKn3x2FdxABe
-        IvzdYmTfQ/TASRj5UQbCbPU=
-X-Google-Smtp-Source: ABdhPJynmPEiU5eAVNKxSS+OXnoGHG1vgX+9vHWMwhM6jSHeGDpAFNwM7Su7yqit6hNjqyrSYWlQEw==
-X-Received: by 2002:a5d:5249:0:b0:203:d647:a5cd with SMTP id k9-20020a5d5249000000b00203d647a5cdmr1753498wrc.103.1648072139040;
-        Wed, 23 Mar 2022 14:48:59 -0700 (PDT)
-Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id p16-20020a5d6390000000b00203ffebddf3sm1049951wru.99.2022.03.23.14.48.58
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MGaTSp8vhZLtsi+A6+dNCUTtQi/tPgkb2L99Vv9++aM=;
+        b=fjiAfdWrlSrEg0OE18aK3FN0h0D3YnBzX2gs/yJm59ylDHUikPiYs3H9AMT5io2SPB
+         nhGNEnqGILPfmT0+TYZxlsHAvVuVVvaUDgXuRTXIFBRZoQzj8L2Mewki1DjBUOiN00Bz
+         5WW6scjlR3NqMAA+aiVYpGVdlLtlw5oVVNiMV4FBiv0fdce5sv+VZcyr0bOVCHXQxt6z
+         DgnuK1r9A5rX+/MQV18Lq/lp0e3ObI4IpZIytEKFAb6/vfYpKUQGZ+CAKg1KXcrZaR2I
+         F1oX/NZY2FSaeVl7cGB1gOciOSocRXuGQSjtOQG188G0Qy4ziyPq6SFUSrkLh2O8+DoH
+         /fEg==
+X-Gm-Message-State: AOAM531zleO+viUo+0NKJmLAOkHPE4405vK3mA7IifnMmhfGFF6+fwsz
+        s2lShgk1pv1L+FuFpWfYitYM0n847Ud0I6fQ5eI=
+X-Google-Smtp-Source: ABdhPJyO+RQOZDObRsILiLSq0qKpB5R5QmFJPFAnRj6AA6c/jrtEywc0v8ulzxowL1+g5BUU6hW6rg==
+X-Received: by 2002:a05:6a00:130e:b0:4f3:9654:266d with SMTP id j14-20020a056a00130e00b004f39654266dmr1539715pfu.59.1648072645940;
+        Wed, 23 Mar 2022 14:57:25 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c14-20020a056a00248e00b004f77e0fbfc0sm795467pfv.185.2022.03.23.14.57.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Mar 2022 14:48:58 -0700 (PDT)
-Date:   Wed, 23 Mar 2022 21:48:56 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     chuansheng.liu@intel.com, rafael.j.wysocki@intel.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] thermal: int340x: fix memory leak in
- int3400_notify()" failed to apply to 4.19-stable tree
-Message-ID: <YjuVyDFAP7KYaxhL@debian>
-References: <1646031707247250@kroah.com>
+        Wed, 23 Mar 2022 14:57:25 -0700 (PDT)
+Message-ID: <623b97c5.1c69fb81.bc88a.328c@mx.google.com>
+Date:   Wed, 23 Mar 2022 14:57:25 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="5w9Q80Jy08/LfGN+"
-Content-Disposition: inline
-In-Reply-To: <1646031707247250@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.108
+Subject: stable-rc/queue/5.10 baseline: 52 runs, 1 regressions (v5.10.108)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 52 runs, 1 regressions (v5.10.108)
 
---5w9Q80Jy08/LfGN+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Regressions Summary
+-------------------
 
-Hi Greg,
-
-On Mon, Feb 28, 2022 at 08:01:47AM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-
-Here is the backport.
-
---
-Regards
-Sudip
-
---5w9Q80Jy08/LfGN+
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-thermal-int340x-fix-memory-leak-in-int3400_notify.patch"
-
-From 5a9a0d5e36d56389835781d6ef0afee65f7b06ba Mon Sep 17 00:00:00 2001
-From: Chuansheng Liu <chuansheng.liu@intel.com>
-Date: Wed, 23 Feb 2022 08:20:24 +0800
-Subject: [PATCH] thermal: int340x: fix memory leak in int3400_notify()
-
-commit 3abea10e6a8f0e7804ed4c124bea2d15aca977c8 upstream.
-
-It is easy to hit the below memory leaks in my TigerLake platform:
-
-unreferenced object 0xffff927c8b91dbc0 (size 32):
-  comm "kworker/0:2", pid 112, jiffies 4294893323 (age 83.604s)
-  hex dump (first 32 bytes):
-    4e 41 4d 45 3d 49 4e 54 33 34 30 30 20 54 68 65  NAME=INT3400 The
-    72 6d 61 6c 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5  rmal.kkkkkkkkkk.
-  backtrace:
-    [<ffffffff9c502c3e>] __kmalloc_track_caller+0x2fe/0x4a0
-    [<ffffffff9c7b7c15>] kvasprintf+0x65/0xd0
-    [<ffffffff9c7b7d6e>] kasprintf+0x4e/0x70
-    [<ffffffffc04cb662>] int3400_notify+0x82/0x120 [int3400_thermal]
-    [<ffffffff9c8b7358>] acpi_ev_notify_dispatch+0x54/0x71
-    [<ffffffff9c88f1a7>] acpi_os_execute_deferred+0x17/0x30
-    [<ffffffff9c2c2c0a>] process_one_work+0x21a/0x3f0
-    [<ffffffff9c2c2e2a>] worker_thread+0x4a/0x3b0
-    [<ffffffff9c2cb4dd>] kthread+0xfd/0x130
-    [<ffffffff9c201c1f>] ret_from_fork+0x1f/0x30
-
-Fix it by calling kfree() accordingly.
-
-Fixes: 38e44da59130 ("thermal: int3400_thermal: process "thermal table changed" event")
-Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-[sudip: change in old path]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/thermal/int340x_thermal/int3400_thermal.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/thermal/int340x_thermal/int3400_thermal.c b/drivers/thermal/int340x_thermal/int3400_thermal.c
-index e9d58de8b5da..77967da5d406 100644
---- a/drivers/thermal/int340x_thermal/int3400_thermal.c
-+++ b/drivers/thermal/int340x_thermal/int3400_thermal.c
-@@ -223,6 +223,10 @@ static void int3400_notify(acpi_handle handle,
- 		thermal_prop[4] = NULL;
- 		kobject_uevent_env(&priv->thermal->device.kobj, KOBJ_CHANGE,
- 				thermal_prop);
-+		kfree(thermal_prop[0]);
-+		kfree(thermal_prop[1]);
-+		kfree(thermal_prop[2]);
-+		kfree(thermal_prop[3]);
- 		break;
- 	default:
- 		/* Ignore unknown notification codes sent to INT3400 device */
--- 
-2.30.2
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
---5w9Q80Jy08/LfGN+--
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.108/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.108
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9940314ebfc61cb7bc7fca4a0deed2f27fdefd11 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623b6b0057cdc5573e772542
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.108=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
+kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.108=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
+kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/623b6b0057cdc5573e772564
+        failing since 15 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
+ fail: v5.10.103-105-gf074cce6ae0d)
+
+    2022-03-23T18:46:05.486968  /lava-5934248/1/../bin/lava-test-case
+    2022-03-23T18:46:05.498077  <8>[   33.993820] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
