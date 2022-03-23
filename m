@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB204E4E33
+	by mail.lfdr.de (Postfix) with ESMTP id 09BF54E4E30
 	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 09:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242716AbiCWI3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 04:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
+        id S242678AbiCWI3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 04:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242719AbiCWI27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 04:28:59 -0400
+        with ESMTP id S242693AbiCWI3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 04:29:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 793F175C11;
-        Wed, 23 Mar 2022 01:27:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF587486F;
+        Wed, 23 Mar 2022 01:27:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D5ACB81E42;
-        Wed, 23 Mar 2022 08:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78CFBC340EE;
-        Wed, 23 Mar 2022 08:27:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAD88B81E3D;
+        Wed, 23 Mar 2022 08:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF76EC340E8;
+        Wed, 23 Mar 2022 08:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648024045;
-        bh=raH6VpAxWGhMQevcE1EmPjYIBMozb/If+RHXqe5TDVA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=yPHzy66mclngP7UE9TSbo9F2HWcNKeH9ZzQM89eHQCCj/UdINeH4BUEppdpHTwa7Y
-         +exKghcFKMjIFcAvuHfsy9cAOwBSnPvsGjQKG3AqBrK1qI6RLccWtx1qvwf1opQ2GU
-         wwYxBEy/Nsib5i3Mk4+kJ6tH1PA+zug1wB/4Vlxo=
+        s=korg; t=1648024051;
+        bh=UcUC+iGOPf6bv9/lqIo1MrZ0WsUT01wDnRevudV05V4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=vMiCwEZHa7znMMe3oYtkzPaICB5imaRqP6Jp8PL8oIDiIGetWrvjIixPPsEpUBAiS
+         7KabGWhY0yj1dvwGloG3qCRhecRwoWJ+dMs1CD2MoU7RfCLS+7ojAKvkC6Yo25GqVh
+         OEbovkiWk3xtmpLyytuO7/xORJL1hJJmFW53RqXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.4.187
-Date:   Wed, 23 Mar 2022 09:27:16 +0100
-Message-Id: <164802403725159@kroah.com>
+Subject: Re: Linux 5.4.187
+Date:   Wed, 23 Mar 2022 09:27:17 +0100
+Message-Id: <1648024037976@kroah.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <164802403725159@kroah.com>
+References: <164802403725159@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -49,88 +51,514 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.4.187 kernel.
-
-All users of the 5.4 kernel series must upgrade.
-
-The updated 5.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                             |    2 
- arch/arm64/include/asm/vectors.h                     |    4 -
- drivers/atm/eni.c                                    |    2 
- drivers/crypto/qcom-rng.c                            |   17 +++--
- drivers/firmware/efi/apple-properties.c              |    2 
- drivers/firmware/efi/efi.c                           |    2 
- drivers/gpu/drm/panel/panel-simple.c                 |    2 
- drivers/input/tablet/aiptek.c                        |   10 +--
- drivers/net/hyperv/netvsc_drv.c                      |    3 +
- drivers/net/phy/marvell.c                            |    8 +-
- drivers/usb/class/usbtmc.c                           |   13 +++-
- drivers/usb/gadget/function/rndis.c                  |    1 
- drivers/usb/gadget/udc/core.c                        |    3 -
- fs/ocfs2/super.c                                     |   22 +++----
- include/linux/if_arp.h                               |    1 
- net/dsa/dsa2.c                                       |    1 
- net/packet/af_packet.c                               |   11 +++
- tools/perf/util/symbol.c                             |    2 
- tools/testing/selftests/bpf/prog_tests/timer_crash.c |   32 -----------
- tools/testing/selftests/bpf/progs/timer_crash.c      |   54 -------------------
- 20 files changed, 64 insertions(+), 128 deletions(-)
-
-Alan Stern (2):
-      usb: gadget: Fix use-after-free bug by not setting udc->dev.driver
-      usb: usbtmc: Fix bug in pipe direction for control transfers
-
-Arnd Bergmann (1):
-      arm64: fix clang warning about TRAMP_VALIAS
-
-Brian Masney (1):
-      crypto: qcom-rng - ensure buffer for generate is completely filled
-
-Dan Carpenter (1):
-      usb: gadget: rndis: prevent integer overflow in rndis_set_response()
-
-Eric Dumazet (1):
-      net/packet: fix slab-out-of-bounds access in packet_recvmsg()
-
-Greg Kroah-Hartman (2):
-      Revert "selftests/bpf: Add test for bpf_timer overwriting crash"
-      Linux 5.4.187
-
-Jiasheng Jiang (2):
-      atm: eni: Add check for dma_map_single
-      hv_netvsc: Add check for kvmalloc_array
-
-Joseph Qi (1):
-      ocfs2: fix crash when initialize filecheck kobj fails
-
-Kurt Cancemi (1):
-      net: phy: marvell: Fix invalid comparison in the resume and suspend functions
-
-Marek Vasut (1):
-      drm/panel: simple: Fix Innolux G070Y2-L01 BPP settings
-
-Miaoqian Lin (1):
-      net: dsa: Add missing of_node_put() in dsa_port_parse_of
-
-Michael Petlan (1):
-      perf symbols: Fix symbol size calculation condition
-
-Nicolas Dichtel (1):
-      net: handle ARPHRD_PIMREG in dev_is_mac_header_xmit()
-
-Pavel Skripkin (1):
-      Input: aiptek - properly check endpoint type
-
-Randy Dunlap (1):
-      efi: fix return value of __setup handlers
-
+diff --git a/Makefile b/Makefile
+index f9054b4e8a12..d07421bc5c2f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 4
+-SUBLEVEL = 186
++SUBLEVEL = 187
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/arch/arm64/include/asm/vectors.h b/arch/arm64/include/asm/vectors.h
+index f64613a96d53..bc9a2145f419 100644
+--- a/arch/arm64/include/asm/vectors.h
++++ b/arch/arm64/include/asm/vectors.h
+@@ -56,14 +56,14 @@ enum arm64_bp_harden_el1_vectors {
+ DECLARE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector);
+ 
+ #ifndef CONFIG_UNMAP_KERNEL_AT_EL0
+-#define TRAMP_VALIAS	0
++#define TRAMP_VALIAS	0ul
+ #endif
+ 
+ static inline const char *
+ arm64_get_bp_hardening_vector(enum arm64_bp_harden_el1_vectors slot)
+ {
+ 	if (arm64_kernel_unmapped_at_el0())
+-		return (char *)TRAMP_VALIAS + SZ_2K * slot;
++		return (char *)(TRAMP_VALIAS + SZ_2K * slot);
+ 
+ 	WARN_ON_ONCE(slot == EL1_VECTOR_KPTI);
+ 
+diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
+index de52428b8833..4816db0553ef 100644
+--- a/drivers/atm/eni.c
++++ b/drivers/atm/eni.c
+@@ -1116,6 +1116,8 @@ DPRINTK("iovcnt = %d\n",skb_shinfo(skb)->nr_frags);
+ 	}
+ 	paddr = dma_map_single(&eni_dev->pci_dev->dev,skb->data,skb->len,
+ 			       DMA_TO_DEVICE);
++	if (dma_mapping_error(&eni_dev->pci_dev->dev, paddr))
++		return enq_next;
+ 	ENI_PRV_PADDR(skb) = paddr;
+ 	/* prepare DMA queue entries */
+ 	j = 0;
+diff --git a/drivers/crypto/qcom-rng.c b/drivers/crypto/qcom-rng.c
+index 4730f84b646d..3a633a0c40fd 100644
+--- a/drivers/crypto/qcom-rng.c
++++ b/drivers/crypto/qcom-rng.c
+@@ -7,6 +7,7 @@
+ #include <linux/acpi.h>
+ #include <linux/clk.h>
+ #include <linux/crypto.h>
++#include <linux/iopoll.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+@@ -42,16 +43,19 @@ static int qcom_rng_read(struct qcom_rng *rng, u8 *data, unsigned int max)
+ {
+ 	unsigned int currsize = 0;
+ 	u32 val;
++	int ret;
+ 
+ 	/* read random data from hardware */
+ 	do {
+-		val = readl_relaxed(rng->base + PRNG_STATUS);
+-		if (!(val & PRNG_STATUS_DATA_AVAIL))
+-			break;
++		ret = readl_poll_timeout(rng->base + PRNG_STATUS, val,
++					 val & PRNG_STATUS_DATA_AVAIL,
++					 200, 10000);
++		if (ret)
++			return ret;
+ 
+ 		val = readl_relaxed(rng->base + PRNG_DATA_OUT);
+ 		if (!val)
+-			break;
++			return -EINVAL;
+ 
+ 		if ((max - currsize) >= WORD_SZ) {
+ 			memcpy(data, &val, WORD_SZ);
+@@ -60,11 +64,10 @@ static int qcom_rng_read(struct qcom_rng *rng, u8 *data, unsigned int max)
+ 		} else {
+ 			/* copy only remaining bytes */
+ 			memcpy(data, &val, max - currsize);
+-			break;
+ 		}
+ 	} while (currsize < max);
+ 
+-	return currsize;
++	return 0;
+ }
+ 
+ static int qcom_rng_generate(struct crypto_rng *tfm,
+@@ -86,7 +89,7 @@ static int qcom_rng_generate(struct crypto_rng *tfm,
+ 	mutex_unlock(&rng->lock);
+ 	clk_disable_unprepare(rng->clk);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int qcom_rng_seed(struct crypto_rng *tfm, const u8 *seed,
+diff --git a/drivers/firmware/efi/apple-properties.c b/drivers/firmware/efi/apple-properties.c
+index 0e206c9e0d7a..7ad2d85d7270 100644
+--- a/drivers/firmware/efi/apple-properties.c
++++ b/drivers/firmware/efi/apple-properties.c
+@@ -23,7 +23,7 @@ static bool dump_properties __initdata;
+ static int __init dump_properties_enable(char *arg)
+ {
+ 	dump_properties = true;
+-	return 0;
++	return 1;
+ }
+ 
+ __setup("dump_apple_properties", dump_properties_enable);
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index 415d7b3a59f8..8fd74a7501d4 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -231,7 +231,7 @@ static int __init efivar_ssdt_setup(char *str)
+ 		memcpy(efivar_ssdt, str, strlen(str));
+ 	else
+ 		pr_warn("efivar_ssdt: name too long: %s\n", str);
+-	return 0;
++	return 1;
+ }
+ __setup("efivar_ssdt=", efivar_ssdt_setup);
+ 
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index f0ea782df836..312a3c4e2331 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -1619,7 +1619,7 @@ static const struct display_timing innolux_g070y2_l01_timing = {
+ static const struct panel_desc innolux_g070y2_l01 = {
+ 	.timings = &innolux_g070y2_l01_timing,
+ 	.num_timings = 1,
+-	.bpc = 6,
++	.bpc = 8,
+ 	.size = {
+ 		.width = 152,
+ 		.height = 91,
+diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+index 06d0ffef4a17..acaf8c045f19 100644
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -1801,15 +1801,13 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
+ 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
+ 
+-	/* Verify that a device really has an endpoint */
+-	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
++	err = usb_find_common_endpoints(intf->cur_altsetting,
++					NULL, NULL, &endpoint, NULL);
++	if (err) {
+ 		dev_err(&intf->dev,
+-			"interface has %d endpoints, but must have minimum 1\n",
+-			intf->cur_altsetting->desc.bNumEndpoints);
+-		err = -EINVAL;
++			"interface has no int in endpoints, but must have minimum 1\n");
+ 		goto fail3;
+ 	}
+-	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ 
+ 	/* Go set up our URB, which is called when the tablet receives
+ 	 * input.
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index 362b7ca6f3b2..57e92c5bfcc9 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -1445,6 +1445,9 @@ static void netvsc_get_ethtool_stats(struct net_device *dev,
+ 	pcpu_sum = kvmalloc_array(num_possible_cpus(),
+ 				  sizeof(struct netvsc_ethtool_pcpu_stats),
+ 				  GFP_KERNEL);
++	if (!pcpu_sum)
++		return;
++
+ 	netvsc_get_pcpu_stats(dev, pcpu_sum);
+ 	for_each_present_cpu(cpu) {
+ 		struct netvsc_ethtool_pcpu_stats *this_sum = &pcpu_sum[cpu];
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index 53420c531266..49801c2eb627 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -1408,8 +1408,8 @@ static int marvell_suspend(struct phy_device *phydev)
+ 	int err;
+ 
+ 	/* Suspend the fiber mode first */
+-	if (!linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
+-			       phydev->supported)) {
++	if (linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
++			      phydev->supported)) {
+ 		err = marvell_set_page(phydev, MII_MARVELL_FIBER_PAGE);
+ 		if (err < 0)
+ 			goto error;
+@@ -1443,8 +1443,8 @@ static int marvell_resume(struct phy_device *phydev)
+ 	int err;
+ 
+ 	/* Resume the fiber mode first */
+-	if (!linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
+-			       phydev->supported)) {
++	if (linkmode_test_bit(ETHTOOL_LINK_MODE_FIBRE_BIT,
++			      phydev->supported)) {
+ 		err = marvell_set_page(phydev, MII_MARVELL_FIBER_PAGE);
+ 		if (err < 0)
+ 			goto error;
+diff --git a/drivers/usb/class/usbtmc.c b/drivers/usb/class/usbtmc.c
+index 3922a6f8c50a..77b1802f829b 100644
+--- a/drivers/usb/class/usbtmc.c
++++ b/drivers/usb/class/usbtmc.c
+@@ -1889,6 +1889,7 @@ static int usbtmc_ioctl_request(struct usbtmc_device_data *data,
+ 	struct usbtmc_ctrlrequest request;
+ 	u8 *buffer = NULL;
+ 	int rv;
++	unsigned int is_in, pipe;
+ 	unsigned long res;
+ 
+ 	res = copy_from_user(&request, arg, sizeof(struct usbtmc_ctrlrequest));
+@@ -1898,12 +1899,14 @@ static int usbtmc_ioctl_request(struct usbtmc_device_data *data,
+ 	if (request.req.wLength > USBTMC_BUFSIZE)
+ 		return -EMSGSIZE;
+ 
++	is_in = request.req.bRequestType & USB_DIR_IN;
++
+ 	if (request.req.wLength) {
+ 		buffer = kmalloc(request.req.wLength, GFP_KERNEL);
+ 		if (!buffer)
+ 			return -ENOMEM;
+ 
+-		if ((request.req.bRequestType & USB_DIR_IN) == 0) {
++		if (!is_in) {
+ 			/* Send control data to device */
+ 			res = copy_from_user(buffer, request.data,
+ 					     request.req.wLength);
+@@ -1914,8 +1917,12 @@ static int usbtmc_ioctl_request(struct usbtmc_device_data *data,
+ 		}
+ 	}
+ 
++	if (is_in)
++		pipe = usb_rcvctrlpipe(data->usb_dev, 0);
++	else
++		pipe = usb_sndctrlpipe(data->usb_dev, 0);
+ 	rv = usb_control_msg(data->usb_dev,
+-			usb_rcvctrlpipe(data->usb_dev, 0),
++			pipe,
+ 			request.req.bRequest,
+ 			request.req.bRequestType,
+ 			request.req.wValue,
+@@ -1927,7 +1934,7 @@ static int usbtmc_ioctl_request(struct usbtmc_device_data *data,
+ 		goto exit;
+ 	}
+ 
+-	if (rv && (request.req.bRequestType & USB_DIR_IN)) {
++	if (rv && is_in) {
+ 		/* Read control data from device */
+ 		res = copy_to_user(request.data, buffer, rv);
+ 		if (res)
+diff --git a/drivers/usb/gadget/function/rndis.c b/drivers/usb/gadget/function/rndis.c
+index 970ed1514f0b..fa0c173a0d26 100644
+--- a/drivers/usb/gadget/function/rndis.c
++++ b/drivers/usb/gadget/function/rndis.c
+@@ -640,6 +640,7 @@ static int rndis_set_response(struct rndis_params *params,
+ 	BufLength = le32_to_cpu(buf->InformationBufferLength);
+ 	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
+ 	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
++	    (BufOffset > RNDIS_MAX_TOTAL_SIZE) ||
+ 	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
+ 		    return -EINVAL;
+ 
+diff --git a/drivers/usb/gadget/udc/core.c b/drivers/usb/gadget/udc/core.c
+index e41f67cd3d46..f9d2737aabe8 100644
+--- a/drivers/usb/gadget/udc/core.c
++++ b/drivers/usb/gadget/udc/core.c
+@@ -1303,7 +1303,6 @@ static void usb_gadget_remove_driver(struct usb_udc *udc)
+ 	usb_gadget_udc_stop(udc);
+ 
+ 	udc->driver = NULL;
+-	udc->dev.driver = NULL;
+ 	udc->gadget->dev.driver = NULL;
+ }
+ 
+@@ -1352,7 +1351,6 @@ static int udc_bind_to_driver(struct usb_udc *udc, struct usb_gadget_driver *dri
+ 			driver->function);
+ 
+ 	udc->driver = driver;
+-	udc->dev.driver = &driver->driver;
+ 	udc->gadget->dev.driver = &driver->driver;
+ 
+ 	usb_gadget_udc_set_speed(udc, driver->max_speed);
+@@ -1374,7 +1372,6 @@ static int udc_bind_to_driver(struct usb_udc *udc, struct usb_gadget_driver *dri
+ 		dev_err(&udc->dev, "failed to start %s: %d\n",
+ 			udc->driver->function, ret);
+ 	udc->driver = NULL;
+-	udc->dev.driver = NULL;
+ 	udc->gadget->dev.driver = NULL;
+ 	return ret;
+ }
+diff --git a/fs/ocfs2/super.c b/fs/ocfs2/super.c
+index eaec97892dce..c1cf67b24c19 100644
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1100,17 +1100,6 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto read_super_error;
+ 	}
+ 
+-	root = d_make_root(inode);
+-	if (!root) {
+-		status = -ENOMEM;
+-		mlog_errno(status);
+-		goto read_super_error;
+-	}
+-
+-	sb->s_root = root;
+-
+-	ocfs2_complete_mount_recovery(osb);
+-
+ 	osb->osb_dev_kset = kset_create_and_add(sb->s_id, NULL,
+ 						&ocfs2_kset->kobj);
+ 	if (!osb->osb_dev_kset) {
+@@ -1128,6 +1117,17 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto read_super_error;
+ 	}
+ 
++	root = d_make_root(inode);
++	if (!root) {
++		status = -ENOMEM;
++		mlog_errno(status);
++		goto read_super_error;
++	}
++
++	sb->s_root = root;
++
++	ocfs2_complete_mount_recovery(osb);
++
+ 	if (ocfs2_mount_local(osb))
+ 		snprintf(nodestr, sizeof(nodestr), "local");
+ 	else
+diff --git a/include/linux/if_arp.h b/include/linux/if_arp.h
+index bf5c5f32c65e..e147ea679467 100644
+--- a/include/linux/if_arp.h
++++ b/include/linux/if_arp.h
+@@ -51,6 +51,7 @@ static inline bool dev_is_mac_header_xmit(const struct net_device *dev)
+ 	case ARPHRD_VOID:
+ 	case ARPHRD_NONE:
+ 	case ARPHRD_RAWIP:
++	case ARPHRD_PIMREG:
+ 		return false;
+ 	default:
+ 		return true;
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index 70e6fc2edd30..1f27641f9cc0 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -669,6 +669,7 @@ static int dsa_port_parse_of(struct dsa_port *dp, struct device_node *dn)
+ 		struct net_device *master;
+ 
+ 		master = of_find_net_device_by_node(ethernet);
++		of_node_put(ethernet);
+ 		if (!master)
+ 			return -EPROBE_DEFER;
+ 
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index ed11013d4b95..70c102359bfe 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2257,8 +2257,11 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
+ 					copy_skb = skb_get(skb);
+ 					skb_head = skb->data;
+ 				}
+-				if (copy_skb)
++				if (copy_skb) {
++					memset(&PACKET_SKB_CB(copy_skb)->sa.ll, 0,
++					       sizeof(PACKET_SKB_CB(copy_skb)->sa.ll));
+ 					skb_set_owner_r(copy_skb, sk);
++				}
+ 			}
+ 			snaplen = po->rx_ring.frame_size - macoff;
+ 			if ((int)snaplen < 0) {
+@@ -3405,6 +3408,8 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	sock_recv_ts_and_drops(msg, sk, skb);
+ 
+ 	if (msg->msg_name) {
++		const size_t max_len = min(sizeof(skb->cb),
++					   sizeof(struct sockaddr_storage));
+ 		int copy_len;
+ 
+ 		/* If the address length field is there to be filled
+@@ -3427,6 +3432,10 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 				msg->msg_namelen = sizeof(struct sockaddr_ll);
+ 			}
+ 		}
++		if (WARN_ON_ONCE(copy_len > max_len)) {
++			copy_len = max_len;
++			msg->msg_namelen = copy_len;
++		}
+ 		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
+ 	}
+ 
+diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+index 901ad7f6f4dc..ea2c7beff486 100644
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -231,7 +231,7 @@ void symbols__fixup_end(struct rb_root_cached *symbols)
+ 		prev = curr;
+ 		curr = rb_entry(nd, struct symbol, rb_node);
+ 
+-		if (prev->end == prev->start && prev->end != curr->start)
++		if (prev->end == prev->start || prev->end != curr->start)
+ 			arch__symbols__fixup_end(prev, curr);
+ 	}
+ 
+diff --git a/tools/testing/selftests/bpf/prog_tests/timer_crash.c b/tools/testing/selftests/bpf/prog_tests/timer_crash.c
+deleted file mode 100644
+index f74b82305da8..000000000000
+--- a/tools/testing/selftests/bpf/prog_tests/timer_crash.c
++++ /dev/null
+@@ -1,32 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-#include <test_progs.h>
+-#include "timer_crash.skel.h"
+-
+-enum {
+-	MODE_ARRAY,
+-	MODE_HASH,
+-};
+-
+-static void test_timer_crash_mode(int mode)
+-{
+-	struct timer_crash *skel;
+-
+-	skel = timer_crash__open_and_load();
+-	if (!ASSERT_OK_PTR(skel, "timer_crash__open_and_load"))
+-		return;
+-	skel->bss->pid = getpid();
+-	skel->bss->crash_map = mode;
+-	if (!ASSERT_OK(timer_crash__attach(skel), "timer_crash__attach"))
+-		goto end;
+-	usleep(1);
+-end:
+-	timer_crash__destroy(skel);
+-}
+-
+-void test_timer_crash(void)
+-{
+-	if (test__start_subtest("array"))
+-		test_timer_crash_mode(MODE_ARRAY);
+-	if (test__start_subtest("hash"))
+-		test_timer_crash_mode(MODE_HASH);
+-}
+diff --git a/tools/testing/selftests/bpf/progs/timer_crash.c b/tools/testing/selftests/bpf/progs/timer_crash.c
+deleted file mode 100644
+index f8f7944e70da..000000000000
+--- a/tools/testing/selftests/bpf/progs/timer_crash.c
++++ /dev/null
+@@ -1,54 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-
+-#include <vmlinux.h>
+-#include <bpf/bpf_tracing.h>
+-#include <bpf/bpf_helpers.h>
+-
+-struct map_elem {
+-	struct bpf_timer timer;
+-	struct bpf_spin_lock lock;
+-};
+-
+-struct {
+-	__uint(type, BPF_MAP_TYPE_ARRAY);
+-	__uint(max_entries, 1);
+-	__type(key, int);
+-	__type(value, struct map_elem);
+-} amap SEC(".maps");
+-
+-struct {
+-	__uint(type, BPF_MAP_TYPE_HASH);
+-	__uint(max_entries, 1);
+-	__type(key, int);
+-	__type(value, struct map_elem);
+-} hmap SEC(".maps");
+-
+-int pid = 0;
+-int crash_map = 0; /* 0 for amap, 1 for hmap */
+-
+-SEC("fentry/do_nanosleep")
+-int sys_enter(void *ctx)
+-{
+-	struct map_elem *e, value = {};
+-	void *map = crash_map ? (void *)&hmap : (void *)&amap;
+-
+-	if (bpf_get_current_task_btf()->tgid != pid)
+-		return 0;
+-
+-	*(void **)&value = (void *)0xdeadcaf3;
+-
+-	bpf_map_update_elem(map, &(int){0}, &value, 0);
+-	/* For array map, doing bpf_map_update_elem will do a
+-	 * check_and_free_timer_in_array, which will trigger the crash if timer
+-	 * pointer was overwritten, for hmap we need to use bpf_timer_cancel.
+-	 */
+-	if (crash_map == 1) {
+-		e = bpf_map_lookup_elem(map, &(int){0});
+-		if (!e)
+-			return 0;
+-		bpf_timer_cancel(&e->timer);
+-	}
+-	return 0;
+-}
+-
+-char _license[] SEC("license") = "GPL";
