@@ -2,156 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 407814E597D
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 344DF4E5996
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:09:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232814AbiCWUDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 16:03:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39712 "EHLO
+        id S237339AbiCWULL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 16:11:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232772AbiCWUDl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:03:41 -0400
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F0688B0F
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:02:10 -0700 (PDT)
-Received: by mail-qt1-x830.google.com with SMTP id bp39so2163948qtb.6
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:02:10 -0700 (PDT)
+        with ESMTP id S239934AbiCWULK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:11:10 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64552694AE
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:09:40 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id k6so2603761plg.12
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:09:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=0jW57wgacFbVjPl6Z1My1nWKvyLLpPcqTTlbY1XJxkY=;
-        b=ApY5e+QZif5Js3HzA5IqhimEQFgY/FSzYpDmNMPwPPltrbkbkb/EQslo5wBDbsc64Q
-         gYBOaZyol75sOJHOBRVAG4UMqBR21CNHgQMCNiHbe3LhBl64Jn4opTU2x7CudXA6+M54
-         QP5qQFbxfO5b+SjIYL58thRPqPXcsvQhOPFxd0XatmxJXyA8P4Md+4JxusX8bKflrxOt
-         RF1b3XxhPwxrp286Ydmi1mESoheyur95SJcc/xJjeVEdGg02wDyu4cs8j+UY3TxAZ02Z
-         UMQqiHpLJKMDm+Kj/6X1SFpygTJxSLJgcZJ3cnbYgRqHXxO2aptHzqLg8hX6ci9ScoL0
-         ShCQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=bqbkkfQ6DJeWwPjXhaTf4dOtRWnm84k2cLupIbOddZM=;
+        b=z4i1cmanH62I61kXSoNn1uGhTGyEDTffIogFS2jUJZclh10Iyrj2nD+W99z0jjmfe3
+         2miXRJ/8Ru7NFRU165OqhnpN759s4HxM1LIFC67BNM37oA9CIzHr4CA5PVArHP4czEbL
+         63BfcsSJGk7xorXZZjwEIY6d152camLVz8kcKhEgPNhkHIRIiS1UscSsEbeaoN7yp/rS
+         k6YlQbD6Qq90nsNzFR+mxvZ5WzBT8SCkaNCHYq5G4/EEb5Q4XFTccOXqZ9ukC46aoCW0
+         VbZj8Tr4SWN273XR7MRgGRwFFAeR9Uj1s2Y4bfI0Mk9yZ972R1vw684+NgjI2ls07FMJ
+         oY6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=0jW57wgacFbVjPl6Z1My1nWKvyLLpPcqTTlbY1XJxkY=;
-        b=lWbeNI+jH5+lpDU4XPUmrA+oVHV2JmzRFQQYLHOS1yT8DaHQpPJ+zRb/TH59BTnbBL
-         DK2t+BOU9CWwDMlk9QSgkfV6hc+3SSqMk3J4JOZbIh5YPSwIiqMBIW2UORhprNA+Vccb
-         FGo37rsEj4ThKIIQd8Ai4nh0cujKIfu/BcQnLSUi3bENvkvgSe0vgfUSsfW/bcE8onqO
-         I2oJPW/fE2qSH4NgGs68UAHsg2ts0ZtshS3VBqiPHMI2kV6XKSXWzulHKFzBdAOaooGV
-         e41hFSbwNCFNHoeoYbWNvOJsfl2WUrwQyEzdLwlhCRNgQJw9A1/2qtiRxah53ZnBW1eA
-         zYqQ==
-X-Gm-Message-State: AOAM533Y7waY1pArdUqzCJ9sJzQTUzXLQZeikFC6Sk09uABIIhuwkx9p
-        OdyC9ENnmzXQTp+9EYT5TGcIy1S1gCF5sTrYA7kJ6rdRkoe28A==
-X-Google-Smtp-Source: ABdhPJymWPaBSY27cdpRbZbYPYYV5ro5rXsuftO1N4xbiidEm4RZyaLafnUAqg/yJ59qYHJPqfM8xlChB4I/4+vCaeQ=
-X-Received: by 2002:a05:622a:488:b0:2e1:d60f:164b with SMTP id
- p8-20020a05622a048800b002e1d60f164bmr1387157qtx.281.1648065728990; Wed, 23
- Mar 2022 13:02:08 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=bqbkkfQ6DJeWwPjXhaTf4dOtRWnm84k2cLupIbOddZM=;
+        b=7UEHcexLN3FowKQUWAp9lC5nP1SX7W+Eao+5eHx3Jrzx54hl+79hGOUduvAZrbExQh
+         OltqZHGG8OKkriblm1UF9ug8b1J8qyGEqNWHmZWlC4Nm86ZN3Hdpo1WlO/vNP6INFI7J
+         sOpLVGiMQ4TuMUKSz4wHIiccsAKngxGGitVf8XzKXkt0KlMkkglrDQfMwMUZ2J1Sddcf
+         ohrvwUCS6xMyRseEFFveoBpoV7hbPXwFZdklNwMyDzDqsDbZfYqRKT6SxBca5ZUMAUDs
+         SFrlv8osGqUzcJNpeX0RxvL3KeP+iRGJ0N7HS5DqC6WbMLjRI8ZtshwWRr0ZmKINYJIQ
+         +KDw==
+X-Gm-Message-State: AOAM532+R72/a1gnhx+X8mjD6vN+6lXjRcAA4d9We8nhD0ede4gqd114
+        Q3XWza3y7eSO2T7JETYFyjusecF/SllLSNrgVDI=
+X-Google-Smtp-Source: ABdhPJwQz+l3vUVheVdoxAiuivKgk66a5f0gj1bnBUAgJNdj+5mrRnHB7aA5nWpPhgYGwLPqY1inAA==
+X-Received: by 2002:a17:902:d50c:b0:154:5090:8126 with SMTP id b12-20020a170902d50c00b0015450908126mr1845656plg.133.1648066179707;
+        Wed, 23 Mar 2022 13:09:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e3-20020a636903000000b003863620133bsm176306pgc.77.2022.03.23.13.09.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Mar 2022 13:09:39 -0700 (PDT)
+Message-ID: <623b7e83.1c69fb81.ef4e.0d39@mx.google.com>
+Date:   Wed, 23 Mar 2022 13:09:39 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-From:   Khazhy Kumykov <khazhy@google.com>
-Date:   Wed, 23 Mar 2022 13:01:58 -0700
-Message-ID: <CACGdZY+hyR5j=Hwzt_Utd5MgPh6EHotri5atqzrzgi7Nbp+vFA@mail.gmail.com>
-Subject: nfsd patches to fix deadlock
-To:     stable@vger.kernel.org
-Cc:     Trond Myklebust <trondmy@hammerspace.com>
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-        boundary="0000000000005f54ac05dae8349a"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.187
+Subject: stable-rc/linux-5.4.y baseline: 53 runs, 1 regressions (v5.4.187)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---0000000000005f54ac05dae8349a
-Content-Type: text/plain; charset="UTF-8"
+stable-rc/linux-5.4.y baseline: 53 runs, 1 regressions (v5.4.187)
 
-Please consider the following 2 patches for stable 5.4. They applied
-cleanly to 5.4.y for me, and fix a deadlock we have experienced. (See
-discussion at https://lore.kernel.org/linux-nfs/a9cf9bcd72a187127b73042a9369e17bd5a0e93d.camel@hammerspace.com
-). These patches are from 5.5, so newer kernels should not need it. I
-looked at 4.19, and it looks like this issue should not exist in that
-kernel (we don't have filecache.c and it's associated shrinker). I
-have not looked at older kernels, but presume the issue also does not
-apply there.
+Regressions Summary
+-------------------
 
-9542e6a643fc ("nfsd: Containerise filecache laundrette")
-36ebbdb96b69 ("nfsd: cleanup nfsd_file_lru_dispose()")
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
---0000000000005f54ac05dae8349a
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
 
-MIIPmwYJKoZIhvcNAQcCoIIPjDCCD4gCAQExDzANBglghkgBZQMEAgEFADALBgkqhkiG9w0BBwGg
-ggz1MIIEtjCCA56gAwIBAgIQeAMYYHb81ngUVR0WyMTzqzANBgkqhkiG9w0BAQsFADBMMSAwHgYD
-VQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UE
-AxMKR2xvYmFsU2lnbjAeFw0yMDA3MjgwMDAwMDBaFw0yOTAzMTgwMDAwMDBaMFQxCzAJBgNVBAYT
-AkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSowKAYDVQQDEyFHbG9iYWxTaWduIEF0bGFz
-IFIzIFNNSU1FIENBIDIwMjAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCvLe9xPU9W
-dpiHLAvX7kFnaFZPuJLey7LYaMO8P/xSngB9IN73mVc7YiLov12Fekdtn5kL8PjmDBEvTYmWsuQS
-6VBo3vdlqqXZ0M9eMkjcKqijrmDRleudEoPDzTumwQ18VB/3I+vbN039HIaRQ5x+NHGiPHVfk6Rx
-c6KAbYceyeqqfuJEcq23vhTdium/Bf5hHqYUhuJwnBQ+dAUcFndUKMJrth6lHeoifkbw2bv81zxJ
-I9cvIy516+oUekqiSFGfzAqByv41OrgLV4fLGCDH3yRh1tj7EtV3l2TngqtrDLUs5R+sWIItPa/4
-AJXB1Q3nGNl2tNjVpcSn0uJ7aFPbAgMBAAGjggGKMIIBhjAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0l
-BBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFHzM
-CmjXouseLHIb0c1dlW+N+/JjMB8GA1UdIwQYMBaAFI/wS3+oLkUkrk1Q+mOai97i3Ru8MHsGCCsG
-AQUFBwEBBG8wbTAuBggrBgEFBQcwAYYiaHR0cDovL29jc3AyLmdsb2JhbHNpZ24uY29tL3Jvb3Ry
-MzA7BggrBgEFBQcwAoYvaHR0cDovL3NlY3VyZS5nbG9iYWxzaWduLmNvbS9jYWNlcnQvcm9vdC1y
-My5jcnQwNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9yb290LXIz
-LmNybDBMBgNVHSAERTBDMEEGCSsGAQQBoDIBKDA0MDIGCCsGAQUFBwIBFiZodHRwczovL3d3dy5n
-bG9iYWxzaWduLmNvbS9yZXBvc2l0b3J5LzANBgkqhkiG9w0BAQsFAAOCAQEANyYcO+9JZYyqQt41
-TMwvFWAw3vLoLOQIfIn48/yea/ekOcParTb0mbhsvVSZ6sGn+txYAZb33wIb1f4wK4xQ7+RUYBfI
-TuTPL7olF9hDpojC2F6Eu8nuEf1XD9qNI8zFd4kfjg4rb+AME0L81WaCL/WhP2kDCnRU4jm6TryB
-CHhZqtxkIvXGPGHjwJJazJBnX5NayIce4fGuUEJ7HkuCthVZ3Rws0UyHSAXesT/0tXATND4mNr1X
-El6adiSQy619ybVERnRi5aDe1PTwE+qNiotEEaeujz1a/+yYaaTY+k+qJcVxi7tbyQ0hi0UB3myM
-A/z2HmGEwO8hx7hDjKmKbDCCA18wggJHoAMCAQICCwQAAAAAASFYUwiiMA0GCSqGSIb3DQEBCwUA
-MEwxIDAeBgNVBAsTF0dsb2JhbFNpZ24gUm9vdCBDQSAtIFIzMRMwEQYDVQQKEwpHbG9iYWxTaWdu
-MRMwEQYDVQQDEwpHbG9iYWxTaWduMB4XDTA5MDMxODEwMDAwMFoXDTI5MDMxODEwMDAwMFowTDEg
-MB4GA1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjMxEzARBgNVBAoTCkdsb2JhbFNpZ24xEzAR
-BgNVBAMTCkdsb2JhbFNpZ24wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDMJXaQeQZ4
-Ihb1wIO2hMoonv0FdhHFrYhy/EYCQ8eyip0EXyTLLkvhYIJG4VKrDIFHcGzdZNHr9SyjD4I9DCuu
-l9e2FIYQebs7E4B3jAjhSdJqYi8fXvqWaN+JJ5U4nwbXPsnLJlkNc96wyOkmDoMVxu9bi9IEYMpJ
-pij2aTv2y8gokeWdimFXN6x0FNx04Druci8unPvQu7/1PQDhBjPogiuuU6Y6FnOM3UEOIDrAtKeh
-6bJPkC4yYOlXy7kEkmho5TgmYHWyn3f/kRTvriBJ/K1AFUjRAjFhGV64l++td7dkmnq/X8ET75ti
-+w1s4FRpFqkD2m7pg5NxdsZphYIXAgMBAAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8E
-BTADAQH/MB0GA1UdDgQWBBSP8Et/qC5FJK5NUPpjmove4t0bvDANBgkqhkiG9w0BAQsFAAOCAQEA
-S0DbwFCq/sgM7/eWVEVJu5YACUGssxOGhigHM8pr5nS5ugAtrqQK0/Xx8Q+Kv3NnSoPHRHt44K9u
-bG8DKY4zOUXDjuS5V2yq/BKW7FPGLeQkbLmUY/vcU2hnVj6DuM81IcPJaP7O2sJTqsyQiunwXUaM
-ld16WCgaLx3ezQA3QY/tRG3XUyiXfvNnBB4V14qWtNPeTCekTBtzc3b0F5nCH3oO4y0IrQocLP88
-q1UOD5F+NuvDV0m+4S4tfGCLw0FREyOdzvcya5QBqJnnLDMfOjsl0oZAzjsshnjJYS8Uuu7bVW/f
-hO4FCU29KNhyztNiUGUe65KXgzHZs7XKR1g/XzCCBNQwggO8oAMCAQICEAFEftjde/YEIFcjUXqh
-cBUwDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYt
-c2ExKjAoBgNVBAMTIUdsb2JhbFNpZ24gQXRsYXMgUjMgU01JTUUgQ0EgMjAyMDAeFw0yMjAzMTUw
-MzQ4MTFaFw0yMjA5MTEwMzQ4MTFaMCIxIDAeBgkqhkiG9w0BCQEWEWtoYXpoeUBnb29nbGUuY29t
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnSc4QiMo3U8X7waRXSjbdBPbktNNtBqh
-S/5u+fj/ZKSgI2yE4sLMwA/+mKwg/7sa7w5AfZHezcsNdoPtSg+Fdps/FlA7XruMWcjotJZkl0XU
-Kx8oRkC5IzIs4yCPbKjJjPnLLB6kscJHeFsONw1dB1LD/I/mXWBMVULRshygEklce7NMMBEgMELQ
-HA8prVkASBCQcTBI9b1/dCaMkqs1pbI1S+jMQDPTVqJ6yHssJtwELHTH1ObZwi2Cx3q60b0sXYS0
-18OjY3VYaZUXTOSFP5PN/OmbGt2smYKKCLujb0wJm06bFotBaJhVw5xdMAfCD+2cPvmYXDCF+7ng
-AYBCcQIDAQABo4IB0jCCAc4wHAYDVR0RBBUwE4ERa2hhemh5QGdvb2dsZS5jb20wDgYDVR0PAQH/
-BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMEBggrBgEFBQcDAjAdBgNVHQ4EFgQU8bNUGSaYlhLY
-h3dPtFviTyG11HYwTAYDVR0gBEUwQzBBBgkrBgEEAaAyASgwNDAyBggrBgEFBQcCARYmaHR0cHM6
-Ly93d3cuZ2xvYmFsc2lnbi5jb20vcmVwb3NpdG9yeS8wDAYDVR0TAQH/BAIwADCBmgYIKwYBBQUH
-AQEEgY0wgYowPgYIKwYBBQUHMAGGMmh0dHA6Ly9vY3NwLmdsb2JhbHNpZ24uY29tL2NhL2dzYXRs
-YXNyM3NtaW1lY2EyMDIwMEgGCCsGAQUFBzAChjxodHRwOi8vc2VjdXJlLmdsb2JhbHNpZ24uY29t
-L2NhY2VydC9nc2F0bGFzcjNzbWltZWNhMjAyMC5jcnQwHwYDVR0jBBgwFoAUfMwKaNei6x4schvR
-zV2Vb4378mMwRgYDVR0fBD8wPTA7oDmgN4Y1aHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9jYS9n
-c2F0bGFzcjNzbWltZWNhMjAyMC5jcmwwDQYJKoZIhvcNAQELBQADggEBAE0ANr7NUOqEcZce4KYP
-SjzlrshSC8sgJ8dKDDbe35PL86vDuMIrytVjiV10p/YUofun9GeHBY6r5kTyh4be5FgftiiNtWzn
-U1W5cxLYMT1hKYxXxnM2sWMQGFl4TkxxbRoVZa3ou/NxFdAZeiQSwGnzk5oIDTBZQc8q3wMa1svm
-A5Rd4MVaIUt+hyk6seAldN6k4/O34O1l2V6D+/BwagyzLWvOeMEM9hClVF+F6a20yy4dcDsprFZZ
-Sk9JzUy9F6FM7L1wT2ndjTNDja4Y2tixf31KuisZLGKmDZsW/fXF1GgWDaM0DbYJwtE3kHylWnMk
-CN4PfYgIa15C5A9lXhExggJqMIICZgIBATBoMFQxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9i
-YWxTaWduIG52LXNhMSowKAYDVQQDEyFHbG9iYWxTaWduIEF0bGFzIFIzIFNNSU1FIENBIDIwMjAC
-EAFEftjde/YEIFcjUXqhcBUwDQYJYIZIAWUDBAIBBQCggdQwLwYJKoZIhvcNAQkEMSIEII8ZFevp
-gn6Dy9PlWwCN8equG1Ehv8ON7yvmnA7IMaI1MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJ
-KoZIhvcNAQkFMQ8XDTIyMDMyMzIwMDIwOVowaQYJKoZIhvcNAQkPMVwwWjALBglghkgBZQMEASow
-CwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQowCwYJKoZI
-hvcNAQEHMAsGCWCGSAFlAwQCATANBgkqhkiG9w0BAQEFAASCAQB17KKBtF8+MAzv1ovd1c+5l17u
-AXzDj3Pmlw0u3aA+DLJc12TmK3hhrvKwm1n0yxeqyRnWLRh8Z0x7TEEs70xapNvMg9AxTaB95AUB
-GMXVr51s+ckukK/J5ZWcaYxUp1wi558RpaDdBKEIQ8EJNb0tril2PQbtmyqoNnoeHY76ZhIaFaXr
-NoaeOY4M+ROUs4N6hJggMM6b3SjI/wHyCLHevNg3B53klGygU7XRM/iAMDoDn9nZoUR5e2JAJa39
-tFlBjULgbzthu7im0DitwRdNMCM61gQdtTBpBNOHU2cyjfT2xiw0KmbR5x0dU6geMyZUKpeCdoWx
-K98a1c4nXY1K
---0000000000005f54ac05dae8349a--
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.187/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.187
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      055c4cf7e6da13450016942e5286492b4a224868 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623b54666654b9a445bd91aa
+
+  Results:     88 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.187=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
+kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.187=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
+kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/623b54666654b9a445bd91cc
+        failing since 17 days (last pass: v5.4.181-51-gb77a12b8d613, first =
+fail: v5.4.182-54-gf27af6bf3c32) =
+
+ =20
