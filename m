@@ -2,146 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 947644E550C
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 16:19:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A784E5518
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 16:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237569AbiCWPV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 11:21:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37042 "EHLO
+        id S229765AbiCWPYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 11:24:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiCWPV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 11:21:27 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81937654AE
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 08:19:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1648048797; x=1679584797;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version:content-transfer-encoding;
-  bh=SMBdZmZ570mnLhiMI9IlFDQAXa8938kaiujy1I1l7bs=;
-  b=Xc83UlYlZS9vbqD7XLQvaNOqapKpqVj6oUn2CBSjQ058CmFVqJs0R6xt
-   uETo9byq62eu7XQL0qOedht8ncg9wFEjb/6MtdyzvqVfuVt6XSQTRC3WX
-   6Hf3KujQumSplfFWEgOCWkE5LCOcdsEd7BDR605cOLzWgBpK1hbOHDLaa
-   r5D1cGP6VP+0J0UYqTdd0rKPxNQ7WuEj96woSvozTu85Wo1bL9stSx3k2
-   gvzZUUq6eGyEMej5WoNdAe8Hf6JI/neaO3lQPi9pYaxMdiBmBO1Un61bA
-   ebDt+aO62RqkmydbXFYw2BfMZWRsWW1tnuXyeKkF3sZKSTmG3Vs6z5jdc
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10295"; a="238737914"
-X-IronPort-AV: E=Sophos;i="5.90,204,1643702400"; 
-   d="scan'208";a="238737914"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2022 08:19:57 -0700
-X-IronPort-AV: E=Sophos;i="5.90,204,1643702400"; 
-   d="scan'208";a="544231903"
-Received: from caliyanx-mobl.gar.corp.intel.com (HELO localhost) ([10.252.57.47])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2022 08:19:55 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org, Shawn C Lee <shawn.c.lee@intel.com>
-Subject: Re: [PATCH] drm/edid: fix CEA extension byte #3 parsing
-In-Reply-To: <Yjs4E5gl3KZoUOBR@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20220323100438.1757295-1-jani.nikula@intel.com>
- <Yjs4E5gl3KZoUOBR@intel.com>
-Date:   Wed, 23 Mar 2022 17:19:52 +0200
-Message-ID: <87fsn8itlz.fsf@intel.com>
+        with ESMTP id S230019AbiCWPYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 11:24:06 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C270B71EF2
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 08:22:36 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id v4so1995529pjh.2
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 08:22:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qkP7T0PLsAlg1By9acbwVKlsRWY0Q5M4l+F+E1lZn4U=;
+        b=QkJH4ANMMGQPEtqP5OKvUZDsUWbWFKGmnpnk/z6nbVfQaOqNiaCuBAxGic9Mk+DKyY
+         yXvLWBV4INdoa7ARHCMsdXle59s5M6eIs6ZfDo84FdmT5PP/iNCc0RrDIqQWdKGrYW8f
+         YVjMPaOf0JZmfYx+1BYoRXxcZHQCNKG2M/2L0B6qQ6sav6V2tIcHOk79IuilERGr9UQa
+         M+TIhmXcK1VffXXkgsdwrecvL+m0txBX06zr7aYlp7bY83Eid7eopTt6RvEdCqS0UMzF
+         8qwHWBOmxrNsufS9rMleVtqJALPswAw+jvJyDFvs4mhuGw3N4nAJMy6z9hjZImMsui0i
+         7U6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qkP7T0PLsAlg1By9acbwVKlsRWY0Q5M4l+F+E1lZn4U=;
+        b=lRGcIAMbZ/v5UaIzdt7k7CDMeCEAEyUZm+9uTatmtZP0JHuLzeW83bWqQ+WkKJvYRK
+         hFZ85EuaAWsuckly0wn1q4hTxV1NYFZcsIejPkF9506v7nPFyiH3lvbM+Q+IYAy1Audm
+         xrBPJffeHSyouWcExFdCQZNNhSH9wnEXfmaGOdpwNekVs3Yf04Yr1JSoLowuN0I5vBDF
+         IyElx0bfBnhY9+ro1BgpFDPcerDWdeqJPKgCcg8l7VM+r/QiJmvLw/uWfIqtWm6SpH+7
+         U4Stm/UmY1W/9HYC109RwFtbmKkUMKnqQGkzaigrODkUceC3Wjo4qN5ag6cZT2r8yPNX
+         oWkw==
+X-Gm-Message-State: AOAM532LY2Vj3ROg2zuJZVfPqJxpGeKsxZHD5VqLyTqNVa6ABT8vRA8J
+        MMBRQNCxR2EUXX524VHQWbhoPryXBBciA1It0Tg=
+X-Google-Smtp-Source: ABdhPJyAkWu0LUx7+Vd0FG/GuVD/Ty1fFI3QzIPdQDIqRQkpJrBxyHbQpQ+V/HGIMqVEcpISdY2UVw==
+X-Received: by 2002:a17:90a:9412:b0:1bc:f629:43bc with SMTP id r18-20020a17090a941200b001bcf62943bcmr12299019pjo.103.1648048956136;
+        Wed, 23 Mar 2022 08:22:36 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v26-20020a63ac1a000000b003831aa89c45sm172700pge.42.2022.03.23.08.22.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Mar 2022 08:22:35 -0700 (PDT)
+Message-ID: <623b3b3b.1c69fb81.c9a7e.07ab@mx.google.com>
+Date:   Wed, 23 Mar 2022 08:22:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-5.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Kernelci-Kernel: v4.19.235-57-gd1f635cdf587
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 59 runs,
+ 3 regressions (v4.19.235-57-gd1f635cdf587)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 23 Mar 2022, Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com=
-> wrote:
-> On Wed, Mar 23, 2022 at 12:04:38PM +0200, Jani Nikula wrote:
->> Only an EDID CEA extension has byte #3, while the CTA DisplayID Data
->> Block does not. Don't interpret bogus data for color formats.
->
-> I think what we might want eventually is a cleaner split between
-> the CTA data blocks vs. the rest of the EDID CTA ext block. Only
-> the former is relevant for DisplayID.
+stable-rc/queue/4.19 baseline: 59 runs, 3 regressions (v4.19.235-57-gd1f635=
+cdf587)
 
-Well, I just abstracted it all away in the CEA data block iteration
-series [1].
+Regressions Summary
+-------------------
 
-It'll be possible to add a different iteration initializer depending on
-what you want to iterate and where.
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+da850-lcdk       | arm   | lab-baylibre  | gcc-10   | davinci_all_defconfig=
+      | 2          =
 
-BR,
-Jani.
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
->
-> But for a bugfix we want to keep it simple.
->
-> Reviewed-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
->
->>=20
->> For most displays it's probably an unlikely scenario you'd have a CTA
->> DisplayID Data Block without a CEA extension, but they do exist.
->>=20
->> Fixes: e28ad544f462 ("drm/edid: parse CEA blocks embedded in DisplayID")
->> Cc: <stable@vger.kernel.org> # v4.15
->> Cc: Shawn C Lee <shawn.c.lee@intel.com>
->> Cc: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
->> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
->>=20
->> ---
->>=20
->> commit e28ad544f462 was merged in v5.3, but it has Cc: stable for v4.15.
->>=20
->> This is also fixed in my CEA data block iteration series [1], but we'll
->> want the simple fix for stable first.
->>=20
->> Hum, CTA is formerly CEA, I and the code seem to use both, should we use
->> only one or the other?
->
-> And before CEA it was called EIA (IIRC). Dunno if we also use that name
-> somewhere.
->
-> If someone cares enough I guess we could rename everything to "cta".
->
->>=20
->> [1] https://patchwork.freedesktop.org/series/101659/
->> ---
->>  drivers/gpu/drm/drm_edid.c | 12 ++++++++----
->>  1 file changed, 8 insertions(+), 4 deletions(-)
->>=20
->> diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
->> index 561f53831e29..ccf7031a6797 100644
->> --- a/drivers/gpu/drm/drm_edid.c
->> +++ b/drivers/gpu/drm/drm_edid.c
->> @@ -5187,10 +5187,14 @@ static void drm_parse_cea_ext(struct drm_connect=
-or *connector,
->>=20=20
->>  	/* The existence of a CEA block should imply RGB support */
->>  	info->color_formats =3D DRM_COLOR_FORMAT_RGB444;
->> -	if (edid_ext[3] & EDID_CEA_YCRCB444)
->> -		info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR444;
->> -	if (edid_ext[3] & EDID_CEA_YCRCB422)
->> -		info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR422;
->> +
->> +	/* CTA DisplayID Data Block does not have byte #3 */
->> +	if (edid_ext[0] =3D=3D CEA_EXT) {
->> +		if (edid_ext[3] & EDID_CEA_YCRCB444)
->> +			info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR444;
->> +		if (edid_ext[3] & EDID_CEA_YCRCB422)
->> +			info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR422;
->> +	}
->>=20=20
->>  	if (cea_db_offsets(edid_ext, &start, &end))
->>  		return;
->> --=20
->> 2.30.2
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.235-57-gd1f635cdf587/plan/baseline/
 
---=20
-Jani Nikula, Intel Open Source Graphics Center
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.235-57-gd1f635cdf587
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d1f635cdf5873774afd32e6aef00012a2a10cb34 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+da850-lcdk       | arm   | lab-baylibre  | gcc-10   | davinci_all_defconfig=
+      | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623b084c073ffb9853bd918c
+
+  Results:     4 PASS, 2 FAIL, 1 SKIP
+  Full config: davinci_all_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.235=
+-57-gd1f635cdf587/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-da=
+850-lcdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.235=
+-57-gd1f635cdf587/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-da=
+850-lcdk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/623b084c073ffb9=
+853bd9194
+        new failure (last pass: v4.19.235-22-ge34a3fde5b20)
+        6 lines
+
+    2022-03-23T11:45:07.714659  kern  :alert : BUG: Bad page state in proce=
+ss swapper  pfn:c3400
+    2022-03-23T11:45:07.714937  kern  :alert : raw: 00000000 00000100 00000=
+200 00000000 00000004 0000000a ffffff7f 00000000
+    2022-03-23T11:45:07.715120  kern  :alert : page dumped because: nonzero=
+ mapcount
+    2022-03-23T11:45:07.715272  kern  :alert : BUG: Bad page state in proce=
+ss swapper  pfn:c3800
+    2022-03-23T11:45:07.715416  kern  :alert : raw: 00000000 00000100 00000=
+200 00000000 00000004 0000000a ffffff7f 00000000
+    2022-03-23T11:45:07.715557  kern  :alert : page dumped because: nonzero=
+ mapcount
+    2022-03-23T11:45:07.751684  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
+rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D6>   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/623b084c073ffb9=
+853bd9195
+        new failure (last pass: v4.19.235-22-ge34a3fde5b20)
+        4 lines
+
+    2022-03-23T11:45:07.888659  kern  :emerg : page:c6f51000 count:0 mapcou=
+nt:-128 mapping:00000000 index:0x4
+    2022-03-23T11:45:07.888900  kern  :emerg : flags: 0x0()
+    2022-03-23T11:45:07.889066  kern  :emerg : page:c6f59000 count:0 mapcou=
+nt:-128 mapping:00000000 index:0x4
+    2022-03-23T11:45:07.889218  kern  :emerg : flags: 0x0()
+    2022-03-23T11:45:07.957261  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Deme=
+rg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D4>
+    2022-03-23T11:45:07.957491  + set +x
+    2022-03-23T11:45:07.957681  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 1737028_1.5.=
+2.4.1>   =
+
+ =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623b0a3c01d6efd777bd9184
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.235=
+-57-gd1f635cdf587/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.235=
+-57-gd1f635cdf587/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/623b0a3c01d6efd777bd91a6
+        failing since 17 days (last pass: v4.19.232-31-g5cf846953aa2, first=
+ fail: v4.19.232-44-gfd65e02206f4)
+
+    2022-03-23T11:53:18.401506  /lava-5931898/1/../bin/lava-test-case   =
+
+ =20
