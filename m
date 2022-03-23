@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F5F4E5ADD
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 22:48:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 288214E5ADF
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 22:49:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241102AbiCWVtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 17:49:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50224 "EHLO
+        id S1345025AbiCWVub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 17:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345027AbiCWVto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 17:49:44 -0400
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7449E24BCC
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:48:12 -0700 (PDT)
-Received: by mail-wm1-x32a.google.com with SMTP id k124-20020a1ca182000000b0038c9cf6e2a6so1647992wme.0
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:48:12 -0700 (PDT)
+        with ESMTP id S242437AbiCWVub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 17:50:31 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694286BDDC
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:49:00 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id b19so3991716wrh.11
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 14:49:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=gmNQXpQXMgc+H10Htq5uVmO479HHM0NtT5GMeVWYsCY=;
-        b=BGdb0XnQZUcbvY6JmR1qHRIktWQMZPW4uUCZ2/ya8j6OdXDdHAGCThP49vTgtnips6
-         iAqIe/bmLxFXClq1007uWSCvGBTI2zxvE3Y09ZO3+muvhHL7BYRsJxZIR/X1Ijyfx5Hh
-         CqDvyZT8k9kA2GKt4tfPvrFVpr/XGkGHWemzWS62MrwKhFA1H0Z5gc21caYlqfqZMUdV
-         vKFe1Vhe2UrR9AqWcyZNXRSYtZgfffeJKrckPVWRi2qZqCP1vso0fi7tNtrdlCRP+M4v
-         0VYEs/vFEw8GxuEdXX6FL1iJG3IshBrRJ8fvOtPBR2nm1D7Mk50S4mM9nymKzqgcOpQn
-         dsBg==
+        bh=qrSbZoAiUkXyBXtV96tQqE3U9+3a1WixHxW/5QnsD7s=;
+        b=WJaozsUrK1BXm41I0vi8XsK/ENuS6q7R88oBTOROdD3JeybgneYiHg7mMu0l/GwBF5
+         TKE8WMtDynXwzd+/7+ZbtWmxuA3YXmFPcZLYg9cy1bwTg9toVES1fUuIiVRCGfWCCAOv
+         twSYFA7Qisn6nPQ/r4ikYDnaJeLgzP6l/FYTT74xB33Fg7DvWUituFrIIdoAbTq2Mnyv
+         h1E3KF20VQOLVsxTDmWBkreTMFREiHu7VammZGFFEs0vFqwMFgN42lU6LPiyfdSG4+l5
+         Mj7/AuoMz66uqtDEoVj4hulbfM3a04R4/JHlUfAFIiH/UL8wyKheI330O9aQ7/3CfHUn
+         BxcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=gmNQXpQXMgc+H10Htq5uVmO479HHM0NtT5GMeVWYsCY=;
-        b=lMPYQ+sS0oeIcFay/g8vQ03FxBf5o+y/WsE7vLn4prH5GMAcXKbY4BTMqjlndPQlNn
-         JkHQxP8rLVsiH9xd/jfbcvJXab6cxfT3N85RA4U7kErrnbN6FXMcx6H9qfy4eeStHNaP
-         tOruQgQ+ZAJ6sUzAs37eRPtVAC5CVUcGh4Nt8rZZxqQ8n3eVN45I9WuvfNkrsYdvAZwS
-         5wEpioe5g+zRbikT0oGFjwKAqjwDk6LEb2QT5LQ/UgyUTH+OzwDV2U8oGtL5xJaAIJ+Y
-         Zq/Ds5vzm/U07yWNod3abATfVVXj3LUf4KJ5143MMLHx+RK3YofsjGeCa7N92+PN9DQ1
-         TkrQ==
-X-Gm-Message-State: AOAM532mzhBMvyRjWYvmmxqiUjwcHxTbRsg+gNJa/HxVwe67Q0H3paIF
-        o8MEge0zsyv9mFFTGCzMZkM=
-X-Google-Smtp-Source: ABdhPJydrUQjCY3lz+2WP/rWM+e1tfydVDwnuoTNBeF6R68+5OFBrcN/BeqWLhjP7DbPyZhDoH76NQ==
-X-Received: by 2002:a05:600c:4e8b:b0:38c:90cf:1158 with SMTP id f11-20020a05600c4e8b00b0038c90cf1158mr11638966wmq.107.1648072090913;
-        Wed, 23 Mar 2022 14:48:10 -0700 (PDT)
+        bh=qrSbZoAiUkXyBXtV96tQqE3U9+3a1WixHxW/5QnsD7s=;
+        b=7BmP+A+T4K6xEayN85jUQ0x7ldWh28AYzZyBwb+hI5vT9uHA//eRQsA2TBF76gZ/qs
+         pFhIiZVcOzM/bTJBD/oyVmweama5URjReTB1nNB651u4DmlHYdBINxzHBsV05SHEkuGX
+         eTjKJUlhppJ6/jNM+ASBZByPrumKLy8xJ7shchaE09vFMP8EYz3KZWrVXn5GMQp1wEGL
+         WZIWzvhoR+WfMFPBb9EiL73voDmkZ3N4Oups5J+K1jOtVxHF3LO6NiiZqmlhKkAs0/Xn
+         3YUvVefF/MzVGygM9YPQWWksYTiYESDPL35DZ4U0jdPm3FjkAxPT83BTG5ZJzuJPpFHa
+         Wa6g==
+X-Gm-Message-State: AOAM530X5KAO/1gp0aPL30gX4uC/kOrCb8UerX/BsmRJRKn3x2FdxABe
+        IvzdYmTfQ/TASRj5UQbCbPU=
+X-Google-Smtp-Source: ABdhPJynmPEiU5eAVNKxSS+OXnoGHG1vgX+9vHWMwhM6jSHeGDpAFNwM7Su7yqit6hNjqyrSYWlQEw==
+X-Received: by 2002:a5d:5249:0:b0:203:d647:a5cd with SMTP id k9-20020a5d5249000000b00203d647a5cdmr1753498wrc.103.1648072139040;
+        Wed, 23 Mar 2022 14:48:59 -0700 (PDT)
 Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id f8-20020a5d6648000000b00203e64e3637sm856412wrw.89.2022.03.23.14.48.10
+        by smtp.gmail.com with ESMTPSA id p16-20020a5d6390000000b00203ffebddf3sm1049951wru.99.2022.03.23.14.48.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Mar 2022 14:48:10 -0700 (PDT)
-Date:   Wed, 23 Mar 2022 21:48:08 +0000
+        Wed, 23 Mar 2022 14:48:58 -0700 (PDT)
+Date:   Wed, 23 Mar 2022 21:48:56 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     chuansheng.liu@intel.com, rafael.j.wysocki@intel.com,
         stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] thermal: int340x: fix memory leak in
- int3400_notify()" failed to apply to 4.14-stable tree
-Message-ID: <YjuVmAij+cN6ZhzD@debian>
-References: <16460317043746@kroah.com>
+ int3400_notify()" failed to apply to 4.19-stable tree
+Message-ID: <YjuVyDFAP7KYaxhL@debian>
+References: <1646031707247250@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="nAUHFP2mmxmiboVX"
+Content-Type: multipart/mixed; boundary="5w9Q80Jy08/LfGN+"
 Content-Disposition: inline
-In-Reply-To: <16460317043746@kroah.com>
+In-Reply-To: <1646031707247250@kroah.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -71,15 +71,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---nAUHFP2mmxmiboVX
+--5w9Q80Jy08/LfGN+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Mon, Feb 28, 2022 at 08:01:44AM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, Feb 28, 2022 at 08:01:47AM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.19-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -90,12 +90,12 @@ Here is the backport.
 Regards
 Sudip
 
---nAUHFP2mmxmiboVX
+--5w9Q80Jy08/LfGN+
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment;
 	filename="0001-thermal-int340x-fix-memory-leak-in-int3400_notify.patch"
 
-From 1144f431f6e09ae57be3d4e7affc3a71056bb48b Mon Sep 17 00:00:00 2001
+From 5a9a0d5e36d56389835781d6ef0afee65f7b06ba Mon Sep 17 00:00:00 2001
 From: Chuansheng Liu <chuansheng.liu@intel.com>
 Date: Wed, 23 Feb 2022 08:20:24 +0800
 Subject: [PATCH] thermal: int340x: fix memory leak in int3400_notify()
@@ -134,7 +134,7 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/thermal/int340x_thermal/int3400_thermal.c b/drivers/thermal/int340x_thermal/int3400_thermal.c
-index 4a20f4d47b1d..d7cd86116084 100644
+index e9d58de8b5da..77967da5d406 100644
 --- a/drivers/thermal/int340x_thermal/int3400_thermal.c
 +++ b/drivers/thermal/int340x_thermal/int3400_thermal.c
 @@ -223,6 +223,10 @@ static void int3400_notify(acpi_handle handle,
@@ -147,9 +147,9 @@ index 4a20f4d47b1d..d7cd86116084 100644
 +		kfree(thermal_prop[3]);
  		break;
  	default:
- 		dev_err(&priv->adev->dev, "Unsupported event [0x%x]\n", event);
+ 		/* Ignore unknown notification codes sent to INT3400 device */
 -- 
 2.30.2
 
 
---nAUHFP2mmxmiboVX--
+--5w9Q80Jy08/LfGN+--
