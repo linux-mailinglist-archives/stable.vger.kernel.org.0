@@ -2,97 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D26364E59B4
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 516874E59B8
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 21:16:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242759AbiCWUQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 16:16:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45464 "EHLO
+        id S240518AbiCWUSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 16:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344593AbiCWUQk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:16:40 -0400
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF81389CEE
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:15:09 -0700 (PDT)
-Received: by mail-io1-xd2e.google.com with SMTP id p22so3109705iod.2
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:15:09 -0700 (PDT)
+        with ESMTP id S235510AbiCWUSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 16:18:16 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA4E8C7C2
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:16:46 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id r64so1604711wmr.4
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 13:16:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=wedBhqcJdcVu7p/0RWF2zGAwkaQF6GJr0zGSEaeA+ig=;
-        b=h4h0OyuF9A+hiMm5SvxpEMrOmlN9DQWTOMpfh4qfozWOj7Wbx4x+K6AA8pRjbtlQC6
-         YDohkBTWoazVtIbTR2G3ic2LiyYRZRhUUbM0pwiiWB00dNw9o2jbRAIhOtfoPfsurtAd
-         Ea1gCZ1HncncqrDYRCq+B9jSrUZGA99W+i/6nonod4XQxUXuqKKfOte55UZq3mzrLIsk
-         TepDrfEHqhYobsZRJNTRLZGEWZvlWtb9ojJ/wSDkAd+kMm6lc6FhbPhrUyioqZPPD3Ye
-         MCLceBRD685qXneMHmo955LkpfoS9dDvb41I0Ckdg73mbGhRzEfr5fJCk6jXYjBV3fAv
-         qNhQ==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc:from
+         :subject:content-transfer-encoding;
+        bh=WhzBtZ0kQcOsVoRlJnR+Jj0pEo2kY4Lt9Tr9pLMIUCc=;
+        b=nQ59ENhY1R3eJtS6c3PYgpvrziSm4flSU5DN6j8gG2M8eCywZ0aFYY6cyxK9937VMn
+         CKvgsCzKdcJP5WNs4zccGFTPj480pfZMvf21cYipnOR/2z/1PDu5UQbkKy/xDm+8nEZK
+         uO72YdFOnNsvc/dL6ikZ2jZbK6Nykn8g7QRqGilupvu3/Ni99ANklxwSosOwhqZBM/Rd
+         F53VUWDhclqlqy9dNUnMJLGpJVUVx+EiyxgnqqRh4bwQyp/WOwkBdCI1gQnxA7EjtC2e
+         uSrokM3o15o87mXJj0oFLpnJ06xDfdcVfg7uFLIgj0kP+lhslsTEn4eQ0WjlKn1EsuP0
+         /qlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=wedBhqcJdcVu7p/0RWF2zGAwkaQF6GJr0zGSEaeA+ig=;
-        b=bQHuZLvK9wNPx3zXWq3oitAv0M/Py5sgQw+bb+HlOVUjXYfHY8k15//ihRxB7b3d8l
-         8iN7c05qPxRpgPGY4dgGrbfuMh4KCFWT+m9L6T/jjEprMhOM7XwZl785FWN0dF4+K5G0
-         hPFHjY0hCzQnIPfcoJ+Pvekla+o+oGSujBAlxMqgp3zJEjphqlvfqNSdxSu54/xBTAXF
-         SW53B3tmwwou5RrmArtSyQCxF1ATHi72RwmSzkg2XCXxhOq8m6G/lGR4f9ppW+NBXklM
-         tfL8ixKlBYXZMLUeyn2LkAhAUgjK1NOI//907eJOR46Vh/oG0jZKhlFNaSY7Tea8lhGg
-         GwUg==
-X-Gm-Message-State: AOAM532RVb8Rol6Hu0LxHyNekAcKZ9SmTchBTE5q1RaNQEdc74MMZWHU
-        tcaVv4MPbivTeS9nxYLXAWZi4g==
-X-Google-Smtp-Source: ABdhPJyqa4+kKlVxrJFtMd0TthrLcrlQaUkaM0jlCcx6i7quUIAIJZ38RrCrJIr8k087uEucxwXnEQ==
-X-Received: by 2002:a05:6638:1249:b0:321:2e10:c276 with SMTP id o9-20020a056638124900b003212e10c276mr905988jas.304.1648066509122;
-        Wed, 23 Mar 2022 13:15:09 -0700 (PDT)
-Received: from [192.168.1.172] ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id d8-20020a056e02214800b002c7bea34e3dsm480442ilv.46.2022.03.23.13.15.08
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:from:subject:content-transfer-encoding;
+        bh=WhzBtZ0kQcOsVoRlJnR+Jj0pEo2kY4Lt9Tr9pLMIUCc=;
+        b=1ZIp00mFc4eK9ZeI2PR36xhId2yWcYzBcjjpk2nBQNAih3ISInTPHEnkUIu9wPbXou
+         MBMyTwPPVjAx33lY5MInQ/1qMEhvzl9Q3UtGytgmd3kHzpeXCdWRJGxUXfPyXD4FNmSq
+         0o0P7ExmqzuBUTpiNDuDIElQ2h6JeyvNzYx6D0GY/L462NDNkMNO3K0Kas8IzOBc2xah
+         igkK80ckjW4QZbQhjIXaCdqdeH8bH6Sk0TEi6LeiVy/gN7Ulq1NaJERG9mcq4TBPKylA
+         vlhI+3FGBqax/D4EpAzRoTVMF8O+rNFEwN6WXjMXUmIgdit+rWEMJJ3jWr/wxpNjDsoe
+         WlIQ==
+X-Gm-Message-State: AOAM531wer6Q+IyeBtMi1eYeUwA1o3zv7O3NK/IYKXn/GxMGTCHj3m7/
+        aXszitY9Yhb4cXatm2G1U1pxSqKcaE7rBBbL
+X-Google-Smtp-Source: ABdhPJzwpjz4ls/8uWz3Jlg2FaceDUMBVL1UXqsvTPCdlis88tNLmWvnU+FkB4l4nu9/fGPkdYAklA==
+X-Received: by 2002:a1c:4e01:0:b0:38c:b316:e6f5 with SMTP id g1-20020a1c4e01000000b0038cb316e6f5mr11049951wmh.93.1648066604273;
+        Wed, 23 Mar 2022 13:16:44 -0700 (PDT)
+Received: from 168.52.45.77 (201.ip-51-68-45.eu. [51.68.45.201])
+        by smtp.gmail.com with ESMTPSA id n14-20020a5d588e000000b00204064a3800sm817009wrf.51.2022.03.23.13.16.43
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Mar 2022 13:15:08 -0700 (PDT)
-Message-ID: <c7e9520b-aeff-7592-8897-4c323f37f93b@kernel.dk>
-Date:   Wed, 23 Mar 2022 14:15:07 -0600
+        Wed, 23 Mar 2022 13:16:43 -0700 (PDT)
+Message-ID: <6b9b8cf4-d343-0cca-5908-d990758283b8@gmail.com>
+Date:   Wed, 23 Mar 2022 21:16:42 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 1/2] io_uring: ensure recv and recvmsg handle MSG_WAITALL
- correctly
+User-Agent: nano 6.4
 Content-Language: en-US
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     constantine.gavrilov@gmail.com, stable@vger.kernel.org
-References: <20220323153947.142692-1-axboe@kernel.dk>
- <20220323153947.142692-2-axboe@kernel.dk>
- <64197456-87f2-e780-186d-272e06ae223b@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <64197456-87f2-e780-186d-272e06ae223b@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+From:   Ismael Ferreras Morezuelas <swyterzone@gmail.com>
+Subject: [PATCH] Bluetooth: btusb: Add another Realtek 8761BU (6dfbe29f)
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=0.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_HELO_IP_MISMATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/23/22 2:13 PM, Pavel Begunkov wrote:
-> On 3/23/22 15:39, Jens Axboe wrote:
->> We currently don't attempt to get the full asked for length even if
->> MSG_WAITALL is set, if we get a partial receive. If we do see a partial
->> receive, then just note how many bytes we did and return -EAGAIN to
->> get it retried.
->>
->> The iov is advanced appropriately for the vector based case, and we
->> manually bump the buffer and remainder for the non-vector case.
-> 
-> How datagrams work with MSG_WAITALL? I highly doubt it coalesces 2+
-> packets to satisfy the length requirement (e.g. because it may move
-> the address back into the userspace). I'm mainly afraid about
-> breaking io_uring users who are using the flag just to fail links
-> when there is not enough data in a packet.
+While this (6dfbe29f) patch is still in bluetooth-next, I think once it's merged it
+should go into the stable tree. Keep in mind that I'm not the author.
 
-Yes was thinking that too, nothing is final yet.. Need to write a
-SOCK_STREAM test case.
+I just saw the reports of people complaining, and noticed that the
+Cc: stable@vger.kernel.org line was missing from the submission.
 
--- 
-Jens Axboe
+Something to keep in mind as an interested party before I forget. Users will
+appreciate it if the one-liner lands sooner on distros, hopefully someone
+will remember to do it. Sorry for the unorthodox/super early ping. :)
 
+* https://patchwork.kernel.org/project/bluetooth/patch/YhpF0JdpCmRXZtrG@alf.mars/
+* https://github.com/bluez/bluetooth-next/commit/6dfbe29f45fb0bde29213dbd754a79e8bfc6ecef
+* https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1955351
+* https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1955916/comments/21
