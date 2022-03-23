@@ -2,102 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EACF4E58A4
-	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 19:44:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B13134E58AA
+	for <lists+stable@lfdr.de>; Wed, 23 Mar 2022 19:48:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343963AbiCWSp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Mar 2022 14:45:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34662 "EHLO
+        id S242590AbiCWStl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Mar 2022 14:49:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237232AbiCWSp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 14:45:28 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64EAA89339
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 11:43:57 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id o10so4702941ejd.1
-        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 11:43:57 -0700 (PDT)
+        with ESMTP id S1344012AbiCWSti (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Mar 2022 14:49:38 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6849465A0
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 11:48:08 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id c23so2430065plo.0
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 11:48:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=OvP7zaDxaVy7EPm1ZBUWshU8UonWjcbwHIy545PbRr8=;
-        b=d0oxINqjnZehsGj3cY0sFUga0CXpTb7p3rZGRvO2Lv+zgnxERgg/n/vex5KYsncEDO
-         70H8pr5Y1mD/NqRfPOymWmGSxw3K2FtGX9x1ityP1Et3clmOcZ1uRkjRxoBPcltgwhME
-         rNo6V4V0hkkjoO0ZibsJELGewe5k28DTMjMCX25GtrFcTBqO9zU4uy0WY7gmuLpr/eSi
-         pTs/EOuXN7tCApkwF0aCULBWH2AhU+av2w8w1zQdq3TiXfE1REGKDzEBfjDc7u9DbswW
-         Nm00db7quWUHkvWqFdq/yskp2u+mgOSjDdqmWNQqCbiEPyqKzoNu3LpJ0uAJ1qhG8MwM
-         G7DA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5ZoVQHT7+gS/u0XCQLDscDyeoa1k2d3imcE/tZo6hoc=;
+        b=e+9I2G5cXgmszvvDHrQd2WzxuiIgZkxDlb4h+4rfw5GV/mK3kp/JEJZ9pD/VrnmwyV
+         k7WH4ilYc2oUPL83rVEx3K99bhlXS12qWV34OhngAlw2RWb/XY9NA7QchMrsz4IdAtZy
+         C9wYI9FemU785scJLfFMT6jWp/L1itD1IviZj7gOOhSmrQwzkD12IUCC4S/iXlNS489S
+         3QQDafOfTxee8dTvNYQ7jkkbsQPF0eqp5csyaVN4MT8rKhESof9AVc22CzeIhKd7KmUO
+         hpF2tXhketBfRbgGqDcX9Smx0sR3hk42wKNNdJy5zOWgFvh+fmwSMBUbVCNPjojjkEy/
+         mHSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=OvP7zaDxaVy7EPm1ZBUWshU8UonWjcbwHIy545PbRr8=;
-        b=kb4ptHbndjC+0nV1AfjWG9sSOmNZO/riKA+yuT+BxYwMBWRRctLljrCvxY5e+C9fSK
-         uQXjL2PGyiOn+FjYvE3xBJWk74dxwPByYBlZ/NxeRo50YwSW91TBMyYeSEDpW7X1tnup
-         eknfuRbK44Wprw74RKmOnUvLSan5yZtlnWBPbO4FKr5Cq6fWfKTCyUELs6bXdeBhkRCH
-         Pq27AsmP1xXWWFKmKOcMalXrkk2+kbCv8LnDzJYIYm/RJVeaF1TIMrKC6jKjQceIyABV
-         t1/SWtv9SQ6RnsmYMjXuyJNjEJ6uqLTyTi+WRCpri1boxhkb8EFl1vSp2URdqnVI6f3a
-         zASw==
-X-Gm-Message-State: AOAM5321yvxXzfqGF3n7DxC6Jyou4f2oJqE4jj2jX4LLqgQGi8/icm/t
-        YoZJsbzB6Y69exvg28yh647xxSixi6Xm7TR2tIo=
-X-Google-Smtp-Source: ABdhPJwL72Zrtqk56cXNZUkGJqXpdK2DCutAH/SUheufj/quiBXRYYmkIfRUNzkIXdHcK4z01kkuHsE8p9mvzm7Rtrw=
-X-Received: by 2002:a17:906:a0ce:b0:6d1:cb30:3b3b with SMTP id
- bh14-20020a170906a0ce00b006d1cb303b3bmr1566020ejb.582.1648061035394; Wed, 23
- Mar 2022 11:43:55 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5ZoVQHT7+gS/u0XCQLDscDyeoa1k2d3imcE/tZo6hoc=;
+        b=K+wgMUxgqlkkfTavu+xbfB2a7F2LMfYGDuO2/5ZajbyiABw1tQeTjRMlomCHz2KBvn
+         cUmjFbEA/f5BXlnYavDLzM3FUfW0RzCsIC5lq/6ReQ65Ux6I8/mM5fnwzMp1UtdQhSPr
+         4fvTiynE7ZVPB/pxG10CuxoTdmzDoZQCHJtQcAYx1FzSaFtu3hi1Cgr4RlbjukEFK4sy
+         ienawe/qSOPdUfyvkwv004urTFeci51i3F0thxpJiG/7Y6tyqgRiXLlbqKFDgJYQpBwh
+         +gGDuTftq8aw2GB4SgcNCyphVdfiCnrx6X75L0ttkXEZnh3yp6jDsA4wyRs8Sgoc8tow
+         50Jw==
+X-Gm-Message-State: AOAM5305EaTnbjFQWVU3s0OAYpHKTZB8UcXkp3JbPrwA4XotMsnqTGfQ
+        KjPAnByLeb9Kmrfif7LhAJBlVrhKeSVp+pBG6Dc=
+X-Google-Smtp-Source: ABdhPJy81P//k2wipbaRGeRjpxpfQZgPJZvwvjKsW3Nd76kfLHAnK5l1nX1szCDTmjAYOwcz6GoNww==
+X-Received: by 2002:a17:902:e9c2:b0:153:c185:c7b1 with SMTP id 2-20020a170902e9c200b00153c185c7b1mr1441824plk.92.1648061287758;
+        Wed, 23 Mar 2022 11:48:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k17-20020a056a00135100b004fa9df39517sm606120pfu.198.2022.03.23.11.48.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Mar 2022 11:48:07 -0700 (PDT)
+Message-ID: <623b6b67.1c69fb81.67287.23c3@mx.google.com>
+Date:   Wed, 23 Mar 2022 11:48:07 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a54:3503:0:0:0:0:0 with HTTP; Wed, 23 Mar 2022 11:43:54
- -0700 (PDT)
-Reply-To: dewaleadeyemo448@gmail.com
-From:   Dewale Adeyemo <pw895168@gmail.com>
-Date:   Wed, 23 Mar 2022 19:43:54 +0100
-Message-ID: <CABhgAWXZJBs8JeEkia7f8pm=0FcYNoa2fymvSnC-DPPBFUsiXQ@mail.gmail.com>
-Subject: Greeting,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,HK_SCAM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:632 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4664]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [pw895168[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [dewaleadeyemo448[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [pw895168[at]gmail.com]
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.0 HK_SCAM No description available.
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.8 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.108
+Subject: stable-rc/linux-5.10.y baseline: 91 runs, 2 regressions (v5.10.108)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-P=C3=B3ngase en contacto conmigo para su dinero de compensaci=C3=B3n.
+stable-rc/linux-5.10.y baseline: 91 runs, 2 regressions (v5.10.108)
 
-...................................
+Regressions Summary
+-------------------
 
-Contact me for your compensation money.
+platform                | arch  | lab           | compiler | defconfig     =
+             | regressions
+------------------------+-------+---------------+----------+---------------=
+-------------+------------
+rk3399-gru-kevin        | arm64 | lab-collabora | gcc-10   | defconfig+arm6=
+4-chromebook | 1          =
+
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
+             | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.108/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.108
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9940314ebfc61cb7bc7fca4a0deed2f27fdefd11 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+             | regressions
+------------------------+-------+---------------+----------+---------------=
+-------------+------------
+rk3399-gru-kevin        | arm64 | lab-collabora | gcc-10   | defconfig+arm6=
+4-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623b39daaec11f93c2bd9184
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+08/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gr=
+u-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+08/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gr=
+u-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/623b39dbaec11f93c2bd91a6
+        failing since 15 days (last pass: v5.10.103, first fail: v5.10.103-=
+106-g79bd6348914c)
+
+    2022-03-23T15:16:21.845244  <8>[   33.407022] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-23T15:16:22.866511  /lava-5933073/1/../bin/lava-test-case   =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+             | regressions
+------------------------+-------+---------------+----------+---------------=
+-------------+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
+             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623b3b49999cb68cf9bd91c1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+08/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+08/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/623b3b49999cb68cf9bd9=
+1c2
+        new failure (last pass: v5.10.105-72-g1ef0e2b31490) =
+
+ =20
