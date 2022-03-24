@@ -2,141 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B223A4E6167
-	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 10:58:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5E54E61AE
+	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 11:25:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347265AbiCXJ7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 05:59:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37024 "EHLO
+        id S232377AbiCXK0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 06:26:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239661AbiCXJ7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 05:59:54 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF7C2E0B3
-        for <stable@vger.kernel.org>; Thu, 24 Mar 2022 02:58:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1648115902; x=1679651902;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version:content-transfer-encoding;
-  bh=GpKEE2QTesoO89Aioo+z0+/n7ZOxg8pX8kUhvD7a9S0=;
-  b=T8M6skPWAbWOGGz3ICa9w8C1qYPj8v/QYu1xuxHKT7PRJQpp2w1HIbc1
-   A1P0ehsQKs2rKspvwxhSWiXf6yojMgylT5Tq2sHGDvDVNl1fD2AerXUby
-   Q/PTWLN+a3KpltB34wLUxee7rB9850BcNlYMXJShAJeKiCsvhnCoApVsV
-   3oUMdL6XQo4QMAShJfSCUZe66IQTIAXJ2+BLN3c6ecvOxSohXiie8K8Do
-   94fk8pd9UrcTvhh3OxkWJ/tORvByK64iw9uI/8xKceB2nzPfdScMia7Je
-   nk6lfwKZgvckBd19UwybjaUqt+7WStSg/QQZKZIjU6wyhItQbbisbSHmN
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10295"; a="258287780"
-X-IronPort-AV: E=Sophos;i="5.90,207,1643702400"; 
-   d="scan'208";a="258287780"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2022 02:58:21 -0700
-X-IronPort-AV: E=Sophos;i="5.90,207,1643702400"; 
-   d="scan'208";a="519719819"
-Received: from cnalawad-mobl.ger.corp.intel.com (HELO localhost) ([10.252.37.131])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2022 02:58:19 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org, Shawn C Lee <shawn.c.lee@intel.com>
-Subject: Re: [PATCH] drm/edid: fix CEA extension byte #3 parsing
-In-Reply-To: <Yjs4E5gl3KZoUOBR@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20220323100438.1757295-1-jani.nikula@intel.com>
- <Yjs4E5gl3KZoUOBR@intel.com>
-Date:   Thu, 24 Mar 2022 11:58:17 +0200
-Message-ID: <87tubnhdty.fsf@intel.com>
+        with ESMTP id S1349483AbiCXK0x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 06:26:53 -0400
+Received: from vulcan.natalenko.name (vulcan.natalenko.name [IPv6:2001:19f0:6c00:8846:5400:ff:fe0c:dfa0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B765C483A3;
+        Thu, 24 Mar 2022 03:25:21 -0700 (PDT)
+Received: from spock.localnet (unknown [83.148.33.151])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by vulcan.natalenko.name (Postfix) with ESMTPSA id 46336E4A5DD;
+        Thu, 24 Mar 2022 11:25:08 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=natalenko.name;
+        s=dkim-20170712; t=1648117508;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0kZDRe244Ho+56p1lKIcy0+GT4xOH+L25rK8rNrmj5M=;
+        b=xTLCXRCNMwAKN6C6abDkvpf8K2mg/Sm4GaWSCsryLwp5Fq4HqX8lUoEohqBSWrzOqMIaix
+        kRFT7EmZ97tKbHZfyY4//hxr65jVGb/7gVgp7+S6tP4fJ8p1HUuP7h1jt5+OqhjIlCJgG2
+        yc1FDX9OJ6CAbtcVZklteEyyfX7d5Cw=
+From:   Oleksandr Natalenko <oleksandr@natalenko.name>
+To:     Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Toke =?ISO-8859-1?Q?H=F8iland=2DJ=F8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break ath9k-based AP
+Date:   Thu, 24 Mar 2022 11:25:06 +0100
+Message-ID: <4386660.LvFx2qVVIh@natalenko.name>
+In-Reply-To: <20220324055732.GB12078@lst.de>
+References: <1812355.tdWV9SEqCh@natalenko.name> <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com> <20220324055732.GB12078@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 23 Mar 2022, Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com=
-> wrote:
-> On Wed, Mar 23, 2022 at 12:04:38PM +0200, Jani Nikula wrote:
->> Only an EDID CEA extension has byte #3, while the CTA DisplayID Data
->> Block does not. Don't interpret bogus data for color formats.
->
-> I think what we might want eventually is a cleaner split between
-> the CTA data blocks vs. the rest of the EDID CTA ext block. Only
-> the former is relevant for DisplayID.
->
-> But for a bugfix we want to keep it simple.
->
-> Reviewed-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+Hello.
 
-Thanks, pushed to drm-misc-next-fixes.
+On =C4=8Dtvrtek 24. b=C5=99ezna 2022 6:57:32 CET Christoph Hellwig wrote:
+> On Wed, Mar 23, 2022 at 08:54:08PM +0000, Robin Murphy wrote:
+> > I'll admit I still never quite grasped the reason for also adding the=20
+> > override to swiotlb_sync_single_for_device() in aa6f8dcbab47, but I thi=
+nk=20
+> > by that point we were increasingly tired and confused and starting to=20
+> > second-guess ourselves (well, I was, at least). I don't think it's wron=
+g=20
+> > per se, but as I said I do think it can bite anyone who's been doing=20
+> > dma_sync_*() wrong but getting away with it until now. If ddbd89deb7d3=
+=20
+> > alone turns out to work OK then I'd be inclined to try a partial revert=
+ of=20
+> > just that one hunk.
+>=20
+> Agreed.  Let's try that first.
+>=20
+> Oleksandr, can you try the patch below:
+>=20
+>=20
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index 6db1c475ec827..6c350555e5a1c 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -701,13 +701,10 @@ void swiotlb_tbl_unmap_single(struct device *dev, p=
+hys_addr_t tlb_addr,
+>  void swiotlb_sync_single_for_device(struct device *dev, phys_addr_t tlb_=
+addr,
+>  		size_t size, enum dma_data_direction dir)
+>  {
+> -	/*
+> -	 * Unconditional bounce is necessary to avoid corruption on
+> -	 * sync_*_for_cpu or dma_ummap_* when the device didn't overwrite
+> -	 * the whole lengt of the bounce buffer.
+> -	 */
+> -	swiotlb_bounce(dev, tlb_addr, size, DMA_TO_DEVICE);
+> -	BUG_ON(!valid_dma_direction(dir));
+> +	if (dir =3D=3D DMA_TO_DEVICE || dir =3D=3D DMA_BIDIRECTIONAL)
+> +		swiotlb_bounce(dev, tlb_addr, size, DMA_TO_DEVICE);
+> +	else
+> +		BUG_ON(dir !=3D DMA_FROM_DEVICE);
+>  }
+> =20
+>  void swiotlb_sync_single_for_cpu(struct device *dev, phys_addr_t tlb_add=
+r,
+>=20
 
-BR,
-Jani.
+With this patch the AP works for me.
 
->
->>=20
->> For most displays it's probably an unlikely scenario you'd have a CTA
->> DisplayID Data Block without a CEA extension, but they do exist.
->>=20
->> Fixes: e28ad544f462 ("drm/edid: parse CEA blocks embedded in DisplayID")
->> Cc: <stable@vger.kernel.org> # v4.15
->> Cc: Shawn C Lee <shawn.c.lee@intel.com>
->> Cc: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
->> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
->>=20
->> ---
->>=20
->> commit e28ad544f462 was merged in v5.3, but it has Cc: stable for v4.15.
->>=20
->> This is also fixed in my CEA data block iteration series [1], but we'll
->> want the simple fix for stable first.
->>=20
->> Hum, CTA is formerly CEA, I and the code seem to use both, should we use
->> only one or the other?
->
-> And before CEA it was called EIA (IIRC). Dunno if we also use that name
-> somewhere.
->
-> If someone cares enough I guess we could rename everything to "cta".
->
->>=20
->> [1] https://patchwork.freedesktop.org/series/101659/
->> ---
->>  drivers/gpu/drm/drm_edid.c | 12 ++++++++----
->>  1 file changed, 8 insertions(+), 4 deletions(-)
->>=20
->> diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
->> index 561f53831e29..ccf7031a6797 100644
->> --- a/drivers/gpu/drm/drm_edid.c
->> +++ b/drivers/gpu/drm/drm_edid.c
->> @@ -5187,10 +5187,14 @@ static void drm_parse_cea_ext(struct drm_connect=
-or *connector,
->>=20=20
->>  	/* The existence of a CEA block should imply RGB support */
->>  	info->color_formats =3D DRM_COLOR_FORMAT_RGB444;
->> -	if (edid_ext[3] & EDID_CEA_YCRCB444)
->> -		info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR444;
->> -	if (edid_ext[3] & EDID_CEA_YCRCB422)
->> -		info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR422;
->> +
->> +	/* CTA DisplayID Data Block does not have byte #3 */
->> +	if (edid_ext[0] =3D=3D CEA_EXT) {
->> +		if (edid_ext[3] & EDID_CEA_YCRCB444)
->> +			info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR444;
->> +		if (edid_ext[3] & EDID_CEA_YCRCB422)
->> +			info->color_formats |=3D DRM_COLOR_FORMAT_YCBCR422;
->> +	}
->>=20=20
->>  	if (cea_db_offsets(edid_ext, &start, &end))
->>  		return;
->> --=20
->> 2.30.2
+Thanks.
 
---=20
-Jani Nikula, Intel Open Source Graphics Center
+=2D-=20
+Oleksandr Natalenko (post-factum)
+
+
