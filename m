@@ -2,108 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 416514E674F
-	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 17:54:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D3B4E6753
+	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 17:55:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352011AbiCXQ4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 12:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38808 "EHLO
+        id S1352045AbiCXQ41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 12:56:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352043AbiCXQzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 12:55:46 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AAB55B7156;
-        Thu, 24 Mar 2022 09:52:38 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 39B06D6E;
-        Thu, 24 Mar 2022 09:52:38 -0700 (PDT)
-Received: from [10.57.41.19] (unknown [10.57.41.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6D3993F73B;
-        Thu, 24 Mar 2022 09:52:35 -0700 (PDT)
-Message-ID: <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
-Date:   Thu, 24 Mar 2022 16:52:31 +0000
+        with ESMTP id S1352106AbiCXQ4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 12:56:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 670B998F5A;
+        Thu, 24 Mar 2022 09:53:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57384B824A6;
+        Thu, 24 Mar 2022 16:53:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D9C1C340EC;
+        Thu, 24 Mar 2022 16:53:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1648140810;
+        bh=RScfqBuaHBvINh3Oshl5Oe9QzFycEgDhFH1156Kqxtw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zCJjsK4CfPhNrswjvgITtlBe/SyLu6cstafWsWugsHVr4b2j+Jz96U4V3lyp/8/2r
+         dpzIEKUwgXX3sRDX/3Z/IrJUiDD/gfeBfP+T1GAyvijHINXuf2emShERIiYDDSq4mg
+         W55rAAJ/0iGEqrXGwsgm+jF4Qtavlk2hPns4yuAg=
+Date:   Thu, 24 Mar 2022 17:53:27 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Dan Vacura <w36195@motorola.com>
+Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Bhupesh Sharma <bhupesh.sharma@st.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] usb: gadget: uvc: Fix crash when encoding data for
+ usb request
+Message-ID: <YjyiB6IlfbMSGKZ2@kroah.com>
+References: <20220318164706.22365-1-w36195@motorola.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Content-Language: en-GB
-To:     Christoph Hellwig <hch@lst.de>, Maxime Bizon <mbizon@freebox.fr>
-Cc:     =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <toke@toke.dk>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-References: <1812355.tdWV9SEqCh@natalenko.name>
- <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <20220324163132.GB26098@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220318164706.22365-1-w36195@motorola.com>
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-03-24 16:31, Christoph Hellwig wrote:
-> On Thu, Mar 24, 2022 at 05:29:12PM +0100, Maxime Bizon wrote:
->>> I'm looking into this; but in the interest of a speedy resolution of
->>> the regression I would be in favour of merging that partial revert
->>> and reinstating it if/when we identify (and fix) any bugs in ath9k :)
->>
->> This looks fishy:
->>
->> ath9k/recv.c
->>
->>                  /* We will now give hardware our shiny new allocated skb */
->>                  new_buf_addr = dma_map_single(sc->dev, requeue_skb->data,
->>                                                common->rx_bufsize, dma_type);
->>                  if (unlikely(dma_mapping_error(sc->dev, new_buf_addr))) {
->>                          dev_kfree_skb_any(requeue_skb);
->>                          goto requeue_drop_frag;
->>                  }
->>
->>                  /* Unmap the frame */
->>                  dma_unmap_single(sc->dev, bf->bf_buf_addr,
->>                                   common->rx_bufsize, dma_type);
->>
->>                  bf->bf_mpdu = requeue_skb;
->>                  bf->bf_buf_addr = new_buf_addr;
+On Fri, Mar 18, 2022 at 11:47:06AM -0500, Dan Vacura wrote:
+> During the uvcg_video_pump() process, if an error occurs and
+> uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
+> the current marker (queue->buf_used) of the active buffer (no longer
+> active) is not reset. On the next iteration of uvcg_video_pump() the
+> stale buf_used count will be used and the logic of min((unsigned
+> int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
+> nbytes size, causing an invalid memory access.
 > 
-> Creating a new mapping for the same buffer before unmapping the
-> previous one does looks rather bogus.  But it does not fit the
-> pattern where revering the sync_single changes make the driver
-> work again.
+> [80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
+> with status -18.
+> [80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
+> with status -18.
+> ...
+> uvcg_queue_cancel() is called and the queue is cleared out, but the
+> marker queue->buf_used is not reset.
+> ...
+> [80802.262328][ T8682] Unable to handle kernel paging request at virtual
+> address ffffffc03af9f000
+> ...
+> ...
+> [80802.263138][ T8682] Call trace:
+> [80802.263146][ T8682]  __memcpy+0x12c/0x180
+> [80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
+> [80802.263165][ T8682]  process_one_work+0x2cc/0x568
+> [80802.263173][ T8682]  worker_thread+0x28c/0x518
+> [80802.263181][ T8682]  kthread+0x160/0x170
+> [80802.263188][ T8682]  ret_from_fork+0x10/0x18
+> [80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
+> 
+> Fixes: d692522577c0 ("usb: gadget/uvc: Port UVC webcam gadget to use videobuf2 framework")
+> Signed-off-by: Dan Vacura <w36195@motorola.com>
+> 
+> ---
+> Changes in v2:
+> - Add Fixes tag
 
-OK, you made me look :)
+<formletter>
 
-Now that it's obvious what to look for, I can only conclude that during 
-the stanza in ath_edma_get_buffers(), the device is still writing to the 
-buffer while ownership has been transferred to the CPU, and whatever got 
-written while ath9k_hw_process_rxdesc_edma() was running then gets wiped 
-out by the subsequent sync_for_device, which currently resets the 
-SWIOTLB slot to the state that sync_for_cpu copied out. By the letter of 
-the DMA API that's not allowed, but on the other hand I'm not sure if we 
-even have a good idiom for "I can't tell if the device has finished with 
-this buffer or not unless I look at it" :/
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Robin.
+</formletter>
