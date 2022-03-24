@@ -2,234 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5091B4E6843
-	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 19:02:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62BBD4E6883
+	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 19:17:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237587AbiCXSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 14:04:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53300 "EHLO
+        id S1346569AbiCXSTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 14:19:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236126AbiCXSE1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 14:04:27 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBC9B6D1C;
-        Thu, 24 Mar 2022 11:02:54 -0700 (PDT)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22OHdpdx028652;
-        Thu, 24 Mar 2022 18:02:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=7N/Uygt+143zP1GtcKOONYQzUeuYDGnbzS8lAEa/ht4=;
- b=orZn5/JJHPLU3aXi7QTpaZ5Czx9MkFWvCy6VS9j1sQFwvDaNk44fFCgOg135hXfxmdZc
- 7THzrDaOfxXn3zjwLe/faPAApLdB9K/JfUCKPi3DtfufF4GOob4cliM045llpIvvJUyY
- Rzfrq0x8LbmVXpJ5CAsp3+EVRza2WHBDyzSmRE2u/6OfPXgGd219KcTs/50mvKryuhJt
- GeFdl1tYurjSfaYri8ylmr62AvKiZJIUWlmjKNWp0ouRtR1/QKb6rkyBpmmHlWM1P+Q9
- DEH/ZSOUmCvhhzGqJfOXpiJ21L1W8cSw8v18NJVGcFY3A7fBsLn+WfG/pEF5dwQDkR1y BQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0pxd1pyj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 18:02:24 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22OHhWqv004212;
-        Thu, 24 Mar 2022 18:02:23 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0pxd1pxn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 18:02:23 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22OHxcHC020458;
-        Thu, 24 Mar 2022 18:02:21 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ew6t93dsj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 18:02:21 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22OHoXog52691430
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Mar 2022 17:50:33 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 456E54C04A;
-        Thu, 24 Mar 2022 18:02:19 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6BC5E4C040;
-        Thu, 24 Mar 2022 18:02:18 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.111])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 24 Mar 2022 18:02:18 +0000 (GMT)
-Date:   Thu, 24 Mar 2022 19:02:16 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Toke =?UTF-8?B?SMO4aWxhbmQtSsO4?= =?UTF-8?B?cmdlbnNlbg==?= 
-        <toke@toke.dk>, Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Message-ID: <20220324190216.0efa067f.pasic@linux.ibm.com>
-In-Reply-To: <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
-References: <1812355.tdWV9SEqCh@natalenko.name>
-        <CAHk-=wiwz+Z2MaP44h086jeniG-OpK3c=FywLsCwXV7Crvadrg@mail.gmail.com>
-        <27b5a287-7a33-9a8b-ad6d-04746735fb0c@arm.com>
-        <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com>
-        <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        with ESMTP id S1352249AbiCXSTJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 14:19:09 -0400
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BFCB7176;
+        Thu, 24 Mar 2022 11:17:36 -0700 (PDT)
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-2e6ceb45174so20094837b3.8;
+        Thu, 24 Mar 2022 11:17:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4xfMIwGR0jxuAgp/8KZatF+Imb8NkFkv6/D9HuOyjQA=;
+        b=plIXAR2bfHTGsiGO7IcyriE2sc1f3oQc2bvFxxAW3WSXIDNvCoOVnLC7PalraA4ZN/
+         VIMB9gg/kg+kJ75Od95EzOR0TEvKhi7wQMlTrVD6lGjzEq2+IBxnjnWWxdGrEYFp9BFE
+         AaNRzYe2H4nupCi+BbfmjrmjlAaLx8pgZ/5DlF7Ds7cWT4sgPydjje4B6AP762qfAARl
+         39eTwRF2Wz4nexbLstEoZGUBUkffdB98fGFJXwEDzWh6JpPh60zFahwqtNce709J9LKv
+         ifnuefv5SCMIfx437Xuy2/RKpLWzlW8LBoDraw7/iDo7+ya/1oN4CM6Adgv7Iaf5pm+d
+         cyFA==
+X-Gm-Message-State: AOAM531impXMliW9zyvNF2qJUs5YjhoEST9YSxwpzfb6m6iSHX+Z4sHE
+        5w6/OJKGprxDpSI6ZUwGut3ksY2WP5sBNiG587g=
+X-Google-Smtp-Source: ABdhPJxZVOfiY8yYounnuJpUi5kPJGXX1P8bo1E5m+mb1tjWzN+7f0n8KWcARdqrO9G+qe+Ipg6FEvGLwgU9p7SzlcQ=
+X-Received: by 2002:a81:36cf:0:b0:2e5:2597:a026 with SMTP id
+ d198-20020a8136cf000000b002e52597a026mr6187255ywa.301.1648145855764; Thu, 24
+ Mar 2022 11:17:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2MudIYovaPOAUEbTqagMNrUaYICtVj4D
-X-Proofpoint-ORIG-GUID: 7Gru2c9X8jDDAUwXo23TBQWTusNqnneh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-24_06,2022-03-24_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 adultscore=0 phishscore=0 malwarescore=0 suspectscore=0
- mlxlogscore=999 clxscore=1011 impostorscore=0 bulkscore=0 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203240098
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
+ <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
+ <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
+ <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
+ <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
+ <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
+ <CAAYoRsWN-h+fBAoocGmUFHDkOv2PL+6U59_ASBYH74j0orHaCQ@mail.gmail.com>
+ <CAJZ5v0iOOmRY3uC1-ZGQ30VysMuAjGum=Lt4tkqNUjop+ikqZw@mail.gmail.com>
+ <CAAYoRsVs_CB-dBGShksmXATRP3oGnD6uU-xQdSPjkRER+j6fTQ@mail.gmail.com>
+ <CAAYoRsVnPa-aiKCju7Nz+cznyOo2sbioFks+gU7W7dqWyO8JJw@mail.gmail.com>
+ <CAAYoRsU=SjE2zpQPjxrE6aDzEk6+AZy9DUAJ4Vv2qimbiJ2ySQ@mail.gmail.com>
+ <CAJZ5v0hTOD8Y-ft0jo8KO+RW33ow7_Lm+6gAWA0BpM7o-u4vyQ@mail.gmail.com>
+ <CAAYoRsU-e70mDpKrO_dqdPJTRrPMD8cKmFnyHVoXGEVTFotvUQ@mail.gmail.com> <CAAYoRsXm1giy5yeQcAJmDnwFOQ+U-vYXaiTb-xTm2Ur2hLPxQA@mail.gmail.com>
+In-Reply-To: <CAAYoRsXm1giy5yeQcAJmDnwFOQ+U-vYXaiTb-xTm2Ur2hLPxQA@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Thu, 24 Mar 2022 19:17:24 +0100
+Message-ID: <CAJZ5v0is=Jvr12XYT9BmdJJmUWjuD8iq2T4Udem4FC3vV-nobQ@mail.gmail.com>
+Subject: Re: CPU excessively long times between frequency scaling driver calls
+ - bisected
+To:     Doug Smythies <dsmythies@telus.net>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 23 Mar 2022 20:54:08 +0000
-Robin Murphy <robin.murphy@arm.com> wrote:
+Hi Doug,
 
-> On 2022-03-23 19:16, Linus Torvalds wrote:
-> > On Wed, Mar 23, 2022 at 12:06 PM Robin Murphy <robin.murphy@arm.com> wrote:  
-> >>
-> >> On 2022-03-23 17:27, Linus Torvalds wrote:  
-> >>>
-> >>> I'm assuming that the ath9k issue is that it gives DMA mapping a big
-> >>> enough area to handle any possible packet size, and just expects -
-> >>> quite reasonably - smaller packets to only fill the part they need.
-> >>>
-> >>> Which that "info leak" patch obviously breaks entirely.  
-> >>
-> >> Except that's the exact case which the new patch is addressing  
-> > 
-> > Not "addressing". Breaking.
-> > 
-> > Which is why it will almost certainly get reverted.
-> > 
-> > Not doing DMA to the whole area seems to be quite the sane thing to do
-> > for things like network packets, and overwriting the part that didn't
-> > get DMA'd with zeroes seems to be exactly the wrong thing here.
-> > 
-> > So the SG_IO - and other random untrusted block command sources - data
-> > leak will almost certainly have to be addressed differently. Possibly
-> > by simply allocating the area with GFP_ZERO to begin with.  
-> 
-> Er, the point of the block layer case is that whole area *is* zeroed to 
-> begin with, and a latent memory corruption problem in SWIOTLB itself 
-> replaces those zeros with random other kernel data unexpectedly. Let me 
-> try illustrating some sequences for clarity...
-> 
-> Expected behaviour/without SWIOTLB:
->                               Memory
-> ---------------------------------------------------
-> start                        12345678
-> dma_map(DMA_FROM_DEVICE)      no-op
-> device writes partial data   12ABC678 <- ABC
-> dma_unmap(DMA_FROM_DEVICE)   12ABC678
-> 
-> 
-> SWIOTLB previously:
->                               Memory      Bounce buffer
-> ---------------------------------------------------
-> start                        12345678    xxxxxxxx
-> dma_map(DMA_FROM_DEVICE)             no-op
-> device writes partial data   12345678    xxABCxxx <- ABC
-> dma_unmap(DMA_FROM_DEVICE)   xxABCxxx <- xxABCxxx
-> 
-> 
-> SWIOTLB Now:
->                               Memory      Bounce buffer
-> ---------------------------------------------------
-> start                        12345678    xxxxxxxx
-> dma_map(DMA_FROM_DEVICE)     12345678 -> 12345678
-> device writes partial data   12345678    12ABC678 <- ABC
-> dma_unmap(DMA_FROM_DEVICE)   12ABC678 <- 12ABC678
-> 
-> 
-> Now, sure we can prevent any actual information leakage by initialising 
-> the bounce buffer slot with zeros, but then we're just corrupting the 
-> not-written-to parts of the mapping with zeros instead of anyone else's 
-> old data. That's still fundamentally not OK. The only thing SWIOTLB can 
-> do to be correct is treat DMA_FROM_DEVICE as a read-modify-write of the 
-> entire mapping, because it has no way to know how much of it is actually 
-> going to be modified.
-> 
-
-Very nice explanation! Thanks!
-
-> I'll admit I still never quite grasped the reason for also adding the 
-> override to swiotlb_sync_single_for_device() in aa6f8dcbab47, but I 
-> think by that point we were increasingly tired and confused and starting 
-> to second-guess ourselves (well, I was, at least).
-
-I raised the question, do we need to do the same for
-swiotlb_sync_single_for_device(). Did that based on my understanding of the
-DMA API documentation. I had the following scenario in mind
-
-SWIOTLB without the snyc_single:
-                                  Memory      Bounce buffer      Owner
---------------------------------------------------------------------------
-start                             12345678    xxxxxxxx             C
-dma_map(DMA_FROM_DEVICE)          12345678 -> 12345678             C->D
-device writes partial data        12345678    12ABC678 <- ABC      D
-sync_for_cpu(DMA_FROM_DEVICE)     12ABC678 <- 12ABC678             D->C
-cpu modifies buffer               66666666    12ABC678             C
-sync_for_device(DMA_FROM_DEVICE)  66666666    12ABC678             C->D
-device writes partial data        66666666    1EFGC678 <-EFG       D
-dma_unmap(DMA_FROM_DEVICE)        1EFGC678 <- 1EFGC678             D->C
-
-Legend: in Owner column C stands for cpu and D for device.
-
-Without swiotlb, I believe we should have arrived at 6EFG6666. To get the
-same result, IMHO, we need to do a sync in sync_for_device().
-And aa6f8dcbab47 is an imperfect solution to that (because of size).
-
-
-> I don't think it's 
-> wrong per se, but as I said I do think it can bite anyone who's been 
-> doing dma_sync_*() wrong but getting away with it until now. 
-
-I fully agree.
-
-> If 
-> ddbd89deb7d3 alone turns out to work OK then I'd be inclined to try a 
-> partial revert of just that one hunk.
+On Thu, Mar 24, 2022 at 3:04 PM Doug Smythies <dsmythies@telus.net> wrote:
 >
+> Hi Rafael,
+>
+> Do you have any suggestions for the proposed patch?
 
-I'm not against being pragmatic and doing the partial revert. But as
-explained above, I do believe for correctness of swiotlb we ultimately
-do need that change. So if the revert is the short term solution,
-what should be our mid-term road-map?
+Not really.
 
-Regards,
-Halil
- 
-> Thanks,
-> Robin.
+It looks like the avoidance to stop the scheduler tick is sufficient
+to bump up the PELT signal for this workload in such a way that it
+doesn't fall below a certain level at all which in turn causes
+schedutil to ask for higher frequencies.
 
+An alternative approach appears to be necessary, but I need some more
+time for that.
+
+> I have tried to figure out what is wrong but haven't been able to.
+>
+> ... Doug
+>
+> On Thu, Mar 17, 2022 at 6:58 AM Doug Smythies <dsmythies@telus.net> wrote:
+> >
+> > On Thu, Mar 17, 2022 at 5:30 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > > On Wed, Mar 16, 2022 at 4:55 PM Doug Smythies <dsmythies@telus.net> wrote:
+> > > >
+> > > > Readers: So that graphs and large attachments could be used, I have
+> > > > been on an off-list branch of this thread with Srinivas, and copied a
+> > > > couple of others. While now returning to this on-list thread, I'll
+> > > > only take up Rafael's proposed patch.
+> > > >
+> > > > Hi Rafael,
+> > > >
+> > > > So far all work has been done with: HWP disabled; intel_pstate; powersave.
+> > > > The reason was that it is, by far, the best way to obtain good trace data
+> > > > using the intel_pstate_tracer.py utility.
+> > > >
+> > > > I always intended to try/test: HWP disabled; intel_cpufreq; schedutil.
+> > > > There is an issue with the proposed patch and schedutil.
+> > > >
+> > > > If any CPU ever requests a pstate > the max non turbo pstate
+> > > > then it will stay at that request forever. Ultimately the idle
+> > > > power goes to about 5.7 watts (verses 1.4 watts expected).
+> > > > IRQs go very high, as the tick never turns off.
+> > > > Actually, one knows how many CPUs are stuck requesting a high
+> > > > pstate just by looking at IRQs.
+> > >
+> > > That may be because INTEL_CPUFREQ_TRANSITION_DELAY is too small.
+> > >
+> > > Please try to increase
+> > > /sys/devices/system/cpu/cpufreq/schedutil/rate_limit_us to 10000 and
+> > > see what difference this makes.
+> >
+> > Changing rate_limit_us to 10000, or even 20000, makes no difference.
+> >
+> > see a slight clarification to yesterday's email in-line below.
+> >
+> > > > Trace is useless because it virtually never gets called.
+> > > > So I have been reading the IA32_PERF_CTL MSR
+> > > > directly.
+> > > >
+> > > > Example:
+> > > >
+> > > > Processor: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
+> > > > 6 cores, 12 CPUs
+> > > > min pstate 8
+> > > > max non-turbo pstate 41
+> > > > max turbo pstate 48
+> > > > The system is idle.
+> > > >
+> > > > doug@s19:~$ sudo
+> > > > /home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
+> > > > --quiet --show Busy%,Bzy_MHz,IRQ,PkgWatt --interval 10
+> > > > Busy%   Bzy_MHz IRQ     PkgWatt
+> > > > 0.11    800     844     1.33
+> > > > 0.01    800     231     1.33
+> > > > 0.11    800     723     1.33 <<< Powersave governor
+> > > > 0.03    889     440     1.33
+> > > > 0.17    4418    21511   4.31 <<< Schedutil governor
+> > > > 0.12    4101    30153   4.48 <<< 3 CPUs are > pstate 41
+> > > > 0.22    4347    34226   4.75
+> > > > 0.17    4101    43554   4.78
+> > > > 0.29    4300    50565   4.94
+> > > > 0.21    4098    50297   4.76 <<< 5 CPUs are > pstate 41
+> > > > 0.29    4298    50532   4.84
+> > > > 0.20    4101    50126   4.63
+> > > > 0.20    4101    50149   4.62
+> > > > 0.29    4297    50623   4.76
+> > > > 0.20    4101    50203   4.72
+> > > > 0.29    4295    50642   4.78
+> > > > 0.20    4101    50223   4.68
+> > > > 0.29    4292    50597   4.88
+> > > > 0.20    4101    50208   4.73
+> > > > 0.29    4296    50519   4.84
+> > > > 0.20    4101    50167   4.80
+> > > > 0.20    4101    50242   4.76
+> > > > 0.29    4302    50625   4.94
+> > > > 0.20    4101    50233   4.73
+> > > > 0.29    4296    50613   4.78
+> > > > 0.20    4101    50231   4.70
+> > > > 0.29    4292    50802   4.93
+> > > > 1.46    4669    65610   8.36
+> > > > 0.41    4225    80701   5.48
+> > > > 0.33    4101    80219   5.36 <<< 8 CPUs are > ptstate 41
+> > > > 0.34    4098    80313   5.38
+> > > > 0.41    4228    80689   5.56
+> > > > 0.33    4101    80252   5.46
+> > > >
+> > > > And the related MSR reads:
+> > > >
+> > > > 3 CPUs are > pstate 41:
+> > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
+> > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  30 :   8 :   8 :  48 :
+> > > > 48 :  48 :   8 :  30 :  31 :   8 :   8 :   8 :
+> > > >
+> > > > 5 CPUs are > psate 41:
+> > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
+> > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  44 :  30 :  31 :  48 :
+> > > > 48 :  48 :   8 :   8 :   8 :   8 :  48 :   8 :
+> > > >
+> > > > 8 CPUs are > pstate 41:
+> > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
+> > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  45 :  48 :  48 :  48 :
+> > > > 48 :  48 :   8 :  30 :   8 :   8 :  48 :  42 :
+> > > >
+> > > > This issue is independent of the original patch or the suggested modification:
+> >
+> > Actually, the issue threshold is as defined by the greater than condition below.
+> >
+> > > >
+> > > > > diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+> > > > > index f878a4545eee..94018ac0b59b 100644
+> > > > > --- a/drivers/cpufreq/intel_pstate.c
+> > > > > +++ b/drivers/cpufreq/intel_pstate.c
+> > > > > @@ -1980,7 +1980,7 @@ static void intel_pstate_update_perf_ctl(struct
+> > > > > cpudata *cpu)
+> > > > >          * P-states to prevent them from getting back to the high frequency
+> > > > >          * right away after getting out of deep idle.
+> > > > >          */
+> > > > > -       cpuidle_update_retain_tick(pstate > cpu->pstate.max_pstate);
+> >
+> > For the above kernel the threshold is pstate 42.
+> >
+> > > > > +       cpuidle_update_retain_tick(pstate > ((cpu->pstate.max_pstate +
+> > > > > cpu->pstate.min_pstate)/2));
+> >
+> > For the above kernel the threshold is pstate 25.
+> >
+> > > > >         wrmsrl(MSR_IA32_PERF_CTL, pstate_funcs.get_val(cpu, pstate));
+> > > > >  }
+> > > >
+> > > > ... Doug
