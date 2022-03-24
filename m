@@ -2,229 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62BBD4E6883
-	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 19:17:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9674E68B5
+	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 19:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346569AbiCXSTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 14:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
+        id S1343922AbiCXSeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 14:34:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352249AbiCXSTJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 14:19:09 -0400
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BFCB7176;
-        Thu, 24 Mar 2022 11:17:36 -0700 (PDT)
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-2e6ceb45174so20094837b3.8;
-        Thu, 24 Mar 2022 11:17:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4xfMIwGR0jxuAgp/8KZatF+Imb8NkFkv6/D9HuOyjQA=;
-        b=plIXAR2bfHTGsiGO7IcyriE2sc1f3oQc2bvFxxAW3WSXIDNvCoOVnLC7PalraA4ZN/
-         VIMB9gg/kg+kJ75Od95EzOR0TEvKhi7wQMlTrVD6lGjzEq2+IBxnjnWWxdGrEYFp9BFE
-         AaNRzYe2H4nupCi+BbfmjrmjlAaLx8pgZ/5DlF7Ds7cWT4sgPydjje4B6AP762qfAARl
-         39eTwRF2Wz4nexbLstEoZGUBUkffdB98fGFJXwEDzWh6JpPh60zFahwqtNce709J9LKv
-         ifnuefv5SCMIfx437Xuy2/RKpLWzlW8LBoDraw7/iDo7+ya/1oN4CM6Adgv7Iaf5pm+d
-         cyFA==
-X-Gm-Message-State: AOAM531impXMliW9zyvNF2qJUs5YjhoEST9YSxwpzfb6m6iSHX+Z4sHE
-        5w6/OJKGprxDpSI6ZUwGut3ksY2WP5sBNiG587g=
-X-Google-Smtp-Source: ABdhPJxZVOfiY8yYounnuJpUi5kPJGXX1P8bo1E5m+mb1tjWzN+7f0n8KWcARdqrO9G+qe+Ipg6FEvGLwgU9p7SzlcQ=
-X-Received: by 2002:a81:36cf:0:b0:2e5:2597:a026 with SMTP id
- d198-20020a8136cf000000b002e52597a026mr6187255ywa.301.1648145855764; Thu, 24
- Mar 2022 11:17:35 -0700 (PDT)
+        with ESMTP id S238496AbiCXSeR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 14:34:17 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3554B7151;
+        Thu, 24 Mar 2022 11:32:45 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22OGIMG7018966;
+        Thu, 24 Mar 2022 18:32:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=QPEoHxcEwKvYGqD5wCoP7vHQWU9iiR1gyHKaskx0ZaY=;
+ b=YDBpcmCRe4ki6BgB0SzAPfHDpOgPtoKSUOAJ9H6C/9pX+LdL4n4BkLFoH63IckXnstJs
+ NdRVabkXq6ZjY8MAGiNTH9gubWNuk5juaAZCsPKK/Fd0ld/mQxhtZziEWROez1mKQrxW
+ bFZIf7hmf8bwtYZ4yZa/rpa82GBqUdi4rPE+KwqXoXYWmwipmv0u9lmQSSjiTPaYRdOI
+ VcU/xsKboRIw0dBPQjCQ4PeM2FwRQU0a51BljHE/Ky1j0TqZMP6T9U148McERsplQV73
+ 0EUyJAxe190C98PHRB8DTNBgKRUMBNt5wTQqschIecSpuDDeUYQsArLo1ob2wAeP6s6k Ng== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f0kawf7yq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Mar 2022 18:32:24 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22OHq0IS007551;
+        Thu, 24 Mar 2022 18:32:23 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f0kawf7y4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Mar 2022 18:32:23 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22OIKRCQ015319;
+        Thu, 24 Mar 2022 18:32:21 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma02fra.de.ibm.com with ESMTP id 3ew6t8sta4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Mar 2022 18:32:21 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22OIWJah41681174
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 24 Mar 2022 18:32:19 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2F2F6A405B;
+        Thu, 24 Mar 2022 18:32:19 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 35D4DA4054;
+        Thu, 24 Mar 2022 18:32:18 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.111])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 24 Mar 2022 18:32:18 +0000 (GMT)
+Date:   Thu, 24 Mar 2022 19:31:58 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Christoph Hellwig <hch@lst.de>, Maxime Bizon <mbizon@freebox.fr>,
+        Toke =?UTF-8?B?SMO4aWxhbmQtSsO4cmdlbnNlbg==?= <toke@toke.dk>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Message-ID: <20220324193158.5fcae106.pasic@linux.ibm.com>
+In-Reply-To: <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+        <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+        <20220324055732.GB12078@lst.de>
+        <4386660.LvFx2qVVIh@natalenko.name>
+        <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com>
+        <878rsza0ih.fsf@toke.dk>
+        <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
+        <20220324163132.GB26098@lst.de>
+        <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
- <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
- <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
- <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
- <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
- <CAAYoRsWN-h+fBAoocGmUFHDkOv2PL+6U59_ASBYH74j0orHaCQ@mail.gmail.com>
- <CAJZ5v0iOOmRY3uC1-ZGQ30VysMuAjGum=Lt4tkqNUjop+ikqZw@mail.gmail.com>
- <CAAYoRsVs_CB-dBGShksmXATRP3oGnD6uU-xQdSPjkRER+j6fTQ@mail.gmail.com>
- <CAAYoRsVnPa-aiKCju7Nz+cznyOo2sbioFks+gU7W7dqWyO8JJw@mail.gmail.com>
- <CAAYoRsU=SjE2zpQPjxrE6aDzEk6+AZy9DUAJ4Vv2qimbiJ2ySQ@mail.gmail.com>
- <CAJZ5v0hTOD8Y-ft0jo8KO+RW33ow7_Lm+6gAWA0BpM7o-u4vyQ@mail.gmail.com>
- <CAAYoRsU-e70mDpKrO_dqdPJTRrPMD8cKmFnyHVoXGEVTFotvUQ@mail.gmail.com> <CAAYoRsXm1giy5yeQcAJmDnwFOQ+U-vYXaiTb-xTm2Ur2hLPxQA@mail.gmail.com>
-In-Reply-To: <CAAYoRsXm1giy5yeQcAJmDnwFOQ+U-vYXaiTb-xTm2Ur2hLPxQA@mail.gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Thu, 24 Mar 2022 19:17:24 +0100
-Message-ID: <CAJZ5v0is=Jvr12XYT9BmdJJmUWjuD8iq2T4Udem4FC3vV-nobQ@mail.gmail.com>
-Subject: Re: CPU excessively long times between frequency scaling driver calls
- - bisected
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oKSb7ZJ3AqHPRcTREuBg4BsuIsetEW2S
+X-Proofpoint-GUID: DxCDOKV1iW1_bko4dmsq5AdF-oH4bAFl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-24_06,2022-03-24_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ mlxlogscore=999 priorityscore=1501 phishscore=0 lowpriorityscore=0
+ impostorscore=0 clxscore=1011 spamscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203240101
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Doug,
+On Thu, 24 Mar 2022 16:52:31 +0000
+Robin Murphy <robin.murphy@arm.com> wrote:
 
-On Thu, Mar 24, 2022 at 3:04 PM Doug Smythies <dsmythies@telus.net> wrote:
->
-> Hi Rafael,
->
-> Do you have any suggestions for the proposed patch?
+> > Creating a new mapping for the same buffer before unmapping the
+> > previous one does looks rather bogus.  But it does not fit the
+> > pattern where revering the sync_single changes make the driver
+> > work again.  
+> 
+> OK, you made me look :)
+> 
+> Now that it's obvious what to look for, I can only conclude that during 
+> the stanza in ath_edma_get_buffers(), the device is still writing to the 
+> buffer while ownership has been transferred to the CPU, and whatever got 
+> written while ath9k_hw_process_rxdesc_edma() was running then gets wiped 
+> out by the subsequent sync_for_device, which currently resets the 
+> SWIOTLB slot to the state that sync_for_cpu copied out. By the letter of 
+> the DMA API that's not allowed, but on the other hand I'm not sure if we 
+> even have a good idiom for "I can't tell if the device has finished with 
+> this buffer or not unless I look at it" :/
 
-Not really.
+I agree with your analysis. Especially with the latter part (were you
+state that we don't have a good idiom for that use case). 
 
-It looks like the avoidance to stop the scheduler tick is sufficient
-to bump up the PELT signal for this workload in such a way that it
-doesn't fall below a certain level at all which in turn causes
-schedutil to ask for higher frequencies.
+I believe, a stronger statement is also true: it is fundamentally
+impossible to accommodate use cases where the device and the cpu need
+concurrent access to a dma buffer, if the dma buffer isn't in dma
+coherent memory.
 
-An alternative approach appears to be necessary, but I need some more
-time for that.
+If the dma buffer is in dma coherent memory, and we don't need swiotlb,
+then we don't need the dma_sync functionality. 
 
-> I have tried to figure out what is wrong but haven't been able to.
->
-> ... Doug
->
-> On Thu, Mar 17, 2022 at 6:58 AM Doug Smythies <dsmythies@telus.net> wrote:
-> >
-> > On Thu, Mar 17, 2022 at 5:30 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
-> > > On Wed, Mar 16, 2022 at 4:55 PM Doug Smythies <dsmythies@telus.net> wrote:
-> > > >
-> > > > Readers: So that graphs and large attachments could be used, I have
-> > > > been on an off-list branch of this thread with Srinivas, and copied a
-> > > > couple of others. While now returning to this on-list thread, I'll
-> > > > only take up Rafael's proposed patch.
-> > > >
-> > > > Hi Rafael,
-> > > >
-> > > > So far all work has been done with: HWP disabled; intel_pstate; powersave.
-> > > > The reason was that it is, by far, the best way to obtain good trace data
-> > > > using the intel_pstate_tracer.py utility.
-> > > >
-> > > > I always intended to try/test: HWP disabled; intel_cpufreq; schedutil.
-> > > > There is an issue with the proposed patch and schedutil.
-> > > >
-> > > > If any CPU ever requests a pstate > the max non turbo pstate
-> > > > then it will stay at that request forever. Ultimately the idle
-> > > > power goes to about 5.7 watts (verses 1.4 watts expected).
-> > > > IRQs go very high, as the tick never turns off.
-> > > > Actually, one knows how many CPUs are stuck requesting a high
-> > > > pstate just by looking at IRQs.
-> > >
-> > > That may be because INTEL_CPUFREQ_TRANSITION_DELAY is too small.
-> > >
-> > > Please try to increase
-> > > /sys/devices/system/cpu/cpufreq/schedutil/rate_limit_us to 10000 and
-> > > see what difference this makes.
-> >
-> > Changing rate_limit_us to 10000, or even 20000, makes no difference.
-> >
-> > see a slight clarification to yesterday's email in-line below.
-> >
-> > > > Trace is useless because it virtually never gets called.
-> > > > So I have been reading the IA32_PERF_CTL MSR
-> > > > directly.
-> > > >
-> > > > Example:
-> > > >
-> > > > Processor: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
-> > > > 6 cores, 12 CPUs
-> > > > min pstate 8
-> > > > max non-turbo pstate 41
-> > > > max turbo pstate 48
-> > > > The system is idle.
-> > > >
-> > > > doug@s19:~$ sudo
-> > > > /home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
-> > > > --quiet --show Busy%,Bzy_MHz,IRQ,PkgWatt --interval 10
-> > > > Busy%   Bzy_MHz IRQ     PkgWatt
-> > > > 0.11    800     844     1.33
-> > > > 0.01    800     231     1.33
-> > > > 0.11    800     723     1.33 <<< Powersave governor
-> > > > 0.03    889     440     1.33
-> > > > 0.17    4418    21511   4.31 <<< Schedutil governor
-> > > > 0.12    4101    30153   4.48 <<< 3 CPUs are > pstate 41
-> > > > 0.22    4347    34226   4.75
-> > > > 0.17    4101    43554   4.78
-> > > > 0.29    4300    50565   4.94
-> > > > 0.21    4098    50297   4.76 <<< 5 CPUs are > pstate 41
-> > > > 0.29    4298    50532   4.84
-> > > > 0.20    4101    50126   4.63
-> > > > 0.20    4101    50149   4.62
-> > > > 0.29    4297    50623   4.76
-> > > > 0.20    4101    50203   4.72
-> > > > 0.29    4295    50642   4.78
-> > > > 0.20    4101    50223   4.68
-> > > > 0.29    4292    50597   4.88
-> > > > 0.20    4101    50208   4.73
-> > > > 0.29    4296    50519   4.84
-> > > > 0.20    4101    50167   4.80
-> > > > 0.20    4101    50242   4.76
-> > > > 0.29    4302    50625   4.94
-> > > > 0.20    4101    50233   4.73
-> > > > 0.29    4296    50613   4.78
-> > > > 0.20    4101    50231   4.70
-> > > > 0.29    4292    50802   4.93
-> > > > 1.46    4669    65610   8.36
-> > > > 0.41    4225    80701   5.48
-> > > > 0.33    4101    80219   5.36 <<< 8 CPUs are > ptstate 41
-> > > > 0.34    4098    80313   5.38
-> > > > 0.41    4228    80689   5.56
-> > > > 0.33    4101    80252   5.46
-> > > >
-> > > > And the related MSR reads:
-> > > >
-> > > > 3 CPUs are > pstate 41:
-> > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
-> > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  30 :   8 :   8 :  48 :
-> > > > 48 :  48 :   8 :  30 :  31 :   8 :   8 :   8 :
-> > > >
-> > > > 5 CPUs are > psate 41:
-> > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
-> > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  44 :  30 :  31 :  48 :
-> > > > 48 :  48 :   8 :   8 :   8 :   8 :  48 :   8 :
-> > > >
-> > > > 8 CPUs are > pstate 41:
-> > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
-> > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  45 :  48 :  48 :  48 :
-> > > > 48 :  48 :   8 :  30 :   8 :   8 :  48 :  42 :
-> > > >
-> > > > This issue is independent of the original patch or the suggested modification:
-> >
-> > Actually, the issue threshold is as defined by the greater than condition below.
-> >
-> > > >
-> > > > > diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-> > > > > index f878a4545eee..94018ac0b59b 100644
-> > > > > --- a/drivers/cpufreq/intel_pstate.c
-> > > > > +++ b/drivers/cpufreq/intel_pstate.c
-> > > > > @@ -1980,7 +1980,7 @@ static void intel_pstate_update_perf_ctl(struct
-> > > > > cpudata *cpu)
-> > > > >          * P-states to prevent them from getting back to the high frequency
-> > > > >          * right away after getting out of deep idle.
-> > > > >          */
-> > > > > -       cpuidle_update_retain_tick(pstate > cpu->pstate.max_pstate);
-> >
-> > For the above kernel the threshold is pstate 42.
-> >
-> > > > > +       cpuidle_update_retain_tick(pstate > ((cpu->pstate.max_pstate +
-> > > > > cpu->pstate.min_pstate)/2));
-> >
-> > For the above kernel the threshold is pstate 25.
-> >
-> > > > >         wrmsrl(MSR_IA32_PERF_CTL, pstate_funcs.get_val(cpu, pstate));
-> > > > >  }
-> > > >
-> > > > ... Doug
+Specifically for swiotlb, if the swiotlb buffer is in dma coherent
+memory, the driver could peek the swiotlb buffer, but I have no idea if
+we can provide a remotely sane API for that. The point is the device
+would have peek not via a pointer to the original buffer, but get
+suitable pointer to the bounce buffer, which would be probably be
+considered valid, as long as the mapping is valid. Honestly IMHO quite
+ugly but I see no other way. 
+
+Regards,
+Halil
