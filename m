@@ -2,212 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E654E69B2
-	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 21:13:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C22F94E69C1
+	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 21:23:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239738AbiCXUOa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 16:14:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44288 "EHLO
+        id S1353361AbiCXUZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 16:25:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229908AbiCXUOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 16:14:30 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C489AD137
-        for <stable@vger.kernel.org>; Thu, 24 Mar 2022 13:12:58 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id h19so3820553pfv.1
-        for <stable@vger.kernel.org>; Thu, 24 Mar 2022 13:12:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=l7h/wDvfOXcD4EloF2zDlv6C7TAUYRRmuSt5xPh4yJs=;
-        b=iu9qNWvBlEaZDG6HQ4ufLD2rDzLGx/oD53sdCoMPKVrL/HYl18II3B54wQaKmEppCY
-         aghLR2gOKe9Coz17/kJfdribQPm4TOy+qEukFJNU/8ZMPL8ttx1Fy9GRQg/n5GuqAJY5
-         Dj19QApd2w3kqO9nNhPysrBIu4NuoUh75Lsl4Em3PHRRuxM5l3VfG5C+dQ9rsGVX2AEq
-         1KzmLoYxGIremA5josPANb1tX/6O5PDhctWeAkkWVD+RhKDnTX87sLdC2oPWanIgm47r
-         f3DwXppYiJrORDPh9bGQVmxttuTuL/clFgJFTyJQ/5CZIJ0h6KvnHdqkF/vnSLTW/tzu
-         wYDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=l7h/wDvfOXcD4EloF2zDlv6C7TAUYRRmuSt5xPh4yJs=;
-        b=wOBKeggAo3F1SlAHizkerIw7F31aJIuVHIqrXUy8w9AK1PMghMWB/jXwGTLEU7d45p
-         fxNO5h24TUTyTWWrJcFIjCRfS+DcnMO2fi5HJ7bE+QXbvMHnp3uJn+wdRirmKgF4ENF4
-         wKE9d+NSpu/MBsqnaEZib1z1pydQYC8ieedQYW+UXgA4fovG9NSmf4wEcuZPgNR2KXUP
-         qgpArW8PoIcswvjNyiF+G+wlK0NZsy6pv48IWkzZnsHdDk1kIF6ekcO3RVANEM1fHt5H
-         VOgqTRz5EAcc7l/rJgC6gs04fKklvmYQLYuG4C+6V9XsUGhFUqaFOA38X5m6yb4Cz3AK
-         riVw==
-X-Gm-Message-State: AOAM5336oS0CufhBR8bQ3Kf543TlpAC+O2/bWwZBQrX5iVhfhvP8T2p4
-        jccioVXPVwJC1WTQ3C9mbvOJl+3VdfCtTrRuDxk=
-X-Google-Smtp-Source: ABdhPJxHL/N6aZtnYmui2/Hs334nWs3Ao2bdJ0lnggq/Eq3jGSjfIOrhScaLrXFuluIh2SmckuK5Dg==
-X-Received: by 2002:a05:6a00:1a42:b0:4f7:e158:152e with SMTP id h2-20020a056a001a4200b004f7e158152emr6715000pfv.50.1648152777483;
-        Thu, 24 Mar 2022 13:12:57 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b25-20020a637159000000b00381fda49d15sm3651223pgn.39.2022.03.24.13.12.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Mar 2022 13:12:57 -0700 (PDT)
-Message-ID: <623cd0c9.1c69fb81.b1f3e.ae9b@mx.google.com>
-Date:   Thu, 24 Mar 2022 13:12:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236500AbiCXUZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 16:25:13 -0400
+Received: from mail1.bemta33.messagelabs.com (mail1.bemta33.messagelabs.com [67.219.247.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00655B6E4A;
+        Thu, 24 Mar 2022 13:23:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
+        s=Selector; t=1648153420; i=@motorola.com;
+        bh=EtFQHRKPGWj6kQ7alPkt9Qz1coxOsxfkUKXJIZ9ZO7M=;
+        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+         Content-Type:In-Reply-To;
+        b=Vb3jYeT2TG1naK6CIy1r8x20Upysw1nq+Rg1hFoqqnfWm3uAdEDZSbgMNXb8bXwDX
+         SeTcUzNKmGsPnpzxdAoY8T9yXJEMAFHJqIxTV6b2wz7Kd2Hd+DtwfOCkBGyQletJ9j
+         ZuIvqzOCiIyze4wq0PUZjkUhQ6MNve1l0Q5DgMzevgZEHqw+HGyJylFyBm49A6PP8E
+         Hi+bHGr0bODsCQhty+qgM5qYTKhiASgbBNBQJUX+sAZpkDHLG6y+0IJFeqYGUSMa5W
+         K5do/8ic2uIdc9wtPL1AtPb951FT2UQh7Lt+qVw308vG0DKCvgyUJrGI4VrcKKJLYu
+         v1gnv1xXWnypw==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrDIsWRWlGSWpSXmKPExsWS8eKJqK73ZZs
+  kg/9vZSyOtT1ht1i9+CqTRfPi9WwWnROXsFtc3jWHzWLRslZmix9/+pgtFmx8xOjA4TG7Yyar
+  x6ZVnWwe++euYfd4+mMvs8fnTXIBrFGsmXlJ+RUJrBknnqxnL+hUrvg1s4m9gXGybBcjF4eQw
+  FQmiSkL/jFCOIuYJG6sXM/UxcjBwSKgKnHtW00XIycHm4CaxILXq5hBbBEBC4neRdPB6pkF/j
+  BKPOueCFYvLBAucWOZDEgNr4CyRPPr5WwgtpBAukTz9q9MEHFBiZMzn7CA2MwCWhI3/r0Ea2U
+  WkJZY/o8DJMwpYCXx/t1FtgmMvLOQdMxC0jELoWMBI/MqRuukosz0jJLcxMwcXUMDA11DQxNd
+  M0tdI2MzvcQq3US90mLd1MTiEl0jvcTyYr3U4mK94src5JwUvbzUkk2MwCBPKXJ9s4Px+Yqfe
+  ocYJTmYlER532yySRLiS8pPqcxILM6ILyrNSS0+xCjDwaEkwfvyIlBOsCg1PbUiLTMHGHEwaQ
+  kOHiUR3toTQGne4oLE3OLMdIjUKUZjjkuHruxl5nh6FUgKseTl56VKifMWgEwSACnNKM2DGwR
+  LBJcYZaWEeRkZGBiEeApSi3IzS1DlXzGKczAqCfPuB5nCk5lXArfvFdApTECnPP9pCXJKSSJC
+  SqqBqSjO4Jj9s1+b+S9Kndaev7ZqhsG66RlPqubciPo4uezCR4EHBesZLS1vdDnXb/axcb5q5
+  rRR/WT3t0SP5Wd2PhHrb4vz45j3QTnkmY1U7BvpTRybzpeHXXsuy5a3le+pvPUM5/8F71U9ql
+  gVxU8UPaq/byLMV6UT9O6eSJ181oVGT5PvyQL/8z9MZUyq7+TdNiVD9DX3sXUiW2V+W77p+9Q
+  SmLH/xKTkXdtX2gacWuS/l8nfNizxjtmstT+vaJw4nhbH/EZxe1/rSu79jT/6va2vrBS7pRSb
+  vW53nKzFuW0M3y448fRlMnHkcW1ff0RMvchyqufzLG7hNeoOG80aYivEE/xXiRQcKZZbIvVJi
+  aU4I9FQi7moOBEAmYDqXH8DAAA=
+X-Env-Sender: w36195@motorola.com
+X-Msg-Ref: server-8.tower-715.messagelabs.com!1648153419!14576!1
+X-Originating-IP: [104.232.228.21]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.81.10; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 30146 invoked from network); 24 Mar 2022 20:23:39 -0000
+Received: from unknown (HELO va32lpfpp01.lenovo.com) (104.232.228.21)
+  by server-8.tower-715.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 24 Mar 2022 20:23:39 -0000
+Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by va32lpfpp01.lenovo.com (Postfix) with ESMTPS id 4KPcB30bzqzf6mX;
+        Thu, 24 Mar 2022 20:23:39 +0000 (UTC)
+Received: from p1g3 (unknown [10.45.4.247])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: w36195)
+        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4KPcB25dzGzbsGc;
+        Thu, 24 Mar 2022 20:23:38 +0000 (UTC)
+Date:   Thu, 24 Mar 2022 15:23:29 -0500
+From:   Dan Vacura <w36195@motorola.com>
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bhupesh Sharma <bhupesh.sharma@st.com>,
+        linux-kernel@vger.kernel.org,
+        Paul Elder <paul.elder@ideasonboard.com>
+Subject: Re: [PATCH v2] usb: gadget: uvc: Fix crash when encoding data for
+ usb request
+Message-ID: <YjzTQX3PlkBG2q6U@p1g3>
+References: <20220318164706.22365-1-w36195@motorola.com>
+ <YjyDp4l37XimcoZh@pendragon.ideasonboard.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.187-5-g65e0a54f32b2
-Subject: stable-rc/queue/5.4 baseline: 88 runs,
- 3 regressions (v5.4.187-5-g65e0a54f32b2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YjyDp4l37XimcoZh@pendragon.ideasonboard.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 88 runs, 3 regressions (v5.4.187-5-g65e0a54f3=
-2b2)
+Hi Laurent,
 
-Regressions Summary
--------------------
+Appreciate the feedback.
 
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
+On Thu, Mar 24, 2022 at 04:43:51PM +0200, Laurent Pinchart wrote:
+> Hi Dan,
+> 
+> (CC'ing Paul Elder)
+> 
+> Thank you for the patch.
+> 
+> On Fri, Mar 18, 2022 at 11:47:06AM -0500, Dan Vacura wrote:
+> > During the uvcg_video_pump() process, if an error occurs and
+> > uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
+> > the current marker (queue->buf_used) of the active buffer (no longer
+> > active) is not reset. On the next iteration of uvcg_video_pump() the
+> > stale buf_used count will be used and the logic of min((unsigned
+> > int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
+> > nbytes size, causing an invalid memory access.
+> 
+> When uvcg_queue_cancel() is called, it will empty the queue->irqqueue.
+> The next uvcg_video_pump() iteration should thus get a NULL buffer when
+> calling uvcg_queue_head(), and shouldn't proceed to calling
+> video->encode(). Is the issue that the application queues further
+> buffers after cancellation, which puts a new buffer in the irqqueue ?
 
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
+Yes, that's exactly what's happening. The application has one thread
+that is receiving camera frames and queuing them to the gadget driver,
+the other thread is waiting for empty buffers to dequeue, generated via
+uvcg_queue_next_buffer(), to send back for camera to fill. Is there a
+requirement to serialize this logic? In addition, I can check for the
+state of the buffers that have just been dequeued, but not sure what to
+do if there's a failure.
 
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
+> 
+> I wonder if we need to expand the discussion here to what should be done
+> if an error occurs in uvcg_video_pump(). We currently cancel the queue
+> and drop all queued buffers, but don't prevent more buffers to be
+> queued. Should we force the application to stop streaming in case of
+> error, clean up and restart ? Or are usb_ep_queue() errors expected to
+> happen from time to time, with graceful error recovery a required
+> feature of the gadget driver ?
 
+Good question, this is out of my expertise, but I can comment about what
+I see in our current setup, qcom snapdragon chipsets with the dwc3
+drivers on 5.10-android. Depending on the host I connect to, the -18
+errors in uvc_video_complete() can occur during normal use, sometimes
+several times in a span of a few seconds. I wasn't seeing usb_eq_queue()
+errors. When the error occurs the device application doesn't do anything
+special and continues queuing subsequent buffers. Sometimes there is
+visible corruption in the received data, but the streaming gracefully
+recovers, mpeg or yuv.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.187-5-g65e0a54f32b2/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.187-5-g65e0a54f32b2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      65e0a54f32b222a69f041c9f81160b319c1c7528 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/623c97a4ead837d797772534
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-5=
--g65e0a54f32b2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-5=
--g65e0a54f32b2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/623c97a4ead837d797772=
-535
-        failing since 98 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/623c977c237f34ea1577251c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-5=
--g65e0a54f32b2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-5=
--g65e0a54f32b2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/623c977c237f34ea15772=
-51d
-        failing since 98 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/623c9da1ae5f057eda772517
-
-  Results:     88 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-5=
--g65e0a54f32b2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseli=
-ne-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-5=
--g65e0a54f32b2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseli=
-ne-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/623c9da1ae5f057eda772539
-        failing since 18 days (last pass: v5.4.182-30-g45ccd59cc16f, first =
-fail: v5.4.182-53-ge31c0b084082)
-
-    2022-03-24T16:34:17.234950  /lava-5940905/1/../bin/lava-test-case
-    2022-03-24T16:34:17.243313  <8>[   33.081492] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+> 
+> > [80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
+> > with status -18.
+> > [80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
+> > with status -18.
+> > ...
+> > uvcg_queue_cancel() is called and the queue is cleared out, but the
+> > marker queue->buf_used is not reset.
+> > ...
+> > [80802.262328][ T8682] Unable to handle kernel paging request at virtual
+> > address ffffffc03af9f000
+> > ...
+> > ...
+> > [80802.263138][ T8682] Call trace:
+> > [80802.263146][ T8682]  __memcpy+0x12c/0x180
+> > [80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
+> > [80802.263165][ T8682]  process_one_work+0x2cc/0x568
+> > [80802.263173][ T8682]  worker_thread+0x28c/0x518
+> > [80802.263181][ T8682]  kthread+0x160/0x170
+> > [80802.263188][ T8682]  ret_from_fork+0x10/0x18
+> > [80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
+> > 
+> > Fixes: d692522577c0 ("usb: gadget/uvc: Port UVC webcam gadget to use videobuf2 framework")
+> > Signed-off-by: Dan Vacura <w36195@motorola.com>
+> > 
+> > ---
+> > Changes in v2:
+> > - Add Fixes tag
+> > 
+> >  drivers/usb/gadget/function/uvc_queue.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
+> > index d852ac9e47e7..2cda982f3765 100644
+> > --- a/drivers/usb/gadget/function/uvc_queue.c
+> > +++ b/drivers/usb/gadget/function/uvc_queue.c
+> > @@ -264,6 +264,8 @@ void uvcg_queue_cancel(struct uvc_video_queue *queue, int disconnect)
+> >  		buf->state = UVC_BUF_STATE_ERROR;
+> >  		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
+> >  	}
+> > +	queue->buf_used = 0;
+> > +
+> >  	/* This must be protected by the irqlock spinlock to avoid race
+> >  	 * conditions between uvc_queue_buffer and the disconnection event that
+> >  	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
+> 
+> -- 
+> Regards,
+> 
+> Laurent Pinchart
