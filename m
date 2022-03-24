@@ -2,92 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1394A4E5E5C
-	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 06:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 197584E5E57
+	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 06:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347421AbiCXF7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 01:59:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41378 "EHLO
+        id S1346458AbiCXF7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 01:59:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346218AbiCXF7J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 01:59:09 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B0F9398F;
-        Wed, 23 Mar 2022 22:57:37 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 320C868B05; Thu, 24 Mar 2022 06:57:33 +0100 (CET)
-Date:   Thu, 24 Mar 2022 06:57:32 +0100
-From:   Christoph Hellwig <hch@lst.de>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Toke =?iso-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@toke.dk>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Message-ID: <20220324055732.GB12078@lst.de>
-References: <1812355.tdWV9SEqCh@natalenko.name> <CAHk-=wiwz+Z2MaP44h086jeniG-OpK3c=FywLsCwXV7Crvadrg@mail.gmail.com> <27b5a287-7a33-9a8b-ad6d-04746735fb0c@arm.com> <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com> <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S243937AbiCXF7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 01:59:07 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D30893988
+        for <stable@vger.kernel.org>; Wed, 23 Mar 2022 22:57:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1648101456; x=1679637456;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references;
+  bh=4EkRrEkFTgkOjfmRXgbne2YXQ+qZ1rLI365rc7YDlRM=;
+  b=V/zuy9QxoMI9c0AJYsq1BMcu0tyVRw1l/6Sn2l9P2QUjTrgIoK54/o+v
+   OdSZgTeCvQFXmWcCE+++HLNxNkeDhtJZNkhcArI4cxA6tqLvPJ/fgGJm/
+   ARy9OuU2P8k3U6hNCuJ+Mll+8kGQLLoPgSXa24g5Gn+1B8n6QMfGW45Tc
+   8xIhfO8KOs5V7UP3PddQxS7xJ8+RQcG+Ne2IUKtEsB4rnEMHpaklUQHhm
+   OzUDs9mdZdjAdzCh7ncaQ3qNuELPrXp+pW+zrB4LfrNdoGeUNC0yXGFh9
+   a8SumTUea6e4Uqp1yVFWPuTJnYK54yKkMoYDOqRQ1fWkSRBtYJD6RAyUN
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10295"; a="258481643"
+X-IronPort-AV: E=Sophos;i="5.90,206,1643702400"; 
+   d="scan'208";a="258481643"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2022 22:57:35 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,206,1643702400"; 
+   d="scan'208";a="552750772"
+Received: from shawnle1-build-machine.itwn.intel.com ([10.5.253.78])
+  by fmsmga007.fm.intel.com with ESMTP; 23 Mar 2022 22:57:34 -0700
+From:   Lee Shawn C <shawn.c.lee@intel.com>
+To:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org
+Cc:     Cooper Chiou <cooper.chiou@intel.com>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@intel.com>,
+        Shawn C Lee <shawn.c.lee@intel.com>
+Subject: [v3] drm/edid: check basic audio support on CEA extension block
+Date:   Thu, 24 Mar 2022 14:12:18 +0800
+Message-Id: <20220324061218.32739-1-shawn.c.lee@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20220321044330.27723-1-cooper.chiou@intel.com>
+References: <20220321044330.27723-1-cooper.chiou@intel.com>
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 23, 2022 at 08:54:08PM +0000, Robin Murphy wrote:
-> I'll admit I still never quite grasped the reason for also adding the 
-> override to swiotlb_sync_single_for_device() in aa6f8dcbab47, but I think 
-> by that point we were increasingly tired and confused and starting to 
-> second-guess ourselves (well, I was, at least). I don't think it's wrong 
-> per se, but as I said I do think it can bite anyone who's been doing 
-> dma_sync_*() wrong but getting away with it until now. If ddbd89deb7d3 
-> alone turns out to work OK then I'd be inclined to try a partial revert of 
-> just that one hunk.
+From: Cooper Chiou <cooper.chiou@intel.com>
 
-Agreed.  Let's try that first.
+Tag code stored in bit7:5 for CTA block byte[3] is not the same as
+CEA extension block definition. Only check CEA block has
+basic audio support.
 
-Oleksandr, can you try the patch below:
+v3: update commit message.
 
+Cc: stable@vger.kernel.org
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Shawn C Lee <shawn.c.lee@intel.com>
+Cc: intel-gfx <intel-gfx@lists.freedesktop.org>
+Signed-off-by: Cooper Chiou <cooper.chiou@intel.com>
+Signed-off-by: Lee Shawn C <shawn.c.lee@intel.com>
+Fixes: e28ad544f462 ("drm/edid: parse CEA blocks embedded in DisplayID")
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+---
+ drivers/gpu/drm/drm_edid.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 6db1c475ec827..6c350555e5a1c 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -701,13 +701,10 @@ void swiotlb_tbl_unmap_single(struct device *dev, phys_addr_t tlb_addr,
- void swiotlb_sync_single_for_device(struct device *dev, phys_addr_t tlb_addr,
- 		size_t size, enum dma_data_direction dir)
- {
--	/*
--	 * Unconditional bounce is necessary to avoid corruption on
--	 * sync_*_for_cpu or dma_ummap_* when the device didn't overwrite
--	 * the whole lengt of the bounce buffer.
--	 */
--	swiotlb_bounce(dev, tlb_addr, size, DMA_TO_DEVICE);
--	BUG_ON(!valid_dma_direction(dir));
-+	if (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL)
-+		swiotlb_bounce(dev, tlb_addr, size, DMA_TO_DEVICE);
-+	else
-+		BUG_ON(dir != DMA_FROM_DEVICE);
- }
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index 561f53831e29..f07af6786cec 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -4859,7 +4859,8 @@ bool drm_detect_monitor_audio(struct edid *edid)
+ 	if (!edid_ext)
+ 		goto end;
  
- void swiotlb_sync_single_for_cpu(struct device *dev, phys_addr_t tlb_addr,
+-	has_audio = ((edid_ext[3] & EDID_BASIC_AUDIO) != 0);
++	has_audio = (edid_ext[0] == CEA_EXT &&
++		    (edid_ext[3] & EDID_BASIC_AUDIO) != 0);
+ 
+ 	if (has_audio) {
+ 		DRM_DEBUG_KMS("Monitor has basic audio support\n");
+-- 
+2.17.1
+
