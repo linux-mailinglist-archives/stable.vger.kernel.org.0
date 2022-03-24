@@ -2,67 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3794E6A22
-	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 22:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D114B4E6A43
+	for <lists+stable@lfdr.de>; Thu, 24 Mar 2022 22:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353076AbiCXVQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 17:16:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
+        id S1348310AbiCXVep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 17:34:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349749AbiCXVQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 17:16:04 -0400
-X-Greylist: delayed 24396 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 24 Mar 2022 14:14:30 PDT
-Received: from mail.toke.dk (mail.toke.dk [IPv6:2a0c:4d80:42:2001::664])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 125CF2898C;
-        Thu, 24 Mar 2022 14:14:29 -0700 (PDT)
-From:   Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=toke.dk; s=20161023;
-        t=1648156468; bh=10YpchtIHtcZ8NSl6ZT7uwLuFlfFgJXa9Oolkv8NtQg=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=bgzPaBmGHN+bnivn53/b7ZIz9/UwYFmY03s5yT9g1LzfZvAJ3uIC7ce11QS/c9gDk
-         R+EyTlbehDyeBvELCV6f+pU+CmP91zr7lx482udUYxg9jrlR/ovTm9K8oIjoB/rEha
-         koK3I9RsZ9nIP/hbajSqIVn+Bk0NpwJEeSXvuQ3T1G3hO5g+mSdwUwK93gKKp92h+F
-         OmmTJoRUd4/LgjWY01urisinyN5elIPMT5iEkPrjHSSPHnq9iwLcPxdf+NOnHNHk0j
-         L5ovl1Ohbmz8Q5MEpZ3NdLlM2L2Qx85IIHFm9o24PgoAXbuYmLr7yHvHkB7jVoVtj+
-         eFDzUyYMP1/pw==
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-In-Reply-To: <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
-References: <1812355.tdWV9SEqCh@natalenko.name>
- <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de>
- <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
- <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
-Date:   Thu, 24 Mar 2022 22:14:28 +0100
-X-Clacks-Overhead: GNU Terry Pratchett
-Message-ID: <87r16r834b.fsf@toke.dk>
+        with ESMTP id S1354166AbiCXVem (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 17:34:42 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 367A622283;
+        Thu, 24 Mar 2022 14:33:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=ZNh9mUSD119F1hcQ1c9te8DtDTYrhgO4FD2R2alLdsw=; b=cR6/luJzlOlQmjZ0FsCcz9k0Wo
+        b62ukwJP90JJkQSM9G8IurwPFn8pc24yG3sZtdSzo08Eg8W713GSvolU4181PYKtopFDvIyoYBf09
+        sVTlKWo2SfNYh1V3n6XDC1ha1NouZGO2Fg3Hfu9Pzd+7Ycm/bMk7tX0ffpkptJNU4aDGmbVEWYvBs
+        E0vdswIIND5t50Q5THqAYsLbEqwhnQUFVBvx4aGzlAl2wMiLRHyj6xa+DefOAV8b3HEsRV4mBcqhp
+        KbU38u45kiCcJH5yoXtL3BPn4oB54svqYzJEHGKRqaTTn2lNEcpSayYt2W5WpwbaBIbaHxDENNwbH
+        V2ngWzXg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nXV4i-00DlvS-Cw; Thu, 24 Mar 2022 21:32:56 +0000
+Date:   Thu, 24 Mar 2022 21:32:56 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Axel Rasmussen <axelrasmussen@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@kernel.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] mm/secretmem: fix panic when growing a memfd_secret
+Message-ID: <YjzjiDFBgigPqEO9@casper.infradead.org>
+References: <20220324210909.1843814-1-axelrasmussen@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220324210909.1843814-1-axelrasmussen@google.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,53 +49,10 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Linus Torvalds <torvalds@linux-foundation.org> writes:
+On Thu, Mar 24, 2022 at 02:09:09PM -0700, Axel Rasmussen wrote:
+> This patch avoids the panic by implementing a custom setattr for
+> memfd_secret, which detects resizes specifically (setting the size for
+> the first time works just fine, since there are no existing pages to try
+> to zero), and rejects them as not supported (ENOTSUP).
 
-> On Thu, Mar 24, 2022 at 10:07 AM Toke H=C3=B8iland-J=C3=B8rgensen <toke@t=
-oke.dk> wrote:
->>
->> Right, but is that sync_for_device call really needed?
->
-> Well, imagine that you have a non-cache-coherent DMA (not bounce
-> buffers - just bad hardware)...
->
-> So the driver first does that dma_sync_single_for_cpu() for the CPU
-> see the current state (for the non-cache-coherent case it would just
-> invalidate caches).
->
-> The driver then examines the command buffer state, sees that it's
-> still in progress, and does that return -EINPROGRESS.
->
-> It's actually very natural in that situation to flush the caches from
-> the CPU side again. And so dma_sync_single_for_device() is a fairly
-> reasonable thing to do in that situation.
->
-> But it doesn't seem *required*, no. The CPU caches only have a copy of
-> the data in them, no writeback needed (and writeback wouldn't work
-> since DMA from the device may be in progress).
->
-> So I don't think the dma_sync_single_for_device() is *wrong* per se,
-> because the CPU didn't actually do any modifications.
->
-> But yes, I think it's unnecessary - because any later CPU accesses
-> would need that dma_sync_single_for_cpu() anyway, which should
-> invalidate any stale caches.
-
-OK, the above was basically how I understood it. Thank you for
-confirming!
-
-> And it clearly doesn't work in a bounce-buffer situation, but honestly
-> I don't think a "CPU modified buffers concurrently with DMA" can
-> *ever* work in that situation, so I think it's wrong for a bounce
-> buffer model to ever do anything in the dma_sync_single_for_device()
-> situation.
-
-Right.
-
-> Does removing that dma_sync_single_for_device() actually fix the
-> problem for the ath driver?
-
-I am hoping Oleksandr can help answer that since my own ath9k hardware
-is currently on strike :(
-
--Toke
+Isn't ENOTTY the normal return value for this?  Or even ENOSYS?
