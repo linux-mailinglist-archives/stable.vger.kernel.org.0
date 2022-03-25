@@ -2,111 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E824E6E8F
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 08:12:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1D14E6EE7
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 08:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347249AbiCYHOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 03:14:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34368 "EHLO
+        id S1347359AbiCYHcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 03:32:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238896AbiCYHOQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 03:14:16 -0400
-X-Greylist: delayed 74847 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 25 Mar 2022 00:12:42 PDT
-Received: from vulcan.natalenko.name (vulcan.natalenko.name [104.207.131.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 381D9BD898;
-        Fri, 25 Mar 2022 00:12:42 -0700 (PDT)
-Received: from spock.localnet (unknown [83.148.33.151])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by vulcan.natalenko.name (Postfix) with ESMTPSA id 0402BE4C661;
-        Fri, 25 Mar 2022 08:12:38 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=natalenko.name;
-        s=dkim-20170712; t=1648192359;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gcXLBP3mIfbGljUpsP//FsQOHOTfI0szjq2ialy/sIU=;
-        b=nTgcEEtgRJjs1kBrwhIgdlq/eHBdXP950twIufQRtgGI9t1yPmzXlHuARe5Mm4Ku1Wl+gj
-        J1qtm2C0WtQDcQ1vPPoPlPSxgR6hQ7w2kxF8mGOtYKwbxIJ1skLC/zf5LPO3fyjV3xW742
-        nilK7AS68nMA3cP9Tzef//M9aMfeDRo=
-From:   Oleksandr Natalenko <oleksandr@natalenko.name>
-To:     Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Toke =?ISO-8859-1?Q?H=F8iland=2DJ=F8rgensen?= <toke@toke.dk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break ath9k-based AP
-Date:   Fri, 25 Mar 2022 08:12:37 +0100
-Message-ID: <4699073.GXAFRqVoOG@natalenko.name>
-In-Reply-To: <871qyr9t4e.fsf@toke.dk>
-References: <1812355.tdWV9SEqCh@natalenko.name> <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
+        with ESMTP id S1350106AbiCYHcJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 03:32:09 -0400
+Received: from out28-197.mail.aliyun.com (out28-197.mail.aliyun.com [115.124.28.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F228C748A;
+        Fri, 25 Mar 2022 00:30:33 -0700 (PDT)
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.07642309|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_alarm|0.00954498-0.000797976-0.989657;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047192;MF=kant@allwinnertech.com;NM=1;PH=DS;RN=11;RT=11;SR=0;TI=SMTPD_---.NCDOraZ_1648193429;
+Received: from sunxibot.allwinnertech.com(mailfrom:kant@allwinnertech.com fp:SMTPD_---.NCDOraZ_1648193429)
+          by smtp.aliyun-inc.com(33.37.73.205);
+          Fri, 25 Mar 2022 15:30:30 +0800
+From:   Kant Fan <kant@allwinnertech.com>
+To:     rafael@kernel.org, daniel.lezcano@linaro.org, lukasz.luba@arm.com,
+        ionela.voinescu@arm.com
+Cc:     amitk@kernel.org, rui.zhang@intel.com, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        allwinner-opensource-support@allwinnertech.com,
+        Kant Fan <kant@allwinnertech.com>, stable@vger.kernel.org
+Subject: [PATCH v2] thermal: devfreq_cooling: use local ops instead of global ops
+Date:   Fri, 25 Mar 2022 15:30:30 +0800
+Message-Id: <20220325073030.91919-1-kant@allwinnertech.com>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello.
+Fix access illegal address problem in following condition:
+There are muti devfreq cooling devices in system, some of them has
+em model but other does not, energy model ops such as state2power will
+append to global devfreq_cooling_ops when the cooling device with
+em model register. It makes the cooling device without em model
+also use devfreq_cooling_ops after appending when register later by
+of_devfreq_cooling_register_power() or of_devfreq_cooling_register().
 
-On =C4=8Dtvrtek 24. b=C5=99ezna 2022 18:07:29 CET Toke H=C3=B8iland-J=C3=B8=
-rgensen wrote:
-> Right, but is that sync_for_device call really needed? AFAICT, that
-> ath9k_hw_process_rxdesc_edma() invocation doesn't actually modify any of
-> the data when it returns EINPROGRESS, so could we just skip it? Like
-> the patch below? Or am I misunderstanding the semantics here?
->=20
-> -Toke
->=20
->=20
-> diff --git a/drivers/net/wireless/ath/ath9k/recv.c b/drivers/net/wireless=
-/ath/ath9k/recv.c
-> index 0c0624a3b40d..19244d4c0ada 100644
-> --- a/drivers/net/wireless/ath/ath9k/recv.c
-> +++ b/drivers/net/wireless/ath/ath9k/recv.c
-> @@ -647,12 +647,8 @@ static bool ath_edma_get_buffers(struct ath_softc *s=
-c,
->                                 common->rx_bufsize, DMA_FROM_DEVICE);
-> =20
->         ret =3D ath9k_hw_process_rxdesc_edma(ah, rs, skb->data);
-> -       if (ret =3D=3D -EINPROGRESS) {
-> -               /*let device gain the buffer again*/
-> -               dma_sync_single_for_device(sc->dev, bf->bf_buf_addr,
-> -                               common->rx_bufsize, DMA_FROM_DEVICE);
-> +       if (ret =3D=3D -EINPROGRESS)
->                 return false;
-> -       }
-> =20
->         __skb_unlink(skb, &rx_edma->rx_fifo);
->         if (ret =3D=3D -EINVAL) {
+IPA governor regards the cooling devices without em model as a power actor
+because they also have energy model ops, and will access illegal address
+at dfc->em_pd when execute cdev->ops->get_requested_power,
+cdev->ops->state2power or cdev->ops->power2state.
 
-With this patch and both ddbd89deb7d3+aa6f8dcbab47 in place the AP works fo=
-r me.
+Fixes: 615510fe13bd2 ("thermal: devfreq_cooling: remove old power model and use EM")
+Cc: stable@vger.kernel.org # 5.13+
+Signed-off-by: Kant Fan <kant@allwinnertech.com>
+---
+ drivers/thermal/devfreq_cooling.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-Thanks.
-
-=2D-=20
-Oleksandr Natalenko (post-factum)
-
+diff --git a/drivers/thermal/devfreq_cooling.c b/drivers/thermal/devfreq_cooling.c
+index 4310cb342a9f..d38a80adec73 100644
+--- a/drivers/thermal/devfreq_cooling.c
++++ b/drivers/thermal/devfreq_cooling.c
+@@ -358,21 +358,28 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
+ 	struct thermal_cooling_device *cdev;
+ 	struct device *dev = df->dev.parent;
+ 	struct devfreq_cooling_device *dfc;
++	struct thermal_cooling_device_ops *ops;
+ 	char *name;
+ 	int err, num_opps;
+ 
+-	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
+-	if (!dfc)
++	ops = kmemdup(&devfreq_cooling_ops, sizeof(*ops), GFP_KERNEL);
++	if (!ops)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
++	if (!dfc) {
++		err = -ENOMEM;
++		goto free_ops;
++	}
++
+ 	dfc->devfreq = df;
+ 
+ 	dfc->em_pd = em_pd_get(dev);
+ 	if (dfc->em_pd) {
+-		devfreq_cooling_ops.get_requested_power =
++		ops->get_requested_power =
+ 			devfreq_cooling_get_requested_power;
+-		devfreq_cooling_ops.state2power = devfreq_cooling_state2power;
+-		devfreq_cooling_ops.power2state = devfreq_cooling_power2state;
++		ops->state2power = devfreq_cooling_state2power;
++		ops->power2state = devfreq_cooling_power2state;
+ 
+ 		dfc->power_ops = dfc_power;
+ 
+@@ -407,8 +414,7 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
+ 	if (!name)
+ 		goto remove_qos_req;
+ 
+-	cdev = thermal_of_cooling_device_register(np, name, dfc,
+-						  &devfreq_cooling_ops);
++	cdev = thermal_of_cooling_device_register(np, name, dfc, ops);
+ 	kfree(name);
+ 
+ 	if (IS_ERR(cdev)) {
+@@ -429,6 +435,8 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
+ 	kfree(dfc->freq_table);
+ free_dfc:
+ 	kfree(dfc);
++free_ops:
++	kfree(ops);
+ 
+ 	return ERR_PTR(err);
+ }
+@@ -510,11 +518,13 @@ EXPORT_SYMBOL_GPL(devfreq_cooling_em_register);
+ void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
+ {
+ 	struct devfreq_cooling_device *dfc;
++	const struct thermal_cooling_device_ops *ops;
+ 	struct device *dev;
+ 
+ 	if (IS_ERR_OR_NULL(cdev))
+ 		return;
+ 
++	ops = cdev->ops;
+ 	dfc = cdev->devdata;
+ 	dev = dfc->devfreq->dev.parent;
+ 
+@@ -525,5 +535,6 @@ void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
+ 
+ 	kfree(dfc->freq_table);
+ 	kfree(dfc);
++	kfree(ops);
+ }
+ EXPORT_SYMBOL_GPL(devfreq_cooling_unregister);
+-- 
+2.29.0
 
