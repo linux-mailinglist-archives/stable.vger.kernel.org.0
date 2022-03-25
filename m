@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4914E773E
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B09264E773B
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376261AbiCYP1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57776 "EHLO
+        id S1352532AbiCYP1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377684AbiCYPY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888B7E9964;
-        Fri, 25 Mar 2022 08:18:36 -0700 (PDT)
+        with ESMTP id S1377465AbiCYPYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D63DEA3;
+        Fri, 25 Mar 2022 08:18:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C12FF60EFC;
-        Fri, 25 Mar 2022 15:18:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B51C340E9;
-        Fri, 25 Mar 2022 15:18:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE226B827DC;
+        Fri, 25 Mar 2022 15:18:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07766C340EE;
+        Fri, 25 Mar 2022 15:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221515;
-        bh=vhOlKZdfZ1DYSVcN7XNfO+ydxG85P1ITI+WC+0GeGb0=;
+        s=korg; t=1648221481;
+        bh=dlt1A1biLcVDgMxTU/Y7y85mBaY6WRz6rpXrh1D3VB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVjUUPVT/bechWlyIo+Oygt0BuJqDV395B5XX5j6Rou8uXILoFqQEC6S+SGAtpCI5
-         yOV7nIQ+ZffSWrttI68xe2+2OoSG6PPGYo1WGC1ia0K3X6ydj7qid/pl4jUhwAEDG2
-         z5mBPpsRbiGLWbOBItkfILBeQZRdb0cZhNfm0XiM=
+        b=0hhstwjCKrg7Lzh69/uqFyJqudTRbJD0eu8W+Cm6XAvzZ0K4WdS9zQeWxRlo2eyJj
+         4sl6xsJ0M0+gXxJ6xe4L8MB4MGxr/nOaKnx8gpUM6L/SGFP/O4DykFfFr6MMvcR42s
+         3aasYRC+ArXYbvA18EzpzW0TX+B2mICFDVqZR2oA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 13/39] ALSA: pcm: Fix races among concurrent prepare and hw_params/hw_free calls
-Date:   Fri, 25 Mar 2022 16:14:28 +0100
-Message-Id: <20220325150420.623878462@linuxfoundation.org>
+Subject: [PATCH 5.16 19/37] ALSA: cmipci: Restore aux vol on suspend/resume
+Date:   Fri, 25 Mar 2022 16:14:29 +0100
+Message-Id: <20220325150420.595406186@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,97 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-commit 3c3201f8c7bb77eb53b08a3ca8d9a4ddc500b4c0 upstream.
+commit c14231cc04337c2c2a937db084af342ce704dbde upstream.
 
-Like the previous fixes to hw_params and hw_free ioctl races, we need
-to paper over the concurrent prepare ioctl calls against hw_params and
-hw_free, too.
+Save and restore CM_REG_AUX_VOL instead of register 0x24 twice on
+suspend/resume.
 
-This patch implements the locking with the existing
-runtime->buffer_mutex for prepare ioctls.  Unlike the previous case
-for snd_pcm_hw_hw_params() and snd_pcm_hw_free(), snd_pcm_prepare() is
-performed to the linked streams, hence the lock can't be applied
-simply on the top.  For tracking the lock in each linked substream, we
-modify snd_pcm_action_group() slightly and apply the buffer_mutex for
-the case stream_lock=false (formerly there was no lock applied)
-there.
+Tested on CMI8738LX.
 
+Fixes: cb60e5f5b2b1 ("[ALSA] cmipci - Add PM support")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
 Cc: <stable@vger.kernel.org>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322170720.3529-4-tiwai@suse.de
+Link: https://lore.kernel.org/r/DBAPR04MB7366CB3EA9C8521C35C56E8B920E9@DBAPR04MB7366.eurprd04.prod.outlook.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_native.c |   32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ sound/pci/cmipci.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -1190,15 +1190,17 @@ struct action_ops {
- static int snd_pcm_action_group(const struct action_ops *ops,
- 				struct snd_pcm_substream *substream,
- 				snd_pcm_state_t state,
--				bool do_lock)
-+				bool stream_lock)
- {
- 	struct snd_pcm_substream *s = NULL;
- 	struct snd_pcm_substream *s1;
- 	int res = 0, depth = 1;
+--- a/sound/pci/cmipci.c
++++ b/sound/pci/cmipci.c
+@@ -298,7 +298,6 @@ MODULE_PARM_DESC(joystick_port, "Joystic
+ #define CM_MICGAINZ		0x01	/* mic boost */
+ #define CM_MICGAINZ_SHIFT	0
  
- 	snd_pcm_group_for_each_entry(s, substream) {
--		if (do_lock && s != substream) {
--			if (s->pcm->nonatomic)
-+		if (s != substream) {
-+			if (!stream_lock)
-+				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
-+			else if (s->pcm->nonatomic)
- 				mutex_lock_nested(&s->self_group.mutex, depth);
- 			else
- 				spin_lock_nested(&s->self_group.lock, depth);
-@@ -1226,18 +1228,18 @@ static int snd_pcm_action_group(const st
- 		ops->post_action(s, state);
- 	}
-  _unlock:
--	if (do_lock) {
--		/* unlock streams */
--		snd_pcm_group_for_each_entry(s1, substream) {
--			if (s1 != substream) {
--				if (s1->pcm->nonatomic)
--					mutex_unlock(&s1->self_group.mutex);
--				else
--					spin_unlock(&s1->self_group.lock);
--			}
--			if (s1 == s)	/* end */
--				break;
-+	/* unlock streams */
-+	snd_pcm_group_for_each_entry(s1, substream) {
-+		if (s1 != substream) {
-+			if (!stream_lock)
-+				mutex_unlock(&s1->runtime->buffer_mutex);
-+			else if (s1->pcm->nonatomic)
-+				mutex_unlock(&s1->self_group.mutex);
-+			else
-+				spin_unlock(&s1->self_group.lock);
- 		}
-+		if (s1 == s)	/* end */
-+			break;
- 	}
- 	return res;
- }
-@@ -1367,10 +1369,12 @@ static int snd_pcm_action_nonatomic(cons
- 
- 	/* Guarantee the group members won't change during non-atomic action */
- 	down_read(&snd_pcm_link_rwsem);
-+	mutex_lock(&substream->runtime->buffer_mutex);
- 	if (snd_pcm_stream_linked(substream))
- 		res = snd_pcm_action_group(ops, substream, state, false);
- 	else
- 		res = snd_pcm_action_single(ops, substream, state);
-+	mutex_unlock(&substream->runtime->buffer_mutex);
- 	up_read(&snd_pcm_link_rwsem);
- 	return res;
- }
+-#define CM_REG_MIXER3		0x24
+ #define CM_REG_AUX_VOL		0x26
+ #define CM_VAUXL_MASK		0xf0
+ #define CM_VAUXR_MASK		0x0f
+@@ -3265,7 +3264,7 @@ static int snd_cmipci_probe(struct pci_d
+  */
+ static const unsigned char saved_regs[] = {
+ 	CM_REG_FUNCTRL1, CM_REG_CHFORMAT, CM_REG_LEGACY_CTRL, CM_REG_MISC_CTRL,
+-	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_MIXER3, CM_REG_PLL,
++	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_AUX_VOL, CM_REG_PLL,
+ 	CM_REG_CH0_FRAME1, CM_REG_CH0_FRAME2,
+ 	CM_REG_CH1_FRAME1, CM_REG_CH1_FRAME2, CM_REG_EXT_MISC,
+ 	CM_REG_INT_STATUS, CM_REG_INT_HLDCLR, CM_REG_FUNCTRL0,
 
 
