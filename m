@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B314E76E6
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:19:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A274E7721
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:25:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376363AbiCYPVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:21:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45118 "EHLO
+        id S1376539AbiCYP1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376375AbiCYPUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:20:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4FBE29DD;
-        Fri, 25 Mar 2022 08:15:40 -0700 (PDT)
+        with ESMTP id S1376983AbiCYPXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABD4AC05A;
+        Fri, 25 Mar 2022 08:17:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0270BB827B7;
-        Fri, 25 Mar 2022 15:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4799AC340E9;
-        Fri, 25 Mar 2022 15:15:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BB9360C7E;
+        Fri, 25 Mar 2022 15:17:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DE72C340E9;
+        Fri, 25 Mar 2022 15:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221304;
-        bh=kicBNNucxakRS3E2qZE8FCkVQHqIfvzJ9ucZuCzm7a4=;
+        s=korg; t=1648221429;
+        bh=sBRSy/K4NYbEkSC5pIhpeUNtZ96qOrHsEIsb0xOoY5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aiCn2h3ApH1+ov7YeeRJyWkyl9PfqZKqp6+f2yJ9ozfIJotWI7Bo6BZDhuBLA7I9v
-         4PvJ1s5SVecOswO0l5DYbBL+Mr8BimrgckWbQpDk/NNnN7lVLZM4jHT4SKGabbALvC
-         G3tquEww/1jrYsRFah7kgE+g/KSYScl1lL0sFGoM=
+        b=TnPGXRWFWxr6x+FgtwYNAprVQXbk5HJDwv9nLkB6CMpP870Pe7K1C1oxNQcAPo7Ww
+         O2vhDzeTMhW9ZeCHRnVQvO/VndjqNeeauzY21g1UOXNH8P2tuw9m5Ofmc+OH9gdoLb
+         nFyuESVoSOLYkSRBbhvgAEiV3kFoZMvfJAnv9jGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 15/37] ALSA: pcm: Fix races among concurrent prepare and hw_params/hw_free calls
-Date:   Fri, 25 Mar 2022 16:14:16 +0100
-Message-Id: <20220325150420.370357513@linuxfoundation.org>
+Subject: [PATCH 5.16 07/37] ALSA: hda/realtek: Add quirk for Clevo NP50PNJ
+Date:   Fri, 25 Mar 2022 16:14:17 +0100
+Message-Id: <20220325150420.259119064@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
-References: <20220325150419.931802116@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,97 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit 3c3201f8c7bb77eb53b08a3ca8d9a4ddc500b4c0 upstream.
+commit 9cb727506704b5323998047789fc871e64a6aa14 upstream.
 
-Like the previous fixes to hw_params and hw_free ioctl races, we need
-to paper over the concurrent prepare ioctl calls against hw_params and
-hw_free, too.
+Fixes headset detection on Clevo NP50PNJ.
 
-This patch implements the locking with the existing
-runtime->buffer_mutex for prepare ioctls.  Unlike the previous case
-for snd_pcm_hw_hw_params() and snd_pcm_hw_free(), snd_pcm_prepare() is
-performed to the linked streams, hence the lock can't be applied
-simply on the top.  For tracking the lock in each linked substream, we
-modify snd_pcm_action_group() slightly and apply the buffer_mutex for
-the case stream_lock=false (formerly there was no lock applied)
-there.
-
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
 Cc: <stable@vger.kernel.org>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322170720.3529-4-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220307193229.5141-1-tcrawford@system76.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_native.c |   32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -1177,15 +1177,17 @@ struct action_ops {
- static int snd_pcm_action_group(const struct action_ops *ops,
- 				struct snd_pcm_substream *substream,
- 				snd_pcm_state_t state,
--				bool do_lock)
-+				bool stream_lock)
- {
- 	struct snd_pcm_substream *s = NULL;
- 	struct snd_pcm_substream *s1;
- 	int res = 0, depth = 1;
- 
- 	snd_pcm_group_for_each_entry(s, substream) {
--		if (do_lock && s != substream) {
--			if (s->pcm->nonatomic)
-+		if (s != substream) {
-+			if (!stream_lock)
-+				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
-+			else if (s->pcm->nonatomic)
- 				mutex_lock_nested(&s->self_group.mutex, depth);
- 			else
- 				spin_lock_nested(&s->self_group.lock, depth);
-@@ -1213,18 +1215,18 @@ static int snd_pcm_action_group(const st
- 		ops->post_action(s, state);
- 	}
-  _unlock:
--	if (do_lock) {
--		/* unlock streams */
--		snd_pcm_group_for_each_entry(s1, substream) {
--			if (s1 != substream) {
--				if (s1->pcm->nonatomic)
--					mutex_unlock(&s1->self_group.mutex);
--				else
--					spin_unlock(&s1->self_group.lock);
--			}
--			if (s1 == s)	/* end */
--				break;
-+	/* unlock streams */
-+	snd_pcm_group_for_each_entry(s1, substream) {
-+		if (s1 != substream) {
-+			if (!stream_lock)
-+				mutex_unlock(&s1->runtime->buffer_mutex);
-+			else if (s1->pcm->nonatomic)
-+				mutex_unlock(&s1->self_group.mutex);
-+			else
-+				spin_unlock(&s1->self_group.lock);
- 		}
-+		if (s1 == s)	/* end */
-+			break;
- 	}
- 	return res;
- }
-@@ -1354,10 +1356,12 @@ static int snd_pcm_action_nonatomic(cons
- 
- 	/* Guarantee the group members won't change during non-atomic action */
- 	down_read(&snd_pcm_link_rwsem);
-+	mutex_lock(&substream->runtime->buffer_mutex);
- 	if (snd_pcm_stream_linked(substream))
- 		res = snd_pcm_action_group(ops, substream, state, false);
- 	else
- 		res = snd_pcm_action_single(ops, substream, state);
-+	mutex_unlock(&substream->runtime->buffer_mutex);
- 	up_read(&snd_pcm_link_rwsem);
- 	return res;
- }
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8949,6 +8949,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x8561, "Clevo NH[57][0-9][ER][ACDH]Q", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[57][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0x866d, "Clevo NP5[05]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x867d, "Clevo NP7[01]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
 
 
