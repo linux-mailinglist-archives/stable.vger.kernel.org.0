@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B5C4E762E
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:10:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2BD14E7600
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376298AbiCYPLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44604 "EHLO
+        id S235967AbiCYPJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:09:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359656AbiCYPLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:11:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9076459A5E;
-        Fri, 25 Mar 2022 08:08:33 -0700 (PDT)
+        with ESMTP id S1359852AbiCYPIJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7073CDA09A;
+        Fri, 25 Mar 2022 08:06:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 880A1B828FA;
-        Fri, 25 Mar 2022 15:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0776C340E9;
-        Fri, 25 Mar 2022 15:08:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CD3461BF0;
+        Fri, 25 Mar 2022 15:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CC9C340EE;
+        Fri, 25 Mar 2022 15:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220909;
-        bh=z07Ym30vPFIfvTmZOVqlKvJeB/zNVnz8MLAQPPHI1FQ=;
+        s=korg; t=1648220792;
+        bh=akiRqBurFT5ZUVhYkdatTtHE8iL98ks0UPdwOlymuSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2cqJ9Om36UtjGKNpg5OEFDSeVDh6Jv5Ey3X7SyxggaPZQ9S49fhPxbn0c+Ju1I4F
-         eq2RgM3KWnAk2NX0wIwSzzG9c/nUedXk8kqf3M94TQlgBBgW+O1JjnQPc45XIqaB7B
-         VYsv2rASO86ufixMdDI1WuXBJBDFhoSgZurbxEM4=
+        b=n4dXfO9QzNUNHeiUoE3EjNwUd/BX+h4FC8NJNGWcYJgn+ZkPPb/u/jXMnhGVRLxjx
+         qRYznDvwZoYJQ8mkA/hlCtpD273Ma9dvYXCfrct2/Xr/ePhpNQxIjwY8IrDIxTkpcW
+         2b1VxLbnb6LNc7uG6cCSV4i8U9NmA03ugouw/1x4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuansheng Liu <chuansheng.liu@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 08/29] thermal: int340x: fix memory leak in int3400_notify()
-Date:   Fri, 25 Mar 2022 16:04:48 +0100
-Message-Id: <20220325150418.827001636@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 11/20] ALSA: cmipci: Restore aux vol on suspend/resume
+Date:   Fri, 25 Mar 2022 16:04:49 +0100
+Message-Id: <20220325150417.336233647@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
-References: <20220325150418.585286754@linuxfoundation.org>
+In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
+References: <20220325150417.010265747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuansheng Liu <chuansheng.liu@intel.com>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-commit 3abea10e6a8f0e7804ed4c124bea2d15aca977c8 upstream.
+commit c14231cc04337c2c2a937db084af342ce704dbde upstream.
 
-It is easy to hit the below memory leaks in my TigerLake platform:
+Save and restore CM_REG_AUX_VOL instead of register 0x24 twice on
+suspend/resume.
 
-unreferenced object 0xffff927c8b91dbc0 (size 32):
-  comm "kworker/0:2", pid 112, jiffies 4294893323 (age 83.604s)
-  hex dump (first 32 bytes):
-    4e 41 4d 45 3d 49 4e 54 33 34 30 30 20 54 68 65  NAME=INT3400 The
-    72 6d 61 6c 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5  rmal.kkkkkkkkkk.
-  backtrace:
-    [<ffffffff9c502c3e>] __kmalloc_track_caller+0x2fe/0x4a0
-    [<ffffffff9c7b7c15>] kvasprintf+0x65/0xd0
-    [<ffffffff9c7b7d6e>] kasprintf+0x4e/0x70
-    [<ffffffffc04cb662>] int3400_notify+0x82/0x120 [int3400_thermal]
-    [<ffffffff9c8b7358>] acpi_ev_notify_dispatch+0x54/0x71
-    [<ffffffff9c88f1a7>] acpi_os_execute_deferred+0x17/0x30
-    [<ffffffff9c2c2c0a>] process_one_work+0x21a/0x3f0
-    [<ffffffff9c2c2e2a>] worker_thread+0x4a/0x3b0
-    [<ffffffff9c2cb4dd>] kthread+0xfd/0x130
-    [<ffffffff9c201c1f>] ret_from_fork+0x1f/0x30
+Tested on CMI8738LX.
 
-Fix it by calling kfree() accordingly.
-
-Fixes: 38e44da59130 ("thermal: int3400_thermal: process "thermal table changed" event")
-Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: cb60e5f5b2b1 ("[ALSA] cmipci - Add PM support")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/DBAPR04MB7366CB3EA9C8521C35C56E8B920E9@DBAPR04MB7366.eurprd04.prod.outlook.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/intel/int340x_thermal/int3400_thermal.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/cmipci.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
-+++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
-@@ -216,6 +216,10 @@ static void int3400_notify(acpi_handle h
- 		thermal_prop[4] = NULL;
- 		kobject_uevent_env(&priv->thermal->device.kobj, KOBJ_CHANGE,
- 				thermal_prop);
-+		kfree(thermal_prop[0]);
-+		kfree(thermal_prop[1]);
-+		kfree(thermal_prop[2]);
-+		kfree(thermal_prop[3]);
- 		break;
- 	default:
- 		/* Ignore unknown notification codes sent to INT3400 device */
+--- a/sound/pci/cmipci.c
++++ b/sound/pci/cmipci.c
+@@ -315,7 +315,6 @@ MODULE_PARM_DESC(joystick_port, "Joystic
+ #define CM_MICGAINZ		0x01	/* mic boost */
+ #define CM_MICGAINZ_SHIFT	0
+ 
+-#define CM_REG_MIXER3		0x24
+ #define CM_REG_AUX_VOL		0x26
+ #define CM_VAUXL_MASK		0xf0
+ #define CM_VAUXR_MASK		0x0f
+@@ -3326,7 +3325,7 @@ static void snd_cmipci_remove(struct pci
+  */
+ static unsigned char saved_regs[] = {
+ 	CM_REG_FUNCTRL1, CM_REG_CHFORMAT, CM_REG_LEGACY_CTRL, CM_REG_MISC_CTRL,
+-	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_MIXER3, CM_REG_PLL,
++	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_AUX_VOL, CM_REG_PLL,
+ 	CM_REG_CH0_FRAME1, CM_REG_CH0_FRAME2,
+ 	CM_REG_CH1_FRAME1, CM_REG_CH1_FRAME2, CM_REG_EXT_MISC,
+ 	CM_REG_INT_STATUS, CM_REG_INT_HLDCLR, CM_REG_FUNCTRL0,
 
 
