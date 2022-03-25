@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F9F4E75D8
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 676984E75AC
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359591AbiCYPIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:08:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36800 "EHLO
+        id S1359478AbiCYPGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359737AbiCYPHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:07:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63325DAFCE;
-        Fri, 25 Mar 2022 08:06:07 -0700 (PDT)
+        with ESMTP id S1356712AbiCYPGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:06:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FF0CA774A;
+        Fri, 25 Mar 2022 08:04:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F263361BE3;
-        Fri, 25 Mar 2022 15:06:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E451C340F3;
-        Fri, 25 Mar 2022 15:06:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B085B828FA;
+        Fri, 25 Mar 2022 15:04:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74438C340E9;
+        Fri, 25 Mar 2022 15:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220766;
-        bh=2xc4CFqQ1/hCUcNxCRGZh7F9DmYxr9AnKUEZOP7Ashc=;
+        s=korg; t=1648220693;
+        bh=3nLeSuO3ONv5EuSYqta8DDm/dhrSPSeF/wXpTNSHMZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oe7HcpDkxZ/NlQMsglLXgW6sLF5E/Stmsjcp+ouXvfkeP/hh2RvJCKOpL8Z0VbREB
-         7szSCK4ntm8Q6ZIK3qLhf5RO1G4TUZqN45F/0gKhqI3X2WV9yw7EuzZRtADYYkwje5
-         qaoOZfGqh4lFSlEOvIB1pI5RIvYWcsk7HYk2o9Eg=
+        b=IGlag67vFxlbdGn68m5QcHJMKeuiAtoC7oBOtjgmeuCcfO/NBnVNBXbu/FQpevFo6
+         uXC7Htqu/UiYee72/RLugJr20VKk7TgPh96qchrhsVbDl83KLRxepUtnUIO7e0Plhy
+         bX1OsGIkTxTWFizOPaS3+zTpJz9amdlt8n5v5N7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Graute <oliver.graute@kococonnector.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 04/17] staging: fbtft: fb_st7789v: reset display before initialization
+        stable@vger.kernel.org, Mark Cilissen <mark@yotsuba.nl>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 10/14] ACPI / x86: Work around broken XSDT on Advantech DAC-BJ01 board
 Date:   Fri, 25 Mar 2022 16:04:38 +0100
-Message-Id: <20220325150416.889761289@linuxfoundation.org>
+Message-Id: <20220325150415.999784254@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150416.756136126@linuxfoundation.org>
-References: <20220325150416.756136126@linuxfoundation.org>
+In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
+References: <20220325150415.694544076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Graute <oliver.graute@kococonnector.com>
+From: Mark Cilissen <mark@yotsuba.nl>
 
-commit b6821b0d9b56386d2bf14806f90ec401468c799f upstream.
+commit e702196bf85778f2c5527ca47f33ef2e2fca8297 upstream.
 
-In rare cases the display is flipped or mirrored. This was observed more
-often in a low temperature environment. A clean reset on init_display()
-should help to get registers in a sane state.
+On this board the ACPI RSDP structure points to both a RSDT and an XSDT,
+but the XSDT points to a truncated FADT. This causes all sorts of trouble
+and usually a complete failure to boot after the following error occurs:
 
-Fixes: ef8f317795da (staging: fbtft: use init function instead of init sequence)
-Cc: stable@vger.kernel.org
-Signed-off-by: Oliver Graute <oliver.graute@kococonnector.com>
-Link: https://lore.kernel.org/r/20220210085322.15676-1-oliver.graute@kococonnector.com
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+  ACPI Error: Unsupported address space: 0x20 (*/hwregs-*)
+  ACPI Error: AE_SUPPORT, Unable to initialize fixed events (*/evevent-*)
+  ACPI: Unable to start ACPI Interpreter
+
+This leaves the ACPI implementation in such a broken state that subsequent
+kernel subsystem initialisations go wrong, resulting in among others
+mismapped PCI memory, SATA and USB enumeration failures, and freezes.
+
+As this is an older embedded platform that will likely never see any BIOS
+updates to address this issue and its default shipping OS only complies to
+ACPI 1.0, work around this by forcing `acpi=rsdt`. This patch, applied on
+top of Linux 5.10.102, was confirmed on real hardware to fix the issue.
+
+Signed-off-by: Mark Cilissen <mark@yotsuba.nl>
+Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/fbtft/fb_st7789v.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/acpi/boot.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/drivers/staging/fbtft/fb_st7789v.c
-+++ b/drivers/staging/fbtft/fb_st7789v.c
-@@ -85,6 +85,8 @@ enum st7789v_command {
-  */
- static int init_display(struct fbtft_par *par)
- {
-+	par->fbtftops.reset(par);
+--- a/arch/x86/kernel/acpi/boot.c
++++ b/arch/x86/kernel/acpi/boot.c
+@@ -1324,6 +1324,17 @@ static int __init disable_acpi_pci(const
+ 	return 0;
+ }
+ 
++static int __init disable_acpi_xsdt(const struct dmi_system_id *d)
++{
++	if (!acpi_force) {
++		pr_notice("%s detected: force use of acpi=rsdt\n", d->ident);
++		acpi_gbl_do_not_use_xsdt = TRUE;
++	} else {
++		pr_notice("Warning: DMI blacklist says broken, but acpi XSDT forced\n");
++	}
++	return 0;
++}
 +
- 	/* turn off sleep mode */
- 	write_reg(par, MIPI_DCS_EXIT_SLEEP_MODE);
- 	mdelay(120);
+ static int __init dmi_disable_acpi(const struct dmi_system_id *d)
+ {
+ 	if (!acpi_force) {
+@@ -1444,6 +1455,19 @@ static struct dmi_system_id __initdata a
+ 		     DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
+ 		     },
+ 	 },
++	/*
++	 * Boxes that need ACPI XSDT use disabled due to corrupted tables
++	 */
++	{
++	 .callback = disable_acpi_xsdt,
++	 .ident = "Advantech DAC-BJ01",
++	 .matches = {
++		     DMI_MATCH(DMI_SYS_VENDOR, "NEC"),
++		     DMI_MATCH(DMI_PRODUCT_NAME, "Bearlake CRB Board"),
++		     DMI_MATCH(DMI_BIOS_VERSION, "V1.12"),
++		     DMI_MATCH(DMI_BIOS_DATE, "02/01/2011"),
++		     },
++	 },
+ 	{}
+ };
+ 
 
 
