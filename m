@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5DC64E762A
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:09:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C695B4E768E
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359669AbiCYPL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:11:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43450 "EHLO
+        id S240803AbiCYPPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:15:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359806AbiCYPLI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:11:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA9783FDA8;
-        Fri, 25 Mar 2022 08:08:13 -0700 (PDT)
+        with ESMTP id S1359838AbiCYPMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:12:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DC963BC6;
+        Fri, 25 Mar 2022 08:09:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 545AAB828FB;
-        Fri, 25 Mar 2022 15:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC548C340E9;
-        Fri, 25 Mar 2022 15:08:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1604861BF5;
+        Fri, 25 Mar 2022 15:09:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9E0C340EE;
+        Fri, 25 Mar 2022 15:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220888;
-        bh=M4heo+CUHk+V0Mu9civQ10Jda8BOAP911dPRoZX1C2A=;
+        s=korg; t=1648220960;
+        bh=Aguwb+9KguJ4/q4pa7ohP9HdU154UMOl/+9GBH2lNh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qG/RTxxH75nsjOOORuuBwDYfYOCwpjfQCwbn3d3P1QP2IDV4U7YnoENSXRUVCs4ju
-         gN35XjRGqrO43schf9KBEOQnZEGwdpKdYz6HPGUTbQePYWwWHon84FtNv/aZE7KDAZ
-         gf2Xcw9EvXlVeVtT3uoot5OWUzV9/IsM89D9gkmI=
+        b=GuL4eDB3oe6ge9famQAdsnuAZDmvguFNaKwS4fc+U4v+zvCElC0BE9SYkUCb27Qyv
+         BpZmLt4x74uam3ilvXbTHtUlqH42cZ7RfQq2MFNwukbinXDReryPyelbR+pTYaalhy
+         HNLmyHLweHllY5lz1SgwT6c0EfUh5tcZFK3aZcw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Cilissen <mark@yotsuba.nl>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 22/29] ACPI / x86: Work around broken XSDT on Advantech DAC-BJ01 board
+        stable@vger.kernel.org, Jason Zheng <jasonzheng2004@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 18/38] ALSA: hda/realtek: Add quirk for ASUS GA402
 Date:   Fri, 25 Mar 2022 16:05:02 +0100
-Message-Id: <20220325150419.224248500@linuxfoundation.org>
+Message-Id: <20220325150420.280540487@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
-References: <20220325150418.585286754@linuxfoundation.org>
+In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
+References: <20220325150419.757836392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Cilissen <mark@yotsuba.nl>
+From: Jason Zheng <jasonzheng2004@gmail.com>
 
-commit e702196bf85778f2c5527ca47f33ef2e2fca8297 upstream.
+commit b7557267c233b55d8e8d7ba4c68cf944fe2ec02c upstream.
 
-On this board the ACPI RSDP structure points to both a RSDT and an XSDT,
-but the XSDT points to a truncated FADT. This causes all sorts of trouble
-and usually a complete failure to boot after the following error occurs:
+ASUS GA402 requires a workaround to manage the routing of its 4 speakers
+like the other ASUS models. Add a corresponding quirk entry to fix it.
 
-  ACPI Error: Unsupported address space: 0x20 (*/hwregs-*)
-  ACPI Error: AE_SUPPORT, Unable to initialize fixed events (*/evevent-*)
-  ACPI: Unable to start ACPI Interpreter
-
-This leaves the ACPI implementation in such a broken state that subsequent
-kernel subsystem initialisations go wrong, resulting in among others
-mismapped PCI memory, SATA and USB enumeration failures, and freezes.
-
-As this is an older embedded platform that will likely never see any BIOS
-updates to address this issue and its default shipping OS only complies to
-ACPI 1.0, work around this by forcing `acpi=rsdt`. This patch, applied on
-top of Linux 5.10.102, was confirmed on real hardware to fix the issue.
-
-Signed-off-by: Mark Cilissen <mark@yotsuba.nl>
-Cc: All applicable <stable@vger.kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jason Zheng <jasonzheng2004@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220313092216.29858-1-jasonzheng2004@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/acpi/boot.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -1339,6 +1339,17 @@ static int __init disable_acpi_pci(const
- 	return 0;
- }
- 
-+static int __init disable_acpi_xsdt(const struct dmi_system_id *d)
-+{
-+	if (!acpi_force) {
-+		pr_notice("%s detected: force use of acpi=rsdt\n", d->ident);
-+		acpi_gbl_do_not_use_xsdt = TRUE;
-+	} else {
-+		pr_notice("Warning: DMI blacklist says broken, but acpi XSDT forced\n");
-+	}
-+	return 0;
-+}
-+
- static int __init dmi_disable_acpi(const struct dmi_system_id *d)
- {
- 	if (!acpi_force) {
-@@ -1463,6 +1474,19 @@ static const struct dmi_system_id acpi_d
- 		     DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
- 		     },
- 	 },
-+	/*
-+	 * Boxes that need ACPI XSDT use disabled due to corrupted tables
-+	 */
-+	{
-+	 .callback = disable_acpi_xsdt,
-+	 .ident = "Advantech DAC-BJ01",
-+	 .matches = {
-+		     DMI_MATCH(DMI_SYS_VENDOR, "NEC"),
-+		     DMI_MATCH(DMI_PRODUCT_NAME, "Bearlake CRB Board"),
-+		     DMI_MATCH(DMI_BIOS_VERSION, "V1.12"),
-+		     DMI_MATCH(DMI_BIOS_DATE, "02/01/2011"),
-+		     },
-+	 },
- 	{}
- };
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8801,6 +8801,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
++	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x16b2, "ASUS GU603", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
 
 
