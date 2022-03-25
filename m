@@ -2,513 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2BE4E7C14
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 619E34E7D84
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234096AbiCYWpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 18:45:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57464 "EHLO
+        id S234073AbiCYW7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 18:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234053AbiCYWpH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 18:45:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEE520E978;
-        Fri, 25 Mar 2022 15:43:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B92D614D8;
-        Fri, 25 Mar 2022 22:43:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ACFEC004DD;
-        Fri, 25 Mar 2022 22:43:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1648248203;
-        bh=U67Q9BXaQl/RY8Vm9h0uqjj+TBVaNfWFWXA+SLNPLAE=;
-        h=Date:To:From:Subject:From;
-        b=oUYtfk/gplaf7QHQ9rwfvFfQD5VnyAMZu3VZeyXS4j/L91S6c77U5ha+b+jG9AAs1
-         4F6vHVdy8sWFR2zeZ6+J7yJNrPR5H9cCe2IdT5o5smhjPY8UlkA4Oq47NyOVbiBmNp
-         vfPfISFTUB8lTidkpZsdr+22Iy3pCddqKlwEsfHY=
-Date:   Fri, 25 Mar 2022 15:43:22 -0700
-To:     mm-commits@vger.kernel.org, yuzhao@google.com,
-        ying.huang@intel.com, stable@vger.kernel.org, shy828301@gmail.com,
-        ponnuvel.palaniyappan@canonical.com, minchan@kernel.org,
-        matthew.ruffell@canonical.com, linmiaohe@huawei.com,
-        jay.vosburgh@canonical.com, ioanna-maria.alifieraki@canonical.com,
-        hch@infradead.org, halves@canonical.com, gerald.yang@canonical.com,
-        gavin.guo@canonical.com, dongdong.tao@canonical.com,
-        dan.streetman@canonical.com, daniel.hill@canonical.com,
-        mfo@canonical.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged] mm-fix-race-between-madv_free-reclaim-and-blkdev-direct-io-read.patch removed from -mm tree
-Message-Id: <20220325224323.5ACFEC004DD@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S234071AbiCYW7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 18:59:12 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A097338DBD;
+        Fri, 25 Mar 2022 15:57:36 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id o3-20020a17090a3d4300b001c6bc749227so9764558pjf.1;
+        Fri, 25 Mar 2022 15:57:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=T/H9zB8PAl0HAulWpdroY7dfqIUxKQJYXCSXrYVzijc=;
+        b=Ra6jAb6UlR4nOFojKTm+HdHRLBKlIcHxv9mW7jPrtW4RU1ITyM4c6J57tjyNJLQVz+
+         gHvLlBHx4o/i/K4uNHIkTOgpA3gJ7H2FyMrPL5i3jysrzN36use1/cF3ofm/MHA9p/kM
+         0Il0J6nrjKjh59ihDt9s9As8n3cWx1ZJ6zdBC1EyOOmtTf260tZ1RcVKCME3qHjvKtvn
+         OqjfYT5i+ErOORmuitt4yuhJpJVDHJ7JlvNjeXggN8uktCigys3gOnVtNiGDKn61bdJI
+         O6R4jimGIO8xy3adOoAE8hlEF5uYiYv6X/JYyycigNuvfoy65juhIPCMBQFXnvTWQz5g
+         jB5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=T/H9zB8PAl0HAulWpdroY7dfqIUxKQJYXCSXrYVzijc=;
+        b=CPYR2z8YdSNhC1Mh+M+6ko0XFD6NzsQtCn4gIBJycR7lZ84+f1DydL1vKMYZQ3W+D/
+         fb5dfF0Shvd5PGbY6bRpFqflighqt88gLvodt+GBSCDtjM+KHQtUy+KjBcQNZEsjKqGA
+         cD322d3aUI18c4DIzDgMSnaLuM6KbLYs+q+rXBXYHpx230NY9BJSMRgJ7DMcxyOmdGhC
+         r5e7qC5QxV+4GOV44kiOmrmO5cx01IbIW4R795b6pHjiAUJeoH74YaHAwq1tQVc+oiXe
+         P2lUushKo9Mkxc8h96WYm96GAJIcHuypQ0gMqq4Jzfqe8LfmFWCQHbsqrmkM74eAjyNq
+         h9Mw==
+X-Gm-Message-State: AOAM533ALQpH1lCggoX7CN3nGvxLQC8X6cnfQoJhIpQesZVwBZtYNSNg
+        9zNKvAdApjs17iLbNAWPtyw=
+X-Google-Smtp-Source: ABdhPJz42bbf3ert1/RONH+7Y75irVdGlCG2UGTTUprJ9ZEIDixv14y45n086LTqjjLjhFgCWR4Y/A==
+X-Received: by 2002:a17:902:d88f:b0:155:e660:b769 with SMTP id b15-20020a170902d88f00b00155e660b769mr2400112plz.36.1648249056103;
+        Fri, 25 Mar 2022 15:57:36 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id on12-20020a17090b1d0c00b001c7a548e4efsm7925361pjb.54.2022.03.25.15.57.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Mar 2022 15:57:35 -0700 (PDT)
+Message-ID: <b23ed7f1-007d-47e2-df33-b82cf6e2e700@gmail.com>
+Date:   Fri, 25 Mar 2022 15:57:01 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.10 00/38] 5.10.109-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220325150419.757836392@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch titled
-     Subject: mm: fix race between MADV_FREE reclaim and blkdev direct IO read
-has been removed from the -mm tree.  Its filename was
-     mm-fix-race-between-madv_free-reclaim-and-blkdev-direct-io-read.patch
-
-This patch was dropped because it was merged into mainline or a subsystem tree
-
-------------------------------------------------------
-From: Mauricio Faria de Oliveira <mfo@canonical.com>
-Subject: mm: fix race between MADV_FREE reclaim and blkdev direct IO read
-
-Problem:
-=======
-
-Userspace might read the zero-page instead of actual data from a direct IO
-read on a block device if the buffers have been called madvise(MADV_FREE)
-on earlier (this is discussed below) due to a race between page reclaim on
-MADV_FREE and blkdev direct IO read.
-
-- Race condition:
-  ==============
-
-During page reclaim, the MADV_FREE page check in try_to_unmap_one() checks
-if the page is not dirty, then discards its rmap PTE(s) (vs.  remap back
-if the page is dirty).
-
-However, after try_to_unmap_one() returns to shrink_page_list(), it might
-keep the page _anyway_ if page_ref_freeze() fails (it expects exactly
-_one_ page reference, from the isolation for page reclaim).
-
-Well, blkdev_direct_IO() gets references for all pages, and on READ
-operations it only sets them dirty _later_.
-
-So, if MADV_FREE'd pages (i.e., not dirty) are used as buffers for direct
-IO read from block devices, and page reclaim happens during
-__blkdev_direct_IO[_simple]() exactly AFTER bio_iov_iter_get_pages()
-returns, but BEFORE the pages are set dirty, the situation happens.
-
-The direct IO read eventually completes.  Now, when userspace reads the
-buffers, the PTE is no longer there and the page fault handler
-do_anonymous_page() services that with the zero-page, NOT the data!
-
-A synthetic reproducer is provided.
-
-- Page faults:
-  ===========
-
-If page reclaim happens BEFORE bio_iov_iter_get_pages() the issue doesn't
-happen, because that faults-in all pages as writeable, so
-do_anonymous_page() sets up a new page/rmap/PTE, and that is used by
-direct IO.  The userspace reads don't fault as the PTE is there (thus
-zero-page is not used/setup).
-
-But if page reclaim happens AFTER it / BEFORE setting pages dirty, the PTE
-is no longer there; the subsequent page faults can't help:
-
-The data-read from the block device probably won't generate faults due to
-DMA (no MMU) but even in the case it wouldn't use DMA, that happens on
-different virtual addresses (not user-mapped addresses) because `struct
-bio_vec` stores `struct page` to figure addresses out (which are different
-from user-mapped addresses) for the read.
-
-Thus userspace reads (to user-mapped addresses) still fault, then
-do_anonymous_page() gets another `struct page` that would address/ map to
-other memory than the `struct page` used by `struct bio_vec` for the read.
-(The original `struct page` is not available, since it wasn't freed, as
-page_ref_freeze() failed due to more page refs.  And even if it were
-available, its data cannot be trusted anymore.)
-
-Solution:
-========
-
-One solution is to check for the expected page reference count in
-try_to_unmap_one().
-
-There should be one reference from the isolation (that is also checked in
-shrink_page_list() with page_ref_freeze()) plus one or more references
-from page mapping(s) (put in discard: label).  Further references mean
-that rmap/PTE cannot be unmapped/nuked.
-
-(Note: there might be more than one reference from mapping due to
-fork()/clone() without CLONE_VM, which use the same `struct page` for
-references, until the copy-on-write page gets copied.)
-
-So, additional page references (e.g., from direct IO read) now prevent the
-rmap/PTE from being unmapped/dropped; similarly to the page is not freed
-per shrink_page_list()/page_ref_freeze()).
-
-- Races and Barriers:
-  ==================
-
-The new check in try_to_unmap_one() should be safe in races with
-bio_iov_iter_get_pages() in get_user_pages() fast and slow paths, as it's
-done under the PTE lock.
-
-The fast path doesn't take the lock, but it checks if the PTE has changed
-and if so, it drops the reference and leaves the page for the slow path
-(which does take that lock).
-
-The fast path requires synchronization w/ full memory barrier: it writes
-the page reference count first then it reads the PTE later, while
-try_to_unmap() writes PTE first then it reads page refcount.
-
-And a second barrier is needed, as the page dirty flag should not be read
-before the page reference count (as in __remove_mapping()).  (This can be
-a load memory barrier only; no writes are involved.)
-
-Call stack/comments:
-
-- try_to_unmap_one()
-  - page_vma_mapped_walk()
-    - map_pte()			# see pte_offset_map_lock():
-        pte_offset_map()
-        spin_lock()
-
-  - ptep_get_and_clear()	# write PTE
-  - smp_mb()			# (new barrier) GUP fast path
-  - page_ref_count()		# (new check) read refcount
-
-  - page_vma_mapped_walk_done()	# see pte_unmap_unlock():
-      pte_unmap()
-      spin_unlock()
-
-- bio_iov_iter_get_pages()
-  - __bio_iov_iter_get_pages()
-    - iov_iter_get_pages()
-      - get_user_pages_fast()
-        - internal_get_user_pages_fast()
-
-          # fast path
-          - lockless_pages_from_mm()
-            - gup_{pgd,p4d,pud,pmd,pte}_range()
-                ptep = pte_offset_map()		# not _lock()
-                pte = ptep_get_lockless(ptep)
-
-                page = pte_page(pte)
-                try_grab_compound_head(page)	# inc refcount
-                                            	# (RMW/barrier
-                                             	#  on success)
-
-                if (pte_val(pte) != pte_val(*ptep)) # read PTE
-                        put_compound_head(page) # dec refcount
-                        			# go slow path
-
-          # slow path
-          - __gup_longterm_unlocked()
-            - get_user_pages_unlocked()
-              - __get_user_pages_locked()
-                - __get_user_pages()
-                  - follow_{page,p4d,pud,pmd}_mask()
-                    - follow_page_pte()
-                        ptep = pte_offset_map_lock()
-                        pte = *ptep
-                        page = vm_normal_page(pte)
-                        try_grab_page(page)	# inc refcount
-                        pte_unmap_unlock()
-
-- Huge Pages:
-  ==========
-
-Regarding transparent hugepages, that logic shouldn't change, as MADV_FREE
-(aka lazyfree) pages are PageAnon() && !PageSwapBacked()
-(madvise_free_pte_range() -> mark_page_lazyfree() -> lru_lazyfree_fn())
-thus should reach shrink_page_list() -> split_huge_page_to_list() before
-try_to_unmap[_one](), so it deals with normal pages only.
-
-(And in case unlikely/TTU_SPLIT_HUGE_PMD/split_huge_pmd_address() happens,
-which should not or be rare, the page refcount should be greater than
-mapcount: the head page is referenced by tail pages.  That also prevents
-checking the head `page` then incorrectly call page_remove_rmap(subpage)
-for a tail page, that isn't even in the shrink_page_list()'s page_list (an
-effect of split huge pmd/pmvw), as it might happen today in this unlikely
-scenario.)
-
-MADV_FREE'd buffers:
-===================
-
-So, back to the "if MADV_FREE pages are used as buffers" note.  The case
-is arguable, and subject to multiple interpretations.
-
-The madvise(2) manual page on the MADV_FREE advice value says:
-
-1) 'After a successful MADV_FREE ... data will be lost when
-   the kernel frees the pages.'
-2) 'the free operation will be canceled if the caller writes
-   into the page' / 'subsequent writes ... will succeed and
-   then [the] kernel cannot free those dirtied pages'
-3) 'If there is no subsequent write, the kernel can free the
-   pages at any time.'
-
-Thoughts, questions, considerations... respectively:
-
-1) Since the kernel didn't actually free the page (page_ref_freeze()
-   failed), should the data not have been lost? (on userspace read.)
-2) Should writes performed by the direct IO read be able to cancel
-   the free operation?
-   - Should the direct IO read be considered as 'the caller' too,
-     as it's been requested by 'the caller'?
-   - Should the bio technique to dirty pages on return to userspace
-     (bio_check_pages_dirty() is called/used by __blkdev_direct_IO())
-     be considered in another/special way here?
-3) Should an upcoming write from a previously requested direct IO
-   read be considered as a subsequent write, so the kernel should
-   not free the pages? (as it's known at the time of page reclaim.)
-
-And lastly:
-
-Technically, the last point would seem a reasonable consideration and
-balance, as the madvise(2) manual page apparently (and fairly) seem to
-assume that 'writes' are memory access from the userspace process (not
-explicitly considering writes from the kernel or its corner cases; again,
-fairly)..  plus the kernel fix implementation for the corner case of the
-largely 'non-atomic write' encompassed by a direct IO read operation, is
-relatively simple; and it helps.
-
-Reproducer:
-==========
-
-@ test.c (simplified, but works)
-
-	#define _GNU_SOURCE
-	#include <fcntl.h>
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <sys/mman.h>
-
-	int main() {
-		int fd, i;
-		char *buf;
-
-		fd = open(DEV, O_RDONLY | O_DIRECT);
-
-		buf = mmap(NULL, BUF_SIZE, PROT_READ | PROT_WRITE,
-                	   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-
-		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
-			buf[i] = 1; // init to non-zero
-
-		madvise(buf, BUF_SIZE, MADV_FREE);
-
-		read(fd, buf, BUF_SIZE);
-
-		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
-			printf("%p: 0x%x\n", &buf[i], buf[i]);
-
-		return 0;
-	}
-
-@ block/fops.c (formerly fs/block_dev.c)
-
-	+#include <linux/swap.h>
-	...
-	... __blkdev_direct_IO[_simple](...)
-	{
-	...
-	+	if (!strcmp(current->comm, "good"))
-	+		shrink_all_memory(ULONG_MAX);
-	+
-         	ret = bio_iov_iter_get_pages(...);
-	+
-	+	if (!strcmp(current->comm, "bad"))
-	+		shrink_all_memory(ULONG_MAX);
-	...
-	}
-
-@ shell
-
-        # NUM_PAGES=4
-        # PAGE_SIZE=$(getconf PAGE_SIZE)
-
-        # yes | dd of=test.img bs=${PAGE_SIZE} count=${NUM_PAGES}
-        # DEV=$(losetup -f --show test.img)
-
-        # gcc -DDEV=\"$DEV\" \
-              -DBUF_SIZE=$((PAGE_SIZE * NUM_PAGES)) \
-              -DPAGE_SIZE=${PAGE_SIZE} \
-               test.c -o test
-
-        # od -tx1 $DEV
-        0000000 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a
-        *
-        0040000
-
-        # mv test good
-        # ./good
-        0x7f7c10418000: 0x79
-        0x7f7c10419000: 0x79
-        0x7f7c1041a000: 0x79
-        0x7f7c1041b000: 0x79
-
-        # mv good bad
-        # ./bad
-        0x7fa1b8050000: 0x0
-        0x7fa1b8051000: 0x0
-        0x7fa1b8052000: 0x0
-        0x7fa1b8053000: 0x0
-
-Note: the issue is consistent on v5.17-rc3, but it's intermittent with the
-support of MADV_FREE on v4.5 (60%-70% error; needs swap).  [wrap
-do_direct_IO() in do_blockdev_direct_IO() @ fs/direct-io.c].
-
-- v5.17-rc3:
-
-        # for i in {1..1000}; do ./good; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x79
-
-        # mv good bad
-        # for i in {1..1000}; do ./bad; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x0
-
-        # free | grep Swap
-        Swap:             0           0           0
-
-- v4.5:
-
-        # for i in {1..1000}; do ./good; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x79
-
-        # mv good bad
-        # for i in {1..1000}; do ./bad; done \
-            | cut -d: -f2 | sort | uniq -c
-           2702  0x0
-           1298  0x79
-
-        # swapoff -av
-        swapoff /swap
-
-        # for i in {1..1000}; do ./bad; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x79
-
-Ceph/TCMalloc:
-=============
-
-For documentation purposes, the use case driving the analysis/fix is Ceph
-on Ubuntu 18.04, as the TCMalloc library there still uses MADV_FREE to
-release unused memory to the system from the mmap'ed page heap (might be
-committed back/used again; it's not munmap'ed.) - PageHeap::DecommitSpan()
--> TCMalloc_SystemRelease() -> madvise() - PageHeap::CommitSpan() ->
-TCMalloc_SystemCommit() -> do nothing.
-
-Note: TCMalloc switched back to MADV_DONTNEED a few commits after the
-release in Ubuntu 18.04 (google-perftools/gperftools 2.5), so the issue
-just 'disappeared' on Ceph on later Ubuntu releases but is still present
-in the kernel, and can be hit by other use cases.
-
-The observed issue seems to be the old Ceph bug #22464 [1], where checksum
-mismatches are observed (and instrumentation with buffer dumps shows
-zero-pages read from mmap'ed/MADV_FREE'd page ranges).
-
-The issue in Ceph was reasonably deemed a kernel bug (comment #50) and
-mostly worked around with a retry mechanism, but other parts of Ceph could
-still hit that (rocksdb).  Anyway, it's less likely to be hit again as
-TCMalloc switched out of MADV_FREE by default.
-
-(Some kernel versions/reports from the Ceph bug, and relation with
-the MADV_FREE introduction/changes; TCMalloc versions not checked.)
-- 4.4 good
-- 4.5 (madv_free: introduction)
-- 4.9 bad
-- 4.10 good? maybe a swapless system
-- 4.12 (madv_free: no longer free instantly on swapless systems)
-- 4.13 bad
-
-[1] https://tracker.ceph.com/issues/22464
-
-Thanks:
-======
-
-Several people contributed to analysis/discussions/tests/reproducers in
-the first stages when drilling down on ceph/tcmalloc/linux kernel:
-
-- Dan Hill
-- Dan Streetman
-- Dongdong Tao
-- Gavin Guo
-- Gerald Yang
-- Heitor Alves de Siqueira
-- Ioanna Alifieraki
-- Jay Vosburgh
-- Matthew Ruffell
-- Ponnuvel Palaniyappan
-
-Reviews, suggestions, corrections, comments:
-
-- Minchan Kim
-- Yu Zhao
-- Huang, Ying
-- John Hubbard
-- Christoph Hellwig
-
-[mfo@canonical.com: v4]
-  Link: https://lkml.kernel.org/r/20220209202659.183418-1-mfo@canonical.comLink: https://lkml.kernel.org/r/20220131230255.789059-1-mfo@canonical.com
-Fixes: 802a3a92ad7a ("mm: reclaim MADV_FREE pages")
-Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Yu Zhao <yuzhao@google.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Dan Hill <daniel.hill@canonical.com>
-Cc: Dan Streetman <dan.streetman@canonical.com>
-Cc: Dongdong Tao <dongdong.tao@canonical.com>
-Cc: Gavin Guo <gavin.guo@canonical.com>
-Cc: Gerald Yang <gerald.yang@canonical.com>
-Cc: Heitor Alves de Siqueira <halves@canonical.com>
-Cc: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
-Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
-Cc: Matthew Ruffell <matthew.ruffell@canonical.com>
-Cc: Ponnuvel Palaniyappan <ponnuvel.palaniyappan@canonical.com>
-Cc: <stable@vger.kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/rmap.c |   25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
-
---- a/mm/rmap.c~mm-fix-race-between-madv_free-reclaim-and-blkdev-direct-io-read
-+++ a/mm/rmap.c
-@@ -1588,7 +1588,30 @@ static bool try_to_unmap_one(struct foli
- 
- 			/* MADV_FREE page check */
- 			if (!folio_test_swapbacked(folio)) {
--				if (!folio_test_dirty(folio)) {
-+				int ref_count, map_count;
-+
-+				/*
-+				 * Synchronize with gup_pte_range():
-+				 * - clear PTE; barrier; read refcount
-+				 * - inc refcount; barrier; read PTE
-+				 */
-+				smp_mb();
-+
-+				ref_count = folio_ref_count(folio);
-+				map_count = folio_mapcount(folio);
-+
-+				/*
-+				 * Order reads for page refcount and dirty flag
-+				 * (see comments in __remove_mapping()).
-+				 */
-+				smp_rmb();
-+
-+				/*
-+				 * The only page refs must be one from isolation
-+				 * plus the rmap(s) (dropped by discard:).
-+				 */
-+				if (ref_count == 1 + map_count &&
-+				    !folio_test_dirty(folio)) {
- 					/* Invalidate as we cleared the pte */
- 					mmu_notifier_invalidate_range(mm,
- 						address, address + PAGE_SIZE);
-_
-
-Patches currently in -mm which might be from mfo@canonical.com are
-
-
+On 3/25/22 08:04, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.109 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.109-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
