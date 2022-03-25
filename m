@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C0A4E767F
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2D454E7696
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356584AbiCYPP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:15:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44818 "EHLO
+        id S1359812AbiCYPPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:15:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376858AbiCYPNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC4A1DA6FE;
+        with ESMTP id S1376843AbiCYPNk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC534DA6FF;
         Fri, 25 Mar 2022 08:10:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24EDAB82833;
-        Fri, 25 Mar 2022 15:10:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 801AAC340E9;
-        Fri, 25 Mar 2022 15:10:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 488A461BE9;
+        Fri, 25 Mar 2022 15:10:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55981C340F6;
+        Fri, 25 Mar 2022 15:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221027;
-        bh=Ugr3Tis7R5v9mJReP/aoaxVEShg8W48rXk635+mcSrM=;
+        s=korg; t=1648221030;
+        bh=a1CVJ/spbiNRWzw03asPce+M85vuAXnYlIrcpMdjmBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NH2WAYSg2dGJtnu4brC565+70Fdmbt+j9AT//DsnSkTGBEESAFmAVc4R/v5vnUA30
-         N4/93cbg3nEIKWHJIVTV9NFQ6B9BcUx9hI5j5iKoWPyMbdAgwAd98yylVzyLWjLQql
-         GjJ9dS/OjRbVHsNHM9mB6CJ7zsXiJCzIHEe7jbNU=
+        b=A3+ASoQbOta1WqweNTj5hdFDnXUecJkTTTPaDEYKsQ+hC4lyqVFlZYorJQpq8NB2t
+         Jwn24Hv4UfNA/VnR0+GaHuiNZD3iArQ500UrvFRkzJlkpqztE9bdL1BQlPDwKK29bw
+         zX4w50zdQ3rt2x4cHEdPCx17RUtW6XmsK0wlh670=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 31/38] ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU
-Date:   Fri, 25 Mar 2022 16:05:15 +0100
-Message-Id: <20220325150420.641367363@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.10 32/38] crypto: qat - disable registration of algorithms
+Date:   Fri, 25 Mar 2022 16:05:16 +0100
+Message-Id: <20220325150420.669161386@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
 References: <20220325150419.757836392@linuxfoundation.org>
@@ -53,110 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-commit c844d22fe0c0b37dc809adbdde6ceb6462c43acf upstream.
+commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de upstream.
 
-Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a working
-native and video interface. However the default detection mechanism first
-registers the video interface before unregistering it again and switching
-to the native interface during boot. This results in a dangling SBIOS
-request for backlight change for some reason, causing the backlight to
-switch to ~2% once per boot on the first power cord connect or disconnect
-event. Setting the native interface explicitly circumvents this buggy
-behaviour by avoiding the unregistering process.
+The implementations of aead and skcipher in the QAT driver do not
+support properly requests with the CRYPTO_TFM_REQ_MAY_BACKLOG flag set.
+If the HW queue is full, the driver returns -EBUSY but does not enqueue
+the request.
+This can result in applications like dm-crypt waiting indefinitely for a
+completion of a request that was never submitted to the hardware.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+To avoid this problem, disable the registration of all crypto algorithms
+in the QAT driver by setting the number of crypto instances to 0 at
+configuration time.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   75 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ drivers/crypto/qat/qat_common/qat_crypto.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -409,6 +409,81 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "GA503"),
- 		},
- 	},
-+	/*
-+	 * Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a
-+	 * working native and video interface. However the default detection
-+	 * mechanism first registers the video interface before unregistering
-+	 * it again and switching to the native interface during boot. This
-+	 * results in a dangling SBIOS request for backlight change for some
-+	 * reason, causing the backlight to switch to ~2% once per boot on the
-+	 * first power cord connect or disconnect event. Setting the native
-+	 * interface explicitly circumvents this buggy behaviour, by avoiding
-+	 * the unregistering process.
+--- a/drivers/crypto/qat/qat_common/qat_crypto.c
++++ b/drivers/crypto/qat/qat_common/qat_crypto.c
+@@ -126,6 +126,14 @@ int qat_crypto_dev_config(struct adf_acc
+ 		goto err;
+ 	if (adf_cfg_section_add(accel_dev, "Accelerator0"))
+ 		goto err;
++
++	/* Temporarily set the number of crypto instances to zero to avoid
++	 * registering the crypto algorithms.
++	 * This will be removed when the algorithms will support the
++	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
 +	 */
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
- 
- 	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
++	instances = 0;
++
+ 	for (i = 0; i < instances; i++) {
+ 		val = i;
+ 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_BANK_NUM, i);
 
 
