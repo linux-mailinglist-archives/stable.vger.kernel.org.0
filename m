@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 870714E772E
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 453E24E76D1
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:18:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239873AbiCYP1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54194 "EHLO
+        id S1376295AbiCYPUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377048AbiCYPXk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:40 -0400
+        with ESMTP id S1376261AbiCYPT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:19:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7DDD082C;
-        Fri, 25 Mar 2022 08:17:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92C7DFFB7;
+        Fri, 25 Mar 2022 08:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A640FB827E0;
-        Fri, 25 Mar 2022 15:17:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CCE3C340E9;
-        Fri, 25 Mar 2022 15:17:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55920B82909;
+        Fri, 25 Mar 2022 15:15:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB029C340EE;
+        Fri, 25 Mar 2022 15:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221435;
-        bh=lwiHfOehWKXv8eUEDCyQ+9klfyRweBv4MSzqlgnHU8o=;
+        s=korg; t=1648221316;
+        bh=sq5WssQkekeNhIRdj80ObkCH723gqNTyRCRfMku8noY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fxk3YIMw2GdetlVTKTuZ7xPqZmcQdjHrd67/6jRzy4peQiyE0kTvInspWPPNJu9w
-         rOkkwb8xmOZgB2YSV9GlaL6DgsipStt5jzII47ncfzHg7oRE5ButMjplYyiSBnVkUw
-         4/Tg1QlGAuqxYI9uXEP+As2he62WOMTZPoKFLRO4=
+        b=mdYQ9TzIDtYnWo96hRankGmji/Stzm75A3GXPMsWuvrTa/TOdqSxl8wVctqKRCqLq
+         QX+sRcVg5Pezllg62iqvOo/qouqGjBfSie3TcVFVa1TLQfjludiBWHWu0HVz6JfGM7
+         nln/Gbncov4MKAQFPfJt/DU4C4w4SX4zFWpewqSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Zheng <jasonzheng2004@gmail.com>,
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 09/37] ALSA: hda/realtek: Add quirk for ASUS GA402
-Date:   Fri, 25 Mar 2022 16:14:19 +0100
-Message-Id: <20220325150420.314693498@linuxfoundation.org>
+Subject: [PATCH 5.15 19/37] ALSA: cmipci: Restore aux vol on suspend/resume
+Date:   Fri, 25 Mar 2022 16:14:20 +0100
+Message-Id: <20220325150420.483361315@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-References: <20220325150420.046488912@linuxfoundation.org>
+In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
+References: <20220325150419.931802116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Zheng <jasonzheng2004@gmail.com>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-commit b7557267c233b55d8e8d7ba4c68cf944fe2ec02c upstream.
+commit c14231cc04337c2c2a937db084af342ce704dbde upstream.
 
-ASUS GA402 requires a workaround to manage the routing of its 4 speakers
-like the other ASUS models. Add a corresponding quirk entry to fix it.
+Save and restore CM_REG_AUX_VOL instead of register 0x24 twice on
+suspend/resume.
 
-Signed-off-by: Jason Zheng <jasonzheng2004@gmail.com>
+Tested on CMI8738LX.
+
+Fixes: cb60e5f5b2b1 ("[ALSA] cmipci - Add PM support")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220313092216.29858-1-jasonzheng2004@gmail.com
+Link: https://lore.kernel.org/r/DBAPR04MB7366CB3EA9C8521C35C56E8B920E9@DBAPR04MB7366.eurprd04.prod.outlook.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/cmipci.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8866,6 +8866,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
-+	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x16b2, "ASUS GU603", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
- 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
+--- a/sound/pci/cmipci.c
++++ b/sound/pci/cmipci.c
+@@ -298,7 +298,6 @@ MODULE_PARM_DESC(joystick_port, "Joystic
+ #define CM_MICGAINZ		0x01	/* mic boost */
+ #define CM_MICGAINZ_SHIFT	0
+ 
+-#define CM_REG_MIXER3		0x24
+ #define CM_REG_AUX_VOL		0x26
+ #define CM_VAUXL_MASK		0xf0
+ #define CM_VAUXR_MASK		0x0f
+@@ -3267,7 +3266,7 @@ static int snd_cmipci_probe(struct pci_d
+  */
+ static const unsigned char saved_regs[] = {
+ 	CM_REG_FUNCTRL1, CM_REG_CHFORMAT, CM_REG_LEGACY_CTRL, CM_REG_MISC_CTRL,
+-	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_MIXER3, CM_REG_PLL,
++	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_AUX_VOL, CM_REG_PLL,
+ 	CM_REG_CH0_FRAME1, CM_REG_CH0_FRAME2,
+ 	CM_REG_CH1_FRAME1, CM_REG_CH1_FRAME2, CM_REG_EXT_MISC,
+ 	CM_REG_INT_STATUS, CM_REG_INT_HLDCLR, CM_REG_FUNCTRL0,
 
 
