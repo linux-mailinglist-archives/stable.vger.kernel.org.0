@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4FF4E7725
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:25:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5E94E7795
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:28:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376519AbiCYP1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60452 "EHLO
+        id S1348310AbiCYP27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:28:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376711AbiCYPXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 362C4E43B2;
-        Fri, 25 Mar 2022 08:16:39 -0700 (PDT)
+        with ESMTP id S1376762AbiCYPXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3556E4C1;
+        Fri, 25 Mar 2022 08:16:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D0E760DE3;
-        Fri, 25 Mar 2022 15:16:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47C1CC340E9;
-        Fri, 25 Mar 2022 15:16:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2747FB828F6;
+        Fri, 25 Mar 2022 15:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB42C340E9;
+        Fri, 25 Mar 2022 15:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221377;
-        bh=tHJ0fvPCozzdBu+3vz3vvpVBOjJkkaJqoVH44eGv5JY=;
+        s=korg; t=1648221380;
+        bh=bOkJy+mMiLrQcWXHlmJVF/rdsYha53wcln9168+rGTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFdZcKcpWS1lKs/1FI8mflxjTez0uViY37HXiuYfKdQxrZE5xLpCxJrzDKfGe8ZmH
-         V8yC82zw9Wn3tIfWWRe4YEzit1gZtK9mJGcKs/NlBjKPp9dBczkZEJxnlLbd8hrlj0
-         O63uxVSjTzAEreqlA2uzB7zXBRDMowhdNBaRqRas=
+        b=l/6aEbU4C1HdAWX7EQZj21MKQEAkCF00gNMAf4hQ3RyJ6m+/4fmZJAPje487qXcNa
+         nqSqi0wCJwICRtFZ9yL/HrucNkQrTmIGS+mpS9A+nYapnPBSsZBQDipWGwHVITN9L2
+         t05atTGStYCvkxTto2MNIPBPt/Th3nqFelXA2bHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        =?UTF-8?q?=E8=B5=B5=E5=AD=90=E8=BD=A9?= <beraphin@gmail.com>,
-        Stoyan Manolov <smanolov@suse.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 05/37] llc: fix netdevice reference leaks in llc_ui_bind()
-Date:   Fri, 25 Mar 2022 16:14:06 +0100
-Message-Id: <20220325150420.090118002@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
+        Arnaud POULIQUEN <arnaud.pouliquen@st.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 06/37] ASoC: sti: Fix deadlock via snd_pcm_stop_xrun() call
+Date:   Fri, 25 Mar 2022 16:14:07 +0100
+Message-Id: <20220325150420.118201741@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
 References: <20220325150419.931802116@linuxfoundation.org>
@@ -55,52 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 764f4eb6846f5475f1244767d24d25dd86528a4a upstream.
+commit 455c5653f50e10b4f460ef24e99f0044fbe3401c upstream.
 
-Whenever llc_ui_bind() and/or llc_ui_autobind()
-took a reference on a netdevice but subsequently fail,
-they must properly release their reference
-or risk the infamous message from unregister_netdevice()
-at device dismantle.
+This is essentially a revert of the commit dc865fb9e7c2 ("ASoC: sti:
+Use snd_pcm_stop_xrun() helper"), which converted the manual
+snd_pcm_stop() calls with snd_pcm_stop_xrun().
 
-unregister_netdevice: waiting for eth0 to become free. Usage count = 3
+The commit above introduced a deadlock as snd_pcm_stop_xrun() itself
+takes the PCM stream lock while the caller already holds it.  Since
+the conversion was done only for consistency reason and the open-call
+with snd_pcm_stop() to the XRUN state is a correct usage, let's revert
+the commit back as the fix.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: 赵子轩 <beraphin@gmail.com>
-Reported-by: Stoyan Manolov <smanolov@suse.de>
-Link: https://lore.kernel.org/r/20220323004147.1990845-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: dc865fb9e7c2 ("ASoC: sti: Use snd_pcm_stop_xrun() helper")
+Reported-by: Daniel Palmer <daniel@0x0f.com>
+Cc: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220315091319.3351522-1-daniel@0x0f.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Link: https://lore.kernel.org/r/20220315164158.19804-1-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/llc/af_llc.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/soc/sti/uniperif_player.c |    6 +++---
+ sound/soc/sti/uniperif_reader.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/llc/af_llc.c
-+++ b/net/llc/af_llc.c
-@@ -310,6 +310,10 @@ static int llc_ui_autobind(struct socket
- 	sock_reset_flag(sk, SOCK_ZAPPED);
- 	rc = 0;
- out:
-+	if (rc) {
-+		dev_put(llc->dev);
-+		llc->dev = NULL;
-+	}
- 	return rc;
- }
+--- a/sound/soc/sti/uniperif_player.c
++++ b/sound/soc/sti/uniperif_player.c
+@@ -91,7 +91,7 @@ static irqreturn_t uni_player_irq_handle
+ 			SET_UNIPERIF_ITM_BCLR_FIFO_ERROR(player);
  
-@@ -407,6 +411,10 @@ static int llc_ui_bind(struct socket *so
- out_put:
- 	llc_sap_put(sap);
- out:
-+	if (rc) {
-+		dev_put(llc->dev);
-+		llc->dev = NULL;
-+	}
- 	release_sock(sk);
- 	return rc;
- }
+ 			/* Stop the player */
+-			snd_pcm_stop_xrun(player->substream);
++			snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
+ 		}
+ 
+ 		ret = IRQ_HANDLED;
+@@ -105,7 +105,7 @@ static irqreturn_t uni_player_irq_handle
+ 		SET_UNIPERIF_ITM_BCLR_DMA_ERROR(player);
+ 
+ 		/* Stop the player */
+-		snd_pcm_stop_xrun(player->substream);
++		snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
+ 
+ 		ret = IRQ_HANDLED;
+ 	}
+@@ -138,7 +138,7 @@ static irqreturn_t uni_player_irq_handle
+ 		dev_err(player->dev, "Underflow recovery failed\n");
+ 
+ 		/* Stop the player */
+-		snd_pcm_stop_xrun(player->substream);
++		snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
+ 
+ 		ret = IRQ_HANDLED;
+ 	}
+--- a/sound/soc/sti/uniperif_reader.c
++++ b/sound/soc/sti/uniperif_reader.c
+@@ -65,7 +65,7 @@ static irqreturn_t uni_reader_irq_handle
+ 	if (unlikely(status & UNIPERIF_ITS_FIFO_ERROR_MASK(reader))) {
+ 		dev_err(reader->dev, "FIFO error detected\n");
+ 
+-		snd_pcm_stop_xrun(reader->substream);
++		snd_pcm_stop(reader->substream, SNDRV_PCM_STATE_XRUN);
+ 
+ 		ret = IRQ_HANDLED;
+ 	}
 
 
