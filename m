@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6681C4E7755
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0DF04E76D9
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:19:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376595AbiCYP1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38428 "EHLO
+        id S1349353AbiCYPU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378140AbiCYPY4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5735E2F5C;
-        Fri, 25 Mar 2022 08:19:53 -0700 (PDT)
+        with ESMTP id S1376397AbiCYPTk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:19:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D4E0E09B6;
+        Fri, 25 Mar 2022 08:15:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7540DB827DC;
-        Fri, 25 Mar 2022 15:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B96C340E9;
-        Fri, 25 Mar 2022 15:19:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CD9E60A1B;
+        Fri, 25 Mar 2022 15:15:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 664E5C340EE;
+        Fri, 25 Mar 2022 15:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221592;
-        bh=hhIXfqRL4qDt0kZZLP04Q5WAO1VZ6lHEugtZ3zLr218=;
+        s=korg; t=1648221327;
+        bh=YOKp3do8vELpQwkoJRceq2v3z9rJ/hm84CFhL8nDedI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3vh3NKCEZgpCvN58nFtOqVRwr7R/Uz6HRiHfS3HOKXdY3zLvxc1TMyywHdetQYXw
-         TaIQ//3262HzIJouvUAK5/7urBiu8KCqnJGXysG3ptUOTnNXc2+V2Y1fn+yXhE1pXa
-         E8ut3bsVHCEDBGzC0OXWOywlLLm/MsL86L/npYtI=
+        b=SDfoBqA2NehN5YUtdTtyVAdJ3K1Kt/X84W4M37WWoRmQoWRSNNHm+cXgTa0dT2ccw
+         8j5LqBGam0YYfkAPvV3N6vukOBaw8WAQJhzu1qAAXnaGuy+9lMvEkgcdkpGf2PcyBF
+         9gAeVDSsKo/QRyXu1GddtFm7v+LApQ/cSS6pch3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 08/39] ALSA: hda/realtek: Add quirk for Clevo NP50PNJ
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.15 22/37] netfilter: nf_tables: initialize registers in nft_do_chain()
 Date:   Fri, 25 Mar 2022 16:14:23 +0100
-Message-Id: <20220325150420.484570213@linuxfoundation.org>
+Message-Id: <20220325150420.567686053@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
+References: <20220325150419.931802116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 9cb727506704b5323998047789fc871e64a6aa14 upstream.
+commit 4c905f6740a365464e91467aa50916555b28213d upstream.
 
-Fixes headset detection on Clevo NP50PNJ.
+Initialize registers to avoid stack leak into userspace.
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220307193229.5141-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nf_tables_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9103,6 +9103,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x8561, "Clevo NH[57][0-9][ER][ACDH]Q", ALC269_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[57][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
- 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x866d, "Clevo NP5[05]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x867d, "Clevo NP7[01]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
+--- a/net/netfilter/nf_tables_core.c
++++ b/net/netfilter/nf_tables_core.c
+@@ -162,7 +162,7 @@ nft_do_chain(struct nft_pktinfo *pkt, vo
+ 	struct nft_rule *const *rules;
+ 	const struct nft_rule *rule;
+ 	const struct nft_expr *expr, *last;
+-	struct nft_regs regs;
++	struct nft_regs regs = {};
+ 	unsigned int stackptr = 0;
+ 	struct nft_jumpstack jumpstack[NFT_JUMP_STACK_SIZE];
+ 	bool genbit = READ_ONCE(net->nft.gencursor);
 
 
