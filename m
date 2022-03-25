@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FBA4E7631
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6833A4E75FB
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376304AbiCYPLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:11:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
+        id S1354867AbiCYPJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:09:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359855AbiCYPLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:11:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CFC5F276;
-        Fri, 25 Mar 2022 08:08:35 -0700 (PDT)
+        with ESMTP id S1359742AbiCYPJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:09:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7886DDA6E0;
+        Fri, 25 Mar 2022 08:07:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF29A61C12;
-        Fri, 25 Mar 2022 15:08:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E64C340E9;
-        Fri, 25 Mar 2022 15:08:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4BE161C14;
+        Fri, 25 Mar 2022 15:07:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8C62C340E9;
+        Fri, 25 Mar 2022 15:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220900;
-        bh=VxRB2LISnDDQcZScuENYf6qsl2GEU/YC1FvIF1AMrFc=;
+        s=korg; t=1648220839;
+        bh=qewUrMqWkmRRIRadnW13+t9nVrfxgZxO+OT6rf8Gnis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNbKg0eZE5lko5jKfHsScKXymn8JH9qwSwUlAORA4ufAuTUiOm0Z38T0AnuIjacAH
-         IYV4nPBkF3zNoeoL2tSH3BzpX/G6ZZZSIjMhJSsP6lUsBXt0egET61VBjXeVneSEl0
-         /8IYLW8Y9bDm7Ku6UlG5CuHJC7G36poM/erH0Ohk=
+        b=XAYh0xznX4cEc+VlA+zoQKbq5AThOkGT446pn4xnSkf/6iZ57tDV1rWGqwJWeGZEk
+         ANl7Km1j3GWk4D/VuFbffmDniaJ5Nadt3V8xdpoDOVC35cfAaa+mB8qCpJiCfQNEkk
+         Bex1Ruyx/vCLXYP3NVdVzODLWSRXF5RH9BhPwxz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, valis <sec@valis.email>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Vaibhav Rustagi <vaibhavrustagi@google.com>
-Subject: [PATCH 5.4 05/29] esp: Fix possible buffer overflow in ESP transformation
-Date:   Fri, 25 Mar 2022 16:04:45 +0100
-Message-Id: <20220325150418.741528100@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+72732c532ac1454eeee9@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 08/20] ALSA: oss: Fix PCM OSS buffer allocation overflow
+Date:   Fri, 25 Mar 2022 16:04:46 +0100
+Message-Id: <20220325150417.251274796@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
-References: <20220325150418.585286754@linuxfoundation.org>
+In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
+References: <20220325150417.010265747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ebe48d368e97d007bfeb76fcb065d6cfc4c96645 upstream.
+commit efb6402c3c4a7c26d97c92d70186424097b6e366 upstream.
 
-The maximum message size that can be send is bigger than
-the  maximum site that skb_page_frag_refill can allocate.
-So it is possible to write beyond the allocated buffer.
+We've got syzbot reports hitting INT_MAX overflow at vmalloc()
+allocation that is called from snd_pcm_plug_alloc().  Although we
+apply the restrictions to input parameters, it's based only on the
+hw_params of the underlying PCM device.  Since the PCM OSS layer
+allocates a temporary buffer for the data conversion, the size may
+become unexpectedly large when more channels or higher rates is given;
+in the reported case, it went over INT_MAX, hence it hits WARN_ON().
 
-Fix this by doing a fallback to COW in that case.
+This patch is an attempt to avoid such an overflow and an allocation
+for too large buffers.  First off, it adds the limit of 1MB as the
+upper bound for period bytes.  This must be large enough for all use
+cases, and we really don't want to handle a larger temporary buffer
+than this size.  The size check is performed at two places, where the
+original period bytes is calculated and where the plugin buffer size
+is calculated.
 
-v2:
+In addition, the driver uses array_size() and array3_size() for
+multiplications to catch overflows for the converted period size and
+buffer bytes.
 
-Avoid get get_order() costs as suggested by Linus Torvalds.
-
-Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
-Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
-Reported-by: valis <sec@valis.email>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Reported-by: syzbot+72732c532ac1454eeee9@syzkaller.appspotmail.com
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/00000000000085b1b305da5a66f3@google.com
+Link: https://lore.kernel.org/r/20220318082036.29699-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/esp.h  |    2 ++
- include/net/sock.h |    3 +++
- net/core/sock.c    |    2 --
- net/ipv4/esp4.c    |    5 +++++
- net/ipv6/esp6.c    |    5 +++++
- 5 files changed, 15 insertions(+), 2 deletions(-)
+ sound/core/oss/pcm_oss.c    |   12 ++++++++----
+ sound/core/oss/pcm_plugin.c |    5 ++++-
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
---- a/include/net/esp.h
-+++ b/include/net/esp.h
-@@ -4,6 +4,8 @@
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -789,6 +789,11 @@ static int snd_pcm_oss_period_size(struc
  
- #include <linux/skbuff.h>
- 
-+#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
+ 	if (oss_period_size < 16)
+ 		return -EINVAL;
 +
- struct ip_esp_hdr;
- 
- static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2583,6 +2583,9 @@ extern int sysctl_optmem_max;
- extern __u32 sysctl_wmem_default;
- extern __u32 sysctl_rmem_default;
- 
++	/* don't allocate too large period; 1MB period must be enough */
++	if (oss_period_size > 1024 * 1024)
++		return -ENOMEM;
 +
-+/* On 32bit arches, an skb frag is limited to 2^15 */
-+#define SKB_FRAG_PAGE_ORDER	get_order(32768)
- DECLARE_STATIC_KEY_FALSE(net_high_order_alloc_disable_key);
- 
- static inline int sk_get_wmem0(const struct sock *sk, const struct proto *proto)
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2355,8 +2355,6 @@ static void sk_leave_memory_pressure(str
+ 	runtime->oss.period_bytes = oss_period_size;
+ 	runtime->oss.period_frames = 1;
+ 	runtime->oss.periods = oss_periods;
+@@ -1060,10 +1065,9 @@ static int snd_pcm_oss_change_params_loc
+ 			goto failure;
  	}
- }
- 
--/* On 32bit arches, an skb frag is limited to 2^15 */
--#define SKB_FRAG_PAGE_ORDER	get_order(32768)
- DEFINE_STATIC_KEY_FALSE(net_high_order_alloc_disable_key);
- 
- /**
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -277,6 +277,7 @@ int esp_output_head(struct xfrm_state *x
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
-+	unsigned int allocsz;
- 
- 	/* this is non-NULL only with UDP Encapsulation */
- 	if (x->encap) {
-@@ -286,6 +287,10 @@ int esp_output_head(struct xfrm_state *x
- 			return err;
+ #endif
+-	oss_period_size *= oss_frame_size;
+-
+-	oss_buffer_size = oss_period_size * runtime->oss.periods;
+-	if (oss_buffer_size < 0) {
++	oss_period_size = array_size(oss_period_size, oss_frame_size);
++	oss_buffer_size = array_size(oss_period_size, runtime->oss.periods);
++	if (oss_buffer_size <= 0) {
+ 		err = -EINVAL;
+ 		goto failure;
  	}
- 
-+	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
-+	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+		goto cow;
-+
- 	if (!skb_cloned(skb)) {
- 		if (tailen <= skb_tailroom(skb)) {
- 			nfrags = 1;
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -230,6 +230,11 @@ int esp6_output_head(struct xfrm_state *
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
-+	unsigned int allocsz;
-+
-+	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
-+	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+		goto cow;
- 
- 	if (!skb_cloned(skb)) {
- 		if (tailen <= skb_tailroom(skb)) {
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -61,7 +61,10 @@ static int snd_pcm_plugin_alloc(struct s
+ 	}
+ 	if ((width = snd_pcm_format_physical_width(format->format)) < 0)
+ 		return width;
+-	size = frames * format->channels * width;
++	size = array3_size(frames, format->channels, width);
++	/* check for too large period size once again */
++	if (size > 1024 * 1024)
++		return -ENOMEM;
+ 	if (snd_BUG_ON(size % 8))
+ 		return -ENXIO;
+ 	size /= 8;
 
 
