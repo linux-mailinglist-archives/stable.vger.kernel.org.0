@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A15C44E7698
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FA34E76A4
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356708AbiCYPQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:16:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
+        id S241607AbiCYPQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:16:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376514AbiCYPND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9311C60A92;
-        Fri, 25 Mar 2022 08:09:52 -0700 (PDT)
+        with ESMTP id S1359868AbiCYPMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:12:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D4762BD7;
+        Fri, 25 Mar 2022 08:09:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F143361BE9;
-        Fri, 25 Mar 2022 15:09:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E56C340E9;
-        Fri, 25 Mar 2022 15:09:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B41CB82833;
+        Fri, 25 Mar 2022 15:08:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6097C340EE;
+        Fri, 25 Mar 2022 15:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220983;
-        bh=LmmrKrcXWHF0nmGwHPYoy284TsAUKyF8yO/u+Sn9jiI=;
+        s=korg; t=1648220929;
+        bh=jcLfJTVwawaNohIHlCSzusKA3GAKslrDHK7XQnwK66c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v66yXUL133djfNytB2a8zTCSvEtdG41sow9teFO7Do8rbgb30YWQYea7T6QnPXkoI
-         R2GxiZcG6CJPV+uR5ACQe6eIKZOIFDXtTdsPWJPrvsQgCpHLNurVfKaA7RZrMT9Wep
-         yeZFA7G/hCMQUPJeozqK+IwGbmJIEZwTt2ZhymzU=
+        b=fY4H76XZQQORP3NUn+Oh23DHFbD51F/xIfgpQAFlgxSIJQtC3AtD6SG80h8ro8cJw
+         ZJFBzF5h1T4OL6VKXr8vH8X//JRvyC1FNwtCq+t40yn/MNO9E9qz/G4d/xESRp1Fim
+         LSsrHHb+rNL9/oWLMAy+dyOiwuVIhmFtPuzH6qe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 25/38] ALSA: cmipci: Restore aux vol on suspend/resume
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.4 29/29] nds32: fix access_ok() checks in get/put_user
 Date:   Fri, 25 Mar 2022 16:05:09 +0100
-Message-Id: <20220325150420.474525569@linuxfoundation.org>
+Message-Id: <20220325150419.424578671@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
-References: <20220325150419.757836392@linuxfoundation.org>
+In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
+References: <20220325150418.585286754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Teh <jonathan.teh@outlook.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit c14231cc04337c2c2a937db084af342ce704dbde upstream.
+commit 8926d88ced46700bf6117ceaf391480b943ea9f4 upstream.
 
-Save and restore CM_REG_AUX_VOL instead of register 0x24 twice on
-suspend/resume.
+The get_user()/put_user() functions are meant to check for
+access_ok(), while the __get_user()/__put_user() functions
+don't.
 
-Tested on CMI8738LX.
+This broke in 4.19 for nds32, when it gained an extraneous
+check in __get_user(), but lost the check it needs in
+__put_user().
 
-Fixes: cb60e5f5b2b1 ("[ALSA] cmipci - Add PM support")
-Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/DBAPR04MB7366CB3EA9C8521C35C56E8B920E9@DBAPR04MB7366.eurprd04.prod.outlook.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 487913ab18c2 ("nds32: Extract the checking and getting pointer to a macro")
+Cc: stable@vger.kernel.org @ v4.19+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/cmipci.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/nds32/include/asm/uaccess.h |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/sound/pci/cmipci.c
-+++ b/sound/pci/cmipci.c
-@@ -302,7 +302,6 @@ MODULE_PARM_DESC(joystick_port, "Joystic
- #define CM_MICGAINZ		0x01	/* mic boost */
- #define CM_MICGAINZ_SHIFT	0
- 
--#define CM_REG_MIXER3		0x24
- #define CM_REG_AUX_VOL		0x26
- #define CM_VAUXL_MASK		0xf0
- #define CM_VAUXR_MASK		0x0f
-@@ -3291,7 +3290,7 @@ static void snd_cmipci_remove(struct pci
+--- a/arch/nds32/include/asm/uaccess.h
++++ b/arch/nds32/include/asm/uaccess.h
+@@ -71,9 +71,7 @@ static inline void set_fs(mm_segment_t f
+  * versions are void (ie, don't return a value as such).
   */
- static const unsigned char saved_regs[] = {
- 	CM_REG_FUNCTRL1, CM_REG_CHFORMAT, CM_REG_LEGACY_CTRL, CM_REG_MISC_CTRL,
--	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_MIXER3, CM_REG_PLL,
-+	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_AUX_VOL, CM_REG_PLL,
- 	CM_REG_CH0_FRAME1, CM_REG_CH0_FRAME2,
- 	CM_REG_CH1_FRAME1, CM_REG_CH1_FRAME2, CM_REG_EXT_MISC,
- 	CM_REG_INT_STATUS, CM_REG_INT_HLDCLR, CM_REG_FUNCTRL0,
+ 
+-#define get_user	__get_user					\
+-
+-#define __get_user(x, ptr)						\
++#define get_user(x, ptr)						\
+ ({									\
+ 	long __gu_err = 0;						\
+ 	__get_user_check((x), (ptr), __gu_err);				\
+@@ -86,6 +84,14 @@ static inline void set_fs(mm_segment_t f
+ 	(void)0;							\
+ })
+ 
++#define __get_user(x, ptr)						\
++({									\
++	long __gu_err = 0;						\
++	const __typeof__(*(ptr)) __user *__p = (ptr);			\
++	__get_user_err((x), __p, (__gu_err));				\
++	__gu_err;							\
++})
++
+ #define __get_user_check(x, ptr, err)					\
+ ({									\
+ 	const __typeof__(*(ptr)) __user *__p = (ptr);			\
+@@ -166,12 +172,18 @@ do {									\
+ 		: "r"(addr), "i"(-EFAULT)				\
+ 		: "cc")
+ 
+-#define put_user	__put_user					\
++#define put_user(x, ptr)						\
++({									\
++	long __pu_err = 0;						\
++	__put_user_check((x), (ptr), __pu_err);				\
++	__pu_err;							\
++})
+ 
+ #define __put_user(x, ptr)						\
+ ({									\
+ 	long __pu_err = 0;						\
+-	__put_user_err((x), (ptr), __pu_err);				\
++	__typeof__(*(ptr)) __user *__p = (ptr);				\
++	__put_user_err((x), __p, __pu_err);				\
+ 	__pu_err;							\
+ })
+ 
 
 
