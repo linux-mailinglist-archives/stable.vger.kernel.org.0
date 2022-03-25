@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFABA4E777D
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D794E7729
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377190AbiCYP2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:28:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
+        id S1376566AbiCYP1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377966AbiCYPYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 987BBEACAC;
-        Fri, 25 Mar 2022 08:19:27 -0700 (PDT)
+        with ESMTP id S1377025AbiCYPXj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6ED9BD2E7;
+        Fri, 25 Mar 2022 08:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D127260AD0;
-        Fri, 25 Mar 2022 15:19:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7912C340EE;
-        Fri, 25 Mar 2022 15:19:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC795B828F6;
+        Fri, 25 Mar 2022 15:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52D6DC340F3;
+        Fri, 25 Mar 2022 15:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221566;
-        bh=Y5pIaoEdFTFs9L/tDgexSz2P1Acwz8ZcBhY5B8L0/Ds=;
+        s=korg; t=1648221432;
+        bh=WgkLrivE4MY8nQ0slwpeeCm7CLtn2UTdPAeDBIvyKs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=edbYk9AxBbTTTzMvrC3gpODfVB4+14WNAoW2b0xt0/ujDKEyZuPFyrBgc/Fi19Jvm
-         VNIF7lDcIp9Tnlmb4MxZTd/X1ZqPaHPTO4TVdRFf4pwUf/InRA4UsxxF6P0w0ajywN
-         An7KLIbtu2N9eY3ed2M3Fv70pTjZq9CnCVgbEqyQ=
+        b=SeclibeOfJ4j28Qwa3aI3w0D2IblOkpWAeRXFCzVVlZaUq3GcAunYOi7s5zfgF8B1
+         Ch/Yga18dEu899InY0UzeW9xirUp4dijlIpgWRHtAy61QldQghWVqxOdhIyA0i8sQN
+         k7/hyXkvuG1ui8GejzXpflZvYWP6OPzexer38EA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        =?UTF-8?q?=E8=B5=B5=E5=AD=90=E8=BD=A9?= <beraphin@gmail.com>,
-        Stoyan Manolov <smanolov@suse.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 03/39] llc: fix netdevice reference leaks in llc_ui_bind()
+        stable@vger.kernel.org, huangwenhui <huangwenhuia@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.16 08/37] ALSA: hda/realtek - Fix headset mic problem for a HP machine with alc671
 Date:   Fri, 25 Mar 2022 16:14:18 +0100
-Message-Id: <20220325150420.345250175@linuxfoundation.org>
+Message-Id: <20220325150420.286957306@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: huangwenhui <huangwenhuia@uniontech.com>
 
-commit 764f4eb6846f5475f1244767d24d25dd86528a4a upstream.
+commit 882bd07f564f97fca6e42ce6ce627ce24ce1ef5a upstream.
 
-Whenever llc_ui_bind() and/or llc_ui_autobind()
-took a reference on a netdevice but subsequently fail,
-they must properly release their reference
-or risk the infamous message from unregister_netdevice()
-at device dismantle.
+On a HP 288 Pro G8, the front mic could not be detected.In order to
+get it working, the pin configuration needs to be set correctly, and
+the ALC671_FIXUP_HP_HEADSET_MIC2 fixup needs to be applied.
 
-unregister_netdevice: waiting for eth0 to become free. Usage count = 3
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: 赵子轩 <beraphin@gmail.com>
-Reported-by: Stoyan Manolov <smanolov@suse.de>
-Link: https://lore.kernel.org/r/20220323004147.1990845-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: huangwenhui <huangwenhuia@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220311093836.20754-1-huangwenhuia@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/llc/af_llc.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/llc/af_llc.c
-+++ b/net/llc/af_llc.c
-@@ -311,6 +311,10 @@ static int llc_ui_autobind(struct socket
- 	sock_reset_flag(sk, SOCK_ZAPPED);
- 	rc = 0;
- out:
-+	if (rc) {
-+		dev_put_track(llc->dev, &llc->dev_tracker);
-+		llc->dev = NULL;
-+	}
- 	return rc;
- }
- 
-@@ -408,6 +412,10 @@ static int llc_ui_bind(struct socket *so
- out_put:
- 	llc_sap_put(sap);
- out:
-+	if (rc) {
-+		dev_put_track(llc->dev, &llc->dev_tracker);
-+		llc->dev = NULL;
-+	}
- 	release_sock(sk);
- 	return rc;
- }
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -10911,6 +10911,7 @@ static const struct snd_pci_quirk alc662
+ 	SND_PCI_QUIRK(0x1028, 0x069f, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1632, "HP RP5800", ALC662_FIXUP_HP_RP5800),
+ 	SND_PCI_QUIRK(0x103c, 0x873e, "HP", ALC671_FIXUP_HP_HEADSET_MIC2),
++	SND_PCI_QUIRK(0x103c, 0x885f, "HP 288 Pro G8", ALC671_FIXUP_HP_HEADSET_MIC2),
+ 	SND_PCI_QUIRK(0x1043, 0x1080, "Asus UX501VW", ALC668_FIXUP_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x1043, 0x11cd, "Asus N550", ALC662_FIXUP_ASUS_Nx50),
+ 	SND_PCI_QUIRK(0x1043, 0x129d, "Asus N750", ALC662_FIXUP_ASUS_Nx50),
 
 
