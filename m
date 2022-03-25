@@ -2,102 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 282B84E7B7A
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:20:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F011F4E7D67
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234203AbiCYX1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 19:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46668 "EHLO
+        id S234261AbiCYXmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 19:42:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234200AbiCYX1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 19:27:52 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D646F517CD
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 16:26:13 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id q11so10631944iod.6
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 16:26:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Yy74rA8noXhQ5yzpgAKEc9dblaA2puoqp1eQzGKa4AQ=;
-        b=TaG2N2nXrnOVsIeHhVTma4w32cGs/g5sIG27D0TSou0xpUu1js4f/fXQLA9V6Uwffp
-         +SMS0Sn00wa9EYV5Ws7kTtAjzoRrlo03ct3eBx0LfDDpPlc4zOPOQ7YGu+shmTH4JFSz
-         4o3LMTHrvFfl27/bTbxL2QiyAnslW4mbWU7Gs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Yy74rA8noXhQ5yzpgAKEc9dblaA2puoqp1eQzGKa4AQ=;
-        b=2ylzA6+VBX+6ToUhifv+6U+nKOroI5O2fKW3WMo6VRLDulrq43YncJlbYf3XqZhdDE
-         CIoV9tfk42kXFc253Qoy9l0wxBJFN6wJ6mFJd3jBSEPSEokJItD61Hne1rwlsPI47tUR
-         kt37/4X6F0od2SmdZyh3mfbNvX1fl3/yWVb1J4yb1Nm+6J2ulE3BnKDGHpiusakMWvqL
-         TdOb9cdoMlU9d1P1Z0D5g/y9KD+9OPkxiW1O0XFR9wEcPNahtx7D4PmPSVaN2V2GvfFl
-         zEHyLUPqfA3HAh2yCpKUCrpYoY8jxdTyN1TLJsYMU/6QJ11F4kQdTO5jRKyB0UFpfh4b
-         ndNg==
-X-Gm-Message-State: AOAM533K1p06SWwwHaXyiEG8FFSYyRFjRYnYYcsO8tAs55nWTg+nDIVf
-        y99SntqNY4PZkFSbBBO2AZ8gEwTjlB697Q==
-X-Google-Smtp-Source: ABdhPJxvbKKIHSTkK76iJyXXUp7M+m0Nhg3S7b+AbYFC1GdS1eMWcecPII+MlycEQwHcu3OCC8bZjQ==
-X-Received: by 2002:a05:6638:2395:b0:321:23d9:9b30 with SMTP id q21-20020a056638239500b0032123d99b30mr7313594jat.289.1648250773212;
-        Fri, 25 Mar 2022 16:26:13 -0700 (PDT)
-Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id y3-20020a92c983000000b002c7dce8329fsm3510321iln.72.2022.03.25.16.26.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 25 Mar 2022 16:26:12 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/14] 4.9.309-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220325150415.694544076@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <8fe8dc16-9980-5ea7-04fa-65470b050010@linuxfoundation.org>
-Date:   Fri, 25 Mar 2022 17:26:12 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        with ESMTP id S234351AbiCYXmb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 19:42:31 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2CC16E7F0;
+        Fri, 25 Mar 2022 16:39:23 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22PMkdNf018946;
+        Fri, 25 Mar 2022 23:39:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=IdZP3D0QA8k9y7Imwt2i5Pq8bQyCKZNwmQtGuEEpg9w=;
+ b=P/2ixLclO/faqLuPbo+UWXRH1Ltxe1b5/mvBo+13BIa/obCrSn2N9TXtMLrhYbR+9qbo
+ nCAowLjCuuIQCJARSwpE9dmrFAGAljvTq4UcIIDuC3Vk4hZZ65Iv4EeD3UR0WNXLOtCg
+ lfAxdaaqX4YO5LmSl2HeELX0TA0teWdWS84JoJuZsLJawv7Vx8wNTwNTMRGwGpoSD5yj
+ SEkyfGdCirXdoW7h8NprqwHoi5psbTfoLDFGj/e9/plQi1Rwn8+CviCJiCNartnnWNVp
+ 0f0vp9tOogG0YvOSOiFoDO8XH4i296tiHfk2bBGjrgpks3+12PZUW5U05SErVuI1bxkJ bQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f0kaxdugr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 25 Mar 2022 23:39:01 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22PNOoFX007424;
+        Fri, 25 Mar 2022 23:39:01 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f0kaxdug9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 25 Mar 2022 23:39:01 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22PNcs6x019988;
+        Fri, 25 Mar 2022 23:38:59 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 3ew6t9c17u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 25 Mar 2022 23:38:59 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22PNcuwv49545638
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 25 Mar 2022 23:38:56 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7EB74AE045;
+        Fri, 25 Mar 2022 23:38:56 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A9C0EAE053;
+        Fri, 25 Mar 2022 23:38:55 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.85.1])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Fri, 25 Mar 2022 23:38:55 +0000 (GMT)
+Date:   Sat, 26 Mar 2022 00:38:53 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     mbizon@freebox.fr, Linus Torvalds <torvalds@linux-foundation.org>,
+        Toke =?UTF-8?B?SMO4aWxhbmQtSsO4cmdlbnNlbg==?= <toke@toke.dk>,
+        Netdev <netdev@vger.kernel.org>, Kalle Valo <kvalo@kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        stable <stable@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        iommu <iommu@lists.linux-foundation.org>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Message-ID: <20220326003853.44c3285c.pasic@linux.ibm.com>
+In-Reply-To: <cce202fb-5185-aa3e-9e9b-11626192cb49@arm.com>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+        <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+        <20220324055732.GB12078@lst.de>
+        <4386660.LvFx2qVVIh@natalenko.name>
+        <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com>
+        <878rsza0ih.fsf@toke.dk>
+        <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
+        <20220324163132.GB26098@lst.de>
+        <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
+        <871qyr9t4e.fsf@toke.dk>
+        <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
+        <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
+        <cce202fb-5185-aa3e-9e9b-11626192cb49@arm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: srrOjsZQlOzqe3feimddiODLjhlk02mH
+X-Proofpoint-GUID: ZMfUbVuSEunOfRMz6u6RyoVVaz6CAvFj
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-25_08,2022-03-24_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ mlxlogscore=999 priorityscore=1501 phishscore=0 lowpriorityscore=0
+ impostorscore=0 clxscore=1015 spamscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203250128
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/25/22 9:04 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.309 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.309-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Fri, 25 Mar 2022 11:27:41 +0000
+Robin Murphy <robin.murphy@arm.com> wrote:
 
-Compiled and booted on my test system. No dmesg regressions.
+> What muddies the waters a bit is that the opposite combination 
+> sync_for_cpu(DMA_TO_DEVICE) really *should* always be a no-op, and I for 
+> one have already made the case for eliding that in code elsewhere, but 
+> it doesn't necessarily hold for the inverse here, hence why I'm not sure 
+> there even is a robust common solution for peeking at a live 
+> DMA_FROM_DEVICE buffer.
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+In https://lkml.org/lkml/2022/3/24/739 I also argued, that a robust
+common solution for a peeking at a live DMA_FROM_DEVICE buffer is
+probably not possible, at least not with the current programming model
+as described by Documentation/core-api/dma-api.rst.
 
-thanks,
--- Shuah
+Namely AFAIU the programming model is based on exclusive ownership: the
+buffer is either owned by the device, which means CPU(s) are not allowed
+to *access* it, or it is owned by the CPU(s), and the device is not
+allowed to *access* it. Do we agree on this?
+
+Considering what Linus said here https://lkml.org/lkml/2022/3/24/775
+I understand that: if the idea that dma_sync_*_for_{cpu,device} always
+transfers ownership to the cpu and device respectively is abandoned, 
+and we re-define ownership in a sense that only the owner may write,
+but non-owner is allowed to read, then it may be possible to make the
+scenario under discussion work. 
+
+The scenario in pseudo code:
+
+/* when invoked device might be doing DMA into buf */
+rx_buf_complete(buf)
+{
+	prepare_peek(buf, DMA_FROM_DEVICE);
+        if (!is_ready(buf)) {
+                /*let device gain the buffer again*/
+                peek_done_not_ready(buf, DMA_FROM_DEVICE);
+                return false;
+        }
+	peek_done_ready(buf, DMA_FROM_DEVICE);
+	process_buff(buf, DMA_FROM_DEVICE); is
+}
+
+IMHO it is pretty obvious, that prepare_peek() has to update the
+cpu copy of the data *without* transferring ownership to the CPU. Since
+the owner is still the device, it is legit for the device to keep
+modifying the buffer via DMA. In case of the swiotlb, we would copy the
+content of the bounce buffer to the orig buffer possibly after
+invalidating
+caches, and for non-swiotlb we would do invalidate caches. So
+prepare_peek() could be actually something like,
+dma_sync_single_for_cpu(buf, DMA_FROM_DEVICE,
+                        DMA_ATTR_NO_OWNERSHIP_TRANSFER)
+which would most end up being functionally the same, as without the
+flag, since my guess is that the ownership is only tracked in our heads. 
+
+For peek_done_not_ready() there is conceptually nothing to do, because
+the device retained ownership. Thus would either have to mandate
+peek_done_not_ready() being a nop, or non-existent, (that is
+what Toke's patch does in the specific case), or we would have to
+mandate that dma_sync_*_for_*() has no side effects under certain. The
+former looks simpler to me, especially with swiotlb. But we are also
+fine if the cache ain't dirty, because the CPU didn't write (as pointed
+out by Linus) and we were to detect that, and avoid flushing a clean
+cache, or if we were to track ownership and to avoid flushing caches
+because no ownership transfer. But to avoid these bad flushes, at least
+for swiotlb, we would either have to track cache ownership, or even
+worse track dirtiness (for which we would have to extend the API, and
+make the drivers tell us that the cache, i.e. the original buffer got
+dirtied).
+
+Since the device has ownership when peek_done_not_ready() is invoked,
+we might need to transfer ownership to the CPU in peek_done_ready().
+This could again be a dma_sync_for_cpu() with a flag, which when supplied
+tells the dma API that no sync (cache invalidate) is needed because the
+driver guarantees, that the whole mapping was sufficiently sync-ed by
+prepare_peek(). Please notice, that the whole scheme is based on the
+driver knowing that the whole DMA is done by examining the buffer, and
+it decides based on whatever it sees.
+
+Some of the ongoing discussion seem so ignore this whole ownership biz.
+My feeling is: the notion of ownership useful. If both sides end up
+modifying (and eventually flushing) we are in trouble IMHO, an ownership
+avoids that. But if the conclusion ends up being, that ownership does
+not matter, then we should make sure it is purged from the documentation,
+because otherwise it will confuse the hell out of people who read
+documentations and care about programming models. People like me.
+
+Regards,
+Halil
