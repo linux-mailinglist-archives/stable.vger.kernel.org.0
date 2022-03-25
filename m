@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 663D94E777E
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 692A74E7757
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377168AbiCYP23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:28:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60374 "EHLO
+        id S1376719AbiCYP15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377769AbiCYPYe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:34 -0400
+        with ESMTP id S1378317AbiCYPZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:25:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C8CE9CAD;
-        Fri, 25 Mar 2022 08:18:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5335CECDB4;
+        Fri, 25 Mar 2022 08:20:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B19DB82865;
-        Fri, 25 Mar 2022 15:18:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C1A1C340E9;
-        Fri, 25 Mar 2022 15:18:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B3D9B82906;
+        Fri, 25 Mar 2022 15:15:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF94C340F3;
+        Fri, 25 Mar 2022 15:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221534;
-        bh=cY3QIpW2D4KX7XX/R14DX1lJxfIyyyG9vhbRQdQJrds=;
+        s=korg; t=1648221310;
+        bh=ZL+8ydCMGRKhWsfFAPutnN1aOnRs3fe+7ylbkThUBKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRaqjliqIMQ2gj97QIE3o3ditRJwtMmME+U9/RqIcKyrnpuu6y5Mw/YeIcwIO6AVz
-         nt4vTjjR9dWanyIk8xamGImGjGVAZgbj2mEEWdlKYJVhi3w1mR26RSN/mVPAghi0bX
-         A4GJfMxlmOvYGKq8gTg2YuB1CUyxqE4fA3i38kew=
+        b=ZR/boVMWAIQqgUcSad6uGAG1vdpWqeRnIGFvHxkeRfStUqjK147E/nh03FVavX13s
+         RQucHVT3+uTSWhF9eyYZ58AU3nhS8a9HgBSfm1NNUhWOmnkOpT491iXexVxrVjxhty
+         TH9ZnUN3nh3jVtJya+nnUsF7IQCixaebBUd2yKME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helmut Grohne <helmut@subdivi.de>,
-        Ismael Ferreras Morezuelas <swyterzone@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.17 02/39] Bluetooth: btusb: Add another Realtek 8761BU
-Date:   Fri, 25 Mar 2022 16:14:17 +0100
-Message-Id: <20220325150420.317434612@linuxfoundation.org>
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 17/37] ALSA: pcm: Add stream lock during PCM reset ioctl operations
+Date:   Fri, 25 Mar 2022 16:14:18 +0100
+Message-Id: <20220325150420.426531482@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
+References: <20220325150419.931802116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helmut Grohne <helmut@subdivi.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 6dfbe29f45fb0bde29213dbd754a79e8bfc6ecef upstream.
+commit 1f68915b2efd0d6bfd6e124aa63c94b3c69f127c upstream.
 
-This device is sometimes wrapped with a label "EDUP".
+snd_pcm_reset() is a non-atomic operation, and it's allowed to run
+during the PCM stream running.  It implies that the manipulation of
+hw_ptr and other parameters might be racy.
 
-T:  Bus=01 Lev=02 Prnt=02 Port=02 Cnt=03 Dev#=107 Spd=12   MxCh= 0
-D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2550 ProdID=8761 Rev= 2.00
-S:  Manufacturer=Realtek
-S:  Product=Bluetooth Radio
-S:  SerialNumber=00E04C239987
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+This patch adds the PCM stream lock at appropriate places in
+snd_pcm_*_reset() actions for covering that.
 
-Signed-off-by: Helmut Grohne <helmut@subdivi.de>
-Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1955351
-Cc: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322171325.4355-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/pcm_native.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -482,6 +482,8 @@ static const struct usb_device_id blackl
- 	/* Additional Realtek 8761BU Bluetooth devices */
- 	{ USB_DEVICE(0x0b05, 0x190e), .driver_info = BTUSB_REALTEK |
- 	  					     BTUSB_WIDEBAND_SPEECH },
-+	{ USB_DEVICE(0x2550, 0x8761), .driver_info = BTUSB_REALTEK |
-+						     BTUSB_WIDEBAND_SPEECH },
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1851,11 +1851,13 @@ static int snd_pcm_do_reset(struct snd_p
+ 	int err = snd_pcm_ops_ioctl(substream, SNDRV_PCM_IOCTL1_RESET, NULL);
+ 	if (err < 0)
+ 		return err;
++	snd_pcm_stream_lock_irq(substream);
+ 	runtime->hw_ptr_base = 0;
+ 	runtime->hw_ptr_interrupt = runtime->status->hw_ptr -
+ 		runtime->status->hw_ptr % runtime->period_size;
+ 	runtime->silence_start = runtime->status->hw_ptr;
+ 	runtime->silence_filled = 0;
++	snd_pcm_stream_unlock_irq(substream);
+ 	return 0;
+ }
  
- 	/* Additional Realtek 8821AE Bluetooth devices */
- 	{ USB_DEVICE(0x0b05, 0x17dc), .driver_info = BTUSB_REALTEK },
+@@ -1863,10 +1865,12 @@ static void snd_pcm_post_reset(struct sn
+ 			       snd_pcm_state_t state)
+ {
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
++	snd_pcm_stream_lock_irq(substream);
+ 	runtime->control->appl_ptr = runtime->status->hw_ptr;
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
+ 	    runtime->silence_size > 0)
+ 		snd_pcm_playback_silence(substream, ULONG_MAX);
++	snd_pcm_stream_unlock_irq(substream);
+ }
+ 
+ static const struct action_ops snd_pcm_action_reset = {
 
 
