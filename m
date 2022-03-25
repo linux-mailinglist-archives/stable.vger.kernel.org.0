@@ -2,81 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 740774E7DB6
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:23:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F234E7C7B
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229746AbiCYX6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 19:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50424 "EHLO
+        id S229792AbiCYX7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 19:59:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229714AbiCYX6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 19:58:52 -0400
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7A181C4B35
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 16:57:17 -0700 (PDT)
-Received: by mail-oi1-x22b.google.com with SMTP id z8so9881966oix.3
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 16:57:17 -0700 (PDT)
+        with ESMTP id S229611AbiCYX7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 19:59:51 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5F94ECE8;
+        Fri, 25 Mar 2022 16:58:14 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id c2so7660659pga.10;
+        Fri, 25 Mar 2022 16:58:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:in-reply-to:references:from:user-agent:date:message-id
-         :subject:to:cc;
-        bh=dF3l/8rJJ88LI3L212eeEG8ChpweezAO/LgHhM3ZshQ=;
-        b=IeUnfdUCh/hMpGj/86bCARzVHdx7A0/M758wB5N+YBqiwITGU/UMajpA+bIKH8FvQk
-         UvD/5mDMHzvnvQDD04I7Sxc6O4xBhabU9J975QdlSPfm4fDHOLmqriQvOrjVadhBCxnG
-         VWSTEg3+VYcdunuWZORjVCfwlQKvOQZrvjL4k=
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=HvxCf3iBrSFVUSs66FB91DG0UktB4J0Sg+YOQsWz7fk=;
+        b=Sx3Tvz+cKw4R5zZC4XIRSWbNij144XsxY3qYemBIob0BO8WV89v5fijUFP1JT+45cT
+         NMe/RM2tRaFK9TtUN5I/N6HL/Zl3B7yqShIjaNF2QDQPNbBamIWWiHzXOvR8pRJQ57VB
+         3n0D4OICMTCF/cqgG9cEFqfGImU+pqrGmLTrpW2C5DqlIQBYnJGdoJ4i3CFaGwYxUkn7
+         J9vRqBtKsh3Goh8w91yEqSaMkWFx5tykA95jbk/QTj84rt8Zzao7kFDBrKqyYrVq7Kqo
+         z55xF5InST0F3q/k2nup7B4bb08DYZGEqTeo7D/R5oX9SIH+g8jkW+2yJ/a53zDqn9oM
+         /LhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from
-         :user-agent:date:message-id:subject:to:cc;
-        bh=dF3l/8rJJ88LI3L212eeEG8ChpweezAO/LgHhM3ZshQ=;
-        b=qiltRdXeAse05ZrwaqUr4FMHtUSWsFLDn8qAg+JxVMg2seRsgETGOfqXudAHvboSRt
-         H1zcRJseoOTWHkrRgzC0CrZsxuYG7qLIvyzvYTke/Ow8yekz46CrmXmtFANIl2uayMBG
-         SldDVEuLRgccmMGEaAAGhLZq9hGHJmNHcA29DcZPzDKWlXp70C93mSULcb/O2C+SGoUn
-         Hzw20M4nt+zkl8dAgv6m95R5XZWj4mxIB35ZZhQaoCAt3bN1GQ7zHN4u6N6T2y5hV8QX
-         9KyHNQFTxOr3FsEZpQG9PptDtwevTUvtN5kzedJplGEj2LbEF5cz9SezRxU0oDT6hguv
-         bIaQ==
-X-Gm-Message-State: AOAM532iJi4G7v6tqhlBJYb0MNTngDrV/XqtjBhCmCCvUWFs69g1lLuK
-        gEwXgopAk5xbKHQ2wl5kgNT2zkT+C9lb5/SsTmW4AA==
-X-Google-Smtp-Source: ABdhPJxVy6FgKQgiwDbcajisI+cryeaKQbx6Bp/0sq0F7ILX2/ChyP3eGOieS+1wfca8VtaBeJelhvBHfhqzcbCaVkQ=
-X-Received: by 2002:aca:bd41:0:b0:2ec:ff42:814f with SMTP id
- n62-20020acabd41000000b002ecff42814fmr6896182oif.63.1648252637219; Fri, 25
- Mar 2022 16:57:17 -0700 (PDT)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Fri, 25 Mar 2022 18:57:16 -0500
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=HvxCf3iBrSFVUSs66FB91DG0UktB4J0Sg+YOQsWz7fk=;
+        b=ahTOSkdQtGLP6G0TjY6wq6Wv0GhKw1v9adYVo0dIEpJ0Rn6CTp3j8kKqIIOwYi0o7M
+         hD+zmCxtlgWE5MCAHGrerRA1YfxYsMSJopkwgGDQAi4giRALrhefpFLXrk5XWmdhoJKw
+         nP20B+LUToXQELp5b3xE346Z08Rk+D3EuOx6ADPAsQeWNAzZ+TeZagkqwysTIbVIv9K8
+         UzDIlAEX4m9KOM2nEazbw4IUt1f0p93WYpR6aN4z23cosotf2L+U5o73YWD+ee1Z0Dv4
+         FXwalvNmn/uS379/NzImCVc2chzdY5heAf6JjdxAqvDxNTWpteTvNTTD5abiLVnsHBt8
+         0w/A==
+X-Gm-Message-State: AOAM5320QuV5bWH5iOwdSLG+f4ULRqPacFEp617tIpKMtO3huH9hBEfI
+        J0KslHgOpj90PKQwtrA5WI4=
+X-Google-Smtp-Source: ABdhPJyvphW1Yu/OQG67MhyMMjYVw58/xuAHy9Sq3Jg35cthYi6mc1b0ZkypUTKNTbT78bfldJaz2A==
+X-Received: by 2002:a62:38d1:0:b0:4fa:80ad:bf5e with SMTP id f200-20020a6238d1000000b004fa80adbf5emr12494004pfa.69.1648252693994;
+        Fri, 25 Mar 2022 16:58:13 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id rm5-20020a17090b3ec500b001c7559762e9sm13793727pjb.20.2022.03.25.16.58.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Mar 2022 16:58:13 -0700 (PDT)
+Message-ID: <17795ca5-fe40-1259-6b33-f1a09d6fcff2@gmail.com>
+Date:   Fri, 25 Mar 2022 16:58:06 -0700
 MIME-Version: 1.0
-In-Reply-To: <20220325220827.3719273-2-gwendal@chromium.org>
-References: <20220325220827.3719273-1-gwendal@chromium.org> <20220325220827.3719273-2-gwendal@chromium.org>
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.10
-Date:   Fri, 25 Mar 2022 18:57:16 -0500
-Message-ID: <CAE-0n52MOeHL8ZVrtiPPt+r+Jib0WrJJQ6Tmkqrdt-a=ZuE7FQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/8] iio: sx9324: Fix default precharge internal
- resistance register
-To:     Gwendal Grignou <gwendal@chromium.org>, jic23@kernel.org,
-        robh+dt@kernel.org
-Cc:     linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 00/37] 5.16.18-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220325150420.046488912@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Gwendal Grignou (2022-03-25 15:08:20)
-> Fix the default value for the register that set the resistance:
-> it has to be 0x10.
->
-> Fixes: 4c18a890dff8d ("iio:proximity:sx9324: Add SX9324 support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-> ---
+On 3/25/22 08:14, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.18 release.
+> There are 37 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.18-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-I'd appreciate if you can carry forward tags next time. Then I know
-where to focus on things that have changed.
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
