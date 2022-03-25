@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 899934E7717
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:25:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6681C4E7755
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376534AbiCYP1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57778 "EHLO
+        id S1376595AbiCYP1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376819AbiCYPX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E6D7B57E;
-        Fri, 25 Mar 2022 08:16:49 -0700 (PDT)
+        with ESMTP id S1378140AbiCYPY4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5735E2F5C;
+        Fri, 25 Mar 2022 08:19:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCD1AB828FA;
-        Fri, 25 Mar 2022 15:16:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED0F8C340E9;
-        Fri, 25 Mar 2022 15:16:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7540DB827DC;
+        Fri, 25 Mar 2022 15:19:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B96C340E9;
+        Fri, 25 Mar 2022 15:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221406;
-        bh=gp++YkMIsw/KZrl9yQMpWARrfRqXAx+5PgIOyaJUvSQ=;
+        s=korg; t=1648221592;
+        bh=hhIXfqRL4qDt0kZZLP04Q5WAO1VZ6lHEugtZ3zLr218=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lApX5J3SXHsGZKVJyfj0hnQp6Y3K9qPmvjqFg3hgIvpllOf4I+avb13XxoTtjM4K4
-         gtmiq9s5nJX9mTY90iHnCPQZ4pqLTDECYfy8nL0IV/Y6xfuuA/C+IjNTKFzA8GIqek
-         whEPKjGLWhwGUK+0ZchgRD4q2S16m5TyIB69+SpQ=
+        b=g3vh3NKCEZgpCvN58nFtOqVRwr7R/Uz6HRiHfS3HOKXdY3zLvxc1TMyywHdetQYXw
+         TaIQ//3262HzIJouvUAK5/7urBiu8KCqnJGXysG3ptUOTnNXc2+V2Y1fn+yXhE1pXa
+         E8ut3bsVHCEDBGzC0OXWOywlLLm/MsL86L/npYtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 13/37] net: ipv6: fix skb_over_panic in __ip6_append_data
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 08/39] ALSA: hda/realtek: Add quirk for Clevo NP50PNJ
 Date:   Fri, 25 Mar 2022 16:14:23 +0100
-Message-Id: <20220325150420.426763970@linuxfoundation.org>
+Message-Id: <20220325150420.484570213@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-References: <20220325150420.046488912@linuxfoundation.org>
+In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
+References: <20220325150420.245733653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit 5e34af4142ffe68f01c8a9acae83300f8911e20c upstream.
+commit 9cb727506704b5323998047789fc871e64a6aa14 upstream.
 
-Syzbot found a kernel bug in the ipv6 stack:
-LINK: https://syzkaller.appspot.com/bug?id=205d6f11d72329ab8d62a610c44c5e7e25415580
-The reproducer triggers it by sending a crafted message via sendmmsg()
-call, which triggers skb_over_panic, and crashes the kernel:
+Fixes headset detection on Clevo NP50PNJ.
 
-skbuff: skb_over_panic: text:ffffffff84647fb4 len:65575 put:65575
-head:ffff888109ff0000 data:ffff888109ff0088 tail:0x100af end:0xfec0
-dev:<NULL>
-
-Update the check that prevents an invalid packet with MTU equal
-to the fregment header size to eat up all the space for payload.
-
-The reproducer can be found here:
-LINK: https://syzkaller.appspot.com/text?tag=ReproC&x=1648c83fb00000
-
-Reported-by: syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20220310232538.1044947-1-tadeusz.struk@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220307193229.5141-1-tcrawford@system76.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1476,8 +1476,8 @@ static int __ip6_append_data(struct sock
- 		      sizeof(struct frag_hdr) : 0) +
- 		     rt->rt6i_nfheader_len;
- 
--	if (mtu < fragheaderlen ||
--	    ((mtu - fragheaderlen) & ~7) + fragheaderlen < sizeof(struct frag_hdr))
-+	if (mtu <= fragheaderlen ||
-+	    ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr))
- 		goto emsgsize;
- 
- 	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9103,6 +9103,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x8561, "Clevo NH[57][0-9][ER][ACDH]Q", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[57][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0x866d, "Clevo NP5[05]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x867d, "Clevo NP7[01]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
 
 
