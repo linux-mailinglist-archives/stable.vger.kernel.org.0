@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A6594E766D
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9F64E7630
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238704AbiCYPPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44598 "EHLO
+        id S1376292AbiCYPLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:11:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376546AbiCYPNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:07 -0400
+        with ESMTP id S1359730AbiCYPLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:11:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D998E59A5E;
-        Fri, 25 Mar 2022 08:09:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E720C5F256;
+        Fri, 25 Mar 2022 08:08:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 788EEB828FF;
-        Fri, 25 Mar 2022 15:09:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AD80C340E9;
-        Fri, 25 Mar 2022 15:09:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A59A2B82901;
+        Fri, 25 Mar 2022 15:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1060C340E9;
+        Fri, 25 Mar 2022 15:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220995;
-        bh=qijmZ2EfqNai9pKH1PTCih5l3yQo6HDPLWgzXJkJmeM=;
+        s=korg; t=1648220912;
+        bh=KNwn+QBHBRBFD2JCHuCLDSoj/tzf/rXmQRsErk4L1h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RXUEWdBIT5EVS2HYM8mTwhb+kKIOe+nzlNj9azT+8ph0U+AWOof08jPX7OGjF611Z
-         uhnEdnSYoUCDaAiOXZ2USI3X3grYSsyB7mthZwd8Y4AMYkclfIVCqjj/LF6Sdk17Gt
-         fqd50aQhKO6ThODROlnUK0vYveXSvC6zhcvX1ef4=
+        b=ThkWYQ/RDLzH1Q1tcPv8c3ic4qys7I0U0+XRfGhzDuHYlrTyca/lYtPRGb8w9O+Jk
+         Oh7iAdJ9BSyqguN/fiLHWTKYrROs/WIw5Fd7XOBdE1MJZamgWTvswAO97xnkvsEyHj
+         NsOLOXDT5pV3C9s7wOucWkBM7gOfmjiZIopjT3eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.10 05/38] cgroup: Use open-time cgroup namespace for process migration perm checks
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        =?UTF-8?q?=E8=B5=B5=E5=AD=90=E8=BD=A9?= <beraphin@gmail.com>,
+        Stoyan Manolov <smanolov@suse.de>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 09/29] llc: fix netdevice reference leaks in llc_ui_bind()
 Date:   Fri, 25 Mar 2022 16:04:49 +0100
-Message-Id: <20220325150419.916078908@linuxfoundation.org>
+Message-Id: <20220325150418.855959068@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
-References: <20220325150419.757836392@linuxfoundation.org>
+In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
+References: <20220325150418.585286754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,175 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit e57457641613fef0d147ede8bd6a3047df588b95 upstream.
+commit 764f4eb6846f5475f1244767d24d25dd86528a4a upstream.
 
-cgroup process migration permission checks are performed at write time as
-whether a given operation is allowed or not is dependent on the content of
-the write - the PID. This currently uses current's cgroup namespace which is
-a potential security weakness as it may allow scenarios where a less
-privileged process tricks a more privileged one into writing into a fd that
-it created.
+Whenever llc_ui_bind() and/or llc_ui_autobind()
+took a reference on a netdevice but subsequently fail,
+they must properly release their reference
+or risk the infamous message from unregister_netdevice()
+at device dismantle.
 
-This patch makes cgroup remember the cgroup namespace at the time of open
-and uses it for migration permission checks instad of current's. Note that
-this only applies to cgroup2 as cgroup1 doesn't have namespace support.
+unregister_netdevice: waiting for eth0 to become free. Usage count = 3
 
-This also fixes a use-after-free bug on cgroupns reported in
-
- https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
-
-Note that backporting this fix also requires the preceding patch.
-
-Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Cc: Michal Koutný <mkoutny@suse.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reported-by: syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
-Fixes: 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-[mkoutny: v5.10: duplicate ns check in procs/threads write handler, adjust context]
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: 赵子轩 <beraphin@gmail.com>
+Reported-by: Stoyan Manolov <smanolov@suse.de>
+Link: https://lore.kernel.org/r/20220323004147.1990845-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-internal.h |    2 ++
- kernel/cgroup/cgroup.c          |   32 ++++++++++++++++++++++----------
- 2 files changed, 24 insertions(+), 10 deletions(-)
+ net/llc/af_llc.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -68,6 +68,8 @@ static inline struct cgroup_fs_context *
- struct cgroup_pidlist;
- 
- struct cgroup_file_ctx {
-+	struct cgroup_namespace	*ns;
-+
- 	struct {
- 		void			*trigger;
- 	} psi;
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3700,14 +3700,19 @@ static int cgroup_file_open(struct kernf
- 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx)
- 		return -ENOMEM;
-+
-+	ctx->ns = current->nsproxy->cgroup_ns;
-+	get_cgroup_ns(ctx->ns);
- 	of->priv = ctx;
- 
- 	if (!cft->open)
- 		return 0;
- 
- 	ret = cft->open(of);
--	if (ret)
-+	if (ret) {
-+		put_cgroup_ns(ctx->ns);
- 		kfree(ctx);
+--- a/net/llc/af_llc.c
++++ b/net/llc/af_llc.c
+@@ -311,6 +311,10 @@ static int llc_ui_autobind(struct socket
+ 	sock_reset_flag(sk, SOCK_ZAPPED);
+ 	rc = 0;
+ out:
++	if (rc) {
++		dev_put(llc->dev);
++		llc->dev = NULL;
 +	}
- 	return ret;
+ 	return rc;
  }
  
-@@ -3718,13 +3723,14 @@ static void cgroup_file_release(struct k
- 
- 	if (cft->release)
- 		cft->release(of);
-+	put_cgroup_ns(ctx->ns);
- 	kfree(ctx);
+@@ -409,6 +413,10 @@ static int llc_ui_bind(struct socket *so
+ out_put:
+ 	llc_sap_put(sap);
+ out:
++	if (rc) {
++		dev_put(llc->dev);
++		llc->dev = NULL;
++	}
+ 	release_sock(sk);
+ 	return rc;
  }
- 
- static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
- 				 size_t nbytes, loff_t off)
- {
--	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *cgrp = of->kn->parent->priv;
- 	struct cftype *cft = of->kn->priv;
- 	struct cgroup_subsys_state *css;
-@@ -3741,7 +3747,7 @@ static ssize_t cgroup_file_write(struct
- 	 */
- 	if ((cgrp->root->flags & CGRP_ROOT_NS_DELEGATE) &&
- 	    !(cft->flags & CFTYPE_NS_DELEGATABLE) &&
--	    ns != &init_cgroup_ns && ns->root_cset->dfl_cgrp == cgrp)
-+	    ctx->ns != &init_cgroup_ns && ctx->ns->root_cset->dfl_cgrp == cgrp)
- 		return -EPERM;
- 
- 	if (cft->write)
-@@ -4726,9 +4732,9 @@ static int cgroup_may_write(const struct
- 
- static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
- 					 struct cgroup *dst_cgrp,
--					 struct super_block *sb)
-+					 struct super_block *sb,
-+					 struct cgroup_namespace *ns)
- {
--	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
- 	struct cgroup *com_cgrp = src_cgrp;
- 	int ret;
- 
-@@ -4757,11 +4763,12 @@ static int cgroup_procs_write_permission
- 
- static int cgroup_attach_permissions(struct cgroup *src_cgrp,
- 				     struct cgroup *dst_cgrp,
--				     struct super_block *sb, bool threadgroup)
-+				     struct super_block *sb, bool threadgroup,
-+				     struct cgroup_namespace *ns)
- {
- 	int ret = 0;
- 
--	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp, sb);
-+	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp, sb, ns);
- 	if (ret)
- 		return ret;
- 
-@@ -4778,6 +4785,7 @@ static int cgroup_attach_permissions(str
- static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
- 				  char *buf, size_t nbytes, loff_t off)
- {
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *src_cgrp, *dst_cgrp;
- 	struct task_struct *task;
- 	ssize_t ret;
-@@ -4798,7 +4806,8 @@ static ssize_t cgroup_procs_write(struct
- 	spin_unlock_irq(&css_set_lock);
- 
- 	ret = cgroup_attach_permissions(src_cgrp, dst_cgrp,
--					of->file->f_path.dentry->d_sb, true);
-+					of->file->f_path.dentry->d_sb, true,
-+					ctx->ns);
- 	if (ret)
- 		goto out_finish;
- 
-@@ -4820,6 +4829,7 @@ static void *cgroup_threads_start(struct
- static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
- 				    char *buf, size_t nbytes, loff_t off)
- {
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *src_cgrp, *dst_cgrp;
- 	struct task_struct *task;
- 	ssize_t ret;
-@@ -4843,7 +4853,8 @@ static ssize_t cgroup_threads_write(stru
- 
- 	/* thread migrations follow the cgroup.procs delegation rule */
- 	ret = cgroup_attach_permissions(src_cgrp, dst_cgrp,
--					of->file->f_path.dentry->d_sb, false);
-+					of->file->f_path.dentry->d_sb, false,
-+					ctx->ns);
- 	if (ret)
- 		goto out_finish;
- 
-@@ -6023,7 +6034,8 @@ static int cgroup_css_set_fork(struct ke
- 		goto err;
- 
- 	ret = cgroup_attach_permissions(cset->dfl_cgrp, dst_cgrp, sb,
--					!(kargs->flags & CLONE_THREAD));
-+					!(kargs->flags & CLONE_THREAD),
-+					current->nsproxy->cgroup_ns);
- 	if (ret)
- 		goto err;
- 
 
 
