@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E3E4E7672
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6A44E75D1
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354492AbiCYPPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:15:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44604 "EHLO
+        id S1359551AbiCYPIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:08:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376594AbiCYPNJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11AA6C4B2;
-        Fri, 25 Mar 2022 08:10:05 -0700 (PDT)
+        with ESMTP id S1376270AbiCYPIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC1CFA7741;
+        Fri, 25 Mar 2022 08:06:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEDAF61C57;
-        Fri, 25 Mar 2022 15:10:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E32C340EE;
-        Fri, 25 Mar 2022 15:10:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 529E7B828F8;
+        Fri, 25 Mar 2022 15:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955D9C340E9;
+        Fri, 25 Mar 2022 15:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221001;
-        bh=+MRoTFyqPRTcrtTBKEJBUVfJX9Jn2E243Gb2KCdfed4=;
+        s=korg; t=1648220801;
+        bh=d4Tm298RJ4O4oXlY7hd8g2pFIpL83/OfvMHDCe05O0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWM8VJeoNdd1qmnLnJUpmFM4j7beiz3gToBAdG8L7SYQwR1QWNGpZhiXOtzb8N6oB
-         LdfDEEy4kqDwPacYepRg8rJVw9bCAqh7PMiR1gt4u27/6QsuYeqXJCpx96dxKBM2aB
-         h3voYNZZsBcUnJnM5y55HjwoSwoTtGUk2nd9z/dU=
+        b=WW0NN/8F9J/8BVnHXs/yieWpQuI6wkV9yudEH9CiBwX3thH2PHU5/RgqZkl3Gkp2n
+         K2sSQYnXE/NDP8qpjH9MLhNc3V949UlR7JHqUv2OBkOUvBdhF3prECPx8ulNQ+GvXO
+         /zlasJRptmMM298xemWVomu6GPyWoUvoS0BJrILU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        linux-integrity@vger.kernel.org, Tadeusz Struk <tstruk@gmail.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH 5.10 07/38] tpm: Fix error handling in async work
-Date:   Fri, 25 Mar 2022 16:04:51 +0100
-Message-Id: <20220325150419.972727322@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 14/20] netfilter: nf_tables: initialize registers in nft_do_chain()
+Date:   Fri, 25 Mar 2022 16:04:52 +0100
+Message-Id: <20220325150417.423549616@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
-References: <20220325150419.757836392@linuxfoundation.org>
+In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
+References: <20220325150417.010265747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tstruk@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 2e8e4c8f6673247e22efc7985ce5497accd16f88 upstream.
+commit 4c905f6740a365464e91467aa50916555b28213d upstream.
 
-When an invalid (non existing) handle is used in a TPM command,
-that uses the resource manager interface (/dev/tpmrm0) the resource
-manager tries to load it from its internal cache, but fails and
-the tpm_dev_transmit returns an -EINVAL error to the caller.
-The existing async handler doesn't handle these error cases
-currently and the condition in the poll handler never returns
-mask with EPOLLIN set.
-The result is that the poll call blocks and the application gets stuck
-until the user_read_timer wakes it up after 120 sec.
-Change the tpm_dev_async_work function to handle error conditions
-returned from tpm_dev_transmit they are also reflected in the poll mask
-and a correct error code could passed back to the caller.
+Initialize registers to avoid stack leak into userspace.
 
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: <linux-integrity@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-
-Fixes: 9e1b74a63f77 ("tpm: add support for nonblocking operation")
-Tested-by: Jarkko Sakkinen<jarkko@kernel.org>
-Signed-off-by: Tadeusz Struk <tstruk@gmail.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm-dev-common.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm-dev-common.c
-+++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -70,7 +70,13 @@ static void tpm_dev_async_work(struct wo
- 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
- 			       sizeof(priv->data_buffer));
- 	tpm_put_ops(priv->chip);
--	if (ret > 0) {
-+
-+	/*
-+	 * If ret is > 0 then tpm_dev_transmit returned the size of the
-+	 * response. If ret is < 0 then tpm_dev_transmit failed and
-+	 * returned an error code.
-+	 */
-+	if (ret != 0) {
- 		priv->response_length = ret;
- 		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
- 	}
+--- a/net/netfilter/nf_tables_core.c
++++ b/net/netfilter/nf_tables_core.c
+@@ -144,7 +144,7 @@ nft_do_chain(struct nft_pktinfo *pkt, vo
+ 	struct nft_rule *const *rules;
+ 	const struct nft_rule *rule;
+ 	const struct nft_expr *expr, *last;
+-	struct nft_regs regs;
++	struct nft_regs regs = {};
+ 	unsigned int stackptr = 0;
+ 	struct nft_jumpstack jumpstack[NFT_JUMP_STACK_SIZE];
+ 	bool genbit = READ_ONCE(net->nft.gencursor);
 
 
