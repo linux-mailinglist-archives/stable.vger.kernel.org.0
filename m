@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 829BB4E75D0
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F744E75B7
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:05:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359538AbiCYPIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:08:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S1359528AbiCYPHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:07:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359792AbiCYPID (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7969D9EA4;
-        Fri, 25 Mar 2022 08:06:17 -0700 (PDT)
+        with ESMTP id S1356712AbiCYPGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:06:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA09D95FB;
+        Fri, 25 Mar 2022 08:05:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92865B828FB;
-        Fri, 25 Mar 2022 15:06:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E353FC340E9;
-        Fri, 25 Mar 2022 15:06:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 370C261B97;
+        Fri, 25 Mar 2022 15:05:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F953C340E9;
+        Fri, 25 Mar 2022 15:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220775;
-        bh=T2w9Rgk56+o7Kq1HS/BtRz1ksRzT87ZESCNGzV+8pXQ=;
+        s=korg; t=1648220702;
+        bh=RuC+1rqugxNuew2WMFrSfKADvorEHXodJr0P7fQnOpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n3mN+hpwV+uxU9sRNm8HoZbSUBepBFT41XyEthntet1kJkajRAFYlRcKHcE8wgYaX
-         tiTkcLAmfznMGKk5RgssHhHZB0H/2M+4tlrYYyu4q5p4T1F43I40H5XQ6lj7XqRdnK
-         zAM1v5nJ+qOzRRPriY607cQiJ+TZYV0osNKfFaVM=
+        b=G7HooegSsS4DY8g+NUJeJTybYqO2/I3ytqKT623q4SfWt9VV+SCCfnIpAvddy+IdP
+         s82hD9Yfn+tl+XFDXz6laU2zlqXrBAZUk2C5CgNgwJzlaWe8ZQEIZGonkCgULdK2ch
+         4k6kJk3QFGK6rF748PCXq8xVzCQGAsCkJ9Aizq08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 07/17] ALSA: pcm: Add stream lock during PCM reset ioctl operations
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 13/14] crypto: qat - disable registration of algorithms
 Date:   Fri, 25 Mar 2022 16:04:41 +0100
-Message-Id: <20220325150416.977842219@linuxfoundation.org>
+Message-Id: <20220325150416.084395159@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150416.756136126@linuxfoundation.org>
-References: <20220325150416.756136126@linuxfoundation.org>
+In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
+References: <20220325150415.694544076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-commit 1f68915b2efd0d6bfd6e124aa63c94b3c69f127c upstream.
+commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de upstream.
 
-snd_pcm_reset() is a non-atomic operation, and it's allowed to run
-during the PCM stream running.  It implies that the manipulation of
-hw_ptr and other parameters might be racy.
+The implementations of aead and skcipher in the QAT driver do not
+support properly requests with the CRYPTO_TFM_REQ_MAY_BACKLOG flag set.
+If the HW queue is full, the driver returns -EBUSY but does not enqueue
+the request.
+This can result in applications like dm-crypt waiting indefinitely for a
+completion of a request that was never submitted to the hardware.
 
-This patch adds the PCM stream lock at appropriate places in
-snd_pcm_*_reset() actions for covering that.
+To avoid this problem, disable the registration of all crypto algorithms
+in the QAT driver by setting the number of crypto instances to 0 at
+configuration time.
 
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322171325.4355-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_native.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/crypto/qat/qat_common/qat_crypto.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -1616,21 +1616,25 @@ static int snd_pcm_do_reset(struct snd_p
- 	int err = substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_RESET, NULL);
- 	if (err < 0)
- 		return err;
-+	snd_pcm_stream_lock_irq(substream);
- 	runtime->hw_ptr_base = 0;
- 	runtime->hw_ptr_interrupt = runtime->status->hw_ptr -
- 		runtime->status->hw_ptr % runtime->period_size;
- 	runtime->silence_start = runtime->status->hw_ptr;
- 	runtime->silence_filled = 0;
-+	snd_pcm_stream_unlock_irq(substream);
- 	return 0;
- }
- 
- static void snd_pcm_post_reset(struct snd_pcm_substream *substream, int state)
- {
- 	struct snd_pcm_runtime *runtime = substream->runtime;
-+	snd_pcm_stream_lock_irq(substream);
- 	runtime->control->appl_ptr = runtime->status->hw_ptr;
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
- 	    runtime->silence_size > 0)
- 		snd_pcm_playback_silence(substream, ULONG_MAX);
-+	snd_pcm_stream_unlock_irq(substream);
- }
- 
- static const struct action_ops snd_pcm_action_reset = {
+--- a/drivers/crypto/qat/qat_common/qat_crypto.c
++++ b/drivers/crypto/qat/qat_common/qat_crypto.c
+@@ -170,6 +170,14 @@ int qat_crypto_dev_config(struct adf_acc
+ 		goto err;
+ 	if (adf_cfg_section_add(accel_dev, "Accelerator0"))
+ 		goto err;
++
++	/* Temporarily set the number of crypto instances to zero to avoid
++	 * registering the crypto algorithms.
++	 * This will be removed when the algorithms will support the
++	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
++	 */
++	instances = 0;
++
+ 	for (i = 0; i < instances; i++) {
+ 		val = i;
+ 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_BANK_NUM, i);
 
 
