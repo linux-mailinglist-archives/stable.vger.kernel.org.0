@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56B184E7697
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8474E75CE
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359857AbiCYPPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:15:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43830 "EHLO
+        id S1359527AbiCYPI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:08:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376342AbiCYPMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:12:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A68965407;
-        Fri, 25 Mar 2022 08:09:29 -0700 (PDT)
+        with ESMTP id S1359608AbiCYPH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:07:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0310DA08E;
+        Fri, 25 Mar 2022 08:05:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39EB2B82889;
-        Fri, 25 Mar 2022 15:09:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0161C340E9;
-        Fri, 25 Mar 2022 15:09:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B0CF61BF7;
+        Fri, 25 Mar 2022 15:05:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A4CFC340EE;
+        Fri, 25 Mar 2022 15:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220966;
-        bh=W7LKArX9yRiNSPg8Ifp/MUekT2A0flsCrjHTHh07QOg=;
+        s=korg; t=1648220742;
+        bh=Ma/8tTyYHRbZXunujThW1LGLHLX30DJaaghwjpgcMHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zc/XlwC/k9Chn4ip5hteEzuIvviS3TlTIfVp4ohNvJL2Yu1Afh7BBbaE/CYaqvIEy
-         u8qwk4Elp0LwZmbIhPcag8xvyi/3lhfzxSJFqfeGRywssm+I/5Irk6B7UyYz17TPZa
-         44FZ9V2rRv7HNnO6P2rYEndMMh4wYJ1Ilb8+e4K4=
+        b=vRvZCuPPuA3ai1uVoep1s9vNo804hDnAuUJDMwOw/Eua9ueYyQ4qVgkt1Yd+M5pSQ
+         +cPmGGSq5I7nUTP00xIEERYlzgTqJ+bNX0lWUFHEbtro64pB3DgQYyOp5uziSwRyaj
+         FSzZ+w4K85wnuLAnjkM2pDg9mi9Y18/Nxva3VN6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 02/38] net: ipv6: fix skb_over_panic in __ip6_append_data
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 12/17] netfilter: nf_tables: initialize registers in nft_do_chain()
 Date:   Fri, 25 Mar 2022 16:04:46 +0100
-Message-Id: <20220325150419.830695569@linuxfoundation.org>
+Message-Id: <20220325150417.120190348@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
-References: <20220325150419.757836392@linuxfoundation.org>
+In-Reply-To: <20220325150416.756136126@linuxfoundation.org>
+References: <20220325150416.756136126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 5e34af4142ffe68f01c8a9acae83300f8911e20c upstream.
+commit 4c905f6740a365464e91467aa50916555b28213d upstream.
 
-Syzbot found a kernel bug in the ipv6 stack:
-LINK: https://syzkaller.appspot.com/bug?id=205d6f11d72329ab8d62a610c44c5e7e25415580
-The reproducer triggers it by sending a crafted message via sendmmsg()
-call, which triggers skb_over_panic, and crashes the kernel:
+Initialize registers to avoid stack leak into userspace.
 
-skbuff: skb_over_panic: text:ffffffff84647fb4 len:65575 put:65575
-head:ffff888109ff0000 data:ffff888109ff0088 tail:0x100af end:0xfec0
-dev:<NULL>
-
-Update the check that prevents an invalid packet with MTU equal
-to the fregment header size to eat up all the space for payload.
-
-The reproducer can be found here:
-LINK: https://syzkaller.appspot.com/text?tag=ReproC&x=1648c83fb00000
-
-Reported-by: syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20220310232538.1044947-1-tadeusz.struk@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1500,8 +1500,8 @@ static int __ip6_append_data(struct sock
- 		      sizeof(struct frag_hdr) : 0) +
- 		     rt->rt6i_nfheader_len;
- 
--	if (mtu < fragheaderlen ||
--	    ((mtu - fragheaderlen) & ~7) + fragheaderlen < sizeof(struct frag_hdr))
-+	if (mtu <= fragheaderlen ||
-+	    ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr))
- 		goto emsgsize;
- 
- 	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
+--- a/net/netfilter/nf_tables_core.c
++++ b/net/netfilter/nf_tables_core.c
+@@ -150,7 +150,7 @@ nft_do_chain(struct nft_pktinfo *pkt, vo
+ 	const struct net *net = nft_net(pkt);
+ 	const struct nft_rule *rule;
+ 	const struct nft_expr *expr, *last;
+-	struct nft_regs regs;
++	struct nft_regs regs = {};
+ 	unsigned int stackptr = 0;
+ 	struct nft_jumpstack jumpstack[NFT_JUMP_STACK_SIZE];
+ 	int rulenum;
 
 
