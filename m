@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F864E7657
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:13:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A15C44E7698
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359837AbiCYPMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:12:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44620 "EHLO
+        id S1356708AbiCYPQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:16:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359857AbiCYPMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:12:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD7662A2F;
-        Fri, 25 Mar 2022 08:09:01 -0700 (PDT)
+        with ESMTP id S1376514AbiCYPND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9311C60A92;
+        Fri, 25 Mar 2022 08:09:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D57B7B82904;
-        Fri, 25 Mar 2022 15:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23280C340F4;
-        Fri, 25 Mar 2022 15:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F143361BE9;
+        Fri, 25 Mar 2022 15:09:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E56C340E9;
+        Fri, 25 Mar 2022 15:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220926;
-        bh=bLyHvRHuwpHkVvuattikF0PH4TZTbUXMmVmmup3vp7E=;
+        s=korg; t=1648220983;
+        bh=LmmrKrcXWHF0nmGwHPYoy284TsAUKyF8yO/u+Sn9jiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/qUIwmzbcEDQLlpZ4Nm+diQd+jGIEoqRFYNK8zzZZD21jAJviDBy2tIsumPdYWrU
-         Ktv6PIj4cpw66QZgPQ0uXSi4SVj4UMt3kH3UDtKn5XDa8nRO3G6Q8m6PbjDxcEIcoD
-         q1bRqJZV6tjowZtSj00E8EGRHUvvC9V3WLJakW1E=
+        b=v66yXUL133djfNytB2a8zTCSvEtdG41sow9teFO7Do8rbgb30YWQYea7T6QnPXkoI
+         R2GxiZcG6CJPV+uR5ACQe6eIKZOIFDXtTdsPWJPrvsQgCpHLNurVfKaA7RZrMT9Wep
+         yeZFA7G/hCMQUPJeozqK+IwGbmJIEZwTt2ZhymzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.4 28/29] tpm: use try_get_ops() in tpm-space.c
-Date:   Fri, 25 Mar 2022 16:05:08 +0100
-Message-Id: <20220325150419.395229464@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 25/38] ALSA: cmipci: Restore aux vol on suspend/resume
+Date:   Fri, 25 Mar 2022 16:05:09 +0100
+Message-Id: <20220325150420.474525569@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
-References: <20220325150418.585286754@linuxfoundation.org>
+In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
+References: <20220325150419.757836392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-commit fb5abce6b2bb5cb3d628aaa63fa821da8c4600f9 upstream.
+commit c14231cc04337c2c2a937db084af342ce704dbde upstream.
 
-As part of the series conversion to remove nested TPM operations:
+Save and restore CM_REG_AUX_VOL instead of register 0x24 twice on
+suspend/resume.
 
-https://lore.kernel.org/all/20190205224723.19671-1-jarkko.sakkinen@linux.intel.com/
+Tested on CMI8738LX.
 
-exposure of the chip->tpm_mutex was removed from much of the upper
-level code.  In this conversion, tpm2_del_space() was missed.  This
-didn't matter much because it's usually called closely after a
-converted operation, so there's only a very tiny race window where the
-chip can be removed before the space flushing is done which causes a
-NULL deref on the mutex.  However, there are reports of this window
-being hit in practice, so fix this by converting tpm2_del_space() to
-use tpm_try_get_ops(), which performs all the teardown checks before
-acquring the mutex.
-
-Cc: stable@vger.kernel.org # 5.4.x
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: cb60e5f5b2b1 ("[ALSA] cmipci - Add PM support")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/DBAPR04MB7366CB3EA9C8521C35C56E8B920E9@DBAPR04MB7366.eurprd04.prod.outlook.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm2-space.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/cmipci.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/char/tpm/tpm2-space.c
-+++ b/drivers/char/tpm/tpm2-space.c
-@@ -58,12 +58,12 @@ int tpm2_init_space(struct tpm_space *sp
+--- a/sound/pci/cmipci.c
++++ b/sound/pci/cmipci.c
+@@ -302,7 +302,6 @@ MODULE_PARM_DESC(joystick_port, "Joystic
+ #define CM_MICGAINZ		0x01	/* mic boost */
+ #define CM_MICGAINZ_SHIFT	0
  
- void tpm2_del_space(struct tpm_chip *chip, struct tpm_space *space)
- {
--	mutex_lock(&chip->tpm_mutex);
--	if (!tpm_chip_start(chip)) {
-+
-+	if (tpm_try_get_ops(chip) == 0) {
- 		tpm2_flush_sessions(chip, space);
--		tpm_chip_stop(chip);
-+		tpm_put_ops(chip);
- 	}
--	mutex_unlock(&chip->tpm_mutex);
-+
- 	kfree(space->context_buf);
- 	kfree(space->session_buf);
- }
+-#define CM_REG_MIXER3		0x24
+ #define CM_REG_AUX_VOL		0x26
+ #define CM_VAUXL_MASK		0xf0
+ #define CM_VAUXR_MASK		0x0f
+@@ -3291,7 +3290,7 @@ static void snd_cmipci_remove(struct pci
+  */
+ static const unsigned char saved_regs[] = {
+ 	CM_REG_FUNCTRL1, CM_REG_CHFORMAT, CM_REG_LEGACY_CTRL, CM_REG_MISC_CTRL,
+-	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_MIXER3, CM_REG_PLL,
++	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_AUX_VOL, CM_REG_PLL,
+ 	CM_REG_CH0_FRAME1, CM_REG_CH0_FRAME2,
+ 	CM_REG_CH1_FRAME1, CM_REG_CH1_FRAME2, CM_REG_EXT_MISC,
+ 	CM_REG_INT_STATUS, CM_REG_INT_HLDCLR, CM_REG_FUNCTRL0,
 
 
