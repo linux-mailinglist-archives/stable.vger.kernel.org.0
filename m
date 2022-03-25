@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB3714E6C03
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 02:32:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0CDF4E6C09
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 02:33:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238490AbiCYBdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 21:33:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38304 "EHLO
+        id S1357377AbiCYBdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 21:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357536AbiCYBdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 21:33:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63EE23DA66;
-        Thu, 24 Mar 2022 18:31:39 -0700 (PDT)
+        with ESMTP id S1357391AbiCYBdt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 21:33:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB5FABF50B;
+        Thu, 24 Mar 2022 18:32:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01B3B6192B;
-        Fri, 25 Mar 2022 01:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C00DC340EC;
-        Fri, 25 Mar 2022 01:31:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 414BD60A75;
+        Fri, 25 Mar 2022 01:32:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95457C340EC;
+        Fri, 25 Mar 2022 01:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1648171898;
-        bh=ZL4XEj4JbbLdiABvHGiuyGGg6GB+Xddaz2jksCfzH5E=;
+        s=korg; t=1648171935;
+        bh=GPnNHMMIEhE67/T0q4IYfGXt5Gp84D0IzgWbrvyJ4XY=;
         h=Date:To:From:Subject:From;
-        b=BJhF01uFN2LlvQrSMAMWU71D4GDlme3WUKj4Yrdvcku43rQNwJqudYfgiwvxmxIfl
-         CwgXI1Ni13bQyKIm9l/DkwHm4z6sC8eICHkYIqFUm8w5qPEPOvUSoZstkhlTT5RK3w
-         F1FOkbPPefiqYi4UjLcQfBBGCY6ostd5Bmocu1kI=
-Date:   Thu, 24 Mar 2022 18:31:37 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, osalvador@suse.de, naoya.horiguchi@nec.com,
-        mgorman@suse.de, linmiaohe@huawei.com, jhubbard@nvidia.com,
-        hannes@cmpxchg.org, riel@surriel.com, akpm@linux-foundation.org
+        b=V1bb0XaUfAxMhGXZHgURmE/BCtXw7mluxPZxvAITaQvu73OY4hmp2D4ysUsDOjmKb
+         cuX0rHe5SLA2Xz545ost5eGUBpRc5/POQ2QbbmbSEMq+ss64toZrxKd2oWe7eawIZ2
+         lvKMLChjgn+srj2pxmxEPQ/XfhknvotlUYe7YVzY=
+Date:   Thu, 24 Mar 2022 18:32:15 -0700
+To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
+        oleg@redhat.com, Liam.Howlett@oracle.com, hughd@google.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged] mm-clean-up-hwpoison-page-cache-page-in-fault-path.patch removed from -mm tree
-Message-Id: <20220325013138.5C00DC340EC@smtp.kernel.org>
+Subject: [merged] mempolicy-mbind_range-set_policy-after-vma_merge.patch removed from -mm tree
+Message-Id: <20220325013215.95457C340EC@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -48,71 +47,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: invalidate hwpoison page cache page in fault path
+     Subject: mempolicy: mbind_range() set_policy() after vma_merge()
 has been removed from the -mm tree.  Its filename was
-     mm-clean-up-hwpoison-page-cache-page-in-fault-path.patch
+     mempolicy-mbind_range-set_policy-after-vma_merge.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Rik van Riel <riel@surriel.com>
-Subject: mm: invalidate hwpoison page cache page in fault path
+From: Hugh Dickins <hughd@google.com>
+Subject: mempolicy: mbind_range() set_policy() after vma_merge()
 
-Sometimes the page offlining code can leave behind a hwpoisoned clean page
-cache page.  This can lead to programs being killed over and over and over
-again as they fault in the hwpoisoned page, get killed, and then get
-re-spawned by whatever wanted to run them.
+v2.6.34 commit 9d8cebd4bcd7 ("mm: fix mbind vma merge problem") introduced
+vma_merge() to mbind_range(); but unlike madvise, mlock and mprotect, it
+put a "continue" to next vma where its precedents go to update flags on
+current vma before advancing: that left vma with the wrong setting in the
+infamous vma_merge() case 8.
 
-This is particularly embarrassing when the page was offlined due to having
-too many corrected memory errors.  Now we are killing tasks due to them
-trying to access memory that probably isn't even corrupted.
+v3.10 commit 1444f92c8498 ("mm: merging memory blocks resets mempolicy")
+tried to fix that in vma_adjust(), without fully understanding the issue.
 
-This problem can be avoided by invalidating the page from the page fault
-handler, which already has a branch for dealing with these kinds of pages.
-With this patch we simply pretend the page fault was successful if the
-page was invalidated, return to userspace, incur another page fault, read
-in the file from disk (to a new memory page), and then everything works
-again.
+v3.11 commit 3964acd0dbec ("mm: mempolicy: fix mbind_range() &&
+vma_adjust() interaction") reverted that, and went about the fix in the
+right way, but chose to optimize out an unnecessary mpol_dup() with a
+prior mpol_equal() test.  But on tmpfs, that also pessimized out the vital
+call to its ->set_policy(), leaving the new mbind unenforced.
 
-Link: https://lkml.kernel.org/r/20220212213740.423efcea@imladris.surriel.com
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Matthew Wilcox <willy@infradead.org>
+The user visible effect was that the pages got allocated on the local
+node (happened to be 0), after the mbind() caller had specifically
+asked for them to be allocated on node 1.  There was not any page
+migration involved in the case reported: the pages simply got allocated
+on the wrong node.
+
+Just delete that optimization now (though it could be made conditional on
+vma not having a set_policy).  Also remove the "next" variable: it turned
+out to be blameless, but also pointless.
+
+Link: https://lkml.kernel.org/r/319e4db9-64ae-4bca-92f0-ade85d342ff@google.com
+Fixes: 3964acd0dbec ("mm: mempolicy: fix mbind_range() && vma_adjust() interaction")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ mm/mempolicy.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/mm/memory.c~mm-clean-up-hwpoison-page-cache-page-in-fault-path
-+++ a/mm/memory.c
-@@ -3877,11 +3877,16 @@ static vm_fault_t __do_fault(struct vm_f
- 		return ret;
+--- a/mm/mempolicy.c~mempolicy-mbind_range-set_policy-after-vma_merge
++++ a/mm/mempolicy.c
+@@ -786,7 +786,6 @@ static int vma_replace_policy(struct vm_
+ static int mbind_range(struct mm_struct *mm, unsigned long start,
+ 		       unsigned long end, struct mempolicy *new_pol)
+ {
+-	struct vm_area_struct *next;
+ 	struct vm_area_struct *prev;
+ 	struct vm_area_struct *vma;
+ 	int err = 0;
+@@ -801,8 +800,7 @@ static int mbind_range(struct mm_struct
+ 	if (start > vma->vm_start)
+ 		prev = vma;
  
- 	if (unlikely(PageHWPoison(vmf->page))) {
--		if (ret & VM_FAULT_LOCKED)
-+		vm_fault_t poisonret = VM_FAULT_HWPOISON;
-+		if (ret & VM_FAULT_LOCKED) {
-+			/* Retry if a clean page was removed from the cache. */
-+			if (invalidate_inode_page(vmf->page))
-+				poisonret = 0;
- 			unlock_page(vmf->page);
-+		}
- 		put_page(vmf->page);
- 		vmf->page = NULL;
--		return VM_FAULT_HWPOISON;
-+		return poisonret;
- 	}
+-	for (; vma && vma->vm_start < end; prev = vma, vma = next) {
+-		next = vma->vm_next;
++	for (; vma && vma->vm_start < end; prev = vma, vma = vma->vm_next) {
+ 		vmstart = max(start, vma->vm_start);
+ 		vmend   = min(end, vma->vm_end);
  
- 	if (unlikely(!(ret & VM_FAULT_LOCKED)))
+@@ -817,10 +815,6 @@ static int mbind_range(struct mm_struct
+ 				 anon_vma_name(vma));
+ 		if (prev) {
+ 			vma = prev;
+-			next = vma->vm_next;
+-			if (mpol_equal(vma_policy(vma), new_pol))
+-				continue;
+-			/* vma_merge() joined vma && vma->next, case 8 */
+ 			goto replace;
+ 		}
+ 		if (vma->vm_start != vmstart) {
 _
 
-Patches currently in -mm which might be from riel@surriel.com are
+Patches currently in -mm which might be from hughd@google.com are
 
+mm-delete-__clearpagewaiters.patch
+mm-filemap_unaccount_folio-large-skip-mapcount-fixup.patch
+mm-thp-fix-nr_file_mapped-accounting-in-page__file_rmap.patch
+mm-warn-on-deleting-redirtied-only-if-accounted.patch
+mm-unmap_mapping_range_tree-with-i_mmap_rwsem-shared.patch
 
