@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA5B4E7761
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05BE34E7763
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376856AbiCYP2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:28:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
+        id S1376862AbiCYP2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:28:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376481AbiCYPWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:22:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19576C93E;
-        Fri, 25 Mar 2022 08:16:21 -0700 (PDT)
+        with ESMTP id S1376551AbiCYPWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:22:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21B26C903;
+        Fri, 25 Mar 2022 08:16:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E356660AC7;
-        Fri, 25 Mar 2022 15:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2196C340E9;
-        Fri, 25 Mar 2022 15:15:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B2E360DD6;
+        Fri, 25 Mar 2022 15:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6018BC340F3;
+        Fri, 25 Mar 2022 15:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221351;
-        bh=8SAhyuG4jGlA+wi+EXKjrX7dlF5Y3pT/GEqS0lcPxAM=;
+        s=korg; t=1648221374;
+        bh=Qd4MdwtuOgC2V367/SvCDpDbMUxLTjY6JfrjWW1A8Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJUZy+2WU8dtSMP2C5xmLA0BGHxWfHz5XAPnpuWaChasnD2g1tnhutslxgNyMEdnj
-         y/P54SE6axNhwPGT67A7AWmbiTSAL2zmvRPyRXE3q0QDEfNPV9G01nyFUXTBFfO/WM
-         lEt/R8S2dRnz5fU/51Dlam46f69JhmPQ0C0lpotw=
+        b=tQjEWTuZ8+cBtqR1ltAcyMZAE0yTtW6w4xlChYWqWhg7ZMvUwiMXBbOuID1Pqn4Wt
+         wHd/ZTC6FqAhFOf3Otvq7TgVibXbbC2KxFZE/uHl3kd3DFpmNaJyDW8F47V5y41lrn
+         aoPUtn2h8ZOrUo4s2NBlklR3iM1MTjcHeNXd1nwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        linux-integrity@vger.kernel.org, Tadeusz Struk <tstruk@gmail.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH 5.15 03/37] tpm: Fix error handling in async work
-Date:   Fri, 25 Mar 2022 16:14:04 +0100
-Message-Id: <20220325150420.033358998@linuxfoundation.org>
+        stable@vger.kernel.org, Helmut Grohne <helmut@subdivi.de>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Ismael Ferreras Morezuelas <swyterzone@gmail.com>
+Subject: [PATCH 5.15 04/37] Bluetooth: btusb: Add another Realtek 8761BU
+Date:   Fri, 25 Mar 2022 16:14:05 +0100
+Message-Id: <20220325150420.062109371@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
 References: <20220325150419.931802116@linuxfoundation.org>
@@ -55,56 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tstruk@gmail.com>
+From: Helmut Grohne <helmut@subdivi.de>
 
-commit 2e8e4c8f6673247e22efc7985ce5497accd16f88 upstream.
+commit 6dfbe29f45fb0bde29213dbd754a79e8bfc6ecef upstream.
 
-When an invalid (non existing) handle is used in a TPM command,
-that uses the resource manager interface (/dev/tpmrm0) the resource
-manager tries to load it from its internal cache, but fails and
-the tpm_dev_transmit returns an -EINVAL error to the caller.
-The existing async handler doesn't handle these error cases
-currently and the condition in the poll handler never returns
-mask with EPOLLIN set.
-The result is that the poll call blocks and the application gets stuck
-until the user_read_timer wakes it up after 120 sec.
-Change the tpm_dev_async_work function to handle error conditions
-returned from tpm_dev_transmit they are also reflected in the poll mask
-and a correct error code could passed back to the caller.
+This device is sometimes wrapped with a label "EDUP".
 
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: <linux-integrity@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
+T:  Bus=01 Lev=02 Prnt=02 Port=02 Cnt=03 Dev#=107 Spd=12   MxCh= 0
+D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2550 ProdID=8761 Rev= 2.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00E04C239987
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
 
-Fixes: 9e1b74a63f77 ("tpm: add support for nonblocking operation")
-Tested-by: Jarkko Sakkinen<jarkko@kernel.org>
-Signed-off-by: Tadeusz Struk <tstruk@gmail.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
+Signed-off-by: Helmut Grohne <helmut@subdivi.de>
+Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1955351
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm-dev-common.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/char/tpm/tpm-dev-common.c
-+++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -69,7 +69,13 @@ static void tpm_dev_async_work(struct wo
- 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
- 			       sizeof(priv->data_buffer));
- 	tpm_put_ops(priv->chip);
--	if (ret > 0) {
-+
-+	/*
-+	 * If ret is > 0 then tpm_dev_transmit returned the size of the
-+	 * response. If ret is < 0 then tpm_dev_transmit failed and
-+	 * returned an error code.
-+	 */
-+	if (ret != 0) {
- 		priv->response_length = ret;
- 		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
- 	}
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -481,6 +481,8 @@ static const struct usb_device_id blackl
+ 	/* Additional Realtek 8761BU Bluetooth devices */
+ 	{ USB_DEVICE(0x0b05, 0x190e), .driver_info = BTUSB_REALTEK |
+ 	  					     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x2550, 0x8761), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
+ 
+ 	/* Additional Realtek 8821AE Bluetooth devices */
+ 	{ USB_DEVICE(0x0b05, 0x17dc), .driver_info = BTUSB_REALTEK },
 
 
