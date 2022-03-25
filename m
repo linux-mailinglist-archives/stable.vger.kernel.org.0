@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DAAB4E7693
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B094E761B
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:09:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353177AbiCYPPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:15:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43484 "EHLO
+        id S1356465AbiCYPKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:10:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376337AbiCYPMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:12:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 939FE652F3;
-        Fri, 25 Mar 2022 08:09:27 -0700 (PDT)
+        with ESMTP id S1359766AbiCYPKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:10:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26687DA08B;
+        Fri, 25 Mar 2022 08:07:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BA4DB828FF;
-        Fri, 25 Mar 2022 15:09:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A37AAC340E9;
-        Fri, 25 Mar 2022 15:09:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79B0C61BE3;
+        Fri, 25 Mar 2022 15:07:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 896FEC340F4;
+        Fri, 25 Mar 2022 15:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220952;
-        bh=8AYGYPvF+h4SUWeZ8xlGcPRxQ8Ip9yjUh5xO1V/Iwf0=;
+        s=korg; t=1648220876;
+        bh=30Sq2KHG//5SyVDvego7bQ7JmKwEWuVUMJ9EIg20PUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbUV5plk1956NbkXFvgEboniNjS7PJUB7/t9p+45xuf2D4kbwnZuYa5Qwp/pKtLjt
-         LAhdWfLVdSYrimNGJnytYMtgTqBqg1W4Tij07On3afH0hC6NNbp8wfdk/AVOMhDEcv
-         FDn1jLVEUcFa8B5/sQPmLR3nmOU58XlMLa1SBjEA=
+        b=qEKnOJ/t3vrY0kePbIs81kyM5n6PnWfcA3JqNP3qGY4NCWHOfRyqIV3Iot8ygpPI2
+         km1Y14VTFi7o+2jKKTCQzmsyNZ+lurpS0HLTk3Em2XXepSrpeuasyVXDs03lsBYorE
+         bY0Kp1YGCv+DlV1FGDJ6uJUv1BL9xlG40eK4t84E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        stable@vger.kernel.org, huangwenhui <huangwenhuia@uniontech.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 15/38] ALSA: hda/realtek: Add quirk for Clevo NP70PNJ
+Subject: [PATCH 5.4 19/29] ALSA: hda/realtek - Fix headset mic problem for a HP machine with alc671
 Date:   Fri, 25 Mar 2022 16:04:59 +0100
-Message-Id: <20220325150420.196900083@linuxfoundation.org>
+Message-Id: <20220325150419.140391558@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
-References: <20220325150419.757836392@linuxfoundation.org>
+In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
+References: <20220325150418.585286754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,15 +53,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: huangwenhui <huangwenhuia@uniontech.com>
 
-commit 0c20fce13e6e111463e3a15ce3cf6713fe518388 upstream.
+commit 882bd07f564f97fca6e42ce6ce627ce24ce1ef5a upstream.
 
-Fixes headset detection on Clevo NP70PNJ.
+On a HP 288 Pro G8, the front mic could not be detected.In order to
+get it working, the pin configuration needs to be set correctly, and
+the ALC671_FIXUP_HP_HEADSET_MIC2 fixup needs to be applied.
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Signed-off-by: huangwenhui <huangwenhuia@uniontech.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220304170840.3351-1-tcrawford@system76.com
+Link: https://lore.kernel.org/r/20220311093836.20754-1-huangwenhuia@uniontech.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -70,13 +72,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -8884,6 +8884,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x8561, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[5|7][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
- 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x867d, "Clevo NP7[01]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
- 	SND_PCI_QUIRK(0x1558, 0x8a20, "Clevo NH55DCQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+@@ -10201,6 +10201,7 @@ static const struct snd_pci_quirk alc662
+ 	SND_PCI_QUIRK(0x1028, 0x069f, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1632, "HP RP5800", ALC662_FIXUP_HP_RP5800),
+ 	SND_PCI_QUIRK(0x103c, 0x873e, "HP", ALC671_FIXUP_HP_HEADSET_MIC2),
++	SND_PCI_QUIRK(0x103c, 0x885f, "HP 288 Pro G8", ALC671_FIXUP_HP_HEADSET_MIC2),
+ 	SND_PCI_QUIRK(0x1043, 0x1080, "Asus UX501VW", ALC668_FIXUP_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x1043, 0x11cd, "Asus N550", ALC662_FIXUP_ASUS_Nx50),
+ 	SND_PCI_QUIRK(0x1043, 0x129d, "Asus N750", ALC662_FIXUP_ASUS_Nx50),
 
 
