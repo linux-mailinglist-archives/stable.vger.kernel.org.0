@@ -2,110 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B44904E7D38
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44DFA4E7C55
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233764AbiCYWKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 18:10:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45120 "EHLO
+        id S233900AbiCYWmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 18:42:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233776AbiCYWKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 18:10:07 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD2B16666B
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 15:08:32 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id a16-20020a17090a6d9000b001c7d6c1bb13so4628703pjk.4
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 15:08:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=xOpY+DRdxabYq4KSBS213CEML9vt3FeER5a0RKzlMFw=;
-        b=MyU7CSOScAxvn4y5ih8kVLnLZpwiai3vdS4oQBGkVQ8S1ZVu9nJ/eMrF+kSvk3e8Bw
-         ufGIGB9wcYmeR0JZSL7dr8FmEUE8LaDvl/2Y/GN9W6HfZ4cu62pZUQsKahTqDrbNmaoO
-         E2tbgJCqkciNqUbrwguQLEVNHVUGxH6+WDMkw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=xOpY+DRdxabYq4KSBS213CEML9vt3FeER5a0RKzlMFw=;
-        b=8HBpF8eJELU1I8XBR/3aMzBRGw0N6IFpK/zRffCCSc+/Qp/jEL6OulU4Jcf7aM1koO
-         HRVA7JIlffKixhcHxEORZqrLwIt6TId4mG9ZNk2JTQCS+a2tg7mBlUP1kVZPTJs95ZQw
-         DR7GTYIbLfxtPwwkEzH4PYbS1eMM2gt5YlOIptdpM4uHJONb4UTsaDV4GsvQ9nk7yvmd
-         0Bk9PhPL+v8nYLhJf15SebIzrRCWhlhiblvffs1v3CEbJQ/2aQ98jfMX51sNt+Sf4dnH
-         EdAKGCzl0mWtBAG+mA2kySE+QBoixtzA2OwAKvnCVNz3lEPO/ZVPZoHd/a6jpriR3HYL
-         AyWw==
-X-Gm-Message-State: AOAM533i+934hqQTwFvqu95BSysyIFrKm/PN8VxViUyT91+uPjTIyDKW
-        hX2dqsoMAjJO22q4E9htvFr/fw==
-X-Google-Smtp-Source: ABdhPJwRy+sx4YMZ0u4xcqx1mVelcnOuRT8sBr0pcXctkoSL8l0tYKp6GIHQ83BMhH92o37IttNGlQ==
-X-Received: by 2002:a17:90a:b38b:b0:1c7:9f03:9b4d with SMTP id e11-20020a17090ab38b00b001c79f039b4dmr15206702pjr.170.1648246112370;
-        Fri, 25 Mar 2022 15:08:32 -0700 (PDT)
-Received: from localhost ([2620:15c:202:201:f21c:980b:7d64:94f9])
-        by smtp.gmail.com with UTF8SMTPSA id y15-20020a17090a1f4f00b001c7ecaf9e13sm2909175pjy.35.2022.03.25.15.08.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 25 Mar 2022 15:08:32 -0700 (PDT)
-From:   Gwendal Grignou <gwendal@chromium.org>
-To:     jic23@kernel.org, robh+dt@kernel.org, swboyd@chromium.org
-Cc:     linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
-        Gwendal Grignou <gwendal@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH v3 1/8] iio: sx9324: Fix default precharge internal resistance register
-Date:   Fri, 25 Mar 2022 15:08:20 -0700
-Message-Id: <20220325220827.3719273-2-gwendal@chromium.org>
-X-Mailer: git-send-email 2.35.1.1021.g381101b075-goog
-In-Reply-To: <20220325220827.3719273-1-gwendal@chromium.org>
-References: <20220325220827.3719273-1-gwendal@chromium.org>
+        with ESMTP id S233889AbiCYWms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 18:42:48 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3B3F6203A48
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 15:41:06 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-132-bzPiuRSPOXqPuBduQ2feJg-1; Fri, 25 Mar 2022 22:41:04 +0000
+X-MC-Unique: bzPiuRSPOXqPuBduQ2feJg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Fri, 25 Mar 2022 22:41:02 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Fri, 25 Mar 2022 22:41:01 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Linus Torvalds' <torvalds@linux-foundation.org>,
+        Johannes Berg <johannes@sipsolutions.net>
+CC:     Maxime Bizon <mbizon@freebox.fr>,
+        =?utf-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        "Marek Szyprowski" <m.szyprowski@samsung.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "Paolo Abeni" <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+Subject: RE: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Thread-Topic: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Thread-Index: AQHYQJM6K/9JYQDqEEKfLChLw6SC36zQrLFA
+Date:   Fri, 25 Mar 2022 22:41:01 +0000
+Message-ID: <273dec6267b249ca941558c268390fbc@AcuMS.aculab.com>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+ <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+ <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
+ <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
+ <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
+ <20220324163132.GB26098@lst.de>
+ <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
+ <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
+ <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
+ <CAHk-=wippum+MksdY7ixMfa3i1sZ+nxYPWLLpVMNyXCgmiHbBQ@mail.gmail.com>
+ <298f4f9ccad7c3308d3a1fd8b4b4740571305204.camel@sipsolutions.net>
+ <CAHk-=whXAan2ExANMryPSFaBWeyzikPi+fPUseMoVhQAxR7cEA@mail.gmail.com>
+ <e42e4c8bf35b62c671ec20ec6c21a43216e7daa6.camel@sipsolutions.net>
+ <CAHk-=wjJp5xCx0CCrLCzFGZyyABYSNNNa0i=4fN3fBydP7r97w@mail.gmail.com>
+In-Reply-To: <CAHk-=wjJp5xCx0CCrLCzFGZyyABYSNNNa0i=4fN3fBydP7r97w@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix the default value for the register that set the resistance:
-it has to be 0x10.
-
-Fixes: 4c18a890dff8d ("iio:proximity:sx9324: Add SX9324 support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
----
-Changes since v2:
-- no changes
-
-Changes since v1:
-- new patch.
-
- drivers/iio/proximity/sx9324.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/iio/proximity/sx9324.c b/drivers/iio/proximity/sx9324.c
-index 0d9bbbb50cb45..d50ce67aafdf2 100644
---- a/drivers/iio/proximity/sx9324.c
-+++ b/drivers/iio/proximity/sx9324.c
-@@ -70,7 +70,8 @@
- #define SX9324_REG_AFE_PH2		0x2a
- #define SX9324_REG_AFE_PH3		0x2b
- #define SX9324_REG_AFE_CTRL8		0x2c
--#define SX9324_REG_AFE_CTRL8_RESFILTN_4KOHM 0x02
-+#define SX9324_REG_AFE_CTRL8_RSVD	0x10
-+#define SX9324_REG_AFE_CTRL8_RESFILTIN_4KOHM 0x02
- #define SX9324_REG_AFE_CTRL9		0x2d
- #define SX9324_REG_AFE_CTRL9_AGAIN_1	0x08
- 
-@@ -781,7 +782,8 @@ static const struct sx_common_reg_default sx9324_default_regs[] = {
- 	{ SX9324_REG_AFE_PH2, 0x1a },
- 	{ SX9324_REG_AFE_PH3, 0x16 },
- 
--	{ SX9324_REG_AFE_CTRL8, SX9324_REG_AFE_CTRL8_RESFILTN_4KOHM },
-+	{ SX9324_REG_AFE_CTRL8, SX9324_REG_AFE_CTRL8_RSVD |
-+		SX9324_REG_AFE_CTRL8_RESFILTIN_4KOHM },
- 	{ SX9324_REG_AFE_CTRL9, SX9324_REG_AFE_CTRL9_AGAIN_1 },
- 
- 	{ SX9324_REG_PROX_CTRL0, SX9324_REG_PROX_CTRL0_GAIN_1 |
--- 
-2.35.1.1021.g381101b075-goog
+RnJvbTogTGludXMgVG9ydmFsZHMNCj4gU2VudDogMjUgTWFyY2ggMjAyMiAyMTo1Nw0KPiANCj4g
+T24gRnJpLCBNYXIgMjUsIDIwMjIgYXQgMjoxMyBQTSBKb2hhbm5lcyBCZXJnIDxqb2hhbm5lc0Bz
+aXBzb2x1dGlvbnMubmV0PiB3cm90ZToNCj4gPg0KPiA+IFdlbGwgSSBzZWUgbm93IHRoYXQgeW91
+IHNhaWQgJ2NhY2hlICJ3cml0ZWJhY2siJyBpbiAoMSksIGFuZCAnZmx1c2gnIGluDQo+ID4gKDIp
+LCBzbyBwZXJoYXBzIHlvdSB3ZXJlIHRoaW5raW5nIG9mIHRoZSBzYW1lLCBhbmQgSSdtIGp1c3Qg
+Y2FsbGluZyBpdA0KPiA+ICJmbHVzaCIgYW5kICJpbnZhbGlkYXRlIiByZXNwZWN0aXZlbHk/DQo+
+IA0KPiBZZWFoLCBzbyBJIG1lbnRhbGx5IHRlbmQgdG8gdGhpbmsgb2YgdGhlIG9wZXJhdGlvbnMg
+YXMganVzdA0KPiAid3JpdGViYWNrIiAod2hpY2ggZG9lc24ndCBpbnZhbGlkYXRlKSBhbmQgImZs
+dXNoIiAod2hpY2ggaXMgYQ0KPiB3cml0ZWJhY2staW52YWxpZGF0ZSkuDQoNCkl0IGFsbW9zdCBj
+ZXJ0YWlubHkgZG9lc24ndCBtYXR0ZXIgd2hldGhlciB0aGUgIndyaXRlYmFjayINCmludmFsaWRh
+dGVzIG9yIG5vdC4NCllvdSBoYXZlIHRvIGFzc3VtZSB0aGF0IGFsbCBzb3J0cyBvZiBvcGVyYXRp
+b25zIG1pZ2h0IGNhdXNlDQp0aGUgY3B1IHRvIHJlYWQgaW4gYSBjYWNoZWxpbmUuDQpUaGlzIGlu
+Y2x1ZGVzLCBidXQgaXMgbm90IGxpbWl0ZWQgdG8sIHNwZWN1bGF0aXZlIGV4ZWN1dGlvbg0KYW5k
+IGNhY2hlIGxpbmUgcHJlZmV0Y2guDQoNCkJ1dCB5b3UgZGVmaW5pdGVseSBuZWVkIGFuICJpbnZh
+bGlkYXRlIiB0byBmb3JjZSBhIGNhY2hlIGxpbmUNCmJlIHJlYWQgYWZ0ZXIgdGhlIGhhcmR3YXJl
+IGhhcyBhY2Nlc3NlZCBpdC4NCk5vdyBzdWNoIGxpbmVzIG11c3Qgbm90IGJlIGRpcnR5OyBiZWNh
+dXNlIHRoZSBjcHUgY2FuIHdyaXRlDQpiYWNrIGEgZGlydHkgY2FjaGUgbGluZSBhdCBhbnkgdGlt
+ZSAtIHdoaWNoIHdvdWxkIGJyZWFrIHRoaW5ncy4NClNvIHRoaXMgY2FuIGFsc28gYmUgIndyaXRl
+IGJhY2sgaWYgZGlydHkiIGFuZCAiaW52YWxpZGF0ZSIuDQoNCkJvdW5jZSBidWZmZXJzIGFuZCBj
+YWNoZSBwcm9iYWJseSB3b3JrIG11Y2ggdGhlIHNhbWUgd2F5Lg0KQnV0IGZvciBib3VuY2UgYnVm
+ZmVycyBJIGd1ZXNzIHlvdSB3YW50IHRvIGVuc3VyZSB0aGUgaW5pdGlhbGx5DQphbGxvY2F0ZWQg
+YnVmZmVyIGRvZXNuJ3QgY29udGFpbiBvbGQgZGF0YSAoYmVsb25naW5nIHRvDQpzb21lb25lIGVs
+c2UpLg0KU28geW91IG1pZ2h0IGRlY2lkZSB0byB6ZXJvIHRoZW0gb24gYWxsb2NhdGlvbiBvciBh
+bHdheXMgY29weQ0KZnJvbSB0aGUgZHJpdmVyIGJ1ZmZlciBvbiB0aGUgZmlyc3QgcmVxdWVzdC4N
+Cg0KVGhlbiB5b3UgZ2V0IHRoZSByZWFsbHkgYW5ub3lpbmcgY3B1IHRoYXQgZG9uJ3QgaGF2ZSBh
+IA0KIndyaXRlIGJhY2sgZGlydHkgbGluZSBhbmQgaW52YWxpZGF0ZSIgb3Bjb2RlLg0KQW5kIHRo
+ZSBvbmx5IHdheSBpcyB0byByZWFkIGVub3VnaCBvdGhlciBtZW1vcnkgYXJlYXMNCnRvIGRpc3Bs
+YWNlIGFsbCB0aGUgZXhpc3RpbmcgY2FjaGUgbGluZSBkYXRhLg0KWW91IHByb2JhYmx5IG1pZ2h0
+IGFzIHdlbGwgZ2l2ZSB1cCBhbmQgdXNlIFBJTyA6LSkNCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVy
+ZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5
+bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
 
