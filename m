@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F03014E7771
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0834E770C
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:25:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376969AbiCYP2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:28:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
+        id S1376448AbiCYP1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377176AbiCYPXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF53CDCE3F;
-        Fri, 25 Mar 2022 08:17:30 -0700 (PDT)
+        with ESMTP id S1376655AbiCYPWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:22:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B2A9E4393;
+        Fri, 25 Mar 2022 08:16:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56C2D60AB7;
-        Fri, 25 Mar 2022 15:17:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69210C340EE;
-        Fri, 25 Mar 2022 15:17:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DF8AB8288D;
+        Fri, 25 Mar 2022 15:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B12C340E9;
+        Fri, 25 Mar 2022 15:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221449;
-        bh=WrWSpHQKs2LWw4pFtyVYqhrUO6MaZemAfI/UgjZvB6o=;
+        s=korg; t=1648221392;
+        bh=3snGlK3kA7ZUY+R0MwdxzWSgKKQaA0DAwJcsXL42dfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjW4Vyu5hRbqvVSACxeuumErQSG1iHg1NNkWOpWlE+NVG0+lNWS6hmFgJ/b8vlGke
-         UGUVc05dBMYYmVyd2TBfiLg81Y7LptqMvlMx344nlTWnlTURa5y6O/6sylY3vA6/+J
-         OxTEyI1DByESts/ThP44G9c5XOa9IfjXgQsCcfeQ=
+        b=kW5TonEgNYHX3gKCvxzzPljiYQgtKMrbQlMyea25iYpPetZv9rBvzoiSbn9lSRqae
+         8VAUMSXKXfdyTNmYlCfSdUdpAy1WWnP7449oS5ynpYqpwBCxQBlA2MVhpGkS4jysVz
+         67m73chqOqrtUn16xFkzbAu/cSI4nw6Z+OZw1ptk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.16 28/37] Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.15 37/37] nds32: fix access_ok() checks in get/put_user
 Date:   Fri, 25 Mar 2022 16:14:38 +0100
-Message-Id: <20220325150420.849901125@linuxfoundation.org>
+Message-Id: <20220325150420.993230666@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-References: <20220325150420.046488912@linuxfoundation.org>
+In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
+References: <20220325150419.931802116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 2e7b4a328ed6ea57d22853939e69bc86c560996d upstream.
+commit 8926d88ced46700bf6117ceaf391480b943ea9f4 upstream.
 
-This Realtek device has both wifi and BT components. The latter reports
-a USB ID of 0bda:2852, which is not in the table.
+The get_user()/put_user() functions are meant to check for
+access_ok(), while the __get_user()/__put_user() functions
+don't.
 
-BT device description in /sys/kernel/debug/usb/devices contains the following entries:
+This broke in 4.19 for nds32, when it gained an extraneous
+check in __get_user(), but lost the check it needs in
+__put_user().
 
-T: Bus=01 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#= 3 Spd=12 MxCh= 0
-D: Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs= 1
-P: Vendor=0bda ProdID=2852 Rev= 0.00
-S: Manufacturer=Realtek
-S: Product=Bluetooth Radio
-S: SerialNumber=00e04c000001
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=1ms
-E: Ad=02(O) Atr=02(Bulk) MxPS= 64 Ivl=0ms
-E: Ad=82(I) Atr=02(Bulk) MxPS= 64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 0 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 0 Ivl=1ms
-I: If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 9 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 9 Ivl=1ms
-I: If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 17 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 17 Ivl=1ms
-I: If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 25 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 25 Ivl=1ms
-I: If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 33 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 33 Ivl=1ms
-I: If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 49 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 49 Ivl=1ms
-
-The missing USB_ID was reported by user trius65 at https://github.com/lwfinger/rtw89/issues/122
-
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 487913ab18c2 ("nds32: Extract the checking and getting pointer to a macro")
+Cc: stable@vger.kernel.org @ v4.19+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/nds32/include/asm/uaccess.h |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -404,6 +404,8 @@ static const struct usb_device_id blackl
- 						     BTUSB_WIDEBAND_SPEECH },
+--- a/arch/nds32/include/asm/uaccess.h
++++ b/arch/nds32/include/asm/uaccess.h
+@@ -70,9 +70,7 @@ static inline void set_fs(mm_segment_t f
+  * versions are void (ie, don't return a value as such).
+  */
  
- 	/* Realtek 8852AE Bluetooth devices */
-+	{ USB_DEVICE(0x0bda, 0x2852), .driver_info = BTUSB_REALTEK |
-+						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0bda, 0xc852), .driver_info = BTUSB_REALTEK |
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0bda, 0x385a), .driver_info = BTUSB_REALTEK |
+-#define get_user	__get_user					\
+-
+-#define __get_user(x, ptr)						\
++#define get_user(x, ptr)						\
+ ({									\
+ 	long __gu_err = 0;						\
+ 	__get_user_check((x), (ptr), __gu_err);				\
+@@ -85,6 +83,14 @@ static inline void set_fs(mm_segment_t f
+ 	(void)0;							\
+ })
+ 
++#define __get_user(x, ptr)						\
++({									\
++	long __gu_err = 0;						\
++	const __typeof__(*(ptr)) __user *__p = (ptr);			\
++	__get_user_err((x), __p, (__gu_err));				\
++	__gu_err;							\
++})
++
+ #define __get_user_check(x, ptr, err)					\
+ ({									\
+ 	const __typeof__(*(ptr)) __user *__p = (ptr);			\
+@@ -165,12 +171,18 @@ do {									\
+ 		: "r"(addr), "i"(-EFAULT)				\
+ 		: "cc")
+ 
+-#define put_user	__put_user					\
++#define put_user(x, ptr)						\
++({									\
++	long __pu_err = 0;						\
++	__put_user_check((x), (ptr), __pu_err);				\
++	__pu_err;							\
++})
+ 
+ #define __put_user(x, ptr)						\
+ ({									\
+ 	long __pu_err = 0;						\
+-	__put_user_err((x), (ptr), __pu_err);				\
++	__typeof__(*(ptr)) __user *__p = (ptr);				\
++	__put_user_err((x), __p, __pu_err);				\
+ 	__pu_err;							\
+ })
+ 
 
 
