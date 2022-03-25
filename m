@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E68C84E6C0F
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 02:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DAF04E6C10
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 02:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354799AbiCYBgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1357426AbiCYBgG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 24 Mar 2022 21:36:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40734 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357474AbiCYBew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 21:34:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD24C12E8;
-        Thu, 24 Mar 2022 18:32:52 -0700 (PDT)
+        with ESMTP id S243134AbiCYBfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 21:35:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21D42FE7F;
+        Thu, 24 Mar 2022 18:33:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99136B82726;
-        Fri, 25 Mar 2022 01:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39535C340ED;
-        Fri, 25 Mar 2022 01:32:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 800A660A1C;
+        Fri, 25 Mar 2022 01:33:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D18BAC340ED;
+        Fri, 25 Mar 2022 01:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1648171970;
-        bh=2xRjG0TAX9wdABTQj/Q9IDV4oZQXMOnRMl1YwU9V2Ss=;
+        s=korg; t=1648172020;
+        bh=XZmgE+f+zJGISWjqYwezeaf2uI7gkFD0GGIvhJ0mGDE=;
         h=Date:To:From:Subject:From;
-        b=oa2zyt2rrHqzNqaj4S/fyR+WUjWp7inwvfBQxArTJlum0NiM5ndzqhdJTSicuNeUT
-         0xlC6umGexsG7VnRq+Z4rHCHE0zW/oAwwkB271BgxVPr9xxjCfYDtoMbzHqW4pxhFm
-         KVENMqUNELfalJPgY7QC/V3sHSfZdIbLwdP4JMZk=
-Date:   Thu, 24 Mar 2022 18:32:49 -0700
-To:     mm-commits@vger.kernel.org, ying.huang@intel.com,
-        stable@vger.kernel.org, huntbag@linux.vnet.ibm.com,
-        dave.hansen@linux.intel.com, baolin.wang@linux.alibaba.com,
-        osalvador@suse.de, akpm@linux-foundation.org
+        b=TIZDWZe4RGrNaM8obRjxmDmp42Gfwl8cuszukwtmYESUNXbNx7NoGtkobkuwb6Vgv
+         gw6XB0tscQuAPi+K6pkI8tdYyou/JKSuWf3YjzF1Ux0+GckO9PEImurlIAXSaz1Jif
+         LuZCWEIKx/VuBgXd49N3h92V1nSW5VH0Pk/isU5U=
+Date:   Thu, 24 Mar 2022 18:33:40 -0700
+To:     mm-commits@vger.kernel.org, vgoyal@redhat.com,
+        stable@vger.kernel.org, peterz@infradead.org, paulmck@kernel.org,
+        josh@joshtriplett.org, dyoung@redhat.com, boqun.feng@gmail.com,
+        bhe@redhat.com, david@redhat.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged] mm-only-re-generate-demotion-targets-when-a-numa-node-changes-its-n_cpu-state.patch removed from -mm tree
-Message-Id: <20220325013250.39535C340ED@smtp.kernel.org>
+Subject: [merged] proc-vmcore-fix-possible-deadlock-on-concurrent-mmap-and-read.patch removed from -mm tree
+Message-Id: <20220325013340.D18BAC340ED@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -48,190 +48,304 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: only re-generate demotion targets when a numa node changes its N_CPU state
+     Subject: proc/vmcore: fix possible deadlock on concurrent mmap and read
 has been removed from the -mm tree.  Its filename was
-     mm-only-re-generate-demotion-targets-when-a-numa-node-changes-its-n_cpu-state.patch
+     proc-vmcore-fix-possible-deadlock-on-concurrent-mmap-and-read.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Oscar Salvador <osalvador@suse.de>
-Subject: mm: only re-generate demotion targets when a numa node changes its N_CPU state
+From: David Hildenbrand <david@redhat.com>
+Subject: proc/vmcore: fix possible deadlock on concurrent mmap and read
 
-Abhishek reported that after patch [1], hotplug operations are taking
-~double the expected time.  [2]
+Lockdep noticed that there is chance for a deadlock if we have concurrent
+mmap, concurrent read, and the addition/removal of a callback.
 
-The reason behind is that the CPU callbacks that migrate_on_reclaim_init()
-sets always call set_migration_target_nodes() whenever a CPU is brought
-up/down.
+As nicely explained by Boqun:
 
-But we only care about numa nodes going from having cpus to become
-cpuless, and vice versa, as that influences the demotion_target order.
+"
+Lockdep warned about the above sequences because rw_semaphore is a fair
+read-write lock, and the following can cause a deadlock:
 
-We do already have two CPU callbacks (vmstat_cpu_online() and
-vmstat_cpu_dead()) that check exactly that, so get rid of the CPU
-callbacks in migrate_on_reclaim_init() and only call
-set_migration_target_nodes() from vmstat_cpu_{dead,online}() whenever a
-numa node change its N_CPU state.
+	TASK 1			TASK 2		TASK 3
+	======			======		======
+	down_write(mmap_lock);
+				down_read(vmcore_cb_rwsem)
+						down_write(vmcore_cb_rwsem); // blocked
+	down_read(vmcore_cb_rwsem); // cannot get the lock because of the fairness
+				down_read(mmap_lock); // blocked
 
-[1] https://lore.kernel.org/linux-mm/20210721063926.3024591-2-ying.huang@intel.com/
-[2] https://lore.kernel.org/linux-mm/eb438ddd-2919-73d4-bd9f-b7eecdd9577a@linux.vnet.ibm.com/
+IOW, a reader can block another read if there is a writer queued by the
+second reader and the lock is fair.
+"
 
-[osalvador@suse.de: add feedback from Huang Ying]
-  Link: https://lkml.kernel.org/r/20220314150945.12694-1-osalvador@suse.de
-Link: https://lkml.kernel.org/r/20220310120749.23077-1-osalvador@suse.de
-Fixes: 884a6e5d1f93b ("mm/migrate: update node demotion order on hotplug events")
-Signed-off-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Tested-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reported-by: Abhishek Goel <huntbag@linux.vnet.ibm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: Abhishek Goel <huntbag@linux.vnet.ibm.com>
+To fix, convert to srcu to make this deadlock impossible. We need srcu as
+our callbacks can sleep. With this change, I cannot trigger any lockdep
+warnings.
+
+[    6.386519] ======================================================
+[    6.387203] WARNING: possible circular locking dependency detected
+[    6.387965] 5.17.0-0.rc0.20220117git0c947b893d69.68.test.fc36.x86_64 #1 Not tainted
+[    6.388899] ------------------------------------------------------
+[    6.389657] makedumpfile/542 is trying to acquire lock:
+[    6.390308] ffffffff832d2eb8 (vmcore_cb_rwsem){.+.+}-{3:3}, at: mmap_vmcore+0x340/0x580
+[    6.391290]
+[    6.391290] but task is already holding lock:
+[    6.391978] ffff8880af226438 (&mm->mmap_lock#2){++++}-{3:3}, at: vm_mmap_pgoff+0x84/0x150
+[    6.392898]
+[    6.392898] which lock already depends on the new lock.
+[    6.392898]
+[    6.393866]
+[    6.393866] the existing dependency chain (in reverse order) is:
+[    6.394762]
+[    6.394762] -> #1 (&mm->mmap_lock#2){++++}-{3:3}:
+[    6.395530]        lock_acquire+0xc3/0x1a0
+[    6.396047]        __might_fault+0x4e/0x70
+[    6.396562]        _copy_to_user+0x1f/0x90
+[    6.397093]        __copy_oldmem_page+0x72/0xc0
+[    6.397663]        read_from_oldmem+0x77/0x1e0
+[    6.398229]        read_vmcore+0x2c2/0x310
+[    6.398742]        proc_reg_read+0x47/0xa0
+[    6.399265]        vfs_read+0x101/0x340
+[    6.399751]        __x64_sys_pread64+0x5d/0xa0
+[    6.400314]        do_syscall_64+0x43/0x90
+[    6.400778]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[    6.401390]
+[    6.401390] -> #0 (vmcore_cb_rwsem){.+.+}-{3:3}:
+[    6.402063]        validate_chain+0x9f4/0x2670
+[    6.402560]        __lock_acquire+0x8f7/0xbc0
+[    6.403054]        lock_acquire+0xc3/0x1a0
+[    6.403509]        down_read+0x4a/0x140
+[    6.403948]        mmap_vmcore+0x340/0x580
+[    6.404403]        proc_reg_mmap+0x3e/0x90
+[    6.404866]        mmap_region+0x504/0x880
+[    6.405322]        do_mmap+0x38a/0x520
+[    6.405744]        vm_mmap_pgoff+0xc1/0x150
+[    6.406258]        ksys_mmap_pgoff+0x178/0x200
+[    6.406823]        do_syscall_64+0x43/0x90
+[    6.407339]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[    6.407975]
+[    6.407975] other info that might help us debug this:
+[    6.407975]
+[    6.408945]  Possible unsafe locking scenario:
+[    6.408945]
+[    6.409684]        CPU0                    CPU1
+[    6.410196]        ----                    ----
+[    6.410703]   lock(&mm->mmap_lock#2);
+[    6.411121]                                lock(vmcore_cb_rwsem);
+[    6.411792]                                lock(&mm->mmap_lock#2);
+[    6.412465]   lock(vmcore_cb_rwsem);
+[    6.412873]
+[    6.412873]  *** DEADLOCK ***
+[    6.412873]
+[    6.413522] 1 lock held by makedumpfile/542:
+[    6.414006]  #0: ffff8880af226438 (&mm->mmap_lock#2){++++}-{3:3}, at: vm_mmap_pgoff+0x84/0x150
+[    6.414944]
+[    6.414944] stack backtrace:
+[    6.415432] CPU: 0 PID: 542 Comm: makedumpfile Not tainted 5.17.0-0.rc0.20220117git0c947b893d69.68.test.fc36.x86_64 #1
+[    6.416581] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[    6.417272] Call Trace:
+[    6.417593]  <TASK>
+[    6.417882]  dump_stack_lvl+0x5d/0x78
+[    6.418346]  print_circular_bug+0x5d7/0x5f0
+[    6.418821]  ? stack_trace_save+0x3a/0x50
+[    6.419273]  ? save_trace+0x3d/0x330
+[    6.419681]  check_noncircular+0xd1/0xe0
+[    6.420217]  validate_chain+0x9f4/0x2670
+[    6.420715]  ? __lock_acquire+0x8f7/0xbc0
+[    6.421234]  ? __lock_acquire+0x8f7/0xbc0
+[    6.421685]  __lock_acquire+0x8f7/0xbc0
+[    6.422127]  lock_acquire+0xc3/0x1a0
+[    6.422535]  ? mmap_vmcore+0x340/0x580
+[    6.422965]  ? lock_is_held_type+0xe2/0x140
+[    6.423432]  ? mmap_vmcore+0x340/0x580
+[    6.423893]  down_read+0x4a/0x140
+[    6.424321]  ? mmap_vmcore+0x340/0x580
+[    6.424800]  mmap_vmcore+0x340/0x580
+[    6.425237]  ? vm_area_alloc+0x1c/0x60
+[    6.425661]  ? trace_kmem_cache_alloc+0x30/0xe0
+[    6.426174]  ? kmem_cache_alloc+0x1e0/0x2f0
+[    6.426641]  proc_reg_mmap+0x3e/0x90
+[    6.427052]  mmap_region+0x504/0x880
+[    6.427462]  do_mmap+0x38a/0x520
+[    6.427842]  vm_mmap_pgoff+0xc1/0x150
+[    6.428260]  ksys_mmap_pgoff+0x178/0x200
+[    6.428701]  do_syscall_64+0x43/0x90
+[    6.429126]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[    6.429745] RIP: 0033:0x7fc7359b8fc7
+[    6.430157] Code: 00 00 00 89 ef e8 69 b3 ff ff eb e4 e8 c2 64 01 00 66 90 f3 0f 1e fa 41 89 ca 41 f7 c1 ff 0f 00 00 75 10 b8 09 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 21 c3 48 8b 05 21 7e 0e 00 64 c7 00 16 00 00
+[    6.432147] RSP: 002b:00007fff35b4c208 EFLAGS: 00000246 ORIG_RAX: 0000000000000009
+[    6.432970] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007fc7359b8fc7
+[    6.433746] RDX: 0000000000000001 RSI: 0000000000400000 RDI: 0000000000000000
+[    6.434529] RBP: 000055a1125ecf10 R08: 0000000000000003 R09: 0000000000002000
+[    6.435310] R10: 0000000000000002 R11: 0000000000000246 R12: 0000000000002000
+[    6.436093] R13: 0000000000400000 R14: 000055a1124269e2 R15: 0000000000000000
+[    6.436887]  </TASK>
+
+Link: https://lkml.kernel.org/r/20220119193417.100385-1-david@redhat.com
+Fixes: cc5f2704c934 ("proc/vmcore: convert oldmem_pfn_is_ram callback to more generic vmcore callbacks")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reported-by: Baoquan He <bhe@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/migrate.h |    8 ++++++
- mm/migrate.c            |   47 ++++++++------------------------------
- mm/vmstat.c             |   13 +++++++++-
- 3 files changed, 30 insertions(+), 38 deletions(-)
+ fs/proc/vmcore.c |   41 ++++++++++++++++++++++-------------------
+ 1 file changed, 22 insertions(+), 19 deletions(-)
 
---- a/include/linux/migrate.h~mm-only-re-generate-demotion-targets-when-a-numa-node-changes-its-n_cpu-state
-+++ a/include/linux/migrate.h
-@@ -48,7 +48,15 @@ int folio_migrate_mapping(struct address
- 		struct folio *newfolio, struct folio *folio, int extra_count);
+--- a/fs/proc/vmcore.c~proc-vmcore-fix-possible-deadlock-on-concurrent-mmap-and-read
++++ a/fs/proc/vmcore.c
+@@ -62,7 +62,8 @@ core_param(novmcoredd, vmcoredd_disabled
+ /* Device Dump Size */
+ static size_t vmcoredd_orig_sz;
  
- extern bool numa_demotion_enabled;
-+extern void migrate_on_reclaim_init(void);
-+#ifdef CONFIG_HOTPLUG_CPU
-+extern void set_migration_target_nodes(void);
- #else
-+static inline void set_migration_target_nodes(void) {}
-+#endif
-+#else
-+
-+static inline void set_migration_target_nodes(void) {}
+-static DECLARE_RWSEM(vmcore_cb_rwsem);
++static DEFINE_SPINLOCK(vmcore_cb_lock);
++DEFINE_STATIC_SRCU(vmcore_cb_srcu);
+ /* List of registered vmcore callbacks. */
+ static LIST_HEAD(vmcore_cb_list);
+ /* Whether the vmcore has been opened once. */
+@@ -70,8 +71,8 @@ static bool vmcore_opened;
  
- static inline void putback_movable_pages(struct list_head *l) {}
- static inline int migrate_pages(struct list_head *l, new_page_t new,
---- a/mm/migrate.c~mm-only-re-generate-demotion-targets-when-a-numa-node-changes-its-n_cpu-state
-+++ a/mm/migrate.c
-@@ -3209,7 +3209,7 @@ again:
- /*
-  * For callers that do not hold get_online_mems() already.
-  */
--static void set_migration_target_nodes(void)
-+void set_migration_target_nodes(void)
+ void register_vmcore_cb(struct vmcore_cb *cb)
  {
- 	get_online_mems();
- 	__set_migration_target_nodes();
-@@ -3273,51 +3273,24 @@ static int __meminit migrate_on_reclaim_
- 	return notifier_from_errno(0);
+-	down_write(&vmcore_cb_rwsem);
+ 	INIT_LIST_HEAD(&cb->next);
++	spin_lock(&vmcore_cb_lock);
+ 	list_add_tail(&cb->next, &vmcore_cb_list);
+ 	/*
+ 	 * Registering a vmcore callback after the vmcore was opened is
+@@ -79,14 +80,14 @@ void register_vmcore_cb(struct vmcore_cb
+ 	 */
+ 	if (vmcore_opened)
+ 		pr_warn_once("Unexpected vmcore callback registration\n");
+-	up_write(&vmcore_cb_rwsem);
++	spin_unlock(&vmcore_cb_lock);
+ }
+ EXPORT_SYMBOL_GPL(register_vmcore_cb);
+ 
+ void unregister_vmcore_cb(struct vmcore_cb *cb)
+ {
+-	down_write(&vmcore_cb_rwsem);
+-	list_del(&cb->next);
++	spin_lock(&vmcore_cb_lock);
++	list_del_rcu(&cb->next);
+ 	/*
+ 	 * Unregistering a vmcore callback after the vmcore was opened is
+ 	 * very unusual (e.g., forced driver removal), but we cannot stop
+@@ -94,7 +95,9 @@ void unregister_vmcore_cb(struct vmcore_
+ 	 */
+ 	if (vmcore_opened)
+ 		pr_warn_once("Unexpected vmcore callback unregistration\n");
+-	up_write(&vmcore_cb_rwsem);
++	spin_unlock(&vmcore_cb_lock);
++
++	synchronize_srcu(&vmcore_cb_srcu);
+ }
+ EXPORT_SYMBOL_GPL(unregister_vmcore_cb);
+ 
+@@ -103,9 +106,8 @@ static bool pfn_is_ram(unsigned long pfn
+ 	struct vmcore_cb *cb;
+ 	bool ret = true;
+ 
+-	lockdep_assert_held_read(&vmcore_cb_rwsem);
+-
+-	list_for_each_entry(cb, &vmcore_cb_list, next) {
++	list_for_each_entry_srcu(cb, &vmcore_cb_list, next,
++				 srcu_read_lock_held(&vmcore_cb_srcu)) {
+ 		if (unlikely(!cb->pfn_is_ram))
+ 			continue;
+ 		ret = cb->pfn_is_ram(cb, pfn);
+@@ -118,9 +120,9 @@ static bool pfn_is_ram(unsigned long pfn
+ 
+ static int open_vmcore(struct inode *inode, struct file *file)
+ {
+-	down_read(&vmcore_cb_rwsem);
++	spin_lock(&vmcore_cb_lock);
+ 	vmcore_opened = true;
+-	up_read(&vmcore_cb_rwsem);
++	spin_unlock(&vmcore_cb_lock);
+ 
+ 	return 0;
+ }
+@@ -133,6 +135,7 @@ ssize_t read_from_oldmem(char *buf, size
+ 	unsigned long pfn, offset;
+ 	size_t nr_bytes;
+ 	ssize_t read = 0, tmp;
++	int idx;
+ 
+ 	if (!count)
+ 		return 0;
+@@ -140,7 +143,7 @@ ssize_t read_from_oldmem(char *buf, size
+ 	offset = (unsigned long)(*ppos % PAGE_SIZE);
+ 	pfn = (unsigned long)(*ppos / PAGE_SIZE);
+ 
+-	down_read(&vmcore_cb_rwsem);
++	idx = srcu_read_lock(&vmcore_cb_srcu);
+ 	do {
+ 		if (count > (PAGE_SIZE - offset))
+ 			nr_bytes = PAGE_SIZE - offset;
+@@ -165,7 +168,7 @@ ssize_t read_from_oldmem(char *buf, size
+ 						       offset, userbuf);
+ 		}
+ 		if (tmp < 0) {
+-			up_read(&vmcore_cb_rwsem);
++			srcu_read_unlock(&vmcore_cb_srcu, idx);
+ 			return tmp;
+ 		}
+ 
+@@ -176,8 +179,8 @@ ssize_t read_from_oldmem(char *buf, size
+ 		++pfn;
+ 		offset = 0;
+ 	} while (count);
++	srcu_read_unlock(&vmcore_cb_srcu, idx);
+ 
+-	up_read(&vmcore_cb_rwsem);
+ 	return read;
  }
  
--/*
-- * React to hotplug events that might affect the migration targets
-- * like events that online or offline NUMA nodes.
-- *
-- * The ordering is also currently dependent on which nodes have
-- * CPUs.  That means we need CPU on/offline notification too.
-- */
--static int migration_online_cpu(unsigned int cpu)
--{
--	set_migration_target_nodes();
--	return 0;
--}
--
--static int migration_offline_cpu(unsigned int cpu)
--{
--	set_migration_target_nodes();
--	return 0;
--}
--
--static int __init migrate_on_reclaim_init(void)
-+void __init migrate_on_reclaim_init(void)
+@@ -568,18 +571,18 @@ static int vmcore_remap_oldmem_pfn(struc
+ 			    unsigned long from, unsigned long pfn,
+ 			    unsigned long size, pgprot_t prot)
  {
 -	int ret;
--
- 	node_demotion = kmalloc_array(nr_node_ids,
- 				      sizeof(struct demotion_nodes),
- 				      GFP_KERNEL);
- 	WARN_ON(!node_demotion);
++	int ret, idx;
  
--	ret = cpuhp_setup_state_nocalls(CPUHP_MM_DEMOTION_DEAD, "mm/demotion:offline",
--					NULL, migration_offline_cpu);
-+	hotplug_memory_notifier(migrate_on_reclaim_callback, 100);
  	/*
--	 * In the unlikely case that this fails, the automatic
--	 * migration targets may become suboptimal for nodes
--	 * where N_CPU changes.  With such a small impact in a
--	 * rare case, do not bother trying to do anything special.
-+	 * At this point, all numa nodes with memory/CPus have their state
-+	 * properly set, so we can build the demotion order now.
-+	 * Let us hold the cpu_hotplug lock just, as we could possibily have
-+	 * CPU hotplug events during boot.
+-	 * Check if oldmem_pfn_is_ram was registered to avoid
+-	 * looping over all pages without a reason.
++	 * Check if a callback was registered to avoid looping over all
++	 * pages without a reason.
  	 */
--	WARN_ON(ret < 0);
--	ret = cpuhp_setup_state(CPUHP_AP_MM_DEMOTION_ONLINE, "mm/demotion:online",
--				migration_online_cpu, NULL);
--	WARN_ON(ret < 0);
--
--	hotplug_memory_notifier(migrate_on_reclaim_callback, 100);
--	return 0;
-+	cpus_read_lock();
-+	set_migration_target_nodes();
-+	cpus_read_unlock();
- }
--late_initcall(migrate_on_reclaim_init);
- #endif /* CONFIG_HOTPLUG_CPU */
- 
- bool numa_demotion_enabled = false;
---- a/mm/vmstat.c~mm-only-re-generate-demotion-targets-when-a-numa-node-changes-its-n_cpu-state
-+++ a/mm/vmstat.c
-@@ -28,6 +28,7 @@
- #include <linux/mm_inline.h>
- #include <linux/page_ext.h>
- #include <linux/page_owner.h>
-+#include <linux/migrate.h>
- 
- #include "internal.h"
- 
-@@ -2049,7 +2050,12 @@ static void __init init_cpu_node_state(v
- static int vmstat_cpu_online(unsigned int cpu)
- {
- 	refresh_zone_stat_thresholds();
--	node_set_state(cpu_to_node(cpu), N_CPU);
-+
-+	if (!node_state(cpu_to_node(cpu), N_CPU)) {
-+		node_set_state(cpu_to_node(cpu), N_CPU);
-+		set_migration_target_nodes();
-+	}
-+
- 	return 0;
+-	down_read(&vmcore_cb_rwsem);
++	idx = srcu_read_lock(&vmcore_cb_srcu);
+ 	if (!list_empty(&vmcore_cb_list))
+ 		ret = remap_oldmem_pfn_checked(vma, from, pfn, size, prot);
+ 	else
+ 		ret = remap_oldmem_pfn_range(vma, from, pfn, size, prot);
+-	up_read(&vmcore_cb_rwsem);
++	srcu_read_unlock(&vmcore_cb_srcu, idx);
+ 	return ret;
  }
  
-@@ -2072,6 +2078,8 @@ static int vmstat_cpu_dead(unsigned int
- 		return 0;
- 
- 	node_clear_state(node, N_CPU);
-+	set_migration_target_nodes();
-+
- 	return 0;
- }
- 
-@@ -2103,6 +2111,9 @@ void __init init_mm_internals(void)
- 
- 	start_shepherd_timer();
- #endif
-+#if defined(CONFIG_MIGRATION) && defined(CONFIG_HOTPLUG_CPU)
-+	migrate_on_reclaim_init();
-+#endif
- #ifdef CONFIG_PROC_FS
- 	proc_create_seq("buddyinfo", 0444, NULL, &fragmentation_op);
- 	proc_create_seq("pagetypeinfo", 0400, NULL, &pagetypeinfo_op);
 _
 
-Patches currently in -mm which might be from osalvador@suse.de are
+Patches currently in -mm which might be from david@redhat.com are
 
+mm-optimize-do_wp_page-for-exclusive-pages-in-the-swapcache.patch
+mm-optimize-do_wp_page-for-fresh-pages-in-local-lru-pagevecs.patch
+mm-slightly-clarify-ksm-logic-in-do_swap_page.patch
+mm-streamline-cow-logic-in-do_swap_page.patch
+mm-huge_memory-streamline-cow-logic-in-do_huge_pmd_wp_page.patch
+mm-khugepaged-remove-reuse_swap_page-usage.patch
+mm-swapfile-remove-stale-reuse_swap_page.patch
+mm-huge_memory-remove-stale-page_trans_huge_mapcount.patch
+mm-huge_memory-remove-stale-locking-logic-from-__split_huge_pmd.patch
 
