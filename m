@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8B74E7772
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCC734E7781
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376987AbiCYP2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:28:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
+        id S1377213AbiCYP2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377265AbiCYPYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:00 -0400
+        with ESMTP id S1377916AbiCYPYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16F5AE615D;
-        Fri, 25 Mar 2022 08:17:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F44EAC8E;
+        Fri, 25 Mar 2022 08:19:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 604FF60A1B;
-        Fri, 25 Mar 2022 15:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DACB4C340E9;
-        Fri, 25 Mar 2022 15:17:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10E9060AB7;
+        Fri, 25 Mar 2022 15:19:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9D8C340E9;
+        Fri, 25 Mar 2022 15:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221458;
-        bh=ZGqHvFAw8zYFl5sKx0Vfl0zk5smIKUztTYJffKlRplU=;
+        s=korg; t=1648221557;
+        bh=T3HgFM18vk7D6Ic08cOMwNAPMz3pNeri0STbdvJnGX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDTe1Dh/1TXT3b5oN5AUy0XX0hEohF/NgWiY578DGU5WsXUm1V4UHsRee8ATaR3Cr
-         +8EPbMQbZksyXx3UybqzX3RvQrAZ/2d9aAdvuG1CkhoQPDJRYl5JK5jxomvurBGUlf
-         L4ZsdPQzRNdEJYE/OaKV3iBrqrUz/C6cIdVRCoek=
+        b=AD1RQS6GnSBYCKgdPSRYTnn3b9cj7dI4TmtI41RULHebyS9LIzoNoLoO4pvHy5Pw+
+         yYWpV26Z32pzWjkPGlSY6UCBetlPSdWCv+0XdSk+O1sXsmPgOt+nBTC1HgROmGYo8h
+         qmrCCxb0ILJiIJr+H8skzxu4ZcwSVhmsGUiPi+HM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Murray <timmurray@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        Todd Kjos <tkjos@google.com>,
-        Sandeep Patil <sspatil@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.16 31/37] rcu: Dont deboost before reporting expedited quiescent state
-Date:   Fri, 25 Mar 2022 16:14:41 +0100
-Message-Id: <20220325150420.936440042@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Ismael Ferreras Morezuelas <swyterzone@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.17 27/39] Bluetooth: hci_sync: Add a new quirk to skip HCI_FLT_CLEAR_ALL
+Date:   Fri, 25 Mar 2022 16:14:42 +0100
+Message-Id: <20220325150421.019666191@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-References: <20220325150420.046488912@linuxfoundation.org>
+In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
+References: <20220325150420.245733653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,63 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
 
-commit 10c535787436d62ea28156a4b91365fd89b5a432 upstream.
+commit 0eaecfb2e4814d51ab172df3823e35d7c488b6d2 upstream.
 
-Currently rcu_preempt_deferred_qs_irqrestore() releases rnp->boost_mtx
-before reporting the expedited quiescent state.  Under heavy real-time
-load, this can result in this function being preempted before the
-quiescent state is reported, which can in turn prevent the expedited grace
-period from completing.  Tim Murray reports that the resulting expedited
-grace periods can take hundreds of milliseconds and even more than one
-second, when they should normally complete in less than a millisecond.
+Some controllers have problems with being sent a command to clear
+all filtering. While the HCI code does not unconditionally
+send a clear-all anymore at BR/EDR setup (after the state machine
+refactor), there might be more ways of hitting these codepaths
+in the future as the kernel develops.
 
-This was fine given that there were no particular response-time
-constraints for synchronize_rcu_expedited(), as it was designed
-for throughput rather than latency.  However, some users now need
-sub-100-millisecond response-time constratints.
-
-This patch therefore follows Neeraj's suggestion (seconded by Tim and
-by Uladzislau Rezki) of simply reversing the two operations.
-
-Reported-by: Tim Murray <timmurray@google.com>
-Reported-by: Joel Fernandes <joelaf@google.com>
-Reported-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Reviewed-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Tested-by: Tim Murray <timmurray@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Sandeep Patil <sspatil@google.com>
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree_plugin.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/net/bluetooth/hci.h |   10 ++++++++++
+ net/bluetooth/hci_sync.c    |   16 ++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -554,16 +554,16 @@ rcu_preempt_deferred_qs_irqrestore(struc
- 			raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 		}
- 
--		/* Unboost if we were boosted. */
--		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
--			rt_mutex_futex_unlock(&rnp->boost_mtx.rtmutex);
--
- 		/*
- 		 * If this was the last task on the expedited lists,
- 		 * then we need to report up the rcu_node hierarchy.
- 		 */
- 		if (!empty_exp && empty_exp_now)
- 			rcu_report_exp_rnp(rnp, true);
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -255,6 +255,16 @@ enum {
+ 	 * during the hdev->setup vendor callback.
+ 	 */
+ 	HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER,
 +
-+		/* Unboost if we were boosted. */
-+		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
-+			rt_mutex_futex_unlock(&rnp->boost_mtx.rtmutex);
- 	} else {
- 		local_irq_restore(flags);
- 	}
++	/* When this quirk is set, HCI_OP_SET_EVENT_FLT requests with
++	 * HCI_FLT_CLEAR_ALL are ignored and event filtering is
++	 * completely avoided. A subset of the CSR controller
++	 * clones struggle with this and instantly lock up.
++	 *
++	 * Note that devices using this must (separately) disable
++	 * runtime suspend, because event filtering takes place there.
++	 */
++	HCI_QUIRK_BROKEN_FILTER_CLEAR_ALL,
+ };
+ 
+ /* HCI device flags */
+--- a/net/bluetooth/hci_sync.c
++++ b/net/bluetooth/hci_sync.c
+@@ -2806,6 +2806,9 @@ static int hci_set_event_filter_sync(str
+ 	if (!hci_dev_test_flag(hdev, HCI_BREDR_ENABLED))
+ 		return 0;
+ 
++	if (test_bit(HCI_QUIRK_BROKEN_FILTER_CLEAR_ALL, &hdev->quirks))
++		return 0;
++
+ 	memset(&cp, 0, sizeof(cp));
+ 	cp.flt_type = flt_type;
+ 
+@@ -2826,6 +2829,13 @@ static int hci_clear_event_filter_sync(s
+ 	if (!hci_dev_test_flag(hdev, HCI_EVENT_FILTER_CONFIGURED))
+ 		return 0;
+ 
++	/* In theory the state machine should not reach here unless
++	 * a hci_set_event_filter_sync() call succeeds, but we do
++	 * the check both for parity and as a future reminder.
++	 */
++	if (test_bit(HCI_QUIRK_BROKEN_FILTER_CLEAR_ALL, &hdev->quirks))
++		return 0;
++
+ 	return hci_set_event_filter_sync(hdev, HCI_FLT_CLEAR_ALL, 0x00,
+ 					 BDADDR_ANY, 0x00);
+ }
+@@ -4825,6 +4835,12 @@ static int hci_update_event_filter_sync(
+ 	if (!hci_dev_test_flag(hdev, HCI_BREDR_ENABLED))
+ 		return 0;
+ 
++	/* Some fake CSR controllers lock up after setting this type of
++	 * filter, so avoid sending the request altogether.
++	 */
++	if (test_bit(HCI_QUIRK_BROKEN_FILTER_CLEAR_ALL, &hdev->quirks))
++		return 0;
++
+ 	/* Always clear event filter when starting */
+ 	hci_clear_event_filter_sync(hdev);
+ 
 
 
