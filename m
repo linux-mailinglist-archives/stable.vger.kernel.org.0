@@ -2,88 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E564E7D09
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB3C4E7D2A
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230409AbiCYTgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 15:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55872 "EHLO
+        id S231193AbiCYTpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 15:45:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230233AbiCYTgT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 15:36:19 -0400
-Received: from mail.toke.dk (mail.toke.dk [IPv6:2a0c:4d80:42:2001::664])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4635E2E5189;
-        Fri, 25 Mar 2022 12:09:37 -0700 (PDT)
-From:   Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=toke.dk; s=20161023;
-        t=1648232133; bh=0utGQUdnredYmwlCMqdQtSEkBccDpSSgRbC0K8pIlyE=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=w6KsBX3PIGQNPBEgDloGd557TP6k0E++rJTP9enh7kdXUK8fIxK8ftlFsszFTkDqJ
-         II+Y/Pgar/yJX6LDWXi3wvTO5jwnoNgZPUBUbZFGztXs4kAFdc5WiMPMD2h93vyAIV
-         sHpYer3QEiC1v7Dkqh+TuWhgznbszU65z6D+NJ9WsKaIjQHHAgsPnJZY2z8q70XmrP
-         onr1kPSQXO6u4FGkY6a53ST6TPH9eOX4hKDjTlEuDECQeSS3kUZihtZUFUgw131lWG
-         FJj7lbn92eVVKRfL+qOZXdNSYBzv9KrFNJYpt58jEkoUh7mbwjy6sxdeFvrhyLKA2L
-         qB6tWvUxyilfw==
-To:     Christoph Hellwig <hch@lst.de>, Halil Pasic <pasic@linux.ibm.com>
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-In-Reply-To: <20220325163204.GB16426@lst.de>
-References: <1812355.tdWV9SEqCh@natalenko.name>
- <CAHk-=wiwz+Z2MaP44h086jeniG-OpK3c=FywLsCwXV7Crvadrg@mail.gmail.com>
- <27b5a287-7a33-9a8b-ad6d-04746735fb0c@arm.com>
- <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com>
- <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324190216.0efa067f.pasic@linux.ibm.com>
- <20220325163204.GB16426@lst.de>
-Date:   Fri, 25 Mar 2022 19:15:32 +0100
-X-Clacks-Overhead: GNU Terry Pratchett
-Message-ID: <87y20x7vaz.fsf@toke.dk>
+        with ESMTP id S231156AbiCYTot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 15:44:49 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF90736BA24
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 12:16:08 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id b130so5755618pga.13
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 12:16:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jk6bGCyF4GVW68w/s7A7kNI0INbKOYaxFz1jSLv6xVs=;
+        b=2/BU4GjDCbaATUEn7kou3aBFkLbKgGuavx5M+C3712DGHZjsbPWKyBlujvGwzVA28q
+         SjNC1QR+AUganS06rVvSuWYshNwzx0LWOKPqUiCT5wPmpBlH9wghB7pY+p5tvqws1w43
+         HBiBEigboxTELKvyC5PfeNc75I9oJzoe9xBgAu0mgKe/syU56urEbJ85z+uKHvkuq1eZ
+         cm6SjX+mmDp79v1aSLOGHnI2hEEh/WD+4oGwXPAfKLvZkWpSAC161lIZtwnIo7zHEEVD
+         R1KTSyZAMhCvt+21bkSBF8fNF87B0l/4jzFlT4npfd4isiuaKKFBiWP+nhKbVIDXBHT3
+         TA6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jk6bGCyF4GVW68w/s7A7kNI0INbKOYaxFz1jSLv6xVs=;
+        b=rVlJgInaU6pxQhsDX+7Nj5uv5G69lKN+AduZFE3v1AZI/Ovrj3zCFzTR9HWGl5KHEE
+         t1hbwzU4UNw1JK8YuqikfWhN7QzsXRgeqP+ykUry92paJrVUW9sET6/5EoBJfWMJ3PNv
+         0/x8LUNePImbIonlZevh43k/w3lp3lPDczPYkwdTwWr43pe5Yl7GcmHsSR9e0Xy016JU
+         Su9wNZdXoCTWwfPCLxwZL4tuBbBNIQomJjTu6aeQk17RNMj1eujJsNPO4J8poihm7WX7
+         xRaNf/NzjhN4g49AZhk3ilEzytoGhA+XOmTNAyYikhqIzr5gSIleVlk/oo0SCBEJXiTm
+         DOjg==
+X-Gm-Message-State: AOAM531PxtSVTxZIEnR0Bj2VMLFVwNxX30+QsyiMDAomZX4XNL0xa+Dl
+        FxlWOfEA1HYdYbM6gbWO9oMfiqqID1SM00POg9E=
+X-Google-Smtp-Source: ABdhPJyvG/x26tPlHUpaC9DtcFOO6GgHxlntgGrkh77pdhqBC0S8p+B6YhkHVeullJ4ZWQsay/EyOA==
+X-Received: by 2002:a05:6a00:15cb:b0:4fb:266f:b187 with SMTP id o11-20020a056a0015cb00b004fb266fb187mr1200862pfu.28.1648232323047;
+        Fri, 25 Mar 2022 11:18:43 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h12-20020a056a00230c00b004faf2563bcasm6524722pfh.114.2022.03.25.11.18.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Mar 2022 11:18:42 -0700 (PDT)
+Message-ID: <623e0782.1c69fb81.2ba93.0cc4@mx.google.com>
+Date:   Fri, 25 Mar 2022 11:18:42 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.187-28-g12df16ea8f0b
+Subject: stable-rc/queue/5.4 baseline: 63 runs,
+ 2 regressions (v5.4.187-28-g12df16ea8f0b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> writes:
+stable-rc/queue/5.4 baseline: 63 runs, 2 regressions (v5.4.187-28-g12df16ea=
+8f0b)
 
-> On Thu, Mar 24, 2022 at 07:02:16PM +0100, Halil Pasic wrote:
->> > If 
->> > ddbd89deb7d3 alone turns out to work OK then I'd be inclined to try a 
->> > partial revert of just that one hunk.
->> >
->> 
->> I'm not against being pragmatic and doing the partial revert. But as
->> explained above, I do believe for correctness of swiotlb we ultimately
->> do need that change. So if the revert is the short term solution,
->> what should be our mid-term road-map?
->
-> Unless I'm misunderstanding this thread we found the bug in ath9k
-> and have a fix for that now?
+Regressions Summary
+-------------------
 
-According to Maxim's comment on the other subthread, that ath9k patch
-wouldn't work on all platforms (and constitutes a bit of a violation of
-the DMA API ownership abstraction). So not quite, I think?
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
--Toke
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.187-28-g12df16ea8f0b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.187-28-g12df16ea8f0b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      12df16ea8f0b0bc245b2028232e2d9e68a234f60 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623dd85dc164037cf6772504
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-2=
+8-g12df16ea8f0b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-2=
+8-g12df16ea8f0b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/623dd85dc164037cf6772=
+505
+        failing since 99 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623dd886f8531bd72e772518
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-2=
+8-g12df16ea8f0b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-2=
+8-g12df16ea8f0b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/623dd886f8531bd72e772=
+519
+        failing since 99 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
