@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C494E7743
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F03014E7771
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376395AbiCYP1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60452 "EHLO
+        id S1376969AbiCYP2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:28:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377856AbiCYPYj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57FAD75E76;
-        Fri, 25 Mar 2022 08:19:07 -0700 (PDT)
+        with ESMTP id S1377176AbiCYPXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF53CDCE3F;
+        Fri, 25 Mar 2022 08:17:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF1DD60AD0;
-        Fri, 25 Mar 2022 15:19:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D872DC340E9;
-        Fri, 25 Mar 2022 15:19:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56C2D60AB7;
+        Fri, 25 Mar 2022 15:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69210C340EE;
+        Fri, 25 Mar 2022 15:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221546;
-        bh=5B63nM6U8I1Rj8Bt5K0fep/TeJ/HLjQdNbJAFAPY670=;
+        s=korg; t=1648221449;
+        bh=WrWSpHQKs2LWw4pFtyVYqhrUO6MaZemAfI/UgjZvB6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hrWZJMKR7ffdyeQbkQcBYW8kHTPC4BJV0aeSEFnfH0DLF8fXtZAdJ6yTg2zM6IctF
-         aqyoIzhTXv+e9LAOfodwK/eUKBdI0pwaOuSQgFLf3wx6byMMC7dSl53m+ftj/bD3un
-         ed4p9sTCTIt0l2oFHwOprK7/yXOt6NCk9gjm/9o0=
+        b=RjW4Vyu5hRbqvVSACxeuumErQSG1iHg1NNkWOpWlE+NVG0+lNWS6hmFgJ/b8vlGke
+         UGUVc05dBMYYmVyd2TBfiLg81Y7LptqMvlMx344nlTWnlTURa5y6O/6sylY3vA6/+J
+         OxTEyI1DByESts/ThP44G9c5XOa9IfjXgQsCcfeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.17 23/39] ACPI: battery: Add device HID and quirk for Microsoft Surface Go 3
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.16 28/37] Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
 Date:   Fri, 25 Mar 2022 16:14:38 +0100
-Message-Id: <20220325150420.905332112@linuxfoundation.org>
+Message-Id: <20220325150420.849901125@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 7dacee0b9efc8bd061f097b1a8d4daa6591af0c6 upstream.
+commit 2e7b4a328ed6ea57d22853939e69bc86c560996d upstream.
 
-For some reason, the Microsoft Surface Go 3 uses the standard ACPI
-interface for battery information, but does not use the standard PNP0C0A
-HID. Instead it uses MSHW0146 as identifier. Add that ID to the driver
-as this seems to work well.
+This Realtek device has both wifi and BT components. The latter reports
+a USB ID of 0bda:2852, which is not in the table.
 
-Additionally, the power state is not updated immediately after the AC
-has been (un-)plugged, so add the respective quirk for that.
+BT device description in /sys/kernel/debug/usb/devices contains the following entries:
 
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+T: Bus=01 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#= 3 Spd=12 MxCh= 0
+D: Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs= 1
+P: Vendor=0bda ProdID=2852 Rev= 0.00
+S: Manufacturer=Realtek
+S: Product=Bluetooth Radio
+S: SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=1ms
+E: Ad=02(O) Atr=02(Bulk) MxPS= 64 Ivl=0ms
+E: Ad=82(I) Atr=02(Bulk) MxPS= 64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 0 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 0 Ivl=1ms
+I: If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 9 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 9 Ivl=1ms
+I: If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 17 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 17 Ivl=1ms
+I: If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 25 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 25 Ivl=1ms
+I: If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 33 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 33 Ivl=1ms
+I: If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 49 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 49 Ivl=1ms
+
+The missing USB_ID was reported by user trius65 at https://github.com/lwfinger/rtw89/issues/122
+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/battery.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/bluetooth/btusb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -59,6 +59,10 @@ MODULE_PARM_DESC(cache_time, "cache time
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -404,6 +404,8 @@ static const struct usb_device_id blackl
+ 						     BTUSB_WIDEBAND_SPEECH },
  
- static const struct acpi_device_id battery_device_ids[] = {
- 	{"PNP0C0A", 0},
-+
-+	/* Microsoft Surface Go 3 */
-+	{"MSHW0146", 0},
-+
- 	{"", 0},
- };
- 
-@@ -1148,6 +1152,14 @@ static const struct dmi_system_id bat_dm
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
- 		},
- 	},
-+	{
-+		/* Microsoft Surface Go 3 */
-+		.callback = battery_notification_delay_quirk,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Surface Go 3"),
-+		},
-+	},
- 	{},
- };
- 
+ 	/* Realtek 8852AE Bluetooth devices */
++	{ USB_DEVICE(0x0bda, 0x2852), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0bda, 0xc852), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0bda, 0x385a), .driver_info = BTUSB_REALTEK |
 
 
