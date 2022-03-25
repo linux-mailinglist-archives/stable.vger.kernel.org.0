@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F40D34E776A
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C494E7743
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376910AbiCYP2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:28:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58732 "EHLO
+        id S1376395AbiCYP1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376756AbiCYPXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42A6E6E296;
-        Fri, 25 Mar 2022 08:16:45 -0700 (PDT)
+        with ESMTP id S1377856AbiCYPYj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57FAD75E76;
+        Fri, 25 Mar 2022 08:19:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3BC63B82865;
-        Fri, 25 Mar 2022 15:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F905C340E9;
-        Fri, 25 Mar 2022 15:16:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF1DD60AD0;
+        Fri, 25 Mar 2022 15:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D872DC340E9;
+        Fri, 25 Mar 2022 15:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221371;
-        bh=2Y7SEJ45GUxU9Jc1FeEiiIgPS7sVZVqp/nNW4EwEPk4=;
+        s=korg; t=1648221546;
+        bh=5B63nM6U8I1Rj8Bt5K0fep/TeJ/HLjQdNbJAFAPY670=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+WKUlfPbMmwq7xvX0e2xVfwp03JtJUXxntKi1XzCnzhlwfgwMu8tnzMB1xOp9Ayb
-         QEV2Xj67Y5rgbvy/9iuMJ/GHzjXRd6SHra+sDh/bNFgHyRLk4Nyzva0nx2Y9BEybMN
-         igJiqL1lGT0eLSxwsRnjzkJZduZm/WMNc5Mo8k2A=
+        b=hrWZJMKR7ffdyeQbkQcBYW8kHTPC4BJV0aeSEFnfH0DLF8fXtZAdJ6yTg2zM6IctF
+         aqyoIzhTXv+e9LAOfodwK/eUKBdI0pwaOuSQgFLf3wx6byMMC7dSl53m+ftj/bD3un
+         ed4p9sTCTIt0l2oFHwOprK7/yXOt6NCk9gjm/9o0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.15 36/37] m68k: fix access_ok for coldfire
-Date:   Fri, 25 Mar 2022 16:14:37 +0100
-Message-Id: <20220325150420.964665740@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.17 23/39] ACPI: battery: Add device HID and quirk for Microsoft Surface Go 3
+Date:   Fri, 25 Mar 2022 16:14:38 +0100
+Message-Id: <20220325150420.905332112@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
-References: <20220325150419.931802116@linuxfoundation.org>
+In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
+References: <20220325150420.245733653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit 26509034bef198525d5936c116cbd0c3fa491c0b upstream.
+commit 7dacee0b9efc8bd061f097b1a8d4daa6591af0c6 upstream.
 
-While most m68k platforms use separate address spaces for user
-and kernel space, at least coldfire does not, and the other
-ones have a TASK_SIZE that is less than the entire 4GB address
-range.
+For some reason, the Microsoft Surface Go 3 uses the standard ACPI
+interface for battery information, but does not use the standard PNP0C0A
+HID. Instead it uses MSHW0146 as identifier. Add that ID to the driver
+as this seems to work well.
 
-Using the default implementation of __access_ok() stops coldfire
-user space from trivially accessing kernel memory.
+Additionally, the power state is not updated immediately after the AC
+has been (un-)plugged, so add the respective quirk for that.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/m68k/include/asm/uaccess.h |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/acpi/battery.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/arch/m68k/include/asm/uaccess.h
-+++ b/arch/m68k/include/asm/uaccess.h
-@@ -12,14 +12,17 @@
- #include <asm/extable.h>
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -59,6 +59,10 @@ MODULE_PARM_DESC(cache_time, "cache time
  
- /* We let the MMU do all checking */
--static inline int access_ok(const void __user *addr,
-+static inline int access_ok(const void __user *ptr,
- 			    unsigned long size)
- {
--	/*
--	 * XXX: for !CONFIG_CPU_HAS_ADDRESS_SPACES this really needs to check
--	 * for TASK_SIZE!
--	 */
--	return 1;
-+	unsigned long limit = TASK_SIZE;
-+	unsigned long addr = (unsigned long)ptr;
+ static const struct acpi_device_id battery_device_ids[] = {
+ 	{"PNP0C0A", 0},
 +
-+	if (IS_ENABLED(CONFIG_CPU_HAS_ADDRESS_SPACES) ||
-+	    !IS_ENABLED(CONFIG_MMU))
-+		return 1;
++	/* Microsoft Surface Go 3 */
++	{"MSHW0146", 0},
 +
-+	return (size <= limit) && (addr <= (limit - size));
- }
+ 	{"", 0},
+ };
  
- /*
+@@ -1148,6 +1152,14 @@ static const struct dmi_system_id bat_dm
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
+ 		},
+ 	},
++	{
++		/* Microsoft Surface Go 3 */
++		.callback = battery_notification_delay_quirk,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Surface Go 3"),
++		},
++	},
+ 	{},
+ };
+ 
 
 
