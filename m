@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BB774E771D
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:25:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 946E94E76BE
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376620AbiCYP1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
+        id S1376336AbiCYPTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:19:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376968AbiCYPXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6B6A5EAB;
-        Fri, 25 Mar 2022 08:17:04 -0700 (PDT)
+        with ESMTP id S1376371AbiCYPS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:18:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6C9DEBAB;
+        Fri, 25 Mar 2022 08:15:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D068EB8288D;
-        Fri, 25 Mar 2022 15:17:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF80C340E9;
-        Fri, 25 Mar 2022 15:17:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 064A560A73;
+        Fri, 25 Mar 2022 15:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C168C340E9;
+        Fri, 25 Mar 2022 15:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221421;
-        bh=+K+8ORVeew4aVIzDkKIXqrFRlhb+qisqa78eUU2k22Q=;
+        s=korg; t=1648221298;
+        bh=q4yisZHCankKIcaEBoaOV+QCs/SEnOGaAYxROdpfo3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lImYnvu25m9ASG8kDIT7me/fqDoD0L9xfOeX4jITgTwauDJteirrg30tFkWRgEVi4
-         m9NY1EVZjb8n+driaLWvqjxcXbcbf6xMIts4SNrU6W4zoClvIsFxYOv/VenZLYuP/E
-         Yq6iDR3tXuGVGe9jP/pwphuEwh098Vbt0ae6mxOQ=
+        b=jcj7jxuU+qWbyiw+vjDN/DEr0vb9lNqVook5gQvXCIZXLhvi2ZQIZVwizuwt6Z2eG
+         De8O0YtyJhBq+WNRAHNsX6GYBPG+JibqEJA8PgcykTTheeXRxJ+cG1YqR0D9hrecX7
+         vsqIsrsWS1yi6ftxXLFUl8jxd6LzxjsZEBySPtmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+72732c532ac1454eeee9@syzkaller.appspotmail.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 04/37] ALSA: oss: Fix PCM OSS buffer allocation overflow
+        stable@vger.kernel.org, Hu Jiahui <kirin.say@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 13/37] ALSA: pcm: Fix races among concurrent hw_params and hw_free calls
 Date:   Fri, 25 Mar 2022 16:14:14 +0100
-Message-Id: <20220325150420.175382831@linuxfoundation.org>
+Message-Id: <20220325150420.313873846@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-References: <20220325150420.046488912@linuxfoundation.org>
+In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
+References: <20220325150419.931802116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,81 +55,177 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit efb6402c3c4a7c26d97c92d70186424097b6e366 upstream.
+commit 92ee3c60ec9fe64404dc035e7c41277d74aa26cb upstream.
 
-We've got syzbot reports hitting INT_MAX overflow at vmalloc()
-allocation that is called from snd_pcm_plug_alloc().  Although we
-apply the restrictions to input parameters, it's based only on the
-hw_params of the underlying PCM device.  Since the PCM OSS layer
-allocates a temporary buffer for the data conversion, the size may
-become unexpectedly large when more channels or higher rates is given;
-in the reported case, it went over INT_MAX, hence it hits WARN_ON().
+Currently we have neither proper check nor protection against the
+concurrent calls of PCM hw_params and hw_free ioctls, which may result
+in a UAF.  Since the existing PCM stream lock can't be used for
+protecting the whole ioctl operations, we need a new mutex to protect
+those racy calls.
 
-This patch is an attempt to avoid such an overflow and an allocation
-for too large buffers.  First off, it adds the limit of 1MB as the
-upper bound for period bytes.  This must be large enough for all use
-cases, and we really don't want to handle a larger temporary buffer
-than this size.  The size check is performed at two places, where the
-original period bytes is calculated and where the plugin buffer size
-is calculated.
+This patch introduced a new mutex, runtime->buffer_mutex, and applies
+it to both hw_params and hw_free ioctl code paths.  Along with it, the
+both functions are slightly modified (the mmap_count check is moved
+into the state-check block) for code simplicity.
 
-In addition, the driver uses array_size() and array3_size() for
-multiplications to catch overflows for the converted period size and
-buffer bytes.
-
-Reported-by: syzbot+72732c532ac1454eeee9@syzkaller.appspotmail.com
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Hu Jiahui <kirin.say@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/00000000000085b1b305da5a66f3@google.com
-Link: https://lore.kernel.org/r/20220318082036.29699-1-tiwai@suse.de
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322170720.3529-2-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/pcm_oss.c    |   12 ++++++++----
- sound/core/oss/pcm_plugin.c |    5 ++++-
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ include/sound/pcm.h     |    1 
+ sound/core/pcm.c        |    2 +
+ sound/core/pcm_native.c |   61 ++++++++++++++++++++++++++++++------------------
+ 3 files changed, 42 insertions(+), 22 deletions(-)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -774,6 +774,11 @@ static int snd_pcm_oss_period_size(struc
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -398,6 +398,7 @@ struct snd_pcm_runtime {
+ 	wait_queue_head_t tsleep;	/* transfer sleep */
+ 	struct fasync_struct *fasync;
+ 	bool stop_operating;		/* sync_stop will be called */
++	struct mutex buffer_mutex;	/* protect for buffer changes */
  
- 	if (oss_period_size < 16)
- 		return -EINVAL;
-+
-+	/* don't allocate too large period; 1MB period must be enough */
-+	if (oss_period_size > 1024 * 1024)
-+		return -ENOMEM;
-+
- 	runtime->oss.period_bytes = oss_period_size;
- 	runtime->oss.period_frames = 1;
- 	runtime->oss.periods = oss_periods;
-@@ -1043,10 +1048,9 @@ static int snd_pcm_oss_change_params_loc
- 			goto failure;
+ 	/* -- private section -- */
+ 	void *private_data;
+--- a/sound/core/pcm.c
++++ b/sound/core/pcm.c
+@@ -969,6 +969,7 @@ int snd_pcm_attach_substream(struct snd_
+ 	init_waitqueue_head(&runtime->tsleep);
+ 
+ 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
++	mutex_init(&runtime->buffer_mutex);
+ 
+ 	substream->runtime = runtime;
+ 	substream->private_data = pcm->private_data;
+@@ -1002,6 +1003,7 @@ void snd_pcm_detach_substream(struct snd
+ 	} else {
+ 		substream->runtime = NULL;
  	}
- #endif
--	oss_period_size *= oss_frame_size;
--
--	oss_buffer_size = oss_period_size * runtime->oss.periods;
--	if (oss_buffer_size < 0) {
-+	oss_period_size = array_size(oss_period_size, oss_frame_size);
-+	oss_buffer_size = array_size(oss_period_size, runtime->oss.periods);
-+	if (oss_buffer_size <= 0) {
- 		err = -EINVAL;
- 		goto failure;
- 	}
---- a/sound/core/oss/pcm_plugin.c
-+++ b/sound/core/oss/pcm_plugin.c
-@@ -62,7 +62,10 @@ static int snd_pcm_plugin_alloc(struct s
- 	width = snd_pcm_format_physical_width(format->format);
- 	if (width < 0)
- 		return width;
--	size = frames * format->channels * width;
-+	size = array3_size(frames, format->channels, width);
-+	/* check for too large period size once again */
-+	if (size > 1024 * 1024)
-+		return -ENOMEM;
- 	if (snd_BUG_ON(size % 8))
++	mutex_destroy(&runtime->buffer_mutex);
+ 	kfree(runtime);
+ 	put_pid(substream->pid);
+ 	substream->pid = NULL;
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -672,33 +672,40 @@ static int snd_pcm_hw_params_choose(stru
+ 	return 0;
+ }
+ 
++#if IS_ENABLED(CONFIG_SND_PCM_OSS)
++#define is_oss_stream(substream)	((substream)->oss.oss)
++#else
++#define is_oss_stream(substream)	false
++#endif
++
+ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
+ 			     struct snd_pcm_hw_params *params)
+ {
+ 	struct snd_pcm_runtime *runtime;
+-	int err, usecs;
++	int err = 0, usecs;
+ 	unsigned int bits;
+ 	snd_pcm_uframes_t frames;
+ 
+ 	if (PCM_RUNTIME_CHECK(substream))
  		return -ENXIO;
- 	size /= 8;
+ 	runtime = substream->runtime;
++	mutex_lock(&runtime->buffer_mutex);
+ 	snd_pcm_stream_lock_irq(substream);
+ 	switch (runtime->status->state) {
+ 	case SNDRV_PCM_STATE_OPEN:
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++		if (!is_oss_stream(substream) &&
++		    atomic_read(&substream->mmap_count))
++			err = -EBADFD;
+ 		break;
+ 	default:
+-		snd_pcm_stream_unlock_irq(substream);
+-		return -EBADFD;
++		err = -EBADFD;
++		break;
+ 	}
+ 	snd_pcm_stream_unlock_irq(substream);
+-#if IS_ENABLED(CONFIG_SND_PCM_OSS)
+-	if (!substream->oss.oss)
+-#endif
+-		if (atomic_read(&substream->mmap_count))
+-			return -EBADFD;
++	if (err)
++		goto unlock;
+ 
+ 	snd_pcm_sync_stop(substream, true);
+ 
+@@ -786,16 +793,21 @@ static int snd_pcm_hw_params(struct snd_
+ 	if (usecs >= 0)
+ 		cpu_latency_qos_add_request(&substream->latency_pm_qos_req,
+ 					    usecs);
+-	return 0;
++	err = 0;
+  _error:
+-	/* hardware might be unusable from this time,
+-	   so we force application to retry to set
+-	   the correct hardware parameter settings */
+-	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
+-	if (substream->ops->hw_free != NULL)
+-		substream->ops->hw_free(substream);
+-	if (substream->managed_buffer_alloc)
+-		snd_pcm_lib_free_pages(substream);
++	if (err) {
++		/* hardware might be unusable from this time,
++		 * so we force application to retry to set
++		 * the correct hardware parameter settings
++		 */
++		snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
++		if (substream->ops->hw_free != NULL)
++			substream->ops->hw_free(substream);
++		if (substream->managed_buffer_alloc)
++			snd_pcm_lib_free_pages(substream);
++	}
++ unlock:
++	mutex_unlock(&runtime->buffer_mutex);
+ 	return err;
+ }
+ 
+@@ -835,26 +847,31 @@ static int do_hw_free(struct snd_pcm_sub
+ static int snd_pcm_hw_free(struct snd_pcm_substream *substream)
+ {
+ 	struct snd_pcm_runtime *runtime;
+-	int result;
++	int result = 0;
+ 
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+ 	runtime = substream->runtime;
++	mutex_lock(&runtime->buffer_mutex);
+ 	snd_pcm_stream_lock_irq(substream);
+ 	switch (runtime->status->state) {
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++		if (atomic_read(&substream->mmap_count))
++			result = -EBADFD;
+ 		break;
+ 	default:
+-		snd_pcm_stream_unlock_irq(substream);
+-		return -EBADFD;
++		result = -EBADFD;
++		break;
+ 	}
+ 	snd_pcm_stream_unlock_irq(substream);
+-	if (atomic_read(&substream->mmap_count))
+-		return -EBADFD;
++	if (result)
++		goto unlock;
+ 	result = do_hw_free(substream);
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
+ 	cpu_latency_qos_remove_request(&substream->latency_pm_qos_req);
++ unlock:
++	mutex_unlock(&runtime->buffer_mutex);
+ 	return result;
+ }
+ 
 
 
