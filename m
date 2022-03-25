@@ -2,228 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F104E7D53
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50BF54E7C0C
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233320AbiCYVPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 17:15:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39536 "EHLO
+        id S233390AbiCYVdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 17:33:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233233AbiCYVPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 17:15:00 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BDAA34B99;
-        Fri, 25 Mar 2022 14:13:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=lbD/A+mPwRg8dZJHLfabQrV74g1iS2RTgXnbR4+XnGY=;
-        t=1648242805; x=1649452405; b=Ib9JNvmIrbaIq4qyxKnZ9Tkmka/mOeq9EwrctRUr/3VGkEK
-        J7LUg2Py9S/VyTcFA/wF0aQ/Cvj0UZTS6PCiaXsEHS2z04WMDbHCBCju/ieGO/48w+e982A10R/zX
-        eLQVkmMHFP3vMT1jFaV/wwWNfdk0isI/lfsKCzDaStrv+48+efPD3hx+skgIWAAeJogOxJi4X96SY
-        nga/8Td2RNuZ05G7xisTtrW0JigPDQlSZedfh9WYXifrBhC3Ygb490+Tr/beWKqj/KJBwvViyx7X3
-        AtKxNNj0joHKS64Jj6Rdg4/QVEunFT7PvYrfDYMrD1B8hxSYV6a8B7/J8TI5W0qw==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1nXrF7-000VW3-JE;
-        Fri, 25 Mar 2022 22:13:09 +0100
-Message-ID: <e42e4c8bf35b62c671ec20ec6c21a43216e7daa6.camel@sipsolutions.net>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Maxime Bizon <mbizon@freebox.fr>,
-        Toke =?ISO-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Date:   Fri, 25 Mar 2022 22:13:08 +0100
-In-Reply-To: <CAHk-=whXAan2ExANMryPSFaBWeyzikPi+fPUseMoVhQAxR7cEA@mail.gmail.com>
-References: <1812355.tdWV9SEqCh@natalenko.name>
-         <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
-         <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
-         <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
-         <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
-         <20220324163132.GB26098@lst.de>
-         <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
-         <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
-         <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
-         <CAHk-=wippum+MksdY7ixMfa3i1sZ+nxYPWLLpVMNyXCgmiHbBQ@mail.gmail.com>
-         <298f4f9ccad7c3308d3a1fd8b4b4740571305204.camel@sipsolutions.net>
-         <CAHk-=whXAan2ExANMryPSFaBWeyzikPi+fPUseMoVhQAxR7cEA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+        with ESMTP id S233405AbiCYVdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 17:33:37 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF243615C;
+        Fri, 25 Mar 2022 14:32:03 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id q11so9497997pln.11;
+        Fri, 25 Mar 2022 14:32:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=SJpCuQQmEV2SAoMittH2JJQh8KxyIjkNxtG+z5GWdKo=;
+        b=U9ABznzW1nW5/RMOJE/y66cg5xMG3Xp+dipB/khfIOxxmjD8JYcNFO4Mp95i73nOJf
+         R+HXyLJaXeAvt4F+YXUYpxhi4s4sJJYvGLyT6wtVCjMkQYyAup0ZXKJziRvjTqeELRJp
+         9lv/aGijYhjJBkExcbKsJHwlbO2V+ibz4BFNwemc5+9emApVdM2VN8eK6efKxmBDpg+I
+         EPTOkZCTU+GaIGYXjE6qS2NWawUF9s4n6J8Qd9wodtIxZ+E9ly/HjWLjAbKaiTGVJm+y
+         16yM1ms45xqABLu2mMfgZEo/ZinYBxZiBwKAsxARl7gzBtsZMBCk5pDdHQEk+HFHRgjx
+         lG/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=SJpCuQQmEV2SAoMittH2JJQh8KxyIjkNxtG+z5GWdKo=;
+        b=KdplqN6zH2TDjcoLV7A38j0OwEN5BFMg+b8ruHXh3sl0NgajiZJqjc6QwEp2eAq0o6
+         oRm5rbRwHNspoAFvH4It4LcR+8QGFvaH5VLl/bRU7lltwc8SMZA7ZJK5y1ZiDUEjIzio
+         eQOvp3FxDlAL3VWdi6KLqgB2FR52F+Tjll1BuQOoTgKCD0Im6AAV0mEDcGQlswNbMK8u
+         1aKkDh64dLXd5F9Gf9mnK0C83zlg4rtkTgwsI0v5eS9/Z7LdW7G9aKUxij6oQKpd/ZKf
+         bMh8argpR/9iX/Drbqgt3YEBlMpL9ULxYf6L+yUPooDoKAH0hzlxV//5eUFAZ/eSGiDm
+         VjNA==
+X-Gm-Message-State: AOAM531IWbVhC8pZ9OUkOhFATK2YTI/8Qe5BWlAhvNKhC3f0M2mkxzsP
+        O5xqa9gpJgxkPVXaS0DucUFJ72fxcRc=
+X-Google-Smtp-Source: ABdhPJwsXL92fONz/dEfjQ4rEaK4/GNOyEJWWHXCdOdgpdxxZSP0ANna7W3IU35JOL2t5zgBT3itkQ==
+X-Received: by 2002:a17:90b:3b81:b0:1c6:f22c:60f3 with SMTP id pc1-20020a17090b3b8100b001c6f22c60f3mr15082866pjb.109.1648243922717;
+        Fri, 25 Mar 2022 14:32:02 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id mu1-20020a17090b388100b001c77e79531bsm10786563pjb.50.2022.03.25.14.32.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Mar 2022 14:32:02 -0700 (PDT)
+Message-ID: <15268a27-5386-45d8-5c55-1095251331f7@gmail.com>
+Date:   Fri, 25 Mar 2022 14:31:59 -0700
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 4.9 00/14] 4.9.309-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220325150415.694544076@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-malware-bazaar: not-scanned
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2022-03-25 at 13:47 -0700, Linus Torvalds wrote:
-> On Fri, Mar 25, 2022 at 1:38 PM Johannes Berg <johannes@sipsolutions.net> wrote:
-> > 
-> > >  (2) The CPU now wants to see any state written by the device since
-> > > the last sync
-> > > 
-> > >     This is "dma_sync_single_for_cpu(DMA_FROM_DEVICE)".
-> > > 
-> > >     A bounce-buffer implementation needs to copy *from* the bounce buffer.
-> > > 
-> > >     A cache-coherent implementation needs to do nothing.
-> > > 
-> > >     A non-coherent implementation maybe needs to do nothing (ie it
-> > > assumes that previous ops have flushed the cache, and just accessing
-> > > the data will bring the rigth thing back into it). Or it could just
-> > > flush the cache.
-> > 
-> > Doesn't that just need to *invalidate* the cache, rather than *flush*
-> > it?
+On 3/25/22 08:04, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.309 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Yes.  I should have been more careful.
-
-Well I see now that you said 'cache "writeback"' in (1), and 'flush' in
-(2), so perhaps you were thinking of the same, and I'm just calling it
-"flush" and "invalidate" respectively?
-
-> That said, I think "invalidate without writeback" is a really
-> dangerous operation (it can generate some *really* hard to debug
-> memory state), so on the whole I think you should always strive to
-> just do "flush-and-invalidate".
-
-Hmm. Yeah, can't really disagree with that.
-
-However, this seems to be the wrong spot to flush (writeback?) the
-cache, as we're trying to get data from the device, not potentially
-overwrite the data that the device wrote because we have a dirty
-cacheline. Hmm. Then again, how could we possibly have a dirty
-cacheline?
-
-
-Which starts to clarify in my mind why we have a sort of (implied)
-ownership model: if the CPU dirties a cacheline while the device has
-ownership then the cache writeback might overwrite the DMA data. So it's
-easier to think of it as "CPU has ownership" and "device has ownership",
-but evidently that simple model breaks down in real-world cases such as
-ath9k where the CPU wants to look, but not write, and the device
-continues doing DMA at the same time.
-
-
-Now in that case the cache wouldn't be considered dirty either since the
-CPU was just reading, but who knows? Hence the suggestion of just
-invalidate, not flush.
-
-> If the core has support for "invalidate clean cache lines only", then
-> that's possibly a good alternative.
-
-Well if you actually did dirty the cacheline, then you have a bug one
-way or the other, and it's going to be really hard to debug - either you
-lose the CPU write, or you lose the device write, there's no way you're
-not losing one of them?
-
-
-ath9k doesn't write, of course, so hopefully the core wouldn't write
-back what it must think of as clean cachelines, even if the device
-modified the memory underneath already.
-
-
-So really while I agree with your semantics, I was previously privately
-suggesting to Toke we should probably have something like
-
-dma_single_cpu_peek()
-// read buffer and check if it was done
-dma_single_cpu_peek_finish()
-
-which really is equivalent to the current
-
-dma_sync_single_for_cpu(DMA_FROM_DEVICE)
-// ...
-dma_sync_single_for_device(DMA_FROM_DEVICE)
-
-that ath9k does, but makes it clearer that you really can't write to the
-buffer... but, water under the bridge, I guess.
-
-Thinking about the ownership model again - it seems that we need to at
-least modify that ownership model in the sense that we have *write*
-ownership that we pass around, not just "ownership". But if we do that,
-then we need to clarify which operations pass write ownership and which
-don't.
-
-So the operations
-(1) dma_sync_single_for_device(DMA_TO_DEVICE)
-(2) dma_sync_single_for_cpu(DMA_FROM_DEVICE)
-(3) dma_sync_single_for_device(DMA_FROM_DEVICE)
-
-really only (1) passes write ownership to the device, but then you can't
-get it back?
-
-But that cannot be true, because ath9k maps the buffer as
-DMA_BIDIRECTIONAL, and then eventually might want to recycle it.
-
-Actually though, perhaps passing write ownership back to the CPU isn't
-an operation that the DMA API needs to worry about - if the CPU has read
-ownership and the driver knows separately that the device is no longer
-accessing it, then basically the CPU already got write ownership, and
-passes that back uses (1)?
-
-
-> > Then, however, we need to define what happens if you pass
-> > DMA_BIDIRECTIONAL to the sync_for_cpu() and sync_for_device() functions,
-> > which adds two more cases? Or maybe we eventually just think that's not
-> > valid at all, since you have to specify how you're (currently?) using
-> > the buffer, which can't be DMA_BIDIRECTIONAL?
+> Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
+> Anything received after that time might be too late.
 > 
-> Ugh. Do we actually have cases that do it?
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.309-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Yes, a few.
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-> That sounds really odd for
-> a "sync" operation. It sounds very reasonable for _allocating_ DMA,
-> but for syncing I'm left scratching my head what the semantics would
-> be.
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 
-I agree.
-
-> But yes, if we do and people come up with semantics for it, those
-> semantics should be clearly documented.
-
-I'm not sure? I'm wondering if this isn't just because - like me
-initially - people misunderstood the direction argument, or didn't
-understand it well enough, and then just passed the same value as for
-the map()/unmap()?
-
-You have to pass the size to all of them too, after all ... but I'm
-speculating.
-
-> And if we don't - or people can't come up with semantics for it - we
-> should actively warn about it and not have some code that does odd
-> things that we don't know what they mean.
-
-Makes sense.
-
-> But it sounds like you agree with my analysis, just not with some of
-> my bad/incorrect word choices.
-
-Yes.
-
-johannes
+PS: is there any reason why the Spectre BHB patches from here are not 
+part of linux-stable/linux-4.9.y?
+-- 
+Florian
