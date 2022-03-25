@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A2394E774A
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4886B4E7737
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376558AbiCYP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60410 "EHLO
+        id S1355875AbiCYP12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378017AbiCYPYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1296CEBAF0;
-        Fri, 25 Mar 2022 08:19:36 -0700 (PDT)
+        with ESMTP id S1377444AbiCYPYK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1469E7299;
+        Fri, 25 Mar 2022 08:18:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B22560AD0;
-        Fri, 25 Mar 2022 15:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D656C340E9;
-        Fri, 25 Mar 2022 15:19:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 25FCBCE2A45;
+        Fri, 25 Mar 2022 15:18:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3731EC340E9;
+        Fri, 25 Mar 2022 15:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221575;
-        bh=UPNROQtk0dXHRt+2fLHL00m2kNA2Kl3lXWE12qjfXE0=;
+        s=korg; t=1648221478;
+        bh=3snGlK3kA7ZUY+R0MwdxzWSgKKQaA0DAwJcsXL42dfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2HWJodcHeLS9kqlC87/G09cbwThcgsHV7DNobHo5ahLoGPmxIXjIS5t1DKqekmNX
-         AC3QNH5tVMJWddHRXs/Q/gZKC5PT4JV3wwEqCEBq6IexVzs4ud90Zttj9t6aXJULQz
-         wXkTPGfpFit1UGJUpz0yxiU8Br+FiCrqf1a+9cIY=
+        b=YtBfHu5j/UOVSk9k2g9ixAFOYRaF93W9i6wafbqaoz8iD68LYUKITk6nRoTJEhREr
+         gck8wjvQJVHJwVIeVpOiryfrFnG3JsfnyLoIVKGqjjEfe/mgqAqtMGMU6aK+xgBt+A
+         ru4lUJdnJ1aRAIfw2FoRZYJeeTwMdRAuH8/WSX1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Murray <timmurray@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        Todd Kjos <tkjos@google.com>,
-        Sandeep Patil <sspatil@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.17 32/39] rcu: Dont deboost before reporting expedited quiescent state
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.16 37/37] nds32: fix access_ok() checks in get/put_user
 Date:   Fri, 25 Mar 2022 16:14:47 +0100
-Message-Id: <20220325150421.162631784@linuxfoundation.org>
+Message-Id: <20220325150421.106820241@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,63 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 10c535787436d62ea28156a4b91365fd89b5a432 upstream.
+commit 8926d88ced46700bf6117ceaf391480b943ea9f4 upstream.
 
-Currently rcu_preempt_deferred_qs_irqrestore() releases rnp->boost_mtx
-before reporting the expedited quiescent state.  Under heavy real-time
-load, this can result in this function being preempted before the
-quiescent state is reported, which can in turn prevent the expedited grace
-period from completing.  Tim Murray reports that the resulting expedited
-grace periods can take hundreds of milliseconds and even more than one
-second, when they should normally complete in less than a millisecond.
+The get_user()/put_user() functions are meant to check for
+access_ok(), while the __get_user()/__put_user() functions
+don't.
 
-This was fine given that there were no particular response-time
-constraints for synchronize_rcu_expedited(), as it was designed
-for throughput rather than latency.  However, some users now need
-sub-100-millisecond response-time constratints.
+This broke in 4.19 for nds32, when it gained an extraneous
+check in __get_user(), but lost the check it needs in
+__put_user().
 
-This patch therefore follows Neeraj's suggestion (seconded by Tim and
-by Uladzislau Rezki) of simply reversing the two operations.
-
-Reported-by: Tim Murray <timmurray@google.com>
-Reported-by: Joel Fernandes <joelaf@google.com>
-Reported-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Reviewed-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Tested-by: Tim Murray <timmurray@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Sandeep Patil <sspatil@google.com>
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 487913ab18c2 ("nds32: Extract the checking and getting pointer to a macro")
+Cc: stable@vger.kernel.org @ v4.19+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree_plugin.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/nds32/include/asm/uaccess.h |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -556,16 +556,16 @@ rcu_preempt_deferred_qs_irqrestore(struc
- 			raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 		}
+--- a/arch/nds32/include/asm/uaccess.h
++++ b/arch/nds32/include/asm/uaccess.h
+@@ -70,9 +70,7 @@ static inline void set_fs(mm_segment_t f
+  * versions are void (ie, don't return a value as such).
+  */
  
--		/* Unboost if we were boosted. */
--		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
--			rt_mutex_futex_unlock(&rnp->boost_mtx.rtmutex);
+-#define get_user	__get_user					\
 -
- 		/*
- 		 * If this was the last task on the expedited lists,
- 		 * then we need to report up the rcu_node hierarchy.
- 		 */
- 		if (!empty_exp && empty_exp_now)
- 			rcu_report_exp_rnp(rnp, true);
+-#define __get_user(x, ptr)						\
++#define get_user(x, ptr)						\
+ ({									\
+ 	long __gu_err = 0;						\
+ 	__get_user_check((x), (ptr), __gu_err);				\
+@@ -85,6 +83,14 @@ static inline void set_fs(mm_segment_t f
+ 	(void)0;							\
+ })
+ 
++#define __get_user(x, ptr)						\
++({									\
++	long __gu_err = 0;						\
++	const __typeof__(*(ptr)) __user *__p = (ptr);			\
++	__get_user_err((x), __p, (__gu_err));				\
++	__gu_err;							\
++})
 +
-+		/* Unboost if we were boosted. */
-+		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
-+			rt_mutex_futex_unlock(&rnp->boost_mtx.rtmutex);
- 	} else {
- 		local_irq_restore(flags);
- 	}
+ #define __get_user_check(x, ptr, err)					\
+ ({									\
+ 	const __typeof__(*(ptr)) __user *__p = (ptr);			\
+@@ -165,12 +171,18 @@ do {									\
+ 		: "r"(addr), "i"(-EFAULT)				\
+ 		: "cc")
+ 
+-#define put_user	__put_user					\
++#define put_user(x, ptr)						\
++({									\
++	long __pu_err = 0;						\
++	__put_user_check((x), (ptr), __pu_err);				\
++	__pu_err;							\
++})
+ 
+ #define __put_user(x, ptr)						\
+ ({									\
+ 	long __pu_err = 0;						\
+-	__put_user_err((x), (ptr), __pu_err);				\
++	__typeof__(*(ptr)) __user *__p = (ptr);				\
++	__put_user_err((x), __p, __pu_err);				\
+ 	__pu_err;							\
+ })
+ 
 
 
