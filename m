@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A74AA4E769B
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5384E767E
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345372AbiCYPQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43824 "EHLO
+        id S230099AbiCYPP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:15:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376719AbiCYPNS (ORCPT
+        with ESMTP id S1376715AbiCYPNS (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92850BD2DA;
-        Fri, 25 Mar 2022 08:10:18 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B1FBD2FF;
+        Fri, 25 Mar 2022 08:10:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E051B82889;
-        Fri, 25 Mar 2022 15:10:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDACC36AE3;
-        Fri, 25 Mar 2022 15:10:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 279E461B97;
+        Fri, 25 Mar 2022 15:10:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BF10C340E9;
+        Fri, 25 Mar 2022 15:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221015;
-        bh=5dD07FrTVoGgm2uQ3bhypRHa7VO+eNUmkkPYIB6AEfQ=;
+        s=korg; t=1648221018;
+        bh=3snGlK3kA7ZUY+R0MwdxzWSgKKQaA0DAwJcsXL42dfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukP6cxxa+T0wlbXWDe9zwTmS5R1VCXCwkCJ+ESdcRr4fDn7x2Z9HwWoO9iwe01uP/
-         F8QCR3AYpYtkW/pR8EvHl2lh9r9/hTwUNVjKFacZim8Ug92wRKRWgpIzNLIoU/UqOS
-         3uq2Lu0a8MuMsED2g8fDgWtxCXJhR9ILW1P5XokE=
+        b=ezqu17IbjpB3Tz2lxf5Buo/Bow4ReUqmFLnVJrKwGI+GCZ9aymr5jJWYXbBxKAe8f
+         cqNVg2U0jX7BcUgQEPNWS/0HzAwHQsIdD/stgQDf6ODP2zK9ulAZM3MbRth0QUs/oU
+         Xx2j+uRQ745fksLjzwKJSrE5jRVI2XAxvtC4eZYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Kalle Valo <quic_kvalo@quicinc.com>
-Subject: [PATCH 5.10 37/38] wcn36xx: Differentiate wcn3660 from wcn3620
-Date:   Fri, 25 Mar 2022 16:05:21 +0100
-Message-Id: <20220325150420.810464815@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 38/38] nds32: fix access_ok() checks in get/put_user
+Date:   Fri, 25 Mar 2022 16:05:22 +0100
+Message-Id: <20220325150420.838401496@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
 References: <20220325150419.757836392@linuxfoundation.org>
@@ -55,53 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 98d504a82cc75840bec8e3c6ae0e4f411921962b upstream.
+commit 8926d88ced46700bf6117ceaf391480b943ea9f4 upstream.
 
-The spread of capability between the three WiFi silicon parts wcn36xx
-supports is:
+The get_user()/put_user() functions are meant to check for
+access_ok(), while the __get_user()/__put_user() functions
+don't.
 
-wcn3620 - 802.11 a/b/g
-wcn3660 - 802.11 a/b/g/n
-wcn3680 - 802.11 a/b/g/n/ac
+This broke in 4.19 for nds32, when it gained an extraneous
+check in __get_user(), but lost the check it needs in
+__put_user().
 
-We currently treat wcn3660 as wcn3620 thus limiting it to 2GHz channels.
-Fix this regression by ensuring we differentiate between all three parts.
-
-Fixes: 8490987bdb9a ("wcn36xx: Hook and identify RF_IRIS_WCN3680")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220125004046.4058284-1-bryan.odonoghue@linaro.org
+Fixes: 487913ab18c2 ("nds32: Extract the checking and getting pointer to a macro")
+Cc: stable@vger.kernel.org @ v4.19+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/main.c    |    3 +++
- drivers/net/wireless/ath/wcn36xx/wcn36xx.h |    1 +
- 2 files changed, 4 insertions(+)
+ arch/nds32/include/asm/uaccess.h |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/ath/wcn36xx/main.c
-+++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -1362,6 +1362,9 @@ static int wcn36xx_platform_get_resource
- 	if (iris_node) {
- 		if (of_device_is_compatible(iris_node, "qcom,wcn3620"))
- 			wcn->rf_id = RF_IRIS_WCN3620;
-+		if (of_device_is_compatible(iris_node, "qcom,wcn3660") ||
-+		    of_device_is_compatible(iris_node, "qcom,wcn3660b"))
-+			wcn->rf_id = RF_IRIS_WCN3660;
- 		if (of_device_is_compatible(iris_node, "qcom,wcn3680"))
- 			wcn->rf_id = RF_IRIS_WCN3680;
- 		of_node_put(iris_node);
---- a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
-+++ b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
-@@ -96,6 +96,7 @@ enum wcn36xx_ampdu_state {
+--- a/arch/nds32/include/asm/uaccess.h
++++ b/arch/nds32/include/asm/uaccess.h
+@@ -70,9 +70,7 @@ static inline void set_fs(mm_segment_t f
+  * versions are void (ie, don't return a value as such).
+  */
  
- #define RF_UNKNOWN	0x0000
- #define RF_IRIS_WCN3620	0x3620
-+#define RF_IRIS_WCN3660	0x3660
- #define RF_IRIS_WCN3680	0x3680
+-#define get_user	__get_user					\
+-
+-#define __get_user(x, ptr)						\
++#define get_user(x, ptr)						\
+ ({									\
+ 	long __gu_err = 0;						\
+ 	__get_user_check((x), (ptr), __gu_err);				\
+@@ -85,6 +83,14 @@ static inline void set_fs(mm_segment_t f
+ 	(void)0;							\
+ })
  
- static inline void buff_to_be(u32 *buf, size_t len)
++#define __get_user(x, ptr)						\
++({									\
++	long __gu_err = 0;						\
++	const __typeof__(*(ptr)) __user *__p = (ptr);			\
++	__get_user_err((x), __p, (__gu_err));				\
++	__gu_err;							\
++})
++
+ #define __get_user_check(x, ptr, err)					\
+ ({									\
+ 	const __typeof__(*(ptr)) __user *__p = (ptr);			\
+@@ -165,12 +171,18 @@ do {									\
+ 		: "r"(addr), "i"(-EFAULT)				\
+ 		: "cc")
+ 
+-#define put_user	__put_user					\
++#define put_user(x, ptr)						\
++({									\
++	long __pu_err = 0;						\
++	__put_user_check((x), (ptr), __pu_err);				\
++	__pu_err;							\
++})
+ 
+ #define __put_user(x, ptr)						\
+ ({									\
+ 	long __pu_err = 0;						\
+-	__put_user_err((x), (ptr), __pu_err);				\
++	__typeof__(*(ptr)) __user *__p = (ptr);				\
++	__put_user_err((x), __p, __pu_err);				\
+ 	__pu_err;							\
+ })
+ 
 
 
