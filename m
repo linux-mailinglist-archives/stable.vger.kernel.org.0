@@ -2,36 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F7294E7B52
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B83294E7B4C
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:20:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbiCYT1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 15:27:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57254 "EHLO
+        id S231314AbiCYToG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 15:44:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229670AbiCYT0z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 15:26:55 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DEC171E5222;
-        Fri, 25 Mar 2022 12:00:11 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F1AF313D5;
-        Fri, 25 Mar 2022 11:42:25 -0700 (PDT)
-Received: from [10.57.41.19] (unknown [10.57.41.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F0FCD3F73D;
-        Fri, 25 Mar 2022 11:42:22 -0700 (PDT)
-Message-ID: <e077b229-c92b-c9a6-3581-61329c4b4a4b@arm.com>
-Date:   Fri, 25 Mar 2022 18:42:19 +0000
+        with ESMTP id S232145AbiCYTna (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 15:43:30 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F371CAF3C
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 12:14:18 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id w25so10284475edi.11
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 12:14:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EgGZKxsD9TLt3F67gvL7glAxKY5LH/ALHfbJS10Unqo=;
+        b=Ifi0U+jMvGYK0BTqlDqJD7wDJnEG/YfUGRvZzfRr8j43WKraDG3cCjf0FFuimZ9VSg
+         Z0g9+NcUuKem/himXNWFu4jQmCzk/SXJEhcY5eS/wYwMyvOJB4gmBU/F0T+ou6Dqjoci
+         oWVtYazkM++O6R/PwREQdtdeDirieoe3APP1o=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EgGZKxsD9TLt3F67gvL7glAxKY5LH/ALHfbJS10Unqo=;
+        b=vfWk4j5x6JljjQTuJrMwDUyhJFkbGzNEI0vP+Un8VPiRjvjk5G9XEWtTZ4vGoKn0X7
+         kh0Lu4vNBR6h8XjFkhnONA49Xo4JKyyl8A2CqnO0S5PtKZfhJ2YrSrZ9gGr+kdH3yMEy
+         DOZg58WEUtigA+VUlrm7zBxz8mtC4xT5dSkHFkr27F/Rl5AdqN6bZdiEp72VkRyN2ucx
+         6If37vfCFI37zxybVkwhGPYqWxVzLhPReR6h2k8NBuoJYowwBiFniFhtNz4uHpaEaW0x
+         pn296Whv7x0k0hc/Wp2LP/cM1L6uEJ+7HgKKDMmAWvaO917r9wnIfNsolnqlDpf7TpFh
+         yyhw==
+X-Gm-Message-State: AOAM5333XZgsZ/PiQcnoZPpnCelol0rlE7z2tOEujpa9dsVTdLGBO4GJ
+        l2l7b3HUvrbdKtnuPUy7qP5yzXhgxr/GkoMGKIk=
+X-Google-Smtp-Source: ABdhPJye2ypf5KOBhUcJdDs0OcwelXCDz9mTC4vEReGIzX5mapV3bNs/gsDb81SCbFV82735vd/OeA==
+X-Received: by 2002:a2e:a881:0:b0:249:6f85:d4a4 with SMTP id m1-20020a2ea881000000b002496f85d4a4mr9179315ljq.231.1648233988840;
+        Fri, 25 Mar 2022 11:46:28 -0700 (PDT)
+Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com. [209.85.208.171])
+        by smtp.gmail.com with ESMTPSA id x22-20020a0565123f9600b0044a2b697b92sm790490lfa.99.2022.03.25.11.46.26
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Mar 2022 11:46:27 -0700 (PDT)
+Received: by mail-lj1-f171.google.com with SMTP id r22so11452975ljd.4
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 11:46:26 -0700 (PDT)
+X-Received: by 2002:a2e:6f17:0:b0:248:124:9c08 with SMTP id
+ k23-20020a2e6f17000000b0024801249c08mr9323690ljc.506.1648233985657; Fri, 25
+ Mar 2022 11:46:25 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
+References: <1812355.tdWV9SEqCh@natalenko.name> <CAHk-=wiwz+Z2MaP44h086jeniG-OpK3c=FywLsCwXV7Crvadrg@mail.gmail.com>
+ <27b5a287-7a33-9a8b-ad6d-04746735fb0c@arm.com> <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com>
+ <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com> <20220324190216.0efa067f.pasic@linux.ibm.com>
+ <20220325163204.GB16426@lst.de> <87y20x7vaz.fsf@toke.dk> <e077b229-c92b-c9a6-3581-61329c4b4a4b@arm.com>
+In-Reply-To: <e077b229-c92b-c9a6-3581-61329c4b4a4b@arm.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 25 Mar 2022 11:46:09 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgKF5GfLXyVGDQDifh0MpMccDdmBvJBG3dt2+idCa5DzQ@mail.gmail.com>
+Message-ID: <CAHk-=wgKF5GfLXyVGDQDifh0MpMccDdmBvJBG3dt2+idCa5DzQ@mail.gmail.com>
 Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
  ath9k-based AP
-Content-Language: en-GB
-To:     =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <toke@toke.dk>,
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
         Christoph Hellwig <hch@lst.de>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
         Oleksandr Natalenko <oleksandr@natalenko.name>,
         Marek Szyprowski <m.szyprowski@samsung.com>,
         Kalle Valo <kvalo@kernel.org>,
@@ -45,55 +79,37 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable <stable@vger.kernel.org>
-References: <1812355.tdWV9SEqCh@natalenko.name>
- <CAHk-=wiwz+Z2MaP44h086jeniG-OpK3c=FywLsCwXV7Crvadrg@mail.gmail.com>
- <27b5a287-7a33-9a8b-ad6d-04746735fb0c@arm.com>
- <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com>
- <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324190216.0efa067f.pasic@linux.ibm.com> <20220325163204.GB16426@lst.de>
- <87y20x7vaz.fsf@toke.dk>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <87y20x7vaz.fsf@toke.dk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-03-25 18:15, Toke Høiland-Jørgensen wrote:
-> Christoph Hellwig <hch@lst.de> writes:
-> 
->> On Thu, Mar 24, 2022 at 07:02:16PM +0100, Halil Pasic wrote:
->>>> If
->>>> ddbd89deb7d3 alone turns out to work OK then I'd be inclined to try a
->>>> partial revert of just that one hunk.
->>>>
->>>
->>> I'm not against being pragmatic and doing the partial revert. But as
->>> explained above, I do believe for correctness of swiotlb we ultimately
->>> do need that change. So if the revert is the short term solution,
->>> what should be our mid-term road-map?
->>
->> Unless I'm misunderstanding this thread we found the bug in ath9k
->> and have a fix for that now?
-> 
-> According to Maxim's comment on the other subthread, that ath9k patch
-> wouldn't work on all platforms (and constitutes a bit of a violation of
-> the DMA API ownership abstraction). So not quite, I think?
+On Fri, Mar 25, 2022 at 11:42 AM Robin Murphy <robin.murphy@arm.com> wrote:
+>
+> Note that the current code is already a violation of the DMA
+> API (because the device keeps writing even when it doesn't have
+> ownership), so there's not a very strong argument in that regard.
 
-Indeed, it would potentially stand to pose the same problem as the 
-SWIOTLB change, but on the scale of individual cache lines touched by 
-ath9k_hw_process_rxdesc_edma() rather than the whole buffer. However, 
-that might represent a less severe impact on a smaller number of users 
-(maybe the MIPS systems? I'm not sure...) so perhaps it's an acceptable 
-tourniquet? Note that the current code is already a violation of the DMA 
-API (because the device keeps writing even when it doesn't have 
-ownership), so there's not a very strong argument in that regard.
+See my other email. I actually think that the ath9k code is 100%
+correct, adn it's the dma-mapping code that is in violation of the
+rules.
 
-Thanks,
-Robin.
+And a big part of the problem - I think - is that the rules are so
+badly documented and not explicitly listed.
+
+I think my list of three different sync cases (not just two! It's not
+just about whether to sync for the CPU or the device, it's also about
+what direction the data itself is taking) is correct.
+
+But maybe I'm wrong.
+
+I really want people to think about this, because right now my gut
+feel is that commit aa6f8dcbab47 was just absolutely incorrect.
+
+              Linus
