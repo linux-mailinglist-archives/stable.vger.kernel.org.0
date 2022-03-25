@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D14134E75B8
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:05:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FDD44E75BD
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:05:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359517AbiCYPHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34232 "EHLO
+        id S1359520AbiCYPHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:07:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359518AbiCYPHB (ORCPT
+        with ESMTP id S1359557AbiCYPHB (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:07:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F13B1D9EB6;
-        Fri, 25 Mar 2022 08:05:19 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66469D9EBD;
+        Fri, 25 Mar 2022 08:05:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6F9D5CE2A4D;
-        Fri, 25 Mar 2022 15:05:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB23C340EE;
-        Fri, 25 Mar 2022 15:05:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4163261B7F;
+        Fri, 25 Mar 2022 15:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 509FAC340E9;
+        Fri, 25 Mar 2022 15:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220716;
-        bh=UqsmNB3MGUm9F2hcODQq0vKd0GEvegVF20uiRTemZ7g=;
+        s=korg; t=1648220719;
+        bh=jPb3tSu9CO1iKhH1+2sebFSZRXRCGeE0jSrpF/J3JH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8ecOTqcB56hkDSydmMC8+W/n66rMm1uAcuyiZcKtLhx25/I3DjPAgFZ+EMcaVdAc
-         Cmt8KDAZu0D5sMu5VU9TNtHD374Ic95kj6cXewjx4MCOAxPmePp+EntcZEnv5MKczJ
-         T+x2KOcxXmX8RK/XJWRU4OWBkg3eowJ61KaBrAl8=
+        b=SI1eWOR0yUa34cayXKto5Q8o+Cdy+DXaGgNx4ObLv4bzxbtk1YOvJZarmUG8ePgVQ
+         Ip+3UO7dxxbu93SSm89Thb6HNvZz5vE6KGURX0wMfAM1eVAuMfXdC96qnJhaO2rOFu
+         FIvbAYEgT9SMps073ay2AUUbk02mvroM5aAX5voE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 05/14] ALSA: pcm: Add stream lock during PCM reset ioctl operations
-Date:   Fri, 25 Mar 2022 16:04:33 +0100
-Message-Id: <20220325150415.857136189@linuxfoundation.org>
+Subject: [PATCH 4.9 06/14] ALSA: usb-audio: Add mute TLV for playback volumes on RODE NT-USB
+Date:   Fri, 25 Mar 2022 16:04:34 +0100
+Message-Id: <20220325150415.887643115@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
 References: <20220325150415.694544076@linuxfoundation.org>
@@ -53,53 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 1f68915b2efd0d6bfd6e124aa63c94b3c69f127c upstream.
+commit 0f306cca42fe879694fb5e2382748c43dc9e0196 upstream.
 
-snd_pcm_reset() is a non-atomic operation, and it's allowed to run
-during the PCM stream running.  It implies that the manipulation of
-hw_ptr and other parameters might be racy.
+For the RODE NT-USB the lowest Playback mixer volume setting mutes the
+audio output. But it is not reported as such causing e.g. PulseAudio to
+accidentally mute the device when selecting a low volume.
 
-This patch adds the PCM stream lock at appropriate places in
-snd_pcm_*_reset() actions for covering that.
+Fix this by applying the existing quirk for this kind of issue when the
+device is detected.
 
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
 Cc: <stable@vger.kernel.org>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322171325.4355-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220311201400.235892-1-lars@metafoo.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_native.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/usb/mixer_quirks.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -1489,21 +1489,25 @@ static int snd_pcm_do_reset(struct snd_p
- 	int err = substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_RESET, NULL);
- 	if (err < 0)
- 		return err;
-+	snd_pcm_stream_lock_irq(substream);
- 	runtime->hw_ptr_base = 0;
- 	runtime->hw_ptr_interrupt = runtime->status->hw_ptr -
- 		runtime->status->hw_ptr % runtime->period_size;
- 	runtime->silence_start = runtime->status->hw_ptr;
- 	runtime->silence_filled = 0;
-+	snd_pcm_stream_unlock_irq(substream);
- 	return 0;
- }
- 
- static void snd_pcm_post_reset(struct snd_pcm_substream *substream, int state)
- {
- 	struct snd_pcm_runtime *runtime = substream->runtime;
-+	snd_pcm_stream_lock_irq(substream);
- 	runtime->control->appl_ptr = runtime->status->hw_ptr;
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
- 	    runtime->silence_size > 0)
- 		snd_pcm_playback_silence(substream, ULONG_MAX);
-+	snd_pcm_stream_unlock_irq(substream);
- }
- 
- static const struct action_ops snd_pcm_action_reset = {
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -1879,9 +1879,10 @@ void snd_usb_mixer_fu_apply_quirk(struct
+ 		if (unitid == 7 && cval->control == UAC_FU_VOLUME)
+ 			snd_dragonfly_quirk_db_scale(mixer, cval, kctl);
+ 		break;
+-	/* lowest playback value is muted on C-Media devices */
+-	case USB_ID(0x0d8c, 0x000c):
+-	case USB_ID(0x0d8c, 0x0014):
++	/* lowest playback value is muted on some devices */
++	case USB_ID(0x0d8c, 0x000c): /* C-Media */
++	case USB_ID(0x0d8c, 0x0014): /* C-Media */
++	case USB_ID(0x19f7, 0x0003): /* RODE NT-USB */
+ 		if (strstr(kctl->id.name, "Playback"))
+ 			cval->min_mute = 1;
+ 		break;
 
 
