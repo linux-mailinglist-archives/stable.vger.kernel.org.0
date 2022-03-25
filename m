@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 414854E7740
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 220824E7768
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354279AbiCYP1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38940 "EHLO
+        id S1376883AbiCYP2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:28:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377743AbiCYPYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB554E9C95;
-        Fri, 25 Mar 2022 08:18:51 -0700 (PDT)
+        with ESMTP id S1376609AbiCYPWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:22:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 189CAE38A8;
+        Fri, 25 Mar 2022 08:16:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71E7BB82865;
-        Fri, 25 Mar 2022 15:18:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFFC2C340E9;
-        Fri, 25 Mar 2022 15:18:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3A698CE2A45;
+        Fri, 25 Mar 2022 15:16:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48E97C340E9;
+        Fri, 25 Mar 2022 15:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221529;
-        bh=JCOVLHohscIa00QIH1ZFiQHu3Zt5Fac47pp88wkyeaI=;
+        s=korg; t=1648221359;
+        bh=IINwPm1bqspPgPbPUx/hYBYPSojwwZV9QAGEwMdrTTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNKcIK4xSutmqO6aUY5JB8Vj0x9I6FVuZNSNq9lnulL74oxT0LdWcxuDdABC8xpK9
-         M+wBF1igVUPgQXqD8tPv94nk2fo/+YCqok+N78nSkKxQdL58Shjj1yapfb6SfQ6wK/
-         gOS6oBLu0PAmLjJrpTxEkDLrt9gsart3z/kYsdKA=
+        b=x77sBamICFPJfyDDaC4Uzu1mnPiK/zU7I2Hl+QexYJJ+0G3GraFCWwTC+yhlyGfze
+         reAYYnV2kzEJ7iiOQxkdf/mFKPE49+oK5fS9D/PhVhrqvmooP2CY3uyEmt9rDbNPQX
+         irdW/eOh6aaC9CmL4BNeQHnpSjBJ8Z64MGbg6C14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giacomo Guiduzzi <guiduzzi.giacomo@gmail.com>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 18/39] ALSA: pci: fix reading of swapped values from pcmreg in AC97 codec
+        stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
+        Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.15 32/37] uaccess: fix integer overflow on access_ok()
 Date:   Fri, 25 Mar 2022 16:14:33 +0100
-Message-Id: <20220325150420.764837965@linuxfoundation.org>
+Message-Id: <20220325150420.850490359@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
+References: <20220325150419.931802116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +53,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giacomo Guiduzzi <guiduzzi.giacomo@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 17aaf0193392cb3451bf0ac75ba396ec4cbded6e upstream.
+commit 222ca305c9fd39e5ed8104da25c09b2b79a516a8 upstream.
 
-Tests 72 and 78 for ALSA in kselftest fail due to reading
-inconsistent values from some devices on a VirtualBox
-Virtual Machine using the snd_intel8x0 driver for the AC'97
-Audio Controller device.
-Taking for example test number 72, this is what the test reports:
-"Surround Playback Volume.0 expected 1 but read 0, is_volatile 0"
-"Surround Playback Volume.1 expected 0 but read 1, is_volatile 0"
-These errors repeat for each value from 0 to 31.
+Three architectures check the end of a user access against the
+address limit without taking a possible overflow into account.
+Passing a negative length or another overflow in here returns
+success when it should not.
 
-Taking a look at these error messages it is possible to notice
-that the written values are read back swapped.
-When the write is performed, these values are initially stored in
-an array used to sanity-check them and write them in the pcmreg
-array. To write them, the two one-byte values are packed together
-in a two-byte variable through bitwise operations: the first
-value is shifted left by one byte and the second value is stored in the
-right byte through a bitwise OR. When reading the values back,
-right shifts are performed to retrieve the previously stored
-bytes. These shifts are executed in the wrong order, thus
-reporting the values swapped as shown above.
+Use the most common correct implementation here, which optimizes
+for a constant 'size' argument, and turns the common case into a
+single comparison.
 
-This patch fixes this mistake by reversing the read
-operations' order.
-
-Signed-off-by: Giacomo Guiduzzi <guiduzzi.giacomo@gmail.com>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220322200653.15862-1-guiduzzi.giacomo@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: da551281947c ("csky: User access")
+Fixes: f663b60f5215 ("microblaze: Fix uaccess_ok macro")
+Fixes: 7567746e1c0d ("Hexagon: Add user access functions")
+Reported-by: David Laight <David.Laight@aculab.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/ac97/ac97_codec.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/csky/include/asm/uaccess.h       |    7 +++----
+ arch/hexagon/include/asm/uaccess.h    |   18 +++++++++---------
+ arch/microblaze/include/asm/uaccess.h |   19 ++++---------------
+ 3 files changed, 16 insertions(+), 28 deletions(-)
 
---- a/sound/pci/ac97/ac97_codec.c
-+++ b/sound/pci/ac97/ac97_codec.c
-@@ -938,8 +938,8 @@ static int snd_ac97_ad18xx_pcm_get_volum
- 	int codec = kcontrol->private_value & 3;
- 	
- 	mutex_lock(&ac97->page_mutex);
--	ucontrol->value.integer.value[0] = 31 - ((ac97->spec.ad18xx.pcmreg[codec] >> 0) & 31);
--	ucontrol->value.integer.value[1] = 31 - ((ac97->spec.ad18xx.pcmreg[codec] >> 8) & 31);
-+	ucontrol->value.integer.value[0] = 31 - ((ac97->spec.ad18xx.pcmreg[codec] >> 8) & 31);
-+	ucontrol->value.integer.value[1] = 31 - ((ac97->spec.ad18xx.pcmreg[codec] >> 0) & 31);
- 	mutex_unlock(&ac97->page_mutex);
- 	return 0;
+--- a/arch/csky/include/asm/uaccess.h
++++ b/arch/csky/include/asm/uaccess.h
+@@ -3,14 +3,13 @@
+ #ifndef __ASM_CSKY_UACCESS_H
+ #define __ASM_CSKY_UACCESS_H
+ 
+-#define user_addr_max() \
+-	(uaccess_kernel() ? KERNEL_DS.seg : get_fs().seg)
++#define user_addr_max() (current_thread_info()->addr_limit.seg)
+ 
+ static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	unsigned long limit = current_thread_info()->addr_limit.seg;
++	unsigned long limit = user_addr_max();
+ 
+-	return ((addr < limit) && ((addr + size) < limit));
++	return (size <= limit) && (addr <= (limit - size));
  }
+ #define __access_ok __access_ok
+ 
+--- a/arch/hexagon/include/asm/uaccess.h
++++ b/arch/hexagon/include/asm/uaccess.h
+@@ -25,17 +25,17 @@
+  * Returns true (nonzero) if the memory block *may* be valid, false (zero)
+  * if it is definitely invalid.
+  *
+- * User address space in Hexagon, like x86, goes to 0xbfffffff, so the
+- * simple MSB-based tests used by MIPS won't work.  Some further
+- * optimization is probably possible here, but for now, keep it
+- * reasonably simple and not *too* slow.  After all, we've got the
+- * MMU for backup.
+  */
++#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
++#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
+ 
+-#define __access_ok(addr, size) \
+-	((get_fs().seg == KERNEL_DS.seg) || \
+-	(((unsigned long)addr < get_fs().seg) && \
+-	  (unsigned long)size < (get_fs().seg - (unsigned long)addr)))
++static inline int __access_ok(unsigned long addr, unsigned long size)
++{
++	unsigned long limit = TASK_SIZE;
++
++	return (size <= limit) && (addr <= (limit - size));
++}
++#define __access_ok __access_ok
+ 
+ /*
+  * When a kernel-mode page fault is taken, the faulting instruction
+--- a/arch/microblaze/include/asm/uaccess.h
++++ b/arch/microblaze/include/asm/uaccess.h
+@@ -39,24 +39,13 @@
+ 
+ # define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+ 
+-static inline int access_ok(const void __user *addr, unsigned long size)
++static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	if (!size)
+-		goto ok;
++	unsigned long limit = user_addr_max();
+ 
+-	if ((get_fs().seg < ((unsigned long)addr)) ||
+-			(get_fs().seg < ((unsigned long)addr + size - 1))) {
+-		pr_devel("ACCESS fail at 0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-		return 0;
+-	}
+-ok:
+-	pr_devel("ACCESS OK at 0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-	return 1;
++	return (size <= limit) && (addr <= (limit - size));
+ }
++#define access_ok(addr, size) __access_ok((unsigned long)addr, size)
+ 
+ # define __FIXUP_SECTION	".section .fixup,\"ax\"\n"
+ # define __EX_TABLE_SECTION	".section __ex_table,\"a\"\n"
 
 
