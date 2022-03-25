@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB264E7604
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:08:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E3E4E7672
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359600AbiCYPJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:09:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36582 "EHLO
+        id S1354492AbiCYPPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376257AbiCYPIO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8246A774E;
-        Fri, 25 Mar 2022 08:06:39 -0700 (PDT)
+        with ESMTP id S1376594AbiCYPNJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:13:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11AA6C4B2;
+        Fri, 25 Mar 2022 08:10:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6DA861C11;
-        Fri, 25 Mar 2022 15:06:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACF40C340EE;
-        Fri, 25 Mar 2022 15:06:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEDAF61C57;
+        Fri, 25 Mar 2022 15:10:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E32C340EE;
+        Fri, 25 Mar 2022 15:10:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220798;
-        bh=nlE5/yk8Wh13HMpIBgKjw5YvNTdmuJ9LRCKl5GPXncI=;
+        s=korg; t=1648221001;
+        bh=+MRoTFyqPRTcrtTBKEJBUVfJX9Jn2E243Gb2KCdfed4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQa9u5m/McqvzyQi0dKeTRLlkE75Uk1cfTuqVCdswtM0/ucGTwZOxb9YPq7v77GZH
-         ChHo3Hj928H2rN5RGcrYalVeTQkqAVXbpKdjPUGxniRPdkgRR/BA2b1L3UjaJzeV/o
-         7yICQC21RlsIG2hICoaf1N2jQor3sfGrxHSNo5v0=
+        b=PWM8VJeoNdd1qmnLnJUpmFM4j7beiz3gToBAdG8L7SYQwR1QWNGpZhiXOtzb8N6oB
+         LdfDEEy4kqDwPacYepRg8rJVw9bCAqh7PMiR1gt4u27/6QsuYeqXJCpx96dxKBM2aB
+         h3voYNZZsBcUnJnM5y55HjwoSwoTtGUk2nd9z/dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Graber <stgraber@ubuntu.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 13/20] drivers: net: xgene: Fix regression in CRC stripping
+        stable@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        linux-integrity@vger.kernel.org, Tadeusz Struk <tstruk@gmail.com>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: [PATCH 5.10 07/38] tpm: Fix error handling in async work
 Date:   Fri, 25 Mar 2022 16:04:51 +0100
-Message-Id: <20220325150417.394482706@linuxfoundation.org>
+Message-Id: <20220325150419.972727322@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
-References: <20220325150417.010265747@linuxfoundation.org>
+In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
+References: <20220325150419.757836392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Graber <stgraber@ubuntu.com>
+From: Tadeusz Struk <tstruk@gmail.com>
 
-commit e9e6faeafaa00da1851bcf47912b0f1acae666b4 upstream.
+commit 2e8e4c8f6673247e22efc7985ce5497accd16f88 upstream.
 
-All packets on ingress (except for jumbo) are terminated with a 4-bytes
-CRC checksum. It's the responsability of the driver to strip those 4
-bytes. Unfortunately a change dating back to March 2017 re-shuffled some
-code and made the CRC stripping code effectively dead.
+When an invalid (non existing) handle is used in a TPM command,
+that uses the resource manager interface (/dev/tpmrm0) the resource
+manager tries to load it from its internal cache, but fails and
+the tpm_dev_transmit returns an -EINVAL error to the caller.
+The existing async handler doesn't handle these error cases
+currently and the condition in the poll handler never returns
+mask with EPOLLIN set.
+The result is that the poll call blocks and the application gets stuck
+until the user_read_timer wakes it up after 120 sec.
+Change the tpm_dev_async_work function to handle error conditions
+returned from tpm_dev_transmit they are also reflected in the poll mask
+and a correct error code could passed back to the caller.
 
-This change re-orders that part a bit such that the datalen is
-immediately altered if needed.
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: <linux-integrity@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 
-Fixes: 4902a92270fb ("drivers: net: xgene: Add workaround for errata 10GE_8/ENET_11")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephane Graber <stgraber@ubuntu.com>
-Tested-by: Stephane Graber <stgraber@ubuntu.com>
-Link: https://lore.kernel.org/r/20220322224205.752795-1-stgraber@ubuntu.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 9e1b74a63f77 ("tpm: add support for nonblocking operation")
+Tested-by: Jarkko Sakkinen<jarkko@kernel.org>
+Signed-off-by: Tadeusz Struk <tstruk@gmail.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/apm/xgene/xgene_enet_main.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/char/tpm/tpm-dev-common.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-+++ b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-@@ -707,6 +707,12 @@ static int xgene_enet_rx_frame(struct xg
- 	buf_pool->rx_skb[skb_index] = NULL;
- 
- 	datalen = xgene_enet_get_data_len(le64_to_cpu(raw_desc->m1));
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -70,7 +70,13 @@ static void tpm_dev_async_work(struct wo
+ 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
+ 			       sizeof(priv->data_buffer));
+ 	tpm_put_ops(priv->chip);
+-	if (ret > 0) {
 +
-+	/* strip off CRC as HW isn't doing this */
-+	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
-+	if (!nv)
-+		datalen -= 4;
-+
- 	skb_put(skb, datalen);
- 	prefetch(skb->data - NET_IP_ALIGN);
- 	skb->protocol = eth_type_trans(skb, ndev);
-@@ -728,12 +734,8 @@ static int xgene_enet_rx_frame(struct xg
- 		}
++	/*
++	 * If ret is > 0 then tpm_dev_transmit returned the size of the
++	 * response. If ret is < 0 then tpm_dev_transmit failed and
++	 * returned an error code.
++	 */
++	if (ret != 0) {
+ 		priv->response_length = ret;
+ 		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
  	}
- 
--	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
--	if (!nv) {
--		/* strip off CRC as HW isn't doing this */
--		datalen -= 4;
-+	if (!nv)
- 		goto skip_jumbo;
--	}
- 
- 	slots = page_pool->slots - 1;
- 	head = page_pool->head;
 
 
