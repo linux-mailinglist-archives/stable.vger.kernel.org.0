@@ -2,113 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 030904E6FDE
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 10:14:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C404E6FEF
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 10:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356156AbiCYJQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 05:16:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
+        id S1356541AbiCYJXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 05:23:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350066AbiCYJQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 05:16:04 -0400
-Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C58CF48C
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 02:14:30 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 5F2303200645;
-        Fri, 25 Mar 2022 05:14:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Fri, 25 Mar 2022 05:14:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; bh=yLe9hcsgY3txbEpFliqOEDmdU1iT0Fsv2forD5
-        OLtE4=; b=D65Vb5YdkYmOD9e4Iu+w3hjVoZEHtP3xRbX7HIU8UhAbIehpvEtIz8
-        JLeWER6jpWcO9puRlIDX7XjCtYf+iD3X6Tzi/G2xoDg3DRchPYavY9gloNMXfS0F
-        Tgpvh4IomY/hX2e+cOGHYZpAbKhh/dSoGc+6DbM+fL3UBfysojz25+jtI/Hbz5ES
-        5m6sUaqKWbNZPWBJIxg326X4ZijFQFaPPFFJOzxxdVwkXGIvsg0BlxelMhza1ikc
-        PYhakfD+Hguc3nZF+81yED+3Ge5JTOfUnpTVVLygwPackCp9pwVWGzvQc/HRlQAk
-        GIyFDBO8dhkSG9W93Wg/QowB2PHWWT+Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yLe9hcsgY3txbEpFl
-        iqOEDmdU1iT0Fsv2forD5OLtE4=; b=WTHJbqrq3K4yu4R7sZrNHxhoFZGIkxO2S
-        VG6juxSpDHUEKZsR6YnsWhR+c9l1C6SYKZlrr4XZz2fpJWnd/guIzaG5DcZPa8hB
-        k7uoT6z++onkBi/dIyL9okOA7fFJFuEmdRwx/FRR7+u9YljFyUaoSa+t1IB5D2qO
-        9eyKW+jbl9kAp7pgSk0kvLfIktVkZfo4dxk3ATzHvBzv/eLnjSJ7hjM0oLNsdGc0
-        6qsQIuIH+4y1/eEyMUUSNYCcbJj6GUFqd0S7vB2ezugy2oc/uVYDLVtBwq1KXoSs
-        UbODqVo6W7aF3nsJ3t3QVVq+gdtGJhVId7whZgTVq8qjeomOPh/Mw==
-X-ME-Sender: <xms:8oc9YpYRpTzcSOiwpuCj8T7W6XVD-ES0fIjGff1dY8NfaNH61qZuNw>
-    <xme:8oc9YgZdU7KdK2f2-YF2AOspwcN6ASy1zSzmps_1N-5Xv8HctT17Jggw9spPiCQhJ
-    sR28pM3QJaVIQ>
-X-ME-Received: <xmr:8oc9Yr9X-r9Ky3oYY1urBobKMAjsRnZYI_9adpgqSjCut4eijxTUa8qPghYaRHMtnEgXy4EnD4ZNY-qFwPWsz253pXFpSItg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudehuddgtdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:8oc9YnpiZHPpMbbuYSqVRTBLIHqC-5QC47ZX-UHqkH8uku93oRvUaA>
-    <xmx:8oc9YkpO8yKvvuQQWRVn-aKG4vHl7rkr-zX-AbziwRFIAysQLqLWqA>
-    <xmx:8oc9YtRtDVPtS6wKktCQfUuJ_3tcUgOGSpKh1OloO1bM-NgxStjLnw>
-    <xmx:8oc9YvADZ0BRna3clcmszIOFr-aCEo64uIHhdUmKB_ejW7MqrtuVEA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 25 Mar 2022 05:14:25 -0400 (EDT)
-Date:   Fri, 25 Mar 2022 10:14:23 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-        Doug Gilbert <dgilbert@interlog.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH for 5.4.y 0/2] backort of ddbd89deb7d3 and aa6f8dcbab47
-Message-ID: <Yj2H7zd8tS1zy1eb@kroah.com>
-References: <20220322124128.2232849-1-pasic@linux.ibm.com>
+        with ESMTP id S1345014AbiCYJXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 05:23:23 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A99BCF49F;
+        Fri, 25 Mar 2022 02:21:49 -0700 (PDT)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nXg8U-00023m-32; Fri, 25 Mar 2022 10:21:34 +0100
+Message-ID: <a45549b5-1c05-f995-2c0f-99c0e40cea09@leemhuis.info>
+Date:   Fri, 25 Mar 2022 10:21:24 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220322124128.2232849-1-pasic@linux.ibm.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Content-Language: en-US
+To:     Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Maxime Bizon <mbizon@freebox.fr>,
+        =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgense?= =?UTF-8?Q?n?= 
+        <toke@toke.dk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+ <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
+ <4699073.GXAFRqVoOG@natalenko.name>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <4699073.GXAFRqVoOG@natalenko.name>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1648200109;1a0d0afe;
+X-HE-SMSGID: 1nXg8U-00023m-32
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 22, 2022 at 01:41:26PM +0100, Halil Pasic wrote:
-> This is a backport of ddbd89deb7d3 ("swiotlb: fix info leak with
-> DMA_FROM_DEVICE") and aa6f8dcbab47 ("swiotlb: rework "fix info leak with
-> DMA_FROM_DEVICE"") for 5.4.y.
+On 25.03.22 08:12, Oleksandr Natalenko wrote:
+> On čtvrtek 24. března 2022 18:07:29 CET Toke Høiland-Jørgensen wrote:
+>> Right, but is that sync_for_device call really needed? AFAICT, that
+>> ath9k_hw_process_rxdesc_edma() invocation doesn't actually modify any of
+>> the data when it returns EINPROGRESS, so could we just skip it? Like
+>> the patch below? Or am I misunderstanding the semantics here?
+>>
+>> diff --git a/drivers/net/wireless/ath/ath9k/recv.c b/drivers/net/wireless/ath/ath9k/recv.c
+>> index 0c0624a3b40d..19244d4c0ada 100644
+>> --- a/drivers/net/wireless/ath/ath9k/recv.c
+>> +++ b/drivers/net/wireless/ath/ath9k/recv.c
+>> @@ -647,12 +647,8 @@ static bool ath_edma_get_buffers(struct ath_softc *sc,
+>>                                 common->rx_bufsize, DMA_FROM_DEVICE);
+>>  
+>>         ret = ath9k_hw_process_rxdesc_edma(ah, rs, skb->data);
+>> -       if (ret == -EINPROGRESS) {
+>> -               /*let device gain the buffer again*/
+>> -               dma_sync_single_for_device(sc->dev, bf->bf_buf_addr,
+>> -                               common->rx_bufsize, DMA_FROM_DEVICE);
+>> +       if (ret == -EINPROGRESS)
+>>                 return false;
+>> -       }
+>>  
+>>         __skb_unlink(skb, &rx_edma->rx_fifo);
+>>         if (ret == -EINVAL) {
 > 
-> I had to handle some merge conflicts, that at this point we have
-> swiotlb_tbl_sync_single() as opposed to
-> swiotlb_sync_single_for_device(), and also a file rename from
-> Documentation/DMA-attributes.txt to
-> Documentation/core-api/dma-attributes.rst. 
-> 
-> 
-> Halil Pasic (2):
->   swiotlb: fix info leak with DMA_FROM_DEVICE
->   swiotlb: rework "fix info leak with DMA_FROM_DEVICE"
-> 
->  kernel/dma/swiotlb.c | 24 ++++++++++++++++--------
->  1 file changed, 16 insertions(+), 8 deletions(-)
-> 
-> 
-> base-commit: 7f44fdc1563d6bca95ee9fb4414e4b8286bccb0c
-> -- 
-> 2.32.0
-> 
+> With this patch and both ddbd89deb7d3+aa6f8dcbab47 in place the AP works for me.
 
-All now queued up, thanks!
+TWIMC: If anyone needs more testers or something, I noticed two bug
+report in bko about this problem:
 
-greg k-h
+https://bugzilla.kernel.org/show_bug.cgi?id=215703
+https://bugzilla.kernel.org/show_bug.cgi?id=215698
+
+I'll point both to this discussion and the patch.
+
+Ciao, Thorsten
