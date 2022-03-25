@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC924E7710
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4914E773E
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379087AbiCYP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:26:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44928 "EHLO
+        id S1376261AbiCYP1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376521AbiCYPV6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:21:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ADF56C905;
-        Fri, 25 Mar 2022 08:16:11 -0700 (PDT)
+        with ESMTP id S1377684AbiCYPY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888B7E9964;
+        Fri, 25 Mar 2022 08:18:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3070F60AB7;
-        Fri, 25 Mar 2022 15:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25AFCC340E9;
-        Fri, 25 Mar 2022 15:15:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C12FF60EFC;
+        Fri, 25 Mar 2022 15:18:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B51C340E9;
+        Fri, 25 Mar 2022 15:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221342;
-        bh=xB09mWxvdIPI9n6hFFKfaWkT0NX9SojhxvqtWd6DOqc=;
+        s=korg; t=1648221515;
+        bh=vhOlKZdfZ1DYSVcN7XNfO+ydxG85P1ITI+WC+0GeGb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RD+K2c8n7XjfHcZ6haOhh4GfYsm13h8jBMOlIdzkreebhztKlmz1V/c+DQLQpqDj7
-         hUl1OrOuqM/kqV9HGZmO8/TN/71FFcs5aazC9Mv5s8Ujoafui9o4K2xYpCTRrgYjk/
-         hZ6ZBg/4gygM6vk4Wth2MtTv2pa4hv+d88j+4D5Q=
+        b=eVjUUPVT/bechWlyIo+Oygt0BuJqDV395B5XX5j6Rou8uXILoFqQEC6S+SGAtpCI5
+         yOV7nIQ+ZffSWrttI68xe2+2OoSG6PPGYo1WGC1ia0K3X6ydj7qid/pl4jUhwAEDG2
+         z5mBPpsRbiGLWbOBItkfILBeQZRdb0cZhNfm0XiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.15 27/37] crypto: qat - disable registration of algorithms
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 13/39] ALSA: pcm: Fix races among concurrent prepare and hw_params/hw_free calls
 Date:   Fri, 25 Mar 2022 16:14:28 +0100
-Message-Id: <20220325150420.707670625@linuxfoundation.org>
+Message-Id: <20220325150420.623878462@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
-References: <20220325150419.931802116@linuxfoundation.org>
+In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
+References: <20220325150420.245733653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de upstream.
+commit 3c3201f8c7bb77eb53b08a3ca8d9a4ddc500b4c0 upstream.
 
-The implementations of aead and skcipher in the QAT driver do not
-support properly requests with the CRYPTO_TFM_REQ_MAY_BACKLOG flag set.
-If the HW queue is full, the driver returns -EBUSY but does not enqueue
-the request.
-This can result in applications like dm-crypt waiting indefinitely for a
-completion of a request that was never submitted to the hardware.
+Like the previous fixes to hw_params and hw_free ioctl races, we need
+to paper over the concurrent prepare ioctl calls against hw_params and
+hw_free, too.
 
-To avoid this problem, disable the registration of all crypto algorithms
-in the QAT driver by setting the number of crypto instances to 0 at
-configuration time.
+This patch implements the locking with the existing
+runtime->buffer_mutex for prepare ioctls.  Unlike the previous case
+for snd_pcm_hw_hw_params() and snd_pcm_hw_free(), snd_pcm_prepare() is
+performed to the linked streams, hence the lock can't be applied
+simply on the top.  For tracking the lock in each linked substream, we
+modify snd_pcm_action_group() slightly and apply the buffer_mutex for
+the case stream_lock=false (formerly there was no lock applied)
+there.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322170720.3529-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_4xxx/adf_drv.c      |    7 +++++++
- drivers/crypto/qat/qat_common/qat_crypto.c |    7 +++++++
- 2 files changed, 14 insertions(+)
+ sound/core/pcm_native.c |   32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
---- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
-+++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-@@ -52,6 +52,13 @@ static int adf_crypto_dev_config(struct
- 	if (ret)
- 		goto err;
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1190,15 +1190,17 @@ struct action_ops {
+ static int snd_pcm_action_group(const struct action_ops *ops,
+ 				struct snd_pcm_substream *substream,
+ 				snd_pcm_state_t state,
+-				bool do_lock)
++				bool stream_lock)
+ {
+ 	struct snd_pcm_substream *s = NULL;
+ 	struct snd_pcm_substream *s1;
+ 	int res = 0, depth = 1;
  
-+	/* Temporarily set the number of crypto instances to zero to avoid
-+	 * registering the crypto algorithms.
-+	 * This will be removed when the algorithms will support the
-+	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
-+	 */
-+	instances = 0;
-+
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		bank = i * 2;
---- a/drivers/crypto/qat/qat_common/qat_crypto.c
-+++ b/drivers/crypto/qat/qat_common/qat_crypto.c
-@@ -136,6 +136,13 @@ int qat_crypto_dev_config(struct adf_acc
- 	if (ret)
- 		goto err;
+ 	snd_pcm_group_for_each_entry(s, substream) {
+-		if (do_lock && s != substream) {
+-			if (s->pcm->nonatomic)
++		if (s != substream) {
++			if (!stream_lock)
++				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
++			else if (s->pcm->nonatomic)
+ 				mutex_lock_nested(&s->self_group.mutex, depth);
+ 			else
+ 				spin_lock_nested(&s->self_group.lock, depth);
+@@ -1226,18 +1228,18 @@ static int snd_pcm_action_group(const st
+ 		ops->post_action(s, state);
+ 	}
+  _unlock:
+-	if (do_lock) {
+-		/* unlock streams */
+-		snd_pcm_group_for_each_entry(s1, substream) {
+-			if (s1 != substream) {
+-				if (s1->pcm->nonatomic)
+-					mutex_unlock(&s1->self_group.mutex);
+-				else
+-					spin_unlock(&s1->self_group.lock);
+-			}
+-			if (s1 == s)	/* end */
+-				break;
++	/* unlock streams */
++	snd_pcm_group_for_each_entry(s1, substream) {
++		if (s1 != substream) {
++			if (!stream_lock)
++				mutex_unlock(&s1->runtime->buffer_mutex);
++			else if (s1->pcm->nonatomic)
++				mutex_unlock(&s1->self_group.mutex);
++			else
++				spin_unlock(&s1->self_group.lock);
+ 		}
++		if (s1 == s)	/* end */
++			break;
+ 	}
+ 	return res;
+ }
+@@ -1367,10 +1369,12 @@ static int snd_pcm_action_nonatomic(cons
  
-+	/* Temporarily set the number of crypto instances to zero to avoid
-+	 * registering the crypto algorithms.
-+	 * This will be removed when the algorithms will support the
-+	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
-+	 */
-+	instances = 0;
-+
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_BANK_NUM, i);
+ 	/* Guarantee the group members won't change during non-atomic action */
+ 	down_read(&snd_pcm_link_rwsem);
++	mutex_lock(&substream->runtime->buffer_mutex);
+ 	if (snd_pcm_stream_linked(substream))
+ 		res = snd_pcm_action_group(ops, substream, state, false);
+ 	else
+ 		res = snd_pcm_action_single(ops, substream, state);
++	mutex_unlock(&substream->runtime->buffer_mutex);
+ 	up_read(&snd_pcm_link_rwsem);
+ 	return res;
+ }
 
 
