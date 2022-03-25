@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F9C4E7403
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 14:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A104E741F
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 14:22:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348310AbiCYNPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 09:15:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56144 "EHLO
+        id S1355619AbiCYNXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 09:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346490AbiCYNPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 09:15:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 793523BBDA
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 06:14:03 -0700 (PDT)
+        with ESMTP id S1356061AbiCYNXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 09:23:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75BFBD1CD8
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 06:22:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E53F61A5C
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 13:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97550C340E9;
-        Fri, 25 Mar 2022 13:14:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11E7761A60
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 13:22:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17EC3C340E9;
+        Fri, 25 Mar 2022 13:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648214042;
-        bh=imX68mN56nvlRMQ+HbQyNSRGRbhaynTQVcpfy4dJ83A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=obtbYWdDrx9MrgZRxew7XYMHhIMzsVnvVs8dygI4Al2M7eMu0vV2gcQp6lsLA7RPO
-         2qEH03kDuL8cAhy0z/2TCMHsxGOlsK7Rf+8Xf6iq6wmcXpkcnkcDPhYZk7Acq+70A4
-         jfZ0kTwh52jIMA39VrZLdvctovbO6Q2zvZiTDJbY=
-Date:   Fri, 25 Mar 2022 14:13:59 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Cc:     stable@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: FAILED: patch "[PATCH] crypto: qat - disable registration of
- algorithms" failed to apply to 4.9-stable tree
-Message-ID: <Yj3AF/h7UDkpYGIt@kroah.com>
-References: <16482055719285@kroah.com>
- <Yj20vfqmn3xQ0D7Y@silpixa00400314>
+        s=korg; t=1648214527;
+        bh=oapRH+E14w5qO9gm4CD+S4rdO4Wpa2gFvhqCWw8kmEc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Wk4u1+iPvNOXYz+U4A7uzsOHGoH/cMnoqMCqFabcs9s209zBfgM3n8/qlUWcJXjM+
+         AY/TyjeM8kSFpdWsqxyqWActFFERO7MTgRr+onvaz2J0vU7q6eaf14HAaqZkrfZ5O9
+         8mLdMwnZyxUezNxf6JoMYcrfUZWrBDDnyaA3n+y8=
+Subject: FAILED: patch "[PATCH] uaccess: fix integer overflow on access_ok()" failed to apply to 5.4-stable tree
+To:     arnd@arndb.de, David.Laight@aculab.com, hch@lst.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 25 Mar 2022 14:22:05 +0100
+Message-ID: <164821452591209@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yj20vfqmn3xQ0D7Y@silpixa00400314>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,18 +47,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 25, 2022 at 12:25:44PM +0000, Giovanni Cabiddu wrote:
-> Hi Greg,
-> 
-> On Fri, Mar 25, 2022 at 11:52:51AM +0100, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.9-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> Below a backport that applies to kernels from 4.9 to 5.10.
->
 
-Thanks, now queued up.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 222ca305c9fd39e5ed8104da25c09b2b79a516a8 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 10 Feb 2022 16:24:30 +0100
+Subject: [PATCH] uaccess: fix integer overflow on access_ok()
+
+Three architectures check the end of a user access against the
+address limit without taking a possible overflow into account.
+Passing a negative length or another overflow in here returns
+success when it should not.
+
+Use the most common correct implementation here, which optimizes
+for a constant 'size' argument, and turns the common case into a
+single comparison.
+
+Cc: stable@vger.kernel.org
+Fixes: da551281947c ("csky: User access")
+Fixes: f663b60f5215 ("microblaze: Fix uaccess_ok macro")
+Fixes: 7567746e1c0d ("Hexagon: Add user access functions")
+Reported-by: David Laight <David.Laight@aculab.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
+index c40f06ee8d3e..ac5a54f57d40 100644
+--- a/arch/csky/include/asm/uaccess.h
++++ b/arch/csky/include/asm/uaccess.h
+@@ -3,14 +3,13 @@
+ #ifndef __ASM_CSKY_UACCESS_H
+ #define __ASM_CSKY_UACCESS_H
+ 
+-#define user_addr_max() \
+-	(uaccess_kernel() ? KERNEL_DS.seg : get_fs().seg)
++#define user_addr_max() (current_thread_info()->addr_limit.seg)
+ 
+ static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	unsigned long limit = current_thread_info()->addr_limit.seg;
++	unsigned long limit = user_addr_max();
+ 
+-	return ((addr < limit) && ((addr + size) < limit));
++	return (size <= limit) && (addr <= (limit - size));
+ }
+ #define __access_ok __access_ok
+ 
+diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
+index ef5bfef8d490..719ba3f3c45c 100644
+--- a/arch/hexagon/include/asm/uaccess.h
++++ b/arch/hexagon/include/asm/uaccess.h
+@@ -25,17 +25,17 @@
+  * Returns true (nonzero) if the memory block *may* be valid, false (zero)
+  * if it is definitely invalid.
+  *
+- * User address space in Hexagon, like x86, goes to 0xbfffffff, so the
+- * simple MSB-based tests used by MIPS won't work.  Some further
+- * optimization is probably possible here, but for now, keep it
+- * reasonably simple and not *too* slow.  After all, we've got the
+- * MMU for backup.
+  */
++#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
++#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
+ 
+-#define __access_ok(addr, size) \
+-	((get_fs().seg == KERNEL_DS.seg) || \
+-	(((unsigned long)addr < get_fs().seg) && \
+-	  (unsigned long)size < (get_fs().seg - (unsigned long)addr)))
++static inline int __access_ok(unsigned long addr, unsigned long size)
++{
++	unsigned long limit = TASK_SIZE;
++
++	return (size <= limit) && (addr <= (limit - size));
++}
++#define __access_ok __access_ok
+ 
+ /*
+  * When a kernel-mode page fault is taken, the faulting instruction
+diff --git a/arch/microblaze/include/asm/uaccess.h b/arch/microblaze/include/asm/uaccess.h
+index d2a8ef9f8978..5b6e0e7788f4 100644
+--- a/arch/microblaze/include/asm/uaccess.h
++++ b/arch/microblaze/include/asm/uaccess.h
+@@ -39,24 +39,13 @@
+ 
+ # define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+ 
+-static inline int access_ok(const void __user *addr, unsigned long size)
++static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	if (!size)
+-		goto ok;
++	unsigned long limit = user_addr_max();
+ 
+-	if ((get_fs().seg < ((unsigned long)addr)) ||
+-			(get_fs().seg < ((unsigned long)addr + size - 1))) {
+-		pr_devel("ACCESS fail at 0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-		return 0;
+-	}
+-ok:
+-	pr_devel("ACCESS OK at 0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-	return 1;
++	return (size <= limit) && (addr <= (limit - size));
+ }
++#define access_ok(addr, size) __access_ok((unsigned long)addr, size)
+ 
+ # define __FIXUP_SECTION	".section .fixup,\"ax\"\n"
+ # define __EX_TABLE_SECTION	".section __ex_table,\"a\"\n"
+
