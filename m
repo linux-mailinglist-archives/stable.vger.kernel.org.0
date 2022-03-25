@@ -2,124 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3024E7CC9
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A565B4E7BDC
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233460AbiCYVmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 17:42:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51008 "EHLO
+        id S233565AbiCYVv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 17:51:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233520AbiCYVmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 17:42:01 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1095A6C936
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 14:40:25 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-198-v6S2T8p_MaetwOyqgJM0fQ-1; Fri, 25 Mar 2022 21:40:22 +0000
-X-MC-Unique: v6S2T8p_MaetwOyqgJM0fQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Fri, 25 Mar 2022 21:40:20 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Fri, 25 Mar 2022 21:40:20 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Johannes Berg' <johannes@sipsolutions.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-CC:     Maxime Bizon <mbizon@freebox.fr>,
-        =?utf-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Marek Szyprowski" <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Paolo Abeni" <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: RE: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Thread-Topic: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Thread-Index: AQHYQI1aK/9JYQDqEEKfLChLw6SC36zQnHkQ
-Date:   Fri, 25 Mar 2022 21:40:20 +0000
-Message-ID: <19b4ad5f9909446ea0eca93f9b5b4c40@AcuMS.aculab.com>
-References: <1812355.tdWV9SEqCh@natalenko.name>
-         <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
-         <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
-         <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com>
- <878rsza0ih.fsf@toke.dk>
-         <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
-         <20220324163132.GB26098@lst.de>
-         <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
- <871qyr9t4e.fsf@toke.dk>
-         <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
-         <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
-         <CAHk-=wippum+MksdY7ixMfa3i1sZ+nxYPWLLpVMNyXCgmiHbBQ@mail.gmail.com>
-         <298f4f9ccad7c3308d3a1fd8b4b4740571305204.camel@sipsolutions.net>
-         <CAHk-=whXAan2ExANMryPSFaBWeyzikPi+fPUseMoVhQAxR7cEA@mail.gmail.com>
- <e42e4c8bf35b62c671ec20ec6c21a43216e7daa6.camel@sipsolutions.net>
-In-Reply-To: <e42e4c8bf35b62c671ec20ec6c21a43216e7daa6.camel@sipsolutions.net>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
-MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S233563AbiCYVv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 17:51:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6E143ECB;
+        Fri, 25 Mar 2022 14:49:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21FC46104F;
+        Fri, 25 Mar 2022 21:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79664C2BBE4;
+        Fri, 25 Mar 2022 21:49:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1648244991;
+        bh=befP00TAyiEqfK47sz/4og2i/ze5u6nkmRIjj7lJxMI=;
+        h=Date:To:From:Subject:From;
+        b=f+/sI/T4l5oDOJyrrjRAN3wlohU9Qoms+udccG8r+HMFLbPnk4SgFe/c3I7UAvMB6
+         VMoLQpbDFYHYFIBzpF5UKpZvwGjBfqDB1+8eu0r8r+yKOUpV4UL5vS/tcxbcjoXgyR
+         wr4HV+d2UOkVnnRYyuyx1aBsB/wRcKaiGX7/LEZQ=
+Date:   Fri, 25 Mar 2022 14:49:50 -0700
+To:     mm-commits@vger.kernel.org, vvidic@valentin-vidic.from.hr,
+        stable@vger.kernel.org, sathlerds@gmail.com,
+        joseph.qi@linux.alibaba.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + ocfs2-fix-crash-when-mount-with-quota-enabled.patch added to -mm tree
+Message-Id: <20220325214951.79664C2BBE4@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SSd2ZSBiZWVuIHRoaW5raW5nIG9mIHRoZSBjYXNlIHdoZXJlIGEgZGVzY3JpcHRvciByaW5nIGhh
-cw0KdG8gYmUgaW4gbm9uLWNvaGVyZW50IG1lbW9yeSAoZWcgYmVjYXVzZSB0aGF0IGlzIGFsbCB0
-aGVyZSBpcykuDQoNClRoZSByZWNlaXZlIHJpbmcgcHJvY2Vzc2luZyBpc24ndCBhY3R1YWxseSB0
-aGF0IGRpZmZpY3VsdC4NCg0KVGhlIGRyaXZlciBoYXMgdG8gZmlsbCBhIGNhY2hlIGxpbmUgZnVs
-bCBvZiBuZXcgYnVmZmVyDQpkZXNjcmlwdG9ycyBpbiBtZW1vcnkgYnV0IHdpdGhvdXQgYXNzaWdu
-aW5nIHRoZSBmaXJzdA0KYnVmZmVyIHRvIHRoZSBoYXJkd2FyZS4NClRoZW4gaXQgaGFzIHRvIGRv
-IGEgY2FjaGUgbGluZSB3cml0ZSBvZiBqdXN0IHRoYXQgbGluZS4NClRoZW4gaXQgY2FuIGFzc2ln
-biBvd25lcnNoaXAgb2YgdGhlIGZpcnN0IGJ1ZmZlciBhbmQNCmZpbmFsbHkgZG8gYSBzZWNvbmQg
-Y2FjaGUgbGluZSB3cml0ZS4NCihUaGUgZmlyc3QgZXhwbGljaXQgd3JpdGUgY2FuIGJlIHNraXBw
-ZWQgaWYgdGhlIGNhY2hlDQp3cml0ZXMgYXJlIGtub3duIHRvIGJlIGF0b21pYy4pDQpJdCB0aGVu
-IG11c3Qgbm90IGRpcnR5IHRoYXQgY2FjaGUgbGluZS4NCg0KVG8gY2hlY2sgZm9yIG5ldyBmcmFt
-ZXMgaXQgbXVzdCBpbnZhbGlkYXRlIHRoZSBjYWNoZQ0KbGluZSB0aGF0IGNvbnRhaW5zIHRoZSAn
-bmV4dCB0byBiZSBmaWxsZWQnIGRlc2NyaXB0b3INCmFuZCB0aGVuIHJlYWQgdGhhdCBjYWNoZSBs
-aW5lLg0KVGhpcyB3aWxsIGNvbnRhaW4gaW5mbyBhYm91dCBvbmUgb3IgbW9yZSByZWNlaXZlIGZy
-YW1lcy4NCkJ1dCB0aGUgaGFyZHdhcmUgaXMgc3RpbGwgZG9pbmcgdXBkYXRlcy4NCg0KQnV0IGJv
-dGggdGhlc2Ugb3BlcmF0aW9ucyBjYW4gYmUgaGFwcGVuaW5nIGF0IHRoZSBzYW1lDQp0aW1lIG9u
-IGRpZmZlcmVudCBwYXJ0cyBvZiB0aGUgYnVmZmVyLg0KDQpTbyB5b3UgbmVlZCB0byBrbm93IGEg
-J2NhY2hlIGxpbmUgc2l6ZScgZm9yIHRoZSBtYXBwaW5nDQphbmQgYmUgYWJsZSB0byBkbyB3cml0
-ZWJhY2tzIGFuZCBpbnZhbGlkYXRlcyBmb3IgcGFydHMNCm9mIHRoZSBidWZmZXIsIG5vdCBqdXN0
-IGFsbCBvZiBpdC4NCg0KVGhlIHRyYW5zbWl0IHNpZGUgaXMgaGFyZGVyLg0KSXQgZWl0aGVyIHJl
-cXVpcmVzIHdhaXRpbmcgZm9yIGFsbCBwZW5kaW5nIHRyYW5zbWl0cyB0bw0KZmluaXNoIG9yIHNw
-bGl0dGluZyBhIHNpbmdsZSB0cmFuc21pdCBpbnRvIGVub3VnaCBmcmFnbWVudHMNCnRoYXQgaXRz
-IGRlc2NyaXB0b3JzIGVuZCBvbiBhIGNhY2hlIGxpbmUgYm91bmRhcnkuDQpCdXQgYWdhaW4sIGFu
-ZCBpZiB0aGUgaW50ZXJmYWNlIGlzIGJ1c3ksIHlvdSB3YW50IHRoZSBjcHUNCnRvIGJlIGFibGUg
-dG8gdXBkYXRlIG9uZSBjYWNoZSBsaW5lIG9mIHRyYW5zbWl0IGRlc2NyaXB0b3JzDQp3aGlsZSB0
-aGUgZGV2aWNlIGlzIHdyaXRpbmcgdHJhbnNtaXQgY29tcGxldGlvbiBzdGF0dXMNCnRvIHRoZSBw
-cmV2aW91cyBjYWNoZSBsaW5lLg0KDQpJIGRvbid0IHRoaW5rIHRoYXQgaXMgbWF0ZXJpYWxseSBk
-aWZmZXJlbnQgZm9yIG5vbi1jb2hlcmVudA0KbWVtb3J5IG9yIGJvdW5jZSBidWZmZXJzLg0KQnV0
-IHBhcnRpYWwgZmx1c2gvaW52YWxpZGF0ZSBpcyBuZWVkZWQuDQoNCglEYXZpZA0KDQotDQpSZWdp
-c3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9u
-IEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
+
+The patch titled
+     Subject: ocfs2: fix crash when mount with quota enabled
+has been added to the -mm tree.  Its filename is
+     ocfs2-fix-crash-when-mount-with-quota-enabled.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/ocfs2-fix-crash-when-mount-with-quota-enabled.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/ocfs2-fix-crash-when-mount-with-quota-enabled.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: ocfs2: fix crash when mount with quota enabled
+
+There is a reported crash when mounting ocfs2 with quota enabled.
+
+RIP: 0010:ocfs2_qinfo_lock_res_init+0x44/0x50 [ocfs2]
+Call Trace:
+<TASK>
+ocfs2_local_read_info+0xb9/0x6f0 [ocfs2]
+? ocfs2_local_check_quota_file+0x197/0x390 [ocfs2]
+dquot_load_quota_sb+0x216/0x470
+? preempt_count_add+0x68/0xa0
+dquot_load_quota_inode+0x85/0x100
+ocfs2_enable_quotas+0xa0/0x1c0 [ocfs2]
+ocfs2_fill_super.cold+0xc8/0x1bf [ocfs2]
+mount_bdev+0x185/0x1b0
+? ocfs2_initialize_super.isra.0+0xf40/0xf40 [ocfs2]
+legacy_get_tree+0x27/0x40
+vfs_get_tree+0x25/0xb0
+path_mount+0x465/0xac0
+__x64_sys_mount+0x103/0x140
+do_syscall_64+0x3b/0xc0
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+</TASK>
+
+It is caused by when initializing dqi_gqlock, the corresponding dqi_type
+and dqi_sb are not properly initialized.  This issue is introduced by
+commit 6c85c2c72819, which wants to avoid accessing uninitialized
+variables in error cases.  So make global quota info properly initialized.
+
+Link: https://lkml.kernel.org/r/20220323023644.40084-1-joseph.qi@linux.alibaba.com
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1007141
+Fixes: 6c85c2c72819 ("ocfs2: quota_local: fix possible uninitialized-variable access in ocfs2_local_read_info()")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reported-by: Dayvison <sathlerds@gmail.com>
+Tested-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/ocfs2/quota_global.c |   23 ++++++++++++-----------
+ fs/ocfs2/quota_local.c  |    2 --
+ 2 files changed, 12 insertions(+), 13 deletions(-)
+
+--- a/fs/ocfs2/quota_global.c~ocfs2-fix-crash-when-mount-with-quota-enabled
++++ a/fs/ocfs2/quota_global.c
+@@ -337,7 +337,6 @@ void ocfs2_unlock_global_qf(struct ocfs2
+ /* Read information header from global quota file */
+ int ocfs2_global_read_info(struct super_block *sb, int type)
+ {
+-	struct inode *gqinode = NULL;
+ 	unsigned int ino[OCFS2_MAXQUOTAS] = { USER_QUOTA_SYSTEM_INODE,
+ 					      GROUP_QUOTA_SYSTEM_INODE };
+ 	struct ocfs2_global_disk_dqinfo dinfo;
+@@ -346,29 +345,31 @@ int ocfs2_global_read_info(struct super_
+ 	u64 pcount;
+ 	int status;
+ 
++	oinfo->dqi_gi.dqi_sb = sb;
++	oinfo->dqi_gi.dqi_type = type;
++	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
++	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
++	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
++	oinfo->dqi_gqi_bh = NULL;
++	oinfo->dqi_gqi_count = 0;
++
+ 	/* Read global header */
+-	gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
++	oinfo->dqi_gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
+ 			OCFS2_INVALID_SLOT);
+-	if (!gqinode) {
++	if (!oinfo->dqi_gqinode) {
+ 		mlog(ML_ERROR, "failed to get global quota inode (type=%d)\n",
+ 			type);
+ 		status = -EINVAL;
+ 		goto out_err;
+ 	}
+-	oinfo->dqi_gi.dqi_sb = sb;
+-	oinfo->dqi_gi.dqi_type = type;
+-	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
+-	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
+-	oinfo->dqi_gqi_bh = NULL;
+-	oinfo->dqi_gqi_count = 0;
+-	oinfo->dqi_gqinode = gqinode;
++
+ 	status = ocfs2_lock_global_qf(oinfo, 0);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+ 		goto out_err;
+ 	}
+ 
+-	status = ocfs2_extent_map_get_blocks(gqinode, 0, &oinfo->dqi_giblk,
++	status = ocfs2_extent_map_get_blocks(oinfo->dqi_gqinode, 0, &oinfo->dqi_giblk,
+ 					     &pcount, NULL);
+ 	if (status < 0)
+ 		goto out_unlock;
+--- a/fs/ocfs2/quota_local.c~ocfs2-fix-crash-when-mount-with-quota-enabled
++++ a/fs/ocfs2/quota_local.c
+@@ -702,8 +702,6 @@ static int ocfs2_local_read_info(struct
+ 	info->dqi_priv = oinfo;
+ 	oinfo->dqi_type = type;
+ 	INIT_LIST_HEAD(&oinfo->dqi_chunk);
+-	oinfo->dqi_gqinode = NULL;
+-	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
+ 	oinfo->dqi_rec = NULL;
+ 	oinfo->dqi_lqi_bh = NULL;
+ 	oinfo->dqi_libh = NULL;
+_
+
+Patches currently in -mm which might be from joseph.qi@linux.alibaba.com are
+
+ocfs2-fix-crash-when-mount-with-quota-enabled.patch
 
