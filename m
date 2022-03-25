@@ -2,105 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50BF54E7C0C
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3024E7CC9
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:22:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233390AbiCYVdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 17:33:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49850 "EHLO
+        id S233460AbiCYVmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 17:42:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233405AbiCYVdh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 17:33:37 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF243615C;
-        Fri, 25 Mar 2022 14:32:03 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id q11so9497997pln.11;
-        Fri, 25 Mar 2022 14:32:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=SJpCuQQmEV2SAoMittH2JJQh8KxyIjkNxtG+z5GWdKo=;
-        b=U9ABznzW1nW5/RMOJE/y66cg5xMG3Xp+dipB/khfIOxxmjD8JYcNFO4Mp95i73nOJf
-         R+HXyLJaXeAvt4F+YXUYpxhi4s4sJJYvGLyT6wtVCjMkQYyAup0ZXKJziRvjTqeELRJp
-         9lv/aGijYhjJBkExcbKsJHwlbO2V+ibz4BFNwemc5+9emApVdM2VN8eK6efKxmBDpg+I
-         EPTOkZCTU+GaIGYXjE6qS2NWawUF9s4n6J8Qd9wodtIxZ+E9ly/HjWLjAbKaiTGVJm+y
-         16yM1ms45xqABLu2mMfgZEo/ZinYBxZiBwKAsxARl7gzBtsZMBCk5pDdHQEk+HFHRgjx
-         lG/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=SJpCuQQmEV2SAoMittH2JJQh8KxyIjkNxtG+z5GWdKo=;
-        b=KdplqN6zH2TDjcoLV7A38j0OwEN5BFMg+b8ruHXh3sl0NgajiZJqjc6QwEp2eAq0o6
-         oRm5rbRwHNspoAFvH4It4LcR+8QGFvaH5VLl/bRU7lltwc8SMZA7ZJK5y1ZiDUEjIzio
-         eQOvp3FxDlAL3VWdi6KLqgB2FR52F+Tjll1BuQOoTgKCD0Im6AAV0mEDcGQlswNbMK8u
-         1aKkDh64dLXd5F9Gf9mnK0C83zlg4rtkTgwsI0v5eS9/Z7LdW7G9aKUxij6oQKpd/ZKf
-         bMh8argpR/9iX/Drbqgt3YEBlMpL9ULxYf6L+yUPooDoKAH0hzlxV//5eUFAZ/eSGiDm
-         VjNA==
-X-Gm-Message-State: AOAM531IWbVhC8pZ9OUkOhFATK2YTI/8Qe5BWlAhvNKhC3f0M2mkxzsP
-        O5xqa9gpJgxkPVXaS0DucUFJ72fxcRc=
-X-Google-Smtp-Source: ABdhPJwsXL92fONz/dEfjQ4rEaK4/GNOyEJWWHXCdOdgpdxxZSP0ANna7W3IU35JOL2t5zgBT3itkQ==
-X-Received: by 2002:a17:90b:3b81:b0:1c6:f22c:60f3 with SMTP id pc1-20020a17090b3b8100b001c6f22c60f3mr15082866pjb.109.1648243922717;
-        Fri, 25 Mar 2022 14:32:02 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id mu1-20020a17090b388100b001c77e79531bsm10786563pjb.50.2022.03.25.14.32.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 25 Mar 2022 14:32:02 -0700 (PDT)
-Message-ID: <15268a27-5386-45d8-5c55-1095251331f7@gmail.com>
-Date:   Fri, 25 Mar 2022 14:31:59 -0700
+        with ESMTP id S233520AbiCYVmB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 17:42:01 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1095A6C936
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 14:40:25 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-198-v6S2T8p_MaetwOyqgJM0fQ-1; Fri, 25 Mar 2022 21:40:22 +0000
+X-MC-Unique: v6S2T8p_MaetwOyqgJM0fQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Fri, 25 Mar 2022 21:40:20 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Fri, 25 Mar 2022 21:40:20 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Johannes Berg' <johannes@sipsolutions.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+CC:     Maxime Bizon <mbizon@freebox.fr>,
+        =?utf-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        "Marek Szyprowski" <m.szyprowski@samsung.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "Paolo Abeni" <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+Subject: RE: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Thread-Topic: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+Thread-Index: AQHYQI1aK/9JYQDqEEKfLChLw6SC36zQnHkQ
+Date:   Fri, 25 Mar 2022 21:40:20 +0000
+Message-ID: <19b4ad5f9909446ea0eca93f9b5b4c40@AcuMS.aculab.com>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+         <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+         <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
+         <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com>
+ <878rsza0ih.fsf@toke.dk>
+         <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
+         <20220324163132.GB26098@lst.de>
+         <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
+ <871qyr9t4e.fsf@toke.dk>
+         <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
+         <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
+         <CAHk-=wippum+MksdY7ixMfa3i1sZ+nxYPWLLpVMNyXCgmiHbBQ@mail.gmail.com>
+         <298f4f9ccad7c3308d3a1fd8b4b4740571305204.camel@sipsolutions.net>
+         <CAHk-=whXAan2ExANMryPSFaBWeyzikPi+fPUseMoVhQAxR7cEA@mail.gmail.com>
+ <e42e4c8bf35b62c671ec20ec6c21a43216e7daa6.camel@sipsolutions.net>
+In-Reply-To: <e42e4c8bf35b62c671ec20ec6c21a43216e7daa6.camel@sipsolutions.net>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 4.9 00/14] 4.9.309-rc1 review
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220325150415.694544076@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/25/22 08:04, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.309 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.309-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+SSd2ZSBiZWVuIHRoaW5raW5nIG9mIHRoZSBjYXNlIHdoZXJlIGEgZGVzY3JpcHRvciByaW5nIGhh
+cw0KdG8gYmUgaW4gbm9uLWNvaGVyZW50IG1lbW9yeSAoZWcgYmVjYXVzZSB0aGF0IGlzIGFsbCB0
+aGVyZSBpcykuDQoNClRoZSByZWNlaXZlIHJpbmcgcHJvY2Vzc2luZyBpc24ndCBhY3R1YWxseSB0
+aGF0IGRpZmZpY3VsdC4NCg0KVGhlIGRyaXZlciBoYXMgdG8gZmlsbCBhIGNhY2hlIGxpbmUgZnVs
+bCBvZiBuZXcgYnVmZmVyDQpkZXNjcmlwdG9ycyBpbiBtZW1vcnkgYnV0IHdpdGhvdXQgYXNzaWdu
+aW5nIHRoZSBmaXJzdA0KYnVmZmVyIHRvIHRoZSBoYXJkd2FyZS4NClRoZW4gaXQgaGFzIHRvIGRv
+IGEgY2FjaGUgbGluZSB3cml0ZSBvZiBqdXN0IHRoYXQgbGluZS4NClRoZW4gaXQgY2FuIGFzc2ln
+biBvd25lcnNoaXAgb2YgdGhlIGZpcnN0IGJ1ZmZlciBhbmQNCmZpbmFsbHkgZG8gYSBzZWNvbmQg
+Y2FjaGUgbGluZSB3cml0ZS4NCihUaGUgZmlyc3QgZXhwbGljaXQgd3JpdGUgY2FuIGJlIHNraXBw
+ZWQgaWYgdGhlIGNhY2hlDQp3cml0ZXMgYXJlIGtub3duIHRvIGJlIGF0b21pYy4pDQpJdCB0aGVu
+IG11c3Qgbm90IGRpcnR5IHRoYXQgY2FjaGUgbGluZS4NCg0KVG8gY2hlY2sgZm9yIG5ldyBmcmFt
+ZXMgaXQgbXVzdCBpbnZhbGlkYXRlIHRoZSBjYWNoZQ0KbGluZSB0aGF0IGNvbnRhaW5zIHRoZSAn
+bmV4dCB0byBiZSBmaWxsZWQnIGRlc2NyaXB0b3INCmFuZCB0aGVuIHJlYWQgdGhhdCBjYWNoZSBs
+aW5lLg0KVGhpcyB3aWxsIGNvbnRhaW4gaW5mbyBhYm91dCBvbmUgb3IgbW9yZSByZWNlaXZlIGZy
+YW1lcy4NCkJ1dCB0aGUgaGFyZHdhcmUgaXMgc3RpbGwgZG9pbmcgdXBkYXRlcy4NCg0KQnV0IGJv
+dGggdGhlc2Ugb3BlcmF0aW9ucyBjYW4gYmUgaGFwcGVuaW5nIGF0IHRoZSBzYW1lDQp0aW1lIG9u
+IGRpZmZlcmVudCBwYXJ0cyBvZiB0aGUgYnVmZmVyLg0KDQpTbyB5b3UgbmVlZCB0byBrbm93IGEg
+J2NhY2hlIGxpbmUgc2l6ZScgZm9yIHRoZSBtYXBwaW5nDQphbmQgYmUgYWJsZSB0byBkbyB3cml0
+ZWJhY2tzIGFuZCBpbnZhbGlkYXRlcyBmb3IgcGFydHMNCm9mIHRoZSBidWZmZXIsIG5vdCBqdXN0
+IGFsbCBvZiBpdC4NCg0KVGhlIHRyYW5zbWl0IHNpZGUgaXMgaGFyZGVyLg0KSXQgZWl0aGVyIHJl
+cXVpcmVzIHdhaXRpbmcgZm9yIGFsbCBwZW5kaW5nIHRyYW5zbWl0cyB0bw0KZmluaXNoIG9yIHNw
+bGl0dGluZyBhIHNpbmdsZSB0cmFuc21pdCBpbnRvIGVub3VnaCBmcmFnbWVudHMNCnRoYXQgaXRz
+IGRlc2NyaXB0b3JzIGVuZCBvbiBhIGNhY2hlIGxpbmUgYm91bmRhcnkuDQpCdXQgYWdhaW4sIGFu
+ZCBpZiB0aGUgaW50ZXJmYWNlIGlzIGJ1c3ksIHlvdSB3YW50IHRoZSBjcHUNCnRvIGJlIGFibGUg
+dG8gdXBkYXRlIG9uZSBjYWNoZSBsaW5lIG9mIHRyYW5zbWl0IGRlc2NyaXB0b3JzDQp3aGlsZSB0
+aGUgZGV2aWNlIGlzIHdyaXRpbmcgdHJhbnNtaXQgY29tcGxldGlvbiBzdGF0dXMNCnRvIHRoZSBw
+cmV2aW91cyBjYWNoZSBsaW5lLg0KDQpJIGRvbid0IHRoaW5rIHRoYXQgaXMgbWF0ZXJpYWxseSBk
+aWZmZXJlbnQgZm9yIG5vbi1jb2hlcmVudA0KbWVtb3J5IG9yIGJvdW5jZSBidWZmZXJzLg0KQnV0
+IHBhcnRpYWwgZmx1c2gvaW52YWxpZGF0ZSBpcyBuZWVkZWQuDQoNCglEYXZpZA0KDQotDQpSZWdp
+c3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9u
+IEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-
-PS: is there any reason why the Spectre BHB patches from here are not 
-part of linux-stable/linux-4.9.y?
--- 
-Florian
