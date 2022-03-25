@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D044E76F3
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:20:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4F44E7739
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346887AbiCYPWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:22:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57780 "EHLO
+        id S1358619AbiCYP1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376270AbiCYPVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:21:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907A3E338B;
-        Fri, 25 Mar 2022 08:16:00 -0700 (PDT)
+        with ESMTP id S1377540AbiCYPYQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 851A1654AC;
+        Fri, 25 Mar 2022 08:18:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39DEEB82903;
-        Fri, 25 Mar 2022 15:15:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CAB7C340F4;
-        Fri, 25 Mar 2022 15:15:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19452B828FF;
+        Fri, 25 Mar 2022 15:18:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F89C340E9;
+        Fri, 25 Mar 2022 15:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221356;
-        bh=ZGqHvFAw8zYFl5sKx0Vfl0zk5smIKUztTYJffKlRplU=;
+        s=korg; t=1648221489;
+        bh=YOKp3do8vELpQwkoJRceq2v3z9rJ/hm84CFhL8nDedI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5jFVyvk7Xpa9laMGrjqoGkVSavZbsG/ecyhvQJyippC5TNnAgVUZ4xQ61T2ZQ5PZ
-         4s2mqa8+rQdKoE8kI1HM8hNvgVbz55FNbqTm+WMEct4oZ3aZEv+GFn4WD58+tYMDPH
-         S5/jOMOYcq1XXEOq4NWhNpnkb6Eodklidzs2PGas=
+        b=rGqWsmB3qtw0eEkhN32Ey40inxMtAxOB2J3dXColTxZ0wk8UzNhBTnHSGMThyqLBw
+         o2EbWdgx7cbyVFPtWQAwZQoSdHq8ld1r9Bty4HioEkxvWUiQW1HmCNo/0tvz22jlei
+         1p1yi7vtYpK9PsCfyuEmACviNPORxT3WF7i5iulo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Murray <timmurray@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        Todd Kjos <tkjos@google.com>,
-        Sandeep Patil <sspatil@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.15 31/37] rcu: Dont deboost before reporting expedited quiescent state
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.16 22/37] netfilter: nf_tables: initialize registers in nft_do_chain()
 Date:   Fri, 25 Mar 2022 16:14:32 +0100
-Message-Id: <20220325150420.820554308@linuxfoundation.org>
+Message-Id: <20220325150420.679540216@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
-References: <20220325150419.931802116@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,63 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 10c535787436d62ea28156a4b91365fd89b5a432 upstream.
+commit 4c905f6740a365464e91467aa50916555b28213d upstream.
 
-Currently rcu_preempt_deferred_qs_irqrestore() releases rnp->boost_mtx
-before reporting the expedited quiescent state.  Under heavy real-time
-load, this can result in this function being preempted before the
-quiescent state is reported, which can in turn prevent the expedited grace
-period from completing.  Tim Murray reports that the resulting expedited
-grace periods can take hundreds of milliseconds and even more than one
-second, when they should normally complete in less than a millisecond.
+Initialize registers to avoid stack leak into userspace.
 
-This was fine given that there were no particular response-time
-constraints for synchronize_rcu_expedited(), as it was designed
-for throughput rather than latency.  However, some users now need
-sub-100-millisecond response-time constratints.
-
-This patch therefore follows Neeraj's suggestion (seconded by Tim and
-by Uladzislau Rezki) of simply reversing the two operations.
-
-Reported-by: Tim Murray <timmurray@google.com>
-Reported-by: Joel Fernandes <joelaf@google.com>
-Reported-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Reviewed-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Tested-by: Tim Murray <timmurray@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Sandeep Patil <sspatil@google.com>
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree_plugin.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/netfilter/nf_tables_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -554,16 +554,16 @@ rcu_preempt_deferred_qs_irqrestore(struc
- 			raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 		}
- 
--		/* Unboost if we were boosted. */
--		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
--			rt_mutex_futex_unlock(&rnp->boost_mtx.rtmutex);
--
- 		/*
- 		 * If this was the last task on the expedited lists,
- 		 * then we need to report up the rcu_node hierarchy.
- 		 */
- 		if (!empty_exp && empty_exp_now)
- 			rcu_report_exp_rnp(rnp, true);
-+
-+		/* Unboost if we were boosted. */
-+		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
-+			rt_mutex_futex_unlock(&rnp->boost_mtx.rtmutex);
- 	} else {
- 		local_irq_restore(flags);
- 	}
+--- a/net/netfilter/nf_tables_core.c
++++ b/net/netfilter/nf_tables_core.c
+@@ -162,7 +162,7 @@ nft_do_chain(struct nft_pktinfo *pkt, vo
+ 	struct nft_rule *const *rules;
+ 	const struct nft_rule *rule;
+ 	const struct nft_expr *expr, *last;
+-	struct nft_regs regs;
++	struct nft_regs regs = {};
+ 	unsigned int stackptr = 0;
+ 	struct nft_jumpstack jumpstack[NFT_JUMP_STACK_SIZE];
+ 	bool genbit = READ_ONCE(net->nft.gencursor);
 
 
