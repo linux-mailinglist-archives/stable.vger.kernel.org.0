@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C715D4E760C
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:09:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BE44E7650
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347350AbiCYPKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:10:25 -0400
+        id S1355398AbiCYPMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:12:39 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359789AbiCYPKJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:10:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925C9DB4B0;
-        Fri, 25 Mar 2022 08:07:49 -0700 (PDT)
+        with ESMTP id S1359595AbiCYPMI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:12:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D3A60DAF;
+        Fri, 25 Mar 2022 08:09:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F15E361C14;
-        Fri, 25 Mar 2022 15:07:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0561EC340E9;
-        Fri, 25 Mar 2022 15:07:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 357A261BF5;
+        Fri, 25 Mar 2022 15:09:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 110C1C340E9;
+        Fri, 25 Mar 2022 15:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220868;
-        bh=cm0RYyJQcXqUnVI7HNk8immc7/DDIPAlvRgVNobGzO0=;
+        s=korg; t=1648220943;
+        bh=bOkJy+mMiLrQcWXHlmJVF/rdsYha53wcln9168+rGTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5Y6HjWZoB+RBh9fC7SBV+eqp+bPTYKGE3iYFWAjkwDfo8qyicAG3l2ZN09Ckyg+U
-         q22VI9EdL6Tb2Y90xjgZjK7I2rkWRmXM0b81XXLMNW/WkYABrSZ4AckTPYTByCjn3S
-         3+VkguTH5ID8y2ugWIpQaJdvDu+5GT6Zs895kIrU=
+        b=juiHYOick+4yGT/d4qMvddtDik927kpbCa80eNmqA0VT5D+MSSXwM1Scvvsc/IAC9
+         6NOLNh81bjG7OLV2iyRdDCfCz2z9tw/UE4cgPaEvT69jdZ2UQMctdKRQ9Vg9do1GUG
+         QfpyH/6mtUmUn3sYN91ZdgvwvdaVKDKpqGjquoAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Graber <stgraber@ubuntu.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 16/29] drivers: net: xgene: Fix regression in CRC stripping
+        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
+        Arnaud POULIQUEN <arnaud.pouliquen@st.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 12/38] ASoC: sti: Fix deadlock via snd_pcm_stop_xrun() call
 Date:   Fri, 25 Mar 2022 16:04:56 +0100
-Message-Id: <20220325150419.054217588@linuxfoundation.org>
+Message-Id: <20220325150420.113410347@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
-References: <20220325150418.585286754@linuxfoundation.org>
+In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
+References: <20220325150419.757836392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Graber <stgraber@ubuntu.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit e9e6faeafaa00da1851bcf47912b0f1acae666b4 upstream.
+commit 455c5653f50e10b4f460ef24e99f0044fbe3401c upstream.
 
-All packets on ingress (except for jumbo) are terminated with a 4-bytes
-CRC checksum. It's the responsability of the driver to strip those 4
-bytes. Unfortunately a change dating back to March 2017 re-shuffled some
-code and made the CRC stripping code effectively dead.
+This is essentially a revert of the commit dc865fb9e7c2 ("ASoC: sti:
+Use snd_pcm_stop_xrun() helper"), which converted the manual
+snd_pcm_stop() calls with snd_pcm_stop_xrun().
 
-This change re-orders that part a bit such that the datalen is
-immediately altered if needed.
+The commit above introduced a deadlock as snd_pcm_stop_xrun() itself
+takes the PCM stream lock while the caller already holds it.  Since
+the conversion was done only for consistency reason and the open-call
+with snd_pcm_stop() to the XRUN state is a correct usage, let's revert
+the commit back as the fix.
 
-Fixes: 4902a92270fb ("drivers: net: xgene: Add workaround for errata 10GE_8/ENET_11")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephane Graber <stgraber@ubuntu.com>
-Tested-by: Stephane Graber <stgraber@ubuntu.com>
-Link: https://lore.kernel.org/r/20220322224205.752795-1-stgraber@ubuntu.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: dc865fb9e7c2 ("ASoC: sti: Use snd_pcm_stop_xrun() helper")
+Reported-by: Daniel Palmer <daniel@0x0f.com>
+Cc: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220315091319.3351522-1-daniel@0x0f.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Link: https://lore.kernel.org/r/20220315164158.19804-1-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/apm/xgene/xgene_enet_main.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ sound/soc/sti/uniperif_player.c |    6 +++---
+ sound/soc/sti/uniperif_reader.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-+++ b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-@@ -696,6 +696,12 @@ static int xgene_enet_rx_frame(struct xg
- 	buf_pool->rx_skb[skb_index] = NULL;
+--- a/sound/soc/sti/uniperif_player.c
++++ b/sound/soc/sti/uniperif_player.c
+@@ -91,7 +91,7 @@ static irqreturn_t uni_player_irq_handle
+ 			SET_UNIPERIF_ITM_BCLR_FIFO_ERROR(player);
  
- 	datalen = xgene_enet_get_data_len(le64_to_cpu(raw_desc->m1));
-+
-+	/* strip off CRC as HW isn't doing this */
-+	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
-+	if (!nv)
-+		datalen -= 4;
-+
- 	skb_put(skb, datalen);
- 	prefetch(skb->data - NET_IP_ALIGN);
- 	skb->protocol = eth_type_trans(skb, ndev);
-@@ -717,12 +723,8 @@ static int xgene_enet_rx_frame(struct xg
+ 			/* Stop the player */
+-			snd_pcm_stop_xrun(player->substream);
++			snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
  		}
+ 
+ 		ret = IRQ_HANDLED;
+@@ -105,7 +105,7 @@ static irqreturn_t uni_player_irq_handle
+ 		SET_UNIPERIF_ITM_BCLR_DMA_ERROR(player);
+ 
+ 		/* Stop the player */
+-		snd_pcm_stop_xrun(player->substream);
++		snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
+ 
+ 		ret = IRQ_HANDLED;
  	}
+@@ -138,7 +138,7 @@ static irqreturn_t uni_player_irq_handle
+ 		dev_err(player->dev, "Underflow recovery failed\n");
  
--	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
--	if (!nv) {
--		/* strip off CRC as HW isn't doing this */
--		datalen -= 4;
-+	if (!nv)
- 		goto skip_jumbo;
--	}
+ 		/* Stop the player */
+-		snd_pcm_stop_xrun(player->substream);
++		snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
  
- 	slots = page_pool->slots - 1;
- 	head = page_pool->head;
+ 		ret = IRQ_HANDLED;
+ 	}
+--- a/sound/soc/sti/uniperif_reader.c
++++ b/sound/soc/sti/uniperif_reader.c
+@@ -65,7 +65,7 @@ static irqreturn_t uni_reader_irq_handle
+ 	if (unlikely(status & UNIPERIF_ITS_FIFO_ERROR_MASK(reader))) {
+ 		dev_err(reader->dev, "FIFO error detected\n");
+ 
+-		snd_pcm_stop_xrun(reader->substream);
++		snd_pcm_stop(reader->substream, SNDRV_PCM_STATE_XRUN);
+ 
+ 		ret = IRQ_HANDLED;
+ 	}
 
 
