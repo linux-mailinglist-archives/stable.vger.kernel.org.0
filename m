@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6644E7789
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E194E7778
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:27:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377274AbiCYP2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:28:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58956 "EHLO
+        id S1377068AbiCYP2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:28:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377745AbiCYPYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:32 -0400
+        with ESMTP id S1377585AbiCYPYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF5CE9976;
-        Fri, 25 Mar 2022 08:18:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D7F3DFF8A;
+        Fri, 25 Mar 2022 08:18:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E34360C86;
-        Fri, 25 Mar 2022 15:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 963E4C340E9;
-        Fri, 25 Mar 2022 15:18:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0CC360ABA;
+        Fri, 25 Mar 2022 15:18:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2DE1C340E9;
+        Fri, 25 Mar 2022 15:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221532;
-        bh=cm0RYyJQcXqUnVI7HNk8immc7/DDIPAlvRgVNobGzO0=;
+        s=korg; t=1648221498;
+        bh=yQdpvEhL5AoioDf0png7mIvxiUMoS5mudv/r7pfJOUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cSWRVqgflFWDcR2w/bUMrZ074JRi+/tl6y0uhxMsgxQhERVm7GRoDUCBzQbT6Bciq
-         mizAyWqS/5UwBvZ+pkS8M2QrgiG1tCGt+ABAaSNZbuvYqc0RGm1YWP8IVB1oj/7kAo
-         ruI4O+i/4QSwxYiNZFdkWOle+khLtZsmCx8KfL9s=
+        b=vjESTfk+NUpuWF4/Y8wq6uJQLbupcswoi9S/uX4u5sxXAAf62MrnI9a7VSHA66k2A
+         wRYSswCqkLuKxWPl9Mm1hWNs7Hbnqc7R5mw4+cLq4lSWsqGl3KUQFwa9QxruFsSZXa
+         jtOvHQnQD+yqOLIjSxJa5xtxaI0ztzQum5g1rvfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Graber <stgraber@ubuntu.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 19/39] drivers: net: xgene: Fix regression in CRC stripping
-Date:   Fri, 25 Mar 2022 16:14:34 +0100
-Message-Id: <20220325150420.793222251@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.16 25/37] ACPI: battery: Add device HID and quirk for Microsoft Surface Go 3
+Date:   Fri, 25 Mar 2022 16:14:35 +0100
+Message-Id: <20220325150420.764126922@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Graber <stgraber@ubuntu.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit e9e6faeafaa00da1851bcf47912b0f1acae666b4 upstream.
+commit 7dacee0b9efc8bd061f097b1a8d4daa6591af0c6 upstream.
 
-All packets on ingress (except for jumbo) are terminated with a 4-bytes
-CRC checksum. It's the responsability of the driver to strip those 4
-bytes. Unfortunately a change dating back to March 2017 re-shuffled some
-code and made the CRC stripping code effectively dead.
+For some reason, the Microsoft Surface Go 3 uses the standard ACPI
+interface for battery information, but does not use the standard PNP0C0A
+HID. Instead it uses MSHW0146 as identifier. Add that ID to the driver
+as this seems to work well.
 
-This change re-orders that part a bit such that the datalen is
-immediately altered if needed.
+Additionally, the power state is not updated immediately after the AC
+has been (un-)plugged, so add the respective quirk for that.
 
-Fixes: 4902a92270fb ("drivers: net: xgene: Add workaround for errata 10GE_8/ENET_11")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephane Graber <stgraber@ubuntu.com>
-Tested-by: Stephane Graber <stgraber@ubuntu.com>
-Link: https://lore.kernel.org/r/20220322224205.752795-1-stgraber@ubuntu.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/apm/xgene/xgene_enet_main.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/acpi/battery.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-+++ b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-@@ -696,6 +696,12 @@ static int xgene_enet_rx_frame(struct xg
- 	buf_pool->rx_skb[skb_index] = NULL;
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -60,6 +60,10 @@ MODULE_PARM_DESC(cache_time, "cache time
  
- 	datalen = xgene_enet_get_data_len(le64_to_cpu(raw_desc->m1));
+ static const struct acpi_device_id battery_device_ids[] = {
+ 	{"PNP0C0A", 0},
 +
-+	/* strip off CRC as HW isn't doing this */
-+	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
-+	if (!nv)
-+		datalen -= 4;
++	/* Microsoft Surface Go 3 */
++	{"MSHW0146", 0},
 +
- 	skb_put(skb, datalen);
- 	prefetch(skb->data - NET_IP_ALIGN);
- 	skb->protocol = eth_type_trans(skb, ndev);
-@@ -717,12 +723,8 @@ static int xgene_enet_rx_frame(struct xg
- 		}
- 	}
+ 	{"", 0},
+ };
  
--	nv = GET_VAL(NV, le64_to_cpu(raw_desc->m0));
--	if (!nv) {
--		/* strip off CRC as HW isn't doing this */
--		datalen -= 4;
-+	if (!nv)
- 		goto skip_jumbo;
--	}
+@@ -1177,6 +1181,14 @@ static const struct dmi_system_id bat_dm
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
+ 		},
+ 	},
++	{
++		/* Microsoft Surface Go 3 */
++		.callback = battery_notification_delay_quirk,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Surface Go 3"),
++		},
++	},
+ 	{},
+ };
  
- 	slots = page_pool->slots - 1;
- 	head = page_pool->head;
 
 
