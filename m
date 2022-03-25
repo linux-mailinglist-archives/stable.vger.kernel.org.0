@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F45D4E75E7
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 829BB4E75D0
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359611AbiCYPI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:08:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43274 "EHLO
+        id S1359538AbiCYPIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:08:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359575AbiCYPIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E5A1D9EAC;
-        Fri, 25 Mar 2022 08:07:05 -0700 (PDT)
+        with ESMTP id S1359792AbiCYPID (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7969D9EA4;
+        Fri, 25 Mar 2022 08:06:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6FAD61C1E;
-        Fri, 25 Mar 2022 15:07:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E18DBC340F1;
-        Fri, 25 Mar 2022 15:07:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92865B828FB;
+        Fri, 25 Mar 2022 15:06:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E353FC340E9;
+        Fri, 25 Mar 2022 15:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220824;
-        bh=EWu8tlVUvY2P/Q7rfy1gpf/qZdKlhBmhU443XVaCSWw=;
+        s=korg; t=1648220775;
+        bh=T2w9Rgk56+o7Kq1HS/BtRz1ksRzT87ZESCNGzV+8pXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3fQx/2lBwxk6z34xmFJWW3Q5k5CIgN2jAZw1KuZovm22ekDx2W5yQlIgzKFQi+mu
-         eHrYTaOdEfZo6XgrJ0MS72I7/130OOpVyS1/ENS5peUpLEcAFJuzJTfPOIkCnScr5j
-         bwMMa1HqVuE6VkvtChvLn1epYY7zZrhzPO9PLJ6s=
+        b=n3mN+hpwV+uxU9sRNm8HoZbSUBepBFT41XyEthntet1kJkajRAFYlRcKHcE8wgYaX
+         tiTkcLAmfznMGKk5RgssHhHZB0H/2M+4tlrYYyu4q5p4T1F43I40H5XQ6lj7XqRdnK
+         zAM1v5nJ+qOzRRPriY607cQiJ+TZYV0osNKfFaVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, valis <sec@valis.email>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Vaibhav Rustagi <vaibhavrustagi@google.com>
-Subject: [PATCH 4.19 03/20] esp: Fix possible buffer overflow in ESP transformation
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 07/17] ALSA: pcm: Add stream lock during PCM reset ioctl operations
 Date:   Fri, 25 Mar 2022 16:04:41 +0100
-Message-Id: <20220325150417.110405983@linuxfoundation.org>
+Message-Id: <20220325150416.977842219@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
-References: <20220325150417.010265747@linuxfoundation.org>
+In-Reply-To: <20220325150416.756136126@linuxfoundation.org>
+References: <20220325150416.756136126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ebe48d368e97d007bfeb76fcb065d6cfc4c96645 upstream.
+commit 1f68915b2efd0d6bfd6e124aa63c94b3c69f127c upstream.
 
-The maximum message size that can be send is bigger than
-the  maximum site that skb_page_frag_refill can allocate.
-So it is possible to write beyond the allocated buffer.
+snd_pcm_reset() is a non-atomic operation, and it's allowed to run
+during the PCM stream running.  It implies that the manipulation of
+hw_ptr and other parameters might be racy.
 
-Fix this by doing a fallback to COW in that case.
+This patch adds the PCM stream lock at appropriate places in
+snd_pcm_*_reset() actions for covering that.
 
-v2:
-
-Avoid get get_order() costs as suggested by Linus Torvalds.
-
-Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
-Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
-Reported-by: valis <sec@valis.email>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322171325.4355-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/esp.h  |    2 ++
- include/net/sock.h |    3 +++
- net/core/sock.c    |    3 ---
- net/ipv4/esp4.c    |    5 +++++
- net/ipv6/esp6.c    |    5 +++++
- 5 files changed, 15 insertions(+), 3 deletions(-)
+ sound/core/pcm_native.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/net/esp.h
-+++ b/include/net/esp.h
-@@ -4,6 +4,8 @@
- 
- #include <linux/skbuff.h>
- 
-+#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
-+
- struct ip_esp_hdr;
- 
- static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2518,6 +2518,9 @@ extern int sysctl_optmem_max;
- extern __u32 sysctl_wmem_default;
- extern __u32 sysctl_rmem_default;
- 
-+/* On 32bit arches, an skb frag is limited to 2^15 */
-+#define SKB_FRAG_PAGE_ORDER	get_order(32768)
-+
- static inline int sk_get_wmem0(const struct sock *sk, const struct proto *proto)
- {
- 	/* Does this proto have per netns sysctl_wmem ? */
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2207,9 +2207,6 @@ static void sk_leave_memory_pressure(str
- 	}
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1616,21 +1616,25 @@ static int snd_pcm_do_reset(struct snd_p
+ 	int err = substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_RESET, NULL);
+ 	if (err < 0)
+ 		return err;
++	snd_pcm_stream_lock_irq(substream);
+ 	runtime->hw_ptr_base = 0;
+ 	runtime->hw_ptr_interrupt = runtime->status->hw_ptr -
+ 		runtime->status->hw_ptr % runtime->period_size;
+ 	runtime->silence_start = runtime->status->hw_ptr;
+ 	runtime->silence_filled = 0;
++	snd_pcm_stream_unlock_irq(substream);
+ 	return 0;
  }
  
--/* On 32bit arches, an skb frag is limited to 2^15 */
--#define SKB_FRAG_PAGE_ORDER	get_order(32768)
--
- /**
-  * skb_page_frag_refill - check that a page_frag contains enough room
-  * @sz: minimum size of the fragment we want to get
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -275,6 +275,7 @@ int esp_output_head(struct xfrm_state *x
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
-+	unsigned int allocsz;
+ static void snd_pcm_post_reset(struct snd_pcm_substream *substream, int state)
+ {
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
++	snd_pcm_stream_lock_irq(substream);
+ 	runtime->control->appl_ptr = runtime->status->hw_ptr;
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
+ 	    runtime->silence_size > 0)
+ 		snd_pcm_playback_silence(substream, ULONG_MAX);
++	snd_pcm_stream_unlock_irq(substream);
+ }
  
- 	/* this is non-NULL only with UDP Encapsulation */
- 	if (x->encap) {
-@@ -284,6 +285,10 @@ int esp_output_head(struct xfrm_state *x
- 			return err;
- 	}
- 
-+	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
-+	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+		goto cow;
-+
- 	if (!skb_cloned(skb)) {
- 		if (tailen <= skb_tailroom(skb)) {
- 			nfrags = 1;
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -241,6 +241,11 @@ int esp6_output_head(struct xfrm_state *
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
-+	unsigned int allocsz;
-+
-+	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
-+	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+		goto cow;
- 
- 	if (!skb_cloned(skb)) {
- 		if (tailen <= skb_tailroom(skb)) {
+ static const struct action_ops snd_pcm_action_reset = {
 
 
