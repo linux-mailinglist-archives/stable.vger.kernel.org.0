@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B18F4E7629
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:09:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2DFC4E75EF
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:08:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240834AbiCYPL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
+        id S1359667AbiCYPJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:09:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355420AbiCYPLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:11:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E79405B3C6;
-        Fri, 25 Mar 2022 08:08:25 -0700 (PDT)
+        with ESMTP id S1359681AbiCYPJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:09:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB859DA0A6;
+        Fri, 25 Mar 2022 08:07:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD3C161BF5;
-        Fri, 25 Mar 2022 15:08:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB822C340EE;
-        Fri, 25 Mar 2022 15:08:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A57EB82900;
+        Fri, 25 Mar 2022 15:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE68C340EE;
+        Fri, 25 Mar 2022 15:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220894;
-        bh=kbWc4PF1sMyfwaJlFZACIvpVjhFNerHYm39HxtmOxUE=;
+        s=korg; t=1648220830;
+        bh=VXTKN6bqX8ypPHm7cAy15mKgbNMwF8wWZ+5+DczXqt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cx1y+EoK1msFp7RpJ3gfBhn/T5Qb6SaJqETWaQDWa1asacbcyhbPbjGuX1ZwmG7t0
-         CbF8fq7LtMff/GjlJADVd3LSzJF0eSOZ66CM4T0QjBDWpPMojCcWzU3+O/4nw29D35
-         IbSAc0UbZUcNZsJVlz28T1FzWEd48ij0R0izpKq8=
+        b=y/Yukn50wIJ7GA12eRCpgslwVHjjcQKpo+TVaBhNAmzNxoQCRItu4VMhxDU0RIGGw
+         kcT1d9HQPJi7oKr0OqJLZQIYMOW9qbw+O70wB5mGUxxAi9oS6aRpN2/u3x0AbXcozX
+         bdjnW8fmyUmk4fa5MBg8eK/DVw4VdV72pcPfm+9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordy Zomer <jordy@pwning.systems>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Denis Efremov <denis.e.efremov@oracle.com>
-Subject: [PATCH 5.4 03/29] nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION
+        stable@vger.kernel.org, Chuansheng Liu <chuansheng.liu@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 05/20] thermal: int340x: fix memory leak in int3400_notify()
 Date:   Fri, 25 Mar 2022 16:04:43 +0100
-Message-Id: <20220325150418.685680338@linuxfoundation.org>
+Message-Id: <20220325150417.166421733@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
-References: <20220325150418.585286754@linuxfoundation.org>
+In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
+References: <20220325150417.010265747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordy Zomer <jordy@pwning.systems>
+From: Chuansheng Liu <chuansheng.liu@intel.com>
 
-commit 4fbcc1a4cb20fe26ad0225679c536c80f1648221 upstream.
+commit 3abea10e6a8f0e7804ed4c124bea2d15aca977c8 upstream.
 
-It appears that there are some buffer overflows in EVT_TRANSACTION.
-This happens because the length parameters that are passed to memcpy
-come directly from skb->data and are not guarded in any way.
+It is easy to hit the below memory leaks in my TigerLake platform:
 
-Signed-off-by: Jordy Zomer <jordy@pwning.systems>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Denis Efremov <denis.e.efremov@oracle.com>
+unreferenced object 0xffff927c8b91dbc0 (size 32):
+  comm "kworker/0:2", pid 112, jiffies 4294893323 (age 83.604s)
+  hex dump (first 32 bytes):
+    4e 41 4d 45 3d 49 4e 54 33 34 30 30 20 54 68 65  NAME=INT3400 The
+    72 6d 61 6c 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5  rmal.kkkkkkkkkk.
+  backtrace:
+    [<ffffffff9c502c3e>] __kmalloc_track_caller+0x2fe/0x4a0
+    [<ffffffff9c7b7c15>] kvasprintf+0x65/0xd0
+    [<ffffffff9c7b7d6e>] kasprintf+0x4e/0x70
+    [<ffffffffc04cb662>] int3400_notify+0x82/0x120 [int3400_thermal]
+    [<ffffffff9c8b7358>] acpi_ev_notify_dispatch+0x54/0x71
+    [<ffffffff9c88f1a7>] acpi_os_execute_deferred+0x17/0x30
+    [<ffffffff9c2c2c0a>] process_one_work+0x21a/0x3f0
+    [<ffffffff9c2c2e2a>] worker_thread+0x4a/0x3b0
+    [<ffffffff9c2cb4dd>] kthread+0xfd/0x130
+    [<ffffffff9c201c1f>] ret_from_fork+0x1f/0x30
+
+Fix it by calling kfree() accordingly.
+
+Fixes: 38e44da59130 ("thermal: int3400_thermal: process "thermal table changed" event")
+Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
+Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[sudip: change in old path]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/st21nfca/se.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/thermal/int340x_thermal/int3400_thermal.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -321,6 +321,11 @@ int st21nfca_connectivity_event_received
- 			return -ENOMEM;
- 
- 		transaction->aid_len = skb->data[1];
-+
-+		/* Checking if the length of the AID is valid */
-+		if (transaction->aid_len > sizeof(transaction->aid))
-+			return -EINVAL;
-+
- 		memcpy(transaction->aid, &skb->data[2],
- 		       transaction->aid_len);
- 
-@@ -330,6 +335,11 @@ int st21nfca_connectivity_event_received
- 			return -EPROTO;
- 
- 		transaction->params_len = skb->data[transaction->aid_len + 3];
-+
-+		/* Total size is allocated (skb->len - 2) minus fixed array members */
-+		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
-+			return -EINVAL;
-+
- 		memcpy(transaction->params, skb->data +
- 		       transaction->aid_len + 4, transaction->params_len);
- 
+--- a/drivers/thermal/int340x_thermal/int3400_thermal.c
++++ b/drivers/thermal/int340x_thermal/int3400_thermal.c
+@@ -223,6 +223,10 @@ static void int3400_notify(acpi_handle h
+ 		thermal_prop[4] = NULL;
+ 		kobject_uevent_env(&priv->thermal->device.kobj, KOBJ_CHANGE,
+ 				thermal_prop);
++		kfree(thermal_prop[0]);
++		kfree(thermal_prop[1]);
++		kfree(thermal_prop[2]);
++		kfree(thermal_prop[3]);
+ 		break;
+ 	default:
+ 		/* Ignore unknown notification codes sent to INT3400 device */
 
 
