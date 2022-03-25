@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DF24E75E5
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5338F4E7649
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:13:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359606AbiCYPIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42424 "EHLO
+        id S1352700AbiCYPMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:12:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243762AbiCYPIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:30 -0400
+        with ESMTP id S1359842AbiCYPMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:12:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C47AD95F6;
-        Fri, 25 Mar 2022 08:06:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA6463BD8;
+        Fri, 25 Mar 2022 08:09:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A66361C14;
-        Fri, 25 Mar 2022 15:06:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4926CC340F1;
-        Fri, 25 Mar 2022 15:06:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1C3361C11;
+        Fri, 25 Mar 2022 15:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BAEAC340F3;
+        Fri, 25 Mar 2022 15:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220815;
-        bh=SAzahGRsp/aWnQUtCiuOO8baNIeP1ZA4S3ucmJkdu5Q=;
+        s=korg; t=1648220946;
+        bh=tLbiilRWNJwkevOSpD6zxL2E1sFPTPqO0uRjQlAFKtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sqy8qeNH83aRCH+RwMyPYE1oC3J+Z2owug3Cg5yrKAgxV4+3UtjpknO/uV05ZY6RX
-         O144QpLvkMHECxnyDnL9uwZYLdAX6wpmX7GFRAr1mw2/6D298xed9qWADpapzB/gAq
-         yaTqJwdyp1uALXvoJXAhmtmYxsMos8W+DNcx/MXU=
+        b=iSEhNi4Q9z/xDPdRzkukh7Vvr9GboWIy3abxWkNP4UWD59ayFbwxj4N58VOX+S6rQ
+         GnB6xVJzy2FC6BmAU1JVRRfLLRpsDakVCr3gbVpE6dRhg/+RHPmejPswQONqf/WovO
+         x0M8WL9J4jkaw1jbCdu3cKdidRmxGSOdnoMgmJwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Matthias Kretschmer <mathias.kretschmer@fit.fraunhofer.de>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 19/20] mac80211: fix potential double free on mesh join
+        syzbot+72732c532ac1454eeee9@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 13/38] ALSA: oss: Fix PCM OSS buffer allocation overflow
 Date:   Fri, 25 Mar 2022 16:04:57 +0100
-Message-Id: <20220325150417.565959864@linuxfoundation.org>
+Message-Id: <20220325150420.141432967@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
-References: <20220325150417.010265747@linuxfoundation.org>
+In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
+References: <20220325150419.757836392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <ll@simonwunderlich.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 4a2d4496e15ea5bb5c8e83b94ca8ca7fb045e7d3 upstream.
+commit efb6402c3c4a7c26d97c92d70186424097b6e366 upstream.
 
-While commit 6a01afcf8468 ("mac80211: mesh: Free ie data when leaving
-mesh") fixed a memory leak on mesh leave / teardown it introduced a
-potential memory corruption caused by a double free when rejoining the
-mesh:
+We've got syzbot reports hitting INT_MAX overflow at vmalloc()
+allocation that is called from snd_pcm_plug_alloc().  Although we
+apply the restrictions to input parameters, it's based only on the
+hw_params of the underlying PCM device.  Since the PCM OSS layer
+allocates a temporary buffer for the data conversion, the size may
+become unexpectedly large when more channels or higher rates is given;
+in the reported case, it went over INT_MAX, hence it hits WARN_ON().
 
-  ieee80211_leave_mesh()
-  -> kfree(sdata->u.mesh.ie);
-  ...
-  ieee80211_join_mesh()
-  -> copy_mesh_setup()
-     -> old_ie = ifmsh->ie;
-     -> kfree(old_ie);
+This patch is an attempt to avoid such an overflow and an allocation
+for too large buffers.  First off, it adds the limit of 1MB as the
+upper bound for period bytes.  This must be large enough for all use
+cases, and we really don't want to handle a larger temporary buffer
+than this size.  The size check is performed at two places, where the
+original period bytes is calculated and where the plugin buffer size
+is calculated.
 
-This double free / kernel panics can be reproduced by using wpa_supplicant
-with an encrypted mesh (if set up without encryption via "iw" then
-ifmsh->ie is always NULL, which avoids this issue). And then calling:
+In addition, the driver uses array_size() and array3_size() for
+multiplications to catch overflows for the converted period size and
+buffer bytes.
 
-  $ iw dev mesh0 mesh leave
-  $ iw dev mesh0 mesh join my-mesh
-
-Note that typically these commands are not used / working when using
-wpa_supplicant. And it seems that wpa_supplicant or wpa_cli are going
-through a NETDEV_DOWN/NETDEV_UP cycle between a mesh leave and mesh join
-where the NETDEV_UP resets the mesh.ie to NULL via a memcpy of
-default_mesh_setup in cfg80211_netdev_notifier_call, which then avoids
-the memory corruption, too.
-
-The issue was first observed in an application which was not using
-wpa_supplicant but "Senf" instead, which implements its own calls to
-nl80211.
-
-Fixing the issue by removing the kfree()'ing of the mesh IE in the mesh
-join function and leaving it solely up to the mesh leave to free the
-mesh IE.
-
-Cc: stable@vger.kernel.org
-Fixes: 6a01afcf8468 ("mac80211: mesh: Free ie data when leaving mesh")
-Reported-by: Matthias Kretschmer <mathias.kretschmer@fit.fraunhofer.de>
-Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
-Tested-by: Mathias Kretschmer <mathias.kretschmer@fit.fraunhofer.de>
-Link: https://lore.kernel.org/r/20220310183513.28589-1-linus.luessing@c0d3.blue
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: syzbot+72732c532ac1454eeee9@syzkaller.appspotmail.com
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/00000000000085b1b305da5a66f3@google.com
+Link: https://lore.kernel.org/r/20220318082036.29699-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/cfg.c |    3 ---
- 1 file changed, 3 deletions(-)
+ sound/core/oss/pcm_oss.c    |   12 ++++++++----
+ sound/core/oss/pcm_plugin.c |    5 ++++-
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1823,13 +1823,11 @@ static int copy_mesh_setup(struct ieee80
- 		const struct mesh_setup *setup)
- {
- 	u8 *new_ie;
--	const u8 *old_ie;
- 	struct ieee80211_sub_if_data *sdata = container_of(ifmsh,
- 					struct ieee80211_sub_if_data, u.mesh);
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -774,6 +774,11 @@ static int snd_pcm_oss_period_size(struc
  
- 	/* allocate information elements */
- 	new_ie = NULL;
--	old_ie = ifmsh->ie;
- 
- 	if (setup->ie_len) {
- 		new_ie = kmemdup(setup->ie, setup->ie_len,
-@@ -1839,7 +1837,6 @@ static int copy_mesh_setup(struct ieee80
+ 	if (oss_period_size < 16)
+ 		return -EINVAL;
++
++	/* don't allocate too large period; 1MB period must be enough */
++	if (oss_period_size > 1024 * 1024)
++		return -ENOMEM;
++
+ 	runtime->oss.period_bytes = oss_period_size;
+ 	runtime->oss.period_frames = 1;
+ 	runtime->oss.periods = oss_periods;
+@@ -1042,10 +1047,9 @@ static int snd_pcm_oss_change_params_loc
+ 			goto failure;
  	}
- 	ifmsh->ie_len = setup->ie_len;
- 	ifmsh->ie = new_ie;
--	kfree(old_ie);
- 
- 	/* now copy the rest of the setup parameters */
- 	ifmsh->mesh_id_len = setup->mesh_id_len;
+ #endif
+-	oss_period_size *= oss_frame_size;
+-
+-	oss_buffer_size = oss_period_size * runtime->oss.periods;
+-	if (oss_buffer_size < 0) {
++	oss_period_size = array_size(oss_period_size, oss_frame_size);
++	oss_buffer_size = array_size(oss_period_size, runtime->oss.periods);
++	if (oss_buffer_size <= 0) {
+ 		err = -EINVAL;
+ 		goto failure;
+ 	}
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -61,7 +61,10 @@ static int snd_pcm_plugin_alloc(struct s
+ 	}
+ 	if ((width = snd_pcm_format_physical_width(format->format)) < 0)
+ 		return width;
+-	size = frames * format->channels * width;
++	size = array3_size(frames, format->channels, width);
++	/* check for too large period size once again */
++	if (size > 1024 * 1024)
++		return -ENOMEM;
+ 	if (snd_BUG_ON(size % 8))
+ 		return -ENXIO;
+ 	size /= 8;
 
 
