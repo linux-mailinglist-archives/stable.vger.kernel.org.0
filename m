@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 126374E75CF
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BC64E7609
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359497AbiCYPIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:08:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37988 "EHLO
+        id S1359767AbiCYPKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359676AbiCYPHu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:07:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C03DA6D2;
-        Fri, 25 Mar 2022 08:05:58 -0700 (PDT)
+        with ESMTP id S1359812AbiCYPJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:09:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68643DAFE4;
+        Fri, 25 Mar 2022 08:07:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FD2061BAD;
-        Fri, 25 Mar 2022 15:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65710C340EE;
-        Fri, 25 Mar 2022 15:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0783B828FA;
+        Fri, 25 Mar 2022 15:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DE3FC340E9;
+        Fri, 25 Mar 2022 15:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220757;
-        bh=f4H2JhhW9Loa7LpqKv/YREuv+jY8WMt0ZAla2LtzshI=;
+        s=korg; t=1648220853;
+        bh=OQ8q4XiPlYgF94hRe6T81CNR0zdaJSSgEHaVdyK4gVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FYGrP3lfLuF5cfm55AGZoUhEsWTH/Rggu94Pb2kb8+4433Kl+6MvY5kbaDtmBWuM1
-         +rRttlGT4mHuJ/7ymTqxJQvWVKwRE4u7QhVnGQ5kZ5qvQBMCXdtSa6tj1h+AaM3Z7a
-         DC0TP2wLPOpzOhNUMwKvqFQg8qv/M5BD6DO/swwI=
+        b=ffCfbZbcSa1x9XT9IRXBZZIi9fbr3FmLR3aBX2iN7LcSJoMej0AZx6b7sagU3s0+K
+         jQGz0oWSxVV0CkwGhLldeoCmZV/QKZQmrBLneCwFvcWBMvUidhrJTCyzNtgDpDwSwC
+         mRiTS+79i3gTJ/aDQwlJNNhzhxTA+ET9bjlWG7yA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Kretschmer <mathias.kretschmer@fit.fraunhofer.de>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 17/17] mac80211: fix potential double free on mesh join
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 11/29] swiotlb: rework "fix info leak with DMA_FROM_DEVICE"
 Date:   Fri, 25 Mar 2022 16:04:51 +0100
-Message-Id: <20220325150417.262035632@linuxfoundation.org>
+Message-Id: <20220325150418.912138406@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150416.756136126@linuxfoundation.org>
-References: <20220325150416.756136126@linuxfoundation.org>
+In-Reply-To: <20220325150418.585286754@linuxfoundation.org>
+References: <20220325150418.585286754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <ll@simonwunderlich.de>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-commit 4a2d4496e15ea5bb5c8e83b94ca8ca7fb045e7d3 upstream.
+commit aa6f8dcbab473f3a3c7454b74caa46d36cdc5d13 upstream.
 
-While commit 6a01afcf8468 ("mac80211: mesh: Free ie data when leaving
-mesh") fixed a memory leak on mesh leave / teardown it introduced a
-potential memory corruption caused by a double free when rejoining the
-mesh:
+Unfortunately, we ended up merging an old version of the patch "fix info
+leak with DMA_FROM_DEVICE" instead of merging the latest one. Christoph
+(the swiotlb maintainer), he asked me to create an incremental fix
+(after I have pointed this out the mix up, and asked him for guidance).
+So here we go.
 
-  ieee80211_leave_mesh()
-  -> kfree(sdata->u.mesh.ie);
-  ...
-  ieee80211_join_mesh()
-  -> copy_mesh_setup()
-     -> old_ie = ifmsh->ie;
-     -> kfree(old_ie);
+The main differences between what we got and what was agreed are:
+* swiotlb_sync_single_for_device is also required to do an extra bounce
+* We decided not to introduce DMA_ATTR_OVERWRITE until we have exploiters
+* The implantation of DMA_ATTR_OVERWRITE is flawed: DMA_ATTR_OVERWRITE
+  must take precedence over DMA_ATTR_SKIP_CPU_SYNC
 
-This double free / kernel panics can be reproduced by using wpa_supplicant
-with an encrypted mesh (if set up without encryption via "iw" then
-ifmsh->ie is always NULL, which avoids this issue). And then calling:
+Thus this patch removes DMA_ATTR_OVERWRITE, and makes
+swiotlb_sync_single_for_device() bounce unconditionally (that is, also
+when dir == DMA_TO_DEVICE) in order do avoid synchronising back stale
+data from the swiotlb buffer.
 
-  $ iw dev mesh0 mesh leave
-  $ iw dev mesh0 mesh join my-mesh
+Let me note, that if the size used with dma_sync_* API is less than the
+size used with dma_[un]map_*, under certain circumstances we may still
+end up with swiotlb not being transparent. In that sense, this is no
+perfect fix either.
 
-Note that typically these commands are not used / working when using
-wpa_supplicant. And it seems that wpa_supplicant or wpa_cli are going
-through a NETDEV_DOWN/NETDEV_UP cycle between a mesh leave and mesh join
-where the NETDEV_UP resets the mesh.ie to NULL via a memcpy of
-default_mesh_setup in cfg80211_netdev_notifier_call, which then avoids
-the memory corruption, too.
+To get this bullet proof, we would have to bounce the entire
+mapping/bounce buffer. For that we would have to figure out the starting
+address, and the size of the mapping in
+swiotlb_sync_single_for_device(). While this does seem possible, there
+seems to be no firm consensus on how things are supposed to work.
 
-The issue was first observed in an application which was not using
-wpa_supplicant but "Senf" instead, which implements its own calls to
-nl80211.
-
-Fixing the issue by removing the kfree()'ing of the mesh IE in the mesh
-join function and leaving it solely up to the mesh leave to free the
-mesh IE.
-
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
 Cc: stable@vger.kernel.org
-Fixes: 6a01afcf8468 ("mac80211: mesh: Free ie data when leaving mesh")
-Reported-by: Matthias Kretschmer <mathias.kretschmer@fit.fraunhofer.de>
-Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
-Tested-by: Mathias Kretschmer <mathias.kretschmer@fit.fraunhofer.de>
-Link: https://lore.kernel.org/r/20220310183513.28589-1-linus.luessing@c0d3.blue
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/cfg.c |    3 ---
- 1 file changed, 3 deletions(-)
+ Documentation/DMA-attributes.txt |   10 ----------
+ include/linux/dma-mapping.h      |    8 --------
+ kernel/dma/swiotlb.c             |   25 ++++++++++++++++---------
+ 3 files changed, 16 insertions(+), 27 deletions(-)
 
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1811,13 +1811,11 @@ static int copy_mesh_setup(struct ieee80
- 		const struct mesh_setup *setup)
- {
- 	u8 *new_ie;
--	const u8 *old_ie;
- 	struct ieee80211_sub_if_data *sdata = container_of(ifmsh,
- 					struct ieee80211_sub_if_data, u.mesh);
+--- a/Documentation/DMA-attributes.txt
++++ b/Documentation/DMA-attributes.txt
+@@ -156,13 +156,3 @@ accesses to DMA buffers in both privileg
+ subsystem that the buffer is fully accessible at the elevated privilege
+ level (and ideally inaccessible or at least read-only at the
+ lesser-privileged levels).
+-
+-DMA_ATTR_PRIVILEGED
+--------------------
+-
+-Some advanced peripherals such as remote processors and GPUs perform
+-accesses to DMA buffers in both privileged "supervisor" and unprivileged
+-"user" modes.  This attribute is used to indicate to the DMA-mapping
+-subsystem that the buffer is fully accessible at the elevated privilege
+-level (and ideally inaccessible or at least read-only at the
+-lesser-privileged levels).
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -71,14 +71,6 @@
+ #define DMA_ATTR_PRIVILEGED		(1UL << 9)
  
- 	/* allocate information elements */
- 	new_ie = NULL;
--	old_ie = ifmsh->ie;
+ /*
+- * This is a hint to the DMA-mapping subsystem that the device is expected
+- * to overwrite the entire mapped size, thus the caller does not require any
+- * of the previous buffer contents to be preserved. This allows
+- * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
+- */
+-#define DMA_ATTR_OVERWRITE		(1UL << 10)
+-
+-/*
+  * A dma_addr_t can hold any valid DMA or bus address for the platform.
+  * It can be given to a device to use as a DMA source or target.  A CPU cannot
+  * reference a dma_addr_t directly because there may be translation between
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -571,10 +571,14 @@ found:
+ 	 */
+ 	for (i = 0; i < nslots; i++)
+ 		io_tlb_orig_addr[index+i] = orig_addr + (i << IO_TLB_SHIFT);
+-	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+-	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
+-	    dir == DMA_BIDIRECTIONAL))
+-		swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
++	/*
++	 * When dir == DMA_FROM_DEVICE we could omit the copy from the orig
++	 * to the tlb buffer, if we knew for sure the device will
++	 * overwirte the entire current content. But we don't. Thus
++	 * unconditional bounce may prevent leaking swiotlb content (i.e.
++	 * kernel memory) to user-space.
++	 */
++	swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
  
- 	if (setup->ie_len) {
- 		new_ie = kmemdup(setup->ie, setup->ie_len,
-@@ -1827,7 +1825,6 @@ static int copy_mesh_setup(struct ieee80
- 	}
- 	ifmsh->ie_len = setup->ie_len;
- 	ifmsh->ie = new_ie;
--	kfree(old_ie);
- 
- 	/* now copy the rest of the setup parameters */
- 	ifmsh->mesh_id_len = setup->mesh_id_len;
+ 	return tlb_addr;
+ }
+@@ -649,11 +653,14 @@ void swiotlb_tbl_sync_single(struct devi
+ 			BUG_ON(dir != DMA_TO_DEVICE);
+ 		break;
+ 	case SYNC_FOR_DEVICE:
+-		if (likely(dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
+-			swiotlb_bounce(orig_addr, tlb_addr,
+-				       size, DMA_TO_DEVICE);
+-		else
+-			BUG_ON(dir != DMA_FROM_DEVICE);
++		/*
++		 * Unconditional bounce is necessary to avoid corruption on
++		 * sync_*_for_cpu or dma_ummap_* when the device didn't
++		 * overwrite the whole lengt of the bounce buffer.
++		 */
++		swiotlb_bounce(orig_addr, tlb_addr,
++			       size, DMA_TO_DEVICE);
++		BUG_ON(!valid_dma_direction(dir));
+ 		break;
+ 	default:
+ 		BUG();
 
 
