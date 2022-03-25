@@ -2,167 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0816C4E792D
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 17:45:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2624F4E7930
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 17:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376861AbiCYQrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 12:47:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
+        id S1376913AbiCYQrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 12:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245408AbiCYQrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 12:47:21 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 63BDDB9191;
-        Fri, 25 Mar 2022 09:45:46 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 06F6C12FC;
-        Fri, 25 Mar 2022 09:45:46 -0700 (PDT)
-Received: from [10.57.41.19] (unknown [10.57.41.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 495323F73D;
-        Fri, 25 Mar 2022 09:45:43 -0700 (PDT)
-Message-ID: <f4224721-4578-61d3-69a7-9a3a76c50529@arm.com>
-Date:   Fri, 25 Mar 2022 16:45:39 +0000
+        with ESMTP id S1376881AbiCYQrW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 12:47:22 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0CABB08B;
+        Fri, 25 Mar 2022 09:45:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1648226746;
+        bh=Y4weAWtXL6C5HMwkvGlahO2StI7dkL/CTmBwMw5J+U8=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=ftxeo+vkDIe/VIf0mnjDpOEd/YTJRyBMqAPNS7jjW3/YnTIBmYEXjAov7n3vv5zN2
+         SLOb4YGTaHSPWCjBhCv5LIIwTUZwsjlpp4ILcM8lzJRDVp2afAd2mg2tFkKIcEIOFT
+         A53HnMZiUnMvV52b0vmEV7ys1DC5WzOpBKBtjfjI=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.33.236]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MbzuB-1o3q691bfL-00daZ0; Fri, 25
+ Mar 2022 17:45:46 +0100
+Message-ID: <67e05375-077f-ebc7-c691-b0a0a31b3479@gmx.de>
+Date:   Fri, 25 Mar 2022 17:45:45 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Content-Language: en-GB
-To:     =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <toke@toke.dk>,
-        mbizon@freebox.fr, Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-References: <1812355.tdWV9SEqCh@natalenko.name>
- <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de>
- <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
- <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
- <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
- <87a6de80em.fsf@toke.dk>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <87a6de80em.fsf@toke.dk>
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Subject: Re: [PATCH 5.17 00/39] 5.17.1-rc1 review
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:9tup9ZxgFss6Bt1mZT5gIdKan7fZ5o+bgIi4AwwM9CsgpdOZ1es
+ POGTrPvRYvcyKgKcsrjN0r+rQvqzEXsmgWIQQNO7RejobHGIbQiLmNGoAispMb2tHS4j4EK
+ WKCEtYog9Ah9uyiETpIO0JOU0i0fLK0OXW7WU6aPEerFSXPzY0JBcE5J4unxk5fXdtQPaA0
+ N4H+RXfHiq9TcGJULTXEw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:skJvsuPxlMw=:mrdiOPgLCXrYpY0imMZZhu
+ 4mlv/6VUiqwjt4g8Xv0xEMlvDEDBTrfkmSEQ3ZXfQNVZVaRVoVqjPnSZEdRjadd/Vh/VuRVw5
+ sXNMXpQaGQ1JgVBqOx/YL1B26doNmr8eE4JuniBSyiJ+cxvO8eKcN3AqoGKYUe3sEnHD+6yoV
+ 4xUtHcCoDC72B1OgNkYEjtByWaKlm5VKWwXdUjMjbYDeGpNuGKA6NxbBXJsTvdUOMAxCffhqm
+ WRqrYre+67cYJIhcG49WT5M2/AbOP5OW9h5RpnsHqzrubnIHKZXgjiHXbvn1+HCg2O8CR5/pg
+ BjPOUu51akcfrvQ7bZ4iko6+Q+43GcUy7QXmNvyYMBQCeyhysK0Zes5RC17dVSkv76yQUPSKX
+ mKIG41ndG07B7BJaR7LKStWPW5bxMBayKhZikNQgZgnVn5wK39nXQmLYXh6oJ1v1hWDeUNYQd
+ bHSvjHGBqhK4rZ0YDsEtfqE0JNMBxw/UAPQlFKGc31V8SSYuKFZaeY1TDjvCX2ycawTVfHUZP
+ RcEe/b3SG1jH7+YyFNsCQx7eCAedkCTOcJTatn/H3bLWeJKjUZAcY+QYPsWJm6/V34LKxkCcb
+ wUH/zA4kTxbH5FReL7TFFFnoLGFvtO/4oN3mQepZw44537lrXeMBVsu8gfJEfsGe6ORsNrpsK
+ z0vW1HpKSzasevZ+G18hanbQWoWCKcNbd5TovnFPn5Ch8W+uG415k9NMN/a92xV6mQHaZkFkd
+ o38uWPkVg5B1w/PHa1ptX/s9dlbbHFZCZbp14tJDKn9lHDplerzu+8aiHNLjhRG4KBF4ZfOGq
+ Hie1a9MsYxuM4xo6HeqTebYn8xwtzYBze74YOYe5dVJy2zG1sIlCLDWutfCmwNeswj0LT+h9R
+ JAOD9al43/2GTUnoIM6Fq85cqP6YfZIwSXAII+urhLjBYNxVX+XOknzfQEmyDmdCqKEZ6UzGO
+ mQe3+g60Xig/no1QqgJka+MEJm1DuvxQWfuWLnjYA31MtloKzGGr6a5UhJsnYLY/CGnEg9IT9
+ BE5kr+aoBzYXXSHt5bwWVHKXETA7J0KnS0LCjQ/ZpafVew78iF7idd5r60p9VZY+iWAL+Xgtr
+ AAJB65hnzDymQM=
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FAKE_REPLY_A1,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-03-25 16:25, Toke Høiland-Jørgensen wrote:
-> Maxime Bizon <mbizon@freebox.fr> writes:
-> 
->> On Thu, 2022-03-24 at 12:26 -0700, Linus Torvalds wrote:
->>
->>>
->>> It's actually very natural in that situation to flush the caches from
->>> the CPU side again. And so dma_sync_single_for_device() is a fairly
->>> reasonable thing to do in that situation.
->>>
->>
->> In the non-cache-coherent scenario, and assuming dma_map() did an
->> initial cache invalidation, you can write this:
->>
->> rx_buffer_complete_1(buf)
->> {
->> 	invalidate_cache(buf, size)
->> 	if (!is_ready(buf))
->> 		return;
->> 	<proceed with receive>
->> }
->>
->> or
->>
->> rx_buffer_complete_2(buf)
->> {
->> 	if (!is_ready(buf)) {
->> 		invalidate_cache(buf, size)
->> 		return;
->> 	}
->> 	<proceed with receive>
->> }
->>
->> The latter is preferred for performance because dma_map() did the
->> initial invalidate.
->>
->> Of course you could write:
->>
->> rx_buffer_complete_3(buf)
->> {
->> 	invalidate_cache(buf, size)
->> 	if
->> (!is_ready(buf)) {
->> 		invalidate_cache(buf, size)
->> 		return;
->> 	}
->> 	
->> <proceed with receive>
->> }
->>
->>
->> but it's a waste of CPU cycles
->>
->> So I'd be very cautious assuming sync_for_cpu() and sync_for_device()
->> are both doing invalidation in existing implementation of arch DMA ops,
->> implementers may have taken some liberty around DMA-API to avoid
->> unnecessary cache operation (not to blame them).
-> 
-> I sense an implicit "and the driver can't (or shouldn't) influence
-> this" here, right?
+hallo Greg
 
-Right, drivers don't get a choice of how a given DMA API implementation 
-works.
+5.17.1-rc1
 
->> For example looking at arch/arm/mm/dma-mapping.c, for DMA_FROM_DEVICE
->>
->> sync_single_for_device()
->>    => __dma_page_cpu_to_dev()
->>      => dma_cache_maint_page(op=dmac_map_area)
->>        => cpu_cache.dma_map_area()
->>
->> sync_single_for_cpu()
->>    => __dma_page_dev_to_cpu()
->>      =>
->> __dma_page_cpu_to_dev(op=dmac_unmap_area)
->>        =>
->> cpu_cache.dma_unmap_area()
->>
->> dma_map_area() always does cache invalidate.
->>
->> But for a couple of CPU variant, dma_unmap_area() is a noop, so
->> sync_for_cpu() does nothing.
->>
->> Toke's patch will break ath9k on those platforms (mostly silent
->> breakage, rx corruption leading to bad performance)
-> 
-> Okay, so that would be bad obviously. So if I'm reading you correctly
-> (cf my question above), we can't fix this properly from the driver side,
-> and we should go with the partial SWIOTLB revert instead?
+compiles, boots and runs on my x86_64
+(Intel i5-11400, Fedora 35)
 
-Do you have any other way of telling if DMA is idle, or temporarily 
-pausing it before the sync_for_cpu, such that you could honour the 
-notion of ownership transfer properly? As mentioned elsewhere I suspect 
-the only "real" fix if you really do need to allow concurrent access is 
-to use the coherent DMA API for buffers rather than streaming mappings, 
-but that's obviously some far more significant surgery.
+btw I get:
 
-Robin.
+iwlwifi 0000:00:14.3: Direct firmware load for
+iwlwifi-QuZ-a0-hr-b0-69.ucode failed with error -2
+
+(not a regression in the 5.17-series, but compared to 5.16.x !)
+
+
+Thanks
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+Ronald
