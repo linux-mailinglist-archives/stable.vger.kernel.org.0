@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3588D4E774D
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 870714E772E
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376578AbiCYP1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42594 "EHLO
+        id S239873AbiCYP1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378078AbiCYPYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91419E29FA;
-        Fri, 25 Mar 2022 08:19:43 -0700 (PDT)
+        with ESMTP id S1377048AbiCYPXk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7DDD082C;
+        Fri, 25 Mar 2022 08:17:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 473A6CE2A47;
-        Fri, 25 Mar 2022 15:19:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5901CC340E9;
-        Fri, 25 Mar 2022 15:19:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A640FB827E0;
+        Fri, 25 Mar 2022 15:17:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CCE3C340E9;
+        Fri, 25 Mar 2022 15:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221580;
-        bh=bOkJy+mMiLrQcWXHlmJVF/rdsYha53wcln9168+rGTw=;
+        s=korg; t=1648221435;
+        bh=lwiHfOehWKXv8eUEDCyQ+9klfyRweBv4MSzqlgnHU8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgUPev4CNqM+RC+kZakxY4+8foeywbMbwIhqvKGgOoRuOC+0Nam/ceI4ypLCSzWiy
-         LH0jrCKv/3IZMVWAwIfS8K0dW8grBPsHDuUAqO0CEpq6a37BluxrGQ313Y4DPVzwHa
-         6uwh3NR5LXGeKI3RjbNiBpO9MufKspLa231CQfEI=
+        b=0fxk3YIMw2GdetlVTKTuZ7xPqZmcQdjHrd67/6jRzy4peQiyE0kTvInspWPPNJu9w
+         rOkkwb8xmOZgB2YSV9GlaL6DgsipStt5jzII47ncfzHg7oRE5ButMjplYyiSBnVkUw
+         4/Tg1QlGAuqxYI9uXEP+As2he62WOMTZPoKFLRO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
-        Arnaud POULIQUEN <arnaud.pouliquen@st.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 04/39] ASoC: sti: Fix deadlock via snd_pcm_stop_xrun() call
+        stable@vger.kernel.org, Jason Zheng <jasonzheng2004@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.16 09/37] ALSA: hda/realtek: Add quirk for ASUS GA402
 Date:   Fri, 25 Mar 2022 16:14:19 +0100
-Message-Id: <20220325150420.373358174@linuxfoundation.org>
+Message-Id: <20220325150420.314693498@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-References: <20220325150420.245733653@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jason Zheng <jasonzheng2004@gmail.com>
 
-commit 455c5653f50e10b4f460ef24e99f0044fbe3401c upstream.
+commit b7557267c233b55d8e8d7ba4c68cf944fe2ec02c upstream.
 
-This is essentially a revert of the commit dc865fb9e7c2 ("ASoC: sti:
-Use snd_pcm_stop_xrun() helper"), which converted the manual
-snd_pcm_stop() calls with snd_pcm_stop_xrun().
+ASUS GA402 requires a workaround to manage the routing of its 4 speakers
+like the other ASUS models. Add a corresponding quirk entry to fix it.
 
-The commit above introduced a deadlock as snd_pcm_stop_xrun() itself
-takes the PCM stream lock while the caller already holds it.  Since
-the conversion was done only for consistency reason and the open-call
-with snd_pcm_stop() to the XRUN state is a correct usage, let's revert
-the commit back as the fix.
-
-Fixes: dc865fb9e7c2 ("ASoC: sti: Use snd_pcm_stop_xrun() helper")
-Reported-by: Daniel Palmer <daniel@0x0f.com>
-Cc: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+Signed-off-by: Jason Zheng <jasonzheng2004@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220315091319.3351522-1-daniel@0x0f.com
+Link: https://lore.kernel.org/r/20220313092216.29858-1-jasonzheng2004@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Reviewed-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Link: https://lore.kernel.org/r/20220315164158.19804-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sti/uniperif_player.c |    6 +++---
- sound/soc/sti/uniperif_reader.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/soc/sti/uniperif_player.c
-+++ b/sound/soc/sti/uniperif_player.c
-@@ -91,7 +91,7 @@ static irqreturn_t uni_player_irq_handle
- 			SET_UNIPERIF_ITM_BCLR_FIFO_ERROR(player);
- 
- 			/* Stop the player */
--			snd_pcm_stop_xrun(player->substream);
-+			snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
- 		}
- 
- 		ret = IRQ_HANDLED;
-@@ -105,7 +105,7 @@ static irqreturn_t uni_player_irq_handle
- 		SET_UNIPERIF_ITM_BCLR_DMA_ERROR(player);
- 
- 		/* Stop the player */
--		snd_pcm_stop_xrun(player->substream);
-+		snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
- 
- 		ret = IRQ_HANDLED;
- 	}
-@@ -138,7 +138,7 @@ static irqreturn_t uni_player_irq_handle
- 		dev_err(player->dev, "Underflow recovery failed\n");
- 
- 		/* Stop the player */
--		snd_pcm_stop_xrun(player->substream);
-+		snd_pcm_stop(player->substream, SNDRV_PCM_STATE_XRUN);
- 
- 		ret = IRQ_HANDLED;
- 	}
---- a/sound/soc/sti/uniperif_reader.c
-+++ b/sound/soc/sti/uniperif_reader.c
-@@ -65,7 +65,7 @@ static irqreturn_t uni_reader_irq_handle
- 	if (unlikely(status & UNIPERIF_ITS_FIFO_ERROR_MASK(reader))) {
- 		dev_err(reader->dev, "FIFO error detected\n");
- 
--		snd_pcm_stop_xrun(reader->substream);
-+		snd_pcm_stop(reader->substream, SNDRV_PCM_STATE_XRUN);
- 
- 		ret = IRQ_HANDLED;
- 	}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8866,6 +8866,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
++	SND_PCI_QUIRK(0x1043, 0x1d42, "ASUS Zephyrus G14 2022", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x16b2, "ASUS GU603", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
 
 
