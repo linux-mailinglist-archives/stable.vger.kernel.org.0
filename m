@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D9D14E75C6
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFA64E75D9
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354044AbiCYPHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36366 "EHLO
+        id S1359550AbiCYPIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:08:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359497AbiCYPHJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:07:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E62DD95F3;
-        Fri, 25 Mar 2022 08:05:31 -0700 (PDT)
+        with ESMTP id S1359716AbiCYPHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:07:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 839F6DA6FC;
+        Fri, 25 Mar 2022 08:06:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41919B828FB;
-        Fri, 25 Mar 2022 15:05:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BBECC340E9;
-        Fri, 25 Mar 2022 15:05:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DADD61BAD;
+        Fri, 25 Mar 2022 15:06:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B984C340EE;
+        Fri, 25 Mar 2022 15:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220728;
-        bh=TqXe9YFq23t1/gzrasVd1FhOgppT1K15PivWNvtui84=;
+        s=korg; t=1648220763;
+        bh=v9JXWRff/E4uOFUY3/SZRxRqFUoYyP8wGxuStZmOvK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btyqAdj/mvr/d7vcov3wjm5yCt8fv3QSl10lVMWG0BRChHDqU4P3dEIpfoRDiM8b4
-         eE/e/X66kP4DtBHLB2da+nF8UBDc717i79fVTBuUnrsK18yghWjXilbLPCjZa62mRa
-         naGxGhNN0IPTuXqQC2JoE61l5dd5OMelnPqC+aXI=
+        b=lk6pH9KMnTkowuES1kZZXwkOHVnomMJG08W6g7/cQeF2SYFyh+A8DYeFLJNvAyHbe
+         XhfOf2VAeKLNZDBJ+E346LK2KMH4GFQ7udAx/ZLYXUdIFLkDg68+E5dcmLtsfQwr8+
+         WRHsvkGlpvV6cgDkanb9/L0XMrC8Q7algUXgAfew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 09/14] netfilter: nf_tables: initialize registers in nft_do_chain()
+        stable@vger.kernel.org, valis <sec@valis.email>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Vaibhav Rustagi <vaibhavrustagi@google.com>
+Subject: [PATCH 4.14 03/17] esp: Fix possible buffer overflow in ESP transformation
 Date:   Fri, 25 Mar 2022 16:04:37 +0100
-Message-Id: <20220325150415.972515117@linuxfoundation.org>
+Message-Id: <20220325150416.860998316@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
-References: <20220325150415.694544076@linuxfoundation.org>
+In-Reply-To: <20220325150416.756136126@linuxfoundation.org>
+References: <20220325150416.756136126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-commit 4c905f6740a365464e91467aa50916555b28213d upstream.
+commit ebe48d368e97d007bfeb76fcb065d6cfc4c96645 upstream.
 
-Initialize registers to avoid stack leak into userspace.
+The maximum message size that can be send is bigger than
+the  maximum site that skb_page_frag_refill can allocate.
+So it is possible to write beyond the allocated buffer.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fix this by doing a fallback to COW in that case.
+
+v2:
+
+Avoid get get_order() costs as suggested by Linus Torvalds.
+
+Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
+Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
+Reported-by: valis <sec@valis.email>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/esp.h  |    2 ++
+ include/net/sock.h |    3 +++
+ net/core/sock.c    |    3 ---
+ net/ipv4/esp4.c    |    5 +++++
+ net/ipv6/esp6.c    |    5 +++++
+ 5 files changed, 15 insertions(+), 3 deletions(-)
 
---- a/net/netfilter/nf_tables_core.c
-+++ b/net/netfilter/nf_tables_core.c
-@@ -127,7 +127,7 @@ nft_do_chain(struct nft_pktinfo *pkt, vo
- 	const struct net *net = pkt->net;
- 	const struct nft_rule *rule;
- 	const struct nft_expr *expr, *last;
--	struct nft_regs regs;
-+	struct nft_regs regs = {};
- 	unsigned int stackptr = 0;
- 	struct nft_jumpstack jumpstack[NFT_JUMP_STACK_SIZE];
- 	struct nft_stats *stats;
+--- a/include/net/esp.h
++++ b/include/net/esp.h
+@@ -4,6 +4,8 @@
+ 
+ #include <linux/skbuff.h>
+ 
++#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
++
+ struct ip_esp_hdr;
+ 
+ static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2438,4 +2438,7 @@ extern int sysctl_optmem_max;
+ extern __u32 sysctl_wmem_default;
+ extern __u32 sysctl_rmem_default;
+ 
++/* On 32bit arches, an skb frag is limited to 2^15 */
++#define SKB_FRAG_PAGE_ORDER	get_order(32768)
++
+ #endif	/* _SOCK_H */
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2193,9 +2193,6 @@ static void sk_leave_memory_pressure(str
+ 	}
+ }
+ 
+-/* On 32bit arches, an skb frag is limited to 2^15 */
+-#define SKB_FRAG_PAGE_ORDER	get_order(32768)
+-
+ /**
+  * skb_page_frag_refill - check that a page_frag contains enough room
+  * @sz: minimum size of the fragment we want to get
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -257,6 +257,7 @@ int esp_output_head(struct xfrm_state *x
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
++	unsigned int allocsz;
+ 
+ 	/* this is non-NULL only with UDP Encapsulation */
+ 	if (x->encap) {
+@@ -266,6 +267,10 @@ int esp_output_head(struct xfrm_state *x
+ 			return err;
+ 	}
+ 
++	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
++	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++		goto cow;
++
+ 	if (!skb_cloned(skb)) {
+ 		if (tailen <= skb_tailroom(skb)) {
+ 			nfrags = 1;
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -223,6 +223,11 @@ int esp6_output_head(struct xfrm_state *
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
++	unsigned int allocsz;
++
++	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
++	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++		goto cow;
+ 
+ 	if (!skb_cloned(skb)) {
+ 		if (tailen <= skb_tailroom(skb)) {
 
 
