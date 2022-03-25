@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0353F4E75B2
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 022E74E75E2
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359506AbiCYPGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:06:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34232 "EHLO
+        id S229492AbiCYPIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:08:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359508AbiCYPGl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:06:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E405D95F5;
-        Fri, 25 Mar 2022 08:05:02 -0700 (PDT)
+        with ESMTP id S1359778AbiCYPIC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:08:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E756D95EC;
+        Fri, 25 Mar 2022 08:06:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0551DB828FD;
-        Fri, 25 Mar 2022 15:05:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 481E0C340F1;
-        Fri, 25 Mar 2022 15:04:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C10561BAD;
+        Fri, 25 Mar 2022 15:06:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14A70C340E9;
+        Fri, 25 Mar 2022 15:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648220699;
-        bh=iwbIWr6epAa0IxLzIYm66uOsbCIzJYOcAod8UUTSvEM=;
+        s=korg; t=1648220772;
+        bh=bfIWFb0ybUOQVhIIC+9w4qMZPczwc+SHltuVhsYoZ+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tgk/psVld1OWZ2/wMDArLn0bsFN0t4YeVEEMhe17qq+010xkHgAYbYRDCAET+y8fC
-         yr9ty/7RBo3Jy8+HPJ7Z9aeb+K/NPTYKhL/KweiHEciWavEsW3bE651piJhjYJgdyO
-         d03ZUevPnKnmnxjgIyErXqiWG55XoaILj3taz9+E=
+        b=APJq1QDhFZEia54q1SaBs3+jvrAqRnSRnfl7+/TQdAG2kdu08KP4uNYYmgi4ByLi3
+         b6HJgQYLksYv38BtGs9MALUpjhj6KREId4pTGbZolpCLjwX/9XCYwMUYax7l8qS1+q
+         T90l6Shx+PuxP5Wfcwnmaa/Jy+ZLw8V3eZgDipKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 12/14] ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        =?UTF-8?q?=E8=B5=B5=E5=AD=90=E8=BD=A9?= <beraphin@gmail.com>,
+        Stoyan Manolov <smanolov@suse.de>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 06/17] llc: fix netdevice reference leaks in llc_ui_bind()
 Date:   Fri, 25 Mar 2022 16:04:40 +0100
-Message-Id: <20220325150416.056811855@linuxfoundation.org>
+Message-Id: <20220325150416.948512863@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
-References: <20220325150415.694544076@linuxfoundation.org>
+In-Reply-To: <20220325150416.756136126@linuxfoundation.org>
+References: <20220325150416.756136126@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit c844d22fe0c0b37dc809adbdde6ceb6462c43acf upstream.
+commit 764f4eb6846f5475f1244767d24d25dd86528a4a upstream.
 
-Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a working
-native and video interface. However the default detection mechanism first
-registers the video interface before unregistering it again and switching
-to the native interface during boot. This results in a dangling SBIOS
-request for backlight change for some reason, causing the backlight to
-switch to ~2% once per boot on the first power cord connect or disconnect
-event. Setting the native interface explicitly circumvents this buggy
-behaviour by avoiding the unregistering process.
+Whenever llc_ui_bind() and/or llc_ui_autobind()
+took a reference on a netdevice but subsequently fail,
+they must properly release their reference
+or risk the infamous message from unregister_netdevice()
+at device dismantle.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+unregister_netdevice: waiting for eth0 to become free. Usage count = 3
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: 赵子轩 <beraphin@gmail.com>
+Reported-by: Stoyan Manolov <smanolov@suse.de>
+Link: https://lore.kernel.org/r/20220323004147.1990845-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   75 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ net/llc/af_llc.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -135,6 +135,81 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "UL30A"),
- 		},
- 	},
-+	/*
-+	 * Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a
-+	 * working native and video interface. However the default detection
-+	 * mechanism first registers the video interface before unregistering
-+	 * it again and switching to the native interface during boot. This
-+	 * results in a dangling SBIOS request for backlight change for some
-+	 * reason, causing the backlight to switch to ~2% once per boot on the
-+	 * first power cord connect or disconnect event. Setting the native
-+	 * interface explicitly circumvents this buggy behaviour, by avoiding
-+	 * the unregistering process.
-+	 */
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
+--- a/net/llc/af_llc.c
++++ b/net/llc/af_llc.c
+@@ -311,6 +311,10 @@ static int llc_ui_autobind(struct socket
+ 	sock_reset_flag(sk, SOCK_ZAPPED);
+ 	rc = 0;
+ out:
++	if (rc) {
++		dev_put(llc->dev);
++		llc->dev = NULL;
++	}
+ 	return rc;
+ }
  
- 	/*
- 	 * These models have a working acpi_video backlight control, and using
+@@ -410,6 +414,10 @@ static int llc_ui_bind(struct socket *so
+ out_put:
+ 	llc_sap_put(sap);
+ out:
++	if (rc) {
++		dev_put(llc->dev);
++		llc->dev = NULL;
++	}
+ 	release_sock(sk);
+ 	return rc;
+ }
 
 
