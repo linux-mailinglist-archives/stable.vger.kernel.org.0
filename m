@@ -2,171 +2,256 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CDC4E6B3D
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 00:33:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43A0A4E6B66
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 01:03:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355961AbiCXXeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Mar 2022 19:34:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47416 "EHLO
+        id S1345835AbiCYAE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Mar 2022 20:04:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355887AbiCXXeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 19:34:14 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D101BB913
-        for <stable@vger.kernel.org>; Thu, 24 Mar 2022 16:32:41 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id c2so5049619pga.10
-        for <stable@vger.kernel.org>; Thu, 24 Mar 2022 16:32:41 -0700 (PDT)
+        with ESMTP id S1356241AbiCYAEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Mar 2022 20:04:55 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D932F037
+        for <stable@vger.kernel.org>; Thu, 24 Mar 2022 17:03:21 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id k21so10757410lfe.4
+        for <stable@vger.kernel.org>; Thu, 24 Mar 2022 17:03:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rAYs/rbY8ihPQvQlSDk6yLxemA+OsekUnouzHs+h4Yo=;
-        b=Mv7LpA0UEhOWSyIXUANugdUmf5+gJk2a0jlpUZotafx/PADp6l+RXxqKDXzFO+XhBF
-         o/UrwH7pCCu9YvJuUKHxaBWe/ociTthgDZDjAFfERSeyeCQjP47Lh0eL3zgcHV0bmOdw
-         yC4en7EySDdeIme3p3Yb2JXPXp02TKbqp+AZkipZNEFoDFd+xA3n8aDX+eKtlbjW3kWj
-         lnYfo3aAVazhHi/wcyc8QlyarRLNDiMAUlI0Jdpt41dzruskj1vCvN8K/pEKb7xmB/kk
-         LagMA67zdeZ7fclJ1DajuT8Mm+oABq+uqRbT1oja43EvjjwgSrUpDG6+lWf80yIsIHW2
-         AHWw==
+        d=telus.net; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lE0uz2QUhbPvsRPS+xDR8d2jsWTSLTtL3Px3m43gjxo=;
+        b=ZA2sdMmCnyy4pT3jYez7FcDc+HDWeio1vNU0hTxtQ435RBOivooLhXdDn2njS2A1qT
+         I1916hJugprsHlFPi7ivdMzVs5OO1nsi8MFPgeS3B++VDN1+NvQ8nE1/ubSzWKzzeFv9
+         0scpvVIHo+JcOnjs3f5f3C5oFYLYNmLagGviQer1MKqDqpbEUeNP0JnCsEJDxN5W1ONo
+         oeCVJVjC6HWFL2we6HkoHLHDC5M6WkNSQ0owA5Jtr+Gax01hbU5/u/GWZ8E6W8tzcdhu
+         m8eUMQskSzXkNB81Og9qMOe9VEwlpV4NEcHbGgCA+Y4qWxt2a26FfeOLrjejiIbc72n3
+         L7Xg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rAYs/rbY8ihPQvQlSDk6yLxemA+OsekUnouzHs+h4Yo=;
-        b=vi2mUOzS5UIHpielZmfkz93IcAgN+KWQqpKB1XpdIEc/IxjFDB5RZZvTGZ5bayIi0g
-         6qoRF+NNMyOgfyN/3msAnW6HcvJ7khW1bnCJhKWbwbhmISsL2BrBIMp5CVAdqTiBPUWk
-         pb7q3WlGn55MhRpw7tz6MRo81EdVYOnwRfkBxZkFatnwOYIUcCXFdOPYkRy6pvwFvwX+
-         2AWo8eZH+MxQRpNLqMxOZvFf2gPkoFKaNujostDrNo/ojde5OAGxlDSpoi3vRUgd+JXk
-         RjpGh4YXbTMmEWsUhzo2ErTojQErwqPIh9gwTZ/DwV7I1sKKn8DanqsLgdYhLJKJPZa1
-         4CuQ==
-X-Gm-Message-State: AOAM533ARqxIfFA2Ot7flMbA7rYZt+Uj8fo45UY+/92BXOjZZWpruY8E
-        yEFx143nuLCe8FAiVSZwEuOC1yDeywdDKOIsJEI=
-X-Google-Smtp-Source: ABdhPJzuLI2v8ep9oO9lEkaWiL8zHy/dA/AI/fXjm0Mzlh0msQDehqB8YsudaZotudLKkIACs5TM7w==
-X-Received: by 2002:aa7:8385:0:b0:4f6:ef47:e943 with SMTP id u5-20020aa78385000000b004f6ef47e943mr7309470pfm.38.1648164760715;
-        Thu, 24 Mar 2022 16:32:40 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r4-20020a638f44000000b0038105776895sm3428001pgn.76.2022.03.24.16.32.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Mar 2022 16:32:40 -0700 (PDT)
-Message-ID: <623cff98.1c69fb81.40629.b0c6@mx.google.com>
-Date:   Thu, 24 Mar 2022 16:32:40 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lE0uz2QUhbPvsRPS+xDR8d2jsWTSLTtL3Px3m43gjxo=;
+        b=Qo5jZX+nHDNLh9XGq02v4t+NaTb73iO/0ZjHkQRKVNO3mW0e/8w5SvnLLruGJIVsNo
+         6MjubDTfqdsvX1ZLOFynAwx/u3IGp55qolzo3AhJN0Rc78Bh+o4r4KuR8XFkpIYbmyxJ
+         WtssZ7YKZorQeaD4UpYkCA44wgUieBvnM4PmXRTztwoqAtFaSAIgV4qFUMHiftGLbfIM
+         ZqHGCDYxFQSzNiy4PF675EYUUZE6QyObqNjE9xB+n30tdZFRrs0L09oQl7aiZ8KlnxzI
+         9/mwRjEFYSLZu36js5b+GA45krAxy80yv1q2S2WSqt5ysZscBNxuCGWNcap0u9g6faZx
+         Xwbw==
+X-Gm-Message-State: AOAM532cnjzcKzkXmlQu+OkM0wBh3kb6qCbteOB4hxiWexj/1GxokXM4
+        RQbSsBzkDf1lX9MY0D0XN3eKFBUIGgl7fEspnLV4/Q==
+X-Google-Smtp-Source: ABdhPJzRYIkxAnyNkuxRr+/Zy/AFRyEOZt0TCLhrToCEcraFzPyQsn77+mmTzS+VJ2E2dsWtbZvUgxehDATShSPx0Wo=
+X-Received: by 2002:a05:6512:260d:b0:445:c06e:8242 with SMTP id
+ bt13-20020a056512260d00b00445c06e8242mr5521939lfb.157.1648166599688; Thu, 24
+ Mar 2022 17:03:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.187-7-g7e2268c1a255
-Subject: stable-rc/queue/5.4 baseline: 49 runs,
- 2 regressions (v5.4.187-7-g7e2268c1a255)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
+ <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
+ <20220228041228.GH4548@shbuild999.sh.intel.com> <11956019.O9o76ZdvQC@kreacher>
+ <20220301055255.GI4548@shbuild999.sh.intel.com> <CAJZ5v0jWUR__zn0=SDDecFct86z-=Y6v5fi37mMyW+zOBi7oWw@mail.gmail.com>
+ <CAAYoRsVLOcww0z4mp9TtGCKdrgeEiL_=FgrUO=rwkZAok4sQdg@mail.gmail.com>
+ <CAJZ5v0hK4zoOtgNQNFkJHC0XOiGsPGUPphHU5og44e_K4kGU9g@mail.gmail.com>
+ <CAAYoRsWN-h+fBAoocGmUFHDkOv2PL+6U59_ASBYH74j0orHaCQ@mail.gmail.com>
+ <CAJZ5v0iOOmRY3uC1-ZGQ30VysMuAjGum=Lt4tkqNUjop+ikqZw@mail.gmail.com>
+ <CAAYoRsVs_CB-dBGShksmXATRP3oGnD6uU-xQdSPjkRER+j6fTQ@mail.gmail.com>
+ <CAAYoRsVnPa-aiKCju7Nz+cznyOo2sbioFks+gU7W7dqWyO8JJw@mail.gmail.com>
+ <CAAYoRsU=SjE2zpQPjxrE6aDzEk6+AZy9DUAJ4Vv2qimbiJ2ySQ@mail.gmail.com>
+ <CAJZ5v0hTOD8Y-ft0jo8KO+RW33ow7_Lm+6gAWA0BpM7o-u4vyQ@mail.gmail.com>
+ <CAAYoRsU-e70mDpKrO_dqdPJTRrPMD8cKmFnyHVoXGEVTFotvUQ@mail.gmail.com>
+ <CAAYoRsXm1giy5yeQcAJmDnwFOQ+U-vYXaiTb-xTm2Ur2hLPxQA@mail.gmail.com> <CAJZ5v0is=Jvr12XYT9BmdJJmUWjuD8iq2T4Udem4FC3vV-nobQ@mail.gmail.com>
+In-Reply-To: <CAJZ5v0is=Jvr12XYT9BmdJJmUWjuD8iq2T4Udem4FC3vV-nobQ@mail.gmail.com>
+From:   Doug Smythies <dsmythies@telus.net>
+Date:   Thu, 24 Mar 2022 17:03:09 -0700
+Message-ID: <CAAYoRsWVKs71cEtXCJ7o+E5YSK9bAVp5_4iAbBJghABDd2m-eA@mail.gmail.com>
+Subject: Re: CPU excessively long times between frequency scaling driver calls
+ - bisected
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        dsmythies <dsmythies@telus.net>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 49 runs, 2 regressions (v5.4.187-7-g7e2268c1a=
-255)
+On Thu, Mar 24, 2022 at 11:17 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+>
+> Hi Doug,
+>
+> On Thu, Mar 24, 2022 at 3:04 PM Doug Smythies <dsmythies@telus.net> wrote:
+> >
+> > Hi Rafael,
+> >
+> > Do you have any suggestions for the proposed patch?
+>
+> Not really.
+>
+> It looks like the avoidance to stop the scheduler tick is sufficient
+> to bump up the PELT signal for this workload in such a way that it
+> doesn't fall below a certain level at all which in turn causes
+> schedutil to ask for higher frequencies.
+>
+> An alternative approach appears to be necessary, but I need some more
+> time for that.
 
-Regressions Summary
--------------------
+Hi Rafael,
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+O.K. thanks for the reply.
+This can be sidelined for now if you prefer.
+As mentioned in one of the off-list emails:
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+I was always aware that we might be heading towards a solution
+tailored to my specific test workflow. It is one relatively simple
+thing to create an example workflow that exploits the issue, but quite
+another to claim that the proposed solution works for any workflow and
+hardware.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.187-7-g7e2268c1a255/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.187-7-g7e2268c1a255
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7e2268c1a255f52829a6cc75bf428394b81a9290 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/623cce9ff12a8b0daa77251c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-7=
--g7e2268c1a255/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-7=
--g7e2268c1a255/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/623cce9ff12a8b0daa772=
-51d
-        failing since 98 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/623cce893498815ff3772537
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-7=
--g7e2268c1a255/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.187-7=
--g7e2268c1a255/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
--virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/623cce893498815ff3772=
-538
-        failing since 98 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =20
+>
+> > I have tried to figure out what is wrong but haven't been able to.
+> >
+> > ... Doug
+> >
+> > On Thu, Mar 17, 2022 at 6:58 AM Doug Smythies <dsmythies@telus.net> wrote:
+> > >
+> > > On Thu, Mar 17, 2022 at 5:30 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > > > On Wed, Mar 16, 2022 at 4:55 PM Doug Smythies <dsmythies@telus.net> wrote:
+> > > > >
+> > > > > Readers: So that graphs and large attachments could be used, I have
+> > > > > been on an off-list branch of this thread with Srinivas, and copied a
+> > > > > couple of others. While now returning to this on-list thread, I'll
+> > > > > only take up Rafael's proposed patch.
+> > > > >
+> > > > > Hi Rafael,
+> > > > >
+> > > > > So far all work has been done with: HWP disabled; intel_pstate; powersave.
+> > > > > The reason was that it is, by far, the best way to obtain good trace data
+> > > > > using the intel_pstate_tracer.py utility.
+> > > > >
+> > > > > I always intended to try/test: HWP disabled; intel_cpufreq; schedutil.
+> > > > > There is an issue with the proposed patch and schedutil.
+> > > > >
+> > > > > If any CPU ever requests a pstate > the max non turbo pstate
+> > > > > then it will stay at that request forever. Ultimately the idle
+> > > > > power goes to about 5.7 watts (verses 1.4 watts expected).
+> > > > > IRQs go very high, as the tick never turns off.
+> > > > > Actually, one knows how many CPUs are stuck requesting a high
+> > > > > pstate just by looking at IRQs.
+> > > >
+> > > > That may be because INTEL_CPUFREQ_TRANSITION_DELAY is too small.
+> > > >
+> > > > Please try to increase
+> > > > /sys/devices/system/cpu/cpufreq/schedutil/rate_limit_us to 10000 and
+> > > > see what difference this makes.
+> > >
+> > > Changing rate_limit_us to 10000, or even 20000, makes no difference.
+> > >
+> > > see a slight clarification to yesterday's email in-line below.
+> > >
+> > > > > Trace is useless because it virtually never gets called.
+> > > > > So I have been reading the IA32_PERF_CTL MSR
+> > > > > directly.
+> > > > >
+> > > > > Example:
+> > > > >
+> > > > > Processor: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
+> > > > > 6 cores, 12 CPUs
+> > > > > min pstate 8
+> > > > > max non-turbo pstate 41
+> > > > > max turbo pstate 48
+> > > > > The system is idle.
+> > > > >
+> > > > > doug@s19:~$ sudo
+> > > > > /home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
+> > > > > --quiet --show Busy%,Bzy_MHz,IRQ,PkgWatt --interval 10
+> > > > > Busy%   Bzy_MHz IRQ     PkgWatt
+> > > > > 0.11    800     844     1.33
+> > > > > 0.01    800     231     1.33
+> > > > > 0.11    800     723     1.33 <<< Powersave governor
+> > > > > 0.03    889     440     1.33
+> > > > > 0.17    4418    21511   4.31 <<< Schedutil governor
+> > > > > 0.12    4101    30153   4.48 <<< 3 CPUs are > pstate 41
+> > > > > 0.22    4347    34226   4.75
+> > > > > 0.17    4101    43554   4.78
+> > > > > 0.29    4300    50565   4.94
+> > > > > 0.21    4098    50297   4.76 <<< 5 CPUs are > pstate 41
+> > > > > 0.29    4298    50532   4.84
+> > > > > 0.20    4101    50126   4.63
+> > > > > 0.20    4101    50149   4.62
+> > > > > 0.29    4297    50623   4.76
+> > > > > 0.20    4101    50203   4.72
+> > > > > 0.29    4295    50642   4.78
+> > > > > 0.20    4101    50223   4.68
+> > > > > 0.29    4292    50597   4.88
+> > > > > 0.20    4101    50208   4.73
+> > > > > 0.29    4296    50519   4.84
+> > > > > 0.20    4101    50167   4.80
+> > > > > 0.20    4101    50242   4.76
+> > > > > 0.29    4302    50625   4.94
+> > > > > 0.20    4101    50233   4.73
+> > > > > 0.29    4296    50613   4.78
+> > > > > 0.20    4101    50231   4.70
+> > > > > 0.29    4292    50802   4.93
+> > > > > 1.46    4669    65610   8.36
+> > > > > 0.41    4225    80701   5.48
+> > > > > 0.33    4101    80219   5.36 <<< 8 CPUs are > ptstate 41
+> > > > > 0.34    4098    80313   5.38
+> > > > > 0.41    4228    80689   5.56
+> > > > > 0.33    4101    80252   5.46
+> > > > >
+> > > > > And the related MSR reads:
+> > > > >
+> > > > > 3 CPUs are > pstate 41:
+> > > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
+> > > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  30 :   8 :   8 :  48 :
+> > > > > 48 :  48 :   8 :  30 :  31 :   8 :   8 :   8 :
+> > > > >
+> > > > > 5 CPUs are > psate 41:
+> > > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
+> > > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  44 :  30 :  31 :  48 :
+> > > > > 48 :  48 :   8 :   8 :   8 :   8 :  48 :   8 :
+> > > > >
+> > > > > 8 CPUs are > pstate 41:
+> > > > > root@s19:/home/doug# c/msr-decoder | grep IA32_PERF_CTL
+> > > > > 9.) 0x199: IA32_PERF_CTL        : CPU 0-11 :  45 :  48 :  48 :  48 :
+> > > > > 48 :  48 :   8 :  30 :   8 :   8 :  48 :  42 :
+> > > > >
+> > > > > This issue is independent of the original patch or the suggested modification:
+> > >
+> > > Actually, the issue threshold is as defined by the greater than condition below.
+> > >
+> > > > >
+> > > > > > diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+> > > > > > index f878a4545eee..94018ac0b59b 100644
+> > > > > > --- a/drivers/cpufreq/intel_pstate.c
+> > > > > > +++ b/drivers/cpufreq/intel_pstate.c
+> > > > > > @@ -1980,7 +1980,7 @@ static void intel_pstate_update_perf_ctl(struct
+> > > > > > cpudata *cpu)
+> > > > > >          * P-states to prevent them from getting back to the high frequency
+> > > > > >          * right away after getting out of deep idle.
+> > > > > >          */
+> > > > > > -       cpuidle_update_retain_tick(pstate > cpu->pstate.max_pstate);
+> > >
+> > > For the above kernel the threshold is pstate 42.
+> > >
+> > > > > > +       cpuidle_update_retain_tick(pstate > ((cpu->pstate.max_pstate +
+> > > > > > cpu->pstate.min_pstate)/2));
+> > >
+> > > For the above kernel the threshold is pstate 25.
+> > >
+> > > > > >         wrmsrl(MSR_IA32_PERF_CTL, pstate_funcs.get_val(cpu, pstate));
+> > > > > >  }
+> > > > >
+> > > > > ... Doug
