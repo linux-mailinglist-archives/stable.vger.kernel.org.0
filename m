@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 946E94E76BE
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:17:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E11F84E76C8
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:18:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376336AbiCYPTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:19:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38858 "EHLO
+        id S1353951AbiCYPT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:19:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376371AbiCYPS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:18:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6C9DEBAB;
-        Fri, 25 Mar 2022 08:15:08 -0700 (PDT)
+        with ESMTP id S1376378AbiCYPTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:19:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9CCDFD72;
+        Fri, 25 Mar 2022 08:15:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 064A560A73;
-        Fri, 25 Mar 2022 15:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C168C340E9;
-        Fri, 25 Mar 2022 15:14:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 51351CE2A52;
+        Fri, 25 Mar 2022 15:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA2EC340E9;
+        Fri, 25 Mar 2022 15:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221298;
-        bh=q4yisZHCankKIcaEBoaOV+QCs/SEnOGaAYxROdpfo3g=;
+        s=korg; t=1648221301;
+        bh=NHAaKMt9HrxNA462vkEI8qLSD2LtZZgfaKLsxWUH5UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcj7jxuU+qWbyiw+vjDN/DEr0vb9lNqVook5gQvXCIZXLhvi2ZQIZVwizuwt6Z2eG
-         De8O0YtyJhBq+WNRAHNsX6GYBPG+JibqEJA8PgcykTTheeXRxJ+cG1YqR0D9hrecX7
-         vsqIsrsWS1yi6ftxXLFUl8jxd6LzxjsZEBySPtmI=
+        b=fWGQqZZ8dMvbXBrtuE5332sWbFvinIs1jY4gIaqaMnRPQqYlz9vnCCvOXoSPD6cTw
+         SvzWwxdaJfLCTKK+dny2hl3nbKRIJN9B4+lrAQE8zs00dpJMMRxpzUuRBAvA1RKa33
+         iXC73ynFpdX9EyLychIc8330BnHFkTv3dEfV6280=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hu Jiahui <kirin.say@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 13/37] ALSA: pcm: Fix races among concurrent hw_params and hw_free calls
-Date:   Fri, 25 Mar 2022 16:14:14 +0100
-Message-Id: <20220325150420.313873846@linuxfoundation.org>
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 14/37] ALSA: pcm: Fix races among concurrent read/write and buffer changes
+Date:   Fri, 25 Mar 2022 16:14:15 +0100
+Message-Id: <20220325150420.341990836@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
 References: <20220325150419.931802116@linuxfoundation.org>
@@ -55,177 +55,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 92ee3c60ec9fe64404dc035e7c41277d74aa26cb upstream.
+commit dca947d4d26dbf925a64a6cfb2ddbc035e831a3d upstream.
 
-Currently we have neither proper check nor protection against the
-concurrent calls of PCM hw_params and hw_free ioctls, which may result
-in a UAF.  Since the existing PCM stream lock can't be used for
-protecting the whole ioctl operations, we need a new mutex to protect
-those racy calls.
+In the current PCM design, the read/write syscalls (as well as the
+equivalent ioctls) are allowed before the PCM stream is running, that
+is, at PCM PREPARED state.  Meanwhile, we also allow to re-issue
+hw_params and hw_free ioctl calls at the PREPARED state that may
+change or free the buffers, too.  The problem is that there is no
+protection against those mix-ups.
 
-This patch introduced a new mutex, runtime->buffer_mutex, and applies
-it to both hw_params and hw_free ioctl code paths.  Along with it, the
-both functions are slightly modified (the mmap_count check is moved
-into the state-check block) for code simplicity.
+This patch applies the previously introduced runtime->buffer_mutex to
+the read/write operations so that the concurrent hw_params or hw_free
+call can no longer interfere during the operation.  The mutex is
+unlocked before scheduling, so we don't take it too long.
 
-Reported-by: Hu Jiahui <kirin.say@gmail.com>
 Cc: <stable@vger.kernel.org>
 Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322170720.3529-2-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220322170720.3529-3-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/pcm.h     |    1 
- sound/core/pcm.c        |    2 +
- sound/core/pcm_native.c |   61 ++++++++++++++++++++++++++++++------------------
- 3 files changed, 42 insertions(+), 22 deletions(-)
+ sound/core/pcm_lib.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -398,6 +398,7 @@ struct snd_pcm_runtime {
- 	wait_queue_head_t tsleep;	/* transfer sleep */
- 	struct fasync_struct *fasync;
- 	bool stop_operating;		/* sync_stop will be called */
-+	struct mutex buffer_mutex;	/* protect for buffer changes */
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1905,9 +1905,11 @@ static int wait_for_avail(struct snd_pcm
+ 		if (avail >= runtime->twake)
+ 			break;
+ 		snd_pcm_stream_unlock_irq(substream);
++		mutex_unlock(&runtime->buffer_mutex);
  
- 	/* -- private section -- */
- 	void *private_data;
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -969,6 +969,7 @@ int snd_pcm_attach_substream(struct snd_
- 	init_waitqueue_head(&runtime->tsleep);
+ 		tout = schedule_timeout(wait_time);
  
- 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
-+	mutex_init(&runtime->buffer_mutex);
++		mutex_lock(&runtime->buffer_mutex);
+ 		snd_pcm_stream_lock_irq(substream);
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		switch (runtime->status->state) {
+@@ -2201,6 +2203,7 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
  
- 	substream->runtime = runtime;
- 	substream->private_data = pcm->private_data;
-@@ -1002,6 +1003,7 @@ void snd_pcm_detach_substream(struct snd
- 	} else {
- 		substream->runtime = NULL;
- 	}
-+	mutex_destroy(&runtime->buffer_mutex);
- 	kfree(runtime);
- 	put_pid(substream->pid);
- 	substream->pid = NULL;
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -672,33 +672,40 @@ static int snd_pcm_hw_params_choose(stru
- 	return 0;
- }
+ 	nonblock = !!(substream->f_flags & O_NONBLOCK);
  
-+#if IS_ENABLED(CONFIG_SND_PCM_OSS)
-+#define is_oss_stream(substream)	((substream)->oss.oss)
-+#else
-+#define is_oss_stream(substream)	false
-+#endif
-+
- static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 			     struct snd_pcm_hw_params *params)
- {
- 	struct snd_pcm_runtime *runtime;
--	int err, usecs;
-+	int err = 0, usecs;
- 	unsigned int bits;
- 	snd_pcm_uframes_t frames;
- 
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
 +	mutex_lock(&runtime->buffer_mutex);
  	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_OPEN:
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (!is_oss_stream(substream) &&
-+		    atomic_read(&substream->mmap_count))
-+			err = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		err = -EBADFD;
-+		break;
- 	}
+ 	err = pcm_accessible_state(runtime);
+ 	if (err < 0)
+@@ -2288,6 +2291,7 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
+ 	if (xfer > 0 && err >= 0)
+ 		snd_pcm_update_state(substream, runtime);
  	snd_pcm_stream_unlock_irq(substream);
--#if IS_ENABLED(CONFIG_SND_PCM_OSS)
--	if (!substream->oss.oss)
--#endif
--		if (atomic_read(&substream->mmap_count))
--			return -EBADFD;
-+	if (err)
-+		goto unlock;
- 
- 	snd_pcm_sync_stop(substream, true);
- 
-@@ -786,16 +793,21 @@ static int snd_pcm_hw_params(struct snd_
- 	if (usecs >= 0)
- 		cpu_latency_qos_add_request(&substream->latency_pm_qos_req,
- 					    usecs);
--	return 0;
-+	err = 0;
-  _error:
--	/* hardware might be unusable from this time,
--	   so we force application to retry to set
--	   the correct hardware parameter settings */
--	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
--	if (substream->ops->hw_free != NULL)
--		substream->ops->hw_free(substream);
--	if (substream->managed_buffer_alloc)
--		snd_pcm_lib_free_pages(substream);
-+	if (err) {
-+		/* hardware might be unusable from this time,
-+		 * so we force application to retry to set
-+		 * the correct hardware parameter settings
-+		 */
-+		snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
-+		if (substream->ops->hw_free != NULL)
-+			substream->ops->hw_free(substream);
-+		if (substream->managed_buffer_alloc)
-+			snd_pcm_lib_free_pages(substream);
-+	}
-+ unlock:
 +	mutex_unlock(&runtime->buffer_mutex);
- 	return err;
+ 	return xfer > 0 ? (snd_pcm_sframes_t)xfer : err;
  }
- 
-@@ -835,26 +847,31 @@ static int do_hw_free(struct snd_pcm_sub
- static int snd_pcm_hw_free(struct snd_pcm_substream *substream)
- {
- 	struct snd_pcm_runtime *runtime;
--	int result;
-+	int result = 0;
- 
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
-+	mutex_lock(&runtime->buffer_mutex);
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (atomic_read(&substream->mmap_count))
-+			result = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		result = -EBADFD;
-+		break;
- 	}
- 	snd_pcm_stream_unlock_irq(substream);
--	if (atomic_read(&substream->mmap_count))
--		return -EBADFD;
-+	if (result)
-+		goto unlock;
- 	result = do_hw_free(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
- 	cpu_latency_qos_remove_request(&substream->latency_pm_qos_req);
-+ unlock:
-+	mutex_unlock(&runtime->buffer_mutex);
- 	return result;
- }
- 
+ EXPORT_SYMBOL(__snd_pcm_lib_xfer);
 
 
