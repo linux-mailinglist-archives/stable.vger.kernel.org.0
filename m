@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D074E76E8
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:19:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C604E772F
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376427AbiCYPVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:21:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57778 "EHLO
+        id S1376624AbiCYP1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376424AbiCYPU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:20:28 -0400
+        with ESMTP id S1377093AbiCYPXr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBDF2E29FC;
-        Fri, 25 Mar 2022 08:15:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08778E541A;
+        Fri, 25 Mar 2022 08:17:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE7FCB82865;
-        Fri, 25 Mar 2022 15:15:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E38DC340E9;
-        Fri, 25 Mar 2022 15:15:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9921BB827DC;
+        Fri, 25 Mar 2022 15:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E728BC340F3;
+        Fri, 25 Mar 2022 15:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221339;
-        bh=Ugr3Tis7R5v9mJReP/aoaxVEShg8W48rXk635+mcSrM=;
+        s=korg; t=1648221441;
+        bh=ZL+8ydCMGRKhWsfFAPutnN1aOnRs3fe+7ylbkThUBKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w7tYT3F6FgDfO68DCtO5PI870n83yU9KRCa2pPW7Q9PMCgRWiPIGm0/kEvspR3EEK
-         W6jfOPvfEv1nVWnBfeKouO8g8I3A7hlUvOs1IYKj/8vcBgoFYKcoQiz8h0WxoK/iuU
-         eNgyLp7prHIzCaVuGTRPDruNWq5vCkkKD7twS5kM=
+        b=X+Hl4cTnn/TZvlAIv5m6iO/Mbob13xWxjpWZwj/HnV1ZJw5h8tXx7E8VT2G7aJf6V
+         SPDQwAh88ZTZYF4UhoTVLSls5Q4hgPuXXfsNniuhiMGlKdLYpvFh/JZ5QcQuv2/9pE
+         4H973lBfTPTRw2rF1aexEOQ+7ErQkqy6mMYqW2rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 26/37] ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.16 17/37] ALSA: pcm: Add stream lock during PCM reset ioctl operations
 Date:   Fri, 25 Mar 2022 16:14:27 +0100
-Message-Id: <20220325150420.679985772@linuxfoundation.org>
+Message-Id: <20220325150420.538975999@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
-References: <20220325150419.931802116@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c844d22fe0c0b37dc809adbdde6ceb6462c43acf upstream.
+commit 1f68915b2efd0d6bfd6e124aa63c94b3c69f127c upstream.
 
-Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a working
-native and video interface. However the default detection mechanism first
-registers the video interface before unregistering it again and switching
-to the native interface during boot. This results in a dangling SBIOS
-request for backlight change for some reason, causing the backlight to
-switch to ~2% once per boot on the first power cord connect or disconnect
-event. Setting the native interface explicitly circumvents this buggy
-behaviour by avoiding the unregistering process.
+snd_pcm_reset() is a non-atomic operation, and it's allowed to run
+during the PCM stream running.  It implies that the manipulation of
+hw_ptr and other parameters might be racy.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This patch adds the PCM stream lock at appropriate places in
+snd_pcm_*_reset() actions for covering that.
+
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322171325.4355-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   75 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ sound/core/pcm_native.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -409,6 +409,81 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "GA503"),
- 		},
- 	},
-+	/*
-+	 * Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a
-+	 * working native and video interface. However the default detection
-+	 * mechanism first registers the video interface before unregistering
-+	 * it again and switching to the native interface during boot. This
-+	 * results in a dangling SBIOS request for backlight change for some
-+	 * reason, causing the backlight to switch to ~2% once per boot on the
-+	 * first power cord connect or disconnect event. Setting the native
-+	 * interface explicitly circumvents this buggy behaviour, by avoiding
-+	 * the unregistering process.
-+	 */
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xRU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "Clevo NL5xNU",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
-+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
-+		},
-+	},
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1851,11 +1851,13 @@ static int snd_pcm_do_reset(struct snd_p
+ 	int err = snd_pcm_ops_ioctl(substream, SNDRV_PCM_IOCTL1_RESET, NULL);
+ 	if (err < 0)
+ 		return err;
++	snd_pcm_stream_lock_irq(substream);
+ 	runtime->hw_ptr_base = 0;
+ 	runtime->hw_ptr_interrupt = runtime->status->hw_ptr -
+ 		runtime->status->hw_ptr % runtime->period_size;
+ 	runtime->silence_start = runtime->status->hw_ptr;
+ 	runtime->silence_filled = 0;
++	snd_pcm_stream_unlock_irq(substream);
+ 	return 0;
+ }
  
- 	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
+@@ -1863,10 +1865,12 @@ static void snd_pcm_post_reset(struct sn
+ 			       snd_pcm_state_t state)
+ {
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
++	snd_pcm_stream_lock_irq(substream);
+ 	runtime->control->appl_ptr = runtime->status->hw_ptr;
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
+ 	    runtime->silence_size > 0)
+ 		snd_pcm_playback_silence(substream, ULONG_MAX);
++	snd_pcm_stream_unlock_irq(substream);
+ }
+ 
+ static const struct action_ops snd_pcm_action_reset = {
 
 
