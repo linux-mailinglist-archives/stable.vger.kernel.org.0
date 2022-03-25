@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 238774E7732
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F834E7744
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376635AbiCYP1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:27:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33110 "EHLO
+        id S1354956AbiCYP1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377201AbiCYPX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DEDEDE0BA;
-        Fri, 25 Mar 2022 08:17:33 -0700 (PDT)
+        with ESMTP id S1377879AbiCYPYk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:24:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1298EA75C;
+        Fri, 25 Mar 2022 08:19:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 208B160F13;
-        Fri, 25 Mar 2022 15:17:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3066EC340EE;
-        Fri, 25 Mar 2022 15:17:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64781B828FA;
+        Fri, 25 Mar 2022 15:19:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A74C2C340F7;
+        Fri, 25 Mar 2022 15:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221452;
-        bh=bYSefRWEQBGZ6V7g4qvKgTV4xvV30nsyFbO/KZhTytQ=;
+        s=korg; t=1648221549;
+        bh=Pg6em72K018Eqof3c8I+K4jp9DCN9Fb0iTpcS+ryPf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FP7SFj4lVyFtyifP4GkAXiCdjs3MUYda8OpUGuluTIiHw0zwd2kBRvaB9Brphbkii
-         ewXYNKXsXyYyzcpj+eC7E5D76LqawWnefpyRU28QjGKEzXfM9NxuM2eRYgpSiDxcX3
-         owMdY98ieTKO44V3vF/jyntrvu3qjoZAHAbYySDs=
+        b=g36v0mwW/ROErRAkrKpCF88WwIzFOHAtDK5DOgpkMy5gqlqex1xqV3MbTPlZCbVDs
+         hB/qVusesjlL6+dTwoAakwbWKZzTAmLG++YRz044Z0oCxNVN1/SejOKe7HYC0JtrYd
+         vdu91dM8uVRPeF4nrosI9H1ZfWeiQCYzGKh5F3rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <quic_kvalo@quicinc.com>
-Subject: [PATCH 5.16 29/37] Revert "ath: add support for special 0x0 regulatory domain"
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.17 24/39] ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU
 Date:   Fri, 25 Mar 2022 16:14:39 +0100
-Message-Id: <20220325150420.878755867@linuxfoundation.org>
+Message-Id: <20220325150420.934066864@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-References: <20220325150420.046488912@linuxfoundation.org>
+In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
+References: <20220325150420.245733653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +53,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit 1ec7ed5163c70a0d040150d2279f932c7e7c143f upstream.
+commit c844d22fe0c0b37dc809adbdde6ceb6462c43acf upstream.
 
-This reverts commit 2dc016599cfa9672a147528ca26d70c3654a5423.
+Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a working
+native and video interface. However the default detection mechanism first
+registers the video interface before unregistering it again and switching
+to the native interface during boot. This results in a dangling SBIOS
+request for backlight change for some reason, causing the backlight to
+switch to ~2% once per boot on the first power cord connect or disconnect
+event. Setting the native interface explicitly circumvents this buggy
+behaviour by avoiding the unregistering process.
 
-Users are reporting regressions in regulatory domain detection and
-channel availability.
-
-The problem this was trying to resolve was fixed in firmware anyway:
-
-    QCA6174 hw3.0: sdio-4.4.1: add firmware.bin_WLAN.RMH.4.4.1-00042
-    https://github.com/kvalo/ath10k-firmware/commit/4d382787f0efa77dba40394e0bc604f8eff82552
-
-Link: https://bbs.archlinux.org/viewtopic.php?id=254535
-Link: http://lists.infradead.org/pipermail/ath10k/2020-April/014871.html
-Link: http://lists.infradead.org/pipermail/ath10k/2020-May/015152.html
-Link: https://lore.kernel.org/all/1c160dfb-6ccc-b4d6-76f6-4364e0adb6dd@reox.at/
-Fixes: 2dc016599cfa ("ath: add support for special 0x0 regulatory domain")
-Cc: <stable@vger.kernel.org>
-Cc: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20200527165718.129307-1-briannorris@chromium.org
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/regd.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/acpi/video_detect.c |   75 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
---- a/drivers/net/wireless/ath/regd.c
-+++ b/drivers/net/wireless/ath/regd.c
-@@ -667,14 +667,14 @@ ath_regd_init_wiphy(struct ath_regulator
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -415,6 +415,81 @@ static const struct dmi_system_id video_
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "GA503"),
+ 		},
+ 	},
++	/*
++	 * Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a
++	 * working native and video interface. However the default detection
++	 * mechanism first registers the video interface before unregistering
++	 * it again and switching to the native interface during boot. This
++	 * results in a dangling SBIOS request for backlight change for some
++	 * reason, causing the backlight to switch to ~2% once per boot on the
++	 * first power cord connect or disconnect event. Setting the native
++	 * interface explicitly circumvents this buggy behaviour, by avoiding
++	 * the unregistering process.
++	 */
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xRU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xRU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
++		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xRU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
++		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xRU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xRU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xNU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xNU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
++		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "Clevo NL5xNU",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
++		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
++		},
++	},
  
- /*
-  * Some users have reported their EEPROM programmed with
-- * 0x8000 or 0x0 set, this is not a supported regulatory
-- * domain but since we have more than one user with it we
-- * need a solution for them. We default to 0x64, which is
-- * the default Atheros world regulatory domain.
-+ * 0x8000 set, this is not a supported regulatory domain
-+ * but since we have more than one user with it we need
-+ * a solution for them. We default to 0x64, which is the
-+ * default Atheros world regulatory domain.
-  */
- static void ath_regd_sanitize(struct ath_regulatory *reg)
- {
--	if (reg->current_rd != COUNTRY_ERD_FLAG && reg->current_rd != 0)
-+	if (reg->current_rd != COUNTRY_ERD_FLAG)
- 		return;
- 	printk(KERN_DEBUG "ath: EEPROM regdomain sanitized\n");
- 	reg->current_rd = 0x64;
+ 	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
 
 
