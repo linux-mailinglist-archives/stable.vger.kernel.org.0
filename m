@@ -2,88 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2624F4E7930
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 17:45:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DF484E7950
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 17:51:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376913AbiCYQrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 12:47:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54036 "EHLO
+        id S245541AbiCYQxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 12:53:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376881AbiCYQrW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 12:47:22 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0CABB08B;
-        Fri, 25 Mar 2022 09:45:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1648226746;
-        bh=Y4weAWtXL6C5HMwkvGlahO2StI7dkL/CTmBwMw5J+U8=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=ftxeo+vkDIe/VIf0mnjDpOEd/YTJRyBMqAPNS7jjW3/YnTIBmYEXjAov7n3vv5zN2
-         SLOb4YGTaHSPWCjBhCv5LIIwTUZwsjlpp4ILcM8lzJRDVp2afAd2mg2tFkKIcEIOFT
-         A53HnMZiUnMvV52b0vmEV7ys1DC5WzOpBKBtjfjI=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.33.236]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MbzuB-1o3q691bfL-00daZ0; Fri, 25
- Mar 2022 17:45:46 +0100
-Message-ID: <67e05375-077f-ebc7-c691-b0a0a31b3479@gmx.de>
-Date:   Fri, 25 Mar 2022 17:45:45 +0100
+        with ESMTP id S241225AbiCYQxI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 12:53:08 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 957A2E38B9
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 09:51:34 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id p17so8649972plo.9
+        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 09:51:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YGCfn5InYqHlx9AMADDw9DVpiPfzh0buR5MM5iQ6FpA=;
+        b=wKGEKQZI1UPFT0yd/szxVU/91dxMS2nW50Wv6dvb6K1ckR3ub1+bmE2yEHR1xh5NWD
+         eFch/csFzGROeSlhH4B4QqjLy7lfXFBf4aK2QQLhZksJ8Ws9j7p61yQ+hkU0uItEdypM
+         gSB8MqsCKp05VN3fjLTNTsqs0jqxdXv0dzeugXe+/k7MiH9PsOxzbmve1qFF0eYy9rW9
+         8DOJGqML/3XHQ5m/xxVaG9GrkoWESY1Zfc+pkKvUHCl6hswFJ5i1pfTZDyruVHzDWkJV
+         +wzOmXUefWWzQtLOXrZKOPA3Nvvcbp/OnLT8Y5l+I0DMUbzagfIYMeMHYPw4FHONi7Di
+         0W9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YGCfn5InYqHlx9AMADDw9DVpiPfzh0buR5MM5iQ6FpA=;
+        b=C/IreTzw8FnUdKj8J/bhw1nsaM2NweB9pW7H2lmKF7Y7PAO8UtB2OCUiMaAKtyJ9R3
+         8bz+Odz7doxpXWU9IRxSgGLjzr6JgRGQzOQUYwjiMQhDoUMi4pdlyJb7+hgK0KSya7e9
+         u2IVJKoNrpp+wtWGhyq5t/VHP0IUcrD6SqQ4zqdrevte9umWXg4fE1nAybFZmbgcZFD5
+         ZadE+Y4EJwsVHZSx2F5cQmBd6yLTC/2PwL6A9E8dYxkinZvnHxvpVPau2fZMD4ApZkbC
+         3joD/7EWVchGw0vHNMjWJbYNA6Lfh8W5BH3YHOcJ1CUhSIKzS15kgZ1igIgDPYuRKPyB
+         g8GQ==
+X-Gm-Message-State: AOAM5319L9ihk1wck7plcjV/2y/6l1X/RsA3rMGAvtaOOc+ovmdV72ck
+        XSAUHoAGLfYxusUdSvO2If0oGIYDPYFJYrq+gRU=
+X-Google-Smtp-Source: ABdhPJyR7SyUVz5bpWavTpN/NAMgxLCQH1dTGxfnz9tjRUv30KByU195pZ0S+YRbwqPlFzJih9udhg==
+X-Received: by 2002:a17:90a:5291:b0:1bb:ef4d:947d with SMTP id w17-20020a17090a529100b001bbef4d947dmr25879976pjh.243.1648227093972;
+        Fri, 25 Mar 2022 09:51:33 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o22-20020a056a0015d600b004fb03c903c3sm4191593pfu.71.2022.03.25.09.51.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Mar 2022 09:51:33 -0700 (PDT)
+Message-ID: <623df315.1c69fb81.4cb48.bc57@mx.google.com>
+Date:   Fri, 25 Mar 2022 09:51:33 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
-Subject: Re: [PATCH 5.17 00/39] 5.17.1-rc1 review
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:9tup9ZxgFss6Bt1mZT5gIdKan7fZ5o+bgIi4AwwM9CsgpdOZ1es
- POGTrPvRYvcyKgKcsrjN0r+rQvqzEXsmgWIQQNO7RejobHGIbQiLmNGoAispMb2tHS4j4EK
- WKCEtYog9Ah9uyiETpIO0JOU0i0fLK0OXW7WU6aPEerFSXPzY0JBcE5J4unxk5fXdtQPaA0
- N4H+RXfHiq9TcGJULTXEw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:skJvsuPxlMw=:mrdiOPgLCXrYpY0imMZZhu
- 4mlv/6VUiqwjt4g8Xv0xEMlvDEDBTrfkmSEQ3ZXfQNVZVaRVoVqjPnSZEdRjadd/Vh/VuRVw5
- sXNMXpQaGQ1JgVBqOx/YL1B26doNmr8eE4JuniBSyiJ+cxvO8eKcN3AqoGKYUe3sEnHD+6yoV
- 4xUtHcCoDC72B1OgNkYEjtByWaKlm5VKWwXdUjMjbYDeGpNuGKA6NxbBXJsTvdUOMAxCffhqm
- WRqrYre+67cYJIhcG49WT5M2/AbOP5OW9h5RpnsHqzrubnIHKZXgjiHXbvn1+HCg2O8CR5/pg
- BjPOUu51akcfrvQ7bZ4iko6+Q+43GcUy7QXmNvyYMBQCeyhysK0Zes5RC17dVSkv76yQUPSKX
- mKIG41ndG07B7BJaR7LKStWPW5bxMBayKhZikNQgZgnVn5wK39nXQmLYXh6oJ1v1hWDeUNYQd
- bHSvjHGBqhK4rZ0YDsEtfqE0JNMBxw/UAPQlFKGc31V8SSYuKFZaeY1TDjvCX2ycawTVfHUZP
- RcEe/b3SG1jH7+YyFNsCQx7eCAedkCTOcJTatn/H3bLWeJKjUZAcY+QYPsWJm6/V34LKxkCcb
- wUH/zA4kTxbH5FReL7TFFFnoLGFvtO/4oN3mQepZw44537lrXeMBVsu8gfJEfsGe6ORsNrpsK
- z0vW1HpKSzasevZ+G18hanbQWoWCKcNbd5TovnFPn5Ch8W+uG415k9NMN/a92xV6mQHaZkFkd
- o38uWPkVg5B1w/PHa1ptX/s9dlbbHFZCZbp14tJDKn9lHDplerzu+8aiHNLjhRG4KBF4ZfOGq
- Hie1a9MsYxuM4xo6HeqTebYn8xwtzYBze74YOYe5dVJy2zG1sIlCLDWutfCmwNeswj0LT+h9R
- JAOD9al43/2GTUnoIM6Fq85cqP6YfZIwSXAII+urhLjBYNxVX+XOknzfQEmyDmdCqKEZ6UzGO
- mQe3+g60Xig/no1QqgJka+MEJm1DuvxQWfuWLnjYA31MtloKzGGr6a5UhJsnYLY/CGnEg9IT9
- BE5kr+aoBzYXXSHt5bwWVHKXETA7J0KnS0LCjQ/ZpafVew78iF7idd5r60p9VZY+iWAL+Xgtr
- AAJB65hnzDymQM=
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FAKE_REPLY_A1,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.108
+Subject: stable/linux-5.10.y baseline: 106 runs, 1 regressions (v5.10.108)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo Greg
+stable/linux-5.10.y baseline: 106 runs, 1 regressions (v5.10.108)
 
-5.17.1-rc1
+Regressions Summary
+-------------------
 
-compiles, boots and runs on my x86_64
-(Intel i5-11400, Fedora 35)
-
-btw I get:
-
-iwlwifi 0000:00:14.3: Direct firmware load for
-iwlwifi-QuZ-a0-hr-b0-69.ucode failed with error -2
-
-(not a regression in the 5.17-series, but compared to 5.16.x !)
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
-Thanks
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.108/plan/baseline/
 
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
-Ronald
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.108
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      9940314ebfc61cb7bc7fca4a0deed2f27fdefd11 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/623b076e1b6329a1e2bd91a9
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.108/=
+arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.108/=
+arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/623b076e1b6329a1e2bd91cb
+        failing since 14 days (last pass: v5.10.102, first fail: v5.10.104)
+
+    2022-03-23T11:41:10.501560  <8>[   32.592163] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-23T11:41:11.524228  /lava-5931776/1/../bin/lava-test-case
+    2022-03-23T11:41:11.535372  <8>[   33.627191] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
