@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E11F84E76C8
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:18:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68E214E7711
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353951AbiCYPT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45118 "EHLO
+        id S1376426AbiCYP1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:27:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376378AbiCYPTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:19:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9CCDFD72;
-        Fri, 25 Mar 2022 08:15:14 -0700 (PDT)
+        with ESMTP id S1376978AbiCYPXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:23:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94E6A889B;
+        Fri, 25 Mar 2022 08:17:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 51351CE2A52;
-        Fri, 25 Mar 2022 15:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA2EC340E9;
-        Fri, 25 Mar 2022 15:15:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E671660DE3;
+        Fri, 25 Mar 2022 15:17:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03BF2C340E9;
+        Fri, 25 Mar 2022 15:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221301;
-        bh=NHAaKMt9HrxNA462vkEI8qLSD2LtZZgfaKLsxWUH5UA=;
+        s=korg; t=1648221424;
+        bh=lDlR75JvmdZGL+svX2rl8FjKN1R23T2mQOr7DGXMt1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWGQqZZ8dMvbXBrtuE5332sWbFvinIs1jY4gIaqaMnRPQqYlz9vnCCvOXoSPD6cTw
-         SvzWwxdaJfLCTKK+dny2hl3nbKRIJN9B4+lrAQE8zs00dpJMMRxpzUuRBAvA1RKa33
-         iXC73ynFpdX9EyLychIc8330BnHFkTv3dEfV6280=
+        b=y9RIekzx0Rw6X61LG+cyBvEzLIDWdMN6iLOfu7A8ZkL54nprYIjwZetOX86qtr/sS
+         /xkkv0a/iO6oD3TJHl/ygZY0u4Iv6eR9L2iQr2RBITikHU4YJIChUM0bAuyOUlNZp/
+         jSyGhka2a2YhyWgHVA2h7NCOBrPoNrcUPwLzIPzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        stable@vger.kernel.org,
+        Reza Jahanbakhshi <reza.jahanbakhshi@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 14/37] ALSA: pcm: Fix races among concurrent read/write and buffer changes
+Subject: [PATCH 5.16 05/37] ALSA: usb-audio: add mapping for new Corsair Virtuoso SE
 Date:   Fri, 25 Mar 2022 16:14:15 +0100
-Message-Id: <20220325150420.341990836@linuxfoundation.org>
+Message-Id: <20220325150420.203130693@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
-References: <20220325150419.931802116@linuxfoundation.org>
+In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
+References: <20220325150420.046488912@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Reza Jahanbakhshi <reza.jahanbakhshi@gmail.com>
 
-commit dca947d4d26dbf925a64a6cfb2ddbc035e831a3d upstream.
+commit cd94df1795418056a19ff4cb44eadfc18ac99a57 upstream.
 
-In the current PCM design, the read/write syscalls (as well as the
-equivalent ioctls) are allowed before the PCM stream is running, that
-is, at PCM PREPARED state.  Meanwhile, we also allow to re-issue
-hw_params and hw_free ioctl calls at the PREPARED state that may
-change or free the buffers, too.  The problem is that there is no
-protection against those mix-ups.
+New device id for Corsair Virtuoso SE RGB Wireless that currently is not
+in the mixer_map. This entry in the mixer_map is necessary in order to
+label its mixer appropriately and allow userspace to pick the correct
+volume controls. For instance, my own Corsair Virtuoso SE RGB Wireless
+headset has this new ID and consequently, the sidetone and volume are not
+ working correctly without this change.
+> sudo lsusb -v | grep -i corsair
+Bus 007 Device 011: ID 1b1c:0a40 Corsair CORSAIR VIRTUOSO SE Wireless Gam
+  idVendor           0x1b1c Corsair
+  iManufacturer           1 Corsair
+  iProduct                2 CORSAIR VIRTUOSO SE Wireless Gaming Headset
 
-This patch applies the previously introduced runtime->buffer_mutex to
-the read/write operations so that the concurrent hw_params or hw_free
-call can no longer interfere during the operation.  The mutex is
-unlocked before scheduling, so we don't take it too long.
-
+Signed-off-by: Reza Jahanbakhshi <reza.jahanbakhshi@gmail.com>
 Cc: <stable@vger.kernel.org>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322170720.3529-3-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220304212303.195949-1-reza.jahanbakhshi@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_lib.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/usb/mixer_maps.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1905,9 +1905,11 @@ static int wait_for_avail(struct snd_pcm
- 		if (avail >= runtime->twake)
- 			break;
- 		snd_pcm_stream_unlock_irq(substream);
-+		mutex_unlock(&runtime->buffer_mutex);
- 
- 		tout = schedule_timeout(wait_time);
- 
-+		mutex_lock(&runtime->buffer_mutex);
- 		snd_pcm_stream_lock_irq(substream);
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		switch (runtime->status->state) {
-@@ -2201,6 +2203,7 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
- 
- 	nonblock = !!(substream->f_flags & O_NONBLOCK);
- 
-+	mutex_lock(&runtime->buffer_mutex);
- 	snd_pcm_stream_lock_irq(substream);
- 	err = pcm_accessible_state(runtime);
- 	if (err < 0)
-@@ -2288,6 +2291,7 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
- 	if (xfer > 0 && err >= 0)
- 		snd_pcm_update_state(substream, runtime);
- 	snd_pcm_stream_unlock_irq(substream);
-+	mutex_unlock(&runtime->buffer_mutex);
- 	return xfer > 0 ? (snd_pcm_sframes_t)xfer : err;
- }
- EXPORT_SYMBOL(__snd_pcm_lib_xfer);
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -537,6 +537,16 @@ static const struct usbmix_ctl_map usbmi
+ 		.map = corsair_virtuoso_map,
+ 	},
+ 	{
++		/* Corsair Virtuoso SE Latest (wired mode) */
++		.id = USB_ID(0x1b1c, 0x0a3f),
++		.map = corsair_virtuoso_map,
++	},
++	{
++		/* Corsair Virtuoso SE Latest (wireless mode) */
++		.id = USB_ID(0x1b1c, 0x0a40),
++		.map = corsair_virtuoso_map,
++	},
++	{
+ 		/* Corsair Virtuoso (wireless mode) */
+ 		.id = USB_ID(0x1b1c, 0x0a42),
+ 		.map = corsair_virtuoso_map,
 
 
