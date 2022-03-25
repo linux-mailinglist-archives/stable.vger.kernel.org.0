@@ -2,158 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 044B34E7034
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 10:45:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C10C4E7152
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 11:34:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243283AbiCYJqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 05:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51342 "EHLO
+        id S1348843AbiCYKf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 06:35:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243192AbiCYJqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 05:46:42 -0400
-Received: from out29-173.mail.aliyun.com (out29-173.mail.aliyun.com [115.124.29.173])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D43E569CC5;
-        Fri, 25 Mar 2022 02:45:03 -0700 (PDT)
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.0745066|-1;BR=01201311R121S62rulernew998_84748_2000303;CH=blue;DM=|CONTINUE|false|;DS=CONTINUE|ham_alarm|0.0264882-0.0159725-0.957539;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047194;MF=kant@allwinnertech.com;NM=1;PH=DS;RN=11;RT=11;SR=0;TI=SMTPD_---.NCJqz9-_1648201498;
-Received: from sunxibot.allwinnertech.com(mailfrom:kant@allwinnertech.com fp:SMTPD_---.NCJqz9-_1648201498)
-          by smtp.aliyun-inc.com(33.13.201.118);
-          Fri, 25 Mar 2022 17:44:59 +0800
-From:   Kant Fan <kant@allwinnertech.com>
-To:     rui.zhang@intel.com, daniel.lezcano@linaro.org,
-        javi.merino@kernel.org, edubezval@gmail.com, orjan.eide@arm.com
-Cc:     amitk@kernel.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        allwinner-opensource-support@allwinnertech.com,
-        Kant Fan <kant@allwinnertech.com>, stable@vger.kernel.org
-Subject: [PATCH] thermal: devfreq_cooling: use local ops instead of global ops
-Date:   Fri, 25 Mar 2022 17:44:36 +0800
-Message-Id: <20220325094436.101419-1-kant@allwinnertech.com>
-X-Mailer: git-send-email 2.29.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S237250AbiCYKfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 06:35:54 -0400
+X-Greylist: delayed 530 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 25 Mar 2022 03:34:17 PDT
+Received: from ns.iliad.fr (ns.iliad.fr [212.27.33.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2479A88B1;
+        Fri, 25 Mar 2022 03:34:17 -0700 (PDT)
+Received: from ns.iliad.fr (localhost [127.0.0.1])
+        by ns.iliad.fr (Postfix) with ESMTP id 498C720383;
+        Fri, 25 Mar 2022 11:25:25 +0100 (CET)
+Received: from sakura (freebox.vlq16.iliad.fr [213.36.7.13])
+        by ns.iliad.fr (Postfix) with ESMTP id 3BA7320338;
+        Fri, 25 Mar 2022 11:25:25 +0100 (CET)
+Message-ID: <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+From:   Maxime Bizon <mbizon@freebox.fr>
+Reply-To: mbizon@freebox.fr
+To:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Toke =?ISO-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@toke.dk>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+Date:   Fri, 25 Mar 2022 11:25:25 +0100
+In-Reply-To: <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+         <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+         <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
+         <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
+         <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
+         <20220324163132.GB26098@lst.de>
+         <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
+         <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
+Organization: Freebox
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: ClamAV using ClamSMTP ; ns.iliad.fr ; Fri Mar 25 11:25:25 2022 +0100 (CET)
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 7b62935828266658714f81d4e9176edad808dc70 upstream.
 
-Fix access illegal address problem in following condition:
-There are muti devfreq cooling devices in system, some of them register
-with dfc_power but other does not, power model ops such as state2power will
-append to global devfreq_cooling_ops when the cooling device with
-dfc_power register. It makes the cooling device without dfc_power
-also use devfreq_cooling_ops after appending when register later by
-of_devfreq_cooling_register_power() or of_devfreq_cooling_register().
+On Thu, 2022-03-24 at 12:26 -0700, Linus Torvalds wrote:
 
-IPA governor regards the cooling devices without dfc_power as a power actor
-because they also have power model ops, and will access illegal address at
-dfc->power_ops when execute cdev->ops->get_requested_power or
-cdev->ops->power2state. As the calltrace below shows:
+> 
+> It's actually very natural in that situation to flush the caches from
+> the CPU side again. And so dma_sync_single_for_device() is a fairly
+> reasonable thing to do in that situation.
+> 
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000008
-...
-calltrace:
-[<c06e5488>] devfreq_cooling_power2state+0x24/0x184
-[<c06df420>] power_actor_set_power+0x54/0xa8
-[<c06e3774>] power_allocator_throttle+0x770/0x97c
-[<c06dd120>] handle_thermal_trip+0x1b4/0x26c
-[<c06ddb48>] thermal_zone_device_update+0x154/0x208
-[<c014159c>] process_one_work+0x1ec/0x36c
-[<c0141c58>] worker_thread+0x204/0x2ec
-[<c0146788>] kthread+0x140/0x154
-[<c01010e8>] ret_from_fork+0x14/0x2c
+In the non-cache-coherent scenario, and assuming dma_map() did an
+initial cache invalidation, you can write this:
 
-Fixes: a76caf55e5b35 ("thermal: Add devfreq cooling")
-Cc: stable@vger.kernel.org # 4.4+
-Signed-off-by: Kant Fan <kant@allwinnertech.com>
----
- drivers/thermal/devfreq_cooling.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+rx_buffer_complete_1(buf)
+{
+	invalidate_cache(buf, size)
+	if (!is_ready(buf))
+		return;
+	<proceed with receive>
+}
 
-diff --git a/drivers/thermal/devfreq_cooling.c b/drivers/thermal/devfreq_cooling.c
-index dfab49a67252..d36f70513e6a 100644
---- a/drivers/thermal/devfreq_cooling.c
-+++ b/drivers/thermal/devfreq_cooling.c
-@@ -462,22 +462,29 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
- {
- 	struct thermal_cooling_device *cdev;
- 	struct devfreq_cooling_device *dfc;
-+	struct thermal_cooling_device_ops *ops;
- 	char dev_name[THERMAL_NAME_LENGTH];
- 	int err;
- 
--	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
--	if (!dfc)
-+	ops = kmemdup(&devfreq_cooling_ops, sizeof(*ops), GFP_KERNEL);
-+	if (!ops)
- 		return ERR_PTR(-ENOMEM);
- 
-+	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
-+	if (!dfc) {
-+		err = -ENOMEM;
-+		goto free_ops;
-+	}
-+
- 	dfc->devfreq = df;
- 
- 	if (dfc_power) {
- 		dfc->power_ops = dfc_power;
- 
--		devfreq_cooling_ops.get_requested_power =
-+		ops->get_requested_power =
- 			devfreq_cooling_get_requested_power;
--		devfreq_cooling_ops.state2power = devfreq_cooling_state2power;
--		devfreq_cooling_ops.power2state = devfreq_cooling_power2state;
-+		ops->state2power = devfreq_cooling_state2power;
-+		ops->power2state = devfreq_cooling_power2state;
- 	}
- 
- 	err = devfreq_cooling_gen_tables(dfc);
-@@ -497,8 +504,7 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
- 
- 	snprintf(dev_name, sizeof(dev_name), "thermal-devfreq-%d", dfc->id);
- 
--	cdev = thermal_of_cooling_device_register(np, dev_name, dfc,
--						  &devfreq_cooling_ops);
-+	cdev = thermal_of_cooling_device_register(np, dev_name, dfc, ops);
- 	if (IS_ERR(cdev)) {
- 		err = PTR_ERR(cdev);
- 		dev_err(df->dev.parent,
-@@ -522,6 +528,8 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
- 	kfree(dfc->freq_table);
- free_dfc:
- 	kfree(dfc);
-+free_ops:
-+	kfree(ops);
- 
- 	return ERR_PTR(err);
- }
-@@ -557,10 +565,12 @@ EXPORT_SYMBOL_GPL(devfreq_cooling_register);
- void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
- {
- 	struct devfreq_cooling_device *dfc;
-+	const struct thermal_cooling_device_ops *ops;
- 
- 	if (!cdev)
- 		return;
- 
-+	ops = cdev->ops;
- 	dfc = cdev->devdata;
- 
- 	thermal_cooling_device_unregister(dfc->cdev);
-@@ -570,5 +580,6 @@ void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
- 	kfree(dfc->freq_table);
- 
- 	kfree(dfc);
-+	kfree(ops);
- }
- EXPORT_SYMBOL_GPL(devfreq_cooling_unregister);
+or 
+
+rx_buffer_complete_2(buf)
+{
+	if (!is_ready(buf)) {
+		invalidate_cache(buf, size)
+		return;
+	}
+	<proceed with receive>
+}
+
+The latter is preferred for performance because dma_map() did the
+initial invalidate.
+
+Of course you could write:
+
+rx_buffer_complete_3(buf)
+{
+	invalidate_cache(buf, size)
+	if
+(!is_ready(buf)) {
+		invalidate_cache(buf, size)
+		return;
+	}
+	
+<proceed with receive>
+}
+
+
+but it's a waste of CPU cycles
+
+So I'd be very cautious assuming sync_for_cpu() and sync_for_device()
+are both doing invalidation in existing implementation of arch DMA ops,
+implementers may have taken some liberty around DMA-API to avoid
+unnecessary cache operation (not to blame them).
+
+
+For example looking at arch/arm/mm/dma-mapping.c, for DMA_FROM_DEVICE
+
+sync_single_for_device()
+  => __dma_page_cpu_to_dev()
+    => dma_cache_maint_page(op=dmac_map_area)
+      => cpu_cache.dma_map_area()
+
+sync_single_for_cpu()
+  => __dma_page_dev_to_cpu()
+    =>
+__dma_page_cpu_to_dev(op=dmac_unmap_area)
+      =>
+cpu_cache.dma_unmap_area()
+
+dma_map_area() always does cache invalidate.
+
+But for a couple of CPU variant, dma_unmap_area() is a noop, so
+sync_for_cpu() does nothing.
+
+Toke's patch will break ath9k on those platforms (mostly silent
+breakage, rx corruption leading to bad performance)
+
+
+> There's a fair number of those dma_sync_single_for_device() things
+> all over. Could we find mis-uses and warn about them some way? It
+> seems to be a very natural thing to do in this context, but bounce
+> buffering does make them very fragile.
+
+At least in network drivers, there are at least two patterns:
+
+1) The issue at hand, hardware mixing rx_status and data inside the
+same area. Usually very old hardware, very quick grep in network
+drivers only revealed slicoss.c. Probably would have gone unnoticed if
+ath9k hardware wasn't so common.
+
+
+2) The very common "copy break" pattern. If a received packet is
+smaller than a certain threshold, the driver rx path is changed to do:
+
+ sync_for_cpu()
+ alloc_small_skb()
+ memcpy(small_skb, rx_buffer_data)
+ sync_for_device()
+
+Original skb is left in the hardware, this reduces memory wasted.
+
+This pattern is completely valid wrt DMA-API, the buffer is always
+either owned by CPU or device.
+
+
 -- 
-2.29.0
+Maxime
+
+
 
