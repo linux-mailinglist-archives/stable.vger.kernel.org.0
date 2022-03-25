@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0A44E76B9
-	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:17:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED7104E76D0
+	for <lists+stable@lfdr.de>; Fri, 25 Mar 2022 16:18:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376409AbiCYPTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 11:19:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36512 "EHLO
+        id S1376260AbiCYPUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 11:20:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241212AbiCYPSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:18:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 650CBDCE0A;
-        Fri, 25 Mar 2022 08:14:55 -0700 (PDT)
+        with ESMTP id S1376266AbiCYPT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 11:19:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8EE1DFFA9;
+        Fri, 25 Mar 2022 08:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2080DB828FF;
-        Fri, 25 Mar 2022 15:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B466C340E9;
-        Fri, 25 Mar 2022 15:14:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7E0960AC7;
+        Fri, 25 Mar 2022 15:15:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DE44C340E9;
+        Fri, 25 Mar 2022 15:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648221281;
-        bh=HpMrrT0iEqnIkxkuVO3eAOfoFuIkIZpb3NvXqQMPGJE=;
+        s=korg; t=1648221319;
+        bh=gp++YkMIsw/KZrl9yQMpWARrfRqXAx+5PgIOyaJUvSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmdpcYmyce3El+X4IbpcLyVQcG++biL38eRcfNH5LMcLfR+DUwdCy0PqNVBTPr241
-         Hblm/Hg81PoXYaO2h6i0zcoPEPk13aguTqBZRsx7RTYLAx2PA6IoAeOMDl2jYruyq6
-         VPr0UcjtDxOxmd0gQvYdAm/Jvt6HfL6yGkcbKGQE=
+        b=lI7iqwsFQB+eUiWAL5D1mRR8Nvlcbqt0bI1ze3drXlQAwSzgMXBYpOPLZB2BAo7k3
+         19cDT0jHyO82Bi6nUmJ/t8o1iams/hkuEl+gH4CwYAJKF14ipRjmaGFsfiqGK/LmCJ
+         9H3dcJw9XTAqwWCW0bAH5120kZbSzaylfNrZ5qQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordy Zomer <jordy@pwning.systems>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Denis Efremov <denis.e.efremov@oracle.com>
-Subject: [PATCH 5.15 01/37] nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION
-Date:   Fri, 25 Mar 2022 16:14:02 +0100
-Message-Id: <20220325150419.977239798@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 02/37] net: ipv6: fix skb_over_panic in __ip6_append_data
+Date:   Fri, 25 Mar 2022 16:14:03 +0100
+Message-Id: <20220325150420.005360898@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
 References: <20220325150419.931802116@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,48 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordy Zomer <jordy@pwning.systems>
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-commit 4fbcc1a4cb20fe26ad0225679c536c80f1648221 upstream.
+commit 5e34af4142ffe68f01c8a9acae83300f8911e20c upstream.
 
-It appears that there are some buffer overflows in EVT_TRANSACTION.
-This happens because the length parameters that are passed to memcpy
-come directly from skb->data and are not guarded in any way.
+Syzbot found a kernel bug in the ipv6 stack:
+LINK: https://syzkaller.appspot.com/bug?id=205d6f11d72329ab8d62a610c44c5e7e25415580
+The reproducer triggers it by sending a crafted message via sendmmsg()
+call, which triggers skb_over_panic, and crashes the kernel:
 
-Signed-off-by: Jordy Zomer <jordy@pwning.systems>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Denis Efremov <denis.e.efremov@oracle.com>
+skbuff: skb_over_panic: text:ffffffff84647fb4 len:65575 put:65575
+head:ffff888109ff0000 data:ffff888109ff0088 tail:0x100af end:0xfec0
+dev:<NULL>
+
+Update the check that prevents an invalid packet with MTU equal
+to the fregment header size to eat up all the space for payload.
+
+The reproducer can be found here:
+LINK: https://syzkaller.appspot.com/text?tag=ReproC&x=1648c83fb00000
+
+Reported-by: syzbot+e223cf47ec8ae183f2a0@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20220310232538.1044947-1-tadeusz.struk@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/st21nfca/se.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/ipv6/ip6_output.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -320,6 +320,11 @@ int st21nfca_connectivity_event_received
- 			return -ENOMEM;
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1476,8 +1476,8 @@ static int __ip6_append_data(struct sock
+ 		      sizeof(struct frag_hdr) : 0) +
+ 		     rt->rt6i_nfheader_len;
  
- 		transaction->aid_len = skb->data[1];
-+
-+		/* Checking if the length of the AID is valid */
-+		if (transaction->aid_len > sizeof(transaction->aid))
-+			return -EINVAL;
-+
- 		memcpy(transaction->aid, &skb->data[2],
- 		       transaction->aid_len);
+-	if (mtu < fragheaderlen ||
+-	    ((mtu - fragheaderlen) & ~7) + fragheaderlen < sizeof(struct frag_hdr))
++	if (mtu <= fragheaderlen ||
++	    ((mtu - fragheaderlen) & ~7) + fragheaderlen <= sizeof(struct frag_hdr))
+ 		goto emsgsize;
  
-@@ -329,6 +334,11 @@ int st21nfca_connectivity_event_received
- 			return -EPROTO;
- 
- 		transaction->params_len = skb->data[transaction->aid_len + 3];
-+
-+		/* Total size is allocated (skb->len - 2) minus fixed array members */
-+		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
-+			return -EINVAL;
-+
- 		memcpy(transaction->params, skb->data +
- 		       transaction->aid_len + 4, transaction->params_len);
- 
+ 	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen -
 
 
