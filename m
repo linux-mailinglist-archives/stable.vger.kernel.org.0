@@ -2,170 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5A04E7BA0
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85C834E7BF5
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 01:21:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232329AbiCYUti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 16:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55220 "EHLO
+        id S232420AbiCYU6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 16:58:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232328AbiCYUti (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 16:49:38 -0400
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 746DFC11
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 13:48:03 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id z12so1476157lfu.10
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 13:48:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=qTyIfzc6eWn8tPRbJvu4pItLGCLIkdX7GJakm9zDrl8=;
-        b=gm5AHFVvThRrK7sA/BQ6fJ/iDwpQq6O0/7tOPWKWfF0gNOKqop2SvIcH4r/OClE48L
-         VFW0eVhGjvjiyVqrrrPg6Q1OkP1qou04a5ugVipBYO9VTlVyEcQ7kokZzVjAoN7pS1Ch
-         +u+3DjL5YncJtUcCyN3Ju5WCdBaFHsUNObffo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qTyIfzc6eWn8tPRbJvu4pItLGCLIkdX7GJakm9zDrl8=;
-        b=yLAOTDpYJK7j/t0ykObBC1diyjC0e9m6BWDcxJ8CsOjA6ZBN5UAcuGmxTKCXhRDN0c
-         ZqyMSyvuHG1ToEt8HK8TwFi/ozXeDozHjk+QFGjtAy5zkIwSz+g0nnsySWD0jzCW1HlZ
-         38I7nYAO1efzfAgQDI9eQh+/pPPonpCJNV74Set0kdTAlxFFLQuVs6Cy8a0Dc8x/dhG9
-         T21o6NWUUoLkOiF+90xFswtU6ciJrwEutoX1790GYUJZaKSS/+5ng2Hnp4vyWhGQhLMC
-         m0ng56HYf19SD3+hhFdxmSftqPGa3z3k48UbgNwx7x1m2nO7JlMssn2qAEfoKQ8Lh3za
-         Inzw==
-X-Gm-Message-State: AOAM531v3poHMizp4pOCLfisr1hyOO2XloqdXdDqgsq7cio+OmjIK6Yj
-        eFdyBS9ofxX6qWqUgFQCA8U/1tV/m6BpnctS+AM=
-X-Google-Smtp-Source: ABdhPJxaDpA1SJA8hn8W21xVzizhNVVsJUYjfiodD1QMdkNYGW6O4yBa+XtxErTNNA9VAA0AVGAbjw==
-X-Received: by 2002:ac2:4d5b:0:b0:44a:14c9:89fb with SMTP id 27-20020ac24d5b000000b0044a14c989fbmr9215855lfp.345.1648241281351;
-        Fri, 25 Mar 2022 13:48:01 -0700 (PDT)
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com. [209.85.167.54])
-        by smtp.gmail.com with ESMTPSA id l10-20020a056512110a00b0044a50ffb05esm819371lfg.122.2022.03.25.13.47.59
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 25 Mar 2022 13:48:00 -0700 (PDT)
-Received: by mail-lf1-f54.google.com with SMTP id z12so1475977lfu.10
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 13:47:59 -0700 (PDT)
-X-Received: by 2002:ac2:4203:0:b0:448:8053:d402 with SMTP id
- y3-20020ac24203000000b004488053d402mr9094484lfh.687.1648241278691; Fri, 25
- Mar 2022 13:47:58 -0700 (PDT)
-MIME-Version: 1.0
-References: <1812355.tdWV9SEqCh@natalenko.name> <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de> <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
- <871qyr9t4e.fsf@toke.dk> <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
- <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
- <CAHk-=wippum+MksdY7ixMfa3i1sZ+nxYPWLLpVMNyXCgmiHbBQ@mail.gmail.com> <298f4f9ccad7c3308d3a1fd8b4b4740571305204.camel@sipsolutions.net>
-In-Reply-To: <298f4f9ccad7c3308d3a1fd8b4b4740571305204.camel@sipsolutions.net>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Fri, 25 Mar 2022 13:47:42 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whXAan2ExANMryPSFaBWeyzikPi+fPUseMoVhQAxR7cEA@mail.gmail.com>
-Message-ID: <CAHk-=whXAan2ExANMryPSFaBWeyzikPi+fPUseMoVhQAxR7cEA@mail.gmail.com>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     Maxime Bizon <mbizon@freebox.fr>,
-        =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S232386AbiCYU6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 16:58:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D21D95489;
+        Fri, 25 Mar 2022 13:57:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF2D461D49;
+        Fri, 25 Mar 2022 20:57:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B1F6C004DD;
+        Fri, 25 Mar 2022 20:57:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1648241838;
+        bh=qZSECyiK1Zitqbwhw6WpWi0cJkdsqV2U1kicJgbwtX4=;
+        h=Date:To:From:Subject:From;
+        b=WCxhT1kT/DYa6fEDSu9NrVz2xUniCRAqZQm7NUyAHRZ3ckOLRpaMuBVipL5o9KfD2
+         1Uia9ql97/uE+JkxXRUJNkMQV021cesMoeoADZPRLAGS3LohlivfE3ZydxfW24DJuW
+         GpySquMipFKZcnQMEhh4gop7AqwIYA1cAS4v+KIs=
+Date:   Fri, 25 Mar 2022 13:57:17 -0700
+To:     mm-commits@vger.kernel.org, vbabka@suse.cz, surenb@google.com,
+        stable@vger.kernel.org, rientjes@google.com, nadav.amit@gmail.com,
+        mhocko@suse.com, quic_charante@quicinc.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + revert-mm-madvise-skip-unmapped-vma-holes-passed-to-process_madvise.patch added to -mm tree
+Message-Id: <20220325205718.4B1F6C004DD@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 25, 2022 at 1:38 PM Johannes Berg <johannes@sipsolutions.net> wrote:
->
-> >  (2) The CPU now wants to see any state written by the device since
-> > the last sync
-> >
-> >     This is "dma_sync_single_for_cpu(DMA_FROM_DEVICE)".
-> >
-> >     A bounce-buffer implementation needs to copy *from* the bounce buffer.
-> >
-> >     A cache-coherent implementation needs to do nothing.
-> >
-> >     A non-coherent implementation maybe needs to do nothing (ie it
-> > assumes that previous ops have flushed the cache, and just accessing
-> > the data will bring the rigth thing back into it). Or it could just
-> > flush the cache.
->
-> Doesn't that just need to *invalidate* the cache, rather than *flush*
-> it?
 
-Yes.  I should have been more careful.
+The patch titled
+     Subject: Revert "mm: madvise: skip unmapped vma holes passed to process_madvise"
+has been added to the -mm tree.  Its filename is
+     revert-mm-madvise-skip-unmapped-vma-holes-passed-to-process_madvise.patch
 
-That said, I think "invalidate without writeback" is a really
-dangerous operation (it can generate some *really* hard to debug
-memory state), so on the whole I think you should always strive to
-just do "flush-and-invalidate".
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/revert-mm-madvise-skip-unmapped-vma-holes-passed-to-process_madvise.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/revert-mm-madvise-skip-unmapped-vma-holes-passed-to-process_madvise.patch
 
-If the core has support for "invalidate clean cache lines only", then
-that's possibly a good alternative.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-> >   A non-coherent implementation needs to flush the cache again, bot
-> > not necessarily do a writeback-flush if there is some cheaper form
-> > (assuming it does nothing in the "CPU now wants to see any state" case
-> > because it depends on the data not having been in the caches)
->
-> And similarly here, it would seem that the implementation can't _flush_
-> the cache as the device might be writing concurrently (which it does in
-> fact do in the ath9k case), but it must invalidate the cache?
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Right, again, when I said "flush" I really should have said "invalidate".
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-> I'm not sure about the (2) case, but here it seems fairly clear cut that
-> if you have a cache, don't expect the CPU to write to the buffer (as
-> evidenced by DMA_FROM_DEVICE), you wouldn't want to write out the cache
-> to DRAM?
+------------------------------------------------------
+From: Charan Teja Kalla <quic_charante@quicinc.com>
+Subject: Revert "mm: madvise: skip unmapped vma holes passed to process_madvise"
 
-See above: I'd *really* want to avoid a pure "invalidate cacheline"
-model. The amount of debug issues that can cause is not worth it.
+This reverts commit 08095d6310a7 ("mm: madvise: skip unmapped vma holes
+passed to process_madvise") as process_madvise() fails to return the exact
+processed bytes in other cases too.  As an example: if process_madvise()
+hits mlocked pages after processing some initial bytes passed in [start,
+end), it just returns EINVAL although some bytes are processed.  Thus
+making an exception only for ENOMEM is partially fixing the problem of
+returning the proper advised bytes.
 
-So please flush-and-invalidate, or invalidate-non-dirty, but not just
-"invalidate".
+Thus revert this patch and return proper bytes advised.
 
-> Then, however, we need to define what happens if you pass
-> DMA_BIDIRECTIONAL to the sync_for_cpu() and sync_for_device() functions,
-> which adds two more cases? Or maybe we eventually just think that's not
-> valid at all, since you have to specify how you're (currently?) using
-> the buffer, which can't be DMA_BIDIRECTIONAL?
+Link: https://lkml.kernel.org/r/e73da1304a88b6a8a11907045117cccf4c2b8374.1648046642.git.quic_charante@quicinc.com
+Fixes: 08095d6310a7ce ("mm: madvise: skip unmapped vma holes passed to process_madvise")
+Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Ugh. Do we actually have cases that do it? That sounds really odd for
-a "sync" operation. It sounds very reasonable for _allocating_ DMA,
-but for syncing I'm left scratching my head what the semantics would
-be.
+ mm/madvise.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-But yes, if we do and people come up with semantics for it, those
-semantics should be clearly documented.
+--- a/mm/madvise.c~revert-mm-madvise-skip-unmapped-vma-holes-passed-to-process_madvise
++++ a/mm/madvise.c
+@@ -1464,16 +1464,9 @@ SYSCALL_DEFINE5(process_madvise, int, pi
+ 
+ 	while (iov_iter_count(&iter)) {
+ 		iovec = iov_iter_iovec(&iter);
+-		/*
+-		 * do_madvise returns ENOMEM if unmapped holes are present
+-		 * in the passed VMA. process_madvise() is expected to skip
+-		 * unmapped holes passed to it in the 'struct iovec' list
+-		 * and not fail because of them. Thus treat -ENOMEM return
+-		 * from do_madvise as valid and continue processing.
+-		 */
+ 		ret = do_madvise(mm, (unsigned long)iovec.iov_base,
+ 					iovec.iov_len, behavior);
+-		if (ret < 0 && ret != -ENOMEM)
++		if (ret < 0)
+ 			break;
+ 		iov_iter_advance(&iter, iovec.iov_len);
+ 	}
+_
 
-And if we don't - or people can't come up with semantics for it - we
-should actively warn about it and not have some code that does odd
-things that we don't know what they mean.
+Patches currently in -mm which might be from quic_charante@quicinc.com are
 
-But it sounds like you agree with my analysis, just not with some of
-my bad/incorrect word choices.
+revert-mm-madvise-skip-unmapped-vma-holes-passed-to-process_madvise.patch
 
-            Linus
