@@ -2,97 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 498504E7EC1
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 04:20:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01EA14E7ECF
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 04:43:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbiCZDWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Mar 2022 23:22:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46314 "EHLO
+        id S231128AbiCZDpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Mar 2022 23:45:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230478AbiCZDWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 23:22:11 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB9C532DD
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 20:20:35 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id n7-20020a17090aab8700b001c6aa871860so10296655pjq.2
-        for <stable@vger.kernel.org>; Fri, 25 Mar 2022 20:20:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=lWm9ycIfThVYctPz0nN/QIQj53UmIyPGIUl0jzAeMI0=;
-        b=D+8p2sxBVhas58fdNDTSq8NZVsIXM4Jcy4CmIgp5WZgZZdrh8dO7yPxHD19WOykbpm
-         OeJiPD8LIDXkR+7UONekJk81HybncPndwPZXFJd5sZbKiw6uBZlcOw3dAEFGCLDo6Er2
-         3nQlQCS8DGo1P+UJ5GU2nq7UPFUMf1TvHDEPA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=lWm9ycIfThVYctPz0nN/QIQj53UmIyPGIUl0jzAeMI0=;
-        b=xL73zlNS+m8c2eLmQAWChoPlL8UEmsRYhkmQs/1pPDdOc2El6xudcGw1Cb91YgN6WB
-         ORFbO99HyO3enbCOKMc2QkU7GHk39I1ujE2kBSim/d6nadK6aWWXikTcFS//xuPyGBnd
-         DlZrKT6oZposYJYgobFDWoL7HLNjgwbtaI4ZvuuJZUblfd4riFwaXIkjsyVU3BN61Kkr
-         L8/nGBmltLJCZH6EQIiWYD479c5kmbnWRlG1iy3XjPBCJcBjCFP81Z7muMicR/QEFPD4
-         sqbUoztFw5Z9V6kj3MR+fifAzFzSbGub0odC+xwxthbsN/MgeyBDCbRfUui9LXlg7S75
-         HTBA==
-X-Gm-Message-State: AOAM532QYfHILawzBAyF+jsfTN+c3YgwdiBy3vw1hjET28b38y21nSub
-        dZghhPQXIMwJiDVKPc6h/S5ONg==
-X-Google-Smtp-Source: ABdhPJyB7Zc3sN8BPC2j2aYVDZAIXSkHgYXpUWPdhksJY1X15Msxf/Z3MoTs3diuQFkeHporCw7SvQ==
-X-Received: by 2002:a17:90b:4d85:b0:1c7:3933:d810 with SMTP id oj5-20020a17090b4d8500b001c73933d810mr28939276pjb.129.1648264834962;
-        Fri, 25 Mar 2022 20:20:34 -0700 (PDT)
-Received: from ba72772bdc1f ([203.221.136.13])
-        by smtp.gmail.com with ESMTPSA id h20-20020a056a001a5400b004fb1b4b010asm2954661pfv.162.2022.03.25.20.20.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Mar 2022 20:20:34 -0700 (PDT)
-Date:   Sat, 26 Mar 2022 03:20:27 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Ronald Warsow <rwarsow@gmx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.17 00/39] 5.17.1-rc1 review
-Message-ID: <20220326032027.GA7@ba72772bdc1f>
-References: <67e05375-077f-ebc7-c691-b0a0a31b3479@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <67e05375-077f-ebc7-c691-b0a0a31b3479@gmx.de>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229642AbiCZDo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Mar 2022 23:44:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAACC5A177;
+        Fri, 25 Mar 2022 20:43:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4427619EE;
+        Sat, 26 Mar 2022 03:43:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2589FC340E8;
+        Sat, 26 Mar 2022 03:43:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1648266201;
+        bh=k7FVZ25aRR4eLvaNH52Da+0V18tBZ0458xRWxuR/ekE=;
+        h=Date:To:From:Subject:From;
+        b=lQSA/5NL6sb1IqTDodOrmxih2dVAieadDs6sXG9wNI02QUGtn/Bw7w8SSKYmiH6dG
+         nsZCVan8CVLMxPr2GR9OPtZOqfwdJ91c1hvxYkwzdHtDWa3sRP9Rq6jvHCRmZGZtnJ
+         tM9hjJG1GJ0ZiCNy7skYM/ETmCZW8AeudBflco84=
+Date:   Fri, 25 Mar 2022 20:43:20 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        senozhatsky@chromium.org, ngupta@vflare.org, ivan@cloudflare.com,
+        david@redhat.com, axboe@kernel.dk, minchan@kernel.org,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-fix-unexpected-zeroed-page-mapping-with-zram-swap.patch added to -mm tree
+Message-Id: <20220326034321.2589FC340E8@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 25, 2022 at 05:45:45PM +0100, Ronald Warsow wrote:
-> hallo Greg
-> 
-> 5.17.1-rc1
-> 
-> compiles, boots and runs on my x86_64
-> (Intel i5-11400, Fedora 35)
-> 
-> btw I get:
-> 
-> iwlwifi 0000:00:14.3: Direct firmware load for
-> iwlwifi-QuZ-a0-hr-b0-69.ucode failed with error -2
-> 
-> (not a regression in the 5.17-series, but compared to 5.16.x !)
 
-Hi Ronald,
+The patch titled
+     Subject: mm: fix unexpected zeroed page mapping with zram swap
+has been added to the -mm tree.  Its filename is
+     mm-fix-unexpected-zeroed-page-mapping-with-zram-swap.patch
 
-68 is the current correct firmware for the iwlwifi wireless cards
-The 69 version (whilst supported by the kernel) is not
-yet available. See the git below.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-fix-unexpected-zeroed-page-mapping-with-zram-swap.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-unexpected-zeroed-page-mapping-with-zram-swap.patch
 
-https://git.kernel.org/pub/scm/linux/kernel/git/iwlwifi/linux-firmware.git/log/
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-[    2.797185] iwlwifi 0000:00:14.3: enabling device (0000 -> 0002)
-[    2.798575] iwlwifi 0000:00:14.3: Direct firmware load for iwlwifi-QuZ-a0-hr-b0-69.ucode failed with error -2
-[    2.803539] iwlwifi 0000:00:14.3: api flags index 2 larger than supported by driver
-[    2.803550] iwlwifi 0000:00:14.3: TLV_FW_FSEQ_VERSION: FSEQ Version: 89.3.35.37
-[    2.803694] iwlwifi 0000:00:14.3: loaded firmware version 68.01d30b0c.0 QuZ-a0-hr-b0-68.ucode op_mode iwlmvm
-[    2.855586] iwlwifi 0000:00:14.3: Detected Intel(R) Wi-Fi 6 AX201 160MHz, REV=0x351
-[    2.979429] iwlwifi 0000:00:14.3: Detected RF HR B3, rfid=0x10a100
-[    3.044410] iwlwifi 0000:00:14.3: base HW address:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Minchan Kim <minchan@kernel.org>
+Subject: mm: fix unexpected zeroed page mapping with zram swap
+
+Two processes under CLONE_VM cloning, user process can be corrupted by
+seeing zeroed page unexpectedly.
+
+    CPU A                        CPU B
+
+do_swap_page                do_swap_page
+SWP_SYNCHRONOUS_IO path     SWP_SYNCHRONOUS_IO path
+swap_readpage valid data
+  swap_slot_free_notify
+    delete zram entry
+                            swap_readpage zeroed(invalid) data
+                            pte_lock
+                            map the *zero data* to userspace
+                            pte_unlock
+pte_lock
+if (!pte_same)
+  goto out_nomap;
+pte_unlock
+return and next refault will
+read zeroed data
+
+The swap_slot_free_notify is bogus for CLONE_VM case since it doesn't
+increase the refcount of swap slot at copy_mm so it couldn't catch up
+whether it's safe or not to discard data from backing device.  In the
+case, only the lock it could rely on to synchronize swap slot freeing is
+page table lock.  Thus, this patch gets rid of the swap_slot_free_notify
+function.  With this patch, CPU A will see correct data.
+
+    CPU A                        CPU B
+
+do_swap_page                do_swap_page
+SWP_SYNCHRONOUS_IO path     SWP_SYNCHRONOUS_IO path
+                            swap_readpage original data
+                            pte_lock
+                            map the original data
+                            swap_free
+                              swap_range_free
+                                bd_disk->fops->swap_slot_free_notify
+swap_readpage read zeroed data
+                            pte_unlock
+pte_lock
+if (!pte_same)
+  goto out_nomap;
+pte_unlock
+return
+on next refault will see mapped data by CPU B
+
+The concern of the patch would increase memory consumption since it could
+keep wasted memory with compressed form in zram as well as uncompressed
+form in address space.  However, most of cases of zram uses no readahead
+and do_swap_page is followed by swap_free so it will free the compressed
+form from in zram quickly.
+
+Link: https://lkml.kernel.org/r/YjTVVxIAsnKAXjTd@google.com
+Fixes: 0bcac06f27d7 ("mm, swap: skip swapcache for swapin of synchronous device")
+Reported-by: Ivan Babrou <ivan@cloudflare.com>
+Tested-by: Ivan Babrou <ivan@cloudflare.com>
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_io.c |   54 -------------------------------------------------
+ 1 file changed, 54 deletions(-)
+
+--- a/mm/page_io.c~mm-fix-unexpected-zeroed-page-mapping-with-zram-swap
++++ a/mm/page_io.c
+@@ -51,54 +51,6 @@ void end_swap_bio_write(struct bio *bio)
+ 	bio_put(bio);
+ }
+ 
+-static void swap_slot_free_notify(struct page *page)
+-{
+-	struct swap_info_struct *sis;
+-	struct gendisk *disk;
+-	swp_entry_t entry;
+-
+-	/*
+-	 * There is no guarantee that the page is in swap cache - the software
+-	 * suspend code (at least) uses end_swap_bio_read() against a non-
+-	 * swapcache page.  So we must check PG_swapcache before proceeding with
+-	 * this optimization.
+-	 */
+-	if (unlikely(!PageSwapCache(page)))
+-		return;
+-
+-	sis = page_swap_info(page);
+-	if (data_race(!(sis->flags & SWP_BLKDEV)))
+-		return;
+-
+-	/*
+-	 * The swap subsystem performs lazy swap slot freeing,
+-	 * expecting that the page will be swapped out again.
+-	 * So we can avoid an unnecessary write if the page
+-	 * isn't redirtied.
+-	 * This is good for real swap storage because we can
+-	 * reduce unnecessary I/O and enhance wear-leveling
+-	 * if an SSD is used as the as swap device.
+-	 * But if in-memory swap device (eg zram) is used,
+-	 * this causes a duplicated copy between uncompressed
+-	 * data in VM-owned memory and compressed data in
+-	 * zram-owned memory.  So let's free zram-owned memory
+-	 * and make the VM-owned decompressed page *dirty*,
+-	 * so the page should be swapped out somewhere again if
+-	 * we again wish to reclaim it.
+-	 */
+-	disk = sis->bdev->bd_disk;
+-	entry.val = page_private(page);
+-	if (disk->fops->swap_slot_free_notify && __swap_count(entry) == 1) {
+-		unsigned long offset;
+-
+-		offset = swp_offset(entry);
+-
+-		SetPageDirty(page);
+-		disk->fops->swap_slot_free_notify(sis->bdev,
+-				offset);
+-	}
+-}
+-
+ static void end_swap_bio_read(struct bio *bio)
+ {
+ 	struct page *page = bio_first_page_all(bio);
+@@ -114,7 +66,6 @@ static void end_swap_bio_read(struct bio
+ 	}
+ 
+ 	SetPageUptodate(page);
+-	swap_slot_free_notify(page);
+ out:
+ 	unlock_page(page);
+ 	WRITE_ONCE(bio->bi_private, NULL);
+@@ -394,11 +345,6 @@ int swap_readpage(struct page *page, boo
+ 	if (sis->flags & SWP_SYNCHRONOUS_IO) {
+ 		ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
+ 		if (!ret) {
+-			if (trylock_page(page)) {
+-				swap_slot_free_notify(page);
+-				unlock_page(page);
+-			}
+-
+ 			count_vm_event(PSWPIN);
+ 			goto out;
+ 		}
+_
+
+Patches currently in -mm which might be from minchan@kernel.org are
+
+mm-fix-unexpected-zeroed-page-mapping-with-zram-swap.patch
+
