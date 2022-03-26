@@ -2,112 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF424E81C2
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 16:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C94B54E81E4
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 17:05:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231787AbiCZPSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 11:18:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60948 "EHLO
+        id S233748AbiCZQHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 12:07:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233514AbiCZPSf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 11:18:35 -0400
-Received: from alt-proxy28.mail.unifiedlayer.com (alt-proxy28.mail.unifiedlayer.com [74.220.216.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2981A4F44E
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 08:16:59 -0700 (PDT)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id C046B1003FEFF
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 15:16:58 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id Y89ynoIVKQs3CY89ynuIh0; Sat, 26 Mar 2022 15:16:58 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=A+Opg4aG c=1 sm=1 tr=0 ts=623f2e6a
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=o8Y5sQTvuykA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=0GrwrlF9F252gKFgHFlhwQaRrJ1X0rjwML0ApM3lEhI=; b=kr9UxhAXtp2fdYoE0TIZ+ThciT
-        xBlg39v4mSuKB+T6fWeRNaScF7o45kXjMjJWGrthwk3Bj0rVkysdCdunLxeByqf9y4Xbeud9Sd1tV
-        yOOSPhelHdf/NeALIHvfXtW7V;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34414 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nY89x-000V1J-FE; Sat, 26 Mar 2022 09:16:57 -0600
-Subject: Re: [PATCH 5.16 00/37] 5.16.18-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220325150420.046488912@linuxfoundation.org>
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <833d3637-c61d-d9a4-f07c-83084d8d560a@w6rz.net>
-Date:   Sat, 26 Mar 2022 08:16:55 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S233570AbiCZQHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 12:07:19 -0400
+Received: from mail.toke.dk (mail.toke.dk [45.145.95.4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856B6473AB;
+        Sat, 26 Mar 2022 09:05:39 -0700 (PDT)
+From:   Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=toke.dk; s=20161023;
+        t=1648310737; bh=j8t9GHYbTPEWySbmxXMqGskEDtyF/bdWSNoBF6Lu/64=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=vg5mZbAvUN7CYb8K0HW8bypeTCqe4EFeCCg/wFiKDy9xFjqeiZqBVqi5dL/LcpteU
+         BdD2O10/08TxH+ZSpQfApD7e4kXNnhXEswpAi0qIPzZLyHIb8vwAGK7sSvEuh+ATRh
+         8A1bKgWXXH7vxKok1gmasDztPnrGJX/kETDfmTXL6S69P9nLYP9pNNT4YiW4DkuV+I
+         rCIzYyRNFJvclHuPjZib3iboNjgTAjVMsc98W3fXQw8BCGOQWWZrWl+al87Q0Hnh4P
+         Wsie6QDudtT0oWCYjMNYitOFVJEHi++yrHQm3mHva53vdhFOgmKIFP9QpVg5VbsnWE
+         gsMxBomOxfcPQ==
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     mbizon@freebox.fr, Linus Torvalds <torvalds@linux-foundation.org>,
+        Netdev <netdev@vger.kernel.org>, Kalle Valo <kvalo@kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        stable <stable@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        iommu <iommu@lists.linux-foundation.org>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+In-Reply-To: <20220326003853.44c3285c.pasic@linux.ibm.com>
+References: <1812355.tdWV9SEqCh@natalenko.name>
+ <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+ <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
+ <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
+ <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
+ <20220324163132.GB26098@lst.de>
+ <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
+ <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
+ <31434708dcad126a8334c99ee056dcce93e507f1.camel@freebox.fr>
+ <cce202fb-5185-aa3e-9e9b-11626192cb49@arm.com>
+ <20220326003853.44c3285c.pasic@linux.ibm.com>
+Date:   Sat, 26 Mar 2022 17:05:37 +0100
+X-Clacks-Overhead: GNU Terry Pratchett
+Message-ID: <8735j47l7y.fsf@toke.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nY89x-000V1J-FE
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:34414
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/25/22 8:14 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.18 release.
-> There are 37 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.18-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Halil Pasic <pasic@linux.ibm.com> writes:
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+> On Fri, 25 Mar 2022 11:27:41 +0000
+> Robin Murphy <robin.murphy@arm.com> wrote:
+>
+>> What muddies the waters a bit is that the opposite combination 
+>> sync_for_cpu(DMA_TO_DEVICE) really *should* always be a no-op, and I for 
+>> one have already made the case for eliding that in code elsewhere, but 
+>> it doesn't necessarily hold for the inverse here, hence why I'm not sure 
+>> there even is a robust common solution for peeking at a live 
+>> DMA_FROM_DEVICE buffer.
+>
+> In https://lkml.org/lkml/2022/3/24/739 I also argued, that a robust
+> common solution for a peeking at a live DMA_FROM_DEVICE buffer is
+> probably not possible, at least not with the current programming model
+> as described by Documentation/core-api/dma-api.rst.
+>
+> Namely AFAIU the programming model is based on exclusive ownership: the
+> buffer is either owned by the device, which means CPU(s) are not allowed
+> to *access* it, or it is owned by the CPU(s), and the device is not
+> allowed to *access* it. Do we agree on this?
+>
+> Considering what Linus said here https://lkml.org/lkml/2022/3/24/775
+> I understand that: if the idea that dma_sync_*_for_{cpu,device} always
+> transfers ownership to the cpu and device respectively is abandoned, 
+> and we re-define ownership in a sense that only the owner may write,
+> but non-owner is allowed to read, then it may be possible to make the
+> scenario under discussion work. 
+>
+> The scenario in pseudo code:
+>
+> /* when invoked device might be doing DMA into buf */
+> rx_buf_complete(buf)
+> {
+> 	prepare_peek(buf, DMA_FROM_DEVICE);
+>         if (!is_ready(buf)) {
+>                 /*let device gain the buffer again*/
+>                 peek_done_not_ready(buf, DMA_FROM_DEVICE);
+>                 return false;
+>         }
+> 	peek_done_ready(buf, DMA_FROM_DEVICE);
+> 	process_buff(buf, DMA_FROM_DEVICE); is
+> }
+>
+> IMHO it is pretty obvious, that prepare_peek() has to update the
+> cpu copy of the data *without* transferring ownership to the CPU. Since
+> the owner is still the device, it is legit for the device to keep
+> modifying the buffer via DMA. In case of the swiotlb, we would copy the
+> content of the bounce buffer to the orig buffer possibly after
+> invalidating
+> caches, and for non-swiotlb we would do invalidate caches. So
+> prepare_peek() could be actually something like,
+> dma_sync_single_for_cpu(buf, DMA_FROM_DEVICE,
+>                         DMA_ATTR_NO_OWNERSHIP_TRANSFER)
+> which would most end up being functionally the same, as without the
+> flag, since my guess is that the ownership is only tracked in our
+> heads.
 
-Tested-by: Ron Economos <re@w6rz.net>
+Well we also need to ensure that the CPU caches are properly invalidated
+either in prepare_peek() or peek_done_not_ready(), so that the data is
+not cached between subsequent peeks. This could translate to either
+turning prepare_peek() into dma_sync_single_for_cpu(buf,
+DMA_FROM_DEVICE, DMA_ATTR_NO_OWNERSHIP_TRANSFER_BUT_INVALIDATE_CACHES),
+or it could turn peek_done_not_ready() into something that just
+invalidates the cache.
 
+I was also toying with the idea of having a copy-based peek helper like:
+
+u32 data = dma_peek_word(buf, offset)
+
+which leaves the ownership as-is, but copies out a single word from the
+buffer at the given offset (from the bounce buffer or real buffer as
+appropriate) without messing with the ownership notion. The trouble with
+this idea is that ath9k reads two different words that are 44 bytes from
+each other, so it would have to do two such calls, which would be racy :(
+
+-Toke
