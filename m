@@ -2,103 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95FC64E814D
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 15:04:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B57524E8166
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 15:24:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232461AbiCZOGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 10:06:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54718 "EHLO
+        id S233253AbiCZO0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 10:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231482AbiCZOGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 10:06:02 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2954C166658;
-        Sat, 26 Mar 2022 07:04:22 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id r64so5866146wmr.4;
-        Sat, 26 Mar 2022 07:04:22 -0700 (PDT)
+        with ESMTP id S231482AbiCZO0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 10:26:01 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3DD263D1
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 07:24:24 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id u103so18678732ybi.9
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 07:24:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=CwwTLudbisWt/D5C3X2/LW//Oe691NzSOMLmnZTsNlc=;
-        b=gZfsAH+zDHC0/Pg3z67Xjzp4LvBjBmYRv78pw89W8STqoGV5BbEqjW+GmqNPgl4YBB
-         M/pW95MPaYlfRNeldAfhVSq9yTYfR9P1zbjbKY8TaE6vxPnhbfBNgcUHPYg6lhOZgsIc
-         CSpC1mI55Wx5HCvSfUuoA/czkLq0LMaUoajkwFPctiCMVLtnPkj2VlW7z7ksc7C2KA8M
-         VbDRAbE/RAE5ScKsBOsgyM3Zajhz2Zmsd1AmRU+3/m6mdazvpBMGf98Pi1gkTj4gh5D6
-         Op5A8i3zSpKL+f+g/oDEqHQ4lEQs06Y/llrDHybQ9GiEa0w4tXdL+ybJtFlY+edn0pUJ
-         qViQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=nsd9yIj1njT8T81VQFH5FbJtkddxsthtwMm7eiUPmAk=;
+        b=TBmaNVHDdEGroqXdWD1QFZPbmAAumrhvVIuQpohm28CjJmTWF+Q6dNXax7Ip+a7GW3
+         ay3hwWASN38U4401KTRCurPuFnK/HskKAGRe+2BLCSPCZSavq8JfrnJJG06pOXCpyNi7
+         1eiNKc0vgp0jYJPQWMDJCuLWhQ77RXafj0Ycya1mwP+rAWxGffCAGpoxHh8K4Qvti2mf
+         qm+nQJNmzi2SvYqQQosujfd0nzWzlqsZgHb036UFE4Nh3i3nLyRj8vjUYyj1OukyYXBT
+         hzSwqvFQG2YhALnWc1c19fGv3YiFepLIdjGVk+jvH4q6SRhr++c+PdKMAbNPwGMaAtGo
+         EUfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=CwwTLudbisWt/D5C3X2/LW//Oe691NzSOMLmnZTsNlc=;
-        b=nL2NZpkTfWOSHl+m0gkw4gzroeKisdy6ltxZ/0l6juHFlRNBtzsr3PYHxX5flL4QJ0
-         M7P4Sy28aFHa3+kzZLxu6L03P9T2AmEgBzqtNHde84LzZuPHS5z53SkPAhL357Bg+7Vv
-         Xs/o5cZTtYZjEL5cmiAdFhRk2D+5HcYGixfzN4jDUpTyxoD3b/RdmR8eCdbpzSKd3YCR
-         gAerPV5XMi+hFLaSsYR8t9UdjOfXKc6uohY7DtrfV/eSetpRGJOa25lAz0W/in+ABsAt
-         P+OxZCry/cFqNUVJtTKfT/6kx06D7rFZyyp1gWSZ6zVCk9KqChNj4rW4VX7xn5hriVlU
-         dWIA==
-X-Gm-Message-State: AOAM5309YsT4ZaotgaJAxQznSqEnOACaNN2k67oJ3Lp6La/BRlUCBDEG
-        vA2bOe+lXcqUc3+L9oBolc0=
-X-Google-Smtp-Source: ABdhPJwcF1cbJl+jSj/bceDQBuIJsHSYJQYdPXrF/iSJ35NNNksV4RLF2ECgAVgbHkVb770IEGQzAg==
-X-Received: by 2002:a7b:c057:0:b0:37b:ebad:c9c8 with SMTP id u23-20020a7bc057000000b0037bebadc9c8mr24568909wmc.61.1648303460717;
-        Sat, 26 Mar 2022 07:04:20 -0700 (PDT)
-Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id d20-20020a05600c34d400b0038caf684679sm15827798wmq.0.2022.03.26.07.04.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Mar 2022 07:04:20 -0700 (PDT)
-Date:   Sat, 26 Mar 2022 14:04:18 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=nsd9yIj1njT8T81VQFH5FbJtkddxsthtwMm7eiUPmAk=;
+        b=Xq6oY6hylnsUvl2mAL2kMLzJFyGNKR+IanyyrSHROEbarfZQx0GwdV3V70j9pOLV62
+         6zba+fzShKkbfZnYfWOMN7En6oTvKAL8qN12Q954xj3N4LzR+6YAFT0kLS/vZj7B2u3C
+         cieDk7b0q1s9ZroJ1IO3gxoeYavstLmoD9hvUx7N7/U0ZzXCFoiv8CbP/0pRxTJPuHW+
+         0rkpdOCszqGLuCD6z7gccRKBqgdxqj8m9agYJNrwjSFESkSOphUKIHpJZNoJo4s/lEOI
+         bKeRhkJU7ZjkKWeGQOn9JasokoaXvf2s7VxYUytDipp51HqRMeNOc3f/6/O1vE6ce0xM
+         SYNg==
+X-Gm-Message-State: AOAM530fUr2BwOg43iMOxwPxYpieduUrS3ogdbzH+sdZ2IuI6FnP5dF9
+        b/RUhfF+ns67EAHEOW9d1eGFEo+d4BIuW85LC/oyTw==
+X-Google-Smtp-Source: ABdhPJwXCAmIiZyiFlvW4ctqK9cr9f8LOvWIMbg4ixgtIWEmsG03wQmbmXowVufblsJLdHGbxkug2rlY4HK7RW7bS50=
+X-Received: by 2002:a25:42c9:0:b0:634:1a46:e5c1 with SMTP id
+ p192-20020a2542c9000000b006341a46e5c1mr15757173yba.474.1648304663867; Sat, 26
+ Mar 2022 07:24:23 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220325150417.010265747@linuxfoundation.org>
+In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 26 Mar 2022 19:54:12 +0530
+Message-ID: <CA+G9fYtzUJLWFKjfe+vJMbjPV2jfThUr6vqFMb19B9om0MBSQQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/20] 4.19.237-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/20] 4.19.237-rc1 review
-Message-ID: <Yj8dYkt9MPko849q@debian>
-References: <20220325150417.010265747@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220325150417.010265747@linuxfoundation.org>
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Fri, Mar 25, 2022 at 04:04:38PM +0100, Greg Kroah-Hartman wrote:
+On Fri, 25 Mar 2022 at 20:37, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
 > This is the start of the stable review cycle for the 4.19.237 release.
 > There are 20 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
 > Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.237-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Build test:
-mips (gcc version 11.2.1 20220314): 63 configs -> no new failure
-arm (gcc version 11.2.1 20220314): 116 configs -> no new failure
-arm64 (gcc version 11.2.1 20220314): 2 configs -> no failure
-x86_64 (gcc version 11.2.1 20220314): 4 configs -> no failure
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-[1]. https://openqa.qa.codethink.co.uk/tests/938
+## Build
+* kernel: 4.19.237-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.19.y
+* git commit: 3a6a2212011395b420629a2d46310bd935d18c76
+* git describe: v4.19.236-21-g3a6a22120113
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.236-21-g3a6a22120113
 
+## Test Regressions (compared to v4.19.234-31-g4a3043563aa9)
+No test regressions found.
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+## Metric Regressions (compared to v4.19.234-31-g4a3043563aa9)
+No metric regressions found.
+
+## Test Fixes (compared to v4.19.234-31-g4a3043563aa9)
+No test fixes found.
+
+## Metric Fixes (compared to v4.19.234-31-g4a3043563aa9)
+No metric fixes found.
+
+## Test result summary
+total: 84118, pass: 67440, fail: 1087, skip: 13378, xfail: 2213
+
+## Build Summary
+* arm: 281 total, 275 passed, 6 failed
+* arm64: 39 total, 39 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 27 total, 27 passed, 0 failed
+* powerpc: 60 total, 54 passed, 6 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 38 total, 38 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
 
 --
-Regards
-Sudip
-
+Linaro LKFT
+https://lkft.linaro.org
