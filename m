@@ -2,110 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42BC24E80BC
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 13:14:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE414E80BF
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 13:18:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbiCZMQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 08:16:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52066 "EHLO
+        id S231293AbiCZMTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 08:19:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232775AbiCZMQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 08:16:06 -0400
-Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBA2AD10C
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 05:14:30 -0700 (PDT)
-Received: by mail-qv1-xf2f.google.com with SMTP id r1so8238482qvr.12
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 05:14:30 -0700 (PDT)
+        with ESMTP id S232803AbiCZMTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 08:19:51 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9986325845A;
+        Sat, 26 Mar 2022 05:18:15 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id p8so8684704pfh.8;
+        Sat, 26 Mar 2022 05:18:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=8CN3XDI/Kikx5MENEa/tbihTLWeVZI4RXfOrXnD280I=;
-        b=KiSZ+CdSN2dRnbZ/oxPH29gWwQkkNXh4VpVpLOrBIZmj+VbzOMhvWihZ1geRYi7n1o
-         D0ExO6FSxo2RObJnaQakExMvaIAQo8pP00wxnlHVdxub5TdzWmEbox+1rsNNXTvoEsFk
-         z7ydih+8TVUQ/BqUOsG7iu99TPDk42/quY76laMk4qJ3GnJbVX/jQ1XVcwtngLP83BUs
-         FFFW4knBnJjeuiPsdqvRUdgkupjgzZBiP/Ejvhh0ei32+eYz8fVu4L8LKUsxHM2In3AT
-         nbOydBzbD8TbIShxrng4wrymYozyMiMCVr+Tmb00IhlFgz7wR+YZHRRDy6KFRzJ/UIgp
-         vy2Q==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=Dv1PdlO/zHAijDx+J2HibW5hvJdNUZlfKrxeyfe2gKQ=;
+        b=RJzawOJFMl1p6yeP0Y/k/J30/XL+ON8dSMX90hcCQfuc8RltUO3XALQmdWw5q77MLb
+         9Xx2lSrl64Gggvy1HNHX+C7ZjLl66v0jOGHPJe5kroGghMARbmXzru4OKt/Quv7PLXPU
+         GGVHj+31rK6xDPJNEGxqFyzjf5mOFwep7FmYEUwqqy5//T9FawkCyV1eqmgo7y5miIic
+         AugournJu9jQGcBfoHPdyNYNPklZCEFSlN0WaNxwWURrR0CsoAjqMLv1HdwjDg6KLfh7
+         z95PAbvFpyPauzX6x644bYn+YeQPp8bB27M21seG4/ojjyEbj/To7hBr3Zpq62TvJ7Dc
+         7tqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=8CN3XDI/Kikx5MENEa/tbihTLWeVZI4RXfOrXnD280I=;
-        b=dsTGjXlRFwJVNzbOFiPnCfo1zG7lsfKO03KUdHmNAnUeBSkCjYJUq9W6q3Dty3DH4x
-         HVqGI0c5zA4ooEhD52+ZQG5Wi5SgC9iVk2x+tYEaf0PxBP9bfqS8UZCa8ujCYurmxv5n
-         EcahiLp1z93grOdrcNEIIzC4yuYy6mUmSdwWP0MOykEmTKUQXlhoGlFhF/cM//pRbMOF
-         44jNTs8lSwKTaj3XuPhmMbxeLfPIiwMd2LCyBzQGa2IoEyAnj+SIr81dV3Mqq3kkVcMT
-         7xSSg9LEFIDhLGVhurECSB4wrAo06KYS/1wKlcH4htRsj93tB5oR5Sd7gkzCCeD28k4o
-         gXGQ==
-X-Gm-Message-State: AOAM5326L6UoAGlftL/JBiWb6oK5HcEoTArLZjbTHXlazuUEOC1psS8A
-        A3J0wb3HFaVIlCPzZ74Evka2KL7rQLfURuFcx8sCUg==
-X-Google-Smtp-Source: ABdhPJw5WvCUsY8nlzbbVap8BaOMAl65D6VYoQCV765hRXnvIWaqXUrCBgvAMzyu4fCyxLw04caV9Yub3eyv1ag8QZo=
-X-Received: by 2002:ad4:5bc1:0:b0:42c:37be:6ac3 with SMTP id
- t1-20020ad45bc1000000b0042c37be6ac3mr13189412qvt.18.1648296868938; Sat, 26
- Mar 2022 05:14:28 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Dv1PdlO/zHAijDx+J2HibW5hvJdNUZlfKrxeyfe2gKQ=;
+        b=KOhKkkEvKvwCP0+9cTfTuq6ncU1n39FI3Q2DOLztmtG71visFN7FRBmD6jI2HyPtLs
+         cslcTsPKtQBbqtOpJDBsi963L1gS/eT9ZX0Gt+bEi7/am/ZJIQHafYHUCHd6BvVyGb5w
+         RAv9mZN8/MU8IrTz3kGOK29Rl+3hJA3i3wLVPeTODsBE345fq6e3MucpO6/jcWJdR9iX
+         i4TFlPVWtkSSZeb6r7gjyyWPbcYA0GD3eBJC9doZzM/rtMkiVhtI0JZ1K+J59x2UEwkG
+         sy4PywW0HNd4qw4OzrxabeV+o4VvHzcXv/bNxa9Nj1Mo6D15rZ4lJPeaeiYG82VPg175
+         mEDQ==
+X-Gm-Message-State: AOAM532mLxYnULXtoxA79d7tqtGrBJI6NE2ihGR45Wx5nJ+Vu01qujcO
+        lTs0qdMeGG5+hKxdOPFDZwclYsNmojm2dA==
+X-Google-Smtp-Source: ABdhPJwRkDR/TvDD2ZqtiZBgIGVqVk9kYYIt1oC6x8xMXpp6BqhQVj4joJxbwvy8ZI4/UgbhAbxn9w==
+X-Received: by 2002:a05:6a00:134f:b0:4fb:1307:ceed with SMTP id k15-20020a056a00134f00b004fb1307ceedmr7556192pfu.23.1648297095023;
+        Sat, 26 Mar 2022 05:18:15 -0700 (PDT)
+Received: from [192.168.43.80] (subs03-180-214-233-24.three.co.id. [180.214.233.24])
+        by smtp.gmail.com with ESMTPSA id il3-20020a17090b164300b001c6d5ed3cacsm9877094pjb.1.2022.03.26.05.18.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 26 Mar 2022 05:18:14 -0700 (PDT)
+Message-ID: <4628e365-2e61-f906-46aa-c132f3506363@gmail.com>
+Date:   Sat, 26 Mar 2022 19:18:06 +0700
 MIME-Version: 1.0
-References: <20220325150420.046488912@linuxfoundation.org>
-In-Reply-To: <20220325150420.046488912@linuxfoundation.org>
-From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
-Date:   Sat, 26 Mar 2022 08:13:52 -0400
-Message-ID: <CAG=yYwk8w5N8EL0dTTCWcmsqOEjqF1LLF+VSOW3vT6k6kUTAOQ@mail.gmail.com>
-Subject: Re: [PATCH 5.16 00/37] 5.16.18-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     lkml <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        torvalds@linux-foundation.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 5.15 00/37] 5.15.32-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20220325150419.931802116@linuxfoundation.org>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20220325150419.931802116@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 25, 2022 at 11:30 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.16.18 release.
+On 25/03/22 22.14, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.32 release.
 > There are 37 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
-> Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.18-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
-hello,
+> 
 
-Compiled and booted  5.16.18-rc1+ on ...
-Processor Information
-    Socket Designation: FM2
-    Type: Central Processor
-    Family: A-Series
-    Manufacturer: AuthenticAMD
-    ID: 31 0F 61 00 FF FB 8B 17
-    Signature: Family 21, Model 19, Stepping 1
+Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0)
+and powerpc (ps3_defconfig, gcc 11.2.0).
 
-NO new regression and issue from dmesg
-
-Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
 -- 
-software engineer
-rajagiri school of engineering and technology
+An old man doll... just what I always wanted! - Clara
