@@ -2,56 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0965C4E8413
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 21:13:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEBFB4E8415
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 21:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231890AbiCZUPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 16:15:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60662 "EHLO
+        id S234905AbiCZUQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 16:16:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233000AbiCZUPG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 16:15:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 528A81CFD3;
-        Sat, 26 Mar 2022 13:13:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05634B802C4;
-        Sat, 26 Mar 2022 20:13:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74328C340E8;
-        Sat, 26 Mar 2022 20:13:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648325606;
-        bh=67mC5+UyTHPDAPHu8NFPVWifvnSC7jO5bu6RDCWYbe4=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=F6gQAzLe+8aCsaLzFlgGhKjw2w4bnYdBwjFyN/S1gX7uw1LBEQy0PrJzLEUYq01Xh
-         zJzmgBLaj/L4Iq7gIWgHG6fKo82T/hT+0iLzBOWISkFHgNEDWSWJUZ640073wvB3x7
-         chwqWY909RPy+cvL3CAiDZLGibKRIXuHsM7Hi15jQwEh+fDvKdajfGPSAxSoRL97Kh
-         peaV7U2FljtK7A8vq0yo8JNXTBSWaD3Cn9gxr0NvdWeBahaBl8ufpJuwYNfeBl1qmb
-         ryDmB19575LmDgM9Hg5o6a2Sc63wd7YJBQdHKZtx1YLA0gHD+wrQaqkB25TO+ODruf
-         hjqY/wi/uWeDw==
-Date:   Sat, 26 Mar 2022 13:13:25 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Eric Dumazet <edumazet@google.com>,
-        =?UTF-8?B?6LW15a2Q6L2p?= <beraphin@gmail.com>,
-        Stoyan Manolov <smanolov@suse.de>
-Subject: Re: [PATCH 5.10 09/38] llc: fix netdevice reference leaks in
- llc_ui_bind()
-Message-ID: <20220326131325.397bc0e7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20220326200922.GA9262@duo.ucw.cz>
-References: <20220325150419.757836392@linuxfoundation.org>
-        <20220325150420.029041400@linuxfoundation.org>
-        <20220326200922.GA9262@duo.ucw.cz>
+        with ESMTP id S233000AbiCZUQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 16:16:42 -0400
+Received: from shelob.surriel.com (shelob.surriel.com [96.67.55.147])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC56164FF;
+        Sat, 26 Mar 2022 13:15:05 -0700 (PDT)
+Received: from imladris.surriel.com ([96.67.55.152])
+        by shelob.surriel.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <riel@shelob.surriel.com>)
+        id 1nYCoJ-0006pu-6P; Sat, 26 Mar 2022 16:14:55 -0400
+Message-ID: <5b734809fef4d76944490d5ac3ea816f0756b90a.camel@surriel.com>
+Subject: Re: [PATCH] mm,hwpoison: unmap poisoned page before invalidation
+From:   Rik van Riel <riel@surriel.com>
+To:     Miaohe Lin <linmiaohe@huawei.com>
+Cc:     linux-mm@kvack.org, kernel-team@fb.com,
+        Oscar Salvador <osalvador@suse.de>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+Date:   Sat, 26 Mar 2022 16:14:54 -0400
+In-Reply-To: <e6aa40b9-1cd8-b13f-555b-5f8ad863f196@huawei.com>
+References: <20220325161428.5068d97e@imladris.surriel.com>
+         <e6aa40b9-1cd8-b13f-555b-5f8ad863f196@huawei.com>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-yyEVjlUEaZO5whgwVvNZ"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Sender: riel@shelob.surriel.com
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,29 +48,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 26 Mar 2022 21:09:22 +0100 Pavel Machek wrote:
-> Can someone check this? AFAICT this is buggy.
-> 
-> static int llc_ui_autobind(struct socket *sock, struct sockaddr_llc *addr)
-> {
->         struct sock *sk = sock->sk;
->         struct llc_sock *llc = llc_sk(sk);
->         struct llc_sap *sap;
->         int rc = -EINVAL;
-> 
->         if (!sock_flag(sk, SOCK_ZAPPED))
->                 goto out;
-> 
-> There are 'goto out's from both before dev_get() and after it,
-> dev_put() will be called with NULL pointer. dev_put() can't handle
-> NULL at least in the old kernels... this is simply confused.
-> 
-> Mainline has dev_put_track() there, but I see same confusion.
-> 
-> Best regards,
 
-commit 2d327a79ee17 ("llc: only change llc->dev when bind() succeeds"),
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=2d327a79ee176930dc72c131a970c891d367c1dc
+--=-yyEVjlUEaZO5whgwVvNZ
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 
-Should be in mainline on Thursday, LMK if we need to accelerate.
-IDK if anyone enables LLC2.
+T24gU2F0LCAyMDIyLTAzLTI2IGF0IDE1OjQ4ICswODAwLCBNaWFvaGUgTGluIHdyb3RlOgo+IE9u
+IDIwMjIvMy8yNiA0OjE0LCBSaWsgdmFuIFJpZWwgd3JvdGU6Cj4gPiAKPiA+ICsrKyBiL21tL21l
+bW9yeS5jCj4gPiBAQCAtMzkxOCwxNCArMzkxOCwxOCBAQCBzdGF0aWMgdm1fZmF1bHRfdCBfX2Rv
+X2ZhdWx0KHN0cnVjdAo+ID4gdm1fZmF1bHQgKnZtZikKPiA+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgcmV0dXJuIHJldDsKPiA+IMKgCj4gPiDCoMKgwqDCoMKgwqDCoMKgaWYgKHVu
+bGlrZWx5KFBhZ2VIV1BvaXNvbih2bWYtPnBhZ2UpKSkgewo+ID4gK8KgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoHN0cnVjdCBwYWdlICpwYWdlID0gdm1mLT5wYWdlOwo+ID4gwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB2bV9mYXVsdF90IHBvaXNvbnJldCA9IFZNX0ZBVUxUX0hX
+UE9JU09OOwo+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAocmV0ICYgVk1f
+RkFVTFRfTE9DS0VEKSB7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoGlmIChwYWdlX21hcHBlZChwYWdlKSkKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHVubWFwX21hcHBpbmdf
+cGFnZXMocGFnZV9tYXBwaW5nKHBhCj4gPiBnZSksCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBwYWdlLT5pbmRleCwgMSwKPiA+IGZhbHNlKTsKPiAKPiBJ
+dCBzZWVtcyB0aGlzIHVubWFwX21hcHBpbmdfcGFnZXMgYWxzbyBoZWxwcyB0aGUgc3VjY2VzcyBy
+YXRlIG9mIHRoZQo+IGJlbG93IGludmFsaWRhdGVfaW5vZGVfcGFnZS4KPiAKClRoYXQgaXMgaW5k
+ZWVkIHdoYXQgaXQgaXMgc3VwcG9zZWQgdG8gZG8uCgpJdCBpc24ndCBmb29sIHByb29mLCBzaW5j
+ZSB5b3UgY2FuIHN0aWxsIGVuZCB1cAp3aXRoIGRpcnR5IHBhZ2VzIHRoYXQgZG9uJ3QgZ2V0IGNs
+ZWFuZWQgaW1tZWRpYXRlbHksCmJ1dCBpdCBzZWVtcyB0byB0dXJuIGluZmluaXRlIGxvb3BzIG9m
+IGEgcHJvZ3JhbQpiZWluZyBraWxsZWQgZXZlcnkgdGltZSBpdCdzIHN0YXJ0ZWQgaW50byBhIG1v
+cmUKbWFuYWdlYWJsZSBzaXR1YXRpb24gd2hlcmUgdGhlIHRhc2sgc3VjY2VlZHMgYWdhaW4KcHJl
+dHR5IHF1aWNrbHkuCgo+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgLyogUmV0cnkgaWYgYSBjbGVhbiBwYWdlIHdhcyByZW1vdmVkIGZyb20KPiA+IHRo
+ZSBjYWNoZS4gKi8KPiA+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgaWYgKGludmFsaWRhdGVfaW5vZGVfcGFnZSh2bWYtPnBhZ2UpKQo+ID4gLcKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcG9p
+c29ucmV0ID0gMDsKPiA+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgdW5sb2NrX3BhZ2Uodm1mLT5wYWdlKTsKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaWYgKGludmFsaWRhdGVfaW5vZGVfcGFnZShwYWdlKSkK
+PiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoHBvaXNvbnJldCA9IFZNX0ZBVUxUX05PUEFHRTsKPiA+ICvCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgdW5sb2NrX3BhZ2UocGFnZSk7Cj4gPiDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoH0KPiA+IC3CoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqBwdXRfcGFnZSh2bWYtPnBhZ2UpOwo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoHB1dF9wYWdlKHBhZ2UpOwo+IAo+IERvIHdlIHVzZSBwYWdlIGluc3RlYWQgb2Yg
+dm1mLT5wYWdlIGp1c3QgZm9yIHNpbXBsaWNpdHk/IE9yIHRoZXJlIGlzCj4gc29tZSBvdGhlciBj
+b25jZXJuPwo+IAoKSnVzdCBhIHNpbXBsaWZpY2F0aW9uLCBhbmQgbm90IGRlcmVmZXJlbmNpbmcg
+dGhlIHNhbWUgdGhpbmcKNiB0aW1lcy4KCj4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoHZtZi0+cGFnZSA9IE5VTEw7Cj4gCj4gV2UgcmV0dXJuIGVpdGhlciBWTV9GQVVMVF9OT1BB
+R0Ugb3IgVk1fRkFVTFRfSFdQT0lTT04gd2l0aCB2bWYtPnBhZ2UKPiA9IE5VTEwuIElmIGFueSBj
+YXNlLAo+IGZpbmlzaF9mYXVsdCB3b24ndCBiZSBjYWxsZWQgbGF0ZXIuIFNvIEkgdGhpbmsgeW91
+ciBmaXggaXMgcmlnaHQuCgpXYW50IHRvIHNlbmQgaW4gYSBSZXZpZXdlZC1ieSBvciBBY2tlZC1i
+eT8gOikKCi0tIApBbGwgUmlnaHRzIFJldmVyc2VkLgo=
+
+
+--=-yyEVjlUEaZO5whgwVvNZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEKR73pCCtJ5Xj3yADznnekoTE3oMFAmI/dD4ACgkQznnekoTE
+3oPIOQf/YksPhwQYLGaGg3PSw+xwuRhx8LNWH32ckzlyrCGtFpCmiuojp3+S4Kb8
+SSIVV+gkEPyageY6Mapntzp1IPLSlEMSmZ2Xg/82oWLPNtaKljDHnzalS/IJjtIK
+ENDXyP2IaV0DFcoEgVkLp/64z3YRWjgpKDOPoDusopYBMqNITKy10I1LdaEqwOt9
+idBYBC7/YNIZvQPe5QL2CTR0k4Mbggp/3MUdyhZYxeEKp05c3D3VRRotcokGVgQ3
+WLuqS+OCoZ18KPpDz9BQOygcmOHcXPMtODkS9F/vjNYDO9gxJMTUFo/zLKwlglrb
+rOKQebP5m9IIRcKxLvgFN3WyA+IMTQ==
+=xICT
+-----END PGP SIGNATURE-----
+
+--=-yyEVjlUEaZO5whgwVvNZ--
