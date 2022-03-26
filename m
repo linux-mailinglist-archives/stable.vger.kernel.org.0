@@ -2,127 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5454E7FD2
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 08:49:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC6EE4E8036
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 10:55:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbiCZHuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 03:50:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34146 "EHLO
+        id S231514AbiCZJ53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 05:57:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231881AbiCZHue (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 03:50:34 -0400
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CEFE3E5D8;
-        Sat, 26 Mar 2022 00:48:56 -0700 (PDT)
-Received: from canpemm500002.china.huawei.com (unknown [172.30.72.53])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4KQWFg0ZySz9swd;
-        Sat, 26 Mar 2022 15:44:55 +0800 (CST)
-Received: from [10.174.177.76] (10.174.177.76) by
- canpemm500002.china.huawei.com (7.192.104.244) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Sat, 26 Mar 2022 15:48:53 +0800
-Subject: Re: [PATCH] mm,hwpoison: unmap poisoned page before invalidation
-To:     Rik van Riel <riel@surriel.com>
-CC:     <linux-mm@kvack.org>, <kernel-team@fb.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Mel Gorman <mgorman@suse.de>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        <stable@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <20220325161428.5068d97e@imladris.surriel.com>
-From:   Miaohe Lin <linmiaohe@huawei.com>
-Message-ID: <e6aa40b9-1cd8-b13f-555b-5f8ad863f196@huawei.com>
-Date:   Sat, 26 Mar 2022 15:48:53 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        with ESMTP id S229459AbiCZJ53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 05:57:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20B2D5;
+        Sat, 26 Mar 2022 02:55:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1CCAB80171;
+        Sat, 26 Mar 2022 09:55:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF376C340E8;
+        Sat, 26 Mar 2022 09:55:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1648288550;
+        bh=9IneiZNLzEZanYVZtHa+eeAHI02Z5SLRz6bDCNPUHSU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XWuFHpykcaXFspA4hULJtVeAkD08kr9E2WTF3KdVoW8nGskkjJzhfDIjfnSNiY0Dk
+         +5yl06dvJNF07RRTkc917veBwbW7/G4TFdN00pE5sFdi+q1ma8pA/uA1nSTVRKWo2t
+         5RgwH0WqttYLMLM2zUpBbx9KOoxHIvHSnl/atDQo=
+Date:   Sat, 26 Mar 2022 10:55:47 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Rob Clark <robdclark@chromium.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.17 00/39] 5.17.1-rc1 review
+Message-ID: <Yj7jI6uEtZDC5mQS@kroah.com>
+References: <20220325150420.245733653@linuxfoundation.org>
+ <CA+G9fYtayz_X5tjiCT4gWZNNG=O-zx6-GTLgtqH855RoYw_5xw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220325161428.5068d97e@imladris.surriel.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.177.76]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- canpemm500002.china.huawei.com (7.192.104.244)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYtayz_X5tjiCT4gWZNNG=O-zx6-GTLgtqH855RoYw_5xw@mail.gmail.com>
+X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/3/26 4:14, Rik van Riel wrote:
-> In some cases it appears the invalidation of a hwpoisoned page
-> fails because the page is still mapped in another process. This
-> can cause a program to be continuously restarted and die when
-> it page faults on the page that was not invalidated. Avoid that
-> problem by unmapping the hwpoisoned page when we find it.
+On Sat, Mar 26, 2022 at 10:24:39AM +0530, Naresh Kamboju wrote:
+> On Fri, 25 Mar 2022 at 20:50, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.17.1 release.
+> > There are 39 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.1-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> Another issue is that sometimes we end up oopsing in finish_fault,
-> if the code tries to do something with the now-NULL vmf->page.
-> I did not hit this error when submitting the previous patch because
-> there are several opportunities for alloc_set_pte to bail out before
-> accessing vmf->page, and that apparently happened on those systems,
-> and most of the time on other systems, too.
+> arm64 qcom db410c device crashed [1]
 > 
-> However, across several million systems that error does occur a
-> handful of times a day. It can be avoided by returning VM_FAULT_NOPAGE
-> which will cause do_read_fault to return before calling finish_fault.
+> [   10.823905] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+> [   10.876029] CPU: 1 PID: 193 Comm: kworker/1:2 Not tainted 5.17.1-rc1 #1
+> [   10.876047] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+> [   10.876054] Workqueue: pm pm_runtime_work
+> [   10.876076] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> [   10.876087] pc : hrtimer_active+0x14/0x80
+> [   10.876102] lr : hrtimer_cancel+0x28/0x70
 > 
-> Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Miaohe Lin <linmiaohe@huawei.com>
-> Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
-> Cc: Mel Gorman <mgorman@suse.de>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: stable@vger.kernel.org
+> 
+> The following patch fixes the problem.
+> 
+> >From 05afd57f4d34602a652fdaf58e0a2756b3c20fd4 Mon Sep 17 00:00:00 2001
+> From: Rob Clark <robdclark@chromium.org>
+> Date: Tue, 8 Mar 2022 10:48:44 -0800
+> Subject: drm/msm/gpu: Fix crash on devices without devfreq support (v2)
+> 
+> Avoid going down devfreq paths on devices where devfreq is not
+> initialized.
+> 
+> v2: Change has_devfreq() logic [Dmitry]
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> Reported-by: Anders Roxell <anders.roxell@linaro.org>
+> Signed-off-by: Rob Clark <robdclark@chromium.org>
+> Fixes: 6aa89ae1fb04 ("drm/msm/gpu: Cancel idle/boost work on suspend")
+> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> Link: https://lore.kernel.org/r/20220308184844.1121029-1-robdclark@gmail.com
 > ---
->  mm/memory.c | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
+>  drivers/gpu/drm/msm/msm_gpu_devfreq.c | 30 +++++++++++++++++++++++++-----
+>  1 file changed, 25 insertions(+), 5 deletions(-)
 > 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index be44d0b36b18..76e3af9639d9 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -3918,14 +3918,18 @@ static vm_fault_t __do_fault(struct vm_fault *vmf)
->  		return ret;
->  
->  	if (unlikely(PageHWPoison(vmf->page))) {
-> +		struct page *page = vmf->page;
->  		vm_fault_t poisonret = VM_FAULT_HWPOISON;
->  		if (ret & VM_FAULT_LOCKED) {
-> +			if (page_mapped(page))
-> +				unmap_mapping_pages(page_mapping(page),
-> +						    page->index, 1, false);
-
-It seems this unmap_mapping_pages also helps the success rate of the below invalidate_inode_page.
-
->  			/* Retry if a clean page was removed from the cache. */
-> -			if (invalidate_inode_page(vmf->page))
-> -				poisonret = 0;
-> -			unlock_page(vmf->page);
-> +			if (invalidate_inode_page(page))
-> +				poisonret = VM_FAULT_NOPAGE;
-> +			unlock_page(page);
->  		}
-> -		put_page(vmf->page);
-> +		put_page(page);
-
-Do we use page instead of vmf->page just for simplicity? Or there is some other concern?
-
->  		vmf->page = NULL;
-
-We return either VM_FAULT_NOPAGE or VM_FAULT_HWPOISON with vmf->page = NULL. If any case,
-finish_fault won't be called later. So I think your fix is right.
-
->  		return poisonret;
->  	}
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 > 
 
-Many thanks for your patch.
+Now queued up, but note, this problem was already present in 5.17.0,
+right?
+
+thanks,
+
+greg k-h
