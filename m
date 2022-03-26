@@ -2,89 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E64D4E8056
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 11:18:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9764E80AE
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 12:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231863AbiCZKUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 06:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48998 "EHLO
+        id S232675AbiCZL5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 07:57:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232395AbiCZKUA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 06:20:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035B6B95;
-        Sat, 26 Mar 2022 03:18:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E48B60AB4;
-        Sat, 26 Mar 2022 10:18:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 152A4C2BBE4;
-        Sat, 26 Mar 2022 10:18:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648289889;
-        bh=OZH7g2IpG6pK2wMxM9iGM7s18WiIbcFEqwaQDkLIJMw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=A+4daBoM17fEB6UEwD338UFvlZtz7aDf+AyiXnXrtUx6xSXqSS0R4dTMQwLz90cus
-         A73pJA9vstoHKNfEhOkhMi9oWky6N2WTDtcMnIQlhfAvp5vJghfoyxtHiYNKw1b8q+
-         LjNxfFhgWkoAyHZ5HdynxTinUpt36awiPZ55DYCo=
-Date:   Sat, 26 Mar 2022 11:18:06 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 5.10 11/38] swiotlb: rework "fix info leak with
- DMA_FROM_DEVICE"
-Message-ID: <Yj7oXgoCdhWAwFQt@kroah.com>
-References: <20220325150419.757836392@linuxfoundation.org>
- <20220325150420.085364078@linuxfoundation.org>
- <CAHk-=wiaeZKiEk87Sms1sy53m8tT3UCLOoeUBnX1c_1dZ78WjQ@mail.gmail.com>
+        with ESMTP id S232477AbiCZL5E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 07:57:04 -0400
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E4812779
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 04:55:27 -0700 (PDT)
+Received: by mail-vs1-xe36.google.com with SMTP id l128so10921216vsc.7
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 04:55:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=uc-cl.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=WkL+4HqaqGPobhai7qUB51B8QkT2s6IVHuPU1bTF3is=;
+        b=ETCFzuEDSO3QgSDZSHxWFEQa72MuiNVdJ0nkEnjZ3B7bB0WLdIz5xQKTyt6Eot/A6R
+         X+CkJFcctDll5wTp2YwyQzU+b5ByrgLzKWWuutV1OYUPY1PeDIWF/UhjOyMTh03jgWlT
+         MauvUhqzHRpEoGkBbXtFQkU6RzAaCDeWvwUc/JflOetzAA+25CFzwveVbdReu107jvFB
+         U6CLhzUlqPQp+gChWECUCjQUu/R2UE0yqJA04zZZhyRb8BVaUD+Bh9fHTssBMzs7nJiM
+         SnDa+yNrvl3QfyqmkhwLHe/sD/tEx7bHcHEAbJWWpCadq/jOvtUjRmDu8AaL7m0TO4hc
+         EJyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=WkL+4HqaqGPobhai7qUB51B8QkT2s6IVHuPU1bTF3is=;
+        b=gC7iQSQyJxrVeHXxIHps4Vud/WN3occa/Ek9epcquo6m1u1+4cUKnxeG6QLdJoQcVh
+         TVP+dOXvDfk7x2EE/BEN53XKwuUPpXPZnCSc4JRj1EMP5ja2mPu1Cb5mZEz885Hh6+C8
+         ZVwMxVIdd8WQZOD8jXeKS6Xtw+ApC2sxSC0Pu4g3sa2eY8cve9vRygPy5QjE+K7tGIuk
+         W75g2UPWerybYOfcmv5g/nJGLj4zYOcjSKA2rPTLWpT0RfK6sXIj5+ROsozDvtQW3sjE
+         j81taradMiAw7+3u3jiltNl3xTCbC1dOk2fEgJnjTu0nzr5f76CRbIhts30Hxr54Ib7j
+         8EKQ==
+X-Gm-Message-State: AOAM532+8FjnWWNYPsboFov2tjNs1fAPYi8HkDxHy1vat1pGRNF2LPUt
+        c3zBPpLQPtZx6mXYMEdK1XKgGT6CxF6ayldJfR9vLwp4LGfEOu0exO2MfHCdHV5lRaHqJyf9j/Q
+        T4fUf0cK1H9Gy5hewGLBylYjf
+X-Google-Smtp-Source: ABdhPJyTuNRQE9q9VEnpNhB08CdqsHSaYOrp9/8Vf94bfd16vvK9khXK37h5QwaxumVycb4RhEKcFTeSyFT8I5u7kDo=
+X-Received: by 2002:a05:6102:2922:b0:325:7818:866b with SMTP id
+ cz34-20020a056102292200b003257818866bmr2638732vsb.30.1648295726269; Sat, 26
+ Mar 2022 04:55:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wiaeZKiEk87Sms1sy53m8tT3UCLOoeUBnX1c_1dZ78WjQ@mail.gmail.com>
-X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Received: by 2002:a59:b809:0:b0:2a0:100b:1dbe with HTTP; Sat, 26 Mar 2022
+ 04:55:25 -0700 (PDT)
+Reply-To: chrtyfndtlisa@gmail.com
+From:   Lisa Robinson <rrondane@uc.cl>
+Date:   Sat, 26 Mar 2022 04:55:25 -0700
+Message-ID: <CACK-=173=a_BrU_EePnDRsm+Bgjw-Fz3K0SXPACaB5NQqmd0MQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=7.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FORGED_REPLYTO,HK_RANDOM_REPLYTO,LOTS_OF_MONEY,
+        MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,T_US_DOLLARS_3,UNDISC_MONEY autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:e36 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  1.0 HK_RANDOM_REPLYTO Reply-To username looks random
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 T_US_DOLLARS_3 BODY: Mentions millions of $ ($NN,NNN,NNN.NN)
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+        *  0.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+        *  3.8 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 25, 2022 at 10:08:27AM -0700, Linus Torvalds wrote:
-> On Fri, Mar 25, 2022 at 8:09 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > From: Halil Pasic <pasic@linux.ibm.com>
-> >
-> > commit aa6f8dcbab473f3a3c7454b74caa46d36cdc5d13 upstream.
-> 
-> This one causes a regression on at least some wireless drivers
-> (ath9k). There's some active discussion about it, maybe it gets
-> reverted, maybe there are other options.
-> 
-> There's an ath9k patch that fixes the problem, so if this patch goes
-> into the stable tree the ath9k fix will follow.
-> 
-> But it might be a good idea to simply hold off on this patch a bit,
-> because that ath9k patch hasn't actually landed yet, there's some
-> discussion about it all, and it's not clear that other drivers might
-> not have the same issue.
-> 
-> So I'm not NAK'ing this patch from stable, but I also don't think it's
-> timing-critical, and it might be a good idea to delay it for a week or
-> two to both wait for the ath9k patch and to see if something else
-> comes up.
+--=20
+Hello, I am Lisa Robinson, you have a donation of $1,200,000.00 USD. I
+won a fortune in the Power-ball lottery and i am donating part of it
+to ten lucky people and Ten Charity organization. Your email came out
+victorious so contact me urgently for claims: chrtyfndtlisa@gmail.com
 
-Yes, I've been watching that thread.  This change is already in 5.15 and
-5.16 kernels, and does solve one known security issue, so it's a tough
-call.  I'll drop them from 5.10 and 5.4 for now and save them to see how
-it plays out...
+--=20
+No sienta la obligaci=C3=B3n de contestar este mail fuera de horario labora=
+l.
+Direcci=C3=B3n de Personas UC
 
-thanks,
-
-greg k-h
