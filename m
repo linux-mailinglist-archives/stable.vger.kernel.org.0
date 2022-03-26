@@ -2,92 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC3C4E7FB1
-	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 08:05:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5454E7FD2
+	for <lists+stable@lfdr.de>; Sat, 26 Mar 2022 08:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231126AbiCZHHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 03:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41324 "EHLO
+        id S229869AbiCZHuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 03:50:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230024AbiCZHHb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 03:07:31 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8DFF249C7C;
-        Sat, 26 Mar 2022 00:05:55 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id n18so10364847plg.5;
-        Sat, 26 Mar 2022 00:05:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=IuLPzOFcPfRBD9YvtrSpiynaCCbnkp8ViJ4z5qQgTW0=;
-        b=MFguf+LwUrhR3LwewKznkaJvWfeqcdf4V9ngOl4LF7gFuwlQO3PBw67XNoQVrPDfpt
-         08wiuaLCvgEbCuPqz7y1o/wxMSmr3AzVlFb7qDs+N0N0iybBENH7TfFhTqF7KKixiWVt
-         lLfjefDh1/0/J2Jg1RBZe2OxbmNut4WTt9HedNE2qOLOhrjNIRh3mKUsx1zzLK6cJhzV
-         UT2DN68XPWXVVucDS6Z9JgBpPRS7Y0Z7d9lc3nQ6xnRiQ8gdFrH1cg8f2Fdi6PGp1x9w
-         xhbggsQhd/lt94VnTVcFzcb4ZQ3b5SgbtkDfTrcmO2iHLKlGstACjfcvMaIat5Cmeluz
-         xrUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=IuLPzOFcPfRBD9YvtrSpiynaCCbnkp8ViJ4z5qQgTW0=;
-        b=vI6KQLkoOV8yaM6gD5SnxdOIcfUVD4KlRNa/ctnVoNVb6PhKg55h0J0gBXTttyMDuK
-         K75FFG1peNl6a+Hw8GiskDqhm5Mp8gEyGAe4cexmqpIrEtUMZYgNZEjmgY074Jsu+RzE
-         lkcoTa1fLCS4RTs8btuO+fsO75MCUL1rO1yiqkDVSHf3lnZGsmqQ1+5QDEfQa0HeXheY
-         33SFB704hmpvojBQEvIMtuEpsO9x3MKVJQtXreB2sKYmu6Da5vRLZZGDhr7KK/yGbd3z
-         Qx41+jv7MTrA+Hte2bHNHOuZ+kg/y9pyOyCEdrUNchYeiyS6cu7z3o4st/ZNHkkqEcax
-         PydA==
-X-Gm-Message-State: AOAM530KmBPPir1+rR/43hCNl7wNt7h3ogwd/IUxMC/Bq+LbGaPuFSwF
-        Zbn45P9NyFech/X6HzHWW80=
-X-Google-Smtp-Source: ABdhPJyPP9DqkOvlbagWD3+S8fA8Jau2A5WoiwJCclODGS/tOiMv0HsIpP7TE9p5BYtq7h6+oCYiFA==
-X-Received: by 2002:a17:90b:1b12:b0:1c7:6f5d:d7e8 with SMTP id nu18-20020a17090b1b1200b001c76f5dd7e8mr24990608pjb.154.1648278355165;
-        Sat, 26 Mar 2022 00:05:55 -0700 (PDT)
-Received: from [192.168.43.80] (subs03-180-214-233-83.three.co.id. [180.214.233.83])
-        by smtp.gmail.com with ESMTPSA id p16-20020a056a000b5000b004faed463907sm8350042pfo.0.2022.03.26.00.05.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 26 Mar 2022 00:05:54 -0700 (PDT)
-Message-ID: <2b3af5d1-8233-45a6-7a44-a19f7010cd6b@gmail.com>
-Date:   Sat, 26 Mar 2022 14:05:48 +0700
+        with ESMTP id S231881AbiCZHue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 03:50:34 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CEFE3E5D8;
+        Sat, 26 Mar 2022 00:48:56 -0700 (PDT)
+Received: from canpemm500002.china.huawei.com (unknown [172.30.72.53])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4KQWFg0ZySz9swd;
+        Sat, 26 Mar 2022 15:44:55 +0800 (CST)
+Received: from [10.174.177.76] (10.174.177.76) by
+ canpemm500002.china.huawei.com (7.192.104.244) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Sat, 26 Mar 2022 15:48:53 +0800
+Subject: Re: [PATCH] mm,hwpoison: unmap poisoned page before invalidation
+To:     Rik van Riel <riel@surriel.com>
+CC:     <linux-mm@kvack.org>, <kernel-team@fb.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        <stable@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20220325161428.5068d97e@imladris.surriel.com>
+From:   Miaohe Lin <linmiaohe@huawei.com>
+Message-ID: <e6aa40b9-1cd8-b13f-555b-5f8ad863f196@huawei.com>
+Date:   Sat, 26 Mar 2022 15:48:53 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.10 00/38] 5.10.109-rc1 review
+In-Reply-To: <20220325161428.5068d97e@imladris.surriel.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220325150419.757836392@linuxfoundation.org>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20220325150419.757836392@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Originating-IP: [10.174.177.76]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500002.china.huawei.com (7.192.104.244)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/03/22 22.04, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.109 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2022/3/26 4:14, Rik van Riel wrote:
+> In some cases it appears the invalidation of a hwpoisoned page
+> fails because the page is still mapped in another process. This
+> can cause a program to be continuously restarted and die when
+> it page faults on the page that was not invalidated. Avoid that
+> problem by unmapping the hwpoisoned page when we find it.
+> 
+> Another issue is that sometimes we end up oopsing in finish_fault,
+> if the code tries to do something with the now-NULL vmf->page.
+> I did not hit this error when submitting the previous patch because
+> there are several opportunities for alloc_set_pte to bail out before
+> accessing vmf->page, and that apparently happened on those systems,
+> and most of the time on other systems, too.
+> 
+> However, across several million systems that error does occur a
+> handful of times a day. It can be avoided by returning VM_FAULT_NOPAGE
+> which will cause do_read_fault to return before calling finish_fault.
+> 
+> Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: Miaohe Lin <linmiaohe@huawei.com>
+> Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Cc: Johannes Weiner <hannes@cmpxchg.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  mm/memory.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/mm/memory.c b/mm/memory.c
+> index be44d0b36b18..76e3af9639d9 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -3918,14 +3918,18 @@ static vm_fault_t __do_fault(struct vm_fault *vmf)
+>  		return ret;
+>  
+>  	if (unlikely(PageHWPoison(vmf->page))) {
+> +		struct page *page = vmf->page;
+>  		vm_fault_t poisonret = VM_FAULT_HWPOISON;
+>  		if (ret & VM_FAULT_LOCKED) {
+> +			if (page_mapped(page))
+> +				unmap_mapping_pages(page_mapping(page),
+> +						    page->index, 1, false);
+
+It seems this unmap_mapping_pages also helps the success rate of the below invalidate_inode_page.
+
+>  			/* Retry if a clean page was removed from the cache. */
+> -			if (invalidate_inode_page(vmf->page))
+> -				poisonret = 0;
+> -			unlock_page(vmf->page);
+> +			if (invalidate_inode_page(page))
+> +				poisonret = VM_FAULT_NOPAGE;
+> +			unlock_page(page);
+>  		}
+> -		put_page(vmf->page);
+> +		put_page(page);
+
+Do we use page instead of vmf->page just for simplicity? Or there is some other concern?
+
+>  		vmf->page = NULL;
+
+We return either VM_FAULT_NOPAGE or VM_FAULT_HWPOISON with vmf->page = NULL. If any case,
+finish_fault won't be called later. So I think your fix is right.
+
+>  		return poisonret;
+>  	}
 > 
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
-powerpc (ps3_defconfig, gcc 11.2.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
--- 
-An old man doll... just what I always wanted! - Clara
+Many thanks for your patch.
