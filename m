@@ -2,53 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A804E8A49
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 23:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1731B4E8A64
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 00:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235147AbiC0Vqq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 27 Mar 2022 17:46:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51178 "EHLO
+        id S234008AbiC0WPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 18:15:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbiC0Vqp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 17:46:45 -0400
-Received: from mail.lixid.net (lixid.tarent.de [193.107.123.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C29812608
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 14:45:06 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.lixid.net (MTA) with ESMTP id EC5C2140307;
-        Sun, 27 Mar 2022 23:45:04 +0200 (CEST)
-Received: from mail.lixid.net ([127.0.0.1])
-        by localhost (mail.lixid.net [127.0.0.1]) (MFA, port 10024) with LMTP
-        id dy32lniuJUHV; Sun, 27 Mar 2022 23:44:59 +0200 (CEST)
-Received: from tglase-nb.lan.tarent.de (vpn-172-34-0-14.dynamic.tarent.de [172.34.0.14])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.lixid.net (MTA) with ESMTPS id 80A84141186;
-        Sun, 27 Mar 2022 23:44:59 +0200 (CEST)
-Received: by tglase-nb.lan.tarent.de (Postfix, from userid 1000)
-        id 2CA991C9DF0; Sun, 27 Mar 2022 23:44:59 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by tglase-nb.lan.tarent.de (Postfix) with ESMTP id 297F71C9DEF;
-        Sun, 27 Mar 2022 23:44:59 +0200 (CEST)
-Date:   Sun, 27 Mar 2022 23:44:59 +0200 (CEST)
-From:   Thorsten Glaser <t.glaser@tarent.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vlad Buslov <vladbu@mellanox.com>, stable@vger.kernel.org
-cc:     Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lee Jones <lee.jones@linaro.org>, Daniel.Fleischer@orbit.de,
-        Marcel.Krause@orbit.de, christian.hampe@telekom.de,
-        haye.haehne@telekom.de, keith.lloyd@telekom.de
-Subject: Re: v4.19.221 breaks qdisc modules
-In-Reply-To: <919153d5-a79a-de71-9584-10179ae586d@tarent.de>
-Message-ID: <425d1b7-abb9-903c-4ae4-11f27ef06313@tarent.de>
-References: <919153d5-a79a-de71-9584-10179ae586d@tarent.de>
-Content-Language: de-DE-1901
+        with ESMTP id S236863AbiC0WPQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 18:15:16 -0400
+Received: from mail.kapsi.fi (mail.kapsi.fi [IPv6:2001:67c:1be8::25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737CF49F8A;
+        Sun, 27 Mar 2022 15:13:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=kapsi.fi;
+         s=20161220; h=Content-Transfer-Encoding:Content-Type:Message-ID:References:
+        In-Reply-To:Subject:Cc:To:From:Date:MIME-Version:Sender:Reply-To:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=pV29UjFYmfGiilWwyQNlVjFasUPj3jYxTXkmhIEc+XM=; b=BHU0kAa6aPENeSDuCOZPHe56vV
+        qpF2gdxkZMMrvTtlKbEeVlVbwiTgG6JyTb8gftMEhKrtLpNWaa+2q0BPH+65voWXa1q7NN74q6Xdk
+        th1/kUkA2/12kAlPqkbJPBL3Si86W2SSXNOyEEuh7Fp3oFnLn4XHtogu9xe0fsk6lC6HHPI+/SoWe
+        /NHJMOZOmG8fXRXW03DiEq5WOfqfZ0XQGrYz4QtaSqmmpE711w5bK9DZIDbCGu/oQ2Sk/YnoRC/E/
+        XNqvj0NZF2EzGzZSoW1oBeq1O9wY8LiKpiKXFVd2l2KSn+jaQ13cZcuNRw8ppEu2TFNTZf8SvCShR
+        WPYY8utA==;
+Received: from webng-gw.kapsi.fi ([91.232.154.200] helo=roundcube.kapsi.fi)
+        by mail.kapsi.fi with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.89)
+        (envelope-from <jyri.sarha@iki.fi>)
+        id 1nYb8V-00024d-Uh; Mon, 28 Mar 2022 01:13:23 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+Date:   Mon, 28 Mar 2022 01:13:21 +0300
+From:   Jyri Sarha <jyri.sarha@iki.fi>
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Cc:     tomba@kernel.org, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] tilcdc: tilcdc_external: fix an incorrect NULL check on
+ list iterator
+In-Reply-To: <20220327061516.5076-1-xiam0nd.tong@gmail.com>
+References: <20220327061516.5076-1-xiam0nd.tong@gmail.com>
+Message-ID: <eadea5bbb40c168ee1bbf955c10979cb@iki.fi>
+X-Sender: jyri.sarha@iki.fi
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 91.232.154.200
+X-SA-Exim-Mail-From: jyri.sarha@iki.fi
+X-SA-Exim-Scanned: No (on mail.kapsi.fi); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,35 +60,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 27 Mar 2022, Thorsten Glaser wrote:
+On 2022-03-27 9:15, Xiaomeng Tong wrote:
+> The bug is here:
+> 	if (!encoder) {
+> 
+> The list iterator value 'encoder' will *always* be set and non-NULL
+> by list_for_each_entry(), so it is incorrect to assume that the
+> iterator value will be NULL if the list is empty or no element
+> is found.
+> 
+> To fix the bug, use a new variable 'iter' as the list iterator,
+> while use the original variable 'encoder' as a dedicated pointer
+> to point to the found element.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: ec9eab097a500 ("drm/tilcdc: Add drm bridge support for
+> attaching drm bridge drivers")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-> But this makes it more tricky… or can I “just” change this
-> to KERNEL_VERSION(4, 19, 221) ?
+Thanks for the patch. Good catch.
 
-Well, of course not:
+Reviewed-by: Jyri Sarha <jyri.sarha@iki.fi>
+Tested-by: Jyri Sarha <jyri.sarha@iki.fi>
 
-$ cat /usr/src/linux-headers-4.19.0-19-amd64/include/generated/uapi/linux/version.h
-#define LINUX_VERSION_CODE 267263
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
-$ print $(((267263 >> 16) & 0xFF)).$(((267263 >> 8) & 0xFF)).$((267263 & 0xFF))
-4.19.255
+I'll apply this to drm-misc-next in couple of days.
 
-Whose bright idea was *that*?
+Best regards,
+Jyri
 
-How can I make this module compatible with *both* 4.19 variants?
-
-Thanks in advance,
-//mirabilos
--- 
-Infrastrukturexperte • tarent solutions GmbH
-Am Dickobskreuz 10, D-53121 Bonn • http://www.tarent.de/
-Telephon +49 228 54881-393 • Fax: +49 228 54881-235
-HRB AG Bonn 5168 • USt-ID (VAT): DE122264941
-Geschäftsführer: Dr. Stefan Barth, Kai Ebenrett, Boris Esser, Alexander Steeg
-
-                        ****************************************************
-/⁀\ The UTF-8 Ribbon
-╲ ╱ Campaign against      Mit dem tarent-Newsletter nichts mehr verpassen:
- ╳  HTML eMail! Also,     https://www.tarent.de/newsletter
-╱ ╲ header encryption!
-                        ****************************************************
+> ---
+>  drivers/gpu/drm/tilcdc/tilcdc_external.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/tilcdc/tilcdc_external.c
+> b/drivers/gpu/drm/tilcdc/tilcdc_external.c
+> index 7594cf6e186e..3b86d002ef62 100644
+> --- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
+> +++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
+> @@ -60,11 +60,13 @@ struct drm_connector
+> *tilcdc_encoder_find_connector(struct drm_device *ddev,
+>  int tilcdc_add_component_encoder(struct drm_device *ddev)
+>  {
+>  	struct tilcdc_drm_private *priv = ddev->dev_private;
+> -	struct drm_encoder *encoder;
+> +	struct drm_encoder *encoder = NULL, *iter;
+> 
+> -	list_for_each_entry(encoder, &ddev->mode_config.encoder_list, head)
+> -		if (encoder->possible_crtcs & (1 << priv->crtc->index))
+> +	list_for_each_entry(iter, &ddev->mode_config.encoder_list, head)
+> +		if (iter->possible_crtcs & (1 << priv->crtc->index)) {
+> +			encoder = iter;
+>  			break;
+> +		}
+> 
+>  	if (!encoder) {
+>  		dev_err(ddev->dev, "%s: No suitable encoder found\n", __func__);
