@@ -2,60 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A037B4E8645
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 08:24:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8724E864D
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 08:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232919AbiC0G0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 02:26:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
+        id S233976AbiC0Gih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 02:38:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229485AbiC0G0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 02:26:17 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CDBA2B6;
-        Sat, 26 Mar 2022 23:24:39 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id gb19so11194529pjb.1;
-        Sat, 26 Mar 2022 23:24:39 -0700 (PDT)
+        with ESMTP id S229485AbiC0Gih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 02:38:37 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDDC53CFD7;
+        Sat, 26 Mar 2022 23:36:59 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id mj15-20020a17090b368f00b001c637aa358eso15928600pjb.0;
+        Sat, 26 Mar 2022 23:36:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=dr1pfWEjH/LtXsB7tWBt6bQIyc8GynNaruocx5UK+p4=;
-        b=NrLU0Tud7dKyPrRn8FqNdKPZ7B+J9NM5tUooHHg3BkdUnZcMyXyEWggcERwvymf/D5
-         NHttV+aFJg3cbs6CYTIPfr6oAxg1Uik0CQ5xkH6Pk8XYDOOtm0Sc+VPIDE8v5FIcDER4
-         ujPKjNuz0Im4hQ5LXHN+57P1RWpXRdLtM3HNNeNaIr8RIulQStfCfLil2W2gN7rXDTfL
-         qqFGTlabkl4FVmxP8AM/qfqWNnAshka/ZgPMYw974Yl1LonF47klbzkITdVK6S87SVZh
-         pGxeGJHwamPBf0b9qkfcoMoMnpQTuRIIurLdpeOiEeyDEfQFSElvZxFP9ZNzo2CTM9mw
-         yELw==
+        bh=Vxquc0x82lOVnxgO9GG3bLoj2bnOAjB9KKaly9b71eI=;
+        b=Zacfa65VYT45Ed3HvNxEa/zSfJxhASFzdSnFgNAFfl2zaCIHVw7FfZuC2I8CM2rP5z
+         Dck4y+sMWcDcoTnqjgDrzLVR4cW35Pf/iJMzWQGSYO3VGkfZuvNPIYMPeS2Za6lqpk+W
+         Ojd1GvY20KgJ7HbeKe7kbOEtbtl0QbntQQEOA9FuLHPbcdh5rkQBE6+06UqA6VA6fCsD
+         sqRWpUgH6vTTfRggawqLnMsYit5TB6/bwci2nsO3ysp9uW+vEiN+odgd7H6upDiwF2yN
+         ySwAachEwUY7o9c47dRqWyhBBJXtnpub3k2M3V7NLJpY7qd2Lq0Tzfn6gbe+Dv0uP/mZ
+         SAtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=dr1pfWEjH/LtXsB7tWBt6bQIyc8GynNaruocx5UK+p4=;
-        b=wRbHMkWSlgb9XGm9OLhLhivtyNvvoS3TnvaGCmNIU9b2OML0VlXYsx4LcOZGzZO6Gx
-         vbjm9SLtLX/b9qxUPMvqbLPs0nQHyf3y/3DpdGMJlDQ7sx5LyB2zhe3HQuhyZcT622V/
-         FlshoQRbYQYnZ4Unfj/zUoqEHftE/xEjpqPQus3qmmcdtj5SWj+9rp5YgClBrRbqRBnL
-         Q4RbE9i0NW76L9CGABU9IPDO4XWSIYtS8yJn2F4eKPFXPJqbCvyFFt/NPc+unYOEJsB+
-         38ccrqGgal9PUEcwXt1PnneTaTQdeNtD1DNSIr8tDO0YtIdc0f9k9LrNfrBEiurq9B8A
-         QsPw==
-X-Gm-Message-State: AOAM533ZlAFZHvP/VYE51Sm7Zbd95Gb+tn6j4RsIBdeb0gfrj6/cBikU
-        Brgr7oN2E+CHICAR+Co/jBw=
-X-Google-Smtp-Source: ABdhPJyGXjU/L3SAlfRX+kjprH5TGZQAun8MSIIIXSf68KUd+2NTcRZWbqiVuhcKNd4iHFEwB3EEyA==
-X-Received: by 2002:a17:90a:ca96:b0:1c6:b478:788e with SMTP id y22-20020a17090aca9600b001c6b478788emr22401255pjt.162.1648362278797;
-        Sat, 26 Mar 2022 23:24:38 -0700 (PDT)
-Received: from localhost.localdomain ([115.220.243.108])
-        by smtp.googlemail.com with ESMTPSA id l5-20020a056a0016c500b004f768db4c94sm12228443pfc.212.2022.03.26.23.24.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Mar 2022 23:24:38 -0700 (PDT)
+        bh=Vxquc0x82lOVnxgO9GG3bLoj2bnOAjB9KKaly9b71eI=;
+        b=50VQoLxc14+zrxqhUGSSwAqlzX9KqOG/KPaXWAKnqpaXnovulAGwl0M5GtWeWDlLtQ
+         Na3n6OlZrSo+FwRdZ8a4OBsE8eeqh8lVcpwOIzHpoA/am1bbo0taQZ+TccNK/VTEQuaE
+         NAo8M03eL8qcYXGyJ+5A9SeEAUe7fBIEWhZq2Kn1lznWVIpAmWDwInTUjqdUIkOf3wyC
+         E78bKIMkS29gi+Nle97il2GhSSVkj7VOIgxAzDp2Ji26pfD1LYX9kBjleLLrjE3EsQBi
+         j94b6PN9q38LOgVvPQ15LX7Ei6bUFXIoAmwQsQPX7dzjOWjeRwA5cVdiEkQrD13ZBnSO
+         NtDw==
+X-Gm-Message-State: AOAM533XOyAAeFHlZYfYE0ZIS/ufXv7jeDziYjYomYd2yjWI7eWW7KRg
+        6ac1VoaFV+dlP81ghmcOG3X9/LzRIg0=
+X-Google-Smtp-Source: ABdhPJyaSjWXyZ/ieaqh8L/e97HlAPr2TIJNMayS2xqJXyF8IYR/UDytE58G5d57fMqS8Xl9dMSxag==
+X-Received: by 2002:a17:902:e949:b0:14d:8ab1:919 with SMTP id b9-20020a170902e94900b0014d8ab10919mr20127331pll.122.1648363019396;
+        Sat, 26 Mar 2022 23:36:59 -0700 (PDT)
+Received: from localhost ([115.220.243.108])
+        by smtp.gmail.com with ESMTPSA id b7-20020a056a00114700b004f7be3231d6sm11408373pfm.7.2022.03.26.23.36.58
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Sat, 26 Mar 2022 23:36:58 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     balbi@kernel.org
-Cc:     gregkh@linuxfoundation.org, joel@jms.id.au, andrew@aj.id.au,
-        rentao.bupt@gmail.com, caihuoqing@baidu.com,
-        benh@kernel.crashing.org, linux-usb@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+To:     jesse.brandeburg@intel.com
+Cc:     anthony.l.nguyen@intel.com, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, jeffrey.t.kirsher@intel.com,
+        harshitha.ramamurthy@intel.com, intel-wired-lan@lists.osuosl.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] aspeed-vhub: epn: fix an incorrect member check on list iterator
-Date:   Sun, 27 Mar 2022 14:24:31 +0800
-Message-Id: <20220327062431.5847-1-xiam0nd.tong@gmail.com>
+Subject: [PATCH] i40e: i40e_main: fix a missing check on list iterator
+Date:   Sun, 27 Mar 2022 14:36:06 +0800
+Message-Id: <20220327063606.7315-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -68,66 +67,84 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-	if (&req->req == u_req) {
+	ret = i40e_add_macvlan_filter(hw, ch->seid, vdev->dev_addr, &aq_err);
 
-The list iterator 'req' will point to a bogus position containing
+The list iterator 'ch' will point to a bogus position containing
 HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it may bypass
-the 'if (&req->req == u_req) {' check in theory, if '*u_req' obj is
-just allocated in the same addr with '&req->req'.
+be checked before any use of the iterator, otherwise it will
+lead to a invalid memory access.
 
-To fix this bug, just mova all thing inside the loop and return 0,
-otherwise return error.
+To fix this bug, use a new variable 'iter' as the list iterator,
+while use the origin variable 'ch' as a dedicated pointer to
+point to the found element.
 
 Cc: stable@vger.kernel.org
-Fixes: 7ecca2a4080cb ("usb/gadget: Add driver for Aspeed SoC virtual hub")
+Fixes: 1d8d80b4e4ff6 ("i40e: Add macvlan support on i40e")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- drivers/usb/gadget/udc/aspeed-vhub/epn.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 27 +++++++++++----------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/aspeed-vhub/epn.c b/drivers/usb/gadget/udc/aspeed-vhub/epn.c
-index 917892ca8753..aae4ce3e1029 100644
---- a/drivers/usb/gadget/udc/aspeed-vhub/epn.c
-+++ b/drivers/usb/gadget/udc/aspeed-vhub/epn.c
-@@ -468,27 +468,24 @@ static int ast_vhub_epn_dequeue(struct usb_ep* u_ep, struct usb_request *u_req)
- 	struct ast_vhub *vhub = ep->vhub;
- 	struct ast_vhub_req *req;
- 	unsigned long flags;
--	int rc = -EINVAL;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 31b03fe78d3b..6224c98d275f 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7536,41 +7536,42 @@ static int i40e_fwd_ring_up(struct i40e_vsi *vsi, struct net_device *vdev,
+ 			    struct i40e_fwd_adapter *fwd)
+ {
+ 	int ret = 0, num_tc = 1,  i, aq_err;
+-	struct i40e_channel *ch, *ch_tmp;
++	struct i40e_channel *ch = NULL, *ch_tmp, *iter;
+ 	struct i40e_pf *pf = vsi->back;
+ 	struct i40e_hw *hw = &pf->hw;
  
- 	spin_lock_irqsave(&vhub->lock, flags);
- 
- 	/* Make sure it's actually queued on this endpoint */
- 	list_for_each_entry (req, &ep->queue, queue) {
--		if (&req->req == u_req)
--			break;
--	}
+-	if (list_empty(&vsi->macvlan_list))
+-		return -EINVAL;
 -
--	if (&req->req == u_req) {
--		EPVDBG(ep, "dequeue req @%p active=%d\n",
--		       req, req->active);
--		if (req->active)
--			ast_vhub_stop_active_req(ep, true);
--		ast_vhub_done(ep, req, -ECONNRESET);
--		rc = 0;
-+		if (&req->req == u_req) {
-+			EPVDBG(ep, "dequeue req @%p active=%d\n",
-+				req, req->active);
-+			if (req->active)
-+				ast_vhub_stop_active_req(ep, true);
-+			ast_vhub_done(ep, req, -ECONNRESET);
-+			spin_unlock_irqrestore(&vhub->lock, flags);
-+			return 0;
-+		}
+ 	/* Go through the list and find an available channel */
+-	list_for_each_entry_safe(ch, ch_tmp, &vsi->macvlan_list, list) {
+-		if (!i40e_is_channel_macvlan(ch)) {
+-			ch->fwd = fwd;
++	list_for_each_entry_safe(iter, ch_tmp, &vsi->macvlan_list, list) {
++		if (!i40e_is_channel_macvlan(iter)) {
++			iter->fwd = fwd;
+ 			/* record configuration for macvlan interface in vdev */
+ 			for (i = 0; i < num_tc; i++)
+ 				netdev_bind_sb_channel_queue(vsi->netdev, vdev,
+ 							     i,
+-							     ch->num_queue_pairs,
+-							     ch->base_queue);
+-			for (i = 0; i < ch->num_queue_pairs; i++) {
++							     iter->num_queue_pairs,
++							     iter->base_queue);
++			for (i = 0; i < iter->num_queue_pairs; i++) {
+ 				struct i40e_ring *tx_ring, *rx_ring;
+ 				u16 pf_q;
+ 
+-				pf_q = ch->base_queue + i;
++				pf_q = iter->base_queue + i;
+ 
+ 				/* Get to TX ring ptr */
+ 				tx_ring = vsi->tx_rings[pf_q];
+-				tx_ring->ch = ch;
++				tx_ring->ch = iter;
+ 
+ 				/* Get the RX ring ptr */
+ 				rx_ring = vsi->rx_rings[pf_q];
+-				rx_ring->ch = ch;
++				rx_ring->ch = iter;
+ 			}
++			ch = iter;
+ 			break;
+ 		}
  	}
  
- 	spin_unlock_irqrestore(&vhub->lock, flags);
--	return rc;
-+	return -EINVAL;
- }
- 
- void ast_vhub_update_epn_stall(struct ast_vhub_ep *ep)
++	if (!ch)
++		return -EINVAL;
++
+ 	/* Guarantee all rings are updated before we update the
+ 	 * MAC address filter.
+ 	 */
 -- 
 2.17.1
 
