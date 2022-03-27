@@ -2,126 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E38DE4E8755
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 13:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9FE4E879C
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 14:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbiC0LMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 07:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57902 "EHLO
+        id S234246AbiC0MHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 08:07:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbiC0LMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 07:12:06 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5908637BCB
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 04:10:27 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id h16so6802844wmd.0
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 04:10:27 -0700 (PDT)
+        with ESMTP id S230495AbiC0MHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 08:07:10 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B706013D69;
+        Sun, 27 Mar 2022 05:05:31 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id b24so14014334edu.10;
+        Sun, 27 Mar 2022 05:05:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=references:user-agent:from:to:cc:subject:date:in-reply-to
-         :message-id:mime-version;
-        bh=+BzHZSvsn/H69wlmb/H6rNB8e3j/o17VqP5fAwR3vQU=;
-        b=n+TM4caOAp7aEq8To+f6jO0BS7LMe0+DMBVCErD3nIzBkOALI2ZJlInZiWkvYKLyqB
-         H+4F7iYjKqYaLj/OPPzW9gq+l/M9Z0u6a8WTTf6LH/6M+0VXHjVNWfLpj5h9WLbTDly9
-         PJkw2fhaZ+69LqpOJ+zOCsrcktLX2QSq48Td+AlXqCzNCKa9dO0WK70MfS6fKUQC9Wtk
-         +fFh+kf/2aZXUIKt7Qtoq42+r5NKVrbBQryKeKWeDT12xPt7ASgtSsTKwm8D0eA3DWUo
-         8Zs14hKV4x0VtL+2deVPC7sbA3/beiz2cDtnHAf4stM2aEO3tYUFOqpZX9yriEm4A7M+
-         Mq6A==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=GnTwoiHEQ0005E7ajdlDmwONStYExlB/QvWk5f0jJ8A=;
+        b=hPapNzUdKjpjIWSPLoa82GQAIvgf0mp3A+nEIuW7/H8IaBEaG2W+/cZcabMryZyUBT
+         YJ4nc0pKzLxmBD9NlrkpHxP+MSQOp0cL2Fx6HOrxbzm3r+2NF5RHu6z4deMgbGtRrBSY
+         QbZKbY/8GCsIsjtAu8Js/t7u4ZKo+6LlDb7TctkhW+f4wIImbsdzvoAVy6gBf/xu2SZu
+         jHFmMjFfC+YOlUTWsffCfltIHnz5kgSOh3/toljpRkVlMpNZa/Axky9XOlIap/4k/vhb
+         8PPOkL3DTQ54g7cjV5zY2t4cKCUqBqC0NO1BFZ9akoWoxCYYSYYWus4MHu013J0alnj8
+         mRlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:references:user-agent:from:to:cc:subject:date
-         :in-reply-to:message-id:mime-version;
-        bh=+BzHZSvsn/H69wlmb/H6rNB8e3j/o17VqP5fAwR3vQU=;
-        b=a708hMBL1sO6oybBUqdPgrjsAHZcmLMGXGfD8r/ZT8BMvOu1PTPRxNHqIgi+f8x5Z3
-         OCRxzr/m4eJz0FukOUEwPSHD7nxJey6WWAuLtlfDk1zRwxt5JFphVhgpB0Ad/WyoQxGI
-         GKcEGtvhLzfsFH2NJg3tkoQlD450mpSxn46yqdD4dL5ZTotEjYvmjUjxl/EfnzyRmwVk
-         h3s8FJOYFIVXugDeXK99mPkR+4aDuO8Q16bOdNXgZ4duBytzzoRlmjZHX5x6/vKrZ56X
-         FJ2zpY22W9elTxz5JzrrzrMi4lSQFwPMmZKltqoYtuWz1uXamTBLrG6cZOhR61RdnwtM
-         6zBQ==
-X-Gm-Message-State: AOAM532HurqFoqU2852Fk5mcrchjWl/HBBBLIPW1VCkjXGnuu2ZiOyR+
-        u/B84mM7iAKwLnco+q6HSkdEcQ==
-X-Google-Smtp-Source: ABdhPJzw8TxaeNM+RLDCb4Y1lZLHWqMHpKjAx9JRCVm8lX0y2gwyKrD4U6GXSV5yvfD0ii3RXeXiXw==
-X-Received: by 2002:a05:600c:1c8e:b0:38c:a386:26aa with SMTP id k14-20020a05600c1c8e00b0038ca38626aamr19308151wms.204.1648379425745;
-        Sun, 27 Mar 2022 04:10:25 -0700 (PDT)
-Received: from localhost (82-65-169-74.subs.proxad.net. [82.65.169.74])
-        by smtp.gmail.com with ESMTPSA id g6-20020a5d5406000000b001f049726044sm9577806wrv.79.2022.03.27.04.10.24
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=GnTwoiHEQ0005E7ajdlDmwONStYExlB/QvWk5f0jJ8A=;
+        b=iuTwUUFDwwHYCXCqdZQ4+mEMpmsB1/k7Y5sTbVpPYyFXI53yawVkkY+FHKQE2q1pKx
+         sPVsqStu5m4ldGTGEyru3nxspWCWovkurerfr1KsQuxYxH1F7pWzr0bXN+VR3Gv3TmKP
+         t2mYugnxIyCfPOAYF+qV3nddih59oRWrhVSM/G7CDodzqKIGNvp1ywWvVmA4vYKAMf7J
+         DyU3D5Ob4T9pSMUi23r4/gfDUb5lmaHXZ3HJxSu45IWLUJF9IE47PpHdT+0WjShCA78r
+         5HexceRDRaMZfMXGq0oFgaTv52JCdd2lH/w5nAXCVdDHk48uLcxPaKtZNXq9vpSAk2Ly
+         to8g==
+X-Gm-Message-State: AOAM530WXNwqQs2Gkt5s60hefHuAbdbDFIdrmjXiqtZMVnEpDxOYPbRg
+        5CGAlg248VQWSrrRobR5FxjqapgjzgE=
+X-Google-Smtp-Source: ABdhPJwYTI3OOciolEDuZ7us/NxODvs+sY1Sajla/idAJekrFdvrkrkdl/sVVsKpeW7AeDWv8txqpQ==
+X-Received: by 2002:aa7:c64c:0:b0:418:ecf7:afaa with SMTP id z12-20020aa7c64c000000b00418ecf7afaamr10296654edr.38.1648382730098;
+        Sun, 27 Mar 2022 05:05:30 -0700 (PDT)
+Received: from debian64.daheim (p4fd09fe6.dip0.t-ipconnect.de. [79.208.159.230])
+        by smtp.gmail.com with ESMTPSA id h8-20020a1709066d8800b006e09a49a713sm3077371ejt.159.2022.03.27.05.05.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Mar 2022 04:10:24 -0700 (PDT)
-References: <20220327081850.13456-1-xiam0nd.tong@gmail.com>
-User-agent: mu4e 1.6.10; emacs 27.1
-From:   Jerome Brunet <jbrunet@baylibre.com>
-To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, lgirdwood@gmail.com,
-        broonie@kernel.org, perex@perex.cz, tiwai@suse.com,
-        narmstrong@baylibre.com, khilman@baylibre.com
-Cc:     martin.blumenstingl@googlemail.com, alsa-devel@alsa-project.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] soc: meson: fix a missing check on list iterator
-Date:   Sun, 27 Mar 2022 13:03:14 +0200
-In-reply-to: <20220327081850.13456-1-xiam0nd.tong@gmail.com>
-Message-ID: <1jk0cf6480.fsf@starbuckisacylon.baylibre.com>
+        Sun, 27 Mar 2022 05:05:29 -0700 (PDT)
+Received: from localhost.daheim ([127.0.0.1])
+        by debian64.daheim with esmtp (Exim 4.95)
+        (envelope-from <chunkeey@gmail.com>)
+        id 1nYRbZ-0002uT-2x;
+        Sun, 27 Mar 2022 14:05:29 +0200
+Message-ID: <a5689ba5-2a88-2bef-348b-5bec5cbc3b60@gmail.com>
+Date:   Sun, 27 Mar 2022 14:05:29 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] carl9170: main: fix an incorrect use of list iterator
+Content-Language: de-DE
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, chunkeey@googlemail.com
+Cc:     kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, linville@tuxdriver.com,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20220327072702.10572-1-xiam0nd.tong@gmail.com>
+From:   Christian Lamparter <chunkeey@gmail.com>
+In-Reply-To: <20220327072702.10572-1-xiam0nd.tong@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-On Sun 27 Mar 2022 at 16:18, Xiaomeng Tong <xiam0nd.tong@gmail.com> wrote:
-
+On 27/03/2022 09:27, Xiaomeng Tong wrote:
 > The bug is here:
-> 	*dai_name = dai->driver->name;
->
-> For for_each_component_dais(), just like list_for_each_entry,
-> the list iterator 'runtime' will point to a bogus position
-> containing HEAD if the list is empty or no element is found.
-> This case must be checked before any use of the iterator,
-> otherwise it will lead to a invalid memory access.
->
-> To fix the bug, just move the assignment into loop and return
-> 0 when element is found, otherwise return -EINVAL;
+> 	rcu_assign_pointer(ar->tx_ampdu_iter,
+> 		(struct carl9170_sta_tid *) &ar->tx_ampdu_list);
 
-Except we already checked that the id is valid and know an element will
-be be found once we enter the loop. No bug here and this patch does not
-seem necessary to me.
+yeah, so... I know there's currently a big discussion revolving
+around LISTs due to incoming the GNU89 to GNU11 switch. I'm not
+currently aware that something related to this had updated
+INIT_LIST_HEAD + friends. So, please tell me if there is extra
+information that has to be considered.
 
->
+> The 'ar->tx_ampdu_iter' is used as a list iterator variable
+> which point to a structure object containing the list HEAD
+> (&ar->tx_ampdu_list), not as the HEAD itself.
+> 
+> The only use case of 'ar->tx_ampdu_iter' is as a base pos
+> for list_for_each_entry_continue_rcu in carl9170_tx_ampdu().
+> If the iterator variable holds the *wrong* HEAD value here
+> (has not been modified elsewhere before), this will lead to
+> an invalid memory access.
+> 
+> Using list_entry_rcu to get the right list iterator variable
+> and reassign it, to fix this bug.
+> Note: use 'ar->tx_ampdu_list.next' instead of '&ar->tx_ampdu_list'
+> to avoid compiler error.
+> 
 > Cc: stable@vger.kernel.org
-> Fixes: 6ae9ca9ce986b ("ASoC: meson: aiu: add i2s and spdif support")
+> Fixes: fe8ee9ad80b28 ("carl9170: mac80211 glue and command interface")
 > Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 > ---
->  sound/soc/meson/aiu.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/sound/soc/meson/aiu.c b/sound/soc/meson/aiu.c
-> index d299a70db7e5..b52915c6f53b 100644
-> --- a/sound/soc/meson/aiu.c
-> +++ b/sound/soc/meson/aiu.c
-> @@ -61,14 +61,14 @@ int aiu_of_xlate_dai_name(struct snd_soc_component *component,
->  		return -EINVAL;
->  
->  	for_each_component_dais(component, dai) {
-> -		if (id == 0)
-> -			break;
-> +		if (id == 0) {
-> +			*dai_name = dai->driver->name;
-> +			return 0;
-> +		}
->  		id--;
->  	}
->  
-> -	*dai_name = dai->driver->name;
-> -
-> -	return 0;
-> +	return -EINVAL;
->  }
->  
->  static int aiu_cpu_of_xlate_dai_name(struct snd_soc_component *component,
+>   drivers/net/wireless/ath/carl9170/main.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/wireless/ath/carl9170/main.c b/drivers/net/wireless/ath/carl9170/main.c
+> index 49f7ee1c912b..a287937bf666 100644
+> --- a/drivers/net/wireless/ath/carl9170/main.c
+> +++ b/drivers/net/wireless/ath/carl9170/main.c
+> @@ -1756,6 +1756,7 @@ static const struct ieee80211_ops carl9170_ops = {
+>   
+>   void *carl9170_alloc(size_t priv_size)
+>   {
+> +	struct carl9170_sta_tid *tid_info;
+>   	struct ieee80211_hw *hw;
+>   	struct ar9170 *ar;
+>   	struct sk_buff *skb;
+> @@ -1815,8 +1816,9 @@ void *carl9170_alloc(size_t priv_size)
+>   	INIT_DELAYED_WORK(&ar->stat_work, carl9170_stat_work);
+>   	INIT_DELAYED_WORK(&ar->tx_janitor, carl9170_tx_janitor);
+>   	INIT_LIST_HEAD(&ar->tx_ampdu_list);
+> -	rcu_assign_pointer(ar->tx_ampdu_iter,
+> -			   (struct carl9170_sta_tid *) &ar->tx_ampdu_list);
+> +	tid_info = list_entry_rcu(ar->tx_ampdu_list.next,
+> +				struct carl9170_sta_tid, list);
+> +	rcu_assign_pointer(ar->tx_ampdu_iter, tid_info);
 
+
+I've tested this. I've added the following pr_info that would
+print the (raw) pointer of both your new method (your patch)
+and the old (current code) one:
+
+  pr_info("new:%px\n", list_entry_rcu(ar->tx_ampdu_list.next,struct carl9170_sta_tid, list)); // tid_info
+  pr_info("old:%px\n", (struct carl9170_sta_tid *) &ar->tx_ampdu_list);
+
+and run it on AR9170 USB Stick
+
+[  216.547932] usb 2-10: SerialNumber: 12345
+[  216.673629] usb 2-10: reset high-speed USB device number 10 using xhci_hcd
+[  216.853488] new:ffff9394268a38e0
+[  216.853496] old:ffff9394268a38e0
+[  216.858174] usb 2-10: driver   API: 1.9.9 2016-02-15 [1-1]
+[  216.858186] usb 2-10: firmware API: 1.9.9 2021-02-05
+
+phew, what a relieve :). Both the new and old pointers are the same.
+
+So, the tx_ampdu_list is empty, as it was just initialized to
+(list->next = list->prev = list).
+
+And you are right about the iter being suspeciously bogus. But I think
+this is true for both the new and the old way. There is no real
+carl9170_sta_tid* tid associated with that empty entry and if some code
+would expect a valid carl9170_sta_tid* there, it would certainly cause
+crashes&burns.
+
+The carl9170_tx_ampdu() and carl9170_ampdu_gc() code is really
+careful though and checks whenever the list is empty or not
+before doing any list traversing with the tx_ampdu_iter.
+
+Any thoughts or insights?
+
+Cheers,
+Christian
