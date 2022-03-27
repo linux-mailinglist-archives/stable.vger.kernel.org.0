@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C784E86C2
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 10:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A9B4E86C8
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 10:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbiC0IBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 04:01:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45066 "EHLO
+        id S232312AbiC0IC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 04:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbiC0IBs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 04:01:48 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 245B5101;
-        Sun, 27 Mar 2022 01:00:10 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id n7-20020a17090aab8700b001c6aa871860so12626773pjq.2;
-        Sun, 27 Mar 2022 01:00:10 -0700 (PDT)
+        with ESMTP id S229636AbiC0IC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 04:02:58 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D554237A1C;
+        Sun, 27 Mar 2022 01:01:19 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id b130so8458220pga.13;
+        Sun, 27 Mar 2022 01:01:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=lSV2zkJT4vTOb08gOwZPa0NvOrdi/khmoY6zgOHN1IU=;
-        b=I4nZDPWhZYZeLJb8asDUzGUv2Tkq/AVxOmNPKYmN9FI0pvI/7zGJXrbkl0VUcgRz9S
-         qVNgOlh7kqa6TikZU+hQWrUKMRIypgi56wUPg4Lvasa5kFUh6GMucI67ATIHhsEqtNAk
-         vvltX73/l6VI9k1LRcDz38w5fUsO6jxDH28tmuwgIOWuhFXSeoL6CW9T5d4xOmB0tm5Y
-         jbdDiloJY/Dje0WtN7v8C4W4IJ167RRFu0QBTPFzsCbMcSEKvYuplodWsZe8J0YduxCe
-         NyLfl5Nqrblqjwi1umQaqn4kQBto/Bzx66ch8L/7wm9mUYhTa9FohT1q0yHpHaOBVXRN
-         99kg==
+        bh=ZnZllXXln8alDD0gXRFXPDmFsbfIdQAqTJP0jTsTACA=;
+        b=geUAslRO0BtqDXhocnaMIbdCadsDyrG8ccZGO0Hr5PrjxML36r1IdKo5wDwvVxbRDP
+         mG9TQ/cPj6yX4sBuCAlUPgLMe21Cm2BGrN61dEL5xw1WxW26ka9Sp5/97HIVSLMVJFGu
+         1qzq7/Qg30OvKhbb/SceXje2tJKDV61vJHxqHp/OuB12kT1cqQwC1ufBtZY2JWXP4Jgg
+         mteaB8DGleVPUxGtf4PS1/W2SW+PpU8lToiBwGpgF/rlu7DFY29641aeWyFkMJ+NCSuQ
+         HAeN327L7B8MzZBjzrGmh1wDLpTPP6KWea6OGmav6CUbhHKlDSczB0qPqKWVylNqBw0w
+         eFjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=lSV2zkJT4vTOb08gOwZPa0NvOrdi/khmoY6zgOHN1IU=;
-        b=7qMRjYHfPjzwlBZLvH6YYsWzgpK3opqo/P85E5immnSWlf6WW/ogblJO63ywvGIuCb
-         OwTPmlg6qg3E9o12ikrNRBsxMugdVuHADoqqINjmuUfiEurcb5KtNnWMvJia5feY+tMO
-         U26si8UtimIXL3d7hiGLaRZUnv+R4MXtR4orLNMVl3HqIh/dV/sm9DCQKguPXRlEV6Sk
-         R/ph++nPAk0KAOCMVG5yKzbBgPJqWHLgn9LSB0/bWvAGFmw6MQJRq43YgW83Tw0hOur8
-         2c0yHUPiYYu1PyipWyFu4k7W/QfXllAcKpZxPZivc3+u/SlYJQjPavoAYBkF90tbqA6H
-         KE3Q==
-X-Gm-Message-State: AOAM533f3E/tEZoLNk+PpXEL5W9WUKo9lo0yP+wgGMthY5kR8xYPOq9E
-        uE0ypYx4s2sPTHi5vvMRHDA=
-X-Google-Smtp-Source: ABdhPJwgAWZdlT1LPliJa/D7j61uWppjASH38drcCgQlfMobPBwJ0/dg/LsNxh1vNVV4xNg7Lm3zRw==
-X-Received: by 2002:a17:902:bb92:b0:153:4eae:c77e with SMTP id m18-20020a170902bb9200b001534eaec77emr20266086pls.93.1648368009676;
-        Sun, 27 Mar 2022 01:00:09 -0700 (PDT)
+        bh=ZnZllXXln8alDD0gXRFXPDmFsbfIdQAqTJP0jTsTACA=;
+        b=1ntrO4xqkNHDx55icE0SmApknpkoYFIoNvcbFHnLRk2S//m8GAHDyRsoPCDQHsXhUa
+         v44/cBbKfxzdLOO0vwLY8/FnfOVOaR+6agJWEf6SFg2T6WUBfONGeqTGFsTxylh2yaqM
+         8uS/AdLFMMosfUSolDxawTv6MKsNBFw5fPv4356Ar4spKkfcQwestzE08nrEzR8r3zhd
+         22pawaU63W/NPUah4wS1kQIhUMNm/aRjjFpxD4/+rguk3Dy7vw5e8fhwk0YBA/ZoL2XE
+         PYbpJr6VWbH/XC8vyGwx+qoVy4Z1v000h4YJNMmRTpT8ZVSMIQlGMB9FKOMDKcGzA/Yu
+         JqsA==
+X-Gm-Message-State: AOAM532TbjpU/3d28bdnLDZKUpwVN8jYdb8UPWawBoGS4ja2eJKPQlyM
+        BRhtDxasxVdpKq0ccMTiSu0=
+X-Google-Smtp-Source: ABdhPJzo9+5cGZaFGZrEkyN+iP/VR0lmUGxoh6a3CaaG8zNeL3g70vP72SiveDYhlHYyO4SN/UgJcQ==
+X-Received: by 2002:a63:d13:0:b0:381:f043:c627 with SMTP id c19-20020a630d13000000b00381f043c627mr6074836pgl.168.1648368079326;
+        Sun, 27 Mar 2022 01:01:19 -0700 (PDT)
 Received: from localhost ([115.220.243.108])
-        by smtp.gmail.com with ESMTPSA id d11-20020aa7868b000000b004f768dfe93asm11934637pfo.176.2022.03.27.01.00.08
+        by smtp.gmail.com with ESMTPSA id t7-20020a056a0021c700b004f7916d44bcsm11747823pfj.220.2022.03.27.01.01.18
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 27 Mar 2022 01:00:09 -0700 (PDT)
+        Sun, 27 Mar 2022 01:01:18 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
 To:     song@kernel.org, rgoldwyn@suse.com
 Cc:     linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] md: md1: fix an incorrect NULL check on list iterator
-Date:   Sun, 27 Mar 2022 16:00:02 +0800
-Message-Id: <20220327080002.11923-1-xiam0nd.tong@gmail.com>
+Subject: [PATCH] md: md2: fix an incorrect NULL check on list iterator
+Date:   Sun, 27 Mar 2022 16:01:11 +0800
+Message-Id: <20220327080111.12028-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -64,49 +64,53 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-	if (!rdev)
+	if (!rdev || rdev->desc_nr != nr) {
 
 The list iterator value 'rdev' will *always* be set and non-NULL
-by rdev_for_each(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element found.
-Otherwise it will bypass the NULL check and lead to invalid memory
-access passing the check.
+by rdev_for_each_rcu(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+found (In fact, it will be a bogus pointer to an invalid struct
+object containing the HEAD). Otherwise it will bypass the check
+and lead to invalid memory access passing the check.
 
 To fix the bug, use a new variable 'iter' as the list iterator,
 while use the original variable 'pdev' as a dedicated pointer to
 point to the found element.
 
 Cc: stable@vger.kernel.org
-Fixes: 2aa82191ac36c ("md-cluster: Perform a lazy update")
+Fixes: 70bcecdb1534 ("amd-cluster: Improve md_reload_sb to be less error prone")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- drivers/md/md.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/md/md.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 4d38bd7dadd6..7476fc204172 100644
+index 7476fc204172..f156678c08bc 100644
 --- a/drivers/md/md.c
 +++ b/drivers/md/md.c
-@@ -2629,14 +2629,16 @@ static void sync_sbs(struct mddev *mddev, int nospares)
+@@ -9794,16 +9794,18 @@ static int read_rdev(struct mddev *mddev, struct md_rdev *rdev)
  
- static bool does_sb_need_changing(struct mddev *mddev)
+ void md_reload_sb(struct mddev *mddev, int nr)
  {
 -	struct md_rdev *rdev;
 +	struct md_rdev *rdev = NULL, *iter;
- 	struct mdp_superblock_1 *sb;
- 	int role;
+ 	int err;
  
- 	/* Find a good rdev */
--	rdev_for_each(rdev, mddev)
--		if ((rdev->raid_disk >= 0) && !test_bit(Faulty, &rdev->flags))
-+	rdev_for_each(iter, mddev)
-+		if ((iter->raid_disk >= 0) && !test_bit(Faulty, &iter->flags)) {
+ 	/* Find the rdev */
+-	rdev_for_each_rcu(rdev, mddev) {
+-		if (rdev->desc_nr == nr)
++	rdev_for_each_rcu(iter, mddev) {
++		if (iter->desc_nr == nr) {
 +			rdev = iter;
  			break;
 +		}
+ 	}
  
- 	/* No good device found. */
- 	if (!rdev)
+-	if (!rdev || rdev->desc_nr != nr) {
++	if (!rdev) {
+ 		pr_warn("%s: %d Could not find rdev with nr %d\n", __func__, __LINE__, nr);
+ 		return;
+ 	}
 -- 
 2.17.1
 
