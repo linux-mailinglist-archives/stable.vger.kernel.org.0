@@ -2,218 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 060EE4E85DD
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 07:12:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32E2C4E85DF
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 07:17:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234659AbiC0FOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 01:14:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
+        id S234679AbiC0FSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 01:18:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234486AbiC0FOQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 01:14:16 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 484FF10FF3
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 22:12:38 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id a17so13505244edm.9
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 22:12:38 -0700 (PDT)
+        with ESMTP id S234486AbiC0FSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 01:18:34 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46FCB13FB7;
+        Sat, 26 Mar 2022 22:16:56 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id w8so12084648pll.10;
+        Sat, 26 Mar 2022 22:16:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4DsawngOkTaf1ffe3Djt9i8R04p2xlEj2LaUyWMHpLQ=;
-        b=IL1j88A1zMmNQ619gkjkOLfevd4yJp/uUvy/JL+W394T7Ci9byh8r//w+swnF4uoTk
-         MZxgdJEbG5E8/y/0RfpNKMtcmR1SxV+ftoqfImF3PZxALDLZgAsd0IabrARdiKS285Pw
-         iUyVNk8ywuM4lUwh7TQ+LKc1DK3c/TGkrq11k=
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=v6BSL8VhVmwIej2fDS4fILub4T69woLAa8tFuzppLBk=;
+        b=p1RRPdi5pT7hK/9+H4XP2JjJHVZf5LxJOg8oRMScYDqznggSSt6DW7OpAdLqP4W8AO
+         QWWXECWxX9RPOiBmnLcGSoeUAuH1F+eyyngCzsyhHkZijHQoVL9KbaZwV9fGF305+GcJ
+         KQ3lX6EwP13jR2+yq49xM5HsChFGhq36v/XvVksErbSWaX6jJWgE1FVl4GfE6ZGDp/ME
+         zuCOEEjiXqpFYeQgPcQWuFdbX097X4/JPAM0o/UjSHybVTDj/5lDfa+2lsiPJUw6JxuM
+         exi7XYluIPx9OcyFwBgAHJMqZ3Sg1+1ssX6ot4argKFyWxlQSjKuvG+YfQKY4uDl0/u6
+         BxRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4DsawngOkTaf1ffe3Djt9i8R04p2xlEj2LaUyWMHpLQ=;
-        b=VGzJ3cnvzScj1Yo+sxm8EvnUNWwgtK33ApI9oiNbXAT9ANSq1g/w+mAPztlGsH55Wj
-         ekUhfWrhfSDnsSAA6ViyZLTdstPTsszus8ozmvDb+1jF0+buE7Pm4eaojbgwFcRBNZlM
-         30zI5/r/G723YiIyX9G8yNMC/fxkVRY0SQTONf/qGjSrg8TNHwTzd4GhQGQdQ3aGzweK
-         SeK4q3WAZu4oGlItRrUm6OK2W4n0T3Zz79s+tYy4owRK3W3PueQRIxyjhmxS0Up2wTJp
-         RkBeA1Ic1fvmo+nMdiaQnYen8N6GRDvKH4TLdWxv7qp3yayP/elm5rOSIwGWAHRq+3gV
-         d7OQ==
-X-Gm-Message-State: AOAM533xWYIEz6nrg6U/AHUEYgcPWQWt0bp/1i8ztMMV+0M9Jxh9GkTS
-        PCPSH9r3AoIY+rlI8TZ9J/ejar6yEnKW+kB97PE=
-X-Google-Smtp-Source: ABdhPJyQZNtCMThe1AxDWfrYbK6WzRr390uvQrwNerNttZuCh3j7KGpsptWA9nBb2IdhSAJPNEMrgQ==
-X-Received: by 2002:a05:6402:2219:b0:418:ed4e:f999 with SMTP id cq25-20020a056402221900b00418ed4ef999mr8540905edb.121.1648357956574;
-        Sat, 26 Mar 2022 22:12:36 -0700 (PDT)
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com. [209.85.218.41])
-        by smtp.gmail.com with ESMTPSA id f5-20020a17090624c500b006cee6661b6esm4239016ejb.10.2022.03.26.22.12.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 26 Mar 2022 22:12:36 -0700 (PDT)
-Received: by mail-ej1-f41.google.com with SMTP id bg10so22572344ejb.4
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 22:12:35 -0700 (PDT)
-X-Received: by 2002:ac2:4203:0:b0:448:8053:d402 with SMTP id
- y3-20020ac24203000000b004488053d402mr14244664lfh.687.1648357591941; Sat, 26
- Mar 2022 22:06:31 -0700 (PDT)
-MIME-Version: 1.0
-References: <1812355.tdWV9SEqCh@natalenko.name> <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de> <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
- <871qyr9t4e.fsf@toke.dk> <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
- <20220327054848.1a545b12.pasic@linux.ibm.com>
-In-Reply-To: <20220327054848.1a545b12.pasic@linux.ibm.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sat, 26 Mar 2022 22:06:15 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whUJ=tMEgP3KiWwk0pzmHn+1QORUu50syE+zOGk4UnFog@mail.gmail.com>
-Message-ID: <CAHk-=whUJ=tMEgP3KiWwk0pzmHn+1QORUu50syE+zOGk4UnFog@mail.gmail.com>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=v6BSL8VhVmwIej2fDS4fILub4T69woLAa8tFuzppLBk=;
+        b=cU7Qp9vKXqvMRS73ELCec5O95MjonHDNhMdZGG1UhVf0l10wTWWe4P0Pr4VH9QF6aT
+         XczTUSk1B4vSAvnA4sx6oKhUQX3P59WXyL4jjgpcedqI8navp+7juikgjP5YFm/jD01y
+         q7yHwaWO09RzyDZSz8ej/tY8W9/1SZWjTedM3Az9ZqifgcLzRUP0897Xef3lTtmzl6Dz
+         wAV0/rPyGbZiK1GZeDMhPFAqDqgFZ7tU8axmHG2LTr1vUqEK4lgd9NhaqulrIgxK4QS+
+         cmAvGs0hwGSUytdHYqLiraOfb/aNDR7hABQTomUlHB8f12lx9tRK4byBXkQ9D0g8gTmE
+         MbRA==
+X-Gm-Message-State: AOAM532UQXTs3IBpjI+NwbcNoaBfZIlVLjMdeScS+2EVQNC7KrliRR1A
+        XEUoTE7AyWTWYnHRegrTt28=
+X-Google-Smtp-Source: ABdhPJy4t0oQf/ADzsmcEEOjd/bCRxwrxMcaQ4ZDD2+D52Gbr5tPv/h47XDsREiddKHMcr1Fn6Xu5w==
+X-Received: by 2002:a17:902:b906:b0:14f:76a0:ad48 with SMTP id bf6-20020a170902b90600b0014f76a0ad48mr20445815plb.79.1648358215837;
+        Sat, 26 Mar 2022 22:16:55 -0700 (PDT)
+Received: from localhost.localdomain ([115.220.243.108])
+        by smtp.googlemail.com with ESMTPSA id d11-20020a056a00198b00b004fa7da68465sm11290361pfl.60.2022.03.26.22.16.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Mar 2022 22:16:55 -0700 (PDT)
+From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
+To:     mpe@ellerman.id.au
+Cc:     benh@kernel.crashing.org, paulus@samba.org,
+        akpm@linux-foundation.org, liam.howlett@oracle.com,
+        david@redhat.com, maz@kernel.org, Felix.Kuehling@amd.com,
+        maciej.szmigiero@oracle.com, apopple@nvidia.com,
+        bharata@linux.ibm.com, linuxram@us.ibm.com,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] kvm: fix incorrect NULL check on list iterator
+Date:   Sun, 27 Mar 2022 13:16:46 +0800
+Message-Id: <20220327051646.1856-1-xiam0nd.tong@gmail.com>
+X-Mailer: git-send-email 2.17.1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 26, 2022 at 8:49 PM Halil Pasic <pasic@linux.ibm.com> wrote:
->
-> I agree it CPU modified buffers *concurrently* with DMA can never work,
-> and I believe the ownership model was conceived to prevent this
-> situation.
+The bug is here:
+	if (!p)
+                return ret;
 
-But that just means that the "ownership" model is garbage, and cannot
-handle this REAL LIFE situation.
+The list iterator value 'p' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found.
 
-Here's the deal: if somebody makes a model that is counter-factual,
-you have exactly two choices:
+To fix the bug, Use a new value 'iter' as the list iterator, while use
+the old value 'p' as a dedicated variable to point to the found element.
 
- - fix the damn model
+Cc: stable@vger.kernel.org
+Fixes: dfaa973ae9605 ("KVM: PPC: Book3S HV: In H_SVM_INIT_DONE, migrate remaining normal-GFNs to secure-GFNs")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+---
+ arch/powerpc/kvm/book3s_hv_uvmem.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
- - live in a la-la-land that isn't reality
+diff --git a/arch/powerpc/kvm/book3s_hv_uvmem.c b/arch/powerpc/kvm/book3s_hv_uvmem.c
+index e414ca44839f..0cb20ee6a632 100644
+--- a/arch/powerpc/kvm/book3s_hv_uvmem.c
++++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
+@@ -360,13 +360,15 @@ static bool kvmppc_gfn_is_uvmem_pfn(unsigned long gfn, struct kvm *kvm,
+ static bool kvmppc_next_nontransitioned_gfn(const struct kvm_memory_slot *memslot,
+ 		struct kvm *kvm, unsigned long *gfn)
+ {
+-	struct kvmppc_uvmem_slot *p;
++	struct kvmppc_uvmem_slot *p = NULL, *iter;
+ 	bool ret = false;
+ 	unsigned long i;
+ 
+-	list_for_each_entry(p, &kvm->arch.uvmem_pfns, list)
+-		if (*gfn >= p->base_pfn && *gfn < p->base_pfn + p->nr_pfns)
++	list_for_each_entry(iter, &kvm->arch.uvmem_pfns, list)
++		if (*gfn >= iter->base_pfn && *gfn < iter->base_pfn + iter->nr_pfns) {
++			p = iter;
+ 			break;
++		}
+ 	if (!p)
+ 		return ret;
+ 	/*
+-- 
+2.17.1
 
-Which choice do you pick?
-
-And I'll be brutally honest: if you pick the la-la-land one, I don't
-think we can really discuss this any more.
-
-> But a CPU can modify the buffer *after* DMA has written to
-> it, while the mapping is still alive.
-
-Yes.
-
-But you are making ALL your arguments based on that "ownership" model
-that we now know is garbage.
-
-If you make your arguments based on garbage, the end result _might_
-work just by happenstance, but the arguments sure aren't very
-convincing, are they?
-
-So let's make it really clear that the arguments must not be based on
-some "ownership" model that you just admitted cannot handle the very
-real case of real and common hardware.
-
-Ok?
-
->  For example one could do one
-> partial read from the device, *after* the DMA is done,
-> sync_for_cpu(DMA_FROM_DEVICE), examine, then zero out the entire buffer,
-> sync_for_device(DMA_FROM_DEVICE)
-
-So the result you want to get to I can believe in, but your sequence
-of getting there is untenable, since it depends on breaking other
-cases that are more important than your utterly broken hardware that
-you don't even know how much data it filled.
-
-And I fundamentally also happen to think that since the CPU just wrote
-that buffer, and *that* write is what you want to sync with the
-device, then that DMA_FROM_DEVICE was just pure fantasy to begin with.
-
-So that code sequence you quote is wrong. You are literally trying to
-re-introduce the semantics that we already know broke the ath9k
-driver.
-
-Instead, let me give you a couple of alternative scenarios.
-
-Alternative 1:
-
- - ok, so the CPU wrote zeroes to the area, and we want to tell the
-DMA mapping code that it needs to make that CPU write visible to the
-device.
-
- - Ahh, you mean "sync_for_device(DMA_TO_DEVICE)"?
-
- - Yes.
-
-   The "for_device()" tells us that afterwards, the device can access
-the memory (we synced it for the device).
-
-   And the DMA_TO_DEVICE tells us that we're transferring the zeroes
-we wrote on the CPU to the device bounce buffer.
-
-   Now the device got those zeroes, and it can overwrite them
-(partially), and everything is fine
-
- - And then we need to use "sync_for_cpu(DMA_FROM_DEVICE)" when we
-want to see the result once it's all done?
-
- - Yes.
-
- - Splendid. Except I don't like how you mix DMA_TO_DEVICE and
-DMA_FROM_DEVICE and you made the dma_alloc() not use DMA_BIDIRECTIONAL
-
- - Yeah, that's ugly, but it matches reality, and it would "just work" today.
-
-Alternative 2:
-
- - Ok, so the CPU doesn't even want to write to the area AT ALL, but
-we know we have a broken device that might not fill all of the bounce
-buffer, and we don't want to see old stale bounce buffer contents that
-could come from some other operation entirely and leak sensitive data
-that wasn't for us.
-
- - Ahh, so you really want to just clear the bounce buffer before IO?
-
- - Yes. So let's introduce a "clear_bounce_buffer()" operation before
-starting DMA. Let's call it "sync_for_device(DMA_NONE)" and teach the
-non-bounce-buffer dmas mapping entities to just ignore it, because
-they don't have a bounce buffer that can contain stale data.
-
- - Sounds good.
-
-Alternative 3:
-
- - Ok, you have me stumped. I can't come up with something else sane.
-
-Anyway, notice what's common about these alternatives? They are based
-not on some "we have a broken model", but on trying to solve the
-actual real-life problem case.
-
-I'm more than happy to hear other alternatives.
-
-But the alternative I am _not_ willing to entertain is "Yeah, we have
-a model of ownership, and that can't handle ath9k because that one
-wants to do CPU reads while DMA is possibly active, so ath9k is
-broken".
-
-Can we please agree on that?
-
-                          Linus
