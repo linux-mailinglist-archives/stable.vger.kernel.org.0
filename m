@@ -2,189 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D5C4E89F8
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 22:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DE04E8A3E
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 23:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232290AbiC0UPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 16:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
+        id S236766AbiC0Vkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 17:40:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230075AbiC0UPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 16:15:03 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA52310A5
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 13:13:23 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id dr20so24728827ejc.6
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 13:13:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wob/7GSQVIpO7i1InQcutyEWYgbvdwTICG96D7RFBB8=;
-        b=MBKpZ1UtrtPBVIHqjdSKYB/rkJWZ1f0vdHzhtdISyO5M6IfCasC0hYp5oS9+XwcX2g
-         onX3toZbyl+fJ/Tk2m9EN2QoWGToeUma4YxombZeY5ZkW09xgeyTm/fWrkUSPf9q19W+
-         djbSzf2EiLGwXDF9V4ce2XqsgWTUpumTDa/0Q=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wob/7GSQVIpO7i1InQcutyEWYgbvdwTICG96D7RFBB8=;
-        b=tyCebmZnHDZuSOX35GghGPwknCtTc27T7CnOHb7pTwCsXycqnq4jrUh89WFZ9xonwc
-         XjUFT0B8Nx8N2YxM9Lh/Ic2vwgjXA8e+GOsGM7urdwbR9nwKOsiO2HBVvL7Zsrjq3RZR
-         dVZ/Ye9UiB1In0hewceBw3h7CJDpytJ7kjfl8vH7qirJHTJNKUrctzHJaBUuQtnhlXVq
-         YS/5mMsoWtPClF9YQmVIhXEYUbnjkfUWAFOpZgyCxZZWv4Zi0aLVEExT6GB3YG6/P6Zu
-         1RPNwqhT3Bu9NdzfZsFoSJ0gduA70o+5mBJgjHVUO4xlJ9eaW430q/l+ZzgLrLyD+lxC
-         XPLw==
-X-Gm-Message-State: AOAM53259hni8A0cg+GVpzESKshVJNb1f0GraGZHBWk9AzMlYAQVSy9M
-        PtsgSq93n/oxkt7YuMTcSOtnWcv53RBDxlne21c=
-X-Google-Smtp-Source: ABdhPJyovMAd691aLu63Pv9GrEhw+kJkRkQNoTtU+sgSBY+XdEJacATvn4DjKvULh/PG5U2t0EsZ1g==
-X-Received: by 2002:a17:906:5597:b0:6ce:f3cc:14e8 with SMTP id y23-20020a170906559700b006cef3cc14e8mr23427883ejp.426.1648412002049;
-        Sun, 27 Mar 2022 13:13:22 -0700 (PDT)
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com. [209.85.218.50])
-        by smtp.gmail.com with ESMTPSA id y26-20020a1709063a9a00b006e0c272e263sm2539909ejd.71.2022.03.27.13.13.21
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 27 Mar 2022 13:13:21 -0700 (PDT)
-Received: by mail-ej1-f50.google.com with SMTP id bq8so10775259ejb.10
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 13:13:21 -0700 (PDT)
-X-Received: by 2002:a2e:9b10:0:b0:247:f28c:ffd3 with SMTP id
- u16-20020a2e9b10000000b00247f28cffd3mr16821393lji.152.1648411509868; Sun, 27
- Mar 2022 13:05:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <1812355.tdWV9SEqCh@natalenko.name> <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de> <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
- <871qyr9t4e.fsf@toke.dk> <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
- <20220327054848.1a545b12.pasic@linux.ibm.com> <CAHk-=whUJ=tMEgP3KiWwk0pzmHn+1QORUu50syE+zOGk4UnFog@mail.gmail.com>
- <CAHk-=wgUx5CVF_1aEkhhEiRGXHgKzUdKiyctBKcHAxkxPpbiaw@mail.gmail.com>
- <0745b44456d44d1e9fc364e5a3780d9a@AcuMS.aculab.com> <CAHk-=wgLyqNJx=bb8=o0Nk5U8gMnf0-=qx53ShLEb3V=Yrt8fw@mail.gmail.com>
-In-Reply-To: <CAHk-=wgLyqNJx=bb8=o0Nk5U8gMnf0-=qx53ShLEb3V=Yrt8fw@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sun, 27 Mar 2022 13:04:53 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wh+TzZhMCiPPnchC4FSeS53-QCN3RYqxLAh4ahKMLoj9A@mail.gmail.com>
-Message-ID: <CAHk-=wh+TzZhMCiPPnchC4FSeS53-QCN3RYqxLAh4ahKMLoj9A@mail.gmail.com>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        with ESMTP id S230226AbiC0Vkd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 17:40:33 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C37EB33A0E;
+        Sun, 27 Mar 2022 14:38:52 -0700 (PDT)
+Received: from zn.tnic (p2e55dff8.dip0.t-ipconnect.de [46.85.223.248])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 39C331EC0445;
+        Sun, 27 Mar 2022 23:38:47 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1648417127;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=yY2YO2yI1wDQsqCh9TwGDSc6J5E2vMROt0/Y5L3W2YA=;
+        b=Bd2NRiBlYU/7gjHBDaGDBMPmNPrj6YrgLnik0JFCUMNqqNsSF9qFQiyUx7qjqEHK3j8s39
+        B/qxAv/7yle1SEMTiVl887UXaAl+/jMVBAPd18f3FLn8EdpSudD4bffCbGBCX1pq30LdUb
+        xBpzOPclfpQln19/XQaswOtTPZCPPTI=
+Date:   Sun, 27 Mar 2022 23:38:43 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Alviro Iskandar Setiawan <alviro.iskandar@gmail.com>,
+        Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, gwml@vger.gnuweeb.org, x86@kernel.org,
+        David Laight <David.Laight@aculab.com>,
+        Jiri Hladky <hladky.jiri@googlemail.com>
+Subject: Re: [PATCH v5 1/2] x86/delay: Fix the wrong asm constraint in
+ `delay_loop()`
+Message-ID: <YkDZY8n1k5SJw9st@zn.tnic>
+References: <20220310015306.445359-1-ammarfaizi2@gnuweeb.org>
+ <20220310015306.445359-2-ammarfaizi2@gnuweeb.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220310015306.445359-2-ammarfaizi2@gnuweeb.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 27, 2022 at 12:23 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> So I will propose that we really make it very much about practical
-> concerns, and we document things as
->
->  (a) the "sync" operation has by definition a "whose _future_ access
-> do we sync for" notion.
->
->      So "dma_sync_single_for_cpu()" says that the future accesses to
-> this dma area is for the CPU.
->
->      Note how it does *NOT* say that the "CPU owns the are". That's
-> bullsh*t, and we now know it's BS.
->
->  (b) but the sync operation also has a "who wrote the data we're syncing"
->
->      Note that this is *not* "who accessed or owned it last", because
-> that's nonsensical: if we're syncing for the CPU, then the only reason
-> to do so is because we expect that the last access was by the device,
-> so specifying that separately would just be redundant and stupid.
->
->      But specifying who *wrote* to the area is meaningful and matters.
+On Thu, Mar 10, 2022 at 08:53:05AM +0700, Ammar Faizi wrote:
+> The asm constraint does not reflect that the asm statement can modify
+> the value of @loops. But the asm statement in delay_loop() does modify
+> the @loops.
+> 
+> Specifiying the wrong constraint may lead to undefined behavior, it may
+> clobber random stuff (e.g. local variable, important temporary value in
+> regs, etc.).
 
-We could also simply require that the bounce buffer code *remember*
-who wrote to it last.
+This is especially dangerous when the compiler decides to inline the
+function and since it doesn't know that the value gets modified, it
+might decide to use it from a register directly without reloading it.
 
-So when the ath9k driver does
+Add that to the commit message pls.
 
- - setup:
+> Fix this by changing the constraint from "a" (as an input) to "+a" (as
+> an input and output).
+> 
+> Cc: David Laight <David.Laight@ACULAB.COM>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Jiri Hladky <hladky.jiri@googlemail.com>
 
-                bf->bf_buf_addr = dma_map_single(sc->dev, skb->data,
-                                                 common->rx_bufsize,
-                                                 DMA_FROM_DEVICE);
+All those Ccs in the commit message are not really needed -
+get_maintainers.pl gives the correct list already.
 
-we clear the bounce buffer and remember that the state of the bounce
-buffer is "device wrote to it" (because DMA_FROM_DEVICE).
+> Cc: stable@vger.kernel.org # v2.6.27+
 
-Then, we have an interrupt or other event, and ath9k does
+I don't see the need for the stable Cc. Or do you have a case where
+a corruption really does happen?
 
- - rc event:
+> Fixes: e01b70ef3eb ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
 
-        dma_sync_single_for_cpu(sc->dev, bf->bf_buf_addr,
-                                common->rx_bufsize, DMA_FROM_DEVICE);
+Commit sha1 (e01b70ef3eb) needs to be at least 12 chars long:
 
-        ret = ath9k_hw_process_rxdesc_edma(ah, rs, skb->data);
-        if (ret == -EINPROGRESS) {
-                /*let device gain the buffer again*/
-                dma_sync_single_for_device(sc->dev, bf->bf_buf_addr,
-                                common->rx_bufsize, DMA_FROM_DEVICE);
-                return false;
-        }
+e01b70ef3eb3 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
 
-and the first dma_sync_single_for_cpu() now sees "Ok, I want the CPU
-buffer, and I remember that the device wrote to it, so I will copy
-from the bounce buffer". It's still DMA_FROM_DEVICE, so that "the
-device wrote to it" doesn't change.
+This is best fixed by doing:
 
-When the CPU then decides "ok, that wasn't it", and does that
-dma_sync_single_for_device(), the bounce buffer code goes "Ok, the
-last operation was that the device wrote to the buffer, so the bounce
-buffer is still valid and I should do nothing".
+[core]
+        abbrev = 12
 
-Voila, no ath9k breakage, and it all still makes perfect sense.
+in your .git/config
 
-And that sounds like an even more logical model than the one where we
-tell the bounce buffer code what the previous operation was, but it
-involves basically the DMA mapping code remembering what the last
-direction was. That makes perfect sense to me, but it's certainly not
-what the DMA mapping code has traditionally done, which makes me
-nervous that it would just expose a _lot_ of other drivers that do odd
-things.
+> Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+> ---
+>  arch/x86/lib/delay.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
+> index 65d15df6212d..0e65d00e2339 100644
+> --- a/arch/x86/lib/delay.c
+> +++ b/arch/x86/lib/delay.c
+> @@ -54,8 +54,8 @@ static void delay_loop(u64 __loops)
+>  		"	jnz 2b		\n"
+>  		"3:	dec %0		\n"
+>  
+> -		: /* we don't need output */
+> -		:"a" (loops)
+> +		: "+a" (loops)
+> +		:
+>  	);
 
-The "good news" (if there is such a thing) is that usually the
-direction doesn't actually change. So if you use DMA_FROM_DEVICE
-initially, you'll continue to use that. So there is probably basically
-never any difference between "what was the previous operation" and
-"what is the next operation".
+Thx.
 
-So maybe practically speaking, we don't care.
+-- 
+Regards/Gruss,
+    Boris.
 
-Anyway, I do think we have choices here on how to describe things.
-
-I do think that the "DMA code doesn't have to remember" model has the
-advantage that remembering is always an added complexity, and
-operations that behave differently depending on previous history are
-always a bit harder to think about because of that. Which is why I
-think that model I outlined in the previous email is probably the most
-straightforward one.
-
-                 Linus
+https://people.kernel.org/tglx/notes-about-netiquette
