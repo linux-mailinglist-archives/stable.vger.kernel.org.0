@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC04A4E8631
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 08:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 189394E8636
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 08:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235412AbiC0GKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 02:10:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41238 "EHLO
+        id S235150AbiC0GNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 02:13:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234284AbiC0GKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 02:10:11 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45F9336;
-        Sat, 26 Mar 2022 23:08:32 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id n7-20020a17090aab8700b001c6aa871860so12514272pjq.2;
-        Sat, 26 Mar 2022 23:08:32 -0700 (PDT)
+        with ESMTP id S234606AbiC0GNj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 02:13:39 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AAAFB0F;
+        Sat, 26 Mar 2022 23:12:01 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id c2so9772104pga.10;
+        Sat, 26 Mar 2022 23:12:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=WLGme/rACNlsZ/NoBqpCvphC8ae3fvVeZ1qiIRGm49Q=;
-        b=XxWXZt/CIQ5HISAsyoesltjNLHrlcH2NIr1yONMkl0bplVYnpAG5GWej4Clhp3dLO5
-         GvKx1+YJuelabHz0EuPlf/SFVYswpHRzDiUU4hyRv+FoH+Qsoz7K/CmNJ4y2mUyobXMO
-         i+luyiWxak5Ntcr5wR4x0YJ18XnvdMhBbEEvd/gyVEXV5QkbQwmOjOQzGK2PG+SsRlIE
-         92FSexrViYOC1HdAVoLO4Faox6KBxhSafHvgs8xTV+0PgfR9kFl5fkvyjp+NpG0C3Yic
-         6O5DsvsST/pHNi2c8POVbXvpSvYd2wvu4fNOd8jWvhGJ0PH61VEUULiCffcvBKkSJoeE
-         +A0Q==
+        bh=BE+aA36i8c3R5wojjNo4XL/AkAZANQ6GWopioCR7lsc=;
+        b=Nw2r6AW4z/IkzWG3sJ1kq9jiOS0NTZtYmMnksU9Kj20S7JH68xRaP93m21TynLpjml
+         KkXjALXA6lTXTyMtfeOYFAkHwD3zl7ElW4zV+5FurtFTdxqvR/Cr2i8ZjThSpkmYBtCn
+         TkbMS/VpLspECre+tm/1SkjcGqn4naNiNvmC0am9gRpqV/XXgLri9gcP4dwhUGtNz3/l
+         /B3qmFGlug2UMdKZG8BtakV3miPozC4OH/zWhI+m22oOXb3+OkdtmaVfSXbw7TCpI7z2
+         4VDe967Jw5PIvKAxMpNBbPk+fcx96Uwlf40SS6bh1I4M+gypREFTpVEIcFsJ6cGtXBJ0
+         +Vew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=WLGme/rACNlsZ/NoBqpCvphC8ae3fvVeZ1qiIRGm49Q=;
-        b=RDF5sdVA+vFvnkUPibEAkPy7V1Hjq02JQjCyClBdxrw2yMjV19Jd7wxNdoklnPBGr4
-         XWbY/Gb7S/uNaKvg1i1eo4CnN76RHOUefAtam6ZYUsbJghV0UjK7nPDB3uuDR4MSDR0D
-         VGrG7TpyWlcNbb02WTQ0Am8Wsg/J4Us6jZTHeTI8Y5xSxNxqf6UnD2BbLECl0Wx8F6rs
-         +ZXnEHPwnrLAVvFPq1kIpWbclVhQNlJ1StwhoVgAWDNqrH09Jewk/WyBCBF56617kWV8
-         RwbT7LnncKvoHOG9RgwyMMfKS+5Ii8Fqk5532rK/vZAAL8+OLomx2g7v7zQXWh1q1Bxk
-         1mvg==
-X-Gm-Message-State: AOAM5313MD8K4skBfjTnDIWLYhNxKHlm6S60VFGYjTSbNYJb5qE0Omab
-        k4DQmO/A4rX0RZ52VC8NFMSzxfr6UjxTxA==
-X-Google-Smtp-Source: ABdhPJzijW7TduNxnjGw5WJJDKE1+upP6F6srZfdjFLh9QanrNnahAQOypcz+SZL3SPFyXcGFOR1GA==
-X-Received: by 2002:a17:90b:4b06:b0:1c9:9751:cf9b with SMTP id lx6-20020a17090b4b0600b001c99751cf9bmr1363741pjb.0.1648361312296;
-        Sat, 26 Mar 2022 23:08:32 -0700 (PDT)
+        bh=BE+aA36i8c3R5wojjNo4XL/AkAZANQ6GWopioCR7lsc=;
+        b=4DyXsM//p/msW4vBYDrQ9zudTXsWBNl9VEFs4chEBL6Nc5A3pt+3nNAuCO/9Skj8oA
+         qZyKMOcEZX0hF5OAKdFAimXHHMz0CApmzxAsAe2ysGtewGub037SkA8oyfbDaY7X7Ken
+         7RqyaISb0irZUOjorf+FtMRrJoSeI1Bw64oOhIpSpcL3S5tKg8NCrWhYMOlevcDLkNCY
+         PcGmyakA/A3F24eoBBb6SFXXoWVhy68NqXAK3zNgLLlVigohO7K87fftkFWg3WYBl8h8
+         qgOK6bJsaDT4gsN/hI6zl6cx+NaI0pYUgHhJXCtEuHCLF3n/d42peqeOa4tIOFEZsRJG
+         JKYQ==
+X-Gm-Message-State: AOAM530nwe5c7nDe3Ls/tsK9LGwfHn+b3tC9ll3OYS997QHPVp+oNGoD
+        j5C3ksyP+mHsJeGQYmVtM4ThEbFDygw=
+X-Google-Smtp-Source: ABdhPJyIGF8CYoN8BLP/kuL47FMddIbBlo1ZP1EE47uXttVNcUR/kg8Fcm9ClWqDCfbuDe9b4MljEA==
+X-Received: by 2002:a05:6a00:130e:b0:4cc:3c7d:4dec with SMTP id j14-20020a056a00130e00b004cc3c7d4decmr17646042pfu.32.1648361520552;
+        Sat, 26 Mar 2022 23:12:00 -0700 (PDT)
 Received: from localhost.localdomain ([115.220.243.108])
-        by smtp.googlemail.com with ESMTPSA id m18-20020a056a00081200b004faeae3a291sm11239661pfk.26.2022.03.26.23.08.28
+        by smtp.googlemail.com with ESMTPSA id j13-20020a056a00130d00b004f1025a4361sm11903794pfu.202.2022.03.26.23.11.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Mar 2022 23:08:31 -0700 (PDT)
+        Sat, 26 Mar 2022 23:12:00 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     perex@perex.cz
-Cc:     tiwai@suse.com, krzysztof.h1@wp.pl, alsa-devel@alsa-project.org,
+To:     ludovic.desroches@microchip.com
+Cc:     tudor.ambarus@microchip.com, vkoul@kernel.org,
+        linux-arm-kernel@lists.infradead.org, dmaengine@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] cs423x: cs4236: fix an incorrect NULL check on list iterator
-Date:   Sun, 27 Mar 2022 14:08:22 +0800
-Message-Id: <20220327060822.4735-1-xiam0nd.tong@gmail.com>
+Subject: [PATCH] dma: at_xdmac: fix a missing check on list iterator
+Date:   Sun, 27 Mar 2022 14:11:54 +0800
+Message-Id: <20220327061154.4867-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -65,52 +66,52 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-	err = snd_card_cs423x_pnp(dev, card->private_data, pdev, cdev);
+	__func__, desc, &desc->tx_dma_desc.phys, ret, cookie, residue);
 
-The list iterator value 'cdev' will *always* be set and non-NULL
-by list_for_each_entry(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element
-is found.
-
-To fix the bug, use a new variable 'iter' as the list iterator,
-while use the original variable 'cdev' as a dedicated pointer
-to point to the found element. And snd_card_cs423x_pnp() itself
-has NULL check for cdev.
+The list iterator 'desc' will point to a bogus position containing
+HEAD if the list is empty or no element is found. To avoid dev_dbg()
+prints a invalid address, use a new variable 'iter' as the list
+iterator, while use the origin variable 'desc' as a dedicated
+pointer to point to the found element.
 
 Cc: stable@vger.kernel.org
-Fixes: c2b73d1458014 ("ALSA: cs4236: cs4232 and cs4236 driver merge to solve PnP BIOS detection")
+Fixes: 82e2424635f4c ("dmaengine: xdmac: fix print warning on dma_addr_t variable")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- sound/isa/cs423x/cs4236.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/dma/at_xdmac.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/sound/isa/cs423x/cs4236.c b/sound/isa/cs423x/cs4236.c
-index b6bdebd9ef27..10112e1bb25d 100644
---- a/sound/isa/cs423x/cs4236.c
-+++ b/sound/isa/cs423x/cs4236.c
-@@ -494,7 +494,7 @@ static int snd_cs423x_pnpbios_detect(struct pnp_dev *pdev,
- 	static int dev;
- 	int err;
- 	struct snd_card *card;
--	struct pnp_dev *cdev;
-+	struct pnp_dev *cdev, *iter;
- 	char cid[PNP_ID_LEN];
- 
- 	if (pnp_device_is_isapnp(pdev))
-@@ -510,9 +510,11 @@ static int snd_cs423x_pnpbios_detect(struct pnp_dev *pdev,
- 	strcpy(cid, pdev->id[0].id);
- 	cid[5] = '1';
- 	cdev = NULL;
--	list_for_each_entry(cdev, &(pdev->protocol->devices), protocol_list) {
--		if (!strcmp(cdev->id[0].id, cid))
-+	list_for_each_entry(iter, &(pdev->protocol->devices), protocol_list) {
-+		if (!strcmp(iter->id[0].id, cid)) {
-+			cdev = iter;
+diff --git a/drivers/dma/at_xdmac.c b/drivers/dma/at_xdmac.c
+index 1476156af74b..def564d1e8fa 100644
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1453,7 +1453,7 @@ at_xdmac_tx_status(struct dma_chan *chan, dma_cookie_t cookie,
+ {
+ 	struct at_xdmac_chan	*atchan = to_at_xdmac_chan(chan);
+ 	struct at_xdmac		*atxdmac = to_at_xdmac(atchan->chan.device);
+-	struct at_xdmac_desc	*desc, *_desc;
++	struct at_xdmac_desc	*desc, *_desc, *iter;
+ 	struct list_head	*descs_list;
+ 	enum dma_status		ret;
+ 	int			residue, retry;
+@@ -1568,11 +1568,13 @@ at_xdmac_tx_status(struct dma_chan *chan, dma_cookie_t cookie,
+ 	 * microblock.
+ 	 */
+ 	descs_list = &desc->descs_list;
+-	list_for_each_entry_safe(desc, _desc, descs_list, desc_node) {
+-		dwidth = at_xdmac_get_dwidth(desc->lld.mbr_cfg);
+-		residue -= (desc->lld.mbr_ubc & 0xffffff) << dwidth;
+-		if ((desc->lld.mbr_nda & 0xfffffffc) == cur_nda)
++	list_for_each_entry_safe(iter, _desc, descs_list, desc_node) {
++		dwidth = at_xdmac_get_dwidth(iter->lld.mbr_cfg);
++		residue -= (iter->lld.mbr_ubc & 0xffffff) << dwidth;
++		if ((iter->lld.mbr_nda & 0xfffffffc) == cur_nda) {
++			desc = iter;
  			break;
 +		}
  	}
- 	err = snd_cs423x_card_new(&pdev->dev, dev, &card);
- 	if (err < 0)
+ 	residue += cur_ubc << dwidth;
+ 
 -- 
 2.17.1
 
