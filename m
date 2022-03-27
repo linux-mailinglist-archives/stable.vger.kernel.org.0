@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 358D84E86D9
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 10:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 699B24E86DC
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 10:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235656AbiC0IL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 04:11:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
+        id S229672AbiC0IPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 04:15:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbiC0ILz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 04:11:55 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E488B4EF73;
-        Sun, 27 Mar 2022 01:10:17 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id w8so12237399pll.10;
-        Sun, 27 Mar 2022 01:10:17 -0700 (PDT)
+        with ESMTP id S229543AbiC0IPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 04:15:00 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B3E54FC62;
+        Sun, 27 Mar 2022 01:13:20 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id c23so12277053plo.0;
+        Sun, 27 Mar 2022 01:13:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=I209+IAp2J40nkpM0RDSrYtutE4hanVMPBM3jUoLkOo=;
-        b=CorJydGuWbpBLptQES0lIYPHSX347xTaMw1Sk2SkCs6fzw4msOZh2MpVN3AGKd6mjF
-         UHwkI43v50nxY22D36ezJIGpCpIN0DYliXHFy9f+WO/63qhPqPzVIJe40C/drJgjuzSO
-         ZAaofmmyh2oID+sameso90LvpPKGlCqsRGHivbQ7IDtUUP6Xn6qZF4okz9jO3Bdmnyip
-         1roaiT9NX/we0WM8EluW9OELn9Vc25IVPc3h/+XaYSV6rHlqgFh7HXFPuC97ibaylJTz
-         xA2pyj4fpXGEyJGmyifqcnH8OgNZeZLIzPtZsy0QazlMfD80Gag2v+8HzdPV+macj6Cl
-         ulSQ==
+        bh=59JhUNktdVz2W5QJS5bzmJcf9POr7QzcmSfTOiXjcAE=;
+        b=OZsDNWW6DNUFlcVYdlNaJI92YyM8e/1vdhm693Motn3WyZ7ewgAsXDxbdBNDuI8hff
+         ajoCrHaYyEZxqHcVTVdfqmCiAlgd0sXnfwfy3HsjWeyb24TnljM/iNf1SvULyd3sonld
+         udFONOi7HhP3xVedtAuHx8XnHifA5u4dM9VEFCjcFn/kOUfkAOqXQkJIAGRriZLaV8DV
+         C8xCK72j0QcEf1Ns1y5NnE0u3qGfo2oNQvxJqmdJFiRrUyn+xamdElZdMcv9PZEVqfqB
+         VYcWoqB6UFyBQXda/CLno4HvjFHNnAuiS6oH8SytVgsKNkS/xJtzOIQttmqvlM7Kz/jR
+         Z2vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=I209+IAp2J40nkpM0RDSrYtutE4hanVMPBM3jUoLkOo=;
-        b=3yvelSLkX1jBf0654oD/VSlxclWGp6wUks8mO5R6FDa7PWgv9xsGm2hYq6MaPX/lnz
-         WrPyIAQwsxZUxVxGE66YrmNPwcuFxtbufWjKKuP4FpULpA+hZKlS015sRR9m/4envf54
-         r0dQIp02dWnbjW3IgXcHaFFn+dyMzEzpd0aY0SD06r7b2E0WGO/g7lZTRUpbd94cHx/J
-         ntM6xjn6rtOO7zTnC0Vgdu+smJvOOVn4+Z3SkVSJEbL0WGfgWhIjMPhvF/ynUX5QrREn
-         7/DUDwslVCcDs7EFMErEUtUb4m0pXbhCDGt+lGuQlFT/G/cA5CXRCwyqX8rwdbj56fCE
-         +2mA==
-X-Gm-Message-State: AOAM532cu+WadRaymVjfFlAOSwiKeolDLnKlOpe5J+W+MCLGKGACn+EN
-        Ik937M+F3BozMFjhhpaNMG/uxxENY3Y=
-X-Google-Smtp-Source: ABdhPJyeYcEUJKV2iJ85uQKvTTnRsUSASXeeh0pFRxzZpGOxsJZMFZco2VjE0HpPVwf67S0u05yGUA==
-X-Received: by 2002:a17:902:daca:b0:154:aa89:f12f with SMTP id q10-20020a170902daca00b00154aa89f12fmr21057923plx.98.1648368617435;
-        Sun, 27 Mar 2022 01:10:17 -0700 (PDT)
+        bh=59JhUNktdVz2W5QJS5bzmJcf9POr7QzcmSfTOiXjcAE=;
+        b=Y+JJ5y2rVELqBr5kwgPE/XGi3gKLieTDS7LD2gHQpMEc71TN+aORjKd67iLbVmq4QY
+         14pJrT7PeHqItJv1a0zTqWq6oS9bOSk0LsQxHLPER9rFPeavidNHErLOLSuzGTSSSDQO
+         o3VB/PMT+lthcfBQCeokuycLcrQHXe7vC+xsHdrvV5RA5XqtqEiLL5S/QNqJ3ugZSDOn
+         tL10VRQjbLVHm0Cve8rz8wdHxD+lT8hF2EAZdLOqHeReOHBgGJbmiCFDmWa+JseWdOCz
+         zVWNUeCiPPH4j+AMSfdcDUqmL5xOsp8t0raCqGL+LXpa8PMoDNsT6zc9OvmMg6gbPtUP
+         22/w==
+X-Gm-Message-State: AOAM533tPR/sYFeSR3QPAmztnarXPvUlcgcpE2tuh8KXHkDpXFrf5uu3
+        xvr/51vDXu9ertrwdvwJd+M=
+X-Google-Smtp-Source: ABdhPJy/iTobgY0S2D+gB7aR16mC8LS3RFCSb2hnklRarrOtZksF+A58mZftxtdAe10MwlHGlfn4kQ==
+X-Received: by 2002:a17:903:124a:b0:154:c860:6d52 with SMTP id u10-20020a170903124a00b00154c8606d52mr18220698plh.159.1648368799693;
+        Sun, 27 Mar 2022 01:13:19 -0700 (PDT)
 Received: from localhost ([115.220.243.108])
-        by smtp.gmail.com with ESMTPSA id g6-20020a056a000b8600b004faa49add69sm11898172pfj.107.2022.03.27.01.10.16
+        by smtp.gmail.com with ESMTPSA id h10-20020a056a00230a00b004faa0f67c3esm12594343pfh.23.2022.03.27.01.13.18
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 27 Mar 2022 01:10:16 -0700 (PDT)
+        Sun, 27 Mar 2022 01:13:19 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
 To:     oder_chiou@realtek.com, lgirdwood@gmail.com, broonie@kernel.org,
         perex@perex.cz, tiwai@suse.com
 Cc:     derek.fang@realtek.com, alsa-devel@alsa-project.org,
         linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] codecs: rt5682: fix an incorrect NULL check on list iterator
-Date:   Sun, 27 Mar 2022 16:10:02 +0800
-Message-Id: <20220327081002.12684-1-xiam0nd.tong@gmail.com>
+Subject: [PATCH] codecs: rt5682s: fix an incorrect NULL check on list iterator
+Date:   Sun, 27 Mar 2022 16:13:00 +0800
+Message-Id: <20220327081300.12962-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -66,7 +66,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-	if (!dai) {
+            if (!dai) {
 
 The list iterator value 'dai' will *always* be set and non-NULL
 by for_each_component_dais(), so it is incorrect to assume that
@@ -75,41 +75,41 @@ is found (In fact, it will be a bogus pointer to an invalid struct
 object containing the HEAD). Otherwise it will bypass the check
 'if (!dai) {' (never call dev_err() and never return -ENODEV;)
 and lead to invalid memory access lately when calling
-'rt5682_set_bclk1_ratio(dai, factor);'.
+'rt5682s_set_bclk1_ratio(dai, factor);'.
 
-To fix the bug, just return rt5682_set_bclk1_ratio(dai, factor);
+To fix the bug, just return rt5682s_set_bclk1_ratio(dai, factor);
 when found the 'dai', otherwise dev_err() and return -ENODEV;
 
 Cc: stable@vger.kernel.org
-Fixes: ebbfabc16d23d ("ASoC: rt5682: Add CCF usage for providing I2S clks")
+Fixes: bdd229ab26be9 ("ASoC: rt5682s: Add driver for ALC5682I-VS codec")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- sound/soc/codecs/rt5682.c | 11 ++++-------
+ sound/soc/codecs/rt5682s.c | 11 ++++-------
  1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index be68d573a490..c9ff9c89adf7 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -2822,14 +2822,11 @@ static int rt5682_bclk_set_rate(struct clk_hw *hw, unsigned long rate,
+diff --git a/sound/soc/codecs/rt5682s.c b/sound/soc/codecs/rt5682s.c
+index 1e662d1be2b3..c890e51ff953 100644
+--- a/sound/soc/codecs/rt5682s.c
++++ b/sound/soc/codecs/rt5682s.c
+@@ -2686,14 +2686,11 @@ static int rt5682s_bclk_set_rate(struct clk_hw *hw, unsigned long rate,
  
  	for_each_component_dais(component, dai)
- 		if (dai->id == RT5682_AIF1)
+ 		if (dai->id == RT5682S_AIF1)
 -			break;
 -	if (!dai) {
--		dev_err(rt5682->i2c_dev, "dai %d not found in component\n",
--			RT5682_AIF1);
+-		dev_err(component->dev, "dai %d not found in component\n",
+-			RT5682S_AIF1);
 -		return -ENODEV;
 -	}
-+			return rt5682_set_bclk1_ratio(dai, factor);
++			return rt5682s_set_bclk1_ratio(dai, factor);
  
--	return rt5682_set_bclk1_ratio(dai, factor);
-+	dev_err(rt5682->i2c_dev, "dai %d not found in component\n",
-+		RT5682_AIF1);
+-	return rt5682s_set_bclk1_ratio(dai, factor);
++	dev_err(component->dev, "dai %d not found in component\n",
++		RT5682S_AIF1);
 +	return -ENODEV;
  }
  
- static const struct clk_ops rt5682_dai_clk_ops[RT5682_DAI_NUM_CLKS] = {
+ static const struct clk_ops rt5682s_dai_clk_ops[RT5682S_DAI_NUM_CLKS] = {
 -- 
 2.17.1
 
