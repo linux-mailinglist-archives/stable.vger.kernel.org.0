@@ -2,79 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF2F4E84DC
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 01:52:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A6704E84F3
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 03:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231623AbiC0Ayc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 20:54:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57118 "EHLO
+        id S232486AbiC0Bje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 21:39:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232218AbiC0Ayc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 20:54:32 -0400
-Received: from gateway20.websitewelcome.com (gateway20.websitewelcome.com [192.185.46.107])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F5F066FA5
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 17:52:55 -0700 (PDT)
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway20.websitewelcome.com (Postfix) with ESMTP id DF2D1400EEFFC
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 19:52:54 -0500 (CDT)
-Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
-        by cmsmtp with SMTP
-        id YH9KnTkvQ22u3YH9KnmrXS; Sat, 26 Mar 2022 19:52:54 -0500
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=RIwqgN2usCJ4N6DRoTky3L2AM36k6RZmeKK7/K/OX5w=; b=OcHy7DvTuTMFUijIJkLkPxDd22
-        WjSaeTlswJ7czwtTOdTBr0DCha0Ek0Y8KDpGT5nPZqjVM4ybtmc0PN0SiKymyVu0TR35OztIdOrx5
-        HPCkjKKmM6Fm/7PBHzZEuvAkJeZ3ubSJc5uxmqGp0HqUObF3efsr3Rhk+M5C2ai90cXRYygNtyJYP
-        b/NWovZXTjVwmKDuPuteg146qkhHzZeiPJYA4+g3C1eFs7Hut4eRo3LhfYbILIJIU3LqPs47+gaXI
-        CnyTvMf8K8rigovINjqkguruhQ6y1CbhHNBbmchLVtSiVoLRxMf9Qm9RdsRXB/GJb61R1OVOFSOVx
-        cUqWqs/w==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57694 helo=localhost)
-        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@roeck-us.net>)
-        id 1nYH9K-001G2h-2v; Sun, 27 Mar 2022 00:52:54 +0000
-Date:   Sat, 26 Mar 2022 17:52:52 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
+        with ESMTP id S232403AbiC0Bjd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 21:39:33 -0400
+Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3321AD
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 18:37:53 -0700 (PDT)
+Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-de48295467so11858957fac.2
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 18:37:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Q69hN/ppK7TtcW1j6kBKZgV9STG2WZFvOUKaGB8HOrY=;
+        b=YC6JUzcv3vsA01QNQrv7g/vh8ab11+mCZMHMY117NR+CrBKfB8Ix+tcr/nbBkCaoll
+         nzuxNoK5joKvFgBWmGNd3isd6EWxZ7wc52g5VC1L4Omrx96Jyc55kzTx+h7PqjufqlP3
+         U62u9HoqY0wJ2yZFKUKVUaEKnoWCQRAiUHF2Y=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=Q69hN/ppK7TtcW1j6kBKZgV9STG2WZFvOUKaGB8HOrY=;
+        b=koySkfHLhIW/8zgIMPuDnJncxsOOy7Xo+aX3b9nG3XFzToT3thN1YbgaTqe+CRMAuq
+         nboykahZYuuRfdgTAN98tdWA6V8P8sGvUVIO1KCP7okuzI+5v83MzXv01WxzcmMnUrw+
+         JEN+cQ+GKcPQMO3OfccJRlqJsznAEtbsX1RTZk7wYoEjuyW3TskcIWKVdomUYIr4x3u6
+         rohpOVD8XK8lnAUyuXnTytnvtnPh3ECbPLFtxu8xEGq7vIWszXD5rJK4MMgzXDq0q0VO
+         8a5l0mBXXNSEWOWRtQQtcCxmHQii2AjhKunIF3SGz/feR7nBV4uUhaWpU3clEJBmc9QC
+         b8Fw==
+X-Gm-Message-State: AOAM532Bm92i+IT+P1GQNwGWmuULiJe7YPnO5wDaTLKpptvemjhneOs6
+        BYQhtideqZeR/iPRlRI/E1zZ+0+qylOs/puc
+X-Google-Smtp-Source: ABdhPJzk5EFvf1q1Ne6Ghcsw+ZWUOI88cF3yWOp0YQDmpTJ0M4ZHXm06hNa7o4d5oodGdSi2HbrSXg==
+X-Received: by 2002:a05:6870:e88e:b0:de:4705:7fdf with SMTP id q14-20020a056870e88e00b000de47057fdfmr7486112oan.212.1648345072061;
+        Sat, 26 Mar 2022 18:37:52 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id k124-20020aca3d82000000b002ef4c5bb9dbsm5170097oia.0.2022.03.26.18.37.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Mar 2022 18:37:51 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Sat, 26 Mar 2022 20:37:49 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         slade@sladewatkins.com
 Subject: Re: [PATCH 5.17 00/39] 5.17.1-rc1 review
-Message-ID: <20220327005252.GH1645909@roeck-us.net>
+Message-ID: <Yj+/7UCtRCV9ojQW@fedora64.linuxtx.org>
 References: <20220325150420.245733653@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1nYH9K-001G2h-2v
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57694
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 102
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -90,12 +80,17 @@ On Fri, Mar 25, 2022 at 04:14:15PM +0100, Greg Kroah-Hartman wrote:
 > Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
 > Anything received after that time might be too late.
 > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.1-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 488 pass: 488 fail: 0
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
