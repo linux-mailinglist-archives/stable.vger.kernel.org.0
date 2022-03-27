@@ -2,258 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A434E89AC
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 21:23:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A409B4E89B0
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 21:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236509AbiC0TZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 15:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37548 "EHLO
+        id S233202AbiC0T0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 15:26:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231214AbiC0TZf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 15:25:35 -0400
-Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E55F7DA1
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 12:23:55 -0700 (PDT)
-Received: by mail-lj1-x235.google.com with SMTP id a30so9101063ljq.13
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 12:23:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=81R8ObTvU5bcOjgPkhjrVdYMQgLpHwwmsUh10DuWTXw=;
-        b=QVswRSXvuEFhZlnuaBAnMB1TOMg78uyn8mRLwSOZtWi/86mVxTdWeJmg8H09RYWcp4
-         O6lvIOKP0C2OxXUCyV3ffNy61gxSdcLR6Kl9jGUx2xgYt16l8oVTj7BEMInCe8aUUdRF
-         U28WrmitywInVLFpJqv3NSZNOfcB3kKShK/cw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=81R8ObTvU5bcOjgPkhjrVdYMQgLpHwwmsUh10DuWTXw=;
-        b=ETKx6cHKkVO418JnttOX/kdC2Q6W/QF78/KWrgUfhlv5GGC1vnj0Bx3kJrR+n4lKg7
-         H9l7hmtOJrdd37SloVNmW13SkWYf3oGT5ddC0NGMJoQJhbs4tDwV5+21sBeRHWLQeqeW
-         RJg5pbpE9uJ13arvtPvn0MBNcut9PWcFsR9v68ETRXALYo/wBsylbNFckcfiF9J9hGkX
-         bZDBJgNfiX8++bhDmGnw70AgeAjRxA5KC77kGGRyySq7nwuuUL4usFWrQc7ycDfxHpgX
-         UbZ4unCWSfghGuf2k0K2XLt2OmGcawkIVMUT2uBnNAdBwSaiDevgUKzEDPk838Nc2he/
-         cuJw==
-X-Gm-Message-State: AOAM5313jpRMylH7xI8+JJ2Wo3jETFVPWrVyTYXQM/ecUgdfbhi0YJ4J
-        6YtuQirl4XRyjm1GGHQWzmZoEHjvU6cIlDuKXwo=
-X-Google-Smtp-Source: ABdhPJyLkl+olQaYsC29HIyzjwhR8osdgfNpknkHv8YiMGuVhOvAODFgBT3Lf800RTAOywjkO30LAQ==
-X-Received: by 2002:a2e:9119:0:b0:247:e306:1379 with SMTP id m25-20020a2e9119000000b00247e3061379mr17043237ljg.361.1648409033880;
-        Sun, 27 Mar 2022 12:23:53 -0700 (PDT)
-Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com. [209.85.208.178])
-        by smtp.gmail.com with ESMTPSA id j14-20020a2eb70e000000b0024ab9d93535sm855970ljo.136.2022.03.27.12.23.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 27 Mar 2022 12:23:52 -0700 (PDT)
-Received: by mail-lj1-f178.google.com with SMTP id h11so16558509ljb.2
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 12:23:52 -0700 (PDT)
-X-Received: by 2002:a05:651c:1213:b0:247:e2d9:cdda with SMTP id
- i19-20020a05651c121300b00247e2d9cddamr17499555lja.443.1648409031649; Sun, 27
- Mar 2022 12:23:51 -0700 (PDT)
+        with ESMTP id S231214AbiC0T0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 15:26:44 -0400
+Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE17DE01A;
+        Sun, 27 Mar 2022 12:25:04 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 3548632007F9;
+        Sun, 27 Mar 2022 15:25:01 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 27 Mar 2022 15:25:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=animalcreek.com;
+         h=cc:cc:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm2; bh=HasCxMsdY3sivfE+or7HaqLHWRxJki
+        KaDq90gjx6H0I=; b=ZwSnWxl7jcXn+641XqZnpD50/fvaMMcghJQPvJRTbQBNfU
+        O0MSCiv+v/rcHhWvisrThtgpx21yhl3U4ELo7k4DborSnolwubmJOe0SuAR7O/dO
+        jFACICVJC0BOVU81OPDmdpndQIGtiIm2si2jlOicj5DrCmnIPbgJVywsr4t9s7M7
+        Rjj2/eoB1Ub1y3Xcpg+FQeFhd8XoYhfS5FNFDM/5OHjMIyBurSfS5BNl/q0ECRCN
+        FY7dSziiJ6CeX0rn22nfoBsQIIsdAXmcQcPzewPGnDHSRmO8LqkeJ9nKGCVA7Rgg
+        A6LQx/9ozqCN/3fUZAp/P3YFKFLx0H+6RQHlp03w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HasCxMsdY3sivfE+o
+        r7HaqLHWRxJkiKaDq90gjx6H0I=; b=MkPhGsM2Vml+HKd9dRvlKVuef8E9l9AFp
+        cHMcrX4GFxG2uCzX+X2bKcGN0CboclTtma3d5N0rarMuRXzLWchBOIlVsrrpI+Nl
+        IiFIUrZUbltVNMfqFf2zNQYNWKAlvnToBmF9LSZWHDRf4hTweOjP4GqaA338OJzA
+        vaGNasdxJfAKsAWiE3p1s2Eaz6ETPqcm4P9CbqAsxUiVKcpsOE1qCfCg9yarL5IC
+        qToFtAa0Uaqi5rBDgb9kBxhhLBxljA1aUmZFADeW8K40DefpxU48RNGCLLCor42D
+        QBpQlnDYBOaBwQc7PBqQ9V0mpRf6AHkzx8wlHVFNHunwg1ibHhS5A==
+X-ME-Sender: <xms:DLpAYtS8N5HV83csVbkIJxskoA1GVhiNmoeckUMWpF_4sUsXc2N1Iw>
+    <xme:DLpAYmz6xxssY5WnRJ_UdvkaR4iMljTmlqN1b8tpjCKhuZ2LTR88aLri8sLISSiKy
+    ZlWhvZ-Pb3UCdAyuA>
+X-ME-Received: <xmr:DLpAYi0AE_px8uFgwoATu6CYZ5l3oZD_j_XZ5petAqbq0S-_RmRBwQ5kjXykpaDVJXvned7xY6ken9CQvTI4Q6CCuqCLaqQB_9R4r2A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudehhedgudefkecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujghosehttdertddttddvnecuhfhrohhmpeforghr
+    khcuifhrvggvrhcuoehmghhrvggvrhesrghnihhmrghltghrvggvkhdrtghomheqnecugg
+    ftrfgrthhtvghrnhepieeugfdutdefiedtvdfftedufedvjeehgfevveefudfgjeffgeei
+    teetjedufffhnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrh
+    homhepmhhgrhgvvghrsegrnhhimhgrlhgtrhgvvghkrdgtohhm
+X-ME-Proxy: <xmx:DLpAYlDtngA--QZXRI9WU3rDL_1X4zC1kZfO_fVoSOJCspAANzI0xw>
+    <xmx:DLpAYmiv5G4dzgrvmqktEsmwWRq0wmcs4DryuBsJlfl-8XCaSsxAHw>
+    <xmx:DLpAYpq7vBGR1fDr5IckjT40JfsEDZlZNsZM24tahOkVqzJroLRdCA>
+    <xmx:DLpAYvVN5tBewVHAlS_VU89N3ejAmbOpo5NdGTLhQHBk5CTJAMZqQQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 27 Mar 2022 15:25:00 -0400 (EDT)
+Received: by blue.animalcreek.com (Postfix, from userid 1000)
+        id 9EDD813601FE; Sun, 27 Mar 2022 12:24:59 -0700 (MST)
+Date:   Sun, 27 Mar 2022 12:24:59 -0700
+From:   Mark Greer <mgreer@animalcreek.com>
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Cc:     vaibhav.sr@gmail.com, mgreer@animalcreek.com, johan@kernel.org,
+        elder@kernel.org, gregkh@linuxfoundation.org,
+        greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] greybus: audio_codec: fix three missing initializers for
+ data
+Message-ID: <20220327192459.GA220029@animalcreek.com>
+References: <20220327060120.4316-1-xiam0nd.tong@gmail.com>
 MIME-Version: 1.0
-References: <1812355.tdWV9SEqCh@natalenko.name> <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de> <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
- <871qyr9t4e.fsf@toke.dk> <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
- <20220327054848.1a545b12.pasic@linux.ibm.com> <CAHk-=whUJ=tMEgP3KiWwk0pzmHn+1QORUu50syE+zOGk4UnFog@mail.gmail.com>
- <CAHk-=wgUx5CVF_1aEkhhEiRGXHgKzUdKiyctBKcHAxkxPpbiaw@mail.gmail.com> <0745b44456d44d1e9fc364e5a3780d9a@AcuMS.aculab.com>
-In-Reply-To: <0745b44456d44d1e9fc364e5a3780d9a@AcuMS.aculab.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sun, 27 Mar 2022 12:23:34 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgLyqNJx=bb8=o0Nk5U8gMnf0-=qx53ShLEb3V=Yrt8fw@mail.gmail.com>
-Message-ID: <CAHk-=wgLyqNJx=bb8=o0Nk5U8gMnf0-=qx53ShLEb3V=Yrt8fw@mail.gmail.com>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220327060120.4316-1-xiam0nd.tong@gmail.com>
+Organization: Animal Creek Technologies, Inc.
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 27, 2022 at 8:24 AM David Laight <David.Laight@aculab.com> wrote:
->
-> Aren't bounce buffers just a more extreme case on non-coherent
-> memory accesses?
+On Sun, Mar 27, 2022 at 02:01:20PM +0800, Xiaomeng Tong wrote:
+> These three bugs are here:
+> 	struct gbaudio_data_connection *data;
+> 
+> If the list '&codec->module_list' is empty then the 'data' will
+> keep unchanged. However, the 'data' is not initialized and filled
+> with trash value. As a result, if the value is not NULL, the check
+> 'if (!data) {' will always be false and never exit expectly.
+> 
+> To fix these bug, just initialize 'data' with NULL.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 6dd67645f22cf ("greybus: audio: Use single codec driver registration")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> ---
+>  drivers/staging/greybus/audio_codec.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
+> index b589cf6b1d03..939e05af4dcf 100644
+> --- a/drivers/staging/greybus/audio_codec.c
+> +++ b/drivers/staging/greybus/audio_codec.c
+> @@ -397,7 +397,7 @@ static int gbcodec_hw_params(struct snd_pcm_substream *substream,
+>  	u8 sig_bits, channels;
+>  	u32 format, rate;
+>  	struct gbaudio_module_info *module;
+> -	struct gbaudio_data_connection *data;
+> +	struct gbaudio_data_connection *data = NULL;
+>  	struct gb_bundle *bundle;
+>  	struct gbaudio_codec_info *codec = dev_get_drvdata(dai->dev);
+>  	struct gbaudio_stream_params *params;
+> @@ -498,7 +498,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
+>  {
+>  	int ret;
+>  	struct gbaudio_module_info *module;
+> -	struct gbaudio_data_connection *data;
+> +	struct gbaudio_data_connection *data = NULL;
+>  	struct gb_bundle *bundle;
+>  	struct gbaudio_codec_info *codec = dev_get_drvdata(dai->dev);
+>  	struct gbaudio_stream_params *params;
+> @@ -562,7 +562,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
+>  static int gbcodec_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
+>  {
+>  	int ret;
+> -	struct gbaudio_data_connection *data;
+> +	struct gbaudio_data_connection *data = NULL;
+>  	struct gbaudio_module_info *module;
+>  	struct gb_bundle *bundle;
+>  	struct gbaudio_codec_info *codec = dev_get_drvdata(dai->dev);
+> -- 
+> 2.17.1
 
-No.
+Those changes appear to fix real bugs.  Thanks Xiaomeng.
 
-In fact, this whoe change came about exactly because bounce buffers
-are different.
-
-The difference is that bounce buffers have that (wait for it) bounce
-buffer, which can have stale contents.
-
-> They just need explicit memory copies rather than just cache
-> writeback and invalidate operations.
-
-That's the thing - the memory copies introduce entirely new issues.
-
-I really think that instead of making up abstract rules ("ownership"
-or "bounce buffers are just extreme cases of non-coherency") we should
-make the rules very much practical and down to earth, and write out
-exactly what they *do*.
-
-The whole "sync DMA" is odd and abstract enough as a concept on its
-own, we shouldn't then make the rules for it odd and abstract. We
-should make them very very practical.
-
-So I will propose that we really make it very much about practical
-concerns, and we document things as
-
- (a) the "sync" operation has by definition a "whose _future_ access
-do we sync for" notion.
-
-     So "dma_sync_single_for_cpu()" says that the future accesses to
-this dma area is for the CPU.
-
-     Note how it does *NOT* say that the "CPU owns the are". That's
-bullsh*t, and we now know it's BS.
-
- (b) but the sync operation also has a "who wrote the data we're syncing"
-
-     Note that this is *not* "who accessed or owned it last", because
-that's nonsensical: if we're syncing for the CPU, then the only reason
-to do so is because we expect that the last access was by the device,
-so specifying that separately would just be redundant and stupid.
-
-     But specifying who *wrote* to the area is meaningful and matters.
-It matters for the non-coherent cache case (because of writeback
-issues), but it also matters for the bounce buffer case (becasue it
-determines which way we should copy).
-
-Note how this makes sense: a "sync" operation is clearly about taking
-some past state, and making it palatable for a future use. The past
-state is pretty much defined by who wrote the data, and then we can
-use that and the "the next thing to access it" to determine what we
-need to do about the sync.
-
-It is *NOT* about "ownership".
-
-So let's go through the cases, and I'm going to ignore the "CPU caches
-are coherent with device DMA" case because that's always going to be a
-no-op wrt data movement (but it will still generally need a memory
-barrier, which I will mention here and then ignore going forward).
-
-Syncing for *CPU* accesses (ie dma_sync_single_for_cpu()) has four
-choices I can see:
-
- - nobody wrote the data at all (aka DMA_NONE).
-
-   This is nonsensical and should warn. If nobody wrote to it, why
-would the CPU ever validly access it?
-
-   Maybe you should have written "memset(buffer, 0, size)" instead?
-
- - the CPU wrote the data in the first place (aka DMA_TO_DEVICE)
-
-   This is a no-op (possibly a memory barrier), because even stale CPU
-caches are fine, and even if it was in a bounce buffer, the original
-CPU-side data is fine.
-
- - the device wrote the data (aka DMA_FROM_DEVICE)
-
-   This is just the regular case of a device having written something,
-and the CPU wants to see it.
-
-   It obviously needs real work, but it's simple and straightforward.
-
-   For non-coherent caches, it needs a cache invalidate. For a bounce
-buffer, it needs a copy from the bounce buffer to the "real" buffer.
-
- - it's not clear who write the data (aka DMA_BIDIRECTIONAL)
-
-   This is not really doable for a bounce buffer - we just don't know
-which buffer contents are valid.
-
-   I think it's very very questionable for non-coherent caches too,
-but "writeback and invalidate" probably can't hurt.
-
-   So probably warn about it, and do whatever we used to do historically.
-
-Syncing for device accesses (ie dma_sync_single_for_device()) also has
-the same four choices I can see, but obviously does different things:
-
- - nobody wrote the data at all (aka DMA_NONE)
-
-   This sounds as nonsensical as the CPU case, but maybe isn't.
-
-   We may not have any previous explicit writes, but we *do* have that
-"insecure and possibly stale buffer contents" bounce buffer thing on
-the device side.
-
-   So with a bounce buffer, it's actually somewhat sane to say
-"initialize the bounce buffer to a known state".
-
-   Because bounce buffers *are* special. Unlike even the "noncoherent
-caches" issue, they have that entirely *other* hidden state in the
-form of the bounce buffer itself.
-
-   Discuss.
-
- - the CPU wrote the data in the first place (aka DMA_TO_DEVICE).
-
-   This is the regular and common case of "we have data on the CPU
-side that is written to the device".
-
-   Again, needs work, but is simple and straightforward.
-
-   For non-coherent caches, we need a writeback on the CPU. For a
-bounce buffer, we need to copy from the regular buffer to the bounce
-buffer.
-
- - the device wrote the data in the first place (aka DMA_FROM_DEVICE)
-
-   This is the case that we hit on ath9k. It's *not* obvious, but when
-we write this out this way, I really think the semantics are pretty
-clear.
-
-   For non-coherent caches, we may need an "invalidate". For a bounce
-buffer, it's a no-op (because the bounce buffer already contains the
-data)
-
- - it's not clear who write the data (aka DMA_BIDIRECTIONAL)
-
-   This is again not really doable for a bounce buffer. We don't know
-which buffer contains the right data, we should warn about it and do
-whatever we used to do historically.
-
-   Again, it's very questionable for non-coherent caches too, but
-"writeback and invalidate" probably at least can't hurt.
-
-So hey, that's my thinking. The whole "ownership"  model is, I think,
-obviously untenable.
-
-But just going through and listing the different cases and making them
-explicit I think explains exactly what the different situations are,
-and that then makes it fairly clear what the different combinations
-should do.
-
-No?
-
-           Linus
+Reviewed-by: Mark Greer <mgreer@animalcreek.com>
