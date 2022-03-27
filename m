@@ -2,112 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FEAF4E84C2
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 01:13:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BC9C4E84CD
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 01:50:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbiC0AP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Mar 2022 20:15:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49814 "EHLO
+        id S231560AbiC0Avn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Mar 2022 20:51:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231133AbiC0AP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 20:15:27 -0400
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92202BE25
-        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 17:13:50 -0700 (PDT)
-Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id D6634100483F8
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 00:13:49 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id YGXVn4a1cY8ycYGXVngRxO; Sun, 27 Mar 2022 00:13:49 +0000
+        with ESMTP id S231383AbiC0Avn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Mar 2022 20:51:43 -0400
+Received: from gateway24.websitewelcome.com (gateway24.websitewelcome.com [192.185.51.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BEC1FD29
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 17:50:05 -0700 (PDT)
+Received: from cm12.websitewelcome.com (cm12.websitewelcome.com [100.42.49.8])
+        by gateway24.websitewelcome.com (Postfix) with ESMTP id DEB86CB97
+        for <stable@vger.kernel.org>; Sat, 26 Mar 2022 19:50:03 -0500 (CDT)
+Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
+        by cmsmtp with SMTP
+        id YH6ZnOIIY9AGSYH6ZnDkLK; Sat, 26 Mar 2022 19:50:03 -0500
 X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=ff9od2cF c=1 sm=1 tr=0 ts=623fac3d
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=o8Y5sQTvuykA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Y3Bp1HCxH6R3EVIpWVmailGsd7SzevAOYU40B0JUvME=; b=MvC0wJ5Tf6Fz/AHAgw1pNhl2gR
-        33M6/tGOe9kJQphvMVyk/6X41MwpWnnT4XNlgyv3mYtFzHkrYYfFZBWD/+EHpOgr7V2sTMBmWqhsQ
-        xBDmwu1+ukwP1uCE3wj1I/xzw;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34444 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        bh=/Ic5tD/y4U6UeW7Ou+5yjIASEP6LfpniGm26FqKJIHQ=; b=OI0vNOOOkMHQVL0OAX6+NUBFT6
+        4i0/Uj/BWOpnj6aQs4qisQTEy3t1cBBVXM3kQcIRzPTvNX7KcMI+mI52NVc+eZbCnQqite2nHJEyb
+        lQN649bOqiO3akOw0jHoSpRiwRbWli4YRdZWZQHNr1xIKKqrjYegQMpPScdMMTgLdlJBeUpnURfcB
+        0FZwYN6Jhcffjhu2aJmF9/GpsjS7FxKu8Xi9bpwv2AwulUgu8GAZKCyBGFxfn+wXF1gNUKLjRrLmh
+        5C87omAPoDrjSGk3S66ql77WPLz4Gih57AEGBhJY7zk5KVREcVCZ7aLZTym/NR/y5Y5tAF2CgguC0
+        FWhwUwTw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57678 helo=localhost)
+        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nYGXU-003RBR-GI; Sat, 26 Mar 2022 18:13:48 -0600
-Subject: Re: [PATCH 5.17 00/39] 5.17.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220325150420.245733653@linuxfoundation.org>
-In-Reply-To: <20220325150420.245733653@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <2437eb9a-6702-89cd-bed5-cf5bb1ea796b@w6rz.net>
-Date:   Sat, 26 Mar 2022 17:13:46 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        (envelope-from <linux@roeck-us.net>)
+        id 1nYH6Z-001Eqp-4U; Sun, 27 Mar 2022 00:50:03 +0000
+Date:   Sat, 26 Mar 2022 17:50:01 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/14] 4.9.309-rc1 review
+Message-ID: <20220327005001.GA1645909@roeck-us.net>
+References: <20220325150415.694544076@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220325150415.694544076@linuxfoundation.org>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
 X-AntiAbuse: Original Domain - vger.kernel.org
 X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
+X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
-X-Source-IP: 73.162.232.9
+X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1nYGXU-003RBR-GI
+X-Exim-ID: 1nYH6Z-001Eqp-4U
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:34444
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:57678
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 11
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/25/22 8:14 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.17.1 release.
-> There are 39 patches in this series, all will be posted as a response
+On Fri, Mar 25, 2022 at 04:04:28PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.309 release.
+> There are 14 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Sun, 27 Mar 2022 15:04:08 +0000.
 > Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> 
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Build results:
+	total: 163 pass: 163 fail: 0
+Qemu test results:
+	total: 397 pass: 397 fail: 0
 
-Tested-by: Ron Economos <re@w6rz.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
+Guenter
