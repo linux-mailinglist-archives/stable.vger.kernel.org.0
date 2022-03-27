@@ -2,142 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A409B4E89B0
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 21:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4D5C4E89F8
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 22:13:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233202AbiC0T0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 15:26:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
+        id S232290AbiC0UPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 16:15:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231214AbiC0T0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 15:26:44 -0400
-Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE17DE01A;
-        Sun, 27 Mar 2022 12:25:04 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 3548632007F9;
-        Sun, 27 Mar 2022 15:25:01 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Sun, 27 Mar 2022 15:25:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=animalcreek.com;
-         h=cc:cc:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; bh=HasCxMsdY3sivfE+or7HaqLHWRxJki
-        KaDq90gjx6H0I=; b=ZwSnWxl7jcXn+641XqZnpD50/fvaMMcghJQPvJRTbQBNfU
-        O0MSCiv+v/rcHhWvisrThtgpx21yhl3U4ELo7k4DborSnolwubmJOe0SuAR7O/dO
-        jFACICVJC0BOVU81OPDmdpndQIGtiIm2si2jlOicj5DrCmnIPbgJVywsr4t9s7M7
-        Rjj2/eoB1Ub1y3Xcpg+FQeFhd8XoYhfS5FNFDM/5OHjMIyBurSfS5BNl/q0ECRCN
-        FY7dSziiJ6CeX0rn22nfoBsQIIsdAXmcQcPzewPGnDHSRmO8LqkeJ9nKGCVA7Rgg
-        A6LQx/9ozqCN/3fUZAp/P3YFKFLx0H+6RQHlp03w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HasCxMsdY3sivfE+o
-        r7HaqLHWRxJkiKaDq90gjx6H0I=; b=MkPhGsM2Vml+HKd9dRvlKVuef8E9l9AFp
-        cHMcrX4GFxG2uCzX+X2bKcGN0CboclTtma3d5N0rarMuRXzLWchBOIlVsrrpI+Nl
-        IiFIUrZUbltVNMfqFf2zNQYNWKAlvnToBmF9LSZWHDRf4hTweOjP4GqaA338OJzA
-        vaGNasdxJfAKsAWiE3p1s2Eaz6ETPqcm4P9CbqAsxUiVKcpsOE1qCfCg9yarL5IC
-        qToFtAa0Uaqi5rBDgb9kBxhhLBxljA1aUmZFADeW8K40DefpxU48RNGCLLCor42D
-        QBpQlnDYBOaBwQc7PBqQ9V0mpRf6AHkzx8wlHVFNHunwg1ibHhS5A==
-X-ME-Sender: <xms:DLpAYtS8N5HV83csVbkIJxskoA1GVhiNmoeckUMWpF_4sUsXc2N1Iw>
-    <xme:DLpAYmz6xxssY5WnRJ_UdvkaR4iMljTmlqN1b8tpjCKhuZ2LTR88aLri8sLISSiKy
-    ZlWhvZ-Pb3UCdAyuA>
-X-ME-Received: <xmr:DLpAYi0AE_px8uFgwoATu6CYZ5l3oZD_j_XZ5petAqbq0S-_RmRBwQ5kjXykpaDVJXvned7xY6ken9CQvTI4Q6CCuqCLaqQB_9R4r2A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudehhedgudefkecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujghosehttdertddttddvnecuhfhrohhmpeforghr
-    khcuifhrvggvrhcuoehmghhrvggvrhesrghnihhmrghltghrvggvkhdrtghomheqnecugg
-    ftrfgrthhtvghrnhepieeugfdutdefiedtvdfftedufedvjeehgfevveefudfgjeffgeei
-    teetjedufffhnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrh
-    homhepmhhgrhgvvghrsegrnhhimhgrlhgtrhgvvghkrdgtohhm
-X-ME-Proxy: <xmx:DLpAYlDtngA--QZXRI9WU3rDL_1X4zC1kZfO_fVoSOJCspAANzI0xw>
-    <xmx:DLpAYmiv5G4dzgrvmqktEsmwWRq0wmcs4DryuBsJlfl-8XCaSsxAHw>
-    <xmx:DLpAYpq7vBGR1fDr5IckjT40JfsEDZlZNsZM24tahOkVqzJroLRdCA>
-    <xmx:DLpAYvVN5tBewVHAlS_VU89N3ejAmbOpo5NdGTLhQHBk5CTJAMZqQQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 27 Mar 2022 15:25:00 -0400 (EDT)
-Received: by blue.animalcreek.com (Postfix, from userid 1000)
-        id 9EDD813601FE; Sun, 27 Mar 2022 12:24:59 -0700 (MST)
-Date:   Sun, 27 Mar 2022 12:24:59 -0700
-From:   Mark Greer <mgreer@animalcreek.com>
-To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Cc:     vaibhav.sr@gmail.com, mgreer@animalcreek.com, johan@kernel.org,
-        elder@kernel.org, gregkh@linuxfoundation.org,
-        greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] greybus: audio_codec: fix three missing initializers for
- data
-Message-ID: <20220327192459.GA220029@animalcreek.com>
-References: <20220327060120.4316-1-xiam0nd.tong@gmail.com>
+        with ESMTP id S230075AbiC0UPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 16:15:03 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA52310A5
+        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 13:13:23 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id dr20so24728827ejc.6
+        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 13:13:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wob/7GSQVIpO7i1InQcutyEWYgbvdwTICG96D7RFBB8=;
+        b=MBKpZ1UtrtPBVIHqjdSKYB/rkJWZ1f0vdHzhtdISyO5M6IfCasC0hYp5oS9+XwcX2g
+         onX3toZbyl+fJ/Tk2m9EN2QoWGToeUma4YxombZeY5ZkW09xgeyTm/fWrkUSPf9q19W+
+         djbSzf2EiLGwXDF9V4ce2XqsgWTUpumTDa/0Q=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wob/7GSQVIpO7i1InQcutyEWYgbvdwTICG96D7RFBB8=;
+        b=tyCebmZnHDZuSOX35GghGPwknCtTc27T7CnOHb7pTwCsXycqnq4jrUh89WFZ9xonwc
+         XjUFT0B8Nx8N2YxM9Lh/Ic2vwgjXA8e+GOsGM7urdwbR9nwKOsiO2HBVvL7Zsrjq3RZR
+         dVZ/Ye9UiB1In0hewceBw3h7CJDpytJ7kjfl8vH7qirJHTJNKUrctzHJaBUuQtnhlXVq
+         YS/5mMsoWtPClF9YQmVIhXEYUbnjkfUWAFOpZgyCxZZWv4Zi0aLVEExT6GB3YG6/P6Zu
+         1RPNwqhT3Bu9NdzfZsFoSJ0gduA70o+5mBJgjHVUO4xlJ9eaW430q/l+ZzgLrLyD+lxC
+         XPLw==
+X-Gm-Message-State: AOAM53259hni8A0cg+GVpzESKshVJNb1f0GraGZHBWk9AzMlYAQVSy9M
+        PtsgSq93n/oxkt7YuMTcSOtnWcv53RBDxlne21c=
+X-Google-Smtp-Source: ABdhPJyovMAd691aLu63Pv9GrEhw+kJkRkQNoTtU+sgSBY+XdEJacATvn4DjKvULh/PG5U2t0EsZ1g==
+X-Received: by 2002:a17:906:5597:b0:6ce:f3cc:14e8 with SMTP id y23-20020a170906559700b006cef3cc14e8mr23427883ejp.426.1648412002049;
+        Sun, 27 Mar 2022 13:13:22 -0700 (PDT)
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com. [209.85.218.50])
+        by smtp.gmail.com with ESMTPSA id y26-20020a1709063a9a00b006e0c272e263sm2539909ejd.71.2022.03.27.13.13.21
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 27 Mar 2022 13:13:21 -0700 (PDT)
+Received: by mail-ej1-f50.google.com with SMTP id bq8so10775259ejb.10
+        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 13:13:21 -0700 (PDT)
+X-Received: by 2002:a2e:9b10:0:b0:247:f28c:ffd3 with SMTP id
+ u16-20020a2e9b10000000b00247f28cffd3mr16821393lji.152.1648411509868; Sun, 27
+ Mar 2022 13:05:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220327060120.4316-1-xiam0nd.tong@gmail.com>
-Organization: Animal Creek Technologies, Inc.
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <1812355.tdWV9SEqCh@natalenko.name> <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
+ <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
+ <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
+ <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
+ <20220324163132.GB26098@lst.de> <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
+ <871qyr9t4e.fsf@toke.dk> <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
+ <20220327054848.1a545b12.pasic@linux.ibm.com> <CAHk-=whUJ=tMEgP3KiWwk0pzmHn+1QORUu50syE+zOGk4UnFog@mail.gmail.com>
+ <CAHk-=wgUx5CVF_1aEkhhEiRGXHgKzUdKiyctBKcHAxkxPpbiaw@mail.gmail.com>
+ <0745b44456d44d1e9fc364e5a3780d9a@AcuMS.aculab.com> <CAHk-=wgLyqNJx=bb8=o0Nk5U8gMnf0-=qx53ShLEb3V=Yrt8fw@mail.gmail.com>
+In-Reply-To: <CAHk-=wgLyqNJx=bb8=o0Nk5U8gMnf0-=qx53ShLEb3V=Yrt8fw@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 27 Mar 2022 13:04:53 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wh+TzZhMCiPPnchC4FSeS53-QCN3RYqxLAh4ahKMLoj9A@mail.gmail.com>
+Message-ID: <CAHk-=wh+TzZhMCiPPnchC4FSeS53-QCN3RYqxLAh4ahKMLoj9A@mail.gmail.com>
+Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
+ ath9k-based AP
+To:     David Laight <David.Laight@aculab.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Maxime Bizon <mbizon@freebox.fr>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Olha Cherevyk <olha.cherevyk@gmail.com>,
+        iommu <iommu@lists.linux-foundation.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 27, 2022 at 02:01:20PM +0800, Xiaomeng Tong wrote:
-> These three bugs are here:
-> 	struct gbaudio_data_connection *data;
-> 
-> If the list '&codec->module_list' is empty then the 'data' will
-> keep unchanged. However, the 'data' is not initialized and filled
-> with trash value. As a result, if the value is not NULL, the check
-> 'if (!data) {' will always be false and never exit expectly.
-> 
-> To fix these bug, just initialize 'data' with NULL.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 6dd67645f22cf ("greybus: audio: Use single codec driver registration")
-> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-> ---
->  drivers/staging/greybus/audio_codec.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
-> index b589cf6b1d03..939e05af4dcf 100644
-> --- a/drivers/staging/greybus/audio_codec.c
-> +++ b/drivers/staging/greybus/audio_codec.c
-> @@ -397,7 +397,7 @@ static int gbcodec_hw_params(struct snd_pcm_substream *substream,
->  	u8 sig_bits, channels;
->  	u32 format, rate;
->  	struct gbaudio_module_info *module;
-> -	struct gbaudio_data_connection *data;
-> +	struct gbaudio_data_connection *data = NULL;
->  	struct gb_bundle *bundle;
->  	struct gbaudio_codec_info *codec = dev_get_drvdata(dai->dev);
->  	struct gbaudio_stream_params *params;
-> @@ -498,7 +498,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
->  {
->  	int ret;
->  	struct gbaudio_module_info *module;
-> -	struct gbaudio_data_connection *data;
-> +	struct gbaudio_data_connection *data = NULL;
->  	struct gb_bundle *bundle;
->  	struct gbaudio_codec_info *codec = dev_get_drvdata(dai->dev);
->  	struct gbaudio_stream_params *params;
-> @@ -562,7 +562,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
->  static int gbcodec_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
->  {
->  	int ret;
-> -	struct gbaudio_data_connection *data;
-> +	struct gbaudio_data_connection *data = NULL;
->  	struct gbaudio_module_info *module;
->  	struct gb_bundle *bundle;
->  	struct gbaudio_codec_info *codec = dev_get_drvdata(dai->dev);
-> -- 
-> 2.17.1
+On Sun, Mar 27, 2022 at 12:23 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> So I will propose that we really make it very much about practical
+> concerns, and we document things as
+>
+>  (a) the "sync" operation has by definition a "whose _future_ access
+> do we sync for" notion.
+>
+>      So "dma_sync_single_for_cpu()" says that the future accesses to
+> this dma area is for the CPU.
+>
+>      Note how it does *NOT* say that the "CPU owns the are". That's
+> bullsh*t, and we now know it's BS.
+>
+>  (b) but the sync operation also has a "who wrote the data we're syncing"
+>
+>      Note that this is *not* "who accessed or owned it last", because
+> that's nonsensical: if we're syncing for the CPU, then the only reason
+> to do so is because we expect that the last access was by the device,
+> so specifying that separately would just be redundant and stupid.
+>
+>      But specifying who *wrote* to the area is meaningful and matters.
 
-Those changes appear to fix real bugs.  Thanks Xiaomeng.
+We could also simply require that the bounce buffer code *remember*
+who wrote to it last.
 
-Reviewed-by: Mark Greer <mgreer@animalcreek.com>
+So when the ath9k driver does
+
+ - setup:
+
+                bf->bf_buf_addr = dma_map_single(sc->dev, skb->data,
+                                                 common->rx_bufsize,
+                                                 DMA_FROM_DEVICE);
+
+we clear the bounce buffer and remember that the state of the bounce
+buffer is "device wrote to it" (because DMA_FROM_DEVICE).
+
+Then, we have an interrupt or other event, and ath9k does
+
+ - rc event:
+
+        dma_sync_single_for_cpu(sc->dev, bf->bf_buf_addr,
+                                common->rx_bufsize, DMA_FROM_DEVICE);
+
+        ret = ath9k_hw_process_rxdesc_edma(ah, rs, skb->data);
+        if (ret == -EINPROGRESS) {
+                /*let device gain the buffer again*/
+                dma_sync_single_for_device(sc->dev, bf->bf_buf_addr,
+                                common->rx_bufsize, DMA_FROM_DEVICE);
+                return false;
+        }
+
+and the first dma_sync_single_for_cpu() now sees "Ok, I want the CPU
+buffer, and I remember that the device wrote to it, so I will copy
+from the bounce buffer". It's still DMA_FROM_DEVICE, so that "the
+device wrote to it" doesn't change.
+
+When the CPU then decides "ok, that wasn't it", and does that
+dma_sync_single_for_device(), the bounce buffer code goes "Ok, the
+last operation was that the device wrote to the buffer, so the bounce
+buffer is still valid and I should do nothing".
+
+Voila, no ath9k breakage, and it all still makes perfect sense.
+
+And that sounds like an even more logical model than the one where we
+tell the bounce buffer code what the previous operation was, but it
+involves basically the DMA mapping code remembering what the last
+direction was. That makes perfect sense to me, but it's certainly not
+what the DMA mapping code has traditionally done, which makes me
+nervous that it would just expose a _lot_ of other drivers that do odd
+things.
+
+The "good news" (if there is such a thing) is that usually the
+direction doesn't actually change. So if you use DMA_FROM_DEVICE
+initially, you'll continue to use that. So there is probably basically
+never any difference between "what was the previous operation" and
+"what is the next operation".
+
+So maybe practically speaking, we don't care.
+
+Anyway, I do think we have choices here on how to describe things.
+
+I do think that the "DMA code doesn't have to remember" model has the
+advantage that remembering is always an added complexity, and
+operations that behave differently depending on previous history are
+always a bit harder to think about because of that. Which is why I
+think that model I outlined in the previous email is probably the most
+straightforward one.
+
+                 Linus
