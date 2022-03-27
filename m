@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7BD4E8638
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 08:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B71264E863B
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 08:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234192AbiC0GPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 02:15:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53522 "EHLO
+        id S233416AbiC0GRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 02:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234606AbiC0GP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 02:15:29 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C31D46465;
-        Sat, 26 Mar 2022 23:13:50 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id p17so12138694plo.9;
-        Sat, 26 Mar 2022 23:13:50 -0700 (PDT)
+        with ESMTP id S233392AbiC0GRD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 02:17:03 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451EC1F9;
+        Sat, 26 Mar 2022 23:15:23 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id f3so8623663pfe.2;
+        Sat, 26 Mar 2022 23:15:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=6JqFeh4navCAkj5rFbxKZvKaVnUhQSiW3dMCYFISCQ0=;
-        b=MNg+6Ro1gbVF0AWYUoVUXXjh4zJIVeUSWOzvtXC6tJiK+63jZSPAyDu6EbNQ9Nbj8K
-         5An9rz8mRUh0ixJBeScTtzQ7WuDb0ZdOTOXDDfN2X2a8yDZfFoogCUCfqxYlKDApvYLK
-         vI2+L3E5hLr2u/yhYzmfW1wiaVY6u3vo5+wsTdSedkIQblqml9vYvvdsEQVruec44ybO
-         VRlDaMgCJ4KwXBNQGKq3BkmOdZik6xnVb1lFoxfs3FjBFMjHeaJ8mUobcBulaQSYF6k5
-         RoWvHrpRlSAX93HWjrDvHqNQqT2M6Tt4MN9j0KF4UsVIyaQ6UFUtsIHTBynL/F+8q3yx
-         NVSA==
+        bh=zQojn1+l5AZVyTtTxvOBeZeYl0iCp/EsKmxH0UlfEcs=;
+        b=Hibwc5S0U7wcL6DejpbxHFA4lwtNZXXluK5w0lQDctDdwmhutQeqQBn0No39o26MwV
+         gJG5BJCw1+UelUqn/tGXf3SFwVIPDpmpiPRSZ+u1sY3f6iqKckD719pRDZc973b4EXde
+         R/a3pJSpYS6ro2qo3aZVIvSxfLYGAYktqScZAeFd0+/KnFt80DQVgCDhTtNBLGxmyS5T
+         wgahD66mgtdWO8inc+hftRU9X4Zks5RVn+SEKX/vKLDEW+TKTNipJOxRacru4iMCdTcJ
+         LKDDpszpxqgA1TWeikNnHOoZGSRFkAxqIpLH9InpiH+8DcW/Xg321+8hqxml1LWEvNuG
+         298Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=6JqFeh4navCAkj5rFbxKZvKaVnUhQSiW3dMCYFISCQ0=;
-        b=B2512oZqMbMy5AImkUTWAPXx8hzmOgUikC1ncS016gUoOA80wyv4g14I1N5c9oRt4q
-         ZofUS9MRPweQXHxKqC5mGEURgej+0+PMJfm7o/H4m4gTDftfLK7hZsvltuZ8HhiYs9UV
-         Oro/DrQ3vzUC8YT7W5jwkjplZx+6wxTARkrCeDLYd5MBndL5GI0vnQI+eMj1PHhGgdqc
-         GVeFPlmayxUpzXJQ/C/19Kf/Niee5BM22c4I5IIXIo9N/2OqkJeyEsV70UNMoA5KGRZW
-         6LZ2U6iEfF+8t1kek0lK91yuWIT0tbrI571VfvobTRQB3ALrWX4yP07kEOcm7MDUg0XX
-         aeZA==
-X-Gm-Message-State: AOAM531yznKwCTVNXfWZOgNUQW4+NrmEyuC8wgIlINZcOvGXaREyoYuO
-        AbmC++kNrEf+9rKv6ARobW8=
-X-Google-Smtp-Source: ABdhPJzoWx0Hv7ww0ec/NJoMZIYOzcG6x/aPjhMNUWT6h+MP8zts3xYMDcnvmf11dbBDEd7PZkxzdQ==
-X-Received: by 2002:a17:90a:7147:b0:1bd:24ac:13bd with SMTP id g7-20020a17090a714700b001bd24ac13bdmr34521768pjs.70.1648361630211;
-        Sat, 26 Mar 2022 23:13:50 -0700 (PDT)
+        bh=zQojn1+l5AZVyTtTxvOBeZeYl0iCp/EsKmxH0UlfEcs=;
+        b=F18BhXXoV1/diYE1968mp/kwhzYQKCIvwfSeMnqG1pTgD277JTbVUGmEogeOljQVup
+         ea4oWVDNG3wkRkwBnwC6N9n7byp02A7sE55gI4g4lRtb+3lQE9D5jWLBTymrdvsmQksn
+         0i/OK08aksti7OAzONjctDdn1DLC8HVzrHjsfUbJrAR3OPJwf1w9O02TzB03wCO0GxPU
+         aJB1TP78VNlBOJQwU9ioGNJXNzxrRzIlF89eh/Ausp4qBJi3vmSzf7lufswrLQP7UEC7
+         BQnWTQ2+m7eaicChRkMJyneGWPYVgBMo/dWF7O37AuU70yLgJ6bse040MW7GqUXSbeXZ
+         E6ng==
+X-Gm-Message-State: AOAM5301OkmcBRUDtiPsNBcW8qw+JkrPPsApm4DbYmg7dqru7mpnJyLe
+        C4A55d8IEXB7FC3JeujS++k=
+X-Google-Smtp-Source: ABdhPJwA+6yTY8xKsO78Xv/GnGsfLJkWH/TmLye/R0ryZxaUbH2KjgQoftfUHWRZJBP0X7DIXlyr1g==
+X-Received: by 2002:a62:5583:0:b0:4fa:c74c:7eaa with SMTP id j125-20020a625583000000b004fac74c7eaamr17732239pfb.23.1648361722864;
+        Sat, 26 Mar 2022 23:15:22 -0700 (PDT)
 Received: from localhost.localdomain ([115.220.243.108])
-        by smtp.googlemail.com with ESMTPSA id f21-20020a056a00239500b004fb02a7a45bsm8332197pfc.214.2022.03.26.23.13.47
+        by smtp.googlemail.com with ESMTPSA id u204-20020a6279d5000000b004fa58625a80sm11650684pfc.53.2022.03.26.23.15.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Mar 2022 23:13:49 -0700 (PDT)
+        Sat, 26 Mar 2022 23:15:22 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     dinguyen@kernel.org
-Cc:     gregkh@linuxfoundation.org, atull@kernel.org,
-        richard.gong@intel.com, linux-kernel@vger.kernel.org,
+To:     jyri.sarha@iki.fi
+Cc:     tomba@kernel.org, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] firmware: stratix10-svc: fix a missing check on list iterator
-Date:   Sun, 27 Mar 2022 14:13:43 +0800
-Message-Id: <20220327061343.4995-1-xiam0nd.tong@gmail.com>
+Subject: [PATCH] tilcdc: tilcdc_external: fix an incorrect NULL check on list iterator
+Date:   Sun, 27 Mar 2022 14:15:16 +0800
+Message-Id: <20220327061516.5076-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -65,51 +65,45 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-	pmem->vaddr = NULL;
+	if (!encoder) {
 
-The list iterator 'pmem' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it will
-lead to a invalid memory access.
+The list iterator value 'encoder' will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+is found.
 
-To fix this bug, just gen_pool_free/set NULL/list_del() and return
-when found, otherwise list_del HEAD and return;
+To fix the bug, use a new variable 'iter' as the list iterator,
+while use the original variable 'encoder' as a dedicated pointer
+to point to the found element.
 
 Cc: stable@vger.kernel.org
-Fixes: 7ca5ce896524f ("firmware: add Intel Stratix10 service layer driver")
+Fixes: ec9eab097a500 ("drm/tilcdc: Add drm bridge support for attaching drm bridge drivers")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- drivers/firmware/stratix10-svc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/tilcdc/tilcdc_external.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index 29c0a616b317..30093aa82b7f 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -941,17 +941,17 @@ EXPORT_SYMBOL_GPL(stratix10_svc_allocate_memory);
- void stratix10_svc_free_memory(struct stratix10_svc_chan *chan, void *kaddr)
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_external.c b/drivers/gpu/drm/tilcdc/tilcdc_external.c
+index 7594cf6e186e..3b86d002ef62 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
+@@ -60,11 +60,13 @@ struct drm_connector *tilcdc_encoder_find_connector(struct drm_device *ddev,
+ int tilcdc_add_component_encoder(struct drm_device *ddev)
  {
- 	struct stratix10_svc_data_mem *pmem;
--	size_t size = 0;
+ 	struct tilcdc_drm_private *priv = ddev->dev_private;
+-	struct drm_encoder *encoder;
++	struct drm_encoder *encoder = NULL, *iter;
  
- 	list_for_each_entry(pmem, &svc_data_mem, node)
- 		if (pmem->vaddr == kaddr) {
--			size = pmem->size;
--			break;
-+			gen_pool_free(chan->ctrl->genpool,
-+				       (unsigned long)kaddr, pmem->size);
-+			pmem->vaddr = NULL;
-+			list_del(&pmem->node);
-+			return;
- 		}
+-	list_for_each_entry(encoder, &ddev->mode_config.encoder_list, head)
+-		if (encoder->possible_crtcs & (1 << priv->crtc->index))
++	list_for_each_entry(iter, &ddev->mode_config.encoder_list, head)
++		if (iter->possible_crtcs & (1 << priv->crtc->index)) {
++			encoder = iter;
+ 			break;
++		}
  
--	gen_pool_free(chan->ctrl->genpool, (unsigned long)kaddr, size);
--	pmem->vaddr = NULL;
--	list_del(&pmem->node);
-+	list_del(&svc_data_mem);
- }
- EXPORT_SYMBOL_GPL(stratix10_svc_free_memory);
- 
+ 	if (!encoder) {
+ 		dev_err(ddev->dev, "%s: No suitable encoder found\n", __func__);
 -- 
 2.17.1
 
