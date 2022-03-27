@@ -2,117 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FE474E886A
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 17:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7A354E889C
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 17:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235823AbiC0P0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 11:26:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59548 "EHLO
+        id S235235AbiC0QBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 12:01:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234825AbiC0P0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 11:26:33 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D49C213FB0
-        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 08:24:54 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-160-sYhtiCskO1qRFgnKRoKrFA-1; Sun, 27 Mar 2022 16:24:51 +0100
-X-MC-Unique: sYhtiCskO1qRFgnKRoKrFA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Sun, 27 Mar 2022 16:24:48 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Sun, 27 Mar 2022 16:24:48 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Linus Torvalds' <torvalds@linux-foundation.org>,
-        Halil Pasic <pasic@linux.ibm.com>
-CC:     =?utf-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        "Marek Szyprowski" <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Paolo Abeni" <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: RE: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Thread-Topic: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Thread-Index: AQHYQZpzK/9JYQDqEEKfLChLw6SC36zTVWUA
-Date:   Sun, 27 Mar 2022 15:24:48 +0000
-Message-ID: <0745b44456d44d1e9fc364e5a3780d9a@AcuMS.aculab.com>
-References: <1812355.tdWV9SEqCh@natalenko.name>
- <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324055732.GB12078@lst.de> <4386660.LvFx2qVVIh@natalenko.name>
- <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com> <878rsza0ih.fsf@toke.dk>
- <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
- <20220324163132.GB26098@lst.de>
- <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com> <871qyr9t4e.fsf@toke.dk>
- <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
- <20220327054848.1a545b12.pasic@linux.ibm.com>
- <CAHk-=whUJ=tMEgP3KiWwk0pzmHn+1QORUu50syE+zOGk4UnFog@mail.gmail.com>
- <CAHk-=wgUx5CVF_1aEkhhEiRGXHgKzUdKiyctBKcHAxkxPpbiaw@mail.gmail.com>
-In-Reply-To: <CAHk-=wgUx5CVF_1aEkhhEiRGXHgKzUdKiyctBKcHAxkxPpbiaw@mail.gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S233632AbiC0QBT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 12:01:19 -0400
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887FE40900;
+        Sun, 27 Mar 2022 08:59:40 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id v15so9645204qkg.8;
+        Sun, 27 Mar 2022 08:59:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3ZnzCFRByXntSU7k5TRZSgVAD599ZPHNRY98L+OsrQw=;
+        b=DqBfb5jIk2ktmkrV+knoXXQmcfSvVoQoTGiplm8hYemtLvRyRO0gCc9VF/3i6MWNEh
+         P3Kg5/MCveBJhKIZ5HfuscK8u1hQP20FZslvKQNhbYKkjqUjRfBbEZhOZCR5UsCZKb4I
+         rwHgIioqNxZEzAQn8z7BLR8cSQQS4WT/b+mcXAljKFnjXpWFhVWYTkHXYfaMJ/zHfbjI
+         wchaEKOaK1D0lz/vzsjvJ5vhjNm7ylxVJzdDbKcd8w+PzS4KRNTO9L2JHmoqOl+1gV8O
+         KBSFOj0Z5ThEMhqbqT/h3lX1mE96yhGdAkHgM2j5JKiKDeplMIsG77RHO7dUaOXTtZsP
+         Jmuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3ZnzCFRByXntSU7k5TRZSgVAD599ZPHNRY98L+OsrQw=;
+        b=yQnGtyQSIY06bGQSpT/9CohFA8bMiys75D2JxMvpmdcFOfE5nJ2SWfOWpI21oe3bpK
+         zhYnIjil1xFe0TLrZ+L7klBkWd1T18X0OsnuRYHmoNx1XTSrsPe7AxcGjO+bOHQpCy+i
+         WDDZsglgWxrBmlrQ27WKdy7TgifpvLgdOVw2LZTs5Mv4RgFqBMwx5PLcxH45WtFN5+3f
+         jWi3NQDRpYya+AsXZ8bmhHlFZuGo5kM7XFJ8flYQw3l9CvbKe+yQv/OrwfeVwq02NJLt
+         sCO//mdi9/c/lNjJ+QR0YUEglnm8MAjpgc2O5Y0fDqCV9dBxgdkYO+egEptNvsKEcD8r
+         Xbfg==
+X-Gm-Message-State: AOAM532wRG6WbYkgDuSUVoBgJgodfFGU9c8Fdr3EXMdtHzdQzY/qN3j2
+        R1ovfq7UPT/cqBWlLkj73b8VcBWZHcjiHYHRNEU=
+X-Google-Smtp-Source: ABdhPJxdniX0MXVep0Yv4bjS9+PKe9AQZapJOFcqCjRTA5QaiGCa9suZ8apvfMlweJa5b3areRFbKMEWvgqcTmDfwtQ=
+X-Received: by 2002:a05:620a:1a87:b0:680:cba9:ed5c with SMTP id
+ bl7-20020a05620a1a8700b00680cba9ed5cmr2151933qkb.482.1648396779731; Sun, 27
+ Mar 2022 08:59:39 -0700 (PDT)
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220327073925.11121-1-xiam0nd.tong@gmail.com>
+In-Reply-To: <20220327073925.11121-1-xiam0nd.tong@gmail.com>
+From:   Emil Velikov <emil.l.velikov@gmail.com>
+Date:   Sun, 27 Mar 2022 16:59:28 +0100
+Message-ID: <CACvgo50pK3rr5UH_FyfR1pADmPRjEawi43cAecoaz7nM5AFgBg@mail.gmail.com>
+Subject: Re: [PATCH] dispnv50: atom: fix an incorrect NULL check on list iterator
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Karol Herbst <kherbst@redhat.com>,
+        Lyude <lyude@redhat.com>, Dave Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        ML nouveau <nouveau@lists.freedesktop.org>,
+        yangyingliang@huawei.com,
+        "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
+        ML dri-devel <dri-devel@lists.freedesktop.org>,
+        "# 3.13+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTGludXMgVG9ydmFsZHMNCj4gU2VudDogMjcgTWFyY2ggMjAyMiAwNjoyMQ0KPiANCj4g
-T24gU2F0LCBNYXIgMjYsIDIwMjIgYXQgMTA6MDYgUE0gTGludXMgVG9ydmFsZHMNCj4gPHRvcnZh
-bGRzQGxpbnV4LWZvdW5kYXRpb24ub3JnPiB3cm90ZToNCj4gPg0KPiA+IE9uIFNhdCwgTWFyIDI2
-LCAyMDIyIGF0IDg6NDkgUE0gSGFsaWwgUGFzaWMgPHBhc2ljQGxpbnV4LmlibS5jb20+IHdyb3Rl
-Og0KPiA+ID4NCj4gPiA+IEkgYWdyZWUgaXQgQ1BVIG1vZGlmaWVkIGJ1ZmZlcnMgKmNvbmN1cnJl
-bnRseSogd2l0aCBETUEgY2FuIG5ldmVyIHdvcmssDQo+ID4gPiBhbmQgSSBiZWxpZXZlIHRoZSBv
-d25lcnNoaXAgbW9kZWwgd2FzIGNvbmNlaXZlZCB0byBwcmV2ZW50IHRoaXMNCj4gPiA+IHNpdHVh
-dGlvbi4NCj4gPg0KPiA+IEJ1dCB0aGF0IGp1c3QgbWVhbnMgdGhhdCB0aGUgIm93bmVyc2hpcCIg
-bW9kZWwgaXMgZ2FyYmFnZSwgYW5kIGNhbm5vdA0KPiA+IGhhbmRsZSB0aGlzIFJFQUwgTElGRSBz
-aXR1YXRpb24uDQo+IA0KPiBKdXN0IHRvIGNsYXJpZnk6IEkgb2J2aW91c2x5IGFncmVlIHRoYXQg
-dGhlICJib3RoIHNpZGVzIG1vZGlmeQ0KPiBjb25jdXJyZW50bHkiIG9idmlvdXNseSBjYW5ub3Qg
-d29yayB3aXRoIGJvdW5jZSBidWZmZXJzLg0KDQpBcmVuJ3QgYm91bmNlIGJ1ZmZlcnMganVzdCBh
-IG1vcmUgZXh0cmVtZSBjYXNlIG9uIG5vbi1jb2hlcmVudA0KbWVtb3J5IGFjY2Vzc2VzPw0KVGhl
-eSBqdXN0IG5lZWQgZXhwbGljaXQgbWVtb3J5IGNvcGllcyByYXRoZXIgdGhhbiBqdXN0IGNhY2hl
-DQp3cml0ZWJhY2sgYW5kIGludmFsaWRhdGUgb3BlcmF0aW9ucy4NCg0KU28gJ2JvdGggc2lkZXMg
-bW9kaWZ5IGNvbmN1cnJlbnRseScganVzdCBoYXMgdGhlIHNhbWUgaXNzdWUNCmFzIGl0IGRvZXMg
-d2l0aCBub24tY29oZXJlbnQgbWVtb3J5IGluIHRoYXQgdGhlIGxvY2F0aW9ucw0KbmVlZCB0byBi
-ZSBpbiBzZXBhcmF0ZSAoZG1hKSBjYWNoZSBsaW5lcy4NCkluZGVlZCwgaWYgdGhlIGJvdW5jZSBi
-dWZmZXJzIGFyZSBhY3R1YWxseSBjb2hlcmVudCB0aGVuDQphcmJpdHJhcnkgY29uY3VycmVudCB1
-cGRhdGVzIGFyZSBwb3NzaWJsZS4NCg0KT25lIGlzc3VlIGlzIHRoYXQgdGhlIGRyaXZlciBuZWVk
-cyB0byBpbmRpY2F0ZSB3aGljaCBwYXJ0cw0Kb2YgYW55IGJ1ZmZlciBhcmUgZGlydHkuDQpXaGVy
-ZWFzIHRoZSBhbnkgJ2NhY2hlIHdyaXRlYmFjaycgcmVxdWVzdCB3aWxsIG9ubHkgd3JpdGUNCmRp
-cnR5IGRhdGEuDQoNCkdldCBldmVyeXRoaW5nIHJpZ2h0IGFuZCB5b3UgY2FuIGV2ZW4gc3VwcG9y
-dCBoYXJkd2FyZSB3aGVyZQ0KdGhlICdib3VuY2UgYnVmZmVycycgYXJlIGFjdHVhbGx5IG9uIHRo
-ZSBjYXJkIGFuZCB0aGUgY29waWVzDQphcmUgTU1JTyAob3IgYmV0dGVyLCBlc3BlY2lhbGx5IG9u
-IFBDSWUsIHN5bmNocm9ub3VzIGhvc3QNCmluaXRpYXRlZCBkbWEgdHJhbnNmZXJzKS4NCg0KCURh
-dmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3Vu
-dCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3
-Mzg2IChXYWxlcykNCg==
+On Sun, 27 Mar 2022 at 08:39, Xiaomeng Tong <xiam0nd.tong@gmail.com> wrote:
+>
+> The bug is here:
+>         return encoder;
+>
+> The list iterator value 'encoder' will *always* be set and non-NULL
+> by drm_for_each_encoder_mask(), so it is incorrect to assume that the
+> iterator value will be NULL if the list is empty or no element found.
+> Otherwise it will bypass some NULL checks and lead to invalid memory
+> access passing the check.
+>
+> To fix this bug, just return 'encoder' when found, otherwise return
+> NULL.
+>
 
+Isn't this covered by the upcoming list* iterator rework [1] or is
+this another iterator glitch?
+IMHO we should be looking at fixing the implementation and not the
+hundreds of users through the kernel.
+
+HTH
+-Emil
+[1] https://lwn.net/Articles/887097/
