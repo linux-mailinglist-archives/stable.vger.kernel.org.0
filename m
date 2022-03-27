@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EA4E4E861E
-	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 07:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 871A94E8623
+	for <lists+stable@lfdr.de>; Sun, 27 Mar 2022 07:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235284AbiC0F5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 01:57:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41130 "EHLO
+        id S235313AbiC0F7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 01:59:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbiC0F5h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 01:57:37 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5F95DFC3;
-        Sat, 26 Mar 2022 22:55:56 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id o13so9751245pgc.12;
-        Sat, 26 Mar 2022 22:55:56 -0700 (PDT)
+        with ESMTP id S232607AbiC0F7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 01:59:18 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30666246;
+        Sat, 26 Mar 2022 22:57:40 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id gp15-20020a17090adf0f00b001c7cd11b0b3so6982763pjb.3;
+        Sat, 26 Mar 2022 22:57:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=5Nr8/pFlwttFmPB+xe860EnW58mqgkRWkMhigtxDUnM=;
-        b=CHuDEGbyFSTBlxpigf52Xr4VP0Y01ep8wZtJfeCG2wMGIzQYPUZVJOb2eh/wxk7mYo
-         aFoT8tJ9cIysIYyPnK9/o6+bkxse8dYURTOQ81oLy/XAA20TVGjzUW9M/xN23YxB/tUn
-         swhwkKcJfYmVx566ZvFEAaxhMlWbK6J61wPBTfZnSYCnufgzBoEmzqUpSLQcIIieG7d/
-         0bV5QWIH7HYCEqXb8Zt5puXeRuU2tQax9mKmyuTihTj0AAxPr/qj4FNM52JsnzN445Di
-         BE0b8osWRXyMzCfRxaHND8Y37M8iV/2x8T3VluL5jITtzahvF1vMJF8MJ+Mphwg7w33e
-         Yleg==
+        bh=WsZxcVF6gelyqFkjIt1JdX7eFg0WjDR//rw4D2Z8gs8=;
+        b=X9pbSvV37GL7ppqA/+UhWpyPUA1nuOuj0i7OpnQOjapUN4BAgu9E/nGV3QOsEaFxPq
+         T5mjmUnu41uY9M2IZzx0/D3qHtwyl+eovZ3Xky6XojSfYHcJPiEZMnn20n6my8XVaphS
+         yiTo7Q5GDQBLxq141NupWXLFyPQ0K578QZdEEB5ZtdLZWnAa/lgE04gYiwBS4Vz47jZD
+         Bm0Vnh/R9CTNwF71gKRTzbOOK2moyubUs1ZWRiiGI/ObPyGrKo4bXNmEm0FcrXkYg1Tz
+         UaRPYzonKv2jyRaIrt69u1zGRvXXtWQMRvnhGmAitCw+AlO4CnI/GnNV46UtPzRkSc5b
+         O4aQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=5Nr8/pFlwttFmPB+xe860EnW58mqgkRWkMhigtxDUnM=;
-        b=rsmXC8Lt7DLueofamEBYTfo92k4erQgUzW44akLuZyxOvAhpsP6/BHc4TO554Cvys/
-         CIa6ZtdnW/3joxtjwj37Kanm+pN7pc5ER7M6/PoMeV2sDXora7vPSJWBvvqHmeGRdrK/
-         jPiZVQZXzMzhaZLa1RKfHlOgE918aMubMu0nSrZ5T3x95O7asiRkWktSy2/syoX+E4Ts
-         Pv9rt67wlz62FgDl8sheziEvx2kHD2bvLVzTKDsS7QdTPvpjy5OcvwtFsv2uYpAU2Ehz
-         SM29BOrxa6vGiiXQfoS8caKnyK+Gon2qG+R4qdmmnbxNLFyUt6S5HhzoXktEotRum7mk
-         wQXQ==
-X-Gm-Message-State: AOAM532Ui//jmzcWabrBPyBVZNpy1VJNAR1tPVx+Fi+uXJTwSru512xA
-        ZXYhuJBD6R0MOHEr+2AfcMw=
-X-Google-Smtp-Source: ABdhPJxoW4OWpcp3oYcZUkU1dQCGaNF4ctfMIbD6xVCpJU4sx4TOejUgmdS4kgOLsVvUnV/W8Gx0og==
-X-Received: by 2002:a65:6082:0:b0:382:712b:56c7 with SMTP id t2-20020a656082000000b00382712b56c7mr5854471pgu.563.1648360556366;
-        Sat, 26 Mar 2022 22:55:56 -0700 (PDT)
+        bh=WsZxcVF6gelyqFkjIt1JdX7eFg0WjDR//rw4D2Z8gs8=;
+        b=N5FjmcdP4kcMaEOUdqzrCC+Nudj9RTfgXMCf40wREkYv7cFJo2Gk/TXLJPCiJRqZ7H
+         z2fW2RxbhDsX0lZ2zzwV/6mV9n7dtnE6C5VUp5SU0K50S/SEsmsjbQS2eSBzU2933+Co
+         JL+lk84kZ7n2NOuqa/pzQ/MW8Z5DS9psYDaHE0+U229vbJlTCyD0YzWp4tW4C2nEnovL
+         D0OTjeW8/N3SMLLjqVoBD7bxexDj0B0DwDVcL0nl8vNtqlJi9HJ9HLr9l3BRkuGJpxwl
+         oto6gPwSGpZmP32b7uVpS0cLJlI9GoLJec1JNtYTSw1OlYLEV9lb/f2vp9Tpg6Sa6YV+
+         AGtQ==
+X-Gm-Message-State: AOAM531HDT1gfw3JDW122XP58xumnc9RLojdtPkFB6gfcPHnDqRNBlpu
+        0BCaccZS+B8/TRLX6RMDLyI=
+X-Google-Smtp-Source: ABdhPJy21/36o8RbcYc3P0F87LTTzcgjypp4Vfim45j/4/DCLn5D8RIIkLxvz5WSuSLW6fnYmICcIQ==
+X-Received: by 2002:a17:902:a3c1:b0:14f:dc65:ff6c with SMTP id q1-20020a170902a3c100b0014fdc65ff6cmr19902576plb.13.1648360660215;
+        Sat, 26 Mar 2022 22:57:40 -0700 (PDT)
 Received: from localhost.localdomain ([115.220.243.108])
-        by smtp.googlemail.com with ESMTPSA id k6-20020a056a00134600b004faba67f9d4sm11902165pfu.197.2022.03.26.22.55.53
+        by smtp.googlemail.com with ESMTPSA id x2-20020a63aa42000000b0038265eb2495sm9308525pgo.88.2022.03.26.22.57.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Mar 2022 22:55:55 -0700 (PDT)
+        Sat, 26 Mar 2022 22:57:39 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     andrew@lunn.ch
-Cc:     vivien.didelot@gmail.com, olteanv@gmail.com, davem@davemloft.net,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
+To:     agross@kernel.org
+Cc:     bjorn.andersson@linaro.org, will@kernel.org, mark.rutland@arm.com,
+        nleeder@codeaurora.org, linux-arm-msm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] dsa: bcm_sf2_cfp: fix an incorrect NULL check on list iterator
-Date:   Sun, 27 Mar 2022 13:55:47 +0800
-Message-Id: <20220327055547.3938-1-xiam0nd.tong@gmail.com>
+Subject: [PATCH] perf: qcom_l2_pmu: fix an incorrect NULL check on list iterator
+Date:   Sun, 27 Mar 2022 13:57:33 +0800
+Message-Id: <20220327055733.4070-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -66,44 +66,48 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-	return rule;
+	return cluster;
 
-The list iterator value 'rule' will *always* be set and non-NULL
+The list iterator value 'cluster' will *always* be set and non-NULL
 by list_for_each_entry(), so it is incorrect to assume that the
 iterator value will be NULL if the list is empty or no element
 is found.
 
-To fix the bug, return 'rule' when found, otherwise return NULL.
+To fix the bug, return 'cluster' when found, otherwise return NULL.
 
 Cc: stable@vger.kernel.org
-Fixes: ae7a5aff783c7 ("net: dsa: bcm_sf2: Keep copy of inserted rules")
+Fixes: 21bdbb7102ede ("perf: add qcom l2 cache perf events driver")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- drivers/net/dsa/bcm_sf2_cfp.c | 6 +++---
+ drivers/perf/qcom_l2_pmu.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/dsa/bcm_sf2_cfp.c b/drivers/net/dsa/bcm_sf2_cfp.c
-index a7e2fcf2df2c..edbe5e7f1cb6 100644
---- a/drivers/net/dsa/bcm_sf2_cfp.c
-+++ b/drivers/net/dsa/bcm_sf2_cfp.c
-@@ -567,14 +567,14 @@ static void bcm_sf2_cfp_slice_ipv6(struct bcm_sf2_priv *priv,
- static struct cfp_rule *bcm_sf2_cfp_rule_find(struct bcm_sf2_priv *priv,
- 					      int port, u32 location)
+diff --git a/drivers/perf/qcom_l2_pmu.c b/drivers/perf/qcom_l2_pmu.c
+index 7640491aab12..30234c261b05 100644
+--- a/drivers/perf/qcom_l2_pmu.c
++++ b/drivers/perf/qcom_l2_pmu.c
+@@ -736,7 +736,7 @@ static struct cluster_pmu *l2_cache_associate_cpu_with_cluster(
  {
--	struct cfp_rule *rule = NULL;
-+	struct cfp_rule *rule;
+ 	u64 mpidr;
+ 	int cpu_cluster_id;
+-	struct cluster_pmu *cluster = NULL;
++	struct cluster_pmu *cluster;
  
- 	list_for_each_entry(rule, &priv->cfp.rules_list, next) {
- 		if (rule->port == port && rule->fs.location == location)
--			break;
-+			return rule;
+ 	/*
+ 	 * This assumes that the cluster_id is in MPIDR[aff1] for
+@@ -758,10 +758,10 @@ static struct cluster_pmu *l2_cache_associate_cpu_with_cluster(
+ 			 cluster->cluster_id);
+ 		cpumask_set_cpu(cpu, &cluster->cluster_cpus);
+ 		*per_cpu_ptr(l2cache_pmu->pmu_cluster, cpu) = cluster;
+-		break;
++		return cluster;
  	}
  
--	return rule;
+-	return cluster;
 +	return NULL;
  }
  
- static int bcm_sf2_cfp_rule_cmp(struct bcm_sf2_priv *priv, int port,
+ static int l2cache_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
 -- 
 2.17.1
 
