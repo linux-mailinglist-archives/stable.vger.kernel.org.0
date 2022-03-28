@@ -2,126 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 251C64E8FE9
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 10:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51614E9010
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 10:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238318AbiC1IRS convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 28 Mar 2022 04:17:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42942 "EHLO
+        id S233957AbiC1IXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 04:23:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239216AbiC1IRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 04:17:17 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 965D1240BE
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 01:15:36 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-82-73TuQx5vMi6TZZlGtDoZUA-1; Mon, 28 Mar 2022 09:15:33 +0100
-X-MC-Unique: 73TuQx5vMi6TZZlGtDoZUA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Mon, 28 Mar 2022 09:15:29 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Mon, 28 Mar 2022 09:15:29 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Christoph Hellwig' <hch@lst.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-CC:     Robin Murphy <robin.murphy@arm.com>,
-        =?iso-8859-1?Q?Toke_H=F8iland-J=F8rgensen?= <toke@toke.dk>,
+        with ESMTP id S233675AbiC1IXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 04:23:23 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC80053704;
+        Mon, 28 Mar 2022 01:21:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 48F92CE1268;
+        Mon, 28 Mar 2022 08:21:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F124C004DD;
+        Mon, 28 Mar 2022 08:21:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1648455699;
+        bh=rGS3hg/MsslSpTPtajHfguVHB2camyQ2cJ7EAOHchlQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qs/+XN8V+cYmkweV7abKvrL3IsgVrtYiptavboQsW+qhYyMmfxoKl0neGLCXm9zJj
+         RbBpQ8TA2CzS7ZzzfNa4B7e5ffpc7zwQ2SjLlxqXaHUcj30lA+q/FN3zgXl9m2wFHp
+         9/GdzpUMeyVxruRswzKx1YEX8m7y08yBYLqWm5JQ=
+Date:   Mon, 28 Mar 2022 10:21:37 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
         Halil Pasic <pasic@linux.ibm.com>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        "Marek Szyprowski" <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Paolo Abeni" <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: RE: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Thread-Topic: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Thread-Index: AQHYQm5IK/9JYQDqEEKfLChLw6SC36zUb2Ng
-Date:   Mon, 28 Mar 2022 08:15:29 +0000
-Message-ID: <eb33d98e65104d98abf9bd752787a9ea@AcuMS.aculab.com>
-References: <1812355.tdWV9SEqCh@natalenko.name>
- <CAHk-=wiwz+Z2MaP44h086jeniG-OpK3c=FywLsCwXV7Crvadrg@mail.gmail.com>
- <27b5a287-7a33-9a8b-ad6d-04746735fb0c@arm.com>
- <CAHk-=wip7TCD_+2STTepuEZvGMg6wcz+o=kyFUvHjuKziTMixw@mail.gmail.com>
- <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
- <20220324190216.0efa067f.pasic@linux.ibm.com> <20220325163204.GB16426@lst.de>
- <87y20x7vaz.fsf@toke.dk> <e077b229-c92b-c9a6-3581-61329c4b4a4b@arm.com>
- <CAHk-=wgKF5GfLXyVGDQDifh0MpMccDdmBvJBG3dt2+idCa5DzQ@mail.gmail.com>
- <20220328063723.GA29405@lst.de>
-In-Reply-To: <20220328063723.GA29405@lst.de>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 5.10 11/38] swiotlb: rework "fix info leak with
+ DMA_FROM_DEVICE"
+Message-ID: <YkFwEWy9Pt0v5KLr@kroah.com>
+References: <20220325150419.757836392@linuxfoundation.org>
+ <20220325150420.085364078@linuxfoundation.org>
+ <CAHk-=wiaeZKiEk87Sms1sy53m8tT3UCLOoeUBnX1c_1dZ78WjQ@mail.gmail.com>
+ <Yj7oXgoCdhWAwFQt@kroah.com>
+ <CAHk-=wgeOrhN_Gznm80==STG1pEbqLMCaZZoeQzZu=NN9GOTgw@mail.gmail.com>
+ <YkAuqiHAEaDLHDAO@kroah.com>
+ <CAHk-=wgzSHQqz33i0DfmFyEG43eeyDkkUO=a3jY0eH2h_1AwgA@mail.gmail.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wgzSHQqz33i0DfmFyEG43eeyDkkUO=a3jY0eH2h_1AwgA@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig
-> Sent: 28 March 2022 07:37
-> 
-> On Fri, Mar 25, 2022 at 11:46:09AM -0700, Linus Torvalds wrote:
-> > I think my list of three different sync cases (not just two! It's not
-> > just about whether to sync for the CPU or the device, it's also about
-> > what direction the data itself is taking) is correct.
+On Sun, Mar 27, 2022 at 11:02:12AM -0700, Linus Torvalds wrote:
+> On Sun, Mar 27, 2022 at 2:30 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
 > >
-> > But maybe I'm wrong.
+> > But why did you just revert that commit, and not the previous one (i.e.
+> > the one that this one "fixes")?  Shouldn't ddbd89deb7d3 ("swiotlb: fix
+> > info leak with DMA_FROM_DEVICE") also be dropped?
 > 
-> At the high level you are correct.  It is all about which direction
-> the data is taking.  That is the direction argument that all the
-> map/unmap/sync call take.  The sync calls then just toggle the ownership.
-> You seem to hate that ownership concept, but I don't see how things
-> could work without that ownership concept as we're going to be in
-> trouble without having that.  And yes, a peek operation could work in
-> some cases, but it would have to be at the cache line granularity.
+> The previous one wasn't obviously broken, and while it's a bit ugly,
+> it doesn't have the fundamental issues that the "fix" commit had.
+> 
+> And it does fix the whole "bounce buffer contents are undefined, and
+> can get copied back later" at the bounce buffer allocation (well,
+> "mapping") stage.
+> 
+> Which could cause wasted CPU cycles and isn't great, but should fix
+> the stale content thing for at least the common "map DMA, do DMA,
+> unmap" situation.
+> 
+> What commit aa6f8dcbab47 tried to fix was the "do multiple DMA
+> sequences using one single mapping" case, but that's also what then
+> broke ath9k because it really does want to do exactly that, but it
+> very much needs to do it using the same buffer with no "let's reset
+> it".
+> 
+> So I think you're fine to drop ddbd89deb7d3 too, but that commit
+> doesn't seem *wrong* per se.
+> 
+> I do think we need some model for "clear the bounce buffer of stale
+> data", and I do think that commit ddbd89deb7d3 probably isn't the
+> final word, but we don't actually _have_ the final word on this all,
+> so stable dropping it all is sane.
+> 
+> But as mentioned, commit ddbd89deb7d3 can actually fix some cases.
+> 
+> In particular, I do think it fixes the SG_IO data leak case that
+> triggered the whole issue. It was just then the "let's expand on this
+> fix" that was a disaster.
 
-I don't think it is really 'ownership' but more about who has
-write access.
-Only one side can have write access (to a cache line [1]) at any
-one time.
+Ok, I have just queued that one up now for the older kernels, and the
+revert for 5.15 and newer, thanks.
 
-Read access is different.
-You need a 'synchronise' action to pick up newly written data.
-This might be a data copy, cache flush or cache invalidate.
-It only need affect the area that needs to be read - not
-full buffer.
-Partial cache flush/invalidate will almost certainly speed
-up receipt of short network packets that are copied into a
-new skb - leaving the old one mapped for another receive.
-
-[1] The cache line size might be a property of the device
-and dma subsystem, not just the cpu.
-I have used hardware when the effective size was 1kB.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+greg k-h
