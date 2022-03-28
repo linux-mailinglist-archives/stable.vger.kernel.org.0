@@ -2,138 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E6E4EA302
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 00:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F15A4EA33A
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 00:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229781AbiC1W1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 18:27:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53474 "EHLO
+        id S230181AbiC1WvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 18:51:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229716AbiC1W1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 18:27:13 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9644616D8DD
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 15:25:31 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id e5so15964641pls.4
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 15:25:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3tMcpCI+WNC4nXGUGP55drnUuoHIJ+Z310LUJO01hrI=;
-        b=a38S2Zg+GGbqf4xzwP20px2q2xpHb8JJY4zh9PKySVYv05+J3HsLb6VmDf3nje0Llb
-         kudP6CVgbSTpVHhvib7NM+LO2zgGK2yGH9lXq6OYiYlWnzhFCXTHJ4aZjQax7fwWt35N
-         f5UymmYb1Bzm1oNhQqaYCgU9x7HP0sZbF/BXgMYlObdfp6OxCO5n7YQh9iMrpVA47zuD
-         BbSU/5nv6XD7fK4F8aSoE9p4M1NaPdfz47eyCvreeyZo9HvyKPDULAXsh2/yd+IFiOjH
-         6A/YkNhrjtAXO2/+ybzAATvXmn2g8hFCuE8SBYkoGBhBNxECCHNiJLQp/M2nGeIxK9P3
-         dZqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3tMcpCI+WNC4nXGUGP55drnUuoHIJ+Z310LUJO01hrI=;
-        b=hi91fnQWH0ENT0nW8b8ghhJAGWGJe6NTgM02+HR4bGGP/BhnCkYswXnxD9nYCW5Gjz
-         BTeDfrQ1gxtGsilDYJgnvOyXWyRDpOxf64zXawA+QT56OmRzAvyAKvkaVHevxAdtfb3N
-         S60vOuf2XdPXueRj72QjkK1EyEroF6IgSsZl2qMHVn1MlsWkbhXpu9R05Md4VZfhJQoC
-         uquNfMlEiFmBFlYAKvi8XwxPBk3XL9c4oOqGQck/Yl8fCS08EZQijPEHj794EL42Ul8k
-         lCjsWuYIG/WlANW0ncziBAAYKDdoBRJl7mXebuvpXG6WGpwHD5vRDvtvyZWLB/3jvYrm
-         ph6w==
-X-Gm-Message-State: AOAM532mg+72+8wbOsbgf04UF1CybuwsPl9LWV0bKKv4PHjplMVe6O8J
-        IobKBdsM1w31R/LdM4b2TDydg3RQ6mWJ8F0G2mE=
-X-Google-Smtp-Source: ABdhPJy6tbJNhKfLHBE6qkHHvkz36Iv5exfdIt4pNZ4xCIWzS9cztd4C68oSyTxEm8/nsDh+Playmg==
-X-Received: by 2002:a17:903:32c9:b0:154:3a2d:fa89 with SMTP id i9-20020a17090332c900b001543a2dfa89mr27472167plr.3.1648506330831;
-        Mon, 28 Mar 2022 15:25:30 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k14-20020aa7820e000000b004f7134a70cdsm16558951pfi.61.2022.03.28.15.25.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 15:25:30 -0700 (PDT)
-Message-ID: <624235da.1c69fb81.9d41c.cc3d@mx.google.com>
-Date:   Mon, 28 Mar 2022 15:25:30 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.237-11-g954e3bfb38f4
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 95 runs,
- 1 regressions (v4.19.237-11-g954e3bfb38f4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230145AbiC1WvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 18:51:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB84431368;
+        Mon, 28 Mar 2022 15:49:25 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7704F60B2B;
+        Mon, 28 Mar 2022 22:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D012AC340EC;
+        Mon, 28 Mar 2022 22:49:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1648507764;
+        bh=ti+Uxwgl8S3d+NQCkL2kffrbV+92sfXMKmHambz1xkM=;
+        h=Date:To:From:Subject:From;
+        b=ISa2skua4T/8eADyZ1O7kBiXU/plMErTebacnsMDPAOzscUHOmCNuB5KtF3NY7Tda
+         gvlCpMqNpip0voT0fJEdSEfCcykaMNPI+7wptgxunMQDUmRjXSS64HbBa0fw49/O9B
+         h6PeN0cysWOTkQmkXGaZY5f/BxZhNypd8Cltxf8M=
+Date:   Mon, 28 Mar 2022 15:49:24 -0700
+To:     mm-commits@vger.kernel.org, yee.lee@mediatek.com,
+        stable@vger.kernel.org, nicholas.tang@mediatek.com,
+        matthias.bgg@gmail.com, chinwen.chang@mediatek.com,
+        catalin.marinas@arm.com, Kuan-Ying.Lee@mediatek.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-kmemleak-reset-tag-when-compare-object-pointer.patch added to -mm tree
+Message-Id: <20220328224924.D012AC340EC@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 95 runs, 1 regressions (v4.19.237-11-g954e3b=
-fb38f4)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm/kmemleak: Reset tag when compare object pointer
+has been added to the -mm tree.  Its filename is
+     mm-kmemleak-reset-tag-when-compare-object-pointer.patch
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-kmemleak-reset-tag-when-compare-object-pointer.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-kmemleak-reset-tag-when-compare-object-pointer.patch
 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.237-11-g954e3bfb38f4/plan/baseline/
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.237-11-g954e3bfb38f4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      954e3bfb38f466b4f58a82491a6a640398774552 =
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
+------------------------------------------------------
+From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Subject: mm/kmemleak: Reset tag when compare object pointer
 
+When we use HW-tag based kasan and enable vmalloc support, we hit
+the following bug. It is due to comparison between tagged object
+and non-tagged pointer.
 
-Test Regressions
----------------- =
+We need to reset the kasan tag when we need to compare tagged object
+and non-tagged pointer.
 
+[    7.690429][T400001] init: kmemleak: [name:kmemleak&]Scan area larger than object 0xffffffe77076f440
+[    7.691762][T400001] init: CPU: 4 PID: 1 Comm: init Tainted: G S      W         5.15.25-android13-0-g5cacf919c2bc #1
+[    7.693218][T400001] init: Hardware name: MT6983(ENG) (DT)
+[    7.693983][T400001] init: Call trace:
+[    7.694508][T400001] init:  dump_backtrace.cfi_jt+0x0/0x8
+[    7.695272][T400001] init:  dump_stack_lvl+0xac/0x120
+[    7.695985][T400001] init:  add_scan_area+0xc4/0x244
+[    7.696685][T400001] init:  kmemleak_scan_area+0x40/0x9c
+[    7.697428][T400001] init:  layout_and_allocate+0x1e8/0x288
+[    7.698211][T400001] init:  load_module+0x2c8/0xf00
+[    7.698895][T400001] init:  __se_sys_finit_module+0x190/0x1d0
+[    7.699701][T400001] init:  __arm64_sys_finit_module+0x20/0x30
+[    7.700517][T400001] init:  invoke_syscall+0x60/0x170
+[    7.701225][T400001] init:  el0_svc_common+0xc8/0x114
+[    7.701933][T400001] init:  do_el0_svc+0x28/0xa0
+[    7.702580][T400001] init:  el0_svc+0x60/0xf8
+[    7.703196][T400001] init:  el0t_64_sync_handler+0x88/0xec
+[    7.703964][T400001] init:  el0t_64_sync+0x1b4/0x1b8
+[    7.704658][T400001] init: kmemleak: [name:kmemleak&]Object 0xf5ffffe77076b000 (size 32768):
+[    7.705824][T400001] init: kmemleak: [name:kmemleak&]  comm "init", pid 1, jiffies 4294894197
+[    7.707002][T400001] init: kmemleak: [name:kmemleak&]  min_count = 0
+[    7.707886][T400001] init: kmemleak: [name:kmemleak&]  count = 0
+[    7.708718][T400001] init: kmemleak: [name:kmemleak&]  flags = 0x1
+[    7.709574][T400001] init: kmemleak: [name:kmemleak&]  checksum = 0
+[    7.710440][T400001] init: kmemleak: [name:kmemleak&]  backtrace:
+[    7.711284][T400001] init:      module_alloc+0x9c/0x120
+[    7.712015][T400001] init:      move_module+0x34/0x19c
+[    7.712735][T400001] init:      layout_and_allocate+0x1c4/0x288
+[    7.713561][T400001] init:      load_module+0x2c8/0xf00
+[    7.714291][T400001] init:      __se_sys_finit_module+0x190/0x1d0
+[    7.715142][T400001] init:      __arm64_sys_finit_module+0x20/0x30
+[    7.716004][T400001] init:      invoke_syscall+0x60/0x170
+[    7.716758][T400001] init:      el0_svc_common+0xc8/0x114
+[    7.717512][T400001] init:      do_el0_svc+0x28/0xa0
+[    7.718207][T400001] init:      el0_svc+0x60/0xf8
+[    7.718869][T400001] init:      el0t_64_sync_handler+0x88/0xec
+[    7.719683][T400001] init:      el0t_64_sync+0x1b4/0x1b8
 
+Link: https://lkml.kernel.org/r/20220318034051.30687-1-Kuan-Ying.Lee@mediatek.com
+Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Chinwen Chang <chinwen.chang@mediatek.com>
+Cc: Nicholas Tang <nicholas.tang@mediatek.com>
+Cc: Yee Lee <yee.lee@mediatek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+ mm/kmemleak.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
+--- a/mm/kmemleak.c~mm-kmemleak-reset-tag-when-compare-object-pointer
++++ a/mm/kmemleak.c
+@@ -796,6 +796,8 @@ static void add_scan_area(unsigned long
+ 	unsigned long flags;
+ 	struct kmemleak_object *object;
+ 	struct kmemleak_scan_area *area = NULL;
++	unsigned long untagged_ptr;
++	unsigned long untagged_objp;
+ 
+ 	object = find_and_get_object(ptr, 1);
+ 	if (!object) {
+@@ -804,6 +806,9 @@ static void add_scan_area(unsigned long
+ 		return;
+ 	}
+ 
++	untagged_ptr = (unsigned long)kasan_reset_tag((void *)ptr);
++	untagged_objp = (unsigned long)kasan_reset_tag((void *)object->pointer);
++
+ 	if (scan_area_cache)
+ 		area = kmem_cache_alloc(scan_area_cache, gfp_kmemleak_mask(gfp));
+ 
+@@ -815,8 +820,8 @@ static void add_scan_area(unsigned long
+ 		goto out_unlock;
+ 	}
+ 	if (size == SIZE_MAX) {
+-		size = object->pointer + object->size - ptr;
+-	} else if (ptr + size > object->pointer + object->size) {
++		size = untagged_objp + object->size - untagged_ptr;
++	} else if (untagged_ptr + size > untagged_objp + object->size) {
+ 		kmemleak_warn("Scan area larger than object 0x%08lx\n", ptr);
+ 		dump_object_info(object);
+ 		kmem_cache_free(scan_area_cache, area);
+_
 
-  Details:     https://kernelci.org/test/plan/id/624204b0bd397902f5ae0686
+Patches currently in -mm which might be from Kuan-Ying.Lee@mediatek.com are
 
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--11-g954e3bfb38f4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--11-g954e3bfb38f4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+mm-kmemleak-reset-tag-when-compare-object-pointer.patch
 
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/624204b0bd397902f5ae06a8
-        failing since 22 days (last pass: v4.19.232-31-g5cf846953aa2, first=
- fail: v4.19.232-44-gfd65e02206f4)
-
-    2022-03-28T18:55:30.574283  <8>[   35.949153] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-28T18:55:31.589840  /lava-5962529/1/../bin/lava-test-case   =
-
- =20
