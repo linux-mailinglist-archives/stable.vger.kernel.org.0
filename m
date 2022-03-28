@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1BC4EA031
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F3C4EA0B3
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343557AbiC1Tq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 15:46:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51224 "EHLO
+        id S1343736AbiC1Tqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 15:46:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343546AbiC1Tpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:45:33 -0400
+        with ESMTP id S1343683AbiC1Tpe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:45:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1BFF68305;
-        Mon, 28 Mar 2022 12:42:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFA26831C;
+        Mon, 28 Mar 2022 12:42:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAA6A612B9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 393D9612B2;
+        Mon, 28 Mar 2022 19:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1D5C36AE2;
         Mon, 28 Mar 2022 19:42:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A064C34118;
-        Mon, 28 Mar 2022 19:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648496563;
-        bh=57FV0q/GEmTlUYay5FyXGPC/n/hW1b0MQgtAx4zaN90=;
+        s=k20201202; t=1648496564;
+        bh=K/1JruDGt6uXiQBE2IgAYNU8fm+vGs7kPoKDYyu86Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhvD9xJlaiZxuOALDOiLdGZBd1oAzvvLGQmBRQC5VMPDG1ycB4R47xIEV0HfFHruc
-         XI9aF3QI41GblnCfA26vZ9qfodPVET26lR7vDXu+iCL73I0ak0PMukyfBk02SWrDb5
-         25ukm2SVXsWLfK6KU0ZGlzjymMYqTyEMf/YpjK2kbCL122xOHa0msCgAD5Ldw0rAT/
-         DgmtkvmPpBz9KHGS4e20AAiqj0xD246gywIem3mr20XpbddiPSarVwAZErkrGxeFZS
-         6IIy4crb1C6uFuhaKGx4A+CjmLXgxyyAWpWL7hr7MkhmfrnVsh66b3cZlT7Dkr2Elc
-         64y2lIYiBts4w==
+        b=jln8cZ5bHtDGWyXHaLWwISy0NJqemaAMm4g//+frahhf2OdyxK1XX9TULXF8W4TR1
+         GN24PzxBFTXEKjrEjeQjuJdo/ddLXDB8yNQG+8JfEksTp9g8x1cneTpD2nlWNbHLXc
+         Lww5B2s70hHKS9n3EmmMRc/uV2evGuQx5IkouVy3aTYLPwpXzSdDSLgv9qkKzypU/i
+         caky4VP+HaORZ2VwnIiOOYbw9pBcjq8q3gT6gfSdV5KV4IDYwURatfni1PX9hnWXeZ
+         AxdvfumRR1kflI7RDlFYJ6z8nmMgGCZWJDXCYsceS8WuLqlu2hjJrTJy27E31Hb675
+         G9aJHYq5Z1Y1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, yuchao0@huawei.com,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.16 10/20] f2fs: don't get FREEZE lock in f2fs_evict_inode in frozen fs
-Date:   Mon, 28 Mar 2022 15:42:16 -0400
-Message-Id: <20220328194226.1585920-10-sashal@kernel.org>
+Cc:     Anand Jain <anand.jain@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com, jbacik@fb.com,
+        linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 11/20] btrfs: harden identification of a stale device
+Date:   Mon, 28 Mar 2022 15:42:17 -0400
+Message-Id: <20220328194226.1585920-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328194226.1585920-1-sashal@kernel.org>
 References: <20220328194226.1585920-1-sashal@kernel.org>
@@ -56,116 +58,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit ba900534f807f0b327c92d5141c85d2313e2d55c ]
+[ Upstream commit 770c79fb65506fc7c16459855c3839429f46cb32 ]
 
-Let's purge inode cache in order to avoid the below deadlock.
+Identifying and removing the stale device from the fs_uuids list is done
+by btrfs_free_stale_devices().  btrfs_free_stale_devices() in turn
+depends on device_path_matched() to check if the device appears in more
+than one btrfs_device structure.
 
-[freeze test]                         shrinkder
-freeze_super
- - pwercpu_down_write(SB_FREEZE_FS)
-                                       - super_cache_scan
-                                         - down_read(&sb->s_umount)
-                                           - prune_icache_sb
-                                            - dispose_list
-                                             - evict
-                                              - f2fs_evict_inode
-thaw_super
- - down_write(&sb->s_umount);
-                                              - __percpu_down_read(SB_FREEZE_FS)
+The matching of the device happens by its path, the device path. However,
+when device mapper is in use, the dm device paths are nothing but a link
+to the actual block device, which leads to the device_path_matched()
+failing to match.
 
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fix this by matching the dev_t as provided by lookup_bdev() instead of
+plain string compare of the device paths.
+
+Reported-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/ABI/testing/sysfs-fs-f2fs | 1 +
- fs/f2fs/debug.c                         | 1 +
- fs/f2fs/f2fs.h                          | 1 +
- fs/f2fs/inode.c                         | 6 ++++--
- fs/f2fs/super.c                         | 4 ++++
- 5 files changed, 11 insertions(+), 2 deletions(-)
+ fs/btrfs/volumes.c | 45 ++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 38 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-fs-f2fs b/Documentation/ABI/testing/sysfs-fs-f2fs
-index b268e3e18b4a..91e2b549f817 100644
---- a/Documentation/ABI/testing/sysfs-fs-f2fs
-+++ b/Documentation/ABI/testing/sysfs-fs-f2fs
-@@ -425,6 +425,7 @@ Description:	Show status of f2fs superblock in real time.
- 		0x800  SBI_QUOTA_SKIP_FLUSH  skip flushing quota in current CP
- 		0x1000 SBI_QUOTA_NEED_REPAIR quota file may be corrupted
- 		0x2000 SBI_IS_RESIZEFS       resizefs is in process
-+		0x4000 SBI_IS_FREEZING       freefs is in process
- 		====== ===================== =================================
- 
- What:		/sys/fs/f2fs/<disk>/ckpt_thread_ioprio
-diff --git a/fs/f2fs/debug.c b/fs/f2fs/debug.c
-index 8c50518475a9..07ad0d81f0c5 100644
---- a/fs/f2fs/debug.c
-+++ b/fs/f2fs/debug.c
-@@ -338,6 +338,7 @@ static char *s_flag[] = {
- 	[SBI_QUOTA_SKIP_FLUSH]	= " quota_skip_flush",
- 	[SBI_QUOTA_NEED_REPAIR]	= " quota_need_repair",
- 	[SBI_IS_RESIZEFS]	= " resizefs",
-+	[SBI_IS_FREEZING]	= " freezefs",
- };
- 
- static int stat_show(struct seq_file *s, void *v)
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index d753094a4919..980c0c2b6350 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1259,6 +1259,7 @@ enum {
- 	SBI_QUOTA_SKIP_FLUSH,			/* skip flushing quota in current CP */
- 	SBI_QUOTA_NEED_REPAIR,			/* quota file may be corrupted */
- 	SBI_IS_RESIZEFS,			/* resizefs is in process */
-+	SBI_IS_FREEZING,			/* freezefs is in process */
- };
- 
- enum {
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index 1db7823d5a13..fbf8d829db7b 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -769,7 +769,8 @@ void f2fs_evict_inode(struct inode *inode)
- 	f2fs_remove_ino_entry(sbi, inode->i_ino, UPDATE_INO);
- 	f2fs_remove_ino_entry(sbi, inode->i_ino, FLUSH_INO);
- 
--	sb_start_intwrite(inode->i_sb);
-+	if (!is_sbi_flag_set(sbi, SBI_IS_FREEZING))
-+		sb_start_intwrite(inode->i_sb);
- 	set_inode_flag(inode, FI_NO_ALLOC);
- 	i_size_write(inode, 0);
- retry:
-@@ -800,7 +801,8 @@ void f2fs_evict_inode(struct inode *inode)
- 		if (dquot_initialize_needed(inode))
- 			set_sbi_flag(sbi, SBI_QUOTA_NEED_REPAIR);
- 	}
--	sb_end_intwrite(inode->i_sb);
-+	if (!is_sbi_flag_set(sbi, SBI_IS_FREEZING))
-+		sb_end_intwrite(inode->i_sb);
- no_delete:
- 	dquot_drop(inode);
- 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 08faa787a773..ec67217cb22a 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1668,11 +1668,15 @@ static int f2fs_freeze(struct super_block *sb)
- 	/* ensure no checkpoint required */
- 	if (!llist_empty(&F2FS_SB(sb)->cprc_info.issue_list))
- 		return -EINVAL;
-+
-+	/* to avoid deadlock on f2fs_evict_inode->SB_FREEZE_FS */
-+	set_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
- 	return 0;
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 42391d4aeb11..02ee42d461be 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -530,15 +530,48 @@ btrfs_get_bdev_and_sb(const char *device_path, fmode_t flags, void *holder,
+ 	return ret;
  }
  
- static int f2fs_unfreeze(struct super_block *sb)
+-static bool device_path_matched(const char *path, struct btrfs_device *device)
++/*
++ * Check if the device in the path matches the device in the given struct device.
++ *
++ * Returns:
++ *   true  If it is the same device.
++ *   false If it is not the same device or on error.
++ */
++static bool device_matched(const struct btrfs_device *device, const char *path)
  {
-+	clear_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
- 	return 0;
+-	int found;
++	char *device_name;
++	dev_t dev_old;
++	dev_t dev_new;
++	int ret;
++
++	/*
++	 * If we are looking for a device with the matching dev_t, then skip
++	 * device without a name (a missing device).
++	 */
++	if (!device->name)
++		return false;
++
++	device_name = kzalloc(BTRFS_PATH_NAME_MAX, GFP_KERNEL);
++	if (!device_name)
++		return false;
+ 
+ 	rcu_read_lock();
+-	found = strcmp(rcu_str_deref(device->name), path);
++	scnprintf(device_name, BTRFS_PATH_NAME_MAX, "%s", rcu_str_deref(device->name));
+ 	rcu_read_unlock();
+ 
+-	return found == 0;
++	ret = lookup_bdev(device_name, &dev_old);
++	kfree(device_name);
++	if (ret)
++		return false;
++
++	ret = lookup_bdev(path, &dev_new);
++	if (ret)
++		return false;
++
++	if (dev_old == dev_new)
++		return true;
++
++	return false;
  }
  
+ /*
+@@ -571,9 +604,7 @@ static int btrfs_free_stale_devices(const char *path,
+ 					 &fs_devices->devices, dev_list) {
+ 			if (skip_device && skip_device == device)
+ 				continue;
+-			if (path && !device->name)
+-				continue;
+-			if (path && !device_path_matched(path, device))
++			if (path && !device_matched(device, path))
+ 				continue;
+ 			if (fs_devices->opened) {
+ 				/* for an already deleted device return 0 */
 -- 
 2.34.1
 
