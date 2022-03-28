@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1484E9499
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120674E94A3
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241390AbiC1Laz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 07:30:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39202 "EHLO
+        id S229849AbiC1LbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 07:31:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241394AbiC1La2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:30:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1311956219;
-        Mon, 28 Mar 2022 04:24:13 -0700 (PDT)
+        with ESMTP id S241421AbiC1Laa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:30:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6F456420;
+        Mon, 28 Mar 2022 04:24:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2FBF611D0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA8ACB8105B;
+        Mon, 28 Mar 2022 11:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4855C36AE9;
         Mon, 28 Mar 2022 11:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D593CC36AE2;
-        Mon, 28 Mar 2022 11:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466648;
-        bh=gwJ5FR9DtZIsA2hPSe/5+mSIlwSULFPHfwLGfoecJLM=;
+        s=k20201202; t=1648466649;
+        bh=6u4aBbe7i69Fsu1VOhKUiFkUhrWR5ouoCib/ZwTmlgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJ15vx0otjlnstt1LvyXh0M0Y8xAq5C1h+uJ1bvmC4kDSCqFeYYY0sszJJC6heQYH
-         j/JQMVq8Q5uODC+vG9UvK2h2Yliucj4i8eLUVYHaS0a4SDlu1+MF+t2LT5QU/fV4PS
-         pl8drrw8dyoLXAMjEL9BeUVf/VgzwzUL9N6scM2QughNvHyJ+Pv5KSHdye0GHLIJ5+
-         Gc4XLww1xH0rXj70HOnosXM0GtiTvQgPyZipWIUEKj8XjCc/bM/IvHdrOFUpmFra8r
-         31oR+YWanfC9ksYPdK/HjKK4E/OwFTNRFLPL734NrS9vytAgHK8K59XGEVMve9YiSI
-         7dbC8A8q64EUA==
+        b=RyWjSa0EQSMoRBASfHQwd0FItK4uITlKyQamYbpra32vjiQ75WaP2Ai55nt/FBQvw
+         VRMNcS2erqMHbuhjuBHtP93BK/6/bdnGY07guTOqvv0VXhvNy60vOHJCAgVZtKcuNh
+         vTUnrFTU0KwjeGpH09IYKVXJYb4yDY5og03a3zxIC8w272dZh3oSmqtYY6zmz2ttSI
+         R90UHVRBthmXr41TeVc7YvjWuaYfXendaBHLdBhftHJTYDOobikvxIu0w1ixukpF0t
+         yvyqx2ZIEoD4OKBqgEtwc1MTf8C6lXPRffILX28JXtDKMOM5yBHocjxWUffJvE2z4C
+         ovcn8IOgzQeNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Menzel <pmenzel@molgen.mpg.de>,
-        Matt Brown <matthew.brown.dev@gmail.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 12/16] lib/raid6/test/Makefile: Use $(pound) instead of \# for Make 4.3
-Date:   Mon, 28 Mar 2022 07:23:41 -0400
-Message-Id: <20220328112345.1556601-12-sashal@kernel.org>
+Cc:     Paolo Valente <paolo.valente@linaro.org>,
+        =?UTF-8?q?Holger=20Hoffst=C3=A4tte?= 
+        <holger@applied-asynchrony.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 13/16] Revert "Revert "block, bfq: honor already-setup queue merges""
+Date:   Mon, 28 Mar 2022 07:23:42 -0400
+Message-Id: <20220328112345.1556601-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328112345.1556601-1-sashal@kernel.org>
 References: <20220328112345.1556601-1-sashal@kernel.org>
@@ -59,80 +58,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Menzel <pmenzel@molgen.mpg.de>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit 633174a7046ec3b4572bec24ef98e6ee89bce14b ]
+[ Upstream commit 15729ff8143f8135b03988a100a19e66d7cb7ecd ]
 
-Buidling raid6test on Ubuntu 21.10 (ppc64le) with GNU Make 4.3 shows the
-errors below:
+A crash [1] happened to be triggered in conjunction with commit
+2d52c58b9c9b ("block, bfq: honor already-setup queue merges"). The
+latter was then reverted by commit ebc69e897e17 ("Revert "block, bfq:
+honor already-setup queue merges""). Yet, the reverted commit was not
+the one introducing the bug. In fact, it actually triggered a UAF
+introduced by a different commit, and now fixed by commit d29bd41428cf
+("block, bfq: reset last_bfqq_created on group change").
 
-    $ cd lib/raid6/test/
-    $ make
-    <stdin>:1:1: error: stray ‘\’ in program
-    <stdin>:1:2: error: stray ‘#’ in program
-    <stdin>:1:11: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ \
-        before ‘<’ token
+So, there is no point in keeping commit 2d52c58b9c9b ("block, bfq:
+honor already-setup queue merges") out. This commit restores it.
 
-    [...]
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=214503
 
-The errors come from the HAS_ALTIVEC test, which fails, and the POWER
-optimized versions are not built. That’s also reason nobody noticed on the
-other architectures.
-
-GNU Make 4.3 does not remove the backslash anymore. From the 4.3 release
-announcment:
-
-> * WARNING: Backward-incompatibility!
->   Number signs (#) appearing inside a macro reference or function invocation
->   no longer introduce comments and should not be escaped with backslashes:
->   thus a call such as:
->     foo := $(shell echo '#')
->   is legal.  Previously the number sign needed to be escaped, for example:
->     foo := $(shell echo '\#')
->   Now this latter will resolve to "\#".  If you want to write makefiles
->   portable to both versions, assign the number sign to a variable:
->     H := \#
->     foo := $(shell echo '$H')
->   This was claimed to be fixed in 3.81, but wasn't, for some reason.
->   To detect this change search for 'nocomment' in the .FEATURES variable.
-
-So, do the same as commit 9564a8cf422d ("Kbuild: fix # escaping in .cmd
-files for future Make") and commit 929bef467771 ("bpf: Use $(pound) instead
-of \# in Makefiles") and define and use a $(pound) variable.
-
-Reference for the change in make:
-https://git.savannah.gnu.org/cgit/make.git/commit/?id=c6966b323811c37acedff05b57
-
-Cc: Matt Brown <matthew.brown.dev@gmail.com>
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Song Liu <song@kernel.org>
+Reported-by: Holger Hoffstätte <holger@applied-asynchrony.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Link: https://lore.kernel.org/r/20211125181510.15004-1-paolo.valente@linaro.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/raid6/test/Makefile | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/lib/raid6/test/Makefile b/lib/raid6/test/Makefile
-index b9e6c3648be1..98b9fd0354dd 100644
---- a/lib/raid6/test/Makefile
-+++ b/lib/raid6/test/Makefile
-@@ -4,6 +4,8 @@
- # from userspace.
- #
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 38c39d50ae04..1d443d17cf7c 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2523,6 +2523,15 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
+ 	 * are likely to increase the throughput.
+ 	 */
+ 	bfqq->new_bfqq = new_bfqq;
++	/*
++	 * The above assignment schedules the following redirections:
++	 * each time some I/O for bfqq arrives, the process that
++	 * generated that I/O is disassociated from bfqq and
++	 * associated with new_bfqq. Here we increases new_bfqq->ref
++	 * in advance, adding the number of processes that are
++	 * expected to be associated with new_bfqq as they happen to
++	 * issue I/O.
++	 */
+ 	new_bfqq->ref += process_refs;
+ 	return new_bfqq;
+ }
+@@ -2582,6 +2591,10 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ {
+ 	struct bfq_queue *in_service_bfqq, *new_bfqq;
  
-+pound := \#
++	/* if a merge has already been setup, then proceed with that first */
++	if (bfqq->new_bfqq)
++		return bfqq->new_bfqq;
 +
- CC	 = gcc
- OPTFLAGS = -O2			# Adjust as desired
- CFLAGS	 = -I.. -I ../../../include -g $(OPTFLAGS)
-@@ -47,7 +49,7 @@ else ifeq ($(HAS_NEON),yes)
-         OBJS   += neon.o neon1.o neon2.o neon4.o neon8.o recov_neon.o recov_neon_inner.o
-         CFLAGS += -DCONFIG_KERNEL_MODE_NEON=1
- else
--        HAS_ALTIVEC := $(shell printf '\#include <altivec.h>\nvector int a;\n' |\
-+        HAS_ALTIVEC := $(shell printf '$(pound)include <altivec.h>\nvector int a;\n' |\
-                          gcc -c -x c - >/dev/null && rm ./-.o && echo yes)
-         ifeq ($(HAS_ALTIVEC),yes)
-                 CFLAGS += -I../../../arch/powerpc/include
+ 	/*
+ 	 * Do not perform queue merging if the device is non
+ 	 * rotational and performs internal queueing. In fact, such a
+@@ -2636,9 +2649,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (bfq_too_late_for_merging(bfqq))
+ 		return NULL;
+ 
+-	if (bfqq->new_bfqq)
+-		return bfqq->new_bfqq;
+-
+ 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
+ 		return NULL;
+ 
 -- 
 2.34.1
 
