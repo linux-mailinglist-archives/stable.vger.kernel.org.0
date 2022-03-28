@@ -2,113 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C2C4E8F3B
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 09:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B5B4E8F84
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 09:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229902AbiC1HpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 03:45:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34670 "EHLO
+        id S229966AbiC1H72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 03:59:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233529AbiC1HpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 03:45:12 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D632752E18;
-        Mon, 28 Mar 2022 00:43:31 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id n7-20020a17090aab8700b001c6aa871860so14655947pjq.2;
-        Mon, 28 Mar 2022 00:43:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=5F0vPMEUiwjxuq5pjTLwGQrsLXzqAZhWm21dKQena8E=;
-        b=Pp5hdQtvybkoE7iXCBGqw92+FFCxtS0gcrDzWSM1XbdfogwH6IUPx9/+LqG9FedtVM
-         86lC/5AznmmTN+ZUSDXmPb1Wp6XyGRyx1sBuKEpeWIFH13EM48Sgy49hjQn8KC+tCRkw
-         Fxpxt5chztOHglhRcRYwAt0RIZduYDp7n1cbh7DDnbl/LZYYKN3eCPI7x4eXEgo16zVz
-         tZvv8PHSpn5ur7nF1XxuOPXBXzeeNf0H/x/YEtIErf3KsZyJ0og5EGXQOIga9nOLAXNB
-         vpOnB38wzG8gtJu1vjIQKUPJJI8oJ7CsbkiQEJHohouuFqZJK+Dwlsa+HOjX6AYIZYCB
-         l+eA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=5F0vPMEUiwjxuq5pjTLwGQrsLXzqAZhWm21dKQena8E=;
-        b=dE2gnF5WyM/VkhExXQ7q00VKaSlE6Hz2Zv3TFK7zhbvTnyzn9mjWL4iJrX0XrFXI7E
-         nx0SPLyQMM3vr/dC+UMFOoTRdvTCRFYA2u4XYNlgS5YkvWYS91R0T4XevcqDAmswJelg
-         Q0+BkWgnJZRMUHY/YnoyUxik+KtB4tHuMYAedZGCOxACsFJ45oKz11jnX9gEQo4s3QR0
-         Y8xB6jbDSqlM9V0lfgz/88JJg0AvzwQFOQaGjT9dq8OClbCdeZkks7Rp9NxfY7UL6+SF
-         gFPeyTtojEKBK/5BVQ3elglNH844XBhi/jzP6JdXt3Ct9TsrTMepUyiayk6VzPK+yemz
-         Ppcg==
-X-Gm-Message-State: AOAM532TdtL2llhlI3k0YV6Ss45ccmAgrkyFL9pPkS58XHZtb3wwGEF8
-        SJHY3OvEPau72BpYX9OvTZw=
-X-Google-Smtp-Source: ABdhPJyO4+ufZp/SIAWh+2kglfewOd/M/i3FDRBuWVxR+N7p90doKEWl81dY+fiOrjG6cVxA9k0AfQ==
-X-Received: by 2002:a17:902:8644:b0:153:9f01:2090 with SMTP id y4-20020a170902864400b001539f012090mr24200102plt.101.1648453411437;
-        Mon, 28 Mar 2022 00:43:31 -0700 (PDT)
-Received: from ubuntu.huawei.com ([119.3.119.18])
-        by smtp.googlemail.com with ESMTPSA id f30-20020a63755e000000b00381f6b7ef30sm12082098pgn.54.2022.03.28.00.43.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 00:43:30 -0700 (PDT)
-From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     viresh.kumar@linaro.org
-Cc:     linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, nm@ti.com,
-        rafael.j.wysocki@intel.com, sboyd@kernel.org,
-        stable@vger.kernel.org, vireshk@kernel.org, xiam0nd.tong@gmail.com
-Subject: Re: [PATCH] opp: fix a missing check on list iterator
-Date:   Mon, 28 Mar 2022 15:43:22 +0800
-Message-Id: <20220328074322.25349-1-xiam0nd.tong@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220328031739.72togwws2u2rlluo@vireshk-i7>
-References: <20220328031739.72togwws2u2rlluo@vireshk-i7>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S234346AbiC1H72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 03:59:28 -0400
+X-Greylist: delayed 411 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 28 Mar 2022 00:57:48 PDT
+Received: from mail.tireplot.pl (mail.tireplot.pl [46.183.184.141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70550BC0C
+        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 00:57:48 -0700 (PDT)
+Received: by mail.tireplot.pl (Postfix, from userid 1001)
+        id 744FE4162C; Mon, 28 Mar 2022 09:50:31 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tireplot.pl; s=mail;
+        t=1648453856; bh=4V7LPt8DlXxGp2w9MUvatFbEaV63q70OFyVLKdk60rU=;
+        h=Date:From:To:Subject:From;
+        b=t19XCkykqtxc1CjA3EQ0C6SsCaaTcVW5FWpJDrvMKovpBpFeVHMR564cC4D/zDYLT
+         O5gJHhXytPEqQKqyy8HnwS7zrsaBgNqg50EX00fNek7dDeTMAAxSo3r22mxz7gvd/o
+         9/ObiLuyecqzGIq8Fkvixe9LIdfzbY0iqbjlAZIFlxkT4jbZW0QEYwLeRZ2khjrU1F
+         mhFKzvpRpvKwVt1uFspQkN28uf60+aGc5ZOqhUSAWPUYJC6dqbzBQ+H0anGaLCTF4+
+         Bvbt1j2DzbulvKnU5BMcBYVIdXM8ybOfrxoAjZWwixpL2BVX4zZYxeuNX5VKt5NRQc
+         v8BwTS2e1e/Tw==
+Received: by mail.tireplot.pl for <stable@vger.kernel.org>; Mon, 28 Mar 2022 07:50:14 GMT
+Message-ID: <20220328084500-0.1.2d.bok8.0.6fi4gx5chl@tireplot.pl>
+Date:   Mon, 28 Mar 2022 07:50:14 GMT
+From:   =?UTF-8?Q? "Pawe=C5=82_Kodura" ?= <pawel.kodura@tireplot.pl>
+To:     <stable@vger.kernel.org>
+Subject: =?UTF-8?Q?Przydzielono_darmowy_dost=C4=99p_-_Office_365?=
+X-Mailer: mail.tireplot.pl
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-0.7 required=5.0 tests=BAYES_05,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Mar 2022 08:47:39 +0530, Viresh Kumar wrote:
-> > diff --git a/drivers/opp/debugfs.c b/drivers/opp/debugfs.c
-> > index 596c185b5dda..a4476985e4ce 100644
-> > --- a/drivers/opp/debugfs.c
-> > +++ b/drivers/opp/debugfs.c
-> > @@ -187,14 +187,19 @@ void opp_debug_register(struct opp_device *opp_dev, struct opp_table *opp_table)
-> >  static void opp_migrate_dentry(struct opp_device *opp_dev,
-> >  			       struct opp_table *opp_table)
-> >  {
-> > -	struct opp_device *new_dev;
-> > +	struct opp_device *new_dev = NULL, *iter;
-> >  	const struct device *dev;
-> >  	struct dentry *dentry;
-> >  
-> >  	/* Look for next opp-dev */
-> > -	list_for_each_entry(new_dev, &opp_table->dev_list, node)
-> > -		if (new_dev != opp_dev)
-> > +	list_for_each_entry(iter, &opp_table->dev_list, node)
-> > +		if (iter != opp_dev) {
-> > +			new_dev = iter;
-> >  			break;
-> > +		}
-> > +
-> > +	if (!new_dev)
-> > +		return;
-> 
-> I think you missed this check in the parent function ?
-> 
-> 		if (!list_is_singular(&opp_table->dev_list)) {
-> 
-> 
-> i.e. this bug can never happen.
->
+Dzie=C5=84 dobry,
 
-No. the conditon to call opp_migrate_dentry(opp_dev, opp_table); is:
-if (!list_is_singular(&opp_table->dev_list)), 
+chcia=C5=82bym zaprosi=C4=87 Pa=C5=84stwa na bezp=C5=82atne profesjonalne=
+ warsztaty z wykorzystania pakiet=C3=B3w biurowych Microsoft 365, kt=C3=B3=
+re podwy=C5=BCszaj=C4=85 efektywno=C5=9B=C4=87 pracy kadry.=20
 
-while list_is_singlular is: !list_empty(head) && (head->next == head->prev);
+Du=C5=BCa dawka praktycznej wiedzy i poznanie nowych funkcji pozwala prac=
+ownikom wykonywa=C4=87 swoje zadania szybciej i wydajniej.=20
 
-so the condition is: list_empty(head) || (head->next != head->prev)
+Jeste=C5=9Bmy partnerem Microsoft i znajdujemy si=C4=99 w mi=C4=99dzynaro=
+dowej czo=C5=82=C3=B3wce firm certyfikowanych, z a=C5=BC 16 z=C5=82otymi =
+kompetencjami producenta.
 
-if the list is empty, the bug can be triggered.
+Je=C5=BCeli s=C4=85 Pa=C5=84stwo zainteresowani podniesieniem kwalifikacj=
+i swoich wsp=C3=B3=C5=82pracownik=C3=B3w w tym zakresie, prosz=C4=99 o ko=
+ntakt.
 
---
-Xiaomeng Tong
+
+Pozdrawiam
+Pawe=C5=82 Kodura
