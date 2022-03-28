@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 854324EA04D
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F454EA054
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343595AbiC1Tqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 15:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
+        id S1343735AbiC1Tqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 15:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343728AbiC1Tpe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:45:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6788267D15;
-        Mon, 28 Mar 2022 12:42:47 -0700 (PDT)
+        with ESMTP id S1343734AbiC1Tpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:45:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6430B6832A;
+        Mon, 28 Mar 2022 12:42:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23FB0612AE;
-        Mon, 28 Mar 2022 19:42:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25687C36AE9;
-        Mon, 28 Mar 2022 19:42:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0E62612BE;
+        Mon, 28 Mar 2022 19:42:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0842CC36AE7;
+        Mon, 28 Mar 2022 19:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648496566;
-        bh=WbQNR79oQ/RlFza1l1OFTNoIFrMsXGqOgcjTF9ih0gA=;
+        s=k20201202; t=1648496568;
+        bh=MvTTP9R9TXzA2Tfx290JmG7oApwY5spRY7dG7g9GEyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRWLhn/7Oa7mrshW95l3+Ztn0v3hnJQA2ylHcDf3LlCWDBIQWHU14XeY59swiL8aN
-         5O4NW2g8xdVah2G7ocIywcH0pZ5B+D28dTAJ/tC3P9g4Eta9AYQfJCQ6ijT00tYiTQ
-         xxG8FmYgc2xQxkbkzSNuhUK0nNIw/MWx9Yuxfn1fqUv+K2d/O6iXc1BPueXMMjPG2S
-         ynHCF769YcBCw6lVX+lH1Ua7XiyzpVA9jns/P3Aj3HrP5LdswGO3T0cy97k4zBEuIw
-         e8LgCwQ3QdDdM8ygFe5SiuojQvuGjQrtusGi/dW70mtbUInX5vsJDNE4V+AqpeOpQL
-         KofGcejZSyIxQ==
+        b=Ra/PkaTQdCqeMXVm7cbNKaiAWrqLinUgMNixJ5nqTdP8fduPweLIMeWfOTP3tc61T
+         ZEXkPb2umn7w8wZAaclTymthwo6InhyeS1zHkymUx3OmMdq8I0dLjnTLQI2C+UUiBH
+         UuSA2az/AeFoNHTDy7LVxZsLvhW3dd08rNWjbNJAscYfkM7pg3C09Gkea3uJyVf0BW
+         Rhtn2WqgAqB+T8Xh8eIQGuu6abTsk5pHtnj9EQWdozYlXeYIILdz6ne56AcREOI/zx
+         cPtesfHDaS33Lp2ImbAhGbVRVCw6gxkhDDI9IH6VZ5j7e6yx5O81QEkc8mtR+wn4jt
+         DEpj3Jke3LsCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Omar Sandoval <osandov@fb.com>, Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
+Cc:     Josef Bacik <josef@toxicpanda.com>, Boris Burkov <boris@bur.io>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com, jbacik@fb.com,
         linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 12/20] btrfs: don't advance offset for compressed bios in btrfs_csum_one_bio()
-Date:   Mon, 28 Mar 2022 15:42:18 -0400
-Message-Id: <20220328194226.1585920-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 13/20] btrfs: make search_csum_tree return 0 if we get -EFBIG
+Date:   Mon, 28 Mar 2022 15:42:19 -0400
+Message-Id: <20220328194226.1585920-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328194226.1585920-1-sashal@kernel.org>
 References: <20220328194226.1585920-1-sashal@kernel.org>
@@ -58,196 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit e331f6b19f8adde2307588bb325ae5de78617c20 ]
+[ Upstream commit 03ddb19d2ea745228879b9334f3b550c88acb10a ]
 
-btrfs_csum_one_bio() loops over each filesystem block in the bio while
-keeping a cursor of its current logical position in the file in order to
-look up the ordered extent to add the checksums to. However, this
-doesn't make much sense for compressed extents, as a sector on disk does
-not correspond to a sector of decompressed file data. It happens to work
-because:
+We can either fail to find a csum entry at all and return -ENOENT, or we
+can find a range that is close, but return -EFBIG.  In essence these
+both mean the same thing when we are doing a lookup for a csum in an
+existing range, we didn't find a csum.  We want to treat both of these
+errors the same way, complain loudly that there wasn't a csum.  This
+currently happens anyway because we do
 
-1) the compressed bio always covers one ordered extent
-2) the size of the bio is always less than the size of the ordered
-   extent
+	count = search_csum_tree();
+	if (count <= 0) {
+		// reloc and error handling
+	}
 
-However, the second point will not always be true for encoded writes.
+However it forces us to incorrectly treat EIO or ENOMEM errors as on
+disk corruption.  Fix this by returning 0 if we get either -ENOENT or
+-EFBIG from btrfs_lookup_csum() so we can do proper error handling.
 
-Let's add a boolean parameter to btrfs_csum_one_bio() to indicate that
-it can assume that the bio only covers one ordered extent. Since we're
-already changing the signature, let's get rid of the contig parameter
-and make it implied by the offset parameter, similar to the change we
-recently made to btrfs_lookup_bio_sums(). Additionally, let's rename
-nr_sectors to blockcount to make it clear that it's the number of
-filesystem blocks, not the number of 512-byte sectors.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: Boris Burkov <boris@bur.io>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/compression.c |  2 +-
- fs/btrfs/ctree.h       |  2 +-
- fs/btrfs/file-item.c   | 37 +++++++++++++++++--------------------
- fs/btrfs/inode.c       |  8 ++++----
- 4 files changed, 23 insertions(+), 26 deletions(-)
+ fs/btrfs/file-item.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index 32da97c3c19d..b2bb96934a8f 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -590,7 +590,7 @@ blk_status_t btrfs_submit_compressed_write(struct btrfs_inode *inode, u64 start,
- 
- 		if (submit) {
- 			if (!skip_sum) {
--				ret = btrfs_csum_one_bio(inode, bio, start, 1);
-+				ret = btrfs_csum_one_bio(inode, bio, start, true);
- 				if (ret)
- 					goto finish_cb;
- 			}
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index cd8e0f9ae82c..f1d357d15b1a 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3179,7 +3179,7 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
- 			   struct btrfs_root *root,
- 			   struct btrfs_ordered_sum *sums);
- blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
--				u64 file_start, int contig);
-+				u64 offset, bool one_ordered);
- int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
- 			     struct list_head *list, int search_commit);
- void btrfs_extent_item_to_extent_map(struct btrfs_inode *inode,
 diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
-index d1cbb64a78f3..8e6ff09f5c36 100644
+index 8e6ff09f5c36..bddb9c87030b 100644
 --- a/fs/btrfs/file-item.c
 +++ b/fs/btrfs/file-item.c
-@@ -609,32 +609,33 @@ int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
+@@ -303,7 +303,7 @@ static int search_csum_tree(struct btrfs_fs_info *fs_info,
+ 	read_extent_buffer(path->nodes[0], dst, (unsigned long)item,
+ 			ret * csum_size);
+ out:
+-	if (ret == -ENOENT)
++	if (ret == -ENOENT || ret == -EFBIG)
+ 		ret = 0;
  	return ret;
  }
- 
--/*
-- * btrfs_csum_one_bio - Calculates checksums of the data contained inside a bio
-+/**
-+ * Calculate checksums of the data contained inside a bio
-+ *
-  * @inode:	 Owner of the data inside the bio
-  * @bio:	 Contains the data to be checksummed
-- * @file_start:  offset in file this bio begins to describe
-- * @contig:	 Boolean. If true/1 means all bio vecs in this bio are
-- *		 contiguous and they begin at @file_start in the file. False/0
-- *		 means this bio can contain potentially discontiguous bio vecs
-- *		 so the logical offset of each should be calculated separately.
-+ * @offset:      If (u64)-1, @bio may contain discontiguous bio vecs, so the
-+ *               file offsets are determined from the page offsets in the bio.
-+ *               Otherwise, this is the starting file offset of the bio vecs in
-+ *               @bio, which must be contiguous.
-+ * @one_ordered: If true, @bio only refers to one ordered extent.
-  */
- blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
--		       u64 file_start, int contig)
-+				u64 offset, bool one_ordered)
- {
- 	struct btrfs_fs_info *fs_info = inode->root->fs_info;
- 	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
- 	struct btrfs_ordered_sum *sums;
- 	struct btrfs_ordered_extent *ordered = NULL;
-+	const bool use_page_offsets = (offset == (u64)-1);
- 	char *data;
- 	struct bvec_iter iter;
- 	struct bio_vec bvec;
- 	int index;
--	int nr_sectors;
-+	unsigned int blockcount;
- 	unsigned long total_bytes = 0;
- 	unsigned long this_sum_bytes = 0;
- 	int i;
--	u64 offset;
- 	unsigned nofs_flag;
- 
- 	nofs_flag = memalloc_nofs_save();
-@@ -648,18 +649,13 @@ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
- 	sums->len = bio->bi_iter.bi_size;
- 	INIT_LIST_HEAD(&sums->list);
- 
--	if (contig)
--		offset = file_start;
--	else
--		offset = 0; /* shut up gcc */
--
- 	sums->bytenr = bio->bi_iter.bi_sector << 9;
- 	index = 0;
- 
- 	shash->tfm = fs_info->csum_shash;
- 
- 	bio_for_each_segment(bvec, bio, iter) {
--		if (!contig)
-+		if (use_page_offsets)
- 			offset = page_offset(bvec.bv_page) + bvec.bv_offset;
- 
- 		if (!ordered) {
-@@ -678,13 +674,14 @@ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
- 			}
- 		}
- 
--		nr_sectors = BTRFS_BYTES_TO_BLKS(fs_info,
-+		blockcount = BTRFS_BYTES_TO_BLKS(fs_info,
- 						 bvec.bv_len + fs_info->sectorsize
- 						 - 1);
- 
--		for (i = 0; i < nr_sectors; i++) {
--			if (offset >= ordered->file_offset + ordered->num_bytes ||
--			    offset < ordered->file_offset) {
-+		for (i = 0; i < blockcount; i++) {
-+			if (!one_ordered &&
-+			    !in_range(offset, ordered->file_offset,
-+				      ordered->num_bytes)) {
- 				unsigned long bytes_left;
- 
- 				sums->len = this_sum_bytes;
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index cc957cce23a1..6680e74b1977 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -2308,7 +2308,7 @@ void btrfs_clear_delalloc_extent(struct inode *vfs_inode,
- static blk_status_t btrfs_submit_bio_start(struct inode *inode, struct bio *bio,
- 					   u64 dio_file_offset)
- {
--	return btrfs_csum_one_bio(BTRFS_I(inode), bio, 0, 0);
-+	return btrfs_csum_one_bio(BTRFS_I(inode), bio, (u64)-1, false);
- }
- 
- /*
-@@ -2560,7 +2560,7 @@ blk_status_t btrfs_submit_data_bio(struct inode *inode, struct bio *bio,
- 					  0, btrfs_submit_bio_start);
- 		goto out;
- 	} else if (!skip_sum) {
--		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, 0, 0);
-+		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, (u64)-1, false);
- 		if (ret)
- 			goto out;
- 	}
-@@ -8196,7 +8196,7 @@ static blk_status_t btrfs_submit_bio_start_direct_io(struct inode *inode,
- 						     struct bio *bio,
- 						     u64 dio_file_offset)
- {
--	return btrfs_csum_one_bio(BTRFS_I(inode), bio, dio_file_offset, 1);
-+	return btrfs_csum_one_bio(BTRFS_I(inode), bio, dio_file_offset, false);
- }
- 
- static void btrfs_end_dio_bio(struct bio *bio)
-@@ -8253,7 +8253,7 @@ static inline blk_status_t btrfs_submit_dio_bio(struct bio *bio,
- 		 * If we aren't doing async submit, calculate the csum of the
- 		 * bio now.
- 		 */
--		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, file_offset, 1);
-+		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, file_offset, false);
- 		if (ret)
- 			goto err;
- 	} else {
 -- 
 2.34.1
 
