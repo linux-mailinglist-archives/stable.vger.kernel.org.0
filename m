@@ -2,105 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A83784E8C5F
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 04:57:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F0A24E8C83
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 05:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237714AbiC1C7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Mar 2022 22:59:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44228 "EHLO
+        id S237777AbiC1DTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Mar 2022 23:19:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236672AbiC1C7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 22:59:34 -0400
-Received: from out1.migadu.com (out1.migadu.com [91.121.223.63])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5022650B04;
-        Sun, 27 Mar 2022 19:57:55 -0700 (PDT)
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1648436273;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=i6q6suH8KrNU8xV+UOxoXrCmknh3JGOhtLcTgk5QiSs=;
-        b=kMMcX5KYxuGE8MAj+8IQ6srEZXX4H3gGD2ws9AfVtPOaE0+nNLkcgTg6+3ZIl+YS2PwArJ
-        kNUjDIwzafR4A+ootL00BIGvpiGDGP5gvio+9kvyLqKdnLVNgGpc7ymZbLXrrUD9Iyy/ne
-        rnUL2q338hWg/75znNGR2s7kLGF/SHE=
-From:   Guoqing Jiang <guoqing.jiang@linux.dev>
-Subject: Re: [PATCH] md: md1: fix an incorrect NULL check on list iterator
-To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, song@kernel.org,
-        rgoldwyn@suse.com
-Cc:     linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20220327080002.11923-1-xiam0nd.tong@gmail.com>
-Message-ID: <0e0ca783-0604-b8a6-24c2-247fd17a6af1@linux.dev>
-Date:   Mon, 28 Mar 2022 10:57:49 +0800
+        with ESMTP id S232099AbiC1DTX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Mar 2022 23:19:23 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30F34FC51
+        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 20:17:42 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id o8so11189990pgf.9
+        for <stable@vger.kernel.org>; Sun, 27 Mar 2022 20:17:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=iRywC2fXGTLu3XcU+kOv95CJI0/k5YKaCHVvR7OvlV0=;
+        b=Nfd9upElHAEIafOt6kM6Nan2028B+2XJaXGyzMy2vndOjHxTyrwfDWAzbrS2gqhlfC
+         5FdbSHzvm62LfGlh6yNDR1CAHwZRuTeHqoKsr/3vY2jQctjGySYCpv4NaGmIPuAJ6iHl
+         X1ZXEhwIOP73ziWzVm3aZhZiFYAhNKz4Du/yyP8333MOVQraMF+m9JPzhG+8n26SvzNT
+         SeQJJowvS7p8zgy0UprHttmaQg9nB+vMvJyrRtxJIgIYUeDyFku8iDgsO6ucq+cKkkwi
+         7qmYpCvhL2BiCF4uerLvA3b4SnF/bhFnCIX5dvb5eXElUc59kC3LXCbt9Y8PTj+iMlVT
+         5bnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=iRywC2fXGTLu3XcU+kOv95CJI0/k5YKaCHVvR7OvlV0=;
+        b=sJ39SetSJ/iqZmB/jHrDI2SlN9R8pNYnf2FKSu0SenQUVuchkWysV64M+oxRP8q9Al
+         aNSL8JnQtY2SGhzGijaxb4Xcqw5B1ILJD5uLxTRFdnsSCbU/DBHPhrNM86m9GwI3KtBg
+         SeSWEbr6ovONhhqm2coa5vZO6dw5bd96BmvXRKEpzbyeGQkGHPaVNwgodcNyFqdujJk9
+         ioBJstd0U0RAa8F9goMQm1EQM+qIMeCpI24k4F9HboWsYGx5NBVBxsPx3260SN4QteFY
+         9jllGyATGgvWW1yFGCRPVW0b+m6iBHkWBazSWmlIkZIinQ7bxLCk19al4obyIZyQeNi0
+         zxCw==
+X-Gm-Message-State: AOAM531qfURktYj2Lnn3byinjxzeHv3ytXDuhzhrvj0HQM9dl5PlwCyQ
+        7Ab6h+/k9K8MyaFB9Aj6GTGUxg==
+X-Google-Smtp-Source: ABdhPJwNlEup1sWc1qRG3ghM8ZUBSwqj/5AovEGBEAHE4mZq8u1uojTon7EChtSm992YTThF/H9YqQ==
+X-Received: by 2002:a63:1620:0:b0:375:948e:65bf with SMTP id w32-20020a631620000000b00375948e65bfmr8880013pgl.49.1648437462221;
+        Sun, 27 Mar 2022 20:17:42 -0700 (PDT)
+Received: from localhost ([223.184.83.228])
+        by smtp.gmail.com with ESMTPSA id h12-20020a056a00230c00b004faf2563bcasm12787512pfh.114.2022.03.27.20.17.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Mar 2022 20:17:41 -0700 (PDT)
+Date:   Mon, 28 Mar 2022 08:47:39 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Cc:     vireshk@kernel.org, nm@ti.com, sboyd@kernel.org,
+        rafael.j.wysocki@intel.com, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] opp: fix a missing check on list iterator
+Message-ID: <20220328031739.72togwws2u2rlluo@vireshk-i7>
+References: <20220327053943.3071-1-xiam0nd.tong@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220327080002.11923-1-xiam0nd.tong@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Migadu-Flow: FLOW_OUT
-X-Migadu-Auth-User: linux.dev
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220327053943.3071-1-xiam0nd.tong@gmail.com>
+User-Agent: NeoMutt/20180716-391-311a52
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The subject need to be improved as well.
-
-On 3/27/22 4:00 PM, Xiaomeng Tong wrote:
+On 27-03-22, 13:39, Xiaomeng Tong wrote:
 > The bug is here:
-> 	if (!rdev)
->
-> The list iterator value 'rdev' will *always* be set and non-NULL
-> by rdev_for_each(), so it is incorrect to assume that the iterator
-> value will be NULL if the list is empty or no element found.
-> Otherwise it will bypass the NULL check and lead to invalid memory
-> access passing the check.
->
-> To fix the bug, use a new variable 'iter' as the list iterator,
-> while use the original variable 'pdev' as a dedicated pointer to
-> point to the found element.
->
-> Cc:stable@vger.kernel.org
-> Fixes: 2aa82191ac36c ("md-cluster: Perform a lazy update")
-> Signed-off-by: Xiaomeng Tong<xiam0nd.tong@gmail.com>
+>     dev = new_dev->dev;
+> 
+> The list iterator 'new_dev' will point to a bogus position containing
+> HEAD if the list is empty or no element is found. This case must
+> be checked before any use of the iterator, otherwise it will lead
+> to a invalid memory access.
+> 
+> To fix this bug, add an check. Use a new variable 'iter' as the
+> list iterator, while use the old variable 'new_dev' as a dedicated
+> pointer to point to the found element.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: deaa51465105a ("PM / OPP: Add debugfs support")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 > ---
->   drivers/md/md.c | 8 +++++---
->   1 file changed, 5 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/md/md.c b/drivers/md/md.c
-> index 4d38bd7dadd6..7476fc204172 100644
-> --- a/drivers/md/md.c
-> +++ b/drivers/md/md.c
-> @@ -2629,14 +2629,16 @@ static void sync_sbs(struct mddev *mddev, int nospares)
->   
->   static bool does_sb_need_changing(struct mddev *mddev)
->   {
-> -	struct md_rdev *rdev;
-> +	struct md_rdev *rdev = NULL, *iter;
->   	struct mdp_superblock_1 *sb;
->   	int role;
->   
->   	/* Find a good rdev */
-> -	rdev_for_each(rdev, mddev)
-> -		if ((rdev->raid_disk >= 0) && !test_bit(Faulty, &rdev->flags))
-> +	rdev_for_each(iter, mddev)
-> +		if ((iter->raid_disk >= 0) && !test_bit(Faulty, &iter->flags)) {
-> +			rdev = iter;
->   			break;
+>  drivers/opp/debugfs.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/opp/debugfs.c b/drivers/opp/debugfs.c
+> index 596c185b5dda..a4476985e4ce 100644
+> --- a/drivers/opp/debugfs.c
+> +++ b/drivers/opp/debugfs.c
+> @@ -187,14 +187,19 @@ void opp_debug_register(struct opp_device *opp_dev, struct opp_table *opp_table)
+>  static void opp_migrate_dentry(struct opp_device *opp_dev,
+>  			       struct opp_table *opp_table)
+>  {
+> -	struct opp_device *new_dev;
+> +	struct opp_device *new_dev = NULL, *iter;
+>  	const struct device *dev;
+>  	struct dentry *dentry;
+>  
+>  	/* Look for next opp-dev */
+> -	list_for_each_entry(new_dev, &opp_table->dev_list, node)
+> -		if (new_dev != opp_dev)
+> +	list_for_each_entry(iter, &opp_table->dev_list, node)
+> +		if (iter != opp_dev) {
+> +			new_dev = iter;
+>  			break;
 > +		}
->   
->   	/* No good device found. */
->   	if (!rdev)
+> +
+> +	if (!new_dev)
+> +		return;
+
+I think you missed this check in the parent function ?
+
+		if (!list_is_singular(&opp_table->dev_list)) {
 
 
-Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+i.e. this bug can never happen.
 
-Thanks,
-Guoqing
+-- 
+viresh
