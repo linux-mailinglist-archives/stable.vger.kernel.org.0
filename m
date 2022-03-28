@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 365DF4EA080
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E314D4EA04B
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343818AbiC1TuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 15:50:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50382 "EHLO
+        id S1343814AbiC1Tuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 15:50:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343926AbiC1Trv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:47:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 251196359;
-        Mon, 28 Mar 2022 12:43:32 -0700 (PDT)
+        with ESMTP id S1343944AbiC1Tr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:47:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B040DF82;
+        Mon, 28 Mar 2022 12:43:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C29636128E;
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDDCEB81217;
+        Mon, 28 Mar 2022 19:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5161C34112;
         Mon, 28 Mar 2022 19:43:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DD41C34110;
-        Mon, 28 Mar 2022 19:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648496612;
-        bh=Bv183cuMnjASOgeDqKcSzrlKxh0yZWU2L8cOdlTTSvg=;
+        s=k20201202; t=1648496613;
+        bh=JDgnhN3MSlCM+3tBS3nKBXEXX80jRKTZVSXwNmSC/NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mI8Rdh1vWGEfr6v4bFy7nWs6XrDgv42qCnnFeNgx1k9fGmADwBbrFBdHEOQudE6PK
-         +hF2GvfCa1BEpt81kLTimQSFujlLpSnvIvKCAIEEbCcM9iTaEnCOS8PU2PlxCczUPO
-         LXjj1sMDlssrXRclQg7cXUpgxSSDIRJCurQ/cJvJvoP1IuI18NutHbKGRoTI+BGPxf
-         60YJj9pH5kPtLY9kituXaE8g/CPALd+5X236NylIGUfTq7ucXMHifQKPfOU++mNJLr
-         78Ylawh3wZrt17x8hr1xff6sHg+LVq4DeCVNTzqxUVVfB3MlC5TZTWTfnpu9XbZwKM
-         +7x5r03U1xjSg==
+        b=SU+Po519ejzLwzJu1YguvXUtPO7OHxOmjLPpUeZn93OiCAa+3SSf+FNyQT/El2Yw0
+         cAkCbKpQg6ZjEdge8bDPUp9FyTIIIP9w4juB2FxA/Fhbua5M5jO5wLQuhIKtZ00Obd
+         UM1E3nxjjgZC8J5Eh46lLrLH3HhiPWY+6DY7dJ5Z666n3utNz4wVyEhBocRGQAs9hu
+         09WQwaa1pb/jN3D9AchgM+TqHXsk1+GcKl1ULrBe92BMliJdoEwRYVlB7iFgZQwYfq
+         zfY9SjHGCbycpP3t8I8z3+HZTjDv6YdtvBVlXzomwH1UzyZFNB5KJQZ5W2Pp7tVAUG
+         PheHjS+HEOqiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <chao@kernel.org>, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, yuchao0@huawei.com,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.10 7/8] f2fs: compress: fix to print raw data size in error path of lz4 decompression
-Date:   Mon, 28 Mar 2022 15:43:21 -0400
-Message-Id: <20220328194322.1586401-7-sashal@kernel.org>
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzbot+3c765c5248797356edaa@syzkaller.appspotmail.com,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.10 8/8] ntfs: add sanity check on allocation size
+Date:   Mon, 28 Mar 2022 15:43:22 -0400
+Message-Id: <20220328194322.1586401-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328194322.1586401-1-sashal@kernel.org>
 References: <20220328194322.1586401-1-sashal@kernel.org>
@@ -57,38 +60,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit d284af43f703760e261b1601378a0c13a19d5f1f ]
+[ Upstream commit 714fbf2647b1a33d914edd695d4da92029c7e7c0 ]
 
-In lz4_decompress_pages(), if size of decompressed data is not equal to
-expected one, we should print the size rather than size of target buffer
-for decompressed data, fix it.
+ntfs_read_inode_mount invokes ntfs_malloc_nofs with zero allocation
+size.  It triggers one BUG in the __ntfs_malloc function.
 
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fix this by adding sanity check on ni->attr_list_size.
+
+Link: https://lkml.kernel.org/r/20220120094914.47736-1-dzm91@hust.edu.cn
+Reported-by: syzbot+3c765c5248797356edaa@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Anton Altaparmakov <anton@tuxera.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/ntfs/inode.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index ec542e8c46cc..1541da5ace85 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -286,10 +286,9 @@ static int lz4_decompress_pages(struct decompress_io_ctx *dic)
- 	}
- 
- 	if (ret != PAGE_SIZE << dic->log_cluster_size) {
--		printk_ratelimited("%sF2FS-fs (%s): lz4 invalid rlen:%zu, "
-+		printk_ratelimited("%sF2FS-fs (%s): lz4 invalid ret:%d, "
- 					"expected:%lu\n", KERN_ERR,
--					F2FS_I_SB(dic->inode)->sb->s_id,
--					dic->rlen,
-+					F2FS_I_SB(dic->inode)->sb->s_id, ret,
- 					PAGE_SIZE << dic->log_cluster_size);
- 		return -EIO;
- 	}
+diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+index ea18e4a2a691..cf222c9225d6 100644
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -1881,6 +1881,10 @@ int ntfs_read_inode_mount(struct inode *vi)
+ 		}
+ 		/* Now allocate memory for the attribute list. */
+ 		ni->attr_list_size = (u32)ntfs_attr_size(a);
++		if (!ni->attr_list_size) {
++			ntfs_error(sb, "Attr_list_size is zero");
++			goto put_err_out;
++		}
+ 		ni->attr_list = ntfs_malloc_nofs(ni->attr_list_size);
+ 		if (!ni->attr_list) {
+ 			ntfs_error(sb, "Not enough memory to allocate buffer "
 -- 
 2.34.1
 
