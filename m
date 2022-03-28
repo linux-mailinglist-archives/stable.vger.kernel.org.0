@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1BC4E9401
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97BF14E93F7
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234452AbiC1LZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 07:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
+        id S241018AbiC1LZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 07:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241088AbiC1LZC (ORCPT
+        with ESMTP id S241026AbiC1LZC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:25:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B8F756741;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 620C15643F;
         Mon, 28 Mar 2022 04:23:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22FD5B81057;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA686611D8;
         Mon, 28 Mar 2022 11:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA129C340EC;
-        Mon, 28 Mar 2022 11:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506C2C340F3;
+        Mon, 28 Mar 2022 11:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466586;
-        bh=fyuTIgKNBTLo6gyUetiojpVpLb0Ee9KatKz+ZJtxinM=;
+        s=k20201202; t=1648466588;
+        bh=D7zehDB5ZT+cPJglemgyT0v37ZSf+QM4AK+whiwO7mQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXg0i9U6bP2+fYfxgEEf7Cg4FVhsmVYFuC3TNIQ8/6Ta5jCyUldt/GtOU0k+csduC
-         eUU0v+3Cx2yeAn6msPg+v8UNo7IqdZ8UdQavpXll2TXHqA5lPliwtjIlGqRsNWYNZw
-         mEF0Fu4HmKy+TfoOSKipFRjpDi8K9w0YFXdSced+MYYIoHwK615TmydBYZAeZadWd9
-         erxinEbpIyfmyKKzt545VYOnj5guj+6VyEzTLYEmqel5iyCVjVQIxi2qVbIvtEHHHy
-         uQ0eIWw95DYXCFyVRnKwQNIaXA29Jyb0X2+d/D4oQJ+Wyek3hJzdfWXclclDTBEj1F
-         BzenNnlnjoHWQ==
+        b=rcEQ5BzMOiNupz15FGivAI6C4IqPwJYHHn9ntCEb4dku4GQtMT7j5WAmG90J5/g0a
+         l+phooA3E2PH3XJsNpBdK/PKSD5pbfAFqYbTMSzY+lCy6HupFmfMdrkRcI8tAjr7kG
+         o62YOiCFpillZp2VNIIBJLGNBVlbfG/AUGPANhyT6rV+X6U448wyQEns5Em8tfvASf
+         b1zBGd9NRifuomvupqJ3E6RQ/HwOZFpmi0LVzkll4xDFHTsUiTawfaO6nS4rx5Acmc
+         +fhb5GbMqX6CZ165Pyc2+i9/6qVaK2R2VF2gdkRhzmKce9+2iq4+aL3WPzKjB6Ledc
+         +NCqjm70UbNKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>, avifishman70@gmail.com,
-        tmaimon77@gmail.com, tali.perry1@gmail.com,
-        linus.walleij@linaro.org, openbmc@lists.ozlabs.org,
-        linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 04/21] pinctrl: npcm: Fix broken references to chip->parent_device
-Date:   Mon, 28 Mar 2022 07:22:37 -0400
-Message-Id: <20220328112254.1556286-4-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        tj@kernel.org, linux-block@vger.kernel.org, cgroups@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/21] block, bfq: don't move oom_bfqq
+Date:   Mon, 28 Mar 2022 07:22:38 -0400
+Message-Id: <20220328112254.1556286-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328112254.1556286-1-sashal@kernel.org>
 References: <20220328112254.1556286-1-sashal@kernel.org>
@@ -58,123 +57,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit f7e53e2255808ca3abcc8f38d18ad0823425e771 ]
+[ Upstream commit 8410f70977734f21b8ed45c37e925d311dfda2e7 ]
 
-The npcm driver has a bunch of references to the irq_chip parent_device
-field, but never sets it.
+Our test report a UAF:
 
-Fix it by fishing that reference from somewhere else, but it is
-obvious that these debug statements were never used. Also remove
-an unused field in a local data structure.
+[ 2073.019181] ==================================================================
+[ 2073.019188] BUG: KASAN: use-after-free in __bfq_put_async_bfqq+0xa0/0x168
+[ 2073.019191] Write of size 8 at addr ffff8000ccf64128 by task rmmod/72584
+[ 2073.019192]
+[ 2073.019196] CPU: 0 PID: 72584 Comm: rmmod Kdump: loaded Not tainted 4.19.90-yk #5
+[ 2073.019198] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[ 2073.019200] Call trace:
+[ 2073.019203]  dump_backtrace+0x0/0x310
+[ 2073.019206]  show_stack+0x28/0x38
+[ 2073.019210]  dump_stack+0xec/0x15c
+[ 2073.019216]  print_address_description+0x68/0x2d0
+[ 2073.019220]  kasan_report+0x238/0x2f0
+[ 2073.019224]  __asan_store8+0x88/0xb0
+[ 2073.019229]  __bfq_put_async_bfqq+0xa0/0x168
+[ 2073.019233]  bfq_put_async_queues+0xbc/0x208
+[ 2073.019236]  bfq_pd_offline+0x178/0x238
+[ 2073.019240]  blkcg_deactivate_policy+0x1f0/0x420
+[ 2073.019244]  bfq_exit_queue+0x128/0x178
+[ 2073.019249]  blk_mq_exit_sched+0x12c/0x160
+[ 2073.019252]  elevator_exit+0xc8/0xd0
+[ 2073.019256]  blk_exit_queue+0x50/0x88
+[ 2073.019259]  blk_cleanup_queue+0x228/0x3d8
+[ 2073.019267]  null_del_dev+0xfc/0x1e0 [null_blk]
+[ 2073.019274]  null_exit+0x90/0x114 [null_blk]
+[ 2073.019278]  __arm64_sys_delete_module+0x358/0x5a0
+[ 2073.019282]  el0_svc_common+0xc8/0x320
+[ 2073.019287]  el0_svc_handler+0xf8/0x160
+[ 2073.019290]  el0_svc+0x10/0x218
+[ 2073.019291]
+[ 2073.019294] Allocated by task 14163:
+[ 2073.019301]  kasan_kmalloc+0xe0/0x190
+[ 2073.019305]  kmem_cache_alloc_node_trace+0x1cc/0x418
+[ 2073.019308]  bfq_pd_alloc+0x54/0x118
+[ 2073.019313]  blkcg_activate_policy+0x250/0x460
+[ 2073.019317]  bfq_create_group_hierarchy+0x38/0x110
+[ 2073.019321]  bfq_init_queue+0x6d0/0x948
+[ 2073.019325]  blk_mq_init_sched+0x1d8/0x390
+[ 2073.019330]  elevator_switch_mq+0x88/0x170
+[ 2073.019334]  elevator_switch+0x140/0x270
+[ 2073.019338]  elv_iosched_store+0x1a4/0x2a0
+[ 2073.019342]  queue_attr_store+0x90/0xe0
+[ 2073.019348]  sysfs_kf_write+0xa8/0xe8
+[ 2073.019351]  kernfs_fop_write+0x1f8/0x378
+[ 2073.019359]  __vfs_write+0xe0/0x360
+[ 2073.019363]  vfs_write+0xf0/0x270
+[ 2073.019367]  ksys_write+0xdc/0x1b8
+[ 2073.019371]  __arm64_sys_write+0x50/0x60
+[ 2073.019375]  el0_svc_common+0xc8/0x320
+[ 2073.019380]  el0_svc_handler+0xf8/0x160
+[ 2073.019383]  el0_svc+0x10/0x218
+[ 2073.019385]
+[ 2073.019387] Freed by task 72584:
+[ 2073.019391]  __kasan_slab_free+0x120/0x228
+[ 2073.019394]  kasan_slab_free+0x10/0x18
+[ 2073.019397]  kfree+0x94/0x368
+[ 2073.019400]  bfqg_put+0x64/0xb0
+[ 2073.019404]  bfqg_and_blkg_put+0x90/0xb0
+[ 2073.019408]  bfq_put_queue+0x220/0x228
+[ 2073.019413]  __bfq_put_async_bfqq+0x98/0x168
+[ 2073.019416]  bfq_put_async_queues+0xbc/0x208
+[ 2073.019420]  bfq_pd_offline+0x178/0x238
+[ 2073.019424]  blkcg_deactivate_policy+0x1f0/0x420
+[ 2073.019429]  bfq_exit_queue+0x128/0x178
+[ 2073.019433]  blk_mq_exit_sched+0x12c/0x160
+[ 2073.019437]  elevator_exit+0xc8/0xd0
+[ 2073.019440]  blk_exit_queue+0x50/0x88
+[ 2073.019443]  blk_cleanup_queue+0x228/0x3d8
+[ 2073.019451]  null_del_dev+0xfc/0x1e0 [null_blk]
+[ 2073.019459]  null_exit+0x90/0x114 [null_blk]
+[ 2073.019462]  __arm64_sys_delete_module+0x358/0x5a0
+[ 2073.019467]  el0_svc_common+0xc8/0x320
+[ 2073.019471]  el0_svc_handler+0xf8/0x160
+[ 2073.019474]  el0_svc+0x10/0x218
+[ 2073.019475]
+[ 2073.019479] The buggy address belongs to the object at ffff8000ccf63f00
+ which belongs to the cache kmalloc-1024 of size 1024
+[ 2073.019484] The buggy address is located 552 bytes inside of
+ 1024-byte region [ffff8000ccf63f00, ffff8000ccf64300)
+[ 2073.019486] The buggy address belongs to the page:
+[ 2073.019492] page:ffff7e000333d800 count:1 mapcount:0 mapping:ffff8000c0003a00 index:0x0 compound_mapcount: 0
+[ 2073.020123] flags: 0x7ffff0000008100(slab|head)
+[ 2073.020403] raw: 07ffff0000008100 ffff7e0003334c08 ffff7e00001f5a08 ffff8000c0003a00
+[ 2073.020409] raw: 0000000000000000 00000000001c001c 00000001ffffffff 0000000000000000
+[ 2073.020411] page dumped because: kasan: bad access detected
+[ 2073.020412]
+[ 2073.020414] Memory state around the buggy address:
+[ 2073.020420]  ffff8000ccf64000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020424]  ffff8000ccf64080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020428] >ffff8000ccf64100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020430]                                   ^
+[ 2073.020434]  ffff8000ccf64180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020438]  ffff8000ccf64200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020439] ==================================================================
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Link: https://lore.kernel.org/r/20220201120310.878267-11-maz@kernel.org
+The same problem exist in mainline as well.
+
+This is because oom_bfqq is moved to a non-root group, thus root_group
+is freed earlier.
+
+Thus fix the problem by don't move oom_bfqq.
+
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Acked-by: Paolo Valente <paolo.valente@linaro.org>
+Link: https://lore.kernel.org/r/20220129015924.3958918-4-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c | 25 +++++++++++------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ block/bfq-cgroup.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c b/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-index 6de31b5ee358..c359e25519f8 100644
---- a/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-+++ b/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-@@ -78,7 +78,6 @@ struct npcm7xx_gpio {
- 	struct gpio_chip	gc;
- 	int			irqbase;
- 	int			irq;
--	void			*priv;
- 	struct irq_chip		irq_chip;
- 	u32			pinctrl_id;
- 	int (*direction_input)(struct gpio_chip *chip, unsigned offset);
-@@ -226,7 +225,7 @@ static void npcmgpio_irq_handler(struct irq_desc *desc)
- 	chained_irq_enter(chip, desc);
- 	sts = ioread32(bank->base + NPCM7XX_GP_N_EVST);
- 	en  = ioread32(bank->base + NPCM7XX_GP_N_EVEN);
--	dev_dbg(chip->parent_device, "==> got irq sts %.8x %.8x\n", sts,
-+	dev_dbg(bank->gc.parent, "==> got irq sts %.8x %.8x\n", sts,
- 		en);
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index b791e2041e49..c2fdd6fcdaee 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -642,6 +642,12 @@ void bfq_bfqq_move(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ {
+ 	struct bfq_entity *entity = &bfqq->entity;
  
- 	sts &= en;
-@@ -241,33 +240,33 @@ static int npcmgpio_set_irq_type(struct irq_data *d, unsigned int type)
- 		gpiochip_get_data(irq_data_get_irq_chip_data(d));
- 	unsigned int gpio = BIT(d->hwirq);
- 
--	dev_dbg(d->chip->parent_device, "setirqtype: %u.%u = %u\n", gpio,
-+	dev_dbg(bank->gc.parent, "setirqtype: %u.%u = %u\n", gpio,
- 		d->irq, type);
- 	switch (type) {
- 	case IRQ_TYPE_EDGE_RISING:
--		dev_dbg(d->chip->parent_device, "edge.rising\n");
-+		dev_dbg(bank->gc.parent, "edge.rising\n");
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_EVBE, gpio);
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	case IRQ_TYPE_EDGE_FALLING:
--		dev_dbg(d->chip->parent_device, "edge.falling\n");
-+		dev_dbg(bank->gc.parent, "edge.falling\n");
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_EVBE, gpio);
- 		npcm_gpio_set(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	case IRQ_TYPE_EDGE_BOTH:
--		dev_dbg(d->chip->parent_device, "edge.both\n");
-+		dev_dbg(bank->gc.parent, "edge.both\n");
- 		npcm_gpio_set(&bank->gc, bank->base + NPCM7XX_GP_N_EVBE, gpio);
- 		break;
- 	case IRQ_TYPE_LEVEL_LOW:
--		dev_dbg(d->chip->parent_device, "level.low\n");
-+		dev_dbg(bank->gc.parent, "level.low\n");
- 		npcm_gpio_set(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	case IRQ_TYPE_LEVEL_HIGH:
--		dev_dbg(d->chip->parent_device, "level.high\n");
-+		dev_dbg(bank->gc.parent, "level.high\n");
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	default:
--		dev_dbg(d->chip->parent_device, "invalid irq type\n");
-+		dev_dbg(bank->gc.parent, "invalid irq type\n");
- 		return -EINVAL;
- 	}
- 
-@@ -289,7 +288,7 @@ static void npcmgpio_irq_ack(struct irq_data *d)
- 		gpiochip_get_data(irq_data_get_irq_chip_data(d));
- 	unsigned int gpio = d->hwirq;
- 
--	dev_dbg(d->chip->parent_device, "irq_ack: %u.%u\n", gpio, d->irq);
-+	dev_dbg(bank->gc.parent, "irq_ack: %u.%u\n", gpio, d->irq);
- 	iowrite32(BIT(gpio), bank->base + NPCM7XX_GP_N_EVST);
- }
- 
-@@ -301,7 +300,7 @@ static void npcmgpio_irq_mask(struct irq_data *d)
- 	unsigned int gpio = d->hwirq;
- 
- 	/* Clear events */
--	dev_dbg(d->chip->parent_device, "irq_mask: %u.%u\n", gpio, d->irq);
-+	dev_dbg(bank->gc.parent, "irq_mask: %u.%u\n", gpio, d->irq);
- 	iowrite32(BIT(gpio), bank->base + NPCM7XX_GP_N_EVENC);
- }
- 
-@@ -313,7 +312,7 @@ static void npcmgpio_irq_unmask(struct irq_data *d)
- 	unsigned int gpio = d->hwirq;
- 
- 	/* Enable events */
--	dev_dbg(d->chip->parent_device, "irq_unmask: %u.%u\n", gpio, d->irq);
-+	dev_dbg(bank->gc.parent, "irq_unmask: %u.%u\n", gpio, d->irq);
- 	iowrite32(BIT(gpio), bank->base + NPCM7XX_GP_N_EVENS);
- }
- 
-@@ -323,7 +322,7 @@ static unsigned int npcmgpio_irq_startup(struct irq_data *d)
- 	unsigned int gpio = d->hwirq;
- 
- 	/* active-high, input, clear interrupt, enable interrupt */
--	dev_dbg(d->chip->parent_device, "startup: %u.%u\n", gpio, d->irq);
-+	dev_dbg(gc->parent, "startup: %u.%u\n", gpio, d->irq);
- 	npcmgpio_direction_input(gc, gpio);
- 	npcmgpio_irq_ack(d);
- 	npcmgpio_irq_unmask(d);
++	/*
++	 * oom_bfqq is not allowed to move, oom_bfqq will hold ref to root_group
++	 * until elevator exit.
++	 */
++	if (bfqq == &bfqd->oom_bfqq)
++		return;
+ 	/*
+ 	 * Get extra reference to prevent bfqq from being freed in
+ 	 * next possible expire or deactivate.
 -- 
 2.34.1
 
