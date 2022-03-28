@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 364004E9431
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:25:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628F34E93EC
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234991AbiC1L0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 07:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59956 "EHLO
+        id S241121AbiC1LZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 07:25:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241746AbiC1LYK (ORCPT
+        with ESMTP id S241749AbiC1LYK (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:24:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A32255749;
-        Mon, 28 Mar 2022 04:22:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27A955759;
+        Mon, 28 Mar 2022 04:22:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA3361195;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EB076115A;
+        Mon, 28 Mar 2022 11:22:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB45C34100;
         Mon, 28 Mar 2022 11:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA9AC340EC;
-        Mon, 28 Mar 2022 11:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466537;
-        bh=9juKIwUD/GSIh+MC1cufrB6PrwTzh2p3DCsAILFY26s=;
+        s=k20201202; t=1648466539;
+        bh=F81kisKEqi/pBnYxv7fdozfHy3YTomyXenOPF/ZqZeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8g7cD7MgBvkGLq8P4rTXeWE1is0QI13hdJ53LJuLQvrm+4U27Ai0xYRtUAbSOWA/
-         p2NVs+OCtbGbguV85/FtvbNQnzKqY7JlLSGuZWSnzEbO952o74r8OYNBqOzMdKE9ac
-         a36Lxm4gxfhJ33dbh/vwdkAYopRpdYBYkXpVZ2LnbmYujw7AY5wCnm9zT2ho2PG7ev
-         +bOs8vrYxfbO6/gD6KrClPUGP75oL6kOoZVo58OZMzBPZY4Ht2HjjpjTnGKOWXufxx
-         DKHF523fWc/RPsupQbdAK4BYBMZBhdArVxkYMdItj/NB0xbJI2kbRbkGWL63En9lml
-         8cx9Tl2NOC8Iw==
+        b=YHzpEjp60A5DleGa7SXyWHkI6feoxiWn9leqsX1E09t62hAFAUnIV88CpwLx1Lqyy
+         cVlnWcVDXCELE9h1m0qEzV6c2K0kl6N/zG6uuQ49aa6/MLO4JrgMrP/fPYqYXlY5KH
+         lv3OfzB9DMoLSOPZN3KOb5xazllSAtcPZY6tXt5Mvb8rl1VYM59pCq6rZxPzmEY9nk
+         BrtoawsLCSywjVl4BMUf09gHv7dANfxiXFZNg9D0wNYSG9mvq8Bk+UVg/WEps3Mun3
+         vrODlaN82CM8L/aIBy1LwEH1qF5Y/9DZiVjCAPfGflrNRGJ7JB/I1kfQSVGYNQXd5s
+         9IwBAOmU+eG+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleg Nesterov <oleg@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, luto@kernel.org, frederic@kernel.org,
-        rdunlap@infradead.org, ardb@kernel.org, valentin.schneider@arm.com,
-        ebiederm@xmission.com, keescook@chromium.org, elver@google.com,
-        legion@kernel.org
-Subject: [PATCH AUTOSEL 5.15 19/29] signal, x86: Delay calling signals in atomic on RT enabled kernels
-Date:   Mon, 28 Mar 2022 07:21:21 -0400
-Message-Id: <20220328112132.1555683-19-sashal@kernel.org>
+Cc:     Zhang Wensheng <zhangwensheng5@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, paolo.valente@linaro.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 20/29] bfq: fix use-after-free in bfq_dispatch_request
+Date:   Mon, 28 Mar 2022 07:21:22 -0400
+Message-Id: <20220328112132.1555683-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328112132.1555683-1-sashal@kernel.org>
 References: <20220328112132.1555683-1-sashal@kernel.org>
@@ -64,185 +57,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Zhang Wensheng <zhangwensheng5@huawei.com>
 
-[ Upstream commit bf9ad37dc8a30cce22ae95d6c2ca6abf8731d305 ]
+[ Upstream commit ab552fcb17cc9e4afe0e4ac4df95fc7b30e8490a ]
 
-On x86_64 we must disable preemption before we enable interrupts
-for stack faults, int3 and debugging, because the current task is using
-a per CPU debug stack defined by the IST. If we schedule out, another task
-can come in and use the same stack and cause the stack to be corrupted
-and crash the kernel on return.
+KASAN reports a use-after-free report when doing normal scsi-mq test
 
-When CONFIG_PREEMPT_RT is enabled, spinlock_t locks become sleeping, and
-one of these is the spin lock used in signal handling.
+[69832.239032] ==================================================================
+[69832.241810] BUG: KASAN: use-after-free in bfq_dispatch_request+0x1045/0x44b0
+[69832.243267] Read of size 8 at addr ffff88802622ba88 by task kworker/3:1H/155
+[69832.244656]
+[69832.245007] CPU: 3 PID: 155 Comm: kworker/3:1H Not tainted 5.10.0-10295-g576c6382529e #8
+[69832.246626] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[69832.249069] Workqueue: kblockd blk_mq_run_work_fn
+[69832.250022] Call Trace:
+[69832.250541]  dump_stack+0x9b/0xce
+[69832.251232]  ? bfq_dispatch_request+0x1045/0x44b0
+[69832.252243]  print_address_description.constprop.6+0x3e/0x60
+[69832.253381]  ? __cpuidle_text_end+0x5/0x5
+[69832.254211]  ? vprintk_func+0x6b/0x120
+[69832.254994]  ? bfq_dispatch_request+0x1045/0x44b0
+[69832.255952]  ? bfq_dispatch_request+0x1045/0x44b0
+[69832.256914]  kasan_report.cold.9+0x22/0x3a
+[69832.257753]  ? bfq_dispatch_request+0x1045/0x44b0
+[69832.258755]  check_memory_region+0x1c1/0x1e0
+[69832.260248]  bfq_dispatch_request+0x1045/0x44b0
+[69832.261181]  ? bfq_bfqq_expire+0x2440/0x2440
+[69832.262032]  ? blk_mq_delay_run_hw_queues+0xf9/0x170
+[69832.263022]  __blk_mq_do_dispatch_sched+0x52f/0x830
+[69832.264011]  ? blk_mq_sched_request_inserted+0x100/0x100
+[69832.265101]  __blk_mq_sched_dispatch_requests+0x398/0x4f0
+[69832.266206]  ? blk_mq_do_dispatch_ctx+0x570/0x570
+[69832.267147]  ? __switch_to+0x5f4/0xee0
+[69832.267898]  blk_mq_sched_dispatch_requests+0xdf/0x140
+[69832.268946]  __blk_mq_run_hw_queue+0xc0/0x270
+[69832.269840]  blk_mq_run_work_fn+0x51/0x60
+[69832.278170]  process_one_work+0x6d4/0xfe0
+[69832.278984]  worker_thread+0x91/0xc80
+[69832.279726]  ? __kthread_parkme+0xb0/0x110
+[69832.280554]  ? process_one_work+0xfe0/0xfe0
+[69832.281414]  kthread+0x32d/0x3f0
+[69832.282082]  ? kthread_park+0x170/0x170
+[69832.282849]  ret_from_fork+0x1f/0x30
+[69832.283573]
+[69832.283886] Allocated by task 7725:
+[69832.284599]  kasan_save_stack+0x19/0x40
+[69832.285385]  __kasan_kmalloc.constprop.2+0xc1/0xd0
+[69832.286350]  kmem_cache_alloc_node+0x13f/0x460
+[69832.287237]  bfq_get_queue+0x3d4/0x1140
+[69832.287993]  bfq_get_bfqq_handle_split+0x103/0x510
+[69832.289015]  bfq_init_rq+0x337/0x2d50
+[69832.289749]  bfq_insert_requests+0x304/0x4e10
+[69832.290634]  blk_mq_sched_insert_requests+0x13e/0x390
+[69832.291629]  blk_mq_flush_plug_list+0x4b4/0x760
+[69832.292538]  blk_flush_plug_list+0x2c5/0x480
+[69832.293392]  io_schedule_prepare+0xb2/0xd0
+[69832.294209]  io_schedule_timeout+0x13/0x80
+[69832.295014]  wait_for_common_io.constprop.1+0x13c/0x270
+[69832.296137]  submit_bio_wait+0x103/0x1a0
+[69832.296932]  blkdev_issue_discard+0xe6/0x160
+[69832.297794]  blk_ioctl_discard+0x219/0x290
+[69832.298614]  blkdev_common_ioctl+0x50a/0x1750
+[69832.304715]  blkdev_ioctl+0x470/0x600
+[69832.305474]  block_ioctl+0xde/0x120
+[69832.306232]  vfs_ioctl+0x6c/0xc0
+[69832.306877]  __se_sys_ioctl+0x90/0xa0
+[69832.307629]  do_syscall_64+0x2d/0x40
+[69832.308362]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[69832.309382]
+[69832.309701] Freed by task 155:
+[69832.310328]  kasan_save_stack+0x19/0x40
+[69832.311121]  kasan_set_track+0x1c/0x30
+[69832.311868]  kasan_set_free_info+0x1b/0x30
+[69832.312699]  __kasan_slab_free+0x111/0x160
+[69832.313524]  kmem_cache_free+0x94/0x460
+[69832.314367]  bfq_put_queue+0x582/0x940
+[69832.315112]  __bfq_bfqd_reset_in_service+0x166/0x1d0
+[69832.317275]  bfq_bfqq_expire+0xb27/0x2440
+[69832.318084]  bfq_dispatch_request+0x697/0x44b0
+[69832.318991]  __blk_mq_do_dispatch_sched+0x52f/0x830
+[69832.319984]  __blk_mq_sched_dispatch_requests+0x398/0x4f0
+[69832.321087]  blk_mq_sched_dispatch_requests+0xdf/0x140
+[69832.322225]  __blk_mq_run_hw_queue+0xc0/0x270
+[69832.323114]  blk_mq_run_work_fn+0x51/0x60
+[69832.323942]  process_one_work+0x6d4/0xfe0
+[69832.324772]  worker_thread+0x91/0xc80
+[69832.325518]  kthread+0x32d/0x3f0
+[69832.326205]  ret_from_fork+0x1f/0x30
+[69832.326932]
+[69832.338297] The buggy address belongs to the object at ffff88802622b968
+[69832.338297]  which belongs to the cache bfq_queue of size 512
+[69832.340766] The buggy address is located 288 bytes inside of
+[69832.340766]  512-byte region [ffff88802622b968, ffff88802622bb68)
+[69832.343091] The buggy address belongs to the page:
+[69832.344097] page:ffffea0000988a00 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88802622a528 pfn:0x26228
+[69832.346214] head:ffffea0000988a00 order:2 compound_mapcount:0 compound_pincount:0
+[69832.347719] flags: 0x1fffff80010200(slab|head)
+[69832.348625] raw: 001fffff80010200 ffffea0000dbac08 ffff888017a57650 ffff8880179fe840
+[69832.354972] raw: ffff88802622a528 0000000000120008 00000001ffffffff 0000000000000000
+[69832.356547] page dumped because: kasan: bad access detected
+[69832.357652]
+[69832.357970] Memory state around the buggy address:
+[69832.358926]  ffff88802622b980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[69832.360358]  ffff88802622ba00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[69832.361810] >ffff88802622ba80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[69832.363273]                       ^
+[69832.363975]  ffff88802622bb00: fb fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc
+[69832.375960]  ffff88802622bb80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[69832.377405] ==================================================================
 
-Some of the debug code (int3) causes do_trap() to send a signal.
-This function calls a spinlock_t lock that has been converted to a
-sleeping lock. If this happens, the above issues with the corrupted
-stack is possible.
+In bfq_dispatch_requestfunction, it may have function call:
 
-Instead of calling the signal right away, for PREEMPT_RT and x86,
-the signal information is stored on the stacks task_struct and
-TIF_NOTIFY_RESUME is set. Then on exit of the trap, the signal resume
-code will send the signal when preemption is enabled.
+bfq_dispatch_request
+	__bfq_dispatch_request
+		bfq_select_queue
+			bfq_bfqq_expire
+				__bfq_bfqd_reset_in_service
+					bfq_put_queue
+						kmem_cache_free
+In this function call, in_serv_queue has beed expired and meet the
+conditions to free. In the function bfq_dispatch_request, the address
+of in_serv_queue pointing to has been released. For getting the value
+of idle_timer_disabled, it will get flags value from the address which
+in_serv_queue pointing to, then the problem of use-after-free happens;
 
-[ rostedt: Switched from #ifdef CONFIG_PREEMPT_RT to
-  ARCH_RT_DELAYS_SIGNAL_SEND and added comments to the code. ]
-[bigeasy: Add on 32bit as per Yang Shi, minor rewording. ]
-[ tglx: Use a config option ]
+Fix the problem by check in_serv_queue == bfqd->in_service_queue, to
+get the value of idle_timer_disabled if in_serve_queue is equel to
+bfqd->in_service_queue. If the space of in_serv_queue pointing has
+been released, this judge will aviod use-after-free problem.
+And if in_serv_queue may be expired or finished, the idle_timer_disabled
+will be false which would not give effects to bfq_update_dispatch_stats.
 
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/Ygq5aBB/qMQw6aP5@linutronix.de
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
+Link: https://lore.kernel.org/r/20220303070334.3020168-1-zhangwensheng5@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig       |  1 +
- include/linux/sched.h  |  3 +++
- kernel/Kconfig.preempt | 12 +++++++++++-
- kernel/entry/common.c  | 14 ++++++++++++++
- kernel/signal.c        | 40 ++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 69 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 1f96809606ac..9f6480239194 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -118,6 +118,7 @@ config X86
- 	select ARCH_WANTS_NO_INSTR
- 	select ARCH_WANT_HUGE_PMD_SHARE
- 	select ARCH_WANT_LD_ORPHAN_WARN
-+	select ARCH_WANTS_RT_DELAYED_SIGNALS
- 	select ARCH_WANTS_THP_SWAP		if X86_64
- 	select ARCH_HAS_PARANOID_L1D_FLUSH
- 	select BUILDTIME_TABLE_SORT
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 76e869550646..5f84cc12f627 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1084,6 +1084,9 @@ struct task_struct {
- 	/* Restored if set_restore_sigmask() was used: */
- 	sigset_t			saved_sigmask;
- 	struct sigpending		pending;
-+#ifdef CONFIG_RT_DELAYED_SIGNALS
-+	struct kernel_siginfo		forced_info;
-+#endif
- 	unsigned long			sas_ss_sp;
- 	size_t				sas_ss_size;
- 	unsigned int			sas_ss_flags;
-diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
-index 5876e30c5740..64688b7a5639 100644
---- a/kernel/Kconfig.preempt
-+++ b/kernel/Kconfig.preempt
-@@ -118,4 +118,14 @@ config SCHED_CORE
- 	  which is the likely usage by Linux distributions, there should
- 	  be no measurable impact on performance.
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index e66970bf27db..9843085cc2c3 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5061,7 +5061,7 @@ static struct request *bfq_dispatch_request(struct blk_mq_hw_ctx *hctx)
+ 	struct bfq_data *bfqd = hctx->queue->elevator->elevator_data;
+ 	struct request *rq;
+ 	struct bfq_queue *in_serv_queue;
+-	bool waiting_rq, idle_timer_disabled;
++	bool waiting_rq, idle_timer_disabled = false;
  
+ 	spin_lock_irq(&bfqd->lock);
+ 
+@@ -5069,14 +5069,15 @@ static struct request *bfq_dispatch_request(struct blk_mq_hw_ctx *hctx)
+ 	waiting_rq = in_serv_queue && bfq_bfqq_wait_request(in_serv_queue);
+ 
+ 	rq = __bfq_dispatch_request(hctx);
 -
-+config ARCH_WANTS_RT_DELAYED_SIGNALS
-+	bool
-+	help
-+	  This option is selected by architectures where raising signals
-+	  can happen in atomic contexts on PREEMPT_RT enabled kernels. This
-+	  option delays raising the signal until the return to user space
-+	  loop where it is also delivered. X86 requires this to deliver
-+	  signals from trap handlers which run on IST stacks.
-+
-+config RT_DELAYED_SIGNALS
-+	def_bool PREEMPT_RT && ARCH_WANTS_RT_DELAYED_SIGNALS
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index d5a61d565ad5..75f352775e6e 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -148,6 +148,18 @@ static void handle_signal_work(struct pt_regs *regs, unsigned long ti_work)
- 	arch_do_signal_or_restart(regs, ti_work & _TIF_SIGPENDING);
+-	idle_timer_disabled =
+-		waiting_rq && !bfq_bfqq_wait_request(in_serv_queue);
++	if (in_serv_queue == bfqd->in_service_queue) {
++		idle_timer_disabled =
++			waiting_rq && !bfq_bfqq_wait_request(in_serv_queue);
++	}
+ 
+ 	spin_unlock_irq(&bfqd->lock);
+-
+-	bfq_update_dispatch_stats(hctx->queue, rq, in_serv_queue,
+-				  idle_timer_disabled);
++	bfq_update_dispatch_stats(hctx->queue, rq,
++			idle_timer_disabled ? in_serv_queue : NULL,
++				idle_timer_disabled);
+ 
+ 	return rq;
  }
- 
-+#ifdef CONFIG_RT_DELAYED_SIGNALS
-+static inline void raise_delayed_signal(void)
-+{
-+	if (unlikely(current->forced_info.si_signo)) {
-+		force_sig_info(&current->forced_info);
-+		current->forced_info.si_signo = 0;
-+	}
-+}
-+#else
-+static inline void raise_delayed_signal(void) { }
-+#endif
-+
- static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 					    unsigned long ti_work)
- {
-@@ -162,6 +174,8 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 		if (ti_work & _TIF_NEED_RESCHED)
- 			schedule();
- 
-+		raise_delayed_signal();
-+
- 		if (ti_work & _TIF_UPROBE)
- 			uprobe_notify_resume(regs);
- 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 6e3dbb3d1217..e9ca0019dde2 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1304,6 +1304,43 @@ enum sig_handler {
- 	HANDLER_EXIT,	 /* Only visible as the process exit code */
- };
- 
-+/*
-+ * On some archictectures, PREEMPT_RT has to delay sending a signal from a
-+ * trap since it cannot enable preemption, and the signal code's
-+ * spin_locks turn into mutexes. Instead, it must set TIF_NOTIFY_RESUME
-+ * which will send the signal on exit of the trap.
-+ */
-+#ifdef CONFIG_RT_DELAYED_SIGNALS
-+static inline bool force_sig_delayed(struct kernel_siginfo *info,
-+				     struct task_struct *t)
-+{
-+	if (!in_atomic())
-+		return false;
-+
-+	if (WARN_ON_ONCE(t->forced_info.si_signo))
-+		return true;
-+
-+	if (is_si_special(info)) {
-+		WARN_ON_ONCE(info != SEND_SIG_PRIV);
-+		t->forced_info.si_signo = info->si_signo;
-+		t->forced_info.si_errno = 0;
-+		t->forced_info.si_code = SI_KERNEL;
-+		t->forced_info.si_pid = 0;
-+		t->forced_info.si_uid = 0;
-+	} else {
-+		t->forced_info = *info;
-+	}
-+	set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
-+	return true;
-+}
-+#else
-+static inline bool force_sig_delayed(struct kernel_siginfo *info,
-+				     struct task_struct *t)
-+{
-+	return false;
-+}
-+#endif
-+
- /*
-  * Force a signal that the process can't ignore: if necessary
-  * we unblock the signal and change any SIG_IGN to SIG_DFL.
-@@ -1324,6 +1361,9 @@ force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t,
- 	struct k_sigaction *action;
- 	int sig = info->si_signo;
- 
-+	if (force_sig_delayed(info, t))
-+		return 0;
-+
- 	spin_lock_irqsave(&t->sighand->siglock, flags);
- 	action = &t->sighand->action[sig-1];
- 	ignored = action->sa.sa_handler == SIG_IGN;
 -- 
 2.34.1
 
