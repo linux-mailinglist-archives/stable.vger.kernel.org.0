@@ -2,122 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B42134EA115
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 22:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21FB74EA14F
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 22:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344342AbiC1UDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 16:03:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55954 "EHLO
+        id S241365AbiC1UV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 16:21:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344360AbiC1UD1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 16:03:27 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 710A8606E6;
-        Mon, 28 Mar 2022 13:01:15 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id f3so12524922pfe.2;
-        Mon, 28 Mar 2022 13:01:15 -0700 (PDT)
+        with ESMTP id S239886AbiC1UV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 16:21:28 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137983DA48
+        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 13:19:47 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id y16so2528483pju.4
+        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 13:19:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sQyhxEzUWIyxRjjg8L7Lh+/O9puSstM9ZBT2nODvDM8=;
-        b=Pj5bCkeJuECKqhaYv7MLPiKsoFTr2mY8M6T2r4tIX8kMs9VI4OTPPqnQS8ItAC/X+v
-         JS2cAyc6ot4bkmrBYGdTEOE3hvAPdCBmljIv+WjN58exJOU7S/vItRDX8SzuW26Gcc8r
-         H/WazkEvf0+Yda4WqITlq1dwUpiYlc5vZX9wIA2Iaz6xHPZed5GfkdGr/w7DX4HoJx56
-         zyQdGvsY8mKXB7OHa98jV4liUnfU4gjVRioIPAOWj0ho9ePqwrKzRfHUoIunYEhQ1zr1
-         ro6rL0lJZSuzv83v1IByOpHa/KGVFbCAeExF68cWgzs+6y56W3sd/YVGycHuFXpNwQeT
-         Pz2Q==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Ydm9vX98065TawJ3gqAPM+joTIFnw27sksr4LtudQ7c=;
+        b=izPNXS1MJ0Bz5tWLVQFWv7D9tejh+3pm1LRdO9eUBcjKj83gJ9sj9M2YGmnVEfRwq3
+         10PJgVgmp3zjrNma7v0Jg2Vs6XM8qlL29mzM/EJ48fRfGZyyflNJf3QzxAh81+ASdR3r
+         qmPSTan2xeTFE9iaJ8X5R7e2ggn2RDHnQ23z70sEWsGgdB70Qpx2Npzug1D/neReBU+q
+         YJI8Sx6Hgs5jy8VPbVafeKMzPnQUMan4A12iElc+cVnNHbn4wY+GCAHcSsJM8R5hsjgx
+         sKXUC0s0MAROJ0dLf10BZyTJxo5FASIkRMfgae3ft6vkJAd1sx/QFau/dFVQcmPcfgDT
+         QZzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=sQyhxEzUWIyxRjjg8L7Lh+/O9puSstM9ZBT2nODvDM8=;
-        b=4yGutv4ouzruCH6xp0m7zP3IrO7jaxzwJPQ77OAL6wUCiaZzQxY5KhbF4HMenJgFTn
-         j0MPqlo2nFITq16LT8aEbdTurDhmv5PWc7r9wFFeiE7THfry6be3nSsCU5yQxSiQsO3S
-         ID2gR9zkW3ryCx5VXv+mEDg0q/B0tWMzaJ6814RMlzegmN5DOPk8O1W0ndrbPcQ/j52R
-         FJdrm9Hd3pBjKaCjdxu8prRUGMBeaYTy+0Qg/oO3LgUdjqEvpro7ne3cf7Mjiq7AsUQ7
-         RKqoy8QgLXDt24cNZikKGoqY7Ttfhle0wi0xt4taxRkPre6jhchvqkRUvVDGGLBZBqRz
-         8niA==
-X-Gm-Message-State: AOAM531hmjQo5cZWukQGv3sb7DkkBB8D3gxvDO0LFi8ANCRnz2Iw6J0q
-        tnVaergTzJg1kJdOX0kuB7g=
-X-Google-Smtp-Source: ABdhPJyl6oAzJo8o+XdN7d4vMQZwBOh7huIYno8GPmdM+kaVhV9cocYe3/sLHhj9Rb+W9FsrJ+UBVw==
-X-Received: by 2002:a63:2b4f:0:b0:398:49ba:a268 with SMTP id r76-20020a632b4f000000b0039849baa268mr5431697pgr.546.1648497674845;
-        Mon, 28 Mar 2022 13:01:14 -0700 (PDT)
-Received: from balhae.hsd1.ca.comcast.net ([2601:647:4800:3540:a644:d4e5:cd1:b3b9])
-        by smtp.gmail.com with ESMTPSA id mq6-20020a17090b380600b001c6357f146csm334428pjb.12.2022.03.28.13.01.13
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Ydm9vX98065TawJ3gqAPM+joTIFnw27sksr4LtudQ7c=;
+        b=b+uEWpLCtj3KS/LHofRDHBeooY7hr74dx6uC3a3KJUDGuZQHjpVS4I0Sq3/uswl+FM
+         NFyMl6ZSDy5vHpp4PzxtATP1O6mIMXvIkX+bAOe1GRFug2pLQGbHRf8wMLJS+2YJAhme
+         gLDP01Yb1Yyh0MzRnQjDukBzQ9tRfH4ueqd8jOL5PfJ3lamGqcLgDUFjZuwtKrll7Ivl
+         2pkbcJwfAbSAApqJ2Kje11hwosXIoui+lCH2P+jpPeIEQM0aolwW6dymlTjvCeITup4d
+         Nqr2AaxkDq1V6eLboGzhid3Tr+DbIdUIffwypclwUFoPC/ErjFrkLi+OlLSbtfP8oeWf
+         93eg==
+X-Gm-Message-State: AOAM530ba/Ya67aa0t4gzlP16mh2TKZv4mSNEMSqg77LAum7/8Jl3jpq
+        wBNTGD9KORaG8iR2n0vFkb/++llzKgDKQybY6vc=
+X-Google-Smtp-Source: ABdhPJzddhJ2OXGaRfvbW6sBKX47neB4fpK3dnZpeUStZj3Grk6504MdzPQH1Q0VPzPKwMHg2PPJ8Q==
+X-Received: by 2002:a17:902:e84b:b0:154:6222:98ad with SMTP id t11-20020a170902e84b00b00154622298admr27606173plg.26.1648498786475;
+        Mon, 28 Mar 2022 13:19:46 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o24-20020a17090a5b1800b001c6aaafa5fbsm345625pji.24.2022.03.28.13.19.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 13:01:14 -0700 (PDT)
-Sender: Namhyung Kim <namhyung@gmail.com>
-From:   Namhyung Kim <namhyung@kernel.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>, Will Deacon <will@kernel.org>,
-        Marco Elver <elver@google.com>, stable@vger.kernel.org
-Subject: [PATCH RESEND] perf/core: Inherit event_caps
-Date:   Mon, 28 Mar 2022 13:01:12 -0700
-Message-Id: <20220328200112.457740-1-namhyung@kernel.org>
-X-Mailer: git-send-email 2.35.1.1021.g381101b075-goog
+        Mon, 28 Mar 2022 13:19:46 -0700 (PDT)
+Message-ID: <62421862.1c69fb81.f34d5.1878@mx.google.com>
+Date:   Mon, 28 Mar 2022 13:19:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.274-9-g8dc373232be9
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 59 runs,
+ 1 regressions (v4.14.274-9-g8dc373232be9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It was reported that some perf event setup can make fork failed on
-ARM64.  It was the case of a group of mixed hw and sw events and it
-failed in perf_event_init_task() due to armpmu_event_init().
+stable-rc/queue/4.14 baseline: 59 runs, 1 regressions (v4.14.274-9-g8dc3732=
+32be9)
 
-The ARM PMU code checks if all the events in a group belong to the
-same PMU except for software events.  But it didn't set the event_caps
-of inherited events and no longer identify them as software events.
-Therefore the test failed in a child process.
+Regressions Summary
+-------------------
 
-A simple reproducer is:
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-  $ perf stat -e '{cycles,cs,instructions}' perf bench sched messaging
-  # Running 'sched/messaging' benchmark:
-  perf: fork(): Invalid argument
 
-The perf stat was fine but the perf bench failed in fork().  Let's
-inherit the event caps from the parent.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.274-9-g8dc373232be9/plan/baseline/
 
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Marco Elver <elver@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
- kernel/events/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.274-9-g8dc373232be9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8dc373232be900bbaf7264915946a97feab3a05c =
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index afbf388a5176..5baf7f981f23 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -11622,6 +11622,9 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
- 
- 	event->state		= PERF_EVENT_STATE_INACTIVE;
- 
-+	if (parent_event)
-+		event->event_caps = parent_event->event_caps;
-+
- 	if (event->attr.sigtrap)
- 		atomic_set(&event->event_limit, 1);
- 
--- 
-2.35.1.1021.g381101b075-goog
 
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/6241e5985c5d24b12eae0693
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.274=
+-9-g8dc373232be9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8=
+b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.274=
+-9-g8dc373232be9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8=
+b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6241e5985c5d24b12eae0=
+694
+        failing since 43 days (last pass: v4.14.266-18-g18b83990eba9, first=
+ fail: v4.14.266-28-g7d44cfe0255d) =
+
+ =20
