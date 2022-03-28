@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F7384E950B
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69DFD4E94D6
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:38:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239967AbiC1Lj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 07:39:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38410 "EHLO
+        id S241544AbiC1Lch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 07:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241500AbiC1Lbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:31:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A57E574B6;
-        Mon, 28 Mar 2022 04:24:32 -0700 (PDT)
+        with ESMTP id S241482AbiC1Lb2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:31:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 838AC56743;
+        Mon, 28 Mar 2022 04:24:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E356A611D2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBA8FB81056;
+        Mon, 28 Mar 2022 11:24:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE95C340EC;
         Mon, 28 Mar 2022 11:24:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60CC2C34115;
-        Mon, 28 Mar 2022 11:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466664;
-        bh=HAjsokNLpm1BGeHXA8hl2TeS4FY5QiuvnC9KI1mxvmM=;
+        s=k20201202; t=1648466665;
+        bh=afXJF7r+BNN7Bd/BCnFM0/zZ4G0iDP/43BVuOKMseVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=danXERLx4+IMqrcG3UppWPmoOXV8LLouEmFzUZCBgqP6hBwoUtOljZe89oXatxBDe
-         0stLf/5MGYf2EZ9avwdyxO7qPPy5y5/vuNy14HEBiBiFr9kiKT5M0ZYQ2S3bqO78QQ
-         YGTwQa81iY21VrsqNDFoCGRY3frfbc1BBBikQsUEwzvfby7VKFdsqoRuOrkUbKiMzR
-         2vrt7E17UwkxodMoW2omPwzSGbzSStpAljyg3AVeA8La8+ITVIk0GxPj8GRCTgomp4
-         hCATFjICflCVb83PSWrPAhu57JcQiLTWC5qSXv8f7Rnv3STVYURMVDzfZaOuyAEAbA
-         WQ1MQBG9jiPzg==
+        b=Shl+V5gB+3va8hxI6/hdpaG6UoXiv+PlerR7w6rVwjYBsnQDChz2qxiFBnu9SJfGZ
+         ZR2Aw4zc3d3h8Tsjt0qew/YS6DOcTEAbceTOyD4UOJlsLyF0tR/zMMwI1MK3/1h0HD
+         5I5ecm45IgQ8CVRPzKZEIac2wyoGCz/FCGdgIyDe5lG4iYWpFbGDvsQMFZHnucFstD
+         c7E3JhKoouhEaA3abTEiRGerN25yJAVd96uZiDZOkNhH9d4Hp9EHKEa8cvjhyf12Hi
+         NWDUB3JHAP2TASWDZ6YmXUs5qv66tagcZhRPWJ5vfRfL9NDEGcFTA92X2hUPsJYl5U
+         vrhmdv7wXYxnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Maulik Shah <quic_mkshah@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        bjorn.andersson@linaro.org, tglx@linutronix.de,
-        linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/12] irqchip/qcom-pdc: Fix broken locking
-Date:   Mon, 28 Mar 2022 07:24:09 -0400
-Message-Id: <20220328112417.1556946-4-sashal@kernel.org>
+Cc:     "Souptick Joarder (HPE)" <jrdr.linux@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de
+Subject: [PATCH AUTOSEL 4.19 05/12] irqchip/nvic: Release nvic_base upon failure
+Date:   Mon, 28 Mar 2022 07:24:10 -0400
+Message-Id: <20220328112417.1556946-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328112417.1556946-1-sashal@kernel.org>
 References: <20220328112417.1556946-1-sashal@kernel.org>
@@ -58,54 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: "Souptick Joarder (HPE)" <jrdr.linux@gmail.com>
 
-[ Upstream commit a6aca2f460e203781dc41391913cc5b54f4bc0ce ]
+[ Upstream commit e414c25e3399b2b3d7337dc47abccab5c71b7c8f ]
 
-pdc_enable_intr() serves as a primitive to qcom_pdc_gic_{en,dis}able,
-and has a raw spinlock for mutual exclusion, which is uses with
-interruptible primitives.
+smatch warning was reported as below ->
 
-This means that this critical section can itself be interrupted.
-Should the interrupt also be a PDC interrupt, and the endpoint driver
-perform an irq_disable() on that interrupt, we end-up in a deadlock.
+smatch warnings:
+drivers/irqchip/irq-nvic.c:131 nvic_of_init()
+warn: 'nvic_base' not released on lines: 97.
 
-Fix this by using the irqsave/irqrestore variants of the locking
-primitives.
+Release nvic_base upon failure.
 
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Maulik Shah <quic_mkshah@quicinc.com>
-Link: https://lore.kernel.org/r/20220224101226.88373-5-maz@kernel.org
+Link: https://lore.kernel.org/r/20220218163303.33344-1-jrdr.linux@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/qcom-pdc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-nvic.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/irqchip/qcom-pdc.c b/drivers/irqchip/qcom-pdc.c
-index faa7d61b9d6c..239a889df608 100644
---- a/drivers/irqchip/qcom-pdc.c
-+++ b/drivers/irqchip/qcom-pdc.c
-@@ -50,17 +50,18 @@ static u32 pdc_reg_read(int reg, u32 i)
- static void pdc_enable_intr(struct irq_data *d, bool on)
- {
- 	int pin_out = d->hwirq;
-+	unsigned long flags;
- 	u32 index, mask;
- 	u32 enable;
+diff --git a/drivers/irqchip/irq-nvic.c b/drivers/irqchip/irq-nvic.c
+index 9694529b709d..330beb62d015 100644
+--- a/drivers/irqchip/irq-nvic.c
++++ b/drivers/irqchip/irq-nvic.c
+@@ -108,6 +108,7 @@ static int __init nvic_of_init(struct device_node *node,
  
- 	index = pin_out / 32;
- 	mask = pin_out % 32;
+ 	if (!nvic_irq_domain) {
+ 		pr_warn("Failed to allocate irq domain\n");
++		iounmap(nvic_base);
+ 		return -ENOMEM;
+ 	}
  
--	raw_spin_lock(&pdc_lock);
-+	raw_spin_lock_irqsave(&pdc_lock, flags);
- 	enable = pdc_reg_read(IRQ_ENABLE_BANK, index);
- 	enable = on ? ENABLE_INTR(enable, mask) : CLEAR_INTR(enable, mask);
- 	pdc_reg_write(IRQ_ENABLE_BANK, index, enable);
--	raw_spin_unlock(&pdc_lock);
-+	raw_spin_unlock_irqrestore(&pdc_lock, flags);
- }
+@@ -117,6 +118,7 @@ static int __init nvic_of_init(struct device_node *node,
+ 	if (ret) {
+ 		pr_warn("Failed to allocate irq chips\n");
+ 		irq_domain_remove(nvic_irq_domain);
++		iounmap(nvic_base);
+ 		return ret;
+ 	}
  
- static void qcom_pdc_gic_mask(struct irq_data *d)
 -- 
 2.34.1
 
