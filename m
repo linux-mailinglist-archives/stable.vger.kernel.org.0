@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E1C4E941C
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A98F24E9411
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241073AbiC1L0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241076AbiC1L0I (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Mar 2022 07:26:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60158 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241690AbiC1LYG (ORCPT
+        with ESMTP id S241689AbiC1LYG (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:24:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C41555BD5;
-        Mon, 28 Mar 2022 04:21:38 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5EF55773;
+        Mon, 28 Mar 2022 04:21:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B967961195;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F9C4611B7;
+        Mon, 28 Mar 2022 11:21:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD38AC340ED;
         Mon, 28 Mar 2022 11:21:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44988C34110;
-        Mon, 28 Mar 2022 11:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466497;
-        bh=PaGBNH3IO+vHhfj5CQrJJiXJVdx0NKXBLXt6WjCBSr8=;
+        s=k20201202; t=1648466498;
+        bh=Gyix2CQ34Gq69PxjvLdjwTq82hEB1eQcP6V6TXWjEEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5IE+uQlxQ7e/hNPvL3sWOzBDeZJnVNyeN43waYqRONlaJu0IMUilk7vuXnR5bnDY
-         IKbzvNsz87W6Qx+6n5eGbsjdfxwONTK0yjxV1syUtipGdXn43tVKwdD6jqm/2ugsUX
-         VraA0/GvUDsm+bvYLsDOhIPBCKRZWhxcqT2WGrmcjXcvxkY8fsQvHTcS/YYSCW98HR
-         6yywleZKLnRzMOGFl0WCgI+hc615oJQI5e2Er+zk6rswjBeSQaWb6zXC55wbSsXduO
-         w0RyV41AhLny+rgfe84CweQ9ISSM6wzAjAKQPNmHmxwrkuAguwVToNv63nUqyvim5R
-         3RkPLxamTQyrw==
+        b=S2xx9DIigIY+gyIkw5yMksleNUM2JW+9P9RrYX62JzMxdmG9tgbwirD+MeOkKUQAy
+         3MXQeLDAu7Ps+zsq33I1CA813awznGmAyFQscz3P322ZNN8hkjDZR7UHVL0Pimwvcl
+         wHqb8yMnKuQUXX1E9llK1PSU7FITEQ7+nig6pFEU+FMQW0tdNso2IwnTawTQcLSi78
+         lU3UDPcMZQNEfaDUqzmnBb9NDrVSN1J4SHM+t4EbVbCw5c/NON7Tnkpy6KALU0fEZO
+         AZIoLtVf7bi1gbcx4BUYsAQslPmzfaUBolNECoQF+UkYknf4tkxuE0V7AplCdkwmR+
+         qIO3IZlWGFNbA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Detlev Casanova <detlev.casanova@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com
-Subject: [PATCH AUTOSEL 5.15 02/29] regulator: rpi-panel: Handle I2C errors/timing to the Atmel
-Date:   Mon, 28 Mar 2022 07:21:04 -0400
-Message-Id: <20220328112132.1555683-2-sashal@kernel.org>
+Cc:     Kai Ye <yekai13@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, wangzhou1@hisilicon.com,
+        davem@davemloft.net, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 03/29] crypto: hisilicon/qm - cleanup warning in qm_vf_read_qos
+Date:   Mon, 28 Mar 2022 07:21:05 -0400
+Message-Id: <20220328112132.1555683-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328112132.1555683-1-sashal@kernel.org>
 References: <20220328112132.1555683-1-sashal@kernel.org>
@@ -57,141 +57,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Kai Ye <yekai13@huawei.com>
 
-[ Upstream commit 5665eee7a3800430e7dc3ef6f25722476b603186 ]
+[ Upstream commit 05b3bade290d6c940701f97f3233c07cfe27205d ]
 
-The Atmel is doing some things in the I2C ISR, during which
-period it will not respond to further commands. This is
-particularly true of the POWERON command.
+The kernel test rebot report this warning: Uninitialized variable: ret.
+The code flow may return value of ret directly. This value is an
+uninitialized variable, here is fix it.
 
-Increase delays appropriately, and retry should I2C errors be
-reported.
-
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
-Link: https://lore.kernel.org/r/20220124220129.158891-3-detlev.casanova@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kai Ye <yekai13@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../regulator/rpi-panel-attiny-regulator.c    | 56 +++++++++++++++----
- 1 file changed, 46 insertions(+), 10 deletions(-)
+ drivers/crypto/hisilicon/qm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/rpi-panel-attiny-regulator.c b/drivers/regulator/rpi-panel-attiny-regulator.c
-index ee46bfbf5eee..991b4730d768 100644
---- a/drivers/regulator/rpi-panel-attiny-regulator.c
-+++ b/drivers/regulator/rpi-panel-attiny-regulator.c
-@@ -37,11 +37,24 @@ static const struct regmap_config attiny_regmap_config = {
- static int attiny_lcd_power_enable(struct regulator_dev *rdev)
+diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
+index ff1122153fbe..b616d2d8e773 100644
+--- a/drivers/crypto/hisilicon/qm.c
++++ b/drivers/crypto/hisilicon/qm.c
+@@ -4107,7 +4107,7 @@ static void qm_vf_get_qos(struct hisi_qm *qm, u32 fun_num)
+ static int qm_vf_read_qos(struct hisi_qm *qm)
  {
- 	unsigned int data;
-+	int ret, i;
- 
- 	regmap_write(rdev->regmap, REG_POWERON, 1);
-+	msleep(80);
-+
- 	/* Wait for nPWRDWN to go low to indicate poweron is done. */
--	regmap_read_poll_timeout(rdev->regmap, REG_PORTB, data,
--					data & BIT(0), 10, 1000000);
-+	for (i = 0; i < 20; i++) {
-+		ret = regmap_read(rdev->regmap, REG_PORTB, &data);
-+		if (!ret) {
-+			if (data & BIT(0))
-+				break;
-+		}
-+		usleep_range(10000, 12000);
-+	}
-+	usleep_range(10000, 12000);
-+
-+	if (ret)
-+		pr_err("%s: regmap_read_poll_timeout failed %d\n", __func__, ret);
- 
- 	/* Default to the same orientation as the closed source
- 	 * firmware used for the panel.  Runtime rotation
-@@ -57,23 +70,34 @@ static int attiny_lcd_power_disable(struct regulator_dev *rdev)
- {
- 	regmap_write(rdev->regmap, REG_PWM, 0);
- 	regmap_write(rdev->regmap, REG_POWERON, 0);
--	udelay(1);
-+	msleep(30);
- 	return 0;
- }
- 
- static int attiny_lcd_power_is_enabled(struct regulator_dev *rdev)
- {
- 	unsigned int data;
+ 	int cnt = 0;
 -	int ret;
-+	int ret, i;
++	int ret = -EINVAL;
  
--	ret = regmap_read(rdev->regmap, REG_POWERON, &data);
-+	for (i = 0; i < 10; i++) {
-+		ret = regmap_read(rdev->regmap, REG_POWERON, &data);
-+		if (!ret)
-+			break;
-+		usleep_range(10000, 12000);
-+	}
- 	if (ret < 0)
- 		return ret;
- 
- 	if (!(data & BIT(0)))
- 		return 0;
- 
--	ret = regmap_read(rdev->regmap, REG_PORTB, &data);
-+	for (i = 0; i < 10; i++) {
-+		ret = regmap_read(rdev->regmap, REG_PORTB, &data);
-+		if (!ret)
-+			break;
-+		usleep_range(10000, 12000);
-+	}
-+
- 	if (ret < 0)
- 		return ret;
- 
-@@ -103,20 +127,32 @@ static int attiny_update_status(struct backlight_device *bl)
- {
- 	struct regmap *regmap = bl_get_data(bl);
- 	int brightness = bl->props.brightness;
-+	int ret, i;
- 
- 	if (bl->props.power != FB_BLANK_UNBLANK ||
- 	    bl->props.fb_blank != FB_BLANK_UNBLANK)
- 		brightness = 0;
- 
--	return regmap_write(regmap, REG_PWM, brightness);
-+	for (i = 0; i < 10; i++) {
-+		ret = regmap_write(regmap, REG_PWM, brightness);
-+		if (!ret)
-+			break;
-+	}
-+
-+	return ret;
- }
- 
- static int attiny_get_brightness(struct backlight_device *bl)
- {
- 	struct regmap *regmap = bl_get_data(bl);
--	int ret, brightness;
-+	int ret, brightness, i;
-+
-+	for (i = 0; i < 10; i++) {
-+		ret = regmap_read(regmap, REG_PWM, &brightness);
-+		if (!ret)
-+			break;
-+	}
- 
--	ret = regmap_read(regmap, REG_PWM, &brightness);
- 	if (ret)
- 		return ret;
- 
-@@ -166,7 +202,7 @@ static int attiny_i2c_probe(struct i2c_client *i2c,
- 	}
- 
- 	regmap_write(regmap, REG_POWERON, 0);
--	mdelay(1);
-+	msleep(30);
- 
- 	config.dev = &i2c->dev;
- 	config.regmap = regmap;
+ 	/* reset mailbox qos val */
+ 	qm->mb_qos = 0;
 -- 
 2.34.1
 
