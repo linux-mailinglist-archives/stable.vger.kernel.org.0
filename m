@@ -2,119 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A377C4E8F4F
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 09:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D10534E8F70
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 09:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237771AbiC1Hwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 03:52:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59030 "EHLO
+        id S238995AbiC1H6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 03:58:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237327AbiC1Hwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 03:52:50 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C13852E4F;
-        Mon, 28 Mar 2022 00:51:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3291ACE10D4;
-        Mon, 28 Mar 2022 07:51:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D9CEC004DD;
-        Mon, 28 Mar 2022 07:51:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648453867;
-        bh=+JP5Ab1oWpqS8fzwyXV7SypqA8884zZbHeYFiDOUYbg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:From;
-        b=g9VuNeim6joiptQyzGGlTwbrBJQBHdctKG6oRM0jRe1VX0NJtCshIKkdWYVGjPZ4+
-         XXzzmE4Fzok/ffsHEJLyeqpKnFXxLftxIU/U78JmBqoSsW5plU9xnDOirD5Pq6jdTc
-         2u3YtpjgKL3p1uq2PWefOEmCvndNcIUEfA9i6JZEpJ6de1MFEQClXZL0fl+36O+v3d
-         Rnr2SEcVbmirNVC4QGXeONOWn32wOesViauO0u5MatbM4A7qpcSUjIRVVTm7OdKz5j
-         7vkPuvKBjN6JiJSEgR6W8XGycvTod39XKTuHHITwEuUGmGIMjOKaHCY1ByBzWIW8hf
-         Ea16OCChdMx0Q==
-From:   sj@kernel.org
-To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Cc:     sj@kernel.org, akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] damon: vaddr-test: fix a missing check on list iterator
-Date:   Mon, 28 Mar 2022 07:51:04 +0000
-Message-Id: <20220328075104.31125-1-sj@kernel.org>
+        with ESMTP id S239000AbiC1H6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 03:58:16 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845A7DFAC;
+        Mon, 28 Mar 2022 00:56:36 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id n18so14095942plg.5;
+        Mon, 28 Mar 2022 00:56:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=kIfOoBDYEc7M5gSagMNoiVBJWuRqusDCDKPYz/4md+8=;
+        b=VqmjjWWVXkOeUbp3XOSMawZfyabaCITsH95uynydk7I4N2p27oAZ8BomdJ9dUuAg8O
+         yUuHzJB8t+LlX0UyIBbQbUH8PnsHWklT95BiTFlk5WNeysGT31aaCPf6RPx6RY0xR+4y
+         rzS9CwsJbvzu8lq7h2rvET9O5YuQBPrr1i0xZ0BKAVacjSeNxuvgjSKMO3pBGLps4gBq
+         v5hq97ZVruMim+482HeCJuUAgAcQkpE0Y/4NcLWdw8ZM6irZrCx7AqsSgpJEtyPnZO1J
+         YVeJfWH8enKrAWk8lIDcFhuT4r5xM+JcD9KDQt+qIzbe1ik9XeGUuWw5+1PVX3dftMSw
+         foAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=kIfOoBDYEc7M5gSagMNoiVBJWuRqusDCDKPYz/4md+8=;
+        b=7mvnNOVHD+VqM2FKTvu98fXtkeww6J0lyTQx/1aJEQjU95omfRDSZnlsoxRpGvMMSS
+         tHz0exTnIa6unKIReqq9byifGrr2l2DXiOUY48HMrfdzSXqh9vKNmFQ9ZuOtzx0qYf2e
+         Sl33CqrrsIJnSaM5r8aM0YOkCxSqcYjzuwam+j4LszxlQ7+klOkBrzd/Rh2EkwyJ2Onu
+         Mp7p1ZI6JzWjplIKs4LGW3npkXzkiyUuymwpgD8mzBsp9rmKtNDPDAn+hLFPG0a0a+1h
+         IN0o95CIcQp7JBFCylkw9/Vv8tiZ3kbV4Mh/vQh3eLl5wDe3slOsTYrE5RSTAPgjTonk
+         rWOA==
+X-Gm-Message-State: AOAM532vVOYo3a9lRLlrJsxEoUAv8QlwS/MW01ZPzgJkO64LP5wtty1Y
+        fxpjNo3XpjRnDjYBpnTynVDX4qdjeCtBdw==
+X-Google-Smtp-Source: ABdhPJwcYDZozrvxZwaqZGIKEnQhsqa0JD+d94ZjOS77DvW2lF4Y4Lkxl8Y03SezxTarAov7sSReFA==
+X-Received: by 2002:a17:90a:de82:b0:1c7:b10f:e33f with SMTP id n2-20020a17090ade8200b001c7b10fe33fmr26704591pjv.204.1648454196113;
+        Mon, 28 Mar 2022 00:56:36 -0700 (PDT)
+Received: from ubuntu.huawei.com ([119.3.119.18])
+        by smtp.googlemail.com with ESMTPSA id v13-20020a17090a088d00b001c64d30fa8bsm16354494pjc.1.2022.03.28.00.56.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Mar 2022 00:56:35 -0700 (PDT)
+From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
+To:     guoqing.jiang@linux.dev
+Cc:     linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+        rgoldwyn@suse.com, song@kernel.org, stable@vger.kernel.org,
+        xiam0nd.tong@gmail.com
+Subject: Re: [PATCH] md: md2: fix an incorrect NULL check on list iterator
+Date:   Mon, 28 Mar 2022 15:56:28 +0800
+Message-Id: <20220328075628.25545-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220327080345.12295-1-xiam0nd.tong@gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <bdc2ed02-6f13-c8a5-7e61-190a5dd9b6bc@linux.dev>
+References: <bdc2ed02-6f13-c8a5-7e61-190a5dd9b6bc@linux.dev>
+X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Xiaomeng,
+> I'd suggest to rephrase the subject to "md: fix an incorrect NULL check 
+> in md_reload_sb".
 
-On Sun, 27 Mar 2022 16:03:45 +0800 Xiaomeng Tong <xiam0nd.tong@gmail.com> wrote:
+Thank you for the suggestion, i will take it in PATCH v2.
 
-> The bug is here:
-> 	KUNIT_EXPECT_EQ(test, r->ar.start, start + i * expected_width);
-> 	KUNIT_EXPECT_EQ(test, r->ar.end, end);
+> > -	if (!rdev || rdev->desc_nr != nr) {
+> > +	if (!rdev) {
+> >   		pr_warn("%s: %d Could not find rdev with nr %d\n", __func__, __LINE__, nr);
+> >   		return;
+> >   	}
 > 
-> For the damon_for_each_region(), just like list_for_each_entry(),
-> the list iterator 'drm_crtc' will point to a bogus position
-> containing HEAD if the list is empty or no element is found.
-> This case must be checked before any use of the iterator,
-> otherwise it will lead to a invalid memory access.
+> I guess we only need to check desc_nr since rdev should always be valid 
+> , and IMO the fix tag
+> is not necessary.
 
-We ensure 'damon_va_evenly_split_region()' successes before executing the loop,
-so the issue cannot occur.  That said, I think this patch makes code better to
-read.  Could you please resend this patch after fixing the commit message?
+No. At least from the pr_warn log, the list can be empty or no element found in it.
+If this cases happen, the 'rdev' will be an invalid pointer that point to a invalid
+struct containning the HEAD '&((mddev)->disks)'. So this fix is necessary.
 
-> 
-> To fix this bug, just mov two KUNIT_EXPECT_EQ() into the loop
-
-s/mov/move
-
-> when found.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 044cd9750fe01 ("mm/damon/vaddr-test: split a test function having >1024 bytes frame size")
-> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-> ---
->  mm/damon/vaddr-test.h | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
-> 
-> diff --git a/mm/damon/vaddr-test.h b/mm/damon/vaddr-test.h
-> index 6a1b9272ea12..98b7a9f54b35 100644
-> --- a/mm/damon/vaddr-test.h
-> +++ b/mm/damon/vaddr-test.h
-> @@ -281,14 +281,16 @@ static void damon_test_split_evenly_succ(struct kunit *test,
->  	KUNIT_EXPECT_EQ(test, damon_nr_regions(t), nr_pieces);
-
-As mentioned above, this will ensure the loop will not result in the bogus
-pointer problem.
-
->  
->  	damon_for_each_region(r, t) {
-> -		if (i == nr_pieces - 1)
-> +		if (i == nr_pieces - 1) {
-> +			KUNIT_EXPECT_EQ(test,
-> +				r->ar.start, start + i * expected_width);
-> +			KUNIT_EXPECT_EQ(test, r->ar.end, end);
->  			break;
-> +		}
->  		KUNIT_EXPECT_EQ(test,
->  				r->ar.start, start + i++ * expected_width);
->  		KUNIT_EXPECT_EQ(test, r->ar.end, start + i * expected_width);
->  	}
-> -	KUNIT_EXPECT_EQ(test, r->ar.start, start + i * expected_width);
-> -	KUNIT_EXPECT_EQ(test, r->ar.end, end);
->  	damon_free_target(t);
->  }
->  
-> -- 
-> 2.17.1
-> 
-> 
-
-
-Thanks,
-SJ
+--
+Xiaomeng Tong
