@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C8994E9451
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 020994E948F
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:29:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235473AbiC1L2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 07:28:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
+        id S241296AbiC1Lag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 07:30:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241109AbiC1L0v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:26:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DDB7E2C;
-        Mon, 28 Mar 2022 04:23:46 -0700 (PDT)
+        with ESMTP id S241334AbiC1LaJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:30:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AA9E62D6;
+        Mon, 28 Mar 2022 04:23:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7383C61195;
-        Mon, 28 Mar 2022 11:23:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA414C34100;
-        Mon, 28 Mar 2022 11:23:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8ACF6114A;
+        Mon, 28 Mar 2022 11:23:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0178C340ED;
+        Mon, 28 Mar 2022 11:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466624;
-        bh=gOYcQZhMbYIltHyjL+vacfpeKJfRnGNxkVJECrSSfcM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vO7/xCNw3g97writ4DugfoKiOcqz8CJWxbonMvlKkJTixP7W8LwBoHMmfadXcJN1J
-         SpV8SFp5f2he6+zElV0TnPzHHxpP3/Ss8A3zKMb6VqOI9FhJl6WBY/jPXPTgaRnshg
-         Na9etYYv6GqLMMsU+Bdd5JKSnyqO54+epmYrUusi6Y/qqAUKWxFnFtqtWwPMTPAtMC
-         hYFGFbs1unocTtHgUpexSCTguiUCYpzYTqTgMT19Z+ltHYNKk0A+LmN+SZm6dLxL2c
-         oicCMziP834eNVx7DeAaphDLQveVsIXBO6PuGiF10RqRn95OVPX7OFPpM25/UMDIm/
-         e6ND6QP+mWcog==
+        s=k20201202; t=1648466629;
+        bh=69LG3LRf0yfNZTzLYNNB0TPVKM9hryNAVfUJeGF9CKM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JyvfzHUpR3iUjJbmRBs9j/RhZWGw1aWol/USV5/MDaCFWLViqqWipPAX6G1Yp2HUq
+         9jyDzDlW0dlnQw2K47oL/v5xsjfkVxb3+sxn+ySbzv0JGQj43u0Iq8xv32nkQsyPxJ
+         nrEefGSoVJAU1HcTO+imWyT2WqajeUWzEj+ax4n9XA7MY1eAWuQ7aH5JWwTEyLzAJS
+         6Tdu6weTR1nI9tJMsPvrCA8CxlCsJ2Y89L3QjiP8OsR3fFykYwOQU7S8s/UpyeN22o
+         AP/pVFEJcAbDxKZYtm14ryUtiAfvnIoSXucEfWaU1vCU7SY+vhlMppdaQmclJkLQuF
+         IaH89rKrCjq8g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Minghao Chi <chi.minghao@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, ldewangan@nvidia.com,
-        thierry.reding@gmail.com, jonathanh@nvidia.com,
-        linux-spi@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 21/21] spi: tegra20: Use of_device_get_match_data()
-Date:   Mon, 28 Mar 2022 07:22:54 -0400
-Message-Id: <20220328112254.1556286-21-sashal@kernel.org>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com,
+        James Morris <jamorris@linux.microsoft.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/16] LSM: general protection fault in legacy_parse_param
+Date:   Mon, 28 Mar 2022 07:23:30 -0400
+Message-Id: <20220328112345.1556601-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220328112254.1556286-1-sashal@kernel.org>
-References: <20220328112254.1556286-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,41 +59,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi <chi.minghao@zte.com.cn>
+From: Casey Schaufler <casey@schaufler-ca.com>
 
-[ Upstream commit c9839acfcbe20ce43d363c2a9d0772472d9921c0 ]
+[ Upstream commit ecff30575b5ad0eda149aadad247b7f75411fd47 ]
 
-Use of_device_get_match_data() to simplify the code.
+The usual LSM hook "bail on fail" scheme doesn't work for cases where
+a security module may return an error code indicating that it does not
+recognize an input.  In this particular case Smack sees a mount option
+that it recognizes, and returns 0. A call to a BPF hook follows, which
+returns -ENOPARAM, which confuses the caller because Smack has processed
+its data.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
-Link: https://lore.kernel.org/r/20220315023138.2118293-1-chi.minghao@zte.com.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The SELinux hook incorrectly returns 1 on success. There was a time
+when this was correct, however the current expectation is that it
+return 0 on success. This is repaired.
+
+Reported-by: syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Acked-by: James Morris <jamorris@linux.microsoft.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra20-slink.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ security/security.c      | 17 +++++++++++++++--
+ security/selinux/hooks.c |  5 ++---
+ 2 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index 669fc4286231..9e2b812b9025 100644
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1006,14 +1006,8 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	struct resource		*r;
- 	int ret, spi_irq;
- 	const struct tegra_slink_chip_data *cdata = NULL;
--	const struct of_device_id *match;
+diff --git a/security/security.c b/security/security.c
+index c34ec4c7d98c..f633717311a3 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -802,9 +802,22 @@ int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc)
+ 	return call_int_hook(fs_context_dup, 0, fc, src_fc);
+ }
  
--	match = of_match_device(tegra_slink_of_match, &pdev->dev);
--	if (!match) {
--		dev_err(&pdev->dev, "Error: No device match found\n");
--		return -ENODEV;
+-int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *param)
++int security_fs_context_parse_param(struct fs_context *fc,
++				    struct fs_parameter *param)
+ {
+-	return call_int_hook(fs_context_parse_param, -ENOPARAM, fc, param);
++	struct security_hook_list *hp;
++	int trc;
++	int rc = -ENOPARAM;
++
++	hlist_for_each_entry(hp, &security_hook_heads.fs_context_parse_param,
++			     list) {
++		trc = hp->hook.fs_context_parse_param(fc, param);
++		if (trc == 0)
++			rc = 0;
++		else if (trc != -ENOPARAM)
++			return trc;
++	}
++	return rc;
+ }
+ 
+ int security_sb_alloc(struct super_block *sb)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 56418cf72069..d9f15c84aab7 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2855,10 +2855,9 @@ static int selinux_fs_context_parse_param(struct fs_context *fc,
+ 		return opt;
+ 
+ 	rc = selinux_add_opt(opt, param->string, &fc->security);
+-	if (!rc) {
++	if (!rc)
+ 		param->string = NULL;
+-		rc = 1;
 -	}
--	cdata = match->data;
-+	cdata = of_device_get_match_data(&pdev->dev);
++
+ 	return rc;
+ }
  
- 	master = spi_alloc_master(&pdev->dev, sizeof(*tspi));
- 	if (!master) {
 -- 
 2.34.1
 
