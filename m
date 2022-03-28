@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 731AA4E9BA4
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 17:52:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F464E9BA9
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 17:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237866AbiC1PwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 11:52:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40568 "EHLO
+        id S239013AbiC1PwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 11:52:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234752AbiC1PwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 11:52:09 -0400
+        with ESMTP id S238921AbiC1PwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 11:52:11 -0400
 Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E428D6;
-        Mon, 28 Mar 2022 08:50:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20129D6;
+        Mon, 28 Mar 2022 08:50:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1648482628; x=1680018628;
-  h=from:to:cc:subject:date:message-id;
-  bh=tlMl6mWTjEgCjjBZ7AIYF8HCdwTMIlqr2UAHIAdUy+E=;
-  b=jmX/BqMqumzzial2Cc1UZTbssWr0sgw9KkoxerHY1Dm2VV/f//5RBZkF
-   PZhMEELE2Z1MVquAP6wJLHgvOXlVZHy+HxXySjJCVcK1eHd3Vt1kGKiUW
-   1jl/hV5vDTF9RQ0fp3eHF3HUA4WrXqx6L5rdJtr8RkCsqoy2Uom1uGm1M
-   VcBNMs+8urQKOGGgdwFZHgo3Z4KAB0jrjor+mHKGPNix5VqUCfP0ZRcBD
-   XYB0ds//Yq6P0BkYR2807fOqwTrZrAzo6OTe85di+Ohtx5xwhFD47YUMF
-   dYHuduf8lVG+3zZYgq0rnTFl2kynj3npH7rmVkaJmaL6VlVJXWSbhokDZ
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10300"; a="257863535"
+  t=1648482630; x=1680018630;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references;
+  bh=5APHoFbk7G7jETQ4Y5bypAJ0rLBR2rx/iuJr+VXpxoM=;
+  b=TF4D7B8eNclXxFCFNs3RKVqdLEP3ZY5WFCtkdtiX3/0Eu7o6swohZ0M0
+   G0uQjkURLN70JH9zHe5k7oDne87r0gHBLZlwbJxEZk7/Tm+6APhxp0Qcn
+   TgBQW0f2s1+bjFupH75WMJ6W/xr7APzVKh1dNIYgjUFsok5ijsDJuBPrb
+   d1ziWcNDdiU0UaZlFeII+lvB9OhfkH1jfNJSC8S+g2iM0QRV3/wn0khv8
+   zjJWgQ5hIxIuaRx2VmMfJwdIRzDRoUZ1Bb/Q0QHKrWZnCCA3xUZ2QR3pu
+   MDkkxjNRR0ztv5Dvd84UGrdVXOx8Kpp54/cvWdMgv9YtDCYrBMMBcHifn
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10300"; a="257863555"
 X-IronPort-AV: E=Sophos;i="5.90,217,1643702400"; 
-   d="scan'208";a="257863535"
+   d="scan'208";a="257863555"
 Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2022 08:50:21 -0700
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2022 08:50:23 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.90,217,1643702400"; 
-   d="scan'208";a="617824927"
+   d="scan'208";a="617824943"
 Received: from otc-lr-04.jf.intel.com ([10.54.39.41])
-  by fmsmga004.fm.intel.com with ESMTP; 28 Mar 2022 08:50:19 -0700
+  by fmsmga004.fm.intel.com with ESMTP; 28 Mar 2022 08:50:23 -0700
 From:   kan.liang@linux.intel.com
 To:     peterz@infradead.org, mingo@redhat.com,
         linux-kernel@vger.kernel.org
 Cc:     eranian@google.com, Kan Liang <kan.liang@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH] perf/x86/intel: Don't extend the pseudo-encoding to GP counters
-Date:   Mon, 28 Mar 2022 08:49:02 -0700
-Message-Id: <1648482543-14923-1-git-send-email-kan.liang@linux.intel.com>
+Subject: [PATCH] perf/x86/intel: Update the FRONTEND MSR mask on Sapphire Rapids
+Date:   Mon, 28 Mar 2022 08:49:03 -0700
+Message-Id: <1648482543-14923-2-git-send-email-kan.liang@linux.intel.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1648482543-14923-1-git-send-email-kan.liang@linux.intel.com>
+References: <1648482543-14923-1-git-send-email-kan.liang@linux.intel.com>
 X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -57,71 +60,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kan Liang <kan.liang@linux.intel.com>
 
-The INST_RETIRED.PREC_DIST event (0x0100) doesn't count on SPR.
-perf stat -e cpu/event=0xc0,umask=0x0/,cpu/event=0x0,umask=0x1/ -C0
+On Sapphire Rapids, the FRONTEND_RETIRED.MS_FLOWS event requires the
+FRONTEND MSR value 0x8. However, the current FRONTEND MSR mask doesn't
+support it.
 
- Performance counter stats for 'CPU(s) 0':
+Update intel_spr_extra_regs[] to support it.
 
-           607,246      cpu/event=0xc0,umask=0x0/
-                 0      cpu/event=0x0,umask=0x1/
-
-The encoding for INST_RETIRED.PREC_DIST is pseudo-encoding, which
-doesn't work on the generic counters. However, current perf extends its
-mask to the generic counters.
-
-The pseudo event-code for a fixed counter must be 0x00. Check and avoid
-extending the mask for the fixed counter event which using the
-pseudo-encoding, e.g., ref-cycles and PREC_DIST event.
-
-With the patch,
-perf stat -e cpu/event=0xc0,umask=0x0/,cpu/event=0x0,umask=0x1/ -C0
-
- Performance counter stats for 'CPU(s) 0':
-
-           583,184      cpu/event=0xc0,umask=0x0/
-           583,048      cpu/event=0x0,umask=0x1/
-
-Fixes: 2de71ee153ef ("perf/x86/intel: Fix ICL/SPR INST_RETIRED.PREC_DIST encodings")
+Fixes: 61b985e3e775 ("perf/x86/intel: Add perf core PMU support for Sapphire Rapids")
 Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Cc: stable@vger.kernel.org
 ---
- arch/x86/events/intel/core.c      | 6 +++++-
- arch/x86/include/asm/perf_event.h | 5 +++++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index db32ef6..1d2e49d 100644
+index 696d036..db32ef6 100644
 --- a/arch/x86/events/intel/core.c
 +++ b/arch/x86/events/intel/core.c
-@@ -5668,7 +5668,11 @@ static void intel_pmu_check_event_constraints(struct event_constraint *event_con
- 			/* Disabled fixed counters which are not in CPUID */
- 			c->idxmsk64 &= intel_ctrl;
- 
--			if (c->idxmsk64 != INTEL_PMC_MSK_FIXED_REF_CYCLES)
-+			/*
-+			 * Don't extend the pseudo-encoding to the
-+			 * generic counters
-+			 */
-+			if (!use_fixed_pseudo_encoding(c->code))
- 				c->idxmsk64 |= (1ULL << num_counters) - 1;
- 		}
- 		c->idxmsk64 &=
-diff --git a/arch/x86/include/asm/perf_event.h b/arch/x86/include/asm/perf_event.h
-index 48e6ef56..cd85f03 100644
---- a/arch/x86/include/asm/perf_event.h
-+++ b/arch/x86/include/asm/perf_event.h
-@@ -242,6 +242,11 @@ struct x86_pmu_capability {
- #define INTEL_PMC_IDX_FIXED_SLOTS	(INTEL_PMC_IDX_FIXED + 3)
- #define INTEL_PMC_MSK_FIXED_SLOTS	(1ULL << INTEL_PMC_IDX_FIXED_SLOTS)
- 
-+static inline bool use_fixed_pseudo_encoding(u64 code)
-+{
-+	return !(code & 0xff);
-+}
-+
- /*
-  * We model BTS tracing as another fixed-mode PMC.
-  *
+@@ -282,7 +282,7 @@ static struct extra_reg intel_spr_extra_regs[] __read_mostly = {
+ 	INTEL_UEVENT_EXTRA_REG(0x012a, MSR_OFFCORE_RSP_0, 0x3fffffffffull, RSP_0),
+ 	INTEL_UEVENT_EXTRA_REG(0x012b, MSR_OFFCORE_RSP_1, 0x3fffffffffull, RSP_1),
+ 	INTEL_UEVENT_PEBS_LDLAT_EXTRA_REG(0x01cd),
+-	INTEL_UEVENT_EXTRA_REG(0x01c6, MSR_PEBS_FRONTEND, 0x7fff17, FE),
++	INTEL_UEVENT_EXTRA_REG(0x01c6, MSR_PEBS_FRONTEND, 0x7fff1f, FE),
+ 	INTEL_UEVENT_EXTRA_REG(0x40ad, MSR_PEBS_FRONTEND, 0x7, FE),
+ 	INTEL_UEVENT_EXTRA_REG(0x04c2, MSR_PEBS_FRONTEND, 0x8, FE),
+ 	EVENT_EXTRA_END
 -- 
 2.7.4
 
