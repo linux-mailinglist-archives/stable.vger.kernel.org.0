@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E41784EA004
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF744EA01E
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245725AbiC1Tny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 15:43:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49496 "EHLO
+        id S240184AbiC1TpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 15:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243066AbiC1Tnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:43:50 -0400
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFA145C368
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 12:42:08 -0700 (PDT)
-Received: by mail-il1-f197.google.com with SMTP id q6-20020a056e0215c600b002c2c4091914so8395850ilu.14
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 12:42:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to:cc;
-        bh=1f9ND9o/PsSNeonnJwXgaxAKcaZUJc1enOSDuKxkvj0=;
-        b=bwWhFOXaQQTx2tVa+U+7x1UIYjGG8eLdRmR23svDqCcjDqY5xIQG0E1UYVwB5WXKc1
-         M9jCDRVq55Mq2/XiSXjjhnh5NW1xBaVTclzsPa2fuygpdZCy16yLCSnwI622sPguAhy9
-         4lAFD9SXBKybX5pdD6KkR5fZFtJlqblz09UNyg9BiNOEao8nN4GE0Expx7mHTl3SF0X4
-         0GqUFQa+VR+0Sd9/hFvQLiz3a7NUuYwC9xfFHgn9Nr4B2jtsSc3Zz9eE1RUqu0l8gIPP
-         mr1oWzoRbdOMXhumuDTOUInA6wDQchMFz8H9umFGL+2Ut1a/vsTftQWGPaTX3wR9sASI
-         SV7w==
-X-Gm-Message-State: AOAM531cUmthpyOtNVC3lwmwRAhZuEjCHdVBb8YsxoxtT0/eKTrHeWpH
-        J0qFQqBmMB04xx2iNhXMBgOZeU1QFb6gNz13To+5yuAz3dek
-X-Google-Smtp-Source: ABdhPJwT4asTjmA8p7L275zbIbaYIcJpq0BzCmH5c/hc+svlsV1Zz9bZm6Ufec9Kfmy1AOliy435OXO66dIHDrAlVOXaEd4z83u9
+        with ESMTP id S1343600AbiC1To0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:44:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194CC674F3;
+        Mon, 28 Mar 2022 12:42:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9979D612B2;
+        Mon, 28 Mar 2022 19:42:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B82CC36AE3;
+        Mon, 28 Mar 2022 19:42:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648496551;
+        bh=RUq+oegcouEsZTcvSXYXvHbP0/iGY/N+kcISnFlXz1s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=s0l3VoIqZkJKi5nF2k4RfCiSiueO0CZ8TrjFtuQnhNZ0IdrqVPT66klkFTr+Ooox5
+         PTTjL/q0KJHlrpQvB8YPNph6k4UfwL23gRDJUCb31kWAUsGtNTC60zFOZ1MBf9YkHx
+         EgYp0gsji3LW5Tt8eiirnl5RcRhPHdx1LNsl+pZkYT4wbAYlGAKZknewDnlVvvdN7E
+         WlGZu5g5zciRSD00Z5UP1ZdHGHmdMwlcBCp7d8JMP14pJzziYzQxsEy8hj2W0qeOug
+         tnDdrMMjqfHaBot8ngcfK8C1FdScVV959dW1luXLMNoJw8RHjnlfERlEe/C2O6pVT6
+         Si6RgdUivQjvQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Waiman Long <longman@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
+Subject: [PATCH AUTOSEL 5.16 02/20] locking/lockdep: Iterate lock_classes directly when reading lockdep files
+Date:   Mon, 28 Mar 2022 15:42:08 -0400
+Message-Id: <20220328194226.1585920-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220328194226.1585920-1-sashal@kernel.org>
+References: <20220328194226.1585920-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a6b:fd0c:0:b0:645:d261:ba25 with SMTP id
- c12-20020a6bfd0c000000b00645d261ba25mr7379533ioi.124.1648496528212; Mon, 28
- Mar 2022 12:42:08 -0700 (PDT)
-Date:   Mon, 28 Mar 2022 12:42:08 -0700
-In-Reply-To: <20220328194157.1585642-7-sashal@kernel.org>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000fa496505db4c811d@google.com>
-Subject: Re: [PATCH AUTOSEL 5.17 07/21] ext4: don't BUG if someone dirty pages
- without asking ext4 first
-From:   syzbot 
-        <syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     adilger.kernel@dilger.ca, lee.jones@linaro.org,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, stable@vger.kernel.org, tytso@mit.edu
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,88 +56,252 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Theodore Ts'o <tytso@mit.edu>
->
-> [ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
->
-> [un]pin_user_pages_remote is dirtying pages without properly warning
-> the file system in advance.  A related race was noted by Jan Kara in
-> 2018[1]; however, more recently instead of it being a very hard-to-hit
-> race, it could be reliably triggered by process_vm_writev(2) which was
-> discovered by Syzbot[2].
->
-> This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
-> that if some other kernel subsystem dirty pages without properly
-> notifying the file system using page_mkwrite(), ext4 will BUG, while
-> other file systems will not BUG (although data will still be lost).
->
-> So instead of crashing with a BUG, issue a warning (since there may be
-> potential data loss) and just mark the page as clean to avoid
-> unprivileged denial of service attacks until the problem can be
-> properly fixed.  More discussion and background can be found in the
-> thread starting at [2].
->
-> [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-> [2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
->
-> Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
-> Reported-by: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  fs/ext4/inode.c | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
->
-> diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-> index 01c9e4f743ba..531a94f48637 100644
-> --- a/fs/ext4/inode.c
-> +++ b/fs/ext4/inode.c
-> @@ -1993,6 +1993,15 @@ static int ext4_writepage(struct page *page,
->  	else
->  		len = PAGE_SIZE;
->  
-> +	/* Should never happen but for bugs in other kernel subsystems */
-> +	if (!page_has_buffers(page)) {
-> +		ext4_warning_inode(inode,
-> +		   "page %lu does not have buffers attached", page->index);
-> +		ClearPageDirty(page);
-> +		unlock_page(page);
-> +		return 0;
-> +	}
-> +
->  	page_bufs = page_buffers(page);
->  	/*
->  	 * We cannot do block allocation or other extent handling in this
-> @@ -2594,6 +2603,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
->  			wait_on_page_writeback(page);
->  			BUG_ON(PageWriteback(page));
->  
-> +			/*
-> +			 * Should never happen but for buggy code in
-> +			 * other subsystems that call
-> +			 * set_page_dirty() without properly warning
-> +			 * the file system first.  See [1] for more
-> +			 * information.
-> +			 *
-> +			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-> +			 */
-> +			if (!page_has_buffers(page)) {
-> +				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
-> +				ClearPageDirty(page);
-> +				unlock_page(page);
-> +				continue;
-> +			}
-> +
->  			if (mpd->map.m_len == 0)
->  				mpd->first_page = page->index;
->  			mpd->next_page = page->index + 1;
-> -- 
-> 2.34.1
->
+From: Waiman Long <longman@redhat.com>
 
-I see the command but can't find the corresponding bug.
-The email is sent to  syzbot+HASH@syzkaller.appspotmail.com address
-but the HASH does not correspond to any known bug.
-Please double check the address.
+[ Upstream commit fb7275acd6fb988313dddd8d3d19efa70d9015ad ]
+
+When dumping lock_classes information via /proc/lockdep, we can't take
+the lockdep lock as the lock hold time is indeterminate. Iterating
+over all_lock_classes without holding lock can be dangerous as there
+is a slight chance that it may branch off to other lists leading to
+infinite loop or even access invalid memory if changes are made to
+all_lock_classes list in parallel.
+
+To avoid this problem, iteration of lock classes is now done directly
+on the lock_classes array itself. The lock_classes_in_use bitmap is
+checked to see if the lock class is being used. To avoid iterating
+the full array all the times, a new max_lock_class_idx value is added
+to track the maximum lock_class index that is currently being used.
+
+We can theoretically take the lockdep lock for iterating all_lock_classes
+when other lockdep files (lockdep_stats and lock_stat) are accessed as
+the lock hold time will be shorter for them. For consistency, they are
+also modified to iterate the lock_classes array directly.
+
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220211035526.1329503-2-longman@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ kernel/locking/lockdep.c           | 14 +++++---
+ kernel/locking/lockdep_internals.h |  6 ++--
+ kernel/locking/lockdep_proc.c      | 51 +++++++++++++++++++++++++-----
+ 3 files changed, 56 insertions(+), 15 deletions(-)
+
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index d48cd608376a..37cd79ee19fe 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -183,11 +183,9 @@ static DECLARE_BITMAP(list_entries_in_use, MAX_LOCKDEP_ENTRIES);
+ static struct hlist_head lock_keys_hash[KEYHASH_SIZE];
+ unsigned long nr_lock_classes;
+ unsigned long nr_zapped_classes;
+-#ifndef CONFIG_DEBUG_LOCKDEP
+-static
+-#endif
++unsigned long max_lock_class_idx;
+ struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
+-static DECLARE_BITMAP(lock_classes_in_use, MAX_LOCKDEP_KEYS);
++DECLARE_BITMAP(lock_classes_in_use, MAX_LOCKDEP_KEYS);
+ 
+ static inline struct lock_class *hlock_class(struct held_lock *hlock)
+ {
+@@ -338,7 +336,7 @@ static inline void lock_release_holdtime(struct held_lock *hlock)
+  * elements. These elements are linked together by the lock_entry member in
+  * struct lock_class.
+  */
+-LIST_HEAD(all_lock_classes);
++static LIST_HEAD(all_lock_classes);
+ static LIST_HEAD(free_lock_classes);
+ 
+ /**
+@@ -1252,6 +1250,7 @@ register_lock_class(struct lockdep_map *lock, unsigned int subclass, int force)
+ 	struct lockdep_subclass_key *key;
+ 	struct hlist_head *hash_head;
+ 	struct lock_class *class;
++	int idx;
+ 
+ 	DEBUG_LOCKS_WARN_ON(!irqs_disabled());
+ 
+@@ -1317,6 +1316,9 @@ register_lock_class(struct lockdep_map *lock, unsigned int subclass, int force)
+ 	 * of classes.
+ 	 */
+ 	list_move_tail(&class->lock_entry, &all_lock_classes);
++	idx = class - lock_classes;
++	if (idx > max_lock_class_idx)
++		max_lock_class_idx = idx;
+ 
+ 	if (verbose(class)) {
+ 		graph_unlock();
+@@ -5998,6 +6000,8 @@ static void zap_class(struct pending_free *pf, struct lock_class *class)
+ 		WRITE_ONCE(class->name, NULL);
+ 		nr_lock_classes--;
+ 		__clear_bit(class - lock_classes, lock_classes_in_use);
++		if (class - lock_classes == max_lock_class_idx)
++			max_lock_class_idx--;
+ 	} else {
+ 		WARN_ONCE(true, "%s() failed for class %s\n", __func__,
+ 			  class->name);
+diff --git a/kernel/locking/lockdep_internals.h b/kernel/locking/lockdep_internals.h
+index ecb8662e7a4e..bbe9000260d0 100644
+--- a/kernel/locking/lockdep_internals.h
++++ b/kernel/locking/lockdep_internals.h
+@@ -121,7 +121,6 @@ static const unsigned long LOCKF_USED_IN_IRQ_READ =
+ 
+ #define MAX_LOCKDEP_CHAIN_HLOCKS (MAX_LOCKDEP_CHAINS*5)
+ 
+-extern struct list_head all_lock_classes;
+ extern struct lock_chain lock_chains[];
+ 
+ #define LOCK_USAGE_CHARS (2*XXX_LOCK_USAGE_STATES + 1)
+@@ -151,6 +150,10 @@ extern unsigned int nr_large_chain_blocks;
+ 
+ extern unsigned int max_lockdep_depth;
+ extern unsigned int max_bfs_queue_depth;
++extern unsigned long max_lock_class_idx;
++
++extern struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
++extern unsigned long lock_classes_in_use[];
+ 
+ #ifdef CONFIG_PROVE_LOCKING
+ extern unsigned long lockdep_count_forward_deps(struct lock_class *);
+@@ -205,7 +208,6 @@ struct lockdep_stats {
+ };
+ 
+ DECLARE_PER_CPU(struct lockdep_stats, lockdep_stats);
+-extern struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
+ 
+ #define __debug_atomic_inc(ptr)					\
+ 	this_cpu_inc(lockdep_stats.ptr);
+diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
+index b8d9a050c337..15fdc7fa5c68 100644
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -24,14 +24,33 @@
+ 
+ #include "lockdep_internals.h"
+ 
++/*
++ * Since iteration of lock_classes is done without holding the lockdep lock,
++ * it is not safe to iterate all_lock_classes list directly as the iteration
++ * may branch off to free_lock_classes or the zapped list. Iteration is done
++ * directly on the lock_classes array by checking the lock_classes_in_use
++ * bitmap and max_lock_class_idx.
++ */
++#define iterate_lock_classes(idx, class)				\
++	for (idx = 0, class = lock_classes; idx <= max_lock_class_idx;	\
++	     idx++, class++)
++
+ static void *l_next(struct seq_file *m, void *v, loff_t *pos)
+ {
+-	return seq_list_next(v, &all_lock_classes, pos);
++	struct lock_class *class = v;
++
++	++class;
++	*pos = class - lock_classes;
++	return (*pos > max_lock_class_idx) ? NULL : class;
+ }
+ 
+ static void *l_start(struct seq_file *m, loff_t *pos)
+ {
+-	return seq_list_start_head(&all_lock_classes, *pos);
++	unsigned long idx = *pos;
++
++	if (idx > max_lock_class_idx)
++		return NULL;
++	return lock_classes + idx;
+ }
+ 
+ static void l_stop(struct seq_file *m, void *v)
+@@ -57,14 +76,16 @@ static void print_name(struct seq_file *m, struct lock_class *class)
+ 
+ static int l_show(struct seq_file *m, void *v)
+ {
+-	struct lock_class *class = list_entry(v, struct lock_class, lock_entry);
++	struct lock_class *class = v;
+ 	struct lock_list *entry;
+ 	char usage[LOCK_USAGE_CHARS];
++	int idx = class - lock_classes;
+ 
+-	if (v == &all_lock_classes) {
++	if (v == lock_classes)
+ 		seq_printf(m, "all lock classes:\n");
++
++	if (!test_bit(idx, lock_classes_in_use))
+ 		return 0;
+-	}
+ 
+ 	seq_printf(m, "%p", class->key);
+ #ifdef CONFIG_DEBUG_LOCKDEP
+@@ -220,8 +241,11 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 
+ #ifdef CONFIG_PROVE_LOCKING
+ 	struct lock_class *class;
++	unsigned long idx;
+ 
+-	list_for_each_entry(class, &all_lock_classes, lock_entry) {
++	iterate_lock_classes(idx, class) {
++		if (!test_bit(idx, lock_classes_in_use))
++			continue;
+ 
+ 		if (class->usage_mask == 0)
+ 			nr_unused++;
+@@ -254,6 +278,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 
+ 		sum_forward_deps += lockdep_count_forward_deps(class);
+ 	}
++
+ #ifdef CONFIG_DEBUG_LOCKDEP
+ 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
+ #endif
+@@ -345,6 +370,8 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 	seq_printf(m, " max bfs queue depth:           %11u\n",
+ 			max_bfs_queue_depth);
+ #endif
++	seq_printf(m, " max lock class index:          %11lu\n",
++			max_lock_class_idx);
+ 	lockdep_stats_debug_show(m);
+ 	seq_printf(m, " debug_locks:                   %11u\n",
+ 			debug_locks);
+@@ -622,12 +649,16 @@ static int lock_stat_open(struct inode *inode, struct file *file)
+ 	if (!res) {
+ 		struct lock_stat_data *iter = data->stats;
+ 		struct seq_file *m = file->private_data;
++		unsigned long idx;
+ 
+-		list_for_each_entry(class, &all_lock_classes, lock_entry) {
++		iterate_lock_classes(idx, class) {
++			if (!test_bit(idx, lock_classes_in_use))
++				continue;
+ 			iter->class = class;
+ 			iter->stats = lock_stats(class);
+ 			iter++;
+ 		}
++
+ 		data->iter_end = iter;
+ 
+ 		sort(data->stats, data->iter_end - data->stats,
+@@ -645,6 +676,7 @@ static ssize_t lock_stat_write(struct file *file, const char __user *buf,
+ 			       size_t count, loff_t *ppos)
+ {
+ 	struct lock_class *class;
++	unsigned long idx;
+ 	char c;
+ 
+ 	if (count) {
+@@ -654,8 +686,11 @@ static ssize_t lock_stat_write(struct file *file, const char __user *buf,
+ 		if (c != '0')
+ 			return count;
+ 
+-		list_for_each_entry(class, &all_lock_classes, lock_entry)
++		iterate_lock_classes(idx, class) {
++			if (!test_bit(idx, lock_classes_in_use))
++				continue;
+ 			clear_lock_stats(class);
++		}
+ 	}
+ 	return count;
+ }
+-- 
+2.34.1
 
