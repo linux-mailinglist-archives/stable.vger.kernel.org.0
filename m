@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 519224E93B9
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C17D14E93DE
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 13:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241027AbiC1LYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 07:24:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54414 "EHLO
+        id S240950AbiC1LZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 07:25:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241576AbiC1LX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:23:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CADF56774;
-        Mon, 28 Mar 2022 04:21:12 -0700 (PDT)
+        with ESMTP id S241635AbiC1LYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 07:24:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB9B554B0;
+        Mon, 28 Mar 2022 04:21:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4404B80D13;
-        Mon, 28 Mar 2022 11:21:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FA8C340EC;
-        Mon, 28 Mar 2022 11:21:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B22761192;
+        Mon, 28 Mar 2022 11:21:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDB57C340EC;
+        Mon, 28 Mar 2022 11:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466470;
-        bh=HmgySWAgI7lbWNhdt5YYN+F4pSLogygYEPz8K+p7vu8=;
+        s=k20201202; t=1648466473;
+        bh=dXFoBao1mnO+CxBybDVWep7qs/QLa3ksJJVYsnYonhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czyx8spc/jCrgljP5JH5XmuzNL2H0Can1CYrfHzLVx+e11ipfZhLw25y3pTkZSTl2
-         rhp9ZE5prOa746Omchvd3buM5ynwMNYPCYbFjeuxz/1loG1wH7QGfEm9UkTGhEIg2c
-         E/uybDN0lOn7++xxZhUtQ7tNsInF0o16Elab4oYU81y4By//Hb5xZF5StHApXbxYBb
-         9Z9GATxeMGa64HD7brujsZIcVH3bG2IWc6VlrxA+fNkskD89nnxgWZ2uPApA8e86F+
-         9JGyTpulbwInIWoHR30WFsWvYSQeibUSHY2+sMFcvkHoEl0BYB/p4wxtoyluyq4Wg6
-         MtTEl6+MPQaIg==
+        b=m/jExj6Th7zR4nsQLQPOC1pStCvzmXe2yu6LwBTrNlY74e/iyxIj1XRu0X5XLbqKj
+         QnoUyvfBdm6MfZcqBOlQsjATgQNnglXudCZwQA4b5FAVSA7T1TStlzA4mWY+Q+YEex
+         TbSRbAYao02LOd2eaauYZ32TdALLlXcaSkzpVbamQVVXmRVz4K6i+B+saCWU1NzLQ9
+         N6hKnRB3Rml/r5Z4yC6Oz+hR+4kmyOBUj7orn6LfU6dy7rhHV6F/CVjNdULpH64+2m
+         5BvmwLnXL/F98snE6jEKz9rJfTt3dc/qO5j5LaleJM3cjavrEcJuhq72w9c5poCggx
+         hWeBcgoKRrOEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Valente <paolo.valente@linaro.org>,
-        =?UTF-8?q?Holger=20Hoffst=C3=A4tte?= 
-        <holger@applied-asynchrony.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 27/35] Revert "Revert "block, bfq: honor already-setup queue merges""
-Date:   Mon, 28 Mar 2022 07:20:03 -0400
-Message-Id: <20220328112011.1555169-27-sashal@kernel.org>
+Cc:     Darren Hart <darren@os.amperecomputing.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        rdunlap@infradead.org, ying.huang@intel.com,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 28/35] ACPI/APEI: Limit printable size of BERT table data
+Date:   Mon, 28 Mar 2022 07:20:04 -0400
+Message-Id: <20220328112011.1555169-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328112011.1555169-1-sashal@kernel.org>
 References: <20220328112011.1555169-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,73 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: Darren Hart <darren@os.amperecomputing.com>
 
-[ Upstream commit 15729ff8143f8135b03988a100a19e66d7cb7ecd ]
+[ Upstream commit 3f8dec116210ca649163574ed5f8df1e3b837d07 ]
 
-A crash [1] happened to be triggered in conjunction with commit
-2d52c58b9c9b ("block, bfq: honor already-setup queue merges"). The
-latter was then reverted by commit ebc69e897e17 ("Revert "block, bfq:
-honor already-setup queue merges""). Yet, the reverted commit was not
-the one introducing the bug. In fact, it actually triggered a UAF
-introduced by a different commit, and now fixed by commit d29bd41428cf
-("block, bfq: reset last_bfqq_created on group change").
+Platforms with large BERT table data can trigger soft lockup errors
+while attempting to print the entire BERT table data to the console at
+boot:
 
-So, there is no point in keeping commit 2d52c58b9c9b ("block, bfq:
-honor already-setup queue merges") out. This commit restores it.
+  watchdog: BUG: soft lockup - CPU#160 stuck for 23s! [swapper/0:1]
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=214503
+Observed on Ampere Altra systems with a single BERT record of ~250KB.
 
-Reported-by: Holger Hoffstätte <holger@applied-asynchrony.com>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Link: https://lore.kernel.org/r/20211125181510.15004-1-paolo.valente@linaro.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The original bert driver appears to have assumed relatively small table
+data. Since it is impractical to reassemble large table data from
+interwoven console messages, and the table data is available in
+
+  /sys/firmware/acpi/tables/data/BERT
+
+limit the size for tables printed to the console to 1024 (for no reason
+other than it seemed like a good place to kick off the discussion, would
+appreciate feedback from existing users in terms of what size would
+maintain their current usage model).
+
+Alternatively, we could make printing a CONFIG option, use the
+bert_disable boot arg (or something similar), or use a debug log level.
+However, all those solutions require extra steps or change the existing
+behavior for small table data. Limiting the size preserves existing
+behavior on existing platforms with small table data, and eliminates the
+soft lockups for platforms with large table data, while still making it
+available.
+
+Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/acpi/apei/bert.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7eecd3200d83..342e927f213b 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2662,6 +2662,15 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
- 	 * are likely to increase the throughput.
- 	 */
- 	bfqq->new_bfqq = new_bfqq;
-+	/*
-+	 * The above assignment schedules the following redirections:
-+	 * each time some I/O for bfqq arrives, the process that
-+	 * generated that I/O is disassociated from bfqq and
-+	 * associated with new_bfqq. Here we increases new_bfqq->ref
-+	 * in advance, adding the number of processes that are
-+	 * expected to be associated with new_bfqq as they happen to
-+	 * issue I/O.
-+	 */
- 	new_bfqq->ref += process_refs;
- 	return new_bfqq;
- }
-@@ -2724,6 +2733,10 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- {
- 	struct bfq_queue *in_service_bfqq, *new_bfqq;
+diff --git a/drivers/acpi/apei/bert.c b/drivers/acpi/apei/bert.c
+index 19e50fcbf4d6..ad8ab3f12cf3 100644
+--- a/drivers/acpi/apei/bert.c
++++ b/drivers/acpi/apei/bert.c
+@@ -29,6 +29,7 @@
  
-+	/* if a merge has already been setup, then proceed with that first */
-+	if (bfqq->new_bfqq)
-+		return bfqq->new_bfqq;
-+
- 	/*
- 	 * Check delayed stable merge for rotational or non-queueing
- 	 * devs. For this branch to be executed, bfqq must not be
-@@ -2825,9 +2838,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 	if (bfq_too_late_for_merging(bfqq))
- 		return NULL;
+ #undef pr_fmt
+ #define pr_fmt(fmt) "BERT: " fmt
++#define ACPI_BERT_PRINT_MAX_LEN 1024
  
--	if (bfqq->new_bfqq)
--		return bfqq->new_bfqq;
+ static int bert_disable;
+ 
+@@ -58,8 +59,11 @@ static void __init bert_print_all(struct acpi_bert_region *region,
+ 		}
+ 
+ 		pr_info_once("Error records from previous boot:\n");
 -
- 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
- 		return NULL;
+-		cper_estatus_print(KERN_INFO HW_ERR, estatus);
++		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
++			cper_estatus_print(KERN_INFO HW_ERR, estatus);
++		else
++			pr_info_once("Max print length exceeded, table data is available at:\n"
++				     "/sys/firmware/acpi/tables/data/BERT");
  
+ 		/*
+ 		 * Because the boot error source is "one-time polled" type,
 -- 
 2.34.1
 
