@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1F3C4EA0B3
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854324EA04D
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343736AbiC1Tqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 15:46:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49950 "EHLO
+        id S1343595AbiC1Tqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 15:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343683AbiC1Tpe (ORCPT
+        with ESMTP id S1343728AbiC1Tpe (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:45:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFA26831C;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6788267D15;
         Mon, 28 Mar 2022 12:42:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 393D9612B2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23FB0612AE;
+        Mon, 28 Mar 2022 19:42:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25687C36AE9;
         Mon, 28 Mar 2022 19:42:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1D5C36AE2;
-        Mon, 28 Mar 2022 19:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648496564;
-        bh=K/1JruDGt6uXiQBE2IgAYNU8fm+vGs7kPoKDYyu86Xs=;
+        s=k20201202; t=1648496566;
+        bh=WbQNR79oQ/RlFza1l1OFTNoIFrMsXGqOgcjTF9ih0gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jln8cZ5bHtDGWyXHaLWwISy0NJqemaAMm4g//+frahhf2OdyxK1XX9TULXF8W4TR1
-         GN24PzxBFTXEKjrEjeQjuJdo/ddLXDB8yNQG+8JfEksTp9g8x1cneTpD2nlWNbHLXc
-         Lww5B2s70hHKS9n3EmmMRc/uV2evGuQx5IkouVy3aTYLPwpXzSdDSLgv9qkKzypU/i
-         caky4VP+HaORZ2VwnIiOOYbw9pBcjq8q3gT6gfSdV5KV4IDYwURatfni1PX9hnWXeZ
-         AxdvfumRR1kflI7RDlFYJ6z8nmMgGCZWJDXCYsceS8WuLqlu2hjJrTJy27E31Hb675
-         G9aJHYq5Z1Y1g==
+        b=mRWLhn/7Oa7mrshW95l3+Ztn0v3hnJQA2ylHcDf3LlCWDBIQWHU14XeY59swiL8aN
+         5O4NW2g8xdVah2G7ocIywcH0pZ5B+D28dTAJ/tC3P9g4Eta9AYQfJCQ6ijT00tYiTQ
+         xxG8FmYgc2xQxkbkzSNuhUK0nNIw/MWx9Yuxfn1fqUv+K2d/O6iXc1BPueXMMjPG2S
+         ynHCF769YcBCw6lVX+lH1Ua7XiyzpVA9jns/P3Aj3HrP5LdswGO3T0cy97k4zBEuIw
+         e8LgCwQ3QdDdM8ygFe5SiuojQvuGjQrtusGi/dW70mtbUInX5vsJDNE4V+AqpeOpQL
+         KofGcejZSyIxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+Cc:     Omar Sandoval <osandov@fb.com>, Josef Bacik <josef@toxicpanda.com>,
+        Nikolay Borisov <nborisov@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com, jbacik@fb.com,
         linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 11/20] btrfs: harden identification of a stale device
-Date:   Mon, 28 Mar 2022 15:42:17 -0400
-Message-Id: <20220328194226.1585920-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 12/20] btrfs: don't advance offset for compressed bios in btrfs_csum_one_bio()
+Date:   Mon, 28 Mar 2022 15:42:18 -0400
+Message-Id: <20220328194226.1585920-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328194226.1585920-1-sashal@kernel.org>
 References: <20220328194226.1585920-1-sashal@kernel.org>
@@ -58,99 +58,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit 770c79fb65506fc7c16459855c3839429f46cb32 ]
+[ Upstream commit e331f6b19f8adde2307588bb325ae5de78617c20 ]
 
-Identifying and removing the stale device from the fs_uuids list is done
-by btrfs_free_stale_devices().  btrfs_free_stale_devices() in turn
-depends on device_path_matched() to check if the device appears in more
-than one btrfs_device structure.
+btrfs_csum_one_bio() loops over each filesystem block in the bio while
+keeping a cursor of its current logical position in the file in order to
+look up the ordered extent to add the checksums to. However, this
+doesn't make much sense for compressed extents, as a sector on disk does
+not correspond to a sector of decompressed file data. It happens to work
+because:
 
-The matching of the device happens by its path, the device path. However,
-when device mapper is in use, the dm device paths are nothing but a link
-to the actual block device, which leads to the device_path_matched()
-failing to match.
+1) the compressed bio always covers one ordered extent
+2) the size of the bio is always less than the size of the ordered
+   extent
 
-Fix this by matching the dev_t as provided by lookup_bdev() instead of
-plain string compare of the device paths.
+However, the second point will not always be true for encoded writes.
 
-Reported-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Let's add a boolean parameter to btrfs_csum_one_bio() to indicate that
+it can assume that the bio only covers one ordered extent. Since we're
+already changing the signature, let's get rid of the contig parameter
+and make it implied by the offset parameter, similar to the change we
+recently made to btrfs_lookup_bio_sums(). Additionally, let's rename
+nr_sectors to blockcount to make it clear that it's the number of
+filesystem blocks, not the number of 512-byte sectors.
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 45 ++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 38 insertions(+), 7 deletions(-)
+ fs/btrfs/compression.c |  2 +-
+ fs/btrfs/ctree.h       |  2 +-
+ fs/btrfs/file-item.c   | 37 +++++++++++++++++--------------------
+ fs/btrfs/inode.c       |  8 ++++----
+ 4 files changed, 23 insertions(+), 26 deletions(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 42391d4aeb11..02ee42d461be 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -530,15 +530,48 @@ btrfs_get_bdev_and_sb(const char *device_path, fmode_t flags, void *holder,
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 32da97c3c19d..b2bb96934a8f 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -590,7 +590,7 @@ blk_status_t btrfs_submit_compressed_write(struct btrfs_inode *inode, u64 start,
+ 
+ 		if (submit) {
+ 			if (!skip_sum) {
+-				ret = btrfs_csum_one_bio(inode, bio, start, 1);
++				ret = btrfs_csum_one_bio(inode, bio, start, true);
+ 				if (ret)
+ 					goto finish_cb;
+ 			}
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index cd8e0f9ae82c..f1d357d15b1a 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3179,7 +3179,7 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
+ 			   struct btrfs_root *root,
+ 			   struct btrfs_ordered_sum *sums);
+ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
+-				u64 file_start, int contig);
++				u64 offset, bool one_ordered);
+ int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
+ 			     struct list_head *list, int search_commit);
+ void btrfs_extent_item_to_extent_map(struct btrfs_inode *inode,
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index d1cbb64a78f3..8e6ff09f5c36 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -609,32 +609,33 @@ int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
  	return ret;
  }
  
--static bool device_path_matched(const char *path, struct btrfs_device *device)
-+/*
-+ * Check if the device in the path matches the device in the given struct device.
+-/*
+- * btrfs_csum_one_bio - Calculates checksums of the data contained inside a bio
++/**
++ * Calculate checksums of the data contained inside a bio
 + *
-+ * Returns:
-+ *   true  If it is the same device.
-+ *   false If it is not the same device or on error.
-+ */
-+static bool device_matched(const struct btrfs_device *device, const char *path)
+  * @inode:	 Owner of the data inside the bio
+  * @bio:	 Contains the data to be checksummed
+- * @file_start:  offset in file this bio begins to describe
+- * @contig:	 Boolean. If true/1 means all bio vecs in this bio are
+- *		 contiguous and they begin at @file_start in the file. False/0
+- *		 means this bio can contain potentially discontiguous bio vecs
+- *		 so the logical offset of each should be calculated separately.
++ * @offset:      If (u64)-1, @bio may contain discontiguous bio vecs, so the
++ *               file offsets are determined from the page offsets in the bio.
++ *               Otherwise, this is the starting file offset of the bio vecs in
++ *               @bio, which must be contiguous.
++ * @one_ordered: If true, @bio only refers to one ordered extent.
+  */
+ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
+-		       u64 file_start, int contig)
++				u64 offset, bool one_ordered)
  {
--	int found;
-+	char *device_name;
-+	dev_t dev_old;
-+	dev_t dev_new;
-+	int ret;
-+
-+	/*
-+	 * If we are looking for a device with the matching dev_t, then skip
-+	 * device without a name (a missing device).
-+	 */
-+	if (!device->name)
-+		return false;
-+
-+	device_name = kzalloc(BTRFS_PATH_NAME_MAX, GFP_KERNEL);
-+	if (!device_name)
-+		return false;
+ 	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+ 	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+ 	struct btrfs_ordered_sum *sums;
+ 	struct btrfs_ordered_extent *ordered = NULL;
++	const bool use_page_offsets = (offset == (u64)-1);
+ 	char *data;
+ 	struct bvec_iter iter;
+ 	struct bio_vec bvec;
+ 	int index;
+-	int nr_sectors;
++	unsigned int blockcount;
+ 	unsigned long total_bytes = 0;
+ 	unsigned long this_sum_bytes = 0;
+ 	int i;
+-	u64 offset;
+ 	unsigned nofs_flag;
  
- 	rcu_read_lock();
--	found = strcmp(rcu_str_deref(device->name), path);
-+	scnprintf(device_name, BTRFS_PATH_NAME_MAX, "%s", rcu_str_deref(device->name));
- 	rcu_read_unlock();
+ 	nofs_flag = memalloc_nofs_save();
+@@ -648,18 +649,13 @@ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
+ 	sums->len = bio->bi_iter.bi_size;
+ 	INIT_LIST_HEAD(&sums->list);
  
--	return found == 0;
-+	ret = lookup_bdev(device_name, &dev_old);
-+	kfree(device_name);
-+	if (ret)
-+		return false;
-+
-+	ret = lookup_bdev(path, &dev_new);
-+	if (ret)
-+		return false;
-+
-+	if (dev_old == dev_new)
-+		return true;
-+
-+	return false;
+-	if (contig)
+-		offset = file_start;
+-	else
+-		offset = 0; /* shut up gcc */
+-
+ 	sums->bytenr = bio->bi_iter.bi_sector << 9;
+ 	index = 0;
+ 
+ 	shash->tfm = fs_info->csum_shash;
+ 
+ 	bio_for_each_segment(bvec, bio, iter) {
+-		if (!contig)
++		if (use_page_offsets)
+ 			offset = page_offset(bvec.bv_page) + bvec.bv_offset;
+ 
+ 		if (!ordered) {
+@@ -678,13 +674,14 @@ blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
+ 			}
+ 		}
+ 
+-		nr_sectors = BTRFS_BYTES_TO_BLKS(fs_info,
++		blockcount = BTRFS_BYTES_TO_BLKS(fs_info,
+ 						 bvec.bv_len + fs_info->sectorsize
+ 						 - 1);
+ 
+-		for (i = 0; i < nr_sectors; i++) {
+-			if (offset >= ordered->file_offset + ordered->num_bytes ||
+-			    offset < ordered->file_offset) {
++		for (i = 0; i < blockcount; i++) {
++			if (!one_ordered &&
++			    !in_range(offset, ordered->file_offset,
++				      ordered->num_bytes)) {
+ 				unsigned long bytes_left;
+ 
+ 				sums->len = this_sum_bytes;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index cc957cce23a1..6680e74b1977 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2308,7 +2308,7 @@ void btrfs_clear_delalloc_extent(struct inode *vfs_inode,
+ static blk_status_t btrfs_submit_bio_start(struct inode *inode, struct bio *bio,
+ 					   u64 dio_file_offset)
+ {
+-	return btrfs_csum_one_bio(BTRFS_I(inode), bio, 0, 0);
++	return btrfs_csum_one_bio(BTRFS_I(inode), bio, (u64)-1, false);
  }
  
  /*
-@@ -571,9 +604,7 @@ static int btrfs_free_stale_devices(const char *path,
- 					 &fs_devices->devices, dev_list) {
- 			if (skip_device && skip_device == device)
- 				continue;
--			if (path && !device->name)
--				continue;
--			if (path && !device_path_matched(path, device))
-+			if (path && !device_matched(device, path))
- 				continue;
- 			if (fs_devices->opened) {
- 				/* for an already deleted device return 0 */
+@@ -2560,7 +2560,7 @@ blk_status_t btrfs_submit_data_bio(struct inode *inode, struct bio *bio,
+ 					  0, btrfs_submit_bio_start);
+ 		goto out;
+ 	} else if (!skip_sum) {
+-		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, 0, 0);
++		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, (u64)-1, false);
+ 		if (ret)
+ 			goto out;
+ 	}
+@@ -8196,7 +8196,7 @@ static blk_status_t btrfs_submit_bio_start_direct_io(struct inode *inode,
+ 						     struct bio *bio,
+ 						     u64 dio_file_offset)
+ {
+-	return btrfs_csum_one_bio(BTRFS_I(inode), bio, dio_file_offset, 1);
++	return btrfs_csum_one_bio(BTRFS_I(inode), bio, dio_file_offset, false);
+ }
+ 
+ static void btrfs_end_dio_bio(struct bio *bio)
+@@ -8253,7 +8253,7 @@ static inline blk_status_t btrfs_submit_dio_bio(struct bio *bio,
+ 		 * If we aren't doing async submit, calculate the csum of the
+ 		 * bio now.
+ 		 */
+-		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, file_offset, 1);
++		ret = btrfs_csum_one_bio(BTRFS_I(inode), bio, file_offset, false);
+ 		if (ret)
+ 			goto err;
+ 	} else {
 -- 
 2.34.1
 
