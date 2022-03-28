@@ -2,52 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF9C4EA170
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 22:24:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E74074EA180
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 22:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240356AbiC1UZb convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 28 Mar 2022 16:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43648 "EHLO
+        id S1345800AbiC1Ua2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 16:30:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240195AbiC1UZa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 16:25:30 -0400
-Received: from mail.lixid.net (lixid.tarent.de [193.107.123.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A518047563
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 13:23:48 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.lixid.net (MTA) with ESMTP id 49BAE141168;
-        Mon, 28 Mar 2022 22:23:47 +0200 (CEST)
-Received: from mail.lixid.net ([127.0.0.1])
-        by localhost (mail.lixid.net [127.0.0.1]) (MFA, port 10024) with LMTP
-        id jwEZ28_W8Mro; Mon, 28 Mar 2022 22:23:42 +0200 (CEST)
-Received: from tglase-nb.lan.tarent.de (vpn-172-34-0-14.dynamic.tarent.de [172.34.0.14])
+        with ESMTP id S1345811AbiC1Ua0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 16:30:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B287414085;
+        Mon, 28 Mar 2022 13:28:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.lixid.net (MTA) with ESMTPS id F24B51405F8;
-        Mon, 28 Mar 2022 22:23:41 +0200 (CEST)
-Received: by tglase-nb.lan.tarent.de (Postfix, from userid 1000)
-        id 49CD71CA194; Mon, 28 Mar 2022 22:23:41 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by tglase-nb.lan.tarent.de (Postfix) with ESMTP id 46B241CA193;
-        Mon, 28 Mar 2022 22:23:41 +0200 (CEST)
-Date:   Mon, 28 Mar 2022 22:23:41 +0200 (CEST)
-From:   Thorsten Glaser <t.glaser@tarent.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     Vlad Buslov <vladbu@mellanox.com>, stable@vger.kernel.org,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lee Jones <lee.jones@linaro.org>, Daniel.Fleischer@orbit.de,
-        Marcel.Krause@orbit.de, christian.hampe@telekom.de,
-        haye.haehne@telekom.de, keith.lloyd@telekom.de
-Subject: Re: v4.19.221 breaks qdisc modules
-In-Reply-To: <YkFMoe4t1dRkHlEX@kroah.com>
-Message-ID: <a1467150-9f6-3e56-9b79-2249a9af45@tarent.de>
-References: <919153d5-a79a-de71-9584-10179ae586d@tarent.de> <425d1b7-abb9-903c-4ae4-11f27ef06313@tarent.de> <YkFMoe4t1dRkHlEX@kroah.com>
-Content-Language: de-DE-1901
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6457C60ED9;
+        Mon, 28 Mar 2022 20:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B296FC340ED;
+        Mon, 28 Mar 2022 20:28:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1648499321;
+        bh=SNWUr/AycHWkjdXz/AGkNvmnUQgBzSkJ+3Rend7O/Rw=;
+        h=Date:To:From:Subject:From;
+        b=Q70OX5Zo6Din9jQEAQx1j3CGq5nyEUoHWBqPpceSeEZbENBcuJxSN7uR2Ob+vPe5T
+         4KWgFmkFzZwdyl7T87JdJCUgZ8xMFnpXOgAQBXOrlNtcrWQllWjoO9zgj2n6M5V15u
+         b71PW1y1a1RuExg0SoPZ4jk35NhT8nXBKq9hB85Q=
+Date:   Mon, 28 Mar 2022 13:28:41 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        osalvador@suse.de, naoya.horiguchi@nec.com, mgorman@suse.de,
+        linmiaohe@huawei.com, hannes@cmpxchg.org, riel@surriel.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mmhwpoison-unmap-poisoned-page-before-invalidation.patch added to -mm tree
+Message-Id: <20220328202841.B296FC340ED@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,39 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Mar 2022, Greg Kroah-Hartman wrote:
 
-> > How can I make this module compatible with *both* 4.19 variants?
-> 
-> Ah, external code, sorry, you are on your own.
+The patch titled
+     Subject: mm,hwpoison: unmap poisoned page before invalidation
+has been added to the -mm tree.  Its filename is
+     mmhwpoison-unmap-poisoned-page-before-invalidation.patch
 
-This is… no, I’m going to have to censor my thoughts on this response.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mmhwpoison-unmap-poisoned-page-before-invalidation.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mmhwpoison-unmap-poisoned-page-before-invalidation.patch
 
-(Besides, these are patched version of in-tree modules to experiment
-with new network features.)
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-> As for how to test for larger numbers, see the answer in the email
-> archives, others have done this successfully.
-> 
-> good luck!
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Search engine fodder would have been welcome. All I found so far is
-https://lwn.net/ml/linux-kernel/20210208145805.898658055@linuxfoundation.org/
-in which you speak of mysterious “different ways of extracting the
-version number” that “out of tree modules have”, I’d love to see them.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-bye,
-//mirabilos
--- 
-Infrastrukturexperte • tarent solutions GmbH
-Am Dickobskreuz 10, D-53121 Bonn • http://www.tarent.de/
-Telephon +49 228 54881-393 • Fax: +49 228 54881-235
-HRB AG Bonn 5168 • USt-ID (VAT): DE122264941
-Geschäftsführer: Dr. Stefan Barth, Kai Ebenrett, Boris Esser, Alexander Steeg
+------------------------------------------------------
+From: Rik van Riel <riel@surriel.com>
+Subject: mm,hwpoison: unmap poisoned page before invalidation
 
-                        ****************************************************
-/⁀\ The UTF-8 Ribbon
-╲ ╱ Campaign against      Mit dem tarent-Newsletter nichts mehr verpassen:
- ╳  HTML eMail! Also,     https://www.tarent.de/newsletter
-╱ ╲ header encryption!
-                        ****************************************************
+In some cases it appears the invalidation of a hwpoisoned page fails
+because the page is still mapped in another process.  This can cause a
+program to be continuously restarted and die when it page faults on the
+page that was not invalidated.  Avoid that problem by unmapping the
+hwpoisoned page when we find it.
+
+Another issue is that sometimes we end up oopsing in finish_fault, if the
+code tries to do something with the now-NULL vmf->page.  I did not hit
+this error when submitting the previous patch because there are several
+opportunities for alloc_set_pte to bail out before accessing vmf->page,
+and that apparently happened on those systems, and most of the time on
+other systems, too.
+
+However, across several million systems that error does occur a handful of
+times a day.  It can be avoided by returning VM_FAULT_NOPAGE which will
+cause do_read_fault to return before calling finish_fault.
+
+Link: https://lkml.kernel.org/r/20220325161428.5068d97e@imladris.surriel.com
+Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memory.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+--- a/mm/memory.c~mmhwpoison-unmap-poisoned-page-before-invalidation
++++ a/mm/memory.c
+@@ -3918,14 +3918,18 @@ static vm_fault_t __do_fault(struct vm_f
+ 		return ret;
+ 
+ 	if (unlikely(PageHWPoison(vmf->page))) {
++		struct page *page = vmf->page;
+ 		vm_fault_t poisonret = VM_FAULT_HWPOISON;
+ 		if (ret & VM_FAULT_LOCKED) {
++			if (page_mapped(page))
++				unmap_mapping_pages(page_mapping(page),
++						    page->index, 1, false);
+ 			/* Retry if a clean page was removed from the cache. */
+-			if (invalidate_inode_page(vmf->page))
+-				poisonret = 0;
+-			unlock_page(vmf->page);
++			if (invalidate_inode_page(page))
++				poisonret = VM_FAULT_NOPAGE;
++			unlock_page(page);
+ 		}
+-		put_page(vmf->page);
++		put_page(page);
+ 		vmf->page = NULL;
+ 		return poisonret;
+ 	}
+_
+
+Patches currently in -mm which might be from riel@surriel.com are
+
+mmhwpoison-unmap-poisoned-page-before-invalidation.patch
+
