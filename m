@@ -2,138 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DFA54E8FAA
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 10:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E8914E8FB8
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 10:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235494AbiC1IFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 04:05:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
+        id S239114AbiC1IHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 04:07:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233550AbiC1IFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 04:05:09 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E77C23137F
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 01:03:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1648454608; x=1679990608;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=NdlIXS71fWKzeAV7LQFOwP4FvtpHHY9K5/NK45CtblA=;
-  b=CXLZhAyiUDQrqIKYRN3ScRAInzFNza5H0TxK1Q6ayGVpamxZPD+kzMmt
-   E4aQ9AjonYTXneB8rQZu3qWujVA9GmPRvNTTd/54Eifl6JSps/dFuQMP0
-   WvpN2zyaWqojahmDTwBISD1rhRupTSYKCSgyNREsnNPli9i6emkqUZ6KU
-   cbKQt5fdgpbnrYDyLZpwQ7RfQVnPsmrRY4m7gz7cDkxLD8KeweqiBZ27v
-   RkVYgz3sWqgIxOIRdLl3xJj6AtJpHEQrMRLZFoIMNI8eUv/5EdaGYJmtv
-   ZNeRDXGtnjz83960DD+tOBmx5RZOkDYB5JnendaiJ6ZMtnPIH45JX5MzY
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10299"; a="258909401"
-X-IronPort-AV: E=Sophos;i="5.90,216,1643702400"; 
-   d="scan'208";a="258909401"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2022 01:03:28 -0700
-X-IronPort-AV: E=Sophos;i="5.90,216,1643702400"; 
-   d="scan'208";a="545866460"
-Received: from mphancoc-mobl.ger.corp.intel.com (HELO [10.213.232.242]) ([10.213.232.242])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2022 01:03:26 -0700
-Message-ID: <782575e0-8462-20c8-6170-d0395ec12447@linux.intel.com>
-Date:   Mon, 28 Mar 2022 09:03:22 +0100
+        with ESMTP id S236211AbiC1IHG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 04:07:06 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BC752E58;
+        Mon, 28 Mar 2022 01:05:26 -0700 (PDT)
+Received: from zn.tnic (p2e55dff8.dip0.t-ipconnect.de [46.85.223.248])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id A840D1EC03AD;
+        Mon, 28 Mar 2022 10:05:20 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1648454720;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=TgYlt5nc7wuciyx7G8H9YwvEKtCL+n4QE5+p7msxcds=;
+        b=V9IqrlxxviCrGiqelyL2A4fuZ02xoQlvZmW05/np63cGMoImBaU6+12OzilUmj4ggY+GFn
+        JqZ46zIiR4h3DyaxRKVol9wqXLnKyG4q07tz+4NovtOaz7R5QZtUzn4OF/M2iBtGsq3rlU
+        6Ypa1ZH/furZtBZNMAb0GDqQb2+xj48=
+Date:   Mon, 28 Mar 2022 10:05:22 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Alviro Iskandar Setiawan <alviro.iskandar@gmail.com>,
+        Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, gwml@vger.gnuweeb.org, x86@kernel.org
+Subject: Re: [PATCH v5 2/2] x86/MCE/AMD: Fix memory leak when
+ `threshold_create_bank()` fails
+Message-ID: <YkFsQhpGGXIFTMyp@zn.tnic>
+References: <20220310015306.445359-1-ammarfaizi2@gnuweeb.org>
+ <20220310015306.445359-3-ammarfaizi2@gnuweeb.org>
+ <YkDqo2eEbABbtSGY@zn.tnic>
+ <82609267-8fc6-5b3d-c931-c0d93ab14788@gnuweeb.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [Intel-gfx] [PATCH v2] drm/i915: fix one mem leak in
- mmap_offset_attach()
-Content-Language: en-US
-To:     Chuansheng Liu <chuansheng.liu@intel.com>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>
-References: <20220325010328.32963-1-chuansheng.liu@intel.com>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-In-Reply-To: <20220325010328.32963-1-chuansheng.liu@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
-        NICE_REPLY_A,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <82609267-8fc6-5b3d-c931-c0d93ab14788@gnuweeb.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 28, 2022 at 11:12:53AM +0700, Ammar Faizi wrote:
+> Although, I am not sure if that 100% guarantees mce_threshold_remove_device()
+> will not mess up with the interrupt (e.g. freeing the data while the interrupt
+> reading it), unless we're using RCU stuff.
+> 
+> What do you think?
 
-On 25/03/2022 01:03, Chuansheng Liu wrote:
-> The below memory leak information is caught:
-> 
-> unreferenced object 0xffff997dd4e3b240 (size 64):
->    comm "gem_tiled_fence", pid 10332, jiffies 4294959326 (age
-> 220778.420s)
->    hex dump (first 32 bytes):
->      01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
->      00 00 00 00 00 00 00 00 00 be f2 d4 7d 99 ff ff  ............}...
->    backtrace:
->      [<ffffffffa0f04365>] kmem_cache_alloc_trace+0x2e5/0x450
->      [<ffffffffc062f3ac>] drm_vma_node_allow+0x2c/0xe0 [drm]
->      [<ffffffffc13149ea>] __assign_mmap_offset_handle+0x1da/0x4a0 [i915]
->      [<ffffffffc1315235>] i915_gem_mmap_offset_ioctl+0x55/0xb0 [i915]
->      [<ffffffffc06207e4>] drm_ioctl_kernel+0xb4/0x140 [drm]
->      [<ffffffffc0620ac7>] drm_ioctl+0x257/0x410 [drm]
->      [<ffffffffa0f553ae>] __x64_sys_ioctl+0x8e/0xc0
->      [<ffffffffa1821128>] do_syscall_64+0x38/0xc0
-> [<ffffffffa1a0007c>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> The issue is always reproduced with the test:
-> gem_tiled_fence_blits --run-subtest basic
-> 
-> It tries to mmap_gtt the same object several times, it is like:
-> create BO
-> mmap_gtt BO
-> unmap BO
-> mmap_gtt BO <== second time mmap_gtt
-> unmap
-> close BO
-> 
-> The leak happens at the second time mmap_gtt in function
-> mmap_offset_attach(),it will simply increase the reference
-> count to 2 by calling drm_vma_node_allow() directly since
-> the mmo has been created at the first time.
-> 
-> However the driver just revokes the vma_node only one time
-> when closing the object, it leads to memory leak easily.
-> 
-> This patch is to fix the memory leak by calling drm_vma_node_allow() one
-> time also.
-> 
-> V2: add "Fixes and Cc stable". (Tvrtko Ursulin)
-> 
-> Fixes: 786555987207 ("drm/i915/gem: Store mmap_offsets in an rbtree
-> rather than a plain list")
-> Cc: <stable@vger.kernel.org> # v5.7+
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-> ---
->   drivers/gpu/drm/i915/gem/i915_gem_mman.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> index c3ea243d414d..fda346d687fd 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> @@ -680,7 +680,7 @@ mmap_offset_attach(struct drm_i915_gem_object *obj,
->   	mmo = insert_mmo(obj, mmo);
->   	GEM_BUG_ON(lookup_mmo(obj, mmap_type) != mmo);
->   out:
-> -	if (file)
-> +	if (file && !drm_vma_node_is_allowed(&mmo->vma_node, file))
->   		drm_vma_node_allow(&mmo->vma_node, file);
->   	return mmo;
->   
+I would've said it doesn't matter but that thresholding device creation
+is part of hotplug and it can happen multiple times even *after* the
+interrupt vector has been set during setup so a potential teardown and
+concurrent thresholding interrupt firing might really hit in a not fully
+initialized/cleaned up state so yeah, let's do Yazen's thing.
 
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+The alternative would be the temporarily re-assign mce_threshold_vector
+to default_threshold_interrupt while setup is being done but that's not
+really necessary atm.
 
-Regards,
+But call that helper function __threshold_remove_device().
 
-Tvrtko
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
