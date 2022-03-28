@@ -2,87 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E81E84EA2FA
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 00:31:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E6E4EA302
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 00:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230002AbiC1WSa convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 28 Mar 2022 18:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39432 "EHLO
+        id S229781AbiC1W1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 18:27:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiC1WSP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 18:18:15 -0400
-Received: from mail.lixid.net (lixid.tarent.de [193.107.123.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5771182D2E
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 15:15:03 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.lixid.net (MTA) with ESMTP id 53397141168;
-        Mon, 28 Mar 2022 23:37:35 +0200 (CEST)
-Received: from mail.lixid.net ([127.0.0.1])
-        by localhost (mail.lixid.net [127.0.0.1]) (MFA, port 10024) with LMTP
-        id bgFv14bpaOjQ; Mon, 28 Mar 2022 23:37:29 +0200 (CEST)
-Received: from tglase-nb.lan.tarent.de (vpn-172-34-0-14.dynamic.tarent.de [172.34.0.14])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.lixid.net (MTA) with ESMTPS id C45661405F8;
-        Mon, 28 Mar 2022 23:37:29 +0200 (CEST)
-Received: by tglase-nb.lan.tarent.de (Postfix, from userid 1000)
-        id 3AA711CA1CE; Mon, 28 Mar 2022 23:37:29 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by tglase-nb.lan.tarent.de (Postfix) with ESMTP id 369B41CA1CD;
-        Mon, 28 Mar 2022 23:37:29 +0200 (CEST)
-Date:   Mon, 28 Mar 2022 23:37:29 +0200 (CEST)
-From:   Thorsten Glaser <t.glaser@tarent.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     Vlad Buslov <vladbu@mellanox.com>, stable@vger.kernel.org,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lee Jones <lee.jones@linaro.org>, Daniel.Fleischer@orbit.de,
-        Marcel.Krause@orbit.de, christian.hampe@telekom.de,
-        haye.haehne@telekom.de, keith.lloyd@telekom.de
-Subject: Re: v4.19.221 breaks qdisc modules
-In-Reply-To: <a1467150-9f6-3e56-9b79-2249a9af45@tarent.de>
-Message-ID: <61fdaf57-3c5-f3b5-717-4fa22794f528@tarent.de>
-References: <919153d5-a79a-de71-9584-10179ae586d@tarent.de> <425d1b7-abb9-903c-4ae4-11f27ef06313@tarent.de> <YkFMoe4t1dRkHlEX@kroah.com> <a1467150-9f6-3e56-9b79-2249a9af45@tarent.de>
-Content-Language: de-DE-1901
+        with ESMTP id S229716AbiC1W1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 18:27:13 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9644616D8DD
+        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 15:25:31 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id e5so15964641pls.4
+        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 15:25:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3tMcpCI+WNC4nXGUGP55drnUuoHIJ+Z310LUJO01hrI=;
+        b=a38S2Zg+GGbqf4xzwP20px2q2xpHb8JJY4zh9PKySVYv05+J3HsLb6VmDf3nje0Llb
+         kudP6CVgbSTpVHhvib7NM+LO2zgGK2yGH9lXq6OYiYlWnzhFCXTHJ4aZjQax7fwWt35N
+         f5UymmYb1Bzm1oNhQqaYCgU9x7HP0sZbF/BXgMYlObdfp6OxCO5n7YQh9iMrpVA47zuD
+         BbSU/5nv6XD7fK4F8aSoE9p4M1NaPdfz47eyCvreeyZo9HvyKPDULAXsh2/yd+IFiOjH
+         6A/YkNhrjtAXO2/+ybzAATvXmn2g8hFCuE8SBYkoGBhBNxECCHNiJLQp/M2nGeIxK9P3
+         dZqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3tMcpCI+WNC4nXGUGP55drnUuoHIJ+Z310LUJO01hrI=;
+        b=hi91fnQWH0ENT0nW8b8ghhJAGWGJe6NTgM02+HR4bGGP/BhnCkYswXnxD9nYCW5Gjz
+         BTeDfrQ1gxtGsilDYJgnvOyXWyRDpOxf64zXawA+QT56OmRzAvyAKvkaVHevxAdtfb3N
+         S60vOuf2XdPXueRj72QjkK1EyEroF6IgSsZl2qMHVn1MlsWkbhXpu9R05Md4VZfhJQoC
+         uquNfMlEiFmBFlYAKvi8XwxPBk3XL9c4oOqGQck/Yl8fCS08EZQijPEHj794EL42Ul8k
+         lCjsWuYIG/WlANW0ncziBAAYKDdoBRJl7mXebuvpXG6WGpwHD5vRDvtvyZWLB/3jvYrm
+         ph6w==
+X-Gm-Message-State: AOAM532mg+72+8wbOsbgf04UF1CybuwsPl9LWV0bKKv4PHjplMVe6O8J
+        IobKBdsM1w31R/LdM4b2TDydg3RQ6mWJ8F0G2mE=
+X-Google-Smtp-Source: ABdhPJy6tbJNhKfLHBE6qkHHvkz36Iv5exfdIt4pNZ4xCIWzS9cztd4C68oSyTxEm8/nsDh+Playmg==
+X-Received: by 2002:a17:903:32c9:b0:154:3a2d:fa89 with SMTP id i9-20020a17090332c900b001543a2dfa89mr27472167plr.3.1648506330831;
+        Mon, 28 Mar 2022 15:25:30 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k14-20020aa7820e000000b004f7134a70cdsm16558951pfi.61.2022.03.28.15.25.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Mar 2022 15:25:30 -0700 (PDT)
+Message-ID: <624235da.1c69fb81.9d41c.cc3d@mx.google.com>
+Date:   Mon, 28 Mar 2022 15:25:30 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.237-11-g954e3bfb38f4
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 95 runs,
+ 1 regressions (v4.19.237-11-g954e3bfb38f4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dixi quod…
+stable-rc/queue/4.19 baseline: 95 runs, 1 regressions (v4.19.237-11-g954e3b=
+fb38f4)
 
-> On Mon, 28 Mar 2022, Greg Kroah-Hartman wrote:
+Regressions Summary
+-------------------
 
-> > As for how to test for larger numbers, see the answer in the email
-> > archives, others have done this successfully.
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-> Search engine fodder would have been welcome. All I found so far is
 
-I’ve figured out enough Makefile and cpp hackery… after finally finding
-out that I need to take the values on Makefile level, not from a header
-file… so, for the archives (and for the benefit of others):
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.237-11-g954e3bfb38f4/plan/baseline/
 
-https://github.com/tarent/sch_jens/commit/19c8e499fba8cef65a0b301dc158168707b5689f
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.237-11-g954e3bfb38f4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      954e3bfb38f466b4f58a82491a6a640398774552 =
 
-bye,
-//mirabilos
--- 
-Infrastrukturexperte • tarent solutions GmbH
-Am Dickobskreuz 10, D-53121 Bonn • http://www.tarent.de/
-Telephon +49 228 54881-393 • Fax: +49 228 54881-235
-HRB AG Bonn 5168 • USt-ID (VAT): DE122264941
-Geschäftsführer: Dr. Stefan Barth, Kai Ebenrett, Boris Esser, Alexander Steeg
 
-                        ****************************************************
-/⁀\ The UTF-8 Ribbon
-╲ ╱ Campaign against      Mit dem tarent-Newsletter nichts mehr verpassen:
- ╳  HTML eMail! Also,     https://www.tarent.de/newsletter
-╱ ╲ header encryption!
-                        ****************************************************
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/624204b0bd397902f5ae0686
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
+-11-g954e3bfb38f4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
+-11-g954e3bfb38f4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/624204b0bd397902f5ae06a8
+        failing since 22 days (last pass: v4.19.232-31-g5cf846953aa2, first=
+ fail: v4.19.232-44-gfd65e02206f4)
+
+    2022-03-28T18:55:30.574283  <8>[   35.949153] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-03-28T18:55:31.589840  /lava-5962529/1/../bin/lava-test-case   =
+
+ =20
