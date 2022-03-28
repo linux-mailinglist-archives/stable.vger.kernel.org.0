@@ -2,129 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 938EA4E9837
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 15:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52B94E9885
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 15:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242367AbiC1Ned (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 09:34:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41290 "EHLO
+        id S232505AbiC1Np3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 09:45:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234437AbiC1Nec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 09:34:32 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EE97260B
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 06:32:51 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id jx9so14062322pjb.5
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 06:32:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=i9a+JE8dzRSr3g+tNqf5/U4yt8P6giYRJmfiIIkwz6w=;
-        b=sTNN4niXqFHRk7abeXYTDh4gx8JztIBuiJL5qEmoylblmQpbrYA7kmqh1i1SerYTA5
-         PBs244eIchkiWRtiUL+cqGRpB7mQTEII5qxHK8AK4RlWDRzVC5ycvHgCUZZ9/tmPZqS8
-         7M/+9SCdVnh6+EjEQTRV8+8VeNLd+u5ScFhGJddIHvKNKFJblODjZg/YWSPCozxup4af
-         7EidaBC+XI/ect8LS4WfhasSoQaJv/J9Td/+V1hHN48qtPJGH0J/hrLg+Fjorm1kIVh0
-         jWP7u7JaG82x48qFOyenOjBRRCICukbYOJrQZ65IRyIyFNHSGOS7OJumUBvmo5o1Azic
-         w4Sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=i9a+JE8dzRSr3g+tNqf5/U4yt8P6giYRJmfiIIkwz6w=;
-        b=z00FHpJt9ws8MofuK4xUL4jxSQvstOoc3RPLij+7G7+ZzYmn00tXlR3eKndzSV2HDp
-         TG3iD3UTxMopgDTB5JHrjN8gHUyJUXe2Ln3gzr4GY20UL69FAyvNvNNd8wRKTOgEwC4K
-         RNRVGG4Q/UeYDZNACsdb2kXu8WxhkzvKoxDzfpCvHkZciKWxKYrlIMCYbQj6iaG4hXkl
-         x3WNGH7pbuL3ODHn/kVlPn6bETFEni5l2UKjIw3iDKrutEkGfygqeeo6Ss05sL0wfwrf
-         Jvt+W19dRChUZfAG/i/BMaeLVTDhvDO3WU43h19YpAVN6su50OD3HJXd85jXN8jENIdd
-         Ui3A==
-X-Gm-Message-State: AOAM530h4NoNPwGhsm+w6S9u/8n8K4pDdqbQI4mEziHhDSxX0HFDwY7H
-        W8xuLjhLrngjfRAYe7+4ZHfoRxACFtnQH2MX6Dg=
-X-Google-Smtp-Source: ABdhPJzHtG+YaFSpjgYZo+8P4yYJ8ZQLeqf8IbNf3AB/+KCGMpxowb2Ara8kBUIeuA+iKBLJ5yv7ug==
-X-Received: by 2002:a17:903:2d0:b0:14d:8a8d:cb1 with SMTP id s16-20020a17090302d000b0014d8a8d0cb1mr25936007plk.50.1648474370711;
-        Mon, 28 Mar 2022 06:32:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g5-20020a056a001a0500b004def10341e5sm16114239pfv.22.2022.03.28.06.32.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 06:32:50 -0700 (PDT)
-Message-ID: <6241b902.1c69fb81.d574a.9972@mx.google.com>
-Date:   Mon, 28 Mar 2022 06:32:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S242157AbiC1Np2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 09:45:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D8F55B9;
+        Mon, 28 Mar 2022 06:43:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C7F161169;
+        Mon, 28 Mar 2022 13:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EBDC004DD;
+        Mon, 28 Mar 2022 13:43:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1648475026;
+        bh=oHPX4dxkslmbgVNn7WyrR3+9FTtOwGZ2SlopKZz6En8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HqinKsJMtlplF1sflshBUOeTcTGiBf1RwWiWlFMUFjZGZrYCWHFHUIBHiMsZbRl42
+         kavH74/EfofOpUH1t8yXVjVzMh7zkg4SKJ9SJgktRJd/24RsU6TZHG3qwX9XDQS5eu
+         ShENddtBRHePg/QAMFHDkUaoNBKov5yTnYWPd9yI=
+Date:   Mon, 28 Mar 2022 15:43:44 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Trond Myklebust <trondmy@hammerspace.com>
+Cc:     "xiam0nd.tong@gmail.com" <xiam0nd.tong@gmail.com>,
+        "anna@kernel.org" <anna@kernel.org>,
+        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nfs: callback_proc: fix an incorrect NULL check on list
+ iterator
+Message-ID: <YkG7kPhYm+1fDxPB@kroah.com>
+References: <436766b6fb5f3ec513629d4fa0888b77c65cfa16.camel@hammerspace.com>
+ <20220328014314.18987-1-xiam0nd.tong@gmail.com>
+ <c4af251c0b90180b187e8a328d4ce5b948db9fcd.camel@hammerspace.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.274
-X-Kernelci-Report-Type: test
-Subject: stable/linux-4.14.y baseline: 55 runs, 1 regressions (v4.14.274)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c4af251c0b90180b187e8a328d4ce5b948db9fcd.camel@hammerspace.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 55 runs, 1 regressions (v4.14.274)
+On Mon, Mar 28, 2022 at 01:24:57PM +0000, Trond Myklebust wrote:
+> On Mon, 2022-03-28 at 09:43 +0800, Xiaomeng Tong wrote:
+> > On Sun, 27 Mar 2022 15:20:42 +0000, Trond Myklebust wrote:
+> > > On Sun, 2022-03-27 at 16:02 +0800, Xiaomeng Tong wrote:
+> > > > The bug is here:
+> > > >         if (!server ||
+> > > >         server->pnfs_curr_ld->id != dev->cbd_layout_type) {
+> > > > 
+> > > > The list iterator value 'server' will *always* be set and non-
+> > > > NULL
+> > > > by list_for_each_entry_rcu, so it is incorrect to assume that the
+> > > > iterator value will be NULL if the list is empty or no element is
+> > > > found (In fact, it will be a bogus pointer to an invalid struct
+> > > > object containing the HEAD, which is used for above check at next
+> > > > outer loop). Otherwise it may bypass the check in theory (iif
+> > > > server->pnfs_curr_ld->id == dev->cbd_layout_type, 'server' now is
+> > > > a bogus pointer) and lead to invalid memory access passing the
+> > > > check.
+> > > > 
+> > > > To fix the bug, use a new variable 'iter' as the list iterator,
+> > > > while use the original variable 'server' as a dedicated pointer
+> > > > to
+> > > > point to the found element.
+> > > > 
+> > > > Cc: stable@vger.kernel.org
+> > > > Fixes: 1be5683b03a76 ("pnfs: CB_NOTIFY_DEVICEID")
+> > > > Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> > > > ---
+> > > >  fs/nfs/callback_proc.c | 9 +++++----
+> > > >  1 file changed, 5 insertions(+), 4 deletions(-)
+> > > > 
+> > > > diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
+> > > > index c343666d9a42..84779785dc8d 100644
+> > > > --- a/fs/nfs/callback_proc.c
+> > > > +++ b/fs/nfs/callback_proc.c
+> > > > @@ -361,7 +361,7 @@ __be32 nfs4_callback_devicenotify(void *argp,
+> > > > void *resp,
+> > > >         uint32_t i;
+> > > >         __be32 res = 0;
+> > > >         struct nfs_client *clp = cps->clp;
+> > > > -       struct nfs_server *server = NULL;
+> > > > +       struct nfs_server *server = NULL, *iter;
+> > > >  
+> > > >         if (!clp) {
+> > > >                 res = cpu_to_be32(NFS4ERR_OP_NOT_IN_SESSION);
+> > > > @@ -374,10 +374,11 @@ __be32 nfs4_callback_devicenotify(void
+> > > > *argp,
+> > > > void *resp,
+> > > >                 if (!server ||
+> > > >                     server->pnfs_curr_ld->id != dev-
+> > > > >cbd_layout_type)
+> > > > {
+> > > >                         rcu_read_lock();
+> > > > -                       list_for_each_entry_rcu(server, &clp-
+> > > > > cl_superblocks, client_link)
+> > > > -                               if (server->pnfs_curr_ld &&
+> > > > -                                   server->pnfs_curr_ld->id ==
+> > > > dev-
+> > > > > cbd_layout_type) {
+> > > > +                       list_for_each_entry_rcu(iter, &clp-
+> > > > > cl_superblocks, client_link)
+> > > > +                               if (iter->pnfs_curr_ld &&
+> > > > +                                   iter->pnfs_curr_ld->id ==
+> > > > dev-
+> > > > > cbd_layout_type) {
+> > > >                                         rcu_read_unlock();
+> > > > +                                       server = iter;
+> > > 
+> > > Hmm... We're not holding any locks on the super block for 'iter'
+> > > here,
+> > > so nothing is preventing it from going away while we're.
+> > > 
+> > 
+> > ok, i am not a 'rcu lock' expert, i will make it hold the
+> > rcu_read_lock()
+> > if necessary.
+> > 
+> > > Given that we really only want a pointer to the struct
+> > > pnfs_layoutdriver_type anyway, why not just convert the code to
+> > > save a
+> > > pointer to that (and do it while holding the rcu_read_lock())?
+> > > 
+> > 
+> > Maybe it's not that simple. If you only save a pointer to that and
+> > still
+> > use 'server' as the list iterator of list_for_each_entry_rcu, there
+> > could
+> > be problem.
+> > 
+> > I.e., if no element found in list_for_each_entry_rcu in the first
+> > outer
+> > 'for' loop, and now 'server' is a bogus pointer to an invalid struct,
+> > and
+> > continue to go into the second outer 'for' loop, and the check below
+> > will
+> > lead to invalid memory access (server->pnfs_curr_ld->id), even can
+> > potentialy
+> > be bypassed with crafted data to make the condition false and
+> > mistakely run
+> > nfs4_delete_deviceid(server->pnfs_curr_ld, clp, &dev->cbd_dev_id);
+> > with bogus
+> > 'server'.
+> > 
+> > if (!server ||
+> >     server->pnfs_curr_ld->id != dev->cbd_layout_type) {
+> > 
+> > > The struct pnfs_layoutdriver is always expected to be a statically
+> > > allocated structure, so it won't go away as long as the pNFS driver
+> > > module remains loaded.
+> > 
+> 
+> 
+> Let's just do the following.
+> 
+> 8<-----------------------------------------------
+> From 7c9d845f0612e5bcd23456a2ec43be8ac43458f1 Mon Sep 17 00:00:00 2001
+> From: Trond Myklebust <trond.myklebust@hammerspace.com>
+> Date: Mon, 28 Mar 2022 08:36:34 -0400
+> Subject: [PATCH] NFSv4/pNFS: Fix another issue with a list iterator pointing
+>  to the head
+> 
+> In nfs4_callback_devicenotify(), if we don't find a matching entry for
+> the deviceid, we're left with a pointer to 'struct nfs_server' that
+> actually points to the list of super blocks associated with our struct
+> nfs_client.
+> Furthermore, even if we have a valid pointer, nothing pins the super
+> block, and so the struct nfs_server could end up getting freed while
+> we're using it.
+> 
+> Since all we want is a pointer to the struct pnfs_layoutdriver_type,
+> let's skip all the iteration over super blocks, and just use APIs to
+> find the layout driver directly.
+> 
+> Reported-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> Fixes: 1be5683b03a7 ("pnfs: CB_NOTIFY_DEVICEID")
+> Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+> ---
+>  fs/nfs/callback_proc.c | 27 +++++++++------------------
+>  fs/nfs/pnfs.c          | 11 +++++++++++
+>  fs/nfs/pnfs.h          |  2 ++
+>  3 files changed, 22 insertions(+), 18 deletions(-)
 
-Regressions Summary
--------------------
+<formletter>
 
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.274/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.274
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      af1af6ebca0e28a97e5f802b9da695678fcd226a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/6241891711af6e09e2ae067c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.274/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.274/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson8b-odroidc1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6241891711af6e09e2ae0=
-67d
-        failing since 39 days (last pass: v4.14.266, first fail: v4.14.267) =
-
- =20
+</formletter>
