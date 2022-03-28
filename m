@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E964EA096
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCCCE4EA03A
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 21:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343773AbiC1TuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 15:50:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50046 "EHLO
+        id S1343793AbiC1TuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 15:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343767AbiC1Trq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:47:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4298A69498;
-        Mon, 28 Mar 2022 12:43:31 -0700 (PDT)
+        with ESMTP id S1344003AbiC1TsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 15:48:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EDF06973D;
+        Mon, 28 Mar 2022 12:43:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4795A61291;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C137B8120C;
+        Mon, 28 Mar 2022 19:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9DBC36AE3;
         Mon, 28 Mar 2022 19:43:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1361C3410F;
-        Mon, 28 Mar 2022 19:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648496608;
-        bh=ZZJ2Y9OuUBQ1gJaIssElG4wArHFWqk1f3tUsMF6/rtM=;
+        s=k20201202; t=1648496609;
+        bh=UVSMQTDzbXysduxji4Mk7WYAfSuVvqdNDjO0KdD/6to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6DQyNVyHh81ZNJJF9M0E4EcVQ9mgj68OVN7DcsuMgh6fjVrBZLNbkboSsWg8e9ue
-         0mxy7F2JmCw/RIM47oy016jExGVlxE5/XU6leLsz/bF0LhPnMLZfqPaPTT+TOymHhy
-         JdLDDFBhYoUNBc5rY96d63hVO9fJ42N4zjFbhF25M/yQKxTHwePRWg0P1rwgcruHaK
-         5FcB4txQjFEGvk0Dewed4SU341dqO43wLkbEW3wc1rIC7tiQ5O8rbEULfGHjE2+X9L
-         MQXri/ek/m6RZXayVDoVcVOGzjl9lfT07qIIL262xhs76swpL9Flvda2IGQ9A7SVlp
-         XYZ1ejLOJ8e3w==
+        b=Ub+o49ZEQYsbfGQqrmwrQuwjQJaGeQ089cKlt6V9IskDkAd4/sQffp2uYIM9SjbWS
+         YeQhqdVpK5XKqVi2JYTJ9Hdp1BD8T8DuKHNCcAksICqD6Tu5T5zRl08uPX6alvERV/
+         M8gDkvxT209HC1CP4AeWEu7ytZt+Rcshb3m9DQS8HgCO6npo5hPj/iNVPJZysYSHS4
+         pMauKivZbO8ADdVQ++WGslLzCS4FN88NA00QP2oAQu8MtghSURuVOmWphMVta+YYZV
+         K0AldwL3M7fp8+KH4vtm8fYfCQYbXZQ1zJkrDQ8rLOnNGK3TuIbJP0LCiJdT9MIfNl
+         m4YhDbmO6GpJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>,
-        syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, adilger.kernel@dilger.ca,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 4/8] ext4: don't BUG if someone dirty pages without asking ext4 first
-Date:   Mon, 28 Mar 2022 15:43:18 -0400
-Message-Id: <20220328194322.1586401-4-sashal@kernel.org>
+Cc:     Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, yuchao0@huawei.com,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.10 5/8] f2fs: fix to do sanity check on curseg->alloc_type
+Date:   Mon, 28 Mar 2022 15:43:19 -0400
+Message-Id: <20220328194322.1586401-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220328194322.1586401-1-sashal@kernel.org>
 References: <20220328194322.1586401-1-sashal@kernel.org>
@@ -58,82 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
+[ Upstream commit f41ee8b91c00770d718be2ff4852a80017ae9ab3 ]
 
-[un]pin_user_pages_remote is dirtying pages without properly warning
-the file system in advance.  A related race was noted by Jan Kara in
-2018[1]; however, more recently instead of it being a very hard-to-hit
-race, it could be reliably triggered by process_vm_writev(2) which was
-discovered by Syzbot[2].
+As Wenqing Liu reported in bugzilla:
 
-This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
-that if some other kernel subsystem dirty pages without properly
-notifying the file system using page_mkwrite(), ext4 will BUG, while
-other file systems will not BUG (although data will still be lost).
+https://bugzilla.kernel.org/show_bug.cgi?id=215657
 
-So instead of crashing with a BUG, issue a warning (since there may be
-potential data loss) and just mark the page as clean to avoid
-unprivileged denial of service attacks until the problem can be
-properly fixed.  More discussion and background can be found in the
-thread starting at [2].
+- Overview
+UBSAN: array-index-out-of-bounds in fs/f2fs/segment.c:3460:2 when mount and operate a corrupted image
 
-[1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-[2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
+- Reproduce
+tested on kernel 5.17-rc4, 5.17-rc6
 
-Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
+1. mkdir test_crash
+2. cd test_crash
+3. unzip tmp2.zip
+4. mkdir mnt
+5. ./single_test.sh f2fs 2
+
+- Kernel dump
+[   46.434454] loop0: detected capacity change from 0 to 131072
+[   46.529839] F2FS-fs (loop0): Mounted with checkpoint version = 7548c2d9
+[   46.738319] ================================================================================
+[   46.738412] UBSAN: array-index-out-of-bounds in fs/f2fs/segment.c:3460:2
+[   46.738475] index 231 is out of range for type 'unsigned int [2]'
+[   46.738539] CPU: 2 PID: 939 Comm: umount Not tainted 5.17.0-rc6 #1
+[   46.738547] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[   46.738551] Call Trace:
+[   46.738556]  <TASK>
+[   46.738563]  dump_stack_lvl+0x47/0x5c
+[   46.738581]  ubsan_epilogue+0x5/0x50
+[   46.738592]  __ubsan_handle_out_of_bounds+0x68/0x80
+[   46.738604]  f2fs_allocate_data_block+0xdff/0xe60 [f2fs]
+[   46.738819]  do_write_page+0xef/0x210 [f2fs]
+[   46.738934]  f2fs_do_write_node_page+0x3f/0x80 [f2fs]
+[   46.739038]  __write_node_page+0x2b7/0x920 [f2fs]
+[   46.739162]  f2fs_sync_node_pages+0x943/0xb00 [f2fs]
+[   46.739293]  f2fs_write_checkpoint+0x7bb/0x1030 [f2fs]
+[   46.739405]  kill_f2fs_super+0x125/0x150 [f2fs]
+[   46.739507]  deactivate_locked_super+0x60/0xc0
+[   46.739517]  deactivate_super+0x70/0xb0
+[   46.739524]  cleanup_mnt+0x11a/0x200
+[   46.739532]  __cleanup_mnt+0x16/0x20
+[   46.739538]  task_work_run+0x67/0xa0
+[   46.739547]  exit_to_user_mode_prepare+0x18c/0x1a0
+[   46.739559]  syscall_exit_to_user_mode+0x26/0x40
+[   46.739568]  do_syscall_64+0x46/0xb0
+[   46.739584]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is we missed to do sanity check on curseg->alloc_type,
+result in out-of-bound accessing on sbi->block_count[] array, fix it.
+
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ fs/f2fs/segment.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index d59474a54189..96546df39bcf 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2023,6 +2023,15 @@ static int ext4_writepage(struct page *page,
- 	else
- 		len = PAGE_SIZE;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index d04b449978aa..49f5cb532738 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -4650,6 +4650,13 @@ static int sanity_check_curseg(struct f2fs_sb_info *sbi)
  
-+	/* Should never happen but for bugs in other kernel subsystems */
-+	if (!page_has_buffers(page)) {
-+		ext4_warning_inode(inode,
-+		   "page %lu does not have buffers attached", page->index);
-+		ClearPageDirty(page);
-+		unlock_page(page);
-+		return 0;
-+	}
-+
- 	page_bufs = page_buffers(page);
- 	/*
- 	 * We cannot do block allocation or other extent handling in this
-@@ -2626,6 +2635,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
- 			wait_on_page_writeback(page);
- 			BUG_ON(PageWriteback(page));
+ 		sanity_check_seg_type(sbi, curseg->seg_type);
  
-+			/*
-+			 * Should never happen but for buggy code in
-+			 * other subsystems that call
-+			 * set_page_dirty() without properly warning
-+			 * the file system first.  See [1] for more
-+			 * information.
-+			 *
-+			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-+			 */
-+			if (!page_has_buffers(page)) {
-+				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
-+				ClearPageDirty(page);
-+				unlock_page(page);
-+				continue;
-+			}
++		if (curseg->alloc_type != LFS && curseg->alloc_type != SSR) {
++			f2fs_err(sbi,
++				 "Current segment has invalid alloc_type:%d",
++				 curseg->alloc_type);
++			return -EFSCORRUPTED;
++		}
 +
- 			if (mpd->map.m_len == 0)
- 				mpd->first_page = page->index;
- 			mpd->next_page = page->index + 1;
+ 		if (f2fs_test_bit(blkofs, se->cur_valid_map))
+ 			goto out;
+ 
 -- 
 2.34.1
 
