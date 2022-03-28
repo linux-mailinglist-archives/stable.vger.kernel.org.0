@@ -2,57 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6124E91A0
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 11:42:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF414E91B8
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 11:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236481AbiC1Jo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 05:44:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56784 "EHLO
+        id S231474AbiC1JuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 05:50:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236203AbiC1Jo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 05:44:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4AF213D70;
-        Mon, 28 Mar 2022 02:42:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7094E60EFB;
-        Mon, 28 Mar 2022 09:42:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E6EBC340ED;
-        Mon, 28 Mar 2022 09:42:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648460566;
-        bh=K37a3LN3h3JA5FWXkkFDjUnaU63eyav4SZXBMRkzCsg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RmAqKzkT8fkHxf4xi4joHqW1Cub9p4b0/XG8WjVyhC6lhTfR73AzAGV8DoJxqdi5m
-         EzlNeUIkocEM2Ens1d08qwNK5GPmgyt50dMqRgFPeTKtjJrroT8MaCc0bBDUBpmWIi
-         Z09n2aIdVo+DenWgnqsb1dlYhanVXNSwX4msbycA=
-Date:   Mon, 28 Mar 2022 11:42:43 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        =?utf-8?B?6LW15a2Q6L2p?= <beraphin@gmail.com>,
-        Stoyan Manolov <smanolov@suse.de>
-Subject: Re: [PATCH 5.10 09/38] llc: fix netdevice reference leaks in
- llc_ui_bind()
-Message-ID: <YkGDEzS7bWHNIoP3@kroah.com>
-References: <20220325150419.757836392@linuxfoundation.org>
- <20220325150420.029041400@linuxfoundation.org>
- <20220326200922.GA9262@duo.ucw.cz>
- <20220326131325.397bc0e7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <YkAziXrW7/Fbqo/b@kroah.com>
- <20220328090830.GA24435@amd>
- <YkF8HQ7Ih3IUJ3jT@kroah.com>
- <20220328093115.GB26815@amd>
+        with ESMTP id S236154AbiC1JuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 05:50:03 -0400
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90141F625
+        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 02:48:22 -0700 (PDT)
+Received: by mail-io1-f70.google.com with SMTP id q137-20020a6b8e8f000000b006495204b061so10015842iod.14
+        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 02:48:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=sVvRetvU66viZg03zt42J481swUWQOVgkFgrLPfYY/8=;
+        b=voaF1O0ruJkb/Ni6djDAhe/Vm33w4JnR2Ed26i4Y+hH6A8U8zzqCD0FATtJU3Oer8J
+         gRRftY+6vO0U1EjRVxnx3ySewyCkUNj4MGEbiaJVNXX5GV4PwV1abDbBau4JcqaFYhVt
+         VUJbnfmOQQamX/6bgW3dZT8gUXRuuh6QIlyAQW44N+aFGqe0y085oZqidHFMonodUI48
+         1qqaTbDf7Hg9NVOLc2Qjtctw5jafswWsYB7ttyKmktfuw1evh++ofIUX35Ht05g1Mz78
+         rqZicSoxt1K65GS4gKNV9n8dKm07u74g9FsiRpT5C52WFWMda0L/cGAaiFbhnxwFrJYg
+         eaYQ==
+X-Gm-Message-State: AOAM530soPvfMfJyqlfDuMYryHhyzv96OyiFE62GNGTStRU/dHzIqwev
+        ScBEd8FEoYi7E6wSiSZJxQaZEnTQ9uFqblJ0qo1kP5wwyOEG
+X-Google-Smtp-Source: ABdhPJyzeX1qMoACO2pA8AueYO+lQlS5AXFOjsBz6huoRNJY9WSpaqdZ/pIq6qMIvI2Gw8vV55QNG/qPhoKV9A85R2g/iU+ap6CW
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220328093115.GB26815@amd>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Received: by 2002:a05:6e02:1561:b0:2c8:3d92:ed52 with SMTP id
+ k1-20020a056e02156100b002c83d92ed52mr5163039ilu.132.1648460902011; Mon, 28
+ Mar 2022 02:48:22 -0700 (PDT)
+Date:   Mon, 28 Mar 2022 02:48:22 -0700
+In-Reply-To: <000000000000b960c00594598949@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000007d99f705db443685@google.com>
+Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
+From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
+To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
+        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
+        stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,65 +56,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 28, 2022 at 11:31:16AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > Should be in mainline on Thursday, LMK if we need to accelerate.
-> > > > > IDK if anyone enables LLC2.
-> > > > 
-> > > > I'll queue this up now, thanks.
-> > > 
-> > > As the changelog says, this needs b37a46683739, otherwise there will
-> > > be oops-es in even more cases.
-> > 
-> > If you look at the change, I think I already handled that issue.  If
-> > not, please let me know.
-> 
-> I did not notice you making changes there, but no, it is not correct
-> AFAICT.
-> 
-> # commit 163960a7de1333514c9352deb7c80c6b9fd9abf2
-> # Author: Eric Dumazet <edumazet@google.com>
-> # Date:   Thu Mar 24 20:58:27 2022 -0700
-> 
-> #    llc: only change llc->dev when bind() succeeds
-> ...    
-> #     Make sure commit b37a46683739 ("netdevice: add the case if dev is NULL")
-> #     is already present in your trees.
-> 
-> Before b37a46683739, dev_put can't handle NULL.
->     
-> +++ b/net/llc/af_llc.c
-> @@ -287,14 +288,14 @@ static int llc_ui_autobind(struct socket *sock, struct sockaddr_llc *addr)
-> ...
-> 
-> -		llc->dev = dev_getfirstbyhwtype(&init_net, addr->sllc_arphrd);
-> -	if (!llc->dev)
-> +		dev = dev_getfirstbyhwtype(&init_net, addr->sllc_arphrd);
-> +	if (!dev)
->  		goto out;
->  	rc = -EUSERS;
->  	llc->laddr.lsap = llc_ui_autoport();
-> 
-> One of several paths where we goto out with dev==NULL.
-> 
-> @@ -311,10 +317,7 @@ static int llc_ui_autobind(struct socket *sock, struct sockaddr_llc *addr)
->  	sock_reset_flag(sk, SOCK_ZAPPED);
->  	rc = 0;
->  out:
-> -	if (rc) {
-> -		dev_put(llc->dev);
-> -		llc->dev = NULL;
-> -	}
-> +	dev_put(dev);
->  	return rc;
->  }
-> 
-> 
-> But dev_put can't handle NULL.
-
-Ah, missed that one.  I'll go queue up b37a46683739 now.
-
-thanks,
-
-greg k-h
+This bug is marked as fixed by commit:
+net: core: netlink: add helper refcount dec and lock function
+net: sched: add helper function to take reference to Qdisc
+net: sched: extend Qdisc with rcu
+net: sched: rename qdisc_destroy() to qdisc_put()
+net: sched: use Qdisc rcu API instead of relying on rtnl lock
+But I can't find it in any tested tree for more than 90 days.
+Is it a correct commit? Please update it by replying:
+#syz fix: exact-commit-title
+Until then the bug is still considered open and
+new crashes with the same signature are ignored.
