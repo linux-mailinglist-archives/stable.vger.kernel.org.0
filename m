@@ -2,189 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E024E9623
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 14:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 037254E9641
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 14:10:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240677AbiC1MER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 08:04:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44186 "EHLO
+        id S236940AbiC1MMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 08:12:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235781AbiC1MEQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 08:04:16 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E34AA184;
-        Mon, 28 Mar 2022 05:02:36 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22SBGVe1003281;
-        Mon, 28 Mar 2022 12:02:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=eopDlAerto5cu8t7VL8uSZexV6d47sbjv0WpEVVN2rU=;
- b=Cu5VpJUCNGXzVkcSJxYEJwsCik8ePrSlSlPkWaTPJPiteXSvT692JkTW4vkesEpt/Qrh
- pVwIjXv9/WVCfu6htCYTDqN8BMKJInzIHP6NKsXB6bfk5cxulFVuVdSm0quOhHuphxOX
- dUCcmP3dZy/ntPuyCvjV4wRYHU7yu+OQsNTfIzSNrUEn2jp2gujrepHGsIpimgNHwCrB
- +aS9cWislnobScISShwC5c2D1YX9IvaYwMojGU4MlWJB4bobg0bAZ7TcNBcN3QLtNVFY
- Z1XjfektwqWVmCFPy0WYSudFWon8dmZDBG6PcqRy4TtxqFrzRBDBU1xdu5UWikEjnVv1 jw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f3c0f8wk0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Mar 2022 12:02:13 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22SBqrwq021727;
-        Mon, 28 Mar 2022 12:02:12 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f3c0f8wj2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Mar 2022 12:02:12 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22SBrN3m021407;
-        Mon, 28 Mar 2022 12:02:10 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma02fra.de.ibm.com with ESMTP id 3f1tf8ua8m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Mar 2022 12:02:10 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22SC273W35651888
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Mar 2022 12:02:08 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D1CDB52067;
-        Mon, 28 Mar 2022 12:02:07 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.73.54])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 037DC5204F;
-        Mon, 28 Mar 2022 12:02:06 +0000 (GMT)
-Date:   Mon, 28 Mar 2022 14:02:04 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Toke =?UTF-8?B?SMO4aWxhbmQtSsO4cmdlbnNlbg==?= <toke@toke.dk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Olha Cherevyk <olha.cherevyk@gmail.com>,
-        iommu <iommu@lists.linux-foundation.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [REGRESSION] Recent swiotlb DMA_FROM_DEVICE fixes break
- ath9k-based AP
-Message-ID: <20220328140205.59c2c1b8.pasic@linux.ibm.com>
-In-Reply-To: <CAHk-=whK3z5O4G55cOb2JYgwisb4cpDK=qhM=0CfmCC8PD+xMQ@mail.gmail.com>
-References: <1812355.tdWV9SEqCh@natalenko.name>
-        <f88ca616-96d1-82dc-1bc8-b17480e937dd@arm.com>
-        <20220324055732.GB12078@lst.de>
-        <4386660.LvFx2qVVIh@natalenko.name>
-        <81ffc753-72aa-6327-b87b-3f11915f2549@arm.com>
-        <878rsza0ih.fsf@toke.dk>
-        <4be26f5d8725cdb016c6fdd9d05cfeb69cdd9e09.camel@freebox.fr>
-        <20220324163132.GB26098@lst.de>
-        <d8a1cbf4-a521-78ec-1560-28d855e0913e@arm.com>
-        <871qyr9t4e.fsf@toke.dk>
-        <CAHk-=whUQCCaQXJt3KUeQ8mtnLeVXEScNXCp+_DYh2SNY7EcEA@mail.gmail.com>
-        <20220327054848.1a545b12.pasic@linux.ibm.com>
-        <CAHk-=whUJ=tMEgP3KiWwk0pzmHn+1QORUu50syE+zOGk4UnFog@mail.gmail.com>
-        <CAHk-=wgUx5CVF_1aEkhhEiRGXHgKzUdKiyctBKcHAxkxPpbiaw@mail.gmail.com>
-        <20220328015211.296739a4.pasic@linux.ibm.com>
-        <CAHk-=whK3z5O4G55cOb2JYgwisb4cpDK=qhM=0CfmCC8PD+xMQ@mail.gmail.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qM3F7YJf-cGX00jEe2OWQrGFmuf7JALY
-X-Proofpoint-GUID: -noAAuTabGO02OaibSytSTpo2UpQgv16
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-28_04,2022-03-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- impostorscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- mlxlogscore=999 adultscore=0 mlxscore=0 spamscore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203280069
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S234315AbiC1MMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 08:12:23 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4E94616F;
+        Mon, 28 Mar 2022 05:10:42 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id b13so10564674pfv.0;
+        Mon, 28 Mar 2022 05:10:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=2metHrwiTDvTKdu2SsVynM27Kre3NRcfjJWJDziOK2s=;
+        b=bzLn/vTVd5csLlxLA8U14K6h6AVYNc/RaTCL2SCqxZTGmJhDLexAqiu40rUPlPJZ1+
+         EHWKGGcoIbJahNJfKHYl2GmXvEEh/DG4QQU3qzKFMvpmk8SpWzz8+7o4Bngn6iyBi8Ve
+         danmjzuRezT1r5HfS/9olEugghGy+AeI8c0u0S27K2MSwonGfyIbrT3MokDmYeUpBQvg
+         yukIigRDeqY43PseXtn6zKUJicPkatL5bHwzS/DgzBkOIDTgPBkTZKrljs2upSPCgC7Z
+         +3d8QpUx0l5hx3m7IVcCXLP6I9jH1aHPEQc7l2F00tRVfLFApTyLBA2RQP3GMUfsZVWT
+         BczA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=2metHrwiTDvTKdu2SsVynM27Kre3NRcfjJWJDziOK2s=;
+        b=a4McFD4uiEotbtyuCI+B7NmMjK6KX4Lzn66HRye00zZdDPkF95a0AU2KIJYsojxgCZ
+         PH+sH+NIGIN4i+BZJeFycKIyjJPVFrmHNmL/oSwG+FFN6rM7ni8vZsmnWBUgTbNwDDGS
+         nhOos70RazISFoE7V3Aja7m+rqtB0r/Sgv2rL25p1ELRcShaC8sqnIXmRXuR9wPgovXV
+         9TqpQj3rhGZ1KrKw72+sojyZX9DF85RwtPOtbVEsjsDKjKWsctl0UHoUQYMPSyKNXy5H
+         Rg2drkoS0toBDE4c1V0BCIHFghfjm4QN2/AnfMgiEzNMyl7gsV/bsr0HsLHEsMBPhGTs
+         wswg==
+X-Gm-Message-State: AOAM530VHGQBFYkuF55pTBNw29jxpoaRbYyYuv73mPI20q/gxj756Tc4
+        cpV8Wwt5Ib/nGJ1soL41SnA3VKEC1vC4AA==
+X-Google-Smtp-Source: ABdhPJyNkvB3SXX6Y53tt18jSoLf0RY9GAqt/vx5zeQ2C0Q++J31WoyKZlVWfJrEAe8oSoT2nr33MQ==
+X-Received: by 2002:a63:770c:0:b0:386:361f:ecce with SMTP id s12-20020a63770c000000b00386361feccemr10162135pgc.202.1648469442425;
+        Mon, 28 Mar 2022 05:10:42 -0700 (PDT)
+Received: from ubuntu.huawei.com ([119.3.119.18])
+        by smtp.googlemail.com with ESMTPSA id p10-20020a056a0026ca00b004fb44e0cb17sm5528250pfw.116.2022.03.28.05.10.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Mar 2022 05:10:41 -0700 (PDT)
+From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
+To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        gregkh@linuxfoundation.org, jirislaby@kernel.org,
+        jcmvbkbc@gmail.com, elder@linaro.org, dsterba@suse.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v3] char: tty3270: fix a missing check on list iterator
+Date:   Mon, 28 Mar 2022 20:10:30 +0800
+Message-Id: <20220328121030.32047-1-xiam0nd.tong@gmail.com>
+X-Mailer: git-send-email 2.17.1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 27 Mar 2022 17:30:01 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+The bug is here:
+	if (s->len != flen) {
 
-> On Sun, Mar 27, 2022 at 4:52 PM Halil Pasic <pasic@linux.ibm.com> wrote:
-> >
-> > I have no intention of pursuing this.  When fixing the information leak,
-> > I happened to realize, that a somewhat similar situation can emerge when
-> > mappings are reused. It seemed like an easy fix, so I asked the swiotlb
-> > maintainers, and they agreed. It ain't my field of expertise, and the
-> > drivers I'm interested in don't need this functionality.  
-> 
-> Ok.
-> 
-> That said, I think you are putting yourself down when you said in an
-> earlier email that you aren't veryt knowledgeable in this area.
-> 
-> I think the fact that you *did* think of this other similar situation
-> is actually very interesting, and it's something people probably
-> _haven't_ been thinking about.
+The list iterator 's' will point to a bogus position containing
+HEAD if the list is empty or no element is found. This case must
+be checked before any use of the iterator, otherwise it may bypass
+the 'if (s->len != flen) {' in theory if s->len's value is flen,
+or/and lead to an invalid memory access lately.
 
-Thank you!
+To fix this bug, use a new variable 'iter' as the list iterator,
+while using the origin variable 's' as a dedicated pointer to
+point to the found element. And if the list is empty or no element
+is found, WARN_ON and return.
 
-> 
-> So I think your first commit fixes the straightforward and common case
-> where you do that "map / partial dma / unmap" case.
-> 
-> And that straightforward case is probably all that the disk IO case
-> ever really triggers, which is presumably why those "drivers I'm
-> interested in don't need this functionality" don't need anything else?
-> 
+Cc: stable@vger.kernel.org
+Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+---
+changes since v2:
+ - WARN_ON and return (Sven Schnelle)
 
-I agree.
+changes since v1:
+ - reallocate s when s == NULL (Sven Schnelle)
 
-> And yes, your second commit didn't work, but hey, whatever. The whole
-> "multiple operations on the same double buffering allocation"
-> situation is something I don't think people have necessarily thought
-> about enough.
-> 
-> And by that I don't mean you. I mean very much the whole history of
-> our dma mapping code.
-> 
+v1:https://lore.kernel.org/lkml/20220327064931.7775-1-xiam0nd.tong@gmail.com/
+v2:https://lore.kernel.org/lkml/20220328070543.24671-1-xiam0nd.tong@gmail.com/
 
-I agree. We are in the process of catching up! :) My idea was to aid
-a process, as a relatively naive pair of eyes: somebody didn't read any
-data sheets describing non-cache-coherent DMA, and never programmed
-a DMA. It is a fairly common problem, that for the very knowledgeable
-certain things seem obvious, self-explanatory or trivial, but for the
-less knowledgeable the are not. And knowledge can create bias.
+---
+ drivers/s390/char/tty3270.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-> I then get opinionated and probably too forceful, but please don't
-> take it as being about you - it's about just my frustration with that
-> code - and if it comes off too negative then please accept my
-> apologies.
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+index 5c83f71c1d0e..9d0952178322 100644
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -1109,9 +1109,9 @@ static void tty3270_put_character(struct tty3270 *tp, char ch)
+ static void
+ tty3270_convert_line(struct tty3270 *tp, int line_nr)
+ {
++	struct string *s = NULL, *n, *iter;
+ 	struct tty3270_line *line;
+ 	struct tty3270_cell *cell;
+-	struct string *s, *n;
+ 	unsigned char highlight;
+ 	unsigned char f_color;
+ 	char *cp;
+@@ -1142,9 +1142,14 @@ tty3270_convert_line(struct tty3270 *tp, int line_nr)
+ 
+ 	/* Find the line in the list. */
+ 	i = tp->view.rows - 2 - line_nr;
+-	list_for_each_entry_reverse(s, &tp->lines, list)
+-		if (--i <= 0)
++	list_for_each_entry_reverse(iter, &tp->lines, list)
++		if (--i <= 0) {
++			s = iter;
+ 			break;
++		 }
++
++	if(WARN_ON(!s))
++		return;
+ 	/*
+ 	 * Check if the line needs to get reallocated.
+ 	 */
+-- 
+2.17.1
 
-I have to admit, I did feel a little uncomfortable, and I did look for
-an exit strategy. I do believe, that people in your position do have to
-occasionally get forceful, and even abrasive to maintain efficiency. I
-try to not ignore the social aspect of things, but I do get carried away
-occasionally.
-
-Your last especially paragraph is very encouraging and welcome. Thank
-you!
-
-Regards,
-Halil
-
-[..]
