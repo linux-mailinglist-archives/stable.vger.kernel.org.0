@@ -2,88 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2744E9082
-	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 10:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC8C4E90A7
+	for <lists+stable@lfdr.de>; Mon, 28 Mar 2022 11:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233393AbiC1Iwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 04:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58448 "EHLO
+        id S234293AbiC1JCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 05:02:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234121AbiC1Iwl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 04:52:41 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08410427C4
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 01:51:00 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id u22so11970898pfg.6
-        for <stable@vger.kernel.org>; Mon, 28 Mar 2022 01:51:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=sqx0rJwCSQ99MfRw8XtkvIUHwIx/mgTEACluM2DeFwg=;
-        b=IYPA4nLVLk/FmSNQd42ARPe0FUtPYdnekvkQ+igCbtBeglZ2Dyt5HGcdy3Yr4UncDP
-         ZM+jEWWgGU+nCNAGPHvMZvgwdpyXX9YIGX9StfJ9ofqsRSoHB5ZdFYC0JIcJ8NVjqRE6
-         YLVD0WOG+rhAYbFI2AGreDE6qFbD9Kegv7eE55IQ/D+Q8e93KNita41B+tcdm/QLj4+8
-         UToOfSGNPlKnehmqGoHk9wqtCmRqg819lrxxKkjUJ+CqHOaiLlBBBxCJFwxdvkobFlYK
-         bnSObL0wAKd4N8fPJJJRscDHAilwFmVn0e8ASzvSC6ZMShnyrOF6HX0mpWjuHW1QbvUe
-         homQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=sqx0rJwCSQ99MfRw8XtkvIUHwIx/mgTEACluM2DeFwg=;
-        b=od/Dz1cQDBoGwHCzIcRRIZGUhzdi/Y7oN3gxmLNwLhmjQNZyhY/P6e36ZNabxMX1Xp
-         JoBLqdExKqlYQQEcACU5zIMqaonRkmC+loP9zaJphvxN1gu3XXZUc2VzweShMYtN3PFa
-         bh1O7aF+6gA+D4bj5tOAmz5cTw23FXwht8KldtMIVuPxD78GzfR7ftbjwVjU8vqeU5S2
-         8j0lyvzCHW+8YEH6fhtddmc4qkUmJW+lqPPMyyRQ1eR4D+Ky0Ekqe7xS2C6lqfyWJxky
-         aGjAIdl6AH5CiY0N3qtXihNPUNShzgMYIh6WHuzkDz6c9e8VvWMrYF5CHnv4TZ2/XYRV
-         BT4Q==
-X-Gm-Message-State: AOAM533bvbxjQrKWLxqMzrzVEoMSLEI3/WhjDCZhCDJim3DDj0ZjvDb4
-        pAuiMI6cTzawIN+Nb8VdVmHy6w==
-X-Google-Smtp-Source: ABdhPJwW/6gdtw48ET2SKpPDWicGASH5Y7hNn5I/wV4zR5H3rz3xz23kqoOlrbkKGW+qunPj7z3FiA==
-X-Received: by 2002:a63:310c:0:b0:386:afa:45bb with SMTP id x12-20020a63310c000000b003860afa45bbmr9734649pgx.133.1648457459470;
-        Mon, 28 Mar 2022 01:50:59 -0700 (PDT)
-Received: from localhost ([223.184.83.228])
-        by smtp.gmail.com with ESMTPSA id s6-20020a056a0008c600b004f667b8a6b6sm15524566pfu.193.2022.03.28.01.50.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 01:50:59 -0700 (PDT)
-Date:   Mon, 28 Mar 2022 14:20:57 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, nm@ti.com,
-        rafael.j.wysocki@intel.com, sboyd@kernel.org,
-        stable@vger.kernel.org, vireshk@kernel.org
-Subject: Re: [PATCH] opp: fix a missing check on list iterator
-Message-ID: <20220328085057.ikn3mcyz2gbftkg4@vireshk-i7>
-References: <20220328031739.72togwws2u2rlluo@vireshk-i7>
- <20220328074322.25349-1-xiam0nd.tong@gmail.com>
+        with ESMTP id S236136AbiC1JCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 05:02:05 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B594EA25;
+        Mon, 28 Mar 2022 02:00:25 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id D4FC11F383;
+        Mon, 28 Mar 2022 09:00:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1648458023; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=47pPpyGxuilOfnCBTjS7w3pI+iy5tOMsC7jtD+lLV90=;
+        b=j3VTfzogM268touRV4Bk9j9IbSXqySsLpCu637yg4u3UHRXVzXFp8C/LXvTjFqfA8qklUa
+        cyq5m7d4v1yvK5/VdXSfWna2NUq4G77k2eBKf0a+B6FYETVNzAF+/jqF/6fYCsPn79YgVE
+        KOsHUtcraiBIIUMXN8S1L38FyH4tmfE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1648458023;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=47pPpyGxuilOfnCBTjS7w3pI+iy5tOMsC7jtD+lLV90=;
+        b=oEGcYiXSrqVndh2Efqz55c0Kt3SLjTd6PHyfyfszeiv/H8CoqFAdsasE+gUaAdn5lUREac
+        yNRHDdLHHRK/YTCg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 29F3913B08;
+        Mon, 28 Mar 2022 09:00:23 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id /W/zBid5QWKzHAAAMHmgww
+        (envelope-from <osalvador@suse.de>); Mon, 28 Mar 2022 09:00:23 +0000
+Date:   Mon, 28 Mar 2022 11:00:21 +0200
+From:   Oscar Salvador <osalvador@suse.de>
+To:     Rik van Riel <riel@surriel.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        kernel-team@fb.com, Miaohe Lin <linmiaohe@huawei.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] mm,hwpoison: unmap poisoned page before invalidation
+Message-ID: <YkF5Jd6fauTRvVVg@localhost.localdomain>
+References: <20220325161428.5068d97e@imladris.surriel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220328074322.25349-1-xiam0nd.tong@gmail.com>
-User-Agent: NeoMutt/20180716-391-311a52
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220325161428.5068d97e@imladris.surriel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28-03-22, 15:43, Xiaomeng Tong wrote:
-> No. the conditon to call opp_migrate_dentry(opp_dev, opp_table); is:
-> if (!list_is_singular(&opp_table->dev_list)), 
+On Fri, Mar 25, 2022 at 04:14:28PM -0400, Rik van Riel wrote:
+> In some cases it appears the invalidation of a hwpoisoned page
+> fails because the page is still mapped in another process. This
+> can cause a program to be continuously restarted and die when
+> it page faults on the page that was not invalidated. Avoid that
+> problem by unmapping the hwpoisoned page when we find it.
 > 
-> while list_is_singlular is: !list_empty(head) && (head->next == head->prev);
+> Another issue is that sometimes we end up oopsing in finish_fault,
+> if the code tries to do something with the now-NULL vmf->page.
+> I did not hit this error when submitting the previous patch because
+> there are several opportunities for alloc_set_pte to bail out before
+> accessing vmf->page, and that apparently happened on those systems,
+> and most of the time on other systems, too.
 > 
-> so the condition is: list_empty(head) || (head->next != head->prev)
+> However, across several million systems that error does occur a
+> handful of times a day. It can be avoided by returning VM_FAULT_NOPAGE
+> which will cause do_read_fault to return before calling finish_fault.
 > 
-> if the list is empty, the bug can be triggered.
+> Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: Miaohe Lin <linmiaohe@huawei.com>
+> Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Cc: Johannes Weiner <hannes@cmpxchg.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  mm/memory.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/mm/memory.c b/mm/memory.c
+> index be44d0b36b18..76e3af9639d9 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -3918,14 +3918,18 @@ static vm_fault_t __do_fault(struct vm_fault *vmf)
+>  		return ret;
+>  
+>  	if (unlikely(PageHWPoison(vmf->page))) {
+> +		struct page *page = vmf->page;
+>  		vm_fault_t poisonret = VM_FAULT_HWPOISON;
+>  		if (ret & VM_FAULT_LOCKED) {
+> +			if (page_mapped(page))
+> +				unmap_mapping_pages(page_mapping(page),
+> +						    page->index, 1, false);
+>  			/* Retry if a clean page was removed from the cache. */
+> -			if (invalidate_inode_page(vmf->page))
+> -				poisonret = 0;
+> -			unlock_page(vmf->page);
+> +			if (invalidate_inode_page(page))
+> +				poisonret = VM_FAULT_NOPAGE;
 
-List can't be empty here by design. It will be a huge bug in that
-case, which should lead to crash somewhere.
+What is the effect of returning VM_FAULT_NOPAGE?
+I take that we are cool because the pte has been installed and points to
+a new page? (I could not find where that is being done).
+
 
 -- 
-viresh
+Oscar Salvador
+SUSE Labs
