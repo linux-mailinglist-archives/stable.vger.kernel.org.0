@@ -2,101 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF7894EA4E8
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 04:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23DAA4EA53A
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 04:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbiC2CFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Mar 2022 22:05:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46580 "EHLO
+        id S230420AbiC2Cfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Mar 2022 22:35:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiC2CFr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 22:05:47 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B6DD2E0AF;
-        Mon, 28 Mar 2022 19:04:06 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id f3so13309174pfe.2;
-        Mon, 28 Mar 2022 19:04:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=o1C/N7k3NvBFr+UwK4x8b6ScN+zhLx3X20kO3wGJzGs=;
-        b=egQ2/hWe4My+5CfAHOVi0oWqZnTHksJedoVcn4yJ53m9qW9FCmzt7gzVcCIeua6Ghb
-         aO+RE19WOQDk253DKTfg5uN8MyJINd8wNIWXksmYAB2LHh28siew51lOd/KQ5JpGgle7
-         Jo7Blz1iIcnR3gB4nRS0XcXoebulkpnN5l+AJDa49biNQVT9T+joNrK309Ny2/OKDrs+
-         J5Vwm/maFYIHB/RYQxOwnokJUr2AKfow1Up4/2WuTRh51IlDQSTuYlMVqgl4BoK5MzbB
-         83SpAq6gJOsKDbxgIhPjkphgovNFhP/QSEFk5AC3qCoO98I+/McDXk8rwoAnkKj4RuSM
-         7iAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=o1C/N7k3NvBFr+UwK4x8b6ScN+zhLx3X20kO3wGJzGs=;
-        b=YsZTOrgqclcEOxyUD9S+4C0EclRSojoZJ6E+indKFlsXegbssGF8y17DiRtjStaPXy
-         YqShxvlA3R8ss+CasSTeuk49JIJK72yLs4X4WbPcWPYCOalTO1z5yZDGuVwjtyeuIqNu
-         6I7CCqbJdXKWaIn24pRsYomtTp4OGYCPg7NeKvBH16diGl52dfwSUgPQDNDfDD8ELJ7u
-         5f8TFStcv0DE/LpzjyriVPaYLSYeRSYby9Qaho3Ml560U+ChDGjKn6J0AdmiWbF2/9MO
-         rLys651ah8rGhbCZyBXp5Vpd+u/3LUDY6M0i7ymjwJGBzTiwt+4fw+TFrJdQFAOH9GJ8
-         sUPg==
-X-Gm-Message-State: AOAM532SUHrEwwnd28c/F4RXK4sXlEsh/DwhHlOAk4D39DoXDypxGJlg
-        p6IBI59V+728Sr/MTy1LCVbbXGiWpstf9w==
-X-Google-Smtp-Source: ABdhPJxWSoZfrbImbacBCV9Yd4RuUQFxxhBKS47gx0JNznRDIgWtbVrXzE1W6vSRE2UP9qzs2CXo4w==
-X-Received: by 2002:a05:6a00:140a:b0:4e0:54d5:d01 with SMTP id l10-20020a056a00140a00b004e054d50d01mr25768620pfu.20.1648519445808;
-        Mon, 28 Mar 2022 19:04:05 -0700 (PDT)
-Received: from ubuntu.huawei.com ([119.3.119.18])
-        by smtp.googlemail.com with ESMTPSA id c4-20020a056a00248400b004faad8c81bcsm18203488pfv.127.2022.03.28.19.04.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 19:04:05 -0700 (PDT)
-From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     dan.carpenter@oracle.com
-Cc:     elder@kernel.org, gregkh@linuxfoundation.org,
-        greybus-dev@lists.linaro.org, johan@kernel.org,
-        linux-kernel@vger.kernel.org, linux-staging@lists.linux.dev,
-        mgreer@animalcreek.com, stable@vger.kernel.org,
-        vaibhav.sr@gmail.com, xiam0nd.tong@gmail.com
-Subject: Re: [PATCH] greybus: audio_codec: fix three missing initializers for data
-Date:   Tue, 29 Mar 2022 10:03:57 +0800
-Message-Id: <20220329020357.10597-1-xiam0nd.tong@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220328141944.GT3293@kadam>
-References: <20220328141944.GT3293@kadam>
-X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S230358AbiC2Cfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Mar 2022 22:35:50 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B961116E;
+        Mon, 28 Mar 2022 19:34:04 -0700 (PDT)
+X-UUID: bf9bfe96da7f47e8a2ae7259817316b0-20220329
+X-UUID: bf9bfe96da7f47e8a2ae7259817316b0-20220329
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
+        (envelope-from <trevor.wu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 640139202; Tue, 29 Mar 2022 10:34:00 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 29 Mar 2022 10:33:58 +0800
+Received: from mtksdccf07 (172.21.84.99) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 29 Mar 2022 10:33:58 +0800
+Message-ID: <eef98cc24f75f9712acd3fe5e597d49140cbc943.camel@mediatek.com>
+Subject: Re: [PATCH] mediatek: mt8195: fix a missing check on list iterator
+From:   Trevor Wu <trevor.wu@mediatek.com>
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, <lgirdwood@gmail.com>,
+        <broonie@kernel.org>, <perex@perex.cz>, <tiwai@suse.com>,
+        <matthias.bgg@gmail.com>
+CC:     <tzungbi@google.com>, <dan.carpenter@oracle.com>,
+        <jiaxin.yu@mediatek.com>, <rikard.falkeborn@gmail.com>,
+        <yc.hung@mediatek.com>, <alsa-devel@alsa-project.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+Date:   Tue, 29 Mar 2022 10:33:58 +0800
+In-Reply-To: <20220327081712.13341-1-xiam0nd.tong@gmail.com>
+References: <20220327081712.13341-1-xiam0nd.tong@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-MTK:  N
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Mar 2022 17:19:45 +0300, Dan Carpenter wrote:
-> On Sun, Mar 27, 2022 at 02:01:20PM +0800, Xiaomeng Tong wrote:
-> > These three bugs are here:
-> > 	struct gbaudio_data_connection *data;
-> > 
-> > If the list '&codec->module_list' is empty then the 'data' will
-> > keep unchanged.
+On Sun, 2022-03-27 at 16:17 +0800, Xiaomeng Tong wrote:
+> The bug is here:
+>  mt8195_etdm_hw_params_fixup(runtime, params);
 > 
-> All three of these functions check for if the codec->module_list is
-> empty at the start of the function so these are not real bugs.
+> For the for_each_card_rtds(), just like list_for_each_entry(),
+> the list iterator 'runtime' will point to a bogus position
+> containing HEAD if the list is empty or no element is found.
+> This case must be checked before any use of the iterator,
+> otherwise it will lead to a invalid memory access.
 > 
-> Smatch is supposed to be able to figure this out, but apparently that
-> code is broken so Smatch still prints a warning.  :(
-> 
-> Apparently GCC does not print a warning for this.  Even when I delete
-> the check for list_empty() then GCC does not print a warning.  GCC often
-> assumes that we enter loops one time.  I haven't looked at that, but I
-> have noticed it in reviewing Smatch vs GCC warnings.
-> 
-> Generally we do not apply static checker work arounds.
-> 
-> I do not have a problem with this particular work around, but it needs
-> an updated commit message which says it is just to silence static
-> checker warnings and not to fix bugs.  Remove the Fixes tag.  Don't CC
-> stable.
+> To fix the bug, use a new variable 'iter' as the list iterator,
+> while use the original variable 'runtime' as a dedicated poin
+> ter
+> to point to the found element.
 
-Yes, you are right. I have resend a PATCH with updated commit message as
-you suggested, and cc you. Thank you.
+Hi Xiaomeng,
 
---
-Xiaomeng Tong
+About this bug, I think it won't happen anymore.
+
+mt8195_dai_link_fixup() is only assigned when the corresponding
+snd_soc_pcm_runtime is found
+in mt8195_mt6359_rt1019_rt5682_late_probe().
+
+On the other hand, runtime is not used in the body of
+mt8195_etdm_hw_params_fixup().
+
+That's why I think the problem doesn't exist.
+If I misunderstood the problem you pointed out, please correct me.
+
+Thanks,
+Trevor
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 3d00d2c07f04f ("ASoC: mediatek: mt8195: add sof support on
+> mt8195-mt6359-rt1019-rt5682")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> ---
+>  .../mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c  | 14 ++++++++--
+> ----
+>  1 file changed, 8 insertions(+), 6 deletions(-)
+> 
+> diff --git a/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
+> b/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
+> index 29c2d3407cc7..dc91877e4c3c 100644
+> --- a/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
+> +++ b/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
+> @@ -814,7 +814,7 @@ static int mt8195_dai_link_fixup(struct
+> snd_soc_pcm_runtime *rtd,
+>  {
+>  	struct snd_soc_card *card = rtd->card;
+>  	struct snd_soc_dai_link *sof_dai_link = NULL;
+> -	struct snd_soc_pcm_runtime *runtime;
+> +	struct snd_soc_pcm_runtime *runtime = NULL, *iter;
+>  	struct snd_soc_dai *cpu_dai;
+>  	int i, j, ret = 0;
+>  
+> @@ -824,16 +824,17 @@ static int mt8195_dai_link_fixup(struct
+> snd_soc_pcm_runtime *rtd,
+>  		if (strcmp(rtd->dai_link->name, conn->normal_link))
+>  			continue;
+>  
+> -		for_each_card_rtds(card, runtime) {
+> -			if (strcmp(runtime->dai_link->name, conn-
+> >sof_link))
+> +		for_each_card_rtds(card, iter) {
+> +			if (strcmp(iter->dai_link->name, conn-
+> >sof_link))
+>  				continue;
+>  
+> -			for_each_rtd_cpu_dais(runtime, j, cpu_dai) {
+> +			for_each_rtd_cpu_dais(iter, j, cpu_dai) {
+>  				if (cpu_dai->stream_active[conn-
+> >stream_dir] > 0) {
+> -					sof_dai_link = runtime-
+> >dai_link;
+> +					sof_dai_link = iter->dai_link;
+>  					break;
+>  				}
+>  			}
+> +			runtime = iter;
+>  			break;
+>  		}
+>  
+> @@ -845,7 +846,8 @@ static int mt8195_dai_link_fixup(struct
+> snd_soc_pcm_runtime *rtd,
+>  
+>  	if (!strcmp(rtd->dai_link->name, "ETDM2_IN_BE") ||
+>  	    !strcmp(rtd->dai_link->name, "ETDM1_OUT_BE")) {
+> -		mt8195_etdm_hw_params_fixup(runtime, params);
+> +		if (runtime)
+> +			mt8195_etdm_hw_params_fixup(runtime, params);
+>  	}
+>  
+>  	return ret;
+
