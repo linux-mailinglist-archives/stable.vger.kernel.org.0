@@ -2,143 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F37244EAC37
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 13:26:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA3194EAF65
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 16:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235738AbiC2L2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 07:28:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
+        id S232827AbiC2Oki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Mar 2022 10:40:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235049AbiC2L2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 07:28:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D3F1D760C
-        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 04:26:38 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA70EB80A37
-        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 11:26:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224E1C2BBE4;
-        Tue, 29 Mar 2022 11:26:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648553195;
-        bh=1dxOYq65rIMIrsxhvxqgMc5PGLcUlFtmZkGpw9nmSnc=;
-        h=Subject:To:Cc:From:Date:From;
-        b=z4vIF12Ur5l/4w7miPGZrCTB0JhLXaUmNVd3EmBZ2H4yC0Kx8l9Ke+3ysg6IqQPJx
-         jW8Ql2FTYz91GJp98zkdB2oLeCxuw0gZHa2vNlFUJNfkyBRsVCVcrbJd5GuMtoDO/b
-         XdkasHUnhsLnIhar6NwBoGEAa2IoHs9oliqIE62g=
-Subject: FAILED: patch "[PATCH] locking/lockdep: Avoid potential access of invalid memory in" failed to apply to 5.4-stable tree
-To:     longman@redhat.com, bvanassche@acm.org,
-        penguin-kernel@i-love.sakura.ne.jp, peterz@infradead.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 29 Mar 2022 13:26:33 +0200
-Message-ID: <16485531938335@kroah.com>
+        with ESMTP id S232360AbiC2Okh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 10:40:37 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 284FA1BE8E;
+        Tue, 29 Mar 2022 07:38:54 -0700 (PDT)
+Date:   Tue, 29 Mar 2022 14:38:51 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1648564732;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UKckQnJOCfFqfkTupAwTwDN05oNgl1gAN+rYy9bq1BI=;
+        b=p6X8I/iXjdvz6+wd+KAFnD9tBOy93HKq/k/FhRlMljpHBa9Ut4dRlWMtvAL1pm5O71aqpz
+        5v+4m943DfafWNggIPxMihH0x69HrmrYTTelb2+2xmNeGt6q7JE5lGydDpFXP23/HKt9yo
+        wnsd57y0s8B5U4LN1XbuYQQtOn4rqcghjmuc3HhGUOeN2Q/XVpkrrs6ovO598wrfuHbcd6
+        LQMjY39dmYrPd8hA/7V7q+9P9ibgDxZ3m5h94cC68zVHIRJT5qQylwVEAci9d4mDzUp+Lo
+        VK9rAoKF4U7a96CXHLKkF01qbyfSlqiKhnIv2QHM3Vh3f45uxUoeKelf1YPGAA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1648564732;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UKckQnJOCfFqfkTupAwTwDN05oNgl1gAN+rYy9bq1BI=;
+        b=czlzVgzmPl7yrwhj24UTyxzAdUNvV6369/G6xbAHdpCdG2BrBz85+FI27cea7nBkP+kbCy
+        yE+Nc53q/iBbN9Dg==
+From:   "tip-bot2 for Joerg Roedel" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/sev: Unroll string mmio with
+ CC_ATTR_GUEST_UNROLL_STRING_IO
+Cc:     Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        <stable@vger.kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20220321093351.23976-1-joro@8bytes.org>
+References: <20220321093351.23976-1-joro@8bytes.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Message-ID: <164856473151.389.17789498051927031377.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the x86/urgent branch of tip:
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Commit-ID:     4009a4ac82dd95b8cd2b62bd30019476983f0aff
+Gitweb:        https://git.kernel.org/tip/4009a4ac82dd95b8cd2b62bd30019476983f0aff
+Author:        Joerg Roedel <jroedel@suse.de>
+AuthorDate:    Mon, 21 Mar 2022 10:33:51 +01:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Tue, 29 Mar 2022 15:59:16 +02:00
 
-thanks,
+x86/sev: Unroll string mmio with CC_ATTR_GUEST_UNROLL_STRING_IO
 
-greg k-h
+The io-specific memcpy/memset functions use string mmio accesses to do
+their work. Under SEV, the hypervisor can't emulate these instructions
+because they read/write directly from/to encrypted memory.
 
------------------- original commit in Linus's tree ------------------
+KVM will inject a page fault exception into the guest when it is asked
+to emulate string mmio instructions for an SEV guest:
 
-From 61cc4534b6550997c97a03759ab46b29d44c0017 Mon Sep 17 00:00:00 2001
-From: Waiman Long <longman@redhat.com>
-Date: Sun, 2 Jan 2022 21:35:58 -0500
-Subject: [PATCH] locking/lockdep: Avoid potential access of invalid memory in
- lock_class
+  BUG: unable to handle page fault for address: ffffc90000065068
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 8000100000067 P4D 8000100000067 PUD 80001000fb067 PMD 80001000fc067 PTE 80000000fed40173
+  Oops: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.17.0-rc7 #3
 
-It was found that reading /proc/lockdep after a lockdep splat may
-potentially cause an access to freed memory if lockdep_unregister_key()
-is called after the splat but before access to /proc/lockdep [1]. This
-is due to the fact that graph_lock() call in lockdep_unregister_key()
-fails after the clearing of debug_locks by the splat process.
+As string mmio for an SEV guest can not be supported by the
+hypervisor, unroll the instructions for CC_ATTR_GUEST_UNROLL_STRING_IO
+enabled kernels.
 
-After lockdep_unregister_key() is called, the lock_name may be freed
-but the corresponding lock_class structure still have a reference to
-it. That invalid memory pointer will then be accessed when /proc/lockdep
-is read by a user and a use-after-free (UAF) error will be reported if
-KASAN is enabled.
+This issue appears when kernels are launched in recent libvirt-managed
+SEV virtual machines, because virt-install started to add a tpm-crb
+device to the guest by default and proactively because, raisins:
 
-To fix this problem, lockdep_unregister_key() is now modified to always
-search for a matching key irrespective of the debug_locks state and
-zap the corresponding lock class if a matching one is found.
+  https://github.com/virt-manager/virt-manager/commit/eb58c09f488b0633ed1eea012cd311e48864401e
 
-[1] https://lore.kernel.org/lkml/77f05c15-81b6-bddd-9650-80d5f23fe330@i-love.sakura.ne.jp/
+and as that commit says, the default adding of a TPM can be disabled
+with "virt-install ... --tpm none".
 
-Fixes: 8b39adbee805 ("locking/lockdep: Make lockdep_unregister_key() honor 'debug_locks' again")
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lkml.kernel.org/r/20220103023558.1377055-1-longman@redhat.com
+The kernel driver for tpm-crb uses memcpy_to/from_io() functions to
+access MMIO memory, resulting in a page-fault injected by KVM and
+crashing the kernel at boot.
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 89b3df51fd98..2e6892ec3756 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -6287,7 +6287,13 @@ void lockdep_reset_lock(struct lockdep_map *lock)
- 		lockdep_reset_lock_reg(lock);
+  [ bp: Massage and extend commit message. ]
+
+Fixes: d8aa7eea78a1 ('x86/mm: Add Secure Encrypted Virtualization (SEV) support')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220321093351.23976-1-joro@8bytes.org
+---
+ arch/x86/lib/iomem.c | 65 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 57 insertions(+), 8 deletions(-)
+
+diff --git a/arch/x86/lib/iomem.c b/arch/x86/lib/iomem.c
+index df50451..3e2f33f 100644
+--- a/arch/x86/lib/iomem.c
++++ b/arch/x86/lib/iomem.c
+@@ -22,7 +22,7 @@ static __always_inline void rep_movs(void *to, const void *from, size_t n)
+ 		     : "memory");
  }
  
--/* Unregister a dynamically allocated key. */
-+/*
-+ * Unregister a dynamically allocated key.
-+ *
-+ * Unlike lockdep_register_key(), a search is always done to find a matching
-+ * key irrespective of debug_locks to avoid potential invalid access to freed
-+ * memory in lock_class entry.
-+ */
- void lockdep_unregister_key(struct lock_class_key *key)
+-void memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
++static void string_memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
  {
- 	struct hlist_head *hash_head = keyhashentry(key);
-@@ -6302,10 +6308,8 @@ void lockdep_unregister_key(struct lock_class_key *key)
+ 	if (unlikely(!n))
  		return;
- 
- 	raw_local_irq_save(flags);
--	if (!graph_lock())
--		goto out_irq;
-+	lockdep_lock();
- 
--	pf = get_pending_free();
- 	hlist_for_each_entry_rcu(k, hash_head, hash_entry) {
- 		if (k == key) {
- 			hlist_del_rcu(&k->hash_entry);
-@@ -6313,11 +6317,13 @@ void lockdep_unregister_key(struct lock_class_key *key)
- 			break;
- 		}
+@@ -38,9 +38,8 @@ void memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
  	}
--	WARN_ON_ONCE(!found);
--	__lockdep_free_key_range(pf, key, 1);
--	call_rcu_zapped(pf);
--	graph_unlock();
--out_irq:
-+	WARN_ON_ONCE(!found && debug_locks);
-+	if (found) {
-+		pf = get_pending_free();
-+		__lockdep_free_key_range(pf, key, 1);
-+		call_rcu_zapped(pf);
-+	}
-+	lockdep_unlock();
- 	raw_local_irq_restore(flags);
+ 	rep_movs(to, (const void *)from, n);
+ }
+-EXPORT_SYMBOL(memcpy_fromio);
  
- 	/* Wait until is_dynamic_key() has finished accessing k->hash_entry. */
-
+-void memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
++static void string_memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
+ {
+ 	if (unlikely(!n))
+ 		return;
+@@ -56,14 +55,64 @@ void memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
+ 	}
+ 	rep_movs((void *)to, (const void *) from, n);
+ }
++
++static void unrolled_memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
++{
++	const volatile char __iomem *in = from;
++	char *out = to;
++	int i;
++
++	for (i = 0; i < n; ++i)
++		out[i] = readb(&in[i]);
++}
++
++static void unrolled_memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
++{
++	volatile char __iomem *out = to;
++	const char *in = from;
++	int i;
++
++	for (i = 0; i < n; ++i)
++		writeb(in[i], &out[i]);
++}
++
++static void unrolled_memset_io(volatile void __iomem *a, int b, size_t c)
++{
++	volatile char __iomem *mem = a;
++	int i;
++
++	for (i = 0; i < c; ++i)
++		writeb(b, &mem[i]);
++}
++
++void memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
++{
++	if (cc_platform_has(CC_ATTR_GUEST_UNROLL_STRING_IO))
++		unrolled_memcpy_fromio(to, from, n);
++	else
++		string_memcpy_fromio(to, from, n);
++}
++EXPORT_SYMBOL(memcpy_fromio);
++
++void memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
++{
++	if (cc_platform_has(CC_ATTR_GUEST_UNROLL_STRING_IO))
++		unrolled_memcpy_toio(to, from, n);
++	else
++		string_memcpy_toio(to, from, n);
++}
+ EXPORT_SYMBOL(memcpy_toio);
+ 
+ void memset_io(volatile void __iomem *a, int b, size_t c)
+ {
+-	/*
+-	 * TODO: memset can mangle the IO patterns quite a bit.
+-	 * perhaps it would be better to use a dumb one:
+-	 */
+-	memset((void *)a, b, c);
++	if (cc_platform_has(CC_ATTR_GUEST_UNROLL_STRING_IO)) {
++		unrolled_memset_io(a, b, c);
++	} else {
++		/*
++		 * TODO: memset can mangle the IO patterns quite a bit.
++		 * perhaps it would be better to use a dumb one:
++		 */
++		memset((void *)a, b, c);
++	}
+ }
+ EXPORT_SYMBOL(memset_io);
