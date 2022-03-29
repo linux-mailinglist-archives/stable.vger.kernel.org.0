@@ -2,178 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 196374EB002
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 17:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1338C4EB0D9
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 17:39:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238349AbiC2PNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 11:13:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46666 "EHLO
+        id S236598AbiC2Pkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Mar 2022 11:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234378AbiC2PNZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 11:13:25 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A5F1122C8C8
-        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 08:11:41 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-259-r5FGFD-GNYGMmQmbomJ2Yg-1; Tue, 29 Mar 2022 16:11:38 +0100
-X-MC-Unique: r5FGFD-GNYGMmQmbomJ2Yg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Tue, 29 Mar 2022 16:11:37 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Tue, 29 Mar 2022 16:11:36 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-tip-commits@vger.kernel.org" 
-        <linux-tip-commits@vger.kernel.org>
-CC:     Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>
-Subject: RE: [tip: x86/urgent] x86/sev: Unroll string mmio with
- CC_ATTR_GUEST_UNROLL_STRING_IO
-Thread-Topic: [tip: x86/urgent] x86/sev: Unroll string mmio with
- CC_ATTR_GUEST_UNROLL_STRING_IO
-Thread-Index: AQHYQ3q5K+q7CKVgC0KvrzjgS2c7UKzWdi0w
-Date:   Tue, 29 Mar 2022 15:11:36 +0000
-Message-ID: <77dbe1d412dd4ade8cc666f5c2474665@AcuMS.aculab.com>
-References: <20220321093351.23976-1-joro@8bytes.org>
- <164856473151.389.17789498051927031377.tip-bot2@tip-bot2>
-In-Reply-To: <164856473151.389.17789498051927031377.tip-bot2@tip-bot2>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S234581AbiC2Pkz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 11:40:55 -0400
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ECE111BD98;
+        Tue, 29 Mar 2022 08:39:08 -0700 (PDT)
+Received: from cwcc.thunk.org (pool-108-7-220-252.bstnma.fios.verizon.net [108.7.220.252])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 22TFcn3E001516
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Mar 2022 11:38:50 -0400
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id AE79A15C3ECA; Tue, 29 Mar 2022 11:38:49 -0400 (EDT)
+Date:   Tue, 29 Mar 2022 11:38:49 -0400
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Eric Biggers <ebiggers@google.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.17 16/43] random: use computational hash for
+ entropy extraction
+Message-ID: <YkMoCe+uX6UxfaeM@mit.edu>
+References: <20220328111828.1554086-1-sashal@kernel.org>
+ <20220328111828.1554086-16-sashal@kernel.org>
+ <YkH5mhYokPB87FtE@google.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YkH5mhYokPB87FtE@google.com>
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SXNuJ3QgdGhpcyBwYXRjaCBlbnRpcmVseSBicm9rZW4/DQpFdmVuIHRoZSAnbm9ybWFsJyBrZXJu
-ZWwgZnVuY3Rpb25zIGFyZSBicm9rZW4uDQoNCm1lbWNweV90b2lvKCkgYW5kIG1lbWNweV9mcm9t
-aW8oKSBuZWVkIHRvIGJlIHVzaW5nIDY0Yml0DQphY2Nlc3NlcyB0byBJTyBzcGFjZS4NCg0KVGhl
-eSB1c2VkIHRvIGJlIGltcGxlbWVudGVkIHVzaW5nIG1lbWNweSgpIC0gYnV0IHRoYXQgY2FuIGVu
-ZA0KdXAgYmVpbmcgJ3JlcCBtb3ZzYicgd2hpY2ggaXMgYWx3YXlzIGJ5dGUgY29waWVzIG9uIHVu
-Y2FjaGVkDQptZW1vcnkuDQpJIHRob3VnaHQgdGhhdCBoYWQgYmVlbiBmaXhlZCB0byB1c2VkIGEg
-YmV0dGVyIGNvcHkgbG9vcC4NCg0KCURhdmlkDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
-LS0NCj4gRnJvbTogdGlwLWJvdDJAbGludXRyb25peC5kZSA8dGlwLWJvdDJAbGludXRyb25peC5k
-ZT4NCj4gU2VudDogMjkgTWFyY2ggMjAyMiAxNTozOQ0KPiBUbzogbGludXgtdGlwLWNvbW1pdHNA
-dmdlci5rZXJuZWwub3JnDQo+IENjOiBKb2VyZyBSb2VkZWwgPGpyb2VkZWxAc3VzZS5kZT47IEJv
-cmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT47IFRvbSBMZW5kYWNreQ0KPiA8dGhvbWFzLmxlbmRh
-Y2t5QGFtZC5jb20+OyBzdGFibGVAdmdlci5rZXJuZWwub3JnOyB4ODZAa2VybmVsLm9yZzsgbGlu
-dXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBbdGlwOiB4ODYvdXJnZW50XSB4
-ODYvc2V2OiBVbnJvbGwgc3RyaW5nIG1taW8gd2l0aCBDQ19BVFRSX0dVRVNUX1VOUk9MTF9TVFJJ
-TkdfSU8NCj4gDQo+IFRoZSBmb2xsb3dpbmcgY29tbWl0IGhhcyBiZWVuIG1lcmdlZCBpbnRvIHRo
-ZSB4ODYvdXJnZW50IGJyYW5jaCBvZiB0aXA6DQo+IA0KPiBDb21taXQtSUQ6ICAgICA0MDA5YTRh
-YzgyZGQ5NWI4Y2QyYjYyYmQzMDAxOTQ3Njk4M2YwYWZmDQo+IEdpdHdlYjogICAgICAgIGh0dHBz
-Oi8vZ2l0Lmtlcm5lbC5vcmcvdGlwLzQwMDlhNGFjODJkZDk1YjhjZDJiNjJiZDMwMDE5NDc2OTgz
-ZjBhZmYNCj4gQXV0aG9yOiAgICAgICAgSm9lcmcgUm9lZGVsIDxqcm9lZGVsQHN1c2UuZGU+DQo+
-IEF1dGhvckRhdGU6ICAgIE1vbiwgMjEgTWFyIDIwMjIgMTA6MzM6NTEgKzAxOjAwDQo+IENvbW1p
-dHRlcjogICAgIEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT4NCj4gQ29tbWl0dGVyRGF0ZTog
-VHVlLCAyOSBNYXIgMjAyMiAxNTo1OToxNiArMDI6MDANCj4gDQo+IHg4Ni9zZXY6IFVucm9sbCBz
-dHJpbmcgbW1pbyB3aXRoIENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTw0KPiANCj4gVGhl
-IGlvLXNwZWNpZmljIG1lbWNweS9tZW1zZXQgZnVuY3Rpb25zIHVzZSBzdHJpbmcgbW1pbyBhY2Nl
-c3NlcyB0byBkbw0KPiB0aGVpciB3b3JrLiBVbmRlciBTRVYsIHRoZSBoeXBlcnZpc29yIGNhbid0
-IGVtdWxhdGUgdGhlc2UgaW5zdHJ1Y3Rpb25zDQo+IGJlY2F1c2UgdGhleSByZWFkL3dyaXRlIGRp
-cmVjdGx5IGZyb20vdG8gZW5jcnlwdGVkIG1lbW9yeS4NCj4gDQo+IEtWTSB3aWxsIGluamVjdCBh
-IHBhZ2UgZmF1bHQgZXhjZXB0aW9uIGludG8gdGhlIGd1ZXN0IHdoZW4gaXQgaXMgYXNrZWQNCj4g
-dG8gZW11bGF0ZSBzdHJpbmcgbW1pbyBpbnN0cnVjdGlvbnMgZm9yIGFuIFNFViBndWVzdDoNCj4g
-DQo+ICAgQlVHOiB1bmFibGUgdG8gaGFuZGxlIHBhZ2UgZmF1bHQgZm9yIGFkZHJlc3M6IGZmZmZj
-OTAwMDAwNjUwNjgNCj4gICAjUEY6IHN1cGVydmlzb3IgcmVhZCBhY2Nlc3MgaW4ga2VybmVsIG1v
-ZGUNCj4gICAjUEY6IGVycm9yX2NvZGUoMHgwMDAwKSAtIG5vdC1wcmVzZW50IHBhZ2UNCj4gICBQ
-R0QgODAwMDEwMDAwMDA2NyBQNEQgODAwMDEwMDAwMDA2NyBQVUQgODAwMDEwMDBmYjA2NyBQTUQg
-ODAwMDEwMDBmYzA2NyBQVEUgODAwMDAwMDBmZWQ0MDE3Mw0KPiAgIE9vcHM6IDAwMDAgWyMxXSBQ
-UkVFTVBUIFNNUCBOT1BUSQ0KPiAgIENQVTogMCBQSUQ6IDEgQ29tbTogc3dhcHBlci8wIE5vdCB0
-YWludGVkIDUuMTcuMC1yYzcgIzMNCj4gDQo+IEFzIHN0cmluZyBtbWlvIGZvciBhbiBTRVYgZ3Vl
-c3QgY2FuIG5vdCBiZSBzdXBwb3J0ZWQgYnkgdGhlDQo+IGh5cGVydmlzb3IsIHVucm9sbCB0aGUg
-aW5zdHJ1Y3Rpb25zIGZvciBDQ19BVFRSX0dVRVNUX1VOUk9MTF9TVFJJTkdfSU8NCj4gZW5hYmxl
-ZCBrZXJuZWxzLg0KPiANCj4gVGhpcyBpc3N1ZSBhcHBlYXJzIHdoZW4ga2VybmVscyBhcmUgbGF1
-bmNoZWQgaW4gcmVjZW50IGxpYnZpcnQtbWFuYWdlZA0KPiBTRVYgdmlydHVhbCBtYWNoaW5lcywg
-YmVjYXVzZSB2aXJ0LWluc3RhbGwgc3RhcnRlZCB0byBhZGQgYSB0cG0tY3JiDQo+IGRldmljZSB0
-byB0aGUgZ3Vlc3QgYnkgZGVmYXVsdCBhbmQgcHJvYWN0aXZlbHkgYmVjYXVzZSwgcmFpc2luczoN
-Cj4gDQo+ICAgaHR0cHM6Ly9naXRodWIuY29tL3ZpcnQtbWFuYWdlci92aXJ0LW1hbmFnZXIvY29t
-bWl0L2ViNThjMDlmNDg4YjA2MzNlZDFlZWEwMTJjZDMxMWU0ODg2NDQwMWUNCj4gDQo+IGFuZCBh
-cyB0aGF0IGNvbW1pdCBzYXlzLCB0aGUgZGVmYXVsdCBhZGRpbmcgb2YgYSBUUE0gY2FuIGJlIGRp
-c2FibGVkDQo+IHdpdGggInZpcnQtaW5zdGFsbCAuLi4gLS10cG0gbm9uZSIuDQo+IA0KPiBUaGUg
-a2VybmVsIGRyaXZlciBmb3IgdHBtLWNyYiB1c2VzIG1lbWNweV90by9mcm9tX2lvKCkgZnVuY3Rp
-b25zIHRvDQo+IGFjY2VzcyBNTUlPIG1lbW9yeSwgcmVzdWx0aW5nIGluIGEgcGFnZS1mYXVsdCBp
-bmplY3RlZCBieSBLVk0gYW5kDQo+IGNyYXNoaW5nIHRoZSBrZXJuZWwgYXQgYm9vdC4NCj4gDQo+
-ICAgWyBicDogTWFzc2FnZSBhbmQgZXh0ZW5kIGNvbW1pdCBtZXNzYWdlLiBdDQo+IA0KPiBGaXhl
-czogZDhhYTdlZWE3OGExICgneDg2L21tOiBBZGQgU2VjdXJlIEVuY3J5cHRlZCBWaXJ0dWFsaXph
-dGlvbiAoU0VWKSBzdXBwb3J0JykNCj4gU2lnbmVkLW9mZi1ieTogSm9lcmcgUm9lZGVsIDxqcm9l
-ZGVsQHN1c2UuZGU+DQo+IFNpZ25lZC1vZmYtYnk6IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5k
-ZT4NCj4gUmV2aWV3ZWQtYnk6IFRvbSBMZW5kYWNreSA8dGhvbWFzLmxlbmRhY2t5QGFtZC5jb20+
-DQo+IENjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4NCj4gTGluazogaHR0cHM6Ly9sb3JlLmtl
-cm5lbC5vcmcvci8yMDIyMDMyMTA5MzM1MS4yMzk3Ni0xLWpvcm9AOGJ5dGVzLm9yZw0KPiAtLS0N
-Cj4gIGFyY2gveDg2L2xpYi9pb21lbS5jIHwgNjUgKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKy0tLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDU3IGluc2VydGlvbnMoKyksIDgg
-ZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYvbGliL2lvbWVtLmMgYi9h
-cmNoL3g4Ni9saWIvaW9tZW0uYw0KPiBpbmRleCBkZjUwNDUxLi4zZTJmMzNmIDEwMDY0NA0KPiAt
-LS0gYS9hcmNoL3g4Ni9saWIvaW9tZW0uYw0KPiArKysgYi9hcmNoL3g4Ni9saWIvaW9tZW0uYw0K
-PiBAQCAtMjIsNyArMjIsNyBAQCBzdGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQgcmVwX21vdnMo
-dm9pZCAqdG8sIGNvbnN0IHZvaWQgKmZyb20sIHNpemVfdCBuKQ0KPiAgCQkgICAgIDogIm1lbW9y
-eSIpOw0KPiAgfQ0KPiANCj4gLXZvaWQgbWVtY3B5X2Zyb21pbyh2b2lkICp0bywgY29uc3Qgdm9s
-YXRpbGUgdm9pZCBfX2lvbWVtICpmcm9tLCBzaXplX3QgbikNCj4gK3N0YXRpYyB2b2lkIHN0cmlu
-Z19tZW1jcHlfZnJvbWlvKHZvaWQgKnRvLCBjb25zdCB2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmZy
-b20sIHNpemVfdCBuKQ0KPiAgew0KPiAgCWlmICh1bmxpa2VseSghbikpDQo+ICAJCXJldHVybjsN
-Cj4gQEAgLTM4LDkgKzM4LDggQEAgdm9pZCBtZW1jcHlfZnJvbWlvKHZvaWQgKnRvLCBjb25zdCB2
-b2xhdGlsZSB2b2lkIF9faW9tZW0gKmZyb20sIHNpemVfdCBuKQ0KPiAgCX0NCj4gIAlyZXBfbW92
-cyh0bywgKGNvbnN0IHZvaWQgKilmcm9tLCBuKTsNCj4gIH0NCj4gLUVYUE9SVF9TWU1CT0wobWVt
-Y3B5X2Zyb21pbyk7DQo+IA0KPiAtdm9pZCBtZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9t
-ZW0gKnRvLCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gK3N0YXRpYyB2b2lkIHN0cmlu
-Z19tZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKnRvLCBjb25zdCB2b2lkICpmcm9t
-LCBzaXplX3QgbikNCj4gIHsNCj4gIAlpZiAodW5saWtlbHkoIW4pKQ0KPiAgCQlyZXR1cm47DQo+
-IEBAIC01NiwxNCArNTUsNjQgQEAgdm9pZCBtZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9t
-ZW0gKnRvLCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gIAl9DQo+ICAJcmVwX21vdnMo
-KHZvaWQgKil0bywgKGNvbnN0IHZvaWQgKikgZnJvbSwgbik7DQo+ICB9DQo+ICsNCj4gK3N0YXRp
-YyB2b2lkIHVucm9sbGVkX21lbWNweV9mcm9taW8odm9pZCAqdG8sIGNvbnN0IHZvbGF0aWxlIHZv
-aWQgX19pb21lbSAqZnJvbSwgc2l6ZV90IG4pDQo+ICt7DQo+ICsJY29uc3Qgdm9sYXRpbGUgY2hh
-ciBfX2lvbWVtICppbiA9IGZyb207DQo+ICsJY2hhciAqb3V0ID0gdG87DQo+ICsJaW50IGk7DQo+
-ICsNCj4gKwlmb3IgKGkgPSAwOyBpIDwgbjsgKytpKQ0KPiArCQlvdXRbaV0gPSByZWFkYigmaW5b
-aV0pOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgdm9pZCB1bnJvbGxlZF9tZW1jcHlfdG9pbyh2b2xh
-dGlsZSB2b2lkIF9faW9tZW0gKnRvLCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gK3sN
-Cj4gKwl2b2xhdGlsZSBjaGFyIF9faW9tZW0gKm91dCA9IHRvOw0KPiArCWNvbnN0IGNoYXIgKmlu
-ID0gZnJvbTsNCj4gKwlpbnQgaTsNCj4gKw0KPiArCWZvciAoaSA9IDA7IGkgPCBuOyArK2kpDQo+
-ICsJCXdyaXRlYihpbltpXSwgJm91dFtpXSk7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyB2b2lkIHVu
-cm9sbGVkX21lbXNldF9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmEsIGludCBiLCBzaXplX3Qg
-YykNCj4gK3sNCj4gKwl2b2xhdGlsZSBjaGFyIF9faW9tZW0gKm1lbSA9IGE7DQo+ICsJaW50IGk7
-DQo+ICsNCj4gKwlmb3IgKGkgPSAwOyBpIDwgYzsgKytpKQ0KPiArCQl3cml0ZWIoYiwgJm1lbVtp
-XSk7DQo+ICt9DQo+ICsNCj4gK3ZvaWQgbWVtY3B5X2Zyb21pbyh2b2lkICp0bywgY29uc3Qgdm9s
-YXRpbGUgdm9pZCBfX2lvbWVtICpmcm9tLCBzaXplX3QgbikNCj4gK3sNCj4gKwlpZiAoY2NfcGxh
-dGZvcm1faGFzKENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTykpDQo+ICsJCXVucm9sbGVk
-X21lbWNweV9mcm9taW8odG8sIGZyb20sIG4pOw0KPiArCWVsc2UNCj4gKwkJc3RyaW5nX21lbWNw
-eV9mcm9taW8odG8sIGZyb20sIG4pOw0KPiArfQ0KPiArRVhQT1JUX1NZTUJPTChtZW1jcHlfZnJv
-bWlvKTsNCj4gKw0KPiArdm9pZCBtZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKnRv
-LCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gK3sNCj4gKwlpZiAoY2NfcGxhdGZvcm1f
-aGFzKENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTykpDQo+ICsJCXVucm9sbGVkX21lbWNw
-eV90b2lvKHRvLCBmcm9tLCBuKTsNCj4gKwllbHNlDQo+ICsJCXN0cmluZ19tZW1jcHlfdG9pbyh0
-bywgZnJvbSwgbik7DQo+ICt9DQo+ICBFWFBPUlRfU1lNQk9MKG1lbWNweV90b2lvKTsNCj4gDQo+
-ICB2b2lkIG1lbXNldF9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmEsIGludCBiLCBzaXplX3Qg
-YykNCj4gIHsNCj4gLQkvKg0KPiAtCSAqIFRPRE86IG1lbXNldCBjYW4gbWFuZ2xlIHRoZSBJTyBw
-YXR0ZXJucyBxdWl0ZSBhIGJpdC4NCj4gLQkgKiBwZXJoYXBzIGl0IHdvdWxkIGJlIGJldHRlciB0
-byB1c2UgYSBkdW1iIG9uZToNCj4gLQkgKi8NCj4gLQltZW1zZXQoKHZvaWQgKilhLCBiLCBjKTsN
-Cj4gKwlpZiAoY2NfcGxhdGZvcm1faGFzKENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTykp
-IHsNCj4gKwkJdW5yb2xsZWRfbWVtc2V0X2lvKGEsIGIsIGMpOw0KPiArCX0gZWxzZSB7DQo+ICsJ
-CS8qDQo+ICsJCSAqIFRPRE86IG1lbXNldCBjYW4gbWFuZ2xlIHRoZSBJTyBwYXR0ZXJucyBxdWl0
-ZSBhIGJpdC4NCj4gKwkJICogcGVyaGFwcyBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8gdXNlIGEgZHVt
-YiBvbmU6DQo+ICsJCSAqLw0KPiArCQltZW1zZXQoKHZvaWQgKilhLCBiLCBjKTsNCj4gKwl9DQo+
-ICB9DQo+ICBFWFBPUlRfU1lNQk9MKG1lbXNldF9pbyk7DQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVz
-cyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEg
-MVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+On Mon, Mar 28, 2022 at 06:08:26PM +0000, Eric Biggers wrote:
+> On Mon, Mar 28, 2022 at 07:18:00AM -0400, Sasha Levin wrote:
+> > From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+> > 
+> > [ Upstream commit 6e8ec2552c7d13991148e551e3325a624d73fac6 ]
+> > 
+> 
+> I don't think it's a good idea to start backporting random commits to random.c
+> that weren't marked for stable.  There were a lot of changes in v5.18, and
+> sometimes they relate to each other in subtle ways, so the individual commits
+> aren't necessarily safe to pick.
+> 
+> IMO, you shouldn't backport any non-stable-Cc'ed commits to random.c unless
+> Jason explicitly reviews the exact sequence of commits that you're backporting.
 
+Especially this commit in general, which is making a fundamental
+change in how we extract entropy.  We should be very careful about
+taking such changes into stable; a release or two of additonal "soak"
+time would be a good idea before these go into the LTS releases in particular.
+
+     	      	     	  	       	  - Ted
