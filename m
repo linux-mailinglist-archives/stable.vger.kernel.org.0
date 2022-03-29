@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7313C4EB2BE
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 19:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC0B4EB34A
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 20:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240220AbiC2Rgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 13:36:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41192 "EHLO
+        id S240505AbiC2SXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Mar 2022 14:23:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236270AbiC2Rgo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 13:36:44 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB04C205D2
-        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 10:35:00 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id pv16so36638388ejb.0
-        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 10:35:00 -0700 (PDT)
+        with ESMTP id S237003AbiC2SXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 14:23:43 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39B61F5197
+        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 11:21:58 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id b130so14094870pga.13
+        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 11:21:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sweetwater-ai.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zL8Qb+2gKSP2c6o2DRoz5Oq4k0aSHrt0NlsFQOW67pQ=;
-        b=BOgBq3juIQwFAKc4hAgJLiwRVOGTVSjvDHh2EK3sajCMpKygdODuNG6y0+hFSGcaIa
-         Qd65rAj2ejL1UlKrdXnPIYCSdl5FyHF3g03b+Lwu4dELr+S96YdQFMNjyj35bTCudeEB
-         QIB3gvuBYc+WW9XsLaUUJYFYbAySfwsthCKyjVOxbfpmGSqOuVsUctRimJM/qCWaL8CU
-         lduSPE9cjjqAbeT4cWjwOl4lk3JeOglENj0yWdD352QfnyyZxmUaJa7rbMCD4F/dvB5h
-         Eq7VgIvB0cERyEEMpXzhbtfhQGlrNuTziQvpiNbqJhYt7s5mZWXKiuFu7curSqEWctvM
-         scng==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=J9KEuVIzy4y3KRwLW4j8sDBepcIphZ59tWXZzqA/0sQ=;
+        b=TrVIDWSNDUIG6mFXMOLl7cI060A4L5qXv8WTTfS4DY+p+Zx7lHTilIrwIL4TvqwpTh
+         WX1J1Hg3bCfKpjM6EhkhLBKI22BP8PvkJKglKhj+XO/2VbWM2szjfqsXDkenVk+/IKO7
+         4Pb2jeFF5L8B+rrpzcN8ZaX5++9PA6blBBk4MZb73mKlyeC02i3UpSpmq8BWT1BFKWQs
+         Al6TszthjfaDEu38sl4byT70GG8MHII8XYZmIwACfQfHqTLvwDBiowAdd5/hL4zkiqQg
+         jtTdiwFjLyjBV/cOJZU4jx8gXTqLJNcAuVaXl0sL+FIKJwIFF2QeuY1yVaJE/lWT2W4S
+         4UtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zL8Qb+2gKSP2c6o2DRoz5Oq4k0aSHrt0NlsFQOW67pQ=;
-        b=AS7jMcCuY3xf2BB++sjhXrgkv54aVKJp8lWnyhaXpFehQuTK/JrbJeLJC/A54D1tkS
-         6NySL7O0DpDx123ItLXbCummnvjMLMTOw9fL9gXt8EEg3sdrP1Lb7YdqoUkA30eA2cKT
-         ReoFCzg50nDReJ2lG8AIN8BlJL9Hte/aJDK0GwZLk9VKwVMRoFvWuV8kq+JncQ6p1gPo
-         7J6UtDKhDMeviJCs8pvNvaXFXxkn77lp6JLwh/YkVaiZ+2zNIEA6hM0uDrI7ixBdQ0Pi
-         N898v6mEvNplP1Yct+E8N6i7Z1cHAcvE2oQTVi+g4GRPpWSiahvOTPOFtKWCnsjBfskf
-         Ns8g==
-X-Gm-Message-State: AOAM530EveMuGMNlZIplXILjPGy9vnpEGyyXmNlQTHge8txCoVy9mwEw
-        CHvA0ppLUGDW12vu94Pl2vShounRksVC5+ONFNSa2Q==
-X-Google-Smtp-Source: ABdhPJzRQY6KZHmBGeWvlLVF+akUYt2iHYoWgMy/f3hjH6kMin6Jwj0Cd/JjJv1GykQD/uqIwQKGWmhz+xmGyNO2+Mg=
-X-Received: by 2002:a17:907:3e16:b0:6df:b4f0:5cc2 with SMTP id
- hp22-20020a1709073e1600b006dfb4f05cc2mr35937852ejc.285.1648575299439; Tue, 29
- Mar 2022 10:34:59 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=J9KEuVIzy4y3KRwLW4j8sDBepcIphZ59tWXZzqA/0sQ=;
+        b=rJddfX7gl4+DimX8pgAjX6soVAhKb973jcM8kZt0NHFr/T01ZV2n2FB0h0QwxHODdS
+         4GkIrr7czfx4amn/hsEJuMXpMon5TrC9TjICz6VJtDvGCjqsS9bqqpw1Zl91N8NGUMFY
+         bZ+mNPXtK2N6a/F8rJ1+hTgl69NCqOiODQtkipnGilaZYM88w1Yazf8JA56qyo2h4UwF
+         r9Ai04OGkX7c1IV2omoMGRFHUhVDGPFI55cdBoEzU7aBr/3H+6LdSq26BOuDXU1OvPNq
+         OoSxF61aiN36W6RjnAjgX9OyhGMAzC5cPXaBOEf3igtdfW8ckm2wqunNespgB9s0ZEVW
+         CL+Q==
+X-Gm-Message-State: AOAM530O5hb8zqDNsTyPOfkEL+sFOLsv8n6cIe9RUy/qu9ers3G+OyRd
+        ShoUgNX/ENE5BhJ+jF1rvg++wgaztGJwTA1sxuM=
+X-Google-Smtp-Source: ABdhPJyoSvRai7WivE4J/Ol31LE/1HteTqbcl165XwAYy2hIY65ljItWLFTHl0kJNRuoGwxlxIin/w==
+X-Received: by 2002:a63:4041:0:b0:37f:8077:e0de with SMTP id n62-20020a634041000000b0037f8077e0demr2843965pga.138.1648578117893;
+        Tue, 29 Mar 2022 11:21:57 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m18-20020a056a00081200b004faeae3a291sm20063167pfk.26.2022.03.29.11.21.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Mar 2022 11:21:57 -0700 (PDT)
+Message-ID: <62434e45.1c69fb81.3d3f9.42a6@mx.google.com>
+Date:   Tue, 29 Mar 2022 11:21:57 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220328111828.1554086-1-sashal@kernel.org> <20220328111828.1554086-16-sashal@kernel.org>
- <YkH5mhYokPB87FtE@google.com> <YkMoCe+uX6UxfaeM@mit.edu>
-In-Reply-To: <YkMoCe+uX6UxfaeM@mit.edu>
-From:   Michael Brooks <m@sweetwater.ai>
-Date:   Tue, 29 Mar 2022 10:34:49 -0700
-Message-ID: <CAOnCY6TNVHLX06mvMZFnNwVx3yE20qnqeGY7fbTx4c2XbyVVEw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.17 16/43] random: use computational hash for
- entropy extraction
-To:     "Theodore Ts'o" <tytso@mit.edu>
-Cc:     Eric Biggers <ebiggers@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.237-11-g78bedb4f64a3
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 92 runs,
+ 1 regressions (v4.19.237-11-g78bedb4f64a3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,38 +70,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I agree with Ted,  this patch is just to start the discussion on how
-we can safely remove these locks for the improvement of safety and
-security.  Both boot and interrupt benchmarks stand to benefit from a
-patch like this, so it is worth a deep dive.
+stable-rc/queue/4.19 baseline: 92 runs, 1 regressions (v4.19.237-11-g78bedb=
+4f64a3)
 
-Feedback welcome, I am always looking for ways I can be a better
-engineer, and a better hacker and a better person. And we are all here
-to make the very best kernel.
+Regressions Summary
+-------------------
 
-Regards,
-Micahel
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-On Tue, Mar 29, 2022 at 8:39 AM Theodore Ts'o <tytso@mit.edu> wrote:
->
-> On Mon, Mar 28, 2022 at 06:08:26PM +0000, Eric Biggers wrote:
-> > On Mon, Mar 28, 2022 at 07:18:00AM -0400, Sasha Levin wrote:
-> > > From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-> > >
-> > > [ Upstream commit 6e8ec2552c7d13991148e551e3325a624d73fac6 ]
-> > >
-> >
-> > I don't think it's a good idea to start backporting random commits to random.c
-> > that weren't marked for stable.  There were a lot of changes in v5.18, and
-> > sometimes they relate to each other in subtle ways, so the individual commits
-> > aren't necessarily safe to pick.
-> >
-> > IMO, you shouldn't backport any non-stable-Cc'ed commits to random.c unless
-> > Jason explicitly reviews the exact sequence of commits that you're backporting.
->
-> Especially this commit in general, which is making a fundamental
-> change in how we extract entropy.  We should be very careful about
-> taking such changes into stable; a release or two of additonal "soak"
-> time would be a good idea before these go into the LTS releases in particular.
->
->                                           - Ted
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.237-11-g78bedb4f64a3/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.237-11-g78bedb4f64a3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      78bedb4f64a3d54f455b457d5fc92426df7d40cf =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62431e9b44bdd93134ae0681
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
+-11-g78bedb4f64a3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
+-11-g78bedb4f64a3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62431e9c44bdd93134ae06a3
+        failing since 23 days (last pass: v4.19.232-31-g5cf846953aa2, first=
+ fail: v4.19.232-44-gfd65e02206f4)
+
+    2022-03-29T14:58:30.137602  /lava-5969810/1/../bin/lava-test-case
+    2022-03-29T14:58:30.146017  <8>[   36.976879] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
