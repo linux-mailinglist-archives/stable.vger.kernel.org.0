@@ -2,138 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18FD44EB440
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 21:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 246394EB455
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 21:57:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232733AbiC2TuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 15:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57898 "EHLO
+        id S241084AbiC2T7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Mar 2022 15:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236568AbiC2TuS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 15:50:18 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CF8913DE2
-        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 12:48:35 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id n18so18576008plg.5
-        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 12:48:35 -0700 (PDT)
+        with ESMTP id S241081AbiC2T7K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 15:59:10 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852AF6E4FF
+        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 12:57:26 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id j8so8419373pll.11
+        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 12:57:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=diz2/wo0fyNOlVXxrteR+i3HSOT/Hq4wpFxTdwDbhYU=;
-        b=3ZUGGSazL6Og0UxjvLegfxKnLC8NUgdTHZ2qE/d0jtwy10VQq+WEbVfQ8lftpwVsXD
-         ylV7vzBjoHQxVETclTf4dshKUBQc3ESgxaXBgQ5uqmPjK0fhhgpyajGybdouQ1edlZrE
-         cJ2V50h2F/PsPYebciMK+ju5YEnb52A4zH9Ww0QzbwRieQytbczmtRdBro6cvQPCmgIl
-         bNan4cR0WJZHGN7WW1ucpPm0atfgphWaFa0X86amYTjf1skCTQH8rh4c6yv+SmAKVa7Z
-         Du03Y1DN2n6phajBXzTHM+svgjrPsyj7vvLLhIg3z0ZSSBvKwXGdWjZCTAqMkmGboNgR
-         IIgQ==
+        d=osandov-com.20210112.gappssmtp.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=yIT4p7ShXHLUNOjV8CvgepES5xgtr9srlJOvqbKocNI=;
+        b=kjeNyVLDw5gfpGN6mw79/GvJcQUnO9h4KG7JQXWW7+lMBvuE7+gpRGnoM9tHv09Qv9
+         t2l3lEwvIoLb/JEa5uMXY2LTipPPBIBgtR+UiX4uOtoeAnzCROOS0e5tya/scJYnCTPL
+         e0d8gYrRvsICGZMjGtanaku1+tmyy4ceY3YSr1RnDFPNKD3Rh2+0TbZgzAWAHGw/TlDM
+         1bMrL0m33jyeKj8iwYCHUoMtOroc3r1Uc0pYHtQulZjZRKzFNdrssTorQDj4I/z7kPVD
+         ZqSmsB62Lv0WoghLr31QWyoOFI513dDOm68umOnNz8WCRUC4fIPgqQf3K1FUKyqD6qeW
+         x0OA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=diz2/wo0fyNOlVXxrteR+i3HSOT/Hq4wpFxTdwDbhYU=;
-        b=VcqpLHX2KX4MnA67RJiMyVPfWxmE87gcyGWdQxiUkqHZUeTdD+4olcnA6J9efd7rJS
-         TMeGDRYVoA3VEeeqdJ9XClz4tTFuP5sK7gBWOJPHv1FoPkAVRLPujtJ/ncIF2GuJQBMV
-         qcBI1zcGHZSg+IN3sOSni3jsHSo9J3wcwY9JX7g4HUzxkjIbDt1GtDBlxG/kt3LECxEs
-         IRPuOKYKSXpaI2FUhFAidmU9xkzlpt8/JKwHy0RQb1i7QVP39/ovTnqLs6tqVXNpNdTk
-         Y+JXwyy21QbRgICYc7FcdiSmNA3YLmzhwqr8ZKJGhnb9zHWIVcgQsh8C3mfnSUHR/h3Y
-         Ot/Q==
-X-Gm-Message-State: AOAM532JeKYdG/s3JePbPk9DsyEIhE+l6QyvFHx9n0fJ3DHpicwioyzx
-        +TLdoUhwTNIPZ8okAlf/hk+ViePmCIv+7evEp/s=
-X-Google-Smtp-Source: ABdhPJwHJQoP/7wcMqadJoKFwv3Gckw2uokwGKwXPSaTSYM00f3lCpQoGykIeZxy1EJXSBwuUpvazQ==
-X-Received: by 2002:a17:902:684e:b0:154:3b94:e30c with SMTP id f14-20020a170902684e00b001543b94e30cmr31707485pln.89.1648583314382;
-        Tue, 29 Mar 2022 12:48:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j6-20020a17090a588600b001c699d77503sm3615229pji.2.2022.03.29.12.48.33
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=yIT4p7ShXHLUNOjV8CvgepES5xgtr9srlJOvqbKocNI=;
+        b=pWSCNkEDzqEwydAcTE6yHDdPsYzF1m1QHtPQFW4gOwV41LpwjyGEkkw1idc+cobX4v
+         YLYdtTbOQfrCCT8wJspJEG9K26j4Vtx0VXj2DHrVmlA6q/BZjywZgqu00zprdBGWAoTh
+         1TtIhNgyJOdE72XzDxqdp/C7h9fPv/HIj03LpylnJapxn2KtbBZCg1kcKhtefFs8UsLi
+         1/nmkCbVAWmMS+O6SITZdsMg23Os8xLJ23UoUvjurTUrF8iWuUqYfpX5PwhLS8wq4yBq
+         32mBv1ixUD8wp0V3L1NeJbkW3IISH98UaBBO/mh1xUJsgU6MAtMetlVgGbvuL3SwGGP7
+         rV0g==
+X-Gm-Message-State: AOAM533ZcuZkxXVZsgFgAUv/Et9Jzd+AfORlfpbTWTiGFoQLp7KEqgAF
+        TbiKSbm+2s67cZ7IwkpDApyh/A==
+X-Google-Smtp-Source: ABdhPJxXbNP+DG2LiBZF6CN5/bbP5jCUmTbPtiuDEPEq6c1AqNZk16Ydy4+mvxb/OeMYAKyvPv7t1A==
+X-Received: by 2002:a17:902:e0ca:b0:156:24d4:23e7 with SMTP id e10-20020a170902e0ca00b0015624d423e7mr6462076pla.13.1648583845945;
+        Tue, 29 Mar 2022 12:57:25 -0700 (PDT)
+Received: from relinquished.localdomain ([2620:10d:c090:400::5:421])
+        by smtp.gmail.com with ESMTPSA id u15-20020a056a00098f00b004faa58d44eesm21890847pfg.145.2022.03.29.12.57.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Mar 2022 12:48:33 -0700 (PDT)
-Message-ID: <62436291.1c69fb81.b0277.9e8b@mx.google.com>
-Date:   Tue, 29 Mar 2022 12:48:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 29 Mar 2022 12:57:25 -0700 (PDT)
+Date:   Tue, 29 Mar 2022 12:57:23 -0700
+From:   Omar Sandoval <osandov@osandov.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Omar Sandoval <osandov@fb.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>, clm@fb.com, jbacik@fb.com,
+        linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.17 12/21] btrfs: don't advance offset for
+ compressed bios in btrfs_csum_one_bio()
+Message-ID: <YkNko1BcsyDt2QUS@relinquished.localdomain>
+References: <20220328194157.1585642-1-sashal@kernel.org>
+ <20220328194157.1585642-12-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.109-21-gc5ab4afe121a
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 118 runs,
- 1 regressions (v5.10.109-21-gc5ab4afe121a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220328194157.1585642-12-sashal@kernel.org>
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 118 runs, 1 regressions (v5.10.109-21-gc5ab4=
-afe121a)
+On Mon, Mar 28, 2022 at 03:41:47PM -0400, Sasha Levin wrote:
+> From: Omar Sandoval <osandov@fb.com>
+> 
+> [ Upstream commit e331f6b19f8adde2307588bb325ae5de78617c20 ]
+> 
+> btrfs_csum_one_bio() loops over each filesystem block in the bio while
+> keeping a cursor of its current logical position in the file in order to
+> look up the ordered extent to add the checksums to. However, this
+> doesn't make much sense for compressed extents, as a sector on disk does
+> not correspond to a sector of decompressed file data. It happens to work
+> because:
+> 
+> 1) the compressed bio always covers one ordered extent
+> 2) the size of the bio is always less than the size of the ordered
+>    extent
+> 
+> However, the second point will not always be true for encoded writes.
+> 
+> Let's add a boolean parameter to btrfs_csum_one_bio() to indicate that
+> it can assume that the bio only covers one ordered extent. Since we're
+> already changing the signature, let's get rid of the contig parameter
+> and make it implied by the offset parameter, similar to the change we
+> recently made to btrfs_lookup_bio_sums(). Additionally, let's rename
+> nr_sectors to blockcount to make it clear that it's the number of
+> filesystem blocks, not the number of 512-byte sectors.
+> 
+> Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+> Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+> Signed-off-by: Omar Sandoval <osandov@fb.com>
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/btrfs/compression.c |  2 +-
+>  fs/btrfs/ctree.h       |  2 +-
+>  fs/btrfs/file-item.c   | 37 +++++++++++++++++--------------------
+>  fs/btrfs/inode.c       |  8 ++++----
+>  4 files changed, 23 insertions(+), 26 deletions(-)
 
-Regressions Summary
--------------------
+Hi, Sasha,
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+This patch doesn't fix a real bug, so it should be dropped from both
+5.16 and 5.17.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.109-21-gc5ab4afe121a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.109-21-gc5ab4afe121a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c5ab4afe121a3ad2ad4f41873f9dd9da324b92ae =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6243321f6e1cbeecefae06c2
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.109=
--21-gc5ab4afe121a/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.109=
--21-gc5ab4afe121a/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6243321f6e1cbeecefae06e4
-        failing since 21 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-03-29T16:21:30.216897  /lava-5970369/1/../bin/lava-test-case
-    2022-03-29T16:21:30.227460  <8>[   34.156044] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+Thanks!
