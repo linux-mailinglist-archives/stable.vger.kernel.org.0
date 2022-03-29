@@ -2,174 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B574EAFCD
-	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 17:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 196374EB002
+	for <lists+stable@lfdr.de>; Tue, 29 Mar 2022 17:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238224AbiC2PJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 11:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59002 "EHLO
+        id S238349AbiC2PNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Mar 2022 11:13:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238217AbiC2PJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 11:09:12 -0400
-Received: from mail-vk1-xa2d.google.com (mail-vk1-xa2d.google.com [IPv6:2607:f8b0:4864:20::a2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33031D97E1;
-        Tue, 29 Mar 2022 08:07:28 -0700 (PDT)
-Received: by mail-vk1-xa2d.google.com with SMTP id d7so9920848vkd.11;
-        Tue, 29 Mar 2022 08:07:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6dL8ykdo2TpdicCbVFJ+b9rPqwKy1QzxLEm2fg/qf9s=;
-        b=a5i1Ei9XQv2AtldpcYmJQ1uaqHsitwi3Ic7P9FWjeKGuGXrSLWX6iFokuPRzEEBXcZ
-         NvkrsrjCfxbnLSV94c+wzaLzlb6oncfWm2JEOLISqP5kCdmpNadL0D68H8pq7W1LS9yc
-         uJnnOFkoI9u6iKB39/KnzEazJA9pT61fuhsrEFz6TKWMHBgLEXVycm522YszhVycCYLV
-         XSQXDVL4JeB54gMvfy20vN+oU+R2VZduV1vmGkRlvWnQ2CEwB/+1hB6x8ST++w0B8f/p
-         M1AnT99traHABCsyJqlxQLWxXcnI52IvjbsROUqNTnQXsI5cv0vaak5pqBRzH+UPNi3t
-         YKdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6dL8ykdo2TpdicCbVFJ+b9rPqwKy1QzxLEm2fg/qf9s=;
-        b=rQzWtsjE/O1XBYLjRP3Wlwx6bUdIL7inVJZwfKJQCtHC+5J++kjCKKC0Ah6EvMV0+Y
-         sOx87Yb8ENqRqO4cW7T0GeiqdlfdimKoYcNqQYW/VUBsCrlTtm/1gMLV9Fk/mgCcStOc
-         eA7xBk/FMD47rcxvsFih9c0i7jOFpbZrNvV9Xch7Iq0ZAuhkVcDtbN058/1u0WIFdXnp
-         OQjP8oUeC88HlUhDYJhI9dvu02rtHwnbLIPBT4npOh2wwM/Y8f4TmQffQRKV50/5WAKo
-         c90j0v3fWglnUoSdT54F7wO6dBcoPrPbBtUszrOk2twNFbjK8K5LJxcjb5+Dgp0vL/jH
-         4O0w==
-X-Gm-Message-State: AOAM533IcVnhyLanBZx9fqQfaEUnebSY2cjstCKj665OgfPm8vZpyafn
-        Ti9KJiiXag46IGavYhFblc2Zp6VtaQYSLYtDaZY=
-X-Google-Smtp-Source: ABdhPJy1bmeShH0XQoqyWcNVAEnZEepMRmKvZPL9Ixw8YVdO2TSoKkfwtLPxd6qO/mPx5Fxn3/WDrlCb1ejRZK+jw5s=
-X-Received: by 2002:a1f:da47:0:b0:33f:1398:210e with SMTP id
- r68-20020a1fda47000000b0033f1398210emr17942890vkg.12.1648566446434; Tue, 29
- Mar 2022 08:07:26 -0700 (PDT)
+        with ESMTP id S234378AbiC2PNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 11:13:25 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A5F1122C8C8
+        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 08:11:41 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-259-r5FGFD-GNYGMmQmbomJ2Yg-1; Tue, 29 Mar 2022 16:11:38 +0100
+X-MC-Unique: r5FGFD-GNYGMmQmbomJ2Yg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Tue, 29 Mar 2022 16:11:37 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Tue, 29 Mar 2022 16:11:36 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-tip-commits@vger.kernel.org" 
+        <linux-tip-commits@vger.kernel.org>
+CC:     Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>
+Subject: RE: [tip: x86/urgent] x86/sev: Unroll string mmio with
+ CC_ATTR_GUEST_UNROLL_STRING_IO
+Thread-Topic: [tip: x86/urgent] x86/sev: Unroll string mmio with
+ CC_ATTR_GUEST_UNROLL_STRING_IO
+Thread-Index: AQHYQ3q5K+q7CKVgC0KvrzjgS2c7UKzWdi0w
+Date:   Tue, 29 Mar 2022 15:11:36 +0000
+Message-ID: <77dbe1d412dd4ade8cc666f5c2474665@AcuMS.aculab.com>
+References: <20220321093351.23976-1-joro@8bytes.org>
+ <164856473151.389.17789498051927031377.tip-bot2@tip-bot2>
+In-Reply-To: <164856473151.389.17789498051927031377.tip-bot2@tip-bot2>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-References: <20220310045358.224350-1-jeremy.linton@arm.com>
-In-Reply-To: <20220310045358.224350-1-jeremy.linton@arm.com>
-From:   Peter Robinson <pbrobinson@gmail.com>
-Date:   Tue, 29 Mar 2022 15:07:15 +0000
-Message-ID: <CALeDE9MU=YrXD04zCamEgY9fYT_cxGBV5Cu0_hetoVb6Mwrp4Q@mail.gmail.com>
-Subject: Re: [PATCH] net: bcmgenet: Use stronger register read/writes to
- assure ordering
-To:     Jeremy Linton <jeremy.linton@arm.com>, stable@vger.kernel.org
-Cc:     netdev@vger.kernel.org, opendmb@gmail.com, f.fainelli@gmail.com,
-        davem@davemloft.net, kuba@kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 4:54 AM Jeremy Linton <jeremy.linton@arm.com> wrote:
->
-> GCC12 appears to be much smarter about its dependency tracking and is
-> aware that the relaxed variants are just normal loads and stores and
-> this is causing problems like:
->
-> [  210.074549] ------------[ cut here ]------------
-> [  210.079223] NETDEV WATCHDOG: enabcm6e4ei0 (bcmgenet): transmit queue 1 timed out
-> [  210.086717] WARNING: CPU: 1 PID: 0 at net/sched/sch_generic.c:529 dev_watchdog+0x234/0x240
-> [  210.095044] Modules linked in: genet(E) nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat]
-> [  210.146561] ACPI CPPC: PCC check channel failed for ss: 0. ret=-110
-> [  210.146927] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E     5.17.0-rc7G12+ #58
-> [  210.153226] CPPC Cpufreq:cppc_scale_freq_workfn: failed to read perf counters
-> [  210.161349] Hardware name: Raspberry Pi Foundation Raspberry Pi 4 Model B/Raspberry Pi 4 Model B, BIOS EDK2-DEV 02/08/2022
-> [  210.161353] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> [  210.161358] pc : dev_watchdog+0x234/0x240
-> [  210.161364] lr : dev_watchdog+0x234/0x240
-> [  210.161368] sp : ffff8000080a3a40
-> [  210.161370] x29: ffff8000080a3a40 x28: ffffcd425af87000 x27: ffff8000080a3b20
-> [  210.205150] x26: ffffcd425aa00000 x25: 0000000000000001 x24: ffffcd425af8ec08
-> [  210.212321] x23: 0000000000000100 x22: ffffcd425af87000 x21: ffff55b142688000
-> [  210.219491] x20: 0000000000000001 x19: ffff55b1426884c8 x18: ffffffffffffffff
-> [  210.226661] x17: 64656d6974203120 x16: 0000000000000001 x15: 6d736e617274203a
-> [  210.233831] x14: 2974656e65676d63 x13: ffffcd4259c300d8 x12: ffffcd425b07d5f0
-> [  210.241001] x11: 00000000ffffffff x10: ffffcd425b07d5f0 x9 : ffffcd4258bdad9c
-> [  210.248171] x8 : 00000000ffffdfff x7 : 000000000000003f x6 : 0000000000000000
-> [  210.255341] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000001000
-> [  210.262511] x2 : 0000000000001000 x1 : 0000000000000005 x0 : 0000000000000044
-> [  210.269682] Call trace:
-> [  210.272133]  dev_watchdog+0x234/0x240
-> [  210.275811]  call_timer_fn+0x3c/0x15c
-> [  210.279489]  __run_timers.part.0+0x288/0x310
-> [  210.283777]  run_timer_softirq+0x48/0x80
-> [  210.287716]  __do_softirq+0x128/0x360
-> [  210.291392]  __irq_exit_rcu+0x138/0x140
-> [  210.295243]  irq_exit_rcu+0x1c/0x30
-> [  210.298745]  el1_interrupt+0x38/0x54
-> [  210.302334]  el1h_64_irq_handler+0x18/0x24
-> [  210.306445]  el1h_64_irq+0x7c/0x80
-> [  210.309857]  arch_cpu_idle+0x18/0x2c
-> [  210.313445]  default_idle_call+0x4c/0x140
-> [  210.317470]  cpuidle_idle_call+0x14c/0x1a0
-> [  210.321584]  do_idle+0xb0/0x100
-> [  210.324737]  cpu_startup_entry+0x30/0x8c
-> [  210.328675]  secondary_start_kernel+0xe4/0x110
-> [  210.333138]  __secondary_switched+0x94/0x98
->
-> The assumption when these were relaxed seems to be that device memory
-> would be mapped non reordering, and that other constructs
-> (spinlocks/etc) would provide the barriers to assure that packet data
-> and in memory rings/queues were ordered with respect to device
-> register reads/writes. This itself seems a bit sketchy, but the real
-> problem with GCC12 is that it is moving the actual reads/writes around
-> at will as though they were independent operations when in truth they
-> are not, but the compiler can't know that. When looking at the
-> assembly dumps for many of these routines its possible to see very
-> clean, but not strictly in program order operations occurring as the
-> compiler would be free to do if these weren't actually register
-> reads/write operations.
->
-> Its possible to suppress the timeout with a liberal bit of dma_mb()'s
-> sprinkled around but the device still seems unable to reliably
-> send/receive data. A better plan is to use the safer readl/writel
-> everywhere.
->
-> Since this partially reverts an older commit, which notes the use of
-> the relaxed variants for performance reasons. I would suggest that
-> any performance problems with this commit are targeted at relaxing only
-> the performance critical code paths after assuring proper barriers.
->
-> Fixes: 69d2ea9c79898 ("net: bcmgenet: Use correct I/O accessors")
-> Reported-by: Peter Robinson <pbrobinson@gmail.com>
-> Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+SXNuJ3QgdGhpcyBwYXRjaCBlbnRpcmVseSBicm9rZW4/DQpFdmVuIHRoZSAnbm9ybWFsJyBrZXJu
+ZWwgZnVuY3Rpb25zIGFyZSBicm9rZW4uDQoNCm1lbWNweV90b2lvKCkgYW5kIG1lbWNweV9mcm9t
+aW8oKSBuZWVkIHRvIGJlIHVzaW5nIDY0Yml0DQphY2Nlc3NlcyB0byBJTyBzcGFjZS4NCg0KVGhl
+eSB1c2VkIHRvIGJlIGltcGxlbWVudGVkIHVzaW5nIG1lbWNweSgpIC0gYnV0IHRoYXQgY2FuIGVu
+ZA0KdXAgYmVpbmcgJ3JlcCBtb3ZzYicgd2hpY2ggaXMgYWx3YXlzIGJ5dGUgY29waWVzIG9uIHVu
+Y2FjaGVkDQptZW1vcnkuDQpJIHRob3VnaHQgdGhhdCBoYWQgYmVlbiBmaXhlZCB0byB1c2VkIGEg
+YmV0dGVyIGNvcHkgbG9vcC4NCg0KCURhdmlkDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
+LS0NCj4gRnJvbTogdGlwLWJvdDJAbGludXRyb25peC5kZSA8dGlwLWJvdDJAbGludXRyb25peC5k
+ZT4NCj4gU2VudDogMjkgTWFyY2ggMjAyMiAxNTozOQ0KPiBUbzogbGludXgtdGlwLWNvbW1pdHNA
+dmdlci5rZXJuZWwub3JnDQo+IENjOiBKb2VyZyBSb2VkZWwgPGpyb2VkZWxAc3VzZS5kZT47IEJv
+cmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT47IFRvbSBMZW5kYWNreQ0KPiA8dGhvbWFzLmxlbmRh
+Y2t5QGFtZC5jb20+OyBzdGFibGVAdmdlci5rZXJuZWwub3JnOyB4ODZAa2VybmVsLm9yZzsgbGlu
+dXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBbdGlwOiB4ODYvdXJnZW50XSB4
+ODYvc2V2OiBVbnJvbGwgc3RyaW5nIG1taW8gd2l0aCBDQ19BVFRSX0dVRVNUX1VOUk9MTF9TVFJJ
+TkdfSU8NCj4gDQo+IFRoZSBmb2xsb3dpbmcgY29tbWl0IGhhcyBiZWVuIG1lcmdlZCBpbnRvIHRo
+ZSB4ODYvdXJnZW50IGJyYW5jaCBvZiB0aXA6DQo+IA0KPiBDb21taXQtSUQ6ICAgICA0MDA5YTRh
+YzgyZGQ5NWI4Y2QyYjYyYmQzMDAxOTQ3Njk4M2YwYWZmDQo+IEdpdHdlYjogICAgICAgIGh0dHBz
+Oi8vZ2l0Lmtlcm5lbC5vcmcvdGlwLzQwMDlhNGFjODJkZDk1YjhjZDJiNjJiZDMwMDE5NDc2OTgz
+ZjBhZmYNCj4gQXV0aG9yOiAgICAgICAgSm9lcmcgUm9lZGVsIDxqcm9lZGVsQHN1c2UuZGU+DQo+
+IEF1dGhvckRhdGU6ICAgIE1vbiwgMjEgTWFyIDIwMjIgMTA6MzM6NTEgKzAxOjAwDQo+IENvbW1p
+dHRlcjogICAgIEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT4NCj4gQ29tbWl0dGVyRGF0ZTog
+VHVlLCAyOSBNYXIgMjAyMiAxNTo1OToxNiArMDI6MDANCj4gDQo+IHg4Ni9zZXY6IFVucm9sbCBz
+dHJpbmcgbW1pbyB3aXRoIENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTw0KPiANCj4gVGhl
+IGlvLXNwZWNpZmljIG1lbWNweS9tZW1zZXQgZnVuY3Rpb25zIHVzZSBzdHJpbmcgbW1pbyBhY2Nl
+c3NlcyB0byBkbw0KPiB0aGVpciB3b3JrLiBVbmRlciBTRVYsIHRoZSBoeXBlcnZpc29yIGNhbid0
+IGVtdWxhdGUgdGhlc2UgaW5zdHJ1Y3Rpb25zDQo+IGJlY2F1c2UgdGhleSByZWFkL3dyaXRlIGRp
+cmVjdGx5IGZyb20vdG8gZW5jcnlwdGVkIG1lbW9yeS4NCj4gDQo+IEtWTSB3aWxsIGluamVjdCBh
+IHBhZ2UgZmF1bHQgZXhjZXB0aW9uIGludG8gdGhlIGd1ZXN0IHdoZW4gaXQgaXMgYXNrZWQNCj4g
+dG8gZW11bGF0ZSBzdHJpbmcgbW1pbyBpbnN0cnVjdGlvbnMgZm9yIGFuIFNFViBndWVzdDoNCj4g
+DQo+ICAgQlVHOiB1bmFibGUgdG8gaGFuZGxlIHBhZ2UgZmF1bHQgZm9yIGFkZHJlc3M6IGZmZmZj
+OTAwMDAwNjUwNjgNCj4gICAjUEY6IHN1cGVydmlzb3IgcmVhZCBhY2Nlc3MgaW4ga2VybmVsIG1v
+ZGUNCj4gICAjUEY6IGVycm9yX2NvZGUoMHgwMDAwKSAtIG5vdC1wcmVzZW50IHBhZ2UNCj4gICBQ
+R0QgODAwMDEwMDAwMDA2NyBQNEQgODAwMDEwMDAwMDA2NyBQVUQgODAwMDEwMDBmYjA2NyBQTUQg
+ODAwMDEwMDBmYzA2NyBQVEUgODAwMDAwMDBmZWQ0MDE3Mw0KPiAgIE9vcHM6IDAwMDAgWyMxXSBQ
+UkVFTVBUIFNNUCBOT1BUSQ0KPiAgIENQVTogMCBQSUQ6IDEgQ29tbTogc3dhcHBlci8wIE5vdCB0
+YWludGVkIDUuMTcuMC1yYzcgIzMNCj4gDQo+IEFzIHN0cmluZyBtbWlvIGZvciBhbiBTRVYgZ3Vl
+c3QgY2FuIG5vdCBiZSBzdXBwb3J0ZWQgYnkgdGhlDQo+IGh5cGVydmlzb3IsIHVucm9sbCB0aGUg
+aW5zdHJ1Y3Rpb25zIGZvciBDQ19BVFRSX0dVRVNUX1VOUk9MTF9TVFJJTkdfSU8NCj4gZW5hYmxl
+ZCBrZXJuZWxzLg0KPiANCj4gVGhpcyBpc3N1ZSBhcHBlYXJzIHdoZW4ga2VybmVscyBhcmUgbGF1
+bmNoZWQgaW4gcmVjZW50IGxpYnZpcnQtbWFuYWdlZA0KPiBTRVYgdmlydHVhbCBtYWNoaW5lcywg
+YmVjYXVzZSB2aXJ0LWluc3RhbGwgc3RhcnRlZCB0byBhZGQgYSB0cG0tY3JiDQo+IGRldmljZSB0
+byB0aGUgZ3Vlc3QgYnkgZGVmYXVsdCBhbmQgcHJvYWN0aXZlbHkgYmVjYXVzZSwgcmFpc2luczoN
+Cj4gDQo+ICAgaHR0cHM6Ly9naXRodWIuY29tL3ZpcnQtbWFuYWdlci92aXJ0LW1hbmFnZXIvY29t
+bWl0L2ViNThjMDlmNDg4YjA2MzNlZDFlZWEwMTJjZDMxMWU0ODg2NDQwMWUNCj4gDQo+IGFuZCBh
+cyB0aGF0IGNvbW1pdCBzYXlzLCB0aGUgZGVmYXVsdCBhZGRpbmcgb2YgYSBUUE0gY2FuIGJlIGRp
+c2FibGVkDQo+IHdpdGggInZpcnQtaW5zdGFsbCAuLi4gLS10cG0gbm9uZSIuDQo+IA0KPiBUaGUg
+a2VybmVsIGRyaXZlciBmb3IgdHBtLWNyYiB1c2VzIG1lbWNweV90by9mcm9tX2lvKCkgZnVuY3Rp
+b25zIHRvDQo+IGFjY2VzcyBNTUlPIG1lbW9yeSwgcmVzdWx0aW5nIGluIGEgcGFnZS1mYXVsdCBp
+bmplY3RlZCBieSBLVk0gYW5kDQo+IGNyYXNoaW5nIHRoZSBrZXJuZWwgYXQgYm9vdC4NCj4gDQo+
+ICAgWyBicDogTWFzc2FnZSBhbmQgZXh0ZW5kIGNvbW1pdCBtZXNzYWdlLiBdDQo+IA0KPiBGaXhl
+czogZDhhYTdlZWE3OGExICgneDg2L21tOiBBZGQgU2VjdXJlIEVuY3J5cHRlZCBWaXJ0dWFsaXph
+dGlvbiAoU0VWKSBzdXBwb3J0JykNCj4gU2lnbmVkLW9mZi1ieTogSm9lcmcgUm9lZGVsIDxqcm9l
+ZGVsQHN1c2UuZGU+DQo+IFNpZ25lZC1vZmYtYnk6IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5k
+ZT4NCj4gUmV2aWV3ZWQtYnk6IFRvbSBMZW5kYWNreSA8dGhvbWFzLmxlbmRhY2t5QGFtZC5jb20+
+DQo+IENjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4NCj4gTGluazogaHR0cHM6Ly9sb3JlLmtl
+cm5lbC5vcmcvci8yMDIyMDMyMTA5MzM1MS4yMzk3Ni0xLWpvcm9AOGJ5dGVzLm9yZw0KPiAtLS0N
+Cj4gIGFyY2gveDg2L2xpYi9pb21lbS5jIHwgNjUgKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKy0tLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDU3IGluc2VydGlvbnMoKyksIDgg
+ZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYvbGliL2lvbWVtLmMgYi9h
+cmNoL3g4Ni9saWIvaW9tZW0uYw0KPiBpbmRleCBkZjUwNDUxLi4zZTJmMzNmIDEwMDY0NA0KPiAt
+LS0gYS9hcmNoL3g4Ni9saWIvaW9tZW0uYw0KPiArKysgYi9hcmNoL3g4Ni9saWIvaW9tZW0uYw0K
+PiBAQCAtMjIsNyArMjIsNyBAQCBzdGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQgcmVwX21vdnMo
+dm9pZCAqdG8sIGNvbnN0IHZvaWQgKmZyb20sIHNpemVfdCBuKQ0KPiAgCQkgICAgIDogIm1lbW9y
+eSIpOw0KPiAgfQ0KPiANCj4gLXZvaWQgbWVtY3B5X2Zyb21pbyh2b2lkICp0bywgY29uc3Qgdm9s
+YXRpbGUgdm9pZCBfX2lvbWVtICpmcm9tLCBzaXplX3QgbikNCj4gK3N0YXRpYyB2b2lkIHN0cmlu
+Z19tZW1jcHlfZnJvbWlvKHZvaWQgKnRvLCBjb25zdCB2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmZy
+b20sIHNpemVfdCBuKQ0KPiAgew0KPiAgCWlmICh1bmxpa2VseSghbikpDQo+ICAJCXJldHVybjsN
+Cj4gQEAgLTM4LDkgKzM4LDggQEAgdm9pZCBtZW1jcHlfZnJvbWlvKHZvaWQgKnRvLCBjb25zdCB2
+b2xhdGlsZSB2b2lkIF9faW9tZW0gKmZyb20sIHNpemVfdCBuKQ0KPiAgCX0NCj4gIAlyZXBfbW92
+cyh0bywgKGNvbnN0IHZvaWQgKilmcm9tLCBuKTsNCj4gIH0NCj4gLUVYUE9SVF9TWU1CT0wobWVt
+Y3B5X2Zyb21pbyk7DQo+IA0KPiAtdm9pZCBtZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9t
+ZW0gKnRvLCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gK3N0YXRpYyB2b2lkIHN0cmlu
+Z19tZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKnRvLCBjb25zdCB2b2lkICpmcm9t
+LCBzaXplX3QgbikNCj4gIHsNCj4gIAlpZiAodW5saWtlbHkoIW4pKQ0KPiAgCQlyZXR1cm47DQo+
+IEBAIC01NiwxNCArNTUsNjQgQEAgdm9pZCBtZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9t
+ZW0gKnRvLCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gIAl9DQo+ICAJcmVwX21vdnMo
+KHZvaWQgKil0bywgKGNvbnN0IHZvaWQgKikgZnJvbSwgbik7DQo+ICB9DQo+ICsNCj4gK3N0YXRp
+YyB2b2lkIHVucm9sbGVkX21lbWNweV9mcm9taW8odm9pZCAqdG8sIGNvbnN0IHZvbGF0aWxlIHZv
+aWQgX19pb21lbSAqZnJvbSwgc2l6ZV90IG4pDQo+ICt7DQo+ICsJY29uc3Qgdm9sYXRpbGUgY2hh
+ciBfX2lvbWVtICppbiA9IGZyb207DQo+ICsJY2hhciAqb3V0ID0gdG87DQo+ICsJaW50IGk7DQo+
+ICsNCj4gKwlmb3IgKGkgPSAwOyBpIDwgbjsgKytpKQ0KPiArCQlvdXRbaV0gPSByZWFkYigmaW5b
+aV0pOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgdm9pZCB1bnJvbGxlZF9tZW1jcHlfdG9pbyh2b2xh
+dGlsZSB2b2lkIF9faW9tZW0gKnRvLCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gK3sN
+Cj4gKwl2b2xhdGlsZSBjaGFyIF9faW9tZW0gKm91dCA9IHRvOw0KPiArCWNvbnN0IGNoYXIgKmlu
+ID0gZnJvbTsNCj4gKwlpbnQgaTsNCj4gKw0KPiArCWZvciAoaSA9IDA7IGkgPCBuOyArK2kpDQo+
+ICsJCXdyaXRlYihpbltpXSwgJm91dFtpXSk7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyB2b2lkIHVu
+cm9sbGVkX21lbXNldF9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmEsIGludCBiLCBzaXplX3Qg
+YykNCj4gK3sNCj4gKwl2b2xhdGlsZSBjaGFyIF9faW9tZW0gKm1lbSA9IGE7DQo+ICsJaW50IGk7
+DQo+ICsNCj4gKwlmb3IgKGkgPSAwOyBpIDwgYzsgKytpKQ0KPiArCQl3cml0ZWIoYiwgJm1lbVtp
+XSk7DQo+ICt9DQo+ICsNCj4gK3ZvaWQgbWVtY3B5X2Zyb21pbyh2b2lkICp0bywgY29uc3Qgdm9s
+YXRpbGUgdm9pZCBfX2lvbWVtICpmcm9tLCBzaXplX3QgbikNCj4gK3sNCj4gKwlpZiAoY2NfcGxh
+dGZvcm1faGFzKENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTykpDQo+ICsJCXVucm9sbGVk
+X21lbWNweV9mcm9taW8odG8sIGZyb20sIG4pOw0KPiArCWVsc2UNCj4gKwkJc3RyaW5nX21lbWNw
+eV9mcm9taW8odG8sIGZyb20sIG4pOw0KPiArfQ0KPiArRVhQT1JUX1NZTUJPTChtZW1jcHlfZnJv
+bWlvKTsNCj4gKw0KPiArdm9pZCBtZW1jcHlfdG9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKnRv
+LCBjb25zdCB2b2lkICpmcm9tLCBzaXplX3QgbikNCj4gK3sNCj4gKwlpZiAoY2NfcGxhdGZvcm1f
+aGFzKENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTykpDQo+ICsJCXVucm9sbGVkX21lbWNw
+eV90b2lvKHRvLCBmcm9tLCBuKTsNCj4gKwllbHNlDQo+ICsJCXN0cmluZ19tZW1jcHlfdG9pbyh0
+bywgZnJvbSwgbik7DQo+ICt9DQo+ICBFWFBPUlRfU1lNQk9MKG1lbWNweV90b2lvKTsNCj4gDQo+
+ICB2b2lkIG1lbXNldF9pbyh2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmEsIGludCBiLCBzaXplX3Qg
+YykNCj4gIHsNCj4gLQkvKg0KPiAtCSAqIFRPRE86IG1lbXNldCBjYW4gbWFuZ2xlIHRoZSBJTyBw
+YXR0ZXJucyBxdWl0ZSBhIGJpdC4NCj4gLQkgKiBwZXJoYXBzIGl0IHdvdWxkIGJlIGJldHRlciB0
+byB1c2UgYSBkdW1iIG9uZToNCj4gLQkgKi8NCj4gLQltZW1zZXQoKHZvaWQgKilhLCBiLCBjKTsN
+Cj4gKwlpZiAoY2NfcGxhdGZvcm1faGFzKENDX0FUVFJfR1VFU1RfVU5ST0xMX1NUUklOR19JTykp
+IHsNCj4gKwkJdW5yb2xsZWRfbWVtc2V0X2lvKGEsIGIsIGMpOw0KPiArCX0gZWxzZSB7DQo+ICsJ
+CS8qDQo+ICsJCSAqIFRPRE86IG1lbXNldCBjYW4gbWFuZ2xlIHRoZSBJTyBwYXR0ZXJucyBxdWl0
+ZSBhIGJpdC4NCj4gKwkJICogcGVyaGFwcyBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8gdXNlIGEgZHVt
+YiBvbmU6DQo+ICsJCSAqLw0KPiArCQltZW1zZXQoKHZvaWQgKilhLCBiLCBjKTsNCj4gKwl9DQo+
+ICB9DQo+ICBFWFBPUlRfU1lNQk9MKG1lbXNldF9pbyk7DQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVz
+cyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEg
+MVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
 
-This is now in Linus's tree as commit 8d3ea3d402db would be good to
-get it int 5.17.x
-
-> ---
->  drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> index 87f1056e29ff..e907a2df299c 100644
-> --- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> +++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> @@ -76,7 +76,7 @@ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
->         if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
->                 __raw_writel(value, offset);
->         else
-> -               writel_relaxed(value, offset);
-> +               writel(value, offset);
->  }
->
->  static inline u32 bcmgenet_readl(void __iomem *offset)
-> @@ -84,7 +84,7 @@ static inline u32 bcmgenet_readl(void __iomem *offset)
->         if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
->                 return __raw_readl(offset);
->         else
-> -               return readl_relaxed(offset);
-> +               return readl(offset);
->  }
->
->  static inline void dmadesc_set_length_status(struct bcmgenet_priv *priv,
-> --
-> 2.35.1
->
