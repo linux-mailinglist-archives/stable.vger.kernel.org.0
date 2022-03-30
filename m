@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84BC04EC298
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01D634EC265
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244803AbiC3MAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 08:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
+        id S1344561AbiC3L71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:59:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345853AbiC3LzF (ORCPT
+        with ESMTP id S1345852AbiC3LzF (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C26E0264F4F;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1518262D75;
         Wed, 30 Mar 2022 04:51:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D3CCB81C35;
-        Wed, 30 Mar 2022 11:51:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B620C36AE9;
-        Wed, 30 Mar 2022 11:51:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55C28615E7;
+        Wed, 30 Mar 2022 11:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1BA6C36AE2;
+        Wed, 30 Mar 2022 11:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641112;
-        bh=vSWwKbrR19XdVO7iI7iBtjrl3iBpFXIU9WwNPn5PLvc=;
+        s=k20201202; t=1648641113;
+        bh=+wq173W039LLwt49okhsC1cU/Yg0EMixvemiQqA7vmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBiig2db2yvub/jRamsE+/cyGWveFzdTNskLLqXmdD8Ba0pnpwWGPLOTTdy6Y6FfH
-         p2hUYXWulr6Xi2Mklh+MSlsoYZoKQtPvzUPJeidzm8VEXSDS0zVZEtDNqI1RS22CLq
-         JmQuGrt1ILeaU8XSrDXq8/Le3YoqySJHKgttxtZiOA+6eQGUjo1AWMVcPK21uSuiTs
-         EmHdlzMRACIvfaccTuhAK4eRxXSgIHdkiHzDNLy48vb00PD/cXbFjz2Mr9lO/EkgMg
-         WL885t9bqu6oZxqYHGt6M6sjgi+UN9zo0sdpXQNSp/NZ1GUEnunWnygLRmHIS/10ah
-         8fITg7tknWK0w==
+        b=nbcypW6cUfI8s7QhYI+JTNAeYoDSTe+Jn4iTy+KJ13TFht0So+vMVMF3bsoPO3n46
+         beJQXvsTeMpGBDWP42Qgp2rQiylyiOBjgalgWu+9khXplX1wJEQ/JN7cicJ5LzZlj+
+         g4vu0UgK0OnoQm8SH0Z+PLFfJomk3ka9RkWo1naGaLGba1grWl0q++D92Dv5aWkbMc
+         Vn2ApRzhKzgICRpk157lwexiSU2upECyhrStWKICzegELl+mPhDqrFpvYTnzLYwr1H
+         sZAlZkg3HCVk/hLE6I75xWGVtHnG1YQd5RNs68rrY5dt2aAyFdY6op0UVsIsH+UUI0
+         oW29RxD61Lt5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, catalin.marinas@arm.com,
-        will.deacon@arm.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 17/37] arm64: defconfig: build imx-sdma as a module
-Date:   Wed, 30 Mar 2022 07:51:02 -0400
-Message-Id: <20220330115122.1671763-17-sashal@kernel.org>
+Cc:     Jing Yao <yao.jing2@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        tomi.valkeinen@ti.com, linux-omap@vger.kernel.org,
+        linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 18/37] video: fbdev: omapfb: panel-dsi-cm: Use sysfs_emit() instead of snprintf()
+Date:   Wed, 30 Mar 2022 07:51:03 -0400
+Message-Id: <20220330115122.1671763-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115122.1671763-1-sashal@kernel.org>
 References: <20220330115122.1671763-1-sashal@kernel.org>
@@ -57,37 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+From: Jing Yao <yao.jing2@zte.com.cn>
 
-[ Upstream commit e95622289f263662240544a9f0009b25c19e64d4 ]
+[ Upstream commit f63658a59c3d439c8ad7b290f8ec270980e0f384 ]
 
-This avoids firmware load error and sysfs fallback reported as follows:
+Use sysfs_emit instead of scnprintf, snprintf or sprintf.
 
-[    0.199448] imx-sdma 302c0000.dma-controller: Direct firmware load
- for imx/sdma/sdma-imx7d.bin failed with error -2
-[    0.199487] imx-sdma 302c0000.dma-controller: Falling back to sysfs
- fallback for: imx/sdma/sdma-imx7d.bin
-
-Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Jing Yao <yao.jing2@zte.com.cn>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/configs/defconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/omap2/omapfb/displays/panel-dsi-cm.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index 5cfe3cf6f2ac..2bdf38d05fa5 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -837,7 +837,7 @@ CONFIG_DMADEVICES=y
- CONFIG_DMA_BCM2835=y
- CONFIG_DMA_SUN6I=m
- CONFIG_FSL_EDMA=y
--CONFIG_IMX_SDMA=y
-+CONFIG_IMX_SDMA=m
- CONFIG_K3_DMA=y
- CONFIG_MV_XOR=y
- CONFIG_MV_XOR_V2=y
+diff --git a/drivers/video/fbdev/omap2/omapfb/displays/panel-dsi-cm.c b/drivers/video/fbdev/omap2/omapfb/displays/panel-dsi-cm.c
+index 4b0793abdd84..a2c7c5cb1523 100644
+--- a/drivers/video/fbdev/omap2/omapfb/displays/panel-dsi-cm.c
++++ b/drivers/video/fbdev/omap2/omapfb/displays/panel-dsi-cm.c
+@@ -409,7 +409,7 @@ static ssize_t dsicm_num_errors_show(struct device *dev,
+ 	if (r)
+ 		return r;
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", errors);
++	return sysfs_emit(buf, "%d\n", errors);
+ }
+ 
+ static ssize_t dsicm_hw_revision_show(struct device *dev,
+@@ -439,7 +439,7 @@ static ssize_t dsicm_hw_revision_show(struct device *dev,
+ 	if (r)
+ 		return r;
+ 
+-	return snprintf(buf, PAGE_SIZE, "%02x.%02x.%02x\n", id1, id2, id3);
++	return sysfs_emit(buf, "%02x.%02x.%02x\n", id1, id2, id3);
+ }
+ 
+ static ssize_t dsicm_store_ulps(struct device *dev,
+@@ -487,7 +487,7 @@ static ssize_t dsicm_show_ulps(struct device *dev,
+ 	t = ddata->ulps_enabled;
+ 	mutex_unlock(&ddata->lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n", t);
++	return sysfs_emit(buf, "%u\n", t);
+ }
+ 
+ static ssize_t dsicm_store_ulps_timeout(struct device *dev,
+@@ -532,7 +532,7 @@ static ssize_t dsicm_show_ulps_timeout(struct device *dev,
+ 	t = ddata->ulps_timeout;
+ 	mutex_unlock(&ddata->lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n", t);
++	return sysfs_emit(buf, "%u\n", t);
+ }
+ 
+ static DEVICE_ATTR(num_dsi_errors, S_IRUGO, dsicm_num_errors_show, NULL);
 -- 
 2.34.1
 
