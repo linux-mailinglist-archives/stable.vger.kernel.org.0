@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E81D4EC2B7
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3BDE4EC2B4
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234544AbiC3MA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 08:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
+        id S243699AbiC3MA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 08:00:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344725AbiC3L41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:56:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFEE31361;
+        with ESMTP id S1344748AbiC3L43 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:56:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 308993136D;
         Wed, 30 Mar 2022 04:54:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6BFAB81C28;
-        Wed, 30 Mar 2022 11:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BCD7C36AE3;
-        Wed, 30 Mar 2022 11:54:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C19D8B81BBA;
+        Wed, 30 Mar 2022 11:54:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD00C34111;
+        Wed, 30 Mar 2022 11:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641265;
-        bh=i4LvtJMYs5t9UOhjaHJspxXRS2kYwM/x4i+LuKPkDHQ=;
+        s=k20201202; t=1648641266;
+        bh=JNB0ox2IAOZfzRXVAXo4eWspjGDe62bw5yVCsUBIspQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7nPFKqnZjaP+pXB88MVcs6hND4xYOwAoxj2S+LJpoaX9TNEGqv8XrLI58YQCqzt+
-         m8DD0zUj+a9d6yuZelMnH/bw4VO8BQGhzG7SMgrXBwuOOiZ/FBP39pHIrdMmj44qiZ
-         hBMk9T+wwX+ZK50YfrC+30QBIm6kNT2V84+2ryCzTUJZe1CjioTTD68R8xL1rTvCdX
-         XCD2b7hto+Eg2sxKAr6PYm2tDVUjGgsjrVagFGGjG9wYoYO0JjZ9XZQ0TVBwoO6Uba
-         sP2YwgB/m4bixGZhQsEhqsODYlD+7f3uFeedwfaHJvDmZEdt3lpqqpiNXs+DOVW9PT
-         4B9wYjWekKzPg==
+        b=hDQKpsYmPxh3J6vd3xbg+HsPLGK5lTVVGNYKb+98ET88v3YjyPpaAGF30/+G1Fk4X
+         4pjl+VZ6DnWEdequCT6evv/ln2bstAgUPi/3pHot9EGKEFAALjcJtJ5MPxp4krsaBj
+         w7pe/+NnwHtFzcaPLTk/ZClr/yw/E2l9YgvLRnjNg85Avdm1Z6V7XJjEUYgIvU59cp
+         QmNkjJK1bKcrZ67ZihE8vSNfe/1oKTIphJqj0Z1CTC3VsrD5fhdIg31qzIrxbU9bFb
+         ypCcZUAUq38dIix5RPDz/N7bN521YlBrcXRWJTvmtWFUO8lGg8NbNbTcGfl1T2L97P
+         OBPbTMHbxR9dQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 10/17] ASoC: soc-core: skip zero num_dai component in searching dai name
-Date:   Wed, 30 Mar 2022 07:53:59 -0400
-Message-Id: <20220330115407.1673214-10-sashal@kernel.org>
+Cc:     =?UTF-8?q?Daniel=20Gonz=C3=A1lez=20Cabanelas?= <dgcbueu@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 11/17] media: cx88-mpeg: clear interrupt status register before streaming video
+Date:   Wed, 30 Mar 2022 07:54:00 -0400
+Message-Id: <20220330115407.1673214-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115407.1673214-1-sashal@kernel.org>
 References: <20220330115407.1673214-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,45 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Daniel González Cabanelas <dgcbueu@gmail.com>
 
-[ Upstream commit f7d344a2bd5ec81fbd1ce76928fd059e57ec9bea ]
+[ Upstream commit 56cb61f70e547e1b0cdfe6ff5a1f1ce6242e6d96 ]
 
-In the case like dmaengine which's not a dai but as a component, the
-num_dai is zero, dmaengine component has the same component_of_node
-as cpu dai, when cpu dai component is not ready, but dmaengine component
-is ready, try to get cpu dai name, the snd_soc_get_dai_name() return
--EINVAL, not -EPROBE_DEFER, that cause below error:
+Some cx88 video cards may have transport stream status interrupts set
+to 1 from cold start, causing errors like this:
 
-asoc-simple-card <card name>: parse error -22
-asoc-simple-card: probe of <card name> failed with error -22
+  cx88xx: cx88_print_irqbits: core:irq mpeg  [0x100000] ts_err?*
+  cx8802: cx8802_mpeg_irq: mpeg:general errors: 0x00100000
 
-The sound card failed to probe.
+According to CX2388x datasheet, the interrupt status register should be
+cleared before enabling IRQs to stream video.
 
-So this patch fixes the issue above by skipping the zero num_dai
-component in searching dai name.
+Fix it by clearing the Transport Stream Interrupt Status register.
 
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1644491952-7457-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Daniel González Cabanelas <dgcbueu@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/cx88/cx88-mpeg.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 0344d4423167..81c3aa167038 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3799,7 +3799,7 @@ static int snd_soc_get_dai_name(struct of_phandle_args *args,
- 		if (!component_of_node && pos->dev->parent)
- 			component_of_node = pos->dev->parent->of_node;
+diff --git a/drivers/media/pci/cx88/cx88-mpeg.c b/drivers/media/pci/cx88/cx88-mpeg.c
+index 245357adbc25..37d4512f3eb8 100644
+--- a/drivers/media/pci/cx88/cx88-mpeg.c
++++ b/drivers/media/pci/cx88/cx88-mpeg.c
+@@ -175,6 +175,9 @@ int cx8802_start_dma(struct cx8802_dev    *dev,
+ 	cx_write(MO_TS_GPCNTRL, GP_COUNT_CONTROL_RESET);
+ 	q->count = 0;
  
--		if (component_of_node != args->np)
-+		if (component_of_node != args->np || !pos->num_dai)
- 			continue;
- 
- 		if (pos->driver->of_xlate_dai_name) {
++	/* clear interrupt status register */
++	cx_write(MO_TS_INTSTAT,  0x1f1111);
++
+ 	/* enable irqs */
+ 	dprintk( 1, "setting the interrupt mask\n" );
+ 	cx_set(MO_PCI_INTMSK, core->pci_irqmask | PCI_INT_TSINT);
 -- 
 2.34.1
 
