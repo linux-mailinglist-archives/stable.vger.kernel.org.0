@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E194EC166
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 349924EC1B1
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344628AbiC3L4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:56:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
+        id S1344687AbiC3L4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:56:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344919AbiC3Lxq (ORCPT
+        with ESMTP id S1344926AbiC3Lxq (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0CA273810;
-        Wed, 30 Mar 2022 04:50:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60090274292;
+        Wed, 30 Mar 2022 04:50:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48102B81C38;
-        Wed, 30 Mar 2022 11:50:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71B38C340F3;
-        Wed, 30 Mar 2022 11:49:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC84BB81C23;
+        Wed, 30 Mar 2022 11:50:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8487CC340F2;
+        Wed, 30 Mar 2022 11:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640999;
-        bh=jpH1FFqHwA9Rcvx435BbU8+Ijry2x5lxT/g9E4on9Sg=;
+        s=k20201202; t=1648641000;
+        bh=IVt9jYETt3TQfguSpdnH8Vu6cSpfeaiBih9Ro8JSimM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haGhGqyhyOu+jd5AX6FjsG4saHD1UQUpxjTjtRuvB/E55dnQHy7I29/9PRkHeJFEu
-         rDLupVqVUfZy3TYmDjb/gZJ3+uPwoYzYuweCZU0jTuV06GWDwPhmWQFSWFhJP/Ha7H
-         IFz3lwm9rP/g/Orm8Ln2sw3Uuz1jqy5HeI5pqliccEi8RMl6/Y1biUookIhKMkr7wb
-         wHxJljVUS6eoB8Y/qEgnlGrHMjrWsD3m8o80BHFmNgw/kJRq0eMz1dBRMDa9teXGDD
-         XJ42yQTKUxUf03BpFSL0BBi1GtiQTgN7sQh1N4I8NvuCwne9x4NJUNW9Gs14Ufnqj7
-         6ET4cLFU1wKow==
+        b=XzxO3X2lWsmhu5zE/UIdGAH8RbKpNLefGucKCN5H4okNiWDzPOxDan5NVdBaNU2NR
+         rDHMd+0MqHypel6b/JAourRTbRNjHOth4Y7MeEKzqY9dIbS0O1b6S+yq2yGcre/s+n
+         SADrvMGUip1Me3zgqzT1GVYZquGLWk7AP1fUZYLxEMFAaqiyCZKwM4bjvSZFsKex44
+         ssNct8Zn0BCprwi+u+kmkYzrQBFSjTmHxEIVTMryxXK5UV3FMTb+Q5TiQ0DLg7l4/7
+         sDA2j6ZZ+RlNTiBIw9G70jxLPmKiBHAfZluisNHJ0lCQwJhJohscQ7AadBFLG8b3+9
+         8fhm23TofbGjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 56/59] mmc: host: Return an error when ->enable_sdio_irq() ops is missing
-Date:   Wed, 30 Mar 2022 07:48:28 -0400
-Message-Id: <20220330114831.1670235-56-sashal@kernel.org>
+Cc:     Minghao Chi <chi.minghao@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.16 57/59] ASoC: ak4642: Use of_device_get_match_data()
+Date:   Wed, 30 Mar 2022 07:48:29 -0400
+Message-Id: <20220330114831.1670235-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114831.1670235-1-sashal@kernel.org>
 References: <20220330114831.1670235-1-sashal@kernel.org>
@@ -55,58 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Minghao Chi <chi.minghao@zte.com.cn>
 
-[ Upstream commit d6c9219ca1139b74541b2a98cee47a3426d754a9 ]
+[ Upstream commit 835ca59799f5c60b4b54bdc7aa785c99552f63e4 ]
 
-Even if the current WARN() notifies the user that something is severely
-wrong, we can still end up in a PANIC() when trying to invoke the missing
-->enable_sdio_irq() ops. Therefore, let's also return an error code and
-prevent the host from being added.
+Use of_device_get_match_data() to simplify the code.
 
-While at it, move the code into a separate function to prepare for
-subsequent changes and for further host caps validations.
-
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20220303165142.129745-1-ulf.hansson@linaro.org
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
+Link: https://lore.kernel.org/r/20220315023226.2118354-1-chi.minghao@zte.com.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/host.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ sound/soc/codecs/ak4613.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
-index cf140f4ec864..d739e2b631fe 100644
---- a/drivers/mmc/core/host.c
-+++ b/drivers/mmc/core/host.c
-@@ -588,6 +588,16 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+diff --git a/sound/soc/codecs/ak4613.c b/sound/soc/codecs/ak4613.c
+index 4d2e78101f28..034195c83bd7 100644
+--- a/sound/soc/codecs/ak4613.c
++++ b/sound/soc/codecs/ak4613.c
+@@ -653,15 +653,10 @@ static int ak4613_i2c_probe(struct i2c_client *i2c,
+ 	struct ak4613_priv *priv;
  
- EXPORT_SYMBOL(mmc_alloc_host);
+ 	regmap_cfg = NULL;
+-	if (np) {
+-		const struct of_device_id *of_id;
+-
+-		of_id = of_match_device(ak4613_of_match, dev);
+-		if (of_id)
+-			regmap_cfg = of_id->data;
+-	} else {
++	if (np)
++		regmap_cfg = of_device_get_match_data(dev);
++	else
+ 		regmap_cfg = (const struct regmap_config *)id->driver_data;
+-	}
  
-+static int mmc_validate_host_caps(struct mmc_host *host)
-+{
-+	if (host->caps & MMC_CAP_SDIO_IRQ && !host->ops->enable_sdio_irq) {
-+		dev_warn(host->parent, "missing ->enable_sdio_irq() ops\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  *	mmc_add_host - initialise host hardware
-  *	@host: mmc host
-@@ -600,8 +610,9 @@ int mmc_add_host(struct mmc_host *host)
- {
- 	int err;
- 
--	WARN_ON((host->caps & MMC_CAP_SDIO_IRQ) &&
--		!host->ops->enable_sdio_irq);
-+	err = mmc_validate_host_caps(host);
-+	if (err)
-+		return err;
- 
- 	err = device_add(&host->class_dev);
- 	if (err)
+ 	if (!regmap_cfg)
+ 		return -EINVAL;
 -- 
 2.34.1
 
