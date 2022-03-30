@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EA44EC252
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 420514EC1D5
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344465AbiC3L7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:59:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57684 "EHLO
+        id S1345078AbiC3L5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:57:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345637AbiC3Lyv (ORCPT
+        with ESMTP id S1345638AbiC3Lyv (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD31261330;
-        Wed, 30 Mar 2022 04:51:30 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E552C261980;
+        Wed, 30 Mar 2022 04:51:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85913B81ACC;
-        Wed, 30 Mar 2022 11:51:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1EDC34111;
-        Wed, 30 Mar 2022 11:51:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3643D61625;
+        Wed, 30 Mar 2022 11:51:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD8C0C3410F;
+        Wed, 30 Mar 2022 11:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641089;
-        bh=VoM7pobsttxs0xCLnXmRxztC0DJUlTzGWgj+uuoU6/k=;
+        s=k20201202; t=1648641090;
+        bh=AI9DrVufi3MdEFjnhzkWMRlWnmYNO4xCFAbfcOkWUqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bF6h8hZw46Zbua0HS7gSXEoB2aHT9kp13ETeE/yLESuslrr/lkHYBHGikWLKCGtnP
-         2BDAuhPuvI5m9YpUcy1lJ5Mc8bHq/om7LadVD4s27zaYlK1pxPBFVKLt5UUqEaX3VI
-         FmfvID5dLizj5WTyzbhXW3MW5PPeng4Zm1rPaA9qQKhd3H0XWRz66IHwdLDAO3Pavd
-         tlMJeq+JE89E2IHlR9Nw08+PkreWJMHQUqn5x8fSHnP2veLV3kXdAt8yK2suyF20HR
-         8ZjdFXiyZC5eqJ/Tq5VQz/X+m2qOwOITKe446c0vS1xXCqapWSFIyWc4QVkgiGNmhH
-         CZVmLiFiLowBA==
+        b=sJ8iFL6rZ3tgBNeWRTz6YvBDsSijUiE9d4QuwQvUCRrvXkQT6PKZvOb/QkQiQJzsv
+         rXPorXimSTSqza6Ogup3ABTcyfaCfwY/8+qOFHN+rYi2Mr1+ru06fjNVb/fUjZQDRV
+         c/tIRBCEmqDASEYnekopDlr1CY/KofQOj8ukDpk7hWY977v490XHysVvpLEvOrdZ1A
+         boiyvskz4lk47RRkfRSF5R6BZ51oSNp6GEK3y6+j5MPsVm6riNx4Lu6Pdk1x5CFhzQ
+         wrixzL3mjvYULBMQ36T0ayjkspPUraRy7sgg56KDkxLUdN2wen4InKhsFXUH4xJWGj
+         ykEu9yZiTWV/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Corentin Labbe <clabbe@baylibre.com>,
+Cc:     Peiwei Hu <jlu.hpw@foxmail.com>, Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        linux-media@vger.kernel.org, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.10 03/37] media: staging: media: zoran: fix various V4L2 compliance errors
-Date:   Wed, 30 Mar 2022 07:50:48 -0400
-Message-Id: <20220330115122.1671763-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/37] media: ir_toy: free before error exiting
+Date:   Wed, 30 Mar 2022 07:50:49 -0400
+Message-Id: <20220330115122.1671763-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115122.1671763-1-sashal@kernel.org>
 References: <20220330115122.1671763-1-sashal@kernel.org>
@@ -58,100 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Peiwei Hu <jlu.hpw@foxmail.com>
 
-[ Upstream commit 914941827aad5ecddf9bf3a6dee67fbec1af1fff ]
+[ Upstream commit 52cdb013036391d9d87aba5b4fc49cdfc6ea4b23 ]
 
-This fixes several issues found with 'v4l2-compliance -s':
+Fix leak in error path.
 
-1) read()/write() is supported, but not reported in the capabilities
-2) S_STD(G_STD()) failed: setting the same standard should just return 0.
-3) G_PARM failed to set readbuffers.
-4) different field values in the format vs. what v4l2_buffer reported.
-5) zero the sequence number when starting streaming.
-6) drop VB_USERPTR: makes no sense with dma_contig streaming.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Peiwei Hu <jlu.hpw@foxmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/zoran/zoran_card.c   |  2 +-
- drivers/staging/media/zoran/zoran_driver.c | 13 ++++++++++---
- 2 files changed, 11 insertions(+), 4 deletions(-)
+ drivers/media/rc/ir_toy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/zoran/zoran_card.c b/drivers/staging/media/zoran/zoran_card.c
-index e4df72cd4d28..fb7a5f87d3bc 100644
---- a/drivers/staging/media/zoran/zoran_card.c
-+++ b/drivers/staging/media/zoran/zoran_card.c
-@@ -810,7 +810,7 @@ static int zoran_init_video_device(struct zoran *zr, struct video_device *video_
- 	*video_dev = zoran_template;
- 	video_dev->v4l2_dev = &zr->v4l2_dev;
- 	video_dev->lock = &zr->lock;
--	video_dev->device_caps = V4L2_CAP_STREAMING | dir;
-+	video_dev->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_READWRITE | dir;
- 
- 	strscpy(video_dev->name, ZR_DEVNAME(zr), sizeof(video_dev->name));
- 	/*
-diff --git a/drivers/staging/media/zoran/zoran_driver.c b/drivers/staging/media/zoran/zoran_driver.c
-index 7f22596cc630..ea04f6c732b2 100644
---- a/drivers/staging/media/zoran/zoran_driver.c
-+++ b/drivers/staging/media/zoran/zoran_driver.c
-@@ -255,8 +255,6 @@ static int zoran_querycap(struct file *file, void *__fh, struct v4l2_capability
- 	strscpy(cap->card, ZR_DEVNAME(zr), sizeof(cap->card));
- 	strscpy(cap->driver, "zoran", sizeof(cap->driver));
- 	snprintf(cap->bus_info, sizeof(cap->bus_info), "PCI:%s", pci_name(zr->pci_dev));
--	cap->device_caps = zr->video_dev->device_caps;
--	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
- 	return 0;
- }
- 
-@@ -582,6 +580,9 @@ static int zoran_s_std(struct file *file, void *__fh, v4l2_std_id std)
- 	struct zoran *zr = video_drvdata(file);
- 	int res = 0;
- 
-+	if (zr->norm == std)
-+		return 0;
-+
- 	if (zr->running != ZORAN_MAP_MODE_NONE)
- 		return -EBUSY;
- 
-@@ -737,6 +738,7 @@ static int zoran_g_parm(struct file *file, void *priv, struct v4l2_streamparm *p
- 	if (parm->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
- 		return -EINVAL;
- 
-+	parm->parm.capture.readbuffers = 9;
- 	return 0;
- }
- 
-@@ -867,6 +869,10 @@ int zr_set_buf(struct zoran *zr)
- 		vbuf = &buf->vbuf;
- 
- 		buf->vbuf.field = V4L2_FIELD_INTERLACED;
-+		if (BUZ_MAX_HEIGHT < (zr->v4l_settings.height * 2))
-+			buf->vbuf.field = V4L2_FIELD_INTERLACED;
-+		else
-+			buf->vbuf.field = V4L2_FIELD_TOP;
- 		vb2_set_plane_payload(&buf->vbuf.vb2_buf, 0, zr->buffer_size);
- 		vb2_buffer_done(&buf->vbuf.vb2_buf, VB2_BUF_STATE_DONE);
- 		zr->inuse[0] = NULL;
-@@ -926,6 +932,7 @@ static int zr_vb2_start_streaming(struct vb2_queue *vq, unsigned int count)
- 		zr->stat_com[j] = cpu_to_le32(1);
- 		zr->inuse[j] = NULL;
+diff --git a/drivers/media/rc/ir_toy.c b/drivers/media/rc/ir_toy.c
+index 1aa7989e756c..7f394277478b 100644
+--- a/drivers/media/rc/ir_toy.c
++++ b/drivers/media/rc/ir_toy.c
+@@ -429,7 +429,7 @@ static int irtoy_probe(struct usb_interface *intf,
+ 	err = usb_submit_urb(irtoy->urb_in, GFP_KERNEL);
+ 	if (err != 0) {
+ 		dev_err(irtoy->dev, "fail to submit in urb: %d\n", err);
+-		return err;
++		goto free_rcdev;
  	}
-+	zr->vbseq = 0;
  
- 	if (zr->map_mode != ZORAN_MAP_MODE_RAW) {
- 		pci_info(zr->pci_dev, "START JPG\n");
-@@ -1016,7 +1023,7 @@ int zoran_queue_init(struct zoran *zr, struct vb2_queue *vq, int dir)
- 	vq->dev = &zr->pci_dev->dev;
- 	vq->type = dir;
- 
--	vq->io_modes = VB2_USERPTR | VB2_DMABUF | VB2_MMAP | VB2_READ | VB2_WRITE;
-+	vq->io_modes = VB2_DMABUF | VB2_MMAP | VB2_READ | VB2_WRITE;
- 	vq->drv_priv = zr;
- 	vq->buf_struct_size = sizeof(struct zr_buffer);
- 	vq->ops = &zr_video_qops;
+ 	err = irtoy_setup(irtoy);
 -- 
 2.34.1
 
