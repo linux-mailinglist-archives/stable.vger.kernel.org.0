@@ -2,140 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 597F14EC139
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 304EB4EC226
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344708AbiC3L4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:56:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35776 "EHLO
+        id S1345204AbiC3L60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:58:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344951AbiC3Lxs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D941E27CE2D;
-        Wed, 30 Mar 2022 04:50:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39BDDB81C35;
-        Wed, 30 Mar 2022 11:50:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9334DC34112;
-        Wed, 30 Mar 2022 11:50:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641004;
-        bh=2gFQR24PiGDBVtJN+cyLU8brXWtqq6yATgfmqkV8Szs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROXzdo6/vJyhRx19MlQvKCIoVtFsCwyg39R00ZGGvVVtEE/tZsr/EODiyaqbzc07n
-         0usispoujcw70y1cHjd8FULhmgxGJLTzg06wqU065AdiO933bLZUb3S1rxY7GFRueO
-         5B8+aQYHNp9jVEOFPg2u7M16dXsbUXdJ8OwNSLnSSj7UjDMfKpTik6RE1VNepgaEaK
-         7e7zbA7LUTcyCbQG8oO4ky+T7N+V0IHizpV8hroBhZqWsb2nO/es4yAX2TS1lq/4VC
-         K3CcEHvuvi0xdCvER8n/gq7iAkgLtxyq0ViK1d82FHQJqUT5PA4e5C1KSfYUDs3fFh
-         Jqe6W3jRw3Wyw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matt Kramer <mccleetus@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, corbet@lwn.net, gregkh@linuxfoundation.org,
-        sylee@canonical.com, sudipm.mukherjee@gmail.com,
-        hui.wang@canonical.com, alsa-devel@alsa-project.org,
-        linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 59/59] ALSA: hda/realtek: Add alc256-samsung-headphone fixup
-Date:   Wed, 30 Mar 2022 07:48:31 -0400
-Message-Id: <20220330114831.1670235-59-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220330114831.1670235-1-sashal@kernel.org>
-References: <20220330114831.1670235-1-sashal@kernel.org>
+        with ESMTP id S1344388AbiC3LxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:05 -0400
+Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E98D26133B
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 04:48:47 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id DD0FF3200929;
+        Wed, 30 Mar 2022 07:48:37 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Wed, 30 Mar 2022 07:48:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; bh=0ie1vOuUlmvcqbJueGwGrFKk+TZXXWsXNeB8rF
+        MU5us=; b=X8O+NJdVyc8lFmzfOGsG42LP59t5U6LaiNMyxEhbk2aVnfsSYNjxH8
+        Rd7pIcpQ5f3hk8Fyr5s61SRTl0rhLczzPh/XnhzkcSgtBMsoxSXIfHTwTEFr1RqB
+        biArQQ6kf7Zt5Ca6hQt/hfWOJwW2S8I5DxeQUtksLjEvfnrcx3QICZgQQs5UB7c+
+        cJ6d2bhfoIwD3yc7C32pGsFejIb0aFjtFXJ+CINq4KdpbE+XFQJGLRLxIUsIYd8F
+        AlMSQA60CMgnrdrIV/rRrtAZ7QyEUoA2AIsJ9+73LSUjswX84DjCAQAzt6YU6pX2
+        s7/uBeIchAUka4garL6HD0wm7WRnS2ag==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0ie1vOuUlmvcqbJue
+        GwGrFKk+TZXXWsXNeB8rFMU5us=; b=itqCKo0ssV8/nmagxJgCaXYHYesOQ7G/6
+        yyLXkT+kpW3MjJL4wZfef8G1AI65qNFuepmyDUNrbcwLwRad/I9cgWLNfo0nds6k
+        /MB18dQpO7MGY3CdSKX0KHe/bilMpGY2LJjQ2zsjhHtiovmM7TWp9kx+wTMkgec0
+        u/XfWh1EKXowEYnJxoSljJAEXRLg04njy62ZYkX/DRFN3tySeYF8eCYG1Fl6ulk2
+        YswmQgLWyygZOZZdbPvkzKH3UqtmruR16jOFITI8Q0NzIy7OYLTT1j+gSCKEcTut
+        2b+XlbPd0ddQJV7SlJBUubsed2GuOXhzLPSeDcELeyD9A6OSbR1aA==
+X-ME-Sender: <xms:lUNEYj5GZl3yMIn0IGUQjHxbZqUdD8sP7BQd2kll9P5dHZFEDAbFgA>
+    <xme:lUNEYo64xXQ3SCOPLn3ChqU4lQSCBy6BnLT3oqAMAWufua3g9M0O-RjNRtrOBI49n
+    Jz8KIGopF5VoQ>
+X-ME-Received: <xmr:lUNEYqeAR5ouxg3Mhdn-bRDJk0A64x6ox8wsmkBuus38iRaZnD3Ha3bg5U6_dweCY6Z5cClCJrUKDMvPPYy5g8HzDqYTQHGa>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudeivddggeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
+    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:lUNEYkI9355UXMH4imHKjDL2mTJgh1IM_HhUAxWcEgXE97iVtODdTA>
+    <xmx:lUNEYnIlMicgoq780Ad993LacbeIKM4967ccRpme6XXBc1ARgiYpuQ>
+    <xmx:lUNEYtz5_J-fcruJIKrdGH9AXghxbHMIhXIswXoM_SyKz52SXWIxLQ>
+    <xmx:lUNEYu_gg96cAWXnIJGexA7GQoZ-P_zUd9bWCsqKobnq4n6zQP37Zg>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 30 Mar 2022 07:48:36 -0400 (EDT)
+Date:   Wed, 30 Mar 2022 13:48:34 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 2/2] virtio-blk: Use blk_validate_block_size() to
+ validate block size
+Message-ID: <YkRDkvAlGAeOeS4t@kroah.com>
+References: <20220330110107.465728-1-lee.jones@linaro.org>
+ <20220330110107.465728-2-lee.jones@linaro.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220330110107.465728-2-lee.jones@linaro.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Kramer <mccleetus@gmail.com>
+On Wed, Mar 30, 2022 at 12:01:07PM +0100, Lee Jones wrote:
+> From: Xie Yongji <xieyongji@bytedance.com>
+> 
+> [ Upstream commit 57a13a5b8157d9a8606490aaa1b805bafe6c37e1 ]
+> 
+> The block layer can't support a block size larger than
+> page size yet. And a block size that's too small or
+> not a power of two won't work either. If a misconfigured
+> device presents an invalid block size in configuration space,
+> it will result in the kernel crash something like below:
+> 
+> [  506.154324] BUG: kernel NULL pointer dereference, address: 0000000000000008
+> [  506.160416] RIP: 0010:create_empty_buffers+0x24/0x100
+> [  506.174302] Call Trace:
+> [  506.174651]  create_page_buffers+0x4d/0x60
+> [  506.175207]  block_read_full_page+0x50/0x380
+> [  506.175798]  ? __mod_lruvec_page_state+0x60/0xa0
+> [  506.176412]  ? __add_to_page_cache_locked+0x1b2/0x390
+> [  506.177085]  ? blkdev_direct_IO+0x4a0/0x4a0
+> [  506.177644]  ? scan_shadow_nodes+0x30/0x30
+> [  506.178206]  ? lru_cache_add+0x42/0x60
+> [  506.178716]  do_read_cache_page+0x695/0x740
+> [  506.179278]  ? read_part_sector+0xe0/0xe0
+> [  506.179821]  read_part_sector+0x36/0xe0
+> [  506.180337]  adfspart_check_ICS+0x32/0x320
+> [  506.180890]  ? snprintf+0x45/0x70
+> [  506.181350]  ? read_part_sector+0xe0/0xe0
+> [  506.181906]  bdev_disk_changed+0x229/0x5c0
+> [  506.182483]  blkdev_get_whole+0x6d/0x90
+> [  506.183013]  blkdev_get_by_dev+0x122/0x2d0
+> [  506.183562]  device_add_disk+0x39e/0x3c0
+> [  506.184472]  virtblk_probe+0x3f8/0x79b [virtio_blk]
+> [  506.185461]  virtio_dev_probe+0x15e/0x1d0 [virtio]
+> 
+> So let's use a block layer helper to validate the block size.
+> 
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Link: https://lore.kernel.org/r/20211026144015.188-5-xieyongji@bytedance.com
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/block/virtio_blk.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 4b3645e648ee9..2af9d7c7d45cd 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -936,9 +936,17 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
+>  				   struct virtio_blk_config, blk_size,
+>  				   &blk_size);
+> -	if (!err)
+> +	if (!err) {
+> +		err = blk_validate_block_size(blk_size);
+> +		if (err) {
+> +			dev_err(&vdev->dev,
+> +				"virtio_blk: invalid block size: 0x%x\n",
+> +				blk_size);
+> +			goto out_cleanup_disk;
+> +		}
+> +
+>  		blk_queue_logical_block_size(q, blk_size);
+> -	else
+> +	} else
+>  		blk_size = queue_logical_block_size(q);
+>  
+>  	/* Use topology information if available */
+> -- 
+> 2.35.1.1021.g381101b075-goog
+> 
 
-[ Upstream commit ef248d9bd616b04df8be25539a4dc5db4b6c56f4 ]
+You didn't build this one either :(
 
-This fixes the near-silence of the headphone jack on the ALC256-based
-Samsung Galaxy Book Flex Alpha (NP730QCJ). The magic verbs were found
-through trial and error, using known ALC298 hacks as inspiration. The
-fixup is auto-enabled only when the NP730QCJ is detected. It can be
-manually enabled using model=alc256-samsung-headphone.
+{sigh}
 
-Signed-off-by: Matt Kramer <mccleetus@gmail.com>
-Link: https://lore.kernel.org/r/3168355.aeNJFYEL58@linus
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- Documentation/sound/hd-audio/models.rst |  4 ++++
- sound/pci/hda/patch_realtek.c           | 11 +++++++++++
- 2 files changed, 15 insertions(+)
+Care to start over?  It's in the 5.15 queue.  Please submit tested
+patches for any/all other branches you want this in.
 
-diff --git a/Documentation/sound/hd-audio/models.rst b/Documentation/sound/hd-audio/models.rst
-index d25335993e55..9b52f50a6854 100644
---- a/Documentation/sound/hd-audio/models.rst
-+++ b/Documentation/sound/hd-audio/models.rst
-@@ -261,6 +261,10 @@ alc-sense-combo
- huawei-mbx-stereo
-     Enable initialization verbs for Huawei MBX stereo speakers;
-     might be risky, try this at your own risk
-+alc298-samsung-headphone
-+    Samsung laptops with ALC298
-+alc256-samsung-headphone
-+    Samsung laptops with ALC256
- 
- ALC66x/67x/892
- ==============
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 08bf8a77a3e4..a4eb685dc76b 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6816,6 +6816,7 @@ enum {
- 	ALC236_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
-+	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
- 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
-@@ -8138,6 +8139,14 @@ static const struct hda_fixup alc269_fixups[] = {
- 			{ }
- 		},
- 	},
-+	[ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x08},
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2fcf},
-+			{ }
-+		},
-+	},
- 	[ALC295_FIXUP_ASUS_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -8900,6 +8909,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
- 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
-@@ -9242,6 +9252,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
- 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
- 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
-+	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
- 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
- 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
- 	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
--- 
-2.34.1
+thanks,
 
+greg k-h
