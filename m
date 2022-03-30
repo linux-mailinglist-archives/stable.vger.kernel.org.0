@@ -2,136 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D53EA4ECFC1
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 00:36:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E4D4ECFD2
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 00:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233655AbiC3Wil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 18:38:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57006 "EHLO
+        id S233858AbiC3Wyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 18:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233163AbiC3Wik (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 18:38:40 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10FA357144
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 15:36:55 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id u22so20176122pfg.6
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 15:36:55 -0700 (PDT)
+        with ESMTP id S233713AbiC3Wyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 18:54:53 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2BC968320
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 15:53:07 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id y10so16881442pfa.7
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 15:53:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=DQ0CBIUENlnxszxblZGMK9Fiucf9BEsPe3rmSRMVdwE=;
-        b=McubRo55sHP1SzvQIJ1Y3VCXFmlkXPHtCcozFjyGuSHe+23x8688FmqxavVCCwMSGA
-         TxhjXcnPlMDFkhDkv5sIRi6mm7P+ki4Dn+AbzgCQUGGR/8u/kP8Plx0wSztuDaGkESKo
-         IUHqmjkGLsFQnU0Nn8ShgRWxaOop1nVfVD8iMWdc4MDxVIDBj//tclCvPlhrW/XMRAAq
-         sIFsC1UWRv8lMnndQSzfCAJaIBxGLvg+9rng1LvM1jETyqLrlWZNvZ7ifkhx4b4XO2ej
-         qqCKKHRg8ujULGtgOIqqLIcr+p3ZUquYjEZ1FuGyc4/f3Fzr8+TO+3CQh5J+x5+NCsoW
-         tiyw==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=fYsRr1x7gYgb8Ir409fmcxRuiLNNSnsiOywQxxoh1Ao=;
+        b=FdZcaaJLZRKBXudLRA9FZiiVh/NTx7WcH26Z8Q7KKX0RtmYFoTrG1UX7XLqzDxsR4r
+         1N81xTjacCxbfc8Zcr6jCcgrq9MdiiXdO+FQjd7zCUO/IyWoFJnsAgilVkRvOneYmKbb
+         Ww6n22JYJ5lopv1c5zcEsXkwwNl72KIELpsdY78XQ8S2Sx50EqDEQZYRe/GevvbCw5Kr
+         NUREztC1qjTt870POa/a+anoSglZih20yUbKlz47U4PYbYjratwl6gZJbmVOazr20yPl
+         PRdQM7mAni+BD/IrgwQgj6Nn5H7URh1CIGKsB0IGyQidpBz9wq2yJKYnKKw0iFe+HJIs
+         iWPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=DQ0CBIUENlnxszxblZGMK9Fiucf9BEsPe3rmSRMVdwE=;
-        b=MN0HycrhvBYjDRrY5eoap5Xpv5y74Lj01C+TgAZRA9ecd8OCukJxvJAg3caErEtvea
-         7zvLEiPUAVUcUalHIYQm0lXeLt6QR+/xYmxmdDoLOxAFSDxuPHkCSWMqNeOeXXI7jPkq
-         GwDCiq0bWGCBtROHShomU65COI6mEmGDW4GN2nSkJqolO4BA7pgD2lmPz8taWy5i748R
-         GiCqh8HmSx+yBuTE+DQ5o7TXrHXrOWBl36KnBEWDPTjyttkfgP/vS4/PChv5ZSvJfy6T
-         hCLtHMp1GJym8ZJskX3zPTmhNbGIpeAS9W+rnWUFEScBJurdo7uh9x6M+Ufqpy2G7rZo
-         QG3Q==
-X-Gm-Message-State: AOAM533R76bQ9RY7q3w08+XabpgZoj5Q9HepsJzWxXQo/OVK5Si9CE5X
-        ZLak7+AN2k6pJ7ButdUlp+zeuYvO5h9LoUkmFwQ=
-X-Google-Smtp-Source: ABdhPJyfKhrcFNTHXyf/F4lwqcqYa3wZkc1mL+R92ywbQOVRYfBv7CJeGN3+XislpmMtOf+tdFnxeQ==
-X-Received: by 2002:a05:6a00:2148:b0:4fa:92f2:bae3 with SMTP id o8-20020a056a00214800b004fa92f2bae3mr1793101pfk.69.1648679814322;
-        Wed, 30 Mar 2022 15:36:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id be11-20020a056a001f0b00b004fb29215dd9sm15020042pfb.30.2022.03.30.15.36.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Mar 2022 15:36:54 -0700 (PDT)
-Message-ID: <6244db86.1c69fb81.9dea2.786b@mx.google.com>
-Date:   Wed, 30 Mar 2022 15:36:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=fYsRr1x7gYgb8Ir409fmcxRuiLNNSnsiOywQxxoh1Ao=;
+        b=xGvvO5nHmXzmnAselda2oIsjhC/WGNidTy30GQYh84eF53b4oHGaqVaumWVfVI2lbx
+         hIntAT3tS8BAgJu9NkHI1JzApgtdoZiXWiAOyEg9oEI2zbmzfRCAG5TwjN4x3ZDOt8Ba
+         jYgC618lQIugGG//sDMI+mlqg9FfbTdJEw0kPsb3+++1O4Op296boDquqSxMP7/SISXj
+         w4ZO2Gw1i+dX111j9TFKEvfU20KWtrOiqEfPsTiSoHLd/wv5FYoSb403i+VHLAw35MrU
+         zf46ztVXOcPVPGWRNKYCvYmWBKhvdhwgQTXpB6j2hD2SKnXjqsg/VmVkrQWwwqRNswWx
+         blVw==
+X-Gm-Message-State: AOAM530F4/6o+sIFdxSG0MWWD3rk+hhLYknf/Q0aOVarl62p7Ti7rPGB
+        2JM9XIUll6q6Wn3sUntOzooAs1nOLUkFplwX
+X-Google-Smtp-Source: ABdhPJykL88T8ccffzDqNRUYQ1kVuDB3HwhGFKH/FypK7kVcs+uDSSTYSAvv7q/GCZeuRA7aF8fYzw==
+X-Received: by 2002:a63:f40e:0:b0:380:6a04:4335 with SMTP id g14-20020a63f40e000000b003806a044335mr8137966pgi.523.1648680787404;
+        Wed, 30 Mar 2022 15:53:07 -0700 (PDT)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id s20-20020aa78d54000000b004fac74c83b3sm24087581pfe.186.2022.03.30.15.53.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Mar 2022 15:53:06 -0700 (PDT)
+Message-ID: <830e43a2-5c18-d26e-30ca-11a4dc59bb8b@linaro.org>
+Date:   Wed, 30 Mar 2022 15:53:05 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.188-15-g0962c4e581ac
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 82 runs,
- 1 regressions (v5.4.188-15-g0962c4e581ac)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 2/2] skbuff: Extract list pointers to silence compiler
+ warnings
+Content-Language: en-US
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        Jakub Kicinski <kuba@kernel.org>
+References: <20220329220256.72283-1-tadeusz.struk@linaro.org>
+ <20220329220256.72283-2-tadeusz.struk@linaro.org>
+ <YkRtWs7ieUA/7Xg9@kroah.com>
+ <7f3c25f5-33ac-b5f6-9c2e-17e2310a6377@linaro.org>
+ <202203301444.78CE208@keescook>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <202203301444.78CE208@keescook>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 82 runs, 1 regressions (v5.4.188-15-g0962c4e5=
-81ac)
+On 3/30/22 14:46, Kees Cook wrote:
+> On Wed, Mar 30, 2022 at 07:59:57AM -0700, Tadeusz Struk wrote:
+>> On 3/30/22 07:46, Greg KH wrote:
+>>> On Tue, Mar 29, 2022 at 03:02:56PM -0700, Tadeusz Struk wrote:
+>>>> Please apply this to stable 5.10.y, and 5.15.y
+>>>> ---8<---
+>>>>
+>>>> From: Kees Cook<keescook@chromium.org>
+>>>>
+>>>> Upstream commit: 1a2fb220edca ("skbuff: Extract list pointers to silence compiler warnings")
+>>>>
+>>>> Under both -Warray-bounds and the object_size sanitizer, the compiler is
+>>>> upset about accessing prev/next of sk_buff when the object it thinks it
+>>>> is coming from is sk_buff_head. The warning is a false positive due to
+>>>> the compiler taking a conservative approach, opting to warn at casting
+>>>> time rather than access time.
+>>>>
+>>>> However, in support of enabling -Warray-bounds globally (which has
+>>>> found many real bugs), arrange things for sk_buff so that the compiler
+>>>> can unambiguously see that there is no intention to access anything
+>>>> except prev/next.  Introduce and cast to a separate struct sk_buff_list,
+>>>> which contains_only_  the first two fields, silencing the warnings:
+>>> We don't have -Warray-bounds enabled on any stable kernel tree, so why
+>>> is this needed?
+>>>
+>>> Where is this showing up as a problem?
+>>
+>> The issue shows up and hinders testing stable kernels in test automations
+>> like syzkaller:
+>>
+>> https://syzkaller.appspot.com/text?tag=Error&x=12b3aac3700000
+>>
+>> Applying it to stable would enable more test coverage.
+> 
+> Hi! I think a better solution may be to backport this change instead:
+> 
+> 69d0db01e210 ("ubsan: remove CONFIG_UBSAN_OBJECT_SIZE")
+> 
+> i.e. remove CONFIG_UBSAN_OBJECT_SIZE entirely, which is the cause of
+> these syzkaller splats.
 
-Regressions Summary
--------------------
+That works for me. I will test it and send a request or a backport soon.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.188-15-g0962c4e581ac/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.188-15-g0962c4e581ac
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0962c4e581ac6f915f24f3f8c335a58db2a56a14 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6244abbe15ab3b0962ae0689
-
-  Results:     88 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-1=
-5-g0962c4e581ac/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/basel=
-ine-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-1=
-5-g0962c4e581ac/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/basel=
-ine-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6244abbe15ab3b0962ae06ab
-        failing since 24 days (last pass: v5.4.182-30-g45ccd59cc16f, first =
-fail: v5.4.182-53-ge31c0b084082)
-
-    2022-03-30T19:12:46.712875  /lava-5981996/1/../bin/lava-test-case   =
-
- =20
+-- 
+Thanks,
+Tadeusz
