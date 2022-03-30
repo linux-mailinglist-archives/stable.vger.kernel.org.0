@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3039D4EC20F
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30EB74EC27E
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345121AbiC3L6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58732 "EHLO
+        id S244073AbiC3L7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345935AbiC3LzN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFD75F7B;
-        Wed, 30 Mar 2022 04:52:59 -0700 (PDT)
+        with ESMTP id S1345939AbiC3LzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95FFD5F9B;
+        Wed, 30 Mar 2022 04:53:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A4436137A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32500615E7;
+        Wed, 30 Mar 2022 11:53:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18BCBC340EE;
         Wed, 30 Mar 2022 11:52:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0E06C3410F;
-        Wed, 30 Mar 2022 11:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641178;
-        bh=WI1h3YqIzIgDYXr7FPkqv/Ug+lhYGWBtE+dAGmhDc3g=;
+        s=k20201202; t=1648641179;
+        bh=7nny6j5kBEYBzUICoO+m9vGpPqzolTOMU8x9YVcsZ3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDBWdybQs4u7Z/G3HN62UdwT8JHIoXhDLjh4rfNgYe/8xWKQuIR+t1ckzjXkHQQYL
-         10kUSKF/4brA0NNueAtxI4fNxL3jbqxGMnQAebU3fET02rLHAO5COWgiwN7fbYDkQL
-         llK+9WtI4WYpwIrjairj0m4tYH9cEhnBUIADkRk97vvlxCdDrcF4VVrTnAAxAjZv6N
-         lHgV/SWFzU/b/8wr4tG9ryE13gxk/LIO4CW4xakiVOmRz5LI4Tciiu6WXRQOfi9B5d
-         LuPeEfW7jMIJKmKQIFD6RR84apLyj78OcmIsXy+Dc8ay0B7h9+901EbhvNzyonMYki
-         50NcHjqujq1wg==
+        b=L9lA81uSg0gz5rgh8sBiB0c1zQyd7xnAE+LjplXZIN1foZfp6gQbx3sZiOwrluRsm
+         rboHa+q9p3jmSNwEYZV+GX9dQalDBslRdnvi542YCJneawXUd2Ma3D7S72HzlHu/PH
+         supiBmtOgxfJXo9Oys6xXYcGjpxmiR/RQ/+z1/bIgKiG47zGyAb/MI/EaeL6h9nhZL
+         mX7JFuQBzbyeQdFb7ceqBEs6ypA+LIA16/hudhkcasq3C2UQVwOjWIsBXADA2EV2Dj
+         iwqn+TiBaXjxiFvGS+cAC6AJChr7nofCSP9UZtkhjycXE+/HVsPnbLvM12xSB8LIPV
+         UUaGs/HxBjSfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
-Subject: [PATCH AUTOSEL 5.4 22/25] tracing: Have TRACE_DEFINE_ENUM affect trace event types as well
-Date:   Wed, 30 Mar 2022 07:52:22 -0400
-Message-Id: <20220330115225.1672278-22-sashal@kernel.org>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 23/25] mmc: host: Return an error when ->enable_sdio_irq() ops is missing
+Date:   Wed, 30 Mar 2022 07:52:23 -0400
+Message-Id: <20220330115225.1672278-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115225.1672278-1-sashal@kernel.org>
 References: <20220330115225.1672278-1-sashal@kernel.org>
@@ -56,81 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit b3bc8547d3be60898818885f5bf22d0a62e2eb48 ]
+[ Upstream commit d6c9219ca1139b74541b2a98cee47a3426d754a9 ]
 
-The macro TRACE_DEFINE_ENUM is used to convert enums in the kernel to
-their actual value when they are exported to user space via the trace
-event format file.
+Even if the current WARN() notifies the user that something is severely
+wrong, we can still end up in a PANIC() when trying to invoke the missing
+->enable_sdio_irq() ops. Therefore, let's also return an error code and
+prevent the host from being added.
 
-Currently only the enums in the "print fmt" (TP_printk in the TRACE_EVENT
-macro) have the enums converted. But the enums can be used to denote array
-size:
+While at it, move the code into a separate function to prepare for
+subsequent changes and for further host caps validations.
 
-        field:unsigned int fc_ineligible_rc[EXT4_FC_REASON_MAX]; offset:12;      size:36;        signed:0;
-
-The EXT4_FC_REASON_MAX has no meaning to userspace but it needs to know
-that information to know how to parse the array.
-
-Have the array indexes also be parsed as well.
-
-Link: https://lore.kernel.org/all/cover.1646922487.git.riteshh@linux.ibm.com/
-
-Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Tested-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20220303165142.129745-1-ulf.hansson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/mmc/core/host.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index 4acc77e049e5..c1363f9d8d48 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -2202,6 +2202,33 @@ static void update_event_printk(struct trace_event_call *call,
- 	}
- }
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index e955f1ef2564..32801639e0be 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -497,6 +497,16 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
  
-+static void update_event_fields(struct trace_event_call *call,
-+				struct trace_eval_map *map)
+ EXPORT_SYMBOL(mmc_alloc_host);
+ 
++static int mmc_validate_host_caps(struct mmc_host *host)
 +{
-+	struct ftrace_event_field *field;
-+	struct list_head *head;
-+	char *ptr;
-+	int len = strlen(map->eval_string);
-+
-+	head = trace_get_fields(call);
-+	list_for_each_entry(field, head, link) {
-+		ptr = strchr(field->type, '[');
-+		if (!ptr)
-+			continue;
-+		ptr++;
-+
-+		if (!isalpha(*ptr) && *ptr != '_')
-+			continue;
-+
-+		if (strncmp(map->eval_string, ptr, len) != 0)
-+			continue;
-+
-+		ptr = eval_replace(ptr, map, len);
-+		/* enum/sizeof string smaller than value */
-+		WARN_ON_ONCE(!ptr);
++	if (host->caps & MMC_CAP_SDIO_IRQ && !host->ops->enable_sdio_irq) {
++		dev_warn(host->parent, "missing ->enable_sdio_irq() ops\n");
++		return -EINVAL;
 +	}
++
++	return 0;
 +}
 +
- void trace_event_eval_update(struct trace_eval_map **map, int len)
+ /**
+  *	mmc_add_host - initialise host hardware
+  *	@host: mmc host
+@@ -509,8 +519,9 @@ int mmc_add_host(struct mmc_host *host)
  {
- 	struct trace_event_call *call, *p;
-@@ -2237,6 +2264,7 @@ void trace_event_eval_update(struct trace_eval_map **map, int len)
- 					first = false;
- 				}
- 				update_event_printk(call, map[i]);
-+				update_event_fields(call, map[i]);
- 			}
- 		}
- 	}
+ 	int err;
+ 
+-	WARN_ON((host->caps & MMC_CAP_SDIO_IRQ) &&
+-		!host->ops->enable_sdio_irq);
++	err = mmc_validate_host_caps(host);
++	if (err)
++		return err;
+ 
+ 	err = device_add(&host->class_dev);
+ 	if (err)
 -- 
 2.34.1
 
