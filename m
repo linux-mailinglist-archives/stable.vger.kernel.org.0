@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 701BD4EC060
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 960E84EC067
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343963AbiC3Lu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:50:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35762 "EHLO
+        id S1343981AbiC3LvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:51:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344038AbiC3LuN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:50:13 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FD926E546;
-        Wed, 30 Mar 2022 04:47:36 -0700 (PDT)
+        with ESMTP id S1344048AbiC3LuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:50:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FEA926E559;
+        Wed, 30 Mar 2022 04:47:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 31F80CE1921;
-        Wed, 30 Mar 2022 11:47:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A93C340F3;
-        Wed, 30 Mar 2022 11:47:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A21EB81C35;
+        Wed, 30 Mar 2022 11:47:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24238C3410F;
+        Wed, 30 Mar 2022 11:47:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640853;
-        bh=93YLaa0zQ7hqgghUl04JHh02d/eZiQqyJBOIBGaKxuc=;
+        s=k20201202; t=1648640854;
+        bh=1E7Fub2AHPG39Wqa1gCOB9ASJq+I2LHljK6ApW8LEGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZzpwdHyCnkEpALhdVnWfd8mSZsbujKl9EbzKK3B3Xe1X2ro/PEuMHQJBEWIDSV1f
-         l9igQR9JT2gBryJmWnm7P/hkTDUnodiTYhoMFZlZwKuCcf/EU7iAQS2CekrRcd2KPJ
-         JZiVs8y0o2/fQUf+CZ7Wwrp9gxIfuob7ioE6QJWR9KRRdmFChqFvhNCaKENLzO8KDK
-         e8WLUMePVhF1N0KGtpZncMfzqjU95Choaxvw47XF39NMk8Jc3lEi7H++MR9AA90lC2
-         f7IolWkDKkKLIgX0+JxJBBVMMflEq37RATPaCYQ8N1NwNMjhIrtRWzC+ZIdrecw7qA
-         F3UeccQA61m8A==
+        b=ewcof4tN0tz3n4YH0RPFBjHmHUjPoioLiJaoooARSfE96Rio6YSWoATzBBIWvUK11
+         2zbizAj4af1GfGTsgHU1RMW0RYVv7wNAsgx9taemwCpWWo5kwXrr2m0BTjAbul4w94
+         ruBVs3xa3gNt9B1tfhW98opiIOO+Fgxt8X8B9g74HXJBnGAinmgZ7TjhHGuIwB2VMf
+         85pqz3cu0Uketakejxv8wM0aMjt4dZ9k5RlWdrYODb/dGiZKIYe4LsAKgc0xHvh9G+
+         xCPD13zkIAcXBJwH3XZuXoDitYHVBzAv5gLU5wAiz4lQRMgAr0cyMopKb1ufc5coD1
+         0hnxKXyewnWUA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Schleich <rs@noreya.tech>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        mark.rutland@arm.com, linux@armlinux.org.uk,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 30/66] ARM: dts: bcm2711: Add the missing L1/L2 cache information
-Date:   Wed, 30 Mar 2022 07:46:09 -0400
-Message-Id: <20220330114646.1669334-30-sashal@kernel.org>
+Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
+        linux@roeck-us.net
+Subject: [PATCH AUTOSEL 5.17 31/66] printk: Add panic_in_progress helper
+Date:   Wed, 30 Mar 2022 07:46:10 -0400
+Message-Id: <20220330114646.1669334-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -59,111 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Schleich <rs@noreya.tech>
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
 
-[ Upstream commit 618682b350990f8f1bee718949c4b3858711eb58 ]
+[ Upstream commit 77498617857f68496b360081dde1a492d40c28b2 ]
 
-This patch fixes the kernel warning
-"cacheinfo: Unable to detect cache hierarchy for CPU 0"
-for the bcm2711 on newer kernel versions.
+This will be used help avoid deadlocks during panics. Although it would
+be better to include this in linux/panic.h, it would require that header
+to include linux/atomic.h as well. On some architectures, this results
+in a circular dependency as well. So instead add the helper directly to
+printk.c.
 
-Signed-off-by: Richard Schleich <rs@noreya.tech>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-[florian: Align and remove comments matching property values]
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Suggested-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220202171821.179394-2-stephen.s.brennan@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2711.dtsi | 50 ++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ kernel/printk/printk.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
-index 21294f775a20..89af57482bc8 100644
---- a/arch/arm/boot/dts/bcm2711.dtsi
-+++ b/arch/arm/boot/dts/bcm2711.dtsi
-@@ -459,12 +459,26 @@
- 		#size-cells = <0>;
- 		enable-method = "brcm,bcm2836-smp"; // for ARM 32-bit
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 82abfaf3c2aa..0f8918f5f22a 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -257,6 +257,11 @@ static void __up_console_sem(unsigned long ip)
+ }
+ #define up_console_sem() __up_console_sem(_RET_IP_)
  
-+		/* Source for d/i-cache-line-size and d/i-cache-sets
-+		 * https://developer.arm.com/documentation/100095/0003
-+		 * /Level-1-Memory-System/About-the-L1-memory-system?lang=en
-+		 * Source for d/i-cache-size
-+		 * https://www.raspberrypi.com/documentation/computers
-+		 * /processors.html#bcm2711
-+		 */
- 		cpu0: cpu@0 {
- 			device_type = "cpu";
- 			compatible = "arm,cortex-a72";
- 			reg = <0>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000d8>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
- 		};
- 
- 		cpu1: cpu@1 {
-@@ -473,6 +487,13 @@
- 			reg = <1>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000e0>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
- 		};
- 
- 		cpu2: cpu@2 {
-@@ -481,6 +502,13 @@
- 			reg = <2>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000e8>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
- 		};
- 
- 		cpu3: cpu@3 {
-@@ -489,6 +517,28 @@
- 			reg = <3>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000f0>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
-+		};
++static bool panic_in_progress(void)
++{
++	return unlikely(atomic_read(&panic_cpu) != PANIC_CPU_INVALID);
++}
 +
-+		/* Source for d/i-cache-line-size and d/i-cache-sets
-+		 *  https://developer.arm.com/documentation/100095/0003
-+		 *  /Level-2-Memory-System/About-the-L2-memory-system?lang=en
-+		 *  Source for d/i-cache-size
-+		 *  https://www.raspberrypi.com/documentation/computers
-+		 *  /processors.html#bcm2711
-+		 */
-+		l2: l2-cache0 {
-+			compatible = "cache";
-+			cache-size = <0x100000>;
-+			cache-line-size = <64>;
-+			cache-sets = <1024>; // 1MiB(size)/64(line-size)=16384ways/16-way set
-+			cache-level = <2>;
- 		};
- 	};
- 
+ /*
+  * This is used for debugging the mess that is the VT code by
+  * keeping track if we have the console semaphore held. It's
 -- 
 2.34.1
 
