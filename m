@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53AEE4EB7CE
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 03:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 763514EB7D0
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 03:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241641AbiC3Bd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 21:33:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51308 "EHLO
+        id S241646AbiC3Bda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Mar 2022 21:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235567AbiC3Bd3 (ORCPT
+        with ESMTP id S241642AbiC3Bd3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 21:33:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D93E16F6CE;
-        Tue, 29 Mar 2022 18:31:43 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB21170D98;
+        Tue, 29 Mar 2022 18:31:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9A4061221;
-        Wed, 30 Mar 2022 01:31:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 724DCC34111;
-        Wed, 30 Mar 2022 01:31:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A77D612FA;
+        Wed, 30 Mar 2022 01:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D2E8C34110;
+        Wed, 30 Mar 2022 01:31:43 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="RH0saXTs"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="gtemOM1v"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1648603900;
+        t=1648603903;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=KUinn6m3Z5J5lKblf52dVgCEjQFWpfmxs9yF3JGTgdI=;
-        b=RH0saXTspWNr9uMwZM1ALcsyfRGaRXJ8OgylonY12+w3TLymgSgqQ3TUYrKzsF4NVDWtfV
-        WB0+g0fsInzMa/0700+ysn5C0tTgjziuaeEEApc0e7fjtI5yLb/Gqu7dSHgDUfGU3O9yg1
-        2f91BwemclhrlD5sBXUVuKYRWj6O1ts=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 6981dbf4 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 30 Mar 2022 01:31:40 +0000 (UTC)
+        bh=PASLOmf9lZuBPPe9/WpVZbnvkcB0REuY6odAbEg0yUw=;
+        b=gtemOM1vSfv+fUrW4sZjmPnFuRR46k97uX2FNHKnQsGM/Uf7YHF4iAYIThmvOVB6O06xAa
+        cp44uXh1JC9o6aMK+BKjcelHeIClv1lfE/+eHzmvbiMywsvhLmZV3jid+QC3LbkgvbUE7Y
+        PNujHTAXCAlg09zf570oDVIUW7itkvE=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 514df384 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Wed, 30 Mar 2022 01:31:43 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        PaX Team <pageexec@freemail.hu>, stable@vger.kernel.org
-Subject: [PATCH net 1/4] wireguard: queueing: use CFI-safe ptr_ring cleanup function
-Date:   Tue, 29 Mar 2022 21:31:24 -0400
-Message-Id: <20220330013127.426620-2-Jason@zx2c4.com>
+Cc:     Wang Hai <wanghai38@huawei.com>, stable@vger.kernel.org,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH net 3/4] wireguard: socket: free skb in send6 when ipv6 is disabled
+Date:   Tue, 29 Mar 2022 21:31:26 -0400
+Message-Id: <20220330013127.426620-4-Jason@zx2c4.com>
 In-Reply-To: <20220330013127.426620-1-Jason@zx2c4.com>
 References: <20220330013127.426620-1-Jason@zx2c4.com>
 MIME-Version: 1.0
@@ -56,42 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We make too nuanced use of ptr_ring to entirely move to the skb_array
-wrappers, but we at least should avoid the naughty function pointer cast
-when cleaning up skbs. Otherwise RAP/CFI will honk at us. This patch
-uses the __skb_array_destroy_skb wrapper for the cleanup, rather than
-directly providing kfree_skb, which is what other drivers in the same
-situation do too.
+From: Wang Hai <wanghai38@huawei.com>
 
-Reported-by: PaX Team <pageexec@freemail.hu>
-Fixes: 886fcee939ad ("wireguard: receive: use ring buffer for incoming handshakes")
+I got a memory leak report:
+
+unreferenced object 0xffff8881191fc040 (size 232):
+  comm "kworker/u17:0", pid 23193, jiffies 4295238848 (age 3464.870s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814c3ef4>] slab_post_alloc_hook+0x84/0x3b0
+    [<ffffffff814c8977>] kmem_cache_alloc_node+0x167/0x340
+    [<ffffffff832974fb>] __alloc_skb+0x1db/0x200
+    [<ffffffff82612b5d>] wg_socket_send_buffer_to_peer+0x3d/0xc0
+    [<ffffffff8260e94a>] wg_packet_send_handshake_initiation+0xfa/0x110
+    [<ffffffff8260ec81>] wg_packet_handshake_send_worker+0x21/0x30
+    [<ffffffff8119c558>] process_one_work+0x2e8/0x770
+    [<ffffffff8119ca2a>] worker_thread+0x4a/0x4b0
+    [<ffffffff811a88e0>] kthread+0x120/0x160
+    [<ffffffff8100242f>] ret_from_fork+0x1f/0x30
+
+In function wg_socket_send_buffer_as_reply_to_skb() or wg_socket_send_
+buffer_to_peer(), the semantics of send6() is required to free skb. But
+when CONFIG_IPV6 is disable, kfree_skb() is missing. This patch adds it
+to fix this bug.
+
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
 Cc: stable@vger.kernel.org
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- drivers/net/wireguard/queueing.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireguard/socket.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireguard/queueing.c b/drivers/net/wireguard/queueing.c
-index 1de413b19e34..8084e7408c0a 100644
---- a/drivers/net/wireguard/queueing.c
-+++ b/drivers/net/wireguard/queueing.c
-@@ -4,6 +4,7 @@
-  */
- 
- #include "queueing.h"
-+#include <linux/skb_array.h>
- 
- struct multicore_worker __percpu *
- wg_packet_percpu_multicore_worker_alloc(work_func_t function, void *ptr)
-@@ -42,7 +43,7 @@ void wg_packet_queue_free(struct crypt_queue *queue, bool purge)
- {
- 	free_percpu(queue->worker);
- 	WARN_ON(!purge && !__ptr_ring_empty(&queue->ring));
--	ptr_ring_cleanup(&queue->ring, purge ? (void(*)(void*))kfree_skb : NULL);
-+	ptr_ring_cleanup(&queue->ring, purge ? __skb_array_destroy_skb : NULL);
+diff --git a/drivers/net/wireguard/socket.c b/drivers/net/wireguard/socket.c
+index 6f07b949cb81..467eef0e563b 100644
+--- a/drivers/net/wireguard/socket.c
++++ b/drivers/net/wireguard/socket.c
+@@ -160,6 +160,7 @@ static int send6(struct wg_device *wg, struct sk_buff *skb,
+ 	rcu_read_unlock_bh();
+ 	return ret;
+ #else
++	kfree_skb(skb);
+ 	return -EAFNOSUPPORT;
+ #endif
  }
- 
- #define NEXT(skb) ((skb)->prev)
 -- 
 2.35.1
 
