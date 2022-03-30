@@ -2,96 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A58A4EB7D3
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 03:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AA5C4EB9B3
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 06:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241648AbiC3Bdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 21:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51374 "EHLO
+        id S237947AbiC3EiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 00:38:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241644AbiC3Bda (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 21:33:30 -0400
+        with ESMTP id S242667AbiC3EiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 00:38:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D0017156E;
-        Tue, 29 Mar 2022 18:31:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E9A22B24;
+        Tue, 29 Mar 2022 21:36:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D849061307;
-        Wed, 30 Mar 2022 01:31:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B1EC3410F;
-        Wed, 30 Mar 2022 01:31:44 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="efRzOqUA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1648603904;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BHmlRXCg3bn61peNZ2mYON7rFLflhQaM57TPzk0GIP0=;
-        b=efRzOqUAoG+yLoMZMocBVa9go3twFmpT6yptfbB1Ji4OP34qIfxcZnckJVIp4OSoCwLXDF
-        /YJuQHZ9LjLHoewhdxf+5U9bP1F1Y4155FeZ1K5t3wODalhIZPjTofMiwhuReAxev9Ss4v
-        uzlqAtgQsAARwZWx1Z25FoKJET2GIoU=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 01209830 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 30 Mar 2022 01:31:44 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
-Subject: [PATCH net 4/4] wireguard: socket: ignore v6 endpoints when ipv6 is disabled
-Date:   Tue, 29 Mar 2022 21:31:27 -0400
-Message-Id: <20220330013127.426620-5-Jason@zx2c4.com>
-In-Reply-To: <20220330013127.426620-1-Jason@zx2c4.com>
-References: <20220330013127.426620-1-Jason@zx2c4.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D60A061560;
+        Wed, 30 Mar 2022 04:36:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE474C340F0;
+        Wed, 30 Mar 2022 04:36:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1648614993;
+        bh=pYArpFbewAQPlyehfe9Ax847/durxWMKTHZCv43s+gI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=S7zLHVjEdfr3mUJkJ0tsFbL3eqz4As+/Xl9nN0DxlXf1d4VLODh/cirbPzlvT1+NU
+         TxtDV0iL0j1Abe2LBh2Wx9RHVUgC4N/7eXGKl2PhBsWW6tZ+2J8tr/9MuBm0dGOZ6U
+         75q6Fz5jFVmWdPKPkS5e5rEj6gNE+diJhI4Kh4C4=
+Date:   Wed, 30 Mar 2022 06:36:30 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
+        jslaby@suse.cz
+Subject: Re: Stable release process proposal (Was: Linux 5.10.109)
+Message-ID: <YkPeTkf0sG/ns+L4@kroah.com>
+References: <164845571613863@kroah.com>
+ <44e28591-873a-d873-e04a-78dda900a5de@ispras.ru>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <44e28591-873a-d873-e04a-78dda900a5de@ispras.ru>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The previous commit fixed a memory leak on the send path in the event
-that IPv6 is disabled at compile time, but how did a packet even arrive
-there to begin with? It turns out we have previously allowed IPv6
-endpoints even when IPv6 support is disabled at compile time. This is
-awkward and inconsistent. Instead, let's just ignore all things IPv6,
-the same way we do other malformed endpoints, in the case where IPv6 is
-disabled.
+On Wed, Mar 30, 2022 at 02:49:00AM +0300, Alexey Khoroshilov wrote:
+> Dear Greg,
+> 
+> First of all, thank you very much for keeping stable maintenance so well.
+> 
+> We (Linux Verification Center of ISPRAS (linuxtesting.org)) are going to
+> join a team of regular testers for releases in 5.10 stable branch (and
+> other branches later). We are deploying some test automation for that
+> and have met an oddity that would to discuss.
+> 
+> Sometimes, like in 5.10.109 release, we have a situation when a
+> released version (5.10.109) differs from the release candidate
+> (5.10.109-rс1). In this case there was a patch "llc: only change
+> llc->dev when bind()succeeds" added to fix a bug in another llc fix.
+> Unfortunately, as Pavel noted, this patch does not fix a bug, but
+> introduces a new one, because another commit b37a46683739 ("netdevice:
+> add the case if dev is NULL") was missed in 5.10 branch.
 
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/net/wireguard/socket.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+This happens quite frequently due to issues found in testing.  It's not
+a new thing.
 
-diff --git a/drivers/net/wireguard/socket.c b/drivers/net/wireguard/socket.c
-index 467eef0e563b..0414d7a6ce74 100644
---- a/drivers/net/wireguard/socket.c
-+++ b/drivers/net/wireguard/socket.c
-@@ -242,7 +242,7 @@ int wg_socket_endpoint_from_skb(struct endpoint *endpoint,
- 		endpoint->addr4.sin_addr.s_addr = ip_hdr(skb)->saddr;
- 		endpoint->src4.s_addr = ip_hdr(skb)->daddr;
- 		endpoint->src_if4 = skb->skb_iif;
--	} else if (skb->protocol == htons(ETH_P_IPV6)) {
-+	} else if (IS_ENABLED(CONFIG_IPV6) && skb->protocol == htons(ETH_P_IPV6)) {
- 		endpoint->addr6.sin6_family = AF_INET6;
- 		endpoint->addr6.sin6_port = udp_hdr(skb)->source;
- 		endpoint->addr6.sin6_addr = ipv6_hdr(skb)->saddr;
-@@ -285,7 +285,7 @@ void wg_socket_set_peer_endpoint(struct wg_peer *peer,
- 		peer->endpoint.addr4 = endpoint->addr4;
- 		peer->endpoint.src4 = endpoint->src4;
- 		peer->endpoint.src_if4 = endpoint->src_if4;
--	} else if (endpoint->addr.sa_family == AF_INET6) {
-+	} else if (IS_ENABLED(CONFIG_IPV6) && endpoint->addr.sa_family == AF_INET6) {
- 		peer->endpoint.addr6 = endpoint->addr6;
- 		peer->endpoint.src6 = endpoint->src6;
- 	} else {
--- 
-2.35.1
+> The problem will be fixed in 5.10.110, but we still have a couple oddities:
+> - we have a release that should not be recommended for use
+> - we have a commit message misleading users when says:
+> 
+>     Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+>     Tested-by: Fox Chen <foxhlchen@gmail.com>
+>     Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+>     Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+>     Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+>     Tested-by: Salvatore Bonaccorso <carnil@debian.org>
+>     Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>     Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+>     Tested-by: Guenter Roeck <linux@roeck-us.net>
+> 
+> but actually nobody tested that version.
+> 
+> There are potential modifications in stable release process that can
+> prevent such problems:
+> 
+> (1) to always release rс2 when there are changes in rc1 introduced
+> 
+> (2) to avoid Tested-by: section from release commits in such situations.
+> 
+> Or may be it is overkill and it too complicates maintenance work to be
+> worth. What do you think?
 
+I think it's not worth the extra work on my side for this given the
+already large workload.  What would benifit from this to justify it?
+
+thanks,
+
+greg k-h
