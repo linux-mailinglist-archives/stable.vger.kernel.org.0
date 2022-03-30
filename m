@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0270C4EC2B6
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 554494EC2B3
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245096AbiC3MA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 08:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37182 "EHLO
+        id S244943AbiC3MAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 08:00:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344749AbiC3L43 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:56:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5687D31538;
-        Wed, 30 Mar 2022 04:54:29 -0700 (PDT)
+        with ESMTP id S1344799AbiC3L4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:56:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0506C2F3B6;
+        Wed, 30 Mar 2022 04:54:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 297F7616E3;
-        Wed, 30 Mar 2022 11:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05C13C36AE3;
-        Wed, 30 Mar 2022 11:54:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 832FCB81C25;
+        Wed, 30 Mar 2022 11:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09660C340F3;
+        Wed, 30 Mar 2022 11:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641268;
-        bh=ovHc4eVfLIwPzgDupeP7xqTAvr7qsXez6cVtCEg6mOY=;
+        s=k20201202; t=1648641270;
+        bh=4QpLtH7S8RdCIQtLmepIpbKl1cszcxf5LaxKnqz6APU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKoNuB/KB1V/NUx3uIhHDn0utlSGqfbZT7vrDk0Io7U8rbOwxSCV300UXruSKAfMJ
-         UpbIaSMx2gDgFvvoppgblowEYjb8oinTHpBBGR4yqzsY2kTl3Pss3uvJ923uZxMi84
-         ue023U1ge0YIE+s0rFVludJ8A9Bk+wbkEhFI/f1NHkTwtu8zlaYJCKjIz+GJtgmiKu
-         RHiMbTqkrTlSr95yiTXT5OqKvvguKM1yDBZZhczTD024zZNhy4SP+IlYUjq87AhpAW
-         6M5Q8LiqrR8SKZrejSnGok49eD9mf21cqXkgrEUGyUX1x87QYN4UsQkdVSiGSZlFok
-         9QVP/m8ZFAVrA==
+        b=L4vTGvBsZf6Y4dd3FKREAUZYGaQsXmpjmGbzHZeIsEsrMK2PctRcXG/f+rBjKTgFL
+         T+XZqsUz/n1Fd3WG/xY5K2deeUkc/EBjX57Oqrjxl87W/eIvz6ZGdR84ZXNYmjn0V+
+         aNv0PLtmHpcz3rEjOSdd2ziY1pMRv1ZG+kLqMTlrzG+ikRkdHykNcZ5ED2k/LwyoVA
+         3dwdOGDNVoRhCwRUsMzU7Njk15/1R9rKm9upK4aYuFZbks2/sLLJB7sH4kWS7dwYZa
+         gr1M/gQtOfwwLjvEsCYAolXseMVyjIz01HhVYektq0kzlxiwK1m15K5dRaV/SykMrb
+         ip28c3sbCtZVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Leitner <richard.leitner@skidata.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        mark.rutland@arm.com, linux@armlinux.org.uk, swarren@wwwdotorg.org,
-        thierry.reding@gmail.com, gnurou@gmail.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/17] ARM: tegra: tamonten: Fix I2C3 pad setting
-Date:   Wed, 30 Mar 2022 07:54:01 -0400
-Message-Id: <20220330115407.1673214-12-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        eric.y.miao@gmail.com, haojian.zhuang@gmail.com,
+        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 13/17] ARM: mmp: Fix failure to remove sram device
+Date:   Wed, 30 Mar 2022 07:54:02 -0400
+Message-Id: <20220330115407.1673214-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115407.1673214-1-sashal@kernel.org>
 References: <20220330115407.1673214-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,44 +60,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Leitner <richard.leitner@skidata.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 0092c25b541a5422d7e71892a13c55ee91abc34b ]
+[ Upstream commit 4036b29a146b2749af3bb213b003eb69f3e5ecc4 ]
 
-This patch fixes the tristate configuration for i2c3 function assigned
-to the dtf pins on the Tamonten Tegra20 SoM.
+Make sure in .probe() to set driver data before the function is left to
+make it possible in .remove() to undo the actions done.
 
-Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+This fixes a potential memory leak and stops returning an error code in
+.remove() that is ignored by the driver core anyhow.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra20-tamonten.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/mach-mmp/sram.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
-index a613e3b85b45..29769bf7a11a 100644
---- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
-+++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
-@@ -182,8 +182,8 @@
- 			};
- 			conf_ata {
- 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
--					"cdev1", "cdev2", "dap1", "dtb", "gma",
--					"gmb", "gmc", "gmd", "gme", "gpu7",
-+					"cdev1", "cdev2", "dap1", "dtb", "dtf",
-+					"gma", "gmb", "gmc", "gmd", "gme", "gpu7",
- 					"gpv", "i2cp", "irrx", "irtx", "pta",
- 					"rm", "slxa", "slxk", "spia", "spib",
- 					"uac";
-@@ -202,7 +202,7 @@
- 			};
- 			conf_crtp {
- 				nvidia,pins = "crtp", "dap2", "dap3", "dap4",
--					"dtc", "dte", "dtf", "gpu", "sdio1",
-+					"dtc", "dte", "gpu", "sdio1",
- 					"slxc", "slxd", "spdi", "spdo", "spig",
- 					"uda";
- 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+diff --git a/arch/arm/mach-mmp/sram.c b/arch/arm/mach-mmp/sram.c
+index bf5e64906e65..a41162dc4af4 100644
+--- a/arch/arm/mach-mmp/sram.c
++++ b/arch/arm/mach-mmp/sram.c
+@@ -75,6 +75,8 @@ static int sram_probe(struct platform_device *pdev)
+ 	if (!info)
+ 		return -ENOMEM;
+ 
++	platform_set_drvdata(pdev, info);
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (res == NULL) {
+ 		dev_err(&pdev->dev, "no memory resource defined\n");
+@@ -110,8 +112,6 @@ static int sram_probe(struct platform_device *pdev)
+ 	list_add(&info->node, &sram_bank_list);
+ 	mutex_unlock(&sram_lock);
+ 
+-	platform_set_drvdata(pdev, info);
+-
+ 	dev_info(&pdev->dev, "initialized\n");
+ 	return 0;
+ 
+@@ -130,17 +130,19 @@ static int sram_remove(struct platform_device *pdev)
+ 	struct sram_bank_info *info;
+ 
+ 	info = platform_get_drvdata(pdev);
+-	if (info == NULL)
+-		return -ENODEV;
+ 
+-	mutex_lock(&sram_lock);
+-	list_del(&info->node);
+-	mutex_unlock(&sram_lock);
++	if (info->sram_size) {
++		mutex_lock(&sram_lock);
++		list_del(&info->node);
++		mutex_unlock(&sram_lock);
++
++		gen_pool_destroy(info->gpool);
++		iounmap(info->sram_virt);
++		kfree(info->pool_name);
++	}
+ 
+-	gen_pool_destroy(info->gpool);
+-	iounmap(info->sram_virt);
+-	kfree(info->pool_name);
+ 	kfree(info);
++
+ 	return 0;
+ }
+ 
 -- 
 2.34.1
 
