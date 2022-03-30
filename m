@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 546734EC10D
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5364EC122
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244203AbiC3Lz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:55:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35710 "EHLO
+        id S233459AbiC3Lz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:55:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344194AbiC3Lwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:52:38 -0400
+        with ESMTP id S1344334AbiC3Lwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:52:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70CF41BB7B2;
-        Wed, 30 Mar 2022 04:48:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5941B20824C;
+        Wed, 30 Mar 2022 04:48:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5B72B81C3A;
-        Wed, 30 Mar 2022 11:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0513C3410F;
-        Wed, 30 Mar 2022 11:48:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DBE7B81C37;
+        Wed, 30 Mar 2022 11:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2FD1C34112;
+        Wed, 30 Mar 2022 11:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640903;
-        bh=jpH1FFqHwA9Rcvx435BbU8+Ijry2x5lxT/g9E4on9Sg=;
+        s=k20201202; t=1648640905;
+        bh=CdMizYcg0vqRMBZy3nZIQsY6pEwDwVuUydNu+uhIk38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODqttJv+7yJVSqB2V3Q/mCsMbqviH19yiU9X1vU4Bt/s5wrYXIGFG+NyBQJLgTdpK
-         fzvDX/nQoPUILjg93L7Qywj7KXsJu5Nnf3PawSa6sXTUz36XF8LGESRmjDUk8YJwbC
-         k6EnwYf9oVJoamsy1/JHzENALok2CIg6Ma/tHslMpDPFIV870fZ97fydhGstgfv5um
-         1OhjC+Mqa+h7tdbHBMSJSLpnb7TnPoH2ebDVIKjs4s2n3D1xLLI6OjHsXeuSyouIx5
-         bdSY9KT4QMNMFI/tWM31fi6n4lDy9tHVN4PjOE1f9F19MuXwqdrMvf7EyXH5H090et
-         XzQoq5cmiCNWg==
+        b=hxx23rJVV3pAQMX36J9gEjQqNIY2BS7XRvHlsJCvjgWmhEunErpOxX979TXFCFdOK
+         wkK+GQVSZCjLlP/ffm0wvStIxm1AUpZUjCwtwGFNEsA3X5Q+3G3LZChLls5d9E1LMf
+         K4XxoZP1jOUeqJaeYk0wn/naNR/+qyKWT0JZRbKyoIDGQAnrPG4+XD/l2lmA4+Q/C3
+         LlQyXEGhlP9XqmLdGHEGVggNIRyoFQnSMHBhgEmP2nkHR8U8BSqZPL7RMbUvPU9+N3
+         A8t0G9yeBC5PX87x4FGy+qokDiaYxnGIzx4MlcBFsvOJ1WX+YcdtwO53c+9oprCNQ3
+         VKt7VkUqBuZtw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 62/66] mmc: host: Return an error when ->enable_sdio_irq() ops is missing
-Date:   Wed, 30 Mar 2022 07:46:41 -0400
-Message-Id: <20220330114646.1669334-62-sashal@kernel.org>
+Cc:     Miaoqian Lin <linmq006@gmail.com>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
+        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 63/66] ASoC: mediatek: Fix error handling in mt8183_da7219_max98357_dev_probe
+Date:   Wed, 30 Mar 2022 07:46:42 -0400
+Message-Id: <20220330114646.1669334-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -55,58 +60,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit d6c9219ca1139b74541b2a98cee47a3426d754a9 ]
+[ Upstream commit 28a265a1ee11febeec5ea73a804f30dcec3181ca ]
 
-Even if the current WARN() notifies the user that something is severely
-wrong, we can still end up in a PANIC() when trying to invoke the missing
-->enable_sdio_irq() ops. Therefore, let's also return an error code and
-prevent the host from being added.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-While at it, move the code into a separate function to prepare for
-subsequent changes and for further host caps validations.
+This function only calls of_node_put() in the regular path.
+And it will cause refcount leak in error paths.
+Fix this by calling of_node_put() in error handling too.
 
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20220303165142.129745-1-ulf.hansson@linaro.org
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220316014059.19292-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/host.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ .../mediatek/mt8183/mt8183-da7219-max98357.c  | 23 +++++++++++++------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
-index cf140f4ec864..d739e2b631fe 100644
---- a/drivers/mmc/core/host.c
-+++ b/drivers/mmc/core/host.c
-@@ -588,6 +588,16 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+diff --git a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
+index 718505c75418..f090dee0c7a4 100644
+--- a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
++++ b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
+@@ -695,8 +695,11 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
+ 	}
  
- EXPORT_SYMBOL(mmc_alloc_host);
- 
-+static int mmc_validate_host_caps(struct mmc_host *host)
-+{
-+	if (host->caps & MMC_CAP_SDIO_IRQ && !host->ops->enable_sdio_irq) {
-+		dev_warn(host->parent, "missing ->enable_sdio_irq() ops\n");
-+		return -EINVAL;
+ 	card = (struct snd_soc_card *)of_device_get_match_data(&pdev->dev);
+-	if (!card)
+-		return -EINVAL;
++	if (!card) {
++		ret = -EINVAL;
++		goto put_platform_node;
 +	}
 +
-+	return 0;
-+}
+ 	card->dev = &pdev->dev;
+ 
+ 	hdmi_codec = of_parse_phandle(pdev->dev.of_node,
+@@ -761,12 +764,15 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
+ 	if (!mt8183_da7219_max98357_headset_dev.dlc.of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'mediatek,headset-codec' missing/invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_hdmi_codec;
+ 	}
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		ret = -ENOMEM;
++		goto put_hdmi_codec;
++	}
+ 
+ 	snd_soc_card_set_drvdata(card, priv);
+ 
+@@ -775,13 +781,16 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
+ 		ret = PTR_ERR(pinctrl);
+ 		dev_err(&pdev->dev, "%s failed to select default state %d\n",
+ 			__func__, ret);
+-		return ret;
++		goto put_hdmi_codec;
+ 	}
+ 
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+ 
+-	of_node_put(platform_node);
 +
- /**
-  *	mmc_add_host - initialise host hardware
-  *	@host: mmc host
-@@ -600,8 +610,9 @@ int mmc_add_host(struct mmc_host *host)
- {
- 	int err;
++put_hdmi_codec:
+ 	of_node_put(hdmi_codec);
++put_platform_node:
++	of_node_put(platform_node);
+ 	return ret;
+ }
  
--	WARN_ON((host->caps & MMC_CAP_SDIO_IRQ) &&
--		!host->ops->enable_sdio_irq);
-+	err = mmc_validate_host_caps(host);
-+	if (err)
-+		return err;
- 
- 	err = device_add(&host->class_dev);
- 	if (err)
 -- 
 2.34.1
 
