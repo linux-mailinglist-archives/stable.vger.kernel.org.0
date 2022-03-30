@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B1A4EC218
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F6AE4EC212
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345150AbiC3L6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:58:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57684 "EHLO
+        id S1345130AbiC3L6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:58:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345931AbiC3LzN (ORCPT
+        with ESMTP id S1345934AbiC3LzN (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:13 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4DCC2BEB;
-        Wed, 30 Mar 2022 04:52:57 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B232BF2;
+        Wed, 30 Mar 2022 04:52:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4EF1FCE1D38;
-        Wed, 30 Mar 2022 11:52:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C67D9C34111;
-        Wed, 30 Mar 2022 11:52:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57F93B81C28;
+        Wed, 30 Mar 2022 11:52:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D2E1C36AE3;
+        Wed, 30 Mar 2022 11:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641174;
-        bh=GvvNw0TeCxwfn7C8pBElgvoBY7SVxNgYD15p6tj03FI=;
+        s=k20201202; t=1648641176;
+        bh=xlVLfQ8SqePoNJyfOFHom3vupBlURqLqC/RgmldWlrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EthtjPbzcoReOKk4bnPs2cvOAjOkG1mc9gyFCQOk1UH0+vpgoVdW9cWr2uPBlveP4
-         F4bJo7Tb15WJAFLD2MDUFxZbgV2U+vBvoPGZihAXXE7nXqAQb4LLjvWZqE7qhJhPcc
-         Hie8wkuZqt2iU1IdTDvaCSgTakmgx+DbaAudxELxSCklw1lNvO7NmVL8opm1UMT3/o
-         dbEAV0zTnVAgl2HXGW0vSEHvTwP/PDmMzDO9XZDKaJv3otDD8dWuHGTYDkVe81qBCz
-         OfVm5GDdDfV2Mh6/L9K86hhGxXn8vux2u/COnTGjgl7NYwOJvpD54r32/P298i7DPZ
-         3iTK0gfRInFZg==
+        b=o4oN2NkkkvudmII3uhLWLk1S8mpfycB6gW4VOzAFz/Butk5hCksOSI9HMAvdq72EH
+         cLPozxY8LLSJUCPHfDOzfI4tIdjfjUO1Csp8Kz+3O5jyn6dfLBZ3/kdgoQenzez3oh
+         mdoWPfxuBH6+JRMRDu9ZPKw6XIk16GrF/rEqVYm8tnpPMRc2bNW92/PxNVAAVWgtYK
+         9Py0ZA9wYk5+lzTPQbqH9SUYJd9uh/XgY2oq/d5MRaZ7+BR71WcZTWk5nIpBxLxmtE
+         k8Gxy/k/xTg/Ph5jkS1fMUeS/iXaTjKgO8MWJ5EzSgb+rv/M3asPwA1sHDiJyRMKX/
+         E1hEjnbS3y8AQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>, sudipm.mukherjee@gmail.com,
-        teddy.wang@siliconmotion.com, tomi.valkeinen@ti.com,
-        linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 19/25] video: fbdev: sm712fb: Fix crash in smtcfb_write()
-Date:   Wed, 30 Mar 2022 07:52:19 -0400
-Message-Id: <20220330115225.1672278-19-sashal@kernel.org>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Maximilian=20B=C3=B6hm?= <maximilian.boehm@elbmurf.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 20/25] media: Revert "media: em28xx: add missing em28xx_close_extension"
+Date:   Wed, 30 Mar 2022 07:52:20 -0400
+Message-Id: <20220330115225.1672278-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115225.1672278-1-sashal@kernel.org>
 References: <20220330115225.1672278-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,73 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 4f01d09b2bbfbcb47b3eb305560a7f4857a32260 ]
+[ Upstream commit fde18c3bac3f964d8333ae53b304d8fee430502b ]
 
-When the sm712fb driver writes three bytes to the framebuffer, the
-driver will crash:
+This reverts commit 2c98b8a3458df03abdc6945bbef67ef91d181938.
 
-    BUG: unable to handle page fault for address: ffffc90001ffffff
-    RIP: 0010:smtcfb_write+0x454/0x5b0
-    Call Trace:
-     vfs_write+0x291/0xd60
-     ? do_sys_openat2+0x27d/0x350
-     ? __fget_light+0x54/0x340
-     ksys_write+0xce/0x190
-     do_syscall_64+0x43/0x90
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
+Reverted patch causes problems with Hauppauge WinTV dualHD as Maximilian
+reported [1]. Since quick solution didn't come up let's just revert it
+to make this device work with upstream kernels.
 
-Fix it by removing the open-coded endianness fixup-code.
+Link: https://lore.kernel.org/all/6a72a37b-e972-187d-0322-16336e12bdc5@elbmurf.de/ [1]
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
+Tested-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sm712fb.c | 21 ++++-----------------
- 1 file changed, 4 insertions(+), 17 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/video/fbdev/sm712fb.c b/drivers/video/fbdev/sm712fb.c
-index 246681414577..86ce99de5f27 100644
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1130,7 +1130,7 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
- 		count = total_size - p;
- 	}
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index bfca9d0a1fe1..64f2033c2731 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -4035,11 +4035,8 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
  
--	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
-+	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
+ 	em28xx_close_extension(dev);
  
-@@ -1148,24 +1148,11 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
- 			break;
- 		}
- 
--		for (i = c >> 2; i--;) {
--			fb_writel(big_swap(*src), dst++);
-+		for (i = (c + 3) >> 2; i--;) {
-+			fb_writel(big_swap(*src), dst);
-+			dst++;
- 			src++;
- 		}
--		if (c & 3) {
--			u8 *src8 = (u8 *)src;
--			u8 __iomem *dst8 = (u8 __iomem *)dst;
+-	if (dev->dev_next) {
+-		em28xx_close_extension(dev->dev_next);
++	if (dev->dev_next)
+ 		em28xx_release_resources(dev->dev_next);
+-	}
 -
--			for (i = c & 3; i--;) {
--				if (i & 1) {
--					fb_writeb(*src8++, ++dst8);
--				} else {
--					fb_writeb(*src8++, --dst8);
--					dst8 += 2;
--				}
--			}
--			dst = (u32 __iomem *)dst8;
--		}
+ 	em28xx_release_resources(dev);
  
- 		*ppos += c;
- 		buf += c;
+ 	if (dev->dev_next) {
 -- 
 2.34.1
 
