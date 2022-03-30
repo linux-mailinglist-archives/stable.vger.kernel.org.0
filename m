@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E178D4EC068
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:49:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A90BD4EC06A
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:49:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343833AbiC3LvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:51:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
+        id S1343828AbiC3LvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343807AbiC3LuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:50:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8EEB26EC8F;
-        Wed, 30 Mar 2022 04:47:41 -0700 (PDT)
+        with ESMTP id S1343996AbiC3LuV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:50:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB4C926ECAE;
+        Wed, 30 Mar 2022 04:47:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E616B81C24;
-        Wed, 30 Mar 2022 11:47:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59194C340EE;
-        Wed, 30 Mar 2022 11:47:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5308D61618;
+        Wed, 30 Mar 2022 11:47:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C038BC340F3;
+        Wed, 30 Mar 2022 11:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640860;
-        bh=zmmf9mEL1IvNiJ8w7plozUuwG6WtbudgF0R5QNyPkE4=;
+        s=k20201202; t=1648640861;
+        bh=BIereeSl8OOvQHyMUSmTZlEVrUWpAJuLOWV5juCjHcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ob7PeaMieJNsNHBHrQlQcfPH+wx9mcDxgRvLPFgSq0pr3lZZw+KrpgAZkM0AhuTyn
-         22CDxSKQi1iSpXyAnx6Os57Qw43nWcgYVpHvhaVq/aIv3wRZJefAdEN6OHJnhxcA7B
-         Vphb2BIhziBEqNDxWY5NNrriaFeZ2r56bbUSu6KArXEM/6dsh9kWGVnuT6xeX2B2+4
-         keNYSlsbyDrq+WCN9CvK7g+Dp52XTijvWglFlcMbRusX3ISpzmoyuhaUQ2ZksmyXRy
-         oYHHcVmHexcCEvIQ5QZjmEZV34pkneO6SE7OEReDf82NjW8EMchJl24Ov6bmBH0FxU
-         7NZSxzVm5YIWA==
+        b=EhxGmiMdbpeNEMv6Vze4CQwd3H0A5EXLjgoFa6hWjnZG/EyMmbxosScrfSk201O57
+         SBUGJ2feM/uny+c5DRWMgYF27dk6W0LmaAlos0dGoBdGMuUSUa0/OU7tLamXP8XLg3
+         7QW0BsczlXciOLxXTm4MNwI6KyE74IlzU6I8UKp1BbR9W+pnvydKTOE3Fe1R0OBqDY
+         esstNjEmJsEzMCviapksaxu8bPjNUu2UeaUvk66wbLZ0C1uG57BQZaevq9V5c9dVA8
+         j+hRtwBni7Yl6Rm7ZY32+Y/7WwsiuhuPPbsJFe3IBituYpp6Gfv4F6gQkhvO5mib4P
+         dqCgXxCmX5gqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Ogness <john.ogness@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Petr Mladek <pmladek@suse.com>,
-        Sasha Levin <sashal@kernel.org>, senozhatsky@chromium.org,
-        linux@roeck-us.net, stephen.s.brennan@oracle.com
-Subject: [PATCH AUTOSEL 5.17 35/66] printk: use atomic updates for klogd work
-Date:   Wed, 30 Mar 2022 07:46:14 -0400
-Message-Id: <20220330114646.1669334-35-sashal@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.17 36/66] ASoC: Intel: sof_es8336: add quirk for Huawei D15 2021
+Date:   Wed, 30 Mar 2022 07:46:15 -0400
+Message-Id: <20220330114646.1669334-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -58,70 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 2ba3673d70178bf07fb75ff25c54bc478add4021 ]
+[ Upstream commit ce6a70bfce21bb4edb7c0f29ecfb0522fa34ab71 ]
 
-The per-cpu @printk_pending variable can be updated from
-sleepable contexts, such as:
+Huawei D15 uses SSP_CODEC(0).
 
-  get_random_bytes()
-    warn_unseeded_randomness()
-      printk_deferred()
-        defer_console_output()
-
-and can be updated from interrupt contexts, such as:
-
-  handle_irq_event_percpu()
-    __irq_wake_thread()
-      wake_up_process()
-        try_to_wake_up()
-          select_task_rq()
-            select_fallback_rq()
-              printk_deferred()
-                defer_console_output()
-
-and can be updated from NMI contexts, such as:
-
-  vprintk()
-    if (in_nmi()) defer_console_output()
-
-Therefore the atomic variant of the updating functions must be used.
-
-Replace __this_cpu_xchg() with this_cpu_xchg().
-Replace __this_cpu_or() with this_cpu_or().
-
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/87iltld4ue.fsf@jogness.linutronix.de
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/r/d560a1c76edb633c37acf04a9a82518b6233a719.1640351150.git.mchehab@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/boards/sof_es8336.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index bc5cbdeb38f3..c54a2bb407fe 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -3271,7 +3271,7 @@ static DEFINE_PER_CPU(int, printk_pending);
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index 20d577eaab6d..e6d599f0cd26 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -247,6 +247,14 @@ static const struct dmi_system_id sof_es8336_quirk_table[] = {
+ 					SOF_ES8336_TGL_GPIO_QUIRK |
+ 					SOF_ES8336_ENABLE_DMIC)
+ 	},
++	{
++		.callback = sof_es8336_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "HUAWEI"),
++			DMI_MATCH(DMI_BOARD_NAME, "BOHB-WAX9-PCB-B2"),
++		},
++		.driver_data = (void *)SOF_ES8336_SSP_CODEC(0)
++	},
+ 	{}
+ };
  
- static void wake_up_klogd_work_func(struct irq_work *irq_work)
- {
--	int pending = __this_cpu_xchg(printk_pending, 0);
-+	int pending = this_cpu_xchg(printk_pending, 0);
- 
- 	if (pending & PRINTK_PENDING_OUTPUT) {
- 		/* If trylock fails, someone else is doing the printing */
-@@ -3305,7 +3305,7 @@ void defer_console_output(void)
- 		return;
- 
- 	preempt_disable();
--	__this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
-+	this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
- 	irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
- 	preempt_enable();
- }
 -- 
 2.34.1
 
