@@ -2,94 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFABD4ECC95
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 20:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2779B4ECCC3
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 20:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350739AbiC3Sq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 14:46:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
+        id S1350323AbiC3S5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 14:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350753AbiC3SqS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 14:46:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0692A24D;
-        Wed, 30 Mar 2022 11:43:25 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B5296121E;
-        Wed, 30 Mar 2022 18:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867DEC340F2;
-        Wed, 30 Mar 2022 18:43:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648665804;
-        bh=sGa/KbapeH0kAxF/iIltso+wkaxybsSs7gubeGfT4pA=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=Bb1w9S3fLp8BI0e6yAIy5AeBtXyAZoYuE45kYBRzC8vE+FTxCij9oi73Ov+dxC04Q
-         E8bXppOhAubQW66RvmTXDUGA1Gq1MeGQ7f/nFd9T9S5wk41ebnqNkMI6HXEYb2i8xb
-         S9rigPlLQopxynjCR4uDpb0fSi+CBZbz8OWmlBJk4Hyeqjqc84JHZu6PywOfj9hTUs
-         1XtvPwsVk5aE+i7qY1A2971slvcjqjIMqYJqBoPNQDnziMyiTSNaFW6ABeUTGB+dCa
-         QCOEVNjHInaKqxoq6xUKTaKCXpilQKC9L6HyXOSggObHhRWTNZBtIHjlmIkjorTSUS
-         kJAeaRw2/+nOQ==
-Message-ID: <8b24038d-75a0-1124-642d-647ac8af0db3@kernel.org>
-Date:   Wed, 30 Mar 2022 20:43:16 +0200
+        with ESMTP id S1346893AbiC3S5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 14:57:42 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9595A6AA62
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 11:55:56 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id bh17so3900798ejb.8
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 11:55:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linbit-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=fS8vexv5y5IlDW6jDa/CJnkMG23qfhzjDUs+WGYeVjg=;
+        b=uE53q3re8iwnjr6tBa9zKY2osZp3Jp7t2TKEQ3SXNl1//qBGvJExj/tsz6E1PgZ3e/
+         LkmwFOYHMXSgAU9TJywuh/3mnW/vMQ9usbvvqFAMx1fQd8lYOWLLVXhbeuUQve3sXZXf
+         Fq5P2qkDbGUh0zMm4KJHlrdljEz+Ehg0sYvMkHQ52hNhhcRfJ+Hcgkw8bLQIV+4lCT35
+         VzaTaenvPApoHdpE75vTR57mqE52fMwU0uKIf/5Km74RZ7c7aJw81Xwvkc12VZoCOT0e
+         7ARVYYfD3GMdixo06qi0wm53i2TqGld6y+YnhLB6+sXfLvzX9Z+/7m5kbKulshiKjXdT
+         4LZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=fS8vexv5y5IlDW6jDa/CJnkMG23qfhzjDUs+WGYeVjg=;
+        b=RHgc/ay3fXd3HQy0zLLv3RGTxzGFB4pCoMK564a45q2iUhQWtFaH8ejCArhuO2YDrX
+         66SadcJGCJlrrqrGXsOk938V7vdX0DJUZNka9yqOeQMq2wsvnojrr/T60ATbDUDzGcll
+         IS3d5ogF9FzGbi6sMqdrS5YCf42mMiyRdHfh9lfpnjoJnYn6VOx9/Efu9z0OqVhnQX9F
+         QzHqJRSnBh1HrfMYAk1fu7eWJ4kAbQB1xBgKoLh0qEl4ceEAjxFU/GwME7r0RdZHwysz
+         Os9fQ/gC8l18sLKlZ99ydssrnzh9bWz+TFKkpgwlei3N7qc9jUS165zyrEMo4uzo3VOi
+         032g==
+X-Gm-Message-State: AOAM533U03xzeGRsMehtXxvxBbaASu9msTeotU08f44rA5pdbzKliRPM
+        f3JmIpXvJuuuFR299uU6NNv0LmpM8PaFrBbUnuk=
+X-Google-Smtp-Source: ABdhPJz+Vt1B8Iq4kvuEZ5n0irgjFoH7JQGrTUQ0hBXINZJsc5RSI/lf6XLpN5R8JUo3VnVHtmsipg==
+X-Received: by 2002:a17:907:16ac:b0:6e0:1646:9121 with SMTP id hc44-20020a17090716ac00b006e016469121mr1136241ejc.194.1648666555117;
+        Wed, 30 Mar 2022 11:55:55 -0700 (PDT)
+Received: from gintonic.linbit (62-99-137-214.static.upcbusiness.at. [62.99.137.214])
+        by smtp.gmail.com with ESMTPSA id nc13-20020a1709071c0d00b006dfa376ee55sm8554639ejc.131.2022.03.30.11.55.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Mar 2022 11:55:54 -0700 (PDT)
+From:   =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>
+To:     Jens Axboe <abxoe@kernel.dk>
+Cc:     Philipp Reisner <philipp.reisner@linbit.com>,
+        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, stable@vger.kernel.org
+Subject: [RESEND PATCH] drbd: fix potential silent data corruption
+Date:   Wed, 30 Mar 2022 20:55:51 +0200
+Message-Id: <20220330185551.3553196-1-christoph.boehmwalder@linbit.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: Request for reverting the commit for Samsung HID driver
-Content-Language: en-US
-To:     junwan.cho@samsung.com,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "michael.zaidman@gmail.com" <michael.zaidman@gmail.com>,
-        "erazor_de@users.sourceforge.net" <erazor_de@users.sourceforge.net>,
-        "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>,
-        "alexandre.torgue@foss.st.com" <alexandre.torgue@foss.st.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        =?UTF-8?B?6rmA7J287Zi4?= <ih0923.kim@samsung.com>,
-        =?UTF-8?B?67CV7LKc7Zi4?= <chun.ho.park@samsung.com>,
-        =?UTF-8?B?67Cw7Jyk7Iud?= <yunsik.bae@samsung.com>,
-        =?UTF-8?B?6rCV64yA7Z2s?= <daihee7.kang@samsung.com>,
-        =?UTF-8?B?7J206rSR7Zi4?= <gaudium.lee@samsung.com>,
-        =?UTF-8?B?66WY7LKc7Jqw?= <chunwoo.ryu@samsung.com>,
-        =?UTF-8?B?64KY65GQ7IiY?= <doosu.na@samsung.com>,
-        =?UTF-8?B?6rmA7IiY7ZiE?= <suhyun_.kim@samsung.com>
-References: <YkQnvMpk9cRX8/F9@kroah.com> <YkQRXqlzVjBLbvp2@kroah.com>
- <nycvar.YFH.7.76.2203300948500.24795@cbobk.fhfr.pm>
- <20220330070159epcms1p31c351bc7eb90d99e0bbecd2c2f6092d1@epcms1p3>
- <20220330080937epcms1p51e6c98c5eb5f8108c9cfe35efa450daa@epcms1p5>
- <20220330082308epcms1p3f9bb275272b3e32abd4202fa1b893623@epcms1p3>
- <20220330084401epcms1p1fe9efa50452a84f7bbb22a4de82b5a0a@epcms1p1>
- <20220330090150epcms1p42e28758b515942ecdee680cdef3ef0b9@epcms1p4>
- <20220330092058epcms1p799e10561617c02a14d5d8b413722f678@epcms1p7>
- <20220330094354epcms1p282a35cfc39cea0b76125387a496d9284@epcms1p2>
- <CGME20220330062122epcms1p30a2c2e3e1d3b108d729a00034bf86587@epcms1p3>
- <20220330095806epcms1p34fa55d36ed5ce200fb74a9a23aa279a5@epcms1p3>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-In-Reply-To: <20220330095806epcms1p34fa55d36ed5ce200fb74a9a23aa279a5@epcms1p3>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30/03/2022 11:58, 조준완 wrote:
-> You are the first person to point this out while exchanging emails.
-> I don't know how to send in your favorite style in our mail system.
-> This is the last email, so don't be annoyed.
+From: Lars Ellenberg <lars.ellenberg@linbit.com>
 
-Greg is not the first person pointing this out. We all did. :)
-Top-posting makes reading and responding much more difficult. It's
-inefficient. Proper quoting is the basis of efficient email
-communication and well known between tech folks in internet.
+Scenario:
+---------
 
-Best regards,
-Krzysztof
+bio chain generated by blk_queue_split().
+Some split bio fails and propagates its error status to the "parent" bio.
+But then the (last part of the) parent bio itself completes without error.
+
+We would clobber the already recorded error status with BLK_STS_OK,
+causing silent data corruption.
+
+Reproducer:
+-----------
+
+How to trigger this in the real world within seconds:
+
+DRBD on top of degraded parity raid,
+small stripe_cache_size, large read_ahead setting.
+Drop page cache (sysctl vm.drop_caches=1, fadvise "DONTNEED",
+umount and mount again, "reboot").
+
+Cause significant read ahead.
+
+Large read ahead request is split by blk_queue_split().
+Parts of the read ahead that are already in the stripe cache,
+or find an available stripe cache to use, can be serviced.
+Parts of the read ahead that would need "too much work",
+would need to wait for a "stripe_head" to become available,
+are rejected immediately.
+
+For larger read ahead requests that are split in many pieces, it is very
+likely that some "splits" will be serviced, but then the stripe cache is
+exhausted/busy, and the remaining ones will be rejected.
+
+Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
+Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Cc: <stable@vger.kernel.org> # 4.13.x
+---
+ drivers/block/drbd/drbd_req.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
+index c04394518b07..e1e58e91ee58 100644
+--- a/drivers/block/drbd/drbd_req.c
++++ b/drivers/block/drbd/drbd_req.c
+@@ -180,7 +180,8 @@ void start_new_tl_epoch(struct drbd_connection *connection)
+ void complete_master_bio(struct drbd_device *device,
+ 		struct bio_and_error *m)
+ {
+-	m->bio->bi_status = errno_to_blk_status(m->error);
++	if (unlikely(m->error))
++		m->bio->bi_status = errno_to_blk_status(m->error);
+ 	bio_endio(m->bio);
+ 	dec_ap_bio(device);
+ }
+-- 
+2.32.0
 
