@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4A84EC06B
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E178D4EC068
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344062AbiC3LvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:51:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59278 "EHLO
+        id S1343833AbiC3LvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343982AbiC3LuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:50:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2A426E768;
-        Wed, 30 Mar 2022 04:47:39 -0700 (PDT)
+        with ESMTP id S1343807AbiC3LuR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:50:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8EEB26EC8F;
+        Wed, 30 Mar 2022 04:47:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 748FF615B7;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E616B81C24;
+        Wed, 30 Mar 2022 11:47:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59194C340EE;
         Wed, 30 Mar 2022 11:47:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E54C34111;
-        Wed, 30 Mar 2022 11:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640858;
-        bh=kDKQLtxdtubo8cbSoy0C0473dnGZFJuLtrEEafSBCiw=;
+        s=k20201202; t=1648640860;
+        bh=zmmf9mEL1IvNiJ8w7plozUuwG6WtbudgF0R5QNyPkE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMEJT1KLoh8zPaDlHJsR6dqkCaxpUBaN6fLjTr5VW9yhFgv/VtQJrzenG/W7WxR/9
-         Z8m7EZIJ+p8EItpX4fKjrRnaUkf55vpginzMfkb576BStHBUqNEQvGX1eRMn5w+rYR
-         5QLlyaDIBDCUxWEVgPmyS85foU4qFOTYwRXckeqZXveujGfsgxmmEJZipncS+718NJ
-         A6OEbQqXe9gOMQgEpuUTK1ogpJh9eoXbKJoEVrBJnWyypB9WVWuS5sBn2VsTbSZwgb
-         63uPA0MBdkXACkekhW5NSZ3nnoZHHhom3HOKbm2RvQmFEyCHtCBozwbbqLaObSORmL
-         9HdRP1+i7a54w==
+        b=ob7PeaMieJNsNHBHrQlQcfPH+wx9mcDxgRvLPFgSq0pr3lZZw+KrpgAZkM0AhuTyn
+         22CDxSKQi1iSpXyAnx6Os57Qw43nWcgYVpHvhaVq/aIv3wRZJefAdEN6OHJnhxcA7B
+         Vphb2BIhziBEqNDxWY5NNrriaFeZ2r56bbUSu6KArXEM/6dsh9kWGVnuT6xeX2B2+4
+         keNYSlsbyDrq+WCN9CvK7g+Dp52XTijvWglFlcMbRusX3ISpzmoyuhaUQ2ZksmyXRy
+         oYHHcVmHexcCEvIQ5QZjmEZV34pkneO6SE7OEReDf82NjW8EMchJl24Ov6bmBH0FxU
+         7NZSxzVm5YIWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 34/66] ASoC: soc-core: skip zero num_dai component in searching dai name
-Date:   Wed, 30 Mar 2022 07:46:13 -0400
-Message-Id: <20220330114646.1669334-34-sashal@kernel.org>
+Cc:     John Ogness <john.ogness@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Petr Mladek <pmladek@suse.com>,
+        Sasha Levin <sashal@kernel.org>, senozhatsky@chromium.org,
+        linux@roeck-us.net, stephen.s.brennan@oracle.com
+Subject: [PATCH AUTOSEL 5.17 35/66] printk: use atomic updates for klogd work
+Date:   Wed, 30 Mar 2022 07:46:14 -0400
+Message-Id: <20220330114646.1669334-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -57,45 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit f7d344a2bd5ec81fbd1ce76928fd059e57ec9bea ]
+[ Upstream commit 2ba3673d70178bf07fb75ff25c54bc478add4021 ]
 
-In the case like dmaengine which's not a dai but as a component, the
-num_dai is zero, dmaengine component has the same component_of_node
-as cpu dai, when cpu dai component is not ready, but dmaengine component
-is ready, try to get cpu dai name, the snd_soc_get_dai_name() return
--EINVAL, not -EPROBE_DEFER, that cause below error:
+The per-cpu @printk_pending variable can be updated from
+sleepable contexts, such as:
 
-asoc-simple-card <card name>: parse error -22
-asoc-simple-card: probe of <card name> failed with error -22
+  get_random_bytes()
+    warn_unseeded_randomness()
+      printk_deferred()
+        defer_console_output()
 
-The sound card failed to probe.
+and can be updated from interrupt contexts, such as:
 
-So this patch fixes the issue above by skipping the zero num_dai
-component in searching dai name.
+  handle_irq_event_percpu()
+    __irq_wake_thread()
+      wake_up_process()
+        try_to_wake_up()
+          select_task_rq()
+            select_fallback_rq()
+              printk_deferred()
+                defer_console_output()
 
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1644491952-7457-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+and can be updated from NMI contexts, such as:
+
+  vprintk()
+    if (in_nmi()) defer_console_output()
+
+Therefore the atomic variant of the updating functions must be used.
+
+Replace __this_cpu_xchg() with this_cpu_xchg().
+Replace __this_cpu_or() with this_cpu_or().
+
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/87iltld4ue.fsf@jogness.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/printk/printk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 434e61b46983..a088bc9f7dd7 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3233,7 +3233,7 @@ int snd_soc_get_dai_name(const struct of_phandle_args *args,
- 	for_each_component(pos) {
- 		struct device_node *component_of_node = soc_component_to_node(pos);
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index bc5cbdeb38f3..c54a2bb407fe 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -3271,7 +3271,7 @@ static DEFINE_PER_CPU(int, printk_pending);
  
--		if (component_of_node != args->np)
-+		if (component_of_node != args->np || !pos->num_dai)
- 			continue;
+ static void wake_up_klogd_work_func(struct irq_work *irq_work)
+ {
+-	int pending = __this_cpu_xchg(printk_pending, 0);
++	int pending = this_cpu_xchg(printk_pending, 0);
  
- 		ret = snd_soc_component_of_xlate_dai_name(pos, args, dai_name);
+ 	if (pending & PRINTK_PENDING_OUTPUT) {
+ 		/* If trylock fails, someone else is doing the printing */
+@@ -3305,7 +3305,7 @@ void defer_console_output(void)
+ 		return;
+ 
+ 	preempt_disable();
+-	__this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
++	this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
+ 	irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
+ 	preempt_enable();
+ }
 -- 
 2.34.1
 
