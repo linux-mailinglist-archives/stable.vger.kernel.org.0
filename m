@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 159FA4EC0AC
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597774EC0B6
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344292AbiC3Lwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:52:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60702 "EHLO
+        id S1344171AbiC3Lwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344237AbiC3Lvw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:51:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A082675A5;
-        Wed, 30 Mar 2022 04:48:12 -0700 (PDT)
+        with ESMTP id S1344176AbiC3Lv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:51:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6271C277967;
+        Wed, 30 Mar 2022 04:48:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30DEA615F5;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4F2C61618;
+        Wed, 30 Mar 2022 11:48:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16163C340F2;
         Wed, 30 Mar 2022 11:48:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C028C3410F;
-        Wed, 30 Mar 2022 11:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640890;
-        bh=yPQlBLQGEvHpOmVboz3fBeiBvatZ09xFfJx8JBLUUOI=;
+        s=k20201202; t=1648640892;
+        bh=n1yKYr6ib+uBTiB1zGsnOcKC0HJM7ZyAz+w+jiqCJxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eREUXjIDNpU33bJAEQnwHyNFXTaOXrvpy9Gw0GMZqevwI6bt1DGJhHEtFa+Nor+Ok
-         0Kh7i4/SdayfBmfcbJ4rCIS6Pot3oafZLu2ohnWI+CVA19C2ZQvoamQEDPOShqafO2
-         MTbCWkqAFDaR4T9a41n5moRljLJzUt68wOZro+pn+RyfZQRqrVkZeQSQpavvSJN72K
-         n96fjbdu1vPbwqQiKZR6qpfPc4BDXy6uqdBrjye116FxTe8KEUW6iZN6A6RlGCtE2b
-         yBvVthUs6n0y3pn6tBCBVRYXdulMBlgJAvYe9wQzHPo2Mbk++VgMReyigOIhy5K7Jc
-         I7r8g6kNIKh4w==
+        b=kBpQPLT0aBW0QFdr9HHKiThT8aPMSAnC+p+cLIvT8ysk/F9pV0iLeOTlDkE9VoOjp
+         N9u31NfL5e34VratvW3hQxfciEjEKeZm9LVoSQiA4fFJwt6w+Wwac+9MOiFeZwpu1O
+         lymf4pvwwMjD8939XKf0LToLsAK/ysb+gqD8j1dX4y+CEXpwWtP+XOM2YCv844eEd+
+         9qxlOqV6wrQ4qd7UMqCAvxbFzDPAgpjqjzyQU3chilaSNljKiGN2agvz9cGnxnJNs9
+         g8kKbJZZleWUKQsfM2rVpg40xAaZl/1Di/PIXkdQIPQ2nEId94p/CUZs4whVoOUz9H
+         xLuBLrZFiAbGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        anthony tonitch <d.tonitch@gmail.com>,
         Bard Liao <yung-chuan.liao@linux.intel.com>,
         =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
         Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, perex@perex.cz,
         tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 54/66] ALSA: intel-nhlt: add helper to detect SSP link mask
-Date:   Wed, 30 Mar 2022 07:46:33 -0400
-Message-Id: <20220330114646.1669334-54-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 55/66] ALSA: intel-dsp-config: add more ACPI HIDs for ES83x6 devices
+Date:   Wed, 30 Mar 2022 07:46:34 -0400
+Message-Id: <20220330114646.1669334-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -62,123 +63,122 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 0c470db0399e17310ed2ba54dd1c25cfa16ce0d3 ]
+[ Upstream commit de24d97fb845ffd2229811ee256438e42b5a8d12 ]
 
-The NHLT information can be used to figure out which SSPs are enabled
-in a platform.
+We only saw ESSX8336 so far, but now with reports of 'ESSX8326' we
+need to expand to a full list. Let's reuse the 'snd_soc_acpi_codecs'
+structure to store the information.
 
-The 'SSP' link type is too broad for machine drivers, since it can
-cover the Bluetooth sideband and the analog audio codec connections,
-so this helper exposes a parameter to filter with the device
-type (DEVICE_I2S refers to analog audio codec in NHLT parlance).
-
-The helper returns a mask, since more than one SSP may be used for
-analog audio, e.g. the NHLT spec describes the use of SSP0 for
-amplifiers and SSP1 for headset codec. Note that if more than one bit
-is set, it's impossible to determine which SSP is connected to what
-external component. Additional platform-specific information based on
-e.g. DMI quirks would still be required in the machine driver to
-configure the relevant dailinks.
-
+Reported-by: anthony tonitch <d.tonitch@gmail.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
 Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
 Acked-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20220308192610.392950-5-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220308192610.392950-8-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/intel-nhlt.h | 22 +++++++++++++++-------
- sound/hda/intel-nhlt.c     | 22 ++++++++++++++++++++++
- 2 files changed, 37 insertions(+), 7 deletions(-)
+ sound/hda/intel-dsp-config.c | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
-diff --git a/include/sound/intel-nhlt.h b/include/sound/intel-nhlt.h
-index 089a760d36eb..6fb2d5e378fd 100644
---- a/include/sound/intel-nhlt.h
-+++ b/include/sound/intel-nhlt.h
-@@ -18,6 +18,13 @@ enum nhlt_link_type {
- 	NHLT_LINK_INVALID
- };
+diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
+index 4fb90ceb4053..b9b7bf5a5553 100644
+--- a/sound/hda/intel-dsp-config.c
++++ b/sound/hda/intel-dsp-config.c
+@@ -11,6 +11,7 @@
+ #include <sound/core.h>
+ #include <sound/intel-dsp-config.h>
+ #include <sound/intel-nhlt.h>
++#include <sound/soc-acpi.h>
  
-+enum nhlt_device_type {
-+	NHLT_DEVICE_BT = 0,
-+	NHLT_DEVICE_DMIC = 1,
-+	NHLT_DEVICE_I2S = 4,
-+	NHLT_DEVICE_INVALID
+ static int dsp_driver;
+ 
+@@ -31,7 +32,12 @@ struct config_entry {
+ 	u16 device;
+ 	u8 acpi_hid[ACPI_ID_LEN];
+ 	const struct dmi_system_id *dmi_table;
+-	u8 codec_hid[ACPI_ID_LEN];
++	const struct snd_soc_acpi_codecs *codec_hid;
 +};
 +
- #if IS_ENABLED(CONFIG_ACPI) && IS_ENABLED(CONFIG_SND_INTEL_NHLT)
++static const struct snd_soc_acpi_codecs __maybe_unused essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
+ };
  
- struct wav_fmt {
-@@ -41,13 +48,6 @@ struct wav_fmt_ext {
- 	u8 sub_fmt[16];
- } __packed;
+ /*
+@@ -77,7 +83,7 @@ static const struct config_entry config_table[] = {
+ 	{
+ 		.flags = FLAG_SOF,
+ 		.device = 0x5a98,
+-		.codec_hid = "ESSX8336",
++		.codec_hid =  &essx_83x6,
+ 	},
+ #endif
+ #if IS_ENABLED(CONFIG_SND_SOC_INTEL_APL)
+@@ -163,7 +169,7 @@ static const struct config_entry config_table[] = {
+ 	{
+ 		.flags = FLAG_SOF,
+ 		.device = 0x3198,
+-		.codec_hid = "ESSX8336",
++		.codec_hid =  &essx_83x6,
+ 	},
+ #endif
  
--enum nhlt_device_type {
--	NHLT_DEVICE_BT = 0,
--	NHLT_DEVICE_DMIC = 1,
--	NHLT_DEVICE_I2S = 4,
--	NHLT_DEVICE_INVALID
--};
--
- struct nhlt_specific_cfg {
- 	u32 size;
- 	u8 caps[];
-@@ -133,6 +133,9 @@ void intel_nhlt_free(struct nhlt_acpi_table *addr);
- int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt);
- 
- bool intel_nhlt_has_endpoint_type(struct nhlt_acpi_table *nhlt, u8 link_type);
+@@ -251,7 +257,7 @@ static const struct config_entry config_table[] = {
+ 	{
+ 		.flags = FLAG_SOF,
+ 		.device = 0x02c8,
+-		.codec_hid = "ESSX8336",
++		.codec_hid =  &essx_83x6,
+ 	},
+ 	{
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+@@ -280,7 +286,7 @@ static const struct config_entry config_table[] = {
+ 	{
+ 		.flags = FLAG_SOF,
+ 		.device = 0x06c8,
+-		.codec_hid = "ESSX8336",
++		.codec_hid =  &essx_83x6,
+ 	},
+ 	{
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+@@ -327,7 +333,7 @@ static const struct config_entry config_table[] = {
+ 	{
+ 		.flags = FLAG_SOF,
+ 		.device = 0x4dc8,
+-		.codec_hid = "ESSX8336",
++		.codec_hid =  &essx_83x6,
+ 	},
+ 	{
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC,
+@@ -353,7 +359,7 @@ static const struct config_entry config_table[] = {
+ 	{
+ 		.flags = FLAG_SOF,
+ 		.device = 0xa0c8,
+-		.codec_hid = "ESSX8336",
++		.codec_hid =  &essx_83x6,
+ 	},
+ 	{
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+@@ -414,8 +420,15 @@ static const struct config_entry *snd_intel_dsp_find_config
+ 			continue;
+ 		if (table->dmi_table && !dmi_check_system(table->dmi_table))
+ 			continue;
+-		if (table->codec_hid[0] && !acpi_dev_present(table->codec_hid, NULL, -1))
+-			continue;
++		if (table->codec_hid) {
++			int i;
 +
-+int intel_nhlt_ssp_endpoint_mask(struct nhlt_acpi_table *nhlt, u8 device_type);
-+
- struct nhlt_specific_cfg *
- intel_nhlt_get_endpoint_blob(struct device *dev, struct nhlt_acpi_table *nhlt,
- 			     u32 bus_id, u8 link_type, u8 vbps, u8 bps,
-@@ -163,6 +166,11 @@ static inline bool intel_nhlt_has_endpoint_type(struct nhlt_acpi_table *nhlt,
- 	return false;
- }
- 
-+static inline int intel_nhlt_ssp_endpoint_mask(struct nhlt_acpi_table *nhlt, u8 device_type)
-+{
-+	return 0;
-+}
-+
- static inline struct nhlt_specific_cfg *
- intel_nhlt_get_endpoint_blob(struct device *dev, struct nhlt_acpi_table *nhlt,
- 			     u32 bus_id, u8 link_type, u8 vbps, u8 bps,
-diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
-index 128476aa7c61..4063da378283 100644
---- a/sound/hda/intel-nhlt.c
-+++ b/sound/hda/intel-nhlt.c
-@@ -130,6 +130,28 @@ bool intel_nhlt_has_endpoint_type(struct nhlt_acpi_table *nhlt, u8 link_type)
- }
- EXPORT_SYMBOL(intel_nhlt_has_endpoint_type);
- 
-+int intel_nhlt_ssp_endpoint_mask(struct nhlt_acpi_table *nhlt, u8 device_type)
-+{
-+	struct nhlt_endpoint *epnt;
-+	int ssp_mask = 0;
-+	int i;
-+
-+	if (!nhlt || (device_type != NHLT_DEVICE_BT && device_type != NHLT_DEVICE_I2S))
-+		return 0;
-+
-+	epnt = (struct nhlt_endpoint *)nhlt->desc;
-+	for (i = 0; i < nhlt->endpoint_count; i++) {
-+		if (epnt->linktype == NHLT_LINK_SSP && epnt->device_type == device_type) {
-+			/* for SSP the virtual bus id is the SSP port */
-+			ssp_mask |= BIT(epnt->virtual_bus_id);
++			for (i = 0; i < table->codec_hid->num_codecs; i++)
++				if (acpi_dev_present(table->codec_hid->codecs[i], NULL, -1))
++					break;
++			if (i == table->codec_hid->num_codecs)
++				continue;
 +		}
-+		epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length);
-+	}
-+
-+	return ssp_mask;
-+}
-+EXPORT_SYMBOL(intel_nhlt_ssp_endpoint_mask);
-+
- static struct nhlt_specific_cfg *
- nhlt_get_specific_cfg(struct device *dev, struct nhlt_fmt *fmt, u8 num_ch,
- 		      u32 rate, u8 vbps, u8 bps)
+ 		return table;
+ 	}
+ 	return NULL;
 -- 
 2.34.1
 
