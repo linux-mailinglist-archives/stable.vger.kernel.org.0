@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A584EC1CA
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C3634EC1D2
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241905AbiC3L5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35754 "EHLO
+        id S1345075AbiC3L5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:57:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345499AbiC3Lyg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE5A5285680;
-        Wed, 30 Mar 2022 04:51:18 -0700 (PDT)
+        with ESMTP id S1345532AbiC3Lyi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA49D285693;
+        Wed, 30 Mar 2022 04:51:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BB8961671;
-        Wed, 30 Mar 2022 11:51:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B681C340F2;
-        Wed, 30 Mar 2022 11:51:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B5D2B81C36;
+        Wed, 30 Mar 2022 11:51:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E89F5C34112;
+        Wed, 30 Mar 2022 11:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641071;
-        bh=Y66+Jl3ZAG1Akrs5hWPgXgzuzMYmTlNbhpqvnCTJ//0=;
+        s=k20201202; t=1648641073;
+        bh=GsAv312AdYmmt1e+wMqZIwMIBSqRjZ1+lgs4z1QfSXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLsaibRP2HMBCf6krhf7k2oGyqATh2WnflW8WwKLqDGn2lpd3DLZ7b2GUSb3MiJ/V
-         wBnhG+ruQfUD5/kDtk3eXuXIPrxxejvhAm3ebkvNND9DZEqdupfe8HeTKvMfHN9i3r
-         +KLZaKE6rmge3/U1+7AKVSpINU/HqPXD+CKJ2ZIDiOPPSo1qN0yjkETpZ2cQLjtV06
-         vFYrzuRWO2AMum1df3gvUNGn5cntN2RNOU3Z/MLtoAgMizPUwgEoyBG/12oHJexJMf
-         KI5BZSITdJtv+aRKVnPv0fWVuF/UFrpJnuMEumr5RAVZoqd6WFgrZqLBsoWnJZTgPw
-         T1HpwNiiYAq+w==
+        b=p4aC9RPoSwvsDjrmTa6sS7yJq+RuCcqlkK5MMej6K+tjqgk7BomU/ZOq0nNlScV2q
+         2GkVmLnLrMgLQr57twDgLaJElqZyfmljIk3z/oO73fWHLNoSfoBC5s25TMmt7g2eSz
+         s8HdZ3O8v68KyDuHDZ1m2UE/6SghrDr+bw6iOGaJ4eUTHHPWoPCsgEWMb8vgbspYcO
+         U1jD01fLsGKK4Vv3Q03Xxyxc3NejoKiTP0NaAwyritBc3pnSAtc/sQBQ8W1z0gewU1
+         oN2ReZXb87LC1LHKc6mJ8KLfP0GO+70M/Vw24rcnoP2jgJ16MoRUvqTXzjhaivX7O2
+         wGa5+MuYPDYAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        =?UTF-8?q?Maximilian=20B=C3=B6hm?= <maximilian.boehm@elbmurf.de>,
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzkaller <syzkaller@googlegroups.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 43/50] media: Revert "media: em28xx: add missing em28xx_close_extension"
-Date:   Wed, 30 Mar 2022 07:49:57 -0400
-Message-Id: <20220330115005.1671090-43-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, hverkuil@xs4all.nl,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 44/50] media: hdpvr: initialize dev->worker at hdpvr_register_videodev
+Date:   Wed, 30 Mar 2022 07:49:58 -0400
+Message-Id: <20220330115005.1671090-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115005.1671090-1-sashal@kernel.org>
 References: <20220330115005.1671090-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,45 +59,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit fde18c3bac3f964d8333ae53b304d8fee430502b ]
+[ Upstream commit 07922937e9a580825f9965c46fd15e23ba5754b6 ]
 
-This reverts commit 2c98b8a3458df03abdc6945bbef67ef91d181938.
+hdpvr_register_videodev is responsible to initialize a worker in
+hdpvr_device. However, the worker is only initialized at
+hdpvr_start_streaming other than hdpvr_register_videodev.
+When hdpvr_probe does not initialize its worker, the hdpvr_disconnect
+will encounter one WARN in flush_work.The stack trace is as follows:
 
-Reverted patch causes problems with Hauppauge WinTV dualHD as Maximilian
-reported [1]. Since quick solution didn't come up let's just revert it
-to make this device work with upstream kernels.
+ hdpvr_disconnect+0xb8/0xf2 drivers/media/usb/hdpvr/hdpvr-core.c:425
+ usb_unbind_interface+0xbf/0x3a0 drivers/usb/core/driver.c:458
+ __device_release_driver drivers/base/dd.c:1206 [inline]
+ device_release_driver_internal+0x22a/0x230 drivers/base/dd.c:1237
+ bus_remove_device+0x108/0x160 drivers/base/bus.c:529
+ device_del+0x1fe/0x510 drivers/base/core.c:3592
+ usb_disable_device+0xd1/0x1d0 drivers/usb/core/message.c:1419
+ usb_disconnect+0x109/0x330 drivers/usb/core/hub.c:2228
 
-Link: https://lore.kernel.org/all/6a72a37b-e972-187d-0322-16336e12bdc5@elbmurf.de/ [1]
+Fix this by moving the initialization of dev->worker to the starting of
+hdpvr_register_videodev
 
-Reported-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
-Tested-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/media/usb/hdpvr/hdpvr-video.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index ebc430b05f21..44166becc850 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -4145,11 +4145,8 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
+diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
+index 563128d11731..60e57e0f1927 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-video.c
++++ b/drivers/media/usb/hdpvr/hdpvr-video.c
+@@ -308,7 +308,6 @@ static int hdpvr_start_streaming(struct hdpvr_device *dev)
  
- 	em28xx_close_extension(dev);
+ 	dev->status = STATUS_STREAMING;
  
--	if (dev->dev_next) {
--		em28xx_close_extension(dev->dev_next);
-+	if (dev->dev_next)
- 		em28xx_release_resources(dev->dev_next);
--	}
--
- 	em28xx_release_resources(dev);
+-	INIT_WORK(&dev->worker, hdpvr_transmit_buffers);
+ 	schedule_work(&dev->worker);
  
- 	if (dev->dev_next) {
+ 	v4l2_dbg(MSG_BUFFER, hdpvr_debug, &dev->v4l2_dev,
+@@ -1165,6 +1164,9 @@ int hdpvr_register_videodev(struct hdpvr_device *dev, struct device *parent,
+ 	bool ac3 = dev->flags & HDPVR_FLAG_AC3_CAP;
+ 	int res;
+ 
++	// initialize dev->worker
++	INIT_WORK(&dev->worker, hdpvr_transmit_buffers);
++
+ 	dev->cur_std = V4L2_STD_525_60;
+ 	dev->width = 720;
+ 	dev->height = 480;
 -- 
 2.34.1
 
