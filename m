@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BECA4EC27B
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 851314EC1AE
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345212AbiC3L62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:58:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59180 "EHLO
+        id S244985AbiC3Lzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:55:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344499AbiC3LxN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2423C262428;
-        Wed, 30 Mar 2022 04:48:59 -0700 (PDT)
+        with ESMTP id S1344416AbiC3LxI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97310261DDC;
+        Wed, 30 Mar 2022 04:48:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F80FB81C36;
-        Wed, 30 Mar 2022 11:48:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BE3C36AE2;
-        Wed, 30 Mar 2022 11:48:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B88F16162F;
+        Wed, 30 Mar 2022 11:48:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBF7C36AE3;
+        Wed, 30 Mar 2022 11:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640930;
-        bh=or7vMsAJ5qPVBHGYQ8AZJOSb3BRjqMrEX/v6pBzhP1A=;
+        s=k20201202; t=1648640932;
+        bh=Yw9KpInkgsNYhh+OCNup/aC8fKxzxvvo6UbYxOjbCnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jS/AzIAt8uZVMw/JSjOYzrxQIk074ZtSYTVr1qHd2g06qb1vdRenqbdSHofy3zahD
-         DK0ly6txaxNd/6ymfu+f4QVMm9t8BeydDEY3td8VVGjJSwu6U1M8sMCB5Ju8y0eO3A
-         TF3msroFpTLLgVniJUjP4h6W2Mx0r8VGgEF7uLElXDIZQJh/DnIvbF3E3AXzDavEfE
-         Ah/3O2m52PEcsloOgVbPfjMf/ywpZsCF+uGN8wJ0kgpfJ2yxvqDi5yUlkPZAat3Lnl
-         rEzKvjiYwUBtlP/ANJhuedQKu+inVVx5Hl8y/TWEq8mbEqhHqZFaThZaY+6S0yBmCB
-         Ui1EnrPQsTYuQ==
+        b=ukJPwQxo66ZQ8HYDWDJCCeoPDTtzB4grXjeDGQUYLE2TMQng7jShzU86DrWGMTBQo
+         6hqb9iuf5Fth1gacOxOdT4wUuhEz2bng7dzYhpOsyvpmsHdBfJn81dT4AszgFNbqWc
+         ilV5myNX8phBu9YmQhdHJ6mYj11QhhZOiEjKvPICmvKRR6XHDwdesHLw/AxRCSHDaK
+         OG7Q9Ip4vSIoMVsVFZFcFdWUXq/DQ4nGLo7kRPGb2GFmv/dZGT7X5KYUo8OwAIDlix
+         2aPsGRKbO57zJPUVYYFoxYN9h9mvrXib+krXpO5eWgH1vv67kN1wYa4+kDbponjjbm
+         psm8u8608l4cA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yong Wu <yong.wu@mediatek.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Joerg Roedel <jroedel@suse.de>,
+Cc:     Yong Wu <yong.wu@mediatek.com>, Joerg Roedel <jroedel@suse.de>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
@@ -44,9 +42,9 @@ Cc:     Yong Wu <yong.wu@mediatek.com>,
         matthias.bgg@gmail.com, iommu@lists.linux-foundation.org,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.16 11/59] media: iommu/mediatek-v1: Free the existed fwspec if the master dev already has
-Date:   Wed, 30 Mar 2022 07:47:43 -0400
-Message-Id: <20220330114831.1670235-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 12/59] media: iommu/mediatek: Return ENODEV if the device is NULL
+Date:   Wed, 30 Mar 2022 07:47:44 -0400
+Message-Id: <20220330114831.1670235-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114831.1670235-1-sashal@kernel.org>
 References: <20220330114831.1670235-1-sashal@kernel.org>
@@ -66,72 +64,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit 822a2ed8c606caf6a11b1a180b8e46292bd77d71 ]
+[ Upstream commit 2fb0feed51085db77606de9b9477c96894328809 ]
 
-When the iommu master device enters of_iommu_xlate, the ops may be
-NULL(iommu dev is defered), then it will initialize the fwspec here:
+The platform device is created at:
+of_platform_default_populate_init:  arch_initcall_sync
+  ->of_platform_populate
+        ->of_platform_device_create_pdata
 
-[<c0c9c5bc>] (dev_iommu_fwspec_set) from [<c06bda80>]
-(iommu_fwspec_init+0xbc/0xd4)
-[<c06bd9c4>] (iommu_fwspec_init) from [<c06c0db4>]
-(of_iommu_xlate+0x7c/0x12c)
-[<c06c0d38>] (of_iommu_xlate) from [<c06c10e8>]
-(of_iommu_configure+0x144/0x1e8)
+When entering our probe, all the devices should be already created.
+if it is null, means NODEV. Currently we don't get the fail case.
+It's a minor fix, no need add fixes tags.
 
-BUT the mtk_iommu_v1.c only supports arm32, the probing flow still is a bit
-weird. We always expect create the fwspec internally. otherwise it will
-enter here and return fail.
-
-static int mtk_iommu_create_mapping(struct device *dev,
-				    struct of_phandle_args *args)
-{
-        ...
-	if (!fwspec) {
-	        ....
-	} else if (dev_iommu_fwspec_get(dev)->ops != &mtk_iommu_ops) {
-                >>>>>>>>>>Enter here. return fail.<<<<<<<<<<<<
-		return -EINVAL;
-	}
-	...
-}
-
-Thus, Free the existed fwspec if the master device already has fwspec.
-
-This issue is reported at:
-https://lore.kernel.org/linux-mediatek/trinity-7d9ebdc9-4849-4d93-bfb5-429dcb4ee449-1626253158870@3c-app-gmx-bs01/
-
-Reported-by: Frank Wunderlich <frank-w@public-files.de>
-Tested-by: Frank Wunderlich <frank-w@public-files.de> # BPI-R2/MT7623
 Signed-off-by: Yong Wu <yong.wu@mediatek.com>
 Acked-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu_v1.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iommu/mtk_iommu.c    | 2 +-
+ drivers/iommu/mtk_iommu_v1.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 25b834104790..77ae20ff9b35 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -848,7 +848,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
+ 		plarbdev = of_find_device_by_node(larbnode);
+ 		if (!plarbdev) {
+ 			of_node_put(larbnode);
+-			return -EPROBE_DEFER;
++			return -ENODEV;
+ 		}
+ 		data->larb_imu[id].dev = &plarbdev->dev;
+ 
 diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index be22fcf988ce..1467ba1e4417 100644
+index 1467ba1e4417..68bf02f87cfd 100644
 --- a/drivers/iommu/mtk_iommu_v1.c
 +++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -425,6 +425,15 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 	struct mtk_iommu_data *data;
- 	int err, idx = 0;
+@@ -604,7 +604,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
+ 		plarbdev = of_find_device_by_node(larbnode);
+ 		if (!plarbdev) {
+ 			of_node_put(larbnode);
+-			return -EPROBE_DEFER;
++			return -ENODEV;
+ 		}
+ 		data->larb_imu[i].dev = &plarbdev->dev;
  
-+	/*
-+	 * In the deferred case, free the existed fwspec.
-+	 * Always initialize the fwspec internally.
-+	 */
-+	if (fwspec) {
-+		iommu_fwspec_free(dev);
-+		fwspec = dev_iommu_fwspec_get(dev);
-+	}
-+
- 	while (!of_parse_phandle_with_args(dev->of_node, "iommus",
- 					   "#iommu-cells",
- 					   idx, &iommu_spec)) {
 -- 
 2.34.1
 
