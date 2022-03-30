@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F9F4EC275
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4404EC208
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244478AbiC3L7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:59:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57624 "EHLO
+        id S1344989AbiC3L5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345919AbiC3LzN (ORCPT
+        with ESMTP id S1345924AbiC3LzN (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AAA927CE11;
-        Wed, 30 Mar 2022 04:52:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73D3427DE82;
+        Wed, 30 Mar 2022 04:52:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC8E561704;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1100061704;
+        Wed, 30 Mar 2022 11:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A30CCC340F2;
         Wed, 30 Mar 2022 11:52:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F716C34112;
-        Wed, 30 Mar 2022 11:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641159;
-        bh=Xf6RKwKJr0X6eS2HT3oif7GlIDa6DBuZr8xzMrXw190=;
+        s=k20201202; t=1648641160;
+        bh=Ka5jbGX8/lg8MhfDu2So8lLl4xM7sYE+I8cl5BMDAWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXG2Re0DpH0pgtn0WnONJW0EbaQLESQ1+vaVeHNDn8SFHYkDTzw2tz3uuXyWnP3Gy
-         O8zEDyW6/56WEcBPvZI1pZoJH8L240rfe1oVGmJD2yxLq4MogWIqAObloTpQWYFnCx
-         ipaPUm4uGl65kuFGjvK6FiEJMcMv4aAfzSmayBhyLOAByoRlbp674fFxp+4pfP5AiI
-         Hv6gUCGBJX+sNmIJGsXX2mOp4TsLACwTXh7v7dXa1lFisGSPYsL9OPg7pmDbgIy97t
-         uRB/c6Q+VwTiDyhXhNpH/03zS5Uxog0FyFT8hVoqgStXah566pdz9L0G++MWDPSEYw
-         w0cxf9PateiqQ==
+        b=c5OXdvb0Qimqi07h1Pz9Gvupg+J6E0I5hdYnfkUCy2+DRfgqa+MRHj23PzuDguYaJ
+         ZQYAZEP+jaeM3bpZcKPTxiK7Bz1LceI+0AlJTeXMJyagcmRUmd5pifrDUSHkQUd7Ng
+         z6lQwGSmjnqVW4WZgJgjF/vZ3ave4vFiD81WIOrb25/zXOXr+czdRPWerNTA9/LC8f
+         qtXD3bd+vh3tkjWwFgGKCqfukE3wnsY3BIo2yh2zI7sIgAxdcF7fh7aVA2VH3qjlDK
+         jKsmmOVNW8l2Y7mcWfOR5ZsokoDoXU7wMQnhEn1/aMEhuUIH5RJb7v5XyXEjIawTNQ
+         FVUaPqa9YY3lA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 08/25] ASoC: madera: Add dependencies on MFD
-Date:   Wed, 30 Mar 2022 07:52:08 -0400
-Message-Id: <20220330115225.1672278-8-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 09/25] ARM: ftrace: avoid redundant loads or clobbering IP
+Date:   Wed, 30 Mar 2022 07:52:09 -0400
+Message-Id: <20220330115225.1672278-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115225.1672278-1-sashal@kernel.org>
 References: <20220330115225.1672278-1-sashal@kernel.org>
@@ -57,57 +57,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit ec29170c724ca30305fc3a19ba2ee73ecac65509 ]
+[ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
 
-The Madera CODECs use regmap_irq functions but nothing ensures that
-regmap_irq is built into the kernel. Add dependencies on the ASoC
-symbols for the relevant MFD component. There is no point in building
-the ASoC driver if the MFD doesn't support it and the MFD part contains
-the necessary dependencies to ensure everything is built into the
-kernel.
+Tweak the ftrace return paths to avoid redundant loads of SP, as well as
+unnecessary clobbering of IP.
 
-Reported-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220203115025.16464-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This also fixes the inconsistency of using MOV to perform a function
+return, which is sub-optimal on recent micro-architectures but more
+importantly, does not perform an interworking return, unlike compiler
+generated function returns in Thumb2 builds.
+
+Let's fix this by popping PC from the stack like most ordinary code
+does.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/Kconfig | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/kernel/entry-ftrace.S | 51 +++++++++++++++-------------------
+ 1 file changed, 22 insertions(+), 29 deletions(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 229cc89f8c5a..466dc67799f4 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -586,21 +586,26 @@ config SND_SOC_CS4349
+diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
+index a74289ebc803..5f1b1ce10473 100644
+--- a/arch/arm/kernel/entry-ftrace.S
++++ b/arch/arm/kernel/entry-ftrace.S
+@@ -22,10 +22,7 @@
+  * mcount can be thought of as a function called in the middle of a subroutine
+  * call.  As such, it needs to be transparent for both the caller and the
+  * callee: the original lr needs to be restored when leaving mcount, and no
+- * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
+- * clobber the ip register.  This is OK because the ARM calling convention
+- * allows it to be clobbered in subroutines and doesn't use it to hold
+- * parameters.)
++ * registers should be clobbered.
+  *
+  * When using dynamic ftrace, we patch out the mcount call by a "pop {lr}"
+  * instead of the __gnu_mcount_nc call (see arch/arm/kernel/ftrace.c).
+@@ -70,26 +67,25 @@
  
- config SND_SOC_CS47L15
- 	tristate
-+	depends on MFD_CS47L15
+ .macro __ftrace_regs_caller
  
- config SND_SOC_CS47L24
- 	tristate
+-	sub	sp, sp, #8	@ space for PC and CPSR OLD_R0,
++	str	lr, [sp, #-8]!	@ store LR as PC and make space for CPSR/OLD_R0,
+ 				@ OLD_R0 will overwrite previous LR
  
- config SND_SOC_CS47L35
- 	tristate
-+	depends on MFD_CS47L35
+-	add 	ip, sp, #12	@ move in IP the value of SP as it was
+-				@ before the push {lr} of the mcount mechanism
++	ldr	lr, [sp, #8]    @ get previous LR
  
- config SND_SOC_CS47L85
- 	tristate
-+	depends on MFD_CS47L85
+-	str     lr, [sp, #0]    @ store LR instead of PC
++	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
  
- config SND_SOC_CS47L90
- 	tristate
-+	depends on MFD_CS47L90
+-	ldr     lr, [sp, #8]    @ get previous LR
++	str	lr, [sp, #-4]!	@ store previous LR as LR
  
- config SND_SOC_CS47L92
- 	tristate
-+	depends on MFD_CS47L92
+-	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
++	add 	lr, sp, #16	@ move in LR the value of SP as it was
++				@ before the push {lr} of the mcount mechanism
  
- # Cirrus Logic Quad-Channel ADC
- config SND_SOC_CS53L30
+-	stmdb   sp!, {ip, lr}
+-	stmdb   sp!, {r0-r11, lr}
++	push	{r0-r11, ip, lr}
+ 
+ 	@ stack content at this point:
+ 	@ 0  4          48   52       56            60   64    68       72
+-	@ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
++	@ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
+ 
+-	mov r3, sp				@ struct pt_regs*
++	mov	r3, sp				@ struct pt_regs*
+ 
+ 	ldr r2, =function_trace_op
+ 	ldr r2, [r2]				@ pointer to the current
+@@ -112,11 +108,9 @@ ftrace_graph_regs_call:
+ #endif
+ 
+ 	@ pop saved regs
+-	ldmia   sp!, {r0-r12}			@ restore r0 through r12
+-	ldr	ip, [sp, #8]			@ restore PC
+-	ldr	lr, [sp, #4]			@ restore LR
+-	ldr	sp, [sp, #0]			@ restore SP
+-	mov	pc, ip				@ return
++	pop	{r0-r11, ip, lr}		@ restore r0 through r12
++	ldr	lr, [sp], #4			@ restore LR
++	ldr	pc, [sp], #12
+ .endm
+ 
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+@@ -132,11 +126,9 @@ ftrace_graph_regs_call:
+ 	bl	prepare_ftrace_return
+ 
+ 	@ pop registers saved in ftrace_regs_caller
+-	ldmia   sp!, {r0-r12}			@ restore r0 through r12
+-	ldr	ip, [sp, #8]			@ restore PC
+-	ldr	lr, [sp, #4]			@ restore LR
+-	ldr	sp, [sp, #0]			@ restore SP
+-	mov	pc, ip				@ return
++	pop	{r0-r11, ip, lr}		@ restore r0 through r12
++	ldr	lr, [sp], #4			@ restore LR
++	ldr	pc, [sp], #12
+ 
+ .endm
+ #endif
+@@ -202,16 +194,17 @@ ftrace_graph_call\suffix:
+ .endm
+ 
+ .macro mcount_exit
+-	ldmia	sp!, {r0-r3, ip, lr}
+-	ret	ip
++	ldmia	sp!, {r0-r3}
++	ldr	lr, [sp, #4]
++	ldr	pc, [sp], #8
+ .endm
+ 
+ ENTRY(__gnu_mcount_nc)
+ UNWIND(.fnstart)
+ #ifdef CONFIG_DYNAMIC_FTRACE
+-	mov	ip, lr
+-	ldmia	sp!, {lr}
+-	ret	ip
++	push	{lr}
++	ldr	lr, [sp, #4]
++	ldr	pc, [sp], #8
+ #else
+ 	__mcount
+ #endif
 -- 
 2.34.1
 
