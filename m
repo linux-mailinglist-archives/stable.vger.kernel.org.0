@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AACBF4EC0F3
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD94A4EC27A
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344233AbiC3Lzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:55:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
+        id S1345206AbiC3L61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:58:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344369AbiC3LxD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 963CE26132E;
-        Wed, 30 Mar 2022 04:48:46 -0700 (PDT)
+        with ESMTP id S1344385AbiC3LxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC69261980;
+        Wed, 30 Mar 2022 04:48:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0C01615E7;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1239B81C28;
+        Wed, 30 Mar 2022 11:48:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51E6C36AE2;
         Wed, 30 Mar 2022 11:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06922C36AE3;
-        Wed, 30 Mar 2022 11:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640925;
-        bh=qMSq2ZM7H+t3XIYKOQd73sqX230ds6e20YdaLYU4CE0=;
+        s=k20201202; t=1648640926;
+        bh=ADEi5SU0fkm1OasEUzfXS5XLxdWFJrLpnS+LEgj9ZRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+Pc8kSfrsdtamEMikiNN2EfvAQ84TM2JNc+39J28G1kzot6loz236yEm+bKiGy/n
-         I3GyZJIyqXkjzjUkMOcOcT4RhPiJS3+OdZDn50tjW7zKqSQ7nTrqf0edMMi/TlJK/u
-         PMy8TQm9qWsSD9xMBAL5U8thzJnXM8vZU6d4bjD8IrwnjsI2o1zR+cVMKv+8a8iNNR
-         6V+rtMvRW9BrlDYUb5dlGu5lls5BBDZmJEx2vAm5W4ec9gUhoLFtq7S6HNeBvdorT7
-         91oc7GG+UsMhIMgRfhEvF1SOAF9HKhadcxAzetbBkH6MVt1HvdRZHdaI1dfsyqpRQH
-         OtWpR2v03x0LQ==
+        b=TRqqvh47KSe9ZurI5qCNfWK8cOnhuLasFuNj+0hJcovf2xvCltj1I5f9ycsnbnJ0C
+         RDjTT7hpz81icI3wKIhYLzIBbY/FyRr7W+wCLJUX8RKSfjrn0Czq6aog08KN8PZ2Cc
+         s3ZywOpZUpW47KssGSWTkIRxo5/nNmLEedEnnHQF70KSwSaGag3V27kbL5zBmwgSoP
+         F4LURRSYlKcapDS+qIG9RbJgNbWAG/a0kxJ6DkzWKZU2YI0l3Vrmg2K9xweER7kKK/
+         jNC7Q/HB6cpyc2Q7YMeQLqZaJxwJ+nvPDChQi3vwQ22/dw6vWBNH7tyqttniiJZqGP
+         GmBdAan9UPyIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Reddy Muralidhar <muralidhar.reddy@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.16 08/59] ASoC: SOF: Intel: match sdw version on link_slaves_found
-Date:   Wed, 30 Mar 2022 07:47:40 -0400
-Message-Id: <20220330114831.1670235-8-sashal@kernel.org>
+Cc:     Mirela Rabulea <mirela.rabulea@oss.nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 09/59] media: imx-jpeg: Prevent decoding NV12M jpegs into single-planar buffers
+Date:   Wed, 30 Mar 2022 07:47:41 -0400
+Message-Id: <20220330114831.1670235-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114831.1670235-1-sashal@kernel.org>
 References: <20220330114831.1670235-1-sashal@kernel.org>
@@ -61,83 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
 
-[ Upstream commit f67c0c0d3b9048d86ea6ae52e36a2b78c48f265d ]
+[ Upstream commit 417591a766b3c040c346044541ff949c0b2bb7b2 ]
 
-Codecs with the same part id, manufacturer id and part id, but different
-sdw version should be treated as different codecs. For example, rt711 and
-rt711-sdca are different. So, we should match sdw version as well.
+If the application queues an NV12M jpeg as output buffer, but then
+queues a single planar capture buffer, the kernel will crash with
+"Unable to handle kernel NULL pointer dereference" in mxc_jpeg_addrs,
+prevent this by finishing the job with error.
 
-Reported-by: Reddy Muralidhar <muralidhar.reddy@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220120232157.199919-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/media/platform/imx-jpeg/mxc-jpeg.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 25200a0e1dc9..fc88296ab898 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -1200,7 +1200,7 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 	struct hdac_bus *bus = sof_to_bus(sdev);
- 	struct sdw_intel_slave_id *ids = sdw->ids;
- 	int num_slaves = sdw->num_slaves;
--	unsigned int part_id, link_id, unique_id, mfg_id;
-+	unsigned int part_id, link_id, unique_id, mfg_id, version;
- 	int i, j, k;
+diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+index 4ca96cf9def7..b249c1bbfac8 100644
+--- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
++++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+@@ -947,6 +947,12 @@ static void mxc_jpeg_device_run(void *priv)
+ 	v4l2_m2m_buf_copy_metadata(src_buf, dst_buf, true);
  
- 	for (i = 0; i < link->num_adr; i++) {
-@@ -1210,12 +1210,14 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 		mfg_id = SDW_MFG_ID(adr);
- 		part_id = SDW_PART_ID(adr);
- 		link_id = SDW_DISCO_LINK_ID(adr);
-+		version = SDW_VERSION(adr);
- 
- 		for (j = 0; j < num_slaves; j++) {
- 			/* find out how many identical parts were reported on that link */
- 			if (ids[j].link_id == link_id &&
- 			    ids[j].id.part_id == part_id &&
--			    ids[j].id.mfg_id == mfg_id)
-+			    ids[j].id.mfg_id == mfg_id &&
-+			    ids[j].id.sdw_version == version)
- 				reported_part_count++;
- 		}
- 
-@@ -1224,21 +1226,24 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 
- 			if (ids[j].link_id != link_id ||
- 			    ids[j].id.part_id != part_id ||
--			    ids[j].id.mfg_id != mfg_id)
-+			    ids[j].id.mfg_id != mfg_id ||
-+			    ids[j].id.sdw_version != version)
- 				continue;
- 
- 			/* find out how many identical parts are expected */
- 			for (k = 0; k < link->num_adr; k++) {
- 				u64 adr2 = link->adr_d[k].adr;
--				unsigned int part_id2, link_id2, mfg_id2;
-+				unsigned int part_id2, link_id2, mfg_id2, version2;
- 
- 				mfg_id2 = SDW_MFG_ID(adr2);
- 				part_id2 = SDW_PART_ID(adr2);
- 				link_id2 = SDW_DISCO_LINK_ID(adr2);
-+				version2 = SDW_VERSION(adr2);
- 
- 				if (link_id2 == link_id &&
- 				    part_id2 == part_id &&
--				    mfg_id2 == mfg_id)
-+				    mfg_id2 == mfg_id &&
-+				    version2 == version)
- 					expected_part_count++;
- 			}
- 
+ 	jpeg_src_buf = vb2_to_mxc_buf(&src_buf->vb2_buf);
++	if (q_data_cap->fmt->colplanes != dst_buf->vb2_buf.num_planes) {
++		dev_err(dev, "Capture format %s has %d planes, but capture buffer has %d planes\n",
++			q_data_cap->fmt->name, q_data_cap->fmt->colplanes,
++			dst_buf->vb2_buf.num_planes);
++		jpeg_src_buf->jpeg_parse_error = true;
++	}
+ 	if (jpeg_src_buf->jpeg_parse_error) {
+ 		jpeg->slot_data[ctx->slot].used = false;
+ 		v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
 -- 
 2.34.1
 
