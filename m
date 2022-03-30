@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7ED34EC2D2
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4FF4EC2D1
 	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244560AbiC3MBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S245306AbiC3MBX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 30 Mar 2022 08:01:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344211AbiC3Lzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280B32CCB9;
-        Wed, 30 Mar 2022 04:53:47 -0700 (PDT)
+        with ESMTP id S1344269AbiC3Lzp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD5132D1E9;
+        Wed, 30 Mar 2022 04:53:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8DBD616E0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44D5FB81C23;
+        Wed, 30 Mar 2022 11:53:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5DAC36AE7;
         Wed, 30 Mar 2022 11:53:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 929A0C3410F;
-        Wed, 30 Mar 2022 11:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641226;
-        bh=5DhYdPpy5hGpue8wLGlBJX3nNYuxCqm2NqDqAHyvBQI=;
+        s=k20201202; t=1648641228;
+        bh=o6yvl3mQE+1+NChV+lOG93OdAgrAvTWNdi3fmZLSDEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bw6OxbEsq2XHUtfEbexXnv/Tjbl3TR31QQjf4/I3mLKVUexh28rooQdsx4gS8+tgX
-         9ll5rRGk+I3Y/xYo7xhyaik+QfrdiN25lgliJe+EUrzXOjM/sYziw320kwqxlqT16w
-         UnaeqaHFWwYj/dOTgtnnfyW6U2xoVZ1p+/KcACJiXhqOdytoz53BZbGyZIyOFih4ox
-         366rIr8uEKNHDPrI9JkBDKQrwmgV+ax1qAaHP4koqnF3X7L+s/5G+RrQDSisirufGU
-         hZAISoIKy9Yi/yx1tnxS/m2TP9M5etQPoo1hAL8T6BzIcqb1IjUcQXqc12i5HeywzS
-         trQ3KuRbfa2Xw==
+        b=MN/9oq7hS4jaCoI/p2vveDCHjXLeBH5s+lhT0aK/RGiGOz3h+lRgF33KHOmm57jst
+         tYTXGnJbLGI2xeW5gIYsmkpuyNNrAtjvPTmcqNge+1N9qh4IexSBVqSRuOKLJxlpxW
+         wEaJ8YSFrDg0h8fEiLKwP10OuoNgRFoHZVTJ9gntShs1hPeQQN3Ysy2+v5k2JecYfV
+         ilI24xgMxvKSHrqbgAIGr5oAg0qnsbWMe+bBNbUoHm5kGNQLlup6McGohgKdFq5j7E
+         639nmEsLS/ctTJD7DnBW65Lryux+L7d2E4Y1hk01Q9IS8QQumgU9b8fpN1lraddJxO
+         hzwZw95ZphsEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Heidelberg <david@ixit.cz>,
-        LogicalErzor <logicalerzor@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, andy.gross@linaro.org,
-        david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        linux@armlinux.org.uk, linux-arm-msm@vger.kernel.org,
-        linux-soc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 05/20] ARM: dts: qcom: fix gic_irq_domain_translate warnings for msm8960
-Date:   Wed, 30 Mar 2022 07:53:21 -0400
-Message-Id: <20220330115336.1672930-5-sashal@kernel.org>
+Cc:     Richard Schleich <rs@noreya.tech>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        mark.rutland@arm.com, linux@armlinux.org.uk, rjui@broadcom.com,
+        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 06/20] ARM: dts: bcm2837: Add the missing L1/L2 cache information
+Date:   Wed, 30 Mar 2022 07:53:22 -0400
+Message-Id: <20220330115336.1672930-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115336.1672930-1-sashal@kernel.org>
 References: <20220330115336.1672930-1-sashal@kernel.org>
@@ -61,58 +60,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Richard Schleich <rs@noreya.tech>
 
-[ Upstream commit 6f7e221e7a5cfc3299616543fce42b36e631497b ]
+[ Upstream commit bdf8762da268d2a34abf517c36528413906e9cd5 ]
 
-IRQ types blindly copied from very similar APQ8064.
+This patch fixes the kernel warning
+"cacheinfo: Unable to detect cache hierarchy for CPU 0"
+for the bcm2837 on newer kernel versions.
 
-Fixes warnings as:
-WARNING: CPU: 0 PID: 1 at drivers/irqchip/irq-gic.c:1080 gic_irq_domain_translate+0x118/0x120
-...
-
-Tested-by: LogicalErzor <logicalerzor@gmail.com> # boot-tested on Samsung S3
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220108174229.60384-1-david@ixit.cz
+Signed-off-by: Richard Schleich <rs@noreya.tech>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+[florian: Align and remove comments matching property values]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-msm8960.dtsi | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/bcm2837.dtsi | 49 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8960.dtsi b/arch/arm/boot/dts/qcom-msm8960.dtsi
-index 1733d8f40ab1..b256fda0f5ea 100644
---- a/arch/arm/boot/dts/qcom-msm8960.dtsi
-+++ b/arch/arm/boot/dts/qcom-msm8960.dtsi
-@@ -140,7 +140,9 @@
- 			reg		= <0x108000 0x1000>;
- 			qcom,ipc	= <&l2cc 0x8 2>;
+diff --git a/arch/arm/boot/dts/bcm2837.dtsi b/arch/arm/boot/dts/bcm2837.dtsi
+index d5d058a568c3..20407a5aafc8 100644
+--- a/arch/arm/boot/dts/bcm2837.dtsi
++++ b/arch/arm/boot/dts/bcm2837.dtsi
+@@ -32,12 +32,26 @@
+ 		#size-cells = <0>;
+ 		enable-method = "brcm,bcm2836-smp"; // for ARM 32-bit
  
--			interrupts	= <0 19 0>, <0 21 0>, <0 22 0>;
-+			interrupts	= <GIC_SPI 19 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 22 IRQ_TYPE_EDGE_RISING>;
- 			interrupt-names	= "ack", "err", "wakeup";
++		/* Source for d/i-cache-line-size and d/i-cache-sets
++		 * https://developer.arm.com/documentation/ddi0500/e/level-1-memory-system
++		 * /about-the-l1-memory-system?lang=en
++		 *
++		 * Source for d/i-cache-size
++		 * https://magpi.raspberrypi.com/articles/raspberry-pi-3-specs-benchmarks
++		 */
+ 		cpu0: cpu@0 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a53";
+ 			reg = <0>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000d8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
  
- 			regulators {
-@@ -186,7 +188,7 @@
- 				compatible = "qcom,msm-uartdm-v1.3", "qcom,msm-uartdm";
- 				reg = <0x16440000 0x1000>,
- 				      <0x16400000 0x1000>;
--				interrupts = <0 154 0x0>;
-+				interrupts = <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&gcc GSBI5_UART_CLK>, <&gcc GSBI5_H_CLK>;
- 				clock-names = "core", "iface";
- 				status = "disabled";
-@@ -312,7 +314,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				reg = <0x16080000 0x1000>;
--				interrupts = <0 147 0>;
-+				interrupts = <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>;
- 				spi-max-frequency = <24000000>;
- 				cs-gpios = <&msmgpio 8 0>;
+ 		cpu1: cpu@1 {
+@@ -46,6 +60,13 @@
+ 			reg = <1>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
  
+ 		cpu2: cpu@2 {
+@@ -54,6 +75,13 @@
+ 			reg = <2>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
+ 
+ 		cpu3: cpu@3 {
+@@ -62,6 +90,27 @@
+ 			reg = <3>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000f0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
++		};
++
++		/* Source for cache-line-size + cache-sets
++		 * https://developer.arm.com/documentation/ddi0500
++		 * /e/level-2-memory-system/about-the-l2-memory-system?lang=en
++		 * Source for cache-size
++		 * https://datasheets.raspberrypi.com/cm/cm1-and-cm3-datasheet.pdf
++		 */
++		l2: l2-cache0 {
++			compatible = "cache";
++			cache-size = <0x80000>;
++			cache-line-size = <64>;
++			cache-sets = <512>; // 512KiB(size)/64(line-size)=8192ways/16-way set
++			cache-level = <2>;
+ 		};
+ 	};
+ };
 -- 
 2.34.1
 
