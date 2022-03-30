@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF6E4EC0AE
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D7654EC0A4
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344123AbiC3Lv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:51:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60020 "EHLO
+        id S1344113AbiC3Lv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:51:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344163AbiC3Lvh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:51:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2E2275471;
-        Wed, 30 Mar 2022 04:48:00 -0700 (PDT)
+        with ESMTP id S1344106AbiC3Lvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:51:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4AE2706F5;
+        Wed, 30 Mar 2022 04:48:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7E90615F5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE16DB81ACC;
+        Wed, 30 Mar 2022 11:48:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92F17C340EE;
         Wed, 30 Mar 2022 11:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D7CAC34112;
-        Wed, 30 Mar 2022 11:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640880;
-        bh=9A522rPgTeH0BLQe8vYOfJKRowXSm5djhJZvpnvcLJU=;
+        s=k20201202; t=1648640881;
+        bh=qyc5E1VsAiEkog/l7n77XDh8NAl9OUtNeFvCzuC5lPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lde0NfZ0KsCCRjNYFF1TxtHqDj74U124edXB6AvE2MZu5aR8ouXWMUoG0ESdYcW7z
-         ryQiEbYkeI2qiO9PKiMGdaV2ieogUhbbj/9pQcQcIM6TBWGWXNfDgzb6RllYhpMja8
-         3tPCp2WyhC9+eMxLQDdZ/cnq5d40sNOxs/u1gHGbmXgzTQE8P+25WdnGTZrVTADswA
-         Egk8x0ZlMJTI5vv16cpQLzzjscHw1A2HlD4Ci80NvNrW4YefXsO0CvJWQ0huYZ8iqf
-         aLfZxnAlzyfImJVksWlzl8vsVACVbwAm5Ufs27PZRMnwVyPGmJW5GiRxWaHT4yU2pb
-         2ivCRr302PGiA==
+        b=WCSHWQnw1k3pNblFWAjgbzubF64tr5DQV3+oHrR1Gy+9cf+LiIh2n4o9lWuh3SL/+
+         XVoPiHoCLS/x9VOcVLsnAOmCWbI21w3T3SqJYOoQdafDDNcvrKu5Q2NdZ8+s4hTT9I
+         x6Xq1z+cpEcJ9rJFzcFQa531qlJPcLd8fQauC5Qm8bOYwhod149hOKX9GYviqs1lI2
+         3nj47XCXCpOIlo08j6yEsH6vA2JLCqo1zGM0KOtt1hMwPEGIOzSvSmRGqIK6YgQ1q9
+         dgb95Ac0GltEG1NbTTPXfKK/RKTUt/ERXVG1BepHoL8McJef3vlvyUCTppIPtEUtUE
+         1Rh5NOMcOfj5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>, sudipm.mukherjee@gmail.com,
-        teddy.wang@siliconmotion.com, tomi.valkeinen@ti.com,
-        linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 47/66] video: fbdev: sm712fb: Fix crash in smtcfb_write()
-Date:   Wed, 30 Mar 2022 07:46:26 -0400
-Message-Id: <20220330114646.1669334-47-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 48/66] media: i2c: ov5648: Fix lockdep error
+Date:   Wed, 30 Mar 2022 07:46:27 -0400
+Message-Id: <20220330114646.1669334-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -57,73 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 4f01d09b2bbfbcb47b3eb305560a7f4857a32260 ]
+[ Upstream commit d4cb5d3c4cee28aa89b02bc33d930a6cf75e7f79 ]
 
-When the sm712fb driver writes three bytes to the framebuffer, the
-driver will crash:
+ov5648_state_init() calls ov5648_state_mipi_configure() which uses
+__v4l2_ctrl_s_ctrl[_int64](). This means that sensor->mutex (which
+is also sensor->ctrls.handler.lock) must be locked before calling
+ov5648_state_init().
 
-    BUG: unable to handle page fault for address: ffffc90001ffffff
-    RIP: 0010:smtcfb_write+0x454/0x5b0
-    Call Trace:
-     vfs_write+0x291/0xd60
-     ? do_sys_openat2+0x27d/0x350
-     ? __fget_light+0x54/0x340
-     ksys_write+0xce/0x190
-     do_syscall_64+0x43/0x90
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
+ov5648_state_mipi_configure() is also used in other places where
+the lock is already held so it cannot be changed itself.
 
-Fix it by removing the open-coded endianness fixup-code.
+Note this is based on an identical (tested) fix for the ov8865 driver,
+this has only been compile-tested.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sm712fb.c | 21 ++++-----------------
- 1 file changed, 4 insertions(+), 17 deletions(-)
+ drivers/media/i2c/ov5648.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/sm712fb.c b/drivers/video/fbdev/sm712fb.c
-index 0dbc6bf8268a..e355089ac7d6 100644
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1130,7 +1130,7 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
- 		count = total_size - p;
- 	}
+diff --git a/drivers/media/i2c/ov5648.c b/drivers/media/i2c/ov5648.c
+index 947d437ed0ef..01e22c535267 100644
+--- a/drivers/media/i2c/ov5648.c
++++ b/drivers/media/i2c/ov5648.c
+@@ -1778,8 +1778,14 @@ static int ov5648_state_configure(struct ov5648_sensor *sensor,
  
--	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
-+	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
+ static int ov5648_state_init(struct ov5648_sensor *sensor)
+ {
+-	return ov5648_state_configure(sensor, &ov5648_modes[0],
+-				      ov5648_mbus_codes[0]);
++	int ret;
++
++	mutex_lock(&sensor->mutex);
++	ret = ov5648_state_configure(sensor, &ov5648_modes[0],
++				     ov5648_mbus_codes[0]);
++	mutex_unlock(&sensor->mutex);
++
++	return ret;
+ }
  
-@@ -1148,24 +1148,11 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
- 			break;
- 		}
- 
--		for (i = c >> 2; i--;) {
--			fb_writel(big_swap(*src), dst++);
-+		for (i = (c + 3) >> 2; i--;) {
-+			fb_writel(big_swap(*src), dst);
-+			dst++;
- 			src++;
- 		}
--		if (c & 3) {
--			u8 *src8 = (u8 *)src;
--			u8 __iomem *dst8 = (u8 __iomem *)dst;
--
--			for (i = c & 3; i--;) {
--				if (i & 1) {
--					fb_writeb(*src8++, ++dst8);
--				} else {
--					fb_writeb(*src8++, --dst8);
--					dst8 += 2;
--				}
--			}
--			dst = (u32 __iomem *)dst8;
--		}
- 
- 		*ppos += c;
- 		buf += c;
+ /* Sensor Base */
 -- 
 2.34.1
 
