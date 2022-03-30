@@ -2,142 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBED44EC65A
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 16:19:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D004EC680
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 16:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241080AbiC3OVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 10:21:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49690 "EHLO
+        id S245214AbiC3O3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 10:29:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346706AbiC3OVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 10:21:37 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD7690FE9
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 07:19:52 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id n35so12349872wms.5
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 07:19:52 -0700 (PDT)
+        with ESMTP id S245102AbiC3O3M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 10:29:12 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAAB421A8AB
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 07:27:26 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id y10so15519640pfa.7
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 07:27:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=LjPuoefH1pL1+wXgPjg1EYngVZScOvX20WtaEOxGwMM=;
-        b=pb7lOPzJNTEsHJOVm6OprE01UQwBRrQJnuRMYQXIPchNfgLq8et9Dl7m31gPFdLCrt
-         eLbG/I3tfp1ZyI86EwB09VBpxLFiZTs7rgmbIMtCdlF3ZRDRkXUHvx+8GK0TLJnb7PSf
-         UTc9drWx2eDnu4BaAC8VkJrxh6hzBeEMSwBsw2SU0AVmKtmPb+7CGQWidrrqi2wELPDq
-         /LhQniA6USkgfdp+S+wx6HQf678G+vKQ6rSzd2UeNWlFaubllmf/EWVW9cELlTlT/WXo
-         aQhA5BdjrWZ7jHxw6dLrVeVHfHI1li6exqg+zTsCsfh9I5cq3x7MMAzeoZ6jSTUhUWq1
-         d9hA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Z2fQ25cg++TK6tsVAXOjdc1vEMrWUelglnD7RfLt0uA=;
+        b=sUjlHbXCpjeAlTrDky9unQDnF/4eGf3tRZAOBri3QhZpxxBe+qhNt3XAKEhpkbmgoU
+         f1M0U6RZ2HxP30AO5lG5phBh1C/rtdQ3XveFrWs8Be1WFMLGkKJsgKr6jnrme+twrwCt
+         5NKzV+LUW7KCNfk34LgEMuZRU7dP1qkeNYqBYsBt+h2yn+B3XCc/S/2+MvIglvET9PQk
+         8QW5Bb3TcatJwMeecxwWPfs0tQ8SJGoNXve5ACP1G19Cyf8dOEi5Cd578fud6ZhGA6WY
+         CZdoXkiRgifnmMstzWoFTFTtSZFt0Fa+jez246AY6y7NylSNxkdJSMrkz3Zn7gnUSx8M
+         gAyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=LjPuoefH1pL1+wXgPjg1EYngVZScOvX20WtaEOxGwMM=;
-        b=6CG2ch5/d6p+C35KwZ3dfkguczbdUR0lKoJ6PVkO2jBL9X5Y6bptHDHb2IZH9Plkx7
-         OnRo2vc0qdOwKj/UG1EitS6GlhYN/g/6cUv6Wb7gZMKECWNgpsjUfqb+X4946VTLvZN5
-         Ys+BrR+qrzqYEFR+7IKRPl7UQePk6I88Bg6qvOahA3IxNdFcgZgEIUtkoQaN2zQuRqQm
-         Mfe2DCQqXVWNxyrlc29TI1VvDSf8zlgPHW06OGkzSc02tl/EQnkX6LQ+VeZ4f2q202C+
-         pf2gxfPspUxEc5tP45Jenqr+4e8Jbmdj7l0wJDU/Zb5nmyLvEgdDiSTezoHrn4+cdCRz
-         oR4Q==
-X-Gm-Message-State: AOAM532UKQZIfw2wKqg4YnbRBBOhBHpxQuzZjWYQEjyYdWcLldb8Tpj1
-        uAu2Nf0kBaR6ydHVK9tYJUxG5w==
-X-Google-Smtp-Source: ABdhPJy3Duh+eLP661JTo1qurJuamASd8ahU2akVq1EVPlPJwHXbUvkPQI3ohpGg5Po5Kk+yzM4mLg==
-X-Received: by 2002:a7b:ce92:0:b0:38b:ed80:9e66 with SMTP id q18-20020a7bce92000000b0038bed809e66mr4742786wmj.82.1648649990763;
-        Wed, 30 Mar 2022 07:19:50 -0700 (PDT)
-Received: from joneslee-l.cable.virginm.net (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id y13-20020adffa4d000000b00203e3ca2701sm24027645wrr.45.2022.03.30.07.19.49
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Z2fQ25cg++TK6tsVAXOjdc1vEMrWUelglnD7RfLt0uA=;
+        b=3bi0HPvwaB/tLsxkrg6/QM+rxRK4Km6dnu1To+P+Yo0bv4OYLuSdHfj/8cgahuPE9K
+         6tEWy0zTJBX61HQLsZJJZe93Hu+O9M0dYTt93tsPv6As5AWFumfFcmH16uInUJbs4U9t
+         1CZq/GgSq2EODJap4Wbt6e22/ZyxkwlNtqJqFTCNS4LghFLoQBa5Ywkj569nG4mWlq6T
+         CwJI6Q7u9n8JIkPt6ZIVwv8zyaQnKo5CmBpj/3Pm09Q0/1199XnTww+4YWUVUHM2hDlk
+         402HkQd9JPO9cCzhoLJWxljt2s5ywPaeFU48vybz4hCJXRmFDxKUwxbZLzq+jtfi33n9
+         Ef/Q==
+X-Gm-Message-State: AOAM533p4tLFHZKEHIXS2Z7WZYClPaEpkvPUDDngvwu+1FfuBa2gf+xe
+        Li1U5ra3KOebwoY8HpP7fhJPU2tb5oFjwkqyj9w=
+X-Google-Smtp-Source: ABdhPJzUprD3zvaVT++AzmNldh3ABNMJTRNfL7B88+5ThMvHsi9GNdppmgIlF9k06/rRUi04j2OGUw==
+X-Received: by 2002:a05:6a00:b53:b0:4fa:ecb7:1deb with SMTP id p19-20020a056a000b5300b004faecb71debmr31623683pfo.80.1648650446076;
+        Wed, 30 Mar 2022 07:27:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a7-20020a056a000c8700b004fb55798f64sm13002100pfv.90.2022.03.30.07.27.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Mar 2022 07:19:50 -0700 (PDT)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH v2 4.14 2/2] virtio-blk: Use blk_validate_block_size() to validate block size
-Date:   Wed, 30 Mar 2022 15:19:44 +0100
-Message-Id: <20220330141944.1172191-2-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.35.1.1021.g381101b075-goog
-In-Reply-To: <20220330141944.1172191-1-lee.jones@linaro.org>
-References: <20220330141944.1172191-1-lee.jones@linaro.org>
+        Wed, 30 Mar 2022 07:27:25 -0700 (PDT)
+Message-ID: <624468cd.1c69fb81.84747.e2d7@mx.google.com>
+Date:   Wed, 30 Mar 2022 07:27:25 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.15.32-28-g5cb7a79fa6cb
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 97 runs,
+ 1 regressions (v5.15.32-28-g5cb7a79fa6cb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+stable-rc/queue/5.15 baseline: 97 runs, 1 regressions (v5.15.32-28-g5cb7a79=
+fa6cb)
 
-[ Upstream commit 57a13a5b8157d9a8606490aaa1b805bafe6c37e1 ]
+Regressions Summary
+-------------------
 
-The block layer can't support a block size larger than
-page size yet. And a block size that's too small or
-not a power of two won't work either. If a misconfigured
-device presents an invalid block size in configuration space,
-it will result in the kernel crash something like below:
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-[  506.154324] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[  506.160416] RIP: 0010:create_empty_buffers+0x24/0x100
-[  506.174302] Call Trace:
-[  506.174651]  create_page_buffers+0x4d/0x60
-[  506.175207]  block_read_full_page+0x50/0x380
-[  506.175798]  ? __mod_lruvec_page_state+0x60/0xa0
-[  506.176412]  ? __add_to_page_cache_locked+0x1b2/0x390
-[  506.177085]  ? blkdev_direct_IO+0x4a0/0x4a0
-[  506.177644]  ? scan_shadow_nodes+0x30/0x30
-[  506.178206]  ? lru_cache_add+0x42/0x60
-[  506.178716]  do_read_cache_page+0x695/0x740
-[  506.179278]  ? read_part_sector+0xe0/0xe0
-[  506.179821]  read_part_sector+0x36/0xe0
-[  506.180337]  adfspart_check_ICS+0x32/0x320
-[  506.180890]  ? snprintf+0x45/0x70
-[  506.181350]  ? read_part_sector+0xe0/0xe0
-[  506.181906]  bdev_disk_changed+0x229/0x5c0
-[  506.182483]  blkdev_get_whole+0x6d/0x90
-[  506.183013]  blkdev_get_by_dev+0x122/0x2d0
-[  506.183562]  device_add_disk+0x39e/0x3c0
-[  506.184472]  virtblk_probe+0x3f8/0x79b [virtio_blk]
-[  506.185461]  virtio_dev_probe+0x15e/0x1d0 [virtio]
 
-So let's use a block layer helper to validate the block size.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.32-28-g5cb7a79fa6cb/plan/baseline/
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20211026144015.188-5-xieyongji@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/block/virtio_blk.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.32-28-g5cb7a79fa6cb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5cb7a79fa6cb63b06d30a69cde808b3b92c9a37f =
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 437d43747c6d0..7e8f58c2f65b3 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -822,9 +822,17 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
- 				   struct virtio_blk_config, blk_size,
- 				   &blk_size);
--	if (!err)
-+	if (!err) {
-+		err = blk_validate_block_size(blk_size);
-+		if (err) {
-+			dev_err(&vdev->dev,
-+				"virtio_blk: invalid block size: 0x%x\n",
-+				blk_size);
-+			goto out_free_tags;
-+		}
-+
- 		blk_queue_logical_block_size(q, blk_size);
--	else
-+	} else
- 		blk_size = queue_logical_block_size(q);
- 
- 	/* Use topology information if available */
--- 
-2.35.1.1021.g381101b075-goog
 
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6244336e0b64a238d4ae070b
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.32-=
+28-g5cb7a79fa6cb/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.32-=
+28-g5cb7a79fa6cb/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
+line-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220228.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6244336e0b64a238d4ae072d
+        failing since 22 days (last pass: v5.15.26-42-gc89c0807b943, first =
+fail: v5.15.26-257-g2b9a22cd5eb8)
+
+    2022-03-30T10:39:29.787691  /lava-5979525/1/../bin/lava-test-case
+    2022-03-30T10:39:29.798652  <8>[   60.903942] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
