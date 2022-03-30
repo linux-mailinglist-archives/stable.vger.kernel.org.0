@@ -2,69 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 696004ECA50
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 19:10:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB584ECA5C
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 19:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348839AbiC3RMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 13:12:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54640 "EHLO
+        id S1349195AbiC3RQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 13:16:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236395AbiC3RMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 13:12:34 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 006A347068
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 10:10:47 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id u26so25185670eda.12
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 10:10:47 -0700 (PDT)
+        with ESMTP id S1349193AbiC3RQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 13:16:08 -0400
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDA6F13F8C
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 10:14:22 -0700 (PDT)
+Received: by mail-io1-xd2a.google.com with SMTP id z7so25573525iom.1
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 10:14:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sweetwater-ai.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5+1Zj5574HVqGgubfIlGvK1ggJAfVXOkMEgNOA1AAMQ=;
-        b=xeEA0HiUi3KNKRAugxwOL5pfNG5v6jOWYPby+IZi8TN7ycskNoe7nZe6Bvho7koFi2
-         syttQyjfdGXuaLlI4+YqmerP0AmzJgprCFYztfu1qKEfld7USarnAqOZQRjpKnE1qxew
-         Z8RHWZiAbFnrtS9YHZgC78fW77FYOGkP9XYFiYbad/h0MH5XcdXuKrKIf+KuXq/LrV3P
-         4RYzU/2cI+oTsdZIj3dN9inkoZp4ap98/g1WhnKUswH8p1SCBCOHdk1uTSfIsxKdDL6x
-         y5ZZSAsugdVLrCvB/vx4LqgoFkCMfRGsKhSJTX54SjjygVugnxRhXbabdNrqlVRf1vri
-         cSKQ==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=29td3uHNqzr9Pa54h/jcLjQl505LyDtx3vEc2mRzNGU=;
+        b=rYELJYq+QuQVoVo2V2xPwgW0v8RUNJYveNSOUZLrfZHc8nBIiTB139PNwfIJ4YLSnm
+         WgGjjU66DXQ7QGrCf04uKf1Gnnnkd3/repxV+3Qse3iiQsVdo24iMfy4YVOwrlX8iMd+
+         IceOb+gOmMCuZAY3LZQ9XZC6s9ZT56w8TIj2v7UKbx2R+0L/iR5XbHcIH5tlcmXaEnko
+         9ytaSEFucoMfzdP5MgF+qju+B6Wr7fG5GXtRysLJFTCNZlqwvDX0/LzDOcqyWi+ueQVP
+         liB8cwCGCQ+1eXhZb/MxyXty2PZRSl3oMEIMbHirEhCs/b/Q0Zyenw7OaQ4gBvBWpdFX
+         IO2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5+1Zj5574HVqGgubfIlGvK1ggJAfVXOkMEgNOA1AAMQ=;
-        b=PVC7P0XT27ScsQhLAHK+PJkwwHLqbuXgzmgQIjaTdLecIrbgA6yhT137VlasVCYlJF
-         6iQ2ysZv9gHo7sUu/1pN8BmHnZlMZ+TMGRkfr6q9ZcAblyT6831hYvJV74Ppzpt+lwrI
-         HkXb+qTixspkcEEhWIJm3Df12ji++Ekvhz8lTjQHwl5BU+ttki5tQoHbl+MB7FzWLmCG
-         NaCQWUqxPhKSP7p5v9L1AKG+rHkVGX+Lx07rSK4a9yU6gWD7OXrPzqg3OBrplyC+iA9R
-         P+hu2fRm0llqybiMA1Y65Lp5UuXuHyYJ88lCJcU+hIa2jRA3JU3VjUT1ZxuxdeEmnHqR
-         RmLA==
-X-Gm-Message-State: AOAM5301iFhfAMMrN6k5fROAnu3XCNSOjHRmxzcr0mxWjTpHakYlALLp
-        YP7zOt7i91irHfyzi8CWavlHq9t2GWq4queFxpY/nJnnWKeOnYV0
-X-Google-Smtp-Source: ABdhPJyHY1u+Hjwp/9Vo8Vvx8Ta9KtzBLExEwugTBXcKXGbCRrbXUT8+L40AGkStu/t/Tq+0zlJEKsKY6chEEFicrEA=
-X-Received: by 2002:a05:6402:5191:b0:419:3963:beff with SMTP id
- q17-20020a056402519100b004193963beffmr12249421edd.328.1648660246444; Wed, 30
- Mar 2022 10:10:46 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=29td3uHNqzr9Pa54h/jcLjQl505LyDtx3vEc2mRzNGU=;
+        b=V8FLlVPhy4hvCeBzsDat/1VnMntsVKtBVuRpkFAvgk/0MNudFizgJCht3B7cWLwXKu
+         knfJmixGy6VGnS70ZbhdpRDK+Yqx1RR9X7C77ctWX1AwJyLI/r+ZRBcAddq2TXGP2QvP
+         keig9WucFmQcakg8b1/5K2teXr7VXgVLtK8nFHac7LVlR7g85SwfBUWIyOwnTYWfGc9B
+         gaLDR3eFCBlkWzIH4ni9E0SJoNuA6aoSLAwH1MBHNrBaY6Hn7w0L8watMPoVw60o1qG0
+         h77eWYsdV5GAb8zdFT80496S1POgpU1nGlzj0q0L2+NZKzdx6fYIsbGrApQzePY/nNWV
+         bCyQ==
+X-Gm-Message-State: AOAM530lO52vE+IdJ65kPxWR5/SNelEDOM89Q3oKatSL9WLNoL8xs959
+        GqFr9mJO+8/9Y43DybK28pebohbu09ad8MHR
+X-Google-Smtp-Source: ABdhPJyqGXorDoYR5TnHJVict5mLFfLSNbejIoTeZKZw9efCjS4V0izIPolUieCGgToEcMAPSRmiVg==
+X-Received: by 2002:a02:944e:0:b0:31a:2e9:bfa6 with SMTP id a72-20020a02944e000000b0031a02e9bfa6mr417760jai.277.1648660462054;
+        Wed, 30 Mar 2022 10:14:22 -0700 (PDT)
+Received: from m1.localdomain ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id b24-20020a5d8d98000000b006409ad493fbsm11588920ioj.21.2022.03.30.10.14.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Mar 2022 10:14:21 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org
+Subject: [PATCH 2/5] io_uring: defer splice/tee file validity check until command issue
+Date:   Wed, 30 Mar 2022 11:14:13 -0600
+Message-Id: <20220330171416.152538-3-axboe@kernel.dk>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220330171416.152538-1-axboe@kernel.dk>
+References: <20220330171416.152538-1-axboe@kernel.dk>
 MIME-Version: 1.0
-References: <20220328111828.1554086-1-sashal@kernel.org> <20220328111828.1554086-16-sashal@kernel.org>
- <CAOnCY6TTx65+Z7bBwgmd8ogrCH78pps59u3_PEbq0fUpd1n_6A@mail.gmail.com> <9e78091d07d74550b591c6a594cd72cc@AcuMS.aculab.com>
-In-Reply-To: <9e78091d07d74550b591c6a594cd72cc@AcuMS.aculab.com>
-From:   Michael Brooks <m@sweetwater.ai>
-Date:   Wed, 30 Mar 2022 10:10:37 -0700
-Message-ID: <CAOnCY6QNPUC-VK+ARLb6i_UskV2CkW+AG5ZqWe_oMGUumL9Gnw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.17 16/43] random: use computational hash for
- entropy extraction
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Eric Biggers <ebiggers@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
@@ -74,88 +67,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Of course I am assuming local user non-root access.  One does not need
-to reverse the mix operations in order to form a parallel construction
-- a one way function is sufficient for such a construct as both sides
-will operate on the data in the same manner.
+In preparation for not using the file at prep time, defer checking if this
+file refers to a valid io_uring instance until issue time.
 
-This attack scenario is simply a non-issue in keypoolrandom.
-https://github.com/TheRook/KeypoolRandom
+This also means we can get rid of the cleanup flag for splice and tee.
 
-On Wed, Mar 30, 2022 at 9:49 AM David Laight <David.Laight@aculab.com> wrot=
-e:
->
-> From: Michael Brooks
-> > Sent: 30 March 2022 17:08
-> ...
-> > I=E2=80=99d like to describe this bug using mathematics, because that i=
-s how I
-> > work - I am the kind of person that appreciates rigor.  In this case,
-> > let's use inductive reasoning to illuminate this issue.
-> >
-> > Now, in this attack scenario let =E2=80=9Cp=E2=80=9D be the overall poo=
-l state and let
-> > =E2=80=9Cn=E2=80=9D be the good unknown values added to the pool.  Fina=
-lly, let =E2=80=9Ck=E2=80=9D be
-> > the known values - such as jiffies.  If we then describe the ratio of
-> > unknown uniqueness with known uniqueness as p=3Dn/k then as a k grows
-> > the overall predictability of the pool approaches an infinite value as
-> > k approaches zero.   A parallel pool, let's call it p=E2=80=99 (that is
-> > pronounced =E2=80=9Cp-prime=E2=80=9D for those who don=E2=80=99t get th=
-e notation).  let
-> > p=E2=80=99=3Dn=E2=80=99/k=E2=80=99. In this case the attacker has no ho=
-pe of constructing n=E2=80=99,
-> > but they can construct k=E2=80=99 - therefore the attacker=E2=80=99s pa=
-rasol model of
-> > the pool p=E2=80=99 will become more accurate as the attack persists le=
-ading
-> > to p=E2=80=99 =3D p as time->=E2=88=9E.
-> >
-> > Q.E.D.
->
-> That rather depends on how the (not) 'randmoness' is added to the pool.
-> If there are 'r' bits of randomness in the pool and a 'stir in' a pile
-> of known bits there can still be 'n' bits of randomness in the pool.
->
-> The whole thing really relies on the non-reversability of the final prng.
-> Otherwise if you have 'r' bits of randomness in the pool and 'p' bits
-> in the prng you only need to request 'r + p' bits of output to be able
-> to solve the 'p + r' simultaneous equations in 'p + r' unknowns
-> (I think that is in the field {0, 1}).
->
-> The old kernel random number generator that used xor to combine the
-> outputs of several LFSR is trivially reversable.
-> It will leak whatever it was seeded with.
->
-> The non-reversability of the pool isn't as important since you need
-> to reverse the prng as well.
->
-> So while, in some sense, removing 'p' bits from the entropy pool
-> to seed the prng only leaves 'r - p' bits left.
-> That is only true if you think the prng is reversable.
-> Provided 'r > p' (preferably 'r >> p') you can reseed the prng
-> again (provided you take reasonably random bits) without
-> really exposing any more state to an attacker.
->
-> Someone doing cat /dev/urandom >/dev/null should just keep reading
-> values out of the entropy pool.
-> But if they are discarding the values that shouldn't help them
-> recover the state of the entropy pool or the prng - even if only
-> constant values are being added to the pool.
->
-> Really what you mustn't do is delete the bits used to seed the prng
-> from the entropy pool.
-> About the only way to actually reduce the randomness of the entropy
-> pool is if you've discovered what is actually in it, know the
-> 'stirring' algorithm and feed in data that exactly cancels out
-> bits that are present already.
-> I suspect that anything with root access can manage that!
-> (Although they can just overwrite the entropy pool itself,
-> and the prng for that matter.)
->
->         David
->
-> -
-> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1=
- 1PT, UK
-> Registration No: 1397386 (Wales)
+Cc: stable@vger.kernel.org # v5.15+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 49 +++++++++++++++++++++----------------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 3d0dbcd2f69c..0b89f35378fa 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -655,10 +655,10 @@ struct io_epoll {
+ 
+ struct io_splice {
+ 	struct file			*file_out;
+-	struct file			*file_in;
+ 	loff_t				off_out;
+ 	loff_t				off_in;
+ 	u64				len;
++	int				splice_fd_in;
+ 	unsigned int			flags;
+ };
+ 
+@@ -1688,14 +1688,6 @@ static void io_prep_async_work(struct io_kiocb *req)
+ 		if (def->unbound_nonreg_file)
+ 			req->work.flags |= IO_WQ_WORK_UNBOUND;
+ 	}
+-
+-	switch (req->opcode) {
+-	case IORING_OP_SPLICE:
+-	case IORING_OP_TEE:
+-		if (!S_ISREG(file_inode(req->splice.file_in)->i_mode))
+-			req->work.flags |= IO_WQ_WORK_UNBOUND;
+-		break;
+-	}
+ }
+ 
+ static void io_prep_async_link(struct io_kiocb *req)
+@@ -4369,18 +4361,11 @@ static int __io_splice_prep(struct io_kiocb *req,
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+ 
+-	sp->file_in = NULL;
+ 	sp->len = READ_ONCE(sqe->len);
+ 	sp->flags = READ_ONCE(sqe->splice_flags);
+-
+ 	if (unlikely(sp->flags & ~valid_flags))
+ 		return -EINVAL;
+-
+-	sp->file_in = io_file_get(req->ctx, req, READ_ONCE(sqe->splice_fd_in),
+-				  (sp->flags & SPLICE_F_FD_IN_FIXED));
+-	if (!sp->file_in)
+-		return -EBADF;
+-	req->flags |= REQ_F_NEED_CLEANUP;
++	sp->splice_fd_in = READ_ONCE(sqe->splice_fd_in);
+ 	return 0;
+ }
+ 
+@@ -4395,20 +4380,27 @@ static int io_tee_prep(struct io_kiocb *req,
+ static int io_tee(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
++	struct file *in;
+ 	long ret = 0;
+ 
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
++
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	if (sp->len)
+ 		ret = do_tee(in, out, sp->len, flags);
+ 
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -4427,15 +4419,22 @@ static int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
+ 	loff_t *poff_in, *poff_out;
++	struct file *in;
+ 	long ret = 0;
+ 
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
+ 
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	poff_in = (sp->off_in == -1) ? NULL : &sp->off_in;
+ 	poff_out = (sp->off_out == -1) ? NULL : &sp->off_out;
+ 
+@@ -4444,8 +4443,7 @@ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -7165,11 +7163,6 @@ static void io_clean_op(struct io_kiocb *req)
+ 			kfree(io->free_iov);
+ 			break;
+ 			}
+-		case IORING_OP_SPLICE:
+-		case IORING_OP_TEE:
+-			if (!(req->splice.flags & SPLICE_F_FD_IN_FIXED))
+-				io_put_file(req->splice.file_in);
+-			break;
+ 		case IORING_OP_OPENAT:
+ 		case IORING_OP_OPENAT2:
+ 			if (req->open.filename)
+-- 
+2.35.1
+
