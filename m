@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 519264EC206
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF204EC205
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344979AbiC3L5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:57:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
+        id S1344954AbiC3L5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:57:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345923AbiC3LzN (ORCPT
+        with ESMTP id S1345926AbiC3LzN (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F111123;
-        Wed, 30 Mar 2022 04:52:47 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D8B51116D;
+        Wed, 30 Mar 2022 04:52:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4C1A61704;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D2D561616;
+        Wed, 30 Mar 2022 11:52:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE922C36AE2;
         Wed, 30 Mar 2022 11:52:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75A75C340F2;
-        Wed, 30 Mar 2022 11:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641166;
-        bh=TKcevPeptTWHHHU+L4KxFstKJDva+Ts+JdZWMCcf/c8=;
+        s=k20201202; t=1648641167;
+        bh=h+DPwnbYxXhjLcQ5Auj4tYhe7axfgxUCxroL7gFkx9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ULmHXiK151DsPBuJw/PX00JP/rV8DdRmL+4avp198OZQddK4WHYfjF59htlMytEGc
-         SeWzfIOlgEWjEni7K9J0d+lEwpXB4TqSVnw3uEeo6NhvWVzehD/+3u4w8+x6RkiA0J
-         XVTa2OWQp7xlldb2UI+dLFsVWKeXaz53Lt2fN6mzkh5bWT4uwXiydlMuWlmgPE4eT/
-         dahHsH0aqh1dqNLgddgnNF/ReDB8U5d2LaXTbH6w9sBLsw70u3up+iniY671k0dGsr
-         EMjse7xrVae6WV25jykX5oQfNbjl3b34cTXZTWXwL7FLJArRoDHAVMi9qdSZEEuEIy
-         Wy9kDDNxTaCig==
+        b=hYiSxrpwwT62O5O8mPJroZV5M/yUQk//7n62gYo15rziCxFQBWq1s5zS5NAqAx5z9
+         GrmV+UBD0wdHHMapTUNW7MnxCsCZg6CBVaCYyX7LpxguGG8uJg+FPk/XHmKuvA6JnZ
+         1vOEaWFV5TYCMZTd34mLXpfe0b0ZEtkpwjN5OqgIN7Vq1ZeeoiaXBGAZc5KiaSfxJH
+         0Bc7K+qT1PjhKVR3h2aWvur1YlAsjZ6jXL9NAppFXY7jlK/4804DF31yB/EMzJqsYJ
+         Zf/YrycRI2vbCjOpYiCm8pn25JkUJN+aSsyc/2ubi87FkhtSV3YrALAgOy9WsAwo3j
+         rxnRY0nPKAGsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Brennan <stephen.s.brennan@oracle.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org
-Subject: [PATCH AUTOSEL 5.4 13/25] printk: Add panic_in_progress helper
-Date:   Wed, 30 Mar 2022 07:52:13 -0400
-Message-Id: <20220330115225.1672278-13-sashal@kernel.org>
+Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 14/25] ASoC: soc-core: skip zero num_dai component in searching dai name
+Date:   Wed, 30 Mar 2022 07:52:14 -0400
+Message-Id: <20220330115225.1672278-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115225.1672278-1-sashal@kernel.org>
 References: <20220330115225.1672278-1-sashal@kernel.org>
@@ -57,43 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Brennan <stephen.s.brennan@oracle.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 77498617857f68496b360081dde1a492d40c28b2 ]
+[ Upstream commit f7d344a2bd5ec81fbd1ce76928fd059e57ec9bea ]
 
-This will be used help avoid deadlocks during panics. Although it would
-be better to include this in linux/panic.h, it would require that header
-to include linux/atomic.h as well. On some architectures, this results
-in a circular dependency as well. So instead add the helper directly to
-printk.c.
+In the case like dmaengine which's not a dai but as a component, the
+num_dai is zero, dmaengine component has the same component_of_node
+as cpu dai, when cpu dai component is not ready, but dmaengine component
+is ready, try to get cpu dai name, the snd_soc_get_dai_name() return
+-EINVAL, not -EPROBE_DEFER, that cause below error:
 
-Suggested-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20220202171821.179394-2-stephen.s.brennan@oracle.com
+asoc-simple-card <card name>: parse error -22
+asoc-simple-card: probe of <card name> failed with error -22
+
+The sound card failed to probe.
+
+So this patch fixes the issue above by skipping the zero num_dai
+component in searching dai name.
+
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1644491952-7457-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/soc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 23e26a203a9e..0989920e8cef 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -256,6 +256,11 @@ static void __up_console_sem(unsigned long ip)
- }
- #define up_console_sem() __up_console_sem(_RET_IP_)
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index c0e03cc8ea82..093ab32ea2c3 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -3362,7 +3362,7 @@ int snd_soc_get_dai_name(struct of_phandle_args *args,
+ 	for_each_component(pos) {
+ 		component_of_node = soc_component_to_node(pos);
  
-+static bool panic_in_progress(void)
-+{
-+	return unlikely(atomic_read(&panic_cpu) != PANIC_CPU_INVALID);
-+}
-+
- /*
-  * This is used for debugging the mess that is the VT code by
-  * keeping track if we have the console semaphore held. It's
+-		if (component_of_node != args->np)
++		if (component_of_node != args->np || !pos->num_dai)
+ 			continue;
+ 
+ 		ret = snd_soc_component_of_xlate_dai_name(pos, args, dai_name);
 -- 
 2.34.1
 
