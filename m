@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 188D74EC1A7
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E864EC195
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344905AbiC3L4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:56:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
+        id S1344927AbiC3L4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345330AbiC3LyX (ORCPT
+        with ESMTP id S1345340AbiC3LyX (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062672D1D6;
-        Wed, 30 Mar 2022 04:50:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E90DD275CB1;
+        Wed, 30 Mar 2022 04:50:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FD9D61703;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE7CA61671;
+        Wed, 30 Mar 2022 11:50:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7906AC36AE2;
         Wed, 30 Mar 2022 11:50:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0166EC36AE3;
-        Wed, 30 Mar 2022 11:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641056;
-        bh=ASULGKKmHDa2iLmKRj2xi0w6Ak4VHMf9fmkjm688PI8=;
+        s=k20201202; t=1648641057;
+        bh=CphQbbV0n6/aEe+zcIVsjiSJeqm4aIXll6oPKqDuX9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ly9vuDyYKkngsZ8q9YhX/G9WlUVg7/1lcOTMhSeQGUahOfIoksitf+rYGZIv/0ggJ
-         w9gCBYCSEniD/jydWidbaPAKgJZXloGyKzRCfpWK4mBs2hMu7eIZGLgB+ct5RZ2cwT
-         bMiZeb2wD6Z2QcvqxTSdmnH3YFaTmmB1w2+8C5I4rMlSSJ/GKgWqBU/L8/LbiH/jQ9
-         wyZ6Nmg+r015ve70J9SzW3g1fsG9xq8+ywQdfP6Zm7wenNpA9lwYFk6OoWBq3TT9hj
-         TBY7rb/QylFl69j3MfOVz2/Gl0Q6gjnyNZeAqIRj2fyQ1IIG2FKsPk+Q4SgdjT0Nsj
-         qcLppjSnWeYFg==
+        b=ORSuHUlrm5ccbUE7dlG+wAJgTYoGaG2n8WXzntlbXbayHNUN/4gpF8uay7tHi4iO/
+         f2jk6EOBqpnnbytyFJj4sBarseFOqadiVzWY5EqSsuqwkXrUKpnYCU8LPuD/2RxxHu
+         uzkeg5pqOkB+VJn0VgFhWyv8ZGQKqS1oYO6AGKhOp2GONw5U8R1R6/EE60DDSiMKlv
+         NTWoNOK3app+yfA5MlnYsb0ry+3fErZsY5JpR1Ht06kIGl/nQz5DcbbKCOBOajF8Tu
+         HvIYuTw8XoGZ6MSBEZyD50MpTis0FSBvR/dWkJEI/grR3fCsDYd4dvC+vfZvwQ/FOk
+         0lAGpLUNClMEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Ogness <john.ogness@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Petr Mladek <pmladek@suse.com>,
-        Sasha Levin <sashal@kernel.org>, senozhatsky@chromium.org,
-        gregkh@linuxfoundation.org, linux@roeck-us.net,
-        stephen.s.brennan@oracle.com
-Subject: [PATCH AUTOSEL 5.15 33/50] printk: use atomic updates for klogd work
-Date:   Wed, 30 Mar 2022 07:49:47 -0400
-Message-Id: <20220330115005.1671090-33-sashal@kernel.org>
+Cc:     Ming Qian <ming.qian@nxp.com>,
+        Mirela Rabulea <mirela.rabulea@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 34/50] media: imx-jpeg: fix a bug of accessing array out of bounds
+Date:   Wed, 30 Mar 2022 07:49:48 -0400
+Message-Id: <20220330115005.1671090-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115005.1671090-1-sashal@kernel.org>
 References: <20220330115005.1671090-1-sashal@kernel.org>
@@ -59,70 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 2ba3673d70178bf07fb75ff25c54bc478add4021 ]
+[ Upstream commit 97558d170a1236280407e8d29a7d095d2c2ed554 ]
 
-The per-cpu @printk_pending variable can be updated from
-sleepable contexts, such as:
+When error occurs in parsing jpeg, the slot isn't acquired yet, it may
+be the default value MXC_MAX_SLOTS.
+If the driver access the slot using the incorrect slot number, it will
+access array out of bounds.
+The result is the driver will change num_domains, which follows
+slot_data in struct mxc_jpeg_dev.
+Then the driver won't detach the pm domain at rmmod, which will lead to
+kernel panic when trying to insmod again.
 
-  get_random_bytes()
-    warn_unseeded_randomness()
-      printk_deferred()
-        defer_console_output()
-
-and can be updated from interrupt contexts, such as:
-
-  handle_irq_event_percpu()
-    __irq_wake_thread()
-      wake_up_process()
-        try_to_wake_up()
-          select_task_rq()
-            select_fallback_rq()
-              printk_deferred()
-                defer_console_output()
-
-and can be updated from NMI contexts, such as:
-
-  vprintk()
-    if (in_nmi()) defer_console_output()
-
-Therefore the atomic variant of the updating functions must be used.
-
-Replace __this_cpu_xchg() with this_cpu_xchg().
-Replace __this_cpu_or() with this_cpu_or().
-
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/87iltld4ue.fsf@jogness.linutronix.de
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/imx-jpeg/mxc-jpeg.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 34bdc51f4cb3..0677882afb16 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -3256,7 +3256,7 @@ static DEFINE_PER_CPU(int, printk_pending);
- 
- static void wake_up_klogd_work_func(struct irq_work *irq_work)
- {
--	int pending = __this_cpu_xchg(printk_pending, 0);
-+	int pending = this_cpu_xchg(printk_pending, 0);
- 
- 	if (pending & PRINTK_PENDING_OUTPUT) {
- 		/* If trylock fails, someone else is doing the printing */
-@@ -3290,7 +3290,7 @@ void defer_console_output(void)
- 		return;
- 
- 	preempt_disable();
--	__this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
-+	this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
- 	irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
- 	preempt_enable();
- }
+diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+index 637d73f5f4a2..37905547466b 100644
+--- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
++++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+@@ -932,7 +932,6 @@ static void mxc_jpeg_device_run(void *priv)
+ 		jpeg_src_buf->jpeg_parse_error = true;
+ 	}
+ 	if (jpeg_src_buf->jpeg_parse_error) {
+-		jpeg->slot_data[ctx->slot].used = false;
+ 		v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
+ 		v4l2_m2m_dst_buf_remove(ctx->fh.m2m_ctx);
+ 		v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_ERROR);
 -- 
 2.34.1
 
