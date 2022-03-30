@@ -2,42 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE6A4EBD03
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 10:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C382A4EBD1D
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 11:02:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244480AbiC3I6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 04:58:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53790 "EHLO
+        id S243127AbiC3JDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 05:03:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241961AbiC3I6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 04:58:00 -0400
-Received: from aposti.net (aposti.net [89.234.176.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E963129267
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 01:56:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1648630570; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GMxNp3hilOQ3XkTLYclCmMd/xeq+eq1T0g+2tg6rrxY=;
-        b=iaZZ5bs13kPIiwHFiLb5RLlXHkUwq3A45zFN4xR/eAp+YSeumgzw6ijV77IQ0RuEq2Khji
-        rj7VDuubqXMzqMGtGP0Sd6BkjVwSdgfdipOajzmdLJJMZkO/otWAnTRKWzd1jcTKUhUXtm
-        RwzsTo52m7ehH1eJBIhMld0C6DLbV7I=
-Date:   Wed, 30 Mar 2022 09:56:01 +0100
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: kernel 5.16.12 and above broke yoga c930 sound and mic
-To:     Joshua Freedman <freedman.joshua@gmail.com>
-Cc:     lis8215@gmail.com, stable@vger.kernel.org, sboyd@kernel.org,
-        gregkh@linuxfoundation.org
-Message-Id: <DHVJ9R.RF13VMG7CUAL2@crapouillou.net>
-In-Reply-To: <CAJQ3t4RxYXkREhwBb_JgYj4=ty+VtnV9m65U79ZLbmmj4mN7WA@mail.gmail.com>
-References: <CAJQ3t4RxYXkREhwBb_JgYj4=ty+VtnV9m65U79ZLbmmj4mN7WA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+        with ESMTP id S244542AbiC3JDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 05:03:42 -0400
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87F5A1667F3
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 02:01:56 -0700 (PDT)
+Received: from epcas1p4.samsung.com (unknown [182.195.41.48])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20220330090154epoutp028db755d1cabb9d37208a815c216038d2~hHRToLPmV2142621426epoutp02h
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 09:01:54 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20220330090154epoutp028db755d1cabb9d37208a815c216038d2~hHRToLPmV2142621426epoutp02h
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1648630914;
+        bh=4wJV7gtFCnyuWk+1tmXHi+Kgnqas70syZvbAme1vbLU=;
+        h=Subject:Reply-To:From:To:CC:In-Reply-To:Date:References:From;
+        b=CQqkn54He6yQAkrAspEkvEPmL0TiWBUnoxVQAh2nx4HK5p2kIK5qjuZvLEvQ17WMm
+         +/nbomZjsyrpGv0VpRW5ujMqH6pGfySpMcKkZgc4rh953s8UZO+UZa62Ejcz+8dxtp
+         7gPW1CftWN/ejTzuw9WSKPwwhTW9IdRwBwuFfipU=
+Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
+        epcas1p4.samsung.com (KnoxPortal) with ESMTP id
+        20220330090153epcas1p4a36c98072a13abd21eb9df65796ca11e~hHRS8gF020127501275epcas1p4F;
+        Wed, 30 Mar 2022 09:01:53 +0000 (GMT)
+Received: from epsmges1p3.samsung.com (unknown [182.195.36.224]) by
+        epsnrtp2.localdomain (Postfix) with ESMTP id 4KT0mb3XG1z4x9QQ; Wed, 30 Mar
+        2022 09:01:51 +0000 (GMT)
+X-AuditID: b6c32a37-28fff70000002578-5c-62441c7fb087
+Received: from epcas1p4.samsung.com ( [182.195.41.48]) by
+        epsmges1p3.samsung.com (Symantec Messaging Gateway) with SMTP id
+        96.2E.09592.F7C14426; Wed, 30 Mar 2022 18:01:51 +0900 (KST)
+Mime-Version: 1.0
+Subject: RE:(3) (2) (2) Request for reverting the commit for Samsung HID
+ driver
+Reply-To: junwan.cho@samsung.com
+Sender: =?UTF-8?B?7KGw7KSA7JmE?= <junwan.cho@samsung.com>
+From:   =?UTF-8?B?7KGw7KSA7JmE?= <junwan.cho@samsung.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        =?UTF-8?B?7KGw7KSA7JmE?= <junwan.cho@samsung.com>
+CC:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "michael.zaidman@gmail.com" <michael.zaidman@gmail.com>,
+        "erazor_de@users.sourceforge.net" <erazor_de@users.sourceforge.net>,
+        "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>,
+        "alexandre.torgue@foss.st.com" <alexandre.torgue@foss.st.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        =?UTF-8?B?6rmA7J287Zi4?= <ih0923.kim@samsung.com>,
+        =?UTF-8?B?67CV7LKc7Zi4?= <chun.ho.park@samsung.com>,
+        =?UTF-8?B?67Cw7Jyk7Iud?= <yunsik.bae@samsung.com>,
+        =?UTF-8?B?6rCV64yA7Z2s?= <daihee7.kang@samsung.com>,
+        =?UTF-8?B?7J206rSR7Zi4?= <gaudium.lee@samsung.com>,
+        =?UTF-8?B?66WY7LKc7Jqw?= <chunwoo.ryu@samsung.com>,
+        =?UTF-8?B?64KY65GQ7IiY?= <doosu.na@samsung.com>,
+        =?UTF-8?B?6rmA7IiY7ZiE?= <suhyun_.kim@samsung.com>
+X-Priority: 3
+X-Content-Kind-Code: NORMAL
+In-Reply-To: <nycvar.YFH.7.76.2203301047560.24795@cbobk.fhfr.pm>
+X-Drm-Type: N,general
+X-Msg-Generator: Mail
+X-Msg-Type: PERSONAL
+X-Reply-Demand: N
+Message-ID: <20220330090150epcms1p42e28758b515942ecdee680cdef3ef0b9@epcms1p4>
+Date:   Wed, 30 Mar 2022 18:01:50 +0900
+X-CMS-MailID: 20220330090150epcms1p42e28758b515942ecdee680cdef3ef0b9
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrPJsWRmVeSWpSXmKPExsWy7bCmgW69jEuSwaGJkhY/X05jtJhwyt1i
+        V8c7VovXx7ezWmz8dYvVYvnNr8wWtxd4WjQvXs9msXXJXFaLW8dbGS02T37EYnHz0zdWi3l/
+        17JaTDzYxmqxYOMjRotHKzYxWbzbK+Mg6PG0fyu7x85Zd9k9Nq3qZPPYP3cNu0ffllWMHk2n
+        2lk9Pm+SC2CPyrbJSE1MSS1SSM1Lzk/JzEu3VfIOjneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQ
+        dcvMAbpfSaEsMacUKBSQWFyspG9nU5RfWpKqkJFfXGKrlFqQklNgVqBXnJhbXJqXrpeXWmJl
+        aGBgZApUmJCd8er9TqaCzbwVLzoXsTcwtvJ2MXJySAiYSMzetZG1i5GLQ0hgB6PE5/tbGbsY
+        OTh4BQQl/u4QBqkRFgiU+Hy0lQXEFhJQkLi+s4EZIm4pse3+JHYQm03AXGLrhlVsILaIQLjE
+        4hnv2UFmMgvcYpOYtP4jO8QyXokZ7U9ZIGxpie3LQXZxcnAKOEi0fbgKFReVuLn6LTuM/f7Y
+        fEYIW0Si9d5ZZghbUOLBz91QcUmJWZOXQNnFEj8+XGGFsEskGudfhZqjLzH9yVuwXl4BX4lJ
+        N1czg/zIIqAq0farGKLERWLCj+Ng5cwC2hLLFr4GK2EW0JRYv0sfokRRYufvuYwQJXwS7772
+        sMJ8tWPeEyYIW0WiF5hOQFolBKQkrqyPhwh7SKy4+5IZEsqdLBKfr61ln8CoMAsR0LOQLJ6F
+        sHgBI/MqRrHUguLc9NRiwwJjeNwm5+duYgSnZC3zHYzT3n7QO8TIxMF4iFGCg1lJhPfjQeck
+        Id6UxMqq1KL8+KLSnNTiQ4ymQB9PZJYSTc4HZoW8knhDE0sDEzMjEwtjS2MzJXHeVdNOJwoJ
+        pCeWpGanphakFsH0MXFwSjUwWSb7yHAErHU8y7sua8rvk+veP1/FdUHpetAatr3LFtwpNzWu
+        jmI02qGwOWdH9IQv5Q1xrFfPqTx3kP3u/+75josGEnm32f9Ncmj6vy3SUe1kt3bd/f2PrZac
+        eNZ58stG58dCPy4mmLZeznL+M3kNG9PWyKVcrumLm7/7H7o/f9aL/u3Gq7eu9Et98kRu0gv7
+        hmMHeoRTOWv2zcqIfXhY7niiTvnlRdG6PO9PS+Xtrv1b3/34kpTS6hs5uzQ3x2/5niFk8DHo
+        rrns0wCjvd80L7jXRuypPHckY+dUfffTU//vaM1YqfvklmxGVeq0fXN5E/JN97sdktthJXLy
+        muF8h67awz9mifH6rco93Kz+sVuJpTgj0VCLuag4EQAm7eyEUgQAAA==
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20220330062122epcms1p30a2c2e3e1d3b108d729a00034bf86587
+References: <nycvar.YFH.7.76.2203301047560.24795@cbobk.fhfr.pm>
+        <YkQVq1RvWTp1xxJO@kroah.com> <YkQRXqlzVjBLbvp2@kroah.com>
+        <nycvar.YFH.7.76.2203300948500.24795@cbobk.fhfr.pm>
+        <20220330070159epcms1p31c351bc7eb90d99e0bbecd2c2f6092d1@epcms1p3>
+        <20220330080937epcms1p51e6c98c5eb5f8108c9cfe35efa450daa@epcms1p5>
+        <20220330082308epcms1p3f9bb275272b3e32abd4202fa1b893623@epcms1p3>
+        <20220330084401epcms1p1fe9efa50452a84f7bbb22a4de82b5a0a@epcms1p1>
+        <CGME20220330062122epcms1p30a2c2e3e1d3b108d729a00034bf86587@epcms1p4>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -45,70 +113,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Joshua,
-
-Le mer., mars 30 2022 at 03:34:34 -0400, Joshua Freedman=20
-<freedman.joshua@gmail.com> a =E9crit :
-> Hi, I noticed my audio and mic stopped working on my yoga c930 on=20
-> 5.16.12 and newer. 5.16.11 was ok.   On 5.16.12 and above I get a=20
-> dummy output and no mic.
->=20
-> Anything we can do about that?  Thanks.
->=20
-> I'm not a git guy so I just looked at the changlogs and this was the=20
-> only audio one in 5.16.12.  I could be wrong in the ID though.
-
-This commit changes the clocks on the JZ4725B SoC, there is just no way=20
-for it to be the cause of your problem.
-
-Cheers,
--Paul
-
-> commit 6b0d719ffed1c21c1a2e473301fd95f78cd35c9e
-> Author: Siarhei Volkau <lis8215@gmail.com>
-> Date:   Sat Feb 5 20:18:49 2022 +0300
->=20
->     clk: jz4725b: fix mmc0 clock gating
->=20
->     commit 2f0754f27a230fee6e6d753f07585cee03bedfe3 upstream.
->=20
->     The mmc0 clock gate bit was mistakenly assigned to "i2s" clock.
->     You can find that the same bit is assigned to "mmc0" too.
->     It leads to mmc0 hang for a long time after any sound activity
->     also it  prevented PM_SLEEP to work properly.
->     I guess it was introduced by copy-paste from jz4740 driver
->     where it is really controls I2S clock gate.
->=20
->     Fixes: 226dfa4726eb ("clk: Add Ingenic jz4725b CGU driver")
->     Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
->     Tested-by: Siarhei Volkau <lis8215@gmail.com>
->     Reviewed-by: Paul Cercueil <paul@crapouillou.net>
->     Cc: stable@vger.kernel.org
->     Link:=20
-> https://lore.kernel.org/r/20220205171849.687805-2-lis8215@gmail.com
->     Signed-off-by: Stephen Boyd <sboyd@kernel.org>
->     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->=20
->=20
-> --
->=20
->=20
-> Joshua Freedman
->=20
-> President
->=20
-> P: +19168060052
->=20
-> 49 Sample BR RD
->=20
-> Mechanicsburg, PA 17050-2386
->=20
-> Fix & Flip Rehab Financing <31 Unit
->=20
->=20
->=20
->=20
-> PGPKEY
->=20
-
-
+=C2=A0=0D=0AThank=20you=20for=20good=20advice.=0D=0A=0D=0AI'll=20check=20se=
+curity=20problem=20when=20I=20add=20in-house=20patch.=0D=0AI=20have=20no=20=
+idea=20about=20how=20the=20commit=20improves=20security=20level.=0D=0AWas=
+=20there=20any=20security=20problem?=20=20Could=20you=20let=20us=20know?=0D=
+=0A=0D=0A=C2=A0=0D=0A---------=20Original=20Message=20---------=0D=0ASender=
+=20:=20Jiri=20Kosina=C2=A0<jikos=40kernel.org>=0D=0ADate=20:=202022-03-30=
+=2017:49=20(GMT+9)=0D=0ATitle=20:=20RE:(2)=20(2)=20(2)=20Request=20for=20re=
+verting=20the=20commit=20for=20Samsung=20HID=20driver=0D=0A=C2=A0=0D=0AOn=
+=C2=A0Wed,=C2=A030=C2=A0Mar=C2=A02022,=C2=A0=EC=A1=B0=EC=A4=80=EC=99=84=C2=
+=A0wrote:=0D=0A=C2=A0=0D=0A>=C2=A0Sorry=C2=A0that=C2=A0I'm=C2=A0not=C2=A0fa=
+milier=C2=A0with=C2=A0policy=C2=A0of=C2=A0Linux.=0D=0A>=C2=A0That=C2=A0mean=
+s=C2=A0I=C2=A0cannot=C2=A0add=C2=A0the=C2=A0code=C2=A0to=C2=A0support=C2=A0=
+Bluetoth=C2=A0accessories=C2=A0in=C2=A0Linux=C2=A0Main=C2=A0line?=0D=0A=C2=
+=A0=0D=0AYou=C2=A0of=C2=A0course=C2=A0can=C2=A0(and=C2=A0I'd=C2=A0be=C2=A0a=
+ctually=C2=A0very=C2=A0happy=C2=A0to=C2=A0take=C2=A0any=C2=A0in-house=C2=A0=
+=0D=0Apatches=C2=A0you=C2=A0have=C2=A0in=C2=A0order=C2=A0for=C2=A0the=C2=A0=
+hid-samsung=C2=A0driver=C2=A0to=C2=A0support=C2=A0much=C2=A0=0D=0Abigger=C2=
+=A0group=C2=A0of=C2=A0devices),=C2=A0but=C2=A0together=C2=A0with=C2=A0that,=
+=C2=A0the=C2=A0hid-samsung=C2=A0driver=C2=A0=0D=0Aneeds=C2=A0to=C2=A0be=C2=
+=A0adjusted=C2=A0so=C2=A0that=C2=A0it=C2=A0treats=C2=A0the=C2=A0BT-specific=
+=C2=A0and=C2=A0USB-speicific=C2=A0=0D=0Acodepaths=C2=A0properly.=0D=0A=C2=
+=A0=0D=0A--=C2=A0=0D=0AJiri=C2=A0Kosina=0D=0ASUSE=C2=A0Labs=0D=0A=C2=A0=0D=
+=0A=C2=A0
