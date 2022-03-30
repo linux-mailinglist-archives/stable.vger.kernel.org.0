@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB2E04EC015
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 423244EC016
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343809AbiC3Lsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:48:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57744 "EHLO
+        id S1343821AbiC3Lss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:48:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343783AbiC3Lsn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:48:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A154D25DAAF;
+        with ESMTP id S1343784AbiC3Lso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:48:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E188C25E313;
         Wed, 30 Mar 2022 04:46:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62EF7B81ACC;
-        Wed, 30 Mar 2022 11:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77209C3411B;
-        Wed, 30 Mar 2022 11:46:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F1B4615E7;
+        Wed, 30 Mar 2022 11:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A46C0C340EE;
+        Wed, 30 Mar 2022 11:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640815;
-        bh=SCgcK3ystEM4p5FUpeXZzCOdyVTPsuyCpDS+LaZ2TR0=;
+        s=k20201202; t=1648640816;
+        bh=Qn2xz8unSOo35R95ApvqzpAB/fhcPz9d2W8mQpTVnmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pntRx0ZeElGMfSNF4Yd1qRqISRN6bKWlFnDmMDjy4opXCAQi1FnYfEi/+Q/hDIpGt
-         ViuOtaXDqKm+E8Bxgqj7wW9Ztr9N3795+8Rmf2tJH25b+1TmOwygjW1Ln/F/0Mz8vO
-         tmSetsyOfXeSt8XJEG6E2kBw3+IsXxoA/IKaadsiFBTTxzDmPouEg4EVj6ipcgTiaa
-         4qxqVAetVUJwBw5nZ8wvDWfPX3vYosRJbFkPplr5WqyVauPVsALLRMo+KYNIIU9E1D
-         lezJSMy7Cf9hqKmBeDGDj3NY3jb93tm3HtgQn6KvnnaGLuvtwQqf6IMdzpZ9KYbxB1
-         tuSlMSUDWhwMA==
+        b=PUtJBAOV5s1wJ4X4mZW7aq8CaTIR8hkR/c2Zpq4O6im5r8a86IVGMSx9f70+lMDU+
+         TAgptZhvBxY7jWhpq3HE+MMQoLPdwjKqtxdtocV4oTSrNock+SBKO/+GWkQMbVq9Hh
+         HHaoBAS3P9kF42C+oriwOgKM7eBpNFZwBj6f4KsNUcz/GIQ+El6IGRBMk/FiYwScF/
+         jBkcRJi0Ncg3L8X4oK+wQ7OEfyV1TQEpYi9IY77V7Qx4Zb2yRI7DSp+aP7OfVTZjg9
+         E85GUPu+2gPQBRdHp+XcbTpNjg9ATB/RJdhtVlai4Vyi8P4zU8Jc2hEm3kSiyCxJ/+
+         GGVbLrBYCpj7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peiwei Hu <jlu.hpw@foxmail.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 05/66] media: ir_toy: free before error exiting
-Date:   Wed, 30 Mar 2022 07:45:44 -0400
-Message-Id: <20220330114646.1669334-5-sashal@kernel.org>
+Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Pavel Machek <pavel@denx.de>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.17 06/66] ASoC: sh: rz-ssi: Make the data structures available before registering the handlers
+Date:   Wed, 30 Mar 2022 07:45:45 -0400
+Message-Id: <20220330114646.1669334-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -56,33 +59,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peiwei Hu <jlu.hpw@foxmail.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 52cdb013036391d9d87aba5b4fc49cdfc6ea4b23 ]
+[ Upstream commit 0788785c78342d422f93b1c9831c2b2b7f137937 ]
 
-Fix leak in error path.
+Initialize the spinlock and make the data structures available before
+registering the interrupt handlers.
 
-Signed-off-by: Peiwei Hu <jlu.hpw@foxmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20220110094711.8574-3-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/ir_toy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sh/rz-ssi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/rc/ir_toy.c b/drivers/media/rc/ir_toy.c
-index 7e98e7e3aace..196806709259 100644
---- a/drivers/media/rc/ir_toy.c
-+++ b/drivers/media/rc/ir_toy.c
-@@ -458,7 +458,7 @@ static int irtoy_probe(struct usb_interface *intf,
- 	err = usb_submit_urb(irtoy->urb_in, GFP_KERNEL);
- 	if (err != 0) {
- 		dev_err(irtoy->dev, "fail to submit in urb: %d\n", err);
--		return err;
-+		goto free_rcdev;
+diff --git a/sound/soc/sh/rz-ssi.c b/sound/soc/sh/rz-ssi.c
+index e8d98b362f9d..28400dbc5c06 100644
+--- a/sound/soc/sh/rz-ssi.c
++++ b/sound/soc/sh/rz-ssi.c
+@@ -975,6 +975,9 @@ static int rz_ssi_probe(struct platform_device *pdev)
+ 	ssi->playback.priv = ssi;
+ 	ssi->capture.priv = ssi;
+ 
++	spin_lock_init(&ssi->lock);
++	dev_set_drvdata(&pdev->dev, ssi);
++
+ 	/* Error Interrupt */
+ 	ssi->irq_int = platform_get_irq_byname(pdev, "int_req");
+ 	if (ssi->irq_int < 0)
+@@ -1027,8 +1030,6 @@ static int rz_ssi_probe(struct platform_device *pdev)
+ 		return dev_err_probe(ssi->dev, ret, "pm_runtime_resume_and_get failed\n");
  	}
  
- 	err = irtoy_setup(irtoy);
+-	spin_lock_init(&ssi->lock);
+-	dev_set_drvdata(&pdev->dev, ssi);
+ 	ret = devm_snd_soc_register_component(&pdev->dev, &rz_ssi_soc_component,
+ 					      rz_ssi_soc_dai,
+ 					      ARRAY_SIZE(rz_ssi_soc_dai));
 -- 
 2.34.1
 
