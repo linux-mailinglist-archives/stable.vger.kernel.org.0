@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB23F4EC142
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72A584EC1CA
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345011AbiC3L45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:56:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
+        id S241905AbiC3L5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:57:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345448AbiC3Lyb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:31 -0400
+        with ESMTP id S1345499AbiC3Lyg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BF0282B3B;
-        Wed, 30 Mar 2022 04:51:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE5A5285680;
+        Wed, 30 Mar 2022 04:51:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4697615E7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BB8961671;
+        Wed, 30 Mar 2022 11:51:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B681C340F2;
         Wed, 30 Mar 2022 11:51:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 714BBC36AE7;
-        Wed, 30 Mar 2022 11:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641070;
-        bh=qyc5E1VsAiEkog/l7n77XDh8NAl9OUtNeFvCzuC5lPg=;
+        s=k20201202; t=1648641071;
+        bh=Y66+Jl3ZAG1Akrs5hWPgXgzuzMYmTlNbhpqvnCTJ//0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNKDUcqZykqzDsFkjq8Y5OBE6NL8Xg9NfcnXgNttArqXJJxfW5Nsmr/B0CYt8cINk
-         HqI4Tso8cwimq+7xlKzaqSzno8i3lcRYdl8aW6Hzaar9DCzwdAn600eA/JZdutSWoM
-         gaqqAhDYPATrrJctfvC7hGAiPKhEbQOhlG+uHAsibsErw8w5zx0Ko5izLj31gq3qPV
-         mSLDueBX5BtYpG5VxVW9/+vrrX6oC1KAQPAeH/JA1KRW7yEWb2d/4iNSs/UAqDhV2e
-         sUdSwkNP9zs5R8giYM02pweHOp43c/DrpDhhUAXY1qRnv+1YFfLeP+eFXqwzrvFwwW
-         L5jYfAPgC9xCQ==
+        b=iLsaibRP2HMBCf6krhf7k2oGyqATh2WnflW8WwKLqDGn2lpd3DLZ7b2GUSb3MiJ/V
+         wBnhG+ruQfUD5/kDtk3eXuXIPrxxejvhAm3ebkvNND9DZEqdupfe8HeTKvMfHN9i3r
+         +KLZaKE6rmge3/U1+7AKVSpINU/HqPXD+CKJ2ZIDiOPPSo1qN0yjkETpZ2cQLjtV06
+         vFYrzuRWO2AMum1df3gvUNGn5cntN2RNOU3Z/MLtoAgMizPUwgEoyBG/12oHJexJMf
+         KI5BZSITdJtv+aRKVnPv0fWVuF/UFrpJnuMEumr5RAVZoqd6WFgrZqLBsoWnJZTgPw
+         T1HpwNiiYAq+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Maximilian=20B=C3=B6hm?= <maximilian.boehm@elbmurf.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 42/50] media: i2c: ov5648: Fix lockdep error
-Date:   Wed, 30 Mar 2022 07:49:56 -0400
-Message-Id: <20220330115005.1671090-42-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 43/50] media: Revert "media: em28xx: add missing em28xx_close_extension"
+Date:   Wed, 30 Mar 2022 07:49:57 -0400
+Message-Id: <20220330115005.1671090-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115005.1671090-1-sashal@kernel.org>
 References: <20220330115005.1671090-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,51 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit d4cb5d3c4cee28aa89b02bc33d930a6cf75e7f79 ]
+[ Upstream commit fde18c3bac3f964d8333ae53b304d8fee430502b ]
 
-ov5648_state_init() calls ov5648_state_mipi_configure() which uses
-__v4l2_ctrl_s_ctrl[_int64](). This means that sensor->mutex (which
-is also sensor->ctrls.handler.lock) must be locked before calling
-ov5648_state_init().
+This reverts commit 2c98b8a3458df03abdc6945bbef67ef91d181938.
 
-ov5648_state_mipi_configure() is also used in other places where
-the lock is already held so it cannot be changed itself.
+Reverted patch causes problems with Hauppauge WinTV dualHD as Maximilian
+reported [1]. Since quick solution didn't come up let's just revert it
+to make this device work with upstream kernels.
 
-Note this is based on an identical (tested) fix for the ov8865 driver,
-this has only been compile-tested.
+Link: https://lore.kernel.org/all/6a72a37b-e972-187d-0322-16336e12bdc5@elbmurf.de/ [1]
 
-Cc: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reported-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
+Tested-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5648.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5648.c b/drivers/media/i2c/ov5648.c
-index 947d437ed0ef..01e22c535267 100644
---- a/drivers/media/i2c/ov5648.c
-+++ b/drivers/media/i2c/ov5648.c
-@@ -1778,8 +1778,14 @@ static int ov5648_state_configure(struct ov5648_sensor *sensor,
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index ebc430b05f21..44166becc850 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -4145,11 +4145,8 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
  
- static int ov5648_state_init(struct ov5648_sensor *sensor)
- {
--	return ov5648_state_configure(sensor, &ov5648_modes[0],
--				      ov5648_mbus_codes[0]);
-+	int ret;
-+
-+	mutex_lock(&sensor->mutex);
-+	ret = ov5648_state_configure(sensor, &ov5648_modes[0],
-+				     ov5648_mbus_codes[0]);
-+	mutex_unlock(&sensor->mutex);
-+
-+	return ret;
- }
+ 	em28xx_close_extension(dev);
  
- /* Sensor Base */
+-	if (dev->dev_next) {
+-		em28xx_close_extension(dev->dev_next);
++	if (dev->dev_next)
+ 		em28xx_release_resources(dev->dev_next);
+-	}
+-
+ 	em28xx_release_resources(dev);
+ 
+ 	if (dev->dev_next) {
 -- 
 2.34.1
 
