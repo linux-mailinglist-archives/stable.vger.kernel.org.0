@@ -2,133 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2779B4ECCC3
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 20:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA22A4ECCDB
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 21:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350323AbiC3S5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 14:57:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38794 "EHLO
+        id S1350401AbiC3TDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 15:03:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346893AbiC3S5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 14:57:42 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9595A6AA62
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 11:55:56 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id bh17so3900798ejb.8
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 11:55:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linbit-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=fS8vexv5y5IlDW6jDa/CJnkMG23qfhzjDUs+WGYeVjg=;
-        b=uE53q3re8iwnjr6tBa9zKY2osZp3Jp7t2TKEQ3SXNl1//qBGvJExj/tsz6E1PgZ3e/
-         LkmwFOYHMXSgAU9TJywuh/3mnW/vMQ9usbvvqFAMx1fQd8lYOWLLVXhbeuUQve3sXZXf
-         Fq5P2qkDbGUh0zMm4KJHlrdljEz+Ehg0sYvMkHQ52hNhhcRfJ+Hcgkw8bLQIV+4lCT35
-         VzaTaenvPApoHdpE75vTR57mqE52fMwU0uKIf/5Km74RZ7c7aJw81Xwvkc12VZoCOT0e
-         7ARVYYfD3GMdixo06qi0wm53i2TqGld6y+YnhLB6+sXfLvzX9Z+/7m5kbKulshiKjXdT
-         4LZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=fS8vexv5y5IlDW6jDa/CJnkMG23qfhzjDUs+WGYeVjg=;
-        b=RHgc/ay3fXd3HQy0zLLv3RGTxzGFB4pCoMK564a45q2iUhQWtFaH8ejCArhuO2YDrX
-         66SadcJGCJlrrqrGXsOk938V7vdX0DJUZNka9yqOeQMq2wsvnojrr/T60ATbDUDzGcll
-         IS3d5ogF9FzGbi6sMqdrS5YCf42mMiyRdHfh9lfpnjoJnYn6VOx9/Efu9z0OqVhnQX9F
-         QzHqJRSnBh1HrfMYAk1fu7eWJ4kAbQB1xBgKoLh0qEl4ceEAjxFU/GwME7r0RdZHwysz
-         Os9fQ/gC8l18sLKlZ99ydssrnzh9bWz+TFKkpgwlei3N7qc9jUS165zyrEMo4uzo3VOi
-         032g==
-X-Gm-Message-State: AOAM533U03xzeGRsMehtXxvxBbaASu9msTeotU08f44rA5pdbzKliRPM
-        f3JmIpXvJuuuFR299uU6NNv0LmpM8PaFrBbUnuk=
-X-Google-Smtp-Source: ABdhPJz+Vt1B8Iq4kvuEZ5n0irgjFoH7JQGrTUQ0hBXINZJsc5RSI/lf6XLpN5R8JUo3VnVHtmsipg==
-X-Received: by 2002:a17:907:16ac:b0:6e0:1646:9121 with SMTP id hc44-20020a17090716ac00b006e016469121mr1136241ejc.194.1648666555117;
-        Wed, 30 Mar 2022 11:55:55 -0700 (PDT)
-Received: from gintonic.linbit (62-99-137-214.static.upcbusiness.at. [62.99.137.214])
-        by smtp.gmail.com with ESMTPSA id nc13-20020a1709071c0d00b006dfa376ee55sm8554639ejc.131.2022.03.30.11.55.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Mar 2022 11:55:54 -0700 (PDT)
-From:   =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>
-To:     Jens Axboe <abxoe@kernel.dk>
-Cc:     Philipp Reisner <philipp.reisner@linbit.com>,
-        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, stable@vger.kernel.org
-Subject: [RESEND PATCH] drbd: fix potential silent data corruption
-Date:   Wed, 30 Mar 2022 20:55:51 +0200
-Message-Id: <20220330185551.3553196-1-christoph.boehmwalder@linbit.com>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S1350394AbiC3TDk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 15:03:40 -0400
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 577FD7B543;
+        Wed, 30 Mar 2022 12:01:54 -0700 (PDT)
+Received: from callcc.thunk.org (c-24-1-67-28.hsd1.il.comcast.net [24.1.67.28])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 22UJ1V8e008101
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 30 Mar 2022 15:01:32 -0400
+Received: by callcc.thunk.org (Postfix, from userid 15806)
+        id 73D894200DE; Wed, 30 Mar 2022 15:01:31 -0400 (EDT)
+Date:   Wed, 30 Mar 2022 15:01:31 -0400
+From:   "Theodore Y. Ts'o" <tytso@mit.edu>
+To:     Michael Brooks <m@sweetwater.ai>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.17 16/43] random: use computational hash for
+ entropy extraction
+Message-ID: <YkSpCy023rHoefi1@mit.edu>
+References: <20220328111828.1554086-1-sashal@kernel.org>
+ <20220328111828.1554086-16-sashal@kernel.org>
+ <CAOnCY6TTx65+Z7bBwgmd8ogrCH78pps59u3_PEbq0fUpd1n_6A@mail.gmail.com>
+ <9e78091d07d74550b591c6a594cd72cc@AcuMS.aculab.com>
+ <CAOnCY6QNPUC-VK+ARLb6i_UskV2CkW+AG5ZqWe_oMGUumL9Gnw@mail.gmail.com>
+ <CAOnCY6Q9XoAMpeRfA_ghge3mXkGXFsm4fW64hxcbnMdJyx8Y2g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAOnCY6Q9XoAMpeRfA_ghge3mXkGXFsm4fW64hxcbnMdJyx8Y2g@mail.gmail.com>
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Ellenberg <lars.ellenberg@linbit.com>
+On Wed, Mar 30, 2022 at 11:33:21AM -0700, Michael Brooks wrote:
+> The /dev/random device driver need not concern itself with root
+> adversaries as this type of user has permissions to read and overwrite
+> memory - this user even possesses permission to replace the kernel elf
+> binary with a copy of /dev/random that always returns the number 0 -
+> that is their right.
 
-Scenario:
----------
+The design consideration that random number generators do concern
+themselves with is recovery after pool exposure.  This could happen
+through any number of ways; maybe someone got a hold of the suspended
+image after a hiberation, or maybe a VM is getting hybernated, and
+then replicated, etc.
 
-bio chain generated by blk_queue_split().
-Some split bio fails and propagates its error status to the "parent" bio.
-But then the (last part of the) parent bio itself completes without error.
+One can argue whether or not it's "reasonable" that these sorts of
+attacks could happen, or whether they are equivalent to full root
+access whether you can overwrite the pool.  The point remains that it
+is *possible* to have situations where the internal state of the RNG
+might have gotten exposed, and a design criteria is how quickly or
+reliably can you reocver from that situation over time.
 
-We would clobber the already recorded error status with BLK_STS_OK,
-causing silent data corruption.
+See the Yarrow paper and its discussion of iterative guessing attack
+for an explanation of why cryptographers like John Kelsey, Bruce
+Schneier, and Niels Ferguson think it is important.  And please don't
+argue with me on this point while discussing which patches should be
+backported to stable kernels --- argue with them.  :-)
 
-Reproducer:
------------
+Cheers,
 
-How to trigger this in the real world within seconds:
-
-DRBD on top of degraded parity raid,
-small stripe_cache_size, large read_ahead setting.
-Drop page cache (sysctl vm.drop_caches=1, fadvise "DONTNEED",
-umount and mount again, "reboot").
-
-Cause significant read ahead.
-
-Large read ahead request is split by blk_queue_split().
-Parts of the read ahead that are already in the stripe cache,
-or find an available stripe cache to use, can be serviced.
-Parts of the read ahead that would need "too much work",
-would need to wait for a "stripe_head" to become available,
-are rejected immediately.
-
-For larger read ahead requests that are split in many pieces, it is very
-likely that some "splits" will be serviced, but then the stripe cache is
-exhausted/busy, and the remaining ones will be rejected.
-
-Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
-Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Cc: <stable@vger.kernel.org> # 4.13.x
----
- drivers/block/drbd/drbd_req.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
-index c04394518b07..e1e58e91ee58 100644
---- a/drivers/block/drbd/drbd_req.c
-+++ b/drivers/block/drbd/drbd_req.c
-@@ -180,7 +180,8 @@ void start_new_tl_epoch(struct drbd_connection *connection)
- void complete_master_bio(struct drbd_device *device,
- 		struct bio_and_error *m)
- {
--	m->bio->bi_status = errno_to_blk_status(m->error);
-+	if (unlikely(m->error))
-+		m->bio->bi_status = errno_to_blk_status(m->error);
- 	bio_endio(m->bio);
- 	dec_ap_bio(device);
- }
--- 
-2.32.0
-
+						- Ted
