@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4FF4EC2D1
+	by mail.lfdr.de (Postfix) with ESMTP id 5001A4EC2D0
 	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245306AbiC3MBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 08:01:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35424 "EHLO
+        id S244685AbiC3MBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 08:01:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344269AbiC3Lzp (ORCPT
+        with ESMTP id S1344274AbiC3Lzp (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD5132D1E9;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB24C2DA8F;
         Wed, 30 Mar 2022 04:53:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44D5FB81C23;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5C93615E7;
         Wed, 30 Mar 2022 11:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5DAC36AE7;
-        Wed, 30 Mar 2022 11:53:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A750C340EE;
+        Wed, 30 Mar 2022 11:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641228;
-        bh=o6yvl3mQE+1+NChV+lOG93OdAgrAvTWNdi3fmZLSDEw=;
+        s=k20201202; t=1648641229;
+        bh=/7CWCV4WT0FmWQL0kHsiP32i0wPlYtof1bpijFqJ/ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MN/9oq7hS4jaCoI/p2vveDCHjXLeBH5s+lhT0aK/RGiGOz3h+lRgF33KHOmm57jst
-         tYTXGnJbLGI2xeW5gIYsmkpuyNNrAtjvPTmcqNge+1N9qh4IexSBVqSRuOKLJxlpxW
-         wEaJ8YSFrDg0h8fEiLKwP10OuoNgRFoHZVTJ9gntShs1hPeQQN3Ysy2+v5k2JecYfV
-         ilI24xgMxvKSHrqbgAIGr5oAg0qnsbWMe+bBNbUoHm5kGNQLlup6McGohgKdFq5j7E
-         639nmEsLS/ctTJD7DnBW65Lryux+L7d2E4Y1hk01Q9IS8QQumgU9b8fpN1lraddJxO
-         hzwZw95ZphsEg==
+        b=fai1CDlfl1lCeeQVUTlWH+b2FjYF5rZDpD/20MHgLHT9oq62wmR+wPl0XjBvDHdoo
+         aBiV40xy5zQgiLBbYd9s6G9Duw8f2zE66lxnf+lrQ9TZxwR4ProAwJOjoFkx3Jh8F7
+         cWaHIaH3sPETmwbBds0iSfrCz5n0NGoK6O+FVA38qoOMwVhpN329XEBcw+70dYY3yb
+         KQ6pYUlUQTCvO8kS6xd9foVV/ffwL9GZS/0vcvmNmi9GKpuLbUNeYRAKkJUdNdyyhj
+         nxCaooU9ZwfqtUhOjafBJWVzygnuS4VH2pG3tyr2Pqyio9Yd3AmNSiCOxpefgRfIcA
+         5H2GbmWZTKCaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Schleich <rs@noreya.tech>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        mark.rutland@arm.com, linux@armlinux.org.uk, rjui@broadcom.com,
-        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 06/20] ARM: dts: bcm2837: Add the missing L1/L2 cache information
-Date:   Wed, 30 Mar 2022 07:53:22 -0400
-Message-Id: <20220330115336.1672930-6-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 07/20] ARM: ftrace: avoid redundant loads or clobbering IP
+Date:   Wed, 30 Mar 2022 07:53:23 -0400
+Message-Id: <20220330115336.1672930-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115336.1672930-1-sashal@kernel.org>
 References: <20220330115336.1672930-1-sashal@kernel.org>
@@ -60,110 +57,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Schleich <rs@noreya.tech>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit bdf8762da268d2a34abf517c36528413906e9cd5 ]
+[ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
 
-This patch fixes the kernel warning
-"cacheinfo: Unable to detect cache hierarchy for CPU 0"
-for the bcm2837 on newer kernel versions.
+Tweak the ftrace return paths to avoid redundant loads of SP, as well as
+unnecessary clobbering of IP.
 
-Signed-off-by: Richard Schleich <rs@noreya.tech>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-[florian: Align and remove comments matching property values]
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+This also fixes the inconsistency of using MOV to perform a function
+return, which is sub-optimal on recent micro-architectures but more
+importantly, does not perform an interworking return, unlike compiler
+generated function returns in Thumb2 builds.
+
+Let's fix this by popping PC from the stack like most ordinary code
+does.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2837.dtsi | 49 ++++++++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ arch/arm/kernel/entry-ftrace.S | 51 +++++++++++++++-------------------
+ 1 file changed, 22 insertions(+), 29 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2837.dtsi b/arch/arm/boot/dts/bcm2837.dtsi
-index d5d058a568c3..20407a5aafc8 100644
---- a/arch/arm/boot/dts/bcm2837.dtsi
-+++ b/arch/arm/boot/dts/bcm2837.dtsi
-@@ -32,12 +32,26 @@
- 		#size-cells = <0>;
- 		enable-method = "brcm,bcm2836-smp"; // for ARM 32-bit
+diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
+index efcd9f25a14b..baae9ed1fb5b 100644
+--- a/arch/arm/kernel/entry-ftrace.S
++++ b/arch/arm/kernel/entry-ftrace.S
+@@ -41,10 +41,7 @@
+  * mcount can be thought of as a function called in the middle of a subroutine
+  * call.  As such, it needs to be transparent for both the caller and the
+  * callee: the original lr needs to be restored when leaving mcount, and no
+- * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
+- * clobber the ip register.  This is OK because the ARM calling convention
+- * allows it to be clobbered in subroutines and doesn't use it to hold
+- * parameters.)
++ * registers should be clobbered.
+  *
+  * When using dynamic ftrace, we patch out the mcount call by a "mov r0, r0"
+  * for the mcount case, and a "pop {lr}" for the __gnu_mcount_nc case (see
+@@ -96,26 +93,25 @@
  
-+		/* Source for d/i-cache-line-size and d/i-cache-sets
-+		 * https://developer.arm.com/documentation/ddi0500/e/level-1-memory-system
-+		 * /about-the-l1-memory-system?lang=en
-+		 *
-+		 * Source for d/i-cache-size
-+		 * https://magpi.raspberrypi.com/articles/raspberry-pi-3-specs-benchmarks
-+		 */
- 		cpu0: cpu@0 {
- 			device_type = "cpu";
- 			compatible = "arm,cortex-a53";
- 			reg = <0>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000d8>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
-+			i-cache-size = <0x8000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			next-level-cache = <&l2>;
- 		};
+ .macro __ftrace_regs_caller
  
- 		cpu1: cpu@1 {
-@@ -46,6 +60,13 @@
- 			reg = <1>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000e0>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
-+			i-cache-size = <0x8000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			next-level-cache = <&l2>;
- 		};
+-	sub	sp, sp, #8	@ space for PC and CPSR OLD_R0,
++	str	lr, [sp, #-8]!	@ store LR as PC and make space for CPSR/OLD_R0,
+ 				@ OLD_R0 will overwrite previous LR
  
- 		cpu2: cpu@2 {
-@@ -54,6 +75,13 @@
- 			reg = <2>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000e8>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
-+			i-cache-size = <0x8000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			next-level-cache = <&l2>;
- 		};
+-	add 	ip, sp, #12	@ move in IP the value of SP as it was
+-				@ before the push {lr} of the mcount mechanism
++	ldr	lr, [sp, #8]    @ get previous LR
  
- 		cpu3: cpu@3 {
-@@ -62,6 +90,27 @@
- 			reg = <3>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000f0>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
-+			i-cache-size = <0x8000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			next-level-cache = <&l2>;
-+		};
-+
-+		/* Source for cache-line-size + cache-sets
-+		 * https://developer.arm.com/documentation/ddi0500
-+		 * /e/level-2-memory-system/about-the-l2-memory-system?lang=en
-+		 * Source for cache-size
-+		 * https://datasheets.raspberrypi.com/cm/cm1-and-cm3-datasheet.pdf
-+		 */
-+		l2: l2-cache0 {
-+			compatible = "cache";
-+			cache-size = <0x80000>;
-+			cache-line-size = <64>;
-+			cache-sets = <512>; // 512KiB(size)/64(line-size)=8192ways/16-way set
-+			cache-level = <2>;
- 		};
- 	};
- };
+-	str     lr, [sp, #0]    @ store LR instead of PC
++	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
+ 
+-	ldr     lr, [sp, #8]    @ get previous LR
++	str	lr, [sp, #-4]!	@ store previous LR as LR
+ 
+-	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
++	add 	lr, sp, #16	@ move in LR the value of SP as it was
++				@ before the push {lr} of the mcount mechanism
+ 
+-	stmdb   sp!, {ip, lr}
+-	stmdb   sp!, {r0-r11, lr}
++	push	{r0-r11, ip, lr}
+ 
+ 	@ stack content at this point:
+ 	@ 0  4          48   52       56            60   64    68       72
+-	@ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
++	@ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
+ 
+-	mov r3, sp				@ struct pt_regs*
++	mov	r3, sp				@ struct pt_regs*
+ 
+ 	ldr r2, =function_trace_op
+ 	ldr r2, [r2]				@ pointer to the current
+@@ -138,11 +134,9 @@ ftrace_graph_regs_call:
+ #endif
+ 
+ 	@ pop saved regs
+-	ldmia   sp!, {r0-r12}			@ restore r0 through r12
+-	ldr	ip, [sp, #8]			@ restore PC
+-	ldr	lr, [sp, #4]			@ restore LR
+-	ldr	sp, [sp, #0]			@ restore SP
+-	mov	pc, ip				@ return
++	pop	{r0-r11, ip, lr}		@ restore r0 through r12
++	ldr	lr, [sp], #4			@ restore LR
++	ldr	pc, [sp], #12
+ .endm
+ 
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+@@ -158,11 +152,9 @@ ftrace_graph_regs_call:
+ 	bl	prepare_ftrace_return
+ 
+ 	@ pop registers saved in ftrace_regs_caller
+-	ldmia   sp!, {r0-r12}			@ restore r0 through r12
+-	ldr	ip, [sp, #8]			@ restore PC
+-	ldr	lr, [sp, #4]			@ restore LR
+-	ldr	sp, [sp, #0]			@ restore SP
+-	mov	pc, ip				@ return
++	pop	{r0-r11, ip, lr}		@ restore r0 through r12
++	ldr	lr, [sp], #4			@ restore LR
++	ldr	pc, [sp], #12
+ 
+ .endm
+ #endif
+@@ -273,16 +265,17 @@ ENDPROC(ftrace_graph_caller_old)
+ .endm
+ 
+ .macro mcount_exit
+-	ldmia	sp!, {r0-r3, ip, lr}
+-	ret	ip
++	ldmia	sp!, {r0-r3}
++	ldr	lr, [sp, #4]
++	ldr	pc, [sp], #8
+ .endm
+ 
+ ENTRY(__gnu_mcount_nc)
+ UNWIND(.fnstart)
+ #ifdef CONFIG_DYNAMIC_FTRACE
+-	mov	ip, lr
+-	ldmia	sp!, {lr}
+-	ret	ip
++	push	{lr}
++	ldr	lr, [sp, #4]
++	ldr	pc, [sp], #8
+ #else
+ 	__mcount
+ #endif
 -- 
 2.34.1
 
