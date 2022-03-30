@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7C94EC066
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:49:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FC24EC04A
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343886AbiC3LuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:50:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35710 "EHLO
+        id S1344071AbiC3LuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:50:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343967AbiC3Ltr (ORCPT
+        with ESMTP id S1343882AbiC3Ltr (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:49:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151D226B38E;
-        Wed, 30 Mar 2022 04:47:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B947A26B5B5;
+        Wed, 30 Mar 2022 04:47:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C141DB81C35;
-        Wed, 30 Mar 2022 11:47:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC55BC34111;
-        Wed, 30 Mar 2022 11:47:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B981B81C28;
+        Wed, 30 Mar 2022 11:47:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E59E7C36AE3;
+        Wed, 30 Mar 2022 11:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640843;
-        bh=Ka5jbGX8/lg8MhfDu2So8lLl4xM7sYE+I8cl5BMDAWU=;
+        s=k20201202; t=1648640844;
+        bh=WK14gTrMY4mrdBoN5dGYoL3uKdyenRH+qI/k85oo9S8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbd6BMta/ceTnKSgPxaKSQbC0mzdIOWHQ2DgS2lU9Wdpwu7t5ybKfbX4GhIUO8UI1
-         qE1pBPkfnPankr4d7rVhVGiybyM5rMRO+epTYVQByhPgabtP6njl7idIrncVComMri
-         IeFEiTAkRiSXClbmJahJVmFqO/Fv9ntqJhO2yuvOTSsnTAmbWHxIzC3tAztaGWCnUL
-         6bgv9+a9JocTxIDhRHzwIzQfREr96Zt7vaNVvkZK9IKUW0WjFA+3hZmTUsSmeV8Ld2
-         tfY2BXxcT8t9UC6U5KeJ27uyCwi54YqvSgmvq2uq6FNHvdTSIaSkeK1zXL7XSm+nl6
-         0ZB0ZNeoqoaww==
+        b=nOtA+vFoiE1LILRxkJSRJiA3sbAq+0xyvl1mM67t4LSFwICinl9etE34O4aBFWqgL
+         Nr6KURCgF97HYpZ+IvlcgIQOkCEfbYfjXc37dj04eQAyyBPi/8+zI+RVVX002nozeT
+         uvD4dGqaimyv0/eXeboeXke2EoHOLoHqSID7F3vFz5jFMUWegcWZp1cAwFNvi5iRu0
+         xWDJNWGbPD7ctMCDldv4Efsm3TVyS3GNrmy/JV/DsVkUziHir3Ajqgx0aPMeKClOBO
+         MLV3zJ2iHaEDmLeToPLf3QVPKKZRnHB6bPIIs5KKSyQMrTkfTgTZQlo4ZjS91lMV2X
+         EU1uX2SXWm9OQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 23/66] ARM: ftrace: avoid redundant loads or clobbering IP
-Date:   Wed, 30 Mar 2022 07:46:02 -0400
-Message-Id: <20220330114646.1669334-23-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        Alexander Sergeyev <sergeev917@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
+        tiwai@suse.com, gregkh@linuxfoundation.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.17 24/66] ALSA: hda: Fix driver index handling at re-binding
+Date:   Wed, 30 Mar 2022 07:46:03 -0400
+Message-Id: <20220330114646.1669334-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -57,133 +58,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
+[ Upstream commit 69458e2c27800da7697c87ed908b65323ef3f3bd ]
 
-Tweak the ftrace return paths to avoid redundant loads of SP, as well as
-unnecessary clobbering of IP.
+HD-audio driver handles the multiple instances and keeps the static
+index that is incremented at each probe.  This becomes a problem when
+user tries to re-bind the device via sysfs multiple times; as the
+device index isn't cleared unlike rmmod case, it points to the next
+element at re-binding, and eventually later you can't probe any more
+when it reaches to SNDRV_CARDS_MAX (usually 32).
 
-This also fixes the inconsistency of using MOV to perform a function
-return, which is sub-optimal on recent micro-architectures but more
-importantly, does not perform an interworking return, unlike compiler
-generated function returns in Thumb2 builds.
+This patch is an attempt to improve the handling at rebinding.
+Instead of a static device index, now we keep a bitmap and assigns to
+the first zero bit position.  At the driver remove, in return, the
+bitmap slot is cleared again, so that it'll be available for the next
+probe.
 
-Let's fix this by popping PC from the stack like most ordinary code
-does.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
+Link: https://lore.kernel.org/r/20220209081912.20687-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-ftrace.S | 51 +++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ sound/pci/hda/hda_intel.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
-index a74289ebc803..5f1b1ce10473 100644
---- a/arch/arm/kernel/entry-ftrace.S
-+++ b/arch/arm/kernel/entry-ftrace.S
-@@ -22,10 +22,7 @@
-  * mcount can be thought of as a function called in the middle of a subroutine
-  * call.  As such, it needs to be transparent for both the caller and the
-  * callee: the original lr needs to be restored when leaving mcount, and no
-- * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
-- * clobber the ip register.  This is OK because the ARM calling convention
-- * allows it to be clobbered in subroutines and doesn't use it to hold
-- * parameters.)
-+ * registers should be clobbered.
-  *
-  * When using dynamic ftrace, we patch out the mcount call by a "pop {lr}"
-  * instead of the __gnu_mcount_nc call (see arch/arm/kernel/ftrace.c).
-@@ -70,26 +67,25 @@
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 572ff0d1fafe..8eff25d2d9e6 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2066,14 +2066,16 @@ static const struct hda_controller_ops pci_hda_ops = {
+ 	.position_check = azx_position_check,
+ };
  
- .macro __ftrace_regs_caller
++static DECLARE_BITMAP(probed_devs, SNDRV_CARDS);
++
+ static int azx_probe(struct pci_dev *pci,
+ 		     const struct pci_device_id *pci_id)
+ {
+-	static int dev;
+ 	struct snd_card *card;
+ 	struct hda_intel *hda;
+ 	struct azx *chip;
+ 	bool schedule_probe;
++	int dev;
+ 	int err;
  
--	sub	sp, sp, #8	@ space for PC and CPSR OLD_R0,
-+	str	lr, [sp, #-8]!	@ store LR as PC and make space for CPSR/OLD_R0,
- 				@ OLD_R0 will overwrite previous LR
+ 	if (pci_match_id(driver_denylist, pci)) {
+@@ -2081,10 +2083,11 @@ static int azx_probe(struct pci_dev *pci,
+ 		return -ENODEV;
+ 	}
  
--	add 	ip, sp, #12	@ move in IP the value of SP as it was
--				@ before the push {lr} of the mcount mechanism
-+	ldr	lr, [sp, #8]    @ get previous LR
++	dev = find_first_zero_bit(probed_devs, SNDRV_CARDS);
+ 	if (dev >= SNDRV_CARDS)
+ 		return -ENODEV;
+ 	if (!enable[dev]) {
+-		dev++;
++		set_bit(dev, probed_devs);
+ 		return -ENOENT;
+ 	}
  
--	str     lr, [sp, #0]    @ store LR instead of PC
-+	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
+@@ -2151,7 +2154,7 @@ static int azx_probe(struct pci_dev *pci,
+ 	if (schedule_probe)
+ 		schedule_delayed_work(&hda->probe_work, 0);
  
--	ldr     lr, [sp, #8]    @ get previous LR
-+	str	lr, [sp, #-4]!	@ store previous LR as LR
+-	dev++;
++	set_bit(dev, probed_devs);
+ 	if (chip->disabled)
+ 		complete_all(&hda->probe_wait);
+ 	return 0;
+@@ -2374,6 +2377,7 @@ static void azx_remove(struct pci_dev *pci)
+ 		cancel_delayed_work_sync(&hda->probe_work);
+ 		device_lock(&pci->dev);
  
--	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
-+	add 	lr, sp, #16	@ move in LR the value of SP as it was
-+				@ before the push {lr} of the mcount mechanism
- 
--	stmdb   sp!, {ip, lr}
--	stmdb   sp!, {r0-r11, lr}
-+	push	{r0-r11, ip, lr}
- 
- 	@ stack content at this point:
- 	@ 0  4          48   52       56            60   64    68       72
--	@ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
-+	@ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
- 
--	mov r3, sp				@ struct pt_regs*
-+	mov	r3, sp				@ struct pt_regs*
- 
- 	ldr r2, =function_trace_op
- 	ldr r2, [r2]				@ pointer to the current
-@@ -112,11 +108,9 @@ ftrace_graph_regs_call:
- #endif
- 
- 	@ pop saved regs
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- .endm
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-@@ -132,11 +126,9 @@ ftrace_graph_regs_call:
- 	bl	prepare_ftrace_return
- 
- 	@ pop registers saved in ftrace_regs_caller
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- 
- .endm
- #endif
-@@ -202,16 +194,17 @@ ftrace_graph_call\suffix:
- .endm
- 
- .macro mcount_exit
--	ldmia	sp!, {r0-r3, ip, lr}
--	ret	ip
-+	ldmia	sp!, {r0-r3}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- .endm
- 
- ENTRY(__gnu_mcount_nc)
- UNWIND(.fnstart)
- #ifdef CONFIG_DYNAMIC_FTRACE
--	mov	ip, lr
--	ldmia	sp!, {lr}
--	ret	ip
-+	push	{lr}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- #else
- 	__mcount
- #endif
++		clear_bit(chip->dev_index, probed_devs);
+ 		pci_set_drvdata(pci, NULL);
+ 		snd_card_free(card);
+ 	}
 -- 
 2.34.1
 
