@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D454EC087
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99FD54EC08B
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343998AbiC3Lvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:51:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59946 "EHLO
+        id S1344205AbiC3Lvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:51:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343901AbiC3LvX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:51:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF6827429A;
+        with ESMTP id S1344028AbiC3Lva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:51:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AEB2742A3;
         Wed, 30 Mar 2022 04:47:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C64DCB81C35;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9235DB81C29;
+        Wed, 30 Mar 2022 11:47:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31B0BC340EE;
         Wed, 30 Mar 2022 11:47:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 841A0C36AE5;
-        Wed, 30 Mar 2022 11:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640875;
-        bh=cmQjIDOiyu6i0WOxV+vP3qJn8wa2woRKYCESBKH7hvg=;
+        s=k20201202; t=1648640877;
+        bh=bF8a6Emkq3gGLNP8ZkwyAhhn/XpyikbfTHyhhlYcDH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RtIikrxqKF9Q2dG32JWGqYpNw6PJprQPc1S/ClYZjzkhp6k4MBPl9GQGi0r3MJYzH
-         z488oZ/YjPkVvgY243D6LBCkqGEhy5Ehgvk13XZsgtBkX+FBq6A0BP9vK47nYAqY+R
-         PZjIJnDy3TI9m/n1DMl6J30HqW5TY+08OgA/36fBJOAnb7NpnsVQKkTClonLYq2ScR
-         6G1X47yxLE8GWUsbKRPKuyveXClnEqf+xhpNgr4Poe9Jl1u6wH/paWWFQajSr5HSxO
-         t3XwVUG3ZAbam1lhQ1LsEXraea4+Vkq0bB3KX99nxzRglSbD+KcuPsKyDmtdbyiKUw
-         XFpp7rISGj+Yg==
+        b=YMZZIoFaf11R663MONoDlcQgEOMUH4ZzzkK8X8CRYpoguPpyCAuM5Wj3sbXERrJeA
+         6Dq73O4rZ01PDOcz5kqx3bW2n8gW5osA4RpHI3F5cd7YQceuse9XJ9TbN2OBo+7zDH
+         K28I60afK0LGJpNr6tIVGFuqibfQF4uGT1iLsUQGVnD8YuWozuamAFZjWNWYNkNtGO
+         IFuoI9rsNzFfbw+Z96Bo5cge2ElCV+E2ZPZ2CZumPqXAOC4oSGjMHMZG8TCkW3MKNR
+         BP5/t934nxVWH7qlKSGv5hTUK7zkieoo7JJJlk+0Zmops4ZwMIRhT4zdxRHF73R9tB
+         aR2M60u/fmCuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        eric.y.miao@gmail.com, haojian.zhuang@gmail.com,
-        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 44/66] ARM: mmp: Fix failure to remove sram device
-Date:   Wed, 30 Mar 2022 07:46:23 -0400
-Message-Id: <20220330114646.1669334-44-sashal@kernel.org>
+Cc:     Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
+        kernel test robot <lkp@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.17 45/66] ASoC: amd: vg: fix for pm resume callback sequence
+Date:   Wed, 30 Mar 2022 07:46:24 -0400
+Message-Id: <20220330114646.1669334-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,74 +58,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
 
-[ Upstream commit 4036b29a146b2749af3bb213b003eb69f3e5ecc4 ]
+[ Upstream commit 83b713619ee1b15e09eae11a92a7f3305534223d ]
 
-Make sure in .probe() to set driver data before the function is left to
-make it possible in .remove() to undo the actions done.
+The previous condition is used to cross check only the active
+stream status for I2S HS instance playback and capture use cases.
 
-This fixes a potential memory leak and stops returning an error code in
-.remove() that is ignored by the driver core anyhow.
+Modified logic to invoke sequence for two i2s controller instances.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+This also fixes warnings reported by kernel robot:
+"warning: variable 'frmt_val' set but not used"
+"warning: variable 'reg_val' set but not used"
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
+Link: https://lore.kernel.org/r/20220225193054.24916-1-Vijendar.Mukunda@amd.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mmp/sram.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ sound/soc/amd/vangogh/acp5x-pcm-dma.c | 66 +++++++++++++--------------
+ 1 file changed, 33 insertions(+), 33 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/sram.c b/arch/arm/mach-mmp/sram.c
-index 6794e2db1ad5..ecc46c31004f 100644
---- a/arch/arm/mach-mmp/sram.c
-+++ b/arch/arm/mach-mmp/sram.c
-@@ -72,6 +72,8 @@ static int sram_probe(struct platform_device *pdev)
- 	if (!info)
- 		return -ENOMEM;
+diff --git a/sound/soc/amd/vangogh/acp5x-pcm-dma.c b/sound/soc/amd/vangogh/acp5x-pcm-dma.c
+index f10de38976cb..3aa2d9a36880 100644
+--- a/sound/soc/amd/vangogh/acp5x-pcm-dma.c
++++ b/sound/soc/amd/vangogh/acp5x-pcm-dma.c
+@@ -426,51 +426,51 @@ static int acp5x_audio_remove(struct platform_device *pdev)
+ static int __maybe_unused acp5x_pcm_resume(struct device *dev)
+ {
+ 	struct i2s_dev_data *adata;
+-	u32 val, reg_val, frmt_val;
++	struct i2s_stream_instance *rtd;
++	u32 val;
  
-+	platform_set_drvdata(pdev, info);
-+
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (res == NULL) {
- 		dev_err(&pdev->dev, "no memory resource defined\n");
-@@ -107,8 +109,6 @@ static int sram_probe(struct platform_device *pdev)
- 	list_add(&info->node, &sram_bank_list);
- 	mutex_unlock(&sram_lock);
+-	reg_val = 0;
+-	frmt_val = 0;
+ 	adata = dev_get_drvdata(dev);
  
--	platform_set_drvdata(pdev, info);
--
- 	dev_info(&pdev->dev, "initialized\n");
- 	return 0;
- 
-@@ -127,17 +127,19 @@ static int sram_remove(struct platform_device *pdev)
- 	struct sram_bank_info *info;
- 
- 	info = platform_get_drvdata(pdev);
--	if (info == NULL)
--		return -ENODEV;
- 
--	mutex_lock(&sram_lock);
--	list_del(&info->node);
--	mutex_unlock(&sram_lock);
-+	if (info->sram_size) {
-+		mutex_lock(&sram_lock);
-+		list_del(&info->node);
-+		mutex_unlock(&sram_lock);
-+
-+		gen_pool_destroy(info->gpool);
-+		iounmap(info->sram_virt);
-+		kfree(info->pool_name);
+ 	if (adata->play_stream && adata->play_stream->runtime) {
+-		struct i2s_stream_instance *rtd =
+-			adata->play_stream->runtime->private_data;
++		rtd = adata->play_stream->runtime->private_data;
+ 		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_PLAYBACK);
+-		switch (rtd->i2s_instance) {
+-		case I2S_HS_INSTANCE:
+-			reg_val = ACP_HSTDM_ITER;
+-			frmt_val = ACP_HSTDM_TXFRMT;
+-			break;
+-		case I2S_SP_INSTANCE:
+-		default:
+-			reg_val = ACP_I2STDM_ITER;
+-			frmt_val = ACP_I2STDM_TXFRMT;
++		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_HSTDM_ITER);
++		if (adata->tdm_mode == TDM_ENABLE) {
++			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_HSTDM_TXFRMT);
++			val = acp_readl(adata->acp5x_base + ACP_HSTDM_ITER);
++			acp_writel(val | 0x2, adata->acp5x_base + ACP_HSTDM_ITER);
++		}
 +	}
++	if (adata->i2ssp_play_stream && adata->i2ssp_play_stream->runtime) {
++		rtd = adata->i2ssp_play_stream->runtime->private_data;
++		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_PLAYBACK);
++		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_I2STDM_ITER);
++		if (adata->tdm_mode == TDM_ENABLE) {
++			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_I2STDM_TXFRMT);
++			val = acp_readl(adata->acp5x_base + ACP_I2STDM_ITER);
++			acp_writel(val | 0x2, adata->acp5x_base + ACP_I2STDM_ITER);
+ 		}
+-		acp_writel((rtd->xfer_resolution  << 3),
+-			   rtd->acp5x_base + reg_val);
+ 	}
  
--	gen_pool_destroy(info->gpool);
--	iounmap(info->sram_virt);
--	kfree(info->pool_name);
- 	kfree(info);
-+
+ 	if (adata->capture_stream && adata->capture_stream->runtime) {
+-		struct i2s_stream_instance *rtd =
+-			adata->capture_stream->runtime->private_data;
++		rtd = adata->capture_stream->runtime->private_data;
+ 		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_CAPTURE);
+-		switch (rtd->i2s_instance) {
+-		case I2S_HS_INSTANCE:
+-			reg_val = ACP_HSTDM_IRER;
+-			frmt_val = ACP_HSTDM_RXFRMT;
+-			break;
+-		case I2S_SP_INSTANCE:
+-		default:
+-			reg_val = ACP_I2STDM_IRER;
+-			frmt_val = ACP_I2STDM_RXFRMT;
++		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_HSTDM_IRER);
++		if (adata->tdm_mode == TDM_ENABLE) {
++			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_HSTDM_RXFRMT);
++			val = acp_readl(adata->acp5x_base + ACP_HSTDM_IRER);
++			acp_writel(val | 0x2, adata->acp5x_base + ACP_HSTDM_IRER);
+ 		}
+-		acp_writel((rtd->xfer_resolution  << 3),
+-			   rtd->acp5x_base + reg_val);
+ 	}
+-	if (adata->tdm_mode == TDM_ENABLE) {
+-		acp_writel(adata->tdm_fmt, adata->acp5x_base + frmt_val);
+-		val = acp_readl(adata->acp5x_base + reg_val);
+-		acp_writel(val | 0x2, adata->acp5x_base + reg_val);
++	if (adata->i2ssp_capture_stream && adata->i2ssp_capture_stream->runtime) {
++		rtd = adata->i2ssp_capture_stream->runtime->private_data;
++		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_CAPTURE);
++		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_I2STDM_IRER);
++		if (adata->tdm_mode == TDM_ENABLE) {
++			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_I2STDM_RXFRMT);
++			val = acp_readl(adata->acp5x_base + ACP_I2STDM_IRER);
++			acp_writel(val | 0x2, adata->acp5x_base + ACP_I2STDM_IRER);
++		}
+ 	}
+ 	acp_writel(1, adata->acp5x_base + ACP_EXTERNAL_INTR_ENB);
  	return 0;
- }
- 
 -- 
 2.34.1
 
