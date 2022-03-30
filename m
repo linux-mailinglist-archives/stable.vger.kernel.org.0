@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 617384EC00C
+	by mail.lfdr.de (Postfix) with ESMTP id 1611B4EC00B
 	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343856AbiC3Lsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:48:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58604 "EHLO
+        id S1343830AbiC3LtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:49:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343801AbiC3Lsw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:48:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D9A25E31B;
-        Wed, 30 Mar 2022 04:47:04 -0700 (PDT)
+        with ESMTP id S1343820AbiC3Lsx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:48:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB3D25F67A;
+        Wed, 30 Mar 2022 04:47:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E572361620;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 586DDB81C24;
+        Wed, 30 Mar 2022 11:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF2EC34112;
         Wed, 30 Mar 2022 11:47:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01029C340F2;
-        Wed, 30 Mar 2022 11:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640823;
-        bh=yGnjY+lYxJXOnr0rrff8LCirneIsgVl27V7mWnMwbyg=;
+        s=k20201202; t=1648640825;
+        bh=or7vMsAJ5qPVBHGYQ8AZJOSb3BRjqMrEX/v6pBzhP1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WYzWCO/WG1VOPjlqOGm5yKm4odeq9kpmw5ThZEHbiSEq+qQANSk2r6kwGo7vmCJoN
-         abeSWFphnQ552YGFmgLqJ45fGOHMAj8/dgwLSrSe7g2m3RtPlfMXzTzOm4AnLElG/D
-         cY+r3UqVGsv4KUOztsSHNs2NlzDHIi/WQpyqodg1vaFuEnKvd3JDIbg3PYI8Ab7aNo
-         rtd37bJmzuPHvn37nHRJv5ufQ3IrdSM1CpcEq9yJO2lsxerq+z2YC27d8IHhw4A1+u
-         2eySsFpXHwQgNlOMResR8pdPsn2U8YpdaLhA+oFM/QyZ7XSMxRGipAwAUegPCpMf4o
-         MvKB0TcB/e/Rg==
+        b=CxX03L89TSoBxONZnPq1dWY2lUOs+WFCfvVAOp5gHwu67xMjF86suY9bf9x3TXag3
+         JdwcUKRAN+5Xtab7hU1W5DA2Cp0+33/d6Q0eZJg86qI7V4WCBQdZAPjvDZgkuPSSFz
+         v2/QPCH5sqknvcpK85d+3F7enSRTnR8Sz0BYJbSzJXm99rVj1h74/ifZm/nD6P1C80
+         qsHZlJdStBzF2nPiLnscIBo0dtcaG+dS1/3bmUWk79XWtWbb0tK+DjhGyRev7fllJ/
+         arEsopXvmnc+jxEXboRIndEMoRhKzqUh80FYTe6VyJOSNa0QmYmcLQwzrL6wbZDXx5
+         SBAl4dMgwB1/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 10/66] ASoC: SOF: Intel: hda: Remove link assignment limitation
-Date:   Wed, 30 Mar 2022 07:45:49 -0400
-Message-Id: <20220330114646.1669334-10-sashal@kernel.org>
+Cc:     Yong Wu <yong.wu@mediatek.com>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Joerg Roedel <jroedel@suse.de>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
+        matthias.bgg@gmail.com, iommu@lists.linux-foundation.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 11/66] media: iommu/mediatek-v1: Free the existed fwspec if the master dev already has
+Date:   Wed, 30 Mar 2022 07:45:50 -0400
+Message-Id: <20220330114646.1669334-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -61,63 +64,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit 2ce0d008dcc59f9c01f43277b9f9743af7b01dad ]
+[ Upstream commit 822a2ed8c606caf6a11b1a180b8e46292bd77d71 ]
 
-The limitation to assign a link DMA channel for a BE iff the
-corresponding host DMA channel is assigned to a connected FE is only
-applicable if the PROCEN_FMT_QUIRK is set. So, remove it for platforms
-that do not enable the quirk.
+When the iommu master device enters of_iommu_xlate, the ops may be
+NULL(iommu dev is defered), then it will initialize the fwspec here:
 
-Complements: a792bfc1c2bc ("ASoC: SOF: Intel: hda-stream: limit PROCEN workaround")
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220128130017.28508-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[<c0c9c5bc>] (dev_iommu_fwspec_set) from [<c06bda80>]
+(iommu_fwspec_init+0xbc/0xd4)
+[<c06bd9c4>] (iommu_fwspec_init) from [<c06c0db4>]
+(of_iommu_xlate+0x7c/0x12c)
+[<c06c0d38>] (of_iommu_xlate) from [<c06c10e8>]
+(of_iommu_configure+0x144/0x1e8)
+
+BUT the mtk_iommu_v1.c only supports arm32, the probing flow still is a bit
+weird. We always expect create the fwspec internally. otherwise it will
+enter here and return fail.
+
+static int mtk_iommu_create_mapping(struct device *dev,
+				    struct of_phandle_args *args)
+{
+        ...
+	if (!fwspec) {
+	        ....
+	} else if (dev_iommu_fwspec_get(dev)->ops != &mtk_iommu_ops) {
+                >>>>>>>>>>Enter here. return fail.<<<<<<<<<<<<
+		return -EINVAL;
+	}
+	...
+}
+
+Thus, Free the existed fwspec if the master device already has fwspec.
+
+This issue is reported at:
+https://lore.kernel.org/linux-mediatek/trinity-7d9ebdc9-4849-4d93-bfb5-429dcb4ee449-1626253158870@3c-app-gmx-bs01/
+
+Reported-by: Frank Wunderlich <frank-w@public-files.de>
+Tested-by: Frank Wunderlich <frank-w@public-files.de> # BPI-R2/MT7623
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Acked-by: Joerg Roedel <jroedel@suse.de>
+Acked-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-dai.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/iommu/mtk_iommu_v1.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/sound/soc/sof/intel/hda-dai.c b/sound/soc/sof/intel/hda-dai.c
-index cd12589355ef..28a54145c150 100644
---- a/sound/soc/sof/intel/hda-dai.c
-+++ b/sound/soc/sof/intel/hda-dai.c
-@@ -59,6 +59,8 @@ static struct hdac_ext_stream *
- {
- 	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
- 	struct sof_intel_hda_stream *hda_stream;
-+	const struct sof_intel_dsp_desc *chip;
-+	struct snd_sof_dev *sdev;
- 	struct hdac_ext_stream *res = NULL;
- 	struct hdac_stream *stream = NULL;
+diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
+index be22fcf988ce..1467ba1e4417 100644
+--- a/drivers/iommu/mtk_iommu_v1.c
++++ b/drivers/iommu/mtk_iommu_v1.c
+@@ -425,6 +425,15 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
+ 	struct mtk_iommu_data *data;
+ 	int err, idx = 0;
  
-@@ -77,9 +79,20 @@ static struct hdac_ext_stream *
- 			continue;
- 
- 		hda_stream = hstream_to_sof_hda_stream(hstream);
-+		sdev = hda_stream->sdev;
-+		chip = get_chip_info(sdev->pdata);
- 
- 		/* check if link is available */
- 		if (!hstream->link_locked) {
-+			/*
-+			 * choose the first available link for platforms that do not have the
-+			 * PROCEN_FMT_QUIRK set.
-+			 */
-+			if (!(chip->quirks & SOF_INTEL_PROCEN_FMT_QUIRK)) {
-+				res = hstream;
-+				break;
-+			}
++	/*
++	 * In the deferred case, free the existed fwspec.
++	 * Always initialize the fwspec internally.
++	 */
++	if (fwspec) {
++		iommu_fwspec_free(dev);
++		fwspec = dev_iommu_fwspec_get(dev);
++	}
 +
- 			if (stream->opened) {
- 				/*
- 				 * check if the stream tag matches the stream
+ 	while (!of_parse_phandle_with_args(dev->of_node, "iommus",
+ 					   "#iommu-cells",
+ 					   idx, &iommu_spec)) {
 -- 
 2.34.1
 
