@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F27E4EC12E
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB3E4EC112
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345031AbiC3L46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34648 "EHLO
+        id S1345040AbiC3L47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:56:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345463AbiC3Lyc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C74DFE2;
-        Wed, 30 Mar 2022 04:51:15 -0700 (PDT)
+        with ESMTP id S1345486AbiC3Lye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578A956C2C;
+        Wed, 30 Mar 2022 04:51:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5685361656;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61925615E2;
+        Wed, 30 Mar 2022 11:51:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA65C36AE7;
         Wed, 30 Mar 2022 11:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85BB9C36AE2;
-        Wed, 30 Mar 2022 11:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641074;
-        bh=eAu7CtqUbejdrEQNt9DreNr/zKSssNpE1NjUjFYTwPA=;
+        s=k20201202; t=1648641075;
+        bh=88LTelDtAyy9nHLOSmjZZen1jg0+KYqYM4xvoT3Q44I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfGWVeLsdT/b04cTMn6JSS5Ws3dkU5/qk+ViidPKBFxFf76Pxt4TZxfRa955QWLKd
-         PhqulUbVq3FfJBLJkFInnTABhXOk6qW+pOIk1dHlhuFAJsWoic/WrHL7vxM9mKeCSE
-         5q6GSRMY2YGZ7nEqfmRancYkFK05x1UBRhd1KIhwSWM+kLEPseIV5J6Lzm2zRhjIeP
-         5qwUsH5g2jRR8CrnyJTp3HcVqcMRImmhy4Ss6ME6mKO7gKX59CvcX4J9trYmwBlqc3
-         /5swOYJoMUMTvVobIBkrXqk2oLR3HLQPTk+Wl+CEj/BXMaSrZlN2ebwza0hxEWJKzy
-         XJ7tCqcyz8uUQ==
+        b=Qs/Oj1T3LiuiCkNyjkxbZKnANRiWuJkUuVRnEzSMQkz6gJLATP9L8WVfOH9BGSnst
+         g1E1/nfqXM6F2PzPYpe4V8+cSlD6dNIca1VfbuBJFqIcB92GpmmX66AGj0sDE1zKBK
+         GWGmdAfgcakzHw3bevCYYCQR0YLEi/6iL02Vuj90nO2zDSDySlwd1bkwUpOsYQeN/5
+         9RI/8gP/K+aqGf2Bz0qkVN5Yi2PDhLc8XJRinmYq3LbYAgwyimv0h8MHXBl7DytAhk
+         VCvhZz9qJjqCq8yDwsIrN3XtylZr1Lhq17CZ0zQG4XwH5EaLrZPD4gfNmb5A8t1krC
+         oSAYG3AX5F/Lw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony I Gilea <i@cpp.in>, Rander Wang <rander.wang@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 45/50] ASoC: Intel: sof_sdw: fix quirks for 2022 HP Spectre x360 13"
-Date:   Wed, 30 Mar 2022 07:49:59 -0400
-Message-Id: <20220330115005.1671090-45-sashal@kernel.org>
+Cc:     "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
+Subject: [PATCH AUTOSEL 5.15 46/50] tracing: Have TRACE_DEFINE_ENUM affect trace event types as well
+Date:   Wed, 30 Mar 2022 07:50:00 -0400
+Message-Id: <20220330115005.1671090-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115005.1671090-1-sashal@kernel.org>
 References: <20220330115005.1671090-1-sashal@kernel.org>
@@ -58,52 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony I Gilea <i@cpp.in>
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-[ Upstream commit ce73ef6ec67104d1fcc4c5911d77ce83288a0998 ]
+[ Upstream commit b3bc8547d3be60898818885f5bf22d0a62e2eb48 ]
 
-HP changed the DMI identification for 2022 devices:
-Product Name: HP Spectre x360 Conv 13-ap0001na
-Product Name: 8709
-This patch relaxes the DMI_MATCH criterion to work with all versions of this product.
+The macro TRACE_DEFINE_ENUM is used to convert enums in the kernel to
+their actual value when they are exported to user space via the trace
+event format file.
 
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Anthony I Gilea <i@cpp.in>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220304204532.54675-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Currently only the enums in the "print fmt" (TP_printk in the TRACE_EVENT
+macro) have the enums converted. But the enums can be used to denote array
+size:
+
+        field:unsigned int fc_ineligible_rc[EXT4_FC_REASON_MAX]; offset:12;      size:36;        signed:0;
+
+The EXT4_FC_REASON_MAX has no meaning to userspace but it needs to know
+that information to know how to parse the array.
+
+Have the array indexes also be parsed as well.
+
+Link: https://lore.kernel.org/all/cover.1646922487.git.riteshh@linux.ibm.com/
+
+Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Tested-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/dmi-quirks.c   | 2 +-
- sound/soc/intel/boards/sof_sdw.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/soundwire/dmi-quirks.c b/drivers/soundwire/dmi-quirks.c
-index 0ca2a3e3a02e..747983743a14 100644
---- a/drivers/soundwire/dmi-quirks.c
-+++ b/drivers/soundwire/dmi-quirks.c
-@@ -59,7 +59,7 @@ static const struct dmi_system_id adr_remap_quirk_table[] = {
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
- 		},
- 		.driver_data = (void *)intel_tgl_bios,
- 	},
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 76759b209906..0bf3e56e1d58 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -184,7 +184,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 		.callback = sof_sdw_quirk_cb,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
- 		},
- 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
- 					SOF_SDW_PCH_DMIC |
+diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
+index 44d031ffe511..fa2b632055b3 100644
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -2633,6 +2633,33 @@ static void update_event_printk(struct trace_event_call *call,
+ 	}
+ }
+ 
++static void update_event_fields(struct trace_event_call *call,
++				struct trace_eval_map *map)
++{
++	struct ftrace_event_field *field;
++	struct list_head *head;
++	char *ptr;
++	int len = strlen(map->eval_string);
++
++	head = trace_get_fields(call);
++	list_for_each_entry(field, head, link) {
++		ptr = strchr(field->type, '[');
++		if (!ptr)
++			continue;
++		ptr++;
++
++		if (!isalpha(*ptr) && *ptr != '_')
++			continue;
++
++		if (strncmp(map->eval_string, ptr, len) != 0)
++			continue;
++
++		ptr = eval_replace(ptr, map, len);
++		/* enum/sizeof string smaller than value */
++		WARN_ON_ONCE(!ptr);
++	}
++}
++
+ void trace_event_eval_update(struct trace_eval_map **map, int len)
+ {
+ 	struct trace_event_call *call, *p;
+@@ -2668,6 +2695,7 @@ void trace_event_eval_update(struct trace_eval_map **map, int len)
+ 					first = false;
+ 				}
+ 				update_event_printk(call, map[i]);
++				update_event_fields(call, map[i]);
+ 			}
+ 		}
+ 	}
 -- 
 2.34.1
 
