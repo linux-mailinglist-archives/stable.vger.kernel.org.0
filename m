@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D984A4EC07E
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3AC4EC084
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344041AbiC3Lvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:51:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60272 "EHLO
+        id S1343829AbiC3Lvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:51:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344105AbiC3Lu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:50:59 -0400
+        with ESMTP id S1343894AbiC3LvA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:51:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4272706F7;
-        Wed, 30 Mar 2022 04:47:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE15270864;
+        Wed, 30 Mar 2022 04:47:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E09A7615F5;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A49F261618;
+        Wed, 30 Mar 2022 11:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4363C36AE3;
         Wed, 30 Mar 2022 11:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA985C3410F;
-        Wed, 30 Mar 2022 11:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648640872;
-        bh=B+LL6HqRHaXg/j5A4/f7HpsysJBncMEphF9/Mdw/N7Y=;
+        s=k20201202; t=1648640874;
+        bh=22FrN/fWz3S0ZkinV5860q4c/43ru8CkhvglXdQ49sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KA9MBMx9ycrp+J1LNOnriRa1Ftta4cFb5mjmXy/vmUDqEEIzvXkwc1Cyg/M2HNEoX
-         8OCVONV4yBqBaXqOnIU2oTa3FYYvzDDSPxZ6pdNOzdWklre4MtnBxFpVX80XKy3OWN
-         3pxh6r3zMPN/2cRhaTek2qmv/6FyzgGlxBA6CcURkFXXBzrd9ju4H0jbRA31CdU4qP
-         oF+UbjqKruZYTJ2ATNZEJdcR3XPM9Vs697oq13Cfc3JzrjHWJk64qOq2tkdNfrVVTw
-         K15mnwOdhtn8NS3U2AoFBCnwilsazTm/j8pj748KmDr5VK8KQk6f8jUq+5kXiylIih
-         sdMGRY3ANkHAw==
+        b=HuL/0NrBFbDSnMXIRsjhmEvu3Kz41ce4AKSHX59DAfPQog56fdTQPcTJ/Ctf8IdZe
+         QwZ+HPGOXEBghaQo1HTt37jJMZ4mHMrRfg+zXFHL/4tIsZDcPOl7GRenqIRlC+7RRL
+         VufQ9mD+Db7ZWqyT7eAXrQhG8+ZBiUF943qp4dNmfERK/7uR+k24EbwsSVuHVfckrm
+         l9JoFCusjgrSTpInvdHq5RYNO4ZdaWJQOYo8Oi2PscDj077GOnnLklDvP/MTj6FgT0
+         AbEBdQ7GjQAJ/EK7n23gRxJroo0k6DFr5/J6NZWtFtYY/AIRDeybigc8c8UfyWl3h3
+         qh/Mk6ZnPQj8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.17 42/66] lib/test_lockup: fix kernel pointer check for separate address spaces
-Date:   Wed, 30 Mar 2022 07:46:21 -0400
-Message-Id: <20220330114646.1669334-42-sashal@kernel.org>
+Cc:     Richard Leitner <richard.leitner@skidata.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        mark.rutland@arm.com, linux@armlinux.org.uk, swarren@wwwdotorg.org,
+        thierry.reding@gmail.com, gnurou@gmail.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 43/66] ARM: tegra: tamonten: Fix I2C3 pad setting
+Date:   Wed, 30 Mar 2022 07:46:22 -0400
+Message-Id: <20220330114646.1669334-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330114646.1669334-1-sashal@kernel.org>
 References: <20220330114646.1669334-1-sashal@kernel.org>
@@ -54,46 +60,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Richard Leitner <richard.leitner@skidata.com>
 
-[ Upstream commit 5a06fcb15b43d1f7bf740c672950122331cb5655 ]
+[ Upstream commit 0092c25b541a5422d7e71892a13c55ee91abc34b ]
 
-test_kernel_ptr() uses access_ok() to figure out if a given address
-points to user space instead of kernel space. However on architectures
-that set CONFIG_ALTERNATE_USER_ADDRESS_SPACE, a pointer can be valid
-for both, and the check always fails because access_ok() returns true.
+This patch fixes the tristate configuration for i2c3 function assigned
+to the dtf pins on the Tamonten Tegra20 SoM.
 
-Make the check for user space pointers conditional on the type of
-address space layout.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_lockup.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/tegra20-tamonten.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/test_lockup.c b/lib/test_lockup.c
-index 6a0f329a794a..c3fd87d6c2dd 100644
---- a/lib/test_lockup.c
-+++ b/lib/test_lockup.c
-@@ -417,9 +417,14 @@ static bool test_kernel_ptr(unsigned long addr, int size)
- 		return false;
- 
- 	/* should be at least readable kernel address */
--	if (access_ok((void __user *)ptr, 1) ||
--	    access_ok((void __user *)ptr + size - 1, 1) ||
--	    get_kernel_nofault(buf, ptr) ||
-+	if (!IS_ENABLED(CONFIG_ALTERNATE_USER_ADDRESS_SPACE) &&
-+	    (access_ok((void __user *)ptr, 1) ||
-+	     access_ok((void __user *)ptr + size - 1, 1))) {
-+		pr_err("user space ptr invalid in kernel: %#lx\n", addr);
-+		return true;
-+	}
-+
-+	if (get_kernel_nofault(buf, ptr) ||
- 	    get_kernel_nofault(buf, ptr + size - 1)) {
- 		pr_err("invalid kernel ptr: %#lx\n", addr);
- 		return true;
+diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+index de39c5465c0a..0e19bd0a847c 100644
+--- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
++++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+@@ -183,8 +183,8 @@
+ 			};
+ 			conf_ata {
+ 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
+-					"cdev1", "cdev2", "dap1", "dtb", "gma",
+-					"gmb", "gmc", "gmd", "gme", "gpu7",
++					"cdev1", "cdev2", "dap1", "dtb", "dtf",
++					"gma", "gmb", "gmc", "gmd", "gme", "gpu7",
+ 					"gpv", "i2cp", "irrx", "irtx", "pta",
+ 					"rm", "slxa", "slxk", "spia", "spib",
+ 					"uac";
+@@ -203,7 +203,7 @@
+ 			};
+ 			conf_crtp {
+ 				nvidia,pins = "crtp", "dap2", "dap3", "dap4",
+-					"dtc", "dte", "dtf", "gpu", "sdio1",
++					"dtc", "dte", "gpu", "sdio1",
+ 					"slxc", "slxd", "spdi", "spdo", "spig",
+ 					"uda";
+ 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 -- 
 2.34.1
 
