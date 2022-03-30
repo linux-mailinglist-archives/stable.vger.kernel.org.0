@@ -2,132 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7AA74EB701
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 01:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B8A4EB774
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 02:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230263AbiC2Xur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Mar 2022 19:50:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34400 "EHLO
+        id S241457AbiC3A3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Mar 2022 20:29:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240154AbiC2Xuq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 19:50:46 -0400
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED05B1893;
-        Tue, 29 Mar 2022 16:49:02 -0700 (PDT)
-Received: from [192.168.1.206] (unknown [109.252.138.0])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 99997407626F;
-        Tue, 29 Mar 2022 23:49:00 +0000 (UTC)
-From:   Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: Stable release process proposal (Was: Linux 5.10.109)
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz
-References: <164845571613863@kroah.com>
-Autocrypt: addr=khoroshilov@ispras.ru; prefer-encrypt=mutual; keydata=
- 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
- kK2E04Fb+Zk1eJvHYRc=
-Message-ID: <44e28591-873a-d873-e04a-78dda900a5de@ispras.ru>
-Date:   Wed, 30 Mar 2022 02:49:00 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        with ESMTP id S241323AbiC3A3o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Mar 2022 20:29:44 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCCBBB716F
+        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 17:28:00 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id p17so19090352plo.9
+        for <stable@vger.kernel.org>; Tue, 29 Mar 2022 17:28:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=4jVwb2dMkJltILuhJbsIA7P6kB3yDQfE9kNIJQ3/0AI=;
+        b=SXTF5kqDkZCyMRflakBrSGUVgl1RehL2zWwt73HiPVstorAmHpQlTZf+Kz2NFYWkuh
+         2MkTGvcCFDXN+zRFtv0I5zq5PBtVOrh09JvO4kNYkwAlVnEBpLvoCGOmos/OKVPNtiEK
+         PdbsmJZwkc+ctu2ynNFoB5kHEUlHA/dMbxJ1LvLsum6MRkwLgyBkUl9ZjmQmJmsWBFNl
+         jFIVOxd+Uvjs+J0EA0bo5k01UyMky/fynlPyK2iKsxHUEfkB8+gWH68b52ulnuipH/25
+         MpPBWR9DwxVJvF6YKcIdhBQhOrysMQ3faalNRXiN1uurZrvx+4lfN/GOWhv8s1Hbc1nu
+         JxBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=4jVwb2dMkJltILuhJbsIA7P6kB3yDQfE9kNIJQ3/0AI=;
+        b=Yw2Ye/Zmpsbq7N8lK7kr0ShZm66N0MRhh3XGZ+0CZx9B2c1sxH5nx0uh4i6ToM7Njf
+         oDikTgFU/JNDrYC9iTxOUFXaE63HT0KNmb/RF0CrBwW5AIgt6OaRUGnE7Vrt4ETl3/f+
+         kjpTyOhBwJM6xmGlXRv/I5k4IKJM6hcYvsoLghXR8PqP2G9mwq7G2cH9I9ZBMlA2n+a+
+         sJbvzxpPBmhE8u599xddnq0Z8iAaCa8MykGdpFj09y1fy6OhkA4gtQXbee4f3SafChze
+         Pwxa+RBGy2cAN19+/grmaOLTgV8I3sDiYOL1zQR0anXTK3/EiYrNRxlLZZ3xMuvy2sTL
+         QEsw==
+X-Gm-Message-State: AOAM533FQQJkfzaSAoPEHB9B4aiSBzrtDuvFBho2rVMlqgSe/6aDDLPz
+        HCqMTU5d4aWdSjDHYE+JrvMeEQ==
+X-Google-Smtp-Source: ABdhPJxDPnfSqa9sBDhByFovj/J1uemrROzh2kfeBrgzuY7bYXwESTYg4EJbiz9+kfcJEGHP1dWz3Q==
+X-Received: by 2002:a17:90a:8c8e:b0:1c9:c81d:9e13 with SMTP id b14-20020a17090a8c8e00b001c9c81d9e13mr1845431pjo.123.1648600079890;
+        Tue, 29 Mar 2022 17:27:59 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id i15-20020a63b30f000000b003803aee35a2sm16520437pgf.31.2022.03.29.17.27.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Mar 2022 17:27:59 -0700 (PDT)
+Date:   Wed, 30 Mar 2022 00:27:55 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Maxim Levitsky <mlevitsk@redhat.com>
+Cc:     kvm@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Borislav Petkov <bp@alien8.de>, Joerg Roedel <joro@8bytes.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        linux-kernel@vger.kernel.org,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/8] KVM: x86: avoid loading a vCPU after .vm_destroy was
+ called
+Message-ID: <YkOkCwUgMD1SVfaD@google.com>
+References: <20220322172449.235575-1-mlevitsk@redhat.com>
+ <20220322172449.235575-2-mlevitsk@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <164845571613863@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220322172449.235575-2-mlevitsk@redhat.com>
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Greg,
+On Tue, Mar 22, 2022, Maxim Levitsky wrote:
+> This can cause various unexpected issues, since VM is partially
+> destroyed at that point.
+> 
+> For example when AVIC is enabled, this causes avic_vcpu_load to
+> access physical id page entry which is already freed by .vm_destroy.
 
-First of all, thank you very much for keeping stable maintenance so well.
+Hmm, the SEV unbinding of ASIDs should be done after MMU teardown too (which your
+patch also does).
 
-We (Linux Verification Center of ISPRAS (linuxtesting.org)) are going to
-join a team of regular testers for releases in 5.10 stable branch (and
-other branches later). We are deploying some test automation for that
-and have met an oddity that would to discuss.
+> 
+> Fixes: 8221c1370056 ("svm: Manage vcpu load/unload when enable AVIC")
+> Cc: stable@vger.kernel.org
+> 
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> ---
+>  arch/x86/kvm/x86.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index d3a9ce07a565..ba920e537ddf 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -11759,20 +11759,15 @@ static void kvm_unload_vcpu_mmu(struct kvm_vcpu *vcpu)
+>  	vcpu_put(vcpu);
+>  }
+>  
+> -static void kvm_free_vcpus(struct kvm *kvm)
+> +static void kvm_unload_vcpu_mmus(struct kvm *kvm)
+>  {
+>  	unsigned long i;
+>  	struct kvm_vcpu *vcpu;
+>  
+> -	/*
+> -	 * Unpin any mmu pages first.
+> -	 */
+>  	kvm_for_each_vcpu(i, vcpu, kvm) {
+>  		kvm_clear_async_pf_completion_queue(vcpu);
+>  		kvm_unload_vcpu_mmu(vcpu);
+>  	}
+> -
+> -	kvm_destroy_vcpus(kvm);
+>  }
+>  
+>  void kvm_arch_sync_events(struct kvm *kvm)
+> @@ -11878,11 +11873,12 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>  		__x86_set_memory_region(kvm, TSS_PRIVATE_MEMSLOT, 0, 0);
+>  		mutex_unlock(&kvm->slots_lock);
+>  	}
+> +	kvm_unload_vcpu_mmus(kvm);
+>  	static_call_cond(kvm_x86_vm_destroy)(kvm);
+>  	kvm_free_msr_filter(srcu_dereference_check(kvm->arch.msr_filter, &kvm->srcu, 1));
+>  	kvm_pic_destroy(kvm);
+>  	kvm_ioapic_destroy(kvm);
+> -	kvm_free_vcpus(kvm);
+> +	kvm_destroy_vcpus(kvm);
 
-Sometimes, like in 5.10.109 release, we have a situation when a
-released version (5.10.109) differs from the release candidate
-(5.10.109-rс1). In this case there was a patch "llc: only change
-llc->dev when bind()succeeds" added to fix a bug in another llc fix.
-Unfortunately, as Pavel noted, this patch does not fix a bug, but
-introduces a new one, because another commit b37a46683739 ("netdevice:
-add the case if dev is NULL") was missed in 5.10 branch.
+Rather than split kvm_free_vcpus(), can we instead move the call to svm_vm_destroy()
+by adding a second hook, .vm_teardown(), which is needed for TDX?  I.e. keep VMX
+where it is by using vm_teardown, but effectively move SVM?
 
-The problem will be fixed in 5.10.110, but we still have a couple oddities:
-- we have a release that should not be recommended for use
-- we have a commit message misleading users when says:
+https://lore.kernel.org/all/1fa2d0db387a99352d44247728c5b8ae5f5cab4d.1637799475.git.isaku.yamahata@intel.com
 
-    Tested-by: Pavel Machek (CIP) <pavel@denx.de>
-    Tested-by: Fox Chen <foxhlchen@gmail.com>
-    Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-    Tested-by: Shuah Khan <skhan@linuxfoundation.org>
-    Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-    Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-    Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-    Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-    Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-but actually nobody tested that version.
-
-There are potential modifications in stable release process that can
-prevent such problems:
-
-(1) to always release rс2 when there are changes in rc1 introduced
-
-(2) to avoid Tested-by: section from release commits in such situations.
-
-Or may be it is overkill and it too complicates maintenance work to be
-worth. What do you think?
-
-
-Best regards,
-Alexey Khoroshilov
+>  	kvfree(rcu_dereference_check(kvm->arch.apic_map, 1));
+>  	kfree(srcu_dereference_check(kvm->arch.pmu_event_filter, &kvm->srcu, 1));
+>  	kvm_mmu_uninit_vm(kvm);
+> -- 
+> 2.26.3
+> 
