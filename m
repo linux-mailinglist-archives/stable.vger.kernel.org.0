@@ -2,138 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3843D4EC874
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 17:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2A54EC8B1
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 17:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348343AbiC3Pkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 11:40:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40458 "EHLO
+        id S1348368AbiC3PrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 11:47:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348315AbiC3Pka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 11:40:30 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 013D733A05
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 08:38:43 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id w8so20757554pll.10
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 08:38:42 -0700 (PDT)
+        with ESMTP id S1345538AbiC3PrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 11:47:09 -0400
+Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59E43CFDC
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 08:45:23 -0700 (PDT)
+Received: by mail-pg1-x549.google.com with SMTP id b7-20020a633407000000b0038413d39ca9so10608997pga.4
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 08:45:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=PH2IKug3msVmhqATi4898BPFtOeqgwURjayJxZ+tkKo=;
-        b=vQyrHerDR3v4gdTlsmN6gCIu74HpxhPUKl9g5n/dx2n09d5+N1DdBJmAB7QkNPfu+y
-         NRhJw7Ig0FDl6Q69MQjOfDtv0BzxtzM7zZVG9mGeV7UH8EggqbzTH5KwT5OIY3j43joI
-         TvZqp48lmn+qK1C+NX0gvu7IyboyPcDMwwhfNTo6Jzao2RyPAETQKWnO75RN0BU4skbl
-         zdB8Htl0u12AvIGeIxbfW/zmjA6pkMZLc1AFt98dmc4DdamR+HdtQScq6sjYrgxavuDn
-         Ko6fwzSSXE3qR4Uss4mpaepTCLXFooH282MeW76MIv6GAfv2AfHS6GK5hnHpkkJTR/xi
-         clEA==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=5RO0h7SlkhWDtkiwNNqQKmwwaSacTT2ooCOZR2ytR38=;
+        b=B1ke7mtNtv/HPLK923j2Z2xWP4TSGijSqmxaVsaCbNYyTrvp11EZzDW3PWzH4XKLBj
+         xw0lX40uRNlPYK898BfeODXb65IdEevuLZ/r79g2ne2z+mayz/OwF2sJDHAUDxoLCCUL
+         S6XrfOHXUbvn2VxK0n4CJbonEC/cyCO6zI8CmLtIXPYPtMpCp4Udp7LtL/Dowux1fvSO
+         uRonU0R2/3f4KWiC06+NBu9T8Wm3fP6UBkoOsgo54CQm0GzAZMcd+yDAhpnjbG0O4lVg
+         a/OanRhwW9Nw+VDNNYIOSDWwZ/cIyMToKtGaEVF6TcHfb/FFvjYDOoaeGFXH15y0y8MJ
+         cThQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=PH2IKug3msVmhqATi4898BPFtOeqgwURjayJxZ+tkKo=;
-        b=KfMUS8g5RQacF/pFOwvaYLGgdtCARncDe4A2KL21iiq10m1KHqm6vjkx0/flPvQSj/
-         UE6JuLlIfCMmD4kRh+3f4m+8W3rKV8c+AnV3gDCjj8ihYmSuA1//V5v2ViI0HnVNVvAa
-         pKqt9gPt8ehUXpTbINL6/5N5DeO5d013bB3SRfcUfuTFcW7dV5n+rUOq77haqa8wjHC2
-         gLYfj6F/Ed5ETxW7nQLpa8+1RsZdKoxtm1LDqxejT+8onzDjIQhFUac1AGeMXLN4FRpZ
-         cbk3viLIloH60Ef+CTHJor/6uLw7fLQ+QBy0mvUIGRSXWTuhF9gwwwECsYmYSEfGAfkF
-         qaPA==
-X-Gm-Message-State: AOAM532inVpe692pxWC5O+d5vHjomOqpzMnhPNlVFVprgkFpzLIUkDxy
-        tQKwn96yUctFa1A8hQmT07Q1s8QMKVNAX8k3icg=
-X-Google-Smtp-Source: ABdhPJwwByix5e4xoeyWicBmcQt89nGCDH3aWfvZ8z3Swz3hFDHRKIj0CSV23BgDAXFuaCNi2c+zIg==
-X-Received: by 2002:a17:903:32ca:b0:154:7cee:7737 with SMTP id i10-20020a17090332ca00b001547cee7737mr143329plr.173.1648654722127;
-        Wed, 30 Mar 2022 08:38:42 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f12-20020a056a001acc00b004fb37ecc6b2sm14671156pfv.29.2022.03.30.08.38.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Mar 2022 08:38:41 -0700 (PDT)
-Message-ID: <62447981.1c69fb81.45d06.3365@mx.google.com>
-Date:   Wed, 30 Mar 2022 08:38:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.237-11-g040550c29a1c
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 50 runs,
- 1 regressions (v4.19.237-11-g040550c29a1c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=5RO0h7SlkhWDtkiwNNqQKmwwaSacTT2ooCOZR2ytR38=;
+        b=MB0JwM8WC4Ls0bU/xXD7gX+TesZU34NjIvzxUf6Smwcr3Jwma3b7q0lUDT2TsCgpTv
+         ppXIHnapQMqKam89HYw5ip/nv7CQWNVQgpADoRblB+2TzZWObKaaKWrPuGUSQ8mDJ7gJ
+         lU/au9LMmFL0ZRAZnYDcGG3xiWo0OxQyOhzj1owZqC6BRbeJWT9VZf2oluJ2gURPbmoP
+         Gu5kqMhJPxLYcTr594PCH8CY/s+wyxlyvB9phPJFLwE3hlG73erftg/s2N+ORO0uRFu7
+         ZVK1hfoppjCdXuS+WI46wOOq0FMIKy0tzuH3JVkqB5UExc+xiMOKM0tClFc/HuRUv9+z
+         +B6w==
+X-Gm-Message-State: AOAM531jjFuE+PVdPVXGT1Ek6xEmOtMhu85YRkEKpu3yXedwuLbrwqIG
+        55gevheH/K+do5z98npFPmmNNeMv6HOiCdSh9j41OQ1SnKwZmfsJxpUe7ej8NtqfiSb6SakPABE
+        uDyzrMdCklxTTeG8oA3rXfG5os+XTXRR8Z2/rGvfvDQsnadMf/ohnZwKGWIxr2BF/
+X-Google-Smtp-Source: ABdhPJyE25k/5jeT/3MRwPZxLUDWH2qfbV8M9RCP7ZbnIUyG1Uq5SzmCBlmMkX0MDWwlaTixPBEyJCT10xG7
+X-Received: from zokeefe3.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:1b6])
+ (user=zokeefe job=sendgmr) by 2002:a63:2d07:0:b0:381:e49:ae0c with SMTP id
+ t7-20020a632d07000000b003810e49ae0cmr6643967pgt.261.1648655123225; Wed, 30
+ Mar 2022 08:45:23 -0700 (PDT)
+Date:   Wed, 30 Mar 2022 08:45:04 -0700
+Message-Id: <20220330154505.3761706-1-zokeefe@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.1.1021.g381101b075-goog
+Subject: [PATCH v4.14 v4.19] fuse: fix pipe buffer lifetime for direct_io
+From:   "Zach O'Keefe" <zokeefe@google.com>
+To:     stable@vger.kernel.org
+Cc:     edumazet@google.com, khazhy@google.com,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        "Zach O'Keefe" <zokeefe@google.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 50 runs, 1 regressions (v4.19.237-11-g040550=
-c29a1c)
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-Regressions Summary
--------------------
+commit 0c4bcfdecb1ac0967619ee7ff44871d93c08c909 upstream.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+In FOPEN_DIRECT_IO mode, fuse_file_write_iter() calls
+fuse_direct_write_iter(), which normally calls fuse_direct_io(), which then
+imports the write buffer with fuse_get_user_pages(), which uses
+iov_iter_get_pages() to grab references to userspace pages instead of
+actually copying memory.
 
+On the filesystem device side, these pages can then either be read to
+userspace (via fuse_dev_read()), or splice()d over into a pipe using
+fuse_dev_splice_read() as pipe buffers with &nosteal_pipe_buf_ops.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.237-11-g040550c29a1c/plan/baseline/
+This is wrong because after fuse_dev_do_read() unlocks the FUSE request,
+the userspace filesystem can mark the request as completed, causing write()
+to return. At that point, the userspace filesystem should no longer have
+access to the pipe buffer.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.237-11-g040550c29a1c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      040550c29a1c16f89ac60a484928d10ff4b52119 =
+Fix by copying pages coming from the user address space to new pipe
+buffers.
 
+Reported-by: Jann Horn <jannh@google.com>
+Fixes: c3021629a0d8 ("fuse: support splice() reading from fuse device")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Zach O'Keefe <zokeefe@google.com>
 
+---
+Applies against stable-v4.14 and stable-v4.19
 
-Test Regressions
----------------- =
+struct fuse_args hasn't been piped through relevant functions yet, so
+place user_pages flag in an empty hole in struct fuse_req instead.
 
+ fs/fuse/dev.c    | 12 +++++++++++-
+ fs/fuse/file.c   |  1 +
+ fs/fuse/fuse_i.h |  2 ++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index db7d746633cf..1c98b5b7bead 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -991,7 +991,17 @@ static int fuse_copy_page(struct fuse_copy_state *cs, struct page **pagep,
+ 
+ 	while (count) {
+ 		if (cs->write && cs->pipebufs && page) {
+-			return fuse_ref_page(cs, page, offset, count);
++			/*
++			 * Can't control lifetime of pipe buffers, so always
++			 * copy user pages.
++			 */
++			if (cs->req->user_pages) {
++				err = fuse_copy_fill(cs);
++				if (err)
++					return err;
++			} else {
++				return fuse_ref_page(cs, page, offset, count);
++			}
+ 		} else if (!cs->len) {
+ 			if (cs->move_pages && page &&
+ 			    offset == 0 && count == PAGE_SIZE) {
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 5f5da2911cea..a32b2ca3de6f 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1325,6 +1325,7 @@ static int fuse_get_user_pages(struct fuse_req *req, struct iov_iter *ii,
+ 			(PAGE_SIZE - ret) & (PAGE_SIZE - 1);
+ 	}
+ 
++	req->user_pages = true;
+ 	if (write)
+ 		req->in.argpages = 1;
+ 	else
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index fac1f08dd32e..30fdede2ea64 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -312,6 +312,8 @@ struct fuse_req {
+ 	/** refcount */
+ 	refcount_t count;
+ 
++	bool user_pages;
++
+ 	/** Unique ID for the interrupt request */
+ 	u64 intr_unique;
+ 
+-- 
+2.35.1.1021.g381101b075-goog
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62444d5439f166b3d6ae06c7
-
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--11-g040550c29a1c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--11-g040550c29a1c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62444d5439f166b3d6ae06e9
-        failing since 24 days (last pass: v4.19.232-31-g5cf846953aa2, first=
- fail: v4.19.232-44-gfd65e02206f4)
-
-    2022-03-30T12:29:45.973313  /lava-5980128/1/../bin/lava-test-case
-    2022-03-30T12:29:45.981467  <8>[   36.857084] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
