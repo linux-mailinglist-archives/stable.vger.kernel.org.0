@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 757444EC2AA
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3A94EC2C8
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 14:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245240AbiC3MAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 08:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35582 "EHLO
+        id S1344626AbiC3MBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 08:01:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344349AbiC3Lzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:50 -0400
+        with ESMTP id S1344404AbiC3Lzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:55:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0072F383;
-        Wed, 30 Mar 2022 04:54:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F39352F38F;
+        Wed, 30 Mar 2022 04:54:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DFC0F6170D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C22261710;
+        Wed, 30 Mar 2022 11:54:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE34FC340EE;
         Wed, 30 Mar 2022 11:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5135EC34116;
-        Wed, 30 Mar 2022 11:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641240;
-        bh=4QpLtH7S8RdCIQtLmepIpbKl1cszcxf5LaxKnqz6APU=;
+        s=k20201202; t=1648641241;
+        bh=bkZOOo4OTLPt/6iak3xmqexQD+t/tDVRYpkeLEA+SSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TsS80mCFpL6uK34d9gNkIn8djeTKfYBcMq6yyO+dlQg52gOYsefwTbqxw+ox5a5Qq
-         QcsDCGnn6Zhif5m2Ppuvr6s8z6fXLCtchbJgXT5wam6EBTP8nMcqTtlRYbKWg8uOuc
-         cB14/6MVmaRfmXMWKFwKhwTrQq2aSME+O08g+UbiEBKa2IDTtLDYjDNhe6eXL8OhXL
-         KNl+51HFc2En/Rko64SJTLFT1hdW1qFtW2F7jjBMhaHUh5bJ+ywp81Oe7akL9BJude
-         ESuQzSZDBs0+WU+ZBHcKSewWVoHbch5u6a3IWqa2+UWOrG94qcdfc3pyx0Ni/rT6sR
-         4mNNMrr0z+2aQ==
+        b=QshwmhRX//JyI4JspCsHPbCQiIRv/o6zxCJdvZKi1cVPYFBz/8F6wLl29omci4tRn
+         Ea5ucCwkz4Tbk+kqKqeGkn+WsSoVB5nM/HRAHWe4z52TzszZTn2ghz3SMlWwY3tmsJ
+         ivAOIBDtSxGPrsQtuYjKKaOD7czYoDrsxf6QOGVQP7ZFQRqQ/6jYFsxvVao/UfgA42
+         5rMh14a1f1caUHqJnotYgbn+dsiTWcBonGYXVCmKIZaIG9dAizPuxgNai2fSoDIR+O
+         XfTaVwKYOIfvV1bizO9oK21HCkmJokaieJZVotjlmIptsJHQjAKPZHDcOjgX89hznE
+         IYNboEIu9ZuoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        eric.y.miao@gmail.com, haojian.zhuang@gmail.com,
-        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 15/20] ARM: mmp: Fix failure to remove sram device
-Date:   Wed, 30 Mar 2022 07:53:31 -0400
-Message-Id: <20220330115336.1672930-15-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>, sudipm.mukherjee@gmail.com,
+        teddy.wang@siliconmotion.com, tomi.valkeinen@ti.com,
+        linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 16/20] video: fbdev: sm712fb: Fix crash in smtcfb_write()
+Date:   Wed, 30 Mar 2022 07:53:32 -0400
+Message-Id: <20220330115336.1672930-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115336.1672930-1-sashal@kernel.org>
 References: <20220330115336.1672930-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,74 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 4036b29a146b2749af3bb213b003eb69f3e5ecc4 ]
+[ Upstream commit 4f01d09b2bbfbcb47b3eb305560a7f4857a32260 ]
 
-Make sure in .probe() to set driver data before the function is left to
-make it possible in .remove() to undo the actions done.
+When the sm712fb driver writes three bytes to the framebuffer, the
+driver will crash:
 
-This fixes a potential memory leak and stops returning an error code in
-.remove() that is ignored by the driver core anyhow.
+    BUG: unable to handle page fault for address: ffffc90001ffffff
+    RIP: 0010:smtcfb_write+0x454/0x5b0
+    Call Trace:
+     vfs_write+0x291/0xd60
+     ? do_sys_openat2+0x27d/0x350
+     ? __fget_light+0x54/0x340
+     ksys_write+0xce/0x190
+     do_syscall_64+0x43/0x90
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fix it by removing the open-coded endianness fixup-code.
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mmp/sram.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/video/fbdev/sm712fb.c | 21 ++++-----------------
+ 1 file changed, 4 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/sram.c b/arch/arm/mach-mmp/sram.c
-index bf5e64906e65..a41162dc4af4 100644
---- a/arch/arm/mach-mmp/sram.c
-+++ b/arch/arm/mach-mmp/sram.c
-@@ -75,6 +75,8 @@ static int sram_probe(struct platform_device *pdev)
- 	if (!info)
+diff --git a/drivers/video/fbdev/sm712fb.c b/drivers/video/fbdev/sm712fb.c
+index 1781ca697f66..76b1866dfa95 100644
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1130,7 +1130,7 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
+ 		count = total_size - p;
+ 	}
+ 
+-	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
++	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!buffer)
  		return -ENOMEM;
  
-+	platform_set_drvdata(pdev, info);
-+
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (res == NULL) {
- 		dev_err(&pdev->dev, "no memory resource defined\n");
-@@ -110,8 +112,6 @@ static int sram_probe(struct platform_device *pdev)
- 	list_add(&info->node, &sram_bank_list);
- 	mutex_unlock(&sram_lock);
+@@ -1148,24 +1148,11 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
+ 			break;
+ 		}
  
--	platform_set_drvdata(pdev, info);
+-		for (i = c >> 2; i--;) {
+-			fb_writel(big_swap(*src), dst++);
++		for (i = (c + 3) >> 2; i--;) {
++			fb_writel(big_swap(*src), dst);
++			dst++;
+ 			src++;
+ 		}
+-		if (c & 3) {
+-			u8 *src8 = (u8 *)src;
+-			u8 __iomem *dst8 = (u8 __iomem *)dst;
 -
- 	dev_info(&pdev->dev, "initialized\n");
- 	return 0;
+-			for (i = c & 3; i--;) {
+-				if (i & 1) {
+-					fb_writeb(*src8++, ++dst8);
+-				} else {
+-					fb_writeb(*src8++, --dst8);
+-					dst8 += 2;
+-				}
+-			}
+-			dst = (u32 __iomem *)dst8;
+-		}
  
-@@ -130,17 +130,19 @@ static int sram_remove(struct platform_device *pdev)
- 	struct sram_bank_info *info;
- 
- 	info = platform_get_drvdata(pdev);
--	if (info == NULL)
--		return -ENODEV;
- 
--	mutex_lock(&sram_lock);
--	list_del(&info->node);
--	mutex_unlock(&sram_lock);
-+	if (info->sram_size) {
-+		mutex_lock(&sram_lock);
-+		list_del(&info->node);
-+		mutex_unlock(&sram_lock);
-+
-+		gen_pool_destroy(info->gpool);
-+		iounmap(info->sram_virt);
-+		kfree(info->pool_name);
-+	}
- 
--	gen_pool_destroy(info->gpool);
--	iounmap(info->sram_virt);
--	kfree(info->pool_name);
- 	kfree(info);
-+
- 	return 0;
- }
- 
+ 		*ppos += c;
+ 		buf += c;
 -- 
 2.34.1
 
