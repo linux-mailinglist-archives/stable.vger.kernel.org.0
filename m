@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B660F4EC1B8
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4A04EC160
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 13:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344794AbiC3L4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 07:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
+        id S1344814AbiC3L4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 07:56:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345127AbiC3LyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:54:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE667280C16;
-        Wed, 30 Mar 2022 04:50:27 -0700 (PDT)
+        with ESMTP id S1345112AbiC3Lx7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 07:53:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 245CC280C1F;
+        Wed, 30 Mar 2022 04:50:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F2CFB81C25;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECB98615E2;
         Wed, 30 Mar 2022 11:50:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89374C36AE5;
-        Wed, 30 Mar 2022 11:50:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A50C36AE7;
+        Wed, 30 Mar 2022 11:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648641026;
-        bh=l+m77C9idI4jM2I/cxdJVqKxviVUkNS+iBU28/SrWOs=;
+        s=k20201202; t=1648641027;
+        bh=qW1x31HnZxqlWv9yLK7leVGiHSRFHxjgpFRqN+3ePM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n0Or5OOQVIyxjl5LGE6VdR6xKSHD9PbCJZduGY+iHj5WskfZD/rBcjjEOhwL4k33F
-         +878mIs5JrJPatUrRX07jm8XdB+Smpd6dOOK3xmV2q8ZDfdAH1kP2ZLMXK1UtlD5Bd
-         DukOWH/axsuCzbah+rpadrUsC7tQUDPMviKgTG9UHkKp6AvAGwp0XdwvgAolk7ccu6
-         T5uspxWjcFHMP2AROc8PJw0vRLZmaBx0wH+hZ+9eGlgHXqK0JeibOEUSmpPpjOm6TE
-         Ge5qLq6e18VppxX9fToVqR1YA0SgTvIi6LzQl7VuvR+klcZ1EFzJPA8mRTcfhAM0eM
-         Q0cbviHCt2dlQ==
+        b=sNW7sIUmF6gyA5jE9F9jkE0j0kct26u0qZOPgVIip5weNpdwPtSq1xL8hhc2lRpfn
+         pp/DMQZ2glDSFy5P5ZaWUWnwD3OO7evKbY0A0XM2REEJHuFQHUzpkeWd19CYOUtxHY
+         ZBbxEYkvgFCXCHulIq8F+mS5R6IMm+WBFz+kfsh/TTqev0Zpcrsp7eRqUYU0nGJuSr
+         vljBX9LEeXNTdtpFwlo/+w+6UsqdQAsxnbMJOZuSguF1Nui6nDxXg1VJi66nr0bYEx
+         DGYst/s+LzAybTn8ypagyIo3dVuBjruqIMoIekUFYd0SXY47IxO7eW8Q4GUFYe1ZVH
+         g1WnWWxL05b7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yong Wu <yong.wu@mediatek.com>, Tomasz Figa <tfiga@chromium.org>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Joerg Roedel <jroedel@suse.de>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
-        matthias.bgg@gmail.com, iommu@lists.linux-foundation.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 12/50] media: iommu/mediatek: Add device_link between the consumer and the larb devices
-Date:   Wed, 30 Mar 2022 07:49:26 -0400
-Message-Id: <20220330115005.1671090-12-sashal@kernel.org>
+Cc:     Tim Gardner <tim.gardner@canonical.com>,
+        Antonino Daplas <adaplas@gmail.com>,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        tomi.valkeinen@ti.com
+Subject: [PATCH AUTOSEL 5.15 13/50] video: fbdev: nvidiafb: Use strscpy() to prevent buffer overflow
+Date:   Wed, 30 Mar 2022 07:49:27 -0400
+Message-Id: <20220330115005.1671090-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330115005.1671090-1-sashal@kernel.org>
 References: <20220330115005.1671090-1-sashal@kernel.org>
@@ -64,182 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Tim Gardner <tim.gardner@canonical.com>
 
-[ Upstream commit 635319a4a7444ca97124d781cd96deb277ff4d40 ]
+[ Upstream commit 37a1a2e6eeeb101285cd34e12e48a881524701aa ]
 
-MediaTek IOMMU-SMI diagram is like below. all the consumer connect with
-smi-larb, then connect with smi-common.
+Coverity complains of a possible buffer overflow. However,
+given the 'static' scope of nvidia_setup_i2c_bus() it looks
+like that can't happen after examiniing the call sites.
 
-        M4U
-         |
-    smi-common
-         |
-  -------------
-  |         |    ...
-  |         |
-larb1     larb2
-  |         |
-vdec       venc
+CID 19036 (#1 of 1): Copy into fixed size buffer (STRING_OVERFLOW)
+1. fixed_size_dest: You might overrun the 48-character fixed-size string
+  chan->adapter.name by copying name without checking the length.
+2. parameter_as_source: Note: This defect has an elevated risk because the
+  source argument is a parameter of the current function.
+ 89        strcpy(chan->adapter.name, name);
 
-When the consumer works, it should enable the smi-larb's power which
-also need enable the smi-common's power firstly.
+Fix this warning by using strscpy() which will silence the warning and
+prevent any future buffer overflows should the names used to identify the
+channel become much longer.
 
-Thus, First of all, use the device link connect the consumer and the
-smi-larbs. then add device link between the smi-larb and smi-common.
-
-This patch adds device_link between the consumer and the larbs.
-
-When device_link_add, I add the flag DL_FLAG_STATELESS to avoid calling
-pm_runtime_xx to keep the original status of clocks. It can avoid two
-issues:
-1) Display HW show fastlogo abnormally reported in [1]. At the beggining,
-all the clocks are enabled before entering kernel, but the clocks for
-display HW(always in larb0) will be gated after clk_enable and clk_disable
-called from device_link_add(->pm_runtime_resume) and rpm_idle. The clock
-operation happened before display driver probe. At that time, the display
-HW will be abnormal.
-
-2) A deadlock issue reported in [2]. Use DL_FLAG_STATELESS to skip
-pm_runtime_xx to avoid the deadlock.
-
-Corresponding, DL_FLAG_AUTOREMOVE_CONSUMER can't be added, then
-device_link_removed should be added explicitly.
-
-Meanwhile, Currently we don't have a device connect with 2 larbs at the
-same time. Disallow this case, print the error log.
-
-[1] https://lore.kernel.org/linux-mediatek/1564213888.22908.4.camel@mhfsdcap03/
-[2] https://lore.kernel.org/patchwork/patch/1086569/
-
-Suggested-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Tested-by: Frank Wunderlich <frank-w@public-files.de> # BPI-R2/MT7623
-Acked-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Antonino Daplas <adaplas@gmail.com>
+Cc: linux-fbdev@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c    | 30 ++++++++++++++++++++++++++++++
- drivers/iommu/mtk_iommu_v1.c | 29 ++++++++++++++++++++++++++++-
- 2 files changed, 58 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/nvidia/nv_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 77ae20ff9b35..5971a1168666 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -562,22 +562,52 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
+diff --git a/drivers/video/fbdev/nvidia/nv_i2c.c b/drivers/video/fbdev/nvidia/nv_i2c.c
+index d7994a173245..0b48965a6420 100644
+--- a/drivers/video/fbdev/nvidia/nv_i2c.c
++++ b/drivers/video/fbdev/nvidia/nv_i2c.c
+@@ -86,7 +86,7 @@ static int nvidia_setup_i2c_bus(struct nvidia_i2c_chan *chan, const char *name,
  {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct mtk_iommu_data *data;
-+	struct device_link *link;
-+	struct device *larbdev;
-+	unsigned int larbid, larbidx, i;
+ 	int rc;
  
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return ERR_PTR(-ENODEV); /* Not a iommu client device */
- 
- 	data = dev_iommu_priv_get(dev);
- 
-+	/*
-+	 * Link the consumer device with the smi-larb device(supplier).
-+	 * The device that connects with each a larb is a independent HW.
-+	 * All the ports in each a device should be in the same larbs.
-+	 */
-+	larbid = MTK_M4U_TO_LARB(fwspec->ids[0]);
-+	for (i = 1; i < fwspec->num_ids; i++) {
-+		larbidx = MTK_M4U_TO_LARB(fwspec->ids[i]);
-+		if (larbid != larbidx) {
-+			dev_err(dev, "Can only use one larb. Fail@larb%d-%d.\n",
-+				larbid, larbidx);
-+			return ERR_PTR(-EINVAL);
-+		}
-+	}
-+	larbdev = data->larb_imu[larbid].dev;
-+	link = device_link_add(dev, larbdev,
-+			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
-+	if (!link)
-+		dev_err(dev, "Unable to link %s\n", dev_name(larbdev));
- 	return &data->iommu;
- }
- 
- static void mtk_iommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-+	struct mtk_iommu_data *data;
-+	struct device *larbdev;
-+	unsigned int larbid;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
- 
-+	data = dev_iommu_priv_get(dev);
-+	larbid = MTK_M4U_TO_LARB(fwspec->ids[0]);
-+	larbdev = data->larb_imu[larbid].dev;
-+	device_link_remove(dev, larbdev);
-+
- 	iommu_fwspec_free(dev);
- }
- 
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index 68bf02f87cfd..bc7ee90b9373 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -423,7 +423,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct of_phandle_args iommu_spec;
- 	struct mtk_iommu_data *data;
--	int err, idx = 0;
-+	int err, idx = 0, larbid, larbidx;
-+	struct device_link *link;
-+	struct device *larbdev;
- 
- 	/*
- 	 * In the deferred case, free the existed fwspec.
-@@ -453,6 +455,23 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 
- 	data = dev_iommu_priv_get(dev);
- 
-+	/* Link the consumer device with the smi-larb device(supplier) */
-+	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
-+	for (idx = 1; idx < fwspec->num_ids; idx++) {
-+		larbidx = mt2701_m4u_to_larb(fwspec->ids[idx]);
-+		if (larbid != larbidx) {
-+			dev_err(dev, "Can only use one larb. Fail@larb%d-%d.\n",
-+				larbid, larbidx);
-+			return ERR_PTR(-EINVAL);
-+		}
-+	}
-+
-+	larbdev = data->larb_imu[larbid].dev;
-+	link = device_link_add(dev, larbdev,
-+			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
-+	if (!link)
-+		dev_err(dev, "Unable to link %s\n", dev_name(larbdev));
-+
- 	return &data->iommu;
- }
- 
-@@ -473,10 +492,18 @@ static void mtk_iommu_probe_finalize(struct device *dev)
- static void mtk_iommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-+	struct mtk_iommu_data *data;
-+	struct device *larbdev;
-+	unsigned int larbid;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
- 
-+	data = dev_iommu_priv_get(dev);
-+	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
-+	larbdev = data->larb_imu[larbid].dev;
-+	device_link_remove(dev, larbdev);
-+
- 	iommu_fwspec_free(dev);
- }
- 
+-	strcpy(chan->adapter.name, name);
++	strscpy(chan->adapter.name, name, sizeof(chan->adapter.name));
+ 	chan->adapter.owner = THIS_MODULE;
+ 	chan->adapter.class = i2c_class;
+ 	chan->adapter.algo_data = &chan->algo;
 -- 
 2.34.1
 
