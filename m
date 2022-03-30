@@ -2,125 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 498964EC9FC
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 18:49:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB924ECA1B
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 18:55:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349026AbiC3QvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 12:51:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58054 "EHLO
+        id S1346902AbiC3Q4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 12:56:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349024AbiC3QvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 12:51:17 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F2830291B95
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 09:49:31 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-171-OdJNmHH-OkG16xrsJn1FdQ-1; Wed, 30 Mar 2022 17:49:28 +0100
-X-MC-Unique: OdJNmHH-OkG16xrsJn1FdQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Wed, 30 Mar 2022 17:49:26 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Wed, 30 Mar 2022 17:49:26 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Michael Brooks' <m@sweetwater.ai>, Sasha Levin <sashal@kernel.org>
-CC:     Dominik Brodowski <linux@dominikbrodowski.net>,
-        Eric Biggers <ebiggers@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
-        Theodore Ts'o <tytso@mit.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH AUTOSEL 5.17 16/43] random: use computational hash for
- entropy extraction
-Thread-Topic: [PATCH AUTOSEL 5.17 16/43] random: use computational hash for
- entropy extraction
-Thread-Index: AQHYRFBkazg7jsklk0a1utosLd+h4azYHFQA
-Date:   Wed, 30 Mar 2022 16:49:25 +0000
-Message-ID: <9e78091d07d74550b591c6a594cd72cc@AcuMS.aculab.com>
-References: <20220328111828.1554086-1-sashal@kernel.org>
- <20220328111828.1554086-16-sashal@kernel.org>
- <CAOnCY6TTx65+Z7bBwgmd8ogrCH78pps59u3_PEbq0fUpd1n_6A@mail.gmail.com>
-In-Reply-To: <CAOnCY6TTx65+Z7bBwgmd8ogrCH78pps59u3_PEbq0fUpd1n_6A@mail.gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S1345089AbiC3Q4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 12:56:51 -0400
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AA0E36B59
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 09:55:06 -0700 (PDT)
+Received: by mail-pf1-x434.google.com with SMTP id y10so15972427pfa.7
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 09:55:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc
+         :references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=rkhK0E47U2bD5cHUrefr/FDASdAvPAtiLAN2iSS8x1Y=;
+        b=p5G6lo+Q3EY61D9bYIF21FBCVrxt+H8Kmv/j4iFeEyMCyd5z1ln68WI7J3M8zMY2SZ
+         7gJ3cR9s/9bacJ8Lj476U7Ta2g2sxkIV4KxVni6yDKLvHwac/Xp54fNleCc7OrK/b2xz
+         jvyGFuw25K0YtHCQfTpwt+k7NTGh7LgqlF6eowXelF/QkTrgr4XBmOYnSWV0oB1rX7Wm
+         LuRU+OVz4VT747HvqMY4XT/9pyKUfTrloqOxFTG6hBB/1IC6s25aChSU72DIFXJLoITJ
+         8PMP5hxyAzoAkKdX902FeiCH81QH7kLlC1eouylOo/dq3DMqQgUdSDCDr/RaWGMFMbBB
+         U1vQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=rkhK0E47U2bD5cHUrefr/FDASdAvPAtiLAN2iSS8x1Y=;
+        b=iksR1HccC8l9iIWXfNkC1CN4PQ7htuT7s4k/TpWPgrLALj5d6cDNhHpzapH3o6m4zt
+         gk+UlGZHunpbPSbeR549ejuvv8B1al3k9tIowzUvSmuABMon3yT6AvXLeII8wGFdLlML
+         9aZNdFvW17dJOHp4FvG/vmsW3hLqIFi+lU27D6sT376elgFECyULcrRTWqPYLPDGYKaA
+         qYd3Uca6Sqpbm7sbCgm1V5Fgqo4wDIpu81VzCIYpHs73BxdbaKBAR4xOa5ZPN2/M5shT
+         QheTWXC+ZGpsCVpfCeJPvTwThpsmemNPU2xwzztipLyjgIBQCH5b0Ih6ZQrklU5dyDne
+         v6tw==
+X-Gm-Message-State: AOAM5332w2yNbujbeBrda7tiGuzRYxtWZXonOS3O3RzXgrOufwAY8ZjE
+        vWJ2dw7hQbxIJx8FJLtnU5xP7A==
+X-Google-Smtp-Source: ABdhPJwlIIVX9hXGI2jS2yRenJJpbToHAAgOTMW4D/ia3WjX5Ck7+6N7KWyTh++BnK95MmQe5Kd3nQ==
+X-Received: by 2002:a05:6a00:1c95:b0:4fc:da3c:518e with SMTP id y21-20020a056a001c9500b004fcda3c518emr444989pfw.72.1648659305492;
+        Wed, 30 Mar 2022 09:55:05 -0700 (PDT)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id v17-20020a63b951000000b0038644f62aeesm18634763pgo.68.2022.03.30.09.55.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Mar 2022 09:55:05 -0700 (PDT)
+Message-ID: <6049e57e-46ab-001a-8e43-3a7acbc1fb33@linaro.org>
+Date:   Wed, 30 Mar 2022 09:55:04 -0700
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Keith Packard <keithp@keithp.com>,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Kees Cook <keescook@chromium.org>
+References: <20220329220256.72283-1-tadeusz.struk@linaro.org>
+ <YkSHOIOUwweHuog9@kroah.com>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: Re: [PATCH 1/2] stddef: Introduce struct_group() helper macro
+In-Reply-To: <YkSHOIOUwweHuog9@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTWljaGFlbCBCcm9va3MNCj4gU2VudDogMzAgTWFyY2ggMjAyMiAxNzowOA0KLi4uDQo+
-IEnigJlkIGxpa2UgdG8gZGVzY3JpYmUgdGhpcyBidWcgdXNpbmcgbWF0aGVtYXRpY3MsIGJlY2F1
-c2UgdGhhdCBpcyBob3cgSQ0KPiB3b3JrIC0gSSBhbSB0aGUga2luZCBvZiBwZXJzb24gdGhhdCBh
-cHByZWNpYXRlcyByaWdvci4gIEluIHRoaXMgY2FzZSwNCj4gbGV0J3MgdXNlIGluZHVjdGl2ZSBy
-ZWFzb25pbmcgdG8gaWxsdW1pbmF0ZSB0aGlzIGlzc3VlLg0KPiANCj4gTm93LCBpbiB0aGlzIGF0
-dGFjayBzY2VuYXJpbyBsZXQg4oCccOKAnSBiZSB0aGUgb3ZlcmFsbCBwb29sIHN0YXRlIGFuZCBs
-ZXQNCj4g4oCcbuKAnSBiZSB0aGUgZ29vZCB1bmtub3duIHZhbHVlcyBhZGRlZCB0byB0aGUgcG9v
-bC4gIEZpbmFsbHksIGxldCDigJxr4oCdIGJlDQo+IHRoZSBrbm93biB2YWx1ZXMgLSBzdWNoIGFz
-IGppZmZpZXMuICBJZiB3ZSB0aGVuIGRlc2NyaWJlIHRoZSByYXRpbyBvZg0KPiB1bmtub3duIHVu
-aXF1ZW5lc3Mgd2l0aCBrbm93biB1bmlxdWVuZXNzIGFzIHA9bi9rIHRoZW4gYXMgYSBrIGdyb3dz
-DQo+IHRoZSBvdmVyYWxsIHByZWRpY3RhYmlsaXR5IG9mIHRoZSBwb29sIGFwcHJvYWNoZXMgYW4g
-aW5maW5pdGUgdmFsdWUgYXMNCj4gayBhcHByb2FjaGVzIHplcm8uICAgQSBwYXJhbGxlbCBwb29s
-LCBsZXQncyBjYWxsIGl0IHDigJkgKHRoYXQgaXMNCj4gcHJvbm91bmNlZCDigJxwLXByaW1l4oCd
-IGZvciB0aG9zZSB3aG8gZG9u4oCZdCBnZXQgdGhlIG5vdGF0aW9uKS4gIGxldA0KPiBw4oCZPW7i
-gJkva+KAmS4gSW4gdGhpcyBjYXNlIHRoZSBhdHRhY2tlciBoYXMgbm8gaG9wZSBvZiBjb25zdHJ1
-Y3RpbmcgbuKAmSwNCj4gYnV0IHRoZXkgY2FuIGNvbnN0cnVjdCBr4oCZIC0gdGhlcmVmb3JlIHRo
-ZSBhdHRhY2tlcuKAmXMgcGFyYXNvbCBtb2RlbCBvZg0KPiB0aGUgcG9vbCBw4oCZIHdpbGwgYmVj
-b21lIG1vcmUgYWNjdXJhdGUgYXMgdGhlIGF0dGFjayBwZXJzaXN0cyBsZWFkaW5nDQo+IHRvIHDi
-gJkgPSBwIGFzIHRpbWUtPuKIni4NCj4gDQo+IFEuRS5ELg0KDQpUaGF0IHJhdGhlciBkZXBlbmRz
-IG9uIGhvdyB0aGUgKG5vdCkgJ3JhbmRtb25lc3MnIGlzIGFkZGVkIHRvIHRoZSBwb29sLg0KSWYg
-dGhlcmUgYXJlICdyJyBiaXRzIG9mIHJhbmRvbW5lc3MgaW4gdGhlIHBvb2wgYW5kIGEgJ3N0aXIg
-aW4nIGEgcGlsZQ0Kb2Yga25vd24gYml0cyB0aGVyZSBjYW4gc3RpbGwgYmUgJ24nIGJpdHMgb2Yg
-cmFuZG9tbmVzcyBpbiB0aGUgcG9vbC4NCg0KVGhlIHdob2xlIHRoaW5nIHJlYWxseSByZWxpZXMg
-b24gdGhlIG5vbi1yZXZlcnNhYmlsaXR5IG9mIHRoZSBmaW5hbCBwcm5nLg0KT3RoZXJ3aXNlIGlm
-IHlvdSBoYXZlICdyJyBiaXRzIG9mIHJhbmRvbW5lc3MgaW4gdGhlIHBvb2wgYW5kICdwJyBiaXRz
-DQppbiB0aGUgcHJuZyB5b3Ugb25seSBuZWVkIHRvIHJlcXVlc3QgJ3IgKyBwJyBiaXRzIG9mIG91
-dHB1dCB0byBiZSBhYmxlDQp0byBzb2x2ZSB0aGUgJ3AgKyByJyBzaW11bHRhbmVvdXMgZXF1YXRp
-b25zIGluICdwICsgcicgdW5rbm93bnMNCihJIHRoaW5rIHRoYXQgaXMgaW4gdGhlIGZpZWxkIHsw
-LCAxfSkuDQoNClRoZSBvbGQga2VybmVsIHJhbmRvbSBudW1iZXIgZ2VuZXJhdG9yIHRoYXQgdXNl
-ZCB4b3IgdG8gY29tYmluZSB0aGUNCm91dHB1dHMgb2Ygc2V2ZXJhbCBMRlNSIGlzIHRyaXZpYWxs
-eSByZXZlcnNhYmxlLg0KSXQgd2lsbCBsZWFrIHdoYXRldmVyIGl0IHdhcyBzZWVkZWQgd2l0aC4N
-Cg0KVGhlIG5vbi1yZXZlcnNhYmlsaXR5IG9mIHRoZSBwb29sIGlzbid0IGFzIGltcG9ydGFudCBz
-aW5jZSB5b3UgbmVlZA0KdG8gcmV2ZXJzZSB0aGUgcHJuZyBhcyB3ZWxsLg0KDQpTbyB3aGlsZSwg
-aW4gc29tZSBzZW5zZSwgcmVtb3ZpbmcgJ3AnIGJpdHMgZnJvbSB0aGUgZW50cm9weSBwb29sDQp0
-byBzZWVkIHRoZSBwcm5nIG9ubHkgbGVhdmVzICdyIC0gcCcgYml0cyBsZWZ0Lg0KVGhhdCBpcyBv
-bmx5IHRydWUgaWYgeW91IHRoaW5rIHRoZSBwcm5nIGlzIHJldmVyc2FibGUuDQpQcm92aWRlZCAn
-ciA+IHAnIChwcmVmZXJhYmx5ICdyID4+IHAnKSB5b3UgY2FuIHJlc2VlZCB0aGUgcHJuZw0KYWdh
-aW4gKHByb3ZpZGVkIHlvdSB0YWtlIHJlYXNvbmFibHkgcmFuZG9tIGJpdHMpIHdpdGhvdXQNCnJl
-YWxseSBleHBvc2luZyBhbnkgbW9yZSBzdGF0ZSB0byBhbiBhdHRhY2tlci4NCg0KU29tZW9uZSBk
-b2luZyBjYXQgL2Rldi91cmFuZG9tID4vZGV2L251bGwgc2hvdWxkIGp1c3Qga2VlcCByZWFkaW5n
-DQp2YWx1ZXMgb3V0IG9mIHRoZSBlbnRyb3B5IHBvb2wuDQpCdXQgaWYgdGhleSBhcmUgZGlzY2Fy
-ZGluZyB0aGUgdmFsdWVzIHRoYXQgc2hvdWxkbid0IGhlbHAgdGhlbQ0KcmVjb3ZlciB0aGUgc3Rh
-dGUgb2YgdGhlIGVudHJvcHkgcG9vbCBvciB0aGUgcHJuZyAtIGV2ZW4gaWYgb25seQ0KY29uc3Rh
-bnQgdmFsdWVzIGFyZSBiZWluZyBhZGRlZCB0byB0aGUgcG9vbC4NCg0KUmVhbGx5IHdoYXQgeW91
-IG11c3RuJ3QgZG8gaXMgZGVsZXRlIHRoZSBiaXRzIHVzZWQgdG8gc2VlZCB0aGUgcHJuZw0KZnJv
-bSB0aGUgZW50cm9weSBwb29sLg0KQWJvdXQgdGhlIG9ubHkgd2F5IHRvIGFjdHVhbGx5IHJlZHVj
-ZSB0aGUgcmFuZG9tbmVzcyBvZiB0aGUgZW50cm9weQ0KcG9vbCBpcyBpZiB5b3UndmUgZGlzY292
-ZXJlZCB3aGF0IGlzIGFjdHVhbGx5IGluIGl0LCBrbm93IHRoZQ0KJ3N0aXJyaW5nJyBhbGdvcml0
-aG0gYW5kIGZlZWQgaW4gZGF0YSB0aGF0IGV4YWN0bHkgY2FuY2VscyBvdXQNCmJpdHMgdGhhdCBh
-cmUgcHJlc2VudCBhbHJlYWR5Lg0KSSBzdXNwZWN0IHRoYXQgYW55dGhpbmcgd2l0aCByb290IGFj
-Y2VzcyBjYW4gbWFuYWdlIHRoYXQhDQooQWx0aG91Z2ggdGhleSBjYW4ganVzdCBvdmVyd3JpdGUg
-dGhlIGVudHJvcHkgcG9vbCBpdHNlbGYsDQphbmQgdGhlIHBybmcgZm9yIHRoYXQgbWF0dGVyLikN
-Cg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2Fk
-LCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5v
-OiAxMzk3Mzg2IChXYWxlcykNCg==
+On 3/30/22 09:37, Greg KH wrote:
+>> ---
+>>   include/linux/stddef.h      | 48 +++++++++++++++++++++++++++++++++++++
+>>   include/uapi/linux/stddef.h | 24 +++++++++++++++++++
+>>   2 files changed, 72 insertions(+)
+> Any specific reason this backport dropped a whole file from the original
+> commit?
+> 
+> You can't send me modified patches without mentioning it, otherwise I
+> assume you are doing something wrong:(
 
+I dropped the updates to scripts/kernel-doc. I didn't think it was relevant
+for stable. Here are the original stats compared to the backport stats:
+
+orig:
+  include/linux/stddef.h      | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
+  include/uapi/linux/stddef.h | 21 +++++++++++++++++++++
+  scripts/kernel-doc          |  7 +++++++
+  3 files changed, 76 insertions(+)
+
+5.10 backport:
+  include/linux/stddef.h      | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
+  include/uapi/linux/stddef.h | 24 ++++++++++++++++++++++++
+  2 files changed, 72 insertions(+)
+
+Do you want me to generate a new version with all three files?
+
+-- 
+Thanks,
+Tadeusz
