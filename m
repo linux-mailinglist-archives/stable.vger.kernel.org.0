@@ -2,68 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBE74EBDA0
-	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 11:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB624EBDA3
+	for <lists+stable@lfdr.de>; Wed, 30 Mar 2022 11:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244815AbiC3J2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 05:28:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35706 "EHLO
+        id S244817AbiC3J2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 05:28:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244814AbiC3J2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 05:28:17 -0400
+        with ESMTP id S244814AbiC3J2d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 05:28:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65516264F5E;
-        Wed, 30 Mar 2022 02:26:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B912264573
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 02:26:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB87561174;
-        Wed, 30 Mar 2022 09:26:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA544C340F0;
-        Wed, 30 Mar 2022 09:26:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0BEF61174
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 09:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0EF2C340EE;
+        Wed, 30 Mar 2022 09:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648632392;
-        bh=WBh5nSXFk078V7YfRbaxSUz8v28t5+K3UUa+UDUfYRw=;
+        s=korg; t=1648632408;
+        bh=zktZ869RSfU3sIWtqngttY+BaeJoa7luFETcfI8UnYo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wN9j9ONYAgy1HT6kHzTDrvvQaj50tALF11mhuEjg9coqvdCsYsu4Fwnxbz5qszIuR
-         VYFSNBd2w0vYPmk87MDadHHGzmIqFUFB1GDHR52FPIY/tIIRE35LMTBaVRaaex6Trt
-         EbU480+ab08lDv+VlAZj59i6QBviK0YETC58n29Y=
-Date:   Wed, 30 Mar 2022 11:26:29 +0200
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     =?utf-8?B?7KGw7KSA7JmE?= <junwan.cho@samsung.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "michael.zaidman@gmail.com" <michael.zaidman@gmail.com>,
-        "erazor_de@users.sourceforge.net" <erazor_de@users.sourceforge.net>,
-        "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>,
-        "alexandre.torgue@foss.st.com" <alexandre.torgue@foss.st.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        =?utf-8?B?6rmA7J287Zi4?= <ih0923.kim@samsung.com>,
-        =?utf-8?B?67CV7LKc7Zi4?= <chun.ho.park@samsung.com>,
-        =?utf-8?B?67Cw7Jyk7Iud?= <yunsik.bae@samsung.com>,
-        =?utf-8?B?6rCV64yA7Z2s?= <daihee7.kang@samsung.com>,
-        =?utf-8?B?7J206rSR7Zi4?= <gaudium.lee@samsung.com>,
-        =?utf-8?B?66WY7LKc7Jqw?= <chunwoo.ryu@samsung.com>,
-        =?utf-8?B?64KY65GQ7IiY?= <doosu.na@samsung.com>,
-        =?utf-8?B?6rmA7IiY7ZiE?= <suhyun_.kim@samsung.com>
-Subject: Re: (2) (3) (2) (2) Request for reverting the commit for Samsung HID
- driver
-Message-ID: <YkQiRTve9ZXRhoG7@kroah.com>
-References: <YkQVq1RvWTp1xxJO@kroah.com>
- <YkQRXqlzVjBLbvp2@kroah.com>
- <nycvar.YFH.7.76.2203300948500.24795@cbobk.fhfr.pm>
- <20220330070159epcms1p31c351bc7eb90d99e0bbecd2c2f6092d1@epcms1p3>
- <20220330080937epcms1p51e6c98c5eb5f8108c9cfe35efa450daa@epcms1p5>
- <20220330082308epcms1p3f9bb275272b3e32abd4202fa1b893623@epcms1p3>
- <20220330084401epcms1p1fe9efa50452a84f7bbb22a4de82b5a0a@epcms1p1>
- <20220330090150epcms1p42e28758b515942ecdee680cdef3ef0b9@epcms1p4>
- <CGME20220330062122epcms1p30a2c2e3e1d3b108d729a00034bf86587@epcms1p7>
- <20220330092058epcms1p799e10561617c02a14d5d8b413722f678@epcms1p7>
+        b=UzhFsaEGU2PiFy82sEIdLuYXqIJb83gOeZlqbBA+bmKbn5YaMdF0Q+P7CmLqy4OyO
+         ahytu9LEzU7YqKUV+R6QrtxlYqmAkdTDJj8ObecFlMKrVKRCLa1htL4nWmQ9YLdJz4
+         VvsBfu32HPPcFjXzhOFn4802h4y75YZxbhL4B8Ms=
+Date:   Wed, 30 Mar 2022 11:26:45 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Miles Chen <miles.chen@mediatek.com>
+Cc:     stable@vger.kernel.org, yf.wang@mediatek.com
+Subject: Re: suggest commit 5b61343b50 to stable
+Message-ID: <YkQiVV0M6bnyI9zn@kroah.com>
+References: <20220330082157.3444-1-miles.chen@mediatek.com>
+ <YkQV0OjQOoGV/QBg@kroah.com>
+ <c317f485cee7925f43881058b3bb546d71895b85.camel@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220330092058epcms1p799e10561617c02a14d5d8b413722f678@epcms1p7>
+In-Reply-To: <c317f485cee7925f43881058b3bb546d71895b85.camel@mediatek.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -74,36 +51,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-A: http://en.wikipedia.org/wiki/Top_post
-Q: Were do I find info about this thing called top-posting?
-A: Because it messes up the order in which people normally read text.
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
-
-A: No.
-Q: Should I include quotations after my reply?
-
-
-http://daringfireball.net/2007/07/on_top
-
-On Wed, Mar 30, 2022 at 06:20:58PM +0900, 조준완 wrote:
+On Wed, Mar 30, 2022 at 05:22:25PM +0800, Miles Chen wrote:
+> On Wed, 2022-03-30 at 10:33 +0200, Greg KH wrote:
+> > On Wed, Mar 30, 2022 at 04:21:57PM +0800, Miles Chen wrote:
+> > > Hi reviewers,
+> > > 
+> > > I suggest to apply the following patch to stable kernel 5.4.y and
+> > > 5.10.y:
+> > > 
+> > > commit: 5b61343b50590fb04a3f6be2cdc4868091757262
+> > > Subject: iommu/iova: Improve 32-bit free space estimate
+> > > kernel version to apply to: 5.4.y and 5.10.y
+> > 
+> > What about 5.15 and 5.16 and 5.17?  Why skip them?
 > 
-> No. If so, I will not apply in house patches.
+> Sorry for missing that, please add them to 5.15, 5.16 and 5.17. (I saw
+> you already added them, thanks).
+> 
+> I tested the patch(no merge conflict) and buld with Linux 5.15.32,
+> Linux 5.17.1, and Linux 5.16.18
 
-I do not understand what you are referencing here, sorry.  Please
-explain.
-
-> I'm a Bluetooth person, and I'm only interested in Bluetooth devices.
-
-That's fine, but this driver, as is in the tree today, does not support
-bluetooth devices.  Please submit a patch to resolve that.
-
-> Codes for Bluetooth devices will never be worked along the commit, anyway, no reason to include them.
-
-I do not understand.  Please explain.
-
-thanks,
+All now queued up, thanks!
 
 greg k-h
