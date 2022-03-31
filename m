@@ -2,140 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E1D4ED51B
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 10:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B39054ED5E2
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 10:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232139AbiCaIDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 04:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        id S232579AbiCaIkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 04:40:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231207AbiCaIDc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 04:03:32 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83721DAFCB
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 01:01:46 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id bx5so23300283pjb.3
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 01:01:46 -0700 (PDT)
+        with ESMTP id S233055AbiCaIkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 04:40:37 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 964513BA4E
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 01:38:48 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id p15so46523745ejc.7
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 01:38:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=F1avMCz7a4u1DXyy9mda6y86tWPvXY2h8pniDmwM0rQ=;
-        b=Yn7IrHKEUBIwRwQogsRMuWdkLeD2uKWRHABhrU7wG/o43J9aAexhWTJFuqtl6hbCFc
-         CpyoEfdGZ/nmWJRrcN0xNiDymc4C5MB9Uy+j2RrXSKCX+YyzzCgcE0ZW1vFnf1pbsp8g
-         87kKETai1VgO2jcoWwn6DuFeAnVSVyRjzxjGadFb6sBZ4KK2I/VCtLCCefTKZUTdgMzO
-         NGCe/I0XTJpWTLcppNtYz3py7bS733Y+H4d72pmP0XZDShzYaB+b194KsIderhZMOeRT
-         vPPW6W7GEShfByVXMlXMPdtycoySlyK14fNrVXWDMKytPp8LRs6aNlRH8SuB+L1JrcaE
-         MIbA==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=9RMKKrryOVnu3VhzCD1VF7LZZR0DSgayzdUmb3Tu53k=;
+        b=c/a8HkvGusD0VHfseWle6cB/KMsnNLxZtaI9E6YEPd2f3Ay7SSaywbcuyl/qOuXpx7
+         5/fkW2lXkltLFr3B0LVE0/SHh0jLHqaTBs5PWnEUBNmVxT18zw3pQfsa/HaoTRIAnmjs
+         qPXoZCjSC7i04J1uDtkAmhsb4Vm0QdvIWMBQwPb2oJ6tzNUFdMucD/PFbUK7BFLZoGtq
+         Xg7bHb/csIsmHtf35TzKjMp4iA6QDF+67WWet3t1AoXZsR4hzkkXATvSaSuFQWkmo9u/
+         4QWXiMij+6bFeI32M7XMl93xmxqD+YufjQyzP79v6BNBoSAl+LidnUb/1nGSyma1IsOl
+         VEvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=F1avMCz7a4u1DXyy9mda6y86tWPvXY2h8pniDmwM0rQ=;
-        b=TiuYK2MvSqtRCNzWuvSYdeV/GOl73lRrMLafQ1OHsc8bLdoHm4BGbYtPskL/cNw6pc
-         7mGnFZtNCJOh8bfcINS13wVf5D9v7aSRFn028JqH3i3gYyTSKMcmoLllBIiGgI1aJBFQ
-         FxjWgndbBW6BcxDL1PLkb0x5r6q9jzUKuNr8UocFQGrYwcp/H/6hMU/xqA82VPdFE0jw
-         1qkoSsahsIPNTzPfDuoSuq31cY2QliF+W6U0EFkPaaK0rPlAF/9SGExh/9t0OsZcFlYI
-         U7tlAq2DTenjMp4hekBWWWiKcIjNkcebTtRL2h2aTGwUIedJ/boBMXy/5EtlxU/Wy/8u
-         gSAg==
-X-Gm-Message-State: AOAM531x440STRULIXLO4u2lG4ySYSMRxh6ymmttgC4cQKFYF8frSNdx
-        vvSsVL+1oqkH8sJNsIzT2xGbiGuoWljwpyzjun4=
-X-Google-Smtp-Source: ABdhPJzO1h+CPlsAk1WGYkURfhJxkjp5olmu5r9OPE5GWnp0KKnRmKFDNwNRa3VKHpNHvRq+Uxmajw==
-X-Received: by 2002:a17:902:684e:b0:154:3b94:e30c with SMTP id f14-20020a170902684e00b001543b94e30cmr4149672pln.89.1648713705845;
-        Thu, 31 Mar 2022 01:01:45 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g5-20020a056a0023c500b004fae15ab86dsm27455739pfc.52.2022.03.31.01.01.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Mar 2022 01:01:45 -0700 (PDT)
-Message-ID: <62455fe9.1c69fb81.12246.64ed@mx.google.com>
-Date:   Thu, 31 Mar 2022 01:01:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9RMKKrryOVnu3VhzCD1VF7LZZR0DSgayzdUmb3Tu53k=;
+        b=V1c8kg5HGY3ab4SketaX5YoCEJYYWVU8WKgOCiGwnNfu0qc9vKkb/XKOP7U1spKNkQ
+         h3zUFdocb3x5WUPAx/ea+hAttTFOnroujBUUdTH9fZowaFjBz+DD9EjBB26mBp+mblbI
+         Ws+rzn+r9MtSF7m6NGZwxt678kToOywu0x/ETu32o2sdI5XeTLstakOFAP9HWPfFJgf4
+         Kd9pfSSwPJrfAxL9V33tkDJCEWi3towkObKKmfXAq7imzfV19sQVt475pU+kX42vGWHZ
+         owExCthP8IEPKyPkA6IYNmueJCdIG/42s6FBLmWdtdV/9EIzc/2CLgSw6MnWm+9XHHTU
+         b3OA==
+X-Gm-Message-State: AOAM531B0bjJTvyXKKv3KO5jaRjp+0oGA2qQvoWIbJT93YSsfRaoh+Av
+        /NS7QKn92MBXDEi2mn0N5QLVIVjDKIOZFykfICoixw==
+X-Google-Smtp-Source: ABdhPJzZ64lT4jQoxd8nCjGxDTqo/uciOJixCc510kAeSEPLXlv1Gbkim7xxeGQIiJdrsnhjG56ttTAdPtyKxTCUc5o=
+X-Received: by 2002:a17:906:5d06:b0:6df:b0ac:59c2 with SMTP id
+ g6-20020a1709065d0600b006dfb0ac59c2mr4142364ejt.758.1648715926986; Thu, 31
+ Mar 2022 01:38:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Kernel: v5.10.109-23-g09422778fc8c
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.10.y baseline: 114 runs,
- 1 regressions (v5.10.109-23-g09422778fc8c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220330211913.2068108-1-wonchung@google.com> <s5hzgl6eg48.wl-tiwai@suse.de>
+In-Reply-To: <s5hzgl6eg48.wl-tiwai@suse.de>
+From:   Won Chung <wonchung@google.com>
+Date:   Thu, 31 Mar 2022 01:38:34 -0700
+Message-ID: <CAOvb9yiO_n48JPZ3f0+y-fQ_YoOmuWF5c692Jt5_SKbxdA4yAw@mail.gmail.com>
+Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback function
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 114 runs, 1 regressions (v5.10.109-23-g094=
-22778fc8c)
+On Thu, Mar 31, 2022 at 12:27 AM Takashi Iwai <tiwai@suse.de> wrote:
+>
+> On Wed, 30 Mar 2022 23:19:13 +0200,
+> Won Chung wrote:
+> >
+> > Component match callback function needs to check if expected data is
+> > passed to it. Without this check, it can cause a NULL pointer
+> > dereference when another driver registers a component before i915
+> > drivers have their component master fully bind.
+> >
+> > Fixes: 7b882fe3e3e8b ("ALSA: hda - handle multiple i915 device instances")
+> > Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Signed-off-by: Won Chung <wonchung@google.com>
+> > ---
+> > - Add "Fixes" tag
+> > - Send to stable@vger.kernel.org
+>
+> You rather need to add "Cc: stable@vger.kernel.org" line to the patch
+> itself (around sign-off block), not actually Cc'ing the mail.
+> I edited manually, but please do it so at the next time.
+>
+> Although I applied the patch as-is now, I wonder...
+>
+>
+> > -     if (!strcmp(dev->driver->name, "i915") &&
+> > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
+>
+> Can NULL dev->driver be really seen?  I thought the components are
+> added by the drivers, hence they ought to have the driver field set.
+> But there can be corner cases I overlooked.
+>
+>
+> thanks,
+>
+> Takashi
 
-Regressions Summary
--------------------
+Hi Takashi,
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+When I try using component_add in a different driver (usb4 in my
+case), I think dev->driver here is NULL because the i915 drivers do
+not have their component master fully bound when this new component is
+registered. When I test it, it seems to be causing a crash.
 
+Would it be okay for me to resend a new patch with the flags
+corrected? I have mistakenly added Heikki and Mika as "Signed-off-by"
+instead of "Suggested-by". I am sorry for that.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.109-23-g09422778fc8c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.109-23-g09422778fc8c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      09422778fc8ca3a1132208cd8e957242be79eda6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624529440a560c1ccbae06a6
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-09-23-g09422778fc8c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-09-23-g09422778fc8c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/624529440a560c1ccbae06c8
-        failing since 23 days (last pass: v5.10.103, first fail: v5.10.103-=
-106-g79bd6348914c)
-
-    2022-03-31T04:08:24.243901  <8>[   32.988984] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-31T04:08:25.265779  /lava-5985817/1/../bin/lava-test-case
-    2022-03-31T04:08:25.276978  <8>[   34.023320] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+Thanks,
+Won
