@@ -2,247 +2,318 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAE54EDD50
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 17:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE104EDD8C
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 17:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239099AbiCaPk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 11:40:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57450 "EHLO
+        id S238881AbiCaPm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 11:42:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239679AbiCaPil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 11:38:41 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4683622E96C
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 08:33:12 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id s8so22377335pfk.12
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 08:33:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=yEmz/8cQT/z4or8puaY3Kz/sgiUXMKjLnb73DP8zXB4=;
-        b=EUaUZPcfweDaGz+UYp+NStA0BmInTkma7npoGLJMmcEUZ2iZGKPVT0+1BPCXfIV/O8
-         GHiyc4aFGoWyoq2lqSIwPwUDFYVXIcSY2xPOR5kLVOO0Nw/3hOD+cFlTZ3OSV9p7Z6/e
-         VKNu4WxdQMhT7e56+GQ03nSGh5F2m6eQY0twspHOfdqpr70xwKPF+Qx/z00v+9m02tek
-         T30KRjehWG7I+iyZa4TP8flH5HEiXZViIehPikpfDcxXxtUW8xeWmelVkRCIrXo9YZ5f
-         qPrKlIet7jM6gLIXNY0RvIyNrR8ZOJWRcbN9ZR7H74+0VbHub/iVtv77tu8OwrAN0ek+
-         FFNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=yEmz/8cQT/z4or8puaY3Kz/sgiUXMKjLnb73DP8zXB4=;
-        b=WeSdXnuiaQVgE3zczwms6OyJAsOftQtT9WXqfAWRXV9VENworX9elIZ7XZ7P1w6rH2
-         e/0pAylu47wXbWjSgwP82Ri49HllxOEhsN6fWgy3mLDapkcMmalZlnEGnpal8DBpMZvo
-         UbdQru75WikVgGzT/dGp6k+tdA2c7eeoa80EyqesJDtSpv3qligYv3sGOYILZrhUnb9S
-         Y9H1EBexrU2lmsxkDSPjlWUUc2Ig203ozSdvFn0oXav8pqecas5+3Cq9ERWCWKbIilTP
-         H+W7pKpaAUX4d5smL+Mp5ieycIcrT/sAaF+QLVC+SfvkGlnI/SfpV5ZHc9a1XZmNyASE
-         94xQ==
-X-Gm-Message-State: AOAM53065sdndjgNkoLx/AnAQgDLqy07KwSeC6Mcnf5z4x0BPPR0V2Pt
-        vGY2A9nNrJDXxIr5IU/Rs7LhOQ==
-X-Google-Smtp-Source: ABdhPJw0VfksheIzQpwF1rgGRvosu0Ldg1XtQsVA5AYA5VbOz1eqJHbzzU9YuQ5DQU5VooERtMGbMA==
-X-Received: by 2002:a05:6a02:193:b0:375:65a5:2fcd with SMTP id bj19-20020a056a02019300b0037565a52fcdmr10929563pgb.288.1648740791608;
-        Thu, 31 Mar 2022 08:33:11 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:a082:a097:a7d8:d309])
-        by smtp.gmail.com with ESMTPSA id z23-20020a056a001d9700b004fa8f24702csm24543241pfw.85.2022.03.31.08.33.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Mar 2022 08:33:10 -0700 (PDT)
-Date:   Thu, 31 Mar 2022 08:33:03 -0700
-From:   Benson Leung <bleung@google.com>
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Won Chung <wonchung@google.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Benson Leung <bleung@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback
- function
-Message-ID: <YkXJr2KhSzHJHxRF@google.com>
-References: <20220330211913.2068108-1-wonchung@google.com>
- <s5hzgl6eg48.wl-tiwai@suse.de>
- <CAOvb9yiO_n48JPZ3f0+y-fQ_YoOmuWF5c692Jt5_SKbxdA4yAw@mail.gmail.com>
- <s5hr16ieb8o.wl-tiwai@suse.de>
- <YkVzl4NEzwDAp/Zq@kuha.fi.intel.com>
- <s5hmth6eaiz.wl-tiwai@suse.de>
- <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
- <s5hk0cae9pw.wl-tiwai@suse.de>
- <s5h7d8adzdl.wl-tiwai@suse.de>
- <s5hzgl6ciho.wl-tiwai@suse.de>
+        with ESMTP id S238982AbiCaPmI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 11:42:08 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89E142487;
+        Thu, 31 Mar 2022 08:37:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1648741028; x=1680277028;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=kBBNB+Un7rmvD0SjZLQnsFl6KoTCeAAwRJnh0pl0xjc=;
+  b=Fv3STFSflXRQQNkvX208V/ptKvCwcNQx39IoavhIetobGwjN/mrBcOF4
+   LWbDqqVb9ZnYyEcFJLoX2smh3R5+sBBzB7qNGrr4YZd30/kpdsnU1Nl6L
+   yrFmC/q8DLwwZ+phVPYUWgOC0eGF74d/SIU6+VysyDCNNHFaS19MGQfFe
+   mttMKVN944Y0D7JvHwWEaBViVWwhM4JuuPbSNASXBjq6g6CYbwcejpm4j
+   Rmt1pb+FSDNmOids4b4xubDVNtabsTZyO/7oPxhQVtvO6hrdhP5XnR1YP
+   07owaASQNHT1tVZDqyqms4o0T57bSeQAJ09PfJZhbG/u3nybGB6z14wvj
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10302"; a="242022735"
+X-IronPort-AV: E=Sophos;i="5.90,225,1643702400"; 
+   d="scan'208";a="242022735"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2022 08:36:57 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,225,1643702400"; 
+   d="scan'208";a="555124761"
+Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314.ger.corp.intel.com) ([10.237.222.76])
+  by fmsmga007.fm.intel.com with ESMTP; 31 Mar 2022 08:36:55 -0700
+From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+To:     herbert@gondor.apana.org.au
+Cc:     linux-crypto@vger.kernel.org, qat-linux@intel.com,
+        marco.chiappero@intel.com,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Wojciech Ziemba <wojciech.ziemba@intel.com>
+Subject: [PATCH v2 1/4] crypto: qat - use pre-allocated buffers in datapath
+Date:   Thu, 31 Mar 2022 16:36:49 +0100
+Message-Id: <20220331153652.37020-2-giovanni.cabiddu@intel.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220331153652.37020-1-giovanni.cabiddu@intel.com>
+References: <20220331153652.37020-1-giovanni.cabiddu@intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="qZ1ZF7vfmh9I4Bit"
-Content-Disposition: inline
-In-Reply-To: <s5hzgl6ciho.wl-tiwai@suse.de>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 - Collinstown Industrial Park, Leixlip, County Kildare - Ireland
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In order to do DMAs, the QAT device requires that the scatterlist
+structures are mapped and translated into a format that the firmware can
+understand. This is defined as the composition of a scatter gather list
+(SGL) descriptor header, the struct qat_alg_buf_list, plus a variable
+number of flat buffer descriptors, the struct qat_alg_buf.
 
---qZ1ZF7vfmh9I4Bit
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The allocation and mapping of these data structures is done each time a
+request is received from the skcipher and aead APIs.
+In an OOM situation, this behaviour might lead to a dead-lock if an
+allocation fails.
 
-Hi Takashi,
+Based on the conversation in [1], increase the size of the aead and
+skcipher request contexts to include an SGL descriptor that can handle
+a maximum of 4 flat buffers.
+If requests exceed 4 entries buffers, memory is allocated dynamically.
 
-On Thu, Mar 31, 2022 at 04:19:15PM +0200, Takashi Iwai wrote:
-> On Thu, 31 Mar 2022 15:29:10 +0200,
-> Takashi Iwai wrote:
-> >=20
-> > On Thu, 31 Mar 2022 11:45:47 +0200,
-> > Takashi Iwai wrote:
-> > >=20
-> > > On Thu, 31 Mar 2022 11:34:38 +0200,
-> > > Heikki Krogerus wrote:
-> > > >=20
-> > > > On Thu, Mar 31, 2022 at 11:28:20AM +0200, Takashi Iwai wrote:
-> > > > > On Thu, 31 Mar 2022 11:25:43 +0200,
-> > > > > Heikki Krogerus wrote:
-> > > > > >=20
-> > > > > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
-> > > > > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
-> > > > > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i9=
-15") &&
-> > > > > > > > >
-> > > > > > > > > Can NULL dev->driver be really seen?  I thought the compo=
-nents are
-> > > > > > > > > added by the drivers, hence they ought to have the driver=
- field set.
-> > > > > > > > > But there can be corner cases I overlooked.
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > thanks,
-> > > > > > > > >
-> > > > > > > > > Takashi
-> > > > > > > >=20
-> > > > > > > > Hi Takashi,
-> > > > > > > >=20
-> > > > > > > > When I try using component_add in a different driver (usb4 =
-in my
-> > > > > > > > case), I think dev->driver here is NULL because the i915 dr=
-ivers do
-> > > > > > > > not have their component master fully bound when this new c=
-omponent is
-> > > > > > > > registered. When I test it, it seems to be causing a crash.
-> > > > > > >=20
-> > > > > > > Hm, from where component_add*() is called?  Basically dev->dr=
-iver must
-> > > > > > > be already set before the corresponding driver gets bound at
-> > > > > > > __driver_probe_deviec().  So, if the device is added to compo=
-nent from
-> > > > > > > the corresponding driver's probe, dev->driver must be non-NUL=
-L.
-> > > > > >=20
-> > > > > > The code that declares a device as component does not have to b=
-e the
-> > > > > > driver of that device.
-> > > > > >=20
-> > > > > > In our case the components are USB ports, and they are devices =
-that
-> > > > > > are actually never bind to any drivers: drivers/usb/core/port.c
-> > > > >=20
-> > > > > OK, that's what I wanted to know.  It'd be helpful if it's more
-> > > > > clearly mentioned in the commit log.
-> > > >=20
-> > > > Agree.
-> > > >=20
-> > > > > BTW, the same problem must be seen in MEI drivers, too.
-> > > >=20
-> > > > Wasn't there a patch for those too? I lost track...
-> > >=20
-> > > I don't know, I just checked the latest Linus tree.
-> > >=20
-> > > And, looking at the HD-audio code, I still wonder how NULL dev->driver
-> > > can reach there.  Is there any PCI device that is added to component
-> > > without binding to a driver?  We have dev_is_pci() check at the
-> > > beginning, so non-PCI devices should bail out there...
-> >=20
-> > Further reading on, I'm really confused.  How data=3DNULL can be passed
-> > to this function?  The data argument is the value passed from the
-> > component_match_add_typed() call in HD-audio driver, hence it must be
-> > always the snd_hdac_bus object.
-> >=20
-> > And, I guess the i915 string check can be omitted completely, at
-> > least, for HD-audio driver.  It already have a check of the parent of
-> > the device and that should be enough.
->=20
-> That said, something like below (supposing data NULL check being
-> superfluous), instead.
->=20
->=20
-> Takashi
->=20
-> --- a/sound/hda/hdac_i915.c
-> +++ b/sound/hda/hdac_i915.c
-> @@ -102,18 +102,13 @@ static int i915_component_master_match(struct devic=
-e *dev, int subcomponent,
->  	struct pci_dev *hdac_pci, *i915_pci;
->  	struct hdac_bus *bus =3D data;
-> =20
-> -	if (!dev_is_pci(dev))
-> +	if (subcomponent !=3D I915_COMPONENT_AUDIO || !dev_is_pci(dev))
->  		return 0;
-> =20
+In addition, remove the CRYPTO_ALG_ALLOCATES_MEMORY flag from both aead
+and skcipher alg structures.
 
-If I recall this bug correctly, it's not the usb port perse that is falling
-through this !dev_is_pci(dev) check, it's actually the usb4-port in a new
-proposed patch by Heikki and Mika to extend the usb type-c component to
-encompass the usb4 specific pieces too. Is it possible usb4 ports are consi=
-dered
-pci devices, and that's how we got into this situation?
+[1] https://lore.kernel.org/linux-crypto/20200722072932.GA27544@gondor.apana.org.au/
 
-Also, a little more background information: This crash happens because in
-our kernel configs, we config'd the usb4 driver as =3Dy (built in) instead =
-of
-=3Dm module, which meant that the usb4 port's driver was adding a component
-likely much earlier than hdac_i915.
+Cc: stable@vger.kernel.org
+Fixes: d370cec32194 ("crypto: qat - Intel(R) QAT crypto interface")
+Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
+---
+ drivers/crypto/qat/qat_common/qat_algs.c   | 77 ++++++++++++----------
+ drivers/crypto/qat/qat_common/qat_crypto.h | 24 +++++++
+ 2 files changed, 67 insertions(+), 34 deletions(-)
 
-Thanks,
-Benson
+diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
+index f998ed58457c..b9228f3a26de 100644
+--- a/drivers/crypto/qat/qat_common/qat_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_algs.c
+@@ -46,19 +46,6 @@
+ static DEFINE_MUTEX(algs_lock);
+ static unsigned int active_devs;
+ 
+-struct qat_alg_buf {
+-	u32 len;
+-	u32 resrvd;
+-	u64 addr;
+-} __packed;
+-
+-struct qat_alg_buf_list {
+-	u64 resrvd;
+-	u32 num_bufs;
+-	u32 num_mapped_bufs;
+-	struct qat_alg_buf bufers[];
+-} __packed __aligned(64);
+-
+ /* Common content descriptor */
+ struct qat_alg_cd {
+ 	union {
+@@ -693,7 +680,10 @@ static void qat_alg_free_bufl(struct qat_crypto_instance *inst,
+ 				 bl->bufers[i].len, DMA_BIDIRECTIONAL);
+ 
+ 	dma_unmap_single(dev, blp, sz, DMA_TO_DEVICE);
+-	kfree(bl);
++
++	if (!qat_req->buf.sgl_src_valid)
++		kfree(bl);
++
+ 	if (blp != blpout) {
+ 		/* If out of place operation dma unmap only data */
+ 		int bufless = blout->num_bufs - blout->num_mapped_bufs;
+@@ -704,7 +694,9 @@ static void qat_alg_free_bufl(struct qat_crypto_instance *inst,
+ 					 DMA_BIDIRECTIONAL);
+ 		}
+ 		dma_unmap_single(dev, blpout, sz_out, DMA_TO_DEVICE);
+-		kfree(blout);
++
++		if (!qat_req->buf.sgl_dst_valid)
++			kfree(blout);
+ 	}
+ }
+ 
+@@ -721,15 +713,24 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
+ 	dma_addr_t blp = DMA_MAPPING_ERROR;
+ 	dma_addr_t bloutp = DMA_MAPPING_ERROR;
+ 	struct scatterlist *sg;
+-	size_t sz_out, sz = struct_size(bufl, bufers, n + 1);
++	size_t sz_out, sz = struct_size(bufl, bufers, n);
++	int node = dev_to_node(&GET_DEV(inst->accel_dev));
+ 
+ 	if (unlikely(!n))
+ 		return -EINVAL;
+ 
+-	bufl = kzalloc_node(sz, GFP_ATOMIC,
+-			    dev_to_node(&GET_DEV(inst->accel_dev)));
+-	if (unlikely(!bufl))
+-		return -ENOMEM;
++	qat_req->buf.sgl_src_valid = false;
++	qat_req->buf.sgl_dst_valid = false;
++
++	if (n > QAT_MAX_BUFF_DESC) {
++		bufl = kzalloc_node(sz, GFP_ATOMIC, node);
++		if (unlikely(!bufl))
++			return -ENOMEM;
++	} else {
++		bufl = &qat_req->buf.sgl_src.sgl_hdr;
++		memset(bufl, 0, sizeof(struct qat_alg_buf_list));
++		qat_req->buf.sgl_src_valid = true;
++	}
+ 
+ 	for_each_sg(sgl, sg, n, i)
+ 		bufl->bufers[i].addr = DMA_MAPPING_ERROR;
+@@ -760,12 +761,18 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
+ 		struct qat_alg_buf *bufers;
+ 
+ 		n = sg_nents(sglout);
+-		sz_out = struct_size(buflout, bufers, n + 1);
++		sz_out = struct_size(buflout, bufers, n);
+ 		sg_nctr = 0;
+-		buflout = kzalloc_node(sz_out, GFP_ATOMIC,
+-				       dev_to_node(&GET_DEV(inst->accel_dev)));
+-		if (unlikely(!buflout))
+-			goto err_in;
++
++		if (n > QAT_MAX_BUFF_DESC) {
++			buflout = kzalloc_node(sz_out, GFP_ATOMIC, node);
++			if (unlikely(!buflout))
++				goto err_in;
++		} else {
++			buflout = &qat_req->buf.sgl_dst.sgl_hdr;
++			memset(buflout, 0, sizeof(struct qat_alg_buf_list));
++			qat_req->buf.sgl_dst_valid = true;
++		}
+ 
+ 		bufers = buflout->bufers;
+ 		for_each_sg(sglout, sg, n, i)
+@@ -810,7 +817,9 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
+ 			dma_unmap_single(dev, buflout->bufers[i].addr,
+ 					 buflout->bufers[i].len,
+ 					 DMA_BIDIRECTIONAL);
+-	kfree(buflout);
++
++	if (!qat_req->buf.sgl_dst_valid)
++		kfree(buflout);
+ 
+ err_in:
+ 	if (!dma_mapping_error(dev, blp))
+@@ -823,7 +832,8 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
+ 					 bufl->bufers[i].len,
+ 					 DMA_BIDIRECTIONAL);
+ 
+-	kfree(bufl);
++	if (!qat_req->buf.sgl_src_valid)
++		kfree(bufl);
+ 
+ 	dev_err(dev, "Failed to map buf for dma\n");
+ 	return -ENOMEM;
+@@ -1434,7 +1444,7 @@ static struct aead_alg qat_aeads[] = { {
+ 		.cra_name = "authenc(hmac(sha1),cbc(aes))",
+ 		.cra_driver_name = "qat_aes_cbc_hmac_sha1",
+ 		.cra_priority = 4001,
+-		.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY,
++		.cra_flags = CRYPTO_ALG_ASYNC,
+ 		.cra_blocksize = AES_BLOCK_SIZE,
+ 		.cra_ctxsize = sizeof(struct qat_alg_aead_ctx),
+ 		.cra_module = THIS_MODULE,
+@@ -1451,7 +1461,7 @@ static struct aead_alg qat_aeads[] = { {
+ 		.cra_name = "authenc(hmac(sha256),cbc(aes))",
+ 		.cra_driver_name = "qat_aes_cbc_hmac_sha256",
+ 		.cra_priority = 4001,
+-		.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY,
++		.cra_flags = CRYPTO_ALG_ASYNC,
+ 		.cra_blocksize = AES_BLOCK_SIZE,
+ 		.cra_ctxsize = sizeof(struct qat_alg_aead_ctx),
+ 		.cra_module = THIS_MODULE,
+@@ -1468,7 +1478,7 @@ static struct aead_alg qat_aeads[] = { {
+ 		.cra_name = "authenc(hmac(sha512),cbc(aes))",
+ 		.cra_driver_name = "qat_aes_cbc_hmac_sha512",
+ 		.cra_priority = 4001,
+-		.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY,
++		.cra_flags = CRYPTO_ALG_ASYNC,
+ 		.cra_blocksize = AES_BLOCK_SIZE,
+ 		.cra_ctxsize = sizeof(struct qat_alg_aead_ctx),
+ 		.cra_module = THIS_MODULE,
+@@ -1486,7 +1496,7 @@ static struct skcipher_alg qat_skciphers[] = { {
+ 	.base.cra_name = "cbc(aes)",
+ 	.base.cra_driver_name = "qat_aes_cbc",
+ 	.base.cra_priority = 4001,
+-	.base.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY,
++	.base.cra_flags = CRYPTO_ALG_ASYNC,
+ 	.base.cra_blocksize = AES_BLOCK_SIZE,
+ 	.base.cra_ctxsize = sizeof(struct qat_alg_skcipher_ctx),
+ 	.base.cra_alignmask = 0,
+@@ -1504,7 +1514,7 @@ static struct skcipher_alg qat_skciphers[] = { {
+ 	.base.cra_name = "ctr(aes)",
+ 	.base.cra_driver_name = "qat_aes_ctr",
+ 	.base.cra_priority = 4001,
+-	.base.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY,
++	.base.cra_flags = CRYPTO_ALG_ASYNC,
+ 	.base.cra_blocksize = 1,
+ 	.base.cra_ctxsize = sizeof(struct qat_alg_skcipher_ctx),
+ 	.base.cra_alignmask = 0,
+@@ -1522,8 +1532,7 @@ static struct skcipher_alg qat_skciphers[] = { {
+ 	.base.cra_name = "xts(aes)",
+ 	.base.cra_driver_name = "qat_aes_xts",
+ 	.base.cra_priority = 4001,
+-	.base.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK |
+-			  CRYPTO_ALG_ALLOCATES_MEMORY,
++	.base.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
+ 	.base.cra_blocksize = AES_BLOCK_SIZE,
+ 	.base.cra_ctxsize = sizeof(struct qat_alg_skcipher_ctx),
+ 	.base.cra_alignmask = 0,
+diff --git a/drivers/crypto/qat/qat_common/qat_crypto.h b/drivers/crypto/qat/qat_common/qat_crypto.h
+index b6a4c95ae003..0928f159ea99 100644
+--- a/drivers/crypto/qat/qat_common/qat_crypto.h
++++ b/drivers/crypto/qat/qat_common/qat_crypto.h
+@@ -21,6 +21,26 @@ struct qat_crypto_instance {
+ 	atomic_t refctr;
+ };
+ 
++#define QAT_MAX_BUFF_DESC	4
++
++struct qat_alg_buf {
++	u32 len;
++	u32 resrvd;
++	u64 addr;
++} __packed;
++
++struct qat_alg_buf_list {
++	u64 resrvd;
++	u32 num_bufs;
++	u32 num_mapped_bufs;
++	struct qat_alg_buf bufers[];
++} __packed;
++
++struct qat_alg_fixed_buf_list {
++	struct qat_alg_buf_list sgl_hdr;
++	struct qat_alg_buf descriptors[QAT_MAX_BUFF_DESC];
++} __packed __aligned(64);
++
+ struct qat_crypto_request_buffs {
+ 	struct qat_alg_buf_list *bl;
+ 	dma_addr_t blp;
+@@ -28,6 +48,10 @@ struct qat_crypto_request_buffs {
+ 	dma_addr_t bloutp;
+ 	size_t sz;
+ 	size_t sz_out;
++	bool sgl_src_valid;
++	bool sgl_dst_valid;
++	struct qat_alg_fixed_buf_list sgl_src;
++	struct qat_alg_fixed_buf_list sgl_dst;
+ };
+ 
+ struct qat_crypto_request;
+-- 
+2.35.1
 
->  	hdac_pci =3D to_pci_dev(bus->dev);
->  	i915_pci =3D to_pci_dev(dev);
-> =20
-> -	if (!strcmp(dev->driver->name, "i915") &&
-> -	    subcomponent =3D=3D I915_COMPONENT_AUDIO &&
-> -	    connectivity_check(i915_pci, hdac_pci))
-> -		return 1;
-> -
-> -	return 0;
-> +	return connectivity_check(i915_pci, hdac_pci);
->  }
-> =20
->  /* check whether intel graphics is present */
->=20
-
---=20
-Benson Leung
-Staff Software Engineer
-Chrome OS Kernel
-Google Inc.
-bleung@google.com
-Chromium OS Project
-bleung@chromium.org
-
---qZ1ZF7vfmh9I4Bit
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQQCtZK6p/AktxXfkOlzbaomhzOwwgUCYkXJrwAKCRBzbaomhzOw
-wpDWAP4u9qZ1yLO4Vtblx/ZmitMRfRXqpqZ1xkZTr3wjUV3NXgD8DQBQxF/RIz2w
-F727wkBDJO7uAqp8N1cVAtvwIUCSSg4=
-=Nqgb
------END PGP SIGNATURE-----
-
---qZ1ZF7vfmh9I4Bit--
