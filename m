@@ -2,99 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 241514EE156
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 21:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0288A4EE1B5
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 21:28:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239339AbiCaTHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 15:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41620 "EHLO
+        id S240712AbiCaTa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 15:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239361AbiCaTHj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 15:07:39 -0400
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C49D9221BA9;
-        Thu, 31 Mar 2022 12:05:47 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5F26F5C0056;
-        Thu, 31 Mar 2022 15:05:45 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Thu, 31 Mar 2022 15:05:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; bh=I9YlzO5I0vEV6J/zDkVkNzj6DhVFaiBXvZQLOA
-        8ljxE=; b=SzeuCMiAO0FYiH1pEH+Mw45iOXsYNvqdEfo5va8kF/J4HSEyRGLLMk
-        vBgpz0qk3cAMxH4oXqjGMn7bZJUnmqR48zPCvCZvc7/s0RZnBshPMFAs1Mz9AIkT
-        SA824B9VZzWyPqrRQvCplC15xAB3jgCAnOYO4rgANK2TMrKQGbZoh2TYqqtkreqo
-        0cLdNDyz/RA2xqkBqZWymO3btR7aa2Ldzjz0VftmzkfaRF0qY+luv7TEADl/PGj1
-        ASj0MrFgJmzAOBF9CgUDrznRH49zhtfYeHGuwZJDiloR4llAmpFcaspic+fFuunL
-        cM0HgpHeH5cfY3dIkNOFWToaczK3halg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=I9YlzO5I0vEV6J/zD
-        kVkNzj6DhVFaiBXvZQLOA8ljxE=; b=LpwG/sSOnGfc6s7Whya/7kbn9IH5zMggK
-        GJkzU+gkmb6OK8xbVccO7DB/e33Ajn7D1AxlpjQJcifGhpxPJqNQQdIfXLZDvO1U
-        Ly4C6E6XdOJhpl+G9AblOa+eJM1OYVku2HxJ5HLE5zFZDWS0DOPCK8hCFjtJATt5
-        T1vOrNOXxJ4lErPKdMHryNrn+mMGrOt/1OWxPFmcRN1dOtVbA5gDIy4arzlTm1z+
-        F4Y3xRcnRXBgs0h1OPtt+yQWtsQhbgbgiq5bbpO0YfNxAw9aRhJNyQ+vKiRatpRR
-        mZZbtXMTs65hJkC2BC1bIhW1Udxlr8VKAiW5O3PQptiK4xL0rqWyg==
-X-ME-Sender: <xms:iPtFYjC7vvxFQCN2kqjI6adTzBhabDH3lAkaJwV29JC9_XOWYNwpcw>
-    <xme:iPtFYpjvmHF2KbAXWJqKRgpF_xf0wH8WuZw1R9H6gF_iHF2wlXh9KCDg_CjJHD4hP
-    FvXumR-9OVKFw>
-X-ME-Received: <xmr:iPtFYunr4GykkObCJBe9cFLk4mcyoTrcJfOb-poNfsRNyJd_Ve8BSYsylrslc_2ZqP2laB5sqf6TOXaa7G5eAeYhXU1dy1Da>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudeigedgudefvdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelle
-    dtheekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:iftFYlw0Zz0EbUSwlLqyY6PjXYbdRBDORD4x-LokpO1c1OSzKECqMg>
-    <xmx:iftFYoS3DydlKqKS16d8nBG6bg3bNnyLDt5OduQjUL2HoMT19K14uQ>
-    <xmx:iftFYoZXKOet_mbjGz8qPpW2uuZ3tO3kV80CNItqHTbFynY-5jJ9ew>
-    <xmx:iftFYnFMESf4WBE7X959pBcyxSCotqVeGuqDnZIYV_jxxc25KM7p_A>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 31 Mar 2022 15:05:44 -0400 (EDT)
-Date:   Thu, 31 Mar 2022 21:03:52 +0200
-From:   Greg KH <greg@kroah.com>
-To:     James Morse <james.morse@arm.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        catalin.marinas@arm.com
-Subject: Re: [stable:PATCH v4.14.274 00/27] arm64: Mitigate spectre style
- branch history side channels
-Message-ID: <YkX7GG5+inB9TkN4@kroah.com>
-References: <20220331183400.73183-1-james.morse@arm.com>
+        with ESMTP id S240707AbiCaTaZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 15:30:25 -0400
+Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642355623C
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 12:28:36 -0700 (PDT)
+Received: by mail-io1-xd34.google.com with SMTP id z7so729817iom.1
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 12:28:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=KDv50hCOMSNm4tqOFej1XxVHswnaiqBQ/Ql5PRaAElM=;
+        b=hr3WMnbNxfXX92/Y0t14FpEIS4pC+09DAI6p4oWqZgWnX03dIRuX74ev7qupnrKxzX
+         n5Cz8IINdInr4rUCepEci1G0mhVdD9KS789z+ALBCwmklBUAZ+nFdcApJvLiaQ6DE1h6
+         gsrrPum6Nsrl58HvbzUvPWVrmzlfcNkgPf0Os=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=KDv50hCOMSNm4tqOFej1XxVHswnaiqBQ/Ql5PRaAElM=;
+        b=hLsGRHGvM6hl7rwKfM9I9w6IFPjw9MprMZJ/arL/fsp5IfCuYbCCenKT/DsshtmgjC
+         kt6AyX9339FfhoQF0lKEySE129neiqD0bsKN5QNFxP8WNVLCGRnhB3nP82cZbpYm/2wR
+         ywt297HV9Kyfg3HtAJMB0Gz84PQ2k32heNFEDyYAb+YLvyEnVX9qAdiVqBZtpumAjmQM
+         ra1QVhS0qiK3eIuw/fyW1hDqvlK3AW3OolF314GFPnLeWB0nyPQXLgGdphbGzk0HJTYQ
+         9yV/PRNXsnhAh9Wn/Agljn2po8Esx8m/gAZLZUBjr6pmwx5HsVYKvCw894MAO/XdHUlC
+         qPeQ==
+X-Gm-Message-State: AOAM532Bc5MYyJXLw/F+gWZyLmxLKR3PkFiAhIQ7ezw9XIsE3pxNBLfN
+        30axEYDcUicOE3OmWvVsZ+LWkg==
+X-Google-Smtp-Source: ABdhPJxfJ3AXDmXIug9uhpRb3ABjQOmyzzRYZ0nfXa4ivrk5be6vqTiSy892fiqB2bYpvFEb5d7u9Q==
+X-Received: by 2002:a02:7fc9:0:b0:323:6239:cfdb with SMTP id r192-20020a027fc9000000b003236239cfdbmr3849890jac.186.1648754915705;
+        Thu, 31 Mar 2022 12:28:35 -0700 (PDT)
+Received: from [192.168.1.128] ([71.205.29.0])
+        by smtp.gmail.com with ESMTPSA id k12-20020a056e02156c00b002c9ad2b3dc4sm168559ilu.74.2022.03.31.12.28.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 31 Mar 2022 12:28:35 -0700 (PDT)
+Subject: Re: [PATCH] selftest/vm: clarify error statement in gup_test
+To:     Sidhartha Kumar <sidhartha.kumar@oracle.com>, shuah@kernel.org,
+        akpm@linux-foundation.org
+Cc:     linux-mm@kvack.org, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20220330215257.112029-1-sidhartha.kumar@oracle.com>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <9a752af3-8e3f-bfc5-eb24-eadcaf800bd5@linuxfoundation.org>
+Date:   Thu, 31 Mar 2022 13:28:34 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220331183400.73183-1-james.morse@arm.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20220330215257.112029-1-sidhartha.kumar@oracle.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 31, 2022 at 07:33:33PM +0100, James Morse wrote:
-> Hello!
+On 3/30/22 3:52 PM, Sidhartha Kumar wrote:
+> Print two possible reasons /sys/kernel/debug/gup_test
+> cannot be opened to help users of this test diagnose
+> failures.
 > 
-> This is the spectre-bhb backport for v4.14.
-> This comes with an A76 timer workaround. v4.14 doesn't have a compat
-> vdso, so doesn't need all the patches for that workaround.
-> In particular, it doesn't need Marc's series:
-> https://lore.kernel.org/linux-arm-kernel/20200715125614.3240269-1-maz@kernel.org/
+
+Thank you for the patch to improve rather cryptic error messages.
+
+> Signed-off-by: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+> Cc: stable@vger.kernel.org # 5.15+
+> ---
+>   tools/testing/selftests/vm/gup_test.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> I included the Kconfig change that restricts this to COMPAT, but not commit
-> 0f80cad3124f ("arm64: Restrict ARM64_ERRATUM_1188873 mitigation to AArch32"),
-> which is an invasive performance optimisation that wasn't marked as
-> being for stable.
+> diff --git a/tools/testing/selftests/vm/gup_test.c b/tools/testing/selftests/vm/gup_test.c
+> index fe043f67798b0..c496bcefa7a0e 100644
+> --- a/tools/testing/selftests/vm/gup_test.c
+> +++ b/tools/testing/selftests/vm/gup_test.c
+> @@ -205,7 +205,9 @@ int main(int argc, char **argv)
+>   
+>   	gup_fd = open("/sys/kernel/debug/gup_test", O_RDWR);
+>   	if (gup_fd == -1) {
+> -		perror("open");
+> +		perror("failed to open /sys/kernel/debug/gup_test");
+> +		printf("check if CONFIG_GUP_TEST is enabled in kernel config\n");
+> +		printf("check if debugfs is mounted at /sys/kernel/debug\n");
 
-Thanks for these, all now queued up!
+Instead of adding 3 messages in a row, please check the errno to figure
+out why it failed and print an appropriate message.
 
-greg k-h
+If open fails because CONFIG_GUP_TEST is not enabled, the test should skip
+the test instead of fail. Failing will indicate a test failure which is not
+the case. The test couldn't be run due to unmet dependencies.
+
+This test requires root access. A check for root privilege and skip the
+test for the same reason stated above.
+
+>   		exit(1);
+>   	}
+>   
+> 
+
+Please send v2 with these changes.
+
+thanks,
+-- Shuah
