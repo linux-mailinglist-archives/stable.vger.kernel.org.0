@@ -2,148 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C49464ED28A
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 06:35:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5506F4ED2F0
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 06:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230118AbiCaEPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 00:15:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39394 "EHLO
+        id S229935AbiCaEYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 00:24:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229978AbiCaEOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 00:14:07 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98410210474;
-        Wed, 30 Mar 2022 20:51:57 -0700 (PDT)
-Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KTTny1shXzCr6s;
-        Thu, 31 Mar 2022 11:49:42 +0800 (CST)
-Received: from [10.174.187.128] (10.174.187.128) by
- dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2308.21; Thu, 31 Mar 2022 11:51:55 +0800
-Subject: Re: [PATCH] KVM: x86/pmu: Update AMD PMC smaple period to fix guest
- NMI-watchdog
-To:     Like Xu <like.xu.linux@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-CC:     Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Eric Hankland <ehankland@google.com>, <kvm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20220329134632.6064-1-likexu@tencent.com>
-From:   "wangyanan (Y)" <wangyanan55@huawei.com>
-Message-ID: <516a87a9-71d3-a4a7-83bf-1d8e36745e61@huawei.com>
-Date:   Thu, 31 Mar 2022 11:51:55 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        with ESMTP id S229884AbiCaEYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 00:24:15 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DC247AEF;
+        Wed, 30 Mar 2022 21:13:35 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id h23-20020a17090a051700b001c9c1dd3acbso2395007pjh.3;
+        Wed, 30 Mar 2022 21:13:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=/+vGbz8SAWz67QqrCsaqBWY6f4aSs8L7q9rG9URu324=;
+        b=pC+ufU2hTzJJ4NnNPWS67Q4pTurIZpN/8TM2Rug587P2VYpw26BZj6Q6J9+uTrpwFh
+         unYJWww6phnB78O0dY+yzUWNwYzoasEwuMGE2HvGTAU8pd/Hum9/Khs11nfKrXn1h8ah
+         jP/9OBVZra6QcxFniQj2q3QnC4P59vzAM9yf9wXFsPvGGjYWcB17wNcJES2CU/LYfX+f
+         xLA0cx3JBq5+x3Pvvuc7pqvlSxSX/LfaOA2KO8C3I1lDVoSZOtfGlHxkqYfLOxCkir0T
+         KDXY2uMW1vDNNzTtrkIkJc1VtS7yzoIPal/cCwyvVjnTOflGA4QIfXn3t/LMj0dnRtHI
+         K63Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=/+vGbz8SAWz67QqrCsaqBWY6f4aSs8L7q9rG9URu324=;
+        b=buTsWaxxbbbkHIOc0QJEvhvx9O+TedNp51QdpsEGBzDZd6pyh7iU9CnINDsGTAO677
+         0Ntt332QuhX56yJjRaQXzM11ygrUK+2MKW6yKTJ939jErcDstPnOYi+YOxrkftTnmFpz
+         AbIrxWDpZEUp6KNnk+B0Gzlk2XE4qNS7ne2bUMJOSas4pPU4ObYD5oh+eOdGcLkaTF7f
+         uULjuWMu6r58ZXv054J8pm1ytUO8DpMjgv1T3pZSPGLMKC1KGNihnvuyqSIe9ZuGR9bu
+         trrt5DV8DlPBR75Rmb08+k8JmxFosC4aq18IfJnnynpCiRpclPiMxqyFojUVoD6DkkQJ
+         XqSw==
+X-Gm-Message-State: AOAM531yqwYOUkbror3l+KqaI5EC1Q3z+c6l7e1vqT0NSfr+cfU2w5jw
+        pPnUTNrbiNU/f734j+NaD3w=
+X-Google-Smtp-Source: ABdhPJy+J7klF/WLTrxUys3ijbiydFDR1WqJxE7Y6/oefX3HIuNphCu5GOXq+etXWFl9gTYN3Mzf+Q==
+X-Received: by 2002:a17:902:bf07:b0:14f:a3a7:97a0 with SMTP id bi7-20020a170902bf0700b0014fa3a797a0mr3392328plb.105.1648700014186;
+        Wed, 30 Mar 2022 21:13:34 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:3d5d:c235:d5ab:d23])
+        by smtp.gmail.com with ESMTPSA id i8-20020a63a848000000b0037d5eac87e3sm21067376pgp.18.2022.03.30.21.13.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Mar 2022 21:13:33 -0700 (PDT)
+Date:   Wed, 30 Mar 2022 21:13:30 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        "3.8+" <stable@vger.kernel.org>, regressions@lists.linux.dev,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
+Message-ID: <YkUqajiNZmi+lAPC@google.com>
+References: <20220321184404.20025-1-jose.exposito89@gmail.com>
+ <44abc738-1532-63fa-9cd1-2b3870a963bc@leemhuis.info>
+ <CAO-hwJJweSuSBE_18ZbvqS12eX9GcS+aJoe7SRFJdASOrN3bqw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220329134632.6064-1-likexu@tencent.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.174.187.128]
-X-ClientProxiedBy: dggeme701-chm.china.huawei.com (10.1.199.97) To
- dggpemm500023.china.huawei.com (7.185.36.83)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAO-hwJJweSuSBE_18ZbvqS12eX9GcS+aJoe7SRFJdASOrN3bqw@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-helped to Cc stable@ list...
+On Wed, Mar 30, 2022 at 02:30:37PM +0200, Benjamin Tissoires wrote:
+> On Wed, Mar 30, 2022 at 2:27 PM Thorsten Leemhuis
+> <regressions@leemhuis.info> wrote:
+> >
+> > Hi, this is your Linux kernel regression tracker.
+> >
+> > On 21.03.22 19:44, José Expósito wrote:
+> > > This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
+> > >
+> > > The touchpad present in the Dell Precision 7550 and 7750 laptops
+> > > reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
+> > > the device is not a clickpad, it is a touchpad with physical buttons.
+> > >
+> > > In order to fix this issue, a quirk for the device was introduced in
+> > > libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
+> > >
+> > >       [Precision 7x50 Touchpad]
+> > >       MatchBus=i2c
+> > >       MatchUdevType=touchpad
+> > >       MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
+> > >       AttrInputPropDisable=INPUT_PROP_BUTTONPAD
+> > >
+> > > However, because of the change introduced in 37ef4c19b4 ("Input: clear
+> > > BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
+> > > anymore breaking the device right click button and making impossible to
+> > > workaround it in user space.
+> > >
+> > > In order to avoid breakage on other present or future devices, revert
+> > > the patch causing the issue.
+> > >
+> > > Cc: stable@vger.kernel.org
+> > > Link: https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/481 [1]
+> > > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1868789  [2]
+> > > Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+> > > [...]
+> >
+> > Jiri, Benjamin, what the status here? Sure, this is not a crucial
+> > regression and we are in the middle of the merge window, but it looks
+> > like nothing has happened for a week now. Or was progress made somewhere
+> > and I just missed it?
+> 
+> No, I think it just wasn't picked up by the input maintainer yet
+> (Dmitry, now in CC).
+> 
+> FWIW:
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> José, please do not forget to add the input maintainer when you target
+> the input tree, not the HID one :)
 
-On 2022/3/29 21:46, Like Xu wrote:
-> From: Like Xu <likexu@tencent.com>
->
-> NMI-watchdog is one of the favorite features of kernel developers,
-> but it does not work in AMD guest even with vPMU enabled and worse,
-> the system misrepresents this capability via /proc.
->
-> This is a PMC emulation error. KVM does not pass the latest valid
-> value to perf_event in time when guest NMI-watchdog is running, thus
-> the perf_event corresponding to the watchdog counter will enter the
-> old state at some point after the first guest NMI injection, forcing
-> the hardware register PMC0 to be constantly written to 0x800000000001.
->
-> Meanwhile, the running counter should accurately reflect its new value
-> based on the latest coordinated pmc->counter (from vPMC's point of view)
-> rather than the value written directly by the guest.
->
-> Fixes: 168d918f2643 ("KVM: x86: Adjust counter sample period after a wrmsr")
-> Reported-by: Dongli Cao <caodongli@kingsoft.com>
-> Signed-off-by: Like Xu <likexu@tencent.com>
-> ---
->   arch/x86/kvm/pmu.h           | 9 +++++++++
->   arch/x86/kvm/svm/pmu.c       | 1 +
->   arch/x86/kvm/vmx/pmu_intel.c | 8 ++------
->   3 files changed, 12 insertions(+), 6 deletions(-)
-Recently I also met the "NMI watchdog not working on AMD guest"
-issue, I have tested this patch locally and it helps.
+I see that there were several ACKs, but how many devices misuse the
+HID_DG_BUTTONTYPE? Would it be better to quirk against either affected
+Dell models, or particular touchpads (by HID IDs) instead of reverting
+wholesale?
 
-Reviewed-by: Yanan Wang <wangyanan55@huawei.com>
-Tested-by: Yanan Wang <wangyanan55@huawei.com>
+Thanks.
 
-Thanks,
-Yanan
-> diff --git a/arch/x86/kvm/pmu.h b/arch/x86/kvm/pmu.h
-> index 7a7b8d5b775e..5e7e8d163b98 100644
-> --- a/arch/x86/kvm/pmu.h
-> +++ b/arch/x86/kvm/pmu.h
-> @@ -140,6 +140,15 @@ static inline u64 get_sample_period(struct kvm_pmc *pmc, u64 counter_value)
->   	return sample_period;
->   }
->   
-> +static inline void pmc_update_sample_period(struct kvm_pmc *pmc)
-> +{
-> +	if (!pmc->perf_event || pmc->is_paused)
-> +		return;
-> +
-> +	perf_event_period(pmc->perf_event,
-> +			  get_sample_period(pmc, pmc->counter));
-> +}
-> +
->   void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel);
->   void reprogram_fixed_counter(struct kvm_pmc *pmc, u8 ctrl, int fixed_idx);
->   void reprogram_counter(struct kvm_pmu *pmu, int pmc_idx);
-> diff --git a/arch/x86/kvm/svm/pmu.c b/arch/x86/kvm/svm/pmu.c
-> index 24eb935b6f85..b14860863c39 100644
-> --- a/arch/x86/kvm/svm/pmu.c
-> +++ b/arch/x86/kvm/svm/pmu.c
-> @@ -257,6 +257,7 @@ static int amd_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
->   	pmc = get_gp_pmc_amd(pmu, msr, PMU_TYPE_COUNTER);
->   	if (pmc) {
->   		pmc->counter += data - pmc_read_counter(pmc);
-> +		pmc_update_sample_period(pmc);
->   		return 0;
->   	}
->   	/* MSR_EVNTSELn */
-> diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
-> index efa172a7278e..e64046fbcdca 100644
-> --- a/arch/x86/kvm/vmx/pmu_intel.c
-> +++ b/arch/x86/kvm/vmx/pmu_intel.c
-> @@ -431,15 +431,11 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
->   			    !(msr & MSR_PMC_FULL_WIDTH_BIT))
->   				data = (s64)(s32)data;
->   			pmc->counter += data - pmc_read_counter(pmc);
-> -			if (pmc->perf_event && !pmc->is_paused)
-> -				perf_event_period(pmc->perf_event,
-> -						  get_sample_period(pmc, data));
-> +			pmc_update_sample_period(pmc);
->   			return 0;
->   		} else if ((pmc = get_fixed_pmc(pmu, msr))) {
->   			pmc->counter += data - pmc_read_counter(pmc);
-> -			if (pmc->perf_event && !pmc->is_paused)
-> -				perf_event_period(pmc->perf_event,
-> -						  get_sample_period(pmc, data));
-> +			pmc_update_sample_period(pmc);
->   			return 0;
->   		} else if ((pmc = get_gp_pmc(pmu, msr, MSR_P6_EVNTSEL0))) {
->   			if (data == pmc->eventsel)
-
+-- 
+Dmitry
