@@ -2,110 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D844EDF3E
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 18:58:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF3354EDF43
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 18:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232438AbiCaRAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 13:00:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44242 "EHLO
+        id S233909AbiCaRAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 13:00:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238759AbiCaRAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 13:00:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BAF510FDA;
-        Thu, 31 Mar 2022 09:58:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 974E1B8218B;
-        Thu, 31 Mar 2022 16:58:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F925C340ED;
-        Thu, 31 Mar 2022 16:58:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648745909;
-        bh=BKvjdCsLv3Ic0I4T8UQJKKMnRKPo6SUNKqirrFu3/C4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JtVeH3izMStBmLto12CoHY4knU6SF4TbKy6AqDSbaWECEbBUP1DE4hLgj/+p4sY42
-         pw0/AbXsy4aANqylze5HV/8gqhD1JhCrK7OCAejPCmdyFqNGNqMthkz3aAuynVkv18
-         FNvkKCmTUdVu/sXQmJzSV5iOGiRZU148YVqIfrX8kPM9/nQB47GD77M2+J2hi+8LBc
-         2gMGB3y3LuFvTHmVm1Y9yxoUiJYnG/3QcCuLl9H6ez5Bur1IBVPC3AHM4O2IPMjvmw
-         6ULEk5b4jTP6VEIapaGh9Y8M9CCaxNLeObTMgLp3ZblDhgSiPkUBPaC2UTzi+APBst
-         33VrTfgRN1gQA==
-Date:   Thu, 31 Mar 2022 12:58:28 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Omar Sandoval <osandov@osandov.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Omar Sandoval <osandov@fb.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>, clm@fb.com, jbacik@fb.com,
-        linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.17 12/21] btrfs: don't advance offset for
- compressed bios in btrfs_csum_one_bio()
-Message-ID: <YkXdtBfNbH2/oP5z@sashalap>
-References: <20220328194157.1585642-1-sashal@kernel.org>
- <20220328194157.1585642-12-sashal@kernel.org>
- <YkNko1BcsyDt2QUS@relinquished.localdomain>
+        with ESMTP id S240385AbiCaRAp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 13:00:45 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74C630544
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 09:58:56 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id c10so533609ejs.13
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 09:58:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vAUEMGVmv3luLDWumw9EYzVQpWz4Yr1CWqgaSqnZceQ=;
+        b=NxK1KH708VkNCN6yrS/zDO82xolgnN7kkPj7X1YytO28mDVTKJBEFJx3VvaL3d1fdP
+         qxw5cXxAfhhwYD/F+PcdC4velYOARzlkSV6AhhZpCmVoKdzRsDm57fvefERVft6Z6nyZ
+         A9dWNcLRQL9aFMDsrfGMmT6U5iHlWRtp+7BnOv1iuslsPDeDu88VVxmZFk1dKX8uNb1m
+         FhHTW6gn+ffW2U8DZmSYMOYiByBFAWmFCbdQl0pjZrAAW5ZrODCUAJtRs4Nk3UYV1+EX
+         dcEnYy0enLNH5/JyRaNj099cAyFym2ZbSpjEhjbA/EJGLGe72trgGF5kWqWaOOkjGiLB
+         HYAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vAUEMGVmv3luLDWumw9EYzVQpWz4Yr1CWqgaSqnZceQ=;
+        b=LHaejmOFDqXg5DVf6qfz1e47H4U5oMeQWBEEE+62vubbOp1O8FhkNvgoLpbjF7GFKt
+         VptscXutWB+v7AN6qi1eSYI4P+iVcbxp4cL+AmsEVou76LiZfHmhpwpSqX+CWOOf/G3U
+         GcpKg5D+jsNjHGUC+cTIhro9z6QMWtFbd4FyBp/gcEnow1O4CI0wS5FHwvxCq2UsbTBP
+         CCXFpVPx/voky7dCDSoQ/D14QOCgPSpZjJe2yadswr3yt7VTrqzIM8i+j+V0SOmy6CuG
+         NFBkTVywADhanTY+Nxvba3jpuVqwZsLGGK63MEcbXgEexala5WGd5AoDC/d2/k83orgQ
+         jwbA==
+X-Gm-Message-State: AOAM533NAQTSnYJpLrXRqyH06vS3oCDGRYQTrJFZnvFw0EVBd1SH1lNX
+        GaHjRZGN29R9xFmI8kG/El+LKVaSmL2yUcrNgxJa9A==
+X-Google-Smtp-Source: ABdhPJzlsEiL7iyx6CgmS5USAoYj8u3Wgu6jjZ5NhLYttjza0jDurzKAWjmvDD+8OeKKX0RMBEERdLYlUzWb3c2g7Hw=
+X-Received: by 2002:a17:907:1606:b0:6df:f528:4033 with SMTP id
+ hb6-20020a170907160600b006dff5284033mr5784411ejc.433.1648745935000; Thu, 31
+ Mar 2022 09:58:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YkNko1BcsyDt2QUS@relinquished.localdomain>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <s5hzgl6eg48.wl-tiwai@suse.de> <CAOvb9yiO_n48JPZ3f0+y-fQ_YoOmuWF5c692Jt5_SKbxdA4yAw@mail.gmail.com>
+ <s5hr16ieb8o.wl-tiwai@suse.de> <YkVzl4NEzwDAp/Zq@kuha.fi.intel.com>
+ <s5hmth6eaiz.wl-tiwai@suse.de> <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
+ <s5hk0cae9pw.wl-tiwai@suse.de> <s5h7d8adzdl.wl-tiwai@suse.de>
+ <s5hzgl6ciho.wl-tiwai@suse.de> <YkXJr2KhSzHJHxRF@google.com> <YkXY730wWhgJkRUy@kroah.com>
+In-Reply-To: <YkXY730wWhgJkRUy@kroah.com>
+From:   Won Chung <wonchung@google.com>
+Date:   Thu, 31 Mar 2022 09:58:43 -0700
+Message-ID: <CAOvb9yiHXAWMn2_GcOnx5FYzfbp-2TmtN-OH90r31OqgbXQ3yQ@mail.gmail.com>
+Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback function
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Benson Leung <bleung@google.com>, Takashi Iwai <tiwai@suse.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 29, 2022 at 12:57:23PM -0700, Omar Sandoval wrote:
->On Mon, Mar 28, 2022 at 03:41:47PM -0400, Sasha Levin wrote:
->> From: Omar Sandoval <osandov@fb.com>
->>
->> [ Upstream commit e331f6b19f8adde2307588bb325ae5de78617c20 ]
->>
->> btrfs_csum_one_bio() loops over each filesystem block in the bio while
->> keeping a cursor of its current logical position in the file in order to
->> look up the ordered extent to add the checksums to. However, this
->> doesn't make much sense for compressed extents, as a sector on disk does
->> not correspond to a sector of decompressed file data. It happens to work
->> because:
->>
->> 1) the compressed bio always covers one ordered extent
->> 2) the size of the bio is always less than the size of the ordered
->>    extent
->>
->> However, the second point will not always be true for encoded writes.
->>
->> Let's add a boolean parameter to btrfs_csum_one_bio() to indicate that
->> it can assume that the bio only covers one ordered extent. Since we're
->> already changing the signature, let's get rid of the contig parameter
->> and make it implied by the offset parameter, similar to the change we
->> recently made to btrfs_lookup_bio_sums(). Additionally, let's rename
->> nr_sectors to blockcount to make it clear that it's the number of
->> filesystem blocks, not the number of 512-byte sectors.
->>
->> Reviewed-by: Josef Bacik <josef@toxicpanda.com>
->> Reviewed-by: Nikolay Borisov <nborisov@suse.com>
->> Signed-off-by: Omar Sandoval <osandov@fb.com>
->> Signed-off-by: David Sterba <dsterba@suse.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  fs/btrfs/compression.c |  2 +-
->>  fs/btrfs/ctree.h       |  2 +-
->>  fs/btrfs/file-item.c   | 37 +++++++++++++++++--------------------
->>  fs/btrfs/inode.c       |  8 ++++----
->>  4 files changed, 23 insertions(+), 26 deletions(-)
+On Thu, Mar 31, 2022 at 9:38 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
->Hi, Sasha,
+> On Thu, Mar 31, 2022 at 08:33:03AM -0700, Benson Leung wrote:
+> > Hi Takashi,
+> >
+> > On Thu, Mar 31, 2022 at 04:19:15PM +0200, Takashi Iwai wrote:
+> > > On Thu, 31 Mar 2022 15:29:10 +0200,
+> > > Takashi Iwai wrote:
+> > > >
+> > > > On Thu, 31 Mar 2022 11:45:47 +0200,
+> > > > Takashi Iwai wrote:
+> > > > >
+> > > > > On Thu, 31 Mar 2022 11:34:38 +0200,
+> > > > > Heikki Krogerus wrote:
+> > > > > >
+> > > > > > On Thu, Mar 31, 2022 at 11:28:20AM +0200, Takashi Iwai wrote:
+> > > > > > > On Thu, 31 Mar 2022 11:25:43 +0200,
+> > > > > > > Heikki Krogerus wrote:
+> > > > > > > >
+> > > > > > > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
+> > > > > > > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
+> > > > > > > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
+> > > > > > > > > > >
+> > > > > > > > > > > Can NULL dev->driver be really seen?  I thought the components are
+> > > > > > > > > > > added by the drivers, hence they ought to have the driver field set.
+> > > > > > > > > > > But there can be corner cases I overlooked.
+> > > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > thanks,
+> > > > > > > > > > >
+> > > > > > > > > > > Takashi
+> > > > > > > > > >
+> > > > > > > > > > Hi Takashi,
+> > > > > > > > > >
+> > > > > > > > > > When I try using component_add in a different driver (usb4 in my
+> > > > > > > > > > case), I think dev->driver here is NULL because the i915 drivers do
+> > > > > > > > > > not have their component master fully bound when this new component is
+> > > > > > > > > > registered. When I test it, it seems to be causing a crash.
+> > > > > > > > >
+> > > > > > > > > Hm, from where component_add*() is called?  Basically dev->driver must
+> > > > > > > > > be already set before the corresponding driver gets bound at
+> > > > > > > > > __driver_probe_deviec().  So, if the device is added to component from
+> > > > > > > > > the corresponding driver's probe, dev->driver must be non-NULL.
+> > > > > > > >
+> > > > > > > > The code that declares a device as component does not have to be the
+> > > > > > > > driver of that device.
+> > > > > > > >
+> > > > > > > > In our case the components are USB ports, and they are devices that
+> > > > > > > > are actually never bind to any drivers: drivers/usb/core/port.c
+> > > > > > >
+> > > > > > > OK, that's what I wanted to know.  It'd be helpful if it's more
+> > > > > > > clearly mentioned in the commit log.
+> > > > > >
+> > > > > > Agree.
+> > > > > >
+> > > > > > > BTW, the same problem must be seen in MEI drivers, too.
+> > > > > >
+> > > > > > Wasn't there a patch for those too? I lost track...
+> > > > >
+> > > > > I don't know, I just checked the latest Linus tree.
+> > > > >
+> > > > > And, looking at the HD-audio code, I still wonder how NULL dev->driver
+> > > > > can reach there.  Is there any PCI device that is added to component
+> > > > > without binding to a driver?  We have dev_is_pci() check at the
+> > > > > beginning, so non-PCI devices should bail out there...
+> > > >
+> > > > Further reading on, I'm really confused.  How data=NULL can be passed
+> > > > to this function?  The data argument is the value passed from the
+> > > > component_match_add_typed() call in HD-audio driver, hence it must be
+> > > > always the snd_hdac_bus object.
+> > > >
+> > > > And, I guess the i915 string check can be omitted completely, at
+> > > > least, for HD-audio driver.  It already have a check of the parent of
+> > > > the device and that should be enough.
+> > >
+> > > That said, something like below (supposing data NULL check being
+> > > superfluous), instead.
+> > >
+> > >
+> > > Takashi
+> > >
+> > > --- a/sound/hda/hdac_i915.c
+> > > +++ b/sound/hda/hdac_i915.c
+> > > @@ -102,18 +102,13 @@ static int i915_component_master_match(struct device *dev, int subcomponent,
+> > >     struct pci_dev *hdac_pci, *i915_pci;
+> > >     struct hdac_bus *bus = data;
+> > >
+> > > -   if (!dev_is_pci(dev))
+> > > +   if (subcomponent != I915_COMPONENT_AUDIO || !dev_is_pci(dev))
+> > >             return 0;
+> > >
+> >
+> > If I recall this bug correctly, it's not the usb port perse that is falling
+> > through this !dev_is_pci(dev) check, it's actually the usb4-port in a new
+> > proposed patch by Heikki and Mika to extend the usb type-c component to
+> > encompass the usb4 specific pieces too. Is it possible usb4 ports are considered
+> > pci devices, and that's how we got into this situation?
+> >
+> > Also, a little more background information: This crash happens because in
+> > our kernel configs, we config'd the usb4 driver as =y (built in) instead of
+> > =m module, which meant that the usb4 port's driver was adding a component
+> > likely much earlier than hdac_i915.
 >
->This patch doesn't fix a real bug, so it should be dropped from both
->5.16 and 5.17.
+> So is this actually triggering on 5.17 right now?  Or is it due to some
+> other not-applied changes you are testing at the moment?
+>
+> confused,
+>
+> greg k-h
 
-I'll drop it, thanks.
+Hi Greg,
 
--- 
+I believe it is not causing an issue in 5.17 at the moment. It is
+triggered when we try to apply new changes and test it locally.
+(registering a component for usb4_port)
+
 Thanks,
-Sasha
+Won
