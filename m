@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 249A54EE080
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 20:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D50F4EE083
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 20:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234606AbiCaSf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 14:35:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49814 "EHLO
+        id S234703AbiCaSgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 14:36:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232226AbiCaSf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 14:35:56 -0400
+        with ESMTP id S234697AbiCaSgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 14:36:18 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CB25B63BD2;
-        Thu, 31 Mar 2022 11:34:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 67CF8C74A4;
+        Thu, 31 Mar 2022 11:34:30 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 47603139F;
-        Thu, 31 Mar 2022 11:34:07 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2B0C6139F;
+        Thu, 31 Mar 2022 11:34:30 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9C9493F718;
-        Thu, 31 Mar 2022 11:34:06 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 819393F718;
+        Thu, 31 Mar 2022 11:34:29 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     james.morse@arm.com, catalin.marinas@arm.com
-Subject: [stable:PATCH v4.14.274 00/27] arm64: Mitigate spectre style branch history side channels
-Date:   Thu, 31 Mar 2022 19:33:33 +0100
-Message-Id: <20220331183400.73183-1-james.morse@arm.com>
+Subject: [stable:PATCH v4.14.274 01/27] arm64: arch_timer: Add workaround for ARM erratum 1188873
+Date:   Thu, 31 Mar 2022 19:33:34 +0100
+Message-Id: <20220331183400.73183-2-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220331183400.73183-1-james.morse@arm.com>
+References: <20220331183400.73183-1-james.morse@arm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
@@ -38,97 +40,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-This is the spectre-bhb backport for v4.14.
-This comes with an A76 timer workaround. v4.14 doesn't have a compat
-vdso, so doesn't need all the patches for that workaround.
-In particular, it doesn't need Marc's series:
-https://lore.kernel.org/linux-arm-kernel/20200715125614.3240269-1-maz@kernel.org/
+commit 95b861a4a6d94f64d5242605569218160ebacdbe upstream.
 
-I included the Kconfig change that restricts this to COMPAT, but not commit
-0f80cad3124f ("arm64: Restrict ARM64_ERRATUM_1188873 mitigation to AArch32"),
-which is an invasive performance optimisation that wasn't marked as
-being for stable.
+When running on Cortex-A76, a timer access from an AArch32 EL0
+task may end up with a corrupted value or register. The workaround for
+this is to trap these accesses at EL1/EL2 and execute them there.
 
+This only affects versions r0p0, r1p0 and r2p0 of the CPU.
 
-Thanks,
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+---
+ arch/arm64/Kconfig                   | 12 ++++++++++++
+ arch/arm64/include/asm/cpucaps.h     |  3 ++-
+ arch/arm64/include/asm/cputype.h     |  2 ++
+ arch/arm64/kernel/cpu_errata.c       |  8 ++++++++
+ drivers/clocksource/arm_arch_timer.c | 15 +++++++++++++++
+ 5 files changed, 39 insertions(+), 1 deletion(-)
 
-James
-
-Anshuman Khandual (1):
-  arm64: Add Cortex-X2 CPU part definition
-
-Arnd Bergmann (1):
-  arm64: arch_timer: avoid unused function warning
-
-James Morse (19):
-  arm64: entry.S: Add ventry overflow sanity checks
-  arm64: entry: Make the trampoline cleanup optional
-  arm64: entry: Free up another register on kpti's tramp_exit path
-  arm64: entry: Move the trampoline data page before the text page
-  arm64: entry: Allow tramp_alias to access symbols after the 4K
-    boundary
-  arm64: entry: Don't assume tramp_vectors is the start of the vectors
-  arm64: entry: Move trampoline macros out of ifdef'd section
-  arm64: entry: Make the kpti trampoline's kpti sequence optional
-  arm64: entry: Allow the trampoline text to occupy multiple pages
-  arm64: entry: Add non-kpti __bp_harden_el1_vectors for mitigations
-  arm64: entry: Add vectors that have the bhb mitigation sequences
-  arm64: entry: Add macro for reading symbol addresses from the
-    trampoline
-  arm64: Add percpu vectors for EL1
-  arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of
-    Spectre-v2
-  KVM: arm64: Add templates for BHB mitigation sequences
-  arm64: Mitigate spectre style branch history side channels
-  KVM: arm64: Allow SMCCC_ARCH_WORKAROUND_3 to be discovered and
-    migrated
-  arm64: add ID_AA64ISAR2_EL1 sys register
-  arm64: Use the clearbhb instruction in mitigations
-
-Marc Zyngier (4):
-  arm64: arch_timer: Add workaround for ARM erratum 1188873
-  arm64: Add silicon-errata.txt entry for ARM erratum 1188873
-  arm64: Make ARM64_ERRATUM_1188873 depend on COMPAT
-  arm64: Add part number for Neoverse N1
-
-Rob Herring (1):
-  arm64: Add part number for Arm Cortex-A77
-
-Suzuki K Poulose (1):
-  arm64: Add Neoverse-N2, Cortex-A710 CPU part definition
-
- Documentation/arm64/silicon-errata.txt |   1 +
- arch/arm/include/asm/kvm_host.h        |   6 +
- arch/arm64/Kconfig                     |  24 ++
- arch/arm64/include/asm/assembler.h     |  34 +++
- arch/arm64/include/asm/cpu.h           |   1 +
- arch/arm64/include/asm/cpucaps.h       |   4 +-
- arch/arm64/include/asm/cpufeature.h    |  39 +++
- arch/arm64/include/asm/cputype.h       |  20 ++
- arch/arm64/include/asm/fixmap.h        |   6 +-
- arch/arm64/include/asm/kvm_host.h      |   5 +
- arch/arm64/include/asm/kvm_mmu.h       |   2 +-
- arch/arm64/include/asm/mmu.h           |   8 +-
- arch/arm64/include/asm/sections.h      |   6 +
- arch/arm64/include/asm/sysreg.h        |   5 +
- arch/arm64/include/asm/vectors.h       |  74 +++++
- arch/arm64/kernel/bpi.S                |  55 ++++
- arch/arm64/kernel/cpu_errata.c         | 395 ++++++++++++++++++++++++-
- arch/arm64/kernel/cpufeature.c         |  21 ++
- arch/arm64/kernel/cpuinfo.c            |   1 +
- arch/arm64/kernel/entry.S              | 198 ++++++++++---
- arch/arm64/kernel/vmlinux.lds.S        |   2 +-
- arch/arm64/kvm/hyp/hyp-entry.S         |   4 +
- arch/arm64/kvm/hyp/switch.c            |   9 +-
- arch/arm64/mm/mmu.c                    |  11 +-
- drivers/clocksource/arm_arch_timer.c   |  15 +
- include/linux/arm-smccc.h              |   7 +
- virt/kvm/arm/psci.c                    |  12 +
- 27 files changed, 908 insertions(+), 57 deletions(-)
- create mode 100644 arch/arm64/include/asm/vectors.h
-
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index e76f74874a42..85310128a65e 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -458,6 +458,18 @@ config ARM64_ERRATUM_1024718
+ 
+ 	  If unsure, say Y.
+ 
++config ARM64_ERRATUM_1188873
++	bool "Cortex-A76: MRC read following MRRC read of specific Generic Timer in AArch32 might give incorrect result"
++	default y
++	help
++	  This option adds work arounds for ARM Cortex-A76 erratum 1188873
++
++	  Affected Cortex-A76 cores (r0p0, r1p0, r2p0) could cause
++	  register corruption when accessing the timer registers from
++	  AArch32 userspace.
++
++	  If unsure, say Y.
++
+ config CAVIUM_ERRATUM_22375
+ 	bool "Cavium erratum 22375, 24313"
+ 	default y
+diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
+index 2f8bd0388905..626e895dc008 100644
+--- a/arch/arm64/include/asm/cpucaps.h
++++ b/arch/arm64/include/asm/cpucaps.h
+@@ -45,7 +45,8 @@
+ #define ARM64_SSBD				25
+ #define ARM64_MISMATCHED_CACHE_TYPE		26
+ #define ARM64_SSBS				27
++#define ARM64_WORKAROUND_1188873		28
+ 
+-#define ARM64_NCAPS				28
++#define ARM64_NCAPS				29
+ 
+ #endif /* __ASM_CPUCAPS_H */
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index b23456035eac..e862f1f56ad7 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -87,6 +87,7 @@
+ #define ARM_CPU_PART_CORTEX_A75		0xD0A
+ #define ARM_CPU_PART_CORTEX_A35		0xD04
+ #define ARM_CPU_PART_CORTEX_A55		0xD05
++#define ARM_CPU_PART_CORTEX_A76		0xD0B
+ 
+ #define APM_CPU_PART_POTENZA		0x000
+ 
+@@ -112,6 +113,7 @@
+ #define MIDR_CORTEX_A75 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
+ #define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
+ #define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
++#define MIDR_CORTEX_A76	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
+ #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
+ #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
+ #define MIDR_THUNDERX_83XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_83XX)
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 7d15f4cb6393..d75c4f4144f4 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -712,6 +712,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		.matches = has_ssbd_mitigation,
+ 		.midr_range_list = arm64_ssb_cpus,
+ 	},
++#ifdef CONFIG_ARM64_ERRATUM_1188873
++	{
++		/* Cortex-A76 r0p0 to r2p0 */
++		.desc = "ARM erratum 1188873",
++		.capability = ARM64_WORKAROUND_1188873,
++		ERRATA_MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 2, 0),
++	},
++#endif
+ 	{
+ 	}
+ };
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 2c5913057b87..439a4d005812 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -298,6 +298,13 @@ static u64 notrace arm64_858921_read_cntvct_el0(void)
+ }
+ #endif
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1188873
++static u64 notrace arm64_1188873_read_cntvct_el0(void)
++{
++	return read_sysreg(cntvct_el0);
++}
++#endif
++
+ #ifdef CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND
+ DEFINE_PER_CPU(const struct arch_timer_erratum_workaround *,
+ 	       timer_unstable_counter_workaround);
+@@ -381,6 +388,14 @@ static const struct arch_timer_erratum_workaround ool_workarounds[] = {
+ 		.read_cntvct_el0 = arm64_858921_read_cntvct_el0,
+ 	},
+ #endif
++#ifdef CONFIG_ARM64_ERRATUM_1188873
++	{
++		.match_type = ate_match_local_cap_id,
++		.id = (void *)ARM64_WORKAROUND_1188873,
++		.desc = "ARM erratum 1188873",
++		.read_cntvct_el0 = arm64_1188873_read_cntvct_el0,
++	},
++#endif
+ };
+ 
+ typedef bool (*ate_match_fn_t)(const struct arch_timer_erratum_workaround *,
 -- 
 2.30.2
 
