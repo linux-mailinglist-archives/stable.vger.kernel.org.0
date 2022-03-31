@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 555834ED658
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 11:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A91C4ED66D
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 11:03:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233442AbiCaJCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 05:02:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57452 "EHLO
+        id S232402AbiCaJEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 05:04:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233434AbiCaJCo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 05:02:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C88051585;
-        Thu, 31 Mar 2022 02:00:56 -0700 (PDT)
+        with ESMTP id S232196AbiCaJEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 05:04:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 707F6532E8
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 02:02:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EFC4B82000;
-        Thu, 31 Mar 2022 09:00:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF93C340ED;
-        Thu, 31 Mar 2022 09:00:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0B806199C
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 09:02:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F13D9C340ED;
+        Thu, 31 Mar 2022 09:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648717253;
-        bh=wNwVnTnwlRKd3pJ0yCmXSRbxpRcvTX29e7Vo18OTPDU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sDrtMRinc/Io8nwpaMAlnKMwo7KOwwzcQZtzCTP0gXme0LJrstd7O6KZAlIc/V1qK
-         O6bDp0AX0GKRl7ZClO1pDz0aftDdiWPqyS5WeH1XysqeQPDpoKj2LFoUAiXF4jM1Fy
-         xPtyc4mVxczZYluNFs5AqQFlzhuyV5c6I1kqUlTU=
-Date:   Thu, 31 Mar 2022 11:00:46 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Won Chung <wonchung@google.com>
-Cc:     Tomas Winkler <tomas.winkler@intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Benson Leung <bleung@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3] misc/mei: Add NULL check to component match callback
- functions
-Message-ID: <YkVtvhC0n9B994/A@kroah.com>
-References: <20220331084918.2592699-1-wonchung@google.com>
+        s=korg; t=1648717377;
+        bh=E+p8xzpdxaqp0makJnDPrxZVru7P+tORkTGIxrUCGoI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=w4FAUpor052RhVkyI21h1OYB/u+CC8+4Pdza0oIGy6TJJ6nGLG5EKUcUMWGL0UFy4
+         ZiJqKNKI8CGmPRfTsO0a0z2cPAJTQw13g9AI/wxZgAg6JgTtFt/cz+GftLfv/2GSwg
+         o6CFhYgKblKuyiMQhkEyFg5qPHuSfS8tuv2XS3aY=
+Subject: FAILED: patch "[PATCH] xhci: make xhci_handshake timeout for xhci_reset() adjustable" failed to apply to 4.14-stable tree
+To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
+        quic_pkondeti@quicinc.com, s.shtylyov@omp.ru
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 31 Mar 2022 11:02:46 +0200
+Message-ID: <164871736680140@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220331084918.2592699-1-wonchung@google.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -55,72 +48,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 31, 2022 at 08:49:18AM +0000, Won Chung wrote:
-> Component match callback functions need to check if expected data is
-> passed to them. Without this check, it can cause a NULL pointer
-> dereference when another driver registers a component before i915
-> drivers have their component master fully bind.
 
-How can that happen in a real system?  Or does this just happen for when
-you are doing development and testing?
-
-> 
-> Fixes: 1e8d19d9b0dfc ("mei: hdcp: bind only with i915 on the same PCH")
-> Fixes: c2004ce99ed73 ("mei: pxp: export pavp client to me client bus")
-> Suggested-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-> Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Signed-off-by: Won Chung <wonchung@google.com>
-> Cc: stable@vger.kernel.org
-
-Why does this need to go to stable?  How can this be triggered in older
-kernels?
-
-> ---
-> Changes from v2:
-> - Correctly add "Suggested-by" tag
-> - Add "Cc: stable@vger.kernel.org"
-> 
-> Changes from v1:
-> - Add "Fixes" tag
-> - Send to stable@vger.kernel.org
-> 
->  drivers/misc/mei/hdcp/mei_hdcp.c | 2 +-
->  drivers/misc/mei/pxp/mei_pxp.c   | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
-> index ec2a4fce8581..843dbc2b21b1 100644
-> --- a/drivers/misc/mei/hdcp/mei_hdcp.c
-> +++ b/drivers/misc/mei/hdcp/mei_hdcp.c
-> @@ -784,7 +784,7 @@ static int mei_hdcp_component_match(struct device *dev, int subcomponent,
->  {
->  	struct device *base = data;
->  
-> -	if (strcmp(dev->driver->name, "i915") ||
-> +	if (!base || !dev->driver || strcmp(dev->driver->name, "i915") ||
-
-How can base be NULL?
-
-
->  	    subcomponent != I915_COMPONENT_HDCP)
->  		return 0;
->  
-> diff --git a/drivers/misc/mei/pxp/mei_pxp.c b/drivers/misc/mei/pxp/mei_pxp.c
-> index f7380d387bab..e32a81da8af6 100644
-> --- a/drivers/misc/mei/pxp/mei_pxp.c
-> +++ b/drivers/misc/mei/pxp/mei_pxp.c
-> @@ -131,7 +131,7 @@ static int mei_pxp_component_match(struct device *dev, int subcomponent,
->  {
->  	struct device *base = data;
->  
-> -	if (strcmp(dev->driver->name, "i915") ||
-> +	if (!base || !dev->driver || strcmp(dev->driver->name, "i915") ||
-
-Same here, shouldn't this be caught by the driver core or bus and match
-should not be called?
-
-Why not fix this in the component/driver core instead?
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 14073ce951b5919da450022c050772902f24f054 Mon Sep 17 00:00:00 2001
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
+Date: Thu, 3 Mar 2022 13:08:55 +0200
+Subject: [PATCH] xhci: make xhci_handshake timeout for xhci_reset() adjustable
+
+xhci_reset() timeout was increased from 250ms to 10 seconds in order to
+give Renesas 720201 xHC enough time to get ready in probe.
+
+xhci_reset() is called with interrupts disabled in other places, and
+waiting for 10 seconds there is not acceptable.
+
+Add a timeout parameter to xhci_reset(), and adjust it back to 250ms
+when called from xhci_stop() or xhci_shutdown() where interrupts are
+disabled, and successful reset isn't that critical.
+This solves issues when deactivating host mode on platforms like SM8450.
+
+For now don't change the timeout if xHC is reset in xhci_resume().
+No issues are reported for it, and we need the reset to succeed.
+Locking around that reset needs to be revisited later.
+
+Additionally change the signed integer timeout parameter in
+xhci_handshake() to a u64 to match the timeout value we pass to
+readl_poll_timeout_atomic()
+
+Fixes: 22ceac191211 ("xhci: Increase reset timeout for Renesas 720201 host.")
+Cc: stable@vger.kernel.org
+Reported-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reported-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Tested-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220303110903.1662404-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index df3522dab31b..bb4f01ce90e3 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -762,7 +762,7 @@ static int xhci_exit_test_mode(struct xhci_hcd *xhci)
+ 	}
+ 	pm_runtime_allow(xhci_to_hcd(xhci)->self.controller);
+ 	xhci->test_mode = 0;
+-	return xhci_reset(xhci);
++	return xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ }
+ 
+ void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index cb70d0b31e08..48114a462908 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2575,7 +2575,7 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
+ 
+ fail:
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	xhci_mem_cleanup(xhci);
+ 	return -ENOMEM;
+ }
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index a1c781f70d02..6b32f7e65d4c 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -65,7 +65,7 @@ static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
+  * handshake done).  There are two failure modes:  "usec" have passed (major
+  * hardware flakeout), or the register reads as all-ones (hardware removed).
+  */
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
+ {
+ 	u32	result;
+ 	int	ret;
+@@ -73,7 +73,7 @@ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
+ 	ret = readl_poll_timeout_atomic(ptr, result,
+ 					(result & mask) == done ||
+ 					result == U32_MAX,
+-					1, usec);
++					1, timeout_us);
+ 	if (result == U32_MAX)		/* card removed */
+ 		return -ENODEV;
+ 
+@@ -162,7 +162,7 @@ int xhci_start(struct xhci_hcd *xhci)
+  * Transactions will be terminated immediately, and operational registers
+  * will be set to their defaults.
+  */
+-int xhci_reset(struct xhci_hcd *xhci)
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
+ {
+ 	u32 command;
+ 	u32 state;
+@@ -195,8 +195,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	if (xhci->quirks & XHCI_INTEL_HOST)
+ 		udelay(1000);
+ 
+-	ret = xhci_handshake(&xhci->op_regs->command,
+-			CMD_RESET, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->command, CMD_RESET, 0, timeout_us);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -209,8 +208,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	 * xHCI cannot write to any doorbells or operational registers other
+ 	 * than status until the "Controller Not Ready" flag is cleared.
+ 	 */
+-	ret = xhci_handshake(&xhci->op_regs->status,
+-			STS_CNR, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->status, STS_CNR, 0, timeout_us);
+ 
+ 	xhci->usb2_rhub.bus_state.port_c_suspend = 0;
+ 	xhci->usb2_rhub.bus_state.suspended_ports = 0;
+@@ -731,7 +729,7 @@ static void xhci_stop(struct usb_hcd *hcd)
+ 	xhci->xhc_state |= XHCI_STATE_HALTED;
+ 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -784,7 +782,7 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 	xhci_halt(xhci);
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+-		xhci_reset(xhci);
++		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -1170,7 +1168,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+ 		xhci_dbg(xhci, "Stop HCD\n");
+ 		xhci_halt(xhci);
+ 		xhci_zero_64b_regs(xhci);
+-		retval = xhci_reset(xhci);
++		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 		spin_unlock_irq(&xhci->lock);
+ 		if (retval)
+ 			return retval;
+@@ -5307,7 +5305,7 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
+ 
+ 	xhci_dbg(xhci, "Resetting HCD\n");
+ 	/* Reset the internal HC memory state and registers. */
+-	retval = xhci_reset(xhci);
++	retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 	if (retval)
+ 		return retval;
+ 	xhci_dbg(xhci, "Reset complete\n");
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 8a0026ee9524..fce32f8ea9d0 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -229,6 +229,9 @@ struct xhci_op_regs {
+ #define CMD_ETE		(1 << 14)
+ /* bits 15:31 are reserved (and should be preserved on writes). */
+ 
++#define XHCI_RESET_LONG_USEC		(10 * 1000 * 1000)
++#define XHCI_RESET_SHORT_USEC		(250 * 1000)
++
+ /* IMAN - Interrupt Management Register */
+ #define IMAN_IE		(1 << 1)
+ #define IMAN_IP		(1 << 0)
+@@ -2081,11 +2084,11 @@ void xhci_free_container_ctx(struct xhci_hcd *xhci,
+ 
+ /* xHCI host controller glue */
+ typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec);
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us);
+ void xhci_quiesce(struct xhci_hcd *xhci);
+ int xhci_halt(struct xhci_hcd *xhci);
+ int xhci_start(struct xhci_hcd *xhci);
+-int xhci_reset(struct xhci_hcd *xhci);
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us);
+ int xhci_run(struct usb_hcd *hcd);
+ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
+ void xhci_shutdown(struct usb_hcd *hcd);
+
