@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8301D4ED772
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 12:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C04E94ED776
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 12:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234428AbiCaKCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 06:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35636 "EHLO
+        id S233910AbiCaKDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 06:03:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233813AbiCaKCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 06:02:01 -0400
+        with ESMTP id S233682AbiCaKDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 06:03:11 -0400
 Received: from iris.vrvis.at (iris.vrvis.at [92.60.8.8])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FD4338A7;
-        Thu, 31 Mar 2022 03:00:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2867964BF5;
+        Thu, 31 Mar 2022 03:01:22 -0700 (PDT)
 Received: from [10.43.0.42]
         by iris.vrvis.at with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <valentin@vrvis.at>)
-        id 1nZrb7-0006OG-6E; Thu, 31 Mar 2022 12:00:09 +0200
-Message-ID: <ab7167b6-8ea5-fd4a-66ea-b8aa93f68ee2@vrvis.at>
-Date:   Thu, 31 Mar 2022 12:00:08 +0200
+        id 1nZrcG-0006PH-P5; Thu, 31 Mar 2022 12:01:21 +0200
+Message-ID: <774968b2-5d34-0f36-5ec6-284aaabb4585@vrvis.at>
+Date:   Thu, 31 Mar 2022 12:01:20 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
@@ -40,68 +40,40 @@ X-Spam-Level:
 X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-Subject: [PATCH v2 1/2] block: add blk_alloc_disk and blk_cleanup_disk APIs
+Subject: [PATCH v2 2/2] aoe: use blk_mq_alloc_disk and blk_cleanup_disk
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add two new APIs to allocate and free a gendisk including the
-request_queue for use with BIO based drivers.  This is to avoid
-boilerplate code in drivers.
+Use blk_mq_alloc_disk and blk_cleanup_disk to simplify the gendisk and
+request_queue allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20210521055116.1053587-6-hch@lst.de
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Link: https://lore.kernel.org/r/20210602065345.355274-17-hch@lst.de
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-(cherry picked from commit f525464a8000f092c20b00eead3eaa9d849c599e)
+(cherry picked from commit 6560ec961a080944f8d5e1fef17b771bfaf189cb)
 Fixes: 3582dd291788 (aoe: convert aoeblk to blk-mq)
 Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215647
 Signed-off-by: Valentin Kleibel <valentin@vrvis.at>
 ---
-  block/genhd.c         | 15 +++++++++++++++
-  include/linux/genhd.h |  1 +
-  2 files changed, 16 insertions(+)
+  drivers/block/aoe/aoedev.c | 3 +--
+  1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 796baf761202..421cad085502 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -1836,6 +1836,21 @@ void put_disk_and_module(struct gendisk *disk)
+diff --git a/drivers/block/aoe/aoedev.c b/drivers/block/aoe/aoedev.c
+index e2ea2356da06..c5753c6bfe80 100644
+--- a/drivers/block/aoe/aoedev.c
++++ b/drivers/block/aoe/aoedev.c
+@@ -277,9 +277,8 @@ freedev(struct aoedev *d)
+         if (d->gd) {
+                 aoedisk_rm_debugfs(d);
+                 del_gendisk(d->gd);
+-               put_disk(d->gd);
++               blk_cleanup_disk(d->gd);
+                 blk_mq_free_tag_set(&d->tag_set);
+-               blk_cleanup_queue(d->blkq);
          }
-  }
-  EXPORT_SYMBOL(put_disk_and_module);
-+/**
-+ * blk_cleanup_disk - shutdown a gendisk allocated by blk_alloc_disk
-+ * @disk: gendisk to shutdown
-+ *
-+ * Mark the queue hanging off @disk DYING, drain all pending requests, 
-then mark
-+ * the queue DEAD, destroy and put it and the gendisk structure.
-+ *
-+ * Context: can sleep
-+ */
-+void blk_cleanup_disk(struct gendisk *disk)
-+{
-+       blk_cleanup_queue(disk->queue);
-+       put_disk(disk);
-+}
-+EXPORT_SYMBOL(blk_cleanup_disk);
-
-  static void set_disk_ro_uevent(struct gendisk *gd, int ro)
-  {
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 03da3f603d30..b7b180d3734a 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -369,6 +369,7 @@ extern void blk_unregister_region(dev_t devt, 
-unsigned long range);
-  #define alloc_disk(minors) alloc_disk_node(minors, NUMA_NO_NODE)
-
-  int register_blkdev(unsigned int major, const char *name);
-+void blk_cleanup_disk(struct gendisk *disk);
-  void unregister_blkdev(unsigned int major, const char *name);
-
-  void revalidate_disk_size(struct gendisk *disk, bool verbose);
+         t = d->targets;
+         e = t + d->ntargets;
