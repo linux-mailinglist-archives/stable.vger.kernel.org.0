@@ -2,37 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 603B54EDB4B
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 16:05:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 905A94EDB91
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 16:19:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235890AbiCaOG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 10:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
+        id S233248AbiCaOVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 10:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237259AbiCaOGM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 10:06:12 -0400
-Received: from postfix03.core.dcmtl.stgraber.net (postfix03.core.dcmtl.stgraber.net [IPv6:2602:fc62:a:1003:216:3eff:fea3:3fe])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54905A165;
-        Thu, 31 Mar 2022 07:04:08 -0700 (PDT)
-Received: from dakara.stgraber.net (unknown [IPv6:2602:fc62:b:1000:5436:5b25:64e4:d81a])
-        by postfix03.core.dcmtl.stgraber.net (Postfix) with ESMTP id 5B6762048C;
-        Thu, 31 Mar 2022 14:04:06 +0000 (UTC)
-From:   =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] tools/vm/slabinfo: Handle files in debugfs
-Date:   Thu, 31 Mar 2022 10:03:39 -0400
-Message-Id: <20220331140339.1362390-1-stgraber@ubuntu.com>
-X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        with ESMTP id S231631AbiCaOVF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 10:21:05 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081151BE0F9;
+        Thu, 31 Mar 2022 07:19:16 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 9E8F4210E3;
+        Thu, 31 Mar 2022 14:19:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1648736355; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=sdmVjuGcsOmP1wXDqfnhb8kGq9fNtcyKRse3ANNJb1A=;
+        b=LaNVABZ8yeZxscWnWuKZsmWetcb3eIM1e8Wt2BNow3mlh2HWgTYhkCllYOAq3hw6NMHHD8
+        j5oBdeh934lAMxkG/uQXfgPA607ZGskyccjyQISrH8OTgJoiSqHo/8/tyrTshPK42O9MO2
+        SE82D/C/uSGDhaw/CF0dcp72Sg3Al1A=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1648736355;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=sdmVjuGcsOmP1wXDqfnhb8kGq9fNtcyKRse3ANNJb1A=;
+        b=QVS5N5MPWtsiTWixBTD8f3Jy+rC1FlizW5fnNJHJhi8QIqT7OB3q2JtupEpLyw35wGuQG5
+        8XfqkO/uOWfcpbAA==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 891ECA3B82;
+        Thu, 31 Mar 2022 14:19:15 +0000 (UTC)
+Date:   Thu, 31 Mar 2022 16:19:15 +0200
+Message-ID: <s5hzgl6ciho.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     Won Chung <wonchung@google.com>, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback function
+In-Reply-To: <s5h7d8adzdl.wl-tiwai@suse.de>
+References: <20220330211913.2068108-1-wonchung@google.com>
+        <s5hzgl6eg48.wl-tiwai@suse.de>
+        <CAOvb9yiO_n48JPZ3f0+y-fQ_YoOmuWF5c692Jt5_SKbxdA4yAw@mail.gmail.com>
+        <s5hr16ieb8o.wl-tiwai@suse.de>
+        <YkVzl4NEzwDAp/Zq@kuha.fi.intel.com>
+        <s5hmth6eaiz.wl-tiwai@suse.de>
+        <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
+        <s5hk0cae9pw.wl-tiwai@suse.de>
+        <s5h7d8adzdl.wl-tiwai@suse.de>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -41,72 +72,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 64dd68497be76 relocated and renamed the alloc_calls and
-free_calls files from /sys/kernel/slab/NAME/*_calls over to
-/sys/kernel/debug/slab/NAME/*_calls but didn't update the slabinfo tool
-with the new location.
+On Thu, 31 Mar 2022 15:29:10 +0200,
+Takashi Iwai wrote:
+> 
+> On Thu, 31 Mar 2022 11:45:47 +0200,
+> Takashi Iwai wrote:
+> > 
+> > On Thu, 31 Mar 2022 11:34:38 +0200,
+> > Heikki Krogerus wrote:
+> > > 
+> > > On Thu, Mar 31, 2022 at 11:28:20AM +0200, Takashi Iwai wrote:
+> > > > On Thu, 31 Mar 2022 11:25:43 +0200,
+> > > > Heikki Krogerus wrote:
+> > > > > 
+> > > > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
+> > > > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
+> > > > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
+> > > > > > > >
+> > > > > > > > Can NULL dev->driver be really seen?  I thought the components are
+> > > > > > > > added by the drivers, hence they ought to have the driver field set.
+> > > > > > > > But there can be corner cases I overlooked.
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > thanks,
+> > > > > > > >
+> > > > > > > > Takashi
+> > > > > > > 
+> > > > > > > Hi Takashi,
+> > > > > > > 
+> > > > > > > When I try using component_add in a different driver (usb4 in my
+> > > > > > > case), I think dev->driver here is NULL because the i915 drivers do
+> > > > > > > not have their component master fully bound when this new component is
+> > > > > > > registered. When I test it, it seems to be causing a crash.
+> > > > > > 
+> > > > > > Hm, from where component_add*() is called?  Basically dev->driver must
+> > > > > > be already set before the corresponding driver gets bound at
+> > > > > > __driver_probe_deviec().  So, if the device is added to component from
+> > > > > > the corresponding driver's probe, dev->driver must be non-NULL.
+> > > > > 
+> > > > > The code that declares a device as component does not have to be the
+> > > > > driver of that device.
+> > > > > 
+> > > > > In our case the components are USB ports, and they are devices that
+> > > > > are actually never bind to any drivers: drivers/usb/core/port.c
+> > > > 
+> > > > OK, that's what I wanted to know.  It'd be helpful if it's more
+> > > > clearly mentioned in the commit log.
+> > > 
+> > > Agree.
+> > > 
+> > > > BTW, the same problem must be seen in MEI drivers, too.
+> > > 
+> > > Wasn't there a patch for those too? I lost track...
+> > 
+> > I don't know, I just checked the latest Linus tree.
+> > 
+> > And, looking at the HD-audio code, I still wonder how NULL dev->driver
+> > can reach there.  Is there any PCI device that is added to component
+> > without binding to a driver?  We have dev_is_pci() check at the
+> > beginning, so non-PCI devices should bail out there...
+> 
+> Further reading on, I'm really confused.  How data=NULL can be passed
+> to this function?  The data argument is the value passed from the
+> component_match_add_typed() call in HD-audio driver, hence it must be
+> always the snd_hdac_bus object.
+> 
+> And, I guess the i915 string check can be omitted completely, at
+> least, for HD-audio driver.  It already have a check of the parent of
+> the device and that should be enough.
 
-This change will now have slabinfo look at the new location (and filenames)
-with a fallback to the prior files.
+That said, something like below (supposing data NULL check being
+superfluous), instead.
 
-Fixes: 64dd68497be76 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stéphane Graber <stgraber@ubuntu.com>
-Tested-by: Stéphane Graber <stgraber@ubuntu.com>
----
- tools/vm/slabinfo.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
-index 9b68658b6bb8..5b98f3ee58a5 100644
---- a/tools/vm/slabinfo.c
-+++ b/tools/vm/slabinfo.c
-@@ -233,6 +233,24 @@ static unsigned long read_slab_obj(struct slabinfo *s, const char *name)
- 	return l;
+Takashi
+
+--- a/sound/hda/hdac_i915.c
++++ b/sound/hda/hdac_i915.c
+@@ -102,18 +102,13 @@ static int i915_component_master_match(struct device *dev, int subcomponent,
+ 	struct pci_dev *hdac_pci, *i915_pci;
+ 	struct hdac_bus *bus = data;
+ 
+-	if (!dev_is_pci(dev))
++	if (subcomponent != I915_COMPONENT_AUDIO || !dev_is_pci(dev))
+ 		return 0;
+ 
+ 	hdac_pci = to_pci_dev(bus->dev);
+ 	i915_pci = to_pci_dev(dev);
+ 
+-	if (!strcmp(dev->driver->name, "i915") &&
+-	    subcomponent == I915_COMPONENT_AUDIO &&
+-	    connectivity_check(i915_pci, hdac_pci))
+-		return 1;
+-
+-	return 0;
++	return connectivity_check(i915_pci, hdac_pci);
  }
  
-+static unsigned long read_debug_slab_obj(struct slabinfo *s, const char *name)
-+{
-+	char x[128];
-+	FILE *f;
-+	size_t l;
-+
-+	snprintf(x, 128, "/sys/kernel/debug/slab/%s/%s", s->name, name);
-+	f = fopen(x, "r");
-+	if (!f) {
-+		buffer[0] = 0;
-+		l = 0;
-+	} else {
-+		l = fread(buffer, 1, sizeof(buffer), f);
-+		buffer[l] = 0;
-+		fclose(f);
-+	}
-+	return l;
-+}
- 
- /*
-  * Put a size string together
-@@ -409,14 +427,18 @@ static void show_tracking(struct slabinfo *s)
- {
- 	printf("\n%s: Kernel object allocation\n", s->name);
- 	printf("-----------------------------------------------------------------------\n");
--	if (read_slab_obj(s, "alloc_calls"))
-+	if (read_debug_slab_obj(s, "alloc_traces"))
-+		printf("%s", buffer);
-+	else if (read_slab_obj(s, "alloc_calls"))
- 		printf("%s", buffer);
- 	else
- 		printf("No Data\n");
- 
- 	printf("\n%s: Kernel object freeing\n", s->name);
- 	printf("------------------------------------------------------------------------\n");
--	if (read_slab_obj(s, "free_calls"))
-+	if (read_debug_slab_obj(s, "free_traces"))
-+		printf("%s", buffer);
-+	else if (read_slab_obj(s, "free_calls"))
- 		printf("%s", buffer);
- 	else
- 		printf("No Data\n");
--- 
-2.34.1
+ /* check whether intel graphics is present */
 
