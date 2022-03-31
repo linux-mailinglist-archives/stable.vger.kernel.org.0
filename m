@@ -2,61 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6123F4EDA54
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 15:16:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC2BC4EDA8C
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 15:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236687AbiCaNRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 09:17:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55914 "EHLO
+        id S236852AbiCaNbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 09:31:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233978AbiCaNRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 09:17:36 -0400
+        with ESMTP id S236845AbiCaNa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 09:30:59 -0400
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FFDB4AE0C;
-        Thu, 31 Mar 2022 06:15:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7FA5BD25;
+        Thu, 31 Mar 2022 06:29:11 -0700 (PDT)
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id AAD861F37D;
-        Thu, 31 Mar 2022 13:15:47 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTP id 5E4261F7AC;
+        Thu, 31 Mar 2022 13:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1648732547; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1648733350; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=6U8xSKrhW2wc1FxXYtrajzM6mwrGYhNr4klyheqzPjc=;
-        b=ICpR+6PgY739ttHe5dKq5uvmNOvdiyhk2GIdzFJWAjqQkWdM5jw6JMpQ+SbBGNjwW9NFLT
-        PaFGzjrZ42pdA7B1mvW5lZzjIjvuRgr5Y7oRqpkVZukV58ruyg0m/7+VR0AbcZ7Ud3dAMa
-        pGLI6iUXnf6KYQHASxxOGGg/gUI21/M=
+        bh=GUXy5x8tlG26+gzs1ElKHuL93ZTpc0/Sxiw74ELvX2k=;
+        b=UECbFTNZgZW/3XWZih3zr74DEw2KxItlzbQIBqG+AC043KOTzSPoh39VxF/LPfq7awvHM6
+        OdbQJzUagf5Q1keXxjzBCuBncxW4mA/pSIQTgB8QppkPSMpI1/UGk7h30c02/I6qJOfxG5
+        1U833MVRMHJQKhYKFT7VNpdYu1Vv/Tc=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1648732547;
+        s=susede2_ed25519; t=1648733350;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=6U8xSKrhW2wc1FxXYtrajzM6mwrGYhNr4klyheqzPjc=;
-        b=aLFV6buPQTeKTk1FHu9R51I9fhVQH/KGdRp9HpXCy/Jp9Zp8/dfJ5PULzqP/Ynjpn16D+5
-        2tnJBoyVyxMw+XCg==
+        bh=GUXy5x8tlG26+gzs1ElKHuL93ZTpc0/Sxiw74ELvX2k=;
+        b=t/pxLIv7n65eVOVJ2VHGgg8xay4mGPg4q4Q4w3exYAfJJCNAaOBc8j8vD/w052kLD1bf4e
+        wxcZHA/g+ZGLggDw==
 Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id 93511A3B83;
-        Thu, 31 Mar 2022 13:15:47 +0000 (UTC)
-Date:   Thu, 31 Mar 2022 15:15:47 +0200
-Message-ID: <s5ha6d6dzzw.wl-tiwai@suse.de>
+        by relay2.suse.de (Postfix) with ESMTP id 4C919A3B96;
+        Thu, 31 Mar 2022 13:29:10 +0000 (UTC)
+Date:   Thu, 31 Mar 2022 15:29:10 +0200
+Message-ID: <s5h7d8adzdl.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, Takashi Iwai <tiwai@suse.de>,
-        Won Chung <wonchung@google.com>,
-        Jaroslav Kysela <perex@perex.cz>,
+Cc:     Won Chung <wonchung@google.com>, Jaroslav Kysela <perex@perex.cz>,
         Takashi Iwai <tiwai@suse.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
         Benson Leung <bleung@chromium.org>,
         Prashant Malani <pmalani@chromium.org>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback function
-In-Reply-To: <YkWj/vmjohNo0r2c@kuha.fi.intel.com>
+In-Reply-To: <s5hk0cae9pw.wl-tiwai@suse.de>
 References: <20220330211913.2068108-1-wonchung@google.com>
         <s5hzgl6eg48.wl-tiwai@suse.de>
         <CAOvb9yiO_n48JPZ3f0+y-fQ_YoOmuWF5c692Jt5_SKbxdA4yAw@mail.gmail.com>
         <s5hr16ieb8o.wl-tiwai@suse.de>
         <YkVzl4NEzwDAp/Zq@kuha.fi.intel.com>
-        <YkWTBwAB1HrxcUR3@kroah.com>
-        <YkWj/vmjohNo0r2c@kuha.fi.intel.com>
+        <s5hmth6eaiz.wl-tiwai@suse.de>
+        <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
+        <s5hk0cae9pw.wl-tiwai@suse.de>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -72,68 +71,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 31 Mar 2022 14:52:14 +0200,
-Heikki Krogerus wrote:
+On Thu, 31 Mar 2022 11:45:47 +0200,
+Takashi Iwai wrote:
 > 
-> Hi Greg,
-> 
-> On Thu, Mar 31, 2022 at 01:39:51PM +0200, Greg KH wrote:
-> > On Thu, Mar 31, 2022 at 12:25:43PM +0300, Heikki Krogerus wrote:
-> > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
-> > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
-> > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
-> > > > > >
-> > > > > > Can NULL dev->driver be really seen?  I thought the components are
-> > > > > > added by the drivers, hence they ought to have the driver field set.
-> > > > > > But there can be corner cases I overlooked.
-> > > > > >
-> > > > > >
-> > > > > > thanks,
-> > > > > >
-> > > > > > Takashi
-> > > > > 
-> > > > > Hi Takashi,
-> > > > > 
-> > > > > When I try using component_add in a different driver (usb4 in my
-> > > > > case), I think dev->driver here is NULL because the i915 drivers do
-> > > > > not have their component master fully bound when this new component is
-> > > > > registered. When I test it, it seems to be causing a crash.
-> > > > 
-> > > > Hm, from where component_add*() is called?  Basically dev->driver must
-> > > > be already set before the corresponding driver gets bound at
-> > > > __driver_probe_deviec().  So, if the device is added to component from
-> > > > the corresponding driver's probe, dev->driver must be non-NULL.
-> > > 
-> > > The code that declares a device as component does not have to be the
-> > > driver of that device.
-> > > 
-> > > In our case the components are USB ports, and they are devices that
-> > > are actually never bind to any drivers: drivers/usb/core/port.c
+> On Thu, 31 Mar 2022 11:34:38 +0200,
+> Heikki Krogerus wrote:
 > > 
-> > Why is a USB device being passed to this code that assumes it is looking
-> > for a PCI device with a specific driver name?  As I mentioned on the
-> > mei patch, triggering off of a name is really a bad idea, as is assuming
-> > the device type without any assurance it is such a device (there's a
-> > reason we didn't provide device type identification in the driver core,
-> > don't abuse that please...)
+> > On Thu, Mar 31, 2022 at 11:28:20AM +0200, Takashi Iwai wrote:
+> > > On Thu, 31 Mar 2022 11:25:43 +0200,
+> > > Heikki Krogerus wrote:
+> > > > 
+> > > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
+> > > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
+> > > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
+> > > > > > >
+> > > > > > > Can NULL dev->driver be really seen?  I thought the components are
+> > > > > > > added by the drivers, hence they ought to have the driver field set.
+> > > > > > > But there can be corner cases I overlooked.
+> > > > > > >
+> > > > > > >
+> > > > > > > thanks,
+> > > > > > >
+> > > > > > > Takashi
+> > > > > > 
+> > > > > > Hi Takashi,
+> > > > > > 
+> > > > > > When I try using component_add in a different driver (usb4 in my
+> > > > > > case), I think dev->driver here is NULL because the i915 drivers do
+> > > > > > not have their component master fully bound when this new component is
+> > > > > > registered. When I test it, it seems to be causing a crash.
+> > > > > 
+> > > > > Hm, from where component_add*() is called?  Basically dev->driver must
+> > > > > be already set before the corresponding driver gets bound at
+> > > > > __driver_probe_deviec().  So, if the device is added to component from
+> > > > > the corresponding driver's probe, dev->driver must be non-NULL.
+> > > > 
+> > > > The code that declares a device as component does not have to be the
+> > > > driver of that device.
+> > > > 
+> > > > In our case the components are USB ports, and they are devices that
+> > > > are actually never bind to any drivers: drivers/usb/core/port.c
+> > > 
+> > > OK, that's what I wanted to know.  It'd be helpful if it's more
+> > > clearly mentioned in the commit log.
+> > 
+> > Agree.
+> > 
+> > > BTW, the same problem must be seen in MEI drivers, too.
+> > 
+> > Wasn't there a patch for those too? I lost track...
 > 
-> I totally agree. This driver is making a whole bunch of assumptions
-> when it should not make any assumptions. And yes, one of those
-> assumptions is that the driver of the device has a specific name, and
-> that is totally crazy. So why is it making those assumptions? I have
-> no idea, but is does, and they are now causing the first problem -
-> NULL pointer dereference.
+> I don't know, I just checked the latest Linus tree.
+> 
+> And, looking at the HD-audio code, I still wonder how NULL dev->driver
+> can reach there.  Is there any PCI device that is added to component
+> without binding to a driver?  We have dev_is_pci() check at the
+> beginning, so non-PCI devices should bail out there...
 
-Well, it's a sort of best-effort approach for the component framework.
-Currently the framework passes a device pointer without knowing what
-it is and every master component tries to match with it unless it's
-already bound.  Because of that, the driver has to judge which one is
-the right one by itself.  The device driver's string is a loose
-matching target that practically worked, so far.
+Further reading on, I'm really confused.  How data=NULL can be passed
+to this function?  The data argument is the value passed from the
+component_match_add_typed() call in HD-audio driver, hence it must be
+always the snd_hdac_bus object.
 
-Maybe we should define unique subcomponent numbers and rather check
-the passed number at matching.  (Though, only relying on the number is
-dangerous, too.)
+And, I guess the i915 string check can be omitted completely, at
+least, for HD-audio driver.  It already have a check of the parent of
+the device and that should be enough.
 
 
 Takashi
