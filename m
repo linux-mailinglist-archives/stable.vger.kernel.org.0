@@ -2,59 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DA144EDD9E
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 17:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59FAF4EDD98
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 17:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238383AbiCaPoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 11:44:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
+        id S233883AbiCaPoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 11:44:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239282AbiCaPm3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 11:42:29 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB175D66F;
-        Thu, 31 Mar 2022 08:37:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1648741042; x=1680277042;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=0fWKPOzHGnKEYsF/rOLOD1zuA7oHxus2QAWrWbDy4m8=;
-  b=n6A5fZgfg6TDC7ng3nnoqZqqJUYShidFyXWX3vpHC7pwRnlyU0SyN5l8
-   ynWoge2NWgrADFR+aAYCduKw6MPA4wSK0WSaaikyvyBEGd6ubMQO3Rpng
-   L2V4SslrFWBZiNQ78ppsi1ID2uz+GqNT4N9atv0Sq0I7jXjRRq7xgSTyg
-   rgOF334r5mFxyb1JCrjyXNUAyogkOa/1xvJPVtgw4Cj3MmrzhhQGyX7e2
-   imunI9O3GFl+4+Ic/HjM8WzwgCgAT8oxC6fjNQgIsYiW0hMRf0ha17EWd
-   JFM+ZU82oXC0tHcK4kFAlxSDNJ0fjGTNwW2Nooo6kIu97+6RVTWEjKfCh
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10302"; a="242022751"
-X-IronPort-AV: E=Sophos;i="5.90,225,1643702400"; 
-   d="scan'208";a="242022751"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2022 08:37:04 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,225,1643702400"; 
-   d="scan'208";a="555124807"
-Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314.ger.corp.intel.com) ([10.237.222.76])
-  by fmsmga007.fm.intel.com with ESMTP; 31 Mar 2022 08:37:02 -0700
-From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-To:     herbert@gondor.apana.org.au
-Cc:     linux-crypto@vger.kernel.org, qat-linux@intel.com,
-        marco.chiappero@intel.com,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 4/4] crypto: qat - re-enable registration of algorithms
-Date:   Thu, 31 Mar 2022 16:36:52 +0100
-Message-Id: <20220331153652.37020-5-giovanni.cabiddu@intel.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220331153652.37020-1-giovanni.cabiddu@intel.com>
-References: <20220331153652.37020-1-giovanni.cabiddu@intel.com>
-MIME-Version: 1.0
-Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 - Collinstown Industrial Park, Leixlip, County Kildare - Ireland
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        with ESMTP id S239249AbiCaPmh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 11:42:37 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A2ECC50D;
+        Thu, 31 Mar 2022 08:37:30 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 907EB21A91;
+        Thu, 31 Mar 2022 15:37:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1648741029; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3q4Q3czP9jG+0ZzNk/gMKAVSAtyh28B5UBKgvoBIY/0=;
+        b=YX4gWmmarEQZ6iyPydDBD4moCXu2qPhWbyKuFFU1S9OjYsyCGzolYDsGQi4bCJA5J6ClKW
+        42UYAcBR7+9LHffKBZ8J7mqX6MPcQ9IfbYsqJQycN0B60UqHKhug9PzhX2z6hRXIti2UO3
+        htYwAV7BRBuYOmAkxec2KAaIy08rvno=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1648741029;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3q4Q3czP9jG+0ZzNk/gMKAVSAtyh28B5UBKgvoBIY/0=;
+        b=rjcP2d81heangOxou0+niDIDB6s2GYYrq0ixfz0Gx+r+IWFbOheA69cHf8NV8Zkw31VGjN
+        QghdKQ+usQIdQ4Bw==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 6EC0DA3B93;
+        Thu, 31 Mar 2022 15:37:09 +0000 (UTC)
+Date:   Thu, 31 Mar 2022 17:37:09 +0200
+Message-ID: <s5hpmm2cevu.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Benson Leung <bleung@google.com>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Won Chung <wonchung@google.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback function
+In-Reply-To: <YkXJr2KhSzHJHxRF@google.com>
+References: <20220330211913.2068108-1-wonchung@google.com>
+        <s5hzgl6eg48.wl-tiwai@suse.de>
+        <CAOvb9yiO_n48JPZ3f0+y-fQ_YoOmuWF5c692Jt5_SKbxdA4yAw@mail.gmail.com>
+        <s5hr16ieb8o.wl-tiwai@suse.de>
+        <YkVzl4NEzwDAp/Zq@kuha.fi.intel.com>
+        <s5hmth6eaiz.wl-tiwai@suse.de>
+        <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
+        <s5hk0cae9pw.wl-tiwai@suse.de>
+        <s5h7d8adzdl.wl-tiwai@suse.de>
+        <s5hzgl6ciho.wl-tiwai@suse.de>
+        <YkXJr2KhSzHJHxRF@google.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,56 +77,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Re-enable the registration of algorithms after fixes to (1) use
-pre-allocated buffers in the datapath and (2) support the
-CRYPTO_TFM_REQ_MAY_BACKLOG flag.
+On Thu, 31 Mar 2022 17:33:03 +0200,
+Benson Leung wrote:
+> 
+> Hi Takashi,
+> 
+> On Thu, Mar 31, 2022 at 04:19:15PM +0200, Takashi Iwai wrote:
+> > On Thu, 31 Mar 2022 15:29:10 +0200,
+> > Takashi Iwai wrote:
+> > > 
+> > > On Thu, 31 Mar 2022 11:45:47 +0200,
+> > > Takashi Iwai wrote:
+> > > > 
+> > > > On Thu, 31 Mar 2022 11:34:38 +0200,
+> > > > Heikki Krogerus wrote:
+> > > > > 
+> > > > > On Thu, Mar 31, 2022 at 11:28:20AM +0200, Takashi Iwai wrote:
+> > > > > > On Thu, 31 Mar 2022 11:25:43 +0200,
+> > > > > > Heikki Krogerus wrote:
+> > > > > > > 
+> > > > > > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
+> > > > > > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
+> > > > > > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
+> > > > > > > > > >
+> > > > > > > > > > Can NULL dev->driver be really seen?  I thought the components are
+> > > > > > > > > > added by the drivers, hence they ought to have the driver field set.
+> > > > > > > > > > But there can be corner cases I overlooked.
+> > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > thanks,
+> > > > > > > > > >
+> > > > > > > > > > Takashi
+> > > > > > > > > 
+> > > > > > > > > Hi Takashi,
+> > > > > > > > > 
+> > > > > > > > > When I try using component_add in a different driver (usb4 in my
+> > > > > > > > > case), I think dev->driver here is NULL because the i915 drivers do
+> > > > > > > > > not have their component master fully bound when this new component is
+> > > > > > > > > registered. When I test it, it seems to be causing a crash.
+> > > > > > > > 
+> > > > > > > > Hm, from where component_add*() is called?  Basically dev->driver must
+> > > > > > > > be already set before the corresponding driver gets bound at
+> > > > > > > > __driver_probe_deviec().  So, if the device is added to component from
+> > > > > > > > the corresponding driver's probe, dev->driver must be non-NULL.
+> > > > > > > 
+> > > > > > > The code that declares a device as component does not have to be the
+> > > > > > > driver of that device.
+> > > > > > > 
+> > > > > > > In our case the components are USB ports, and they are devices that
+> > > > > > > are actually never bind to any drivers: drivers/usb/core/port.c
+> > > > > > 
+> > > > > > OK, that's what I wanted to know.  It'd be helpful if it's more
+> > > > > > clearly mentioned in the commit log.
+> > > > > 
+> > > > > Agree.
+> > > > > 
+> > > > > > BTW, the same problem must be seen in MEI drivers, too.
+> > > > > 
+> > > > > Wasn't there a patch for those too? I lost track...
+> > > > 
+> > > > I don't know, I just checked the latest Linus tree.
+> > > > 
+> > > > And, looking at the HD-audio code, I still wonder how NULL dev->driver
+> > > > can reach there.  Is there any PCI device that is added to component
+> > > > without binding to a driver?  We have dev_is_pci() check at the
+> > > > beginning, so non-PCI devices should bail out there...
+> > > 
+> > > Further reading on, I'm really confused.  How data=NULL can be passed
+> > > to this function?  The data argument is the value passed from the
+> > > component_match_add_typed() call in HD-audio driver, hence it must be
+> > > always the snd_hdac_bus object.
+> > > 
+> > > And, I guess the i915 string check can be omitted completely, at
+> > > least, for HD-audio driver.  It already have a check of the parent of
+> > > the device and that should be enough.
+> > 
+> > That said, something like below (supposing data NULL check being
+> > superfluous), instead.
+> > 
+> > 
+> > Takashi
+> > 
+> > --- a/sound/hda/hdac_i915.c
+> > +++ b/sound/hda/hdac_i915.c
+> > @@ -102,18 +102,13 @@ static int i915_component_master_match(struct device *dev, int subcomponent,
+> >  	struct pci_dev *hdac_pci, *i915_pci;
+> >  	struct hdac_bus *bus = data;
+> >  
+> > -	if (!dev_is_pci(dev))
+> > +	if (subcomponent != I915_COMPONENT_AUDIO || !dev_is_pci(dev))
+> >  		return 0;
+> >  
+> 
+> If I recall this bug correctly, it's not the usb port perse that is falling
+> through this !dev_is_pci(dev) check, it's actually the usb4-port in a new
+> proposed patch by Heikki and Mika to extend the usb type-c component to
+> encompass the usb4 specific pieces too. Is it possible usb4 ports are considered
+> pci devices, and that's how we got into this situation?
 
-This reverts commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de.
+Yes, that explains for one of two changes in the original patch.
+But why data==NULL check is needed is still unclear.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
----
- drivers/crypto/qat/qat_4xxx/adf_drv.c      | 7 -------
- drivers/crypto/qat/qat_common/qat_crypto.c | 7 -------
- 2 files changed, 14 deletions(-)
+> Also, a little more background information: This crash happens because in
+> our kernel configs, we config'd the usb4 driver as =y (built in) instead of
+> =m module, which meant that the usb4 port's driver was adding a component
+> likely much earlier than hdac_i915.
 
-diff --git a/drivers/crypto/qat/qat_4xxx/adf_drv.c b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-index fa4c350c1bf9..a6c78b9c730b 100644
---- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
-+++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-@@ -75,13 +75,6 @@ static int adf_crypto_dev_config(struct adf_accel_dev *accel_dev)
- 	if (ret)
- 		goto err;
- 
--	/* Temporarily set the number of crypto instances to zero to avoid
--	 * registering the crypto algorithms.
--	 * This will be removed when the algorithms will support the
--	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
--	 */
--	instances = 0;
--
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		bank = i * 2;
-diff --git a/drivers/crypto/qat/qat_common/qat_crypto.c b/drivers/crypto/qat/qat_common/qat_crypto.c
-index 80d905ed102e..9341d892533a 100644
---- a/drivers/crypto/qat/qat_common/qat_crypto.c
-+++ b/drivers/crypto/qat/qat_common/qat_crypto.c
-@@ -161,13 +161,6 @@ int qat_crypto_dev_config(struct adf_accel_dev *accel_dev)
- 	if (ret)
- 		goto err;
- 
--	/* Temporarily set the number of crypto instances to zero to avoid
--	 * registering the crypto algorithms.
--	 * This will be removed when the algorithms will support the
--	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
--	 */
--	instances = 0;
--
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_BANK_NUM, i);
--- 
-2.35.1
+Thanks, it's what I supposed, too.
 
+
+Takashi
