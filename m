@@ -2,199 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E824EDF58
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 19:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA004EDF81
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 19:18:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233935AbiCaRIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 13:08:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
+        id S229635AbiCaRTx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 13:19:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240491AbiCaRH7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 13:07:59 -0400
-Received: from hall.aurel32.net (hall.aurel32.net [IPv6:2001:bc8:30d7:100::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ABC71E3749;
-        Thu, 31 Mar 2022 10:06:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
-        ; s=202004.hall; h=In-Reply-To:Content-Type:MIME-Version:References:
-        Message-ID:Subject:Cc:To:From:Date:Content-Transfer-Encoding:From:Reply-To:
-        Subject:Content-ID:Content-Description:X-Debbugs-Cc;
-        bh=3f2eMNjxuItbWlnls7ORiJd9i6hYLVgkXpyx1xRUb2w=; b=ASbLG4Ldhwj8OC8VYiMxB+fAOJ
-        0zPi2gq2b8M/dPFp6bnhHhws3EeV4kFx716cPnkDuyvS7jeSJJa3wxV1Xx0e6RoiourFdP659/OJ/
-        j9csR+WdDyzCIKnbtQ1e2wVrRgEhgnH8PV0qTdFcTb0YOoPP6wLXZeLUlNuKHpc6LTVMMi2pOgsJ7
-        3s1N9Ejdm+2cEnfjiQxiUVchj0RCVW0xQs33M89ORD64m737Pe1Quw4ttaSAXsxcdxr91+PmsxDwH
-        gNH71MoCQmfx7Pn/X+J+XeV0DxeP4IJlkftDg9f50VVJp0ledKFABE0MIFFbM1kFqTyMPhg6Pcm+o
-        jSTHJwvw==;
-Received: from [2a01:e34:ec5d:a741:527b:9dff:fe6e:1e10] (helo=ohm.rr44.fr)
-        by hall.aurel32.net with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <aurelien@aurel32.net>)
-        id 1nZyFF-003XcN-Jo; Thu, 31 Mar 2022 19:06:01 +0200
-Received: from aurel32 by ohm.rr44.fr with local (Exim 4.95)
-        (envelope-from <aurelien@aurel32.net>)
-        id 1nZyFD-000mux-8S;
-        Thu, 31 Mar 2022 19:05:59 +0200
-Date:   Thu, 31 Mar 2022 19:05:59 +0200
-From:   Aurelien Jarno <aurelien@aurel32.net>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kito Cheng <kito.cheng@gmail.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        "open list:RISC-V ARCHITECTURE" <linux-riscv@lists.infradead.org>,
-        linux-sparse@vger.kernel.org, ukl@pengutronix.de,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Subject: Re: [PATCH] riscv: fix build with binutils 2.38
-Message-ID: <YkXfdyDISV6S6+kY@aurel32.net>
-Mail-Followup-To: Marc Kleine-Budde <mkl@pengutronix.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kito Cheng <kito.cheng@gmail.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        "open list:RISC-V ARCHITECTURE" <linux-riscv@lists.infradead.org>,
-        linux-sparse@vger.kernel.org, ukl@pengutronix.de,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-References: <20220126171442.1338740-1-aurelien@aurel32.net>
- <20220331103247.y33wvkxk5vfbqohf@pengutronix.de>
- <20220331103913.2vlneq6clnheuty6@pengutronix.de>
- <20220331105112.7t3qgtilhortkiq4@pengutronix.de>
+        with ESMTP id S229761AbiCaRTx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 13:19:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D52C3BF86;
+        Thu, 31 Mar 2022 10:18:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D038761714;
+        Thu, 31 Mar 2022 17:18:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDED6C340EE;
+        Thu, 31 Mar 2022 17:18:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1648747083;
+        bh=+mkFeW30dPHSk4rDJ2hEVxYFtnX+LQlQ35GIKuHIsrQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LDhIVApBh2VFdcmMeHkVQesUkq2AVUUzCwb5BV03ZTERWbYAfFgzJ+uhAdI7JEkRi
+         DWG1mDSFoCAoTSN0KxoSfaLC+C2ZpT5KNL11cfQMGO4SbYE/C5uPXineQd3MBt8lDy
+         XzTAtQq10ClTmFaGNnFnCXcAU4ce8aDeOK6zQtqM=
+Date:   Thu, 31 Mar 2022 19:18:00 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Won Chung <wonchung@google.com>
+Cc:     Benson Leung <bleung@google.com>, Takashi Iwai <tiwai@suse.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback
+ function
+Message-ID: <YkXiSEyfl9vkIG2w@kroah.com>
+References: <s5hr16ieb8o.wl-tiwai@suse.de>
+ <YkVzl4NEzwDAp/Zq@kuha.fi.intel.com>
+ <s5hmth6eaiz.wl-tiwai@suse.de>
+ <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
+ <s5hk0cae9pw.wl-tiwai@suse.de>
+ <s5h7d8adzdl.wl-tiwai@suse.de>
+ <s5hzgl6ciho.wl-tiwai@suse.de>
+ <YkXJr2KhSzHJHxRF@google.com>
+ <YkXY730wWhgJkRUy@kroah.com>
+ <CAOvb9yiHXAWMn2_GcOnx5FYzfbp-2TmtN-OH90r31OqgbXQ3yQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="skiiiUAPxBLzLTT4"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220331105112.7t3qgtilhortkiq4@pengutronix.de>
-User-Agent: Mutt/2.1.4 (2021-12-11)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <CAOvb9yiHXAWMn2_GcOnx5FYzfbp-2TmtN-OH90r31OqgbXQ3yQ@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Mar 31, 2022 at 09:58:43AM -0700, Won Chung wrote:
+> On Thu, Mar 31, 2022 at 9:38 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Thu, Mar 31, 2022 at 08:33:03AM -0700, Benson Leung wrote:
+> > > Hi Takashi,
+> > >
+> > > On Thu, Mar 31, 2022 at 04:19:15PM +0200, Takashi Iwai wrote:
+> > > > On Thu, 31 Mar 2022 15:29:10 +0200,
+> > > > Takashi Iwai wrote:
+> > > > >
+> > > > > On Thu, 31 Mar 2022 11:45:47 +0200,
+> > > > > Takashi Iwai wrote:
+> > > > > >
+> > > > > > On Thu, 31 Mar 2022 11:34:38 +0200,
+> > > > > > Heikki Krogerus wrote:
+> > > > > > >
+> > > > > > > On Thu, Mar 31, 2022 at 11:28:20AM +0200, Takashi Iwai wrote:
+> > > > > > > > On Thu, 31 Mar 2022 11:25:43 +0200,
+> > > > > > > > Heikki Krogerus wrote:
+> > > > > > > > >
+> > > > > > > > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
+> > > > > > > > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
+> > > > > > > > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
+> > > > > > > > > > > >
+> > > > > > > > > > > > Can NULL dev->driver be really seen?  I thought the components are
+> > > > > > > > > > > > added by the drivers, hence they ought to have the driver field set.
+> > > > > > > > > > > > But there can be corner cases I overlooked.
+> > > > > > > > > > > >
+> > > > > > > > > > > >
+> > > > > > > > > > > > thanks,
+> > > > > > > > > > > >
+> > > > > > > > > > > > Takashi
+> > > > > > > > > > >
+> > > > > > > > > > > Hi Takashi,
+> > > > > > > > > > >
+> > > > > > > > > > > When I try using component_add in a different driver (usb4 in my
+> > > > > > > > > > > case), I think dev->driver here is NULL because the i915 drivers do
+> > > > > > > > > > > not have their component master fully bound when this new component is
+> > > > > > > > > > > registered. When I test it, it seems to be causing a crash.
+> > > > > > > > > >
+> > > > > > > > > > Hm, from where component_add*() is called?  Basically dev->driver must
+> > > > > > > > > > be already set before the corresponding driver gets bound at
+> > > > > > > > > > __driver_probe_deviec().  So, if the device is added to component from
+> > > > > > > > > > the corresponding driver's probe, dev->driver must be non-NULL.
+> > > > > > > > >
+> > > > > > > > > The code that declares a device as component does not have to be the
+> > > > > > > > > driver of that device.
+> > > > > > > > >
+> > > > > > > > > In our case the components are USB ports, and they are devices that
+> > > > > > > > > are actually never bind to any drivers: drivers/usb/core/port.c
+> > > > > > > >
+> > > > > > > > OK, that's what I wanted to know.  It'd be helpful if it's more
+> > > > > > > > clearly mentioned in the commit log.
+> > > > > > >
+> > > > > > > Agree.
+> > > > > > >
+> > > > > > > > BTW, the same problem must be seen in MEI drivers, too.
+> > > > > > >
+> > > > > > > Wasn't there a patch for those too? I lost track...
+> > > > > >
+> > > > > > I don't know, I just checked the latest Linus tree.
+> > > > > >
+> > > > > > And, looking at the HD-audio code, I still wonder how NULL dev->driver
+> > > > > > can reach there.  Is there any PCI device that is added to component
+> > > > > > without binding to a driver?  We have dev_is_pci() check at the
+> > > > > > beginning, so non-PCI devices should bail out there...
+> > > > >
+> > > > > Further reading on, I'm really confused.  How data=NULL can be passed
+> > > > > to this function?  The data argument is the value passed from the
+> > > > > component_match_add_typed() call in HD-audio driver, hence it must be
+> > > > > always the snd_hdac_bus object.
+> > > > >
+> > > > > And, I guess the i915 string check can be omitted completely, at
+> > > > > least, for HD-audio driver.  It already have a check of the parent of
+> > > > > the device and that should be enough.
+> > > >
+> > > > That said, something like below (supposing data NULL check being
+> > > > superfluous), instead.
+> > > >
+> > > >
+> > > > Takashi
+> > > >
+> > > > --- a/sound/hda/hdac_i915.c
+> > > > +++ b/sound/hda/hdac_i915.c
+> > > > @@ -102,18 +102,13 @@ static int i915_component_master_match(struct device *dev, int subcomponent,
+> > > >     struct pci_dev *hdac_pci, *i915_pci;
+> > > >     struct hdac_bus *bus = data;
+> > > >
+> > > > -   if (!dev_is_pci(dev))
+> > > > +   if (subcomponent != I915_COMPONENT_AUDIO || !dev_is_pci(dev))
+> > > >             return 0;
+> > > >
+> > >
+> > > If I recall this bug correctly, it's not the usb port perse that is falling
+> > > through this !dev_is_pci(dev) check, it's actually the usb4-port in a new
+> > > proposed patch by Heikki and Mika to extend the usb type-c component to
+> > > encompass the usb4 specific pieces too. Is it possible usb4 ports are considered
+> > > pci devices, and that's how we got into this situation?
+> > >
+> > > Also, a little more background information: This crash happens because in
+> > > our kernel configs, we config'd the usb4 driver as =y (built in) instead of
+> > > =m module, which meant that the usb4 port's driver was adding a component
+> > > likely much earlier than hdac_i915.
+> >
+> > So is this actually triggering on 5.17 right now?  Or is it due to some
+> > other not-applied changes you are testing at the moment?
+> >
+> > confused,
+> >
+> > greg k-h
+> 
+> Hi Greg,
+> 
+> I believe it is not causing an issue in 5.17 at the moment. It is
+> triggered when we try to apply new changes and test it locally.
+> (registering a component for usb4_port)
 
---skiiiUAPxBLzLTT4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Then why would it ever be needed to be backported to a stable kernel?
 
-Hi,
+Please be more careful.
 
-On 2022-03-31 12:51, Marc Kleine-Budde wrote:
-> Cc +=3D linux-sparse, Uwe, Luc Van Oostenryck
->=20
-> tl;dr:
->=20
-> A recent change in the kernel regarding the riscv -march handling breaks
-> current sparse.
->=20
-> On 31.03.2022 12:39:14, Marc Kleine-Budde wrote:
-> > On 31.03.2022 12:32:47, Marc Kleine-Budde wrote:
-> > > On 26.01.2022 18:14:42, Aurelien Jarno wrote:
-> > > > From version 2.38, binutils default to ISA spec version 20191213. T=
-his
-> > > > means that the csr read/write (csrr*/csrw*) instructions and fence.i
-> > > > instruction has separated from the `I` extension, become two standa=
-lone
-> > > > extensions: Zicsr and Zifencei. As the kernel uses those instructio=
-n,
-> > > > this causes the following build failure:
-> > > >=20
-> > > >   CC      arch/riscv/kernel/vdso/vgettimeofday.o
-> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assemble=
-r messages:
-> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
-: unrecognized opcode `csrr a5,0xc01'
-> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
-: unrecognized opcode `csrr a5,0xc01'
-> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
-: unrecognized opcode `csrr a5,0xc01'
-> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
-: unrecognized opcode `csrr a5,0xc01'
-> > > >=20
-> > > > The fix is to specify those extensions explicitely in -march. Howev=
-er as
-> > > > older binutils version do not support this, we first need to detect
-> > > > that.
-> > > >=20
-> > > > Cc: stable@vger.kernel.org # 4.15+
-> > > > Cc: Kito Cheng <kito.cheng@gmail.com>
-> > > > Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-> > > > ---
-> > > >  arch/riscv/Makefile | 6 ++++++
-> > > >  1 file changed, 6 insertions(+)
-> > > >=20
-> > > > diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-> > > > index 8a107ed18b0d..7d81102cffd4 100644
-> > > > --- a/arch/riscv/Makefile
-> > > > +++ b/arch/riscv/Makefile
-> > > > @@ -50,6 +50,12 @@ riscv-march-$(CONFIG_ARCH_RV32I)	:=3D rv32ima
-> > > >  riscv-march-$(CONFIG_ARCH_RV64I)	:=3D rv64ima
-> > > >  riscv-march-$(CONFIG_FPU)		:=3D $(riscv-march-y)fd
-> > > >  riscv-march-$(CONFIG_RISCV_ISA_C)	:=3D $(riscv-march-y)c
-> > > > +
-> > > > +# Newer binutils versions default to ISA spec version 20191213 whi=
-ch moves some
-> > > > +# instructions from the I extension to the Zicsr and Zifencei exte=
-nsions.
-> > > > +toolchain-need-zicsr-zifencei :=3D $(call cc-option-yn, -march=3D$=
-(riscv-march-y)_zicsr_zifencei)
-> > > > +riscv-march-$(toolchain-need-zicsr-zifencei) :=3D $(riscv-march-y)=
-_zicsr_zifencei
-> > > > +
-> > > >  KBUILD_CFLAGS +=3D -march=3D$(subst fd,,$(riscv-march-y))
-> > > >  KBUILD_AFLAGS +=3D -march=3D$(riscv-march-y)
-> > >=20
-> > > I'm on current linus/master, this change breaks on current Debian
-> > > testing with:
-> > >=20
-> > > | make: Leaving directory 'linux'
-> > > |   SYNC    include/config/auto.conf.cmd
-> > > |   GEN     Makefile
-> > > |   GEN     Makefile
-> > > |   CC      scripts/mod/empty.o
-> > > |   CHECK   linux/scripts/mod/empty.c
-> >       ^^^^^
-> > It's actually "sparse" that breaks
-> >      =20
-> > > | invalid argument to '-march': '_zicsr_zifencei'
-> >=20
-> > | $ sparse --version
-> > | 0.6.4 (Debian: 0.6.4-2)
-
-I confirm the issue. To make things clear, it's not a Makefile issue,
-sparse get passed the correct -march=3Drv64ima_zicsr_zifencei value, and
-only display the part it can't parse.
-
-On the medium/long term, sparse should get fixed to support those
-extensions. On the short term, we need to find a way to get different
-flags for sparse than for as/gcc.
-
---=20
-Aurelien Jarno                          GPG: 4096R/1DDD8C9B
-aurelien@aurel32.net                 http://www.aurel32.net
-
---skiiiUAPxBLzLTT4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEUryGlb40+QrX1Ay4E4jA+JnoM2sFAmJF33QACgkQE4jA+Jno
-M2sqXA/+JZFawgBGA44DcdLHwmYpdemBwyO0wcocBTWOPT8gxXVkONxfrYiWfB6e
-BF6P7Iesr+8u7qMNyurMcJTDx4XfHQIpQJ8SGQ5/jW/UU6I1JDctvortsmqcgNEq
-LqAJ2tlkPhhoMcXzp+QjqsGxDMMqfsPiLBaQk2wL5VuFRCbYV+kZUk4puF1x1NV9
-K5fnMzYD+A0KwsUmKnmcrfWrKep9bbuXtPo2shBuqaeW+pe/0NlAp/+BQUc21aJ4
-L0f29kzQq2c789WEAhkjpRA7QAZF/3M0msd7PC+I5pDbKJuHSxtXGSkf7tTn8Hyh
-VdWu7wyg+vCOvc/9IA6WLi05ipYIHKZpUkqRDz/4MuH5S19FoVr/0Gdjoq2Ck1mG
-NcYeJgvnTOBJyOUQ7in60EDiWDigzuCVKWvFdkXePfwR50Hj4EH+oCoN1IFlgzkd
-PDq67/pMmun2YzkAagswesdwDQ5DiZ7rPQZ4RiICdR5GWKhs/GZcpI8u0I9ozUXK
-LtYLik/d12pFWjLYZ+s+OP0oigT2F40BuvF/Aua5WIaZ+fx7w0wp2HSYj9S0n9rT
-IRB7npjqqjluMMsr7TQyRZHala38YN4arptBK49pDbvu3IBDiVXGeVxGq89cHhsv
-QAobzMtiKzTIaZrfxvPfK31w33gBq2nz5fboIaRHefS+49FycjY=
-=On2l
------END PGP SIGNATURE-----
-
---skiiiUAPxBLzLTT4--
+greg k-h
