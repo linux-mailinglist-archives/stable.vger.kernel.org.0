@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0844EE08F
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 20:34:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 917BF4EE091
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 20:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235250AbiCaSgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 14:36:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52202 "EHLO
+        id S234783AbiCaSgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 14:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234895AbiCaSgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 14:36:25 -0400
+        with ESMTP id S235083AbiCaSga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 14:36:30 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D7B61F0820;
-        Thu, 31 Mar 2022 11:34:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0EAC21F0C83;
+        Thu, 31 Mar 2022 11:34:39 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 10BB8139F;
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E6B4913D5;
         Thu, 31 Mar 2022 11:34:38 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 674FB3F718;
-        Thu, 31 Mar 2022 11:34:37 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 491873F718;
+        Thu, 31 Mar 2022 11:34:38 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     james.morse@arm.com, catalin.marinas@arm.com
-Subject: [stable:PATCH v4.14.274 10/27] arm64: entry: Make the trampoline cleanup optional
-Date:   Thu, 31 Mar 2022 19:33:43 +0100
-Message-Id: <20220331183400.73183-11-james.morse@arm.com>
+Subject: [stable:PATCH v4.14.274 11/27] arm64: entry: Free up another register on kpti's tramp_exit path
+Date:   Thu, 31 Mar 2022 19:33:44 +0100
+Message-Id: <20220331183400.73183-12-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220331183400.73183-1-james.morse@arm.com>
 References: <20220331183400.73183-1-james.morse@arm.com>
@@ -40,66 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit d739da1694a0eaef0358a42b76904b611539b77b upstream.
+commit 03aff3a77a58b5b52a77e00537a42090ad57b80b upstream.
 
-Subsequent patches will add additional sets of vectors that use
-the same tricks as the kpti vectors to reach the full-fat vectors.
-The full-fat vectors contain some cleanup for kpti that is patched
-in by alternatives when kpti is in use. Once there are additional
-vectors, the cleanup will be needed in more cases.
+Kpti stashes x30 in far_el1 while it uses x30 for all its work.
 
-But on big/little systems, the cleanup would be harmful if no
-trampoline vector were in use. Instead of forcing CPUs that don't
-need a trampoline vector to use one, make the trampoline cleanup
-optional.
+Making the vectors a per-cpu data structure will require a second
+register.
 
-Entry at the top of the vectors will skip the cleanup. The trampoline
-vectors can then skip the first instruction, triggering the cleanup
-to run.
+Allow tramp_exit two registers before it unmaps the kernel, by
+leaving x30 on the stack, and stashing x29 in far_el1.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- arch/arm64/kernel/entry.S | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/entry.S | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 81069ad43a5e..1211e0da5476 100644
+index 1211e0da5476..b3014ed0ea8a 100644
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -76,16 +76,20 @@
- 	.align 7
- .Lventry_start\@:
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
--alternative_if ARM64_UNMAP_KERNEL_AT_EL0
- 	.if	\el == 0
-+	/*
-+	 * This must be the first instruction of the EL0 vector entries. It is
-+	 * skipped by the trampoline vectors, to trigger the cleanup.
-+	 */
-+	b	.Lskip_tramp_vectors_cleanup\@
- 	.if	\regsize == 64
- 	mrs	x30, tpidrro_el0
- 	msr	tpidrro_el0, xzr
- 	.else
- 	mov	x30, xzr
- 	.endif
-+.Lskip_tramp_vectors_cleanup\@:
- 	.endif
--alternative_else_nop_endif
- #endif
+@@ -356,14 +356,16 @@ alternative_else_nop_endif
+ 	ldp	x24, x25, [sp, #16 * 12]
+ 	ldp	x26, x27, [sp, #16 * 13]
+ 	ldp	x28, x29, [sp, #16 * 14]
+-	ldr	lr, [sp, #S_LR]
+-	add	sp, sp, #S_FRAME_SIZE		// restore sp
  
- 	sub	sp, sp, #S_FRAME_SIZE
-@@ -1035,7 +1039,7 @@ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
+ 	.if	\el == 0
+-alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
++alternative_if_not ARM64_UNMAP_KERNEL_AT_EL0
++	ldr	lr, [sp, #S_LR]
++	add	sp, sp, #S_FRAME_SIZE		// restore sp
++	eret
++alternative_else_nop_endif
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	bne	4f
+-	msr	far_el1, x30
++	msr	far_el1, x29
+ 	tramp_alias	x30, tramp_exit_native
+ 	br	x30
+ 4:
+@@ -371,6 +373,8 @@ alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
+ 	br	x30
  #endif
- 	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
+ 	.else
++	ldr	lr, [sp, #S_LR]
++	add	sp, sp, #S_FRAME_SIZE		// restore sp
+ 	eret
+ 	.endif
+ 	.endm
+@@ -1048,10 +1052,12 @@ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
+ 	.macro tramp_exit, regsize = 64
+ 	adr	x30, tramp_vectors
  	msr	vbar_el1, x30
--	add	x30, x30, #(1b - tramp_vectors)
-+	add	x30, x30, #(1b - tramp_vectors + 4)
- 	isb
- 	ret
- .org 1b + 128	// Did we overflow the ventry slot?
+-	tramp_unmap_kernel	x30
++	ldr	lr, [sp, #S_LR]
++	tramp_unmap_kernel	x29
+ 	.if	\regsize == 64
+-	mrs	x30, far_el1
++	mrs	x29, far_el1
+ 	.endif
++	add	sp, sp, #S_FRAME_SIZE		// restore sp
+ 	eret
+ 	.endm
+ 
 -- 
 2.30.2
 
