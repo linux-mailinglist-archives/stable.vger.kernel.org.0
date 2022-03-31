@@ -2,64 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7A74ED1A7
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 04:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A42484ED1B0
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 04:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234309AbiCaCXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 22:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47698 "EHLO
+        id S231472AbiCaCYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 22:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352546AbiCaCXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 22:23:46 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91F756971E
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 19:21:57 -0700 (PDT)
+        with ESMTP id S230097AbiCaCYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 22:24:23 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6F269CCF
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 19:22:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1648693306;
-        bh=8vljnyPTCseyScb8QVkXDFvKQ68njyCEOIa1Dnpl8Vo=;
+        s=badeba3b8450; t=1648693342;
+        bh=cnyL3H0kywGkbAlbPb5ppCYDsoXCaO/t3xCzXZ4qs9o=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=ZuTQqHkY8y51cfFIGwc0HPrPEwzfCKk4h7e/j1+ioihXiBPcnz8stc+mlg7nrs0Yj
-         gzZPO7WEBM6GCktOeU1Q5WjySryLPnQClEJL/Lvs48a2I8rgLVcEXEU0X48WZueH2K
-         PvNlr61ZU04dO8t0zXB1z1DQedGSWfqiiUtqkfn4=
+        b=M7+DON/7GCwgeS5nCO3/kEh2qGxRErGR7Y30JIq4IAw8xjZ8+wiE+PaTU0xFPMn3l
+         2qHzx6eqRsBGv1J1HX/DPRm/pdLFzwduEBFnabcGRJ+jtgp3/98S80GBMZ40/ZqeVJ
+         wba7zlL080PGxhfubsLPG2Vqv5SW9dnCxzcJyoI4=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from Venus.fritz.box ([46.223.2.105]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MNt0M-1nOoE61vdA-00OHfC; Thu, 31
- Mar 2022 04:21:46 +0200
+Received: from Venus.fritz.box ([46.223.2.105]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mjj87-1oKP9324dv-00lENI; Thu, 31
+ Mar 2022 04:22:22 +0200
 From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
 To:     gregkh@linuxfoundation.org
 Cc:     LinoSanfilippo@gmx.de, jarkko@kernel.org, jgg@nvidia.com,
         jgg@ziepe.ca, stable@vger.kernel.org, stefanb@linux.ibm.com
-Subject: [PATCH for-5.15] tpm: fix reference counting for struct tpm_chip
-Date:   Thu, 31 Mar 2022 04:21:34 +0200
-Message-Id: <20220331022134.1733-1-LinoSanfilippo@gmx.de>
+Subject: [PATCH for-5.10] tpm: fix reference counting for struct tpm_chip
+Date:   Thu, 31 Mar 2022 04:22:15 +0200
+Message-Id: <20220331022215.1774-1-LinoSanfilippo@gmx.de>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
-X-Provags-ID: V03:K1:VGHHZQbqotEBA/UheNCavhUkQWMLPGnWJvx3kUhe/E4rdlgLIlO
- /v38hjESTORm+8wkuxX4H1ZTIyryZc/lOWxtBpjTLF/IDnvUy8u5P8+9oG8+lYQP9vkE2u2
- uAZiUh/LNtQSK1WsAdCXcjnB7wSftN9XVlUFYTYEMhloOp+Mem4WWZvMF99WR45eaFQgP/v
- 2SNIDmfAUiEMnW1cmUxXA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:usEtKxrOyDw=:O3bYKzA1hfYYM4qWvc/ism
- 6/93q5BFtZxgRNf45TjEPcqgesTlQNYEB3IVyyxxYaOjBWrD9GdG2U06WVLHfN46Og4DViBz6
- WDdYJHC+71pw+Wf//FcrBZfnGPHBoZ4go0J8SYCQ008UsKI/dopv2D11cERMRgilIEipm7rp3
- NbxtkPXmv6YfaztpLcPKA5f2PNAEgxhOBMj0XDdvNpi7CGIWOOPwzaVRkB0dKQF7sv8U3O79T
- qUtIyImCddocn2f1lisKRTI45AT/NDUcN+mdImJLSp95r/yaDFSy+HCTHuGRHrJBG2fspHX1q
- GCr5EM4zqfQ67qQdDAbP1SnxoIUjBKz2TdmT8j45iqfwVlDH9wG5M6zdHHkDquGvVdC6/1tbc
- JrNjMzndiFNhU4Pq4tBRYXcvsf/cFPGWKyGJGubtwUww++ue1TVZhmtjh4GbpWS6ZdSAqesV/
- cHZ8SylwHBPXjPa/cCDSyNMkzLhgW4xG/3KF46t9NEGXcy1WX597q41Zoy06YM1SLxiYsnK9d
- iJAByFj7b9+jGHXViG0wlYZYIiF1IW9nZ7XLH2Q//eQTbhQEWQpdGqAf8t+LBFYyqLGy7vt6r
- kuLMtXF1FvMvdqYrkwhLWH9NgmcL9HVhXPWdtAeJDPa6q+L2d9PM7RAQn3dclDTmTaxtUYPlr
- cbuj5Rp6S1uP/UxvfFs54bez3t4ECm6Y2K8z3TG8BYLpwnziwpRIcoCj6Qt02bIWbPqAfbrfL
- vNBIzGnszlDgPLykYOJPE440XUErt3ImdvrFNqN2EP7Zw3ULD5oM8jJuILPIY2M941V+WTIW2
- 0/5scvCpzIcU65hZa4T1sue0l0gJUBJRV9FwSsUQ7KmV3KOfuCiqzh/5e7VbSTET5IoL1WqTY
- +0lPc0bWgxXSIlxf4j6TeImFiwO5LVCxWIh9m9mky0K6dO1jBd5XZAGgWfq1n/ElN8k78J+n0
- a2BcqYAYDRliUmgO6+D3LqSniLEnuYdGS5Wv5Y7Vk0do51EUwaQeisjhY9wcJ3+ESF3JN3UPA
- VQESCaSagKFQoWRCyckF/uI494wKEBdoTGfbZwOXJ4gJjvJ9Kdt7sE8mbJcoiBB1MoJ38xnXO
- 6gM9C/qGEczb0YiSLHFhh67puAAJ5hu4U36
+X-Provags-ID: V03:K1:dgELTA1hUYtpSXOXpTbGen4u2gcta+KFE7nvkbAWy02Q5wYtoyJ
+ m5FNPedaSg3Aj+3MLS3AoXsRYWo7qxL0Kqou+ZIeqxoA60WXgd8FoSdDd5ycnewR657+JqJ
+ GrRsnp/US6X4X9n2n8WYSYJrXKiuC5JkPgZYKJjWEYDyBFlSYhUxjJ/tAL6BJ4SHMrZxnVQ
+ ju7AUw0hPdMlWhiJ0K6Fw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:FVII2bDgdhc=:yBy8zAHfC8xHFYJo8sxMtv
+ VIqJsuizvtPWLaIXnjj35VXJgOlE6xSWVLMBWIXq4PVwc6JXYzyWTKOW9f07W9iFeIcN4c20/
+ IPJr+L93nMBN7kY6vQtJDUENRQrVjgplI7yRu+NtNo/V7LbdTDaPb4ei/g7JaOQ8FtKgoZVS4
+ Ft4KwzQfWBFBguvFZpwz+mzo3c8VancSnG+nmv5Zn4Ff/T5MtZ6XiJQaTeaX2xgPuG7wgtrzp
+ ousbSbmnU4iB8PGNsG5kTJShW1aBDynZedj6QbHIPt5oF9EPw17mug03M2dQdtrIZdJ31Ogyi
+ JvYpvUguuba9unphvTKoxl+5zWr2wen0tA6UC/Kw5wfaoL2gEbGJj2197JBsUCfgWIFMTWj4F
+ 7gYoZ9V3ONgZE2etWOhg0gd8n7/u80KtE1WqC8ntGI5xk34NcW7NW5JBwjZjVSdzYcwxS4/HO
+ 5vf59R1ZFBWDx7Ei26E6uY31aaWfYRPYMhDi7BcroKs0SBR8z2G6ybHhuytbOpwMIgti85ajW
+ r1g3lw/2e5iPOR6AA/+0FFiMpSD0uAUEdts+hi1pAypf9n++quNC+zPMFoxWUkrNoUVooMkDD
+ wwC6grEnHMZFmfJRPaR3MWkx0dnbw0DlNk+el0nU/zOuLRjesd3RchClUtprKW7/qoiNo3wzC
+ spdxDhzEPmRRImdyS+f7x+lVj9lNu4nPrxDLUYy4apP07DbhRKCrJxa4i6ZsO8VdLZxvqh4WT
+ BCIMoNH2EfvV57HttudRbSPpdX1RTYcq1UZ90zSJaNAa0uRfxxJahfkljfB8uVNx+vYMCOOXo
+ MBjS8HrCHRtzS4YkU7SNhsmpTkCotsIs6LLh6aOV3F8atSA0hyeE+ItBQ22TeEzpr3TuISC+s
+ mtGMLHAJINxb2yP4wB1xOmPxr2SpPRSCLtpVgnsFFWF1KZa/NycY33r36BXWLVkYOA8NGj3cF
+ ejRIXpyYQmDpY9ZxtYRLIrRlq6RmcpJ18EMflnREIeTsxOtVq7EugXe3jtO2m1fvCxBqtjMiZ
+ Ws9j4mAODhin7GEQyeZx0ECehB1wxTFNBt/wE7OVy0vpU/bwLA3Kc7BVPtdJ4Nhm9jXEXjFuR
+ YeeOcJUTuqFO1t89XZh1fJsQMKpkd7GJ0r5
 X-Spam-Status: No, score=2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,FREEMAIL_FROM,MIME_BASE64_TEXT,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,RCVD_IN_SBL_CSS,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,RCVD_IN_SBL_CSS,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -131,8 +132,8 @@ KysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tCiBkcml2ZXJzL2NoYXIvdHBtL3RwbS5oICAgICAgICB8
 ICAyICsrCiBkcml2ZXJzL2NoYXIvdHBtL3RwbTItc3BhY2UuYyB8IDY1ICsrKysrKysrKysrKysr
 KysrKysrKysrKysrKysrKysrKysrCiAzIGZpbGVzIGNoYW5nZWQsIDc1IGluc2VydGlvbnMoKyks
 IDM4IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvY2hhci90cG0vdHBtLWNoaXAu
-YyBiL2RyaXZlcnMvY2hhci90cG0vdHBtLWNoaXAuYwppbmRleCBkZjM3ZTdiNmExMGEuLjY1ZDgw
-MGVjYzk5NiAxMDA2NDQKLS0tIGEvZHJpdmVycy9jaGFyL3RwbS90cG0tY2hpcC5jCisrKyBiL2Ry
+YyBiL2RyaXZlcnMvY2hhci90cG0vdHBtLWNoaXAuYwppbmRleCBkZGFlY2ViN2UxMDkuLmVkNjAw
+NDczYWQ3ZSAxMDA2NDQKLS0tIGEvZHJpdmVycy9jaGFyL3RwbS90cG0tY2hpcC5jCisrKyBiL2Ry
 aXZlcnMvY2hhci90cG0vdHBtLWNoaXAuYwpAQCAtMjc0LDE0ICsyNzQsNiBAQCBzdGF0aWMgdm9p
 ZCB0cG1fZGV2X3JlbGVhc2Uoc3RydWN0IGRldmljZSAqZGV2KQogCWtmcmVlKGNoaXApOwogfQog
 Ci1zdGF0aWMgdm9pZCB0cG1fZGV2c19yZWxlYXNlKHN0cnVjdCBkZXZpY2UgKmRldikKLXsKLQlz
@@ -183,7 +184,7 @@ dGF0aWMgaW50IHRwbV9hZGRfY2hhcl9kZXZpY2Uoc3RydWN0IHRwbV9jaGlwICpjaGlwKQogCWlk
 cl9yZXBsYWNlKCZkZXZfbnVtc19pZHIsIGNoaXAsIGNoaXAtPmRldl9udW0pOwogCW11dGV4X3Vu
 bG9jaygmaWRyX2xvY2spOwogCisJcmV0dXJuIDA7CisKK2Vycl9kZWxfY2RldjoKKwljZGV2X2Rl
 dmljZV9kZWwoJmNoaXAtPmNkZXYsICZjaGlwLT5kZXYpOwogCXJldHVybiByYzsKIH0KIApAQCAt
-NjQ5LDcgKzYxOSw3IEBAIHZvaWQgdHBtX2NoaXBfdW5yZWdpc3RlcihzdHJ1Y3QgdHBtX2NoaXAg
+NjQxLDcgKzYxMSw3IEBAIHZvaWQgdHBtX2NoaXBfdW5yZWdpc3RlcihzdHJ1Y3QgdHBtX2NoaXAg
 KmNoaXApCiAJCWh3cm5nX3VucmVnaXN0ZXIoJmNoaXAtPmh3cm5nKTsKIAl0cG1fYmlvc19sb2df
 dGVhcmRvd24oY2hpcCk7CiAJaWYgKGNoaXAtPmZsYWdzICYgVFBNX0NISVBfRkxBR19UUE0yKQot
 CQljZGV2X2RldmljZV9kZWwoJmNoaXAtPmNkZXZzLCAmY2hpcC0+ZGV2cyk7CisJCXRwbV9kZXZz
