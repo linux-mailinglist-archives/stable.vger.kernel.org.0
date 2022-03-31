@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A92A74EE09A
+	by mail.lfdr.de (Postfix) with ESMTP id 11D144EE098
 	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 20:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235725AbiCaSgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 14:36:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52758 "EHLO
+        id S235269AbiCaSgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 14:36:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235706AbiCaSgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 14:36:36 -0400
+        with ESMTP id S235801AbiCaSgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 14:36:37 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2CB2721FC5C;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E858D21DF2E;
         Thu, 31 Mar 2022 11:34:48 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C78921596;
-        Thu, 31 Mar 2022 11:34:47 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A9641139F;
+        Thu, 31 Mar 2022 11:34:48 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2A0113F718;
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0BC193F718;
         Thu, 31 Mar 2022 11:34:47 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     james.morse@arm.com, catalin.marinas@arm.com
-Subject: [stable:PATCH v4.14.274 21/27] arm64: Add percpu vectors for EL1
-Date:   Thu, 31 Mar 2022 19:33:54 +0100
-Message-Id: <20220331183400.73183-22-james.morse@arm.com>
+Subject: [stable:PATCH v4.14.274 22/27] arm64: proton-pack: Report Spectre-BHB vulnerabilities as part of Spectre-v2
+Date:   Thu, 31 Mar 2022 19:33:55 +0100
+Message-Id: <20220331183400.73183-23-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220331183400.73183-1-james.morse@arm.com>
 References: <20220331183400.73183-1-james.morse@arm.com>
@@ -40,219 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit bd09128d16fac3c34b80bd6a29088ac632e8ce09 upstream.
+commit dee435be76f4117410bbd90573a881fd33488f37 upstream.
 
-The Spectre-BHB workaround adds a firmware call to the vectors. This
-is needed on some CPUs, but not others. To avoid the unaffected CPU in
-a big/little pair from making the firmware call, create per cpu vectors.
+Speculation attacks against some high-performance processors can
+make use of branch history to influence future speculation as part of
+a spectre-v2 attack. This is not mitigated by CSV2, meaning CPUs that
+previously reported 'Not affected' are now moderately mitigated by CSV2.
 
-The per-cpu vectors only apply when returning from EL0.
-
-Systems using KPTI can use the canonical 'full-fat' vectors directly at
-EL1, the trampoline exit code will switch to this_cpu_vector on exit to
-EL0. Systems not using KPTI should always use this_cpu_vector.
-
-this_cpu_vector will point at a vector in tramp_vecs or
-__bp_harden_el1_vectors, depending on whether KPTI is in use.
+Update the value in /sys/devices/system/cpu/vulnerabilities/spectre_v2
+to also show the state of the BHB mitigation.
 
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+[ code move to cpu_errata.c for backport ]
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- arch/arm64/include/asm/mmu.h     |  2 +-
- arch/arm64/include/asm/vectors.h | 27 +++++++++++++++++++++++++++
- arch/arm64/kernel/cpufeature.c   | 11 +++++++++++
- arch/arm64/kernel/entry.S        | 16 ++++++++++------
- arch/arm64/kvm/hyp/switch.c      |  9 +++++++--
- 5 files changed, 56 insertions(+), 9 deletions(-)
+ arch/arm64/include/asm/cpufeature.h |  8 ++++++
+ arch/arm64/kernel/cpu_errata.c      | 38 ++++++++++++++++++++++++++---
+ 2 files changed, 43 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/mmu.h b/arch/arm64/include/asm/mmu.h
-index 6dd83d75b82a..db77543a5688 100644
---- a/arch/arm64/include/asm/mmu.h
-+++ b/arch/arm64/include/asm/mmu.h
-@@ -35,7 +35,7 @@ typedef struct {
-  */
- #define ASID(mm)	((mm)->context.id.counter & 0xffff)
+diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
+index 166f81b7afee..5f9f40a02784 100644
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -495,6 +495,14 @@ static inline int arm64_get_ssbd_state(void)
  
--static inline bool arm64_kernel_unmapped_at_el0(void)
-+static __always_inline bool arm64_kernel_unmapped_at_el0(void)
- {
- 	return IS_ENABLED(CONFIG_UNMAP_KERNEL_AT_EL0) &&
- 	       cpus_have_const_cap(ARM64_UNMAP_KERNEL_AT_EL0);
-diff --git a/arch/arm64/include/asm/vectors.h b/arch/arm64/include/asm/vectors.h
-index 16ca74260375..3f76dfd9e074 100644
---- a/arch/arm64/include/asm/vectors.h
-+++ b/arch/arm64/include/asm/vectors.h
-@@ -5,6 +5,15 @@
- #ifndef __ASM_VECTORS_H
- #define __ASM_VECTORS_H
+ void arm64_set_ssbd_mitigation(bool state);
  
-+#include <linux/bug.h>
-+#include <linux/percpu.h>
++/* Watch out, ordering is important here. */
++enum mitigation_state {
++	SPECTRE_UNAFFECTED,
++	SPECTRE_MITIGATED,
++	SPECTRE_VULNERABLE,
++};
 +
-+#include <asm/fixmap.h>
-+
-+extern char vectors[];
-+extern char tramp_vectors[];
-+extern char __bp_harden_el1_vectors[];
-+
- /*
-  * Note: the order of this enum corresponds to two arrays in entry.S:
-  * tramp_vecs and __bp_harden_el1_vectors. By default the canonical
-@@ -31,4 +40,22 @@ enum arm64_bp_harden_el1_vectors {
- 	EL1_VECTOR_KPTI,
- };
++enum mitigation_state arm64_get_spectre_bhb_state(void);
+ #endif /* __ASSEMBLY__ */
  
-+/* The vectors to use on return from EL0. e.g. to remap the kernel */
-+DECLARE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector);
-+
-+#ifndef CONFIG_UNMAP_KERNEL_AT_EL0
-+#define TRAMP_VALIAS	0
-+#endif
-+
-+static inline const char *
-+arm64_get_bp_hardening_vector(enum arm64_bp_harden_el1_vectors slot)
-+{
-+	if (arm64_kernel_unmapped_at_el0())
-+		return (char *)TRAMP_VALIAS + SZ_2K * slot;
-+
-+	WARN_ON_ONCE(slot == EL1_VECTOR_KPTI);
-+
-+	return __bp_harden_el1_vectors + SZ_2K * slot;
-+}
-+
- #endif /* __ASM_VECTORS_H */
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 1481e18aa5ca..47fdabeec98e 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -20,11 +20,13 @@
- 
- #include <linux/bsearch.h>
- #include <linux/cpumask.h>
-+#include <linux/percpu.h>
- #include <linux/sort.h>
- #include <linux/stop_machine.h>
- #include <linux/types.h>
- #include <linux/mm.h>
- #include <linux/cpu.h>
-+
- #include <asm/cpu.h>
- #include <asm/cpufeature.h>
- #include <asm/cpu_ops.h>
-@@ -32,6 +34,7 @@
- #include <asm/processor.h>
- #include <asm/sysreg.h>
- #include <asm/traps.h>
-+#include <asm/vectors.h>
- #include <asm/virt.h>
- 
- unsigned long elf_hwcap __read_mostly;
-@@ -50,6 +53,8 @@ unsigned int compat_elf_hwcap2 __read_mostly;
- DECLARE_BITMAP(cpu_hwcaps, ARM64_NCAPS);
- EXPORT_SYMBOL(cpu_hwcaps);
- 
-+DEFINE_PER_CPU_READ_MOSTLY(const char *, this_cpu_vector) = vectors;
-+
- static int dump_cpu_hwcaps(struct notifier_block *self, unsigned long v, void *p)
- {
- 	/* file-wide pr_fmt adds "CPU features: " prefix */
-@@ -892,6 +897,12 @@ kpti_install_ng_mappings(const struct arm64_cpu_capabilities *__unused)
- 	static bool kpti_applied = false;
- 	int cpu = smp_processor_id();
- 
-+	if (__this_cpu_read(this_cpu_vector) == vectors) {
-+		const char *v = arm64_get_bp_hardening_vector(EL1_VECTOR_KPTI);
-+
-+		__this_cpu_write(this_cpu_vector, v);
-+	}
-+
- 	if (kpti_applied)
- 		return;
- 
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 4fe25954fbb0..54f9d95e4909 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -75,7 +75,6 @@
- 	.macro kernel_ventry, el, label, regsize = 64
- 	.align 7
- .Lventry_start\@:
--#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	.if	\el == 0
- 	/*
- 	 * This must be the first instruction of the EL0 vector entries. It is
-@@ -90,7 +89,6 @@
- 	.endif
- .Lskip_tramp_vectors_cleanup\@:
- 	.endif
--#endif
- 
- 	sub	sp, sp, #S_FRAME_SIZE
- #ifdef CONFIG_VMAP_STACK
-@@ -1085,10 +1083,14 @@ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
- 	.endm
- 
- 	.macro tramp_exit, regsize = 64
--	adr	x30, tramp_vectors
--#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
--	add	x30, x30, SZ_4K
--#endif
-+	tramp_data_read_var	x30, this_cpu_vector
-+alternative_if_not ARM64_HAS_VIRT_HOST_EXTN
-+	mrs	x29, tpidr_el1
-+alternative_else
-+	mrs	x29, tpidr_el2
-+alternative_endif
-+	ldr	x30, [x30, x29]
-+
- 	msr	vbar_el1, x30
- 	ldr	lr, [sp, #S_LR]
- 	tramp_unmap_kernel	x29
-@@ -1148,6 +1150,8 @@ __entry_tramp_data_vectors:
- __entry_tramp_data___sdei_asm_trampoline_next_handler:
- 	.quad	__sdei_asm_handler
- #endif /* CONFIG_ARM_SDE_INTERFACE */
-+__entry_tramp_data_this_cpu_vector:
-+	.quad	this_cpu_vector
- 	.popsection				// .rodata
- #endif /* CONFIG_RANDOMIZE_BASE */
- #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
-diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
-index 99ae75a43985..0f05f402e04a 100644
---- a/arch/arm64/kvm/hyp/switch.c
-+++ b/arch/arm64/kvm/hyp/switch.c
-@@ -27,6 +27,7 @@
- #include <asm/kvm_emulate.h>
- #include <asm/kvm_hyp.h>
- #include <asm/fpsimd.h>
-+#include <asm/vectors.h>
- 
- extern struct exception_table_entry __start___kvm_ex_table;
- extern struct exception_table_entry __stop___kvm_ex_table;
-@@ -110,17 +111,21 @@ static void __hyp_text __activate_traps(struct kvm_vcpu *vcpu)
- 
- static void __hyp_text __deactivate_traps_vhe(void)
- {
--	extern char vectors[];	/* kernel exception vectors */
-+	const char *host_vectors = vectors;
- 	u64 mdcr_el2 = read_sysreg(mdcr_el2);
- 
- 	mdcr_el2 &= MDCR_EL2_HPMN_MASK |
- 		    MDCR_EL2_E2PB_MASK << MDCR_EL2_E2PB_SHIFT |
- 		    MDCR_EL2_TPMS;
- 
-+
- 	write_sysreg(mdcr_el2, mdcr_el2);
- 	write_sysreg(HCR_HOST_VHE_FLAGS, hcr_el2);
- 	write_sysreg(CPACR_EL1_FPEN, cpacr_el1);
--	write_sysreg(vectors, vbar_el1);
-+
-+	if (!arm64_kernel_unmapped_at_el0())
-+		host_vectors = __this_cpu_read(this_cpu_vector);
-+	write_sysreg(host_vectors, vbar_el1);
+ #endif
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index d75c4f4144f4..41caf2f01814 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -730,14 +730,39 @@ ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "Mitigation: __user pointer sanitization\n");
  }
  
- static void __hyp_text __deactivate_traps_nvhe(void)
++static const char *get_bhb_affected_string(enum mitigation_state bhb_state)
++{
++	switch (bhb_state) {
++	case SPECTRE_UNAFFECTED:
++		return "";
++	default:
++	case SPECTRE_VULNERABLE:
++		return ", but not BHB";
++	case SPECTRE_MITIGATED:
++		return ", BHB";
++	}
++}
++
+ ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
+ 		char *buf)
+ {
+-	if (__spectrev2_safe)
+-		return sprintf(buf, "Not affected\n");
++	enum mitigation_state bhb_state = arm64_get_spectre_bhb_state();
++	const char *bhb_str = get_bhb_affected_string(bhb_state);
++	const char *v2_str = "Branch predictor hardening";
++
++	if (__spectrev2_safe) {
++		if (bhb_state == SPECTRE_UNAFFECTED)
++			return sprintf(buf, "Not affected\n");
++
++		/*
++		 * Platforms affected by Spectre-BHB can't report
++		 * "Not affected" for Spectre-v2.
++		 */
++		v2_str = "CSV2";
++	}
+ 
+ 	if (__hardenbp_enab)
+-		return sprintf(buf, "Mitigation: Branch predictor hardening\n");
++		return sprintf(buf, "Mitigation: %s%s\n", v2_str, bhb_str);
+ 
+ 	return sprintf(buf, "Vulnerable\n");
+ }
+@@ -758,3 +783,10 @@ ssize_t cpu_show_spec_store_bypass(struct device *dev,
+ 
+ 	return sprintf(buf, "Vulnerable\n");
+ }
++
++static enum mitigation_state spectre_bhb_state;
++
++enum mitigation_state arm64_get_spectre_bhb_state(void)
++{
++	return spectre_bhb_state;
++}
 -- 
 2.30.2
 
