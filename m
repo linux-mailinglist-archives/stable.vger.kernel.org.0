@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F9114ED1A2
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 04:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7A74ED1A7
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 04:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231743AbiCaCWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Mar 2022 22:22:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45918 "EHLO
+        id S234309AbiCaCXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Mar 2022 22:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230097AbiCaCWm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 22:22:42 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029D869295
-        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 19:20:54 -0700 (PDT)
+        with ESMTP id S1352546AbiCaCXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Mar 2022 22:23:46 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91F756971E
+        for <stable@vger.kernel.org>; Wed, 30 Mar 2022 19:21:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1648693240;
+        s=badeba3b8450; t=1648693306;
         bh=8vljnyPTCseyScb8QVkXDFvKQ68njyCEOIa1Dnpl8Vo=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=SApq72g9X8SlJv4Ws8WjfzEcQvevVxbA4KFk8z12yQR5XXKD/PUf+//6HDmZOKG+e
-         Awre5qX8/pm0xNNxP9f5kuQLq2t3dLPFzkcNBUXvAPtNeIfS2SRMeIKew2mLrGkrvb
-         sXgedNtmStg0PEw9c4gq0gn+we6urUFcJyqc+UJo=
+        b=ZuTQqHkY8y51cfFIGwc0HPrPEwzfCKk4h7e/j1+ioihXiBPcnz8stc+mlg7nrs0Yj
+         gzZPO7WEBM6GCktOeU1Q5WjySryLPnQClEJL/Lvs48a2I8rgLVcEXEU0X48WZueH2K
+         PvNlr61ZU04dO8t0zXB1z1DQedGSWfqiiUtqkfn4=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from Venus.fritz.box ([46.223.2.105]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MOA3F-1nOY7t2Tf7-00ObOc; Thu, 31
- Mar 2022 04:20:40 +0200
+Received: from Venus.fritz.box ([46.223.2.105]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MNt0M-1nOoE61vdA-00OHfC; Thu, 31
+ Mar 2022 04:21:46 +0200
 From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
 To:     gregkh@linuxfoundation.org
 Cc:     LinoSanfilippo@gmx.de, jarkko@kernel.org, jgg@nvidia.com,
         jgg@ziepe.ca, stable@vger.kernel.org, stefanb@linux.ibm.com
-Subject: [PATCH for-5.16] tpm: fix reference counting for struct tpm_chip
-Date:   Thu, 31 Mar 2022 04:19:40 +0200
-Message-Id: <20220331021940.1658-1-LinoSanfilippo@gmx.de>
+Subject: [PATCH for-5.15] tpm: fix reference counting for struct tpm_chip
+Date:   Thu, 31 Mar 2022 04:21:34 +0200
+Message-Id: <20220331022134.1733-1-LinoSanfilippo@gmx.de>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
-X-Provags-ID: V03:K1:pqs5KaETRDtYZgPDYNGdPSi74QlzQpQ8R6mFvSXRcS987ui+/fu
- LN3WBpoH9WDUDh7B0J6atETqLFNx+/Vr7n+rTE8GYdB4b9ssu6yEZdX2pZjZNTQd/8JDlja
- 0xtXLPJA0I8ZBNDU6xI/cwp2VtHwzxgWR6p6rwB937y4prNG1mLHzFiv9U2TaMXVry0HyiD
- XhSeLho8XnYZoTE8LchBw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:dJskuezRdJE=:lJSXOmHIDG80sHVjXn4Ym0
- wl8HTFBRKLFpaT2Z71B7GteanV1saKOaSdRCYnaZyEwbBAB1IRKbEFUdneslqjtYLoph0kxQ3
- zdydVwjBdAzT7V0C+dVo1HAGr654cLMmipT3Ybk0pYEp1YD0AaYPRQ08X1/0ydccen/Ue2L6z
- mL0fjlEWbe6Yg7C4F1jvJyi0vSOgiv00SlkEmDvkux6pfDwjsNXcHaHeNBEAzkkKcr1o0i1C7
- rmkMRPsp/3nQzTt0XCi4pCwok4EvFL8TWCTqafsp0buwsfM2nyzzNn+eeE84hpKO5M6sl9EHE
- QpbHo23RBceArrNBY3KnLQTSuHzYAPPzGJtSUVbTz+h4cPOVo2IWK5QUT2z4jrXNf1WhPClhh
- QCzz10NoGZSyqFuSB137ge7Qc8xDwvg6L7s/WUh5XRxOibsIaCqp0C5GljHf4IOAXNrb1K3Lw
- mwl621AIIQjYE198sSWIimJG8G+g96L7HSkrRZt7B/bPhkLCSxqCXXrCY4qnL4i03HFGNN2OZ
- wpPpENQJMCpHIZ0I1wtF48AZQBk9lQrVljxCZ+9JgLm5TwnenjVIaCLrKUqxkG4ae6kO5128e
- vEFneiHeAD7We2edaJRx1Mn2B0q+y6EnisCUs3wj9uDJGtM7LYaYp/BJiW48b+hVcohREfn43
- yjfN0trtTqoQtLc+DbTSYLMMlhD1CfYCBegJuIbXKGKCPfz7Bi5LAHNqSQbBZ1OlVcGZ/Q/QF
- kbtDFez0djkEYi0JI0Npb1Vc2nCRoC7rICaNY2XirMNdbP5Z6+BJ0cmZixs48Mhzme5XTLCjN
- Kc14dyK/4gvHzCKyFAHPH4skr2/+Y1rQCmNkltqkj8xckjgIPwcGVkt1CUD+8lRTR6vXpiVLF
- xLnpNun1y5b4s/EKmzsC7DQGOxahv3+rmSgcbJ5c07noUYxutlTiUHFf5coBII+evzBnZydm9
- YUgRuAkHo0QJgnUksqIYQCF9Phv/K9/N+KFLK2tdRclBawlosbKb8jzgggFdPGn+P3ZyRj91I
- zU8wit25Y7zH8rEVK/O/7zJ2mRmMkMXQwlSQxoTKV8jv9lefBIzDRfY6ufNpl6bmrBM/O707h
- FArVYhR2+jXAht8pamL9q7Nkw1nDE3J0UXd
+X-Provags-ID: V03:K1:VGHHZQbqotEBA/UheNCavhUkQWMLPGnWJvx3kUhe/E4rdlgLIlO
+ /v38hjESTORm+8wkuxX4H1ZTIyryZc/lOWxtBpjTLF/IDnvUy8u5P8+9oG8+lYQP9vkE2u2
+ uAZiUh/LNtQSK1WsAdCXcjnB7wSftN9XVlUFYTYEMhloOp+Mem4WWZvMF99WR45eaFQgP/v
+ 2SNIDmfAUiEMnW1cmUxXA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:usEtKxrOyDw=:O3bYKzA1hfYYM4qWvc/ism
+ 6/93q5BFtZxgRNf45TjEPcqgesTlQNYEB3IVyyxxYaOjBWrD9GdG2U06WVLHfN46Og4DViBz6
+ WDdYJHC+71pw+Wf//FcrBZfnGPHBoZ4go0J8SYCQ008UsKI/dopv2D11cERMRgilIEipm7rp3
+ NbxtkPXmv6YfaztpLcPKA5f2PNAEgxhOBMj0XDdvNpi7CGIWOOPwzaVRkB0dKQF7sv8U3O79T
+ qUtIyImCddocn2f1lisKRTI45AT/NDUcN+mdImJLSp95r/yaDFSy+HCTHuGRHrJBG2fspHX1q
+ GCr5EM4zqfQ67qQdDAbP1SnxoIUjBKz2TdmT8j45iqfwVlDH9wG5M6zdHHkDquGvVdC6/1tbc
+ JrNjMzndiFNhU4Pq4tBRYXcvsf/cFPGWKyGJGubtwUww++ue1TVZhmtjh4GbpWS6ZdSAqesV/
+ cHZ8SylwHBPXjPa/cCDSyNMkzLhgW4xG/3KF46t9NEGXcy1WX597q41Zoy06YM1SLxiYsnK9d
+ iJAByFj7b9+jGHXViG0wlYZYIiF1IW9nZ7XLH2Q//eQTbhQEWQpdGqAf8t+LBFYyqLGy7vt6r
+ kuLMtXF1FvMvdqYrkwhLWH9NgmcL9HVhXPWdtAeJDPa6q+L2d9PM7RAQn3dclDTmTaxtUYPlr
+ cbuj5Rp6S1uP/UxvfFs54bez3t4ECm6Y2K8z3TG8BYLpwnziwpRIcoCj6Qt02bIWbPqAfbrfL
+ vNBIzGnszlDgPLykYOJPE440XUErt3ImdvrFNqN2EP7Zw3ULD5oM8jJuILPIY2M941V+WTIW2
+ 0/5scvCpzIcU65hZa4T1sue0l0gJUBJRV9FwSsUQ7KmV3KOfuCiqzh/5e7VbSTET5IoL1WqTY
+ +0lPc0bWgxXSIlxf4j6TeImFiwO5LVCxWIh9m9mky0K6dO1jBd5XZAGgWfq1n/ElN8k78J+n0
+ a2BcqYAYDRliUmgO6+D3LqSniLEnuYdGS5Wv5Y7Vk0do51EUwaQeisjhY9wcJ3+ESF3JN3UPA
+ VQESCaSagKFQoWRCyckF/uI494wKEBdoTGfbZwOXJ4gJjvJ9Kdt7sE8mbJcoiBB1MoJ38xnXO
+ 6gM9C/qGEczb0YiSLHFhh67puAAJ5hu4U36
 X-Spam-Status: No, score=2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,FREEMAIL_FROM,MIME_BASE64_TEXT,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,RCVD_IN_SBL_CSS,SPF_HELO_NONE,SPF_PASS,
