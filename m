@@ -2,76 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2924ED732
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 11:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 585454ED734
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 11:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232786AbiCaJqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 05:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51196 "EHLO
+        id S234255AbiCaJri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 05:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234254AbiCaJqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 05:46:39 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE413DDF7
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 02:44:51 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id p10so34591564lfa.12
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 02:44:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=NM2286H2sEFmH0Lv8AT4bB+kXqSxceJ0iQg8oG0/2u4=;
-        b=lr7Gri+Nths5PcFtA/02ewL+nLgXL6nGSTPU9WU064n3SVr6VYsMIWXDfYtJ61jsZ5
-         X8MbCCTtL05tW7PtoXnDRdskyErO8xWxr9FXU566LPHqX1y6rB3fqUcJuJ9ISzr/Veq5
-         93iWTw5PUiNXPW/6Pe7hhlhdcHLysEih7k6QIdcAh17M7QR2PS8XCPdzED7mIN63lMj4
-         txVjxm7DIW5uhmGtEE1RLA+GNrxx8Tez225uqU5qY9i+KGO5dZaU+aUBonp43CFa/usR
-         NuoYEOCLjd4cQi1FMlD7KRcA1XYTs/LHEs1mJAVgkXs0D6nLFeLg7kaauqaordSBJewt
-         4puw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
-         :from:date:message-id:subject:to:content-transfer-encoding;
-        bh=NM2286H2sEFmH0Lv8AT4bB+kXqSxceJ0iQg8oG0/2u4=;
-        b=ApqV1xPESr5x68KcGAcO2kXFvOBqZEJCREKn8VFRIvFWcMKoStRF3U9VDrFXErwA1y
-         lrrqyz/xbn14gZe4GJ5pLwM/8Fuo9MctQ8fc0lD54QKSfU5plQko9aMXQn7RE9/i6iru
-         kS8Q5TswplLskpdo5easB8rY8mKaWgCJNQ/b9arMrK7oGEyOMY9zybHISPHAt4DQytAV
-         X/z3MycehSh7O76xXcek8JQkO89XOL4n51g0vCwlCpBjTEK+YwN0+Ehs8Q46hlKNf/NB
-         00m4n/4IcXNVbYbP2DXXbergxpM5RSTnuKm/W/ZDYSWELorkE5ksvRitOZxPu+0mrfpy
-         eMHA==
-X-Gm-Message-State: AOAM5306b+8k2uC5MEVnZotyVWjEnG2Zh3nzRwpmuckIZAUylXINpUGl
-        p4+R9bfHLbU8MSGRQRKqUS6FFm7tmZ8HdsGFa+E=
-X-Google-Smtp-Source: ABdhPJxGc7LejNMjoq3FltfnJQdcqsmqRB935K7uRACf2Y6fiZ0l5rBqM2ATTExCGixFDU7xnUpZs3SqpR2HsE9ohL0=
-X-Received: by 2002:a19:5e1c:0:b0:44a:143e:ba3b with SMTP id
- s28-20020a195e1c000000b0044a143eba3bmr10225777lfb.137.1648719889680; Thu, 31
- Mar 2022 02:44:49 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a2e:6e0b:0:0:0:0:0 with HTTP; Thu, 31 Mar 2022 02:44:49
- -0700 (PDT)
-Reply-To: worldbankinternational002@aol.com
-In-Reply-To: <CAPP0n-s_rr7rxE1P5P=4EfW9bOv8ZOpXfW9k0=VFrLgXUvmVZQ@mail.gmail.com>
-References: <CAPP0n-thRR5OpSRrwYkPbWK_9KWayMFs2oDHYJ0sgkUFcBPCHQ@mail.gmail.com>
- <CAPP0n-s_rr7rxE1P5P=4EfW9bOv8ZOpXfW9k0=VFrLgXUvmVZQ@mail.gmail.com>
-From:   Ora bank <ericbarry946@gmail.com>
-Date:   Thu, 31 Mar 2022 09:44:49 +0000
-Message-ID: <CAPP0n-vjONFWf=n_s+tP+5Qh9G7i-5Pm7vNOSzjZEuHTdeBJ7A@mail.gmail.com>
-Subject: evening
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=4.7 required=5.0 tests=BAYES_05,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+        with ESMTP id S234254AbiCaJrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 05:47:36 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB143E0C7;
+        Thu, 31 Mar 2022 02:45:48 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 206951FCFE;
+        Thu, 31 Mar 2022 09:45:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1648719947; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OS2wRHCfizgBTGy2KtohfZqkNzkSBqDM+7zSHA1vthY=;
+        b=QULsRmMXhx8WHkWkbYCg4f/J6f8EuzFMCzS1eePtPFJPouDvUcgxlucWvEPuiHSBQxQbEP
+        R123hDKL1W80FnotvnpfDwawIPRkdYvPcqG0fikLpDanghaErAxmV1PZWl+1VD/DmgbjMA
+        JUZDpKpu/PogHhZ496068mkDNKP9+qg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1648719947;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OS2wRHCfizgBTGy2KtohfZqkNzkSBqDM+7zSHA1vthY=;
+        b=9hhSU3ftUGYxdwdCy50z5IETxmvkOGPD3YfO8ITL7IGOWlx/xyIESGkHHzozEdlupOs4Qb
+        z02/Z09V+AIbgSCA==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 0B880A3B82;
+        Thu, 31 Mar 2022 09:45:47 +0000 (UTC)
+Date:   Thu, 31 Mar 2022 11:45:47 +0200
+Message-ID: <s5hk0cae9pw.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     Takashi Iwai <tiwai@suse.de>, Won Chung <wonchung@google.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback function
+In-Reply-To: <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
+References: <20220330211913.2068108-1-wonchung@google.com>
+        <s5hzgl6eg48.wl-tiwai@suse.de>
+        <CAOvb9yiO_n48JPZ3f0+y-fQ_YoOmuWF5c692Jt5_SKbxdA4yAw@mail.gmail.com>
+        <s5hr16ieb8o.wl-tiwai@suse.de>
+        <YkVzl4NEzwDAp/Zq@kuha.fi.intel.com>
+        <s5hmth6eaiz.wl-tiwai@suse.de>
+        <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2KLbjNinINmG2KfZhdmHINm+24zYsdmI2LLbjCDYrtmI2K8g2LHYpyDYr9ix24zYp9mB2Kog2qnY
-sdiv2Ycg2KfbjNivINqp2Ycg2LTZhdinINix2Kcg2KfYsiDYt9ix24zZgiDYotiv2LHYsyDYp9uM
-2YXbjNmEDQo2LDUwMCDZhduM2YTbjNmI2YYg2K/ZhNin2LHbjCDYtNmF2Kcg2LHYp9mH2YbZhdin
-24zbjCDZhduMINqp2YbYr9ifDQoNCjEpINin2YbYqtmC2KfZhCDYp9iyINio2KfZhtqpINio2Ycg
-2KjYp9mG2qkuDQoyKSDYqtit2YjbjNmEINin2qnYs9m+2LHYsyBBVE0NCg==
+On Thu, 31 Mar 2022 11:34:38 +0200,
+Heikki Krogerus wrote:
+> 
+> On Thu, Mar 31, 2022 at 11:28:20AM +0200, Takashi Iwai wrote:
+> > On Thu, 31 Mar 2022 11:25:43 +0200,
+> > Heikki Krogerus wrote:
+> > > 
+> > > On Thu, Mar 31, 2022 at 11:12:55AM +0200, Takashi Iwai wrote:
+> > > > > > > -     if (!strcmp(dev->driver->name, "i915") &&
+> > > > > > > +     if (dev->driver && !strcmp(dev->driver->name, "i915") &&
+> > > > > >
+> > > > > > Can NULL dev->driver be really seen?  I thought the components are
+> > > > > > added by the drivers, hence they ought to have the driver field set.
+> > > > > > But there can be corner cases I overlooked.
+> > > > > >
+> > > > > >
+> > > > > > thanks,
+> > > > > >
+> > > > > > Takashi
+> > > > > 
+> > > > > Hi Takashi,
+> > > > > 
+> > > > > When I try using component_add in a different driver (usb4 in my
+> > > > > case), I think dev->driver here is NULL because the i915 drivers do
+> > > > > not have their component master fully bound when this new component is
+> > > > > registered. When I test it, it seems to be causing a crash.
+> > > > 
+> > > > Hm, from where component_add*() is called?  Basically dev->driver must
+> > > > be already set before the corresponding driver gets bound at
+> > > > __driver_probe_deviec().  So, if the device is added to component from
+> > > > the corresponding driver's probe, dev->driver must be non-NULL.
+> > > 
+> > > The code that declares a device as component does not have to be the
+> > > driver of that device.
+> > > 
+> > > In our case the components are USB ports, and they are devices that
+> > > are actually never bind to any drivers: drivers/usb/core/port.c
+> > 
+> > OK, that's what I wanted to know.  It'd be helpful if it's more
+> > clearly mentioned in the commit log.
+> 
+> Agree.
+> 
+> > BTW, the same problem must be seen in MEI drivers, too.
+> 
+> Wasn't there a patch for those too? I lost track...
+
+I don't know, I just checked the latest Linus tree.
+
+And, looking at the HD-audio code, I still wonder how NULL dev->driver
+can reach there.  Is there any PCI device that is added to component
+without binding to a driver?  We have dev_is_pci() check at the
+beginning, so non-PCI devices should bail out there...
+
+I'm not against adding NULL checks, but just for better understanding
+the situation.
+
+
+Takashi
