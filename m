@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1064EDFE2
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 19:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83CF04EDFF8
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 19:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbiCaRsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 13:48:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59032 "EHLO
+        id S232721AbiCaR73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 13:59:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbiCaRsc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 13:48:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370E81FDFE0;
-        Thu, 31 Mar 2022 10:46:45 -0700 (PDT)
+        with ESMTP id S232758AbiCaR72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 13:59:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 763442220E2;
+        Thu, 31 Mar 2022 10:57:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD9D2B82056;
-        Thu, 31 Mar 2022 17:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39304C340ED;
-        Thu, 31 Mar 2022 17:46:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648748802;
-        bh=tbZNsTw1UdXaSnmTzwns9zjKEqYiDWFXOd0YkKvX4ps=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=W5gEZK5aC7XSZFERUEoa3UN1s9DyE9pg3SJdspREW6NKtJ5BW5ZYc+Gl4RJhVcFKb
-         oQM65BMZHl0le8/MvUXZeAzQQfZqkR6vPQGn7kjul6vSq/JsXicnLs3xWkwnCfdlxG
-         S9us6QEhyUe/R2bbo9k7WV6o9h63tKXnjVBYO1L8=
-Date:   Thu, 31 Mar 2022 19:46:39 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Benson Leung <bleung@google.com>
-Cc:     Won Chung <wonchung@google.com>, Takashi Iwai <tiwai@suse.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Benson Leung <bleung@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] sound/hda: Add NULL check to component match callback
- function
-Message-ID: <YkXo/8fEHmKxDM2S@kroah.com>
-References: <s5hmth6eaiz.wl-tiwai@suse.de>
- <YkV1rsq1SeTNd8Ud@kuha.fi.intel.com>
- <s5hk0cae9pw.wl-tiwai@suse.de>
- <s5h7d8adzdl.wl-tiwai@suse.de>
- <s5hzgl6ciho.wl-tiwai@suse.de>
- <YkXJr2KhSzHJHxRF@google.com>
- <YkXY730wWhgJkRUy@kroah.com>
- <CAOvb9yiHXAWMn2_GcOnx5FYzfbp-2TmtN-OH90r31OqgbXQ3yQ@mail.gmail.com>
- <YkXiSEyfl9vkIG2w@kroah.com>
- <YkXmBQ5TJ4JNnuQG@google.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36E93B82055;
+        Thu, 31 Mar 2022 17:57:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA542C3410F;
+        Thu, 31 Mar 2022 17:57:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648749458;
+        bh=Pd8nG9z0Q3DS24pgaW2OH5ERDzXwBcXAArJQBvW+IR8=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=NV8527sSPkm1hnVw6VVnpKW5cabOMI4XoWbMW5iwZUJmlovW9YIOp4qAhthzhvTF3
+         tu5FKaBYkAtUviG2ld1PjnK5HB3/ahc8GiVEpdLHe4StHZ2ZB+k3FeS9pyqY8WpJ4J
+         dhG9X8cOxY7GWjdkLbTWgh04rNDoGP6guaKKANupatLCQumMyxxPkvQh2lof2WuPNu
+         ZdufnC+3CG/gLwQhba8QujopE/O0gWTuj54kvH+hvQlTdEeEtn9zKGDexYm+i2cDf4
+         gvih1fyK+08OknPxpFQrcxUAMFlF5Lz2KQbsx4MmkljFRJ3RJ2Zed7ZrqL8+r7c8eQ
+         aauzDc8dm9aog==
+Received: by mail-qv1-f49.google.com with SMTP id kd21so169207qvb.6;
+        Thu, 31 Mar 2022 10:57:36 -0700 (PDT)
+X-Gm-Message-State: AOAM533aXxSrzEC9ahAm3MEcMitVaxMvTHIYrNuy31HrijgHTGhUeTdm
+        vEqyyzp/R+cr/q4wbe8JbMbcQIH/kZbMYvH8NBc=
+X-Google-Smtp-Source: ABdhPJwEVeLKB7Vs1bxXRXcyvhnkH0USk3DG0DecGzpkX4X6QfinHpsmohMAYHYQCFOhu9OfhkS+0VxRE2hhH54vVbg=
+X-Received: by 2002:ad4:5be9:0:b0:441:651c:2d23 with SMTP id
+ k9-20020ad45be9000000b00441651c2d23mr5067459qvc.5.1648749455929; Thu, 31 Mar
+ 2022 10:57:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YkXmBQ5TJ4JNnuQG@google.com>
+References: <20220328194157.1585642-1-sashal@kernel.org> <20220328194157.1585642-17-sashal@kernel.org>
+ <YkLYhad7iX2Bv/j1@debian9.Home> <YkXd9UTuFbNDNjo3@sashalap>
+In-Reply-To: <YkXd9UTuFbNDNjo3@sashalap>
+From:   Filipe Manana <fdmanana@kernel.org>
+Date:   Thu, 31 Mar 2022 18:57:00 +0100
+X-Gmail-Original-Message-ID: <CAL3q7H5x0-7w7udtt3qCGLB=OiRY29EBoj=eJWgDVkShmYOogQ@mail.gmail.com>
+Message-ID: <CAL3q7H5x0-7w7udtt3qCGLB=OiRY29EBoj=eJWgDVkShmYOogQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.17 17/21] btrfs: reset last_reflink_trans after
+ fsyncing inode
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
+        Josef Bacik <jbacik@fb.com>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -66,36 +66,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 31, 2022 at 10:33:57AM -0700, Benson Leung wrote:
-> Hi Greg,
-> 
-> On Thu, Mar 31, 2022 at 07:18:00PM +0200, Greg KH wrote:
-> > On Thu, Mar 31, 2022 at 09:58:43AM -0700, Won Chung wrote:
-> > > > So is this actually triggering on 5.17 right now?  Or is it due to some
-> > > > other not-applied changes you are testing at the moment?
-> > > >
-> > > > confused,
-> > > >
-> > > > greg k-h
-> > > 
-> > > Hi Greg,
-> > > 
-> > > I believe it is not causing an issue in 5.17 at the moment. It is
-> > > triggered when we try to apply new changes and test it locally.
-> > > (registering a component for usb4_port)
-> > 
-> > Then why would it ever be needed to be backported to a stable kernel?
-> > 
-> > Please be more careful.
-> > 
-> > greg k-h
-> 
-> Sorry about that. I gave Won bad advice to cc stable. You're right, it will
-> only be relevant when a future patch lands in usb4.
+On Thu, Mar 31, 2022 at 5:59 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Tue, Mar 29, 2022 at 10:59:33AM +0100, Filipe Manana wrote:
+> >On Mon, Mar 28, 2022 at 03:41:52PM -0400, Sasha Levin wrote:
+> >> From: Filipe Manana <fdmanana@suse.com>
+> >>
+> >> [ Upstream commit 23e3337faf73e5bb2610697977e175313d48acb0 ]
+> >>
+> >> When an inode has a last_reflink_trans matching the current transaction,
+> >> we have to take special care when logging its checksums in order to
+> >> avoid getting checksum items with overlapping ranges in a log tree,
+> >> which could result in missing checksums after log replay (more on that
+> >> in the changelogs of commit 40e046acbd2f36 ("Btrfs: fix missing data
+> >> checksums after replaying a log tree") and commit e289f03ea79bbc ("btrfs:
+> >> fix corrupt log due to concurrent fsync of inodes with shared extents")).
+> >> We also need to make sure a full fsync will copy all old file extent
+> >> items it finds in modified leaves, because they might have been copied
+> >> from some other inode.
+> >>
+> >> However once we fsync an inode, we don't need to keep paying the price of
+> >> that extra special care in future fsyncs done in the same transaction,
+> >> unless the inode is used for another reflink operation or the full sync
+> >> flag is set on it (truncate, failure to allocate extent maps for holes,
+> >> and other exceptional and infrequent cases).
+> >>
+> >> So after we fsync an inode reset its last_unlink_trans to zero. In case
+> >> another reflink happens, we continue to update the last_reflink_trans of
+> >> the inode, just as before. Also set last_reflink_trans to the generation
+> >> of the last transaction that modified the inode whenever we need to set
+> >> the full sync flag on the inode, just like when we need to load an inode
+> >> from disk after eviction.
+> >>
+> >> Signed-off-by: Filipe Manana <fdmanana@suse.com>
+> >> Signed-off-by: David Sterba <dsterba@suse.com>
+> >> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> >
+> >What's the motivation to backport this to stable?
+> >
+> >It doesn't fix a bug or any regression, as far as I know at least.
+> >Or is it to make some other backport easier?
+>
+> I wasn't sure if it's needed for completeness for the mentioned fixes,
+> so I took it. Can drop it if it's not needed.
 
-It isn't even relevant now, please only worry about this when you have
-your patches ready for submission that causes this breakage.
+Yes, please drop it. It's not needed (nor was intended) to go to any
+stable releases.
 
-thanks,
+Thanks.
 
-greg k-h
+>
+> --
+> Thanks,
+> Sasha
