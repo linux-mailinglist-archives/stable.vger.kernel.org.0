@@ -2,119 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0288A4EE1B5
-	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 21:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AA914EE208
+	for <lists+stable@lfdr.de>; Thu, 31 Mar 2022 21:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240712AbiCaTa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Mar 2022 15:30:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37368 "EHLO
+        id S240934AbiCaTo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Mar 2022 15:44:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240707AbiCaTaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 15:30:25 -0400
-Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642355623C
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 12:28:36 -0700 (PDT)
-Received: by mail-io1-xd34.google.com with SMTP id z7so729817iom.1
-        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 12:28:36 -0700 (PDT)
+        with ESMTP id S240185AbiCaTo0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Mar 2022 15:44:26 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EABF23F9F7
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 12:42:38 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id i11so492875plg.12
+        for <stable@vger.kernel.org>; Thu, 31 Mar 2022 12:42:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=KDv50hCOMSNm4tqOFej1XxVHswnaiqBQ/Ql5PRaAElM=;
-        b=hr3WMnbNxfXX92/Y0t14FpEIS4pC+09DAI6p4oWqZgWnX03dIRuX74ev7qupnrKxzX
-         n5Cz8IINdInr4rUCepEci1G0mhVdD9KS789z+ALBCwmklBUAZ+nFdcApJvLiaQ6DE1h6
-         gsrrPum6Nsrl58HvbzUvPWVrmzlfcNkgPf0Os=
+        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
+        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FLmyF/ADmt/SVOlekhuzZ5m0Y9Svgpyvb8XZ74qoiUI=;
+        b=pD5w7XtghtGzZsLNW7+14BYv/55evR2ezIh8Iq4+xg6pZOAnWHAiX9ZRBAu0XS59Wf
+         N74V4845Tv6DT+5Dm0o+pl3vuVQhHgw4cU5/HMOhaaoznrq5Hw2C32QqBfTAwa8MARTd
+         ywo04mo3WS6B4A3l358e75e/CyMVVMxAEgCdCbsWZWfkJEVwqyWNWTnzCJh65WGHttNZ
+         P3PDq6ZYQ7bvnFUniZ2NB67FbZmFgD95V8kqLwtvOyGU2Vtg2UAWl31CBNCyBZyOgaTM
+         4J5tj9IrSs6JLK7mJiXkDy+g5HAlbFgO7fPSUUhfcS1SkngyOhlzj8LcWQMJNHsKluL+
+         rrWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=KDv50hCOMSNm4tqOFej1XxVHswnaiqBQ/Ql5PRaAElM=;
-        b=hLsGRHGvM6hl7rwKfM9I9w6IFPjw9MprMZJ/arL/fsp5IfCuYbCCenKT/DsshtmgjC
-         kt6AyX9339FfhoQF0lKEySE129neiqD0bsKN5QNFxP8WNVLCGRnhB3nP82cZbpYm/2wR
-         ywt297HV9Kyfg3HtAJMB0Gz84PQ2k32heNFEDyYAb+YLvyEnVX9qAdiVqBZtpumAjmQM
-         ra1QVhS0qiK3eIuw/fyW1hDqvlK3AW3OolF314GFPnLeWB0nyPQXLgGdphbGzk0HJTYQ
-         9yV/PRNXsnhAh9Wn/Agljn2po8Esx8m/gAZLZUBjr6pmwx5HsVYKvCw894MAO/XdHUlC
-         qPeQ==
-X-Gm-Message-State: AOAM532Bc5MYyJXLw/F+gWZyLmxLKR3PkFiAhIQ7ezw9XIsE3pxNBLfN
-        30axEYDcUicOE3OmWvVsZ+LWkg==
-X-Google-Smtp-Source: ABdhPJxfJ3AXDmXIug9uhpRb3ABjQOmyzzRYZ0nfXa4ivrk5be6vqTiSy892fiqB2bYpvFEb5d7u9Q==
-X-Received: by 2002:a02:7fc9:0:b0:323:6239:cfdb with SMTP id r192-20020a027fc9000000b003236239cfdbmr3849890jac.186.1648754915705;
-        Thu, 31 Mar 2022 12:28:35 -0700 (PDT)
-Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id k12-20020a056e02156c00b002c9ad2b3dc4sm168559ilu.74.2022.03.31.12.28.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 31 Mar 2022 12:28:35 -0700 (PDT)
-Subject: Re: [PATCH] selftest/vm: clarify error statement in gup_test
-To:     Sidhartha Kumar <sidhartha.kumar@oracle.com>, shuah@kernel.org,
-        akpm@linux-foundation.org
-Cc:     linux-mm@kvack.org, linux-kselftest@vger.kernel.org,
+        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
+         :mime-version:content-transfer-encoding;
+        bh=FLmyF/ADmt/SVOlekhuzZ5m0Y9Svgpyvb8XZ74qoiUI=;
+        b=dcqkS2odqf0h9DwJ3ZGaVtwCaMDd0XNB91a+CzdYJwhSpHMQpUmHOtRqL0LVGNq//f
+         loczCiDHLsuwoOpuYBJhQbJCUzU27+fld7WIHHtSzfiAokLvdB1HaZxg2VfXMJD7f6el
+         U2tNObb11uPynSDM8+NXd05/p6Z3E2MivA9O+os64mk83HO8FwdHMvhtSZXx4hlGBTxX
+         310LPM2ymhXRquqfQU8EhScGAoG78StuQkXreJGwD9rlEfSP9gXW13oIHp9mOgX+PhYX
+         nF9D+C2NNn4cE1owe6MJQMPDSZVbMIlAe12rHrf2QOe/Jl4Q7ET5MX2Mf0Amc+5a+Wt4
+         pRWg==
+X-Gm-Message-State: AOAM530nhHTFN7gEYr4CX6QY8Gx5+Sc2hj7z8xnaFzZdO09d9nTmlqqb
+        hpAM1AfNISOnyWURIK9+FwMd5A==
+X-Google-Smtp-Source: ABdhPJxaGZz1vhPYU1kLfpDIJMLn2dWkfNb3LGwg9IPLvlr/r2wlcOtYuaK9JMWEpE/iAoqv3DfpXQ==
+X-Received: by 2002:a17:90b:2242:b0:1c6:80e3:71b6 with SMTP id hk2-20020a17090b224200b001c680e371b6mr7866471pjb.152.1648755757630;
+        Thu, 31 Mar 2022 12:42:37 -0700 (PDT)
+Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
+        by smtp.gmail.com with ESMTPSA id r8-20020a17090a0ac800b001c9e35d3a3asm155420pje.24.2022.03.31.12.42.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Mar 2022 12:42:36 -0700 (PDT)
+Date:   Thu, 31 Mar 2022 12:42:36 -0700 (PDT)
+X-Google-Original-Date: Thu, 31 Mar 2022 12:42:29 PDT (-0700)
+Subject:     Re: [PATCH] riscv: fix build with binutils 2.38
+In-Reply-To: <CAHk-=wjnuMD091mNbY=fRm-qFyhMjbtfiwkAFKyFehyR8bPB5A@mail.gmail.com>
+CC:     mkl@pengutronix.de, aurelien@aurel32.net,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220330215257.112029-1-sidhartha.kumar@oracle.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <9a752af3-8e3f-bfc5-eb24-eadcaf800bd5@linuxfoundation.org>
-Date:   Thu, 31 Mar 2022 13:28:34 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
-MIME-Version: 1.0
-In-Reply-To: <20220330215257.112029-1-sidhartha.kumar@oracle.com>
+        Kito Cheng <kito.cheng@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org,
+        linux-sparse@vger.kernel.org, ukl@pengutronix.de,
+        luc.vanoostenryck@gmail.com
+From:   Palmer Dabbelt <palmer@dabbelt.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Message-ID: <mhng-7e447636-2324-406b-9cfc-e5cf766b1737@palmer-mbp2014>
+Mime-Version: 1.0 (MHng)
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/30/22 3:52 PM, Sidhartha Kumar wrote:
-> Print two possible reasons /sys/kernel/debug/gup_test
-> cannot be opened to help users of this test diagnose
-> failures.
-> 
+On Thu, 31 Mar 2022 11:16:53 PDT (-0700), Linus Torvalds wrote:
+> On Thu, Mar 31, 2022 at 3:51 AM Marc Kleine-Budde <mkl@pengutronix.de> wrote:
+>>
+>> Cc += linux-sparse, Uwe, Luc Van Oostenryck
+>>
+>> tl;dr:
+>>
+>> A recent change in the kernel regarding the riscv -march handling breaks
+>> current sparse.
 
-Thank you for the patch to improve rather cryptic error messages.
+Sorry about that, looks like I'm not running sparse as part of my 
+testing.  I'll add it, but it might take a bit as I'm assuming there 
+will be a bunch of issues it points out.
 
-> Signed-off-by: Sidhartha Kumar <sidhartha.kumar@oracle.com>
-> Cc: stable@vger.kernel.org # 5.15+
-> ---
->   tools/testing/selftests/vm/gup_test.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/tools/testing/selftests/vm/gup_test.c b/tools/testing/selftests/vm/gup_test.c
-> index fe043f67798b0..c496bcefa7a0e 100644
-> --- a/tools/testing/selftests/vm/gup_test.c
-> +++ b/tools/testing/selftests/vm/gup_test.c
-> @@ -205,7 +205,9 @@ int main(int argc, char **argv)
->   
->   	gup_fd = open("/sys/kernel/debug/gup_test", O_RDWR);
->   	if (gup_fd == -1) {
-> -		perror("open");
-> +		perror("failed to open /sys/kernel/debug/gup_test");
-> +		printf("check if CONFIG_GUP_TEST is enabled in kernel config\n");
-> +		printf("check if debugfs is mounted at /sys/kernel/debug\n");
+> Gaah. Normally sparse doesn't even look at the -march flag, but for
+> riscv it does, because it's meaningful for the predefined macros.
+>
+> Maybe that 'die()' shouldn't be so fatal. And maybe add a few more
+> extensions (but ignore them) to the parsing.
+>
+> Something ENTIRELY UNTESTED like the attached.
 
-Instead of adding 3 messages in a row, please check the errno to figure
-out why it failed and print an appropriate message.
+Converting this to a warning seems reasonable to me, as then we're not 
+as coupled to the sparse version.  The current crop of extensions don't 
+set anything exciting for Linux, but there are some on the horizon that 
+likely will -- hopefully having sparse in my test setup should be 
+sufficient to dig those up, though.
 
-If open fails because CONFIG_GUP_TEST is not enabled, the test should skip
-the test instead of fail. Failing will indicate a test failure which is not
-the case. The test couldn't be run due to unmet dependencies.
+As far as the new extension go: "Counters" isn't an ISA extension, and 
+"e" defines "__riscv_32e".  It'd also be slightly saner to match on 
+"_Zifencei", but that probably doesn't matter (GCC is sufficiently 
+strict here).  Looks like there's also some oddities in the sparse ISA 
+string parsing, I'll go clean them up as I get it running locally.
 
-This test requires root access. A check for root privilege and skip the
-test for the same reason stated above.
-
->   		exit(1);
->   	}
->   
-> 
-
-Please send v2 with these changes.
-
-thanks,
--- Shuah
+We could also stop relying on the compiler's defines, which would avoid 
+this problem entirely, but IIRC that was discussed when decided to 
+modify sparse in the first place and we went this way (though I don't 
+remember why).  That would keep everything inside the kernel.
