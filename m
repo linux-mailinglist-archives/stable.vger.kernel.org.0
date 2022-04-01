@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 558374EF0D9
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37C34EF106
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:39:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347779AbiDAOgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:36:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39100 "EHLO
+        id S1347762AbiDAOf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348309AbiDAOdy (ORCPT
+        with ESMTP id S1348306AbiDAOdy (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:33:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCB9BB7F6;
-        Fri,  1 Apr 2022 07:31:57 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F168B86E;
+        Fri,  1 Apr 2022 07:32:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BC8561CCD;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58128B8250D;
+        Fri,  1 Apr 2022 14:31:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55A4FC34111;
         Fri,  1 Apr 2022 14:31:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8C3EC340EE;
-        Fri,  1 Apr 2022 14:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823516;
-        bh=3zdgk+amzkz5hnhB65s9Sk8Gho2/tyIKqasTtRUMeCk=;
+        s=k20201202; t=1648823518;
+        bh=ByhBYzofePU6Tas8c4DovQWKKLR8w9G3c/X2fMZCPFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGgsFEXjJIvREjzjBhGUlljlBVngRQNFDqGIBEKxkFi25GRixw30QfX9fAa0xSXkr
-         15DqnFz90iDYby8lyBpXrsj3LWLDAGhLz6jnzGxh9JVg/KICGXI7/Y1siNXAd0j35d
-         ij9iw9aYJrzbJWaAcs8T7k/zCpfMbFfccF2nhhB+Rc88Mj5E88Z02d/XPeHS4duzLW
-         DOix46uY01/alrb3c7KngMxi63IxE+rSXCQpQLUZ61KY/KatCKSC41wp5jss01bCcH
-         SABRVVQ4QaVFL0CR7ghNk0g5/A8ptPBVMNhsdzg+jkgvkQ1x/a4rGV3Eod072YA6Lo
-         YWYtjwN+w3wEQ==
+        b=pcW86vdqUNyfc6148X4vXlajq8712UxiPDFaLOw92U7o8DGK++qIdQU/FeqCEZjPe
+         4GA5tmYYvIPyaALjq8PYxO5h3njp9OSVhxoTv2BNWY/sXEUIUbFKxC0kx7qKzNUYhX
+         ZnZAtXEW59QIWWZiEVcwqB4toCd6sHp1jH6Gb7wLSmU9pp8a+tORfHUg1r36J/Q2ms
+         X2X23tk67vHrQZBTBoENXKXxIx7bbZq1pLgbFXyh/ASwK1dyabSNbQPbudpD9C5Z57
+         dMXn/EfWeNJ2F26QAvFXSOIqUtTpS3uHoiIHKfaqjQSUyCHYphpsRrURNdgIy3ffnB
+         rcGJVE0llGogw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jianglei Nie <niejianglei2021@163.com>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 125/149] scsi: libfc: Fix use after free in fc_exch_abts_resp()
-Date:   Fri,  1 Apr 2022 10:25:12 -0400
-Message-Id: <20220401142536.1948161-125-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 126/149] platform/x86: x86-android-tablets: Depend on EFI and SPI
+Date:   Fri,  1 Apr 2022 10:25:13 -0400
+Message-Id: <20220401142536.1948161-126-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -58,37 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 271add11994ba1a334859069367e04d2be2ebdd4 ]
+[ Upstream commit 1e8aa2aa1274953e8e595f0630436744597d0d64 ]
 
-fc_exch_release(ep) will decrease the ep's reference count. When the
-reference count reaches zero, it is freed. But ep is still used in the
-following code, which will lead to a use after free.
+The recently added support for Lenovo Yoga Tablet 2 tablets uses
+symbols from EFI and SPI add "depends on EFI && SPI" to the
+X86_ANDROID_TABLETS Kconfig entry.
 
-Return after the fc_exch_release() call to avoid use after free.
-
-Link: https://lore.kernel.org/r/20220303015115.459778-1-niejianglei2021@163.com
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20220308152942.262130-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_exch.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
-index 841000445b9a..aa223db4cf53 100644
---- a/drivers/scsi/libfc/fc_exch.c
-+++ b/drivers/scsi/libfc/fc_exch.c
-@@ -1701,6 +1701,7 @@ static void fc_exch_abts_resp(struct fc_exch *ep, struct fc_frame *fp)
- 	if (cancel_delayed_work_sync(&ep->timeout_work)) {
- 		FC_EXCH_DBG(ep, "Exchange timer canceled due to ABTS response\n");
- 		fc_exch_release(ep);	/* release from pending timer hold */
-+		return;
- 	}
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 24deeeb29af2..53abd553b842 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -1027,7 +1027,7 @@ config TOUCHSCREEN_DMI
  
- 	spin_lock_bh(&ep->ex_lock);
+ config X86_ANDROID_TABLETS
+ 	tristate "X86 Android tablet support"
+-	depends on I2C && SERIAL_DEV_BUS && ACPI && GPIOLIB
++	depends on I2C && SPI && SERIAL_DEV_BUS && ACPI && EFI && GPIOLIB
+ 	help
+ 	  X86 tablets which ship with Android as (part of) the factory image
+ 	  typically have various problems with their DSDTs. The factory kernels
 -- 
 2.34.1
 
