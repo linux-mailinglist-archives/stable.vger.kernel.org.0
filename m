@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1EE04EF068
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:33:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46164EF12A
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347466AbiDAOf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:35:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38404 "EHLO
+        id S1348172AbiDAOho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:37:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347683AbiDAOd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:33:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66AF126B593;
-        Fri,  1 Apr 2022 07:30:34 -0700 (PDT)
+        with ESMTP id S1347717AbiDAOda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:33:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854C527CE21;
+        Fri,  1 Apr 2022 07:30:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB42B61CE5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19211B824D5;
+        Fri,  1 Apr 2022 14:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF398C34111;
         Fri,  1 Apr 2022 14:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A83C2BBE4;
-        Fri,  1 Apr 2022 14:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823433;
-        bh=FqPKhz65cLe+F8JBBk9WgDK9u85F0RIQc3mjbm+xiHI=;
+        s=k20201202; t=1648823434;
+        bh=RC/q1JVCEkuM3JuNHi6fRnuxwQ+cQCQYeX4Xc0dfUug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5Jp7Y58TPr7y6fAACVjw3ct5DuDiI2BCU/6B+3c+w446LO+FowXWOAkFALWTooCl
-         NJqIroLy63rA1J6MGVjCWHXc57YKxynPG9zCKm7UPkqNVXSTz14rIqnJDKcMvMjONf
-         zgqmLbhhLlEHE65J1kuVoSPO6Q/njgkdlMt6tfziULbYTyoXUtZKVd0owcDzYW5Swz
-         v8Iuw5ZFZUwdV4AwGRxDt0Xdcf5V0mSeXkCsgsDFW7neRBNqPqEPJgO4Gb7RL6DJWW
-         PJby1BBxFy37CJ0oYBtognvccnXMIKyV7lmpTuW6d9Qak8Dkc28vK0ATvVKg6uiK/q
-         gTT2RTCYVaofw==
+        b=Orlz7cIHLWbhDv26DeENJ8eYZaw76qewxOO8IW0VotM7Vmu2KbAVG6UZI8lz5XpGT
+         7KvmNGauE1w5F1azPbz9iKWShHTfp/9Avobvh4HSxeE7zB0WT1zFF115JaXTd9WrDD
+         7keTvexXgLzDvJ7tFLQe6aFmziemIxOSwy7gMD+IeFDFiWcX3OgeeQORv6B7u33Jdb
+         6Y5FwjVY6RWJqXpHXH1ksY+4UzsIpQ32cLDWzQiT3v6dozzY1KrohtYOYIacu+nV/0
+         d9eWKP5eakJY7ScbmfvuCzbzYm4aTXG9mmxO+1qzRtM+6WGGEgTlPfRlu2cBGDtsjc
+         31nR5cgHvin7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>, yishaih@nvidia.com,
-        mgurtovoy@nvidia.com, jgg@ziepe.ca, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 092/149] vfio/pci: Stub vfio_pci_vga_rw when !CONFIG_VFIO_PCI_VGA
-Date:   Fri,  1 Apr 2022 10:24:39 -0400
-Message-Id: <20220401142536.1948161-92-sashal@kernel.org>
+Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
+        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 093/149] scsi: pm8001: Fix pm80xx_pci_mem_copy() interface
+Date:   Fri,  1 Apr 2022 10:24:40 -0400
+Message-Id: <20220401142536.1948161-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -57,67 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 6e031ec0e5a2dda53e12e0d2a7e9b15b47a3c502 ]
+[ Upstream commit 3762d8f6edcdb03994c919f9487fd6d336c06561 ]
 
-Resolve build errors reported against UML build for undefined
-ioport_map() and ioport_unmap() functions.  Without this config
-option a device cannot have vfio_pci_core_device.has_vga set,
-so the existing function would always return -EINVAL anyway.
+The declaration of the local variable destination1 in pm80xx_pci_mem_copy()
+as a pointer to a u32 results in the sparse warning:
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20220123125737.2658758-1-geert@linux-m68k.org
-Link: https://lore.kernel.org/r/164306582968.3758255.15192949639574660648.stgit@omen
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+warning: incorrect type in assignment (different base types)
+    expected unsigned int [usertype]
+    got restricted __le32 [usertype]
+
+Furthermore, the destination" argument of pm80xx_pci_mem_copy() is wrongly
+declared with the const attribute.
+
+Fix both problems by changing the type of the "destination" argument to
+"__le32 *" and use this argument directly inside the pm80xx_pci_mem_copy()
+function, thus removing the need for the destination1 local variable.
+
+Link: https://lore.kernel.org/r/20220220031810.738362-6-damien.lemoal@opensource.wdc.com
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_rdwr.c | 2 ++
- include/linux/vfio_pci_core.h    | 9 +++++++++
- 2 files changed, 11 insertions(+)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 57d3b2cbbd8e..82ac1569deb0 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -288,6 +288,7 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 	return done;
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 9d20f8009b89..f6b9253e626b 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -67,18 +67,16 @@ int pm80xx_bar4_shift(struct pm8001_hba_info *pm8001_ha, u32 shift_value)
  }
  
-+#ifdef CONFIG_VFIO_PCI_VGA
- ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			       size_t count, loff_t *ppos, bool iswrite)
+ static void pm80xx_pci_mem_copy(struct pm8001_hba_info  *pm8001_ha, u32 soffset,
+-				const void *destination,
++				__le32 *destination,
+ 				u32 dw_count, u32 bus_base_number)
  {
-@@ -355,6 +356,7 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
+ 	u32 index, value, offset;
+-	u32 *destination1;
+-	destination1 = (u32 *)destination;
  
- 	return done;
- }
-+#endif
- 
- static void vfio_pci_ioeventfd_do_write(struct vfio_pci_ioeventfd *ioeventfd,
- 					bool test_mem)
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index ef9a44b6cf5d..ae6f4838ab75 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -159,8 +159,17 @@ extern ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev,
- extern ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			       size_t count, loff_t *ppos, bool iswrite);
- 
-+#ifdef CONFIG_VFIO_PCI_VGA
- extern ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			       size_t count, loff_t *ppos, bool iswrite);
-+#else
-+static inline ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev,
-+				      char __user *buf, size_t count,
-+				      loff_t *ppos, bool iswrite)
-+{
-+	return -EINVAL;
-+}
-+#endif
- 
- extern long vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
- 			       uint64_t data, int count, int fd);
+-	for (index = 0; index < dw_count; index += 4, destination1++) {
++	for (index = 0; index < dw_count; index += 4, destination++) {
+ 		offset = (soffset + index);
+ 		if (offset < (64 * 1024)) {
+ 			value = pm8001_cr32(pm8001_ha, bus_base_number, offset);
+-			*destination1 =  cpu_to_le32(value);
++			*destination = cpu_to_le32(value);
+ 		}
+ 	}
+ 	return;
 -- 
 2.34.1
 
