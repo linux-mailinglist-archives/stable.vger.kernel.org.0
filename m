@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ABC04EF298
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D844EF575
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351124AbiDAPFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:05:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42350 "EHLO
+        id S1355166AbiDAPON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:14:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349653AbiDAO5H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:57:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11AF15040E;
-        Fri,  1 Apr 2022 07:44:37 -0700 (PDT)
+        with ESMTP id S1349490AbiDAO5n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:57:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19AD915405E;
+        Fri,  1 Apr 2022 07:44:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D5EB60AD8;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 84F29CE2589;
+        Fri,  1 Apr 2022 14:44:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36AEAC2BBE4;
         Fri,  1 Apr 2022 14:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99C81C34111;
-        Fri,  1 Apr 2022 14:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824276;
-        bh=8gh+4Mhbk2luWoalZsJvkPybHUn5HxFJvrvm+ZoaMyE=;
+        s=k20201202; t=1648824277;
+        bh=2SIjq9Xu9eYXN3ivwUc1NyjMjJKaqe9VVdl9oudmKek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ieWwYrO70pKY+GVO5kR07MJvhzp4AEhqWYyiKesyglHn7zrk0OPPmkIrWfkrrbnxe
-         OlGPW6aFZHdwXdA0v+X0UDNlMxoZkIdbEzW2Hn2Oiz9/TLehOm+efhNtu8idwopqWu
-         kiGFBfAVvo+CP6yFCptFOyC9X7Dhdu54aLKpY5M62BPsD/ZDkb2WhgBFas0XoVLt2B
-         lxWVGM6q6GlSk0EIU89q25qiVVJIZuqEL6HkUplVPUJctsTFCIv3B5hJsbf09q6cfR
-         4kAZOLiyKQapRQTAqrmTCtedXxN1xR8aLVPtIsTtvty1MtCdzkeeOT/En1Ym2Wiwkj
-         GgJPo1vaEGxOA==
+        b=d8/E7WdUCVmgfOSUDF1DhY1iCcPYvYdYjouuHdhID/M08SPOUgqkmHrHZ+JoHl4nR
+         IfEzezzHT6JizBDl3w3pHxFtcd5hIEIEdz+4dxoUhoIF3jY+h6QKhG0uaFtsnfh9RO
+         9Pg33Fpk/CJ37VOTKMI80/Y5oghHO7nxjdI8dhrEuEJa4nnGpA7t9aSf/NlGY7fbR/
+         KFi8uVNAZ5m4wOIR160gZc4gQGClBW9gN4SiRvYG8k/BjGZAGjNVYcl6d5xRpMlOjp
+         pQiWnEi6k4l9KQPEkBQNJKrwu9miZRW8ZeNhYhN3Ps5G0SFwhivRfPtsX1XsZFRfDO
+         f3xwR8tGiS0PQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Yufen <wangyufen@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        pabeni@redhat.com, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 62/65] netlabel: fix out-of-bounds memory accesses
-Date:   Fri,  1 Apr 2022 10:42:03 -0400
-Message-Id: <20220401144206.1953700-62-sashal@kernel.org>
+Cc:     Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 63/65] ceph: fix memory leak in ceph_readdir when note_last_dentry returns error
+Date:   Fri,  1 Apr 2022 10:42:04 -0400
+Message-Id: <20220401144206.1953700-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144206.1953700-1-sashal@kernel.org>
 References: <20220401144206.1953700-1-sashal@kernel.org>
@@ -59,68 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit f22881de730ebd472e15bcc2c0d1d46e36a87b9c ]
+[ Upstream commit f639d9867eea647005dc824e0e24f39ffc50d4e4 ]
 
-In calipso_map_cat_ntoh(), in the for loop, if the return value of
-netlbl_bitmap_walk() is equal to (net_clen_bits - 1), when
-netlbl_bitmap_walk() is called next time, out-of-bounds memory accesses
-of bitmap[byte_offset] occurs.
+Reset the last_readdir at the same time, and add a comment explaining
+why we don't free last_readdir when dir_emit returns false.
 
-The bug was found during fuzzing. The following is the fuzzing report
- BUG: KASAN: slab-out-of-bounds in netlbl_bitmap_walk+0x3c/0xd0
- Read of size 1 at addr ffffff8107bf6f70 by task err_OH/252
-
- CPU: 7 PID: 252 Comm: err_OH Not tainted 5.17.0-rc7+ #17
- Hardware name: linux,dummy-virt (DT)
- Call trace:
-  dump_backtrace+0x21c/0x230
-  show_stack+0x1c/0x60
-  dump_stack_lvl+0x64/0x7c
-  print_address_description.constprop.0+0x70/0x2d0
-  __kasan_report+0x158/0x16c
-  kasan_report+0x74/0x120
-  __asan_load1+0x80/0xa0
-  netlbl_bitmap_walk+0x3c/0xd0
-  calipso_opt_getattr+0x1a8/0x230
-  calipso_sock_getattr+0x218/0x340
-  calipso_sock_getattr+0x44/0x60
-  netlbl_sock_getattr+0x44/0x80
-  selinux_netlbl_socket_setsockopt+0x138/0x170
-  selinux_socket_setsockopt+0x4c/0x60
-  security_socket_setsockopt+0x4c/0x90
-  __sys_setsockopt+0xbc/0x2b0
-  __arm64_sys_setsockopt+0x6c/0x84
-  invoke_syscall+0x64/0x190
-  el0_svc_common.constprop.0+0x88/0x200
-  do_el0_svc+0x88/0xa0
-  el0_svc+0x128/0x1b0
-  el0t_64_sync_handler+0x9c/0x120
-  el0t_64_sync+0x16c/0x170
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlabel/netlabel_kapi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ceph/dir.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index 5e1239cef000..91b35b7c80d8 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -885,6 +885,8 @@ int netlbl_bitmap_walk(const unsigned char *bitmap, u32 bitmap_len,
- 	unsigned char bitmask;
- 	unsigned char byte;
- 
-+	if (offset >= bitmap_len)
-+		return -1;
- 	byte_offset = offset / 8;
- 	byte = bitmap[byte_offset];
- 	bit_spot = offset;
+diff --git a/fs/ceph/dir.c b/fs/ceph/dir.c
+index f63c1a090139..1fddb9cd3e88 100644
+--- a/fs/ceph/dir.c
++++ b/fs/ceph/dir.c
+@@ -478,8 +478,11 @@ static int ceph_readdir(struct file *file, struct dir_context *ctx)
+ 					2 : (fpos_off(rde->offset) + 1);
+ 			err = note_last_dentry(dfi, rde->name, rde->name_len,
+ 					       next_offset);
+-			if (err)
++			if (err) {
++				ceph_mdsc_put_request(dfi->last_readdir);
++				dfi->last_readdir = NULL;
+ 				return err;
++			}
+ 		} else if (req->r_reply_info.dir_end) {
+ 			dfi->next_offset = 2;
+ 			/* keep last name */
+@@ -520,6 +523,12 @@ static int ceph_readdir(struct file *file, struct dir_context *ctx)
+ 		if (!dir_emit(ctx, rde->name, rde->name_len,
+ 			      ceph_present_ino(inode->i_sb, le64_to_cpu(rde->inode.in->ino)),
+ 			      le32_to_cpu(rde->inode.in->mode) >> 12)) {
++			/*
++			 * NOTE: Here no need to put the 'dfi->last_readdir',
++			 * because when dir_emit stops us it's most likely
++			 * doesn't have enough memory, etc. So for next readdir
++			 * it will continue.
++			 */
+ 			dout("filldir stopping us...\n");
+ 			return 0;
+ 		}
 -- 
 2.34.1
 
