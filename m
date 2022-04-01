@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 983164EF0CC
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D004EF150
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:40:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347948AbiDAOgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39610 "EHLO
+        id S1348209AbiDAOht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:37:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347624AbiDAOdP (ORCPT
+        with ESMTP id S1347633AbiDAOdP (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:33:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B0125845E;
-        Fri,  1 Apr 2022 07:30:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6622F25664E;
+        Fri,  1 Apr 2022 07:30:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9469B82507;
-        Fri,  1 Apr 2022 14:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15253C2BBE4;
-        Fri,  1 Apr 2022 14:30:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D636B8240E;
+        Fri,  1 Apr 2022 14:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D23BC36AF8;
+        Fri,  1 Apr 2022 14:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823416;
-        bh=P1qmtvTvbAosRiPmOJrhHgT+I3aEB92MB2blXWFUFOU=;
+        s=k20201202; t=1648823418;
+        bh=fClYw0h0vjp076jfaNI0Hj1eCWF7x7bOsKy8xtc1bWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dr1u9Nk368FK6SoIQxr4qFbzj4zmUYoz19o8ZpHNOuh+bo0OTP5awt+N3JHKkppBY
-         LCsod78OZ8x+treIhvuN63MPotq+kCkqr0to1RY6OysDDc0A1RQtj+UYtnceQgxtND
-         JvYAbx3CCz2faE+Ii3WpJZtNl1JCxJ/OieCI5iq7uGPyjRfZXO8fuVI/QCgu+xW/AM
-         O8vgzaR5ceBHZWvTpNZVoLdBlAwOgR/JULKi3gN4Ed7+/oKtOUBHXEls4MCekcYHVH
-         7WCg4W5UddRCE++mDtV5ZMuYbPd0Qe2ZBGZ9yoregttNbEnTWXlvlyn+gkmqJ07jx8
-         d77aZ5ROuzpCQ==
+        b=YTN7GacEnXpcROdzZf+e2Cc9r8fgr+BbqEfy2dQRMqpNUfRo9xPB0KLYXqWOynsLA
+         5syYGH/pGx7PfaRmOWqSkXT+AZoxsRgNBSugkLmUBvW1cOr3555EKd/NpZNrx7178A
+         j2GLnLAGziM+ViOJdVQ9owm2/rwo5JCCbrOwIXX4dkhfmlBA3LE+Wygoo196lArg3+
+         a4kydj68wtsoPr4/gINqRc0QXbRbfH+1vvgvbuMnWYVr7QbDkv6LiksGxFvqplRz+j
+         21XaIUZKddBN678baG6AoyfCsfXRXcSsZKt5RbAhVYU/h8dmKOKyp5Kf/Gfp3gVJMV
+         JxMkP0J1JYocA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jue Wang <juew@google.com>, Borislav Petkov <bp@suse.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>, bp@alien8.de,
-        tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com,
-        x86@kernel.org, linux-edac@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 084/149] x86/mce: Work around an erratum on fast string copy instructions
-Date:   Fri,  1 Apr 2022 10:24:31 -0400
-Message-Id: <20220401142536.1948161-84-sashal@kernel.org>
+Cc:     Jiri Kosina <jkosina@suse.cz>, Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 085/149] rtw89: fix RCU usage in rtw89_core_txq_push()
+Date:   Fri,  1 Apr 2022 10:24:32 -0400
+Message-Id: <20220401142536.1948161-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -58,187 +57,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jue Wang <juew@google.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit 8ca97812c3c830573f965a07bbd84223e8c5f5bd ]
+[ Upstream commit f3d825a35920714fb7f73e4d4f36ea2328860660 ]
 
-A rare kernel panic scenario can happen when the following conditions
-are met due to an erratum on fast string copy instructions:
+ieee80211_tx_h_select_key() is performing a series of RCU dereferences,
+but rtw89_core_txq_push() is calling it (via ieee80211_tx_dequeue_ni())
+without RCU read-side lock held; fix that.
 
-1) An uncorrected error.
-2) That error must be in first cache line of a page.
-3) Kernel must execute page_copy from the page immediately before that
-page.
+This addresses the splat below.
 
-The fast string copy instructions ("REP; MOVS*") could consume an
-uncorrectable memory error in the cache line _right after_ the desired
-region to copy and raise an MCE.
+ =============================
+ WARNING: suspicious RCU usage
+ 5.17.0-rc4-00003-gccad664b7f14 #3 Tainted: G            E
+ -----------------------------
+ net/mac80211/tx.c:593 suspicious rcu_dereference_check() usage!
 
-Bit 0 of MSR_IA32_MISC_ENABLE can be cleared to disable fast string
-copy and will avoid such spurious machine checks. However, that is less
-preferable due to the permanent performance impact. Considering memory
-poison is rare, it's desirable to keep fast string copy enabled until an
-MCE is seen.
+ other info that might help us debug this:
 
-Intel has confirmed the following:
-1. The CPU erratum of fast string copy only applies to Skylake,
-Cascade Lake and Cooper Lake generations.
+ rcu_scheduler_active = 2, debug_locks = 1
+ 2 locks held by kworker/u33:0/184:
+  #0: ffff9c0b14811d38 ((wq_completion)rtw89_tx_wq){+.+.}-{0:0}, at: process_one_work+0x258/0x660
+  #1: ffffb97380cf3e78 ((work_completion)(&rtwdev->txq_work)){+.+.}-{0:0}, at: process_one_work+0x258/0x660
 
-Directly return from the MCE handler:
-2. Will result in complete execution of the "REP; MOVS*" with no data
-loss or corruption.
-3. Will not result in another MCE firing on the next poisoned cache line
-due to "REP; MOVS*".
-4. Will resume execution from a correct point in code.
-5. Will result in the same instruction that triggered the MCE firing a
-second MCE immediately for any other software recoverable data fetch
-errors.
-6. Is not safe without disabling the fast string copy, as the next fast
-string copy of the same buffer on the same CPU would result in a PANIC
-MCE.
+ stack backtrace:
+ CPU: 8 PID: 184 Comm: kworker/u33:0 Tainted: G            E     5.17.0-rc4-00003-gccad664b7f14 #3 473b49ab0e7c2d6af2900c756bfd04efd7a9de13
+ Hardware name: LENOVO 20UJS2B905/20UJS2B905, BIOS R1CET63W(1.32 ) 04/09/2021
+ Workqueue: rtw89_tx_wq rtw89_core_txq_work [rtw89_core]
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x58/0x71
+  ieee80211_tx_h_select_key+0x2c0/0x530 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
+  ieee80211_tx_dequeue+0x1a7/0x1260 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
+  rtw89_core_txq_work+0x1a6/0x420 [rtw89_core b39ba493f2e517ad75e0f8187ecc24edf58bbbea]
+  process_one_work+0x2d8/0x660
+  worker_thread+0x39/0x3e0
+  ? process_one_work+0x660/0x660
+  kthread+0xe5/0x110
+  ? kthread_complete_and_exit+0x20/0x20
+  ret_from_fork+0x22/0x30
+  </TASK>
 
-This should mitigate the erratum completely with the only caveat that
-the fast string copy is disabled on the affected hyper thread thus
-performance degradation.
+ =============================
+ WARNING: suspicious RCU usage
+ 5.17.0-rc4-00003-gccad664b7f14 #3 Tainted: G            E
+ -----------------------------
+ net/mac80211/tx.c:607 suspicious rcu_dereference_check() usage!
 
-This is still better than the OS crashing on MCEs raised on an
-irrelevant process due to "REP; MOVS*' accesses in a kernel context,
-e.g., copy_page.
+ other info that might help us debug this:
 
-Tested:
+ rcu_scheduler_active = 2, debug_locks = 1
+ 2 locks held by kworker/u33:0/184:
+  #0: ffff9c0b14811d38 ((wq_completion)rtw89_tx_wq){+.+.}-{0:0}, at: process_one_work+0x258/0x660
+  #1: ffffb97380cf3e78 ((work_completion)(&rtwdev->txq_work)){+.+.}-{0:0}, at: process_one_work+0x258/0x660
 
-Injected errors on 1st cache line of 8 anonymous pages of process
-'proc1' and observed MCE consumption from 'proc2' with no panic
-(directly returned).
+ stack backtrace:
+ CPU: 8 PID: 184 Comm: kworker/u33:0 Tainted: G            E     5.17.0-rc4-00003-gccad664b7f14 #3 473b49ab0e7c2d6af2900c756bfd04efd7a9de13
+ Hardware name: LENOVO 20UJS2B905/20UJS2B905, BIOS R1CET63W(1.32 ) 04/09/2021
+ Workqueue: rtw89_tx_wq rtw89_core_txq_work [rtw89_core]
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x58/0x71
+  ieee80211_tx_h_select_key+0x464/0x530 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
+  ieee80211_tx_dequeue+0x1a7/0x1260 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
+  rtw89_core_txq_work+0x1a6/0x420 [rtw89_core b39ba493f2e517ad75e0f8187ecc24edf58bbbea]
+  process_one_work+0x2d8/0x660
+  worker_thread+0x39/0x3e0
+  ? process_one_work+0x660/0x660
+  kthread+0xe5/0x110
+  ? kthread_complete_and_exit+0x20/0x20
+  ret_from_fork+0x22/0x30
+  </TASK>
 
-Without the fix, the host panicked within a few minutes on a
-random 'proc2' process due to kernel access from copy_page.
-
-  [ bp: Fix comment style + touch ups, zap an unlikely(), improve the
-    quirk function's readability. ]
-
-Signed-off-by: Jue Wang <juew@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20220218013209.2436006-1-juew@google.com
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Acked-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2202152037000.11721@cbobk.fhfr.pm
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/core.c     | 64 ++++++++++++++++++++++++++++++
- arch/x86/kernel/cpu/mce/internal.h |  5 ++-
- 2 files changed, 68 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtw89/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 5818b837fd4d..2d719e0d2e40 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -834,6 +834,59 @@ static void quirk_sandybridge_ifu(int bank, struct mce *m, struct pt_regs *regs)
- 	m->cs = regs->cs;
- }
+diff --git a/drivers/net/wireless/realtek/rtw89/core.c b/drivers/net/wireless/realtek/rtw89/core.c
+index a0737eea9f81..9632e7f218dd 100644
+--- a/drivers/net/wireless/realtek/rtw89/core.c
++++ b/drivers/net/wireless/realtek/rtw89/core.c
+@@ -1509,11 +1509,12 @@ static void rtw89_core_txq_push(struct rtw89_dev *rtwdev,
+ 	unsigned long i;
+ 	int ret;
  
-+/*
-+ * Disable fast string copy and return from the MCE handler upon the first SRAR
-+ * MCE on bank 1 due to a CPU erratum on Intel Skylake/Cascade Lake/Cooper Lake
-+ * CPUs.
-+ * The fast string copy instructions ("REP; MOVS*") could consume an
-+ * uncorrectable memory error in the cache line _right after_ the desired region
-+ * to copy and raise an MCE with RIP pointing to the instruction _after_ the
-+ * "REP; MOVS*".
-+ * This mitigation addresses the issue completely with the caveat of performance
-+ * degradation on the CPU affected. This is still better than the OS crashing on
-+ * MCEs raised on an irrelevant process due to "REP; MOVS*" accesses from a
-+ * kernel context (e.g., copy_page).
-+ *
-+ * Returns true when fast string copy on CPU has been disabled.
-+ */
-+static noinstr bool quirk_skylake_repmov(void)
-+{
-+	u64 mcgstatus   = mce_rdmsrl(MSR_IA32_MCG_STATUS);
-+	u64 misc_enable = mce_rdmsrl(MSR_IA32_MISC_ENABLE);
-+	u64 mc1_status;
-+
-+	/*
-+	 * Apply the quirk only to local machine checks, i.e., no broadcast
-+	 * sync is needed.
-+	 */
-+	if (!(mcgstatus & MCG_STATUS_LMCES) ||
-+	    !(misc_enable & MSR_IA32_MISC_ENABLE_FAST_STRING))
-+		return false;
-+
-+	mc1_status = mce_rdmsrl(MSR_IA32_MCx_STATUS(1));
-+
-+	/* Check for a software-recoverable data fetch error. */
-+	if ((mc1_status &
-+	     (MCI_STATUS_VAL | MCI_STATUS_OVER | MCI_STATUS_UC | MCI_STATUS_EN |
-+	      MCI_STATUS_ADDRV | MCI_STATUS_MISCV | MCI_STATUS_PCC |
-+	      MCI_STATUS_AR | MCI_STATUS_S)) ==
-+	     (MCI_STATUS_VAL |                   MCI_STATUS_UC | MCI_STATUS_EN |
-+	      MCI_STATUS_ADDRV | MCI_STATUS_MISCV |
-+	      MCI_STATUS_AR | MCI_STATUS_S)) {
-+		misc_enable &= ~MSR_IA32_MISC_ENABLE_FAST_STRING;
-+		mce_wrmsrl(MSR_IA32_MISC_ENABLE, misc_enable);
-+		mce_wrmsrl(MSR_IA32_MCx_STATUS(1), 0);
-+
-+		instrumentation_begin();
-+		pr_err_once("Erratum detected, disable fast string copy instructions.\n");
-+		instrumentation_end();
-+
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
- /*
-  * Do a quick check if any of the events requires a panic.
-  * This decides if we keep the events around or clear them.
-@@ -1403,6 +1456,9 @@ noinstr void do_machine_check(struct pt_regs *regs)
- 	else if (unlikely(!mca_cfg.initialized))
- 		return unexpected_machine_check(regs);
- 
-+	if (mce_flags.skx_repmov_quirk && quirk_skylake_repmov())
-+		goto clear;
-+
- 	/*
- 	 * Establish sequential order between the CPUs entering the machine
- 	 * check handler.
-@@ -1545,6 +1601,7 @@ noinstr void do_machine_check(struct pt_regs *regs)
- out:
- 	instrumentation_end();
- 
-+clear:
- 	mce_wrmsrl(MSR_IA32_MCG_STATUS, 0);
- }
- EXPORT_SYMBOL_GPL(do_machine_check);
-@@ -1858,6 +1915,13 @@ static int __mcheck_cpu_apply_quirks(struct cpuinfo_x86 *c)
- 
- 		if (c->x86 == 6 && c->x86_model == 45)
- 			mce_flags.snb_ifu_quirk = 1;
-+
-+		/*
-+		 * Skylake, Cascacde Lake and Cooper Lake require a quirk on
-+		 * rep movs.
-+		 */
-+		if (c->x86 == 6 && c->x86_model == INTEL_FAM6_SKYLAKE_X)
-+			mce_flags.skx_repmov_quirk = 1;
++	rcu_read_lock();
+ 	for (i = 0; i < frame_cnt; i++) {
+ 		skb = ieee80211_tx_dequeue_ni(rtwdev->hw, txq);
+ 		if (!skb) {
+ 			rtw89_debug(rtwdev, RTW89_DBG_TXRX, "dequeue a NULL skb\n");
+-			return;
++			goto out;
+ 		}
+ 		rtw89_core_txq_check_agg(rtwdev, rtwtxq, skb);
+ 		ret = rtw89_core_tx_write(rtwdev, vif, sta, skb, NULL);
+@@ -1523,6 +1524,8 @@ static void rtw89_core_txq_push(struct rtw89_dev *rtwdev,
+ 			break;
+ 		}
  	}
++out:
++	rcu_read_unlock();
+ }
  
- 	if (c->x86_vendor == X86_VENDOR_ZHAOXIN) {
-diff --git a/arch/x86/kernel/cpu/mce/internal.h b/arch/x86/kernel/cpu/mce/internal.h
-index 52c633950b38..24d099e2d2a2 100644
---- a/arch/x86/kernel/cpu/mce/internal.h
-+++ b/arch/x86/kernel/cpu/mce/internal.h
-@@ -170,7 +170,10 @@ struct mce_vendor_flags {
- 	/* SandyBridge IFU quirk */
- 	snb_ifu_quirk		: 1,
- 
--	__reserved_0		: 57;
-+	/* Skylake, Cascade Lake, Cooper Lake REP;MOVS* quirk */
-+	skx_repmov_quirk	: 1,
-+
-+	__reserved_0		: 56;
- };
- 
- extern struct mce_vendor_flags mce_flags;
+ static u32 rtw89_check_and_reclaim_tx_resource(struct rtw89_dev *rtwdev, u8 tid)
 -- 
 2.34.1
 
