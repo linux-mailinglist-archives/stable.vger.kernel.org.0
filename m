@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 243004EF254
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9264EF44F
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:31:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352702AbiDAOvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:51:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34600 "EHLO
+        id S1349029AbiDAOvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:51:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348239AbiDAOme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:42:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D70BBDB;
-        Fri,  1 Apr 2022 07:34:36 -0700 (PDT)
+        with ESMTP id S1348423AbiDAOnR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:43:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C507C295265;
+        Fri,  1 Apr 2022 07:34:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EE9DB8240E;
-        Fri,  1 Apr 2022 14:34:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D1F2C340EE;
-        Fri,  1 Apr 2022 14:34:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60D72B82520;
+        Fri,  1 Apr 2022 14:34:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450DEC36AE2;
+        Fri,  1 Apr 2022 14:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823650;
-        bh=Vb9jK5l2dL7OUkRHwt1xmUNIYgFrzM1D1PHHrhDfYeM=;
+        s=k20201202; t=1648823655;
+        bh=jxBC/NZl6SdyvjGxkAjx5Hzor1wxP2AEE/3/XiHN6gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LysxBhUmjUOJ5czfT4BtkwpKwKo47NHl6T7TBzUXY7U4giu8emfJaMMivcViHQUog
-         n5im66C5MGmXgvaofk8d7ZAtdPyRT3wLANemIP1vlFcRM4noS+XFQr9wpCWgOMkL2c
-         baeLsiRWTnvjUinUCbR8Ak4gFCQpS4GbNQ2IHr84VG9YCuuyLFNlgdKaWg+n7T2X4J
-         u9FOrYxfU+hj1EJLYUBTh6Or2CCsCFF6OoaWqjwMKbykOMehQbrz/Pw2o/Dm80xmS/
-         T9ePU4Ln7V82sAohHRZjuDg9ITmaEASlA8gOMiDn5puxdnsIdGQpHvkNNYa7VinUuF
-         yPMmwnsduAE9A==
+        b=ub813pWdbvjV7h8WF8PbWh6HJGaeQHeyTltPT/t4YBYKg12QyXdJc6cOjWo20/ofg
+         GW5/8enmlCKQftS91Y1Zy5XtKcowcdgoFM6u3Gb6N9vTMkSZYxLzT2LH//IZcuwkPk
+         ANeE5kOH0xbHd1mS+/jV3Jr9SoRF2WPDCJPEyfsNmsh43OQYZNfhFK6sCKPQLVxHQy
+         2yqFfxVEVXZ/+rfL4iqjBc2PTM/BQUkrqHBh6UNsVyEnK6hLIfIVNcoBKl+bsM0nGX
+         aah2r9OurI0LKptnyp+CJz3pMnbCRKo78ffQyMWVM8w6kFKKUIo5F7omYchl51qLy/
+         YNEkY03RAykww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Boger <boger@wirenboard.com>, Chen-Yu Tsai <wens@csie.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, sre@kernel.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 028/109] power: supply: axp20x_battery: properly report current when discharging
-Date:   Fri,  1 Apr 2022 10:31:35 -0400
-Message-Id: <20220401143256.1950537-28-sashal@kernel.org>
+Cc:     Ben Greear <greearb@candelatech.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>, lorenzo.bianconi83@gmail.com,
+        ryder.lee@mediatek.com, kvalo@kernel.org, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, matthias.bgg@gmail.com,
+        sean.wang@mediatek.com, johannes.berg@intel.com,
+        deren.wu@mediatek.com, YN.Chen@mediatek.com,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 029/109] mt76: mt7921: fix crash when startup fails.
+Date:   Fri,  1 Apr 2022 10:31:36 -0400
+Message-Id: <20220401143256.1950537-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -57,60 +62,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Boger <boger@wirenboard.com>
+From: Ben Greear <greearb@candelatech.com>
 
-[ Upstream commit d4f408cdcd26921c1268cb8dcbe8ffb6faf837f3 ]
+[ Upstream commit 827e7799c61b978fbc2cc9dac66cb62401b2b3f0 ]
 
-As stated in [1], negative current values are used for discharging
-batteries.
+If the nic fails to start, it is possible that the
+reset_work has already been scheduled.  Ensure the
+work item is canceled so we do not have use-after-free
+crash in case cleanup is called before the work item
+is executed.
 
-AXP PMICs internally have two different ADC channels for shunt current
-measurement: one used during charging and one during discharging.
-The values reported by these ADCs are unsigned.
-While the driver properly selects ADC channel to get the data from,
-it doesn't apply negative sign when reporting discharging current.
+This fixes crash on my x86_64 apu2 when mt7921k radio
+fails to work.  Radio still fails, but OS does not
+crash.
 
-[1] Documentation/ABI/testing/sysfs-class-power
-
-Signed-off-by: Evgeny Boger <boger@wirenboard.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp20x_battery.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/axp20x_battery.c b/drivers/power/supply/axp20x_battery.c
-index 18a9db0df4b1..335e12cc5e2f 100644
---- a/drivers/power/supply/axp20x_battery.c
-+++ b/drivers/power/supply/axp20x_battery.c
-@@ -186,7 +186,6 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
- 				   union power_supply_propval *val)
- {
- 	struct axp20x_batt_ps *axp20x_batt = power_supply_get_drvdata(psy);
--	struct iio_channel *chan;
- 	int ret = 0, reg, val1;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index 8c55562c1a8d..b3bd090a13f4 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -260,6 +260,7 @@ static void mt7921_stop(struct ieee80211_hw *hw)
  
- 	switch (psp) {
-@@ -266,12 +265,12 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
- 		if (ret)
- 			return ret;
+ 	cancel_delayed_work_sync(&dev->pm.ps_work);
+ 	cancel_work_sync(&dev->pm.wake_work);
++	cancel_work_sync(&dev->reset_work);
+ 	mt76_connac_free_pending_tx_skbs(&dev->pm, NULL);
  
--		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING)
--			chan = axp20x_batt->batt_chrg_i;
--		else
--			chan = axp20x_batt->batt_dischrg_i;
--
--		ret = iio_read_channel_processed(chan, &val->intval);
-+		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING) {
-+			ret = iio_read_channel_processed(axp20x_batt->batt_chrg_i, &val->intval);
-+		} else {
-+			ret = iio_read_channel_processed(axp20x_batt->batt_dischrg_i, &val1);
-+			val->intval = -val1;
-+		}
- 		if (ret)
- 			return ret;
- 
+ 	mt7921_mutex_acquire(dev);
 -- 
 2.34.1
 
