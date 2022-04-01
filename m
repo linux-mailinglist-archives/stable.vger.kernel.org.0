@@ -2,66 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4164EF9F0
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 20:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 577864EFA2E
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 20:54:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346939AbiDAShe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 14:37:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52180 "EHLO
+        id S1349546AbiDAS4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 14:56:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231605AbiDAShd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 14:37:33 -0400
-Received: from alexa-out-sd-01.qualcomm.com (alexa-out-sd-01.qualcomm.com [199.106.114.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7841B8FC2;
-        Fri,  1 Apr 2022 11:35:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1648838143; x=1680374143;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=dE+eYbTlRphRYMzrizvUuQiOeaDFtpljQ+qdtyoyovA=;
-  b=Ht9zSv45O6vA+B2AVgriwFwRtGgWB4GDon1mCGFn5irdM/8BLNa+fjqd
-   JFnFXW0hRnq/qp5aROsF0jzW0dgFJczdfHVWEIEGWmfHk/l6X1J9diMIY
-   EAxGQbIjAVo4XD0JoGE6VXzj7Y51GjleArI+jXZkrQ1U9LAadphCxAM3C
-   g=;
-Received: from unknown (HELO ironmsg04-sd.qualcomm.com) ([10.53.140.144])
-  by alexa-out-sd-01.qualcomm.com with ESMTP; 01 Apr 2022 11:35:42 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg04-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2022 11:35:30 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 1 Apr 2022 11:35:29 -0700
-Received: from [10.110.67.71] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Fri, 1 Apr 2022
- 11:35:29 -0700
-Message-ID: <25b13a66-ab99-8ec8-847a-450827f6163b@quicinc.com>
-Date:   Fri, 1 Apr 2022 11:35:28 -0700
+        with ESMTP id S236377AbiDASz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 14:55:59 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE318169B28;
+        Fri,  1 Apr 2022 11:54:07 -0700 (PDT)
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+        by mx0b-0016f401.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 231IeRmQ024595;
+        Fri, 1 Apr 2022 11:53:55 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0220;
+ bh=q+6qQA4NpmQx9XWIGLYVcp3e77JJXXO1pEDe+p8i40Y=;
+ b=LQwq5wZ94Bg4lj4ZdsFrEUauf8KixcaJFkdvqxHMJjwcOQBmCZWZQRrVSSKviXqbHicj
+ CG53KnAX8Xr5UqVefyT6BbSad8xOCkgpFGTIpM+4zAiMbFjLYCGuAAO5sjNVPrZX6geS
+ LldiQUczA0m1WnXq7kAkhwUpZb++dLbY5wH49cqnuaycCl2G5S1kxQKQXqZfBSe6nkZW
+ eehy4OeEQwnhT7yMT78jEAr/wc9SZ3ocXoNGFwoaLp1m8TFQNO23MHkQZ7xsGo8eAGWE
+ oPuOFUXQ/UB+5oj5OtpW+C4LiWfNDn36f3A3up2FTjF4e4ELKH4znI4JnWDgWbmNWQYL Lg== 
+Received: from dc5-exch01.marvell.com ([199.233.59.181])
+        by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 3f5fav5t42-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Fri, 01 Apr 2022 11:53:55 -0700
+Received: from DC5-EXCH01.marvell.com (10.69.176.38) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 1 Apr
+ 2022 11:53:53 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 1 Apr 2022 11:53:53 -0700
+Received: from dut1171.mv.qlogic.com (unknown [10.112.88.18])
+        by maili.marvell.com (Postfix) with ESMTP id 683F23F7041;
+        Fri,  1 Apr 2022 11:53:53 -0700 (PDT)
+Received: from dut1171.mv.qlogic.com (localhost [127.0.0.1])
+        by dut1171.mv.qlogic.com (8.14.7/8.14.7) with ESMTP id 231Ira9a003361;
+        Fri, 1 Apr 2022 11:53:43 -0700
+Received: (from root@localhost)
+        by dut1171.mv.qlogic.com (8.14.7/8.14.7/Submit) id 231IrB2L003352;
+        Fri, 1 Apr 2022 11:53:11 -0700
+From:   Manish Chopra <manishc@marvell.com>
+To:     <kuba@kernel.org>
+CC:     <netdev@vger.kernel.org>, <aelior@marvell.com>,
+        <palok@marvell.com>, <pkushwaha@marvell.com>,
+        <stable@vger.kernel.org>, Tim Gardner <tim.gardner@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH net] qed: fix ethtool register dump
+Date:   Fri, 1 Apr 2022 11:53:04 -0700
+Message-ID: <20220401185304.3316-1-manishc@marvell.com>
+X-Mailer: git-send-email 2.12.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 1/1] nl80211: Prevent out-of-bounds read when processing
- NL80211_ATTR_REG_ALPHA2
-Content-Language: en-US
-To:     Lee Jones <lee.jones@linaro.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Jakub Kicinski" <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        <linux-wireless@vger.kernel.org>, <netdev@vger.kernel.org>
-References: <20220401105046.1952815-1-lee.jones@linaro.org>
-From:   Jeff Johnson <quic_jjohnson@quicinc.com>
-In-Reply-To: <20220401105046.1952815-1-lee.jones@linaro.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain
+X-Proofpoint-GUID: 0KN6fYOdAs5dlvBl2a6841yYsb-Mf1w6
+X-Proofpoint-ORIG-GUID: 0KN6fYOdAs5dlvBl2a6841yYsb-Mf1w6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-01_05,2022-03-31_01,2022-02-23_01
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,52 +71,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/1/2022 3:50 AM, Lee Jones wrote:
-> Checks are presently in place in validate_nla() to ensure strings
-> greater than 2 are not passed in by the user which could potentially
-> cause issues.
-> 
-> However, there is nothing to prevent userspace from only providing a
-> single (1) Byte as the data length parameter via nla_put().  If this
-> were to happen, it would cause an OOB read in regulatory_hint_user(),
-> since it makes assumptions that alpha2[0] and alpha2[1] will always be
-> accessible.
-> 
-> Add an additional check, to ensure enough data has been allocated to
-> hold both Bytes.
-> 
-> Cc: <stable@vger.kernel.org>
-> Cc: Johannes Berg <johannes@sipsolutions.net>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Paolo Abeni <pabeni@redhat.com>
-> Cc: linux-wireless@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->   net/wireless/nl80211.c | 4 ++++
->   1 file changed, 4 insertions(+)
-> 
-> diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-> index ee1c2b6b69711..80a516033db36 100644
-> --- a/net/wireless/nl80211.c
-> +++ b/net/wireless/nl80211.c
-> @@ -7536,6 +7536,10 @@ static int nl80211_req_set_reg(struct sk_buff *skb, struct genl_info *info)
->   		if (!info->attrs[NL80211_ATTR_REG_ALPHA2])
->   			return -EINVAL;
->   
-> +		if (nla_len(info->attrs[NL80211_ATTR_REG_ALPHA2]) !=
-> +		    nl80211_policy[NL80211_ATTR_REG_ALPHA2].len)
-> +			return -EINVAL;
-> +
->   		data = nla_data(info->attrs[NL80211_ATTR_REG_ALPHA2]);
->   		return regulatory_hint_user(data, user_reg_hint_type);
->   	case NL80211_USER_REG_HINT_INDOOR:
+To fix a coverity complain, commit d5ac07dfbd2b
+("qed: Initialize debug string array") removed "sw-platform"
+(one of the common global parameters) from the dump as this
+was used in the dump with an uninitialized string, however
+it did not reduce the number of common global parameters
+which caused the incorrect (unable to parse) register dump
 
-LGTM
+this patch fixes it with reducing NUM_COMMON_GLOBAL_PARAMS
+bye one.
 
-doesn't nl80211_set_reg() also have this issue?
-	alpha2 = nla_data(info->attrs[NL80211_ATTR_REG_ALPHA2]);
-[...]
-	rd->alpha2[0] = alpha2[0];
-	rd->alpha2[1] = alpha2[1];
+Cc: stable@vger.kernel.org
+Cc: Tim Gardner <tim.gardner@canonical.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Fixes: d5ac07dfbd2b ("qed: Initialize debug string array")
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Alok Prasad <palok@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+---
+ drivers/net/ethernet/qlogic/qed/qed_debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_debug.c b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+index e3edca187ddf..5250d1d1e49c 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_debug.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+@@ -489,7 +489,7 @@ struct split_type_defs {
+ 
+ #define STATIC_DEBUG_LINE_DWORDS	9
+ 
+-#define NUM_COMMON_GLOBAL_PARAMS	11
++#define NUM_COMMON_GLOBAL_PARAMS	10
+ 
+ #define MAX_RECURSION_DEPTH		10
+ 
+-- 
+2.35.1.273.ge6ebfd0
+
