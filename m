@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3724EF3D1
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:28:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72E84EF3FA
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348704AbiDAOzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:55:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57462 "EHLO
+        id S1349659AbiDAO5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:57:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352427AbiDAOuV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:50:21 -0400
+        with ESMTP id S1352451AbiDAOuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:50:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2AB32B3309;
-        Fri,  1 Apr 2022 07:41:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB77292B86;
+        Fri,  1 Apr 2022 07:41:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FA1D60BC2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF2A060BAF;
+        Fri,  1 Apr 2022 14:41:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BF00C340F2;
         Fri,  1 Apr 2022 14:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F9F7C34111;
-        Fri,  1 Apr 2022 14:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824101;
-        bh=BQ+000fsdHVkiRIowF2xgMLddbyFXjMD5fDA8h5TuYY=;
+        s=k20201202; t=1648824103;
+        bh=E82SV7e6t4GyW9rakvNFtqwmoOj2puq32T+bfxLiQxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHKsmGdCZijXrEkZZKd0ON7WKUn2GT+ftkVXhzL1VWfy7DAx+reesrGNn4J2rBCg9
-         CU6qjRG9uIfbrd0ZxjD1dIwYcbp+G5RtU8moHc5Nnfdd3K4CYROW3uU0uAwZLQw44q
-         bt6o2djI67O2jS5qC44PySAXQ8vdiau6RSIk1KAcySLrXjOheYGFJZ9i54K/Z/309N
-         kd3O/nfBHTul+KORdg/zU70fnGOS1DQwbPth69D8keLMy8ASV89XCglwbCngQZIRxF
-         AbIJlSuaCQA8ske1Dastx7PaDWoj7Lsqn0dv2BEBTYm0ypK9tlvTgbYK4ucPwNG2Na
-         Y0HBYvaN09Egg==
+        b=OvAS1AUpfMcN8KGEI4TgxTw2/09RgD0nZbo67TEoAde4EdWv56WCu3+fgsiSgBKJn
+         7dcJQAIuYFczyapXpWifrX8S5qMrMGl/k8DY7fkJuGEtR6s57Nj+C87pLdARX5mxUb
+         N76Lg4TxaRql8eUoJTs5zIrq+UyIWU7ZsI6okd54nYyqO4gPGECvQSNABtepQHU+1o
+         sljaS5VFkI2ogpvHkaLEcyTTI0uG7w5JaBuvjttRQdVScmWr+dx9DsvBYqCKwbk35/
+         9HjwZfuCUZcHOph0uUMgUMna23jGu3xxTCTeyDsDVNX3XmoiAK7YeItfabWVN6dBsB
+         exTWiQ3HaaOpg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
-        linux-usb@vger.kernel.org, linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 87/98] usb: dwc3: omap: fix "unbalanced disables for smps10_out1" on omap5evm
-Date:   Fri,  1 Apr 2022 10:37:31 -0400
-Message-Id: <20220401143742.1952163-87-sashal@kernel.org>
+Cc:     Deren Wu <deren.wu@mediatek.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        lorenzo.bianconi83@gmail.com, ryder.lee@mediatek.com,
+        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, matthias.bgg@gmail.com,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 88/98] mt76: fix monitor mode crash with sdio driver
+Date:   Fri,  1 Apr 2022 10:37:32 -0400
+Message-Id: <20220401143742.1952163-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
 References: <20220401143742.1952163-1-sashal@kernel.org>
@@ -57,72 +63,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit ac01df343e5a6c6bcead2ed421af1fde30f73e7e ]
+[ Upstream commit 123bc712b1de0805f9d683687e17b1ec2aba0b68 ]
 
-Usually, the vbus_regulator (smps10 on omap5evm) boots up disabled.
+mt7921s driver may receive frames with fragment buffers. If there is a
+CTS packet received in monitor mode, the payload is 10 bytes only and
+need 6 bytes header padding after RXD buffer. However, only RXD in the
+first linear buffer, if we pull buffer size RXD-size+6 bytes with
+skb_pull(), that would trigger "BUG_ON(skb->len < skb->data_len)" in
+__skb_pull().
 
-Hence calling regulator_disable() indirectly through dwc3_omap_set_mailbox()
-during probe leads to:
+To avoid the nonlinear buffer issue, enlarge the RXD size from 128 to
+256 to make sure all MCU operation in linear buffer.
 
-[   10.332764] WARNING: CPU: 0 PID: 1628 at drivers/regulator/core.c:2853 _regulator_disable+0x40/0x164
-[   10.351919] unbalanced disables for smps10_out1
-[   10.361298] Modules linked in: dwc3_omap(+) clk_twl6040 at24 gpio_twl6040 palmas_gpadc palmas_pwrbutton
-industrialio snd_soc_omap_mcbsp(+) snd_soc_ti_sdma display_connector ti_tpd12s015 drm leds_gpio
-drm_panel_orientation_quirks ip_tables x_tables ipv6 autofs4
-[   10.387818] CPU: 0 PID: 1628 Comm: systemd-udevd Not tainted 5.17.0-rc1-letux-lpae+ #8139
-[   10.405129] Hardware name: Generic OMAP5 (Flattened Device Tree)
-[   10.411455]  unwind_backtrace from show_stack+0x10/0x14
-[   10.416970]  show_stack from dump_stack_lvl+0x40/0x4c
-[   10.422313]  dump_stack_lvl from __warn+0xb8/0x170
-[   10.427377]  __warn from warn_slowpath_fmt+0x70/0x9c
-[   10.432595]  warn_slowpath_fmt from _regulator_disable+0x40/0x164
-[   10.439037]  _regulator_disable from regulator_disable+0x30/0x64
-[   10.445382]  regulator_disable from dwc3_omap_set_mailbox+0x8c/0xf0 [dwc3_omap]
-[   10.453116]  dwc3_omap_set_mailbox [dwc3_omap] from dwc3_omap_probe+0x2b8/0x394 [dwc3_omap]
-[   10.467021]  dwc3_omap_probe [dwc3_omap] from platform_probe+0x58/0xa8
-[   10.481762]  platform_probe from really_probe+0x168/0x2fc
-[   10.481782]  really_probe from __driver_probe_device+0xc4/0xd8
-[   10.481782]  __driver_probe_device from driver_probe_device+0x24/0xa4
-[   10.503762]  driver_probe_device from __driver_attach+0xc4/0xd8
-[   10.510018]  __driver_attach from bus_for_each_dev+0x64/0xa0
-[   10.516001]  bus_for_each_dev from bus_add_driver+0x148/0x1a4
-[   10.524880]  bus_add_driver from driver_register+0xb4/0xf8
-[   10.530678]  driver_register from do_one_initcall+0x90/0x1c4
-[   10.536661]  do_one_initcall from do_init_module+0x4c/0x200
-[   10.536683]  do_init_module from load_module+0x13dc/0x1910
-[   10.551159]  load_module from sys_finit_module+0xc8/0xd8
-[   10.561319]  sys_finit_module from __sys_trace_return+0x0/0x18
-[   10.561336] Exception stack(0xc344bfa8 to 0xc344bff0)
-[   10.561341] bfa0:                   b6fb5778 b6fab8d8 00000007 b6ecfbb8 00000000 b6ed0398
-[   10.561341] bfc0: b6fb5778 b6fab8d8 855c0500 0000017b 00020000 b6f9a3cc 00000000 b6fb5778
-[   10.595500] bfe0: bede18f8 bede18e8 b6ec9aeb b6dda1c2
-[   10.601345] ---[ end trace 0000000000000000 ]---
+[   52.007562] kernel BUG at include/linux/skbuff.h:2313!
+[   52.007578] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[   52.007987] pc : skb_pull+0x48/0x4c
+[   52.008015] lr : mt7921_queue_rx_skb+0x494/0x890 [mt7921_common]
+[   52.008361] Call trace:
+[   52.008377]  skb_pull+0x48/0x4c
+[   52.008400]  mt76s_net_worker+0x134/0x1b0 [mt76_sdio 35339a92c6eb7d4bbcc806a1d22f56365565135c]
+[   52.008431]  __mt76_worker_fn+0xe8/0x170 [mt76 ef716597d11a77150bc07e3fdd68eeb0f9b56917]
+[   52.008449]  kthread+0x148/0x3ac
+[   52.008466]  ret_from_fork+0x10/0x30
 
-Fix this unnecessary warning by checking if the regulator is enabled.
-
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Link: https://lore.kernel.org/r/af3b750dc2265d875deaabcf5f80098c9645da45.1646744616.git.hns@goldelico.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-omap.c | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt76.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-omap.c b/drivers/usb/dwc3/dwc3-omap.c
-index e196673f5c64..efaf0db595f4 100644
---- a/drivers/usb/dwc3/dwc3-omap.c
-+++ b/drivers/usb/dwc3/dwc3-omap.c
-@@ -242,7 +242,7 @@ static void dwc3_omap_set_mailbox(struct dwc3_omap *omap,
- 		break;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 4d01fd85283d..6e4d69715927 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -19,7 +19,7 @@
  
- 	case OMAP_DWC3_ID_FLOAT:
--		if (omap->vbus_reg)
-+		if (omap->vbus_reg && regulator_is_enabled(omap->vbus_reg))
- 			regulator_disable(omap->vbus_reg);
- 		val = dwc3_omap_read_utmi_ctrl(omap);
- 		val |= USBOTGSS_UTMI_OTG_CTRL_IDDIG;
+ #define MT_MCU_RING_SIZE	32
+ #define MT_RX_BUF_SIZE		2048
+-#define MT_SKB_HEAD_LEN		128
++#define MT_SKB_HEAD_LEN		256
+ 
+ #define MT_MAX_NON_AQL_PKT	16
+ #define MT_TXQ_FREE_THR		32
 -- 
 2.34.1
 
