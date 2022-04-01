@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A258B4EF3F6
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB124EF31B
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349141AbiDAOxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:53:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60390 "EHLO
+        id S1349244AbiDAO4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:56:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350192AbiDAOrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11EE2A12A9;
-        Fri,  1 Apr 2022 07:37:20 -0700 (PDT)
+        with ESMTP id S1350271AbiDAOrW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2F94258FC5;
+        Fri,  1 Apr 2022 07:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDB8C60BAC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D87DB82523;
+        Fri,  1 Apr 2022 14:37:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB50BC36AE7;
         Fri,  1 Apr 2022 14:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4B8C36AEA;
-        Fri,  1 Apr 2022 14:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823840;
-        bh=LhYPBZufSIIUYsYfgK8Zvs0kn4YmUTSXiOrYVvfFpMU=;
+        s=k20201202; t=1648823841;
+        bh=ssHw4guXgvrYR0ACr/I+6ESfC4KwLjLyGS7qiomSBgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNa6FWYsejRxosiRjVFgclx3ZFhMtzWCFArmNeT1g1TWYmjXNmdnXHEJfYW5IcIvR
-         g6YWx4QyzvWQfGKFFDtqBDNk9pZ76ClpYHUPCBDB44n2TnwQIl0kDaHtABHdvxgEgz
-         mQ7Fv9elRh0WLHKLkN4+FNkzutleBpvp4YeOT8DkGROs5LOm+Atk3uOhFZ1sd1/hAb
-         42HaNxXiYMt2l2OFLfPfTxSGZlF36otQxNVnZ0UsieuVDIBERrFISnpeKpoSolUBR1
-         dSPODCrKtR7gbPUB7rG00oq/jg7Ck60c/V60oRmiG2vlojbS+MgyaMWJ2EeOrskPyl
-         Qe3iRZKI340tg==
+        b=K8M02aAN21XWxrRf9TEt5rtlAJDW0mc5E0vBHCZtD6yyPv3iH9R1AThlFCUVEjrBK
+         sas4VHuV+KGFVJKArHoqon9Id452W3Jfj3UXnaK5Vl6x/L7dZBvJHK6G5WRNHxLBC6
+         Kw+HZzxSgZkM3/b7l8TQvDHj+57Sa+BbprEdcqtM9Mi2InKNdHQGBdN/tugmfjwzXH
+         0Rh05kKCTmYTfRIs49VqPonGPo8UFWEGoCgG36COXAYQ0GFe22aEnBQocwOXVj/KgH
+         O0WOQi8u4vMEXCdyQ22h1CkYo4OFXjudvi5dopl6e4GBxPBn8hLw+HJY1G8JhtjVn5
+         lVnd6E+Zt2OAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Filippov <jcmvbkbc@gmail.com>, Sasha Levin <sashal@kernel.org>,
-        robh+dt@kernel.org, krzk+dt@kernel.org, chris@zankel.net,
-        devicetree@vger.kernel.org, linux-xtensa@linux-xtensa.org
-Subject: [PATCH AUTOSEL 5.16 100/109] xtensa: fix DTC warning unit_address_format
-Date:   Fri,  1 Apr 2022 10:32:47 -0400
-Message-Id: <20220401143256.1950537-100-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzk+dt@kernel.org, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 101/109] MIPS: ingenic: correct unit node address
+Date:   Fri,  1 Apr 2022 10:32:48 -0400
+Message-Id: <20220401143256.1950537-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -56,101 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit e85d29ba4b24f68e7a78cb85c55e754362eeb2de ]
+[ Upstream commit 8931ddd8d6a55fcefb20f44a38ba42bb746f0b62 ]
 
-DTC issues the following warnings when building xtfpga device trees:
+Unit node addresses should not have leading 0x:
 
- /soc/flash@00000000/partition@0x0: unit name should not have leading "0x"
- /soc/flash@00000000/partition@0x6000000: unit name should not have leading "0x"
- /soc/flash@00000000/partition@0x6800000: unit name should not have leading "0x"
- /soc/flash@00000000/partition@0x7fe0000: unit name should not have leading "0x"
+  Warning (unit_address_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name should not have leading "0x"
 
-Drop leading 0x from flash partition unit names.
-
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi | 8 ++++----
- arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi  | 8 ++++----
- arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi   | 4 ++--
- 3 files changed, 10 insertions(+), 10 deletions(-)
+ arch/mips/boot/dts/ingenic/jz4780.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi b/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi
-index 9bf8bad1dd18..c33932568aa7 100644
---- a/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi
-+++ b/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi
-@@ -8,19 +8,19 @@ flash: flash@00000000 {
- 			reg = <0x00000000 0x08000000>;
- 			bank-width = <2>;
- 			device-width = <2>;
--			partition@0x0 {
-+			partition@0 {
- 				label = "data";
- 				reg = <0x00000000 0x06000000>;
+diff --git a/arch/mips/boot/dts/ingenic/jz4780.dtsi b/arch/mips/boot/dts/ingenic/jz4780.dtsi
+index b0a4e2e019c3..af6cd32c706c 100644
+--- a/arch/mips/boot/dts/ingenic/jz4780.dtsi
++++ b/arch/mips/boot/dts/ingenic/jz4780.dtsi
+@@ -470,7 +470,7 @@ efuse: efuse@d0 {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
+-			eth0_addr: eth-mac-addr@0x22 {
++			eth0_addr: eth-mac-addr@22 {
+ 				reg = <0x22 0x6>;
  			};
--			partition@0x6000000 {
-+			partition@6000000 {
- 				label = "boot loader area";
- 				reg = <0x06000000 0x00800000>;
- 			};
--			partition@0x6800000 {
-+			partition@6800000 {
- 				label = "kernel image";
- 				reg = <0x06800000 0x017e0000>;
- 			};
--			partition@0x7fe0000 {
-+			partition@7fe0000 {
- 				label = "boot environment";
- 				reg = <0x07fe0000 0x00020000>;
- 			};
-diff --git a/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi b/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi
-index 40c2f81f7cb6..7bde2ab2d6fb 100644
---- a/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi
-+++ b/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi
-@@ -8,19 +8,19 @@ flash: flash@08000000 {
- 			reg = <0x08000000 0x01000000>;
- 			bank-width = <2>;
- 			device-width = <2>;
--			partition@0x0 {
-+			partition@0 {
- 				label = "boot loader area";
- 				reg = <0x00000000 0x00400000>;
- 			};
--			partition@0x400000 {
-+			partition@400000 {
- 				label = "kernel image";
- 				reg = <0x00400000 0x00600000>;
- 			};
--			partition@0xa00000 {
-+			partition@a00000 {
- 				label = "data";
- 				reg = <0x00a00000 0x005e0000>;
- 			};
--			partition@0xfe0000 {
-+			partition@fe0000 {
- 				label = "boot environment";
- 				reg = <0x00fe0000 0x00020000>;
- 			};
-diff --git a/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi b/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi
-index fb8d3a9f33c2..0655b868749a 100644
---- a/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi
-+++ b/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi
-@@ -8,11 +8,11 @@ flash: flash@08000000 {
- 			reg = <0x08000000 0x00400000>;
- 			bank-width = <2>;
- 			device-width = <2>;
--			partition@0x0 {
-+			partition@0 {
- 				label = "boot loader area";
- 				reg = <0x00000000 0x003f0000>;
- 			};
--			partition@0x3f0000 {
-+			partition@3f0000 {
- 				label = "boot environment";
- 				reg = <0x003f0000 0x00010000>;
- 			};
+ 		};
 -- 
 2.34.1
 
