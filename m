@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3674EF4A2
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E89384EF42D
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349086AbiDAPGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:06:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55592 "EHLO
+        id S1350262AbiDAPHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:07:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349933AbiDAO6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:58:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E08FE16E7DA;
-        Fri,  1 Apr 2022 07:45:30 -0700 (PDT)
+        with ESMTP id S1349967AbiDAO61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:58:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC5D170095;
+        Fri,  1 Apr 2022 07:45:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E360760A53;
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF4A5B823EB;
+        Fri,  1 Apr 2022 14:45:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8919C34111;
         Fri,  1 Apr 2022 14:45:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08B66C2BBE4;
-        Fri,  1 Apr 2022 14:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824329;
-        bh=5TsJJ6l6iv2fS+LhvRzu5SBnx03YsVcVqVdyQ0qRQfY=;
+        s=k20201202; t=1648824330;
+        bh=VLYhNfb0mXOrcYi3ghDws1UjY7TqoESPfhQk47N3zR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q1ZIu5ZyD/HbchDlszgAa5lyq1ZLvSiyoug62OYNGgs1W0wDkgM0xqHX4eg8xAQox
-         g0ZFvPVXZD9eMatRx2J9FfQ9Gr60+Y8q3GDYK5ht7In9WQ7yjYl4QdOSKyajvwxvYs
-         wYgoNJbK6Powvp4GfUyGaiY9Z9jGYr2QopkUkK5QLi/tuGKNveKz8SnO8/qpqOwI+v
-         FXwMN6Gq4PX/Cp75wjKM4hqoMSmKF2HXO1R8wqtclWPWprMNPt8x8qqZJVU2m6ZxZq
-         uCmiOaj0sEqgegbfDglEmM5R8QG59rnkydQw+mHJ0cNGhGWtXguH/xKy1MWPiuSQTM
-         mWZjvoOve9khg==
+        b=U2MZn3yj4b5aJ09vEMG55idW6Bw6/6Kyofcz5HpUtjU68JQBySAIgvzOTu/FxIw4f
+         i9oxmNAQvQt84bkZm9FWy1b/FXCLBLiCOj38sPilnOiSctFzYBqco48Es0ltccrOgE
+         6C4OaUIPy1l4bsMMXzMn4POlSQZRZezZJL45b+GwcnKNmehPHPG8H35N8nLl/0mNZl
+         VzfUbOz3vtwd4QI9NXaSl206mU3Vvsyv3qBMyiQ4hVluWbsFR5xuvjq7X/SVoMiEKj
+         pRL1cfQrVOpwnXBmVJaNe1jyNjIwdMmBjX/qjTeV9eWykvivaAmhYKDe6RM9yUmIgk
+         GMysODWLUzKVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, lukas@wunner.de,
-        hdegoede@redhat.com, naveennaidu479@gmail.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com,
-        zhangliguang@linux.alibaba.com, mani@kernel.org,
-        ameynarkhede03@gmail.com, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/37] PCI: pciehp: Add Qualcomm quirk for Command Completed erratum
-Date:   Fri,  1 Apr 2022 10:44:25 -0400
-Message-Id: <20220401144446.1954694-16-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, sre@kernel.org, wens@csie.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 17/37] power: supply: axp288-charger: Set Vhold to 4.4V
+Date:   Fri,  1 Apr 2022 10:44:26 -0400
+Message-Id: <20220401144446.1954694-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144446.1954694-1-sashal@kernel.org>
 References: <20220401144446.1954694-1-sashal@kernel.org>
@@ -60,42 +57,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9f72d4757cbe4d1ed669192f6d23817c9e437c4b ]
+[ Upstream commit 5ac121b81b4051e7fc83d5b3456a5e499d5bd147 ]
 
-The Qualcomm PCI bridge device (Device ID 0x0110) found in chipsets such as
-SM8450 does not set the Command Completed bit unless writes to the Slot
-Command register change "Control" bits.
+The AXP288's recommended and factory default Vhold value (minimum
+input voltage below which the input current draw will be reduced)
+is 4.4V. This lines up with other charger IC's such as the TI
+bq2419x/bq2429x series which use 4.36V or 4.44V.
 
-This results in timeouts like below:
+For some reason some BIOS-es initialize Vhold to 4.6V or even 4.7V
+which combined with the typical voltage drop over typically low
+wire gauge micro-USB cables leads to the input-current getting
+capped below 1A (with a 2A capable dedicated charger) based on Vhold.
 
-  pcieport 0001:00:00.0: pciehp: Timeout on hotplug command 0x03c0 (issued 2020 msec ago)
+This leads to slow charging, or even to the device slowly discharging
+if the device is in heavy use.
 
-Add the device to the Command Completed quirk to mark commands "completed"
-immediately unless they change the "Control" bits.
+As the Linux AXP288 drivers use the builtin BC1.2 charger detection
+and send the input-current-limit according to the detected charger
+there really is no reason not to use the recommended 4.4V Vhold.
 
-Link: https://lore.kernel.org/r/20220210145003.135907-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Set Vhold to 4.4V to fix the slow charging issue on various devices.
+
+There is one exception, the special-case of the HP X2 2-in-1s which
+combine this BC1.2 capable PMIC with a Type-C port and a 5V/3A factory
+provided charger with a Type-C plug which does not do BC1.2. These
+have their input-current-limit hardcoded to 3A (like under Windows)
+and use a higher Vhold on purpose to limit the current when used
+with other chargers. To avoid touching Vhold on these HP X2 laptops
+the code setting Vhold is added to an else branch of the if checking
+for these models.
+
+Note this also fixes the sofar unused VBUS_ISPOUT_VHOLD_SET_MASK
+define, which was wrong.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/power/supply/axp288_charger.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
-index 907b8be86ce0..a19157acc6dd 100644
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -957,6 +957,8 @@ static void quirk_cmd_compl(struct pci_dev *pdev)
- }
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
-+DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0110,
-+			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0400,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0401,
+diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
+index 7d09e49f04d3..2ee6bb7c0804 100644
+--- a/drivers/power/supply/axp288_charger.c
++++ b/drivers/power/supply/axp288_charger.c
+@@ -41,11 +41,11 @@
+ #define VBUS_ISPOUT_CUR_LIM_1500MA	0x1	/* 1500mA */
+ #define VBUS_ISPOUT_CUR_LIM_2000MA	0x2	/* 2000mA */
+ #define VBUS_ISPOUT_CUR_NO_LIM		0x3	/* 2500mA */
+-#define VBUS_ISPOUT_VHOLD_SET_MASK	0x31
++#define VBUS_ISPOUT_VHOLD_SET_MASK	0x38
+ #define VBUS_ISPOUT_VHOLD_SET_BIT_POS	0x3
+ #define VBUS_ISPOUT_VHOLD_SET_OFFSET	4000	/* 4000mV */
+ #define VBUS_ISPOUT_VHOLD_SET_LSB_RES	100	/* 100mV */
+-#define VBUS_ISPOUT_VHOLD_SET_4300MV	0x3	/* 4300mV */
++#define VBUS_ISPOUT_VHOLD_SET_4400MV	0x4	/* 4400mV */
+ #define VBUS_ISPOUT_VBUS_PATH_DIS	BIT(7)
+ 
+ #define CHRG_CCCV_CC_MASK		0xf		/* 4 bits */
+@@ -744,6 +744,16 @@ static int charger_init_hw_regs(struct axp288_chrg_info *info)
+ 		ret = axp288_charger_vbus_path_select(info, true);
+ 		if (ret < 0)
+ 			return ret;
++	} else {
++		/* Set Vhold to the factory default / recommended 4.4V */
++		val = VBUS_ISPOUT_VHOLD_SET_4400MV << VBUS_ISPOUT_VHOLD_SET_BIT_POS;
++		ret = regmap_update_bits(info->regmap, AXP20X_VBUS_IPSOUT_MGMT,
++					 VBUS_ISPOUT_VHOLD_SET_MASK, val);
++		if (ret < 0) {
++			dev_err(&info->pdev->dev, "register(%x) write error(%d)\n",
++				AXP20X_VBUS_IPSOUT_MGMT, ret);
++			return ret;
++		}
+ 	}
+ 
+ 	/* Read current charge voltage and current limit */
 -- 
 2.34.1
 
