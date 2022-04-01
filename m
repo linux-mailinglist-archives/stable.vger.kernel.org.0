@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E84294EF019
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E776B4EF02D
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347408AbiDAOcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
+        id S1347248AbiDAOcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:32:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347324AbiDAObt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:31:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15B128CAA4;
-        Fri,  1 Apr 2022 07:27:56 -0700 (PDT)
+        with ESMTP id S1347335AbiDAObu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:31:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C463B287893;
+        Fri,  1 Apr 2022 07:28:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DD8B61CA5;
-        Fri,  1 Apr 2022 14:27:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18C14C340EE;
-        Fri,  1 Apr 2022 14:27:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C98CB82500;
+        Fri,  1 Apr 2022 14:28:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2EC6C2BBE4;
+        Fri,  1 Apr 2022 14:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823275;
-        bh=IrewDgmQ0+Iv7XNlHAoqViPWLz2ILiPnvQpQVc3bLvg=;
+        s=k20201202; t=1648823285;
+        bh=/Sls+JHs9TRKXpnZZuBDGI+ZUl+mKBl1/kLNssoBal8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiurYunOZC/LnT5F5SeMuQm2R4XEriNwtAD7V4xiZcDUFT9UIthmDzCSEXsrE/usS
-         agDdCyFwZF4znY8mmxRxbUNhEk0qYTr2GQrxrI/TtL7grdGe8Pz75ok/wcYahG25Oo
-         7isWLrst8Pu+8BMn/7TDXaTJX5AHwMN/LJJFAxW8Pe5DFul54k+UnHmG13/BkZD3KZ
-         3Y/KoQ7PDg2zSODMONt+jPPAq/rUIQa+Fcv9oxwhPwr/8Bfg90O2n5cQID4n8QvaKB
-         YDmRorY6eB6V7MDcv2FyAjJ2l9jkGKKyG9vp/a/CZcRUd/B1BjAddbyayorVYXDTDo
-         KqzgtEuQTQp1A==
+        b=tx+GPOY61j4GETIDSFYVv1okP/ygWRUWg3rSa+bMn9c5EvN31wq2rMafpFQTPfWxb
+         3bdjkySPl/eS5ulHmJgoVkz9WtkQju5sdwx98VmEHa9mcDm9YLQPvQhJEcqfL1VnxY
+         AopAitUPzn/OfcTuZA5cdTNBgPQEYVffzxvugSbtSAAYdDfZhDDFuZ690StvWTe/JT
+         LIakwWljCvrIk+/8lHZwitndDFQza+Ch8NPJC+lFaoh8o0ERAQc27L3MqmO5C9zU9m
+         tRguMDh4hzPPFO3+UBJZKRX1qLE0ZJyanbav18SN/e84iE7HyRmYV2dIY/ZIRlV0F/
+         q7iUtbwddZcjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Eric Dumazet <edumazet@google.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
-        dsahern@kernel.org, mareklindner@neomailbox.ch,
-        sw@simonwunderlich.de, a@unstable.cc, sven@narfation.org,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
-        b.a.t.m.a.n@lists.open-mesh.org
-Subject: [PATCH AUTOSEL 5.17 044/149] ipv6: make mc_forwarding atomic
-Date:   Fri,  1 Apr 2022 10:23:51 -0400
-Message-Id: <20220401142536.1948161-44-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, vbabka@suse.cz,
+        dvyukov@google.com, colin.king@intel.com, kuba@kernel.org
+Subject: [PATCH AUTOSEL 5.17 045/149] ref_tracker: implement use-after-free detection
+Date:   Fri,  1 Apr 2022 10:23:52 -0400
+Message-Id: <20220401142536.1948161-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -62,123 +59,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 145c7a793838add5e004e7d49a67654dc7eba147 ]
+[ Upstream commit e3ececfe668facd87d920b608349a32607060e66 ]
 
-This fixes minor data-races in ip6_mc_input() and
-batadv_mcast_mla_rtr_flags_softif_get_ipv6()
+Whenever ref_tracker_dir_init() is called, mark the struct ref_tracker_dir
+as dead.
+
+Test the dead status from ref_tracker_alloc() and ref_tracker_free()
+
+This should detect buggy dev_put()/dev_hold() happening too late
+in netdevice dismantle process.
 
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ipv6.h       | 2 +-
- net/batman-adv/multicast.c | 2 +-
- net/ipv6/addrconf.c        | 4 ++--
- net/ipv6/ip6_input.c       | 2 +-
- net/ipv6/ip6mr.c           | 8 ++++----
- 5 files changed, 9 insertions(+), 9 deletions(-)
+ include/linux/ref_tracker.h | 2 ++
+ lib/ref_tracker.c           | 5 +++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/include/linux/ipv6.h b/include/linux/ipv6.h
-index a59d25f19385..b8641dc0ee66 100644
---- a/include/linux/ipv6.h
-+++ b/include/linux/ipv6.h
-@@ -51,7 +51,7 @@ struct ipv6_devconf {
- 	__s32		use_optimistic;
+diff --git a/include/linux/ref_tracker.h b/include/linux/ref_tracker.h
+index 60f3453be23e..a443abda937d 100644
+--- a/include/linux/ref_tracker.h
++++ b/include/linux/ref_tracker.h
+@@ -13,6 +13,7 @@ struct ref_tracker_dir {
+ 	spinlock_t		lock;
+ 	unsigned int		quarantine_avail;
+ 	refcount_t		untracked;
++	bool			dead;
+ 	struct list_head	list; /* List of active trackers */
+ 	struct list_head	quarantine; /* List of dead trackers */
  #endif
- #ifdef CONFIG_IPV6_MROUTE
--	__s32		mc_forwarding;
-+	atomic_t	mc_forwarding;
- #endif
- 	__s32		disable_ipv6;
- 	__s32		drop_unicast_in_l2_multicast;
-diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
-index f4004cf0ff6f..9f311fddfaf9 100644
---- a/net/batman-adv/multicast.c
-+++ b/net/batman-adv/multicast.c
-@@ -134,7 +134,7 @@ static u8 batadv_mcast_mla_rtr_flags_softif_get_ipv6(struct net_device *dev)
- {
- 	struct inet6_dev *in6_dev = __in6_dev_get(dev);
+@@ -26,6 +27,7 @@ static inline void ref_tracker_dir_init(struct ref_tracker_dir *dir,
+ 	INIT_LIST_HEAD(&dir->quarantine);
+ 	spin_lock_init(&dir->lock);
+ 	dir->quarantine_avail = quarantine_count;
++	dir->dead = false;
+ 	refcount_set(&dir->untracked, 1);
+ 	stack_depot_init();
+ }
+diff --git a/lib/ref_tracker.c b/lib/ref_tracker.c
+index a6789c0c626b..32ff6bd497f8 100644
+--- a/lib/ref_tracker.c
++++ b/lib/ref_tracker.c
+@@ -20,6 +20,7 @@ void ref_tracker_dir_exit(struct ref_tracker_dir *dir)
+ 	unsigned long flags;
+ 	bool leak = false;
  
--	if (in6_dev && in6_dev->cnf.mc_forwarding)
-+	if (in6_dev && atomic_read(&in6_dev->cnf.mc_forwarding))
- 		return BATADV_NO_FLAGS;
- 	else
- 		return BATADV_MCAST_WANT_NO_RTR6;
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index f908e2fd30b2..4df84013c4e6 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -554,7 +554,7 @@ static int inet6_netconf_fill_devconf(struct sk_buff *skb, int ifindex,
- #ifdef CONFIG_IPV6_MROUTE
- 	if ((all || type == NETCONFA_MC_FORWARDING) &&
- 	    nla_put_s32(skb, NETCONFA_MC_FORWARDING,
--			devconf->mc_forwarding) < 0)
-+			atomic_read(&devconf->mc_forwarding)) < 0)
- 		goto nla_put_failure;
- #endif
- 	if ((all || type == NETCONFA_PROXY_NEIGH) &&
-@@ -5539,7 +5539,7 @@ static inline void ipv6_store_devconf(struct ipv6_devconf *cnf,
- 	array[DEVCONF_USE_OPTIMISTIC] = cnf->use_optimistic;
- #endif
- #ifdef CONFIG_IPV6_MROUTE
--	array[DEVCONF_MC_FORWARDING] = cnf->mc_forwarding;
-+	array[DEVCONF_MC_FORWARDING] = atomic_read(&cnf->mc_forwarding);
- #endif
- 	array[DEVCONF_DISABLE_IPV6] = cnf->disable_ipv6;
- 	array[DEVCONF_ACCEPT_DAD] = cnf->accept_dad;
-diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
-index 80256717868e..d4b1e2c5aa76 100644
---- a/net/ipv6/ip6_input.c
-+++ b/net/ipv6/ip6_input.c
-@@ -508,7 +508,7 @@ int ip6_mc_input(struct sk_buff *skb)
- 	/*
- 	 *      IPv6 multicast router mode is now supported ;)
- 	 */
--	if (dev_net(skb->dev)->ipv6.devconf_all->mc_forwarding &&
-+	if (atomic_read(&dev_net(skb->dev)->ipv6.devconf_all->mc_forwarding) &&
- 	    !(ipv6_addr_type(&hdr->daddr) &
- 	      (IPV6_ADDR_LOOPBACK|IPV6_ADDR_LINKLOCAL)) &&
- 	    likely(!(IP6CB(skb)->flags & IP6SKB_FORWARDED))) {
-diff --git a/net/ipv6/ip6mr.c b/net/ipv6/ip6mr.c
-index 8a2db926b5eb..e3c884678dbe 100644
---- a/net/ipv6/ip6mr.c
-+++ b/net/ipv6/ip6mr.c
-@@ -734,7 +734,7 @@ static int mif6_delete(struct mr_table *mrt, int vifi, int notify,
++	dir->dead = true;
+ 	spin_lock_irqsave(&dir->lock, flags);
+ 	list_for_each_entry_safe(tracker, n, &dir->quarantine, head) {
+ 		list_del(&tracker->head);
+@@ -72,6 +73,8 @@ int ref_tracker_alloc(struct ref_tracker_dir *dir,
+ 	gfp_t gfp_mask = gfp;
+ 	unsigned long flags;
  
- 	in6_dev = __in6_dev_get(dev);
- 	if (in6_dev) {
--		in6_dev->cnf.mc_forwarding--;
-+		atomic_dec(&in6_dev->cnf.mc_forwarding);
- 		inet6_netconf_notify_devconf(dev_net(dev), RTM_NEWNETCONF,
- 					     NETCONFA_MC_FORWARDING,
- 					     dev->ifindex, &in6_dev->cnf);
-@@ -902,7 +902,7 @@ static int mif6_add(struct net *net, struct mr_table *mrt,
++	WARN_ON_ONCE(dir->dead);
++
+ 	if (gfp & __GFP_DIRECT_RECLAIM)
+ 		gfp_mask |= __GFP_NOFAIL;
+ 	*trackerp = tracker = kzalloc(sizeof(*tracker), gfp_mask);
+@@ -100,6 +103,8 @@ int ref_tracker_free(struct ref_tracker_dir *dir,
+ 	unsigned int nr_entries;
+ 	unsigned long flags;
  
- 	in6_dev = __in6_dev_get(dev);
- 	if (in6_dev) {
--		in6_dev->cnf.mc_forwarding++;
-+		atomic_inc(&in6_dev->cnf.mc_forwarding);
- 		inet6_netconf_notify_devconf(dev_net(dev), RTM_NEWNETCONF,
- 					     NETCONFA_MC_FORWARDING,
- 					     dev->ifindex, &in6_dev->cnf);
-@@ -1553,7 +1553,7 @@ static int ip6mr_sk_init(struct mr_table *mrt, struct sock *sk)
- 	} else {
- 		rcu_assign_pointer(mrt->mroute_sk, sk);
- 		sock_set_flag(sk, SOCK_RCU_FREE);
--		net->ipv6.devconf_all->mc_forwarding++;
-+		atomic_inc(&net->ipv6.devconf_all->mc_forwarding);
- 	}
- 	write_unlock_bh(&mrt_lock);
- 
-@@ -1586,7 +1586,7 @@ int ip6mr_sk_done(struct sock *sk)
- 			 * so the RCU grace period before sk freeing
- 			 * is guaranteed by sk_destruct()
- 			 */
--			net->ipv6.devconf_all->mc_forwarding--;
-+			atomic_dec(&net->ipv6.devconf_all->mc_forwarding);
- 			write_unlock_bh(&mrt_lock);
- 			inet6_netconf_notify_devconf(net, RTM_NEWNETCONF,
- 						     NETCONFA_MC_FORWARDING,
++	WARN_ON_ONCE(dir->dead);
++
+ 	if (!tracker) {
+ 		refcount_dec(&dir->untracked);
+ 		return -EEXIST;
 -- 
 2.34.1
 
